@@ -5178,6 +5178,10 @@
   "selectImportSharedFolder": {
     "message": "ಹಂಚಿಕೆಯ ಫೋಲ್ಡರ್ ಆಯ್ಕೆಮಾಡಿ"
   },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "ಆಮದು ಮಾಡಿದ ಫೈಲ್ ವಿಷಯಗಳನ್ನು ಸಂಗ್ರಹಕ್ಕೆ ಸರಿಸಲು ನೀವು ಬಯಸಿದರೆ ಈ ಆಯ್ಕೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ"
   },
@@ -7283,11 +7287,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "ನಿಮ್ಮಲ್ಲಿ ಯಾವುದೇ ಫೋಲ್ಡರ್ಗಳಿಲ್ಲ."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "ವಾಲ್ಟ್ ಐಟಂಗಳನ್ನು ಸಂಘಟಿಸಲು ಫೋಲ್ಡರ್ಗಳನ್ನು ಬಳಸಿ. ಅವು ನಿಮಗಾಗಿ ಮಾತ್ರ — ಬೇರೆ ಯಾರೂ ಅವುಗಳನ್ನು ನೋಡುವುದಿಲ್ಲ ಅಥವಾ ಬಳಸುವುದಿಲ್ಲ."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "Bitwarden ಗೆ ಸ್ವಾಗತ"

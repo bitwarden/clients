@@ -5178,6 +5178,10 @@
   "selectImportSharedFolder": {
     "message": "Vybrat sdílenou složku"
   },
+  "importTargetMyFolder": {
+    "message": "Moje složka",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Pokud chcete obsah importovaného souboru přesunout do sbírky, vyberte tuto volbu."
   },
@@ -6083,7 +6087,7 @@
     "message": "Navrhované položky"
   },
   "autofillSuggestionsTip": {
-    "message": "Uložit přihlašovací údaje pro tuto stránku do automatického vyplňování"
+    "message": "Uložte přihlašovací údaje pro tento web, aby se vyplňovaly automaticky"
   },
   "yourVaultIsEmpty": {
     "message": "Váš trezor je prázdný"
@@ -7283,11 +7287,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Nemáte žádné složky."
+  "youHaveNoFoldersV2": {
+    "message": "Nemáte žádné složky"
   },
-  "emptyFoldersDescription": {
-    "message": "Používejte složky k organizaci předmětů v trezoru. Jsou jen pro Vás - nikdo jiný je nebude vidět ani používat."
+  "emptyFoldersDescriptionV2": {
+    "message": "Používejte složky k organizaci položek v trezoru. Jsou jen pro Vás. Nikdo jiný je nebude vidět ani používat."
   },
   "introCarouselLabel": {
     "message": "Vítejte v Bitwardenu"

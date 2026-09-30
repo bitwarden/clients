@@ -5178,6 +5178,10 @@
   "selectImportSharedFolder": {
     "message": "Valitse jaettu kansio"
   },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Valitse tämä vaihtoehto, jos haluat tuodun tiedoston sisällön siirrettävän kokoelmaan"
   },
@@ -7283,11 +7287,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Sinulla ei ole kansioita."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Käytä kansioita holvikohteiden järjestämiseen. Ne on tarkoitettu vain sinulle – kukaan muu ei näe tai käytä niitä."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "Tervetuloa Bitwardeniin"

@@ -5178,6 +5178,10 @@
   "selectImportSharedFolder": {
     "message": "Valige jagatud kaust"
   },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Valige see valik, kui soovite imporditud faili sisu kogusse teisaldada"
   },
@@ -7283,11 +7287,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Teil pole kaustu."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Kasutage kaustu hoidla üksuste korraldamiseks. Need on ainult teie jaoks — keegi teine ei näe ega kasuta neid."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "Tere tulemast Bitwardeni"

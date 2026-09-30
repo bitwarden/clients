@@ -5178,6 +5178,10 @@
   "selectImportSharedFolder": {
     "message": "Vel ei delt mappe"
   },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Vel dette valet dersom du vil at innhaldet i den importerte fila skal flyttast til ei samling"
   },
@@ -7283,11 +7287,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Du har ingen mapper."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Bruk mapper til å organisere kvelvelement. Dei er berre for deg — ingen andre vil sjå eller bruke dei."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "Velkomen til Bitwarden"

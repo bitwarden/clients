@@ -5178,6 +5178,10 @@
   "selectImportSharedFolder": {
     "message": "Pilih folder bersama"
   },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Pilih opsi ini jika Anda ingin konten file yang diimpor dipindahkan ke koleksi"
   },
@@ -7283,11 +7287,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Anda tidak memiliki folder."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Gunakan folder untuk mengatur item vault. Folder hanya untuk Anda — tidak ada orang lain yang akan melihat atau menggunakannya."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "Selamat datang ke Bitwarden"

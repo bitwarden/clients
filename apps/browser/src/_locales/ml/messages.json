@@ -5178,6 +5178,10 @@
   "selectImportSharedFolder": {
     "message": "ഒരു പങ്കിട്ട ഫോൾഡർ തിരഞ്ഞെടുക്കുക"
   },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "ഇമ്പോർട്ട് ചെയ്ത ഫയൽ ഉള്ളടക്കം ഒരു കളക്ഷനിലേക്ക് നീക്കാൻ ആഗ്രഹിക്കുന്നുവെങ്കിൽ ഈ ഓപ്ഷൻ തിരഞ്ഞെടുക്കുക"
   },
@@ -5292,7 +5296,7 @@
     }
   },
   "importHelpCenterInstructions": {
-    "message": "ഞങ്ങളുടെ",
+    "message": "See detailed $NAME$ instructions in our",
     "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
     "placeholders": {
       "name": {
@@ -5302,7 +5306,7 @@
     }
   },
   "importHelpCenterLinkText": {
-    "message": "സഹായ കേന്ദ്രത്തിൽ വിശദമായ $NAME$ നിർദ്ദേശങ്ങൾ കാണുക"
+    "message": "Help Center"
   },
   "importChromiumAliasPreamble": {
     "message": "Google Chrome-ൽ നിന്ന് ഇമ്പോർട്ട് ചെയ്യുന്നതിന് സമാനമാണ് ഈ പ്രക്രിയ.",
@@ -7283,11 +7287,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "നിങ്ങൾക്ക് ഫോൾഡറുകളില്ല."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "വോൾട്ട് ഇനങ്ങൾ ക്രമീകരിക്കാൻ ഫോൾഡറുകൾ ഉപയോഗിക്കുക. അവ നിങ്ങൾക്ക് മാത്രമുള്ളതാണ് — മറ്റാരും അവ കാണുകയോ ഉപയോഗിക്കുകയോ ചെയ്യില്ല."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "Bitwarden-ലേക്ക് സ്വാഗതം"
