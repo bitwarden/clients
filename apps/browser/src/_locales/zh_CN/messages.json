@@ -5178,6 +5178,10 @@
   "selectImportSharedFolder": {
     "message": "选择共享文件夹"
   },
+  "importTargetMyFolder": {
+    "message": "我的文件夹",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "如果希望将导入的文件内容移动到集合中，请选择此选项"
   },
@@ -7283,11 +7287,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "您没有文件夹。"
+  "youHaveNoFoldersV2": {
+    "message": "您没有文件夹"
   },
-  "emptyFoldersDescription": {
-    "message": "使用文件夹来整理密码库项目。这些文件夹仅供您使用 - 其他人无法看到或使用它们。"
+  "emptyFoldersDescriptionV2": {
+    "message": "使用文件夹来整理密码库项目。文件夹只对您可用，其他人无法看到或使用它们。"
   },
   "introCarouselLabel": {
     "message": "欢迎使用 Bitwarden"

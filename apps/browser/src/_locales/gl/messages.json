@@ -5178,6 +5178,10 @@
   "selectImportSharedFolder": {
     "message": "Seleccionar un cartafol compartido"
   },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Selecciona esta opción se queres que o contido do ficheiro importado se mova a unha colección"
   },
@@ -7283,11 +7287,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Non tes cartafoles."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Usa cartafoles para organizar os elementos do cofre. Son só para ti — ninguén máis os verá nin usará."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "Benvido a Bitwarden"

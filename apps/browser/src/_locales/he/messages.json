@@ -5178,6 +5178,10 @@
   "selectImportSharedFolder": {
     "message": "בחר תיקייה משותפת"
   },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "בחר אפשרות זו אם ברצונך שהתוכן של הקובץ המיובא יועבר לאוסף"
   },
@@ -7283,11 +7287,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "אין לך תיקיות."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "השתמש בתיקיות כדי לארגן פריטי כספת. הן רק בשבילך — אף אחד אחר לא יראה או ישתמש בהן."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "ברוך בואך אל Bitwarden"

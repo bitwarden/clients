@@ -5178,6 +5178,10 @@
   "selectImportSharedFolder": {
     "message": "Atlasīt koplietoto mapi"
   },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Šī iespēja jāatlasa, ja ir vēlēšanās ievietotās datnes saturu ievietot krājumā"
   },
@@ -7283,11 +7287,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Jums nav mapju."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Izmantojiet mapes, lai kārtotu glabātavas vienumus. Tās ir tikai jums — neviens cits tās neredzēs vai neizmantos."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "Laipni lūdzam Bitwarden"

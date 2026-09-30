@@ -5178,6 +5178,10 @@
   "selectImportSharedFolder": {
     "message": "ଏକ ସେୟାର କରାଯାଇଥିବା ଫୋଲ୍ଡର ଚୟନ କରନ୍ତୁ"
   },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "ଯଦି ଆପଣ ଆମଦାନି ଫାଇଲ୍ ବିଷୟବସ୍ତୁକୁ ଏକ ସଂଗ୍ରହକୁ ସ୍ଥାନାନ୍ତର କରିବାକୁ ଚାହାଁନ୍ତି ତେବେ ଏହି ବିକଳ୍ପ ଚୟନ କରନ୍ତୁ"
   },
@@ -7283,11 +7287,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "ଆପଣଙ୍କର କୌଣସି ଫୋଲ୍ଡର ନାହିଁ।"
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "ଭଣ୍ଡାର ଆଇଟମଗୁଡ଼ିକୁ ସଂଗଠିତ କରିବାକୁ ଫୋଲ୍ଡର ବ୍ୟବହାର କରନ୍ତୁ। ସେଗୁଡ଼ିକ କେବଳ ଆପଣଙ୍କ ପାଇଁ — ଅନ୍ୟ କେହି ସେଗୁଡ଼ିକ ଦେଖିବେ କିମ୍ବା ବ୍ୟବହାର କରିବେ ନାହିଁ।"
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "Bitwarden କୁ ସ୍ୱାଗତ"

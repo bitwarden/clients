@@ -6,11 +6,11 @@
     "message": "Λογότυπο του Bitwarden"
   },
   "extName": {
-    "message": "Διαχειριστής Κωδικών Πρόσβασης Bitwarden",
+    "message": "Bitwarden - Διαχείριση κωδικών πρόσβασης",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extNameBeta": {
-    "message": "Bitwarden Password Manager Beta",
+    "message": "Bitwarden Beta - Διαχ. κωδικών πρόσβασης",
     "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
@@ -18,7 +18,7 @@
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
-    "message": "Συνδεθείτε ή δημιουργήστε ένα νέο λογαριασμό για να αποκτήσετε πρόσβαση στο ασφαλές vault σας."
+    "message": "Συνδεθείτε ή δημιουργήστε έναν νέο λογαριασμό για να αποκτήσετε πρόσβαση στην ασφαλή θυρίδα σας."
   },
   "inviteAccepted": {
     "message": "Η πρόσκληση έγινε αποδεκτή"
@@ -33,7 +33,7 @@
     "message": "Σύνδεση με κλειδί πρόσβασης"
   },
   "unlockWithPasskey": {
-    "message": "Ξεκλείδωμα με passkey"
+    "message": "Ξεκλείδωμα με κλειδί πρόσβασης"
   },
   "useSingleSignOn": {
     "message": "Χρήση ενιαίας σύνδεσης"
@@ -69,7 +69,7 @@
     "message": "Κύριος κωδικός πρόσβασης"
   },
   "masterPassDesc": {
-    "message": "Ο κύριος κωδικός είναι ο κωδικός που χρησιμοποιείτε για την πρόσβαση στο vault σας. Είναι πολύ σημαντικό να μην ξεχάσετε τον κύριο κωδικό. Δεν υπάρχει τρόπος να ανακτήσετε τον κωδικό σε περίπτωση που τον ξεχάσετε."
+    "message": "Ο κύριος κωδικός πρόσβασης είναι ο κωδικός που χρησιμοποιείτε για την πρόσβαση στη θυρίδα σας. Είναι πολύ σημαντικό να μην τον ξεχάσετε, καθώς δεν υπάρχει κανένας τρόπος να τον ανακτήσετε σε αυτήν την περίπτωση."
   },
   "masterPassHintDesc": {
     "message": "Η υπόδειξη του κύριου κωδικού μπορεί να σας βοηθήσει να θυμηθείτε τον κωδικό σας, σε περίπτωση που τον ξεχάσετε."
@@ -121,16 +121,16 @@
     "message": "Καρτέλα"
   },
   "vault": {
-    "message": "Vault"
+    "message": "Θυρίδα"
   },
   "vaults": {
-    "message": "Θησαυροφυλάκια"
+    "message": "Θυρίδες"
   },
   "myVault": {
-    "message": "Το θησαυ/κιό μου"
+    "message": "Η θυρίδα μου"
   },
   "allVaults": {
-    "message": "Όλα τα θησαυ/κια"
+    "message": "Όλες οι θυρίδες"
   },
   "tools": {
     "message": "Εργαλεία"
@@ -270,10 +270,10 @@
     "message": "Προσθήκη ταυτότητας"
   },
   "unlockVaultMenu": {
-    "message": "Ξεκλειδώστε το vault σας"
+    "message": "Ξεκλείδωμα του θησαυ/κίου σας"
   },
   "loginToVaultMenu": {
-    "message": "Συνδεθείτε στο vault σας"
+    "message": "Συνδεθείτε στο θησαυ/κιό σας"
   },
   "autoFillInfo": {
     "message": "Δεν υπάρχουν διαθέσιμες συνδέσεις για αυτόματη συμπλήρωση στην τρέχουσα καρτέλα του περιηγητή."
@@ -282,7 +282,7 @@
     "message": "Προσθήκη μίας σύνδεσης"
   },
   "addItem": {
-    "message": "Προσθήκη αντικειμένου"
+    "message": "Προσθήκη στοιχείου"
   },
   "accountEmail": {
     "message": "Email λογαριασμού"
@@ -303,7 +303,7 @@
     "message": "Συνέχεια"
   },
   "sendVerificationCode": {
-    "message": "Στείλτε έναν κωδικό επαλήθευσης στο email σας"
+    "message": "Στείλτε έναν κωδικό επαλήθευσης στο ηλ. ταχυδρομείο σας"
   },
   "sendCode": {
     "message": "Αποστολή κωδικού"
@@ -315,10 +315,10 @@
     "message": "Κωδικός επαλήθευσης"
   },
   "confirmIdentity": {
-    "message": "Επιβεβαιώστε την ταυτότητα σας για να συνεχίσετε."
+    "message": "Επιβεβαιώστε την ταυτότητά σας για να συνεχίσετε."
   },
   "changeMasterPassword": {
-    "message": "Αλλαγή Κύριου Κωδικού"
+    "message": "Αλλαγή κύριου κωδικού πρόσβασης"
   },
   "continueToWebApp": {
     "message": "Συνέχεια στη διαδικτυακή εφαρμογή;"
@@ -342,11 +342,11 @@
     "message": "Μπορείτε να αλλάξετε τον κύριο κωδικό πρόσβασής σας στη διαδικτυακή εφαρμογή του Bitwarden."
   },
   "fingerprintPhrase": {
-    "message": "Φράση Δακτυλικών Αποτυπωμάτων",
+    "message": "Φράση δακτυλικού αποτυπώματος",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "yourAccountsFingerprint": {
-    "message": "Η Φράση δακτυλικών αποτυπωμάτων του λογαριασμού σας",
+    "message": "Φράση δακτυλικού αποτυπώματος του λογαριασμού σας",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "twoStepLogin": {
@@ -359,7 +359,7 @@
     "message": "Σχετικά με το Bitwarden"
   },
   "about": {
-    "message": "Σχετικά"
+    "message": "Πληροφορίες"
   },
   "moreFromBitwarden": {
     "message": "Περισσότερα από το Bitwarden"
@@ -368,7 +368,7 @@
     "message": "Συνέχεια στο bitwarden.com;"
   },
   "bitwardenForBusiness": {
-    "message": "Bitwarden για Επιχειρήσεις"
+    "message": "Bitwarden για επιχειρήσεις"
   },
   "bitwardenAuthenticator": {
     "message": "Αυθεντικοποιητής Bitwarden"
@@ -440,7 +440,7 @@
     "message": "Δημιουργήστε φακέλους για να οργανώσετε τα στοιχεία του θησαυ/κίου σας"
   },
   "deleteFolderPermanently": {
-    "message": "Είστε σίγουροι ότι θέλετε να διαγράψετε μόνιμα αυτόν το φάκελο;"
+    "message": "Θέλετε σίγουρα να διαγράψετε οριστικά αυτόν τον φάκελο;"
   },
   "deleteFolder": {
     "message": "Διαγραφή φακέλου"
@@ -455,7 +455,7 @@
     "message": "Δεν υπάρχουν φάκελοι"
   },
   "helpFeedback": {
-    "message": "Βοήθεια & Σχόλια"
+    "message": "Βοήθεια και σχόλια"
   },
   "helpCenter": {
     "message": "Κέντρο Βοήθειας Bitwarden"
@@ -476,7 +476,7 @@
     "message": "Τελευταίος συγχρονισμός:"
   },
   "passGen": {
-    "message": "Γεννήτρια κωδικού πρόσβασης"
+    "message": "Γεννήτρια κωδικών πρόσβασης"
   },
   "generator": {
     "message": "Γεννήτρια",
@@ -659,7 +659,7 @@
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchVault": {
-    "message": "Αναζήτηση στο vault"
+    "message": "Αναζήτηση στη θυρίδα"
   },
   "resetSearch": {
     "message": "Επαναφορά αναζήτησης"
@@ -744,16 +744,16 @@
     "message": "Προβολή σύνδεσης"
   },
   "noItemsInList": {
-    "message": "Δεν υπάρχουν στοιχεία στη λίστα."
+    "message": "Δεν υπάρχουν αντικείμενα για εμφάνιση."
   },
   "itemInformation": {
-    "message": "Πληροφορίες αντικειμένου"
+    "message": "Πληροφορίες στοιχείου"
   },
   "username": {
-    "message": "Όνομα Χρήστη"
+    "message": "Όνομα χρήστη"
   },
   "password": {
-    "message": "Κωδικός"
+    "message": "Κωδικός πρόσβασης"
   },
   "totp": {
     "message": "Μυστικό αυθεντικοποίησης"
@@ -783,7 +783,7 @@
     "message": "Σημείωση"
   },
   "editItem": {
-    "message": "Επεξεργασία αντικειμένου"
+    "message": "Επεξεργασία στοιχείου"
   },
   "folder": {
     "message": "Φάκελος"
@@ -792,13 +792,13 @@
     "message": "Διαγραφή στοιχείου"
   },
   "viewItem": {
-    "message": "Προβολή αντικειμένου"
+    "message": "Προβολή στοιχείου"
   },
   "launch": {
     "message": "Εκκίνηση"
   },
   "launchWebsite": {
-    "message": "Εκκίνηση ιστοσελίδας"
+    "message": "Άνοιγμα ιστοτόπου"
   },
   "launchWebsiteForName": {
     "message": "Άνοιγμα ιστότοπου για $ITEMNAME$",
@@ -810,7 +810,7 @@
     }
   },
   "website": {
-    "message": "Ιστοσελίδα"
+    "message": "Ιστότοπος"
   },
   "toggleVisibility": {
     "message": "Εναλλαγή ορατότητας"
@@ -865,10 +865,10 @@
     "message": "Συνέχεια σύνδεσης"
   },
   "yourVaultIsLocked": {
-    "message": "Το vault σας είναι κλειδωμένο. Επαληθεύστε τον κύριο κωδικό πρόσβασης για να συνεχίσετε."
+    "message": "Η θυρίδα σας είναι κλειδωμένη. Επαληθεύστε την ταυτότητά σας για να συνεχίσετε."
   },
   "yourVaultIsLockedV2": {
-    "message": "Η κρύπτη σας έχει κλειδωθεί"
+    "message": "Η θυρίδα σας έχει κλειδωθεί"
   },
   "yourAccountIsLocked": {
     "message": "Ο λογαριασμός σας έχει κλειδωθεί"
@@ -911,7 +911,7 @@
     "message": "Λήξη χρονικού ορίου"
   },
   "lockNow": {
-    "message": "Κλείδωμα Τώρα"
+    "message": "Κλείδωμα τώρα"
   },
   "lockAll": {
     "message": "Κλείδωμα όλων"
@@ -983,10 +983,10 @@
     "message": "Παρουσιάστηκε σφάλμα"
   },
   "emailRequired": {
-    "message": "Απαιτείται διεύθυνση e-mail."
+    "message": "Απαιτείται διεύθυνση ηλ. ταχυδρομείου."
   },
   "invalidEmail": {
-    "message": "Μη έγκυρη διεύθυνση e-mail."
+    "message": "Μη έγκυρη διεύθυνση ηλ. ταχυδρομείου."
   },
   "masterPasswordRequired": {
     "message": "Απαιτείται κύριος κωδικός πρόσβασης."
@@ -1265,7 +1265,7 @@
     "message": "Αποθήκευση στις επιλογές θησαυ/κίου"
   },
   "addLoginNotificationDesc": {
-    "message": "Η \"Προσθήκη Ειδοποίησης Σύνδεσης\" σας προτρέπει αυτόματα να αποθηκεύσετε νέες συνδέσεις στο vault σας κάθε φορά που θα συνδεθείτε για πρώτη φορά."
+    "message": "Ερώτηση για προσθήκη ενός στοιχείου αν δεν εντοπιστεί κάποιο στη θυρίδα σας."
   },
   "addLoginNotificationDescAlt": {
     "message": "Ζητήστε να προσθέσετε ένα αντικείμενο αν δε βρεθεί στο θησαυ/κιό σας. Ισχύει για όλους τους συνδεδεμένους λογαριασμούς."
@@ -1315,7 +1315,7 @@
     "message": "Πρέπει το Bitwarden να θυμάται αυτόν τον κωδικό πρόσβασης για εσάς;"
   },
   "notificationAddSave": {
-    "message": "Ναι, Αποθήκευση Τώρα"
+    "message": "Αποθήκευση"
   },
   "notificationViewAria": {
     "message": "Προβολή $ITEMNAME$, ανοίγει σε νέο παράθυρο",
@@ -1453,7 +1453,7 @@
     "message": "Θέλετε να ενημερώσετε αυτό τον κωδικό στο Bitwarden ;"
   },
   "notificationChangeSave": {
-    "message": "Ναι, Ενημέρωση Τώρα"
+    "message": "Ενημέρωση"
   },
   "notificationUnlockDesc": {
     "message": "Ξεκλειδώστε το θησαυ/κιο Bitwarden σας για να ολοκληρώσετε το αίτημα αυτόματης πλήρωσης."
@@ -1514,11 +1514,11 @@
     "message": "Αλλαγή του χρωματικού θέματος της εφαρμογής. Ισχύει για όλους τους συνδεδεμένους λογαριασμούς."
   },
   "dark": {
-    "message": "Σκοτεινό",
+    "message": "Σκουρόχρωμο",
     "description": "Dark color"
   },
   "light": {
-    "message": "Φωτεινό",
+    "message": "Ανοιχτόχρωμο",
     "description": "Light color"
   },
   "exportFrom": {
@@ -1578,7 +1578,7 @@
     "message": "Εισαγωγή στοιχείων"
   },
   "fileFormat": {
-    "message": "Τύπος αρχείου"
+    "message": "Μορφή αρχείου"
   },
   "fileEncryptedExportWarningDesc": {
     "message": "Αυτή η εξαγωγή αρχείου θα προστατεύεται με κωδικό πρόσβασης και θα απαιτείται ο κωδικός πρόσβασης του αρχείου για αποκρυπτογράφηση."
@@ -1599,7 +1599,7 @@
     "message": "Τύπος εξαγωγής"
   },
   "accountRestricted": {
-    "message": "Περιορισμένο στο λογαριασμό"
+    "message": "Περιορισμένο στον λογαριασμό"
   },
   "filePasswordConfirmationMismatch": {
     "message": "Ο «Κωδικός πρόσβασης αρχείου» και η «Επιβεβαίωση κωδικού πρόσβασης αρχείου» δεν ταιριάζουν."
@@ -1625,7 +1625,7 @@
     "message": "Τα κλειδιά κρυπτογράφησης λογαριασμού είναι μοναδικά για κάθε λογαριασμό χρήστη Bitwarden, οπότε δεν μπορείτε να εισάγετε μια κρυπτογραφημένη εξαγωγή σε διαφορετικό λογαριασμό."
   },
   "exportMasterPassword": {
-    "message": "Πληκτρολογήστε τον κύριο κωδικό για εξαγωγή δεδομένων vault."
+    "message": "Πληκτρολογήστε τον κύριο κωδικό πρόσβασής σας για εξαγωγή των δεδομένων της θυρίδας σας."
   },
   "shared": {
     "message": "Κοινοποιήθηκε"
@@ -1782,7 +1782,7 @@
     "message": "Διαχείριση συνδρομής"
   },
   "premiumManageAlert": {
-    "message": "Μπορείτε να διαχειριστείτε την ιδιότητά σας ως μέλος στο bitwarden.com web vault. Θέλετε να επισκεφθείτε την ιστοσελίδα τώρα;"
+    "message": "Μπορείτε να διαχειριστείτε τη συνδρομή σας στη διαδικτυακή θυρίδα του bitwarden.com. Θέλετε να επισκεφθείτε τον ιστότοπο τώρα;"
   },
   "premiumRefresh": {
     "message": "Ανανέωση συνδρομής"
@@ -1827,7 +1827,7 @@
     "message": "Όλες οι μελλοντικές λειτουργίες Premium. Περισσότερα έρχονται σύντομα!"
   },
   "premiumPurchase": {
-    "message": "Αγορά Premium έκδοσης"
+    "message": "Αγορά έκδοσης Premium"
   },
   "premiumPurchaseAlertV2": {
     "message": "Μπορείτε να αγοράσετε το Premium από τις ρυθμίσεις του λογαριασμού σας στην διαδικτυακή εφαρμογή Bitwarden."
@@ -1872,7 +1872,7 @@
     "message": "Λήξη χρονικού ορίου συνεδρίας επαλήθευσης. Παρακαλώ επανεκκινήστε τη διαδικασία σύνδεσης."
   },
   "verificationCodeEmailSent": {
-    "message": "Εστάλη email επαλήθευσης στο $EMAIL$.",
+    "message": "Εστάλη μήνυμα επαλήθευσης στο $EMAIL$.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1960,7 +1960,7 @@
     "message": "Χρησιμοποιήστε οποιοδήποτε κλειδί ασφαλείας συμβατό με το WebAuthn για να αποκτήσετε πρόσβαση στον λογαριασμό σας."
   },
   "emailTitle": {
-    "message": "Email"
+    "message": "Ηλ. ταχυδρομείο"
   },
   "emailDescV2": {
     "message": "Εισάγετε τον κωδικό που σας στάλθηκε στο ηλ. ταχυδρομείο."
@@ -1984,7 +1984,7 @@
     "message": "Προσαρμοσμένο περιβάλλον"
   },
   "baseUrl": {
-    "message": "URL Διακομιστή"
+    "message": "URL διακομιστή"
   },
   "selfHostBaseUrl": {
     "message": "Διεύθυνση URL διακομιστή αυτοεξυπηρετητή",
@@ -2160,10 +2160,10 @@
     "message": "Μη συμπληρώνεις αυτόματα κατά τη φόρτωση της σελίδας"
   },
   "commandOpenPopup": {
-    "message": "Άνοιγμα αναδυόμενου vault"
+    "message": "Άνοιγμα θυρίδας σε αναδυόμενο παράθυρο"
   },
   "commandOpenSidebar": {
-    "message": "Άνοιγμα αναδυόμενου vault στην πλευρική μπάρα"
+    "message": "Άνοιγμα θυρίδας σε πλαϊνή στήλη"
   },
   "commandAutofillLoginDesc": {
     "message": "Αυτόματη συμπλήρωση της τελευταίας σύνδεσης που χρησιμοποιήθηκε για τον τρέχοντα ιστότοπο"
@@ -2178,7 +2178,7 @@
     "message": "Δημιουργήστε και αντιγράψτε έναν νέο τυχαίο κωδικό πρόσβασης στο πρόχειρο"
   },
   "commandLockVaultDesc": {
-    "message": "Κλειδώστε το vault"
+    "message": "Κλείδωμα της θυρίδας"
   },
   "customFields": {
     "message": "Προσαρμοσμένα πεδία"
@@ -2219,7 +2219,7 @@
     "description": "This describes a value that is 'linked' (tied) to another value."
   },
   "popup2faCloseMessage": {
-    "message": "Εάν κάνετε κλικ έξω από το αναδυόμενο παράθυρο για να ελέγξετε το email για κωδικό επαλήθευσης, το αναδυόμενο παράθυρο θα κλείσει. Θέλετε να ανοίξετε αυτό το αναδυόμενο σε νέο παράθυρο ώστε να μην κλείνει;"
+    "message": "Εάν κάνετε κλικ έξω από το αναδυόμενο παράθυρο για να ελέγξετε το ηλ. ταχυδρομείο σας για κωδικό επαλήθευσης, το αναδυόμενο παράθυρο θα κλείσει. Θέλετε να ανοίξετε αυτό το αναδυόμενο σε νέο παράθυρο ώστε να μην κλείνει;"
   },
   "showIconsChangePasswordUrls": {
     "message": "Εμφάνιση εικονιδίων ιστότοπου και ανάκτηση URL αλλαγής κωδικού πρόσβασης"
@@ -2306,7 +2306,7 @@
     "message": "Κωδικός ασφαλείας"
   },
   "ex": {
-    "message": "πχ."
+    "message": "π.χ."
   },
   "title": {
     "message": "Τίτλος"
@@ -2321,7 +2321,7 @@
     "message": "Κα"
   },
   "dr": {
-    "message": "Dr"
+    "message": "Δρ"
   },
   "mx": {
     "message": "Κ"
@@ -2333,7 +2333,7 @@
     "message": "Μεσαίο όνομα"
   },
   "lastName": {
-    "message": "Επίθετο"
+    "message": "Επώνυμο"
   },
   "fullName": {
     "message": "Ονοματεπώνυμο"
@@ -2977,7 +2977,7 @@
     "message": "Τύποι"
   },
   "allItems": {
-    "message": "Όλα τα αντικείμενα"
+    "message": "Όλα τα στοιχεία"
   },
   "noPasswordsInList": {
     "message": "Δεν υπάρχουν κωδικοί στη λίστα."
@@ -3122,7 +3122,7 @@
     "message": "Κλώνος"
   },
   "passwordGenerator": {
-    "message": "Γεννήτρια κωδικού πρόσβασης"
+    "message": "Γεννήτρια κωδικών πρόσβασης"
   },
   "usernameGenerator": {
     "message": "Γεννήτρια ονόματος χρήστη"
@@ -3183,7 +3183,7 @@
     "message": "Το αρχειοθετημένο στοιχείο επαναφέρθηκε"
   },
   "restoreItem": {
-    "message": "Επαναφορά αντικειμένου"
+    "message": "Ανάκτηση στοιχείου"
   },
   "restoredItem": {
     "message": "Το αντικείμενο επαναφέρθηκε"
@@ -3309,7 +3309,7 @@
     "message": "Όροι Χρήσης"
   },
   "privacyPolicy": {
-    "message": "Πολιτική Απορρήτου"
+    "message": "Πολιτική απορρήτου"
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Ο νέος κωδικός πρόσβασής σας δεν μπορεί να είναι ίδιος με τον τρέχοντα κωδικό πρόσβασής σας."
@@ -3430,7 +3430,7 @@
     "message": "Μάθετε περισσότερα για τους αποκλεισμένους τομείς"
   },
   "excludedDomains": {
-    "message": "Εξαιρούμενοι Τομείς"
+    "message": "Εξαιρούμενοι τομείς"
   },
   "excludedDomainsDesc": {
     "message": "Το Bitwarden δεν θα ζητήσει να αποθηκεύσετε τα στοιχεία σύνδεσης για αυτούς τους τομείς. Πρέπει να ανανεώσετε τη σελίδα για να τεθούν σε ισχύ οι αλλαγές."
@@ -3878,7 +3878,7 @@
     "message": "Η διεύθυνση ηλ. ταχυδρομείου επιβεβαιώθηκε"
   },
   "emailVerificationRequiredDesc": {
-    "message": "Πρέπει να επαληθεύσετε το email σας για να χρησιμοποιήσετε αυτή τη δυνατότητα. Μπορείτε να επαληθεύσετε το email σας στο web vault."
+    "message": "Πρέπει να επαληθεύσετε τη διεύθυνση ηλ. ταχυδρομείου σας για να χρησιμοποιήσετε αυτή τη λειτουργία. Μπορείτε να επαληθεύσετε τη διεύθυνσή σας στο διαδικτυακό θησαυ/κιο."
   },
   "masterPasswordSuccessfullySet": {
     "message": "Ο κύριος κωδικός πρόσβασης ορίστηκε με επιτυχία"
@@ -4161,13 +4161,13 @@
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
   },
   "plusAddressedEmailDesc": {
-    "message": "Χρησιμοποιήστε τις δυνατότητες δευτερεύουσας διεύθυνσης του παρόχου email σας."
+    "message": "Χρησιμοποιήστε τις δυνατότητες δευτερεύουσας διεύθυνσης του παρόχου του ηλ. ταχυδρομείου σας."
   },
   "catchallEmail": {
     "message": "Διεύθυνση ηλ. ταχυδρομείου κάθε σκοπού"
   },
   "catchallEmailDesc": {
-    "message": "Χρησιμοποιήστε τα διαμορφωμένα εισερχόμενα catch-all του domain σας."
+    "message": "Χρησιμοποιήστε τα διαμορφωμένα εισερχόμενα κάθε σκοπού του τομέα σας."
   },
   "random": {
     "message": "Τυχαίο"
@@ -4176,7 +4176,7 @@
     "message": "Τυχαία λέξη"
   },
   "websiteName": {
-    "message": "Όνομα ιστοσελίδας"
+    "message": "Όνομα ιστοτόπου"
   },
   "service": {
     "message": "Υπηρεσία"
@@ -4185,7 +4185,7 @@
     "message": "Προωθημένο ψευδώνυμο διεύθυνσης ηλ. ταχυδρομείου"
   },
   "forwardedEmailDesc": {
-    "message": "Δημιουργήστε ένα alias email με μια εξωτερική υπηρεσία προώθησης."
+    "message": "Δημιουργήστε ένα ψευδώνυμο διεύθυνσης ηλ. ταχυδρομείου με μια εξωτερική υπηρεσία προώθησης."
   },
   "forwarderDomainName": {
     "message": "Τομέας ηλ. ταχυδρομείου",
@@ -5178,6 +5178,10 @@
   "selectImportSharedFolder": {
     "message": "Επιλέξτε κοινόχρηστο φάκελο"
   },
+  "importTargetMyFolder": {
+    "message": "Ο φάκελός μου",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Επιλέξτε αυτήν την επιλογή εάν θέλετε τα περιεχόμενα του εισαγόμενου αρχείου να μετακινηθούν σε συλλογή"
   },
@@ -5721,7 +5725,7 @@
     "message": "CSV"
   },
   "json": {
-    "message": "Json"
+    "message": "JSON"
   },
   "ssoAuthRequired": {
     "message": "Απαιτείται έλεγχος ταυτότητας SSO"
@@ -5868,16 +5872,16 @@
     "message": "Ο λογαριασμός σας Keeper απαιτεί μέθοδο ελέγχου ταυτότητας δύο παραγόντων που δεν υποστηρίζεται αυτήν τη στιγμή από τον άμεσο εισαγωγέα."
   },
   "switchAccount": {
-    "message": "Αλλαγή λογαριασμού"
+    "message": "Εναλλαγή λογαριασμού"
   },
   "switchAccounts": {
-    "message": "Αλλαγή λογαριασμών"
+    "message": "Εναλλαγή λογαριασμών"
   },
   "switchVault": {
-    "message": "Εναλλαγή θησαυροφυλακίου"
+    "message": "Εναλλαγή θυρίδας"
   },
   "switchToAccount": {
-    "message": "Αλλαγή σε λογαριασμό"
+    "message": "Εναλλαγή σε λογαριασμό"
   },
   "activeAccount": {
     "message": "Ενεργός λογαριασμός"
@@ -6068,7 +6072,7 @@
     "message": "Αφαίρεση κλειδιού πρόσβασης"
   },
   "deletePasskey": {
-    "message": "Διαγραφή passkey"
+    "message": "Διαγραφή κλειδιού πρόσβασης"
   },
   "deletePasskeyConfirmation": {
     "message": "Αυτό το passkey θα διαγραφεί οριστικά από το στοιχείο σύνδεσής σας. Αυτό δεν μπορεί να αναιρεθεί."
@@ -6200,7 +6204,7 @@
     "message": "Τα στοιχεία μου"
   },
   "adminConsole": {
-    "message": "Κονσόλα Διαχειριστή"
+    "message": "Κονσόλα διαχειριστή"
   },
   "admin": {
     "message": "Διαχειριστής"
@@ -6316,13 +6320,13 @@
     }
   },
   "itemsWithNoFolder": {
-    "message": "Αντικείμενα χωρίς φάκελο"
+    "message": "Στοιχεία χωρίς φάκελο"
   },
   "itemDetails": {
-    "message": "Λεπτομέρειες αντικειμένου"
+    "message": "Λεπτομέρειες στοιχείου"
   },
   "itemName": {
-    "message": "Όνομα αντικειμένου"
+    "message": "Όνομα στοιχείου"
   },
   "organizationIsDeactivated": {
     "message": "Ο οργανισμός απενεργοποιήθηκε"
@@ -6398,7 +6402,7 @@
     "message": "Ιστορικό αντικειμένων"
   },
   "lastEdited": {
-    "message": "Τελευταία τροποποίηση"
+    "message": "Τελευταία επεξεργασία"
   },
   "ownerYou": {
     "message": "Ιδιοκτήτης: Εσείς"
@@ -6528,10 +6532,10 @@
     "message": "Επιλογές αυτόματης συμπλήρωσης"
   },
   "websiteUri": {
-    "message": "Ιστοσελίδα (URI)"
+    "message": "Ιστότοπος (URI)"
   },
   "websiteUriCount": {
-    "message": "Ιστοσελίδα (URI) $COUNT$",
+    "message": "Ιστότοπος (URI) $COUNT$",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -6557,7 +6561,7 @@
     "message": "Η ιστοσελίδα προστέθηκε"
   },
   "addWebsite": {
-    "message": "Προσθήκη ιστοσελίδας"
+    "message": "Προσθήκη ιστοτόπου"
   },
   "addWebsiteOrApp": {
     "message": "Προσθήκη ιστότοπου ή εφαρμογής"
@@ -6566,7 +6570,7 @@
     "message": "Εφαρμογή"
   },
   "deleteWebsite": {
-    "message": "Διαγραφή ιστοσελίδας"
+    "message": "Διαγραφή ιστοτόπου"
   },
   "defaultLabel": {
     "message": "Προεπιλογή ($VALUE$)",
@@ -7283,11 +7287,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Δεν έχετε φακέλους."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Χρησιμοποιήστε φακέλους για να οργανώσετε στοιχεία θησαυροφυλακίου. Είναι μόνο για εσάς — κανείς άλλος δεν θα τους δει ή δεν θα τους χρησιμοποιήσει."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "Καλώς ορίσατε στο Bitwarden"

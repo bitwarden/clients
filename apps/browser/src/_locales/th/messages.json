@@ -5178,6 +5178,10 @@
   "selectImportSharedFolder": {
     "message": "เลือกโฟลเดอร์ที่แชร์"
   },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "เลือกตัวเลือกนี้หากต้องการย้ายเนื้อหาไฟล์ที่นำเข้าไปยังคอลเลกชัน"
   },
@@ -7283,11 +7287,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "คุณไม่มีโฟลเดอร์"
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "ใช้โฟลเดอร์เพื่อจัดระเบียบรายการคลังรหัส โฟลเดอร์เหล่านี้มีไว้สำหรับคุณเท่านั้น — ไม่มีใครอื่นจะเห็นหรือใช้"
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "ยินดีต้อนรับสู่ Bitwarden"
