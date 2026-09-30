@@ -49,7 +49,7 @@ import { LayoutComponent, StorybookGlobalStateProvider, ToastService } from "@bi
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
-import { RoutedVaultFilterService, PasswordRepromptService } from "@bitwarden/vault";
+import { PasswordRepromptService, VaultBatchBarService } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
@@ -155,17 +155,6 @@ export default {
           },
         },
         {
-          provide: RoutedVaultFilterService,
-          useValue: {
-            filter$: of({
-              organizationId: null,
-              collectionId: null,
-              folderId: null,
-              type: null,
-            }),
-          },
-        },
-        {
           provide: AccountService,
           useValue: {
             async getAccount() {
@@ -204,6 +193,20 @@ export default {
           useValue: () => {},
         },
         { provide: ShareLinkService, useValue: { cipherCanBeShared$: () => of(false) } },
+        {
+          provide: VaultBatchBarService,
+          useValue: {
+            barVisible: () => false,
+            selection: {
+              hasValue: () => false,
+              isSelected: () => false,
+              toggle: () => {},
+              clear: () => {},
+              select: () => {},
+              selected: [],
+            },
+          },
+        },
       ],
     }),
     applicationConfig({
@@ -267,8 +270,6 @@ export const Individual: Story = {
     showOwner: true,
     showCollections: false,
     showGroups: false,
-    showBulkMove: true,
-    showBulkTrashOptions: false,
     useEvents: false,
   },
 };
@@ -281,8 +282,6 @@ export const IndividualDisabled: Story = {
     showOwner: true,
     showCollections: false,
     showGroups: false,
-    showBulkMove: true,
-    showBulkTrashOptions: false,
     useEvents: false,
   },
 };
@@ -294,8 +293,6 @@ export const IndividualTrash: Story = {
     showOwner: true,
     showCollections: false,
     showGroups: false,
-    showBulkMove: false,
-    showBulkTrashOptions: true,
     useEvents: false,
   },
 };
@@ -307,8 +304,6 @@ export const IndividualTopLevelCollection: Story = {
     showOwner: true,
     showCollections: false,
     showGroups: false,
-    showBulkMove: false,
-    showBulkTrashOptions: false,
     useEvents: false,
   },
 };
@@ -320,8 +315,6 @@ export const IndividualSecondLevelCollection: Story = {
     showOwner: true,
     showCollections: false,
     showGroups: false,
-    showBulkMove: true,
-    showBulkTrashOptions: false,
     useEvents: false,
   },
 };
@@ -333,8 +326,6 @@ export const OrganizationVault: Story = {
     showOwner: false,
     showCollections: true,
     showGroups: false,
-    showBulkMove: false,
-    showBulkTrashOptions: false,
     useEvents: true,
   },
 };
@@ -346,8 +337,6 @@ export const OrganizationTrash: Story = {
     showOwner: false,
     showCollections: true,
     showGroups: false,
-    showBulkMove: false,
-    showBulkTrashOptions: true,
     useEvents: true,
   },
 };
@@ -364,8 +353,6 @@ export const OrganizationTopLevelCollection: Story = {
     showOwner: false,
     showCollections: false,
     showGroups: true,
-    showBulkMove: false,
-    showBulkTrashOptions: false,
     useEvents: true,
   },
 };
@@ -377,8 +364,6 @@ export const OrganizationSecondLevelCollection: Story = {
     showOwner: false,
     showCollections: false,
     showGroups: true,
-    showBulkMove: false,
-    showBulkTrashOptions: false,
     useEvents: true,
   },
 };

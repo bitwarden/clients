@@ -197,25 +197,7 @@ describe("VaultCipherRowComponent", () => {
       fixture.componentRef.setInput("disabled", false);
     });
 
-    it("does not render when showBatchBar is false", () => {
-      fixture.componentRef.setInput("showBatchBar", false);
-
-      fixture.detectChanges();
-
-      expect(fixture.nativeElement.querySelector('input[type="checkbox"]')).toBeNull();
-    });
-
-    it("renders when showBatchBar is true", () => {
-      fixture.componentRef.setInput("showBatchBar", true);
-
-      fixture.detectChanges();
-
-      expect(fixture.nativeElement.querySelector('input[type="checkbox"]')).not.toBeNull();
-    });
-
     it("sets aria-label to the cipher name", () => {
-      fixture.componentRef.setInput("showBatchBar", true);
-
       fixture.detectChanges();
 
       const checkbox = fixture.nativeElement.querySelector(
@@ -226,7 +208,6 @@ describe("VaultCipherRowComponent", () => {
     });
 
     it("reflects the selected state on the checkbox", () => {
-      fixture.componentRef.setInput("showBatchBar", true);
       fixture.componentRef.setInput("selected", true);
 
       fixture.detectChanges();
@@ -238,8 +219,6 @@ describe("VaultCipherRowComponent", () => {
     });
 
     it("emits checkboxChange when the checkbox changes", () => {
-      fixture.componentRef.setInput("showBatchBar", true);
-
       fixture.detectChanges();
 
       const spy = jest.spyOn((fixture.componentInstance as any).checkboxChange, "emit");

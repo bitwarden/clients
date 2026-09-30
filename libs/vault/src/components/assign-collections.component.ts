@@ -45,8 +45,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -303,7 +301,6 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     private formBuilder: FormBuilder,
     private toastService: ToastService,
     private accountService: AccountService,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -406,24 +403,11 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
         ? this.updateAssignedCollections(this.editableItems[0], activeUserId)
         : this.bulkUpdateCollections(cipherIds, activeUserId));
 
-      const batchBarEnabled = await this.configService.getFeatureFlag(
-        FeatureFlag.PM37785_VaultBatchBar,
-      );
       const selectedCollectionsCount = this.formGroup.controls.collections.value.length;
       const ciphersCount = this.params.ciphers.length;
-      let assignedMessageKey: string;
-
-      if (batchBarEnabled) {
-        assignedMessageKey = this.collectionAssignmentToastKey(
-          ciphersCount,
-          selectedCollectionsCount,
-        );
-      } else {
-        assignedMessageKey = this.vfo1TerminologyService.enabled()
-          ? "successfullyAddedSharedFolders"
-          : "successfullyAssignedCollections";
-      }
-      const assignedMessage = this.i18nService.t(assignedMessageKey);
+      const assignedMessage = this.i18nService.t(
+        this.collectionAssignmentToastKey(ciphersCount, selectedCollectionsCount),
+      );
 
       this.toastService.showToast({
         variant: "success",
@@ -657,31 +641,13 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       userId,
     );
 
-    const batchBarEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM37785_VaultBatchBar,
-    );
-
-    if (batchBarEnabled) {
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t(
-          this.collectionAssignmentToastKey(shareableCiphers.length, selectedCollectionIds.length),
-        ),
-      });
-    } else {
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t(
-          shareableCiphers.length === 1 ? "itemMovedToOrg" : "itemsMovedToOrg",
-          this.orgName ??
-            (this.vfo1TerminologyService.enabled()
-              ? this.i18nService.t("vault")
-              : this.i18nService.t("organization")),
-        ),
-      });
-    }
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t(
+        this.collectionAssignmentToastKey(shareableCiphers.length, selectedCollectionIds.length),
+      ),
+    });
   }
 
   private async bulkUpdateCollections(cipherIds: CipherId[], userId: UserId) {

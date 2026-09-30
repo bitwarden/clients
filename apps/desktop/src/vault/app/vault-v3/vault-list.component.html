@@ -22,18 +22,16 @@
     <bit-table [dataSource]="dataSource" layout="fixed">
       <ng-container header>
         <tr>
-          @if (showBatchBar()) {
-            <th bitCell class="tw-w-10 tw-whitespace-nowrap">
-              <input
-                type="checkbox"
-                bitCheckbox
-                [disabled]="disabled() || isEmpty()"
-                (change)="toggleAll()"
-                [checked]="selection.hasValue() && isAllSelected"
-                [attr.aria-label]="'selectAll' | i18n"
-              />
-            </th>
-          }
+          <th bitCell class="tw-w-10 tw-whitespace-nowrap">
+            <input
+              type="checkbox"
+              bitCheckbox
+              [disabled]="disabled() || isEmpty()"
+              (change)="toggleAll()"
+              [checked]="selection.hasValue() && isAllSelected"
+              [attr.aria-label]="'selectAll' | i18n"
+            />
+          </th>
           <!--
             Owner and Options are sized in px so they keep room for their fixed-size contents as
             the window shrinks; Name is the flexible column that absorbs the remainder and
@@ -71,7 +69,6 @@
               [collection]="item.collection"
               [showOwner]="showOwner()"
               [organizations]="allOrganizations()"
-              [showBatchBar]="showBatchBar()"
               [selected]="selection.isSelected(item)"
               (checkboxChange)="selection.toggle(item)"
             ></tr>
@@ -94,7 +91,6 @@
               (onEvent)="event($event)"
               [userCanArchive]="userCanArchive()"
               [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy()"
-              [showBatchBar]="showBatchBar()"
               [selected]="selection.isSelected(item)"
               (checkboxChange)="selection.toggle(item)"
             ></tr>
