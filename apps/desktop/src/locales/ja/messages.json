@@ -4627,7 +4627,11 @@
     "message": "コレクションを選択"
   },
   "selectImportSharedFolder": {
-    "message": "Select a shared folder"
+    "message": "共有フォルダーを選択"
+  },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "インポートしたファイルコンテンツをコレクションに移動したい場合は、このオプションを選択してください"
@@ -4636,7 +4640,7 @@
     "message": "インポートしたファイルコンテンツをフォルダーに移動したい場合は、このオプションを選択してください"
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "インポートしたファイルコンテンツを共有フォルダーに移動したい場合は、このオプションを選択してください"
   },
   "importUnassignedItemsError": {
     "message": "割り当てられていないアイテムがファイルに含まれています。"
@@ -4648,28 +4652,28 @@
     "message": "インポートするファイルを選択"
   },
   "importSourceBreadcrumb": {
-    "message": "Select source"
+    "message": "ソースを選択"
   },
   "importSourceSelectTitle": {
-    "message": "Select your source"
+    "message": "ソースを選択してください"
   },
   "importSourceSelectDescription": {
-    "message": "Choose the password manager or browser you are importing from."
+    "message": "インポート元のパスワードマネージャーまたはブラウザーを選択してください。"
   },
   "importSourceBrowsers": {
-    "message": "Browsers"
+    "message": "ブラウザー"
   },
   "importSourcePasswordManagers": {
-    "message": "Password managers"
+    "message": "パスワードマネージャー"
   },
   "importSourceShowAll": {
-    "message": "Show all"
+    "message": "すべて表示"
   },
   "importSourceShowLess": {
-    "message": "Show less"
+    "message": "一部のみ表示"
   },
   "importSourceStepCount": {
-    "message": "Step $CURRENT$ of $TOTAL$",
+    "message": "ステップ $CURRENT$ / $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -6407,11 +6411,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "フォルダーがありません。"
+  "youHaveNoFoldersV2": {
+    "message": "フォルダーがありません"
   },
-  "emptyFoldersDescription": {
-    "message": "フォルダーを使用して保管庫アイテムを整理します。フォルダーはあなた専用で、他の誰も表示したり使用したりしません。"
+  "emptyFoldersDescriptionV2": {
+    "message": "フォルダーを使用して保管庫アイテムを整理できます。フォルダーはあなた専用で、他の誰も表示したり使用したりしません。"
   },
   "emptyVaultsDescription": {
     "message": "ログイン、ID、カード、その他のアイテムを追加して開始します。"

@@ -4629,6 +4629,10 @@
   "selectImportSharedFolder": {
     "message": "Wähle einen geteilten Ordner aus"
   },
+  "importTargetMyFolder": {
+    "message": "Mein Ordner",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Wähle diese Option, wenn der importierte Dateiinhalt in eine Sammlung verschoben werden soll"
   },
@@ -6407,11 +6411,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Du hast keine Ordner."
+  "youHaveNoFoldersV2": {
+    "message": "Du hast keine Ordner"
   },
-  "emptyFoldersDescription": {
-    "message": "Verwende Ordner, um Tresor-Einträge zu organisieren. Diese sind nur für dich bestimmt – niemand sonst kann sie sehen oder nutzen."
+  "emptyFoldersDescriptionV2": {
+    "message": "Verwende Ordner um Tresorelemente zu organisieren. Sie sind nur für dich. Niemand sonst wird sie sehen oder verwenden."
   },
   "emptyVaultsDescription": {
     "message": "Füge Zugangsdaten, Identitäten, Karten und andere Einträge hinzu, um loszulegen."
