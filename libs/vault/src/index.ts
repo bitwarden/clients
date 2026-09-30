@@ -132,7 +132,10 @@ export {
   VAULT_CONTROLLED_ACCESS_FILTER,
   VaultControlledAccessFilter,
 } from "./tokens/vault-controlled-access-filter.token";
-export type { ControlledAccessFilterOption } from "./tokens/vault-controlled-access-filter.token";
+export type {
+  ControlledAccessEmptyState,
+  ControlledAccessFilterOption,
+} from "./tokens/vault-controlled-access-filter.token";
 
 export {
   COLLECTION_DIALOG,
