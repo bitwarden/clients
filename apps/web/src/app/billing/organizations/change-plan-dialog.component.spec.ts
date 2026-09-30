@@ -11,6 +11,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/models/request/organization-upgrade.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -443,10 +444,13 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       expect((component as any).isSubmitDisabled).toBe(true);
     });
 
-    it("surfaces the error state (spinner shown, submit disabled) when the preview request fails", async () => {
+    it("surfaces the error state (toast shown, submit disabled) when the preview request fails", async () => {
       selectEnterpriseAnnual();
       previewCartFlag$.next(true);
       invoicePreviewService.previewPlanChangeCart.mockRejectedValue(new Error("preview failed"));
+      const billingNotificationService = TestBed.inject(BillingNotificationService);
+      const i18nService = (component as any).i18nService as jest.Mocked<I18nService>;
+      i18nService.t.mockImplementation((key: string) => key);
 
       (component as any).refreshPlanChangePreview();
       TestBed.tick();
@@ -457,6 +461,75 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       expect((component as any).planChangeCart.error()).toBeTruthy();
       expect((component as any).planChangeCart.hasValue()).toBe(false);
       expect((component as any).isSubmitDisabled).toBe(true);
+      expect(billingNotificationService.showError).toHaveBeenCalledWith(
+        "billingPreviewInvoiceError",
+      );
+    });
+
+    it("shows the check-your-billing-details message when the preview fails validation (400)", async () => {
+      selectEnterpriseAnnual();
+      previewCartFlag$.next(true);
+      invoicePreviewService.previewPlanChangeCart.mockRejectedValue(
+        new ErrorResponse({ Message: "bad request" }, 400),
+      );
+      const billingNotificationService = TestBed.inject(BillingNotificationService);
+      const i18nService = (component as any).i18nService as jest.Mocked<I18nService>;
+      i18nService.t.mockImplementation((key: string) => key);
+
+      (component as any).refreshPlanChangePreview();
+      TestBed.tick();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      TestBed.tick();
+
+      expect(billingNotificationService.showError).toHaveBeenCalledWith(
+        "billingPreviewInvalidAddressError",
+      );
+    });
+  });
+
+  describe("trial callouts", () => {
+    it("flags a free-org upgrade to a plan that carries a trial", () => {
+      component.currentPlan = { productTier: ProductTierType.Free } as any;
+      component.selectedPlan = { trialPeriodDays: 7 } as any;
+
+      expect((component as any).isFreeUpgradeWithTrial).toBe(true);
+      expect((component as any).trialLengthDays).toBe(7);
+    });
+
+    it("does not flag a free-org upgrade when the plan has no trial", () => {
+      component.currentPlan = { productTier: ProductTierType.Free } as any;
+      component.selectedPlan = { trialPeriodDays: 0 } as any;
+
+      expect((component as any).isFreeUpgradeWithTrial).toBe(false);
+    });
+
+    it("does not flag a paid-org plan change as a free upgrade", () => {
+      component.currentPlan = { productTier: ProductTierType.Teams } as any;
+      component.selectedPlan = { trialPeriodDays: 7 } as any;
+
+      expect((component as any).isFreeUpgradeWithTrial).toBe(false);
+    });
+
+    it("reports the subscription as trialing from its status", () => {
+      component.sub = { subscription: { status: "trialing" } } as any;
+      expect((component as any).isTrialing).toBe(true);
+
+      component.sub = { subscription: { status: "active" } } as any;
+      expect((component as any).isTrialing).toBe(false);
+    });
+
+    it("counts the whole days left in an active trial", () => {
+      const trialEndDate = new Date(Date.now() + 3.2 * 24 * 60 * 60 * 1000).toISOString();
+      component.sub = { subscription: { status: "trialing", trialEndDate } } as any;
+
+      expect((component as any).remainingTrialDays).toBe(4);
+    });
+
+    it("reports no remaining trial days when the subscription is not trialing", () => {
+      const trialEndDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+      component.sub = { subscription: { status: "active", trialEndDate } } as any;
+
+      expect((component as any).remainingTrialDays).toBe(0);
     });
   });
 

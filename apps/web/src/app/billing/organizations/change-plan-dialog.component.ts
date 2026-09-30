@@ -35,6 +35,7 @@ import { PlanInterval, PlanType, ProductTierType } from "@bitwarden/common/billi
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -269,8 +270,17 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   protected planChangeCart = resource({
     params: () => (this.previewCartEnabled() ? this.planChangeRequest() : undefined),
-    loader: ({ params }) => {
-      return this.invoicePreviewService.previewPlanChangeCart(this.organizationId, params);
+    loader: async ({ params }) => {
+      try {
+        return await this.invoicePreviewService.previewPlanChangeCart(this.organizationId, params);
+      } catch (error) {
+        const messageKey =
+          error instanceof ErrorResponse && error.statusCode === 400
+            ? "billingPreviewInvalidAddressError"
+            : "billingPreviewInvoiceError";
+        this.billingNotificationService.showError(this.i18nService.t(messageKey));
+        throw error;
+      }
     },
   });
 
@@ -282,6 +292,34 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   // can't be committed without its cost shown.
   protected get isSubmitDisabled(): boolean {
     return this.showPreviewCart && !this.planChangeCart.hasValue();
+  }
+
+  protected get trialLengthDays(): number {
+    return this.selectedPlan?.trialPeriodDays ?? 0;
+  }
+
+  // A free org upgrading to a paid plan that carries a trial: the total is charged when the trial ends.
+  protected get isFreeUpgradeWithTrial(): boolean {
+    return this.currentPlan?.productTier === ProductTierType.Free && this.trialLengthDays > 0;
+  }
+
+  protected get isTrialing(): boolean {
+    return this.sub?.subscription?.status === "trialing";
+  }
+
+  // When the current trial ends and the total is charged.
+  protected get trialEndDate(): string | undefined {
+    return this.sub?.subscription?.trialEndDate;
+  }
+
+  // Whole days left in the current trial, or 0 when the subscription is not trialing.
+  protected get remainingTrialDays(): number {
+    if (!this.isTrialing || !this.trialEndDate) {
+      return 0;
+    }
+    const msPerDay = 1000 * 60 * 60 * 24;
+    const remaining = new Date(this.trialEndDate).getTime() - Date.now();
+    return Math.max(0, Math.ceil(remaining / msPerDay));
   }
 
   constructor(

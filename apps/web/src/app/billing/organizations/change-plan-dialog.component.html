@@ -397,6 +397,18 @@
         } @else if (planChangeCart.hasValue()) {
           <div class="tw-mt-4">
             <billing-cart-summary [cart]="planChangeCart.value()" />
+            @if (isFreeUpgradeWithTrial) {
+              <bit-callout type="info" class="tw-mt-4">
+                {{ "planChangeTrialIncluded" | i18n: trialLengthDays }}
+              </bit-callout>
+            } @else if (isTrialing && remainingTrialDays > 0) {
+              <bit-callout type="info" class="tw-mt-4">
+                {{
+                  "planChangeTrialRemaining"
+                    | i18n: remainingTrialDays : (trialEndDate | date: "MMM. d, y")
+                }}
+              </bit-callout>
+            }
           </div>
         }
       } @else {

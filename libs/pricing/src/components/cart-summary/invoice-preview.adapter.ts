@@ -186,6 +186,7 @@ export const adaptInvoicePreviewToCart = (
     passwordManager.additionalStorage == null &&
     sm.seats == null &&
     secretsManager?.additionalServiceAccounts == null;
+
   const oneTimePlanChange =
     flowContext === InvoicePreviewFlowContext.OrganizationPlanChange &&
     (hasProrations(passwordManager.prorations) || hasProrations(secretsManager?.prorations));
