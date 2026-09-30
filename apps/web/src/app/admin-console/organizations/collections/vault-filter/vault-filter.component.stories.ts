@@ -20,7 +20,6 @@ import { PreloadedEnglishI18nModule } from "../../../../core/tests";
 import { CoachmarkService } from "../../../../vault/components/coachmark";
 
 import { VaultFilterComponent } from "./vault-filter.component";
-import { VaultFilterModule } from "./vault-filter.module";
 
 function mockOrganization(overrides: Partial<Organization> = {}): Organization {
   return {
@@ -132,7 +131,7 @@ export default {
   },
   decorators: [
     moduleMetadata({
-      imports: [VaultFilterModule],
+      imports: [VaultFilterComponent],
       providers: [
         { provide: VaultFilterServiceAbstraction, useValue: mockVaultFilterService },
         { provide: RestrictedItemTypesService, useValue: mockRestrictedItemTypesService },
