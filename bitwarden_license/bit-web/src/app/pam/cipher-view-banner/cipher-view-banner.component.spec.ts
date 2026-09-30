@@ -1151,6 +1151,7 @@ describe("CipherViewBannerComponent", () => {
       );
       await create(gatedCipher());
       await component["toggleRequestForm"]();
+      component["endDuration"].setValue("custom");
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -1177,6 +1178,7 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
       await component["toggleRequestForm"]();
+      component["endDuration"].setValue("custom");
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -1202,6 +1204,7 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
       await component["toggleRequestForm"]();
+      component["endDuration"].setValue("custom");
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -1238,6 +1241,7 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
       await component["toggleRequestForm"]();
+      component["endDuration"].setValue("custom");
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -1517,6 +1521,7 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
       await component["toggleRequestForm"]();
+      component["endDuration"].setValue("custom");
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -1543,6 +1548,7 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
       await component["toggleRequestForm"]();
+      component["endDuration"].setValue("custom");
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -1593,6 +1599,7 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
       await component["toggleRequestForm"]();
+      component["endDuration"].setValue("custom");
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -1886,6 +1893,124 @@ describe("CipherViewBannerComponent", () => {
       await component["extendLease"]();
 
       expect(leasesApi.extendLease).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("the human path's window pickers", () => {
+    async function openHumanForm(): Promise<void> {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({
+          approvalMode: "human",
+          defaultDurationSeconds: 3600,
+          maxDurationSeconds: 3 * 86400,
+        }),
+      );
+      await create(gatedCipher());
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    }
+
+    function spanSeconds(): number {
+      const window = composeRequestWindow(component["humanForm"].getRawValue());
+      return (window!.end.getTime() - window!.start.getTime()) / 1000;
+    }
+
+    it("opens on the now slot and the rule's default duration", async () => {
+      await openHumanForm();
+
+      expect(component["startSlot"].value).toBe(component["humanForm"].controls.startTime.value);
+      expect(component["endDuration"].value).toBe("3600");
+      expect(spanSeconds()).toBe(3600);
+      expect(query("#pam-cipher-view-banner_select_end")).not.toBeNull();
+      expect(query("#pam-cipher-view-banner_input_end")).toBeNull();
+      expect(query("[data-testid='request-window-summary']")?.textContent).toContain(
+        "requestAccessModalWindowSummary",
+      );
+    });
+
+    it("moves the end when another duration is picked", async () => {
+      await openHumanForm();
+
+      component["endDuration"].setValue(String(86400));
+
+      expect(spanSeconds()).toBe(86400);
+    });
+
+    it("keeps the duration when the start date moves, snapping the start to the next slot", async () => {
+      await openHumanForm();
+      component["endDuration"].setValue(String(4 * 3600));
+      component["humanForm"].controls.startTime.setValue("10:10");
+
+      component["humanForm"].controls.startDate.setValue(futureDate);
+
+      expect(component["humanForm"].controls.startTime.value).toBe("10:30");
+      expect(component["startSlot"].value).toBe("10:30");
+      expect(spanSeconds()).toBe(4 * 3600);
+    });
+
+    it("leaves a custom end alone when the start moves", async () => {
+      await openHumanForm();
+      component["endDuration"].setValue("custom");
+      component["humanForm"].patchValue({
+        startDate: futureDate,
+        startTime: "09:00",
+        endDate: futureDate,
+        endTime: "17:00",
+      });
+
+      component["humanForm"].controls.startTime.setValue("11:00");
+
+      expect(component["humanForm"].controls.endTime.value).toBe("17:00");
+    });
+
+    it("returns from a custom end to the nearest duration", async () => {
+      await openHumanForm();
+      component["endDuration"].setValue("custom");
+      const [year, month, day] = futureDate.split("-").map(Number);
+      component["humanForm"].patchValue({
+        startDate: futureDate,
+        startTime: "09:00",
+        endDate: toDateInputValue(new Date(year, month - 1, day + 1)),
+        endTime: "05:00",
+      });
+
+      component["showEndPresets"]();
+
+      expect(component["customEnd"]()).toBe(false);
+      expect(component["endDuration"].value).toBe(String(86400));
+      expect(spanSeconds()).toBe(86400);
+    });
+
+    it("swaps the start slot for a time input and back", async () => {
+      await openHumanForm();
+
+      component["startSlot"].setValue("custom");
+      fixture.detectChanges();
+      expect(query("#pam-cipher-view-banner_input_start")).not.toBeNull();
+      expect(query("#pam-cipher-view-banner_select_start")).toBeNull();
+
+      component["showStartPresets"]();
+      fixture.detectChanges();
+      expect(query("#pam-cipher-view-banner_select_start")).not.toBeNull();
+      expect(component["startSlot"].value).toBe(component["humanForm"].controls.startTime.value);
+    });
+
+    it("shows the window error under the duration while the end field is hidden", async () => {
+      await openHumanForm();
+      component["startSlot"].setValue("custom");
+
+      component["humanForm"].patchValue({
+        startDate: toDateInputValue(new Date(Date.now() - 8 * 24 * 60 * 60 * 1000)),
+        startTime: "09:00",
+      });
+      fixture.detectChanges();
+
+      expect(query("[data-testid='request-window-error']")?.textContent).toContain(
+        "requestAccessModalWindowInPast",
+      );
+      expect(query("[data-testid='request-window-summary']")).toBeNull();
     });
   });
 });

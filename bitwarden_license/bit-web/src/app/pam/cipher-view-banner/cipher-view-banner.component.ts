@@ -1,4 +1,4 @@
-import { DatePipe } from "@angular/common";
+import { DatePipe, formatDate } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -17,7 +17,7 @@ import {
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
   catchError,
   combineLatest,
@@ -44,6 +44,7 @@ import {
   CardComponent,
   DialogService,
   FormFieldModule,
+  IconButtonModule,
   IconModule,
   IconTileComponent,
   ToastService,
@@ -70,13 +71,17 @@ import {
   liveActiveLease,
   requestDurationOptions,
   requestedWindowSeconds,
+  snapToNearestDuration,
+  startTimeSlots,
   toDateInputValue,
+  toTimeInputValue,
+  windowEndAt,
 } from "..";
 import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dialog/extend-lease-dialog.component";
 import { ENDING_SOON_THRESHOLD_MS } from "../access-state-badge/access-badge-state";
 import { DurationLongPipe } from "../date/duration-long.pipe";
 import { DurationShortPipe } from "../date/duration-short.pipe";
-import { formatDuration } from "../date/format-duration";
+import { formatCompoundDuration, formatDuration } from "../date/format-duration";
 import { formatRemaining } from "../date/format-remaining";
 import { isGovernedCipher } from "../helpers/governed-cipher";
 import { isUnlicensedError } from "../helpers/pam-license-error";
@@ -86,8 +91,11 @@ import { callerOrganizations$, unlicensedForPam } from "../services/pam-membersh
 
 import {
   REQUEST_WINDOW_ERROR_KEY,
+  type RequestWindowError,
   requestWindowEndValidator,
 } from "./request-access-window.validators";
+
+const CUSTOM_OPTION = "custom";
 
 /**
  * Cipher-view banner for PAM-governed items — the requester's entry point into the leasing flow.
@@ -107,6 +115,7 @@ import {
     ButtonModule,
     CardComponent,
     FormFieldModule,
+    IconButtonModule,
     IconModule,
     IconTileComponent,
     ReactiveFormsModule,
@@ -429,6 +438,87 @@ export class CipherViewBannerComponent implements OnInit {
     () => this.humanFormValue().startDate || this.minRequestDate(),
   );
 
+  protected readonly CUSTOM_OPTION = CUSTOM_OPTION;
+  private readonly requestOpenedAt = signal(new Date());
+  protected readonly customStart = signal(false);
+  protected readonly customEnd = signal(false);
+  protected readonly startSlot = new FormControl("", {
+    nonNullable: true,
+    validators: Validators.required,
+  });
+  protected readonly endDuration = new FormControl("", {
+    nonNullable: true,
+    validators: Validators.required,
+  });
+
+  protected readonly startSlots = computed(() => {
+    const date = this.humanFormValue().startDate;
+    if (!date) {
+      return [];
+    }
+    const openedAt = this.requestOpenedAt();
+    const today = date === toDateInputValue(openedAt);
+    return startTimeSlots(date, openedAt).map((value, index) => {
+      const time = formatDate(new Date(`${date}T${value}`), "shortTime", this.locale);
+      return {
+        value,
+        label: today && index === 0 ? this.i18nService.t("requestAccessModalStartNow", time) : time,
+      };
+    });
+  });
+
+  protected readonly endOptions = computed(() => {
+    const { startDate, startTime } = this.humanFormValue();
+    const start = windowEndAt(startDate, startTime, 0);
+    return this.durationOptions().map((option) => {
+      const duration = option.labelKey
+        ? this.i18nService.t(option.labelKey)
+        : formatDuration(this.locale, option.seconds, "long");
+      const end = windowEndAt(startDate, startTime, option.seconds);
+      return {
+        seconds: option.seconds,
+        label:
+          start == null || end == null
+            ? duration
+            : this.i18nService.t(
+                "requestAccessModalDurationUntil",
+                duration,
+                this.formatWindowPoint(end, start),
+              ),
+      };
+    });
+  });
+
+  protected readonly windowSummary = computed(() => {
+    const window = composeRequestWindow(this.humanFormValue());
+    if (window == null || window.end <= window.start) {
+      return null;
+    }
+    return this.i18nService.t(
+      "requestAccessModalWindowSummary",
+      formatCompoundDuration(
+        this.locale,
+        (window.end.getTime() - window.start.getTime()) / 1000,
+        "long",
+      ),
+      this.formatWindowPoint(window.start),
+      this.formatWindowPoint(window.end, window.start),
+    );
+  });
+
+  private readonly humanFormStatus = toSignal(this.humanForm.statusChanges, {
+    initialValue: this.humanForm.status,
+  });
+
+  /** The window error while the end is a duration, since the End time field carrying it is hidden. */
+  protected readonly durationWindowError = computed(() => {
+    this.humanFormStatus();
+    this.humanFormValue();
+    const error: RequestWindowError | undefined =
+      this.humanForm.controls.endTime.errors?.[REQUEST_WINDOW_ERROR_KEY];
+    return this.customEnd() ? null : (error?.message ?? null);
+  });
+
   constructor() {
     // Closes the fold-out with the card, or it reopens stale, seeded from an old rule, on remount.
     effect(() => {
@@ -451,6 +541,27 @@ export class CipherViewBannerComponent implements OnInit {
           endTime.markAsTouched();
         }
       });
+
+    this.startSlot.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+      if (value === CUSTOM_OPTION) {
+        this.customStart.set(true);
+      } else {
+        startTime.setValue(value);
+      }
+    });
+    this.endDuration.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+      if (value === CUSTOM_OPTION) {
+        this.customEnd.set(true);
+      } else {
+        this.followStartWithEnd();
+      }
+    });
+    startDate.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.keepStartOnASlot());
+    merge(startDate.valueChanges, startTime.valueChanges)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.followStartWithEnd());
 
     // Kept outside the Angular zone: an in-zone periodic timer never lets NgZone settle, which would
     // hang `fixture.whenStable()`. The signal write still drives change detection.
@@ -516,6 +627,10 @@ export class CipherViewBannerComponent implements OnInit {
         // One clock reading for both, so the picker's floor is exactly the day it pre-fills.
         const openedAt = new Date();
         this.minRequestDate.set(toDateInputValue(openedAt));
+        this.requestOpenedAt.set(openedAt);
+        this.customStart.set(false);
+        this.customEnd.set(false);
+        this.endDuration.setValue(String(bounds.defaultSeconds), { emitEvent: false });
         this.humanForm.patchValue(defaultRequestWindow(openedAt, bounds.defaultSeconds));
         // `canStartLease` answers about now, and this window is in the future, so a slot taken right
         // now does not warrant a contention warning.
@@ -537,6 +652,63 @@ export class CipherViewBannerComponent implements OnInit {
     } finally {
       this.loadingRequestForm.set(false);
     }
+  }
+
+  protected showStartPresets(): void {
+    this.customStart.set(false);
+    this.keepStartOnASlot();
+  }
+
+  protected showEndPresets(): void {
+    const window = composeRequestWindow(this.humanForm.getRawValue());
+    const options = this.durationOptions();
+    const seconds =
+      window == null || options.length === 0
+        ? (this.requestBounds()?.defaultSeconds ?? DEFAULT_REQUEST_ACCESS_DURATION_SECONDS)
+        : snapToNearestDuration((window.end.getTime() - window.start.getTime()) / 1000, options);
+    this.customEnd.set(false);
+    this.endDuration.setValue(String(seconds));
+  }
+
+  /** In preset mode the start must be one of the offered slots, or the select renders blank; keeps the nearest one at or after it. */
+  private keepStartOnASlot(): void {
+    if (this.customStart()) {
+      return;
+    }
+    const { startDate, startTime } = this.humanForm.controls;
+    const slots = startDate.value ? startTimeSlots(startDate.value, this.requestOpenedAt()) : [];
+    if (slots.length === 0) {
+      return;
+    }
+    if (slots.includes(startTime.value)) {
+      this.startSlot.setValue(startTime.value, { emitEvent: false });
+    } else {
+      this.startSlot.setValue(slots.find((slot) => slot >= startTime.value) ?? slots[0]);
+    }
+  }
+
+  /** While the end is a duration, it moves with the start. */
+  private followStartWithEnd(): void {
+    if (this.customEnd()) {
+      return;
+    }
+    const { startDate, startTime } = this.humanForm.getRawValue();
+    const end = windowEndAt(startDate, startTime, Number(this.endDuration.value));
+    if (end != null) {
+      this.humanForm.patchValue({
+        endDate: toDateInputValue(end),
+        endTime: toTimeInputValue(end),
+      });
+    }
+  }
+
+  /** A time alone on the reference instant's day, else the day and time. */
+  private formatWindowPoint(date: Date, reference?: Date): string {
+    const time = formatDate(date, "shortTime", this.locale);
+    if (reference != null && toDateInputValue(date) === toDateInputValue(reference)) {
+      return time;
+    }
+    return `${formatDate(date, "EEE, MMM d", this.locale)}, ${time}`;
   }
 
   private windowProblemMessage(problem: RequestWindowProblem, maxWindowSeconds: number): string {
