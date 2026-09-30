@@ -4627,7 +4627,11 @@
     "message": "選擇一個分類"
   },
   "selectImportSharedFolder": {
-    "message": "Select a shared folder"
+    "message": "選擇共用資料夾"
+  },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "若你希望將匯入檔案的內容移至集合，請選擇此選項"
@@ -4636,7 +4640,7 @@
     "message": "若你希望將匯入檔案的內容移至資料夾，請選擇此選項"
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "若您希望將匯入檔案的內容移至共用資料夾，請選擇此選項"
   },
   "importUnassignedItemsError": {
     "message": "檔案包含未指派項目。"
@@ -4648,28 +4652,28 @@
     "message": "選擇要匯入的檔案"
   },
   "importSourceBreadcrumb": {
-    "message": "Select source"
+    "message": "選擇來源"
   },
   "importSourceSelectTitle": {
-    "message": "Select your source"
+    "message": "選擇您的來源"
   },
   "importSourceSelectDescription": {
-    "message": "Choose the password manager or browser you are importing from."
+    "message": "選擇您要匯入的密碼管理器或瀏覽器。"
   },
   "importSourceBrowsers": {
-    "message": "Browsers"
+    "message": "瀏覽器"
   },
   "importSourcePasswordManagers": {
-    "message": "Password managers"
+    "message": "密碼管理器"
   },
   "importSourceShowAll": {
-    "message": "Show all"
+    "message": "顯示全部"
   },
   "importSourceShowLess": {
-    "message": "Show less"
+    "message": "顯示較少"
   },
   "importSourceStepCount": {
-    "message": "Step $CURRENT$ of $TOTAL$",
+    "message": "步驟 $CURRENT$ / $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -6407,11 +6411,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "您沒有資料夾。"
+  "youHaveNoFoldersV2": {
+    "message": "您沒有資料夾"
   },
-  "emptyFoldersDescription": {
-    "message": "使用資料夾來整理保險庫項目。它們只屬於您 — 其他人不會看到或使用它們。"
+  "emptyFoldersDescriptionV2": {
+    "message": "使用資料夾以整理密碼庫項目。它們只屬於您。沒有其他人會看到或使用它們。"
   },
   "emptyVaultsDescription": {
     "message": "新增登入資料、ID、卡片和其他項目以開始使用。"

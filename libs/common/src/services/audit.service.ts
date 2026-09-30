@@ -17,6 +17,7 @@ export class AuditService implements AuditServiceAbstraction {
     password: string;
     resolve: (count: number) => void;
     reject: (err: any) => void;
+    addPadding: boolean;
   }>();
 
   constructor(
@@ -32,7 +33,7 @@ export class AuditService implements AuditServiceAbstraction {
           // Handle each password leak request, resolving or rejecting the associated promise.
           async (req) => {
             try {
-              const count = await this.fetchLeakedPasswordCount(req.password);
+              const count = await this.fetchLeakedPasswordCount(req.password, req.addPadding);
               req.resolve(count);
             } catch (err) {
               req.reject(err);
@@ -44,9 +45,9 @@ export class AuditService implements AuditServiceAbstraction {
       .subscribe();
   }
 
-  async passwordLeaked(password: string): Promise<number> {
+  async passwordLeaked(password: string, addPadding: boolean = true): Promise<number> {
     return new Promise<number>((resolve, reject) => {
-      this.passwordLeakedSubject.next({ password, resolve, reject });
+      this.passwordLeakedSubject.next({ password, resolve, reject, addPadding });
     });
   }
 
@@ -55,14 +56,19 @@ export class AuditService implements AuditServiceAbstraction {
    * @param password The password to check.
    * @returns A promise that resolves to the number of times the password has been leaked.
    */
-  protected async fetchLeakedPasswordCount(password: string): Promise<number> {
+  protected async fetchLeakedPasswordCount(password: string, addPadding: boolean): Promise<number> {
     const hashBytes = await this.cryptoFunctionService.hash(password, "sha1");
     const hash = Utils.fromArrayToHex(hashBytes)!.toUpperCase();
     const hashStart = hash.substr(0, 5);
     const hashEnding = hash.substr(5);
 
+    const headers = new Headers();
+    if (addPadding) {
+      headers.append("Add-Padding", "true");
+    }
+
     const request = new Request(PwnedPasswordsApi + hashStart, {
-      headers: { "Add-Padding": "true" },
+      headers,
     });
     const response = await this.apiService.nativeFetch(request);
     const leakedHashes = await response.text();
