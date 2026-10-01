@@ -13497,7 +13497,7 @@
     "description": "Form error shown when a website URI using the 'regular expression' match detection uses a backreference, which isn't supported."
   },
   "uriRegexLookaround": {
-    "message": "Only negative lookarounds are allowed, such as ^https://(?!admin\\.).",
+    "message": "Only negative lookaheads are allowed, such as ^https://(?!admin\\.).",
     "description": "Form error shown when a website URI using the 'regular expression' match detection uses a lookaround other than a negative lookahead right after a fixed start."
   },
   "startsWithAdvancedOptionWarning": {
