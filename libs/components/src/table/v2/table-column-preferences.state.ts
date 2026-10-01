@@ -1,5 +1,3 @@
-import { Jsonify } from "type-fest";
-
 import { TABLE_COLUMN_PREFERENCES_DISK, UserKeyDefinition } from "@bitwarden/state";
 
 /**
@@ -11,14 +9,11 @@ import { TABLE_COLUMN_PREFERENCES_DISK, UserKeyDefinition } from "@bitwarden/sta
  */
 export type TableColumnPreferences = Readonly<Record<string, readonly string[]>>;
 
-export const TABLE_COLUMN_PREFERENCES = new UserKeyDefinition<TableColumnPreferences>(
+export const TABLE_COLUMN_PREFERENCES = UserKeyDefinition.record<readonly string[]>(
   TABLE_COLUMN_PREFERENCES_DISK,
   "hiddenColumns",
   {
-    // Rebuilds each array from its serialized form; the service guards the contents,
-    // since it also has to cover the in-memory and in-flight paths this never sees.
-    deserializer: (obj: Jsonify<TableColumnPreferences>) =>
-      Object.fromEntries(Object.entries(obj ?? {}).map(([key, names]) => [key, Array.from(names)])),
+    deserializer: (names) => Array.from(names),
     // A display preference, not session data — it outlives lock and logout.
     clearOn: [],
   },

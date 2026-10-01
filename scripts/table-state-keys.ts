@@ -2,7 +2,8 @@
 
 /// Ensure every `bit-table-v2` `stateKey` is unique. Two tables sharing a key share one stored
 /// set of hidden columns, so one table's "Reset to default" clears the other's. A scan rather
-/// than an ESLint rule because `npm run lint` runs with `--cache`, which would hide unchanged keys.
+/// than an ESLint rule because rules see one file at a time; a cross-file check needs shared
+/// state that goes stale in the editor's long-running ESLint server.
 
 import fs from "fs";
 import path from "path";
