@@ -13,7 +13,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
+import { DIALOG_DATA, DialogRef, DialogService } from "@bitwarden/components";
 
 import {
   OnePasswordCredentialsPromptComponent,
@@ -31,7 +31,7 @@ describe("OnePasswordCredentialsPromptComponent", () => {
 
   beforeEach(async () => {
     dialogRef = mock<DialogRef<undefined>>();
-    dialogRef.disableClose = false;
+    dialogRef.disableClose = true;
     signIn = jest.fn().mockResolvedValue(undefined);
 
     await TestBed.configureTestingModule({
@@ -96,18 +96,34 @@ describe("OnePasswordCredentialsPromptComponent", () => {
     expect(errors()).toEqual(["secretKeyIsRequired", "passwordIsRequired"]);
   });
 
-  it("cannot be closed while signing in", async () => {
+  it("stays open on a click outside or Escape", () => {
+    const dialogService = mock<DialogService>();
+    const data = { email: "user@example.com", signIn };
+
+    OnePasswordCredentialsPromptComponent.open(dialogService, data);
+
+    expect(dialogService.open).toHaveBeenCalledWith(OnePasswordCredentialsPromptComponent, {
+      data,
+      disableClose: true,
+    });
+  });
+
+  it("cannot be cancelled while signing in", async () => {
     let finish: () => void = () => {};
     signIn.mockReturnValue(new Promise((resolve) => (finish = () => resolve(undefined))));
     enter("A3-ABCDEF", "master password");
 
     element<HTMLButtonElement>("onepassword-credentials-prompt_button_continue").click();
-    await Promise.resolve();
-    expect(dialogRef.disableClose).toBe(true);
+    fixture.detectChanges();
+    element<HTMLButtonElement>("onepassword-credentials-prompt_button_cancel").click();
+    element<HTMLButtonElement>("onepassword-credentials-prompt_button_close").click();
+    expect(dialogRef.close).not.toHaveBeenCalled();
 
     finish();
     await fixture.whenStable();
-    expect(dialogRef.disableClose).toBe(false);
+    fixture.detectChanges();
+    element<HTMLButtonElement>("onepassword-credentials-prompt_button_cancel").click();
+    expect(dialogRef.close).toHaveBeenCalledWith(undefined);
   });
 
   it("marks the field 1Password refused until the Secret Key or password changes", async () => {
@@ -127,8 +143,8 @@ describe("OnePasswordCredentialsPromptComponent", () => {
     expect(errors()).toEqual([]);
   });
 
-  it("closes with nothing when cancelled", () => {
-    element<HTMLButtonElement>("onepassword-credentials-prompt_button_cancel").click();
+  it.each(["cancel", "close"])("closes with nothing on %s", (button) => {
+    element<HTMLButtonElement>(`onepassword-credentials-prompt_button_${button}`).click();
 
     expect(dialogRef.close).toHaveBeenCalledWith(undefined);
   });

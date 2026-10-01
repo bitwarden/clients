@@ -13,7 +13,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
+import { DIALOG_DATA, DialogRef, DialogService } from "@bitwarden/components";
 
 import { OnePasswordTwoFactorPromptComponent } from "./onepassword-two-factor-prompt.component";
 
@@ -24,7 +24,7 @@ describe("OnePasswordTwoFactorPromptComponent", () => {
 
   beforeEach(async () => {
     dialogRef = mock<DialogRef<undefined>>();
-    dialogRef.disableClose = false;
+    dialogRef.disableClose = true;
     submitCode = jest.fn().mockResolvedValue(false);
 
     await TestBed.configureTestingModule({
@@ -82,7 +82,19 @@ describe("OnePasswordTwoFactorPromptComponent", () => {
     expect(error()).toBe("verificationCodeRequired");
   });
 
-  it("cannot be closed while 1Password checks the code", async () => {
+  it("stays open on a click outside or Escape", () => {
+    const dialogService = mock<DialogService>();
+    const data = { email: "user@example.com", submitCode };
+
+    OnePasswordTwoFactorPromptComponent.open(dialogService, data);
+
+    expect(dialogService.open).toHaveBeenCalledWith(OnePasswordTwoFactorPromptComponent, {
+      data,
+      disableClose: true,
+    });
+  });
+
+  it("cannot be cancelled while 1Password checks the code", async () => {
     let answer: (refused: boolean) => void = () => {};
     submitCode.mockReturnValue(new Promise((resolve) => (answer = resolve)));
     const input = element<HTMLInputElement>("onepassword-two-factor-prompt_input_code");
@@ -90,12 +102,16 @@ describe("OnePasswordTwoFactorPromptComponent", () => {
     input.dispatchEvent(new Event("input"));
 
     element<HTMLButtonElement>("onepassword-two-factor-prompt_button_continue").click();
-    await Promise.resolve();
-    expect(dialogRef.disableClose).toBe(true);
+    fixture.detectChanges();
+    element<HTMLButtonElement>("onepassword-two-factor-prompt_button_cancel").click();
+    element<HTMLButtonElement>("onepassword-two-factor-prompt_button_close").click();
+    expect(dialogRef.close).not.toHaveBeenCalled();
 
-    answer(false);
+    answer(true);
     await fixture.whenStable();
-    expect(dialogRef.disableClose).toBe(false);
+    fixture.detectChanges();
+    element<HTMLButtonElement>("onepassword-two-factor-prompt_button_cancel").click();
+    expect(dialogRef.close).toHaveBeenCalledWith(undefined);
   });
 
   it("marks a refused code until another one is entered", async () => {
@@ -112,8 +128,8 @@ describe("OnePasswordTwoFactorPromptComponent", () => {
     expect(error()).toBeUndefined();
   });
 
-  it("closes with nothing when cancelled", () => {
-    element<HTMLButtonElement>("onepassword-two-factor-prompt_button_cancel").click();
+  it.each(["cancel", "close"])("closes with nothing on %s", (button) => {
+    element<HTMLButtonElement>(`onepassword-two-factor-prompt_button_${button}`).click();
 
     expect(dialogRef.close).toHaveBeenCalledWith(undefined);
   });

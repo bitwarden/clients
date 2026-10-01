@@ -17,6 +17,7 @@ import {
   DialogModule,
   DialogService,
   FormFieldModule,
+  IconButtonModule,
   TypographyModule,
 } from "@bitwarden/components";
 
@@ -49,6 +50,7 @@ export interface OnePasswordTwoFactorPromptData {
     FormFieldModule,
     AsyncActionsModule,
     ButtonModule,
+    IconButtonModule,
     TypographyModule,
   ],
 })
@@ -84,25 +86,24 @@ export class OnePasswordTwoFactorPromptComponent {
     }
 
     const { code } = this.formGroup.getRawValue();
-    // A sign-in cannot be called off halfway, so the prompt stays until 1Password answers.
-    this.dialogRef.disableClose = true;
-    try {
-      if (await this.data.submitCode(code)) {
-        this.refusedCode.set(code);
-        this.formGroup.controls.code.updateValueAndValidity();
-      }
-    } finally {
-      this.dialogRef.disableClose = false;
+    if (await this.data.submitCode(code)) {
+      this.refusedCode.set(code);
+      this.formGroup.controls.code.updateValueAndValidity();
     }
   };
+
+  protected cancel(): void {
+    void this.dialogRef.close(undefined);
+  }
 
   static open(
     dialogService: DialogService,
     data: OnePasswordTwoFactorPromptData,
   ): DialogRef<undefined> {
+    // Only Cancel and the close button call the import off, never a click outside or Escape.
     return dialogService.open<undefined, OnePasswordTwoFactorPromptData>(
       OnePasswordTwoFactorPromptComponent,
-      { data },
+      { data, disableClose: true },
     );
   }
 }

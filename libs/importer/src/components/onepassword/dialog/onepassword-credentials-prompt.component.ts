@@ -109,18 +109,16 @@ export class OnePasswordCredentialsPromptComponent {
     }
 
     const entered = this.formGroup.getRawValue();
-    // A sign-in cannot be called off halfway, so the prompt stays until it is over.
-    this.dialogRef.disableClose = true;
-    try {
-      const rejection = await this.data.signIn(entered);
-      if (rejection != null) {
-        this.rejection.set({ ...rejection, ...entered });
-        this.formGroup.controls[rejection.field].updateValueAndValidity();
-      }
-    } finally {
-      this.dialogRef.disableClose = false;
+    const rejection = await this.data.signIn(entered);
+    if (rejection != null) {
+      this.rejection.set({ ...rejection, ...entered });
+      this.formGroup.controls[rejection.field].updateValueAndValidity();
     }
   };
+
+  protected cancel(): void {
+    void this.dialogRef.close(undefined);
+  }
 
   private rejectionValidator(field: keyof OnePasswordSecretKeyAndPassword): ValidatorFn {
     return () => {
@@ -139,9 +137,10 @@ export class OnePasswordCredentialsPromptComponent {
     dialogService: DialogService,
     data: OnePasswordCredentialsPromptData,
   ): DialogRef<undefined> {
+    // Only Cancel and the close button call the import off, never a click outside or Escape.
     return dialogService.open<undefined, OnePasswordCredentialsPromptData>(
       OnePasswordCredentialsPromptComponent,
-      { data },
+      { data, disableClose: true },
     );
   }
 }
