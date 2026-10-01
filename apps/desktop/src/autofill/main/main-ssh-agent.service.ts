@@ -42,8 +42,9 @@ export class MainSshAgentService {
       SSH_AGENT_IPC_CHANNELS.REPLACE,
       async (_, keys: { name: string; privateKey: string; cipherId: string }[]) => {
         if (this.agentState != null && this.agentState.isRunning()) {
-          this.agentState.replace(keys);
+          return this.agentState.replace(keys);
         }
+        return [];
       },
     );
 

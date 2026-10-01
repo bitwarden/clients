@@ -265,8 +265,9 @@ export class SshAgentService implements OnDestroy {
         ),
         concatMap(async ([message, ciphers]) => {
           const requestId = message.requestId as number;
+          let skipped: { cipherId: string; reason: string; reasonKind: string }[];
           try {
-            await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers ?? []));
+            skipped = await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers ?? []));
           } catch (e) {
             // Refuse the request rather than leaving the agent's list callback unresolved, which
             // would hang the SSH client that is waiting on it.
@@ -274,6 +275,7 @@ export class SshAgentService implements OnDestroy {
             await ipc.autofill.sshAgent.listRequestResponse(requestId, false);
             return;
           }
+          this.reportSkippedSshKeys(skipped);
           await ipc.autofill.sshAgent.listRequestResponse(requestId, true);
         }),
         catchError((error: unknown, source) => {
@@ -339,7 +341,7 @@ export class SshAgentService implements OnDestroy {
                 }),
                 concatMap(async (keys) => {
                   try {
-                    await ipc.autofill.sshAgent.replace(keys);
+                    this.reportSkippedSshKeys(await ipc.autofill.sshAgent.replace(keys));
                   } catch (e) {
                     // if the agent fails to parse the keys and errors out, it's a deterministic
                     // error state, we don't want to retry without the input keys changing
@@ -398,6 +400,37 @@ export class SshAgentService implements OnDestroy {
     return ciphers
       .filter((c) => c.type === CipherType.SshKey && !c.isDeleted && !c.isArchived)
       .map((c) => ({ name: c.name, privateKey: c.sshKey.privateKey, cipherId: c.id }));
+  }
+
+  // Logs and surfaces a toast for vault SSH key items the agent couldn't parse. Only cipherId and
+  // the parser's reason are logged - never the item name/title - to keep vault data out of logs.
+  private reportSkippedSshKeys(
+    skipped: { cipherId: string; reason: string; reasonKind: string }[],
+  ) {
+    if (skipped.length === 0) {
+      return;
+    }
+
+    skipped.forEach(({ cipherId, reason }) => {
+      this.logService.warning(`SSH key for cipher ${cipherId} could not be loaded: ${reason}`);
+    });
+
+    // Only toast for genuine parse failures. Keys skipped because their algorithm is
+    // deliberately unsupported (e.g. FIDO/security-key resident keys) are an intentional
+    // limitation, not a broken item, and would otherwise re-toast on every unlock.
+    const failedToParse = skipped.filter((key) => key.reasonKind === "parseFailure");
+    if (failedToParse.length === 0) {
+      return;
+    }
+
+    this.toastService.showToast({
+      variant: "warning",
+      title: null,
+      message:
+        failedToParse.length === 1
+          ? this.i18nService.t("sshAgentKeyFailedToLoad", failedToParse.length)
+          : this.i18nService.t("sshAgentKeysFailedToLoad", failedToParse.length),
+    });
   }
 
   // Shows the approval dialog if the prompt setting calls for it, then answers the agent.

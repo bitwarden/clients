@@ -39,6 +39,80 @@ pub struct UnparsedSSHKeyData {
     pub cipher_id: String,
 }
 
+/// A vault SSH key item excluded from the agent's keystore. Carries no name/title, to keep
+/// vault data out of logs.
+pub struct SkippedSshKey {
+    /// Vault cipher ID of the key that failed to parse.
+    pub cipher_id: String,
+    /// Human-readable reason the key could not be loaded.
+    pub reason: String,
+    pub reason_kind: SkippedSshKeyReason,
+}
+
+/// Why a vault SSH key item could not be loaded into the agent.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SkippedSshKeyReason {
+    /// Genuine format problem, e.g. non-64/70-char PEM wrapping.
+    ParseFailure,
+    /// Parsed, but the algorithm isn't supported (e.g. FIDO/security-key resident keys).
+    UnsupportedAlgorithm,
+}
+
+/// Parses an OpenSSH private key PEM, retrying with the body re-wrapped to 70-char lines if the
+/// first attempt fails (our pinned `ssh-key`/`ssh-encoding` only decodes that exact width).
+fn parse_openssh_key(pem: &str) -> Result<ssh_key::PrivateKey> {
+    match ssh_key::PrivateKey::from_openssh(pem) {
+        Ok(key) => Ok(key),
+        Err(first_err) => {
+            let rewrapped = rewrap_pem_70(pem)
+                .ok_or_else(|| anyhow!("Failed to parse private key: {first_err}"))?;
+            ssh_key::PrivateKey::from_openssh(&rewrapped)
+                .map_err(|e| anyhow!("Failed to parse private key: {e}"))
+        }
+    }
+}
+
+/// Re-wraps a PEM body to 70-char lines. Returns [None] if the input isn't a single
+/// well-formed PEM block.
+fn rewrap_pem_70(pem: &str) -> Option<String> {
+    const LINE_WIDTH: usize = 70;
+
+    let mut lines = pem.lines();
+
+    let header = lines
+        .by_ref()
+        .find(|line| line.starts_with("-----BEGIN "))?;
+
+    let mut body = String::new();
+    let mut footer = None;
+    for line in lines.by_ref() {
+        if line.starts_with("-----END ") {
+            footer = Some(line);
+            break;
+        }
+        body.extend(line.split_whitespace());
+    }
+    let footer = footer?;
+
+    let mut out = String::with_capacity(body.len() + body.len() / LINE_WIDTH + header.len() + 16);
+    out.push_str(header);
+    out.push('\n');
+    // Char-based chunking keeps this panic-free even if the (already-rejected) body is non-ASCII.
+    let mut chars = body.chars();
+    loop {
+        let chunk: String = chars.by_ref().take(LINE_WIDTH).collect();
+        if chunk.is_empty() {
+            break;
+        }
+        out.push_str(&chunk);
+        out.push('\n');
+    }
+    out.push_str(footer);
+    out.push('\n');
+
+    Some(out)
+}
+
 /// Represents an SSH key and its associated metadata.
 #[derive(Clone)]
 pub struct SSHKeyData {
@@ -83,16 +157,36 @@ impl SSHKeyData {
     /// Returns an error if the PEM string cannot be parsed, the public key blob cannot be
     /// encoded, or the key algorithm is unsupported.
     pub fn from_private_key_pem(pem: &str, name: String, cipher_id: String) -> Result<Self> {
-        let ssh_key = ssh_key::PrivateKey::from_openssh(pem)
-            .map_err(|e| anyhow!("Failed to parse private key: {e}"))?;
+        Self::from_private_key_pem_classified(pem, name, cipher_id).map_err(|(error, _)| error)
+    }
 
-        let blob = ssh_key
-            .public_key()
-            .to_bytes()
-            .map_err(|e| anyhow!("Failed to encode public key: {e}"))?;
+    /// Like [`Self::from_private_key_pem`], but also returns a [`SkippedSshKeyReason`] on failure.
+    fn from_private_key_pem_classified(
+        pem: &str,
+        name: String,
+        cipher_id: String,
+    ) -> std::result::Result<Self, (anyhow::Error, SkippedSshKeyReason)> {
+        let ssh_key = parse_openssh_key(pem).map_err(|e| (e, SkippedSshKeyReason::ParseFailure))?;
+
+        // algorithm() reads the public portion even when encrypted, so this must be checked
+        // before try_from below or an encrypted key reads as UnsupportedAlgorithm.
+        if ssh_key.is_encrypted() {
+            return Err((
+                anyhow!("Private key is passphrase-protected"),
+                SkippedSshKeyReason::ParseFailure,
+            ));
+        }
+
+        let blob = ssh_key.public_key().to_bytes().map_err(|e| {
+            (
+                anyhow!("Failed to encode public key: {e}"),
+                SkippedSshKeyReason::ParseFailure,
+            )
+        })?;
 
         let alg = ssh_key.algorithm().to_string();
-        let private_key = PrivateKey::try_from(ssh_key)?;
+        let private_key = PrivateKey::try_from(ssh_key)
+            .map_err(|e| (e, SkippedSshKeyReason::UnsupportedAlgorithm))?;
 
         Ok(Self::new(
             private_key,
@@ -102,17 +196,29 @@ impl SSHKeyData {
         ))
     }
 
-    /// Parses a batch of vault SSH keys, dropping the ones that can't be parsed..
+    /// Parses a batch of vault SSH keys, separating out the ones that can't be parsed.
     #[must_use]
-    pub fn from_private_key_pems(keys: Vec<UnparsedSSHKeyData>) -> Vec<Self> {
+    pub fn from_private_key_pems(keys: Vec<UnparsedSSHKeyData>) -> (Vec<Self>, Vec<SkippedSshKey>) {
         let total = keys.len();
+        let mut skipped = Vec::new();
+
         let parsed: Vec<Self> = keys
             .into_iter()
             .filter_map(|k| {
                 let cipher_id = k.cipher_id.clone();
-                Self::from_private_key_pem(&k.private_key_pem, k.name, k.cipher_id)
-                    .inspect_err(|error| warn!(%error, %cipher_id, "Skipping un-parseable key"))
-                    .ok()
+                match Self::from_private_key_pem_classified(&k.private_key_pem, k.name, k.cipher_id)
+                {
+                    Ok(key) => Some(key),
+                    Err((error, reason_kind)) => {
+                        warn!(%error, %cipher_id, "Skipping un-parseable key");
+                        skipped.push(SkippedSshKey {
+                            cipher_id,
+                            reason: error.to_string(),
+                            reason_kind,
+                        });
+                        None
+                    }
+                }
             })
             .collect();
 
@@ -123,7 +229,7 @@ impl SSHKeyData {
             );
         }
 
-        parsed
+        (parsed, skipped)
     }
 
     /// # Returns
@@ -223,6 +329,42 @@ SP5DsnXG3RJCI4fE9sUM81avDnDXKbDH7IgbqRc8hHnhQnE2d2wBnpiDedVu4m6BKTGWKM
 vt8T5DsruwPs+r0AAAAQdGVzdEBleGFtcGxlLmNvbQECAw==
 -----END OPENSSH PRIVATE KEY-----";
 
+    // TEST_RSA_PEM re-wrapped at 76 chars/line (Python `cryptography`'s width).
+    const TEST_RSA_PEM_76_CHAR_WRAP: &str = "-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABFwAAAAdzc2gtcnNhAAAA
+AwEAAQAAAQEA8nnAt1NQAzh5C6lybBVgdfmhxL96Jddpl0Z4vlb7iysdW5oj7b09rWUpQmPrW+Qp
+c+pJWVF++FQvjyEtTQwV/FHJsqYMZIpS98dQVWC1IZeQbPdsa3Ey5YmM3S/tf9UpqCcKG5J2ZJYe
+ayVSerfRZFKgMhu8wmLaGxPk153Z5lj6RkBFE28j058ivN55IZcXhd0qvbDIpvCV9W1Qo4x/ia7e
+s3se3kJc+IwXu/rkE5KM0RDVzLmuZ5R1wOMXcTZ4ceG9byviJXvSIb6CYE1zGMt5gFvLtNHTyzEx
+qtpsLe3DfufzSl5wN1HcRDcLyU949Lvf6XxHqWfcaWm26q3nYQAAA8j0V6qC9FeqggAAAAdzc2gt
+cnNhAAABAQDyecC3U1ADOHkLqXJsFWB1+aHEv3ol12mXRni+VvuLKx1bmiPtvT2tZSlCY+tb5Clz
+6klZUX74VC+PIS1NDBX8UcmypgxkilL3x1BVYLUhl5Bs92xrcTLliYzdL+1/1SmoJwobknZklh5r
+JVJ6t9FkUqAyG7zCYtobE+TXndnmWPpGQEUTbyPTnyK83nkhlxeF3Sq9sMim8JX1bVCjjH+Jrt6z
+ex7eQlz4jBe7+uQTkozRENXMua5nlHXA4xdxNnhx4b1vK+Ile9IhvoJgTXMYy3mAW8u00dPLMTGq
+2mwt7cN+5/NKXnA3UdxENwvJT3j0u9/pfEepZ9xpabbqredhAAAAAwEAAQAAAQBQ/yLFGmtr5/1n
+S98RA8MJJa5IDr46zc5T3hKPYnb8chaIduDxlXl45oX1y3Lfa0P9mJGP6I1FXrnUUfzT8+mUM63w
+o08YdqxoYIgRPRDEe+CexbfN3C5oRp5rdIsdXJNhvEjAFRi/WPYoTHtUyvqDTKZ+lo1jUaoRyX90
+FyKmswPR9dcG130M4MrKYWA8rz7XtnMaR1IbLb3AnlfOhfMKsOWklgNPBpDAoHHMeYVBhva+LN2+
+VpRVnLaZ2yM747UEMJymLR6gvVN+uAyOMZscOJ8wNKhnf59UfEZummA1k1Q+H+bkCoOcpx8MqT7m
+ad+5dMCvU5oyGnjhZ00srEzBAAAAgDVKPCR0n4IC/wUCaPmniwx+H5HxG4NPRxdKQegRxCZjpZxx
+NFFbO3Kxfu/kppkAR9kI3y7OEszYJvDnnz69h+S2UBwwBdnv6VzEtAysx98X70KyoA4fUa8l1D6w
+NwwjC1Mfty6vsJ7fH8NylzlhkpiBt2ZmqvD4fzrJoMCqGE2PAAAAgQD7Vx7zZ+1xr+fzdmVEA5/N
+VFXLd7BmSDndUeUmOX1dlc1MH93PYtC6eoByaz9J/bibbJtExyBPq2J7yQbx/6tp4BJ1WkJNhNKf
+c1gNYiY0mhbV5/TOZOu33IcOk+USl3hJCuja+cL5O+txPUoxp+5CWx0yb69jTbYdjiz5eCj7dQAA
+AIEA9viPLqCgGdXoNXWS8y/XETvN4EVFg2kleUcabSb2jrJ9hEr6ERJ1bRWtIbnwHC2QUNjXF+41
+MYBbjpbf+BVEslSP5DsnXG3RJCI4fE9sUM81avDnDXKbDH7IgbqRc8hHnhQnE2d2wBnpiDedVu4m
+6BKTGWKMvt8T5DsruwPs+r0AAAAQdGVzdEBleGFtcGxlLmNvbQECAw==
+-----END OPENSSH PRIVATE KEY-----";
+
+    // Synthetic encrypted key: TEST_ED25519_PEM's public key, hand-built (not ssh-keygen output,
+    // no real passphrase) into an encrypted envelope. Never decrypted in tests.
+    const TEST_ED25519_ENCRYPTED_PEM: &str = "-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAACmFlczI1Ni1jdHIAAAAGYmNyeXB0AAAAGAAAABAAAAAAAA
+AAAAAAAAAAAAAAAAAAEAAAAAEAAAAzAAAAC3NzaC1lZDI1NTE5AAAAIA5iivf6TICxdiza
+waKSZS6GnGZV/aEAZ3ZMrsrA3g32AAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAA
+-----END OPENSSH PRIVATE KEY-----";
+
     // Synthetic sk-ssh-ed25519@openssh.com key (FIDO2 resident key).
     // Generated with zeroed dummy key data — valid wire format, not a real keypair.
     const TEST_SK_ED25519_PEM: &str = "-----BEGIN OPENSSH PRIVATE KEY-----
@@ -242,6 +384,29 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAE3NrLXRlc3RAZXhhbXBsZS5jb20BAgMEBQY=
         );
 
         assert!(result.is_err(), "sk-ssh-ed25519 key type must be rejected");
+    }
+
+    #[test]
+    fn from_private_key_pem_classifies_passphrase_protected_key_as_parse_failure() {
+        // Guards the fixture: a fixture that merely fails to parse would also assert ParseFailure.
+        assert!(
+            ssh_key::PrivateKey::from_openssh(TEST_ED25519_ENCRYPTED_PEM)
+                .expect("fixture must parse")
+                .is_encrypted(),
+            "fixture must be an encrypted key per ssh-key"
+        );
+
+        let result = SSHKeyData::from_private_key_pem_classified(
+            TEST_ED25519_ENCRYPTED_PEM,
+            "encrypted-test".to_string(),
+            "cipher-encrypted-1".to_string(),
+        );
+
+        let (error, reason_kind) = result
+            .err()
+            .expect("passphrase-protected key must be rejected");
+        assert_eq!(reason_kind, SkippedSshKeyReason::ParseFailure);
+        assert!(error.to_string().contains("passphrase-protected"));
     }
 
     #[test]
@@ -278,6 +443,14 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAE3NrLXRlc3RAZXhhbXBsZS5jb20BAgMEBQY=
         assert_eq!(data.public_key().alg(), "ssh-rsa");
     }
 
+    #[test]
+    fn from_private_key_pem_rsa_accepts_76_char_wrapped_body() {
+        let data =
+            SSHKeyData::from_private_key_pem(TEST_RSA_PEM_76_CHAR_WRAP, "k".into(), "id".into())
+                .unwrap();
+        assert_eq!(data.public_key().alg(), "ssh-rsa");
+    }
+
     fn unparsed(pem: &str, name: &str) -> UnparsedSSHKeyData {
         UnparsedSSHKeyData {
             private_key_pem: pem.to_string(),
@@ -288,22 +461,43 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAE3NrLXRlc3RAZXhhbXBsZS5jb20BAgMEBQY=
 
     #[test]
     fn from_private_key_pems_skips_unloadable_keys_and_keeps_the_rest() {
-        let parsed = SSHKeyData::from_private_key_pems(vec![
+        let (parsed, skipped) = SSHKeyData::from_private_key_pems(vec![
             unparsed(TEST_SK_ED25519_PEM, "sk"),
             unparsed(TEST_ED25519_PEM, "ed25519"),
             unparsed("not a key", "garbage"),
+            unparsed(TEST_ED25519_ENCRYPTED_PEM, "encrypted"),
             unparsed(TEST_RSA_PEM, "rsa"),
         ]);
 
         assert_eq!(parsed.len(), 2);
         assert_eq!(parsed[0].public_key().alg(), "ssh-ed25519");
         assert_eq!(parsed[1].public_key().alg(), "ssh-rsa");
+
+        let skipped_cipher_ids: Vec<&str> = skipped.iter().map(|s| s.cipher_id.as_str()).collect();
+        assert_eq!(
+            skipped_cipher_ids,
+            vec!["cipher-sk", "cipher-garbage", "cipher-encrypted"]
+        );
+        assert!(skipped.iter().all(|s| !s.reason.is_empty()));
+        assert_eq!(
+            skipped[0].reason_kind,
+            SkippedSshKeyReason::UnsupportedAlgorithm
+        );
+        assert_eq!(skipped[1].reason_kind, SkippedSshKeyReason::ParseFailure);
+        assert_eq!(skipped[2].reason_kind, SkippedSshKeyReason::ParseFailure);
     }
 
     #[test]
     fn from_private_key_pems_returns_empty_when_no_key_is_loadable() {
-        let parsed = SSHKeyData::from_private_key_pems(vec![unparsed(TEST_SK_ED25519_PEM, "sk")]);
+        let (parsed, skipped) =
+            SSHKeyData::from_private_key_pems(vec![unparsed(TEST_SK_ED25519_PEM, "sk")]);
 
         assert!(parsed.is_empty());
+        assert_eq!(skipped.len(), 1);
+        assert_eq!(skipped[0].cipher_id, "cipher-sk");
+        assert_eq!(
+            skipped[0].reason_kind,
+            SkippedSshKeyReason::UnsupportedAlgorithm
+        );
     }
 }

@@ -63,7 +63,7 @@ describe("SshAgentService", () => {
 
     mockIsLoaded = jest.fn().mockResolvedValue(false);
     mockInit = jest.fn().mockResolvedValue(undefined);
-    mockReplace = jest.fn().mockResolvedValue(undefined);
+    mockReplace = jest.fn().mockResolvedValue([]);
     mockStop = jest.fn().mockResolvedValue(undefined);
 
     (global as any).ipc = {
@@ -548,7 +548,7 @@ describe("SshAgentService – sign request authorization", () => {
         sshAgent: {
           isLoaded: jest.fn().mockResolvedValue(false),
           init: jest.fn().mockResolvedValue(undefined),
-          replace: jest.fn().mockResolvedValue(undefined),
+          replace: jest.fn().mockResolvedValue([]),
           stop: jest.fn().mockResolvedValue(undefined),
           signRequestResponse: mockSignRequestResponse,
           listRequestResponse: jest.fn().mockResolvedValue(undefined),
@@ -970,15 +970,17 @@ describe("SshAgentService – list keys request", () => {
   let mockReplace: jest.Mock;
   let mockFocusWindow: jest.Mock;
   let mockShowToast: jest.Mock;
+  let mockLogWarning: jest.Mock;
 
   beforeEach(async () => {
     listKeysRequestSubject = new Subject();
     authStatusSubject = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
     accountSubject = new BehaviorSubject<{ id: UserId } | null>({ id: "user-1" as UserId });
     mockListRequestResponse = jest.fn().mockResolvedValue(undefined);
-    mockReplace = jest.fn().mockResolvedValue(undefined);
+    mockReplace = jest.fn().mockResolvedValue([]);
     mockFocusWindow = jest.fn();
     mockShowToast = jest.fn();
+    mockLogWarning = jest.fn();
 
     (global as any).ipc = {
       autofill: {
@@ -999,7 +1001,7 @@ describe("SshAgentService – list keys request", () => {
         cipherViews$: jest.fn().mockReturnValue(of([])),
         getAllDecrypted: jest.fn().mockResolvedValue([makeSshCipher("c1", "My Key", "pem")]),
       } as any,
-      { info: jest.fn(), error: jest.fn(), debug: jest.fn() } as any,
+      { info: jest.fn(), error: jest.fn(), debug: jest.fn(), warning: mockLogWarning } as any,
       { open: jest.fn() } as any,
       {
         messages$: jest
@@ -1054,6 +1056,36 @@ describe("SshAgentService – list keys request", () => {
 
     expect(mockFocusWindow).toHaveBeenCalled();
     expect(mockShowToast).toHaveBeenCalledWith(expect.objectContaining({ variant: "info" }));
+  });
+
+  it("when a key fails to parse, logs a warning and shows a toast", async () => {
+    mockReplace.mockResolvedValue([
+      { cipherId: "c1", reason: "Failed to parse private key", reasonKind: "parseFailure" },
+    ]);
+
+    sendListRequest();
+    await flush();
+
+    expect(mockLogWarning).toHaveBeenCalledWith(
+      expect.stringContaining("Failed to parse private key"),
+    );
+    expect(mockShowToast).toHaveBeenCalledWith(expect.objectContaining({ variant: "warning" }));
+  });
+
+  it("when a key is skipped only for an unsupported algorithm, logs a warning but does not toast", async () => {
+    mockReplace.mockResolvedValue([
+      {
+        cipherId: "c1",
+        reason: "Unsupported key type: sk-ssh-ed25519",
+        reasonKind: "unsupportedAlgorithm",
+      },
+    ]);
+
+    sendListRequest();
+    await flush();
+
+    expect(mockLogWarning).toHaveBeenCalledWith(expect.stringContaining("Unsupported key type"));
+    expect(mockShowToast).not.toHaveBeenCalled();
   });
 
   it("when vault is locked then unlocks, replaces keys and sends listRequestResponse(true)", async () => {
@@ -1136,7 +1168,7 @@ describe("SshAgentService – concurrent sign requests", () => {
         sshAgent: {
           isLoaded: jest.fn().mockResolvedValue(false),
           init: jest.fn().mockResolvedValue(undefined),
-          replace: jest.fn().mockResolvedValue(undefined),
+          replace: jest.fn().mockResolvedValue([]),
           stop: jest.fn().mockResolvedValue(undefined),
           signRequestResponse: mockSignRequestResponse,
           listRequestResponse: jest.fn().mockResolvedValue(undefined),
@@ -1243,7 +1275,7 @@ describe("SshAgentService – concurrent list keys requests", () => {
         sshAgent: {
           isLoaded: jest.fn().mockResolvedValue(false),
           init: jest.fn().mockResolvedValue(undefined),
-          replace: jest.fn().mockResolvedValue(undefined),
+          replace: jest.fn().mockResolvedValue([]),
           stop: jest.fn().mockResolvedValue(undefined),
           signRequestResponse: jest.fn().mockResolvedValue(undefined),
           listRequestResponse: mockListRequestResponse,

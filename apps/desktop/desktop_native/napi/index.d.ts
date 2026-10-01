@@ -421,7 +421,7 @@ export declare namespace sshagent {
     static serve(signCallback: ((err: Error | null, arg: SignRequestData) => Promise<boolean>), listCallback: ((err: Error | null, ) => Promise<boolean>)): Promise<SshAgentState>
     stop(): void
     isRunning(): boolean
-    replace(newKeys: Array<SshKeyData>): void
+    replace(newKeys: Array<SshKeyData>): Array<SkippedSshKey>
   }
   export type SSHAgentState = SshAgentState
   /** SSH public key data */
@@ -447,6 +447,17 @@ export declare namespace sshagent {
   export interface SignRequestData {
     signRequest: SignRequest
     cipherId?: string
+  }
+  /** A vault SSH key item that could not be parsed and was excluded from the agent's keystore. */
+  export interface SkippedSshKey {
+    cipherId: string
+    reason: string
+    reasonKind: SkippedSshKeyReason
+  }
+  /** Why a vault SSH key item could not be loaded into the agent. */
+  export const enum SkippedSshKeyReason {
+    ParseFailure = 'parseFailure',
+    UnsupportedAlgorithm = 'unsupportedAlgorithm'
   }
   /** SSH key data, sent from Electron. */
   export interface SshKeyData {

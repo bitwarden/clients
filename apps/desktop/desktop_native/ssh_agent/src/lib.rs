@@ -38,6 +38,6 @@ pub use server::{
     AuthRequest, ConnectionContext, SIGNamespace, SessionBindContext, SignFlags, SignRequest,
 };
 pub use storage::{
-    keydata::{SSHKeyData, UnparsedSSHKeyData},
+    keydata::{SSHKeyData, SkippedSshKey, SkippedSshKeyReason, UnparsedSSHKeyData},
     keystore::{InMemoryEncryptedKeyStore, KeyStore},
 };

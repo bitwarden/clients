@@ -40,6 +40,41 @@ pub mod sshagent {
         pub blob: Vec<u8>,
     }
 
+    /// Why a vault SSH key item could not be loaded into the agent.
+    #[napi(string_enum = "camelCase")]
+    #[derive(Debug)]
+    pub enum SkippedSshKeyReason {
+        ParseFailure,
+        UnsupportedAlgorithm,
+    }
+
+    impl From<ssh_agent::SkippedSshKeyReason> for SkippedSshKeyReason {
+        fn from(reason: ssh_agent::SkippedSshKeyReason) -> Self {
+            match reason {
+                ssh_agent::SkippedSshKeyReason::ParseFailure => Self::ParseFailure,
+                ssh_agent::SkippedSshKeyReason::UnsupportedAlgorithm => Self::UnsupportedAlgorithm,
+            }
+        }
+    }
+
+    /// A vault SSH key item that could not be parsed and was excluded from the agent's keystore.
+    #[napi(object)]
+    pub struct SkippedSshKey {
+        pub cipher_id: String,
+        pub reason: String,
+        pub reason_kind: SkippedSshKeyReason,
+    }
+
+    impl From<ssh_agent::SkippedSshKey> for SkippedSshKey {
+        fn from(skipped: ssh_agent::SkippedSshKey) -> Self {
+            Self {
+                cipher_id: skipped.cipher_id,
+                reason: skipped.reason,
+                reason_kind: skipped.reason_kind.into(),
+            }
+        }
+    }
+
     /// A sign request's SIG namespace
     #[napi(string_enum = "camelCase")]
     #[derive(Debug)]
@@ -210,7 +245,7 @@ pub mod sshagent {
         }
 
         #[napi]
-        pub fn replace(&mut self, new_keys: Vec<SSHKeyData>) -> napi::Result<()> {
+        pub fn replace(&mut self, new_keys: Vec<SSHKeyData>) -> napi::Result<Vec<SkippedSshKey>> {
             let keys = new_keys
                 .into_iter()
                 .map(|k| UnparsedSSHKeyData {
@@ -220,9 +255,13 @@ pub mod sshagent {
                 })
                 .collect();
 
+            let (keys, skipped) = ssh_agent::SSHKeyData::from_private_key_pems(keys);
+
             self.agent
-                .replace(ssh_agent::SSHKeyData::from_private_key_pems(keys))
-                .map_err(|e| napi::Error::from_reason(e.to_string()))
+                .replace(keys)
+                .map_err(|e| napi::Error::from_reason(e.to_string()))?;
+
+            Ok(skipped.into_iter().map(Into::into).collect())
         }
     }
 }

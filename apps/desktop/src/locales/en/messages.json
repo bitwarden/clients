@@ -736,6 +736,24 @@
   "sshAgentUnlockTimeout": {
     "message": "SSH key request timed out."
   },
+  "sshAgentKeyFailedToLoad": {
+    "message": "$COUNT$ SSH key could not be loaded into the agent",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "sshAgentKeysFailedToLoad": {
+    "message": "$COUNT$ SSH keys could not be loaded into the agent",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "enableSshAgent": {
     "message": "Enable SSH agent"
   },

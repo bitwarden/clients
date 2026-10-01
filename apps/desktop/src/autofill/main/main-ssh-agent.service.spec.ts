@@ -223,6 +223,25 @@ describe("MainSshAgentService", () => {
 
       expect(mockAgentState.replace).not.toHaveBeenCalled();
     });
+
+    it("should return the skipped keys reported by the agent", async () => {
+      const skipped = [{ cipherId: "cipher-2", reason: "Failed to parse private key" }];
+      mockAgentState.replace.mockReturnValue(skipped);
+
+      const handler = ipcHandlers.get("sshagent.replace")!;
+      const result = await handler({}, keys);
+
+      expect(result).toBe(skipped);
+    });
+
+    it("should return an empty list when agent is not running", async () => {
+      mockAgentState.isRunning.mockReturnValue(false);
+
+      const handler = ipcHandlers.get("sshagent.replace")!;
+      const result = await handler({}, keys);
+
+      expect(result).toEqual([]);
+    });
   });
 
   describe("sshagent.stop IPC handler", () => {
