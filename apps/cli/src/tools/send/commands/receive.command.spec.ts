@@ -752,6 +752,75 @@ describe("SendReceiveCommand", () => {
       });
     });
 
+    describe("device identifier", () => {
+      const deviceIdentifierOf = (call: number): string | null =>
+        (apiService.nativeFetch.mock.calls[call][0] as Request).headers.get("Device-Identifier");
+
+      it.each([
+        ["no credentials", undefined],
+        ["password", { kind: "password", passwordHashB64: "hash" }],
+        ["email", { kind: "email", email: "user@example.com" }],
+        ["email_otp", { kind: "email_otp", email: "user@example.com", otp: "012345" }],
+      ])("sends the app id as the Device-Identifier with %s", async (_, credentials) => {
+        respondWith(200, { access_token: "foreign-token", expires_in: 3600 });
+
+        await (command as any).requestToken(foreignServer, testSendId, credentials);
+
+        expect(deviceIdentifierOf(0)).toBe(testAppId);
+      });
+
+      it("sends the app id as the Device-Identifier when a cross-region Send is received", async () => {
+        // beforeEach configures US cloud; this link is EU.
+        respondWith(200, { access_token: "eu-token", expires_in: 3600 });
+        sendApiService.postSendAccess.mockResolvedValue({} as any);
+        sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
+          { type: SendType.Text, text: { text: "secret" } } as any,
+          new SymmetricCryptoKey(new Uint8Array(64)),
+        ]);
+        const stdoutSpy = jest.spyOn(process.stdout, "write").mockImplementation(() => true);
+
+        const response = await command.run("https://vault.bitwarden.eu/#/send/abc123/key456", {});
+
+        expect(response.success).toBe(true);
+        expect(apiService.nativeFetch).toHaveBeenCalledTimes(1);
+        expect(deviceIdentifierOf(0)).toBe(testAppId);
+
+        stdoutSpy.mockRestore();
+      });
+
+      it("sends the same Device-Identifier on the email and email + OTP requests", async () => {
+        jest.spyOn(command as any, "promptForEmail").mockResolvedValue("user@example.com");
+        jest.spyOn(command as any, "promptForOtp").mockResolvedValue("012345");
+        jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
+        apiService.nativeFetch
+          .mockResolvedValueOnce({
+            status: 400,
+            headers: { get: () => "application/json" },
+            json: async () => ({
+              error: "invalid_request",
+              send_access_error_type: "email_and_otp_required",
+            }),
+          } as any)
+          .mockResolvedValueOnce({
+            status: 200,
+            headers: { get: () => "application/json" },
+            json: async () => ({ access_token: "foreign-token", expires_in: 3600 }),
+          } as any);
+
+        const response = await (command as any).handleEmailOtpAuth(
+          testSendId,
+          new Uint8Array(64),
+          foreignServer,
+          {},
+        );
+
+        expect(response.success).toBe(true);
+        expect(apiService.nativeFetch).toHaveBeenCalledTimes(2);
+        expect(deviceIdentifierOf(0)).toBe(testAppId);
+        expect(deviceIdentifierOf(1)).toBe(testAppId);
+      });
+    });
+
     describe("error shape mapping", () => {
       it.each([
         ["invalid_request", "password_hash_b64_required"],

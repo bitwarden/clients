@@ -349,6 +349,7 @@ export class SendReceiveCommand extends DownloadCommand {
           headers: {
             "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
             Accept: "application/json",
+            "Device-Identifier": await this.appIdService.getAppId(),
           },
           body: Object.entries(fields)
             .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
