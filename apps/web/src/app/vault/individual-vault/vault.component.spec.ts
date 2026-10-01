@@ -11,7 +11,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, convertToParamMap, Params, provideRouter, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, EMPTY, of, Subject } from "rxjs";
+import { BehaviorSubject, EMPTY, firstValueFrom, of, Subject } from "rxjs";
 import { map } from "rxjs/operators";
 
 import {
@@ -21,6 +21,7 @@ import {
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
+import { svg } from "@bitwarden/assets/svg";
 import { AuthRequestServiceAbstraction, LogoutService } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -71,6 +72,7 @@ import {
   DefaultCipherFormConfigService,
   PasswordRepromptService,
   RoutedVaultFilterBridgeService,
+  RoutedVaultFilterModel,
   RoutedVaultFilterService,
   VaultBatchBarService,
   VaultCopyButtonsService,
@@ -91,6 +93,10 @@ import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 import { WelcomeDialogService } from "../services/welcome-dialog.service";
 
 import { VaultBannersService } from "./vault-banners/services/vault-banners.service";
+import {
+  ControlledAccessFilterOption,
+  VAULT_CONTROLLED_ACCESS_FILTER,
+} from "./vault-controlled-access-filter.token";
 import {
   VaultGatedCollectionBanner,
   VAULT_GATED_COLLECTION_BANNER,
@@ -117,12 +123,16 @@ describe("VaultComponent", () => {
   let component: VaultComponent<any>;
   let fixture: ComponentFixture<VaultComponent<any>>;
   let queryParamsSubject: BehaviorSubject<Params>;
+  let routedFilterSubject: BehaviorSubject<RoutedVaultFilterModel>;
+  let controlledAccessOptionsSubject: BehaviorSubject<ControlledAccessFilterOption[]>;
 
   let mockCipher: Cipher;
   let openVaultItemDialogSpy: jest.SpyInstance;
 
   beforeEach(async () => {
     queryParamsSubject = new BehaviorSubject<Params>({});
+    routedFilterSubject = new BehaviorSubject<RoutedVaultFilterModel>({});
+    controlledAccessOptionsSubject = new BehaviorSubject<ControlledAccessFilterOption[]>([]);
     openVaultItemDialogSpy = jest.spyOn(VaultItemDialogComponent, "open").mockReturnValue({
       closed: new Subject<VaultItemDialogResult>(),
     } as unknown as DialogRef<VaultItemDialogResult, unknown>);
@@ -296,6 +306,13 @@ describe("VaultComponent", () => {
           provide: VaultProfileService,
           useValue: { getProfileCreationDate: jest.fn().mockResolvedValue(new Date()) },
         },
+        {
+          provide: VAULT_CONTROLLED_ACCESS_FILTER,
+          useValue: {
+            options$: controlledAccessOptionsSubject,
+            narrow$: (_id: string, ciphers: any[]) => of(ciphers),
+          },
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -304,7 +321,7 @@ describe("VaultComponent", () => {
           providers: [
             {
               provide: RoutedVaultFilterService,
-              useValue: { filter$: of({}) },
+              useValue: { filter$: routedFilterSubject },
             },
             {
               provide: RoutedVaultFilterBridgeService,
@@ -518,6 +535,84 @@ describe("VaultComponent", () => {
       selectCollection(undefined);
 
       expect(banner()).toBeNull();
+    });
+  });
+
+  describe("controlled access empty state", () => {
+    const HOST_ILLUSTRATION = svg`<svg />`;
+    const MY_REQUESTS: ControlledAccessFilterOption = {
+      id: "my-requests",
+      name: "My requests",
+      icon: "bwi-lock-encrypted",
+      emptyState: {
+        title: "pamMyRequestsEmptyTitle",
+        description: "pamMyRequestsEmptyDescription",
+        descriptionParam: "Acme Inc",
+        icon: HOST_ILLUSTRATION,
+      },
+    };
+    const PRIVILEGED: ControlledAccessFilterOption = {
+      id: "privileged",
+      name: "Privileged",
+      icon: "bwi-key",
+    };
+
+    async function emptyState() {
+      return await firstValueFrom((component as any).emptyState$);
+    }
+
+    it("shows the active child's own empty state instead of the generic vault one", async () => {
+      controlledAccessOptionsSubject.next([MY_REQUESTS, PRIVILEGED]);
+      routedFilterSubject.next({ controlledAccess: "my-requests" });
+
+      expect(await emptyState()).toEqual({
+        title: "pamMyRequestsEmptyTitle",
+        description: "pamMyRequestsEmptyDescription",
+        descriptionParam: "Acme Inc",
+        icon: HOST_ILLUSTRATION,
+      });
+    });
+
+    it("falls back to the no-results illustration for a child that supplies none", async () => {
+      controlledAccessOptionsSubject.next([
+        { ...MY_REQUESTS, emptyState: { ...MY_REQUESTS.emptyState, icon: undefined } },
+      ]);
+      routedFilterSubject.next({ controlledAccess: "my-requests" });
+
+      expect((await emptyState()).icon).toBe((component as any).noResultsIcon);
+    });
+
+    it("withholds Add item, which would answer a question the filter did not ask", async () => {
+      controlledAccessOptionsSubject.next([MY_REQUESTS]);
+      routedFilterSubject.next({ controlledAccess: "my-requests" });
+
+      expect((await emptyState()).allowAddItem).toBeFalsy();
+    });
+
+    it("falls back to the generic vault state for a child that offers no empty state", async () => {
+      controlledAccessOptionsSubject.next([MY_REQUESTS, PRIVILEGED]);
+      routedFilterSubject.next({ controlledAccess: "privileged" });
+
+      expect(await emptyState()).toEqual(
+        expect.objectContaining({ title: "noItemsInVault", description: "emptyVaultDescription" }),
+      );
+    });
+
+    it("falls back to the generic vault state for an id no longer on offer", async () => {
+      controlledAccessOptionsSubject.next([MY_REQUESTS]);
+      routedFilterSubject.next({ controlledAccess: "retired-child" });
+
+      expect(await emptyState()).toEqual(
+        expect.objectContaining({ title: "noItemsInVault", description: "emptyVaultDescription" }),
+      );
+    });
+
+    it("lets an active search win, so the viewer is told why their term matched nothing", async () => {
+      controlledAccessOptionsSubject.next([MY_REQUESTS]);
+      routedFilterSubject.next({ controlledAccess: "my-requests" });
+      queryParamsSubject.next({ search: "prod" });
+
+      expect(await emptyState()).toEqual(expect.objectContaining({ title: "noSearchResults" }));
     });
   });
 
