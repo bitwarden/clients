@@ -5,6 +5,8 @@ export interface ImportSourceMethod {
   format: ImportType;
   label: string;
   translate?: boolean;
+  /** The i18n key of a hint shown under the Method dropdown while this method is selected. */
+  hint?: string;
 }
 
 /**
@@ -27,7 +29,12 @@ export const importSourceGroups: readonly ImportSourceGroup[] = [
     name: "1Password",
     featuredImporter: true,
     methods: [
-      { format: "onepassword", label: "directImporter", translate: true },
+      {
+        format: "onepassword",
+        label: "directImporter",
+        translate: true,
+        hint: "onePasswordOnlyPasswordLogin",
+      },
       { format: "1password1pux", label: "1pux/json" },
       { format: "1password1pif", label: "1pif" },
     ],

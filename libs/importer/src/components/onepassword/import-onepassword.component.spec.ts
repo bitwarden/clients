@@ -5,6 +5,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ToastService } from "@bitwarden/components";
 
 import { OnePasswordImportSummary } from "../../sdk";
 
@@ -38,10 +39,12 @@ describe("ImportOnePasswordComponent", () => {
 
   let fixture: ComponentFixture<HostComponent>;
   let directImportService: MockProxy<OnePasswordDirectImportService>;
+  let toastService: MockProxy<ToastService>;
   let onImported: jest.Mock<Promise<void>, [OnePasswordImportSummary]>;
 
   beforeEach(async () => {
     directImportService = mock<OnePasswordDirectImportService>();
+    toastService = mock<ToastService>();
     onImported = jest.fn().mockResolvedValue(undefined);
 
     await TestBed.configureTestingModule({
@@ -49,6 +52,7 @@ describe("ImportOnePasswordComponent", () => {
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: LogService, useValue: mock<LogService>() },
+        { provide: ToastService, useValue: toastService },
       ],
     })
       .overrideComponent(ImportOnePasswordComponent, {
@@ -66,12 +70,8 @@ describe("ImportOnePasswordComponent", () => {
     return fixture.componentInstance.form.controls["onepasswordOptions"] as FormGroup;
   }
 
-  function fillIn() {
-    options().setValue({
-      email: " user@example.com ",
-      subdomain: "my",
-      domain: "Global",
-    });
+  function fillIn(email = " user@example.com ", subdomain = "my") {
+    options().setValue({ email, subdomain, domain: "Global" });
   }
 
   async function submit() {
@@ -79,25 +79,42 @@ describe("ImportOnePasswordComponent", () => {
     fixture.detectChanges();
   }
 
-  function errorText(): string | undefined {
-    const callout = (fixture.nativeElement as HTMLElement).querySelector("bit-callout");
-    return callout?.textContent?.trim();
+  function errors(): string[] {
+    return Array.from((fixture.nativeElement as HTMLElement).querySelectorAll("bit-error")).map(
+      (error) => error.textContent?.trim() ?? "",
+    );
   }
 
-  it("does not import an incomplete form", async () => {
+  it("does not import an incomplete form, and says what is missing", async () => {
+    options().setValue({ email: "", subdomain: "", domain: "Global" });
+
     await submit();
 
     expect(directImportService.handleImport).not.toHaveBeenCalled();
+    expect(errors()).toEqual(["emailIsRequired", "signInAddressIsRequired"]);
+  });
+
+  it.each([
+    ["an email", "user@", "my", "enterValidEmailAddress"],
+    ["a sign-in address", "user@example.com", "acme.1password.com", "enterValidSignInAddress"],
+    ["a sign-in address", "user@example.com", "-acme", "enterValidSignInAddress"],
+  ])("does not import %s the SDK would refuse", async (_, email, subdomain, error) => {
+    fillIn(email, subdomain);
+
+    await submit();
+
+    expect(directImportService.handleImport).not.toHaveBeenCalled();
+    expect(errors()).toEqual([error]);
   });
 
   it("imports the account that was entered and hands the summary over", async () => {
     directImportService.handleImport.mockResolvedValue(summary);
-    fillIn();
+    fillIn(" user@example.com ", " Acme-Corp ");
 
     await submit();
 
     expect(directImportService.handleImport).toHaveBeenCalledWith(
-      { email: "user@example.com", subdomain: "my", domain: "Global" },
+      { email: "user@example.com", subdomain: "Acme-Corp", domain: "Global" },
       undefined,
       undefined,
       false,
@@ -112,23 +129,55 @@ describe("ImportOnePasswordComponent", () => {
     await submit();
 
     expect(onImported).not.toHaveBeenCalled();
-    expect(errorText()).toBeUndefined();
+    expect(errors()).toEqual([]);
+    expect(toastService.showToast).not.toHaveBeenCalled();
   });
 
-  it("shows why an import failed and keeps the form valid, so the same details can be retried", async () => {
-    directImportService.handleImport.mockRejectedValueOnce(new Error("failed"));
+  it.each<["email" | "signInAddress", string, "email" | "subdomain", string]>([
+    ["email", "Only login with password is supported.", "email", "other@example.com"],
+    ["signInAddress", "Enter a valid sign-in address.", "subdomain", "acme"],
+  ])(
+    "marks a refused %s on its field until it changes",
+    async (field, message, control, corrected) => {
+      directImportService.handleImport.mockRejectedValueOnce(new Error("refused"));
+      directImportService.describeError.mockReturnValue({ field, message });
+      fillIn();
+
+      await submit();
+
+      expect(errors()).toEqual([message]);
+      expect(toastService.showToast).not.toHaveBeenCalled();
+
+      await submit();
+      expect(directImportService.handleImport).toHaveBeenCalledTimes(1);
+
+      directImportService.handleImport.mockResolvedValueOnce(summary);
+      options().controls[control].setValue(corrected);
+      await submit();
+
+      expect(errors()).toEqual([]);
+      expect(onImported).toHaveBeenCalledWith(summary);
+    },
+  );
+
+  it("shows any other failure in a toast and lets the same details be retried", async () => {
+    directImportService.handleImport.mockRejectedValueOnce(new Error("offline"));
+    directImportService.describeError.mockReturnValue({ message: "Try again" });
     fillIn();
 
     await submit();
 
-    expect(errorText()).toContain("errorOccurred");
+    expect(toastService.showToast).toHaveBeenCalledWith({
+      variant: "error",
+      title: null,
+      message: "Try again",
+    });
+    expect(errors()).toEqual([]);
     expect(fixture.componentInstance.form.valid).toBe(true);
-    expect(onImported).not.toHaveBeenCalled();
 
     directImportService.handleImport.mockResolvedValueOnce(summary);
     await submit();
 
-    expect(errorText()).toBeUndefined();
     expect(onImported).toHaveBeenCalledWith(summary);
   });
 });

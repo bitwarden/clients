@@ -258,17 +258,13 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private _importBlockedByPolicy = false;
   protected isFromAC = false;
+  private onePasswordImportRunning = false;
 
   private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
 
   formGroup = this.formBuilder.group({
-    vaultSelector: [
-      "myVault",
-      {
-        nonNullable: true,
-        validators: [Validators.required],
-      },
-    ],
+    // Always has a value, so it is not marked as required.
+    vaultSelector: this.formBuilder.nonNullable.control("myVault"),
     targetSelector: [null],
     source: [null as ImportType | ImportSourceGroupId | null, [Validators.required]],
     method: [null as ImportType | null],
@@ -384,6 +380,12 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   protected get isOnePasswordDirectFormat(): boolean {
     return this.format === "onepassword";
+  }
+
+  /** The i18n key of the hint for the selected method of a grouped source, if it has one. */
+  protected get selectedMethodHint(): string | undefined {
+    const method = this.formGroup.controls.method.value;
+    return this.selectedSourceGroup?.methods.find((m) => m.format === method)?.hint;
   }
 
   protected get keeperMethod(): "direct" | "csv" | "json" | undefined {
@@ -656,9 +658,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    // 1Password is direct-only, so there is no file path to fall through to.
+    // 1Password is direct-only, so there is no file path to fall through to. Its prompts show the
+    // import's progress, so the form is not left busy behind them.
     if (this.isOnePasswordDirectFormat) {
-      await this.performOnePasswordImport();
+      void this.performOnePasswordImport();
       return;
     }
 
@@ -728,21 +731,33 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   /**
    * 1Password signs in and submits inside the SDK, so unlike the other importers the destination is
-   * confirmed up front and the component reports back a summary rather than an `ImportResult`.
+   * confirmed up front and the component reports back a summary rather than an `ImportResult`. It
+   * runs outside the form's submit handler, which would put the form in a loading state, so it
+   * guards against a second submit itself.
    */
   private async performOnePasswordImport(): Promise<void> {
-    if (!(await this.validateImport())) {
+    if (this.onePasswordImportRunning) {
       return;
     }
+    this.onePasswordImportRunning = true;
+    try {
+      if (!(await this.validateImport())) {
+        return;
+      }
 
-    await this.importOnePassword?.submitDirect(
-      {
-        organizationId: this.organizationId ?? undefined,
-        selectedImportTarget: this.formGroup.controls.targetSelector.value ?? undefined,
-        canAccessImportExport: (this.organization?.canAccessImport && this.isFromAC) ?? false,
-      },
-      (summary) => this.showOnePasswordResult(summary),
-    );
+      await this.importOnePassword?.submitDirect(
+        {
+          organizationId: this.organizationId ?? undefined,
+          selectedImportTarget: this.formGroup.controls.targetSelector.value ?? undefined,
+          canAccessImportExport: (this.organization?.canAccessImport && this.isFromAC) ?? false,
+        },
+        (summary) => this.showOnePasswordResult(summary),
+      );
+    } catch (error) {
+      this.logService.error(error);
+    } finally {
+      this.onePasswordImportRunning = false;
+    }
   }
 
   private async showOnePasswordResult(summary: OnePasswordImportSummary): Promise<void> {

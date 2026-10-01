@@ -9,7 +9,12 @@ import { OnePasswordSignInDomain } from "../../sdk";
  */
 export const onePasswordSignInDomains: { value: OnePasswordSignInDomain; label: string }[] = [
   { value: "Global", label: "1password.com" },
-  { value: "Europe", label: "1password.eu" },
   { value: "Canada", label: "1password.ca" },
+  { value: "Europe", label: "1password.eu" },
   { value: "Enterprise", label: "ent.1password.com" },
 ];
+
+/** The domain as the user picked it, such as `1password.com`. */
+export function onePasswordSignInDomainLabel(domain: OnePasswordSignInDomain): string {
+  return onePasswordSignInDomains.find((d) => d.value === domain)?.label ?? "1password.com";
+}

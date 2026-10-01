@@ -7,13 +7,11 @@ import {
   signal,
 } from "@angular/core";
 import {
-  AbstractControl,
   ControlContainer,
   FormBuilder,
-  FormControl,
   FormGroup,
   ReactiveFormsModule,
-  ValidationErrors,
+  ValidatorFn,
   Validators,
 } from "@angular/forms";
 
@@ -23,13 +21,12 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { CalloutModule, FormFieldModule, SelectModule } from "@bitwarden/components";
+import { FormFieldModule, SelectModule, ToastService } from "@bitwarden/components";
 
 import {
   OnePasswordImportSummary,
   OnePasswordSignInDomain,
   onePasswordErrorLogName,
-  onePasswordErrorMessageKey,
 } from "../../sdk";
 
 import {
@@ -37,16 +34,11 @@ import {
   OnePasswordDirectImportService,
 } from "./onepassword-direct-import.service";
 import { onePasswordSignInDomains } from "./onepassword-sign-in-domains";
-
-/**
- * `Validators.email` against the trimmed value. The form validates on submit and the parent rejects
- * an invalid child group before this component runs, so a padded paste has to pass here or it never
- * reaches the trimming in `credentials()`.
- */
-function trimmedEmailValidator(control: AbstractControl): ValidationErrors | null {
-  const value: unknown = control.value;
-  return typeof value === "string" ? Validators.email(new FormControl(value.trim())) : null;
-}
+import {
+  requiredWithMessage,
+  subdomainWithMessage,
+  trimmedEmailWithMessage,
+} from "./onepassword-validators";
 
 /** What the parent needs to run the import and show its result. */
 export interface OnePasswordImportContext {
@@ -55,11 +47,18 @@ export interface OnePasswordImportContext {
   canAccessImportExport: boolean;
 }
 
+/** A value 1Password refused, marked on its field until it is changed. */
+interface Rejection {
+  control: "email" | "subdomain";
+  value: string;
+  message: string;
+}
+
 @Component({
   selector: "import-onepassword",
   templateUrl: "import-onepassword.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JslibModule, CalloutModule, FormFieldModule, ReactiveFormsModule, SelectModule],
+  imports: [JslibModule, FormFieldModule, ReactiveFormsModule, SelectModule],
   providers: [OnePasswordDirectImportService],
 })
 export class ImportOnePasswordComponent implements OnInit, OnDestroy {
@@ -67,29 +66,36 @@ export class ImportOnePasswordComponent implements OnInit, OnDestroy {
   private readonly controlContainer = inject(ControlContainer);
   private readonly logService = inject(LogService);
   private readonly i18nService = inject(I18nService);
+  private readonly toastService = inject(ToastService);
   private readonly onePasswordDirectImportService = inject(OnePasswordDirectImportService);
 
   private readonly parentFormGroup = signal<FormGroup | null>(null);
 
   protected readonly domains = onePasswordSignInDomains;
 
+  private readonly rejection = signal<Rejection | undefined>(undefined);
+
   protected readonly formGroup = this.formBuilder.group(
     {
-      email: this.formBuilder.nonNullable.control("", [Validators.required, trimmedEmailValidator]),
+      email: this.formBuilder.nonNullable.control("", [
+        requiredWithMessage(this.i18nService.t("emailIsRequired")),
+        Validators.required,
+        trimmedEmailWithMessage(this.i18nService.t("enterValidEmailAddress")),
+        this.rejectionValidator("email"),
+      ]),
       // An individual account signs in at `my`; a team or business account uses its own name.
-      // The SDK normalizes and validates it, so a stricter regex here would only reject pastes the
-      // SDK accepts.
-      subdomain: this.formBuilder.nonNullable.control("my", Validators.required),
+      subdomain: this.formBuilder.nonNullable.control("my", [
+        requiredWithMessage(this.i18nService.t("signInAddressIsRequired")),
+        Validators.required,
+        subdomainWithMessage(this.i18nService.t("enterValidSignInAddress")),
+        this.rejectionValidator("subdomain"),
+      ]),
       domain: this.formBuilder.nonNullable.control<OnePasswordSignInDomain>("Global", {
         updateOn: "change",
       }),
     },
     { updateOn: "submit" },
   );
-
-  protected readonly importing = signal(false);
-  /** Why the last import failed. An error on a control would make the form invalid, blocking a retry. */
-  protected readonly importError = signal<string | undefined>(undefined);
 
   ngOnInit(): void {
     this.parentFormGroup.set(this.controlContainer.control as FormGroup);
@@ -103,8 +109,9 @@ export class ImportOnePasswordComponent implements OnInit, OnDestroy {
   /**
    * Signs in to 1Password through the SDK, which downloads, decrypts and submits the account, then
    * hands the summary to `onImported`. The Secret Key, password and two-factor code are asked for in
-   * dialogs along the way. The parent invokes this from its submit handler; 1Password direct has no
-   * file fallback to fall through to.
+   * dialogs along the way, which show the import's progress. A refused email or sign-in address is
+   * marked on its field, and any other failure is shown in a toast. The parent invokes this from its
+   * submit handler; 1Password direct has no file fallback to fall through to.
    */
   async submitDirect(
     context: OnePasswordImportContext,
@@ -115,29 +122,48 @@ export class ImportOnePasswordComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.importing.set(true);
-    this.importError.set(undefined);
+    const account = this.account();
     let summary: OnePasswordImportSummary | undefined;
     try {
       summary = await this.onePasswordDirectImportService.handleImport(
-        this.account(),
+        account,
         context.organizationId,
         context.selectedImportTarget,
         context.canAccessImportExport,
       );
     } catch (error) {
       this.logService.error(`1Password importer error: ${onePasswordErrorLogName(error)}`);
-      this.importError.set(
-        this.i18nService.t(onePasswordErrorMessageKey(error) ?? "errorOccurred"),
-      );
+      this.showError(error, account);
       return;
-    } finally {
-      this.importing.set(false);
     }
 
     if (summary != null) {
       await onImported(summary);
     }
+  }
+
+  private showError(error: unknown, account: OnePasswordAccount): void {
+    const { field, message } = this.onePasswordDirectImportService.describeError(
+      error,
+      account.domain,
+    );
+    if (field === "email" || field === "signInAddress") {
+      const control = field === "email" ? "email" : "subdomain";
+      this.rejection.set({ control, value: this.formGroup.controls[control].value, message });
+      this.formGroup.controls[control].updateValueAndValidity();
+      this.formGroup.controls[control].markAsTouched();
+      return;
+    }
+    this.toastService.showToast({ variant: "error", title: null, message });
+  }
+
+  private rejectionValidator(control: Rejection["control"]): ValidatorFn {
+    return ({ value }) => {
+      const rejection = this.rejection();
+      return rejection?.control === control && value === rejection.value
+        ? { rejected: { message: rejection.message } }
+        : null;
+    };
   }
 
   private account(): OnePasswordAccount {

@@ -32,50 +32,39 @@ export function onePasswordErrorLogName(error: unknown): string {
   return error instanceof Error ? error.name : "unknown";
 }
 
-/**
- * The i18n key describing a failed 1Password import, or `undefined` when the error is not one of the
- * SDK's 1Password failures.
- */
-export function onePasswordErrorMessageKey(error: unknown): string | undefined {
-  if (!isImportError(error)) {
-    return undefined;
-  }
-  switch (error.variant) {
-    case "OnePasswordBadCredentials":
-      return "incorrectSignInAddressEmailPasswordOrSecretKey";
-    case "OnePasswordInvalidSignInAddress":
-      return "invalidSignInAddress";
-    case "OnePasswordInvalidSecretKey":
-      return "invalidSecretKey";
-    case "OnePasswordTwoFactorRequired":
-    case "OnePasswordTwoFactorFailed":
-      return "multifactorAuthenticationFailed";
-    case "OnePasswordUnsupported":
-      return "onePasswordUnsupportedAccount";
-    // Besides transport failures, this also covers responses the SDK did not expect.
-    case "OnePasswordNetwork":
-      return "onePasswordImportFailed";
-    case "OnePasswordDecryption":
-      return "onePasswordDecryptionFailed";
-    // The account left 1Password intact; storing it in the vault is what failed.
-    case "Api":
-    case "NotAuthenticated":
-    case "BitwardenCrypto":
-    case "Export":
-      return "onePasswordVaultSaveFailed";
-    default:
-      return undefined;
-  }
+/** A field of the import form or the Secret Key and password prompt. */
+export type OnePasswordErrorField = "email" | "signInAddress" | "secretKey" | "password";
+
+/** How a failed 1Password import is shown. */
+export interface OnePasswordErrorDisplay {
+  /** The field the user can correct, shown with the message, or `undefined` for a toast. */
+  field?: OnePasswordErrorField;
+  /** The message's i18n key. `onePasswordIncorrectUsernameOrPassword` takes the sign-in domain. */
+  messageKey: string;
 }
 
 /**
- * Whether a failed import was refused over the password or Secret Key, which the user can correct
- * by entering them again.
+ * Where and how to show a failed 1Password import. What the user entered is marked on its field;
+ * everything else, from a lost connection to a vault that could not be saved, is out of their
+ * hands and shown as the same toast.
  */
-export function isOnePasswordCredentialError(error: unknown): boolean {
-  return (
-    isImportError(error) &&
-    (error.variant === "OnePasswordBadCredentials" ||
-      error.variant === "OnePasswordInvalidSecretKey")
-  );
+export function onePasswordErrorDisplay(error: unknown): OnePasswordErrorDisplay {
+  if (!isImportError(error)) {
+    return { messageKey: "onePasswordImportError" };
+  }
+  switch (error.variant) {
+    // 1Password refuses an unknown email, sign-in address or region the same way as a wrong
+    // password or Secret Key.
+    case "OnePasswordBadCredentials":
+      return { field: "password", messageKey: "onePasswordIncorrectUsernameOrPassword" };
+    case "OnePasswordInvalidSecretKey":
+      return { field: "secretKey", messageKey: "enterValidSecretKey" };
+    case "OnePasswordInvalidSignInAddress":
+      return { field: "signInAddress", messageKey: "enterValidSignInAddress" };
+    // Mostly accounts that sign in with SSO, which the importer does not support yet.
+    case "OnePasswordUnsupported":
+      return { field: "email", messageKey: "onePasswordOnlyPasswordLoginTryAgain" };
+    default:
+      return { messageKey: "onePasswordImportError" };
+  }
 }

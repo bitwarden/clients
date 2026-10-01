@@ -17,30 +17,35 @@ import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 
 import {
   OnePasswordCredentialsPromptComponent,
-  OnePasswordCredentialsPromptData,
-  OnePasswordCredentialsPromptResult,
+  OnePasswordCredentialsRejection,
+  OnePasswordSecretKeyAndPassword,
 } from "./onepassword-credentials-prompt.component";
 
 describe("OnePasswordCredentialsPromptComponent", () => {
   let fixture: ComponentFixture<OnePasswordCredentialsPromptComponent>;
-  let dialogRef: MockProxy<DialogRef<OnePasswordCredentialsPromptResult | undefined>>;
+  let dialogRef: MockProxy<DialogRef<undefined>>;
+  let signIn: jest.Mock<
+    Promise<OnePasswordCredentialsRejection | undefined>,
+    [OnePasswordSecretKeyAndPassword]
+  >;
 
-  async function open(data: OnePasswordCredentialsPromptData) {
-    dialogRef = mock<DialogRef<OnePasswordCredentialsPromptResult | undefined>>();
+  beforeEach(async () => {
+    dialogRef = mock<DialogRef<undefined>>();
     dialogRef.disableClose = false;
+    signIn = jest.fn().mockResolvedValue(undefined);
 
     await TestBed.configureTestingModule({
       imports: [OnePasswordCredentialsPromptComponent],
       providers: [
         { provide: DialogRef, useValue: dialogRef },
-        { provide: DIALOG_DATA, useValue: data },
+        { provide: DIALOG_DATA, useValue: { email: "user@example.com", signIn } },
         { provide: I18nService, useValue: { t: (key: string) => key } },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OnePasswordCredentialsPromptComponent);
     fixture.detectChanges();
-  }
+  });
 
   function element<T extends HTMLElement>(id: string): T {
     return (fixture.nativeElement as HTMLElement).querySelector(`#${id}`) as T;
@@ -52,51 +57,79 @@ describe("OnePasswordCredentialsPromptComponent", () => {
     input.dispatchEvent(new Event("input"));
   }
 
+  function enter(secretKey: string, password: string) {
+    type("onepassword-credentials-prompt_input_secret-key", secretKey);
+    type("onepassword-credentials-prompt_input_password", password);
+  }
+
   async function submit() {
     element<HTMLButtonElement>("onepassword-credentials-prompt_button_continue").click();
     await fixture.whenStable();
+    fixture.detectChanges();
   }
 
-  function callout(): string | undefined {
-    return (fixture.nativeElement as HTMLElement).querySelector("bit-callout")?.textContent?.trim();
+  function errors(): string[] {
+    return Array.from((fixture.nativeElement as HTMLElement).querySelectorAll("bit-error")).map(
+      (error) => error.textContent?.trim() ?? "",
+    );
   }
 
-  it("names the account and closes with the Secret Key and password", async () => {
-    await open({ email: "user@example.com" });
-
+  it("names the account and signs in with the Secret Key and password", async () => {
     expect((fixture.nativeElement as HTMLElement).textContent).toContain("user@example.com");
-    expect(callout()).toBeUndefined();
 
-    type("onepassword-credentials-prompt_input_secret-key", "A3-ABCDEF");
-    type("onepassword-credentials-prompt_input_password", "master password");
+    enter("A3-ABCDEF", "master password");
     await submit();
 
-    expect(dialogRef.close).toHaveBeenCalledWith({
-      secretKey: "A3-ABCDEF",
-      password: "master password",
-    });
+    expect(signIn).toHaveBeenCalledWith({ secretKey: "A3-ABCDEF", password: "master password" });
+    expect(errors()).toEqual([]);
   });
 
-  it("stays open until both are entered", async () => {
-    await open({ email: "user@example.com" });
+  it("offers to reveal both the Secret Key and the password", () => {
+    expect(element("onepassword-credentials-prompt_button_toggle-secret-key")).not.toBeNull();
+    expect(element("onepassword-credentials-prompt_button_toggle-password")).not.toBeNull();
+  });
 
-    type("onepassword-credentials-prompt_input_password", "master password");
+  it("says which of the two is missing", async () => {
     await submit();
 
-    expect(dialogRef.close).not.toHaveBeenCalled();
+    expect(signIn).not.toHaveBeenCalled();
+    expect(errors()).toEqual(["secretKeyIsRequired", "passwordIsRequired"]);
   });
 
-  it("closes with nothing when cancelled", async () => {
-    await open({ email: "user@example.com" });
+  it("cannot be closed while signing in", async () => {
+    let finish: () => void = () => {};
+    signIn.mockReturnValue(new Promise((resolve) => (finish = () => resolve(undefined))));
+    enter("A3-ABCDEF", "master password");
 
+    element<HTMLButtonElement>("onepassword-credentials-prompt_button_continue").click();
+    await Promise.resolve();
+    expect(dialogRef.disableClose).toBe(true);
+
+    finish();
+    await fixture.whenStable();
+    expect(dialogRef.disableClose).toBe(false);
+  });
+
+  it("marks the field 1Password refused until the Secret Key or password changes", async () => {
+    signIn.mockResolvedValueOnce({ field: "password", message: "Wrong password" });
+    enter("A3-ABCDEF", "wrong password");
+    await submit();
+
+    expect(errors()).toEqual(["Wrong password"]);
+
+    await submit();
+    expect(signIn).toHaveBeenCalledTimes(1);
+
+    enter("A3-GHIJKL", "wrong password");
+    await submit();
+
+    expect(signIn).toHaveBeenCalledTimes(2);
+    expect(errors()).toEqual([]);
+  });
+
+  it("closes with nothing when cancelled", () => {
     element<HTMLButtonElement>("onepassword-credentials-prompt_button_cancel").click();
 
     expect(dialogRef.close).toHaveBeenCalledWith(undefined);
-  });
-
-  it("shows why the previous attempt was refused", async () => {
-    await open({ email: "user@example.com", error: "Wrong password or Secret Key" });
-
-    expect(callout()).toContain("Wrong password or Secret Key");
   });
 });

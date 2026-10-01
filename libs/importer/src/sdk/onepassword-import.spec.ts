@@ -1,6 +1,10 @@
 import { ImportError, isImportError } from "@bitwarden/sdk-internal";
 
-import { onePasswordErrorLogName, onePasswordErrorMessageKey } from "./onepassword-import";
+import {
+  OnePasswordErrorDisplay,
+  onePasswordErrorDisplay,
+  onePasswordErrorLogName,
+} from "./onepassword-import";
 
 // `isImportError` is a WASM call; override just it so the error mapping is unit-testable.
 jest.mock("@bitwarden/sdk-internal", () => ({
@@ -20,30 +24,45 @@ function otherError<T>(error: T): T {
   return error;
 }
 
-describe("onePasswordErrorMessageKey", () => {
-  it.each<[ImportError["variant"], string]>([
-    ["OnePasswordBadCredentials", "incorrectSignInAddressEmailPasswordOrSecretKey"],
-    ["OnePasswordInvalidSignInAddress", "invalidSignInAddress"],
-    ["OnePasswordInvalidSecretKey", "invalidSecretKey"],
-    ["OnePasswordTwoFactorRequired", "multifactorAuthenticationFailed"],
-    ["OnePasswordTwoFactorFailed", "multifactorAuthenticationFailed"],
-    ["OnePasswordUnsupported", "onePasswordUnsupportedAccount"],
-    ["OnePasswordNetwork", "onePasswordImportFailed"],
-    ["OnePasswordDecryption", "onePasswordDecryptionFailed"],
-    ["Api", "onePasswordVaultSaveFailed"],
-    ["NotAuthenticated", "onePasswordVaultSaveFailed"],
-    ["BitwardenCrypto", "onePasswordVaultSaveFailed"],
-    ["Export", "onePasswordVaultSaveFailed"],
-  ])("describes %s with %s", (variant, key) => {
-    expect(onePasswordErrorMessageKey(importError(variant))).toBe(key);
+describe("onePasswordErrorDisplay", () => {
+  it.each<[ImportError["variant"], OnePasswordErrorDisplay]>([
+    [
+      "OnePasswordBadCredentials",
+      { field: "password", messageKey: "onePasswordIncorrectUsernameOrPassword" },
+    ],
+    ["OnePasswordInvalidSecretKey", { field: "secretKey", messageKey: "enterValidSecretKey" }],
+    [
+      "OnePasswordInvalidSignInAddress",
+      { field: "signInAddress", messageKey: "enterValidSignInAddress" },
+    ],
+    [
+      "OnePasswordUnsupported",
+      { field: "email", messageKey: "onePasswordOnlyPasswordLoginTryAgain" },
+    ],
+  ])("marks %s on the field the user can correct", (variant, display) => {
+    expect(onePasswordErrorDisplay(importError(variant))).toEqual(display);
   });
 
-  it("leaves another importer's failure to the generic message", () => {
-    expect(onePasswordErrorMessageKey(importError("KdbxWrongCredentials"))).toBeUndefined();
+  it.each<ImportError["variant"]>([
+    "OnePasswordTwoFactorFailed",
+    "OnePasswordTwoFactorRequired",
+    "OnePasswordNetwork",
+    "OnePasswordDecryption",
+    "Api",
+    "NotAuthenticated",
+    "BitwardenCrypto",
+    "Export",
+    "KdbxWrongCredentials",
+  ])("shows %s in a toast", (variant) => {
+    expect(onePasswordErrorDisplay(importError(variant))).toEqual({
+      messageKey: "onePasswordImportError",
+    });
   });
 
-  it("leaves an error that did not come from the SDK to the generic message", () => {
-    expect(onePasswordErrorMessageKey(otherError(new Error("failed")))).toBeUndefined();
+  it("shows an error that did not come from the SDK in a toast", () => {
+    expect(onePasswordErrorDisplay(otherError(new Error("failed")))).toEqual({
+      messageKey: "onePasswordImportError",
+    });
   });
 });
 
