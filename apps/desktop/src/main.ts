@@ -312,7 +312,7 @@ export class Main {
     );
 
     this.desktopCredentialStorageListener = new DesktopCredentialStorageListener(
-      "Bitwarden",
+      app.getName(),
       this.logService,
     );
     this.mainBiometricsIpcListener = new MainBiometricsIPCListener(
