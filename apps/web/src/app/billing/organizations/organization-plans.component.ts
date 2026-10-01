@@ -981,26 +981,31 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         additionalStorage,
         sponsored,
       },
-      secretsManager: this.formGroup.value.secretsManager?.enabled
-        ? {
-            seats: this.secretsManagerForm.value.userSeats ?? 0,
-            additionalServiceAccounts: this.secretsManagerForm.value.additionalServiceAccounts ?? 0,
-            standalone: false,
-          }
-        : undefined,
+      secretsManager:
+        this.planOffersSecretsManager() && this.formGroup.value.secretsManager?.enabled
+          ? {
+              seats: this.secretsManagerForm.value.userSeats ?? 0,
+              additionalServiceAccounts:
+                this.secretsManagerForm.value.additionalServiceAccounts ?? 0,
+              standalone: false,
+            }
+          : undefined,
     };
   }
 
   private refreshPreviewCart(): Observable<void> {
     const selectedPlan = this.selectedPlan();
     if (
-      this.billingFormGroup.controls.billingAddress.invalid ||
       !selectedPlan ||
       selectedPlan.type === PlanType.Free ||
       selectedPlan.productTier === ProductTierType.TeamsStarter
     ) {
       this.previewCart.set(null);
       this.previewFailed.set(false);
+      return of(undefined);
+    }
+
+    if (this.billingFormGroup.controls.billingAddress.invalid) {
       return of(undefined);
     }
 
