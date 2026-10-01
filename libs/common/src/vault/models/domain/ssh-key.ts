@@ -1,12 +1,11 @@
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/legacy-crypto";
 import { SshKey as SdkSshKey } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
 import { SshKeyData } from "../data/ssh-key.data";
-import { SshKeyView } from "../view/ssh-key.view";
 
 export class SshKey extends Domain {
   privateKey!: EncString;
@@ -25,16 +24,6 @@ export class SshKey extends Domain {
     this.publicKey = obj.publicKey != null ? new EncString(obj.publicKey) : undefined;
     this.keyFingerprint =
       obj.keyFingerprint != null ? new EncString(obj.keyFingerprint) : undefined;
-  }
-
-  decrypt(encKey: SymmetricCryptoKey, context = "No Cipher Context"): Promise<SshKeyView> {
-    return this.decryptObj<SshKey, SshKeyView>(
-      this,
-      new SshKeyView(),
-      ["privateKey", "publicKey", "keyFingerprint"],
-      encKey,
-      "DomainType: SshKey; " + context,
-    );
   }
 
   toSshKeyData(): SshKeyData {

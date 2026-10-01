@@ -1,7 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
 import { EncryptionType, EncString } from "@bitwarden/legacy-crypto";
 
-import { makeSymmetricCryptoKey, mockContainerService, mockEnc } from "../../../../spec";
 import { Fido2CredentialData } from "../data/fido2-credential.data";
 
 import { Fido2Credential } from "./fido2-credential";
@@ -84,46 +83,6 @@ describe("Fido2Credential", () => {
       expect(credential.userDisplayName).toBeUndefined();
       expect(credential.discoverable).toBeUndefined();
       expect(credential.creationDate).toBeInstanceOf(Date);
-    });
-  });
-
-  describe("decrypt", () => {
-    it("decrypts and populates all fields when populated with EncStrings", async () => {
-      const credential = new Fido2Credential();
-      credential.credentialId = mockEnc("credentialId");
-      credential.keyType = mockEnc("keyType");
-      credential.keyAlgorithm = mockEnc("keyAlgorithm");
-      credential.keyCurve = mockEnc("keyCurve");
-      credential.keyValue = mockEnc("keyValue");
-      credential.rpId = mockEnc("rpId");
-      credential.userHandle = mockEnc("userHandle");
-      credential.userName = mockEnc("userName");
-      credential.counter = mockEnc("2");
-      credential.rpName = mockEnc("rpName");
-      credential.userDisplayName = mockEnc("userDisplayName");
-      credential.discoverable = mockEnc("true");
-      credential.creationDate = mockDate;
-
-      mockContainerService();
-
-      const cipherKey = makeSymmetricCryptoKey(64);
-      const credentialView = await credential.decrypt(cipherKey);
-
-      expect(credentialView).toEqual({
-        credentialId: "credentialId",
-        keyType: "keyType",
-        keyAlgorithm: "keyAlgorithm",
-        keyCurve: "keyCurve",
-        keyValue: "keyValue",
-        rpId: "rpId",
-        userHandle: "userHandle",
-        userName: "userName",
-        rpName: "rpName",
-        userDisplayName: "userDisplayName",
-        counter: 2,
-        discoverable: true,
-        creationDate: mockDate,
-      });
     });
   });
 

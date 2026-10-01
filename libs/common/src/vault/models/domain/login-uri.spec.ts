@@ -1,16 +1,10 @@
-import { MockProxy } from "jest-mock-extended";
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/legacy-crypto";
 import { UriMatchType } from "@bitwarden/sdk-internal";
 
-import {
-  makeSymmetricCryptoKey,
-  mockContainerService,
-  mockEnc,
-  mockFromJson,
-} from "../../../../spec";
+import { mockFromJson } from "../../../../spec";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
 import { LoginUriApi } from "../api/login-uri.api";
 import { LoginUriData } from "../data/login-uri.data";
@@ -19,7 +13,6 @@ import { LoginUri } from "./login-uri";
 
 describe("LoginUri", () => {
   let data: LoginUriData;
-  let encryptService: MockProxy<EncryptService>;
 
   beforeEach(() => {
     data = {
@@ -27,9 +20,6 @@ describe("LoginUri", () => {
       uriChecksum: "encUriChecksum",
       match: UriMatchStrategy.Domain,
     };
-
-    const containerService = mockContainerService();
-    encryptService = containerService.getEncryptService();
   });
 
   it("Convert from empty", () => {
@@ -61,19 +51,6 @@ describe("LoginUri", () => {
     expect(loginUri.toLoginUriData()).toEqual(data);
   });
 
-  it("Decrypt", async () => {
-    const loginUri = new LoginUri();
-    loginUri.match = UriMatchStrategy.Exact;
-    loginUri.uri = mockEnc("uri");
-
-    const view = await loginUri.decrypt(null);
-
-    expect(view).toEqual({
-      _uri: "uri",
-      match: 3,
-    });
-  });
-
   it("handle null match", () => {
     const apiData = Object.assign(new LoginUriApi(), {
       uri: "testUri",
@@ -89,30 +66,6 @@ describe("LoginUri", () => {
     // But the domain model converts null to undefined
     const loginUri = new LoginUri(loginUriData);
     expect(loginUri.match).toBeUndefined();
-  });
-
-  describe("validateChecksum", () => {
-    it("returns true if checksums match", async () => {
-      const loginUri = new LoginUri();
-      loginUri.uriChecksum = mockEnc("checksum");
-      encryptService.hash.mockResolvedValue("checksum");
-
-      const key = makeSymmetricCryptoKey(64);
-      const actual = await loginUri.validateChecksum("uri", key);
-
-      expect(actual).toBe(true);
-      expect(encryptService.hash).toHaveBeenCalledWith("uri", "sha256");
-    });
-
-    it("returns false if checksums don't match", async () => {
-      const loginUri = new LoginUri();
-      loginUri.uriChecksum = mockEnc("checksum");
-      encryptService.hash.mockResolvedValue("incorrect checksum");
-
-      const actual = await loginUri.validateChecksum("uri", undefined);
-
-      expect(actual).toBe(false);
-    });
   });
 
   describe("fromJSON", () => {

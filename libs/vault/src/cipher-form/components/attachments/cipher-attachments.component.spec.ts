@@ -61,9 +61,7 @@ describe("CipherAttachmentsComponent", () => {
     edit: true,
   } as CipherView;
 
-  const cipherDomain = {
-    decrypt: () => cipherView,
-  };
+  const cipherDomain = {};
 
   const organization = new Organization();
   organization.id = "org-123" as OrganizationId;

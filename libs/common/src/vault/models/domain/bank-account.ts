@@ -1,13 +1,12 @@
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/legacy-crypto";
 import { BankAccount as SdkBankAccount } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
 import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { BankAccountData } from "../data/bank-account.data";
-import { BankAccountView } from "../view/bank-account.view";
 
 export class BankAccount extends Domain {
   bankName?: EncString;
@@ -37,27 +36,6 @@ export class BankAccount extends Domain {
     this.swiftCode = conditionalEncString(obj.swiftCode);
     this.iban = conditionalEncString(obj.iban);
     this.bankContactPhone = conditionalEncString(obj.bankContactPhone);
-  }
-
-  decrypt(encKey: SymmetricCryptoKey, context = "No Cipher Context"): Promise<BankAccountView> {
-    return this.decryptObj<BankAccount, BankAccountView>(
-      this,
-      new BankAccountView(),
-      [
-        "bankName",
-        "nameOnAccount",
-        "accountType",
-        "accountNumber",
-        "routingNumber",
-        "branchNumber",
-        "pin",
-        "swiftCode",
-        "iban",
-        "bankContactPhone",
-      ],
-      encKey,
-      "DomainType: BankAccount; " + context,
-    );
   }
 
   toBankAccountData(): BankAccountData {
