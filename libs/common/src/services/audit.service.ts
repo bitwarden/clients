@@ -83,19 +83,7 @@ export class AuditService implements AuditServiceAbstraction {
    * @returns A promise that resolves to the number of times the password has been leaked.
    */
   protected async fetchLeakedPasswordCount(password: string, addPadding: boolean): Promise<number> {
-    const hashBytes = await this.cryptoFunctionService.hash(password, "sha1");
-    const hash = Utils.fromArrayToHex(hashBytes)!.toUpperCase();
-    const hashStart = hash.substr(0, 5);
-    const hashEnding = hash.substr(5);
-
-    const headers = new Headers();
-    if (addPadding) {
-      headers.append("Add-Padding", "true");
-    }
-
-    const request = new Request(PwnedPasswordsApi + hashStart, {
-      headers,
-    });
+    const { request, hashEnding } = await this.buildRangeRequest(password, addPadding);
     const response = await this.apiService.nativeFetch(request);
     const leakedHashes = await response.text();
     const match = leakedHashes.split(/\r?\n/).find((v) => {
@@ -116,20 +104,11 @@ export class AuditService implements AuditServiceAbstraction {
     password: string,
     addPadding: boolean,
   ): Promise<number> {
-    const hashBytes = await this.cryptoFunctionService.hash(password, "sha1");
-    const hash = Utils.fromArrayToHex(hashBytes)!.toUpperCase();
-    const hashStart = hash.substr(0, 5);
-    const hashEnding = hash.substr(5);
-
-    const headers = new Headers();
-    if (addPadding) {
-      headers.append("Add-Padding", "true");
-    }
-
-    const request = new Request(PwnedPasswordsApi + hashStart, {
-      headers,
-      signal: AbortSignal.timeout(RangeRequestTimeoutMs),
-    });
+    const { request, hashEnding } = await this.buildRangeRequest(
+      password,
+      addPadding,
+      AbortSignal.timeout(RangeRequestTimeoutMs),
+    );
     const response = await this.apiService.nativeFetch(request);
     if (!response.ok) {
       // An error body would otherwise be parsed as a hash list, matching nothing and reporting
@@ -140,6 +119,26 @@ export class AuditService implements AuditServiceAbstraction {
     const match = new RegExp(`^${hashEnding}:(\\d+)`, "m").exec(leakedHashes);
 
     return match != null ? parseInt(match[1], 10) : 0;
+  }
+
+  /** Builds the k-anonymity range request: only the first 5 hash characters leave the client. */
+  private async buildRangeRequest(
+    password: string,
+    addPadding: boolean,
+    signal?: AbortSignal,
+  ): Promise<{ request: Request; hashEnding: string }> {
+    const hashBytes = await this.cryptoFunctionService.hash(password, "sha1");
+    const hash = Utils.fromArrayToHex(hashBytes)!.toUpperCase();
+    const hashStart = hash.substr(0, 5);
+    const hashEnding = hash.substr(5);
+
+    const headers = new Headers();
+    if (addPadding) {
+      headers.append("Add-Padding", "true");
+    }
+
+    const request = new Request(PwnedPasswordsApi + hashStart, { headers, signal });
+    return { request, hashEnding };
   }
 
   async breachedAccounts(username: string): Promise<BreachAccountResponse[]> {
