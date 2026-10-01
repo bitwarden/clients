@@ -76,11 +76,6 @@ export class WebVaultItemActionsService {
       return;
     }
 
-    if (!(await this.reprompt(stored.reprompt))) {
-      await this.clearItemQueryParams();
-      return;
-    }
-
     const formConfig = await this.cipherFormConfigService.buildConfig(
       stored.edit ? "edit" : "partial-edit",
       id,
@@ -206,11 +201,6 @@ export class WebVaultItemActionsService {
   }
 
   private async openForm(stored: Cipher, id: CipherId, mode: "edit" | "clone"): Promise<void> {
-    if (!(await this.reprompt(stored.reprompt))) {
-      await this.clearItemQueryParams();
-      return;
-    }
-
     const formConfig = await this.cipherFormConfigService.buildConfig(mode, id, stored.type);
 
     await this.openItemDialog("form", formConfig, {
@@ -233,6 +223,12 @@ export class WebVaultItemActionsService {
     try {
       if (link != null) {
         await this.setItemQueryParams(link);
+      }
+
+      const reprompt = formConfig.originalCipher?.reprompt ?? CipherRepromptType.None;
+      if (!(await this.reprompt(reprompt))) {
+        await this.clearItemQueryParams();
+        return;
       }
 
       const dialogRef = VaultItemDialogComponent.open(this.dialogService, { mode, formConfig });
