@@ -601,7 +601,11 @@ export class ApiService implements ApiServiceAbstraction {
         body: data,
         headers,
       });
-      return this.nativeXMLHttpRequest(request, options.onProgress);
+      const response = await this.nativeXMLHttpRequest(request, options.onProgress);
+      if (response.status !== HttpStatusCode.Ok && response.status !== HttpStatusCode.Created) {
+        throw await this.handleApiRequestError(response, true);
+      }
+      return response;
     }
 
     return this.send("POST", "/ciphers/" + id + "/attachment/" + attachmentId, data, true, false);
