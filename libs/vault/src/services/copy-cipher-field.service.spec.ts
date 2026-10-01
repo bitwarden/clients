@@ -89,6 +89,32 @@ describe("CopyCipherFieldService", () => {
       expect(i18nService.t).toHaveBeenCalledWith("valueCopied", "Username");
     });
 
+    it("should use displayName in toast when provided", async () => {
+      i18nService.t.mockReturnValueOnce("Company ID copied");
+      const result = await service.copy(
+        valueToCopy,
+        actionType,
+        cipher,
+        skipReprompt,
+        "Company ID",
+      );
+      expect(result).toBeTruthy();
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "Company ID copied",
+        title: "",
+      });
+      expect(i18nService.t).toHaveBeenCalledWith("valueCopied", "Company ID");
+      expect(i18nService.t).not.toHaveBeenCalledWith("username");
+    });
+
+    it("should use default type label in toast when displayName is not provided", async () => {
+      i18nService.t.mockReturnValueOnce("Username").mockReturnValueOnce("Username copied");
+      await service.copy(valueToCopy, actionType, cipher, skipReprompt);
+      expect(i18nService.t).toHaveBeenCalledWith("username");
+      expect(i18nService.t).toHaveBeenCalledWith("valueCopied", "Username");
+    });
+
     describe("password reprompt", () => {
       beforeEach(() => {
         actionType = "password";
