@@ -28,6 +28,19 @@ function stalledFetch(request: Request): Promise<Response> {
 }
 
 describe("AuditService", () => {
+  // jest-environment-jsdom bundles jsdom 20, which predates AbortSignal.timeout.
+  const originalTimeout = AbortSignal.timeout;
+  beforeAll(() => {
+    AbortSignal.timeout = (ms: number) => {
+      const controller = new AbortController();
+      setTimeout(() => controller.abort(), ms);
+      return controller.signal;
+    };
+  });
+  afterAll(() => {
+    AbortSignal.timeout = originalTimeout;
+  });
+
   let auditService: AuditService;
   let mockCrypto: jest.Mocked<CryptoFunctionService>;
   let mockApi: jest.Mocked<ApiService>;

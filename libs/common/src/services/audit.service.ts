@@ -87,27 +87,20 @@ export class AuditService implements AuditServiceAbstraction {
       headers.append("Add-Padding", "true");
     }
 
-    const abortController = new AbortController();
-    const abortTimer = setTimeout(() => abortController.abort(), RangeRequestTimeoutMs);
-
-    try {
-      const request = new Request(PwnedPasswordsApi + hashStart, {
-        headers,
-        signal: abortController.signal,
-      });
-      const response = await this.apiService.nativeFetch(request);
-      if (!response.ok) {
-        // An error body would otherwise be parsed as a hash list, matching nothing and reporting
-        // the password as not exposed.
-        throw new Error(`Pwned Passwords request failed with status ${response.status}.`);
-      }
-      const leakedHashes = await response.text();
-      const match = new RegExp(`^${hashEnding}:(\\d+)`, "m").exec(leakedHashes);
-
-      return match != null ? parseInt(match[1], 10) : 0;
-    } finally {
-      clearTimeout(abortTimer);
+    const request = new Request(PwnedPasswordsApi + hashStart, {
+      headers,
+      signal: AbortSignal.timeout(RangeRequestTimeoutMs),
+    });
+    const response = await this.apiService.nativeFetch(request);
+    if (!response.ok) {
+      // An error body would otherwise be parsed as a hash list, matching nothing and reporting
+      // the password as not exposed.
+      throw new Error(`Pwned Passwords request failed with status ${response.status}.`);
     }
+    const leakedHashes = await response.text();
+    const match = new RegExp(`^${hashEnding}:(\\d+)`, "m").exec(leakedHashes);
+
+    return match != null ? parseInt(match[1], 10) : 0;
   }
 
   async breachedAccounts(username: string): Promise<BreachAccountResponse[]> {
