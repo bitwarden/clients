@@ -14,8 +14,6 @@ import {
 } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import {
@@ -70,7 +68,6 @@ export class BulkCollectionsDialogComponent {
   private readonly i18nService = inject(I18nService);
   private readonly collectionAdminService = inject(CollectionAdminService);
   private readonly toastService = inject(ToastService);
-  private readonly configService = inject(ConfigService);
 
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -151,15 +148,12 @@ export class BulkCollectionsDialogComponent {
       groups,
     );
 
-    const batchBarEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM37785_VaultBatchBar,
-    );
     const vfo1Enabled = this.vfo1TerminologyService.enabled();
     const singular = vfo1Enabled ? "sharedFolderEdited" : "collectionEdited";
     const plural = vfo1Enabled ? "sharedFoldersEdited" : "collectionsEdited";
-    const editedMessage = batchBarEnabled
-      ? this.i18nService.t(this.params.collections.length === 1 ? singular : plural)
-      : this.i18nService.t(plural);
+    const editedMessage = this.i18nService.t(
+      this.params.collections.length === 1 ? singular : plural,
+    );
 
     this.toastService.showToast({
       variant: "success",

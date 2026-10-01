@@ -46,6 +46,7 @@ import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
+import { isValidVaultReferrer } from "../platform/utils/valid-vault-referrer";
 import { getWebExtSender } from "../platform/utils/web-ext-sender";
 
 import MainBackground from "./main.background";
@@ -246,7 +247,7 @@ export default class RuntimeBackground {
         return { honorBitwardenIgnoreAttribute, honorBitwardenAutofillAttribute };
       }
       case "authResult": {
-        if (!(await this.isValidVaultReferrer(msg.referrer))) {
+        if (!(await isValidVaultReferrer(this.environmentService, msg.referrer))) {
           return;
         }
 
@@ -443,7 +444,7 @@ export default class RuntimeBackground {
         break;
       }
       case "webAuthnResult": {
-        if (!(await this.isValidVaultReferrer(msg.referrer))) {
+        if (!(await isValidVaultReferrer(this.environmentService, msg.referrer))) {
           return;
         }
 
@@ -508,39 +509,17 @@ export default class RuntimeBackground {
       return;
     }
 
-    const isValidVaultReferrer = await this.isValidVaultReferrer(
+    const referrerIsKnownVault = await isValidVaultReferrer(
+      this.environmentService,
       Utils.getHostname(getWebExtSender(message)?.origin),
     );
 
     // When the referrer is not a known vault and the message is external, reject the message
-    if (!isValidVaultReferrer && isExternalMessage(message)) {
+    if (!referrerIsKnownVault && isExternalMessage(message)) {
       return;
     }
 
     await messageAction();
-  }
-
-  /**
-   * Validates that a referrer hostname matches any of the available regions' and current environment web vault URLs.
-   *
-   * @param referrer - hostname from message source (should not include protocol or path)
-   * @returns true if referrer matches any known vault hostname, false otherwise
-   */
-  private async isValidVaultReferrer(referrer: string | null | undefined): Promise<boolean> {
-    if (!referrer) {
-      return false;
-    }
-
-    const environment = await firstValueFrom(this.environmentService.environment$);
-
-    const regions = this.environmentService.availableRegions();
-    const regionVaultUrls = regions.map((r) => r.urls.webVault ?? r.urls.base);
-    const environmentWebVaultUrl = environment.getWebVaultUrl();
-    const messageIsFromKnownVault = [...regionVaultUrls, environmentWebVaultUrl].some(
-      (webVaultUrl) => Utils.getHostname(webVaultUrl) === referrer,
-    );
-
-    return messageIsFromKnownVault;
   }
 
   private async autofillPage(tabToAutoFill: chrome.tabs.Tab) {
