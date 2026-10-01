@@ -626,7 +626,7 @@ export class CipherService implements CipherServiceAbstraction {
     }
   }
 
-  async getOrganizationLoginCiphersFromApi(organizationId: string): Promise<CipherView[]> {
+  async getCiphersOrganizationLogins(organizationId: string): Promise<CipherView[]> {
     const r = await this.apiService.send(
       "GET",
       "/ciphers/organization-details/logins?organizationId=" + organizationId,

@@ -490,7 +490,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
       switchMap(([useSdk, useLoginOnlyEndpoint]) =>
         from(
           useLoginOnlyEndpoint
-            ? this.cipherService.getOrganizationLoginCiphersFromApi(orgId)
+            ? this.cipherService.getCiphersOrganizationLogins(orgId)
             : this.cipherService.getAllFromApiForOrganization(orgId, true),
         ).pipe(
           measureFlowStep(
