@@ -427,11 +427,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
             mode = params.clone ? "clone" : "edit";
           }
 
-          if (params.fillAfterSave) {
-            this.saveAndFillEnabled = await this.configService.getFeatureFlag(
-              FeatureFlag.PM29968_FillAfterSave,
-            );
-          }
+          this.saveAndFillEnabled = params.fillAfterSave;
 
           const config = await this.addEditFormConfigService.buildConfig(
             mode,

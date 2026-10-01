@@ -5,33 +5,6 @@
     </bit-callout>
   }
 
-  @if (!removeAtRiskCallout()) {
-    @if (!hasLoginUri() && hadPendingChangePasswordTask()) {
-      <bit-callout type="warning" [title]="'missingWebsite' | i18n">
-        {{ "changeAtRiskPasswordAndAddWebsite" | i18n }}
-      </bit-callout>
-    }
-
-    @if (showChangePasswordLink()) {
-      <bit-callout type="warning" [title]="''">
-        @if (changePasswordLink()) {
-          <a
-            bitLink
-            [href]="changePasswordLink()"
-            appStopClick
-            (click)="launchChangePassword()"
-            linkType="secondary"
-            endIcon="bwi-external-link"
-          >
-            {{ "changeAtRiskPassword" | i18n }}
-          </a>
-        } @else {
-          {{ "changeAtRiskPassword" | i18n }}
-        }
-      </bit-callout>
-    }
-  }
-
   <!-- HELPER TEXT -->
   @if (cipher()?.isDeleted && !cipher()?.edit) {
     <p class="tw-text-muted" bitTypography="helper">
