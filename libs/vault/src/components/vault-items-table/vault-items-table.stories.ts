@@ -566,6 +566,8 @@ export default {
               customizeYourView: "Customize your view",
               showColumns: "Show columns",
               resetToDefault: "Reset to default",
+              columnShown: (name) => `${name} column shown`,
+              columnHidden: (name) => `${name} column hidden`,
               // Cipher types, for the Type chip
               typeLogin: "Login",
               typeCard: "Card",
