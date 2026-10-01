@@ -74,17 +74,14 @@ import { SyncResponse } from "../platform/sync";
 import { UserId } from "../types/guid";
 import { AttachmentRequest } from "../vault/models/request/attachment.request";
 import { CipherBulkDeleteRequest } from "../vault/models/request/cipher-bulk-delete.request";
-import { CipherBulkMoveRequest } from "../vault/models/request/cipher-bulk-move.request";
 import { CipherBulkRestoreRequest } from "../vault/models/request/cipher-bulk-restore.request";
-import { CipherCollectionsRequest } from "../vault/models/request/cipher-collections.request";
 import { CipherCreateRequest } from "../vault/models/request/cipher-create.request";
 import { CipherPartialRequest } from "../vault/models/request/cipher-partial.request";
 import { CipherRequest } from "../vault/models/request/cipher.request";
 import { AttachmentUploadDataResponse } from "../vault/models/response/attachment-upload-data.response";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
-import { CipherMiniResponse, CipherResponse } from "../vault/models/response/cipher.response";
+import { CipherResponse } from "../vault/models/response/cipher.response";
 import { DeleteAttachmentResponse } from "../vault/models/response/delete-attachment.response";
-import { OptionalCipherResponse } from "../vault/models/response/optional-cipher.response";
 
 /**
  * @deprecated The `ApiService` class is deprecated and calls should be extracted into individual
@@ -193,15 +190,6 @@ export abstract class ApiService {
   abstract deleteCipherAdmin(id: string): Promise<any>;
   abstract deleteManyCiphers(request: CipherBulkDeleteRequest): Promise<any>;
   abstract deleteManyCiphersAdmin(request: CipherBulkDeleteRequest): Promise<any>;
-  abstract putMoveCiphers(request: CipherBulkMoveRequest): Promise<any>;
-  abstract putCipherCollections(
-    id: string,
-    request: CipherCollectionsRequest,
-  ): Promise<OptionalCipherResponse>;
-  abstract putCipherCollectionsAdmin(
-    id: string,
-    request: CipherCollectionsRequest,
-  ): Promise<CipherMiniResponse>;
   abstract postPurgeCiphers(
     request: SecretVerificationRequest,
     organizationId?: string,

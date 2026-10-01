@@ -1931,6 +1931,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       ConfigService,
       ManagedSettingsService,
+      AppIdServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -1949,6 +1950,7 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       V2UpgradeTokenStateService,
       ManagedSettingsService,
+      AppIdServiceAbstraction,
     ],
   }),
   safeProvider({

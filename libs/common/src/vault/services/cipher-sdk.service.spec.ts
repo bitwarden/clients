@@ -1249,6 +1249,22 @@ describe("DefaultCipherSdkService", () => {
       expect(result).toBeInstanceOf(CipherView);
     });
 
+    it("should return undefined when the SDK reports a MissingField error", async () => {
+      const error = new Error("Missing field `cipher`") as Error & { variant: string };
+      error.name = "EditCipherError";
+      error.variant = "MissingField";
+      mockCiphersSdk.update_collection.mockRejectedValue(error);
+
+      const result = await cipherSdkService.saveCollectionsWithServer(
+        cipherId,
+        [collectionId1],
+        userId,
+      );
+
+      expect(result).toBeUndefined();
+      expect(logService.error).not.toHaveBeenCalled();
+    });
+
     it("should throw error and log when SDK throws an error", async () => {
       mockCiphersSdk.update_collection.mockRejectedValue(new Error("SDK error"));
 
