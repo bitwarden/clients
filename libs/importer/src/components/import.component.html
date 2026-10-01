@@ -63,7 +63,7 @@
     <bit-card>
       <bit-form-field class="@2xl:tw-w-1/2">
         <bit-label>{{ "fileFormat" | i18n }}</bit-label>
-        <bit-select formControlName="format">
+        <bit-select formControlName="source">
           <bit-option value="" label="-- {{ 'select' | i18n }} --" />
           <bit-option
             class="tw-font-medium tw-text-muted tw-text-xs"
@@ -71,12 +71,12 @@
             label="{{ 'commonImportFormats' | i18n }}"
             disabled
           />
-          @for (o of featuredImportOptions; track o) {
+          @for (o of featuredImportSources; track o) {
             <bit-option [value]="o.id" [label]="o.name" />
           }
-          @if (importOptions && importOptions.length) {
+          @if (importSources && importSources.length) {
             <bit-option value="-" label="--------------------------------------" disabled />
-            @for (o of importOptions; track o) {
+            @for (o of importSources; track o) {
               <bit-option [value]="o.id" [label]="o.name" />
             }
           }
@@ -164,6 +164,16 @@
             </bit-radio-group>
           }
         </bit-callout>
+      }
+      @if (selectedSourceGroup; as group) {
+        <bit-form-field class="@2xl:tw-w-1/2">
+          <bit-label>{{ "method" | i18n }}</bit-label>
+          <bit-select formControlName="method" id="import_bit-select_method">
+            @for (m of group.methods; track m.format) {
+              <bit-option [value]="m.format" [label]="m.label" />
+            }
+          </bit-select>
+        </bit-form-field>
       }
       @if (showLastPassOptions) {
         <import-lastpass
