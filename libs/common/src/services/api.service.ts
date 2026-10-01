@@ -652,6 +652,19 @@ export class ApiService implements ApiServiceAbstraction {
     return new ListResponse(r, CollectionAccessDetailsResponse);
   }
 
+  async getManyCollectionsWithOrganizationDetails(
+    organizationId: string,
+  ): Promise<ListResponse<CollectionAccessDetailsResponse>> {
+    const r = await this.send(
+      "GET",
+      "/organizations/" + organizationId + "/collections/access",
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, CollectionAccessDetailsResponse);
+  }
+
   async getCollectionUsers(
     organizationId: string,
     id: string,
