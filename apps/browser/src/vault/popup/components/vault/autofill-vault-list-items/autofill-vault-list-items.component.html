@@ -8,9 +8,7 @@
     [showRefresh]="showRefresh"
     [disableDescriptionMargin]="showTip"
     [groupByType]="groupByType()"
-    [primaryActionAutofill]="clickItemsToAutofillVaultView$ | async"
     isAutofillList
-    showAutofillButton
     (onRefresh)="refreshCurrentTab()"
   >
     @if (ciphers.length) {

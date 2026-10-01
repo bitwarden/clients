@@ -121,55 +121,55 @@
     <value>Bitwarden Password Manager</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Acasă, la birou sau în deplasare, Bitwarden vă securizează cu ușurință toate parolele, cheile de acces și informațiile sensibile.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>Recunoscut ca cel mai bun manager de parole de către PCMag, WIRED, The Verge, CNET, G2 și alții!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+SECURIZAȚI-VĂ VIAȚA DIGITALĂ
+Securizați-vă viața digitală și protejați-vă împotriva breșelor de date generând și salvând parole unice și puternice pentru fiecare cont. Mențineți totul într-un seif de parole criptat end-to-end la care doar dvs. aveți acces.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+ACCESAȚI-VĂ DATELE, ORIUNDE, ORICÂND, PE ORICE DISPOZITIV
+Gestionați, stocați, securizați și partajați cu ușurință un număr nelimitat de parole pe un număr nelimitat de dispozitive fără restricții.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+TOATĂ LUMEA AR TREBUI SĂ Aibă INSTRUMENTELE PENTRU A FI ÎN SIGURANȚĂ ONLINE
+Utilizați Bitwarden gratuit, fără reclame sau vânzarea datelor. Bitwarden crede că toată lumea ar trebui să aibă capacitatea de a fi în siguranță online. Planurile Premium oferă acces la funcții avansate.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+ÎMPUTERNICIȚI-VĂ ECHIPELE CU BITWARDEN
+Planurile pentru Teams și Enterprise vin cu funcții profesionale de business. Câteva exemple includ integrare SSO, auto-găzduire, integrare director și provizionare SCIM, politici globale, acces API, jurnale de evenimente și multe altele.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+Utilizați Bitwarden pentru a vă securiza forța de muncă și a partaja informații sensibile cu colegii.
 
 
-More reasons to choose Bitwarden:
+Mai multe motive pentru a alege Bitwarden:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
+Criptare de clasă mondială
+Parolele sunt protejate cu criptare avansată end-to-end (AES-256 biți, hashing cu sare și PBKDF2 SHA-256) astfel încât datele dvs. rămân sigure și private.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+Audituri terțe
+Bitwarden efectuează în mod regulat audituri de securitate complete de terță parte cu firme de securitate notabile. Aceste audituri anuale includ evaluări ale codului sursă și teste de penetrare pe IP-urile, serverele și aplicațiile web Bitwarden.
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+2FA avansat
+Securizați-vă autentificarea cu un autentificator terț, coduri trimise prin e-mail sau acreditări FIDO2 WebAuthn, cum ar fi o cheie de securitate hardware sau o cheie de acces.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Transmiteți date direct altora menținând securitatea criptată end-to-end și limitând expunerea.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Generator integrat
+Creați parole lungi, complexe și distincte și nume de utilizator unice pentru fiecare site pe care îl vizitați. Integrați-vă cu furnizori de aliasuri de e-mail pentru confidențialitate suplimentară.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Traduceri globale
+Traducerile Bitwarden există pentru mai mult de 60 de limbi, traduse de comunitatea globală prin Crowdin.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Aplicații multiplatformă
+Securizați și partajați date sensibile în seiful dvs. Bitwarden de pe orice browser, dispozitiv mobil sau OS desktop și multe altele.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+Bitwarden securizează mai mult decât parole
+Soluțiile de gestionare a acreditărilor criptate end-to-end de la Bitwarden împuternicesc organizațiile să securizeze totul, inclusiv secretele dezvoltatorilor și experiențele cu chei de acces. Vizitați Bitwarden.com pentru a afla mai multe despre Bitwarden Secrets Manager și Bitwarden Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Acasă, la birou sau în deplasare, Bitwarden vă securizează cu ușurință toate parolele, cheile de acces și informațiile sensibile.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Sincronizează și accesează seiful dvs. de pe multiple dispozitive</value>

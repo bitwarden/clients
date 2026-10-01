@@ -2626,11 +2626,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Nemáte žádné složky."
+  "youHaveNoFoldersV2": {
+    "message": "Nemáte žádné složky"
   },
-  "emptyFoldersDescription": {
-    "message": "Používejte složky k organizaci předmětů v trezoru. Jsou jen pro Vás - nikdo jiný je nebude vidět ani používat."
+  "emptyFoldersDescriptionV2": {
+    "message": "Používejte složky k organizaci položek v trezoru. Jsou jen pro Vás. Nikdo jiný je nebude vidět ani používat."
   },
   "emptyVaultsDescription": {
     "message": "Chcete-li začít, přidejte přihlašovací údaje, průkazy, karty a další položky."
@@ -2685,7 +2685,7 @@
     "message": "Přidat plán"
   },
   "addPlanDesc": {
-    "message": "Můžete vytvořit nový sdílený trezor s 1 další osobou zdarma. Pokud chcete ukládat, spravovat a sdílet předměty s více lidmi, musíte nejprve přidat nový tarif. Upozorňujeme, že některé volby mohou vyžadovat změnu fakturace."
+    "message": "Můžete vytvořit nový sdílený trezor s 1 další osobou zdarma. Pokud chcete ukládat, spravovat a sdílet položky s více lidmi, musíte nejprve přidat nový tarif. Upozorňujeme, že některé volby mohou vyžadovat změnu fakturace."
   },
   "noOrganizationsList": {
     "message": "Nepatříte do žádné organizace. Organizace umožňují bezpečné sdílení položek s ostatními uživateli."
@@ -3460,6 +3460,10 @@
   },
   "selectImportSharedFolder": {
     "message": "Vybrat sdílenou složku"
+  },
+  "importTargetMyFolder": {
+    "message": "Moje složka",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Pokud chcete obsah importovaného souboru přesunout do sbírky, vyberte tuto volbu"
@@ -16971,7 +16975,7 @@
     "message": "Přidejte do Vašeho trezoru nová hesla, poznámky a další informace. Všechno je chráněno koncovým šifrováním."
   },
   "coachmarkShareWithCollectionsTitle": {
-    "message": "Bezpečně sdílet předměty s ostatními"
+    "message": "Bezpečně sdílet položky s ostatními"
   },
   "coachmarkShareWithCollectionsDescription": {
     "message": "Přesunutím položky do sbírky ji můžete bezpečně sdílet s ostatními lidmi ve Vaší organizaci."
@@ -17492,6 +17496,9 @@
   },
   "pam": {
     "message": "PAM"
+  },
+  "pamAccessRequestsTitle": {
+    "message": "Žádosti o přístup"
   },
   "pamAccessRules": {
     "message": "Pravidla přístupu"
