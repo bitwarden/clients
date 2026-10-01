@@ -218,7 +218,6 @@ async function isAllowedByRor(
 export async function isValidRpId(
   rpId: string,
   origin: string,
-  relatedOriginChecksEnabled: boolean,
   fetchFn?: typeof fetch,
 ): Promise<boolean> {
   // Classic WebAuthn validation: rpId must be a registrable domain suffix of the origin
@@ -226,10 +225,6 @@ export async function isValidRpId(
 
   if (classicMatch) {
     return true;
-  }
-
-  if (!relatedOriginChecksEnabled) {
-    return false;
   }
 
   // Fall back to Related Origin Requests (ROR) validation
