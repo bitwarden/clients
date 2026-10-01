@@ -1,9 +1,9 @@
-<ng-container *ngIf="homepage$ | async">
+@if (homepage$ | async) {
   <app-header></app-header>
 
   <p bitTypography="body1">{{ "orgsReportsDesc" | vfo1I18n: "orgsReportsDescV2" }}</p>
 
   <app-report-list [reports]="reports$ | async"></app-report-list>
-</ng-container>
+}
 
 <router-outlet></router-outlet>

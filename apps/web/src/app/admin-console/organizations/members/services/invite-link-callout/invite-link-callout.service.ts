@@ -4,6 +4,7 @@ import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -14,6 +15,7 @@ import {
 } from "@bitwarden/common/platform/state";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
+import { OrganizationInviteLinkService } from "@bitwarden/organization-invite-link";
 
 import {
   InviteLinkCalloutDialogComponent,
@@ -39,6 +41,7 @@ export class InviteLinkCalloutService {
   private memberDialogManager = inject(MemberDialogManagerService);
   private organizationMembersService = inject(OrganizationMembersService);
   private organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
+  private organizationInviteLinkService = inject(OrganizationInviteLinkService);
   private dialogService = inject(DialogService);
   private router = inject(Router);
 
@@ -93,6 +96,15 @@ export class InviteLinkCalloutService {
 
     const dismissed = await firstValueFrom(this.isDismissed$(organization.id));
     if (dismissed) {
+      return;
+    }
+
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const existingLink = await firstValueFrom(
+      this.organizationInviteLinkService.inviteLink$(userId, organization.id),
+    );
+    if (existingLink != null) {
+      await this.dismiss(organization.id);
       return;
     }
 

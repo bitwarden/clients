@@ -61,12 +61,12 @@ import { CartSummaryComponent, Cart } from "@bitwarden/pricing";
 
 ### Inputs
 
-| Input                | Type                     | Description                                                                                                                   |
-| -------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| `cart`               | `Cart`                   | **Required.** The cart data containing all products, discounts, tax, and cadence                                              |
-| `header`             | `TemplateRef<{ total }>` | **Optional.** Custom header template to replace the default header                                                            |
-| `hidePricingTerm`    | `boolean`                | **Optional.** When true, hides the billing term (e.g., "/ month", "/ year") from the header                                   |
-| `showDiscountBadges` | `boolean`                | **Optional.** When true, renders discount badge chips next to the header total. Use in checkout flows only. Default: `false`. |
+| Input                | Type                                | Description                                                                                                                   |
+| -------------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `cart`               | `Cart`                              | **Required.** The cart data containing all products, discounts, tax, and cadence                                              |
+| `header`             | `TemplateRef<{ total, amountDue }>` | **Optional.** Custom header template to replace the default header                                                            |
+| `hidePricingTerm`    | `boolean`                           | **Optional.** When true, hides the billing term (e.g., "/ month", "/ year") from the header                                   |
+| `showDiscountBadges` | `boolean`                           | **Optional.** When true, renders discount badge chips next to the header total. Use in checkout flows only. Default: `false`. |
 
 **Note:** Individual `CartItem` objects in the cart can include:
 
@@ -108,8 +108,9 @@ export type Cart = {
   discounts?: CartDiscount[]; // Optional cart-level discounts, rendered in the grouped summary block (Subtotal → discounts → Estimated tax)
   credit?: Credit; // Optional pre-tax credit (e.g. prorated subscription credit)
   estimatedTax: number; // Tax amount
-  accountCredit?: Credit; // Optional account balance applied to the taxed total; rendered between tax and total
-  total?: number; // Optional authoritative total; when absent the component computes it
+  appliedBalance?: number; // Optional applied account balance (positive magnitude); rendered as a negative "Applied balance" row below the gross total
+  amountDue?: number; // Optional amount charged after applied balance; when absent the renderer falls back to total
+  total?: number; // Optional gross total; when absent the component computes it from the line items
 };
 
 export type Credit = {
@@ -437,11 +438,11 @@ proration charge rows, with the billing term retained:
 
 ### With Applied Account Balance
 
-Show a cart where Stripe applied part of the customer's account balance to the invoice. The balance
-is rendered as its own row between Estimated tax and Total so the rows still sum to the
-authoritative total (the invoice's amount due):
+Show a cart where Stripe applied part of the customer's account balance to the invoice. The gross
+total, the applied balance (as a negative row), and the resulting amount due each render as their
+own row, so the amount due is the figure the customer is actually charged:
 
-<Canvas of={CartSummaryStories.WithAppliedAccountBalance} />
+<Canvas of={CartSummaryStories.WithAppliedBalance} />
 
 ```html
 <billing-cart-summary
@@ -449,24 +450,16 @@ authoritative total (the invoice's amount due):
     passwordManager: {
       seats: {
         quantity: 1,
-        translationKey: 'familiesMembership',
-        cost: 40.00,
-        hideBreakdown: true
+        translationKey: 'premiumMembership',
+        cost: 19.80
       }
     },
     cadence: 'annually',
-    credit: {
-      translationKey: 'premiumSubscriptionCredit',
-      value: 6.67
-    },
-    estimatedTax: 2.00,
-    accountCredit: {
-      translationKey: 'accountCredit',
-      value: 10.00
-    },
-    total: 25.33
+    estimatedTax: 1.58,
+    total: 21.38,
+    appliedBalance: 12.96,
+    amountDue: 8.42
   }"
-  [hidePricingTerm]="true"
 >
 </billing-cart-summary>
 ```

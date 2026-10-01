@@ -69,6 +69,7 @@ import { CurrentAccountComponent } from "../../../../auth/popup/account-switchin
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
+import { ImportUpgradeNavigationService } from "../../../../tools/popup/settings/import/import-upgrade-navigation.service";
 import { IntroCarouselService } from "../../services/intro-carousel.service";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
@@ -357,6 +358,8 @@ export class VaultComponent implements OnInit, OnDestroy {
       });
   }
 
+  private readonly importUpgradeNavigationService = inject(ImportUpgradeNavigationService);
+
   /**
    * Follows the scroll region rather than latching it: the table claims it only once its rows
    * render, and `popup-page`'s region never scrolls.
@@ -458,6 +461,11 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async navigateToImport() {
+    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+      await this.importUpgradeNavigationService.openImportSourceSelectTab();
+      return;
+    }
+
     await this.router.navigate(["/import"]);
   }
 

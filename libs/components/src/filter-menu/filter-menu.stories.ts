@@ -455,6 +455,12 @@ export const LongLabelsSingleSelect: Story = {
     // The second chip is the single-select one.
     await userEvent.click(getAllByRole(context.canvasElement, "button")[1]);
   },
+  parameters: {
+    chromatic: {
+      // currently flaky test, menu mounts in different positions against the chip
+      disableSnapshot: true,
+    },
+  },
 };
 
 export const DisabledReason: Story = {
