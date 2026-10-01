@@ -26,14 +26,12 @@ import { FillAssistPolicy, FillAssistPolicyComponent, RuleSource } from "./fill-
 const ORG_ID = "org1" as OrganizationId;
 const USER_ID = "user1" as UserId;
 const DEFAULT_URL = "https://fillassist.bitwarden.com";
-// A historical value of DEFAULT_FILL_ASSIST_RULES_URL that must still be
-// recognized as "Default" by the UI so legacy policies don't silently flip
-// to Custom. Kept in sync with LEGACY_DEFAULT_FILL_ASSIST_RULES_URLS in
-// libs/common/src/autofill/constants/index.ts.
+// A historical value of DEFAULT_FILL_ASSIST_RULES_URL. Kept in sync with
+// LEGACY_DEFAULT_FILL_ASSIST_RULES_URLS in libs/common/src/autofill/constants.
 const LEGACY_GITHUB_URL = "https://github.com/bitwarden/map-the-web/releases/latest/download";
 const CUSTOM_URL = "https://custom.example.com/rules";
-// Host+path form of a custom URL (the `https://` is rendered as an uneditable
-// `bitPrefix` in the template).
+// A custom URL's host and path only — the template renders `https://` as an
+// uneditable prefix.
 const CUSTOM_URL_HOST_PATH = "custom.example.com/rules";
 
 function makePolicyResponse(enabled: boolean, data: object | null = null) {
@@ -173,10 +171,9 @@ describe("FillAssistPolicyComponent", () => {
     });
 
     it("selects Default when stored rulesUrl is a legacy default value", () => {
-      // Locks in the legacy-URL recognition: policies saved before the
-      // current default constant was adopted must not silently flip to
-      // Custom pointing at the old URL. Keeps legacy policies from surprising
-      // admins in the UI.
+      // Locks in legacy-URL recognition: policies saved before the current
+      // default constant was adopted must not silently flip to Custom
+      // pointing at the retired URL.
       fixture.componentRef.setInput(
         "policyResponse",
         makePolicyResponse(true, { rulesUrl: LEGACY_GITHUB_URL }),
@@ -216,9 +213,8 @@ describe("FillAssistPolicyComponent", () => {
     });
 
     it("preserves the rulesUrl value across radio toggles within the session", () => {
-      // Within-session URL preservation: an admin who enters a URL, briefly
-      // switches to Default, then switches back should not lose their input.
-      // Lets them cancel a change without re-typing.
+      // Within-session URL preservation: switching to Default and back must
+      // not clear a typed URL — lets the admin cancel a change without re-typing.
       component.data?.patchValue({ ruleSource: RuleSource.Custom });
       component.data?.patchValue({ rulesUrl: "example.com/rules" });
       component.data?.patchValue({ ruleSource: RuleSource.Default });
@@ -363,12 +359,10 @@ describe("FillAssistPolicyComponent", () => {
 
   describe("buildRequest — Default source", () => {
     it("submits DEFAULT_FILL_ASSIST_RULES_URL when Default is selected", async () => {
-      // This test locks in the sentinel behavior: the client stores the
-      // default constant as a signal meaning "use the current default,"
-      // and the resolver falls through to server config on read. Changing
-      // this behavior would silently break existing "Default" policies —
-      // see comments on DEFAULT_FILL_ASSIST_RULES_URL and the design intent
-      // note in fill-assist.component.ts buildRequestData.
+      // Locks in the sentinel behavior: storing the default constant means
+      // "use the current default," and the resolver falls through to server
+      // config. Changing this would silently break existing "Default" policies —
+      // see DEFAULT_FILL_ASSIST_RULES_URL.
       fixture.componentRef.setInput("policy", new FillAssistPolicy());
 
       const request = await component.buildRequest();
@@ -377,10 +371,9 @@ describe("FillAssistPolicyComponent", () => {
     });
 
     it("submits DEFAULT_FILL_ASSIST_RULES_URL regardless of any URL value in the form", async () => {
-      // If the admin typed a URL under Custom, then switched to Default and
-      // saved, we submit the default sentinel (not the stale URL). The form
-      // preserves the URL locally for within-session UX, but doesn't leak
-      // it into the request.
+      // Typing a URL under Custom then switching to Default must submit the
+      // sentinel, not the stale URL. The form preserves the URL locally within
+      // the session, but doesn't send it in the request.
       fixture.componentRef.setInput("policy", new FillAssistPolicy());
       component.data?.patchValue({ ruleSource: RuleSource.Custom });
       component.data?.patchValue({ rulesUrl: "example.com/rules" });
@@ -466,13 +459,11 @@ describe("FillAssistPolicyComponent", () => {
 
   describe("error message priority when the URL input is mounted", () => {
     it("surfaces the custom URL error first when Custom is selected and the URL is empty", () => {
-      // The template's `required` attribute attaches Angular's RequiredValidator
-      // in addition to our own validator. Both fire on empty and both errors land
-      // in the errors object. `bit-form-field` reads `Object.keys(errors)[0]` to
-      // decide what to render — so the ORDER matters: our validator must be
-      // composed first for the custom message to win over "Input is required".
-      // `fixture.detectChanges()` is required to mount the input and attach the
-      // template validator.
+      // The template's `required` attaches Angular's RequiredValidator alongside
+      // our own, so both fire on empty. `bit-form-field` renders
+      // `Object.keys(errors)[0]`, so our validator must be composed first —
+      // otherwise the framework's "Input is required" wins. `fixture.detectChanges()`
+      // mounts the input and attaches the template validator.
       fixture.componentRef.setInput(
         "policyResponse",
         makePolicyResponse(true, { rulesUrl: CUSTOM_URL }),

@@ -890,9 +890,8 @@ describe("DefaultDomainSettingsService", () => {
     });
 
     it("falls back to server config when the policy URL is a legacy default value", async () => {
-      // Legacy policies saved before the current default constant was adopted
-      // must be recognized here so runtime matches the edit UI (which also
-      // treats them as "Default") and they fetch current server config.
+      // Legacy default values must be recognized here so legacy policies fetch
+      // current server config, matching how the edit UI treats them.
       fillAssistPolicyMock$.next([
         makeFillAssistPolicy({
           rulesUrl: "https://github.com/bitwarden/map-the-web/releases/latest/download",

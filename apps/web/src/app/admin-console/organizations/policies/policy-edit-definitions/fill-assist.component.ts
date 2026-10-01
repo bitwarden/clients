@@ -65,17 +65,17 @@ function stripHttpsPrefix(value: string): string {
 const SCHEME_ATTEMPT = /^[a-z][a-z0-9+-]*:/i;
 
 /**
- * Validates a required host/path portion. Empty input, a bare partial `https://`
- * prefix, an unsupported protocol attempt, or anything the WHATWG URL parser
- * rejects all fail with the same `{ url: { message } }` shape — so the
- * form-field renders a single consistent error message from the caller instead
- * of the framework's default "required" text.
+ * Validates a required host/path portion. All failure cases — empty, a bare
+ * `https://` prefix, an unsupported protocol, or any WHATWG URL parser
+ * rejection — return the same `{ url: { message } }` shape so the form field
+ * renders one consistent caller-supplied message instead of the framework's
+ * default "required" text.
  *
- * Any leading `https://` (or in-progress forms `https:`, `https:/`) is stripped
- * first so the validator's view matches what the blur handler will leave in
- * the input. A scheme attempt after that strip is an unsupported protocol
- * (`http`, `ftp`, etc.), including the single-slash `http:/foo` form that the
- * WHATWG URL parser would otherwise accept as an empty-port hostname.
+ * Any leading `https://` (or in-progress `https:`, `https:/`) is stripped
+ * first so the validator sees what the blur handler leaves behind. A scheme
+ * attempt after that strip is an unsupported protocol (`http`, `ftp`, etc.),
+ * including the single-slash `http:/foo` form that WHATWG would otherwise
+ * accept as an empty-port hostname.
  */
 function requiredHostPathValidator(errorMessage: string): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -110,10 +110,8 @@ export type RuleSource = (typeof RuleSource)[keyof typeof RuleSource];
 
 /**
  * True if the stored URL should be interpreted as "use the default rules."
- * Empty/absent URL, the current default constant, or any historical default
- * value all count as Default. Legacy policies saved before the current
- * constant value was adopted are recognized via the historical set — see
- * `libs/common/src/autofill/constants/index.ts`.
+ * An empty or absent value, the current default, or any historical default
+ * (see `LEGACY_DEFAULT_FILL_ASSIST_RULES_URLS`) all qualify.
  */
 function isDefaultRulesUrl(url: string | null | undefined): boolean {
   if (!url) {
@@ -180,9 +178,8 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
     const rulesUrlControl = this.data.controls.rulesUrl;
 
     // Default source doesn't need a URL; disable the field so validators don't
-    // block the form. The disable/enable cycle preserves the value, so a URL
-    // entered under Custom survives toggling to Default and back — admin can
-    // cancel a mid-edit change without losing their input.
+    // block the form. The field keeps its value when disabled and re-enabled,
+    // so a URL entered under Custom survives toggling to Default and back.
     rulesUrlControl.disable();
 
     ruleSourceControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((source) => {
@@ -225,21 +222,16 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
     if (data == null) {
       return null;
     }
-    // Submit the default constant as a sentinel: the client resolver
-    // (`effectiveFillAssistRulesUrl$` in `domain-settings.service.ts`) treats
-    // this stored value as "fall through to server config." See the constants
-    // file for migration constraints if this value ever changes.
+    // Submit the default constant as a sentinel; the resolver
+    // (`effectiveFillAssistRulesUrl$`) treats it as "fall through to server
+    // config." See DEFAULT_FILL_ASSIST_RULES_URL for migration constraints.
     if (data.ruleSource === RuleSource.Default) {
       return { rulesUrl: DEFAULT_FILL_ASSIST_RULES_URL };
     }
-    // Prepend `https://` back so the stored policy data is a canonical full URL.
-    // Strip first to stay idempotent — submitting with Enter skips the blur
-    // handler, so the form value may still carry a pasted `https://` prefix.
-    // Trim before that: the URL constructor tolerates surrounding whitespace,
-    // so `"example.com/rules "` slips past the validator; without trimming here
-    // the space percent-encodes when the client joins the URL with the manifest
-    // filename and silently 404s. Also strip trailing slashes so the stored
-    // value is canonical and downstream URL composition stays consistent.
+    // Normalize before saving: trim whitespace (otherwise `"example.com "`
+    // slips past the validator and silently 404s), strip trailing slashes
+    // for canonical form, and re-add `https://`. Strip the prefix first
+    // so pasted `https://…` values don't end up double-prefixed.
     const rulesUrl =
       typeof data.rulesUrl === "string" ? data.rulesUrl.trim().replace(/\/+$/, "") : data.rulesUrl;
     return {

@@ -312,9 +312,9 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
         const withSlash = (u: string) => (u.endsWith("/") ? u : `${u}/`);
         const defaultUrl = withSlash(DEFAULT_FILL_ASSIST_RULES_URL);
 
-        // Normalize both sides so a trailing slash doesn't shadow server-config.
-        // Include LEGACY_DEFAULT_FILL_ASSIST_RULES_URLS so policies saved before
-        // the constant changed fetch current server config, not the retired URL.
+        // Normalize both sides so a trailing slash doesn't shadow server config.
+        // Legacy defaults count too — policies saved before the constant changed
+        // must fetch current server config, not the retired URL.
         const policyUrl = policy?.rulesUrl;
         const isDefault =
           !policyUrl ||

@@ -181,26 +181,22 @@ export const SHADOW_ROOT_CANDIDATE_NODE_NAMES = Object.freeze(
 );
 
 /**
- * Client-side sentinel meaning "use the default fill assist rules."
+ * Client-side sentinel meaning "use the default fill assist rules." The policy
+ * edit UI stores this value when the admin selects "Default"; the
+ * `effectiveFillAssistRulesUrl$` resolver in `DomainSettingsService` treats a
+ * match as "fall through to server config" (the region-specific CDN from
+ * `appsettings.fillAssistRules`).
  *
- * Not necessarily the URL that gets fetched: the `effectiveFillAssistRulesUrl$`
- * resolver in `DomainSettingsService` treats "policy URL matches this constant"
- * as "fall through to server config," which points to the region-specific CDN
- * from `appsettings.fillAssistRules` (`.com`, `.eu`, `.qa`, `.gov`).
- *
- * The fill assist policy edit UI stores this value when the admin selects
- * "Default" (see `fill-assist.component.ts`). Do not change this constant
- * without either a data migration or adding the old value to
- * LEGACY_DEFAULT_FILL_ASSIST_RULES_URLS below — otherwise existing "Default"
- * policies silently flip to "Custom" pointing at the old value.
+ * Changing this constant requires either a data migration or adding the old
+ * value to LEGACY_DEFAULT_FILL_ASSIST_RULES_URLS below — otherwise existing
+ * "Default" policies silently flip to "Custom" pointing at the retired URL.
  */
 export const DEFAULT_FILL_ASSIST_RULES_URL = "https://fillassist.bitwarden.com";
 
 /**
- * Historical values of DEFAULT_FILL_ASSIST_RULES_URL. Kept so that policies
- * saved before the current constant value was adopted are still recognized
- * as "Default" by the fill assist policy edit UI. Add previous values here
- * whenever DEFAULT_FILL_ASSIST_RULES_URL changes.
+ * Historical values of DEFAULT_FILL_ASSIST_RULES_URL. Policies saved before
+ * the current constant was adopted must still be recognized as "Default" by
+ * the edit UI and resolver. Add previous values here when the constant changes.
  */
 export const LEGACY_DEFAULT_FILL_ASSIST_RULES_URLS = Object.freeze(
   new Set<string>(["https://github.com/bitwarden/map-the-web/releases/latest/download"]),
