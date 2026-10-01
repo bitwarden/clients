@@ -251,9 +251,7 @@ export abstract class CipherReportComponent implements OnDestroy {
       }
 
       // convert cipher to cipher view model
-      const updatedCipherView = await updatedCipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, activeUserId),
-      );
+      const updatedCipherView = await this.cipherService.decrypt(updatedCipher, activeUserId);
 
       // request downstream report status if the cipher was updated
       // this will return a null if the updated cipher does not meet the criteria for the report

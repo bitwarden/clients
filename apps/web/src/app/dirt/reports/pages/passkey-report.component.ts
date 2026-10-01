@@ -271,9 +271,7 @@ export class PasskeyReportComponent implements OnInit {
     if (action === "saved") {
       const userId = this.userId();
       const updatedCipher = await this.cipherService.get(cipher.id, userId);
-      updatedCipherView = await updatedCipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, userId),
-      );
+      updatedCipherView = await this.cipherService.decrypt(updatedCipher, userId);
     }
 
     const updatedRows = this.passkeyReportService.applyDialogResult(
