@@ -1,12 +1,7 @@
 // eslint-disable-next-line no-restricted-imports
 import { EncryptedString, EncString } from "@bitwarden/legacy-crypto";
 
-import {
-  makeSymmetricCryptoKey,
-  mockContainerService,
-  mockEnc,
-  mockFromJson,
-} from "../../../../spec";
+import { mockFromJson } from "../../../../spec";
 import { CardData } from "../../../vault/models/data/card.data";
 import { Card } from "../../models/domain/card";
 
@@ -61,30 +56,6 @@ describe("Card", () => {
   it("toCardData", () => {
     const card = new Card(data);
     expect(card.toCardData()).toEqual(data);
-  });
-
-  it("Decrypt", async () => {
-    const card = new Card();
-    card.cardholderName = mockEnc("cardHolder");
-    card.brand = mockEnc("brand");
-    card.number = mockEnc("number");
-    card.expMonth = mockEnc("expMonth");
-    card.expYear = mockEnc("expYear");
-    card.code = mockEnc("code");
-
-    const userKey = makeSymmetricCryptoKey(64);
-
-    mockContainerService();
-    const view = await card.decrypt(userKey);
-
-    expect(view).toEqual({
-      _brand: "brand",
-      _number: "number",
-      cardholderName: "cardHolder",
-      code: "code",
-      expMonth: "expMonth",
-      expYear: "expYear",
-    });
   });
 
   describe("fromJSON", () => {

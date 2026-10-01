@@ -1508,6 +1508,29 @@ describe("Cipher Service", () => {
       expect(apiSpy).toHaveBeenCalledWith(testOrgId, undefined);
     });
 
+    it("should decrypt API ciphers via the SDK, keeping failures, when feature flag is disabled", async () => {
+      sdkCrudFeatureFlag$.next(false);
+
+      const decrypted = new CipherView();
+      decrypted.name = "b";
+      const failed = new CipherView();
+      failed.name = "a";
+      failed.decryptionFailure = true;
+
+      jest
+        .spyOn(apiService, "getCiphersOrganization")
+        .mockResolvedValue({ data: [new CipherResponse(cipherData)] } as any);
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[decrypted], [failed]]);
+
+      const result = await cipherService.getAllFromApiForOrganization(testOrgId);
+
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
+        [expect.any(Cipher)],
+        mockUserId,
+      );
+      expect(result).toEqual([failed, decrypted]);
+    });
+
     it("should use SDK to list organization ciphers when feature flag is enabled", async () => {
       sdkCrudFeatureFlag$.next(true);
 

@@ -162,7 +162,7 @@ describe("FidoAuthenticatorService", () => {
           ],
         });
         cipherService.get.mockImplementation(async (id) =>
-          id === excludedCipher.id ? ({ decrypt: () => excludedCipher } as any) : undefined,
+          id === excludedCipher.id ? ({} as any) : undefined,
         );
         cipherService.getAllDecrypted.mockResolvedValue([excludedCipher]);
         cipherService.decrypt.mockResolvedValue(excludedCipher);
