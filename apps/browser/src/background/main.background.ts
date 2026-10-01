@@ -618,6 +618,9 @@ export default class MainBackground {
   private phishingDetectionService: PhishingDetectionService;
 
   constructor() {
+    // Downstream services receive this callback and invoke it directly instead of
+    // going through LogoutService, so the log line that lives in DefaultLogoutService
+    // is mirrored here to cover this path.
     const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) => {
       this.logService.info("Logging out user %s for reason: %s", userId, logoutReason);
       await this.logout(logoutReason, userId);
