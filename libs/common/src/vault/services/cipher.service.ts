@@ -550,7 +550,7 @@ export class CipherService implements CipherServiceAbstraction {
     return (await this.createSdkUriRegexMatcher()) ?? NO_REGEX_MATCHES;
   }
 
-  /** Evaluates every regular-expression URI in one SDK call; skips the SDK when there are none. */
+  /** Evaluates every regular-expression URI up front; skips the SDK when there are none. */
   private async getPrimedUriRegexMatcher(
     ciphers: CipherViewLike[],
     url: string,
@@ -567,7 +567,7 @@ export class CipherService implements CipherServiceAbstraction {
     if (matcher == null) {
       return NO_REGEX_MATCHES;
     }
-    matcher.prime(patterns, url);
+    await matcher.prime(patterns, url);
     return matcher;
   }
 

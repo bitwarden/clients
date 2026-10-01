@@ -6,7 +6,7 @@ import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { DialogRef, DialogService } from "@bitwarden/components";
-import { PasswordManagerClient } from "@bitwarden/sdk-internal";
+import { PasswordManagerClient, validate_uri_regex } from "@bitwarden/sdk-internal";
 
 import { DESKTOP_APP_URI_PREFIX } from "../../../models/desktop-app-uri.constants";
 
@@ -16,11 +16,12 @@ import { UriOptionComponent } from "./uri-option.component";
 jest.mock("@bitwarden/sdk-internal", () => ({
   ...jest.requireActual("@bitwarden/sdk-internal"),
   isUriMatcherError: (error: unknown) => (error as Error)?.name === "UriMatcherError",
+  validate_uri_regex: jest.fn(),
 }));
 
 describe("UriOptionComponent", () => {
   let component: UriOptionComponent;
-  const uriMatcher = { matches: jest.fn(), matches_batch: jest.fn(), validate: jest.fn() };
+  const validateRegex = validate_uri_regex as jest.MockedFunction<typeof validate_uri_regex>;
   let fixture: ComponentFixture<UriOptionComponent>;
   let dialogServiceMock: jest.Mocked<DialogService>;
   let dialogRefMock: jest.Mocked<DialogRef<boolean>>;
@@ -61,9 +62,7 @@ describe("UriOptionComponent", () => {
         {
           provide: SdkService,
           useValue: {
-            client$: of({
-              vault: () => ({ uri_matcher: () => uriMatcher }),
-            } as unknown as PasswordManagerClient),
+            client$: of({} as PasswordManagerClient),
           },
         },
       ],
@@ -87,11 +86,11 @@ describe("UriOptionComponent", () => {
 
   describe("regular expression validation", () => {
     beforeEach(() => {
-      uriMatcher.validate.mockReset();
+      validateRegex.mockReset();
     });
 
     const rejectWith = (variant: string) =>
-      uriMatcher.validate.mockImplementation(() => {
+      validateRegex.mockImplementation(() => {
         throw Object.assign(new Error("Pattern is not usable"), {
           name: "UriMatcherError",
           variant,
@@ -107,7 +106,7 @@ describe("UriOptionComponent", () => {
 
       component["uriForm"].controls.uri.setValue("x(?!.*logout)");
 
-      expect(uriMatcher.validate).toHaveBeenCalledWith("x(?!.*logout)");
+      expect(validateRegex).toHaveBeenCalledWith("x(?!.*logout)");
       expect(component["uriForm"].controls.uri.errors).toEqual({
         invalidRegex: { message: "uriRegexUnsupported" },
       });
@@ -156,7 +155,7 @@ describe("UriOptionComponent", () => {
 
       component.writeValue({ uri: "(", matchDetection: UriMatchStrategy.Domain });
 
-      expect(uriMatcher.validate).not.toHaveBeenCalled();
+      expect(validateRegex).not.toHaveBeenCalled();
       expect(component.validate()).toBeNull();
     });
 

@@ -234,7 +234,7 @@ export class UriOptionComponent implements ControlValueAccessor, Validator {
     sdkService.client$
       .pipe(
         take(1),
-        map((sdk) => new SdkUriRegexMatcher(sdk.vault().uri_matcher())),
+        map(() => new SdkUriRegexMatcher()),
         // Without the SDK, validation is skipped and regex URIs don't match at autofill time.
         catchError(() => EMPTY),
         takeUntilDestroyed(),

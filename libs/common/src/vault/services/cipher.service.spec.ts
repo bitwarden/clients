@@ -22,7 +22,12 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { MessageSender } from "@bitwarden/messaging";
-import { CipherListView, PasswordManagerClient } from "@bitwarden/sdk-internal";
+import {
+  CipherListView,
+  PasswordManagerClient,
+  uri_regex_matches,
+  uri_regex_matches_batch,
+} from "@bitwarden/sdk-internal";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
 import { FakeStateProvider } from "../../../spec/fake-state-provider";
@@ -61,6 +66,12 @@ import { LoginView } from "../models/view/login.view";
 
 import { CipherService } from "./cipher.service";
 import { DECRYPTED_CIPHERS, ENCRYPTED_CIPHERS } from "./key-state/ciphers.state";
+
+jest.mock("@bitwarden/sdk-internal", () => ({
+  ...jest.requireActual("@bitwarden/sdk-internal"),
+  uri_regex_matches: jest.fn(),
+  uri_regex_matches_batch: jest.fn(),
+}));
 
 const ENCRYPTED_TEXT = "This data has been encrypted";
 function encryptText(clearText: string | Uint8Array) {
@@ -196,7 +207,10 @@ describe("Cipher Service", () => {
 
   describe("filterCiphersForUrl", () => {
     const url = "https://www.example.com/login";
-    const uriMatcher = { matches: jest.fn(), matches_batch: jest.fn(), validate: jest.fn() };
+    const matches = uri_regex_matches as jest.MockedFunction<typeof uri_regex_matches>;
+    const matchesBatch = uri_regex_matches_batch as jest.MockedFunction<
+      typeof uri_regex_matches_batch
+    >;
 
     const loginCipher = (uri: string, match: UriMatchStrategySetting) => {
       const cipher = new CipherView();
@@ -211,9 +225,7 @@ describe("Cipher Service", () => {
 
     beforeEach(() => {
       domainSettingsService.getUrlEquivalentDomains.mockReturnValue(of(new Set<string>()));
-      sdkService.client$ = of({
-        vault: () => ({ uri_matcher: () => uriMatcher }),
-      } as unknown as PasswordManagerClient);
+      sdkService.client$ = of({} as PasswordManagerClient);
     });
 
     it("does not load the SDK when no cipher has a regular expression URI", async () => {
@@ -238,7 +250,7 @@ describe("Cipher Service", () => {
         UriMatchStrategy.RegularExpression,
       );
       const notMatching = loginCipher("^https://other\\.com/", UriMatchStrategy.RegularExpression);
-      uriMatcher.matches_batch.mockReturnValue([true, false]);
+      matchesBatch.mockReturnValue(["Match", "NoMatch"]);
 
       const result = await cipherService.filterCiphersForUrl(
         [matching, notMatching],
@@ -248,12 +260,12 @@ describe("Cipher Service", () => {
       );
 
       expect(result).toEqual([matching]);
-      expect(uriMatcher.matches_batch).toHaveBeenCalledTimes(1);
-      expect(uriMatcher.matches_batch).toHaveBeenCalledWith(
+      expect(matchesBatch).toHaveBeenCalledTimes(1);
+      expect(matchesBatch).toHaveBeenCalledWith(
         ["^https://www\\.example\\.com/", "^https://other\\.com/"],
         url,
       );
-      expect(uriMatcher.matches).not.toHaveBeenCalled();
+      expect(matches).not.toHaveBeenCalled();
     });
 
     it("does not match regular expression URIs when the SDK is unavailable", async () => {
