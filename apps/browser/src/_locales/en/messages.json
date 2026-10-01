@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Click items to autofill on Vault view"
   },
-  "clickToAutofill": {
-    "message": "Click items in autofill suggestion to fill"
-  },
   "clearClipboard": {
     "message": "Clear clipboard",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
