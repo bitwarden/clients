@@ -39,6 +39,7 @@ import {
   DialogService,
   FormFieldModule,
   IconButtonModule,
+  IconComponent,
   SelectComponent,
   SelectModule,
 } from "@bitwarden/components";
@@ -51,7 +52,8 @@ import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.c
 const regexErrorMessageKeys: Partial<Record<UriRegexValidationError, string>> = {
   PatternTooLong: "uriRegexTooLong",
   PatternTooComplex: "uriRegexTooComplex",
-  UnsupportedConstruct: "uriRegexUnsupported",
+  UnsupportedBackreference: "uriRegexBackreference",
+  UnsupportedLookaround: "uriRegexLookaround",
 };
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -76,6 +78,7 @@ const regexErrorMessageKeys: Partial<Record<UriRegexValidationError, string>> = 
     FormFieldModule,
     ReactiveFormsModule,
     IconButtonModule,
+    IconComponent,
     JslibModule,
     SelectModule,
   ],

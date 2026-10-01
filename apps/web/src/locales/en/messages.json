@@ -13481,24 +13481,24 @@
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "uriRegexInvalid": {
-    "message": "This is not a valid regular expression.",
+    "message": "Enter a valid regular expression.",
     "description": "Form error shown when a website URI using the 'regular expression' match detection is not a valid regular expression."
   },
   "uriRegexTooLong": {
-    "message": "This regular expression is too long. Use 1000 characters or fewer.",
+    "message": "Enter a regular expression that is 1,000 characters or fewer.",
     "description": "Form error shown when a website URI using the 'regular expression' match detection exceeds the maximum length."
   },
   "uriRegexTooComplex": {
-    "message": "This regular expression is too complex. Simplify it or use fewer lookarounds and back-references.",
+    "message": "Use smaller repeat counts, such as {50} instead of {1000}, or less nesting.",
     "description": "Form error shown when a website URI using the 'regular expression' match detection is too large or complex to evaluate safely."
   },
-  "uriRegexUnsupported": {
-    "message": "This regular expression uses a feature that isn't supported for URI matching, such as a word boundary, a long or nested lookaround, or a lookaround inside a repeat.",
-    "description": "Form error shown when a website URI using the 'regular expression' match detection uses a construct whose matching cost can't be bounded."
+  "uriRegexBackreference": {
+    "message": "Enter a regular expression with no backreferences, such as \\1.",
+    "description": "Form error shown when a website URI using the 'regular expression' match detection uses a backreference, which isn't supported."
   },
-  "uriRegexSavedNotUsed": {
-    "message": "This saved regular expression isn't used for autofill until it's updated.",
-    "description": "Warning shown on an existing website URI whose saved 'regular expression' match detection can no longer be evaluated. Followed by the reason."
+  "uriRegexLookaround": {
+    "message": "Only negative lookarounds are allowed, such as ^https://(?!admin\\.).",
+    "description": "Form error shown when a website URI using the 'regular expression' match detection uses a lookaround other than a negative lookahead right after a fixed start."
   },
   "startsWithAdvancedOptionWarning": {
     "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",

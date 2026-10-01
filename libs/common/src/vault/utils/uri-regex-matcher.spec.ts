@@ -145,10 +145,10 @@ describe("SdkUriRegexMatcher", () => {
 
     it("returns the reason a pattern can't be saved", () => {
       validate.mockImplementation(() => {
-        throw uriMatcherError("UnsupportedConstruct");
+        throw uriMatcherError("UnsupportedLookaround");
       });
 
-      expect(matcher.validate("x(?!.*logout)")).toBe("UnsupportedConstruct");
+      expect(matcher.validate("x(?!.*logout)")).toBe("UnsupportedLookaround");
     });
 
     it("rethrows unexpected errors", () => {

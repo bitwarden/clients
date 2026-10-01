@@ -102,15 +102,24 @@ describe("UriOptionComponent", () => {
 
     it("shows the SDK's reason when an edited regular expression can't be saved", () => {
       loadRegex("^https://example\\.com/");
-      rejectWith("UnsupportedConstruct");
+      rejectWith("UnsupportedLookaround");
 
       component["uriForm"].controls.uri.setValue("x(?!.*logout)");
 
       expect(validateRegex).toHaveBeenCalledWith("x(?!.*logout)");
       expect(component["uriForm"].controls.uri.errors).toEqual({
-        invalidRegex: { message: "uriRegexUnsupported" },
+        invalidRegex: { message: "uriRegexLookaround" },
       });
-      expect(component.validate()).toEqual({ invalidRegex: { message: "uriRegexUnsupported" } });
+      expect(component.validate()).toEqual({ invalidRegex: { message: "uriRegexLookaround" } });
+    });
+
+    it("names backreferences as the reason a pattern can't be saved", () => {
+      loadRegex("a");
+      rejectWith("UnsupportedBackreference");
+
+      component["uriForm"].controls.uri.setValue("(\\w+)\\.\\1");
+
+      expect(component.validate()).toEqual({ invalidRegex: { message: "uriRegexBackreference" } });
     });
 
     it("uses a generic message for invalid patterns", () => {
@@ -123,21 +132,21 @@ describe("UriOptionComponent", () => {
     });
 
     it("warns instead of blocking save when an unchanged saved pattern is rejected", () => {
-      rejectWith("UnsupportedConstruct");
+      rejectWith("UnsupportedLookaround");
 
       loadRegex("x(?!.*logout)");
 
       expect(component.validate()).toBeNull();
-      expect(component["savedRegexWarning"]).toBe("uriRegexUnsupported");
+      expect(component["savedRegexWarning"]).toBe("uriRegexLookaround");
     });
 
     it("blocks save once a rejected saved pattern is edited", () => {
-      rejectWith("UnsupportedConstruct");
+      rejectWith("UnsupportedLookaround");
       loadRegex("x(?!.*logout)");
 
       component["uriForm"].controls.uri.setValue("y(?!.*logout)");
 
-      expect(component.validate()).toEqual({ invalidRegex: { message: "uriRegexUnsupported" } });
+      expect(component.validate()).toEqual({ invalidRegex: { message: "uriRegexLookaround" } });
       expect(component["savedRegexWarning"]).toBeNull();
     });
 
