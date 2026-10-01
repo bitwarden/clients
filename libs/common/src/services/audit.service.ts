@@ -28,11 +28,12 @@ export class AuditService implements AuditServiceAbstraction {
     resolve: (count: number) => void;
     reject: (err: any) => void;
     addPadding: boolean;
+    strict: boolean;
   }>();
 
   /**
    * @param maxConcurrent Ceiling on in-flight range lookups, shared by every caller of
-   * {@link passwordLeaked}. This is the only limiter on that path — callers fanning out over a
+   * {@link passwordLeaked} and {@link passwordLeakedStrict}. This is the only limiter on that path — callers fanning out over a
    * vault should not add their own, or the effective ceiling stops being discoverable from either
    * place. The Pwned Passwords API imposes no rate limit, needs no key, and asks for no
    * attribution; the ceiling exists for self-hosted deployments, whose own network, proxy, or
@@ -50,7 +51,9 @@ export class AuditService implements AuditServiceAbstraction {
           // Handle each password leak request, resolving or rejecting the associated promise.
           async (req) => {
             try {
-              const count = await this.fetchLeakedPasswordCount(req.password, req.addPadding);
+              const count = req.strict
+                ? await this.fetchLeakedPasswordCountStrict(req.password, req.addPadding)
+                : await this.fetchLeakedPasswordCount(req.password, req.addPadding);
               req.resolve(count);
             } catch (err) {
               req.reject(err);
@@ -64,19 +67,55 @@ export class AuditService implements AuditServiceAbstraction {
 
   async passwordLeaked(password: string, addPadding: boolean = true): Promise<number> {
     return new Promise<number>((resolve, reject) => {
-      this.passwordLeakedSubject.next({ password, resolve, reject, addPadding });
+      this.passwordLeakedSubject.next({ password, resolve, reject, addPadding, strict: false });
+    });
+  }
+
+  async passwordLeakedStrict(password: string, addPadding: boolean = true): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
+      this.passwordLeakedSubject.next({ password, resolve, reject, addPadding, strict: true });
     });
   }
 
   /**
    * Fetches the count of leaked passwords from the Pwned Passwords API.
-   *
-   * Always settles, within {@link RangeRequestTimeoutMs}.
-   *
    * @param password The password to check.
    * @returns A promise that resolves to the number of times the password has been leaked.
    */
   protected async fetchLeakedPasswordCount(password: string, addPadding: boolean): Promise<number> {
+    const hashBytes = await this.cryptoFunctionService.hash(password, "sha1");
+    const hash = Utils.fromArrayToHex(hashBytes)!.toUpperCase();
+    const hashStart = hash.substr(0, 5);
+    const hashEnding = hash.substr(5);
+
+    const headers = new Headers();
+    if (addPadding) {
+      headers.append("Add-Padding", "true");
+    }
+
+    const request = new Request(PwnedPasswordsApi + hashStart, {
+      headers,
+    });
+    const response = await this.apiService.nativeFetch(request);
+    const leakedHashes = await response.text();
+    const match = leakedHashes.split(/\r?\n/).find((v) => {
+      return v.split(":")[0] === hashEnding;
+    });
+
+    return match != null ? parseInt(match.split(":")[1], 10) : 0;
+  }
+
+  /**
+   * Like {@link fetchLeakedPasswordCount}, but rejects on a non-2xx status and settles within
+   * {@link RangeRequestTimeoutMs}.
+   *
+   * @param password The password to check.
+   * @returns A promise that resolves to the number of times the password has been leaked.
+   */
+  protected async fetchLeakedPasswordCountStrict(
+    password: string,
+    addPadding: boolean,
+  ): Promise<number> {
     const hashBytes = await this.cryptoFunctionService.hash(password, "sha1");
     const hash = Utils.fromArrayToHex(hashBytes)!.toUpperCase();
     const hashStart = hash.substr(0, 5);

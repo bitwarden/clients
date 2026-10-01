@@ -151,7 +151,7 @@ describe("AuditService", () => {
       text: jest.fn().mockResolvedValue("AACDDEEFF:99\r\nCDDEEFF:4"),
     } as unknown as Response);
 
-    await expect(auditService.passwordLeaked("password")).resolves.toBe(4);
+    await expect(auditService.passwordLeakedStrict("password")).resolves.toBe(4);
   });
 
   it("should report not exposed when the hash is absent from the range", async () => {
@@ -160,7 +160,7 @@ describe("AuditService", () => {
       text: jest.fn().mockResolvedValue("DDEEFF:2\r\n123456:1"),
     } as unknown as Response);
 
-    await expect(auditService.passwordLeaked("password")).resolves.toBe(0);
+    await expect(auditService.passwordLeakedStrict("password")).resolves.toBe(0);
   });
 
   it("should reject rather than report not exposed when the range request fails", async () => {
@@ -172,14 +172,24 @@ describe("AuditService", () => {
       text: jest.fn().mockResolvedValue("rate limited"),
     } as unknown as Response);
 
-    await expect(auditService.passwordLeaked("password")).rejects.toThrow("status 429");
+    await expect(auditService.passwordLeakedStrict("password")).rejects.toThrow("status 429");
+  });
+
+  it("should keep reporting not exposed on a failed range request from passwordLeaked", async () => {
+    mockApi.nativeFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 429,
+      text: jest.fn().mockResolvedValue("rate limited"),
+    } as unknown as Response);
+
+    await expect(auditService.passwordLeaked("password")).resolves.toBe(0);
   });
 
   it("should reject when a range request never responds", async () => {
     mockApi.nativeFetch.mockImplementationOnce((request) => stalledFetch(request));
 
     // Attach the expectation before advancing timers, or the rejection escapes as unhandled.
-    const leaked = expect(auditService.passwordLeaked("password")).rejects.toThrow("aborted");
+    const leaked = expect(auditService.passwordLeakedStrict("password")).rejects.toThrow("aborted");
     await jest.advanceTimersByTimeAsync(RangeRequestTimeoutMs);
 
     await leaked;
@@ -191,8 +201,8 @@ describe("AuditService", () => {
     const service = new AuditService(mockCrypto, mockApi, mockHibpApi, 1);
     mockApi.nativeFetch.mockImplementationOnce((request) => stalledFetch(request));
 
-    const stalled = expect(service.passwordLeaked("stalled")).rejects.toThrow("aborted");
-    const queuedBehindIt = service.passwordLeaked("queued");
+    const stalled = expect(service.passwordLeakedStrict("stalled")).rejects.toThrow("aborted");
+    const queuedBehindIt = service.passwordLeakedStrict("queued");
 
     await jest.advanceTimersByTimeAsync(RangeRequestTimeoutMs);
 

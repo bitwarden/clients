@@ -232,6 +232,7 @@ describe("DefaultCipherHealthService", () => {
       // Default mocks
       passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 3 } as ZXCVBNResult);
       auditService.passwordLeaked.mockResolvedValue(0);
+      auditService.passwordLeakedStrict.mockResolvedValue(0);
     });
 
     it("should return empty map for empty cipher array", (done) => {
@@ -290,9 +291,9 @@ describe("DefaultCipherHealthService", () => {
 
       await firstValueFrom(service.checkCipherHealth(ciphers));
 
-      expect(auditService.passwordLeaked).toHaveBeenCalledTimes(2);
-      expect(auditService.passwordLeaked).toHaveBeenCalledWith("shared", false);
-      expect(auditService.passwordLeaked).toHaveBeenCalledWith("unique", false);
+      expect(auditService.passwordLeakedStrict).toHaveBeenCalledTimes(2);
+      expect(auditService.passwordLeakedStrict).toHaveBeenCalledWith("shared", false);
+      expect(auditService.passwordLeakedStrict).toHaveBeenCalledWith("unique", false);
     });
 
     it("should look up each cipher separately when the flag is off", async () => {
@@ -359,7 +360,7 @@ describe("DefaultCipherHealthService", () => {
         createMockCipher({ id: "3", password: "unique" }),
       ];
 
-      auditService.passwordLeaked.mockImplementation((password: string) =>
+      auditService.passwordLeakedStrict.mockImplementation((password: string) =>
         Promise.resolve(password === "shared" ? 42 : 0),
       );
 
@@ -386,7 +387,7 @@ describe("DefaultCipherHealthService", () => {
       const slowLookup = new Promise<number>((resolve) => {
         releaseSlowLookup = resolve;
       });
-      auditService.passwordLeaked.mockImplementation((password: string) =>
+      auditService.passwordLeakedStrict.mockImplementation((password: string) =>
         password === "slow" ? slowLookup : Promise.resolve(0),
       );
 
@@ -416,7 +417,7 @@ describe("DefaultCipherHealthService", () => {
         createMockCipher({ id: "3", password: "third" }),
       ];
 
-      auditService.passwordLeaked.mockImplementation((password: string) =>
+      auditService.passwordLeakedStrict.mockImplementation((password: string) =>
         password === "unreachable" ? Promise.reject(new Error("network down")) : Promise.resolve(7),
       );
 
@@ -435,7 +436,7 @@ describe("DefaultCipherHealthService", () => {
       const ciphers = [createMockCipher({ id: "1", password: "unreachable" })];
 
       passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 1 } as ZXCVBNResult);
-      auditService.passwordLeaked.mockRejectedValue(new Error("network down"));
+      auditService.passwordLeakedStrict.mockRejectedValue(new Error("network down"));
 
       const healthMap = await firstValueFrom(service.checkCipherHealth(ciphers));
 
@@ -448,7 +449,7 @@ describe("DefaultCipherHealthService", () => {
         createMockCipher({ id: `${i}`, password: `unreachable${i}` }),
       );
 
-      auditService.passwordLeaked.mockRejectedValue(new Error("network down"));
+      auditService.passwordLeakedStrict.mockRejectedValue(new Error("network down"));
 
       await firstValueFrom(service.checkCipherHealth(ciphers));
 
@@ -462,7 +463,7 @@ describe("DefaultCipherHealthService", () => {
         createMockCipher({ id: `${i}`, password: "shared" }),
       );
 
-      auditService.passwordLeaked.mockRejectedValue(new Error("network down"));
+      auditService.passwordLeakedStrict.mockRejectedValue(new Error("network down"));
 
       await firstValueFrom(service.checkCipherHealth(ciphers));
 
@@ -489,7 +490,7 @@ describe("DefaultCipherHealthService", () => {
       let concurrentCalls = 0;
       let maxConcurrent = 0;
 
-      auditService.passwordLeaked.mockImplementation(() => {
+      auditService.passwordLeakedStrict.mockImplementation(() => {
         concurrentCalls++;
         maxConcurrent = Math.max(maxConcurrent, concurrentCalls);
 
@@ -533,7 +534,7 @@ describe("DefaultCipherHealthService", () => {
         createMockCipher({ id: "2", password: "SafePassword" }),
       ];
 
-      auditService.passwordLeaked.mockImplementation((password: string) => {
+      auditService.passwordLeakedStrict.mockImplementation((password: string) => {
         return Promise.resolve(password === "ExposedPassword" ? 42 : 0);
       });
 

@@ -5,9 +5,14 @@ export abstract class AuditService {
    * Checks how many times a password has been leaked.
    * @param password The password to check.
    * @returns A promise that resolves to the number of times the password has been leaked.
-   * @throws If the lookup returns a non-2xx status or times out.
    */
   abstract passwordLeaked: (password: string, addPadding?: boolean) => Promise<number>;
+
+  /**
+   * Like {@link passwordLeaked}, but rejects instead of reporting not leaked when the lookup fails.
+   * @throws If the lookup returns a non-2xx status or times out.
+   */
+  abstract passwordLeakedStrict: (password: string, addPadding?: boolean) => Promise<number>;
 
   /**
    * Retrieves accounts that have been breached for a given username.

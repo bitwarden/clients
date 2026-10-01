@@ -223,7 +223,7 @@ export class DefaultCipherHealthService extends CipherHealthService {
     cipherGroup: CipherView[],
   ): Observable<PasswordGroupHealth> {
     // Only reached with the performance flag on, which drops padding.
-    return from(this.auditService.passwordLeaked(password, false)).pipe(
+    return from(this.auditService.passwordLeakedStrict(password, false)).pipe(
       map((exposedCount) => ({ exposedCount, failed: false })),
       catchError(() => of({ exposedCount: 0, failed: true })),
       map(({ exposedCount, failed }) => ({
