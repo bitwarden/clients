@@ -444,10 +444,13 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       expect((component as any).isSubmitDisabled).toBe(true);
     });
 
-    it("surfaces the error state (callout shown, submit disabled) when the preview request fails", async () => {
+    it("shows a toast and surfaces the error callout (submit disabled) when the preview request fails", async () => {
       selectEnterpriseAnnual();
       previewCartFlag$.next(true);
       invoicePreviewService.previewPlanChangeCart.mockRejectedValue(new Error("preview failed"));
+      const billingNotificationService = TestBed.inject(BillingNotificationService);
+      const i18nService = (component as any).i18nService as jest.Mocked<I18nService>;
+      i18nService.t.mockImplementation((key: string) => key);
 
       (component as any).refreshPlanChangePreview();
       TestBed.tick();
@@ -455,24 +458,33 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
       TestBed.tick();
 
+      expect(billingNotificationService.showError).toHaveBeenCalledWith(
+        "invoicePreviewErrorMessage",
+      );
       expect((component as any).planChangeCart.error()).toBeTruthy();
       expect((component as any).planChangeCart.hasValue()).toBe(false);
       expect((component as any).isSubmitDisabled).toBe(true);
-      expect((component as any).previewErrorMessageKey).toBe("billingPreviewInvoiceError");
+      expect((component as any).previewErrorMessageKey).toBe("invoicePreviewErrorMessage");
     });
 
-    it("shows the check-your-billing-details message when the preview fails validation (400)", async () => {
+    it("shows a toast pointing at the billing details when the preview fails validation (400)", async () => {
       selectEnterpriseAnnual();
       previewCartFlag$.next(true);
       invoicePreviewService.previewPlanChangeCart.mockRejectedValue(
         new ErrorResponse({ Message: "bad request" }, 400),
       );
+      const billingNotificationService = TestBed.inject(BillingNotificationService);
+      const i18nService = (component as any).i18nService as jest.Mocked<I18nService>;
+      i18nService.t.mockImplementation((key: string) => key);
 
       (component as any).refreshPlanChangePreview();
       TestBed.tick();
       await new Promise((resolve) => setTimeout(resolve, 0));
       TestBed.tick();
 
+      expect(billingNotificationService.showError).toHaveBeenCalledWith(
+        "billingPreviewInvalidAddressError",
+      );
       expect((component as any).previewErrorMessageKey).toBe("billingPreviewInvalidAddressError");
     });
   });

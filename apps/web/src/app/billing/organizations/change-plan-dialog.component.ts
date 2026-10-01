@@ -270,20 +270,33 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   protected planChangeCart = resource({
     params: () => (this.previewCartEnabled() ? this.planChangeRequest() : undefined),
-    loader: ({ params }) =>
-      this.invoicePreviewService.previewPlanChangeCart(this.organizationId, params),
+    loader: async ({ params }) => {
+      try {
+        return await this.invoicePreviewService.previewPlanChangeCart(this.organizationId, params);
+      } catch (error) {
+        this.billingNotificationService.showError(
+          this.i18nService.t(this.messageForPreviewError(error)),
+        );
+        throw error;
+      }
+    },
   });
 
-  // Message shown in the error callout: a 400 points the user at their billing details, any other
-  // failure is a generic preview error. The resource wraps a non-Error rejection (ErrorResponse
-  // isn't an Error) and puts the original on `cause`, so unwrap that.
+  // Message shown in the error callout, from the resource's returned error object.
   protected get previewErrorMessageKey(): string {
-    const error = this.planChangeCart.error();
+    return this.messageForPreviewError(this.planChangeCart.error());
+  }
+
+  // A 400 means the request was rejected on user input — for this request that's the billing
+  // address (plan/cadence are fixed enums). Anything else is a generic preview failure.
+  private messageForPreviewError(error: unknown): string {
+    // The resource wraps a non-Error rejection (ErrorResponse isn't an Error) and puts the
+    // original on `cause`, so unwrap that before inspecting the status.
     const response =
       error instanceof ErrorResponse ? error : (error as { cause?: unknown } | undefined)?.cause;
     return response instanceof ErrorResponse && response.statusCode === 400
       ? "billingPreviewInvalidAddressError"
-      : "billingPreviewInvoiceError";
+      : "invoicePreviewErrorMessage";
   }
 
   protected get showPreviewCart(): boolean {
