@@ -573,7 +573,7 @@ export class CipherService implements CipherServiceAbstraction {
       organizationId,
       includeMemberItems,
     );
-    return await this.decryptOrganizationCiphersResponse(response, organizationId);
+    return await this.decryptOrganizationCiphersResponse(response);
   }
 
   private async getAllFromApiForOrganizationUsingSdk(
@@ -628,7 +628,6 @@ export class CipherService implements CipherServiceAbstraction {
 
   private async decryptOrganizationCiphersResponse(
     response: ListResponse<CipherResponse>,
-    organizationId: string,
   ): Promise<CipherView[]> {
     if (response?.data == null || response.data.length < 1) {
       return [];
@@ -638,14 +637,12 @@ export class CipherService implements CipherServiceAbstraction {
     if (!userId) {
       throw new Error("User ID is required");
     }
-    const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
-    const key = orgKeys?.[organizationId as OrganizationId] ?? null;
     const ciphers = response.data.map((cr) => new Cipher(new CipherData(cr)));
-    const decCiphers: CipherView[] = await Promise.all(
-      ciphers.map(async (cipher) => {
-        return await cipher.decrypt(key);
-      }),
+    const [successful, failed] = await this.cipherEncryptionService.decryptManyLegacy(
+      ciphers,
+      userId,
     );
+    const decCiphers = [...successful, ...failed];
 
     decCiphers.sort(this.getLocaleSortingFunction());
     return decCiphers;
