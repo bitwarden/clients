@@ -263,7 +263,7 @@ sort, which is only available from inside that method.
 The trigger is recorded because the flow fetches the full cipher set twice in a session: once at
 page open, and again when an administrator generates. Distinct names keep the two attributable.
 
-To label the step, `fetchOrgCiphers$` reads `PM27632_SdkCipherCrudOperations` itself and does not
+To label the step, `fetchOrgLogins$` reads `PM27632_SdkCipherCrudOperations` itself and does not
 act on it: there is no branch on the value, and the same flag is resolved inside `CipherService`
 anyway. It is read only to name the measurement. The cost is that the fetch now waits on a config
 emission it previously contained, so the flag is taken with `first()` and the label reflects the
