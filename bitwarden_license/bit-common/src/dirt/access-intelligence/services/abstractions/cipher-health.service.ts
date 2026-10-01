@@ -48,8 +48,8 @@ export abstract class CipherHealthService {
    * Checks for weak password and HIBP exposure. Cannot detect password reuse
    * without other ciphers for comparison (use checkCipherHealth for reuse detection).
    *
-   * Unlike {@link checkCipherHealth}, a failed exposure lookup errors the observable, leaving the
-   * single caller to decide how to handle it.
+   * A network failure during the exposure lookup errors the observable, leaving the single caller
+   * to decide how to handle it.
    *
    * @param cipher - Single cipher to analyze
    * @returns Health results for the cipher

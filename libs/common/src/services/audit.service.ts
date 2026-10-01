@@ -13,7 +13,7 @@ import { Utils } from "../platform/misc/utils";
 const PwnedPasswordsApi = "https://api.pwnedpasswords.com/range/";
 
 /**
- * Ceiling on a single range lookup.
+ * Ceiling on a single strict range lookup ({@link AuditService.passwordLeakedStrict} only).
  *
  * This is a safety valve, not a latency target: a request that never settles holds its slot in the
  * concurrency limiter forever, so a caller fanning out over a whole vault silently loses throughput
@@ -33,11 +33,11 @@ export class AuditService implements AuditServiceAbstraction {
 
   /**
    * @param maxConcurrent Ceiling on in-flight range lookups, shared by every caller of
-   * {@link passwordLeaked} and {@link passwordLeakedStrict}. This is the only limiter on that path — callers fanning out over a
-   * vault should not add their own, or the effective ceiling stops being discoverable from either
-   * place. The Pwned Passwords API imposes no rate limit, needs no key, and asks for no
-   * attribution; the ceiling exists for self-hosted deployments, whose own network, proxy, or
-   * gateway may object to the volume.
+   * {@link passwordLeaked} and {@link passwordLeakedStrict}. This is the only limiter on that
+   * path — callers fanning out over a vault should not add their own, or the effective ceiling
+   * stops being discoverable from either place. The Pwned Passwords API imposes no rate limit,
+   * needs no key, and asks for no attribution; the ceiling exists for self-hosted deployments,
+   * whose own network, proxy, or gateway may object to the volume.
    */
   constructor(
     private cryptoFunctionService: CryptoFunctionService,

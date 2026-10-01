@@ -122,6 +122,7 @@ tells you which one you are reading.
 | `previousApplicationCount` | Application settings the previous report supplied                                                                                                                                                                                                                         |
 | `collectionCount`          | Collections returned for the organization, with access details                                                                                                                                                                                                            |
 | `groupCount`               | Groups with at least one member, derived from the member response                                                                                                                                                                                                         |
+| `concurrencyLimit`         | Breach lookups allowed in flight at once, flag-off arm only. A source constant, not measured                                                                                                                                                                              |
 
 Three of these count members, and they narrow in that order:
 `memberCount` ≤ `mappedMemberCount` ≤ `orgMemberCount`. Resolution drops members with no collection
@@ -290,11 +291,12 @@ recorder attached, and this repository has no analytics or telemetry sink.
 Collection, aggregation and reporting are explicitly out of scope. This instrumentation provides
 the raw measurement capability; consuming it is a developer workflow concern.
 
-Properties are limited to two kinds of value:
+Properties are limited to three kinds of value:
 
 - **Cardinality.** How many ciphers, members, applications, collections or groups took part in a
   step.
 - **Artifact size.** Byte and character lengths of the serialized and encrypted report artifacts.
+- **Code constants.** `concurrencyLimit` is a literal read from the source (flag-off arm only).
 
 Nothing derived from vault content is recorded. Specifically absent, and deliberately so:
 application names and hostnames, cipher identifiers, member identifiers, email addresses,
