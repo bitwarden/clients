@@ -286,7 +286,7 @@ describe("WebRequestBackground", () => {
 
       await triggerAuthRequired();
 
-      expect(callback).toHaveBeenCalledWith();
+      expect(callback).toHaveBeenCalledWith({});
     });
 
     it("does not respond with credentials when the matching login has no password", async () => {
@@ -296,7 +296,15 @@ describe("WebRequestBackground", () => {
 
       await triggerAuthRequired();
 
-      expect(callback).toHaveBeenCalledWith();
+      expect(callback).toHaveBeenCalledWith({});
+    });
+
+    it("does not respond with credentials when the cipher lookup throws", async () => {
+      cipherService.getAllDecryptedForUrl.mockRejectedValue(new Error("lookup failed"));
+
+      await triggerAuthRequired();
+
+      expect(callback).toHaveBeenCalledWith({});
     });
 
     it("does not look up ciphers when the vault is locked", async () => {
@@ -305,7 +313,21 @@ describe("WebRequestBackground", () => {
       await triggerAuthRequired();
 
       expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
-      expect(callback).toHaveBeenCalledWith();
+      expect(callback).toHaveBeenCalledWith({});
+    });
+
+    it("returns the same response it passes to the callback", async () => {
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+        createCipher("jane.doe@example.com", "fake-password"),
+      ]);
+      const handleAuthRequired = webRequest.onAuthRequired.addListener.mock.calls[0][0];
+
+      const response = await handleAuthRequired({ url, requestId: "request-1" }, callback);
+
+      expect(response).toEqual({
+        authCredentials: { username: "jane.doe@example.com", password: "fake-password" },
+      });
+      expect(callback).toHaveBeenCalledWith(response);
     });
 
     it("defers to the browser for a repeated challenge on the same request", async () => {
@@ -317,7 +339,7 @@ describe("WebRequestBackground", () => {
 
       await triggerAuthRequired();
 
-      expect(callback).toHaveBeenCalledWith(null);
+      expect(callback).toHaveBeenCalledWith({});
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(1);
     });
 
@@ -333,6 +355,46 @@ describe("WebRequestBackground", () => {
       await triggerAuthRequired();
 
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(2);
+    });
+
+    describe("on Firefox", () => {
+      const triggerFirefoxAuthRequired = (requestId = "request-1") => {
+        const handleAuthRequired = webRequest.onAuthRequired.addListener.mock.calls[0][0];
+        return handleAuthRequired({ url, requestId });
+      };
+
+      beforeEach(() => {
+        jest.clearAllMocks();
+        platformUtilsService.isFirefox.mockReturnValue(true);
+        webRequestBackground = createWebRequestBackground();
+        webRequestBackground.startListening();
+      });
+
+      it("returns the credentials of the single matching login without a callback", async () => {
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([
+          createCipher("jane.doe@example.com", "fake-password"),
+        ]);
+
+        await expect(triggerFirefoxAuthRequired()).resolves.toEqual({
+          authCredentials: { username: "jane.doe@example.com", password: "fake-password" },
+        });
+      });
+
+      it("resolves to an empty response when no credentials are released", async () => {
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([]);
+
+        await expect(triggerFirefoxAuthRequired()).resolves.toEqual({});
+      });
+
+      it("resolves to an empty response for a repeated challenge on the same request", async () => {
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([
+          createCipher("jane.doe@example.com", "fake-password"),
+        ]);
+        await triggerFirefoxAuthRequired();
+
+        await expect(triggerFirefoxAuthRequired()).resolves.toEqual({});
+        expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(1);
+      });
     });
   });
 });

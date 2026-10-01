@@ -113,74 +113,78 @@ export default class WebRequestBackground {
     this.listenersRegistered = false;
   }
 
+  /**
+   * Answers an auth challenge on both listener contracts: Chrome's `asyncBlocking`
+   * passes a callback, while Firefox, which does not support `asyncBlocking`,
+   * passes none and reads the promise this returns under `blocking`.
+   */
   private handleAuthRequired = async (
     details: chrome.webRequest.OnAuthRequiredDetails,
-    callback: (response: chrome.webRequest.BlockingResponse | null) => void,
-  ) => {
-    if (!details.url || this.pendingAuthRequests.has(details.requestId)) {
-      if (callback) {
-        callback(null);
-      }
-      return;
+    callback?: (response: chrome.webRequest.BlockingResponse) => void,
+  ): Promise<chrome.webRequest.BlockingResponse> => {
+    const response = await this.getAuthChallengeResponse(details);
+
+    if (callback) {
+      callback(response);
     }
-    this.pendingAuthRequests.add(details.requestId);
-    if (this.isFirefox) {
-      // eslint-disable-next-line
-      return new Promise(async (resolve, reject) => {
-        await this.resolveAuthCredentials(details.url, resolve, reject);
-      });
-    } else {
-      await this.resolveAuthCredentials(details.url, callback, callback);
-    }
+
+    return response;
   };
 
-  private async resolveAuthCredentials(
-    domain: string,
-    success: (response: chrome.webRequest.BlockingResponse | null) => void,
-    // eslint-disable-next-line
-    error: Function,
-  ) {
+  /**
+   * Resolves to the credentials of the single vault login matching the request
+   * host, or to an empty response that leaves the challenge to the browser.
+   */
+  private async getAuthChallengeResponse(
+    details: chrome.webRequest.OnAuthRequiredDetails,
+  ): Promise<chrome.webRequest.BlockingResponse> {
+    if (!details.url || this.pendingAuthRequests.has(details.requestId)) {
+      return {};
+    }
+
+    this.pendingAuthRequests.add(details.requestId);
+
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
+
     if (activeUserId == null) {
-      error();
-      return;
+      return {};
     }
 
     const authStatus = await firstValueFrom(this.authService.authStatusFor$(activeUserId));
+
     if (authStatus < AuthenticationStatus.Unlocked) {
-      error();
-      return;
+      return {};
     }
 
     try {
       const ciphers = await this.cipherService.getAllDecryptedForUrl(
-        domain,
+        details.url,
         activeUserId,
         undefined,
         UriMatchStrategy.Host,
       );
+
       if (ciphers == null || ciphers.length !== 1) {
-        error();
-        return;
+        return {};
       }
 
       const username = ciphers[0].login?.username;
       const password = ciphers[0].login?.password;
+
       if (username == null || password == null) {
-        error();
-        return;
+        return {};
       }
 
-      success({
+      return {
         authCredentials: {
           username,
           password,
         },
-      });
+      };
     } catch {
-      error();
+      return {};
     }
   }
 
