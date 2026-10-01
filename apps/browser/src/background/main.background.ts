@@ -916,11 +916,7 @@ export default class MainBackground {
     );
 
     this.hibpApiService = new HibpApiService(this.apiService);
-    this.fileUploadService = new FileUploadService(
-      this.logService,
-      this.apiService,
-      this.configService,
-    );
+    this.fileUploadService = new FileUploadService(this.logService, this.apiService);
     this.searchService = new SearchService(this.logService, this.i18nService);
 
     this.badgeSettingsService = new BadgeSettingsService(this.stateProvider);
