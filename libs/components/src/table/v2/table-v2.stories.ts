@@ -944,7 +944,7 @@ class DemoLongLabelFiltersTableComponent {
     IconButtonModule,
   ],
   template: `
-    <bit-table-v2 [tableDef]="table" stateKey="storybook-bounded-widths">
+    <bit-table-v2 [tableDef]="table" stateKey="vaultItems">
       <bit-table-toolbar>
         <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
       </bit-table-toolbar>
@@ -1348,7 +1348,7 @@ export const ReorderedAndHidden: Story = {
 
 /** A table that opts two of its three columns into the Customize dialog. */
 const customizeColumnsTemplate = `
-  <bit-table-v2 [tableDef]="table" stateKey="storybook-customize">
+  <bit-table-v2 [tableDef]="table" stateKey="vaultItems">
     <bit-table-toolbar>
       <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
       <button bitButton buttonType="secondary" type="button" slot="end" startIcon="bwi-download">

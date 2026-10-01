@@ -79,9 +79,6 @@ jobs:
       - name: Lint sdk-internal versions
         run: npm run lint:sdk-internal-versions
 
-      - name: Lint table state keys
-        run: npm run lint:table-state-keys
-
       - name: Run linter
         run: npm run lint
 

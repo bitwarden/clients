@@ -22,6 +22,7 @@ import { BitHeaderCellComponent } from "./bit-header-cell.component";
 import { BitTableToolbarComponent } from "./bit-table-toolbar.component";
 import { CustomizeColumnsDialogComponent } from "./customize-columns-dialog.component";
 import { defineTable } from "./table-def";
+import { TableStateKey } from "./table-state-keys";
 import { BitTableV2Component } from "./table-v2.component";
 
 @Component({
@@ -346,7 +347,7 @@ describe("BitTableToolbarComponent active filter chips", () => {
   `,
 })
 class RemovableHostComponent {
-  readonly key = signal<string | undefined>("toolbar-test");
+  readonly key = signal<TableStateKey | undefined>("vaultItems");
   readonly removable = signal(true);
   readonly rows = signal([{ name: "one", other: "two" }]);
   readonly table = defineTable<{ name: string; other: string }>(this.rows);

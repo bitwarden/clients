@@ -55,6 +55,7 @@ import { TableColumnPreferencesService } from "./table-column-preferences.servic
 import { TableDef } from "./table-def";
 import { TABLE_PRESENTATION, TablePresentation } from "./table-presentation";
 import { TableSelectionConfig, TableSelectionModel } from "./table-selection-model";
+import { TABLE_STATE_KEYS, TableStateKey } from "./table-state-keys";
 import { TableVirtualScrollStrategy } from "./table-virtual-scroll.strategy";
 
 /** Grid track width for the internal selection column: the 24px checkbox plus the cell's `tw-px-4`. */
@@ -321,10 +322,9 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * Required once any `<bit-column>` is marked `removable` — without it there is
    * nowhere to persist the user's choice, so the Customize control stays hidden.
    *
-   * A key is a persistence identity, not a label: unique across every table (enforced by
-   * `npm run lint:table-state-keys`), and renaming one discards every preference saved under it.
+   * Register new keys in `table-state-keys.ts`.
    */
-  readonly stateKey = input<string>();
+  readonly stateKey = input<TableStateKey>();
 
   /**
    * The table's combined URL state, mirrored to the `queryParam` namespace. Seeds from
@@ -676,7 +676,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     if (key == null || !this.canCustomizeColumns()) {
       return EMPTY_COLUMN_NAMES;
     }
-    const stored = this.columnPreferences.hidden(key)();
+    const stored = this.columnPreferences.hidden(TABLE_STATE_KEYS[key])();
     const togglable = this.removableColumns()
       .map((col) => col.name())
       .filter((name): name is string => name != null && stored.has(name));
@@ -799,7 +799,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   setColumnHidden(name: string, hidden: boolean): void {
     const key = this.stateKey();
     if (key != null) {
-      this.columnPreferences.setColumnHidden(key, name, hidden);
+      this.columnPreferences.setColumnHidden(TABLE_STATE_KEYS[key], name, hidden);
     }
   }
 
@@ -807,7 +807,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   resetColumns(): void {
     const key = this.stateKey();
     if (key != null) {
-      this.columnPreferences.reset(key);
+      this.columnPreferences.reset(TABLE_STATE_KEYS[key]);
     }
   }
 

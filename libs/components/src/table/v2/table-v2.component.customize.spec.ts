@@ -10,6 +10,7 @@ import { BitCellComponent } from "./bit-cell.component";
 import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderCellComponent } from "./bit-header-cell.component";
 import { defineTable } from "./table-def";
+import { TableStateKey } from "./table-state-keys";
 import { BitTableV2Component } from "./table-v2.component";
 
 type Row = { name: string; vault: string; folder: string; actions: string };
@@ -67,7 +68,7 @@ async function renderHost<H>(host: Type<H>): Promise<ComponentFixture<H>> {
   `,
 })
 class TestHostComponent {
-  readonly key = signal<string | undefined>("test-table");
+  readonly key = signal<TableStateKey | undefined>("vaultItems");
   readonly displayed = signal<string[] | undefined>(undefined);
   readonly presentation = signal<"table" | "list">("table");
   readonly rows = signal<Row[]>([{ name: "one", vault: "v", folder: "f", actions: "a" }]);
@@ -285,7 +286,7 @@ describe("BitTableV2Component column customization", () => {
     BitCellComponent,
   ],
   template: `
-    <bit-table-v2 [tableDef]="table" stateKey="fill-table">
+    <bit-table-v2 [tableDef]="table" stateKey="vaultItems">
       <bit-column width="minmax(240px, 480px)">
         <bit-header-cell>Name</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
