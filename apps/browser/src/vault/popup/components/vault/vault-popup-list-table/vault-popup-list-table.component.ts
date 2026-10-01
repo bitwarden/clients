@@ -10,7 +10,6 @@ import {
   DestroyRef,
   inject,
   Injector,
-  signal,
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
@@ -28,7 +27,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
@@ -44,7 +42,6 @@ import {
   BitTableToolbarComponent,
   BitTableV2Component,
   ButtonModule,
-  ChipActionComponent,
   ChipFilterOption,
   CollapseOnScrollDirective,
   CompactModeService,
@@ -69,7 +66,6 @@ import {
   matchesSharedFolder,
   matchesType,
   matchesVault,
-  MY_VAULT,
   NO_FOLDER,
   organizationNameForScope,
   OrgIconDirective,
@@ -143,7 +139,6 @@ const VAULT_SCOPED_FILTER_KEYS = ["organization", "collection", "folder"];
     StatusLockupComponent,
     SvgComponent,
     TypographyModule,
-    ChipActionComponent,
     EmptyVaultComponent,
     ItemCopyActionsComponent,
     ItemMoreOptionsComponent,
@@ -169,7 +164,6 @@ export class VaultPopupListTableComponent {
   protected readonly vaultSelected = computed(
     () => this.listTableService.vaultScope().type !== VaultScopeType.AllItems,
   );
-  private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly liveAnnouncer = inject(LiveAnnouncer);
   private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
@@ -505,9 +499,6 @@ export class VaultPopupListTableComponent {
   /** Whether the popup is rendered in the sidebar, where the autofill refresh control is offered. */
   protected readonly showRefresh = BrowserPopupUtils.inSidebar(this.window);
 
-  /** Keyboard-shortcut tooltip shown on the legacy (flag-off) autofill chip, e.g. "Autofill ⌘⇧L". */
-  protected readonly autofillShortcutTooltip = signal<string | undefined>(undefined);
-
   /** The all-items section heading, which becomes "Search results" while a search is active. */
   protected readonly allItemsSectionKey = computed(() =>
     this.hasSearchText() ? "searchResults" : "allItems",
@@ -585,9 +576,6 @@ export class VaultPopupListTableComponent {
         );
       });
 
-    // Resolve the keyboard-shortcut tooltip for the legacy (flag-off) autofill chip.
-    void this.setAutofillShortcutTooltip();
-
     // Wire up persistence after the first render so we can access the table reference.
     afterNextRender(() => {
       const table = this.tableEl();
@@ -600,7 +588,6 @@ export class VaultPopupListTableComponent {
         .pipe(skip(1), takeUntilDestroyed(this.destroyRef))
         .subscribe((values: any) => {
           this.listFiltersService.saveFilters(values);
-          this.validateOrgChips(table, values);
         });
 
       // The controls hold their own values. Driven by the switcher, not the scope, which also
@@ -615,13 +602,6 @@ export class VaultPopupListTableComponent {
           }
         });
     });
-  }
-
-  private async setAutofillShortcutTooltip() {
-    const shortcut = await this.platformUtilsService.getAutofillKeyboardShortcut();
-    this.autofillShortcutTooltip.set(
-      shortcut === "" ? undefined : `${this.i18nService.t("autofillVerb")} ${shortcut}`,
-    );
   }
 
   onSearchTextChanged() {
@@ -679,41 +659,5 @@ export class VaultPopupListTableComponent {
       return this.i18nService.t("nSharedFolders", collectionIds.length);
     }
     return collections[0]?.name;
-  }
-
-  /**
-   * Clears collection chip selections that are no longer valid for the newly-selected
-   * organizations. Called whenever the org chip changes.
-   */
-  private validateOrgChips(
-    table: BitTableV2Component<any, any, any>,
-    values: { organization?: string[]; collection?: string[] },
-  ): void {
-    const selectedOrgIds = (values.organization ?? []).filter((id) => id !== MY_VAULT);
-
-    if (!selectedOrgIds.length) {
-      return;
-    }
-
-    const currentCollectionIds = values.collection ?? [];
-    if (!currentCollectionIds.length) {
-      return;
-    }
-
-    const collectionOrgById = new Map<string | undefined, string | undefined>(
-      this.collectionOptions().map((o) => [o.value?.id, o.value?.organizationId]),
-    );
-
-    const validCollectionIds = currentCollectionIds.filter((id) => {
-      const organizationId = collectionOrgById.get(id);
-      return organizationId != null && selectedOrgIds.includes(organizationId);
-    });
-
-    if (validCollectionIds.length !== currentCollectionIds.length) {
-      table
-        .filterControls()
-        .find((c) => c.key() === "collection")
-        ?.setValue(validCollectionIds.length ? validCollectionIds : undefined);
-    }
   }
 }

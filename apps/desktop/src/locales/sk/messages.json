@@ -160,20 +160,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "Ďalšie zdieľané priečinky ($COUNT$) zobrazené nad týmto tlačidlom",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "1 ďalší zdieľaný priečinok zobrazený nad týmto tlačidlom",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "Môj priečinok"
   },
@@ -4640,11 +4626,21 @@
   "selectImportCollection": {
     "message": "Vyberte zbierku"
   },
+  "selectImportSharedFolder": {
+    "message": "Vyberte zdieľaný priečinok"
+  },
+  "importTargetMyFolder": {
+    "message": "Môj priečinok",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do zbierky"
   },
   "importTargetHintFolder": {
     "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do priečinka"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Túto možnosť vyberte, ak chcete obsah importovaného súboru presunúť do zdieľaného priečinka"
   },
   "importUnassignedItemsError": {
     "message": "Súbor obsahuje nepriradené položky."
@@ -4654,6 +4650,40 @@
   },
   "selectImportFile": {
     "message": "Vybrať súbor na import"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Vybrať zdroj"
+  },
+  "importSourceSelectTitle": {
+    "message": "Vyberte zdroj"
+  },
+  "importSourceSelectDescription": {
+    "message": "Vyberte správcu hesiel alebo prehliadač, z ktorého chcete importovať."
+  },
+  "importSourceBrowsers": {
+    "message": "Prehliadače"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Správcovia hesiel"
+  },
+  "importSourceShowAll": {
+    "message": "Zobraziť všetko"
+  },
+  "importSourceShowLess": {
+    "message": "Zobraziť menej"
+  },
+  "importSourceStepCount": {
+    "message": "Krok $CURRENT$ z $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Vybrať súbor"
@@ -6381,11 +6411,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Nemáte žiadne priečinky."
+  "youHaveNoFoldersV2": {
+    "message": "Nemáte žiadne priečinky"
   },
-  "emptyFoldersDescription": {
-    "message": "Použite priečinky na usporiadanie položiek trezoru. Sú len pre vás – nikto iný ich neuvidí ani nepoužije."
+  "emptyFoldersDescriptionV2": {
+    "message": "Použite priečinky na usporiadanie položiek trezoru. Sú len pre vás. Nikto iný ich neuvidí ani nepoužije."
   },
   "emptyVaultsDescription": {
     "message": "Ak chcete začať, pridajte prihlasovacie údaje, preukazy, karty a ďalšie položky."

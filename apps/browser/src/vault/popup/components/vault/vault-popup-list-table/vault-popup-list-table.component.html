@@ -178,17 +178,6 @@
             {{ "fill" | i18n }}
           </button>
         }
-        @if (row.actions.showAutofillBadge) {
-          <button
-            type="button"
-            bit-chip-action
-            variant="primary"
-            (click)="doAutofill(row.cipher)"
-            [title]="autofillShortcutTooltip() ?? ('autofillTitle' | i18n: row.cipher.name)"
-            [attr.aria-label]="'autofillTitle' | i18n: row.cipher.name"
-            [label]="'fill' | i18n"
-          ></button>
-        }
         @if (row.actions.showLaunch && CipherViewLikeUtils.canLaunch(row.cipher)) {
           <button
             type="button"
