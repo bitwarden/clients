@@ -335,14 +335,9 @@ export class GetCommand extends DownloadCommand {
       return passwordResponse;
     }
 
-    let exposedNumber: number;
-    try {
-      exposedNumber = await this.auditService.passwordLeaked(
-        (passwordResponse.data as StringResponse).data,
-      );
-    } catch {
-      return Response.error("Unable to reach the Have I Been Pwned service. Try again later.");
-    }
+    const exposedNumber = await this.auditService.passwordLeaked(
+      (passwordResponse.data as StringResponse).data,
+    );
     const res = new StringResponse(exposedNumber.toString());
     return Response.success(res);
   }

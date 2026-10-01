@@ -11,7 +11,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import {
   CipherFormConfigService,
@@ -34,7 +34,6 @@ type ReportResult = CipherView & { exposedXTimes: number };
 })
 export class ExposedPasswordsReportComponent extends CipherReportComponent implements OnInit {
   private readonly configService = inject(ConfigService);
-  private readonly toastService = inject(ToastService);
 
   protected readonly vfo1Enabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
@@ -76,20 +75,11 @@ export class ExposedPasswordsReportComponent extends CipherReportComponent imple
   async ngOnInit() {
     this.logService.info("[ExposedPasswordsReport] load start");
     try {
-      await this.load();
+      await super.load();
       this.logService.info("[ExposedPasswordsReport] load success");
     } catch (e) {
       this.logService.error("[ExposedPasswordsReport] load failure", e);
       throw e;
-    }
-  }
-
-  async load() {
-    try {
-      await super.load();
-    } catch {
-      this.showLookupFailedToast();
-      this.loading = false;
     }
   }
 
@@ -178,26 +168,11 @@ export class ExposedPasswordsReportComponent extends CipherReportComponent imple
       return null;
     }
 
-    let exposedReportResult: ReportResult | null;
-    try {
-      exposedReportResult = await this.isPasswordExposed(updatedCipherView);
-    } catch {
-      this.showLookupFailedToast();
-      // A failed check is unknown, not fixed, so keep the row as it was.
-      return this.ciphers.find((c) => c.id === updatedCipherView.id) ?? null;
-    }
+    const exposedReportResult = await this.isPasswordExposed(updatedCipherView);
     this.logService.info(
       `[ExposedPasswordsReport] update check complete action=${exposedReportResult ? "retain" : "remove"}`,
     );
 
     return exposedReportResult;
-  }
-
-  private showLookupFailedToast() {
-    this.toastService.showToast({
-      variant: "error",
-      title: this.i18nService.t("errorOccurred"),
-      message: this.i18nService.t("reportLoadFailed"),
-    });
   }
 }
