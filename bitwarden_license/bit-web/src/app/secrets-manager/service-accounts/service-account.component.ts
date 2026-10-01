@@ -3,8 +3,14 @@
 import { Component, inject, OnDestroy, OnInit } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { Subject, combineLatest, filter, startWith, switchMap, takeUntil } from "rxjs";
+import { Subject, combineLatest, filter, map, startWith, switchMap, takeUntil } from "rxjs";
 
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
@@ -55,6 +61,21 @@ export class ServiceAccountComponent implements OnInit, OnDestroy {
   ) {}
 
   private readonly configService = inject(ConfigService);
+  private readonly organizationService = inject(OrganizationService);
+  private readonly accountService = inject(AccountService);
+
+  // Events are only recorded for organizations with events enabled (e.g. not Free)
+  protected readonly useEvents = toSignal(
+    combineLatest([this.route.params, getUserId(this.accountService.activeAccount$)]).pipe(
+      switchMap(([params, userId]) =>
+        this.organizationService
+          .organizations$(userId)
+          .pipe(getOrganizationById(params.organizationId)),
+      ),
+      map((org) => org?.useEvents ?? false),
+    ),
+    { initialValue: false },
+  );
 
   // remove when VFO1 flag is removed
   protected readonly vfo1Enabled = toSignal(
