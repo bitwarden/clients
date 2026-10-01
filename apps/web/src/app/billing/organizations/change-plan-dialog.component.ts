@@ -324,6 +324,13 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     return Math.max(0, Math.ceil(remaining / msPerDay));
   }
 
+  // The chrome i18n format has no plural support, so pick the singular key on the trial's last day.
+  protected get trialRemainingMessageKey(): string {
+    return this.remainingTrialDays === 1
+      ? "planChangeTrialRemaining"
+      : "planChangeTrialRemainingPlural";
+  }
+
   constructor(
     @Inject(DIALOG_DATA) private dialogParams: ChangePlanDialogParams,
     private dialogRef: DialogRef<ChangePlanDialogResultType>,

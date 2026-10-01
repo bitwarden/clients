@@ -14514,6 +14514,15 @@
     }
   },
   "planChangeTrialRemaining": {
+    "message": "You have 1 day left in your trial. You will be charged the total above on $DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
     "message": "You have $DAYS$ days left in your trial. You will be charged the total above on $DATE$.",
     "placeholders": {
       "days": {

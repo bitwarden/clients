@@ -527,6 +527,21 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
 
       expect((component as any).trialEndDate).toBe("2026-01-15");
     });
+
+    it("uses the singular trial message on the final day", () => {
+      const trialEndDate = new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString();
+      component.sub = { subscription: { status: "trialing", trialEndDate } } as any;
+
+      expect((component as any).remainingTrialDays).toBe(1);
+      expect((component as any).trialRemainingMessageKey).toBe("planChangeTrialRemaining");
+    });
+
+    it("uses the plural trial message with more than one day left", () => {
+      const trialEndDate = new Date(Date.now() + 3.2 * 24 * 60 * 60 * 1000).toISOString();
+      component.sub = { subscription: { status: "trialing", trialEndDate } } as any;
+
+      expect((component as any).trialRemainingMessageKey).toBe("planChangeTrialRemainingPlural");
+    });
   });
 
   describe("isSecretsManagerTrial (PM-40440)", () => {
