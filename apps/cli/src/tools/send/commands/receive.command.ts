@@ -22,6 +22,7 @@ import {
   TryGetSendAccessTokenError,
 } from "@bitwarden/common/auth/send-access";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -70,6 +71,7 @@ export class SendReceiveCommand extends DownloadCommand {
     apiService: ApiService,
     private sendTokenService: SendTokenService,
     private sendDecryptionService: SendDecryptionService,
+    private appIdService: AppIdService,
   ) {
     super(encryptService, apiService);
   }

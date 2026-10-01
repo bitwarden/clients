@@ -9,6 +9,7 @@ import {
   SendAccessToken,
   passwordHashB64Required,
 } from "@bitwarden/common/auth/send-access";
+import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   EnvironmentService,
@@ -49,9 +50,11 @@ describe("SendReceiveCommand", () => {
   const sendTokenService = mock<SendTokenService>();
   const configService = mock<ConfigService>();
   const sendDecryptionService = mock<SendDecryptionService>();
+  const appIdService = mock<AppIdService>();
 
   const testUrl = "https://send.bitwarden.com/#/send/abc123/key456";
   const testSendId = "abc123";
+  const testAppId = "test-app-id";
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -70,6 +73,8 @@ describe("SendReceiveCommand", () => {
 
     configService.getFeatureFlag.mockResolvedValue(false);
 
+    appIdService.getAppId.mockResolvedValue(testAppId);
+
     command = new SendReceiveCommand(
       encryptService,
       cryptoFunctionService,
@@ -79,6 +84,7 @@ describe("SendReceiveCommand", () => {
       apiService,
       sendTokenService,
       sendDecryptionService,
+      appIdService,
     );
   });
 
