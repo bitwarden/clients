@@ -79,7 +79,9 @@ export class VaultItemCopyActionsComponent {
         ({ f }) =>
           f.name &&
           ((f.type === FieldType.Text && f.value) ||
-            (f.type === FieldType.Hidden && cipher.viewPassword)),
+            (f.type === FieldType.Hidden &&
+              cipher.viewPassword &&
+              (CipherViewLikeUtils.isCipherListView(cipher) || f.value))),
       )
       .map(({ f, i }) => ({
         name: f.name!,
@@ -93,6 +95,8 @@ export class VaultItemCopyActionsComponent {
   async copyCustomField(field: CustomFieldItem): Promise<void> {
     const cipher = this.cipher();
     let valueToCopy = field.value;
+    // B3: track the most-current cipher so reprompt uses the freshest viewPassword / reprompt flag.
+    let cipherForCopy: CipherViewLike = cipher;
 
     // CipherListView omits hidden field values; decrypt the full cipher to retrieve them.
     // Only decrypt for hidden fields — text fields have their value in the list view already.
@@ -108,6 +112,11 @@ export class VaultItemCopyActionsComponent {
         const decryptedCipher = await this.cipherService.decrypt(encryptedCipher, activeAccountId);
         // Guard against permission change that occurred after the list loaded.
         if (!decryptedCipher.viewPassword) {
+          this.toastService.showToast({
+            variant: "error",
+            title: "",
+            message: this.i18nService.t("unexpectedError"),
+          });
           return;
         }
         const decryptedField = decryptedCipher.fields?.[field.index];
@@ -121,6 +130,7 @@ export class VaultItemCopyActionsComponent {
           return;
         }
         valueToCopy = decryptedField.value;
+        cipherForCopy = decryptedCipher;
       } catch {
         this.toastService.showToast({
           variant: "error",
@@ -136,8 +146,22 @@ export class VaultItemCopyActionsComponent {
     }
 
     if (field.isHidden) {
-      // Re-use the existing service so reprompt, audit events and toast are handled consistently.
-      await this.copyCipherFieldService.copy(valueToCopy, "hiddenField", cipher, false, field.name);
+      try {
+        // Re-use the existing service so reprompt, audit events and toast are handled consistently.
+        await this.copyCipherFieldService.copy(
+          valueToCopy,
+          "hiddenField",
+          cipherForCopy,
+          false,
+          field.name,
+        );
+      } catch {
+        this.toastService.showToast({
+          variant: "error",
+          title: "",
+          message: this.i18nService.t("unexpectedError"),
+        });
+      }
       return;
     }
 

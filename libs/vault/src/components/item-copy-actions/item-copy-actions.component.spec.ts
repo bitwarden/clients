@@ -961,6 +961,37 @@ describe("VaultItemCopyActionsComponent", () => {
       expect(result[0].index).toBe(1);
       expect(result[1].index).toBe(2);
     });
+
+    it("filters out hidden fields with empty string value on CipherView (B1)", () => {
+      jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(false);
+      (component.cipher() as CipherView).viewPassword = true;
+      (component.cipher() as CipherView).fields = [
+        makeField("空シークレット", "", FieldType.Hidden),
+      ];
+
+      expect(component.copyableCustomFields).toHaveLength(0);
+    });
+
+    it("keeps hidden fields with a value on CipherView (B1 — positive case)", () => {
+      jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(false);
+      (component.cipher() as CipherView).viewPassword = true;
+      (component.cipher() as CipherView).fields = [
+        makeField("シークレット", "s3cr3t", FieldType.Hidden),
+      ];
+
+      expect(component.copyableCustomFields).toHaveLength(1);
+      expect(component.copyableCustomFields[0].name).toBe("シークレット");
+    });
+
+    it("keeps hidden fields with undefined value on CipherListView (B1 — list-view normal case)", () => {
+      jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(true);
+      (component.cipher() as CipherView).viewPassword = true;
+      (component.cipher() as CipherView).fields = [
+        makeField("シークレット", undefined, FieldType.Hidden),
+      ];
+
+      expect(component.copyableCustomFields).toHaveLength(1);
+    });
   });
 
   describe("singleCopyableLogin with custom fields", () => {
@@ -1188,6 +1219,31 @@ describe("VaultItemCopyActionsComponent", () => {
           expect.objectContaining({ variant: "error" }),
         );
         expect(copyCipherFieldService.copy).not.toHaveBeenCalled();
+      });
+
+      it("shows error toast and skips copy when viewPassword is false after decryption (B2/B4)", async () => {
+        const encryptedCipher = {} as any;
+        const decryptedCipher = {
+          viewPassword: false,
+          fields: [{ name: "シークレット", type: FieldType.Hidden, value: "decrypted-secret" }],
+        } as any;
+        cipherService.get.mockResolvedValue(encryptedCipher);
+        cipherService.decrypt.mockResolvedValue(decryptedCipher);
+
+        const field: CustomFieldItem = {
+          name: "シークレット",
+          value: undefined,
+          isHidden: true,
+          index: 0,
+        };
+
+        await component.copyCustomField(field);
+
+        expect(copyCipherFieldService.copy).not.toHaveBeenCalled();
+        expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
+        expect(toastService.showToast).toHaveBeenCalledWith(
+          expect.objectContaining({ variant: "error" }),
+        );
       });
     });
   });
