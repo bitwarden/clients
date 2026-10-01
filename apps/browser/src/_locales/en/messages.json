@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Click items to autofill on Vault view"
   },
-  "clickToAutofill": {
-    "message": "Click items in autofill suggestion to fill"
-  },
   "clearClipboard": {
     "message": "Clear clipboard",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -7245,20 +7242,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Change at-risk password"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
-  },
   "vulnerablePassword": {
     "message": "Vulnerable password."
   },
   "changeNow": {
     "message": "Change now"
-  },
-  "missingWebsite": {
-    "message": "Missing website"
   },
   "settingsVaultOptions": {
     "message": "Vault options"
