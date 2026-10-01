@@ -5,6 +5,7 @@ import mock from "jest-mock-extended/lib/Mock";
 import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   MasterKeyWrappedUserKey,
@@ -15,9 +16,11 @@ import {
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { UserKeyResponse } from "@bitwarden/common/models/response/user-key.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey, UserPrivateKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -40,6 +43,10 @@ import {
   Cipher as SdkCipher,
   CipherView as SdkCipherView,
   DecryptCipherResult,
+  EmergencyAccessClient,
+  GranteeEmergencyAccess as SdkGranteeEmergencyAccess,
+  GrantorEmergencyAccess as SdkGrantorEmergencyAccess,
+  Policy as SdkPolicy,
 } from "@bitwarden/sdk-internal";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
@@ -66,6 +73,7 @@ describe("EmergencyAccessService", () => {
   let emergencyAccessService: EmergencyAccessService;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let sdkService: MockSdkService;
+  let configService: MockProxy<ConfigService>;
 
   const mockNewUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
   const mockTrustedPublicKeys = [Utils.fromUtf8ToArray("trustedPublicKey")];
@@ -81,6 +89,7 @@ describe("EmergencyAccessService", () => {
     logService = mock<LogService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     sdkService = new MockSdkService();
+    configService = mock<ConfigService>();
 
     emergencyAccessService = new EmergencyAccessService(
       emergencyAccessApiService,
@@ -92,7 +101,13 @@ describe("EmergencyAccessService", () => {
       logService,
       masterPasswordService,
       sdkService,
+      mockAccountServiceWith(mockUserId),
+      configService,
     );
+  });
+
+  beforeEach(() => {
+    configService.getFeatureFlag.mockResolvedValue(false);
   });
 
   afterEach(() => {
@@ -676,6 +691,245 @@ describe("EmergencyAccessService", () => {
       });
     });
   });
+
+  describe("with the SDK flag on", () => {
+    const emergencyAccessId = newGuid();
+
+    beforeEach(() => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+    });
+
+    describe("3 step setup process", () => {
+      afterEach(() => {
+        jest.resetAllMocks();
+      });
+
+      describe("Step 1: invite", () => {
+        it("should invite through the active user's SDK client", async () => {
+          // Arrange
+          const email = "test@example.com";
+          const type = EmergencyAccessType.View;
+          const waitTimeDays = 5;
+          const client = mockEmergencyAccessClient(mockUserId);
+
+          // Act
+          await emergencyAccessService.invite(email, type, waitTimeDays);
+
+          // Assert
+          expect(client.invite).toHaveBeenCalledWith(email, type, waitTimeDays);
+        });
+      });
+
+      describe("Step 2: accept", () => {
+        it("should accept through the active user's SDK client", async () => {
+          // Arrange
+          const token = "some-token";
+          const client = mockEmergencyAccessClient(mockUserId);
+
+          // Act
+          await emergencyAccessService.accept(emergencyAccessId, token);
+
+          // Assert
+          expect(client.accept).toHaveBeenCalledWith(emergencyAccessId, token);
+        });
+      });
+
+      describe("Step 3: confirm", () => {
+        it("should pass the verified public key to the SDK", async () => {
+          // Arrange
+          const granteeId = "grantee-id";
+          const activeUserId = newGuid() as UserId;
+          const publicKey = new Uint8Array(64);
+          const client = mockEmergencyAccessClient(activeUserId);
+
+          // Act
+          await emergencyAccessService.confirm(
+            emergencyAccessId,
+            granteeId,
+            publicKey,
+            activeUserId,
+          );
+
+          // Assert
+          expect(client.confirm).toHaveBeenCalledWith(
+            emergencyAccessId,
+            Utils.fromBufferToB64(publicKey),
+          );
+          expect(encryptService.encapsulateKeyUnsigned).not.toHaveBeenCalled();
+        });
+      });
+    });
+
+    describe("status changes", () => {
+      it.each([
+        ["reinvite", "reinvite"],
+        ["delete", "delete"],
+        ["requestAccess", "initiate"],
+        ["approve", "approve"],
+        ["reject", "reject"],
+      ] as const)("%s should call %s on the SDK client", async (method, sdkMethod) => {
+        const client = mockEmergencyAccessClient(mockUserId);
+
+        await emergencyAccessService[method](emergencyAccessId);
+
+        expect(client[sdkMethod]).toHaveBeenCalledWith(emergencyAccessId);
+      });
+
+      it("update should send the type and wait time", async () => {
+        const client = mockEmergencyAccessClient(mockUserId);
+
+        await emergencyAccessService.update(emergencyAccessId, EmergencyAccessType.Takeover, 7);
+
+        expect(client.update).toHaveBeenCalledWith(
+          emergencyAccessId,
+          EmergencyAccessType.Takeover,
+          7,
+        );
+      });
+    });
+
+    describe("getEmergencyAccess", () => {
+      it("should map the SDK emergency access", async () => {
+        const client = mockEmergencyAccessClient(mockUserId);
+        client.get.mockResolvedValue(
+          createSdkGranteeEmergencyAccess(emergencyAccessId, EmergencyAccessStatusType.Accepted),
+        );
+
+        const result = await emergencyAccessService.getEmergencyAccess(emergencyAccessId);
+
+        expect(client.get).toHaveBeenCalledWith(emergencyAccessId);
+        expect(result).toBeInstanceOf(GranteeEmergencyAccess);
+        expect(result.id).toBe(emergencyAccessId);
+        expect(result.status).toBe(EmergencyAccessStatusType.Accepted);
+        expect(result.type).toBe(EmergencyAccessType.View);
+        expect(result.waitTimeDays).toBe(7);
+      });
+    });
+
+    describe("getGrantorPolicies", () => {
+      it("should map the SDK policies", async () => {
+        const client = mockEmergencyAccessClient(mockUserId);
+        const sdkPolicy = { id: newGuid() } as unknown as SdkPolicy;
+        const policy = new Policy();
+        client.get_grantor_policies.mockResolvedValue([sdkPolicy]);
+        const fromSdkPolicy = jest.spyOn(Policy, "fromSdkPolicy").mockReturnValue(policy);
+
+        const result = await emergencyAccessService.getGrantorPolicies(emergencyAccessId);
+
+        expect(client.get_grantor_policies).toHaveBeenCalledWith(emergencyAccessId);
+        expect(fromSdkPolicy).toHaveBeenCalledWith(sdkPolicy);
+        expect(result).toEqual([policy]);
+        fromSdkPolicy.mockRestore();
+      });
+    });
+
+    describe("takeover", () => {
+      const masterPassword = "mockPassword";
+      const email = "user@example.com";
+      const activeUserId = newGuid() as UserId;
+
+      it("should take over through the active user's SDK client", async () => {
+        // Arrange
+        const client = mockEmergencyAccessClient(activeUserId);
+
+        // Act
+        await emergencyAccessService.takeover(
+          emergencyAccessId,
+          masterPassword,
+          email,
+          activeUserId,
+        );
+
+        // Assert
+        expect(client.takeover).toHaveBeenCalledWith(emergencyAccessId, masterPassword, email);
+      });
+
+      it("should throw if the SDK takeover fails", async () => {
+        // Arrange
+        const client = mockEmergencyAccessClient(activeUserId);
+        client.takeover.mockRejectedValue(new Error("Crypto"));
+
+        // Act
+        const promise = emergencyAccessService.takeover(
+          emergencyAccessId,
+          masterPassword,
+          email,
+          activeUserId,
+        );
+
+        // Assert
+        await expect(promise).rejects.toThrow("Crypto");
+      });
+    });
+
+    describe("getEmergencyAccessTrusted", () => {
+      it("should return an empty array if no emergency access is granted", async () => {
+        mockEmergencyAccessClient(mockUserId).list_trusted.mockResolvedValue([]);
+
+        const result = await emergencyAccessService.getEmergencyAccessTrusted();
+
+        expect(result).toEqual([]);
+      });
+
+      it("should return a list of trusted emergency access contacts", async () => {
+        const sdkAccesses = [
+          createSdkGranteeEmergencyAccess(newGuid(), EmergencyAccessStatusType.Invited),
+          createSdkGranteeEmergencyAccess(newGuid(), EmergencyAccessStatusType.Confirmed),
+        ];
+        mockEmergencyAccessClient(mockUserId).list_trusted.mockResolvedValue(sdkAccesses);
+
+        const result = await emergencyAccessService.getEmergencyAccessTrusted();
+
+        expect(result).toHaveLength(sdkAccesses.length);
+        result.forEach((access, index) => {
+          expect(access).toBeInstanceOf(GranteeEmergencyAccess);
+          expect(access.id).toBe(sdkAccesses[index].id);
+          expect(access.granteeId).toBe(sdkAccesses[index].granteeId);
+          expect(access.name).toBe(sdkAccesses[index].name);
+          expect(access.status).toBe(sdkAccesses[index].status);
+          expect(access.type).toBe(sdkAccesses[index].type);
+        });
+      });
+    });
+
+    describe("getEmergencyAccessGranted", () => {
+      it("should return an empty array if no emergency access is granted", async () => {
+        mockEmergencyAccessClient(mockUserId).list_granted.mockResolvedValue([]);
+
+        const result = await emergencyAccessService.getEmergencyAccessGranted();
+
+        expect(result).toEqual([]);
+      });
+
+      it("should return a list of granted emergency access contacts", async () => {
+        const sdkAccesses = [
+          createSdkGrantorEmergencyAccess(newGuid(), EmergencyAccessStatusType.Invited),
+          createSdkGrantorEmergencyAccess(newGuid(), EmergencyAccessStatusType.RecoveryApproved),
+        ];
+        mockEmergencyAccessClient(mockUserId).list_granted.mockResolvedValue(sdkAccesses);
+
+        const result = await emergencyAccessService.getEmergencyAccessGranted();
+
+        expect(result).toHaveLength(sdkAccesses.length);
+        result.forEach((access, index) => {
+          expect(access).toBeInstanceOf(GrantorEmergencyAccess);
+          expect(access.id).toBe(sdkAccesses[index].id);
+          expect(access.grantorId).toBe(sdkAccesses[index].grantorId);
+          expect(access.name).toBe(sdkAccesses[index].name);
+          expect(access.status).toBe(sdkAccesses[index].status);
+          expect(access.type).toBe(sdkAccesses[index].type);
+        });
+      });
+    });
+  });
+
+  /** Makes the user's SDK client return a mocked `emergency_access()` client. */
+  function mockEmergencyAccessClient(userId: UserId): MockProxy<EmergencyAccessClient> {
+    const client = mock<EmergencyAccessClient>();
+    const sdkClient = sdkService.simulate.userLogin(userId);
+    (sdkClient as any).emergency_access = jest.fn().mockReturnValue(client);
+    return client;
+  }
 });
 
 function createMockEmergencyAccessGranteeDetails(
@@ -702,4 +956,36 @@ function createMockEmergencyAccessGrantorDetails(
   emergencyAccess.type = 0;
   emergencyAccess.status = status;
   return emergencyAccess;
+}
+
+function createSdkGranteeEmergencyAccess(
+  id: string,
+  status: EmergencyAccessStatusType,
+): SdkGranteeEmergencyAccess {
+  return {
+    id,
+    granteeId: newGuid(),
+    name: "EA " + id,
+    email: "grantee@example.com",
+    type: EmergencyAccessType.View,
+    status,
+    waitTimeDays: 7,
+    avatarColor: undefined,
+  } as unknown as SdkGranteeEmergencyAccess;
+}
+
+function createSdkGrantorEmergencyAccess(
+  id: string,
+  status: EmergencyAccessStatusType,
+): SdkGrantorEmergencyAccess {
+  return {
+    id,
+    grantorId: newGuid(),
+    name: "EA " + id,
+    email: "grantor@example.com",
+    type: EmergencyAccessType.Takeover,
+    status,
+    waitTimeDays: 7,
+    avatarColor: undefined,
+  } as unknown as SdkGrantorEmergencyAccess;
 }
