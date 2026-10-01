@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -20,7 +21,13 @@ import { CipherListView, CopyableCipherFields } from "@bitwarden/sdk-internal";
 
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
 
-import { VaultItemCopyActionsComponent } from "./item-copy-actions.component";
+import { CustomFieldItem, VaultItemCopyActionsComponent } from "./item-copy-actions.component";
+
+// uuidAsString is called internally by copyCustomField when decrypting CipherListView ciphers.
+// Mock it so the tests do not depend on the Rust SDK's UUID parsing implementation.
+jest.mock("@bitwarden/common/platform/abstractions/sdk/sdk.service", () => ({
+  uuidAsString: jest.fn(() => "mock-uuid"),
+}));
 
 describe("VaultItemCopyActionsComponent", () => {
   let fixture: ComponentFixture<VaultItemCopyActionsComponent>;
@@ -30,6 +37,8 @@ describe("VaultItemCopyActionsComponent", () => {
   let copyCipherFieldService: jest.Mocked<CopyCipherFieldService>;
   let platformUtilsService: jest.Mocked<PlatformUtilsService>;
   let toastService: jest.Mocked<ToastService>;
+  let accountService: jest.Mocked<AccountService>;
+  let cipherService: jest.Mocked<CipherService>;
 
   beforeEach(async () => {
     i18nService = {
@@ -41,6 +50,8 @@ describe("VaultItemCopyActionsComponent", () => {
 
     platformUtilsService = mock<PlatformUtilsService>();
     toastService = mock<ToastService>();
+    accountService = mock<AccountService>();
+    cipherService = mock<CipherService>();
 
     await TestBed.configureTestingModule({
       imports: [
@@ -54,8 +65,8 @@ describe("VaultItemCopyActionsComponent", () => {
       providers: [
         { provide: I18nService, useValue: i18nService },
         { provide: CopyCipherFieldService, useValue: copyCipherFieldService },
-        { provide: AccountService, useValue: mock<AccountService>() },
-        { provide: CipherService, useValue: mock<CipherService>() },
+        { provide: AccountService, useValue: accountService },
+        { provide: CipherService, useValue: cipherService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: ToastService, useValue: toastService },
       ],
@@ -1035,7 +1046,12 @@ describe("VaultItemCopyActionsComponent", () => {
 
     it("does nothing when hidden field value is null on a CipherView (field truly has no value)", async () => {
       jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(false);
-      const field = { name: "シークレット", value: undefined, isHidden: true, index: 0 };
+      const field: CustomFieldItem = {
+        name: "シークレット",
+        value: undefined,
+        isHidden: true,
+        index: 0,
+      };
 
       await component.copyCustomField(field);
 
@@ -1046,7 +1062,12 @@ describe("VaultItemCopyActionsComponent", () => {
     it("routes hidden field copy through CopyCipherFieldService for reprompt and audit events", async () => {
       copyCipherFieldService.copy.mockResolvedValue(undefined);
 
-      const field = { name: "シークレット", value: "secret", isHidden: true, index: 0 };
+      const field: CustomFieldItem = {
+        name: "シークレット",
+        value: "secret",
+        isHidden: true,
+        index: 0,
+      };
 
       await component.copyCustomField(field);
 
@@ -1054,6 +1075,8 @@ describe("VaultItemCopyActionsComponent", () => {
         "secret",
         "hiddenField",
         expect.anything(),
+        false,
+        "シークレット",
       );
       expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
     });
@@ -1071,12 +1094,101 @@ describe("VaultItemCopyActionsComponent", () => {
       // Text fields in CipherListView have their value populated; null means the field is empty.
       // We should NOT decrypt just because value is null — only hidden fields need decryption.
       jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(true);
-      const field = { name: "企業ID", value: undefined, isHidden: false, index: 0 };
+      const field: CustomFieldItem = {
+        name: "企業ID",
+        value: undefined,
+        isHidden: false,
+        index: 0,
+      };
 
       await component.copyCustomField(field);
 
       expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
       expect(copyCipherFieldService.copy).not.toHaveBeenCalled();
+    });
+
+    describe("CipherListView hidden field decryption", () => {
+      beforeEach(() => {
+        jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(true);
+        // Provide a fake account so getUserId can emit a UserId.
+        accountService.activeAccount$ = of({ id: "test-user-id" } as any);
+        // Give the cipher an id so uuidAsString has something to work with.
+        (component.cipher() as any).id = "test-cipher-uuid";
+      });
+
+      it("decrypts the cipher and copies the hidden field value via CopyCipherFieldService", async () => {
+        const encryptedCipher = {} as any;
+        const decryptedCipher = {
+          viewPassword: true,
+          fields: [{ name: "シークレット", type: FieldType.Hidden, value: "decrypted-secret" }],
+        } as any;
+        cipherService.get.mockResolvedValue(encryptedCipher);
+        cipherService.decrypt.mockResolvedValue(decryptedCipher);
+        copyCipherFieldService.copy.mockResolvedValue(true);
+
+        const field: CustomFieldItem = {
+          name: "シークレット",
+          value: undefined,
+          isHidden: true,
+          index: 0,
+        };
+
+        await component.copyCustomField(field);
+
+        expect(copyCipherFieldService.copy).toHaveBeenCalledWith(
+          "decrypted-secret",
+          "hiddenField",
+          expect.anything(),
+          false,
+          "シークレット",
+        );
+        expect(toastService.showToast).not.toHaveBeenCalledWith(
+          expect.objectContaining({ variant: "error" }),
+        );
+      });
+
+      it("shows error toast when decrypted field name or type does not match (concurrent edit)", async () => {
+        const encryptedCipher = {} as any;
+        // Simulate a concurrent edit that renamed or changed the field at index 0.
+        const decryptedCipher = {
+          viewPassword: true,
+          fields: [{ name: "別のフィールド", type: FieldType.Hidden, value: "some-value" }],
+        } as any;
+        cipherService.get.mockResolvedValue(encryptedCipher);
+        cipherService.decrypt.mockResolvedValue(decryptedCipher);
+
+        const field: CustomFieldItem = {
+          name: "シークレット",
+          value: undefined,
+          isHidden: true,
+          index: 0,
+        };
+
+        await component.copyCustomField(field);
+
+        expect(toastService.showToast).toHaveBeenCalledWith(
+          expect.objectContaining({ variant: "error" }),
+        );
+        expect(copyCipherFieldService.copy).not.toHaveBeenCalled();
+      });
+
+      it("shows error toast when cipherService.get throws an exception", async () => {
+        cipherService.get.mockRejectedValue(new Error("Network error"));
+
+        const field: CustomFieldItem = {
+          name: "シークレット",
+          value: undefined,
+          isHidden: true,
+          index: 0,
+        };
+
+        await component.copyCustomField(field);
+
+        expect(toastService.showToast).toHaveBeenCalledWith(
+          expect.objectContaining({ variant: "error" }),
+        );
+        expect(copyCipherFieldService.copy).not.toHaveBeenCalled();
+      });
     });
   });
 

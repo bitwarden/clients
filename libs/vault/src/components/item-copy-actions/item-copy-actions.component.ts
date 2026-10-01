@@ -30,7 +30,7 @@ type CipherItem = {
   field: CopyFieldAction;
 };
 
-type CustomFieldItem = {
+export type CustomFieldItem = {
   name: string;
   value: string | undefined;
   isHidden: boolean;
@@ -77,8 +77,9 @@ export class VaultItemCopyActionsComponent {
       .map((f, i) => ({ f, i }))
       .filter(
         ({ f }) =>
-          (f.type === FieldType.Text || (f.type === FieldType.Hidden && cipher.viewPassword)) &&
-          f.name,
+          f.name &&
+          ((f.type === FieldType.Text && f.value) ||
+            (f.type === FieldType.Hidden && cipher.viewPassword)),
       )
       .map(({ f, i }) => ({
         name: f.name!,
@@ -105,6 +106,10 @@ export class VaultItemCopyActionsComponent {
           activeAccountId,
         );
         const decryptedCipher = await this.cipherService.decrypt(encryptedCipher, activeAccountId);
+        // Guard against permission change that occurred after the list loaded.
+        if (!decryptedCipher.viewPassword) {
+          return;
+        }
         const decryptedField = decryptedCipher.fields?.[field.index];
         // Guard against concurrent edits that changed the field at this index.
         if (decryptedField?.name !== field.name || decryptedField.type !== FieldType.Hidden) {
@@ -132,7 +137,7 @@ export class VaultItemCopyActionsComponent {
 
     if (field.isHidden) {
       // Re-use the existing service so reprompt, audit events and toast are handled consistently.
-      await this.copyCipherFieldService.copy(valueToCopy, "hiddenField", cipher);
+      await this.copyCipherFieldService.copy(valueToCopy, "hiddenField", cipher, false, field.name);
       return;
     }
 

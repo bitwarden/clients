@@ -157,6 +157,7 @@ export class CopyCipherFieldService {
    * @param actionType The type of field being copied.
    * @param cipher The cipher containing the field to copy.
    * @param skipReprompt Whether to skip password re-prompting.
+   * @param displayName Optional display name to show in the toast instead of the default type label.
    *
    * @returns Whether the field was copied successfully.
    */
@@ -165,6 +166,7 @@ export class CopyCipherFieldService {
     actionType: CopyAction,
     cipher: CipherViewLike,
     skipReprompt: boolean = false,
+    displayName?: string,
   ): Promise<boolean> {
     const action = CopyActions[actionType];
     if (
@@ -194,7 +196,10 @@ export class CopyCipherFieldService {
     this.platformUtilsService.copyToClipboard(valueToCopy);
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("valueCopied", this.i18nService.t(action.typeI18nKey)),
+      message: this.i18nService.t(
+        "valueCopied",
+        displayName ?? this.i18nService.t(action.typeI18nKey),
+      ),
       title: "",
     });
 
