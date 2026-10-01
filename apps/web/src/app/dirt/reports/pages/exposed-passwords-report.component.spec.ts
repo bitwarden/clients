@@ -27,7 +27,11 @@ import {
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  CipherFormConfigService,
+  PasswordRepromptService,
+  VaultItemDialogResult,
+} from "@bitwarden/vault";
 
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
@@ -191,6 +195,41 @@ describe("ExposedPasswordsReportComponent", () => {
     expect(component.ciphers[0].edit).toEqual(true);
     expect(component.ciphers[1].id).toEqual(expectedIdTwo);
     expect(component.ciphers[1].edit).toEqual(true);
+  });
+
+  it("shows an error toast and stays unloaded when the exposure lookup fails", async () => {
+    await fixture.whenStable();
+    const toastService = TestBed.inject(ToastService) as MockProxy<ToastService>;
+    toastService.showToast.mockClear();
+    component.hasLoaded = false;
+    auditService.passwordLeaked.mockRejectedValue(new Error("lookup failed"));
+    jest.spyOn(component as any, "getAllCiphers").mockResolvedValue(cipherData);
+
+    await component.load();
+
+    expect(toastService.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "error" }),
+    );
+    expect(component.loading).toBe(false);
+    expect(component.hasLoaded).toBe(false);
+  });
+
+  it("keeps the row and shows an error toast when the refresh lookup fails", async () => {
+    const toastService = TestBed.inject(ToastService) as MockProxy<ToastService>;
+    toastService.showToast.mockClear();
+    const existingRow = { ...cipherData[1], exposedXTimes: 3 };
+    component.ciphers = [existingRow];
+    auditService.passwordLeaked.mockRejectedValue(new Error("lookup failed"));
+
+    const result = await component.determinedUpdatedCipherReportStatus(
+      VaultItemDialogResult.Saved,
+      cipherData[1],
+    );
+
+    expect(result).toBe(existingRow);
+    expect(toastService.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "error" }),
+    );
   });
 
   it("should call fullSync method of syncService", () => {
