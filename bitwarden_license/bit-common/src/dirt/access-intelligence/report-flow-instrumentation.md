@@ -29,7 +29,7 @@ panel both read in flow order.
 | `Load: org members fetched`                     | The organization users request, groups included                                 | `orgMemberCount`                               |
 | `Load: org collections fetched`                 | The collections with access details request                                     | `collectionCount`                              |
 
-`<trigger>` is `page open` or `generate`; `<impl>` is `sdk` or `legacy`. See
+`<trigger>` is `page open` or `generate`; `<impl>` is `logins-only` or `legacy`. See
 [Why the cipher fetch name carries two variables](#why-the-cipher-fetch-name-carries-two-variables).
 
 This table groups by kind of work, not by user flow, so not every row occurs on every run.
@@ -255,19 +255,15 @@ One boundary spans the whole set and carries all three artifact sizes.
 
 #### Why the cipher fetch name carries two variables
 
-`CipherService.getAllFromApiForOrganization` chooses between an SDK and a legacy implementation
-internally. That file is owned by another team, so the fetch is measured from the outside and the
-name records which implementation ran. This costs the split between request, decrypt and locale
-sort, which is only available from inside that method.
+The trigger is recorded because the flow fetches the cipher set twice in a session: once at page
+open, and again when an administrator generates. Distinct names keep the two attributable.
 
-The trigger is recorded because the flow fetches the full cipher set twice in a session: once at
-page open, and again when an administrator generates. Distinct names keep the two attributable.
-
-To label the step, `fetchOrgLogins$` reads `PM27632_SdkCipherCrudOperations` itself and does not
-act on it: there is no branch on the value, and the same flag is resolved inside `CipherService`
-anyway. It is read only to name the measurement. The cost is that the fetch now waits on a config
-emission it previously contained, so the flag is taken with `first()` and the label reflects the
-implementation that ran rather than gating it.
+`<impl>` records which endpoint was called. When `AccessIntelligencePerformanceAtScale` is on,
+`fetchOrgLogins$` calls `getCiphersOrganizationLogins` and labels the step `logins-only`. When off,
+it calls `getAllFromApiForOrganization` and labels it `legacy`. The label follows the same flag that
+controls the branch, so no additional flag read is needed. In both cases the measurement covers the
+full call — request, decrypt and locale sort — because the internal phases are not observable from
+the outside.
 
 ## Privacy
 
@@ -322,5 +318,5 @@ measurements. This gap closes when the inline path is removed.
 ---
 
 **Document Version:** 1.0
-**Last Updated:** 2026-09-11
+**Last Updated:** 2026-10-02
 **Maintainer:** DIRT Team
