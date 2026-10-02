@@ -954,24 +954,43 @@ export class BrowserApi {
 
   /**
    * Executes a self-contained function in the given tab and returns its result from the top frame.
-   * The function is serialized for injection, so it must not close over outer-scope variables.
+   * The function is serialized for injection, so it must not close over outer-scope variables;
+   * pass any values it needs through `args`, which must be JSON-serializable.
    *
    * @param tabId - The id of the tab to execute the function in.
    * @param func - The function to inject.
+   * @param args - The arguments to call the injected function with.
+   * @param options.injectImmediately - Inject without waiting for the document to finish loading.
    */
-  static async executeFunctionInTab<R>(tabId: number, func: () => R): Promise<R | undefined> {
+  static async executeFunctionInTab<R, A extends unknown[] = []>(
+    tabId: number,
+    func: (...args: A) => R,
+    args?: A,
+    options?: { injectImmediately?: boolean },
+  ): Promise<R | undefined> {
+    const functionArguments = args ?? ([] as unknown[] as A);
+    const injectImmediately = options?.injectImmediately ?? false;
+
     if (BrowserApi.isManifestVersion(3)) {
       const results = await chrome.scripting.executeScript({
         target: { tabId },
         func,
+        args: functionArguments,
+        injectImmediately,
       });
       return results?.[0]?.result as R | undefined;
     }
 
-    // MV2 has no `func` parameter, so serialize the function source and inject it as code.
+    // MV2 has no `func` parameter, so serialize the function source and its arguments and
+    // inject them as code.
     return new Promise((resolve) => {
-      chrome.tabs.executeScript(tabId, { code: `(${func.toString()})()` }, (results) =>
-        resolve(results?.[0] as R | undefined),
+      chrome.tabs.executeScript(
+        tabId,
+        {
+          code: `(${func.toString()})(...${JSON.stringify(functionArguments)})`,
+          ...(injectImmediately ? { runAt: "document_start" } : {}),
+        },
+        (results) => resolve(results?.[0] as R | undefined),
       );
     });
   }

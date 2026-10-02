@@ -14,6 +14,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import { BrowserApi } from "../../platform/browser/browser-api";
 import { flushPromises } from "../spec/testing-utils";
 
 import WebRequestBackground from "./web-request.background";
@@ -244,20 +245,109 @@ describe("WebRequestBackground", () => {
 
   describe("handling auth challenges", () => {
     const url = "https://example.com/protected";
+    const tabId = 1;
     let callback: jest.Mock;
+    let executeFunctionInTabSpy: jest.SpyInstance;
 
     const createCipher = (username: string | null, password: string | null) =>
       ({ login: { username, password } }) as unknown as CipherView;
 
-    const triggerAuthRequired = async (requestId = "request-1") => {
+    const triggerAuthRequired = async (requestId = "request-1", requestTabId = tabId) => {
       const handleAuthRequired = webRequest.onAuthRequired.addListener.mock.calls[0][0];
-      await handleAuthRequired({ url, requestId }, callback);
+      await handleAuthRequired({ url, requestId, tabId: requestTabId }, callback);
       await flushPromises();
     };
 
     beforeEach(() => {
       callback = jest.fn();
+      executeFunctionInTabSpy = jest
+        .spyOn(BrowserApi, "executeFunctionInTab")
+        .mockResolvedValue(true);
       webRequestBackground.startListening();
+    });
+
+    afterEach(() => {
+      executeFunctionInTabSpy.mockRestore();
+    });
+
+    describe("confirming with the user", () => {
+      beforeEach(() => {
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([
+          createCipher("jane.doe@example.com", "fake-password"),
+        ]);
+      });
+
+      it("asks for confirmation in the requesting tab with the challenge host", async () => {
+        await triggerAuthRequired();
+
+        expect(executeFunctionInTabSpy).toHaveBeenCalledWith(
+          tabId,
+          expect.any(Function),
+          ["example.com"],
+          { injectImmediately: true },
+        );
+      });
+
+      it("defers to the browser when the user does not answer in time", async () => {
+        jest.useFakeTimers();
+        executeFunctionInTabSpy.mockReturnValue(new Promise(() => {}));
+        const handleAuthRequired = webRequest.onAuthRequired.addListener.mock.calls[0][0];
+
+        const response = handleAuthRequired({ url, requestId: "request-1", tabId }, callback);
+        await jest.advanceTimersByTimeAsync(65_000);
+
+        await expect(response).resolves.toEqual({});
+        expect(callback).toHaveBeenCalledWith({});
+        jest.useRealTimers();
+      });
+
+      it("responds with the credentials when the user confirms", async () => {
+        await triggerAuthRequired();
+
+        expect(callback).toHaveBeenCalledWith({
+          authCredentials: { username: "jane.doe@example.com", password: "fake-password" },
+        });
+      });
+
+      it("cancels the challenge when the user declines", async () => {
+        executeFunctionInTabSpy.mockResolvedValue(false);
+
+        await triggerAuthRequired();
+
+        expect(callback).toHaveBeenCalledWith({ cancel: true });
+      });
+
+      it("defers to the browser when the dialog cannot be shown in the tab", async () => {
+        executeFunctionInTabSpy.mockRejectedValue(new Error("cannot access contents of the page"));
+
+        await triggerAuthRequired();
+
+        expect(callback).toHaveBeenCalledWith({});
+      });
+
+      it("defers to the browser when the dialog returns no result", async () => {
+        executeFunctionInTabSpy.mockResolvedValue(undefined);
+
+        await triggerAuthRequired();
+
+        expect(callback).toHaveBeenCalledWith({});
+      });
+
+      it("defers to the browser without asking when the request has no tab", async () => {
+        await triggerAuthRequired("request-1", -1);
+
+        expect(executeFunctionInTabSpy).not.toHaveBeenCalled();
+        expect(callback).toHaveBeenCalledWith({});
+      });
+
+      it("does not ask when no single login matches", async () => {
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([]);
+
+        await triggerAuthRequired();
+
+        expect(executeFunctionInTabSpy).not.toHaveBeenCalled();
+        expect(callback).toHaveBeenCalledWith({});
+      });
     });
 
     it("responds with the credentials of the single matching login", async () => {
@@ -322,7 +412,7 @@ describe("WebRequestBackground", () => {
       ]);
       const handleAuthRequired = webRequest.onAuthRequired.addListener.mock.calls[0][0];
 
-      const response = await handleAuthRequired({ url, requestId: "request-1" }, callback);
+      const response = await handleAuthRequired({ url, requestId: "request-1", tabId }, callback);
 
       expect(response).toEqual({
         authCredentials: { username: "jane.doe@example.com", password: "fake-password" },
@@ -360,7 +450,7 @@ describe("WebRequestBackground", () => {
     describe("on Firefox", () => {
       const triggerFirefoxAuthRequired = (requestId = "request-1") => {
         const handleAuthRequired = webRequest.onAuthRequired.addListener.mock.calls[0][0];
-        return handleAuthRequired({ url, requestId });
+        return handleAuthRequired({ url, requestId, tabId });
       };
 
       beforeEach(() => {

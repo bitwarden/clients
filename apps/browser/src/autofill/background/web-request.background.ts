@@ -21,9 +21,17 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
+import { BrowserApi } from "../../platform/browser/browser-api";
+
 const webRequestUrlFilter: chrome.webRequest.RequestFilter = {
   urls: ["http://*/*", "https://*/*"],
 };
+
+/**
+ * How long a held challenge waits for the user to answer the confirmation dialog
+ * before it is left to the browser.
+ */
+const AUTH_CHALLENGE_CONFIRMATION_TIMEOUT_MS = 60_000;
 
 export default class WebRequestBackground {
   private pendingAuthRequests: Set<string> = new Set<string>([]);
@@ -122,6 +130,15 @@ export default class WebRequestBackground {
     details: chrome.webRequest.OnAuthRequiredDetails,
     callback?: (response: chrome.webRequest.BlockingResponse) => void,
   ): Promise<chrome.webRequest.BlockingResponse> => {
+    console.log("🚀 🚀 challenge request context:", {
+      requestId: details.requestId,
+      type: details.type,
+      frameId: details.frameId,
+      parentFrameId: details.parentFrameId,
+      initiator: details.initiator,
+      url: details.url,
+      tabId: details.tabId,
+    });
     const response = await this.getAuthChallengeResponse(details);
 
     if (callback) {
@@ -133,7 +150,8 @@ export default class WebRequestBackground {
 
   /**
    * Resolves to the credentials of the single vault login matching the request
-   * host, or to an empty response that leaves the challenge to the browser.
+   * host once the user confirms, to a cancellation when the user declines, or to
+   * an empty response that leaves the challenge to the browser.
    */
   private async getAuthChallengeResponse(
     details: chrome.webRequest.OnAuthRequiredDetails,
@@ -177,6 +195,17 @@ export default class WebRequestBackground {
         return {};
       }
 
+      const userConfirmed = await this.confirmAuthChallengeResponse(details.tabId, details.url);
+      console.log("🚀 🚀 userConfirmed:", userConfirmed);
+
+      if (userConfirmed == null) {
+        return {};
+      }
+
+      if (!userConfirmed) {
+        return { cancel: true };
+      }
+
       return {
         authCredentials: {
           username,
@@ -185,6 +214,66 @@ export default class WebRequestBackground {
       };
     } catch {
       return {};
+    }
+  }
+
+  /**
+   * Proof of concept: asks the user, through a `confirm()` dialog injected into the
+   * requesting tab, whether to answer the challenge with the matching vault login.
+   *
+   * The dialog runs in the tab's current document, which during a top-level
+   * navigation is still the previous page, so the browser attributes the dialog
+   * to that page's origin rather than to the challenger or the extension.
+   *
+   * Resolves to `null` when there is no tab, the dialog cannot be shown in it
+   * (for example, a browser-internal page), or no answer arrives within
+   * `AUTH_CHALLENGE_CONFIRMATION_TIMEOUT_MS`, so the browser handles the challenge.
+   */
+  private async confirmAuthChallengeResponse(tabId: number, url: string): Promise<boolean | null> {
+    console.log("🚀 🚀 confirmAuthChallengeResponse tabId:", tabId);
+    if (tabId == null || tabId < 0) {
+      return null;
+    }
+
+    try {
+      console.log("🚀 🚀 url:", url);
+      const challengeHost = new URL(url).host;
+      console.log("🚀 🚀 challengeHost:", challengeHost);
+
+      // Diagnostic: inject a dialog-free function to tell whether injection itself
+      // completes while the navigation is held on the challenge.
+      const probeInjection = BrowserApi.executeFunctionInTab(tabId, () => document.URL, [], {
+        injectImmediately: true,
+      });
+      const probeTimeout = new Promise((resolve) =>
+        setTimeout(() => resolve("🚀 🚀 probe timed out after 5s"), 5000),
+      );
+      console.log("🚀 🚀 before probe inject");
+      console.log("🚀 🚀 probe inject result:", await Promise.race([probeInjection, probeTimeout]));
+
+      console.log("🚀 🚀 before confirm inject");
+      const test = globalThis.confirm(`Bitwarden: sign in with the login saved for this site?`);
+      console.log('🚀 🚀 test:', test);
+      const confirmation = BrowserApi.executeFunctionInTab(
+        tabId,
+        (host: string) =>
+          globalThis.confirm(`Bitwarden: sign in to ${host} with the login saved for this site?`),
+        [challengeHost],
+        { injectImmediately: true },
+      );
+      const confirmationTimeout = new Promise<null>((resolve) =>
+        setTimeout(() => {
+          console.log("🚀 🚀 confirmation timed out");
+          resolve(null);
+        }, AUTH_CHALLENGE_CONFIRMATION_TIMEOUT_MS),
+      );
+      const confirmed = await Promise.race([confirmation, confirmationTimeout]);
+      console.log("🚀 🚀 confirm inject result:", confirmed);
+
+      return typeof confirmed === "boolean" ? confirmed : null;
+    } catch (caught) {
+      console.log("🚀 🚀 inject threw:", caught);
+      return null;
     }
   }
 
