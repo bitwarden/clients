@@ -4511,11 +4511,11 @@
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
   },
   "appliedBalance": {
-    "message": "Applied balance",
+    "message": "Solde appliqué",
     "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
   },
   "amountDue": {
-    "message": "Amount due",
+    "message": "Montant dû",
     "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
   },
   "accountBalance": {
@@ -9938,7 +9938,7 @@
     "message": "Activer le paramètre de saisie automatique au chargement de la page dans l'extension de navigateur pour tous les membres existants et nouveaux. Sachez que les sites web compromis ou peu fiables peuvent"
   },
   "activateAutofillPolicyDescV3": {
-    "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Once this policy is on, members must adjust their personal settings to turn on autofill. Be aware that compromised or untrustworthy websites can"
+    "message": "Activer le remplissage automatique lors du chargement de la page dans l'extension du navigateur pour tous les membres existants et nouveaux. Une fois cette politique activée, les membres doivent ajuster leurs paramètres personnels pour activer le remplissage automatique. Sachez que les sites Web compromis ou peu fiables peuvent"
   },
   "exploitAutofillOnPageLoad": {
     "message": "exploiter la saisie automatique lors du chargement de la page"
@@ -15600,20 +15600,11 @@
   "atRiskPassword": {
     "message": "Mot de passe à risque"
   },
-  "changeAtRiskPassword": {
-    "message": "Changer le mot de passe à risque"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Cet identifiant est à risques et manque un site web. Ajoutez un site web et changez le mot de passe pour une meilleure sécurité."
-  },
   "vulnerablePassword": {
     "message": "Mot de passe vulnérable."
   },
   "changeNow": {
     "message": "Changer maintenant"
-  },
-  "missingWebsite": {
-    "message": "Site Web manquant"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Supprimer Déverrouiller avec un NIP"
@@ -17041,6 +17032,15 @@
         "example": "4"
       }
     }
+  },
+  "secretKey": {
+    "message": "Clé secrète"
+  },
+  "secretKeyAndPassword": {
+    "message": "Clé secrète et mot de passe"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Votre compte est sécurisé avec une clé secrète et un mot de passe. Vous devrez entrer les deux pour continuer."
   },
   "keeperEmail": {
     "message": "Courriel de Keeper"

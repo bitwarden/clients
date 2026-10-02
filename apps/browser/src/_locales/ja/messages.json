@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "保管庫で、自動入力するアイテムをクリックしてください"
   },
-  "clickToAutofill": {
-    "message": "入力候補のアイテムをクリックして自動入力する"
-  },
   "clearClipboard": {
     "message": "クリップボードの消去",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "LastPass アカウントに関連付けられた YubiKey を USB ポートに挿入し、ボタンをタッチしてください。"
   },
+  "secretKey": {
+    "message": "秘密鍵"
+  },
+  "secretKeyAndPassword": {
+    "message": "秘密鍵とパスワード"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "あなたのアカウントは秘密鍵とパスワードで保護されています。続行するには両方を入力する必要があります。"
+  },
   "keeperEmail": {
     "message": "Keeper メール"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "危険なパスワードの変更"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "このログインはリスクが高く、ウェブサイトが設定されていません。セキュリティを強化するには、Webサイトを追加してパスワードを変更してください。"
-  },
   "vulnerablePassword": {
     "message": "脆弱なパスワードです。"
   },
   "changeNow": {
     "message": "今すぐ変更"
-  },
-  "missingWebsite": {
-    "message": "ウェブサイトがありません"
   },
   "settingsVaultOptions": {
     "message": "保管庫オプション"

@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Faceți clic pe elemente pentru a completa automat în vizualizarea Seif"
   },
-  "clickToAutofill": {
-    "message": "Faceți clic pe elementele din sugestia de completare automată pentru a completa"
-  },
   "clearClipboard": {
     "message": "Golire clipboard",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Introduceți YubiKey asociat contului dvs. LastPass în portul USB al computerului, apoi atingeți butonul acestuia."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "E-mail Keeper"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Schimbați parola cu risc"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Această autentificare este cu risc și îi lipsește un site web. Adăugați un site web și schimbați parola pentru o securitate mai puternică."
-  },
   "vulnerablePassword": {
     "message": "Parolă vulnerabilă."
   },
   "changeNow": {
     "message": "Schimbați acum"
-  },
-  "missingWebsite": {
-    "message": "Site web lipsă"
   },
   "settingsVaultOptions": {
     "message": "Opțiuni seif"
