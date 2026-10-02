@@ -11,10 +11,7 @@ import { CipherHealthView } from "../../models";
  */
 export abstract class CipherHealthService {
   /**
-   * Analyzes password health for multiple ciphers.
-   *
-   * Checks all ciphers for weak passwords (zxcvbn score <= 2), password reuse, and HIBP exposure.
-   * Every cipher is present in the returned map regardless of lookup outcome.
+   * Analyzes password health for multiple ciphers: identifies weak, reused, and exposed passwords.
    *
    * @param ciphers - Array of ciphers to analyze
    * @returns Map of cipher ID to health results for O(1) lookups

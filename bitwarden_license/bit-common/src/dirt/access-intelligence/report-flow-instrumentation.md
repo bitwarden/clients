@@ -307,20 +307,7 @@ save returns as soon as the upload resolves, and no read path checks the validat
 **The cipher fetch is not broken into phases.** See
 [Why the cipher fetch name carries two variables](#why-the-cipher-fetch-name-carries-two-variables).
 
-**Weak password scoring and breach lookups are not split.** Both run per cipher inside one
-concurrency bounded fan out, so `Generate: password strength and breach checks complete` gives their
-combined cost and nothing attributes it between them.
-
-Both obvious ways to split it cost more than the gap. Scoring runs inside the `mergeMap` project
-function, so it happens only as a concurrency slot frees up, filling main thread time that would
-otherwise be spent waiting on a lookup. Hoisting it into its own pass up front makes each half
-separately measurable but serializes two things that currently overlap, turning the step's cost into
-scoring plus lookups rather than roughly the larger of the two. Accumulating scoring time in place
-preserves the overlap, but `performance.now()` is coarsened to between 100µs and 1ms depending on
-the browser, so per cipher deltas quantize and the total is biased low by an unknown amount.
-
-Scoring is a plausible hot spot in its own right, so this stays worth closing, but it needs a
-measurement that neither reshapes the work nor depends on sub-tick resolution.
+**Weak password scoring and breach lookups are not split.** `Generate: password strength and breach checks complete` gives their combined cost; nothing attributes it between them.
 
 **A page open that migrates legacy blobs is not separable from one that does not.** Both emit
 `Load: page initialized`, but the migrating run also performs a full save inside that window.
