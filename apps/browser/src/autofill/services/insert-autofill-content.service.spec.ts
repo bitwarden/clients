@@ -1098,7 +1098,7 @@ describe("InsertAutofillContentService", () => {
 
       [EVENTS.KEYDOWN, EVENTS.KEYUP].forEach((eventName) => {
         expect(inputElement.dispatchEvent).toHaveBeenCalledWith(
-          new KeyboardEvent(eventName, { bubbles: true }),
+          new KeyboardEvent(eventName, { bubbles: true, composed: true }),
         );
       });
     });
@@ -1113,7 +1113,7 @@ describe("InsertAutofillContentService", () => {
 
       [EVENTS.INPUT, EVENTS.CHANGE].forEach((eventName) => {
         expect(inputElement.dispatchEvent).toHaveBeenCalledWith(
-          new Event(eventName, { bubbles: true }),
+          new Event(eventName, { bubbles: true, composed: true }),
         );
       });
     });
