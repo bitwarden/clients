@@ -155,69 +155,71 @@
                     </button>
                     <bit-menu-divider />
                   }
-                  @if (bulkActions.showBulkReinviteUsers) {
-                    <button
-                      type="button"
-                      bitMenuItem
-                      (click)="isProcessing ? null : bulkReinvite(organization)"
-                    >
-                      <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
-                      {{ (isSingleInvite ? "resendInvitation" : "reinviteSelected") | i18n }}
-                    </button>
-                  }
-                  @if (bulkActions.showBulkConfirmUsers) {
-                    <button
-                      type="button"
-                      bitMenuItem
-                      (click)="isProcessing ? null : bulkConfirm(organization)"
-                    >
-                      <span class="tw-text-success">
-                        <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
-                        {{ "confirmSelected" | i18n }}
-                      </span>
-                    </button>
-                  }
-                  @if (bulkActions.showBulkRestoreUsers) {
-                    <button
-                      type="button"
-                      bitMenuItem
-                      (click)="isProcessing ? null : bulkRevokeOrRestore(false, organization)"
-                    >
-                      <i class="bwi bwi-fw bwi-plus-circle" aria-hidden="true"></i>
-                      {{ "restoreAccess" | i18n }}
-                    </button>
-                  }
-                  @if (bulkActions.showBulkRevokeUsers) {
-                    <button
-                      type="button"
-                      bitMenuItem
-                      (click)="isProcessing ? null : bulkRevokeOrRestore(true, organization)"
-                    >
-                      <i class="bwi bwi-fw bwi-minus-circle" aria-hidden="true"></i>
-                      {{ "revokeAccess" | i18n }}
-                    </button>
-                  }
-                  @if (bulkActions.showBulkRemoveUsers) {
-                    <button
-                      type="button"
-                      bitMenuItem
-                      variant="danger"
-                      (click)="isProcessing ? null : bulkRemove(organization)"
-                    >
-                      <bit-icon name="bwi-close" slot="start" />
-                      {{ "remove" | i18n }}
-                    </button>
-                  }
-                  @if (bulkActions.showBulkDeleteUsers) {
-                    <button
-                      type="button"
-                      bitMenuItem
-                      variant="danger"
-                      (click)="isProcessing ? null : bulkDelete(organization)"
-                    >
-                      <bit-icon fixedWidth name="bwi-trash" slot="start" />
-                      {{ "delete" | i18n }}
-                    </button>
+                  @if (bulkActions) {
+                    @if (bulkActions.showBulkReinviteUsers) {
+                      <button
+                        type="button"
+                        bitMenuItem
+                        (click)="isProcessing ? null : bulkReinvite(organization)"
+                      >
+                        <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
+                        {{ (isSingleInvite ? "resendInvitation" : "reinviteSelected") | i18n }}
+                      </button>
+                    }
+                    @if (bulkActions.showBulkConfirmUsers) {
+                      <button
+                        type="button"
+                        bitMenuItem
+                        (click)="isProcessing ? null : bulkConfirm(organization)"
+                      >
+                        <span class="tw-text-success">
+                          <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
+                          {{ "confirmSelected" | i18n }}
+                        </span>
+                      </button>
+                    }
+                    @if (bulkActions.showBulkRestoreUsers) {
+                      <button
+                        type="button"
+                        bitMenuItem
+                        (click)="isProcessing ? null : bulkRevokeOrRestore(false, organization)"
+                      >
+                        <i class="bwi bwi-fw bwi-plus-circle" aria-hidden="true"></i>
+                        {{ "restoreAccess" | i18n }}
+                      </button>
+                    }
+                    @if (bulkActions.showBulkRevokeUsers) {
+                      <button
+                        type="button"
+                        bitMenuItem
+                        (click)="isProcessing ? null : bulkRevokeOrRestore(true, organization)"
+                      >
+                        <i class="bwi bwi-fw bwi-minus-circle" aria-hidden="true"></i>
+                        {{ "revokeAccess" | i18n }}
+                      </button>
+                    }
+                    @if (bulkActions.showBulkRemoveUsers) {
+                      <button
+                        type="button"
+                        bitMenuItem
+                        variant="danger"
+                        (click)="isProcessing ? null : bulkRemove(organization)"
+                      >
+                        <bit-icon name="bwi-close" slot="start" />
+                        {{ "remove" | i18n }}
+                      </button>
+                    }
+                    @if (bulkActions.showBulkDeleteUsers) {
+                      <button
+                        type="button"
+                        bitMenuItem
+                        variant="danger"
+                        (click)="isProcessing ? null : bulkDelete(organization)"
+                      >
+                        <bit-icon fixedWidth name="bwi-trash" slot="start" />
+                        {{ "delete" | i18n }}
+                      </button>
+                    }
                   }
                 </bit-menu>
               </th>
