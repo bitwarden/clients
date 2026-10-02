@@ -37,10 +37,6 @@ import { TooltipDirective } from "../../tooltip";
 import { focusAfterRender } from "../../utils/focus-after-render";
 import { isAtOrLargerThanBreakpointSignal } from "../../utils/responsive-utils";
 
-import {
-  CustomizeColumnsDialogComponent,
-  CustomizeColumnsDialogParams,
-} from "./customize-columns-dialog.component";
 import { BitTableV2Component } from "./table-v2.component";
 
 /**
@@ -253,28 +249,13 @@ export class BitTableToolbarComponent {
     });
   }
 
-  /** Whether to offer column customization — the table's own gate, guarded for a missing table. */
+  /** Whether to offer column customization. */
   protected readonly canCustomizeColumns = computed(
     () => this.table?.canCustomizeColumns() ?? false,
   );
 
-  /** Opens the column picker. Each switch applies immediately, behind the scrim. */
   protected openCustomizeColumns(): void {
-    const table = this.table;
-    if (table == null) {
-      return;
-    }
-    this.dialogService.open<unknown, CustomizeColumnsDialogParams>(
-      CustomizeColumnsDialogComponent,
-      {
-        data: {
-          columns: table.removableColumnLabels(),
-          hidden: table.hiddenColumnNames,
-          setHidden: (name, hidden) => table.setColumnHidden(name, hidden),
-          reset: () => table.resetColumns(),
-        },
-      },
-    );
+    this.table?.openCustomizeColumns();
   }
 
   /** Reset every projected filter's selection. Excludes search. */

@@ -339,7 +339,7 @@ describe("BitTableToolbarComponent active filter chips", () => {
         <bit-header-cell>Name</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
       </bit-column>
-      <bit-column [removable]="removable()">
+      <bit-column label="Other" [removable]="removable()">
         <bit-header-cell>Other</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
       </bit-column>

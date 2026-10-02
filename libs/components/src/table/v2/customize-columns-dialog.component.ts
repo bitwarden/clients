@@ -25,7 +25,7 @@ import { RemovableColumn } from "./column";
 
 /** Data passed to {@link CustomizeColumnsDialogComponent} when the toolbar opens it. */
 export interface CustomizeColumnsDialogParams {
-  /** The togglable columns, in display order. Excludes the primary column. */
+  /** The togglable columns, in display order. */
   readonly columns: readonly RemovableColumn[];
   /** The currently hidden names — live, so the switches track the table. */
   readonly hidden: Signal<ReadonlySet<string>>;

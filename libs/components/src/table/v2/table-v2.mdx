@@ -143,12 +143,8 @@ at all. Stick to `px` / `fr` / `minmax`.
 
 The selection checkbox column is a fixed `56px` and isn't configurable.
 
-**A row always fills its width.** If every visible column has a bounded max, nothing is left to
-absorb the remainder — the cells would stop short while the row's background, border and hover fill
-span the full width. So when no visible column can grow, the table keeps the first column's minimum
-and frees its max: `minmax(240px, 480px)` becomes `minmax(240px, 1fr)`. The first column is the one
-that can never be hidden, so it is always there to take the slack. Nothing to opt into, and a table
-with a flexible column is unaffected.
+If no visible column can grow, the first visible column's max becomes `1fr` so rows still fill their
+width: `minmax(240px, 480px)` becomes `minmax(240px, 1fr)`.
 
 ### Columns without a data field
 
@@ -196,11 +192,9 @@ show every column in declaration order.**
 
 ### Letting the user choose columns
 
-Set `stateKey` on the table and mark each column the user may hide with `removable`. A **Customize**
-button then appears in the toolbar beside the search input, opening a dialog with one switch per
-marked column. Each switch applies immediately — the table re-lays out behind the scrim — and the
-choice is stored per user, so it survives a reload and a re-login. **Reset to default** turns every
-column back on, and is offered only once the user has actually changed something.
+To enable column customization, mark a `bit-column` as `removable` and give it a `label` for the
+Customize dialog. This also requires a unique `stateKey` on the table to store the user's
+preference. A **Customize** button then appears in the toolbar.
 
 ```html
 <bit-table-v2 [tableDef]="table" stateKey="vaultItems">
@@ -208,38 +202,24 @@ column back on, and is offered only once the user has actually changed something
     <bit-search [placeholder]="'search' | i18n"></bit-search>
   </bit-table-toolbar>
 
-  <!-- The first column is the row's identity: never offered, always rendered. -->
   <bit-column sortable>
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
   </bit-column>
 
-  <bit-column removable sortable>
+  <bit-column removable [label]="'email' | i18n" sortable>
     <bit-header-cell>{{ "email" | i18n }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.email; let row">{{ row.email }}</bit-cell>
   </bit-column>
 </bit-table-v2>
 ```
 
-Rules worth knowing:
-
-- **`removable` is opt-in.** An unmarked column always renders, so leave row-action columns alone. A
-  table with no column marked gets no Customize button at all, which is why an existing table is
-  unaffected until it opts in.
-- **The first column is never offered**, which is what guarantees the table can't be emptied.
-  Marking it has no effect.
-- **`stateKey` is required.** Without somewhere to persist the choice the button stays hidden; the
-  key must be a property of `TABLE_STATE_KEYS` in `table-state-keys.ts` — register a new table
-  there. An unregistered key won't compile, and the registry's spec rejects duplicate values.
-- **The dialog labels each column with its header text**, read from the rendered header. A column
-  with an icon-only header has no label to show, so it is skipped and stays visible.
-- **`displayedColumns` still wins.** It decides what is _available_; the user's choice hides a
-  subset of that. A column the host drops never reaches the dialog, and a choice made about it is
-  remembered for when it returns.
-- **Not offered in `list` presentation**, which has no header. That is what keeps the feature out of
-  the browser extension. Width plays no part — the control is offered at every viewport size.
-- **Hiding the last flexible column is safe.** The table frees the first column's max so the row
-  still fills its width. See [Column sizing](#column-sizing).
+- Register the `stateKey` in `TABLE_STATE_KEYS` (`table-state-keys.ts`).
+- A `removable` column without a `label` is ignored and stays visible.
+- `displayedColumns` decides which columns are available; the user's choice hides a subset of those.
+- Not offered in `list` presentation.
+- Leave the row's identity column and any row-action columns unmarked, so the table can't be
+  emptied.
 
 ### Reusable columns
 

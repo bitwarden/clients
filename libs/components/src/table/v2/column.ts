@@ -33,6 +33,5 @@ export function createColumnRefs<T, S extends string = never>(): ColumnRefs<T, S
 /** A column the user may toggle in the Customize columns dialog. */
 export interface RemovableColumn {
   readonly name: string;
-  /** The column's header text, read from the rendered header cell. */
   readonly label: string;
 }

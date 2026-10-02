@@ -70,7 +70,7 @@ describe("CustomizeColumnsDialogComponent", () => {
     expect(fixture.nativeElement.querySelector("legend")!.textContent).toContain("Show columns");
   });
 
-  it("labels each switch with its column's header text", () => {
+  it("labels each switch with its column's label", () => {
     const labels = [...fixture.nativeElement.querySelectorAll("bit-form-control-card bit-label")];
     expect(labels.map((l: Element) => l.textContent!.trim())).toEqual(["Vault", "Folder"]);
   });

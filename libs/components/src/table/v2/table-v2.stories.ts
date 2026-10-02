@@ -953,15 +953,15 @@ class DemoLongLabelFiltersTableComponent {
         <bit-header-cell>Name</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
       </bit-column>
-      <bit-column removable sortable width="minmax(176px, 280px)">
+      <bit-column removable label="Vault" sortable width="minmax(176px, 280px)">
         <bit-header-cell>Vault</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.vault; let row">{{ vaultName(row.vault) }}</bit-cell>
       </bit-column>
-      <bit-column removable sortable width="minmax(176px, 280px)">
+      <bit-column removable label="Type" sortable width="minmax(176px, 280px)">
         <bit-header-cell>Type</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.type; let row">{{ typeName(row.type) }}</bit-cell>
       </bit-column>
-      <bit-column removable sortable width="minmax(140px, 1fr)">
+      <bit-column removable label="Folders" sortable width="minmax(140px, 1fr)">
         <bit-header-cell>Folders</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.folderId; let row">{{
           folderName(row.folderId)
@@ -1362,11 +1362,11 @@ const customizeColumnsTemplate = `
       <bit-header-cell>Name</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
     </bit-column>
-    <bit-column removable sortable>
+    <bit-column removable label="Id" sortable>
       <bit-header-cell>Id</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
     </bit-column>
-    <bit-column removable sortable>
+    <bit-column removable label="Other" sortable>
       <bit-header-cell>Other</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
     </bit-column>
@@ -1377,9 +1377,6 @@ const customizeColumnsTemplate = `
  * A table opts into the column picker by setting `stateKey` and marking the columns
  * the user may hide. The **Customize** button then appears beside the search input, and
  * each switch in the dialog applies immediately — the table re-lays out behind the scrim.
- *
- * The primary (first) column is never offered, so the user can always hide everything
- * else and still have a table.
  *
  * **Import** and **Add** are the host's own page controls, projected through `slot=end` the
  * way the web vault does it. Customize belongs to the table, so it sits to their left.
