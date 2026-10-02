@@ -28,14 +28,8 @@ export const COOL_DOWN_MS = 15_000;
 function step(ctx: MachineContext, event: TabLifecycleEvent): Observable<MachineContext> {
   const next = transition(ctx, event);
   // `switchScan` unsubscribes this inner on every subsequent event, which is the timer cancellation
-  // the machine wants: a return inside the grace, a deactivate mid-settle, a logout. It also means
-  // nothing here protects a running timer — the guard below only decides whether to arm a new one.
-  //
-  // A real transition back into a timed state therefore re-arms it, so a focus or blur mid-warm-up
-  // pushes the settle out a full SETTLE_MS from that event. Benign: it re-debounces, and never
-  // yields an early or wrong Hot. A no-op returns the same reference and arms nothing, which is why
-  // `tabLifecycle` requires deduplicated input — a redundant event in a timed state would
-  // cancel its timer and leave the tab there.
+  // the machine wants. It also means nothing here protects a running timer — the guard below only
+  // decides whether to arm a new one.
   if (next !== ctx && next.state === TabState.WarmUp) {
     const settled: MachineContext = next.focused
       ? { state: TabState.Hot, focused: true, cause: TabEdgeCause.Settle }
