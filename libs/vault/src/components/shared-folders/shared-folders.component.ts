@@ -52,6 +52,7 @@ import {
   StatusLockupComponent,
   SvgComponent,
   TableSelectionModel,
+  TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -188,6 +189,7 @@ export type SharedFoldersTableFilters = {
     SkeletonTextComponent,
     StatusLockupComponent,
     SvgComponent,
+    TooltipDirective,
   ],
 })
 export class SharedFoldersComponent {

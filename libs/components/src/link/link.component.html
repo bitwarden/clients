@@ -1,11 +1,11 @@
-<div class="tw-flex tw-gap-2 tw-items-center">
+<div class="tw-flex tw-gap-2 tw-items-center" [class]="contentClasses()">
   @if (startIcon()) {
-    <i [class]="['bwi', startIcon()]" aria-hidden="true"></i>
+    <i [class]="['bwi', startIcon(), iconClasses()]" aria-hidden="true"></i>
   }
-  <span class="empty:tw-hidden">
+  <span class="empty:tw-hidden" [class]="textClasses()">
     <ng-content></ng-content>
   </span>
   @if (endIcon()) {
-    <i [class]="['bwi', endIcon()]" aria-hidden="true"></i>
+    <i [class]="['bwi', endIcon(), iconClasses()]" aria-hidden="true"></i>
   }
 </div>

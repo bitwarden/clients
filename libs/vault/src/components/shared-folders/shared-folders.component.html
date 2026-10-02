@@ -95,7 +95,8 @@
       <!-- An anchor rather than a click handler, so middle- and right-click behave as expected. -->
       <a
         bitLink
-        class="tw-truncate"
+        truncate
+        [bitTooltip]="row.name"
         [attr.id]="'shared-folders_link_name-' + row.id"
         [routerLink]="
           vaultScopeCommands({
