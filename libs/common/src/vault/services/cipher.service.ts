@@ -38,7 +38,7 @@ import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid
 import { OrgKey, UserKey } from "../../types/key";
 import { filterOutNullish, perUserCache$ } from "../../vault/utils/observable-utilities";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
-import { CipherSdkService } from "../abstractions/cipher-sdk.service";
+import { CipherSdkService, DecryptAllCiphersResult } from "../abstractions/cipher-sdk.service";
 import {
   CipherService as CipherServiceAbstraction,
   EncryptionContext,
@@ -618,6 +618,18 @@ export class CipherService implements CipherServiceAbstraction {
     } catch {
       return [];
     }
+  }
+
+  async getCiphersOrganizationLogins(organizationId: string): Promise<DecryptAllCiphersResult> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+
+    const result = await this.cipherSdkService.getOrganizationLoginCiphers(organizationId, userId);
+    result.successes.sort(this.getLocaleSortingFunction());
+
+    return result;
   }
 
   private async decryptOrganizationCiphersResponse(
