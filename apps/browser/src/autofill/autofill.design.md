@@ -1,5 +1,5 @@
-> [!NOTE]
 > **Scope:** This document describes the desired state for web browser autofill.
+>
 > **Audience:** Engineers should align their decisions and code generators should align their implementation with the design described within this document.
 
 # Autofill
