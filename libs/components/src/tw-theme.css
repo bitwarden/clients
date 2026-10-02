@@ -873,6 +873,15 @@
     z-index: 2000 !important;
   }
 
+  /* Two classes out-specify the rule above, so a spotlight paints over a dialog. */
+  .cdk-overlay-pane.bit-spotlight-pane {
+    z-index: 2010 !important;
+  }
+
+  .cdk-overlay-pane.bit-spotlight-popover-pane {
+    z-index: 2020 !important;
+  }
+
   .cdk-global-scrollblock {
     position: relative;
     height: 100%;

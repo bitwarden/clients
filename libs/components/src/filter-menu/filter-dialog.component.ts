@@ -8,6 +8,7 @@ import {
   inject,
   signal,
   viewChild,
+  viewChildren,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -59,6 +60,9 @@ export class FilterDialogComponent {
   private readonly injector = inject(Injector);
 
   private readonly doneButtonEl = viewChild("doneButton", { read: ElementRef<HTMLElement> });
+
+  /** The list page's rows, in `filters` order. Empty while drilled into a filter. */
+  private readonly rowEls = viewChildren("row", { read: ElementRef<HTMLElement> });
 
   /** The filters to present, in row order. */
   protected readonly filters = inject<FilterDialogParams>(DIALOG_DATA).filters;
@@ -134,6 +138,12 @@ export class FilterDialogComponent {
     "[&_[data-filter-section-row]]:tw-ps-3",
     "[&_[data-filter-section-row]_[data-filter-row-label]]:tw-font-normal",
   ].join(" ");
+
+  /** The list page's row for filter `key`, for `[bitPopoverAnchorFor]`'s `anchor`. */
+  rowAnchor(key: string): HTMLElement | undefined {
+    const index = this.filters.findIndex((filter) => filter.key() === key);
+    return this.rowEls()[index]?.nativeElement;
+  }
 
   /** A row tap: drill into a filter that has options, or flip a toggle in place. */
   protected select(filter: FilterPresenter): void {

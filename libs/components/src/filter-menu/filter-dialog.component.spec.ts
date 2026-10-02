@@ -77,4 +77,12 @@ describe("FilterDialogComponent", () => {
       "My folders",
     ]);
   });
+
+  it("exposes each row as a coachmark anchor by filter key", async () => {
+    const fixture = await setUp([presenter("Type", []), presenter("Vault", [])]);
+    const rowAnchor = (key: string) => fixture.componentInstance.rowAnchor(key);
+
+    expect(rowAnchor("Vault")?.textContent).toContain("Vault");
+    expect(rowAnchor("Missing")).toBeUndefined();
+  });
 });

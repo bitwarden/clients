@@ -14,8 +14,9 @@
         <button
           type="button"
           bitIconButton="bwi-sliders"
+          #filtersButton
           [label]="'filters' | i18n"
-          (click)="openFilterDialog()"
+          (click)="filterDialogOpen.set(true)"
         ></button>
         @if (appliedCount()) {
           <bit-berry

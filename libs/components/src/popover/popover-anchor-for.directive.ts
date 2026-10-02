@@ -7,6 +7,7 @@ import {
   OnDestroy,
   ViewContainerRef,
   afterNextRender,
+  computed,
   effect,
   inject,
   input,
@@ -20,6 +21,15 @@ import { PositionIdentifier, defaultPositions } from "./default-positions";
 import { PopoverPanelComponent } from "./popover-panel.component";
 import { PopoverComponent } from "./popover.component";
 import { SpotlightService } from "./spotlight.service";
+
+/** Finite animations running on the element or its ancestors, e.g. a dialog sliding in. */
+function runningAnimations(element: HTMLElement): Animation[] {
+  // `getAnimations` is missing in jsdom
+  return (document.getAnimations?.() ?? []).filter((animation) => {
+    const effect = animation.effect as KeyframeEffect | null;
+    return effect?.target?.contains(element) && effect.getComputedTiming().endTime !== Infinity;
+  });
+}
 
 /** Implement and provide as `useExisting` to redirect `[bitPopoverAnchorFor]` from the host to another element. */
 export abstract class PopoverElementProvider {
@@ -50,6 +60,14 @@ export abstract class PopoverElementProvider {
  * </div>
  * ```
  *
+ * @example
+ * Anchored to an element a component exposes, from an `<ng-container>` anywhere in the template:
+ * ```html
+ * <bit-table-toolbar #toolbar>…</bit-table-toolbar>
+ * <ng-container [bitPopoverAnchorFor]="myPopover" [anchor]="toolbar.filtersAnchor()"
+ *   [(popoverOpen)]="isOpen" />
+ * ```
+ *
  * Use `PopoverTriggerForDirective` instead if the popover should open on user click.
  */
 @Directive({
@@ -74,13 +92,33 @@ export class PopoverAnchorForDirective implements OnDestroy {
   /** Enable spotlight effect that dims everything except the anchor element */
   readonly spotlight = input<boolean>(false);
 
+  /**
+   * Anchor to this element instead of the host. On an `<ng-container>`, `undefined` means it hasn't
+   * rendered yet: opening waits for it, and the popover closes if it goes away.
+   */
+  readonly anchor = input<HTMLElement | ElementRef<HTMLElement>>();
+
   private readonly popoverElementProvider = inject<PopoverElementProvider>(PopoverElementProvider, {
     host: true,
     optional: true,
   });
-  private readonly elementRef = this.popoverElementProvider
+  private readonly hostElementRef = this.popoverElementProvider
     ? this.popoverElementProvider.popoverAnchorElementRef
     : inject<ElementRef<HTMLElement>>(ElementRef);
+
+  private readonly anchorElement = computed(() => {
+    const anchor = this.anchor();
+    if (anchor) {
+      return anchor instanceof ElementRef ? anchor.nativeElement : anchor;
+    }
+    // An `<ng-container>` host is a comment node, which can't be anchored to
+    const host = this.hostElementRef.nativeElement;
+    return host instanceof HTMLElement ? host : undefined;
+  });
+  /** `anchorElement` once it has finished animating into place. */
+  private readonly settledAnchor = signal<HTMLElement | undefined>(undefined);
+  /** The element the open popover is attached to. */
+  private openAnchor: HTMLElement | null = null;
 
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly overlay = inject(Overlay);
@@ -108,6 +146,8 @@ export class PopoverAnchorForDirective implements OnDestroy {
   get defaultPopoverConfig(): OverlayConfig {
     return {
       hasBackdrop: !this.spotlight(), // Spotlight manages its own backdrop
+      // Raised above dialogs in tw-theme.css, so a spotlight can point into one
+      panelClass: this.spotlight() ? "bit-spotlight-popover-pane" : undefined,
       backdropClass: "cdk-overlay-transparent-backdrop",
       scrollStrategy: this.overlay.scrollStrategies.reposition(),
       positionStrategy: this.overlay
@@ -115,7 +155,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
         .flexibleConnectedTo(
           this.spotlight() && this.spotlightService.overlayElement
             ? new ElementRef(this.spotlightService.overlayElement)
-            : this.elementRef,
+            : (this.openAnchor ?? this.hostElementRef),
         )
         .withPositions(this.positions)
         .withLockedPosition(true)
@@ -129,10 +169,27 @@ export class PopoverAnchorForDirective implements OnDestroy {
     // Sets a signal so the effect below re-evaluates once the layout is ready.
     afterNextRender(() => this.hasInitialized.set(true));
 
+    // Measuring an anchor mid-animation would pin the popover to where it started
+    effect(() => {
+      const anchor = this.anchorElement();
+      const running = anchor ? runningAnimations(anchor) : [];
+      if (!running.length) {
+        this.settledAnchor.set(anchor);
+        return;
+      }
+      this.settledAnchor.set(undefined);
+      void Promise.allSettled(running.map((animation) => animation.finished)).then(() => {
+        if (this.anchorElement() === anchor) {
+          this.settledAnchor.set(anchor);
+        }
+      });
+    });
+
     effect(() => {
       if (this.isDestroyed) {
         return;
       }
+      const anchor = this.settledAnchor();
 
       // Handle closing
       if (!this.popoverOpen() && this.overlayRef) {
@@ -140,8 +197,14 @@ export class PopoverAnchorForDirective implements OnDestroy {
         return;
       }
 
+      // The anchor went away or was replaced while open
+      if (this.overlayRef && this.anchorElement() !== this.openAnchor) {
+        this.destroyPopover();
+        return;
+      }
+
       // Handle opening — hasInitialized() ensures layout is stable on first open
-      if (!this.popoverOpen() || this.overlayRef || !this.hasInitialized()) {
+      if (!this.popoverOpen() || this.overlayRef || !this.hasInitialized() || !anchor) {
         return;
       }
 
@@ -151,14 +214,16 @@ export class PopoverAnchorForDirective implements OnDestroy {
 
   /** Programmatically opens the popover */
   openPopover() {
-    if (this.overlayRef) {
+    const anchor = this.settledAnchor();
+    if (this.overlayRef || !anchor) {
       return;
     }
+    this.openAnchor = anchor;
 
     // Create the spotlight border overlay first so the popover overlay sits above it in DOM order
     if (this.spotlight()) {
       this.spotlightService.register(this);
-      this.spotlightService.showSpotlight(this.elementRef.nativeElement);
+      this.spotlightService.showSpotlight(anchor);
     }
 
     this.popoverOpen.set(true);
@@ -209,6 +274,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
     this.closedEventsSub = null;
     this.overlayRef?.dispose();
     this.overlayRef = null;
+    this.openAnchor = null;
 
     if (this.spotlight()) {
       this.spotlightService.unregister(this);

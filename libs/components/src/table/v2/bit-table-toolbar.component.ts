@@ -1,22 +1,27 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   Injector,
   computed,
   contentChildren,
   effect,
   inject,
+  model,
+  signal,
+  untracked,
   viewChild,
   viewChildren,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BerryComponent } from "../../berry/berry.component";
 import { ButtonModule } from "../../button";
 import { ChipComponent } from "../../chips";
-import { DialogService } from "../../dialog";
+import { DialogRef, DialogService } from "../../dialog";
 import {
   FilterDialogComponent,
   FilterDialogParams,
@@ -66,6 +71,29 @@ import { BitTableV2Component } from "./table-v2.component";
 })
 export class BitTableToolbarComponent {
   private readonly dialogService = inject(DialogService);
+
+  /** Whether the filter dialog is open. Bind two-way to open or close it programmatically. */
+  readonly filterDialogOpen = model(false);
+  private readonly filterDialogRef = signal<DialogRef<unknown, FilterDialogComponent> | undefined>(
+    undefined,
+  );
+  private readonly destroyRef = inject(DestroyRef);
+
+  private readonly filtersButton = viewChild("filtersButton", { read: ElementRef<HTMLElement> });
+
+  /**
+   * The small-screen filter button, for `[bitPopoverAnchorFor]`'s `anchor`. `undefined` while the
+   * chips are shown inline instead.
+   */
+  readonly filtersAnchor = computed(() => this.filtersButton()?.nativeElement);
+
+  /**
+   * The filter dialog's top-level row for filter `key`, for `[bitPopoverAnchorFor]`'s `anchor`.
+   * `undefined` while the dialog is closed or drilled into a filter.
+   */
+  filterDialogRowAnchor(key: string): HTMLElement | undefined {
+    return this.filterDialogRef()?.componentInstance?.rowAnchor(key);
+  }
 
   /** The table this toolbar is projected into; the source of the item count. */
   protected readonly table = inject(BitTableV2Component, { optional: true });
@@ -220,6 +248,11 @@ export class BitTableToolbarComponent {
       this.countDigits();
       this.overflowList()?.remeasure();
     });
+
+    effect(() => {
+      const open = this.filterDialogOpen();
+      untracked(() => this.syncFilterDialog(open));
+    });
   }
 
   /** An active filter's chip label: `label`, or `label: summary` when it has a summary. */
@@ -242,10 +275,24 @@ export class BitTableToolbarComponent {
   /** The count's width tracks its digits, not its value — see the remeasure effect. */
   private readonly countDigits = computed(() => String(this.itemCount()).length);
 
-  /** Opens the projected filters in a dialog (a bottom sheet on small screens). */
-  protected openFilterDialog(): void {
-    this.dialogService.open<unknown, FilterDialogParams>(FilterDialogComponent, {
-      data: { filters: this.filters() },
+  /** Opens or closes the filter dialog to match `filterDialogOpen`. */
+  private syncFilterDialog(open: boolean): void {
+    if (!open) {
+      void this.filterDialogRef()?.close();
+      return;
+    }
+    if (this.filterDialogRef()) {
+      return;
+    }
+    const data: FilterDialogParams = { filters: this.filters() };
+    const ref: DialogRef<unknown, FilterDialogComponent> = this.dialogService.open(
+      FilterDialogComponent,
+      { data },
+    );
+    this.filterDialogRef.set(ref);
+    ref.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.filterDialogRef.set(undefined);
+      this.filterDialogOpen.set(false);
     });
   }
 

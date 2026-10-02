@@ -106,6 +106,34 @@ first.
 
 <Canvas of={stories.MultipleSpotlights} />
 
+### Anchoring to an element inside another component
+
+To point a popover at an element a component renders internally — a button inside a toolbar, a row
+inside a dialog — the component exposes it as a public signal, and the consumer passes it to
+`[anchor]`. The anchor directive can then sit on an `<ng-container>` anywhere in the template:
+
+```html
+<bit-table-toolbar #toolbar>…</bit-table-toolbar>
+
+<ng-container
+  [bitPopoverAnchorFor]="coachmark"
+  [anchor]="toolbar.filtersAnchor()"
+  [popoverOpen]="open"
+  [spotlight]="true"
+/>
+```
+
+`undefined` means the element hasn't rendered yet: opening waits for it, and for anything it's
+animating in with (such as a dialog sliding up), and the popover closes if it goes away.
+
+Library components exposing an anchor name it `<part>Anchor` — a signal for a single element, or a
+method like `filterDialogRowAnchor(key)` for one of many.
+
+This differs from `data-spotlight-target`, which only moves a spotlight's ring onto an element
+inside the anchor's own host (as `bit-nav-item` does).
+
+<Canvas of={stories.AnchorElement} />
+
 ### Block-level anchor requirement
 
 The spotlight overlay tracks the trigger element's size and position. The underlying

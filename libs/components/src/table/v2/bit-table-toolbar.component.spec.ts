@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, signal, viewChild } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { mock } from "jest-mock-extended";
+import { MockProxy, mock } from "jest-mock-extended";
+import { Subject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { ChipComponent } from "../../chips";
-import { DialogService } from "../../dialog";
+import { DialogRef, DialogService } from "../../dialog";
 import { FilterMenuComponent } from "../../filter-menu/filter-menu.component";
 import { FilterOptionComponent } from "../../filter-menu/filter-option.component";
 import { FilterToggleComponent } from "../../filter-menu/filter-toggle.component";
@@ -171,6 +172,79 @@ describe("BitTableToolbarComponent", () => {
       collapsing.detectChanges();
 
       expect(toolbar().className).toContain("tw-border-b");
+    });
+  });
+
+  describe("filterDialogOpen", () => {
+    let dialogService: MockProxy<DialogService>;
+    let closed: Subject<unknown>;
+    let ref: {
+      closed: Subject<unknown>;
+      close: jest.Mock;
+      componentInstance: { rowAnchor: jest.Mock };
+    };
+    const row = document.createElement("button");
+
+    const toolbar = () =>
+      fixture.debugElement.query(By.directive(BitTableToolbarComponent))
+        .componentInstance as BitTableToolbarComponent;
+
+    const setOpen = (open: boolean) => {
+      toolbar().filterDialogOpen.set(open);
+      fixture.detectChanges();
+    };
+
+    beforeEach(() => {
+      dialogService = TestBed.inject(DialogService) as MockProxy<DialogService>;
+      closed = new Subject();
+      ref = {
+        closed,
+        close: jest.fn(() => closed.next(undefined)),
+        componentInstance: {
+          rowAnchor: jest.fn((key: string) => (key === "vault" ? row : undefined)),
+        },
+      };
+      dialogService.open.mockReturnValue(ref as unknown as DialogRef);
+    });
+
+    it("opens the filter dialog once when set to true", () => {
+      setOpen(true);
+      setOpen(true);
+
+      expect(dialogService.open).toHaveBeenCalledTimes(1);
+    });
+
+    it("closes the dialog when set back to false", () => {
+      setOpen(true);
+      setOpen(false);
+
+      expect(ref.close).toHaveBeenCalled();
+    });
+
+    it("writes false back when the user dismisses the dialog", () => {
+      setOpen(true);
+      closed.next(undefined);
+
+      expect(toolbar().filterDialogOpen()).toBe(false);
+    });
+
+    it("forwards a dialog row anchor while the dialog is open", () => {
+      expect(toolbar().filterDialogRowAnchor("vault")).toBeUndefined();
+
+      setOpen(true);
+      expect(toolbar().filterDialogRowAnchor("vault")).toBe(row);
+
+      closed.next(undefined);
+      expect(toolbar().filterDialogRowAnchor("vault")).toBeUndefined();
+    });
+
+    it("can reopen after the dialog closes", () => {
+      setOpen(true);
+      closed.next(undefined);
+      fixture.detectChanges();
+      setOpen(true);
+
+      expect(dialogService.open).toHaveBeenCalledTimes(2);
     });
   });
 });
