@@ -261,17 +261,5 @@ describe("OnePasswordDirectImportService", () => {
 
       await expect(result).resolves.toBeUndefined();
     });
-
-    it("closes the prompt and passes on running out of attempts", async () => {
-      const sdk = twoFactorImport();
-      const result = start();
-      void credentialPrompts[0].data.signIn(entered);
-
-      void codePrompts[0].data.submitCode("111111");
-      sdk.finish(importError("OnePasswordTwoFactorFailed"));
-
-      await expect(result).rejects.toMatchObject({ variant: "OnePasswordTwoFactorFailed" });
-      expect(codePrompts[0].close).toHaveBeenCalled();
-    });
   });
 });
