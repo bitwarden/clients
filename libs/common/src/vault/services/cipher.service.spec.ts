@@ -1559,6 +1559,41 @@ describe("Cipher Service", () => {
     });
   });
 
+  describe("getCiphersOrganizationLogins()", () => {
+    const testOrgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
+
+    it("should return sorted successes and failures from the SDK", async () => {
+      const cipherViewB = new CipherView();
+      cipherViewB.name = "B Login";
+      const cipherViewA = new CipherView();
+      cipherViewA.name = "A Login";
+      const failedCipherView = new CipherView();
+      failedCipherView.decryptionFailure = true;
+
+      const sdkServiceSpy = jest
+        .spyOn(cipherSdkService, "getOrganizationLoginCiphers")
+        .mockResolvedValue({ successes: [cipherViewB, cipherViewA], failures: [failedCipherView] });
+      const apiSpy = jest.spyOn(apiService, "send");
+
+      const result = await cipherService.getCiphersOrganizationLogins(testOrgId);
+
+      expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId);
+      expect(apiSpy).not.toHaveBeenCalled();
+      expect(result.successes.map((c) => c.name)).toEqual(["A Login", "B Login"]);
+      expect(result.failures).toEqual([failedCipherView]);
+    });
+
+    it("should propagate SDK errors", async () => {
+      jest
+        .spyOn(cipherSdkService, "getOrganizationLoginCiphers")
+        .mockRejectedValue(new Error("SDK error"));
+
+      await expect(cipherService.getCiphersOrganizationLogins(testOrgId)).rejects.toThrow(
+        "SDK error",
+      );
+    });
+  });
+
   describe("bulkUpdateCollectionsWithServer()", () => {
     const testOrgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
     const testCipherIds = [

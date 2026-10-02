@@ -50,6 +50,7 @@ describe("DefaultCipherSdkService", () => {
       restore_many: jest.fn().mockResolvedValue(undefined),
       list_org_ciphers: jest.fn().mockResolvedValue({ ciphers: [], listViews: [] }),
       list_assigned_org_ciphers: jest.fn().mockResolvedValue({ ciphers: [], listViews: [] }),
+      list_org_login_ciphers: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
       update_collection: jest.fn(),
       delete_attachment: jest.fn().mockResolvedValue(undefined),
     };
@@ -1347,6 +1348,79 @@ describe("DefaultCipherSdkService", () => {
       await expect(cipherSdkService.getManyFromApiForOrganization(orgId, userId)).rejects.toThrow();
       expect(logService.error).toHaveBeenCalledWith(
         expect.stringContaining("Failed to list assigned organization ciphers"),
+      );
+    });
+  });
+
+  describe("getOrganizationLoginCiphers()", () => {
+    const mockFailedCipher: any = {
+      id: cipherId,
+      name: "2.encryptedName|iv|data",
+      type: CipherType.Login,
+      organizationId: orgId,
+      folderId: null,
+      favorite: false,
+      edit: true,
+      viewPassword: true,
+      organizationUseTotp: false,
+      revisionDate: new Date().toISOString(),
+      creationDate: new Date().toISOString(),
+      collectionIds: [],
+      deletedDate: null,
+      reprompt: 0,
+      key: null,
+      localData: null,
+      attachments: null,
+      fields: null,
+      passwordHistory: null,
+      notes: null,
+      login: null,
+      secureNote: null,
+      card: null,
+      identity: null,
+      sshKey: null,
+      permissions: null,
+    };
+
+    it("should list and decrypt organization login ciphers using SDK admin API", async () => {
+      const mockSdkCipherView = new CipherView().toSdkCipherView();
+      mockSdkCipherView.name = "Org Login";
+      mockAdminSdk.list_org_login_ciphers.mockResolvedValue({
+        successes: [mockSdkCipherView],
+        failures: [],
+      });
+
+      const result = await cipherSdkService.getOrganizationLoginCiphers(orgId, userId);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockCiphersSdk.admin).toHaveBeenCalled();
+      expect(mockAdminSdk.list_org_login_ciphers).toHaveBeenCalledWith(orgId);
+      expect(result.successes).toHaveLength(1);
+      expect(result.successes[0]).toBeInstanceOf(CipherView);
+      expect(result.successes[0].name).toBe("Org Login");
+      expect(result.failures).toHaveLength(0);
+    });
+
+    it("should return failures with decryptionFailure flag set", async () => {
+      mockAdminSdk.list_org_login_ciphers.mockResolvedValue({
+        successes: [],
+        failures: [mockFailedCipher],
+      });
+
+      const result = await cipherSdkService.getOrganizationLoginCiphers(orgId, userId);
+
+      expect(result.successes).toHaveLength(0);
+      expect(result.failures).toHaveLength(1);
+      expect(result.failures[0].id).toBe(cipherId);
+      expect(result.failures[0].decryptionFailure).toBe(true);
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      mockAdminSdk.list_org_login_ciphers.mockRejectedValue(new Error("SDK error"));
+
+      await expect(cipherSdkService.getOrganizationLoginCiphers(orgId, userId)).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to list organization login ciphers"),
       );
     });
   });
