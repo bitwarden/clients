@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "Sätt in YubiKey som associeras med ditt LastPass-konto i din dators USB-port, tryck sedan på knappen."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper-e-post"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Det webbläsartillägg du använder är föråldrat. Uppdatera det eller inaktivera validering av fingeravtryck i webbläsaren i inställningarna för skrivbordsappen."
   },
-  "changeAtRiskPassword": {
-    "message": "Ändra lösenord för riskgrupper"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Denna inloggning är utsatt för risk och saknar en webbplats. Lägg till en webbplats och ändra lösenordet för ökad säkerhet."
-  },
   "vulnerablePassword": {
     "message": "Sårbart lösenord."
   },
   "changeNow": {
     "message": "Ändra nu"
-  },
-  "missingWebsite": {
-    "message": "Saknar webbplats"
   },
   "missingPermissions": {
     "message": "Du saknar de nödvändiga behörigheterna för att utföra denna åtgärd."
