@@ -150,7 +150,7 @@ Reconciliation reads the reporting tab's lifecycle state (see [The tab lifecycle
 - **dropped** when its tab is warm, when the account logs out, or when the frame is lost. Warm is deliberately a drop, not a buffer: a background window's active tab is out of scope for a page-load fill. Transitions are always dropped when the user logs out in order to prevent one session from leaking to another.
 
 > [!NOTE]
-> **Buffering tracks the path to hot**, independent of monitoring state. Cold and warm are the instructive contrast: cold does not monitor but buffers (a _page loaded in the background_ waits for its first focus), while warm monitors but drops (_unfocused windows_ never fill).
+> **Buffering tracks the path to hot**, independent of monitoring state. Cold and warm states track the difference: cold does not monitor but buffers (a _page loaded in the background_ waits for its first focus), while warm monitors but drops (_unfocused windows_ never fill).
 
 A **command** — a user-initiated fill (keyboard shortcut, context menu, card/identity) targeting the tab — _consumes_ a buffered transition instead of resolving it. The command carries its own fill, so a page-load opportunity for the same tab would trigger a redundant second fill. The command drives the tab to hot early, which drops the pending transition rather than surfacing it.
 
