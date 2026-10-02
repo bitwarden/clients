@@ -20,6 +20,7 @@ export * from "./callout";
 export * from "./card";
 export * from "./checkbox";
 export * from "./chips";
+export * from "./coachmark";
 export * from "./color-password";
 export * from "./container";
 export * from "./copy-click";

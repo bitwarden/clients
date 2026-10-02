@@ -1,0 +1,57 @@
+<ng-container
+  [bitPopoverAnchorFor]="popover"
+  [anchor]="anchor()"
+  [popoverOpen]="active()"
+  (popoverOpenChange)="onOpenChange($event)"
+  [spotlight]="true"
+  [position]="tour().position(step())"
+/>
+
+<bit-popover #popover [title]="title()">
+  <div bitTypography="body2" class="tw-mb-3 tw-text-fg-body">
+    <ng-content></ng-content>
+  </div>
+
+  @if (learnMoreUrl(); as url) {
+    <a
+      bitLink
+      linkType="primary"
+      endIcon="bwi-external-link"
+      [href]="url"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="tw-mb-3"
+    >
+      {{ "learnMore" | i18n }}
+    </a>
+  }
+
+  <bit-popover-footer class="tw-flex tw-w-full tw-items-center tw-justify-between tw-gap-4">
+    <span bitTypography="body2" class="tw-text-muted">
+      {{ "coachmarkStepsIndicator" | i18n: tour().stepNumber() : tour().totalSteps() }}
+    </span>
+
+    <div class="tw-flex tw-gap-2">
+      @if (tour().stepNumber() > 1) {
+        <button
+          id="bit-coachmark_button_back"
+          bitButton
+          buttonType="secondary"
+          type="button"
+          (click)="tour().back()"
+        >
+          {{ "back" | i18n }}
+        </button>
+      }
+      <button
+        id="bit-coachmark_button_next"
+        bitButton
+        buttonType="primary"
+        type="button"
+        (click)="tour().next()"
+      >
+        {{ tour().stepNumber() === tour().totalSteps() ? ("close" | i18n) : ("next" | i18n) }}
+      </button>
+    </div>
+  </bit-popover-footer>
+</bit-popover>

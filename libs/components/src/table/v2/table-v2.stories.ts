@@ -17,6 +17,7 @@ import { BulkActionsBarComponent } from "../../bulk-actions-bar/bulk-actions-bar
 import { BulkAdditionalActionComponent } from "../../bulk-actions-bar/bulk-additional-action.component";
 import { ButtonModule } from "../../button";
 import { ChipActionComponent } from "../../chips/chip-action";
+import { CoachmarkComponent, CoachmarkTour } from "../../coachmark";
 import { DialogModule } from "../../dialog";
 import { FilterMenuModule, type FilterOptionIconTile } from "../../filter-menu";
 import { FormFieldModule } from "../../form-field";
@@ -25,7 +26,6 @@ import { IconTileComponent, type IconTileVariant } from "../../icon-tile/icon-ti
 import { InputModule } from "../../input/input.module";
 import { LayoutComponent, PageComponent } from "../../layout";
 import { mockLayoutI18n } from "../../layout/mocks";
-import { PopoverModule } from "../../popover";
 import { SearchModule } from "../../search";
 import { SkeletonTextComponent } from "../../skeleton";
 import { positionFixedWrapperDecorator } from "../../stories/storybook-decorators";
@@ -440,7 +440,7 @@ class DemoFilterableTableComponent {
     FilterMenuModule,
     SearchModule,
     ButtonModule,
-    PopoverModule,
+    CoachmarkComponent,
   ],
   template: `
     <!-- Popup-sized: the chips can't fit, so the toolbar shows the filter button at any viewport. -->
@@ -449,10 +449,10 @@ class DemoFilterableTableComponent {
         <bit-table-toolbar
           #toolbar
           [(filterDialogOpen)]="filterDialogOpen"
-          (filterDialogOpenChange)="$event || endTour()"
+          (filterDialogOpenChange)="$event || tour.end()"
         >
           <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
-          <button bitButton buttonType="primary" type="button" slot="end" (click)="step.set(1)">
+          <button bitButton buttonType="primary" type="button" slot="end" (click)="tour.start()">
             Start tour
           </button>
 
@@ -500,49 +500,31 @@ class DemoFilterableTableComponent {
       </bit-table-v2>
     </div>
 
-    <ng-container
-      [bitPopoverAnchorFor]="filtersCoachmark"
-      [anchor]="toolbar.filtersAnchor()"
-      [popoverOpen]="step() === 1"
-      [spotlight]="true"
-      [position]="'below-end'"
-    />
-    <ng-container
-      [bitPopoverAnchorFor]="vaultRowCoachmark"
+    <bit-coachmark [tour]="tour" step="filters" [anchor]="toolbar.filtersAnchor()" title="Filters">
+      Narrow the list by type or vault.
+    </bit-coachmark>
+    <bit-coachmark
+      [tour]="tour"
+      step="vaultRow"
       [anchor]="toolbar.filterDialogRowAnchor('vault')"
-      [popoverOpen]="step() === 2"
-      [spotlight]="true"
-      [position]="'above-center'"
-    />
-
-    <bit-popover [title]="'Filters'" (closed)="endTour()" #filtersCoachmark>
-      <div>Narrow the list by type or vault.</div>
-      <div class="tw-mt-4">
-        <button type="button" bitButton buttonType="primary" (click)="next()">Next</button>
-      </div>
-    </bit-popover>
-    <bit-popover [title]="'Vaults'" (closed)="endTour()" #vaultRowCoachmark>
-      <div>Show items from one vault at a time.</div>
-      <div class="tw-mt-4">
-        <button type="button" bitButton buttonType="primary" (click)="endTour()">Done</button>
-      </div>
-    </bit-popover>
+      title="Vaults"
+    >
+      Show items from one vault at a time.
+    </bit-coachmark>
   `,
 })
 class DemoFilterCoachmarkTableComponent extends DemoFilterableTableComponent {
-  protected readonly step = signal<0 | 1 | 2>(0);
   protected readonly filterDialogOpen = signal(false);
 
-  protected next(): void {
-    // Opening the dialog renders the row; the second coachmark waits for it before opening.
-    this.filterDialogOpen.set(true);
-    this.step.set(2);
-  }
-
-  protected endTour(): void {
-    this.step.set(0);
-    this.filterDialogOpen.set(false);
-  }
+  protected readonly tour = new CoachmarkTour([
+    { id: "filters", position: "below-end" },
+    {
+      id: "vaultRow",
+      position: "above-center",
+      beforeEnter: () => this.filterDialogOpen.set(true),
+      afterLeave: () => this.filterDialogOpen.set(false),
+    },
+  ]);
 }
 
 @Component({
@@ -1114,6 +1096,9 @@ export default {
               resetSearch: "Reset search",
               viewItemsIn: (name) => `View items in ${name}`,
               back: "Back",
+              next: "Next",
+              close: "Close",
+              coachmarkStepsIndicator: (current, total) => `${current} of ${total}`,
               backTo: (name) => `Back to ${name}`,
               removeItem: (name) => `Remove ${name}`,
               clearFilters: "Clear all filters",
