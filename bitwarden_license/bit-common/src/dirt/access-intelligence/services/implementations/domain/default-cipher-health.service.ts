@@ -1,6 +1,7 @@
 import { forkJoin, from, map, mergeMap, Observable, of, switchMap, take, toArray } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { CipherHealthView } from "@bitwarden/common/dirt/vault-health/models";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -9,7 +10,6 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LogService } from "@bitwarden/logging";
 
-import { CipherHealthView } from "../../../models";
 import { flowTimer, measureFlowStep } from "../../../utils/measure-flow-step.operator";
 import { CipherHealthService } from "../../abstractions/cipher-health.service";
 

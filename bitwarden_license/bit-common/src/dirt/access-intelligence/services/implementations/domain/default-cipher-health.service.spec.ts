@@ -3,14 +3,13 @@ import { firstValueFrom, of } from "rxjs";
 import { ZXCVBNResult } from "zxcvbn";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { CipherHealthView } from "@bitwarden/common/dirt/vault-health/models";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LogService } from "@bitwarden/logging";
-
-import { CipherHealthView } from "../../../../access-intelligence/models";
 
 import { DefaultCipherHealthService } from "./default-cipher-health.service";
 

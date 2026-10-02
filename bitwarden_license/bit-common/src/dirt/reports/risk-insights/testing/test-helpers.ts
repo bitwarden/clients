@@ -14,6 +14,7 @@
  * - Leverage existing utilities from @bitwarden/common/spec when appropriate
  */
 
+import { CipherHealthView } from "@bitwarden/common/dirt/vault-health/models";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -22,7 +23,6 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
 import {
   AccessReportMetrics,
-  CipherHealthView,
   MemberRegistryEntryView,
   AccessReportSettingsView,
   ApplicationHealthView,
