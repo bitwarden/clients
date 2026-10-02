@@ -18,6 +18,7 @@ export class PaymentsRecord {
   type: string;
   account_name: string;
   account_holder: string;
+  name?: string;
   cc_number: string;
   code: string;
   expiration_month: string;
