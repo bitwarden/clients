@@ -2,6 +2,7 @@
 use std::collections::HashSet;
 
 use desktop_core::autofill::{read_plugin_config_file, read_plugin_logos};
+pub use win_webauthn::plugin::AuthenticatorState;
 use win_webauthn::{
     plugin::{Clsid, PluginAddAuthenticatorOptions, WebAuthnPlugin},
     AuthenticatorInfo, CtapVersion, PublicKeyCredentialParameters,
@@ -80,4 +81,28 @@ pub fn register() -> Result<(), RegisterError> {
     }
     tracing::debug!("Added the authenticator: {response:?}");
     Ok(())
+}
+
+/// The state of the plugin authenticator, or `None` if it is not registered with Windows.
+pub fn authenticator_state() -> Option<AuthenticatorState> {
+    let config = match read_plugin_config_file() {
+        Ok(Some(config)) => config,
+        Ok(None) => return None,
+        Err(err) => {
+            tracing::warn!("Could not read the plugin authenticator config file: {err:#}");
+            return None;
+        }
+    };
+    let Ok(clsid) = Clsid::try_from(format!("{{{}}}", config.clsid).as_ref()) else {
+        tracing::warn!("invalid CLSID string: {}", config.clsid);
+        return None;
+    };
+    // Windows fails the lookup for an authenticator that is not registered.
+    match WebAuthnPlugin::new(clsid).get_authenticator_state() {
+        Ok(state) => Some(state),
+        Err(err) => {
+            tracing::debug!("Plugin authenticator is not registered: {err}");
+            None
+        }
+    }
 }
