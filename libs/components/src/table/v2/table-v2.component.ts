@@ -24,6 +24,8 @@ import {
   untracked,
   viewChild,
 } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { of, switchMap } from "rxjs";
 
 import { NoResults } from "@bitwarden/assets/svg";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -65,9 +67,6 @@ import { TableVirtualScrollStrategy } from "./table-virtual-scroll.strategy";
 
 /** Grid track width for the internal selection column: the 24px checkbox plus the cell's `tw-px-4`. */
 const SELECTION_COLUMN_WIDTH = "56px";
-
-/** Shared empty set, so an uncustomized table's `hiddenColumnNames` keeps a stable identity. */
-const EMPTY_COLUMN_NAMES: ReadonlySet<string> = Object.freeze(new Set<string>());
 
 /** The `min` of a `minmax(min, max)` track. */
 const MINMAX_MIN = /^minmax\(\s*([^,]+?)\s*,/;
@@ -674,17 +673,28 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       this.removableColumns().length > 0,
   );
 
+  private readonly columnPreferences = inject(TableColumnPreferencesService);
+
+  private readonly storedHiddenNames = toSignal(
+    toObservable(this.stateKey).pipe(
+      switchMap((key) =>
+        key == null ? of([]) : this.columnPreferences.hiddenColumns$(TABLE_STATE_KEYS[key]),
+      ),
+    ),
+    { initialValue: [] },
+  );
+
   /** The stored hidden names, narrowed to columns that are currently togglable. */
   private readonly hiddenColumnNames = computed<ReadonlySet<string>>(() => {
-    const key = this.stateKey();
-    if (key == null || !this.canCustomizeColumns()) {
-      return EMPTY_COLUMN_NAMES;
+    if (!this.canCustomizeColumns()) {
+      return new Set();
     }
-    const stored = this.columnPreferences.hidden(TABLE_STATE_KEYS[key])();
-    const togglable = this.removableColumns()
-      .map((col) => col.name)
-      .filter((name) => stored.has(name));
-    return new Set(togglable);
+    const stored = new Set(this.storedHiddenNames());
+    return new Set(
+      this.removableColumns()
+        .map((col) => col.name)
+        .filter((name) => stored.has(name)),
+    );
   });
 
   /** {@link availableColumns} minus the columns the user hid. What actually renders. */
@@ -760,8 +770,6 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   protected readonly isFill = computed(() => this.height() === "fill");
 
   private readonly scrollLayout = inject(ScrollLayoutService);
-
-  private readonly columnPreferences = inject(TableColumnPreferencesService);
 
   // Optional: only the toolbar's Customize button calls this, and the toolbar requires it.
   private readonly dialogService = inject(DialogService, { optional: true });

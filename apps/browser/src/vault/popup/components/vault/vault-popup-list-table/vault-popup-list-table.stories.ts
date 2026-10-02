@@ -34,10 +34,9 @@ import {
   CompactModeService,
   DialogService,
   I18nMockService,
-  StorybookStateProvider,
   ToastService,
 } from "@bitwarden/components";
-import { StateProvider, UserKeyDefinition } from "@bitwarden/state";
+import { StateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
 import {
   MY_VAULT,
@@ -314,9 +313,6 @@ const CIPHER_TYPE_OPTIONS = [
 ];
 
 const buildProviders = (args: StoryArgs) => {
-  // `bit-table-v2` stores its column preferences through `getActive`; the shared mock supplies
-  // the per-key state the rest of this hand-rolled provider doesn't.
-  const activeUserStates = new StorybookStateProvider();
   const autoFillCiphers$ = new BehaviorSubject(args.autoFillCiphers);
   const favoriteCiphers$ = new BehaviorSubject(args.favoriteCiphers);
   const loading$ = new BehaviorSubject(args.loading);
@@ -590,7 +586,6 @@ const buildProviders = (args: StoryArgs) => {
       useValue: {
         getUserState$: () => of({ hasSeen: false, hasDismissed: false }),
         getUser: () => ({ update: async () => {} }),
-        getActive: (key: UserKeyDefinition<unknown>) => activeUserStates.getActive(key),
       },
     },
     {

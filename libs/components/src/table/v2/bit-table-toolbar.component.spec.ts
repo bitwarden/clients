@@ -4,6 +4,7 @@ import { By } from "@angular/platform-browser";
 import { MockProxy, mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { StateProvider } from "@bitwarden/state";
 
 import { ChipComponent } from "../../chips";
 import { DialogService } from "../../dialog";
@@ -13,6 +14,7 @@ import { FilterToggleComponent } from "../../filter-menu/filter-toggle.component
 import { CollapseOnScrollDirective } from "../../layout/collapse-on-scroll.directive";
 import { SearchComponent } from "../../search/search.component";
 import { TooltipDirective } from "../../tooltip";
+import { StorybookStateProvider } from "../../utils";
 import { I18nMockService } from "../../utils/i18n-mock.service";
 
 import { BitCellDefDirective } from "./bit-cell-def.directive";
@@ -364,6 +366,7 @@ describe("BitTableToolbarComponent customize control", () => {
     await TestBed.configureTestingModule({
       imports: [RemovableHostComponent],
       providers: [
+        { provide: StateProvider, useClass: StorybookStateProvider },
         {
           provide: I18nService,
           useFactory: () =>

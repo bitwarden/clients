@@ -3,8 +3,10 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { StateProvider } from "@bitwarden/state";
 
 import { DialogService } from "../../dialog";
+import { StorybookStateProvider } from "../../utils";
 
 import { BitCellDefDirective } from "./bit-cell-def.directive";
 import { BitCellComponent } from "./bit-cell.component";
@@ -21,7 +23,6 @@ const mockI18nService = { t: (key: string) => key };
 
 let dialogService: MockProxy<DialogService>;
 
-/** No `StateProvider` here, so preferences fall back to the in-memory session store. */
 async function renderHost<H>(host: Type<H>): Promise<ComponentFixture<H>> {
   dialogService = mock<DialogService>();
   await TestBed.configureTestingModule({
@@ -29,6 +30,7 @@ async function renderHost<H>(host: Type<H>): Promise<ComponentFixture<H>> {
     providers: [
       { provide: I18nService, useValue: mockI18nService },
       { provide: DialogService, useValue: dialogService },
+      { provide: StateProvider, useClass: StorybookStateProvider },
     ],
   }).compileComponents();
 
