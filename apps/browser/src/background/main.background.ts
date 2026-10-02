@@ -1767,6 +1767,7 @@ export default class MainBackground {
         this.accountService,
         chrome.webRequest,
         this.configService,
+        this.autofillSettingsService,
       );
     }
 
@@ -1896,7 +1897,7 @@ export default class MainBackground {
       await BrowserApi.setSidePanelOptions({ enabled: false });
     }
     this.idleBackground.init();
-    await this.webRequestBackground?.startListening();
+    this.webRequestBackground?.startListening();
     this.syncServiceListener?.listener$().subscribe();
     await this.autoSubmitLoginBackground.init();
     await this.targetingRulesDataService.init();
