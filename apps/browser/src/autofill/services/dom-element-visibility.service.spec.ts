@@ -340,6 +340,27 @@ describe("DomElementVisibilityService", () => {
 
       expect(isElementOutsideViewportBounds).toEqual(false);
     });
+
+    it("returns false when sub-pixel height marginally exceeds integer scrollHeight", () => {
+      // PM-36815: a visible input whose rect height is fractional was being counted
+      // as off-screen because scrollHeight rounds to an integer.
+      Object.defineProperty(document.documentElement, "scrollHeight", {
+        writable: true,
+        value: 47,
+      });
+      const usernameElement = document.querySelector("input[name='username']") as FormFieldElement;
+      const elementBoundingClientRect = createBoundingClientRectMock({
+        top: 0,
+        width: 197,
+        height: 47.28125,
+      });
+
+      const isElementOutsideViewportBounds = domElementVisibilityService[
+        "isElementOutsideViewportBounds"
+      ](usernameElement, elementBoundingClientRect);
+
+      expect(isElementOutsideViewportBounds).toEqual(false);
+    });
   });
 
   describe("formFieldIsNotHiddenBehindAnotherElement", () => {
