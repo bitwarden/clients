@@ -121,55 +121,54 @@
     <value>Bitwarden Password Manager</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Sa bahay, sa trabaho, o kahit saan, madaling pinoprotektahan ng Bitwarden ang lahat ng iyong mga password, passkey, at sensitibong impormasyon.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>Kinikilala bilang pinakamahusay na password manager ng PCMag, WIRED, The Verge, CNET, G2, at iba pa!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+SEGURUHIN ANG IYONG DIGITAL NA BUHAY
+Seguruhin ang iyong digital na buhay at protektahan laban sa mga data breach sa pamamagitan ng pagbuo at pag-save ng natatangi at matibay na password para sa bawat account. Panatilihin ang lahat sa isang end-to-end encrypted password vault na ikaw lamang ang makaka-access.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+I-ACCESS ANG IYONG DATA, SAANMAN, ANUMANG ORAS, SA ANUMANG DEVICE
+Madaling pamahalaan, iimbak, siguruhin, at ibahagi ang walang limitasyong password sa walang limitasyong device nang walang mga paghihigpit.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+LAHAT AY DAPAT MAGKAROON NG MGA TOOL UPANG MANATILING LIGTAS ONLINE
+Gamitin ang Bitwarden nang libre nang walang mga ad o pagbebenta ng data. Naniniwala ang Bitwarden na ang lahat ay dapat magkaroon ng kakayahang manatiling ligtas online. Ang mga Premium plan ay nag-aalok ng access sa mga advanced na feature.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+PAGYAMANIN ANG IYONG MGA TEAM SA BITWARDEN
+Ang mga Plan para sa Teams at Enterprise ay may kasamang mga propesyonal na feature sa negosyo. Ang ilang mga halimbawa ay kinabibilangan ng SSO integration, self-hosting, directory integration at SCIM provisioning, global policies, API access, event logs, at higit pa.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+Gamitin ang Bitwarden upang siguruhin ang iyong workforce at ibahagi ang sensitibong impormasyon sa mga kasamahan.
 
 
-More reasons to choose Bitwarden:
+Higit pang mga dahilan upang piliin ang Bitwarden:
 
 World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
+Ang mga password ay protektado ng advanced end-to-end encryption (AES-256 bit, salted hashing, at PBKDF2 SHA-256) upang ang iyong data ay manatiling secure at pribado.
 
 3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+Ang Bitwarden ay regular na nagsasagawa ng komprehensibong third-party security audit sa mga kilalang security firm. Ang mga taunang audit na ito ay kinabibilangan ng source code assessment at penetration testing sa mga Bitwarden IP, server, at web application.
 
 Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+Siguruhin ang iyong login gamit ang third-party authenticator, emailed code, o FIDO2 WebAuthn credentials tulad ng hardware security key o passkey.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Magpadala ng data nang direkta sa iba habang pinapanatili ang end-to-end encrypted security at nililimitahan ang exposure.
 
 Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Gumawa ng mahaba, kumplikado, at natatanging password at unique username para sa bawat site na binibisita mo. Isama sa mga email alias provider para sa karagdagang privacy.
 
 Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Ang mga pagsasalin ng Bitwarden ay umiiral para sa higit sa 60 mga wika, isinalin ng global community sa pamamagitan ng Crowdin.
 
 Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Siguruhin at ibahagi ang sensitibong data sa loob ng iyong Bitwarden Vault mula sa anumang browser, mobile device, o desktop OS, at higit pa.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
-</value>
+Ang Bitwarden ay hindi lamang mga password ang sinisiguro
+Ang end-to-end encrypted credential management solutions mula sa Bitwarden ay nagbibigay-kapangyarihan sa mga organisasyon na siguruhin ang lahat, kabilang ang mga developer secret at passkey experience. Bisitahin ang Bitwarden.com upang matuto nang higit pa tungkol sa Bitwarden Secrets Manager at Bitwarden Passwordless.dev!</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Sa bahay, sa trabaho, o kahit saan, madaling pinoprotektahan ng Bitwarden ang lahat ng iyong mga password, passkey, at sensitibong impormasyon.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>I-sync at i-access ang iyong kahadeyero mula sa maraming mga aparato</value>

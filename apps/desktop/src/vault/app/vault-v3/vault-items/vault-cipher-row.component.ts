@@ -91,7 +91,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
    * Enforce Org Data Ownership Policy Status
    */
   protected readonly enforceOrgDataOwnershipPolicy = input<boolean>();
-  protected readonly showBatchBar = input<boolean>(false);
   protected readonly selected = input<boolean>(false);
   protected readonly checkboxChange = output<void>();
   protected readonly onEvent = output<VaultItemEvent<C>>();
