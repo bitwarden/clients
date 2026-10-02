@@ -1006,8 +1006,8 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   /**
    * 1Password direct import calls 1Password's API from the app. Its API does not allow cross-origin
-   * requests. The desktop app lets them through for 1Password's hosts, and the browser extension's
-   * host permissions exempt its pages from CORS.
+   * requests. The desktop app's `file://` pages and the browser extension's host permissions are
+   * exempt from CORS, but the web vault is not.
    */
   private isImportOptionAvailable(option: ImportOption): boolean {
     if (option.id !== "onepassword") {
