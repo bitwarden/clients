@@ -48,11 +48,15 @@ describe("IntegrationContext", () => {
     });
 
     it("reads from the settings", () => {
-      const context = new IntegrationContext(EXAMPLE_META, { baseUrl: "httpbin.org" }, i18n);
+      const context = new IntegrationContext(
+        EXAMPLE_META,
+        { baseUrl: "https://httpbin.org" },
+        i18n,
+      );
 
       const result = context.baseUrl();
 
-      expect(result).toBe("httpbin.org");
+      expect(result).toBe("https://httpbin.org");
     });
 
     it("ignores settings when selfhost is 'never'", () => {
@@ -60,14 +64,18 @@ describe("IntegrationContext", () => {
         id: "simplelogin" as IntegrationId & VendorId, // arbitrary
         name: "Example",
         extends: ["forwarder"], // arbitrary
-        baseUrl: "example.com",
+        baseUrl: "https://example.com",
         selfHost: "never",
       };
-      const context = new IntegrationContext(selfHostNever, { baseUrl: "httpbin.org" }, i18n);
+      const context = new IntegrationContext(
+        selfHostNever,
+        { baseUrl: "https://httpbin.org" },
+        i18n,
+      );
 
       const result = context.baseUrl();
 
-      expect(result).toBe("example.com");
+      expect(result).toBe("https://example.com");
     });
 
     it("always reads the settings when selfhost is 'always'", () => {
@@ -78,11 +86,100 @@ describe("IntegrationContext", () => {
         baseUrl: "example.com",
         selfHost: "always",
       };
-      const context = new IntegrationContext(selfHostAlways, { baseUrl: "http.bin" }, i18n);
+      const context = new IntegrationContext(selfHostAlways, { baseUrl: "https://http.bin" }, i18n);
 
       // expect success
       const result = context.baseUrl();
-      expect(result).toBe("http.bin");
+      expect(result).toBe("https://http.bin");
+    });
+
+    it("throws when the base url isn't https", () => {
+      const selfHostAlways: IntegrationMetadata = {
+        id: "simplelogin" as IntegrationId & VendorId, // arbitrary
+        name: "Example",
+        extends: ["forwarder"], // arbitrary
+        baseUrl: "example.com",
+        selfHost: "always",
+      };
+      i18n.t.mockReturnValue("unsafe error");
+      const context = new IntegrationContext(
+        selfHostAlways,
+        { baseUrl: "http://httpbin.org" },
+        i18n,
+      );
+
+      expect(() => context.baseUrl()).toThrow("unsafe error");
+      expect(i18n.t).toHaveBeenCalledWith("forwarderUnsafeUrl");
+    });
+
+    it.each([["https://localhost"], ["https://127.0.0.1"], ["https://169.254.169.254"]])(
+      "throws when the base url targets a restricted host (%s)",
+      (baseUrl) => {
+        const selfHostAlways: IntegrationMetadata = {
+          id: "simplelogin" as IntegrationId & VendorId, // arbitrary
+          name: "Example",
+          extends: ["forwarder"], // arbitrary
+          baseUrl: "example.com",
+          selfHost: "always",
+        };
+        i18n.t.mockReturnValue("unsafe error");
+        const context = new IntegrationContext(selfHostAlways, { baseUrl }, i18n);
+
+        expect(() => context.baseUrl()).toThrow("unsafe error");
+      },
+    );
+
+    it("returns an unsafe url the user has deliberately approved for that exact value", () => {
+      const selfHostAlways: IntegrationMetadata = {
+        id: "simplelogin" as IntegrationId & VendorId, // arbitrary
+        name: "Example",
+        extends: ["forwarder"], // arbitrary
+        baseUrl: "example.com",
+        selfHost: "always",
+      };
+      const context = new IntegrationContext(
+        selfHostAlways,
+        { baseUrl: "http://192.168.1.50", allowUnsafeUrlFor: "http://192.168.1.50" },
+        i18n,
+      );
+
+      expect(context.baseUrl()).toBe("http://192.168.1.50");
+    });
+
+    it("does not honor the approval once the base url changes", () => {
+      const selfHostAlways: IntegrationMetadata = {
+        id: "simplelogin" as IntegrationId & VendorId, // arbitrary
+        name: "Example",
+        extends: ["forwarder"], // arbitrary
+        baseUrl: "example.com",
+        selfHost: "always",
+      };
+      i18n.t.mockReturnValue("unsafe error");
+      const context = new IntegrationContext(
+        selfHostAlways,
+        { baseUrl: "http://evil.example.com", allowUnsafeUrlFor: "http://192.168.1.50" },
+        i18n,
+      );
+
+      expect(() => context.baseUrl()).toThrow("unsafe error");
+    });
+
+    it("never honors an approval for a url that can't be parsed, even if it matches exactly", () => {
+      const selfHostAlways: IntegrationMetadata = {
+        id: "simplelogin" as IntegrationId & VendorId, // arbitrary
+        name: "Example",
+        extends: ["forwarder"], // arbitrary
+        baseUrl: "example.com",
+        selfHost: "always",
+      };
+      i18n.t.mockReturnValue("unsafe error");
+      const context = new IntegrationContext(
+        selfHostAlways,
+        { baseUrl: "not a url", allowUnsafeUrlFor: "not a url" },
+        i18n,
+      );
+
+      expect(() => context.baseUrl()).toThrow("unsafe error");
     });
 
     it("fails when the settings are empty and selfhost is 'always'", () => {
@@ -105,7 +202,7 @@ describe("IntegrationContext", () => {
         id: "simplelogin" as IntegrationId & VendorId, // arbitrary
         name: "Example",
         extends: ["forwarder"], // arbitrary
-        baseUrl: "example.com",
+        baseUrl: "https://example.com",
         selfHost: "maybe",
       };
 
@@ -113,7 +210,7 @@ describe("IntegrationContext", () => {
 
       const result = context.baseUrl();
 
-      expect(result).toBe("example.com");
+      expect(result).toBe("https://example.com");
     });
 
     it("overrides the metadata when selfhost is 'maybe'", () => {
@@ -125,11 +222,15 @@ describe("IntegrationContext", () => {
         selfHost: "maybe",
       };
 
-      const context = new IntegrationContext(selfHostMaybe, { baseUrl: "httpbin.org" }, i18n);
+      const context = new IntegrationContext(
+        selfHostMaybe,
+        { baseUrl: "https://httpbin.org" },
+        i18n,
+      );
 
       const result = context.baseUrl();
 
-      expect(result).toBe("httpbin.org");
+      expect(result).toBe("https://httpbin.org");
     });
   });
 

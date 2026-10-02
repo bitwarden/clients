@@ -8471,6 +8471,10 @@
     "message": "The file associated with this Send could not be found.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendDownloadBlocked": {
+    "message": "This file couldn't be downloaded because the download link failed a security check.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. Displayed when a Send's file download url fails to use https or targets a local/private network address."
+  },
   "noSendsInList": {
     "message": "There are no Sends to list.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -10952,6 +10956,30 @@
         "example": "SimpleLogin"
       }
     }
+  },
+  "forwarderUnsafeUrl": {
+    "message": "This URL isn't allowed. It must use https and can't point to a local or private network address.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Enter a valid URL",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Unsafe URL detected",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "This URL may be insecure or point to a private network. Using it may result in exposure of private data. Only continue if you trust this server.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Trust URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "This URL has been marked as trusted. You can edit at any time.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
   },
   "forwarderUnknownError": {
     "message": "Unknown $SERVICENAME$ error occurred.",
