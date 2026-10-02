@@ -821,6 +821,7 @@ export default class MainBackground {
       this.messagingService,
       () => this.vaultTimeoutSettingsService,
       () => this.ipcService,
+      this.platformUtilsService,
     );
     // Temporary dependency cycle workaround, until browser biometrics is replaced by shared unlock
     this.biometricsService = browserBiometricsService;
