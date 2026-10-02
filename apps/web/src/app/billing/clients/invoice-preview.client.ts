@@ -9,6 +9,7 @@ import { InvoicePreviewResponse } from "@bitwarden/common/billing/models/respons
 import type { PlanTier } from "@bitwarden/pricing";
 
 import type { BillingAddress } from "../payment/types";
+import type { OrganizationSubscriptionPurchase } from "../types";
 
 /**
  * Request shapes are owned by the per-screen tickets that consume each route. They are kept
@@ -24,20 +25,9 @@ export type PremiumOrgUpgradePreviewRequest = {
   billingAddress: Pick<BillingAddress, "country" | "postalCode">;
 };
 
-// TODO(PM-40222 / PM-40231): finalize the shared organization purchase request shape.
 export type OrganizationPurchasePreviewRequest = {
-  planTier: PlanTier;
-  cadence: string;
-  passwordManager: {
-    seats: number;
-    additionalStorage: number;
-    sponsored: boolean;
-  };
-  secretsManager?: {
-    seats: number;
-    additionalServiceAccounts: number;
-    standalone: boolean;
-  };
+  purchase: OrganizationSubscriptionPurchase & { coupons?: string[] };
+  billingAddress: BillingAddress;
 };
 
 // TODO(PM-40224): finalize the organization plan change request shape.
@@ -51,8 +41,8 @@ export type OrganizationPlanChangePreviewRequest = {
  * through `InvoicePreviewService`, which owns both.
  *
  * Every route below is gated server-side by the `PM36631_PreviewDrivenCart` flag and returns 404
- * until the corresponding server ticket lands. 404s deliberately propagate: while the routes do
- * not exist, "route missing" must stay distinguishable from "no subscription".
+ * while the flag is off. 404s deliberately propagate so "route gated" stays distinguishable from
+ * "no subscription".
  */
 @Injectable({ providedIn: "root" })
 export class InvoicePreviewClient {
@@ -100,7 +90,7 @@ export class InvoicePreviewClient {
   ): Promise<InvoicePreviewResponse> => {
     const json = await this.apiService.send(
       "POST",
-      "/account/billing/subscriptions/organizations/invoice/preview",
+      "/organizations/billing/subscription/purchase/preview",
       request,
       true,
       true,
