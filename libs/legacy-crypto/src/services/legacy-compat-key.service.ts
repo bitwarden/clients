@@ -2,6 +2,8 @@ import * as bigInt from "big-integer";
 import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+// Type-only: master-password.types imports KdfConfig from this package, so a value import would be circular.
+import type { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
@@ -63,23 +65,30 @@ export class DefaultLegacyCompatKeyService implements LegacyCompatKeyServiceAbst
       throw new Error("No kdf found for user " + userId);
     }
 
-    return await this.makeMasterKey(password, email, kdf);
+    // This path derives the salt from the account's email. makeMasterKey normalizes it.
+    return await this.makeMasterKey(password, email as MasterPasswordSalt, kdf);
   }
 
   /**
-   * Derive a master key from a password and email.
+   * Derive a master key from a password and salt.
    *
    * @deprecated Please use `makeMasterPasswordAuthenticationData`, `makeMasterPasswordAuthenticationData`, `unwrapUserKeyFromMasterPasswordUnlockData` in @link MasterPasswordService instead.
    *
    * @remarks
    * Does not validate the kdf config to ensure it satisfies the minimum requirements for the given kdf type.
    */
-  async makeMasterKey(password: string, email: string, kdfConfig: KdfConfig): Promise<MasterKey> {
+  async makeMasterKey(
+    password: string,
+    salt: MasterPasswordSalt,
+    kdfConfig: KdfConfig,
+  ): Promise<MasterKey> {
     const start = new Date().getTime();
-    email = email.trim().toLowerCase();
+    // Callers can reach MasterPasswordSalt by type assertion, so normalization is not guaranteed
+    // upstream. Normalize here to match MasterPasswordService.
+    salt = salt.trim().toLowerCase() as MasterPasswordSalt;
     const masterKey = (await this.keyGenerationService.deriveKeyFromPassword(
       password,
-      email,
+      salt,
       kdfConfig,
     )) as MasterKey;
     const end = new Date().getTime();

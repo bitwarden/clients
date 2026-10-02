@@ -20,6 +20,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
+import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
@@ -56,6 +57,8 @@ const masterPassword = "password";
 const hashedPassword = "HASHED_PASSWORD";
 // Server dictates the KDF salt, so a fixture where salt === email would pass no matter which one the strategy used.
 const preloginSalt = "server.normalized+salt@world.com";
+// Distinct from `email` so assertions prove the strategy passes emailToSalt's output, not the raw email.
+const emailSalt = "email.derived+salt@world.com" as MasterPasswordSalt;
 const masterKey = new SymmetricCryptoKey(
   Utils.fromB64ToArray(
     "N2KWjlLpfi5uHjv+YcfUKIpZ1l+W+6HRensmIqD+BFYBf6N/dvFpJfWwYnVBdgFCK2tJTAIMLhqzIQQEUmGFgg==",
@@ -144,6 +147,7 @@ describe("PasswordLoginStrategy", () => {
       of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault(), preloginSalt)),
     );
     legacyCompatKeyService.makeMasterKey.mockResolvedValue(masterKey);
+    masterPasswordService.mock.emailToSalt.mockReturnValue(emailSalt);
 
     // Default to the flag off so the pre-PM-27060 behavior stays the baseline; tests that exercise
     // the SDK prelogin path opt in explicitly.
@@ -292,7 +296,7 @@ describe("PasswordLoginStrategy", () => {
           );
           expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalledWith(
             masterPassword,
-            email,
+            emailSalt,
             expect.anything(),
           );
         });
@@ -309,7 +313,7 @@ describe("PasswordLoginStrategy", () => {
           );
           expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalledWith(
             masterPassword,
-            email,
+            emailSalt,
             expect.anything(),
           );
         });
@@ -340,7 +344,7 @@ describe("PasswordLoginStrategy", () => {
 
           expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
             masterPassword,
-            email,
+            emailSalt,
             kdfConfig,
           );
           expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalledWith(
@@ -355,7 +359,7 @@ describe("PasswordLoginStrategy", () => {
 
           expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
             masterPassword,
-            email,
+            emailSalt,
             PBKDF2KdfConfig.createDefault(),
           );
           expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalledWith(

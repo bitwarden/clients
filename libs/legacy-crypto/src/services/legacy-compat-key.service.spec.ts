@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import type { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
@@ -160,27 +161,27 @@ describe("legacyCompatKeyService", () => {
 
   describe("makeMasterKey", () => {
     const password = "testPassword";
-    let email = "test@example.com";
+    let salt = "test@example.com" as MasterPasswordSalt;
     const masterKey = makeSymmetricCryptoKey(32) as MasterKey;
     const kdfConfig = mock<KdfConfig>();
 
-    it("derives a master key from password and email", async () => {
+    it("derives a master key from password and salt", async () => {
       keyGenerationService.deriveKeyFromPassword.mockResolvedValue(masterKey);
 
-      const result = await legacyCompatKeyService.makeMasterKey(password, email, kdfConfig);
+      const result = await legacyCompatKeyService.makeMasterKey(password, salt, kdfConfig);
 
       expect(result).toEqual(masterKey);
     });
 
-    it("trims and lowercases the email for key generation call", async () => {
+    it("trims and lowercases the salt for key generation call", async () => {
       keyGenerationService.deriveKeyFromPassword.mockResolvedValue(masterKey);
-      email = "TEST@EXAMPLE.COM";
+      salt = "TEST@EXAMPLE.COM" as MasterPasswordSalt;
 
-      await legacyCompatKeyService.makeMasterKey(password, email, kdfConfig);
+      await legacyCompatKeyService.makeMasterKey(password, salt, kdfConfig);
 
       expect(keyGenerationService.deriveKeyFromPassword).toHaveBeenCalledWith(
         password,
-        email.trim().toLowerCase(),
+        salt.trim().toLowerCase(),
         kdfConfig,
       );
     });
@@ -189,7 +190,7 @@ describe("legacyCompatKeyService", () => {
       keyGenerationService.deriveKeyFromPassword.mockResolvedValue(masterKey);
       jest.spyOn(Date.prototype, "getTime").mockReturnValueOnce(1000).mockReturnValueOnce(1500);
 
-      await legacyCompatKeyService.makeMasterKey(password, email, kdfConfig);
+      await legacyCompatKeyService.makeMasterKey(password, salt, kdfConfig);
 
       expect(logService.info).toHaveBeenCalledWith(
         "[LegacyCompatKeyService] Deriving master key took 500ms",
