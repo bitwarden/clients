@@ -676,9 +676,12 @@ export class ImportService implements ImportServiceAbstraction {
       throw new Error(this.i18nService.t("errorAssigningTargetFolder"));
     }
 
+    // Decide which ciphers have no folder from the folder relationships, not `cipher.folderId`.
+    // Bitwarden JSON exports carry the source vault's folder ids on each item, so `folderId` can be
+    // set on a cipher that has no folder in this import.
     const noFolderRelationShips: FolderRelationship[] = [];
     importResult.ciphers.forEach((c, index) => {
-      if (Utils.isNullOrEmpty(c.folderId)) {
+      if (!importResult.folderRelationships.some(([cipherPos]) => cipherPos === index)) {
         c.folderId = importTarget.id;
         noFolderRelationShips.push([index, 0]);
       }
