@@ -33,6 +33,8 @@ import { SecretListView } from "../models/view/secret-list.view";
 import { SecretView } from "../models/view/secret.view";
 import { SecretService } from "../secrets/secret.service";
 
+import { fuzzySearchFilter } from "./search/fuzzy-search";
+
 @Component({
   selector: "sm-secrets-list",
   templateUrl: "./secrets-list.component.html",
@@ -94,7 +96,10 @@ export class SecretsListComponent implements OnDestroy {
 
     effect(() => {
       this.selection.clear();
-      this.dataSource.filter = this.search() ?? "";
+      this.dataSource.filter = fuzzySearchFilter<SecretListView>(this.search() ?? "", (secret) => [
+        secret.name,
+        ...(secret.projects ?? []).map((project) => project.name),
+      ]);
     });
 
     this.viewEventsAllowed$ = this.activatedRoute.params.pipe(
