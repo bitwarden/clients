@@ -37,6 +37,7 @@ export class OrganizationUserView {
 
   readonly canConfirm: boolean;
   readonly canReinvite: boolean;
+  readonly canSendInvite: boolean;
   readonly canRestore: boolean;
   readonly canRevoke: boolean;
   readonly canRemove: boolean;
@@ -67,6 +68,7 @@ export class OrganizationUserView {
 
     this.canConfirm = this.status === OrganizationUserStatusType.Accepted;
     this.canReinvite = this.status === OrganizationUserStatusType.Invited;
+    this.canSendInvite = this.status === OrganizationUserStatusType.Staged;
     this.canRestore = this.status === OrganizationUserStatusType.Revoked;
     this.canRevoke = this.status !== OrganizationUserStatusType.Revoked;
     this.canRemove = !this.claimedByOrganization;
