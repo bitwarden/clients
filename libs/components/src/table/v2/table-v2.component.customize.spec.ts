@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, signal, Type, viewChild } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
+import { delay, of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { StateProvider } from "@bitwarden/state";
+import { ActiveUserState, StateProvider } from "@bitwarden/state";
 
 import { DialogService } from "../../dialog";
 import { StorybookStateProvider } from "../../utils";
@@ -23,14 +24,17 @@ const mockI18nService = { t: (key: string) => key };
 
 let dialogService: MockProxy<DialogService>;
 
-async function renderHost<H>(host: Type<H>): Promise<ComponentFixture<H>> {
+async function renderHost<H>(
+  host: Type<H>,
+  stateProvider: StateProvider = new StorybookStateProvider(),
+): Promise<ComponentFixture<H>> {
   dialogService = mock<DialogService>();
   await TestBed.configureTestingModule({
     imports: [host],
     providers: [
       { provide: I18nService, useValue: mockI18nService },
       { provide: DialogService, useValue: dialogService },
-      { provide: StateProvider, useClass: StorybookStateProvider },
+      { provide: StateProvider, useValue: stateProvider },
     ],
   }).compileComponents();
 
@@ -344,5 +348,28 @@ describe("BitTableV2Component row fill fallback", () => {
     fixture.detectChanges();
 
     expect(table().gridTemplateColumns()).toBe("minmax(100px, 1fr) 100px 160px");
+  });
+});
+
+describe("BitTableV2Component while preferences load", () => {
+  it("holds back removable columns until preferences arrive", async () => {
+    const stateProvider = mock<StateProvider>();
+    stateProvider.getActive.mockReturnValue({
+      // Disk-backed state emits after the first render.
+      state$: of({ "vault-items": ["folder"] }).pipe(delay(0)),
+    } as unknown as ActiveUserState<unknown>);
+    const fixture = await renderHost(TestHostComponent, stateProvider);
+    const names = () =>
+      fixture.componentInstance
+        .tableCmp()
+        .effectiveColumns()
+        .map((c) => c.name());
+
+    expect(names()).toEqual(["name", "actions"]);
+
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(names()).toEqual(["name", "vault", "actions"]);
   });
 });

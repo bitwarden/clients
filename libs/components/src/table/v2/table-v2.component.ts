@@ -675,13 +675,13 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
 
   private readonly columnPreferences = inject(TableColumnPreferencesService);
 
+  /** `undefined` until the stored preference loads. */
   private readonly storedHiddenNames = toSignal(
     toObservable(this.stateKey).pipe(
       switchMap((key) =>
         key == null ? of([]) : this.columnPreferences.hiddenColumns$(TABLE_STATE_KEYS[key]),
       ),
     ),
-    { initialValue: [] },
   );
 
   /** The stored hidden names, narrowed to columns that are currently togglable. */
@@ -689,12 +689,14 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     if (!this.canCustomizeColumns()) {
       return new Set();
     }
-    const stored = new Set(this.storedHiddenNames());
-    return new Set(
-      this.removableColumns()
-        .map((col) => col.name)
-        .filter((name) => stored.has(name)),
-    );
+    const names = this.removableColumns().map((col) => col.name);
+    const stored = this.storedHiddenNames();
+    // Hold back every removable column until preferences load, so none renders and then vanishes.
+    if (stored === undefined) {
+      return new Set(names);
+    }
+    const hidden = new Set(stored);
+    return new Set(names.filter((name) => hidden.has(name)));
   });
 
   /** {@link availableColumns} minus the columns the user hid. What actually renders. */
