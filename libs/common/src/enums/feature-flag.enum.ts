@@ -102,7 +102,6 @@ export enum FeatureFlag {
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
   PM40435_QuickCopyIconSetting = "pm-40435-quick-copy-icon-setting",
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
-  PM32380_BtnTextAddCreate = "pm-32380-btn-text-add-create",
   PM40201_DeriveSSHKeys = "pm-40201-derive-ssh-keys",
 
   /* Platform */
@@ -185,7 +184,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
   [FeatureFlag.PM40435_QuickCopyIconSetting]: FALSE,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
-  [FeatureFlag.PM32380_BtnTextAddCreate]: FALSE,
   [FeatureFlag.PM40201_DeriveSSHKeys]: FALSE,
 
   /* Auth */
