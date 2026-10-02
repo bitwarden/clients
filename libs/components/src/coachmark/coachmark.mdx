@@ -1,0 +1,75 @@
+import { Meta, Canvas, Primary } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./coachmark.stories";
+
+<Meta of={stories} />
+
+# Coachmark
+
+A coachmark tour walks the user through a few parts of the UI, one spotlit popover at a time. Each
+step shows a title, a short description, an optional "Learn more" link, a "2 of 3" style indicator,
+and Back / Next / Close.
+
+<Primary />
+
+## Usage
+
+A tour has two parts:
+
+- **`CoachmarkTour`** holds the steps and which one is active. Create one per tour in the consuming
+  component.
+- **`<bit-coachmark>`** is one step's popover. It shows while its step is active, spotlighting the
+  element passed to `[anchor]`.
+
+```ts
+readonly tour = new CoachmarkTour(
+  [
+    { id: "filters", position: "below-end" },
+    {
+      id: "filterRow",
+      position: "above-center",
+      beforeEnter: () => this.filterDialogOpen.set(true),
+      afterLeave: () => this.filterDialogOpen.set(false),
+    },
+  ],
+  { onEnd: () => this.saveTourCompleted() },
+);
+```
+
+```html
+<bit-table-toolbar #toolbar [(filterDialogOpen)]="filterDialogOpen">…</bit-table-toolbar>
+
+<bit-coachmark [tour]="tour" step="filters" [anchor]="toolbar.filtersAnchor()" [title]="…">
+  …
+</bit-coachmark>
+<bit-coachmark
+  [tour]="tour"
+  step="filterRow"
+  [anchor]="toolbar.filterDialogRowAnchor('vault')"
+  [title]="…"
+>
+  …
+</bit-coachmark>
+```
+
+Call `tour.start()` when the user is eligible. The library doesn't store anything: persist
+completion in `onEnd`, which runs whether the user finishes or dismisses the tour.
+
+### Anchors
+
+`[anchor]` takes an element: a template reference for something you render, or an anchor a library
+component exposes (such as `bit-table-toolbar`'s `filtersAnchor()`). While it's `undefined`, the
+step waits for it to render and finish animating in. If it goes away while shown, the tour ends.
+
+### Revealing a step's container
+
+When a step's anchor lives inside something that has to be opened first — a dialog, a collapsed nav
+group, another tab — open it in `beforeEnter` and close it in `afterLeave`. No delay is needed; the
+step waits for its anchor.
+
+### Conditional steps
+
+A step with `when` is included only if it returns true when the tour starts. Skipped steps aren't
+counted, so the indicator stays accurate.
+
+<Canvas of={stories.ConditionalStep} />
