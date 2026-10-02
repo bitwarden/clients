@@ -12,8 +12,13 @@ import {
   Message,
   MessageListener,
 } from "@bitwarden/common/platform/messaging";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { LockService } from "@bitwarden/unlock";
 
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
+import { openUnlockPopout } from "../auth/popup/utils/auth-popout-window";
 import {
   LockedVaultPendingNotificationsData,
   RETRY_SENDER,
@@ -26,11 +31,14 @@ import { BrowserApi } from "../platform/browser/browser-api";
 import CommandsBackground from "./commands.background";
 import MainBackground from "./main.background";
 
+jest.mock("../auth/popup/utils/auth-popout-window", () => ({ openUnlockPopout: jest.fn() }));
+
 describe("CommandsBackground", () => {
   const senderTab = createChromeTabMock({ id: 4, windowId: 2 });
 
   let main: MockProxy<MainBackground>;
   let authService: MockProxy<AuthService>;
+  let accountService: MockProxy<AccountService>;
   let logService: MockProxy<LogService>;
   // A real channel rather than a mock: what is under test is that the class reads the
   // channel's own messages, which no mocked listener would demonstrate.
@@ -58,6 +66,7 @@ describe("CommandsBackground", () => {
     Object.defineProperty(main, "logService", { value: logService, configurable: true });
     authService = mock<AuthService>();
     authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Unlocked);
+    accountService = mock<AccountService>();
     intraprocessMessageSender = new IntraprocessMessageSender();
     externalMessages = new Subject<Message<Record<string, unknown>>>();
 
@@ -66,7 +75,7 @@ describe("CommandsBackground", () => {
       mock<PlatformUtilsService>(),
       authService,
       () => of("generated-password"),
-      mock<AccountService>(),
+      accountService,
       mock<LockService>(),
       intraprocessMessageSender,
       // Wired as `MainBackground` wires it, so ingest tagging is exercised rather than faked.
@@ -158,6 +167,126 @@ describe("CommandsBackground", () => {
         senderTab,
         ExtensionCommand.AutofillCommand,
       );
+    });
+  });
+
+  describe("switch account command", () => {
+    const [first, second, third] = ["first-user", "second-user", "third-user"] as UserId[];
+
+    const runCommand = async () => {
+      const onCommand = (chrome.commands.onCommand.addListener as jest.Mock).mock.calls[0][0];
+      await onCommand(ExtensionCommand.SwitchAccount);
+    };
+
+    // Accounts in the order they were added, as `accounts$` holds them.
+    const givenAccounts = (
+      statuses: Partial<Record<UserId, AuthenticationStatus>>,
+      activeUserId: UserId | null,
+    ) => {
+      accountService.accounts$ = of(
+        Object.fromEntries(Object.keys(statuses).map((id) => [id, mockAccountInfoWith()])),
+      );
+      accountService.activeAccount$ = of(
+        activeUserId == null ? null : { id: activeUserId, ...mockAccountInfoWith() },
+      );
+      authService.authStatuses$ = of(statuses);
+      authService.getAuthStatus.mockImplementation(async (userId) => statuses[userId as UserId]);
+    };
+
+    it("switches to the account after the active one without opening the unlock popout when it is unlocked", async () => {
+      givenAccounts(
+        {
+          [first]: AuthenticationStatus.Unlocked,
+          [second]: AuthenticationStatus.Unlocked,
+          [third]: AuthenticationStatus.Unlocked,
+        },
+        first,
+      );
+
+      await runCommand();
+
+      expect(main.switchAccount).toHaveBeenCalledWith(second);
+      expect(openUnlockPopout).not.toHaveBeenCalled();
+    });
+
+    it("wraps from the last account back to the first", async () => {
+      givenAccounts(
+        {
+          [first]: AuthenticationStatus.Unlocked,
+          [second]: AuthenticationStatus.Unlocked,
+          [third]: AuthenticationStatus.Unlocked,
+        },
+        third,
+      );
+
+      await runCommand();
+
+      expect(main.switchAccount).toHaveBeenCalledWith(first);
+    });
+
+    it("skips logged out accounts", async () => {
+      givenAccounts(
+        {
+          [first]: AuthenticationStatus.Unlocked,
+          [second]: AuthenticationStatus.LoggedOut,
+          [third]: AuthenticationStatus.Unlocked,
+        },
+        first,
+      );
+
+      await runCommand();
+
+      expect(main.switchAccount).toHaveBeenCalledWith(third);
+    });
+
+    it("opens the unlock popout over the current tab after switching when the next account is locked", async () => {
+      const currentTab = createChromeTabMock({ id: 7, windowId: 3 });
+      givenAccounts(
+        { [first]: AuthenticationStatus.Unlocked, [second]: AuthenticationStatus.Locked },
+        first,
+      );
+      getTabFromCurrentWindowIdSpy.mockResolvedValue(currentTab);
+
+      await runCommand();
+
+      expect(main.switchAccount).toHaveBeenCalledWith(second);
+      expect(openUnlockPopout).toHaveBeenCalledWith(currentTab);
+      expect(main.switchAccount.mock.invocationCallOrder[0]).toBeLessThan(
+        jest.mocked(openUnlockPopout).mock.invocationCallOrder[0],
+      );
+    });
+
+    it("still switches but skips the unlock popout when there is no current tab to anchor it", async () => {
+      givenAccounts(
+        { [first]: AuthenticationStatus.Unlocked, [second]: AuthenticationStatus.Locked },
+        first,
+      );
+      getTabFromCurrentWindowIdSpy.mockResolvedValue(null);
+
+      await runCommand();
+
+      expect(main.switchAccount).toHaveBeenCalledWith(second);
+      expect(openUnlockPopout).not.toHaveBeenCalled();
+    });
+
+    it("does nothing when the active account is the only one logged in", async () => {
+      givenAccounts(
+        { [first]: AuthenticationStatus.Unlocked, [second]: AuthenticationStatus.LoggedOut },
+        first,
+      );
+
+      await runCommand();
+
+      expect(main.switchAccount).not.toHaveBeenCalled();
+      expect(openUnlockPopout).not.toHaveBeenCalled();
+    });
+
+    it("does nothing when no account is logged in", async () => {
+      givenAccounts({ [first]: AuthenticationStatus.LoggedOut }, first);
+
+      await runCommand();
+
+      expect(main.switchAccount).not.toHaveBeenCalled();
     });
   });
 });
