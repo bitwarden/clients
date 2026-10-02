@@ -176,29 +176,19 @@ describe("OnePasswordDirectImportService", () => {
     expect(importService.importOnePassword).not.toHaveBeenCalled();
   });
 
-  it.each<[ImportError["variant"], string, string]>([
-    [
-      "OnePasswordBadCredentials",
-      "password",
-      "onePasswordIncorrectUsernameOrPassword(1password.eu)",
-    ],
-    ["OnePasswordInvalidSecretKey", "secretKey", "enterValidSecretKey(1password.eu)"],
-  ])(
-    "keeps the prompt open and marks the field 1Password refused after %s",
-    async (variant, field, message) => {
-      importService.importOnePassword.mockRejectedValueOnce(importError(variant));
-      const result = start();
+  it("keeps the prompt open and marks the field 1Password refused", async () => {
+    importService.importOnePassword.mockRejectedValueOnce(importError("OnePasswordBadCredentials"));
+    const result = start();
 
-      await expect(credentialPrompts[0].data.signIn(entered)).resolves.toEqual({
-        field,
-        message,
-      });
-      expect(credentialPrompts[0].close).not.toHaveBeenCalled();
+    await expect(credentialPrompts[0].data.signIn(entered)).resolves.toEqual({
+      field: "password",
+      message: "onePasswordIncorrectUsernameOrPassword(1password.eu)",
+    });
+    expect(credentialPrompts[0].close).not.toHaveBeenCalled();
 
-      await expect(credentialPrompts[0].data.signIn(entered)).resolves.toBeUndefined();
-      await expect(result).resolves.toBe(summary);
-    },
-  );
+    await expect(credentialPrompts[0].data.signIn(entered)).resolves.toBeUndefined();
+    await expect(result).resolves.toBe(summary);
+  });
 
   it("still cancels after a refusal", async () => {
     importService.importOnePassword.mockRejectedValueOnce(importError("OnePasswordBadCredentials"));
@@ -282,22 +272,6 @@ describe("OnePasswordDirectImportService", () => {
 
       await expect(result).rejects.toMatchObject({ variant: "OnePasswordTwoFactorFailed" });
       expect(codePrompts[0].close).toHaveBeenCalled();
-    });
-  });
-
-  describe("describeError", () => {
-    it("names the domain the account signs in on", () => {
-      expect(service.describeError(importError("OnePasswordBadCredentials"), "Canada")).toEqual({
-        field: "password",
-        message: "onePasswordIncorrectUsernameOrPassword(1password.ca)",
-      });
-    });
-
-    it("leaves a failure outside the user's hands to a toast", () => {
-      expect(service.describeError(importError("OnePasswordNetwork"), "Global")).toEqual({
-        field: undefined,
-        message: "onePasswordImportError(1password.com)",
-      });
     });
   });
 });

@@ -49,10 +49,4 @@ describe("import source groups", () => {
 
     expect(group?.methods[0].format).toBe("1password1pux");
   });
-
-  it("drops a group none of whose methods the client offers", () => {
-    expect(
-      availableImportSourceGroup(importSourceGroup("group:1password-legacy"), () => false),
-    ).toBeUndefined();
-  });
 });

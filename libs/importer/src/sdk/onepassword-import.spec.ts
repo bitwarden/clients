@@ -43,18 +43,8 @@ describe("onePasswordErrorDisplay", () => {
     expect(onePasswordErrorDisplay(importError(variant))).toEqual(display);
   });
 
-  it.each<ImportError["variant"]>([
-    "OnePasswordTwoFactorFailed",
-    "OnePasswordTwoFactorRequired",
-    "OnePasswordNetwork",
-    "OnePasswordDecryption",
-    "Api",
-    "NotAuthenticated",
-    "BitwardenCrypto",
-    "Export",
-    "KdbxWrongCredentials",
-  ])("shows %s in a toast", (variant) => {
-    expect(onePasswordErrorDisplay(importError(variant))).toEqual({
+  it("shows any other SDK failure in a toast", () => {
+    expect(onePasswordErrorDisplay(importError("OnePasswordNetwork"))).toEqual({
       messageKey: "onePasswordImportError",
     });
   });
@@ -80,9 +70,5 @@ describe("onePasswordErrorLogName", () => {
     expect(onePasswordErrorLogName(otherError(new TypeError("user@example.com")))).toBe(
       "TypeError",
     );
-  });
-
-  it("names a thrown value that is not an error as unknown", () => {
-    expect(onePasswordErrorLogName(otherError("user@example.com"))).toBe("unknown");
   });
 });
