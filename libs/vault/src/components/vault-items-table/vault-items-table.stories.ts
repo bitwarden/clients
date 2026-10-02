@@ -11,7 +11,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -688,12 +687,10 @@ export default {
           useValue: { environment$: of({ getIconsUrl: () => "https://icons.bitwarden.net" }) },
         },
         { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
-        // The batch bar gates itself on its own flag, so it has to read as enabled here for the
-        // bulk-action bar to appear at all.
         {
           provide: ConfigService,
           useValue: {
-            getFeatureFlag$: (flag: FeatureFlag) => of(flag === FeatureFlag.PM37785_VaultBatchBar),
+            getFeatureFlag$: () => of(false),
           },
         },
         { provide: CipherService, useValue: { updateLastLaunchedDate: () => Promise.resolve() } },

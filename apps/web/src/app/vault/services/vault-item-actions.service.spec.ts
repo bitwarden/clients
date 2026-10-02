@@ -159,6 +159,48 @@ describe("WebVaultItemActionsService", () => {
       );
     });
 
+    it("does not open the clone form when the prompt is refused", async () => {
+      await service.clone(buildCipher());
+
+      expect(itemDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ["view", "view"],
+      ["edit", "edit"],
+      ["clone", "clone"],
+    ] as const)(
+      "names the item on the URL before the prompt shows, on %s",
+      async (method, action) => {
+        const order: string[] = [];
+        router.navigate.mockImplementation(async (_commands, extras) => {
+          order.push(`navigate:${extras?.queryParams?.action}`);
+          return true;
+        });
+        passwordRepromptService.showPasswordPrompt.mockImplementation(async () => {
+          order.push("prompt");
+          return false;
+        });
+
+        await service[method](buildCipher());
+
+        expect(order).toEqual([`navigate:${action}`, "prompt", "navigate:null"]);
+      },
+    );
+
+    it("reports the dialog open while the prompt shows, so the page ignores the params", async () => {
+      let openDuringPrompt: boolean | undefined;
+      passwordRepromptService.showPasswordPrompt.mockImplementation(async () => {
+        openDuringPrompt = service.itemDialogOpen();
+        return false;
+      });
+
+      await service.view(buildCipher());
+
+      expect(openDuringPrompt).toBe(true);
+      expect(service.itemDialogOpen()).toBe(false);
+    });
+
     it("does not open the assign dialog when the prompt is refused", async () => {
       await service.assignToCollections(buildCipher({ reprompt: CipherRepromptType.Password }), []);
 
