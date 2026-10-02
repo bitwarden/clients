@@ -67,18 +67,15 @@ export class CipherView implements View, InitializerMetadata {
   key?: SymmetricCryptoKey;
 
   /**
-   * True when this view was decrypted from a server-restricted (PAM-gated) cipher: only the
-   * name and (for logins) URIs are populated, every secret field is absent. Sourced from the
-   * SDK's `partial` flag (see {@link CipherView.fromSdkCipherView}). UI gating surfaces — the
-   * row badge, the cipher-view banner, and edit-blocking — key off this.
+   * True when the server gated this cipher: only the name and (for logins) URIs are populated.
+   * The row badge, the cipher-view banner, and edit-blocking key off this.
    */
   partial = false;
 
   /**
-   * Client-only, transient companion to {@link partial}: set on a full cipher served under an
-   * active PAM lease (full data, so `partial` is false). Never sent by the server, persisted,
-   * or serialized — its producer (the leased-cipher fetcher) stamps it directly on the view.
-   * Lets gating surfaces keep rendering lease state once a lease lands.
+   * Client-only companion to {@link partial}: a full cipher served under an active PAM lease, so
+   * gating surfaces keep rendering lease state. Never persisted or serialized; its producer
+   * stamps it on the view directly.
    */
   leaseGated?: boolean;
 
@@ -110,9 +107,7 @@ export class CipherView implements View, InitializerMetadata {
     this.archivedDate = c.archivedDate;
     // Old locally stored ciphers might have reprompt == null. If so set it to None.
     this.reprompt = c.reprompt ?? CipherRepromptType.None;
-    // Derive the gating flag from the persisted envelope. The SDK decrypt path sets it from
-    // the SDK view instead (see fromSdkCipherView); `leaseGated` has no domain source — its
-    // producer stamps it on the view directly.
+    // The SDK decrypt path sets this from the SDK view instead, see fromSdkCipherView.
     this.partial = c.partialData != null;
   }
 
@@ -349,7 +344,6 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.archivedDate = obj.archivedDate == null ? undefined : new Date(obj.archivedDate);
     cipherView.reprompt = obj.reprompt ?? CipherRepromptType.None;
     cipherView.key = obj.key ? SymmetricCryptoKey.fromString(obj.key) : undefined;
-    // The SDK marks a restricted (PAM-gated) view partial; carry it onto the client view.
     cipherView.partial = obj.partial ?? false;
 
     switch (obj.type) {

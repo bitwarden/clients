@@ -46,13 +46,9 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract cipherView$(userId: UserId, cipherId: CipherId): Observable<CipherView | undefined>;
   abstract cipherListViews$(userId: UserId): Observable<CipherListView[] | CipherView[]>;
   /**
-   * Like {@link cipherListViews$}, but INCLUDES PAM-gated ("partial") rows — ciphers whose
-   * sensitive fields the server suppressed, decrypted into a `partial` view.
-   *
-   * This is an opt-in stream: only surfaces that must render gated rows (the vault list and its
-   * "Controlled access" badge) should consume it. Every other consumer must use
-   * {@link cipherListViews$}, which excludes partials so gated ciphers never reach autofill,
-   * export, key rotation, and similar flows.
+   * Like {@link cipherListViews$}, but includes PAM-gated ("partial") rows. Opt-in: only the
+   * vault list should consume it, so gated ciphers never reach autofill, export, key rotation,
+   * and similar flows.
    */
   abstract cipherListViewsWithPartials$(
     userId: UserId,

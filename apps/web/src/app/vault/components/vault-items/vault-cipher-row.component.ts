@@ -251,12 +251,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     return CipherViewLikeUtils.decryptionFailure(this.cipher);
   }
 
-  /**
-   * True when the row is a PAM-gated ("partial") cipher — the server suppressed its sensitive
-   * fields. Such a row is read-only: it renders (with the Controlled access badge) but must not
-   * be selectable or offer any modify action, since re-saving it would clobber the suppressed
-   * fields. See {@link CipherViewLikeUtils.isPartial}.
-   */
+  /** Gated ("partial") rows are read-only: not selectable, no modify actions. */
   protected get isPartial() {
     return CipherViewLikeUtils.isPartial(this.cipher);
   }

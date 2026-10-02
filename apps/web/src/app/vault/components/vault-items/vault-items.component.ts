@@ -159,11 +159,6 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     optional: true,
   }) as VaultBatchBarService<C> | null;
 
-  /**
-   * Host-provided "Controlled access" badge seam. Its presence (a privileged-access feature is
-   * installed) is what surfaces the Controlled access column; unprovided, the column is absent
-   * and the table is unchanged.
-   */
   protected readonly leaseBadge = inject(VAULT_ROW_LEASE_BADGE, { optional: true });
 
   protected editableItems: VaultItem<C>[] = [];
@@ -294,12 +289,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     return this.showCollections || this.showGroups || this.showOwner || this.showControlledAccess;
   }
 
-  /**
-   * Whether to render the "Controlled access" column. Shown only when the PAM feature flag is
-   * enabled, the viewer actually has PAM enabled — i.e. at least one organization in view has the
-   * Privileged Access capability (`usePam`) — and a host provides the badge seam. Otherwise the
-   * column is absent and the table is unchanged.
-   */
+  /** The badge is host-provided; without it the column has nothing to render. */
   get showControlledAccess() {
     return (
       this.pamEnabled() && this.leaseBadge != null && this.allOrganizations.some((o) => o.usePam)
@@ -455,10 +445,8 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   /**
-   * Selected ciphers eligible for a bulk action, with partial (PAM-gated) rows removed. Partials
-   * are read-only and already unselectable (see {@link editableItems} and the row checkbox); this
-   * is a defense-in-depth net so a gated cipher can never be re-encrypted or otherwise modified by
-   * a bulk action even if it reaches the selection some other way.
+   * Gated rows are already unselectable; dropping them here too is defense in depth, so no bulk
+   * action can modify one that reaches the selection some other way.
    */
   private selectedCiphersForBulkAction(): C[] {
     return this.selection.selected
@@ -497,7 +485,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   protected bulkDelete() {
     this.event({
       type: "delete",
-      // Keep collections; drop partial (PAM-gated) ciphers — they must not be bulk-deleted.
+      // Keep collections (which have no cipher); drop gated ciphers.
       items: this.selection.selected.filter(
         (item) => item.cipher === undefined || !CipherViewLikeUtils.isPartial(item.cipher),
       ),
@@ -582,9 +570,8 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       .map((cipher) => ({ cipher }));
     const items: VaultItem<C>[] = [].concat(collections).concat(ciphers);
 
-    // Ciphers are selectable only if the user can edit them; collections only if they can be edited or deleted.
-    // PAM-gated ("partial") ciphers are never selectable — they are read-only, so keeping them out of
-    // the selection prevents any bulk action (move/share/delete/archive) from modifying them.
+    // Ciphers are selectable only if the user can edit them; collections only if they can be edited or deleted
+    // Gated ("partial") ciphers are read-only, so they are never selectable
     this.editableItems = items.filter(
       (item) =>
         (item.cipher !== undefined &&

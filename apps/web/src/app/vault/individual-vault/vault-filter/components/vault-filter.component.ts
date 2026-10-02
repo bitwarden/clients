@@ -295,8 +295,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
 
     const data$ = combineLatest([
       this.restrictedItemTypesService.restricted$,
-      // Include PAM-gated ("partial") ciphers so a restricted type present only as gated rows
-      // still surfaces in the web filter, matching the list.
+      // Include gated ("partial") ciphers so a type present only as gated rows still surfaces.
       this.cipherService.cipherListViewsWithPartials$(userId),
       this.vaultFilterService.cipherTypeFilters$,
     ]).pipe(
