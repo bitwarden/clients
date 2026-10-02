@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Cliquez sur les éléments dans l'affichage du coffre pour la saisie automatique"
   },
-  "clickToAutofill": {
-    "message": "Cliquez sur les éléments de la suggestion de saisie automatique pour les remplir"
-  },
   "clearClipboard": {
     "message": "Effacer le presse-papiers",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Insérez la YubiKey associée à votre compte LastPass dans le port USB de votre ordinateur, puis appuyez sur son bouton."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Courriel de Keeper"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Changer le mot de passe à risque"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Cet identifiant est à risques et manque un site web. Ajoutez un site web et changez le mot de passe pour une meilleure sécurité."
-  },
   "vulnerablePassword": {
     "message": "Mot de passe vulnérable."
   },
   "changeNow": {
     "message": "Changer maintenant"
-  },
-  "missingWebsite": {
-    "message": "Site Web manquant"
   },
   "settingsVaultOptions": {
     "message": "Options du coffre"

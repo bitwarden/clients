@@ -15600,20 +15600,11 @@
   "atRiskPassword": {
     "message": "Zranitelné heslo"
   },
-  "changeAtRiskPassword": {
-    "message": "Změnit zranitelné heslo"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Tyto přihlašovací údaje jsou zranitelné a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
-  },
   "vulnerablePassword": {
     "message": "Zranitelné heslo."
   },
   "changeNow": {
     "message": "Změnit nyní"
-  },
-  "missingWebsite": {
-    "message": "Chybějící webová stránka"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Odebrat odemknutí pomocí PIN"
@@ -17041,6 +17032,15 @@
         "example": "4"
       }
     }
+  },
+  "secretKey": {
+    "message": "Tajný klíč"
+  },
+  "secretKeyAndPassword": {
+    "message": "Tajný klíč a heslo"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Váš účet je zabezpečen tajným klíčem a heslem. Pro pokračování budete muset zadat obojí."
   },
   "keeperEmail": {
     "message": "E-mail Keeper"
