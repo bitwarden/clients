@@ -24,6 +24,7 @@ import { VaultManageNavComponent, VaultNavSectionComponent } from "@bitwarden/va
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
+import { PamUserNavSlotComponent } from "../pam/user-nav-slot/pam-user-nav-slot.component";
 import { CoachmarkComponent, CoachmarkService } from "../vault/components/coachmark";
 
 import { WebLayoutModule } from "./web-layout.module";
@@ -42,6 +43,7 @@ import { WebLayoutModule } from "./web-layout.module";
     VaultManageNavComponent,
     VaultNavSectionComponent,
     BillingFreeFamiliesNavItemComponent,
+    PamUserNavSlotComponent,
     PopoverModule,
     CoachmarkComponent,
   ],

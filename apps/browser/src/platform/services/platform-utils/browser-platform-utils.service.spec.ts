@@ -53,6 +53,13 @@ describe("Browser Utils Service", () => {
       });
     });
 
+    const setUserAgentData = (userAgentData: unknown) => {
+      Object.defineProperty(navigator, "userAgentData", {
+        configurable: true,
+        value: userAgentData,
+      });
+    };
+
     beforeEach(() => {
       (window as any).matchMedia = jest.fn().mockReturnValueOnce({});
     });
@@ -60,6 +67,7 @@ describe("Browser Utils Service", () => {
     afterEach(() => {
       window.matchMedia = undefined;
       (BrowserPlatformUtilsService as any).deviceCache = null;
+      delete (navigator as any).userAgentData;
     });
 
     it("should detect chrome", () => {
@@ -119,6 +127,65 @@ describe("Browser Utils Service", () => {
       });
 
       expect(browserPlatformUtilsService.getDevice()).toBe(DeviceType.VivaldiExtension);
+    });
+
+    it("should detect duckduckgo from the userAgentData brand list", () => {
+      // DuckDuckGo's Chromium build masquerades as Edge in its user agent, so the brand
+      // list is the only signal that distinguishes it.
+      Object.defineProperty(navigator, "userAgent", {
+        configurable: true,
+        value:
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0",
+      });
+      setUserAgentData({
+        brands: [
+          { brand: "Not=A?Brand", version: "99" },
+          { brand: "DuckDuckGo", version: "151" },
+          { brand: "Chromium", version: "151" },
+        ],
+      });
+
+      expect(browserPlatformUtilsService.getDevice()).toBe(DeviceType.DuckDuckGoExtension);
+      expect(browserPlatformUtilsService.isDuckDuckGo()).toBe(true);
+    });
+
+    it("should still detect chrome when the brand list has no DuckDuckGo entry", () => {
+      Object.defineProperty(navigator, "userAgent", {
+        configurable: true,
+        value:
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
+      });
+      setUserAgentData({
+        brands: [
+          { brand: "Not=A?Brand", version: "99" },
+          { brand: "Chromium", version: "135" },
+          { brand: "Google Chrome", version: "135" },
+        ],
+      });
+
+      expect(browserPlatformUtilsService.getDevice()).toBe(DeviceType.ChromeExtension);
+    });
+
+    it("should fall back to user agent detection when userAgentData is unavailable", () => {
+      Object.defineProperty(navigator, "userAgent", {
+        configurable: true,
+        value:
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
+      });
+      setUserAgentData(undefined);
+
+      expect(browserPlatformUtilsService.getDevice()).toBe(DeviceType.ChromeExtension);
+    });
+
+    it("should not throw when userAgentData is present without a brand list", () => {
+      Object.defineProperty(navigator, "userAgent", {
+        configurable: true,
+        value:
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
+      });
+      setUserAgentData({});
+
+      expect(browserPlatformUtilsService.getDevice()).toBe(DeviceType.ChromeExtension);
     });
 
     it("returns a previously determined device using a cached value", () => {
@@ -369,6 +436,7 @@ describe("Browser Utils Service", () => {
       DeviceType.EdgeExtension,
       DeviceType.OperaExtension,
       DeviceType.VivaldiExtension,
+      DeviceType.DuckDuckGoExtension,
     ];
 
     const nonChromiumDevices: DeviceType[] = [

@@ -451,6 +451,9 @@
   "noFolders": {
     "message": "Немає тек."
   },
+  "noFoldersFilter": {
+    "message": "Немає тек"
+  },
   "helpFeedback": {
     "message": "Допомога і зворотний зв'язок"
   },
@@ -553,6 +556,45 @@
   },
   "noItemsInVault": {
     "message": "У сховищі немає записів"
+  },
+  "noItemsInMyVault": {
+    "message": "У моєму сховищі немає записів"
+  },
+  "emptyMyItems": {
+    "message": "У моїх записах немає записів"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Немає записів у $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Немає записів у $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "Ваші сховища порожні"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Немає записів за вибраними фільтрами"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Немає записів, що відповідають \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
   },
   "length": {
     "message": "Довжина"
@@ -1249,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Натисніть на запис у режимі перегляду сховища для автозаповнення"
   },
-  "clickToAutofill": {
-    "message": "Натиснути запис у пропозиціях для автозаповнення"
-  },
   "clearClipboard": {
     "message": "Очистити буфер обміну",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1498,6 +1537,43 @@
     "message": "Імпортувати",
     "description": "The verb form of the word Import"
   },
+  "importSourceBreadcrumb": {
+    "message": "Вибір джерела"
+  },
+  "importSourceSelectTitle": {
+    "message": "Вибір вашого джерела"
+  },
+  "importSourceSelectDescription": {
+    "message": "Виберіть менеджер паролів або браузер, з якого ви здійснюєте імпорт."
+  },
+  "importSourceBrowsers": {
+    "message": "Браузери"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Менеджери паролів"
+  },
+  "importSourceShowAll": {
+    "message": "Показати все"
+  },
+  "importSourceShowLess": {
+    "message": "Згорнути"
+  },
+  "importSourceStepCount": {
+    "message": "Крок $CURRENT$ з $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "importItems": {
+    "message": "Імпортувати записи"
+  },
   "fileFormat": {
     "message": "Формат файлу"
   },
@@ -1589,7 +1665,7 @@
     }
   },
   "moveToOrgDesc": {
-    "message": "Виберіть організацію, до якої ви бажаєте перемістити цей запис. Переміщуючи до організації, власність запису передається тій організації. Ви більше не будете єдиним власником цього запису після переміщення."
+    "message": "Виберіть організацію, до якої ви бажаєте перемістити цей запис. Власність запису передається організації, до якої він переміщується. Ви більше не володітимете безпосередньо цим записом після переміщення."
   },
   "learnMore": {
     "message": "Докладніше"
@@ -2773,6 +2849,30 @@
         "example": "eng"
       }
     }
+  },
+  "oneFilterResult": {
+    "message": "1 результат",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ результатів",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Жоден фільтр не відповідає запиту “$SEARCH$”",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
   },
   "clearSearch": {
     "message": "Очистити пошук"
@@ -3993,16 +4093,25 @@
   "errorGettingAutoFillData": {
     "message": "Помилка отримання даних автозаповнення"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden не зміг розшифрувати вказані нижче елементи сховища."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden не вдалося розшифрувати запис у сховищі, перерахований нижче. Зверніться до служби підтримки Bitwarden і надайте ID запису нижче, щоб дізнатися, чи можна його відновити."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Зверніться до служби підтримки клієнтів,",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden не вдалося розшифрувати записи у сховищі, перерахованих нижче. Зверніться до служби підтримки Bitwarden і надайте ID записів нижче, щоб дізнатися, чи можна їх відновити."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "щоб уникнути втрати даних.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "ID запису",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "ID записів",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Копіювати ID"
+  },
+  "copyAllIds": {
+    "message": "Копіювати всі ID"
   },
   "generateUsername": {
     "message": "Генерувати ім'я користувача"
@@ -5063,11 +5172,21 @@
   "selectImportCollection": {
     "message": "Вибрати збірку"
   },
+  "selectImportSharedFolder": {
+    "message": "Вибрати спільну теку"
+  },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до збірки"
   },
   "importTargetHintFolder": {
     "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до теки"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Виберіть цей параметр, якщо ви хочете, щоб вміст імпортованого файлу було переміщено до спільної теки"
   },
   "importUnassignedItemsError": {
     "message": "Файл містить непризначені записи."
@@ -5203,19 +5322,19 @@
     "message": "У комп'ютерній програмі SafeInCloud відкрийте меню \"Файл\" → \"Експортувати\" → \"Як XML\" і збережіть файл XML."
   },
   "importPadlockInstructions": {
-    "message": "У настільній програмі Padlock натисніть на іконку «гамбургера» у верхньому лівому куті, перейдіть до \"Налаштування\" → натисніть кнопку \"Експорт\" і збережіть файл \"у форматі CSV\"."
+    "message": "У комп'ютерній програмі Padlock натисніть піктограму меню у верхньому лівому куті, відкрийте \"Налаштування\" → натисніть кнопку \"Експорт\" і збережіть файл \"як CSV\"."
   },
   "importKeepass2Instructions": {
-    "message": "У настільній програмі KeePass 2 перейдіть до меню \"Файл\" → \"Експорт\" і виберіть опцію \"KeePass XML (2.x)\"."
+    "message": "У комп'ютерній програмі KeePass 2 відкрийте меню \"Файл\" → \"Експорт\" і виберіть опцію \"KeePass XML (2.x)\"."
   },
   "importUpmInstructions": {
-    "message": "У настільній програмі Universal Password Manager перейдіть до розділу \"База даних\" → \"Експорт\" і збережіть файл у форматі CSV."
+    "message": "У комп'ютерній програмі Universal Password Manager відкрийте \"База даних\" → \"Експорт\" і збережіть файл CSV."
   },
   "importSaferpassInstructions": {
-    "message": "У розширенні для браузера SaferPass натисніть на іконку «гамбургера» у верхньому лівому куті та перейдіть до розділу \"Налаштування\". Натисніть кнопку \"Експортувати облікові записи\", щоб зберегти файл у форматі CSV."
+    "message": "У розширенні для браузера SaferPass натисніть піктограму меню у верхньому лівому куті та відкрийте \"Налаштування\". Натисніть кнопку \"Експортувати облікові записи\", щоб зберегти файл CSV."
   },
   "importMeldiumInstructions": {
-    "message": "У вебсховищі Meldium перейдіть до розділу \"Налаштування\". Знайдіть функцію \"Експорт даних\" і натисніть \"Показати мої дані\", щоб зберегти файл у форматі CSV."
+    "message": "У вебсховищі Meldium відкрийте \"Налаштування\". Знайдіть функцію \"Експорт даних\" і натисніть \"Показати мої дані\", щоб зберегти файл CSV."
   },
   "importPassworddragonInstructions": {
     "message": "У настільній програмі Password Dragon перейдіть до меню \"Файл\" → \"Експорт\" → \"У XML\". У діалоговому вікні, що з’явиться, виберіть \"Усі рядки\" та встановіть прапорці біля всіх полів. Натисніть кнопку \"Експорт\" і збережіть XML-файл."
@@ -5560,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Вставте YubiKey пов'язаний з обліковим записом LastPass в USB порт вашого комп'ютера, потім торкніться його кнопки."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Е-пошта Keeper"
   },
@@ -5754,6 +5882,9 @@
   },
   "switchAccounts": {
     "message": "Перемкнути облікові записи"
+  },
+  "switchVault": {
+    "message": "Перемкнути сховище"
   },
   "switchToAccount": {
     "message": "Перемкнути на обліковий запис"
@@ -5977,7 +6108,7 @@
     "message": "Спільних тек не додано"
   },
   "noSharedFoldersAddedDescription": {
-    "message": "Додайте спільну теку, щоб безпечно ділитися елементами сховища з іншими учасниками."
+    "message": "Додайте спільну теку, щоб безпечно ділитися записами сховища з іншими учасниками."
   },
   "moreOptionsLabel": {
     "message": "Інші можливості, $ITEMNAME$",
@@ -6853,6 +6984,9 @@
   "noItemsInTrashDesc": {
     "message": "Видалені записи з'являтимуться тут і будуть остаточно видалені через 30 днів"
   },
+  "noItemsInTrashDescription": {
+    "message": "Видалені записи з'являтимуться тут і будуть остаточно видалені через 30 днів."
+  },
   "trashWarning": {
     "message": "Записи, що знаходяться в смітнику понад 30 днів, автоматично видалятимуться"
   },
@@ -7117,26 +7251,44 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Змінити ризикований пароль"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Цей запис ризикований, і не має адреси вебсайту. Додайте адресу вебсайту і змініть пароль для вдосконалення безпеки."
-  },
   "vulnerablePassword": {
     "message": "Вразливий пароль."
   },
   "changeNow": {
     "message": "Змінити зараз"
   },
-  "missingWebsite": {
-    "message": "Немає вебсайту"
-  },
   "settingsVaultOptions": {
     "message": "Параметри сховища"
   },
   "emptyVaultDescription": {
     "message": "Сховище захищає не лише ваші паролі. Безпечно зберігайте дані для входу, посвідчення, картки й нотатки."
+  },
+  "emptyVaultsDescription": {
+    "message": "Додайте записи входу, посвідчення, картки, а також інші елементи, щоб розпочати роботу."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Додайте записи до цього спільного сховища, а потім надайте доступ іншим учасникам $VAULT_NAME$.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "\"Мої записи\" – це ваш приватний простір для зберігання записів, якими володітиме $VAULT_NAME$, але їх не бачитимуть інші учасники.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFoldersV2": {
+    "message": "У вас немає тек"
+  },
+  "emptyFoldersDescriptionV2": {
+    "message": "Використовуйте теки для упорядкування елементів сховища. Вони призначені виключно для вас. Ніхто інший не зможе їх бачити чи використовувати."
   },
   "introCarouselLabel": {
     "message": "Вітаємо в Bitwarden"
@@ -7975,7 +8127,7 @@
     "message": "Для цих облікових записів використовується однаковий пароль. Створіть унікальний пароль для кожного облікового запису, щоб ніхто не зміг отримати доступ до кількох облікових записів за допомогою одного пароля."
   },
   "deleteAtRiskItemDesc": {
-    "message": "Обов’язково спочатку змініть свій пароль. Видалення лише прибирає цей елемент із вашого сховища, але не усуває ризик."
+    "message": "Обов'язково спершу змініть свій пароль. Видаливши цей запис зі сховища ви не усунете ризик."
   },
   "passwordHasAdditionalRisks": {
     "message": "Цей пароль має додаткові ризики:"
@@ -8020,5 +8172,84 @@
   },
   "editItemsHidePass": {
     "message": "Редагування записів, прихованих паролів"
+  },
+  "shareVerb": {
+    "message": "Поділитися"
+  },
+  "peopleWhoCanView": {
+    "message": "Люди, які можуть переглядати",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Після того як ви надішлете це посилання, одержувачі повинні будуть підтвердити свою електронну адресу за допомогою коду, щоб переглянути цей матеріал.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Це посилання втратить чинність після зазначеної дати, але одержувачі можуть зберегти інформацію, якою з ними раніше поділилися. Щоб скасувати доступ, створіть нові облікові дані.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Термін дії посилання закінчується після",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Одноразовий обмін",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Активні посилання",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Посилання скопійовано в буфер обміну",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Не вдалося створити посилання для спільного доступу",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Посилання збережено та скопійовано до буфера обміну",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Не вдалося скопіювати посилання на спільний доступ у буфер обміну",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Посилання для спільного доступу видалено",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Не вдалося видалити посилання на спільний доступ",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Спільний доступ за посиланням",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Поділитися записом сховища $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "share": {
+    "message": "Поділитися",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareLinkExpires": {
+    "message": "Закінчується",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Закінчується",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Невідомий запис. Можливо, вам доведеться подати запит на дозвіл для доступу до цього запису."
   }
 }

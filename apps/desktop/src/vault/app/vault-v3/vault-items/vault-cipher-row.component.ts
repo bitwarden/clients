@@ -24,6 +24,7 @@ import {
   LinkModule,
   IconModule,
 } from "@bitwarden/components";
+import { ShareLinkMenuItemDirective } from "@bitwarden/tools-share";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   GetOrgNameFromIdPipe,
@@ -57,6 +58,7 @@ import { VaultItemEvent } from "./vault-item-event";
     CheckboxModule,
     Vfo1I18nPipe,
     Vfo1IconPipe,
+    ShareLinkMenuItemDirective,
   ],
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> {
@@ -89,7 +91,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
    * Enforce Org Data Ownership Policy Status
    */
   protected readonly enforceOrgDataOwnershipPolicy = input<boolean>();
-  protected readonly showBatchBar = input<boolean>(false);
   protected readonly selected = input<boolean>(false);
   protected readonly checkboxChange = output<void>();
   protected readonly onEvent = output<VaultItemEvent<C>>();

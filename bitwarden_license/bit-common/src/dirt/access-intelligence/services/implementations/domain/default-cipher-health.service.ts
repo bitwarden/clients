@@ -1,12 +1,16 @@
-import { forkJoin, from, map, mergeMap, Observable, of, toArray } from "rxjs";
+import { forkJoin, from, map, mergeMap, Observable, of, switchMap, take, toArray } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LogService } from "@bitwarden/logging";
 
 import { CipherHealthView } from "../../../models";
+import { flowTimer, measureFlowStep } from "../../../utils/measure-flow-step.operator";
 import { CipherHealthService } from "../../abstractions/cipher-health.service";
 
 /**
@@ -20,6 +24,8 @@ export class DefaultCipherHealthService extends CipherHealthService {
   constructor(
     private auditService: AuditService,
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
+    private configService: ConfigService,
+    private logService: LogService,
   ) {
     super();
   }
@@ -34,7 +40,7 @@ export class DefaultCipherHealthService extends CipherHealthService {
     // Detect password reuse across all ciphers
     const reuseMap$ = this.detectPasswordReuse(validCiphers);
 
-    // Check each cipher's health (weak password + HIBP exposure)
+    // Measured as a batch; per-cipher entries would swamp the performance panel.
     const healthChecks$ = from(validCiphers).pipe(
       // Limit concurrent HIBP calls to avoid rate limiting
       mergeMap(
@@ -42,6 +48,14 @@ export class DefaultCipherHealthService extends CipherHealthService {
         this.MAX_CONCURRENT_HIBP_CALLS,
       ),
       toArray(),
+      measureFlowStep(
+        this.logService,
+        "Generate: password strength and breach checks complete",
+        (results) => [
+          ["itemCount", results.length],
+          ["concurrencyLimit", this.MAX_CONCURRENT_HIBP_CALLS],
+        ],
+      ),
     );
 
     // Combine reuse detection with individual health checks
@@ -50,6 +64,7 @@ export class DefaultCipherHealthService extends CipherHealthService {
       healthResults: healthChecks$,
     }).pipe(
       map(({ reuseMap, healthResults }) => {
+        const measureStep = flowTimer(this.logService);
         const healthMap = new Map<string, CipherHealthView>();
 
         healthResults.forEach((health) => {
@@ -63,6 +78,8 @@ export class DefaultCipherHealthService extends CipherHealthService {
 
           healthMap.set(health.cipherId, health);
         });
+
+        measureStep("Generate: health and reuse combined", [["itemCount", healthResults.length]]);
 
         return healthMap;
       }),
@@ -87,6 +104,7 @@ export class DefaultCipherHealthService extends CipherHealthService {
   }
 
   detectPasswordReuse(ciphers: CipherView[]): Observable<Map<string, string[]>> {
+    const measureStep = flowTimer(this.logService);
     const passwordMap = new Map<string, string[]>();
 
     ciphers.forEach((cipher) => {
@@ -113,6 +131,8 @@ export class DefaultCipherHealthService extends CipherHealthService {
       }
     });
 
+    measureStep("Generate: reused password check complete", [["itemCount", ciphers.length]]);
+
     return of(reuseMap);
   }
 
@@ -136,19 +156,25 @@ export class DefaultCipherHealthService extends CipherHealthService {
     const hasWeakPassword = weakPasswordScore != null && weakPasswordScore <= 2;
 
     // Check HIBP exposure
-    return from(this.auditService.passwordLeaked(password)).pipe(
-      map((exposedCount) => {
-        return new CipherHealthView({
-          cipherId: cipher.id,
-          hasWeakPassword,
-          hasReusedPassword: false, // Will be set by caller if checking multiple ciphers
-          reuseCount: 0, // Will be set by caller if checking multiple ciphers
-          hasExposedPassword: exposedCount > 0,
-          exposedCount,
-          weakPasswordScore,
-        });
-      }),
-    );
+    return this.configService
+      .getFeatureFlag$(FeatureFlag.AccessIntelligencePerformanceAtScale)
+      .pipe(
+        take(1),
+        switchMap((accessIntelligencePerfEnabled) =>
+          this.auditService.passwordLeaked(password, !accessIntelligencePerfEnabled),
+        ),
+        map((exposedCount) => {
+          return new CipherHealthView({
+            cipherId: cipher.id,
+            hasWeakPassword,
+            hasReusedPassword: false, // Will be set by caller if checking multiple ciphers
+            reuseCount: 0, // Will be set by caller if checking multiple ciphers
+            hasExposedPassword: exposedCount > 0,
+            exposedCount,
+            weakPasswordScore,
+          });
+        }),
+      );
   }
 
   private getPasswordStrength(cipher: CipherView): number | undefined {

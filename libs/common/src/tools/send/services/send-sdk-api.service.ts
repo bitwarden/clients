@@ -1,4 +1,4 @@
-import { catchError, firstValueFrom, switchMap } from "rxjs";
+import { catchError, concatMap, firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
@@ -140,12 +140,13 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     view: SendView,
     file: File | ArrayBuffer | null,
     plaintextPassword?: string,
+    signal?: AbortSignal,
   ): Promise<Send> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     const sdkView =
       view.id == null && view.type === SendType.File
-        ? await this.createFileSend(view, file, userId, plaintextPassword)
+        ? await this.createFileSend(view, file, userId, plaintextPassword, signal)
         : await this.mutateSend(view, userId, plaintextPassword);
 
     return await this.refreshAfterMutation(sdkView.id as unknown as string);
@@ -155,7 +156,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
+        concatMap(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
@@ -177,7 +178,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
+        concatMap(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
@@ -241,7 +242,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
+        concatMap(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
@@ -267,14 +268,14 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     return new SendFileDownloadDataResponse(data);
   }
 
-  private async mutateSend(
+  async mutateSend(
     sendView: SendView,
     userId: UserId,
     plaintextPassword?: string,
   ): Promise<SdkSendView> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
+        concatMap(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
@@ -312,7 +313,15 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     file: File | ArrayBuffer | null,
     userId: UserId,
     plaintextPassword?: string,
+    signal?: AbortSignal,
   ): Promise<SdkSendView> {
+    // Bail before doing any network work if the caller already abandoned this submission —
+    // otherwise a cancel that lands before this point still uploads the whole file only to
+    // immediately delete it.
+    if (signal?.aborted) {
+      throw new DOMException("Send creation was cancelled", "AbortError");
+    }
+
     if (file == null) {
       throw new Error("File send creation requires file data.");
     }
@@ -331,7 +340,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
 
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
+        concatMap(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
@@ -370,10 +379,20 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
             throw error;
           }
 
+          // The upload can't be interrupted mid-flight, but if the caller abandoned this
+          // submission while it was in progress, don't leave a completed-but-unwanted send
+          // behind — roll it back the same way a failed upload would be.
+          if (signal?.aborted) {
+            await this.rollbackFileSend(sendsClient, sendId);
+            throw new DOMException("Send creation was cancelled", "AbortError");
+          }
+
           return sendView;
         }),
         catchError((error: unknown) => {
-          this.logService.error(`Failed to create file send: ${error}`);
+          if (!(error instanceof DOMException && error.name === "AbortError")) {
+            this.logService.error(`Failed to create file send: ${error}`);
+          }
           throw error;
         }),
       ),
@@ -404,7 +423,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
    * to local state (the send repository registered in `initializeClientManagedState`), and only
    * rethrow if neither source can produce it.
    */
-  private async refreshAfterMutation(sendId: string): Promise<Send> {
+  async refreshAfterMutation(sendId: string): Promise<Send> {
     try {
       return await this.refreshSendFromServer(sendId);
     } catch (error) {
@@ -506,6 +525,15 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
           fileName: resolvedFileName,
           size: sendView.file?.size?.toString() ?? undefined,
           sizeName: sendView.file?.sizeName ?? undefined,
+        },
+      };
+    } else if (sendView.type === SendType.Item) {
+      if (!sendView.data?.data) {
+        throw new Error("Item Send is missing data");
+      }
+      return {
+        Item: {
+          data: sendView.data.data.toSdkCipherView(),
         },
       };
     }

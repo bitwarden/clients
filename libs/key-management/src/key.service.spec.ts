@@ -3,7 +3,6 @@ import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take }
 
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { USER_KEY } from "@bitwarden/common/key-management/state-definitions";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
@@ -27,7 +26,7 @@ import {
   FakeSingleUserState,
 } from "@bitwarden/common/spec";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
-import { UserKey, MasterKey, ProviderKey } from "@bitwarden/common/types/key";
+import { UserKey, ProviderKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
 import {
   CryptoFunctionService,
@@ -57,11 +56,9 @@ describe("keyService", () => {
 
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
-  let masterPasswordService: FakeMasterPasswordService;
 
   beforeEach(async () => {
     accountService = mockAccountServiceWith(mockUserId);
-    masterPasswordService = new FakeMasterPasswordService();
     stateProvider = new FakeStateProvider(accountService);
 
     await stateProvider.setUserState(VAULT_TIMEOUT, VaultTimeoutStringType.Never, mockUserId);
@@ -114,6 +111,31 @@ describe("keyService", () => {
     it.each([true, false])("returns %s if the user key is set", async (hasKey) => {
       setUserKeyState(mockUserId, hasKey ? mockUserKey : null);
       expect(await keyService.hasUserKey(mockUserId)).toBe(hasKey);
+    });
+  });
+
+  describe("userKey$", () => {
+    it("does not re-emit when the same user key is written again", async () => {
+      // Every emission makes cipher consumers decrypt the whole vault, e.g. after each sync.
+      setUserKeyState(mockUserId, makeSymmetricCryptoKey<UserKey>(64, 0));
+
+      const emitted: (UserKey | null)[] = [];
+      const subscription = keyService.userKey$(mockUserId).subscribe((key) => emitted.push(key));
+      setUserKeyState(mockUserId, makeSymmetricCryptoKey<UserKey>(64, 0));
+
+      subscription.unsubscribe();
+      expect(emitted).toHaveLength(1);
+    });
+
+    it("re-emits when the user key changes", async () => {
+      setUserKeyState(mockUserId, makeSymmetricCryptoKey<UserKey>(64, 0));
+
+      const emitted: (UserKey | null)[] = [];
+      const subscription = keyService.userKey$(mockUserId).subscribe((key) => emitted.push(key));
+      setUserKeyState(mockUserId, makeSymmetricCryptoKey<UserKey>(64, 1));
+
+      subscription.unsubscribe();
+      expect(emitted).toHaveLength(2);
     });
   });
 
@@ -536,29 +558,77 @@ describe("keyService", () => {
         emittedValues[4]!.orgKeys![org1Id].keyB64,
       );
     });
+
+    it("does not re-emit when a sync rewrites identical org and provider keys", async () => {
+      // Every emission makes cipher consumers decrypt the whole vault.
+      const orgKeys = {
+        [org1Id]: { type: "organization" as const, key: makeEncString("org1Key").encryptedString! },
+      };
+      updateKeys({
+        userKey: makeSymmetricCryptoKey<UserKey>(64),
+        encryptedPrivateKey: makeEncString("privateKey"),
+        providerKeys: {},
+        orgKeys,
+      });
+
+      const emitted: unknown[] = [];
+      const subscription = keyService
+        .cipherDecryptionKeys$(mockUserId)
+        .subscribe((keys) => emitted.push(keys));
+      await new Promise(process.nextTick);
+
+      updateKeys({ providerKeys: {} });
+      await new Promise(process.nextTick);
+      updateKeys({ orgKeys: { ...orgKeys } });
+      await new Promise(process.nextTick);
+
+      subscription.unsubscribe();
+      expect(emitted).toHaveLength(1);
+    });
+
+    it("re-emits when an org key changes", async () => {
+      updateKeys({
+        userKey: makeSymmetricCryptoKey<UserKey>(64),
+        encryptedPrivateKey: makeEncString("privateKey"),
+        providerKeys: {},
+        orgKeys: {
+          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
+        },
+      });
+
+      const emitted: unknown[] = [];
+      const subscription = keyService
+        .cipherDecryptionKeys$(mockUserId)
+        .subscribe((keys) => emitted.push(keys));
+      await new Promise(process.nextTick);
+
+      updateKeys({
+        orgKeys: {
+          [org1Id]: { type: "organization", key: makeEncString("org1KeyB").encryptedString! },
+        },
+      });
+      await new Promise(process.nextTick);
+
+      subscription.unsubscribe();
+      expect(emitted).toHaveLength(2);
+    });
   });
 
   describe("userEncryptionKeyPair$", () => {
     type SetupKeysParams = {
-      makeMasterKey: boolean;
       makeUserKey: boolean;
     };
 
-    function setupKeys({
-      makeMasterKey,
-      makeUserKey,
-    }: SetupKeysParams): [UserKey | null, MasterKey | null] {
+    function setupKeys({ makeUserKey }: SetupKeysParams): UserKey | null {
       const userKeyState = stateProvider.singleUser.getFake(mockUserId, USER_KEY);
-      const fakeMasterKey = makeMasterKey ? makeSymmetricCryptoKey<MasterKey>(64, 0) : null;
-      masterPasswordService.masterKeySubject.next(fakeMasterKey);
       userKeyState.nextState(null);
       const fakeUserKey = makeUserKey ? makeSymmetricCryptoKey<UserKey>(64, 1) : null;
       userKeyState.nextState(fakeUserKey);
-      return [fakeUserKey, fakeMasterKey];
+      return fakeUserKey;
     }
 
     it("returns null when private key is null", async () => {
-      setupKeys({ makeMasterKey: false, makeUserKey: false });
+      setupKeys({ makeUserKey: false });
 
       keyService.userPrivateKey$ = jest.fn().mockReturnValue(new BehaviorSubject(null));
       const key = await firstValueFrom(keyService.userEncryptionKeyPair$(mockUserId));
@@ -566,7 +636,7 @@ describe("keyService", () => {
     });
 
     it("returns null when private key is undefined", async () => {
-      setupKeys({ makeUserKey: true, makeMasterKey: false });
+      setupKeys({ makeUserKey: true });
 
       keyService.userPrivateKey$ = jest.fn().mockReturnValue(new BehaviorSubject(undefined));
       const key = await firstValueFrom(keyService.userEncryptionKeyPair$(mockUserId));
@@ -574,7 +644,7 @@ describe("keyService", () => {
     });
 
     it("returns keys when private key is defined", async () => {
-      setupKeys({ makeUserKey: false, makeMasterKey: true });
+      setupKeys({ makeUserKey: false });
 
       keyService.userPrivateKey$ = jest.fn().mockReturnValue(new BehaviorSubject("private key"));
       cryptoFunctionService.rsaExtractPublicKey.mockResolvedValue(

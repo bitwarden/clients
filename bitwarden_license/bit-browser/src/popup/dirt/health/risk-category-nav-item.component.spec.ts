@@ -56,7 +56,7 @@ describe("RiskCategoryNavItemComponent", () => {
   }
 
   function tileIcon(): HTMLElement | null {
-    return fixture.nativeElement.querySelector("bit-icon-tile i");
+    return fixture.nativeElement.querySelector("bit-icon-tile bit-icon");
   }
 
   beforeEach(async () => {

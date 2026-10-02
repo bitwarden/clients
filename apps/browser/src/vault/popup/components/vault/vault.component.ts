@@ -1,9 +1,9 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, effect, inject, OnDestroy, OnInit } from "@angular/core";
+import { Component, computed, DestroyRef, effect, inject, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { Router, RouterModule } from "@angular/router";
+import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import {
   BehaviorSubject,
   combineLatest,
@@ -13,12 +13,14 @@ import {
   map,
   Observable,
   shareReplay,
+  startWith,
   switchMap,
   take,
   tap,
   withLatestFrom,
 } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType, PremiumUpsellService } from "@bitwarden/angular/vault";
@@ -53,9 +55,13 @@ import {
   CalloutModule,
 } from "@bitwarden/components";
 import {
+  ALL_ITEMS_SCOPE,
   DecryptionFailureDialogComponent,
-  VaultItemsTransferService,
   DefaultVaultItemsTransferService,
+  resolveVaultScope,
+  type VaultScope,
+  VaultItemsTransferService,
+  VaultNavService,
   VaultOrganizationUserNotificationsComponent,
 } from "@bitwarden/vault";
 
@@ -63,9 +69,12 @@ import { CurrentAccountComponent } from "../../../../auth/popup/account-switchin
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
+import { ImportUpgradeNavigationService } from "../../../../tools/popup/settings/import/import-upgrade-navigation.service";
 import { IntroCarouselService } from "../../services/intro-carousel.service";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
+import { VaultPopupListTableFiltersService } from "../../services/vault-popup-list-table-filters.service";
+import { VaultPopupListTableService } from "../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
 import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-password-callout.component";
@@ -79,8 +88,10 @@ import {
   NewItemDropdownComponent,
   NewItemInitialValues,
 } from "./new-item-dropdown/new-item-dropdown.component";
+import { AppVaultFabComponent } from "./vault-fab/vault-fab.component";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultPopupListTableComponent } from "./vault-popup-list-table/vault-popup-list-table.component";
+import { VaultSwitcherComponent } from "./vault-switcher/vault-switcher.component";
 
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
 
@@ -111,6 +122,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
     VaultListItemsContainerComponent,
     ButtonModule,
     NewItemDropdownComponent,
+    AppVaultFabComponent,
     ScrollingModule,
     VaultHeaderComponent,
     AtRiskPasswordCalloutComponent,
@@ -123,6 +135,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
     VaultFadeInOutComponent,
     VaultOrganizationUserNotificationsComponent,
     VaultPopupListTableComponent,
+    VaultSwitcherComponent,
   ],
   providers: [{ provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService }],
 })
@@ -171,7 +184,12 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected filteredCiphers$ = this.vaultPopupItemsService.filteredCiphers$;
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
-  protected cipherCount$ = this.vaultPopupItemsService.cipherCount$;
+  private readonly vaultPopupListTableService = inject(VaultPopupListTableService);
+
+  /**
+   * The header's item count, off the list table's rows — `cipherCount$` counts the whole vault.
+   */
+  protected cipherCount$ = this.vaultPopupListTableService.itemCount$;
 
   protected showPremiumSpotlight$ = combineLatest([
     this.activeUserId$.pipe(
@@ -218,6 +236,15 @@ export class VaultComponent implements OnInit, OnDestroy {
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
+  protected popupListFiltersValues = this.vaultPopupListTableFiltersService.cachedFilters;
+
+  protected organizations$ = this.activeUserId$.pipe(
+    switchMap((userId) => this.organizationService.memberOrganizations$(userId)),
+  );
+  protected collections$ = this.activeUserId$.pipe(
+    switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
+  );
+
   /**
    * Whether a new cipher can be created in the currently selected organization.
    * `false` when the target organization is suspended, since items cannot be saved to it.
@@ -238,6 +265,42 @@ export class VaultComponent implements OnInit, OnDestroy {
     { initialValue: false },
   );
 
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly vaultNavService = inject(VaultNavService);
+
+  /** The account's vaults; `undefined` until they load. */
+  private readonly vaultNav = toSignal(
+    this.activeUserId$.pipe(switchMap((userId) => this.vaultNavService.viewModel$(userId))),
+  );
+
+  /**
+   * The vault the `:vaultId` segment narrows to. Route-derived rather than held in a service, so
+   * the popup router cache restores it on reopen.
+   */
+  protected readonly vaultScope = toSignal(
+    combineLatest([
+      this.activatedRoute.paramMap,
+      this.activeUserId$.pipe(
+        switchMap((userId) => this.vaultNavService.viewModel$(userId)),
+        startWith(undefined),
+      ),
+    ]).pipe(map(([params, nav]) => resolveVaultScope(params.get("vaultId"), null, nav))),
+    { initialValue: ALL_ITEMS_SCOPE as VaultScope | null },
+  );
+
+  protected readonly pageTitle = computed(() =>
+    this.vfo1Enabled() && (this.vaultNav()?.vaults.length ?? 0) > 1
+      ? ""
+      : this.i18nService.t("vault"),
+  );
+
+  /**
+   * Pushes the scope to the root-provided list table service, which cannot see `:vaultId`.
+   */
+  private readonly publishScope = effect(() =>
+    this.vaultPopupListTableService.setScope(this.vaultScope()),
+  );
+
   protected vaultIcon = VaultOpen;
   protected deactivatedIcon = DeactivatedOrg;
   protected noResultsIcon = NoResults;
@@ -247,6 +310,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
     private vaultPopupListFiltersService: VaultPopupListFiltersService,
+    private vaultPopupListTableFiltersService: VaultPopupListTableFiltersService,
     private vaultScrollPositionService: VaultPopupScrollPositionService,
     private vaultPopupLoadingService: VaultPopupLoadingService,
     private accountService: AccountService,
@@ -268,6 +332,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private organizationService: InternalOrganizationServiceAbstraction,
     private premiumUpsellService: PremiumUpsellService,
     private scrollLayoutService: ScrollLayoutService,
+    private collectionService: CollectionService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
@@ -293,6 +358,12 @@ export class VaultComponent implements OnInit, OnDestroy {
       });
   }
 
+  private readonly importUpgradeNavigationService = inject(ImportUpgradeNavigationService);
+
+  /**
+   * Follows the scroll region rather than latching it: the table claims it only once its rows
+   * render, and `popup-page`'s region never scrolls.
+   */
   private readonly _scrollPositionEffect = effect((onCleanup) => {
     const sub = combineLatest([
       this.scrollLayoutService.scrollableRef$,
@@ -300,12 +371,13 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.loading$,
     ])
       .pipe(
-        filter(([ref, _filters, loading]) => !!ref && !loading),
-        take(1),
+        filter(([ref, _filters, loading]) => !!ref?.nativeElement && !loading),
+        map(([ref]) => ref!.nativeElement),
+        distinctUntilChanged(),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(([ref]) => {
-        this.vaultScrollPositionService.start(ref!.nativeElement);
+      .subscribe((scrollElement) => {
+        this.vaultScrollPositionService.start(scrollElement);
       });
 
     onCleanup(() => sub.unsubscribe());
@@ -389,6 +461,11 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async navigateToImport() {
+    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+      await this.importUpgradeNavigationService.openImportSourceSelectTab();
+      return;
+    }
+
     await this.router.navigate(["/import"]);
   }
 

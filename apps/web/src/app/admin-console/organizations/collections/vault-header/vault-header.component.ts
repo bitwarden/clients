@@ -106,7 +106,6 @@ export class VaultHeaderComponent {
 
   protected readonly title = computed(() => {
     const collectionsKey = this.vfo1TerminologyService.enabled() ? "sharedFolders" : "collections";
-    const headerType = this.i18nService.t(collectionsKey).toLowerCase();
 
     const collection = this.collection();
     if (collection != null) {
@@ -117,9 +116,12 @@ export class VaultHeaderComponent {
       return this.i18nService.t("unassigned");
     }
 
-    return this.organization().name
-      ? `${this.organization().name} ${headerType}`
-      : this.i18nService.t(collectionsKey);
+    const orgName = this.organization().name;
+    if (this.vfo1TerminologyService.enabled() || !orgName) {
+      return this.i18nService.t(collectionsKey);
+    }
+
+    return `${orgName} ${this.i18nService.t(collectionsKey).toLowerCase()}`;
   });
 
   protected readonly icon = computed(() =>
@@ -131,6 +133,11 @@ export class VaultHeaderComponent {
   protected readonly showBreadcrumbs = computed(
     () => this.filter().collectionId !== undefined && this.filter().collectionId !== All,
   );
+
+  /** Builds query params to navigate to a collection, using the terminology-appropriate param key. */
+  protected collectionQueryParams(collectionId: string) {
+    return this.vfo1TerminologyService.collectionQueryParams(collectionId);
+  }
 
   /**
    * A list of collection filters that form a chain from the organization root to currently selected collection.

@@ -20,6 +20,7 @@ import {
 import { VaultNavService } from "../services/vault-nav.service";
 
 import { scopedCollectionSegment } from "./scoped-collection";
+import { VAULT_BASE_ROUTE } from "./vault-base-route";
 
 /**
  * Guards the `:vaultId` vault routes, redirecting to the unscoped vault when the segment names no
@@ -40,16 +41,21 @@ import { scopedCollectionSegment } from "./scoped-collection";
  * The active account is resolved once and both the nav view model and the collections are read for
  * that user, so an account switch mid-navigation cannot decide membership from one account's vaults
  * and the folder from another's collections.
+ *
+ * Redirects are built on {@link VAULT_BASE_ROUTE} rather than a literal path.
  */
 export const vaultScopeGuard: CanActivateFn = async (route) => {
   const router = inject(Router);
   const vaultNavService = inject(VaultNavService);
   const accountService = inject(AccountService);
   const collectionService = inject(CollectionService);
+  const basePath = inject(VAULT_BASE_ROUTE);
 
-  const allItems = () => router.createUrlTree(["/vault"]);
+  const allItems = () => router.createUrlTree([basePath]);
   const organizationVault = (organizationId: OrganizationId) =>
-    router.createUrlTree(vaultScopeCommands({ type: VaultScopeType.Organization, organizationId }));
+    router.createUrlTree(
+      vaultScopeCommands({ type: VaultScopeType.Organization, organizationId }, basePath),
+    );
 
   const scope = parseVaultScope(
     route.paramMap.get("vaultId"),

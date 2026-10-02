@@ -7,6 +7,8 @@ export type TableSelectionConfig<T> = {
   initial?: readonly T[];
   /** Which rows may be selected. Defaults to "every row". */
   canSelect?: (row: T) => boolean;
+  /** Upper bound on how many rows may be selected at once. */
+  max?: number;
   /**
    * The rows in scope for select-all / indeterminate — the table's filtered
    * view. Read reactively, so the aggregates track filtering.
@@ -28,14 +30,16 @@ export class TableSelectionModel<T> {
   private readonly multiple: boolean;
   private readonly canSelect: (row: T) => boolean;
   private readonly rows: Signal<readonly T[]>;
+  private readonly max: number;
   private readonly _selected = signal<readonly T[]>([]);
 
   constructor(config: TableSelectionConfig<T>) {
     this.multiple = config.multiple ?? false;
     this.canSelect = config.canSelect ?? (() => true);
     this.rows = config.rows;
+    this.max = config.max ?? Infinity;
     const initial = (config.initial ?? []).filter((row) => this.canSelect(row));
-    this._selected.set(this.multiple ? initial : initial.slice(0, 1));
+    this._selected.set(this.multiple ? initial.slice(0, this.max) : initial.slice(0, 1));
   }
 
   /** The currently selected rows. */
@@ -47,6 +51,11 @@ export class TableSelectionModel<T> {
   /** In-scope rows that may be selected — the model's `rows` minus non-selectable ones. */
   readonly selectable = computed(() => this.rows().filter((row) => this.canSelect(row)));
 
+  /** The rows a select-all would take — {@link selectable} bounded by `max`. */
+  private readonly selectableWithinMax = computed(() =>
+    this.max === Infinity ? this.selectable() : this.selectable().slice(0, this.max),
+  );
+
   /** Whether every selectable in-scope row is selected. */
   readonly allSelected = computed(() => {
     const rows = this.selectable();
@@ -54,11 +63,17 @@ export class TableSelectionModel<T> {
   });
 
   /** Whether some but not all selectable in-scope rows are selected. */
-  readonly indeterminate = computed(() => {
-    const rows = this.selectable();
-    const selected = rows.filter((row) => this.isSelected(row)).length;
-    return selected > 0 && selected < rows.length;
-  });
+  readonly indeterminate = computed(
+    () => this.selectable().some((row) => this.isSelected(row)) && !this.allSelected(),
+  );
+
+  /** Whether the cap is reached. Bind unselected rows' checkbox `disabled` to this. */
+  readonly full = computed(() => this.count() >= this.max);
+
+  /** Whether more than one row may be selected at a time. The table skips select-all when false */
+  get multiSelect(): boolean {
+    return this.multiple;
+  }
 
   /** Whether `row` is selected. Reads the selection signal, so callers react to changes. */
   isSelected(row: T): boolean {
@@ -70,7 +85,7 @@ export class TableSelectionModel<T> {
     return this.canSelect(row);
   }
 
-  /** Selects rows, ignoring any that aren't {@link isSelectable}. Single-select keeps only the last. */
+  /** Selects rows, ignoring any that aren't {@link isSelectable}. */
   select(...rows: T[]): void {
     const allowed = rows.filter((row) => this.canSelect(row));
     if (allowed.length === 0) {
@@ -82,6 +97,9 @@ export class TableSelectionModel<T> {
       }
       const next = [...current];
       for (const row of allowed) {
+        if (next.length >= this.max) {
+          break;
+        }
         if (!next.includes(row)) {
           next.push(row);
         }
@@ -104,13 +122,17 @@ export class TableSelectionModel<T> {
     }
   }
 
-  /** Selects every selectable in-scope row, or clears them if all are already selected. */
+  /**
+   * Selects every selectable in-scope row, or clears them if all are selected or the
+   * {@link TableSelectionConfig.max} budget is spent — otherwise the header checkbox would dead-end.
+   */
   toggleAll(): void {
-    const rows = this.selectable();
-    if (this.allSelected()) {
-      this.deselect(...rows);
+    if (this.count() >= this.max) {
+      this.clear();
+    } else if (this.allSelected()) {
+      this.deselect(...this.selectable());
     } else {
-      this.select(...rows);
+      this.select(...this.selectableWithinMax());
     }
   }
 

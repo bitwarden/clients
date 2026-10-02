@@ -22,9 +22,11 @@ import {
   TryGetSendAccessTokenError,
 } from "@bitwarden/common/auth/send-access";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SEND_KDF_ITERATIONS } from "@bitwarden/common/tools/send/send-kdf";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
@@ -69,6 +71,7 @@ export class SendReceiveCommand extends DownloadCommand {
     apiService: ApiService,
     private sendTokenService: SendTokenService,
     private sendDecryptionService: SendDecryptionService,
+    private appIdService: AppIdService,
   ) {
     super(encryptService, apiService);
   }
@@ -195,7 +198,7 @@ export class SendReceiveCommand extends DownloadCommand {
       password,
       keyArray,
       "sha256",
-      100000,
+      SEND_KDF_ITERATIONS,
     );
     return Utils.fromBufferToB64(passwordHash);
   }
@@ -346,6 +349,7 @@ export class SendReceiveCommand extends DownloadCommand {
           headers: {
             "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
             Accept: "application/json",
+            "Device-Identifier": await this.appIdService.getAppId(),
           },
           body: Object.entries(fields)
             .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)

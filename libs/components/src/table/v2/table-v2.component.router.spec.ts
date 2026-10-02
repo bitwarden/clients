@@ -68,6 +68,33 @@ class TestHostComponent {
   readonly collectionIds = signal<string[]>([]);
 }
 
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    BitTableV2Component,
+    BitColumnComponent,
+    BitCellDefDirective,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    FilterMenuModule,
+  ],
+  template: `
+    <bit-table-v2 [tableDef]="table" [filters]="filtersInput()">
+      <bit-filter-menu key="type" placeholderText="Type">
+        <bit-filter-option [value]="'login'">Login</bit-filter-option>
+      </bit-filter-menu>
+      <bit-column>
+        <bit-header-cell>Name</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+      </bit-column>
+    </bit-table-v2>
+  `,
+})
+class FilterSeedHostComponent {
+  protected readonly table = defineTable<Row>(signal<Row[]>([]));
+  readonly filtersInput = signal<{ type?: string } | undefined>(undefined);
+}
+
 describe("BitTableV2Component (router integration)", () => {
   async function setup(url: string) {
     TestBed.configureTestingModule({
@@ -97,6 +124,29 @@ describe("BitTableV2Component (router integration)", () => {
 
     // Its own seeding effect should have picked up the still-present URL value...
     expect(router.url).toContain("vault.sharedFolder=abc123");
+  });
+
+  it("applies [filters] values that resolve after the write-back effect has fired", async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([{ path: "**", component: FilterSeedHostComponent }]),
+        { provide: I18nService, useValue: mockI18nService },
+        { provide: DialogService, useValue: mockDialogService },
+      ],
+    });
+    const harness = await RouterTestingHarness.create("/");
+    const host = harness.routeDebugElement!.componentInstance as FilterSeedHostComponent;
+    const table = harness.fixture.debugElement.query(By.directive(BitTableV2Component))
+      .componentInstance as BitTableV2Component<Row>;
+
+    expect(table.filterValues()["type"]).toBeUndefined();
+
+    // Async data resolves and [filters] receives its real value.
+    host.filtersInput.set({ type: "login" });
+    harness.detectChanges();
+    await harness.fixture.whenStable();
+
+    expect(table.filterValues()["type"]).toBe("login");
   });
 
   // The store types params by shape, so an all-digit term decodes to a number. It has to

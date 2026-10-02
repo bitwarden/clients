@@ -1,6 +1,8 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute } from "@angular/router";
+import { By } from "@angular/platform-browser";
+import { ActivatedRoute, provideRouter } from "@angular/router";
+import { RouterTestingHarness } from "@angular/router/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -9,6 +11,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PasskeyDirectoryEntryResponse } from "@bitwarden/common/dirt/models/response/passkey-directory-entry.response";
 import { PasskeyDirectoryApiService } from "@bitwarden/common/dirt/services/abstractions/passkey-directory-api.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -18,9 +21,13 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService } from "@bitwarden/components";
+import { BreadcrumbsModule, DialogService, IconModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  CipherFormConfigService,
+  PasswordRepromptService,
+  VaultItemDialogResult,
+} from "@bitwarden/vault";
 
 import { AdminConsoleCipherFormConfigService } from "../../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import { PasskeyReportService } from "../passkey-report.service";
@@ -28,6 +35,8 @@ import { PasskeyReportService } from "../passkey-report.service";
 import { OrgPasskeyReportComponent } from "./org-passkey-report.component";
 
 describe("OrgPasskeyReportComponent", () => {
+  const configService = mock<ConfigService>();
+
   let component: OrgPasskeyReportComponent;
   let fixture: ComponentFixture<OrgPasskeyReportComponent>;
   let cipherServiceMock: MockProxy<CipherService>;
@@ -52,9 +61,17 @@ describe("OrgPasskeyReportComponent", () => {
     passkeyDirectoryApiServiceMock = mock<PasskeyDirectoryApiService>();
     passkeyDirectoryApiServiceMock.getPasskeyDirectory.mockResolvedValue([]);
 
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+
     await TestBed.configureTestingModule({
       imports: [OrgPasskeyReportComponent, I18nPipe],
       providers: [
+        provideRouter([
+          {
+            path: "organizations/:organizationId/reporting/reports",
+            children: [{ path: "passkey-report", component: OrgPasskeyReportComponent }],
+          },
+        ]),
         {
           provide: CipherService,
           useValue: cipherServiceMock,
@@ -92,6 +109,10 @@ describe("OrgPasskeyReportComponent", () => {
           useValue: mock<I18nService>(),
         },
         {
+          provide: ConfigService,
+          useValue: configService,
+        },
+        {
           provide: CipherFormConfigService,
           useValue: mock<CipherFormConfigService>(),
         },
@@ -111,7 +132,7 @@ describe("OrgPasskeyReportComponent", () => {
     })
       .overrideComponent(OrgPasskeyReportComponent, {
         set: {
-          imports: [I18nPipe],
+          imports: [I18nPipe, BreadcrumbsModule, IconModule],
           schemas: [NO_ERRORS_SCHEMA],
           providers: [
             {
@@ -137,6 +158,25 @@ describe("OrgPasskeyReportComponent", () => {
 
   it("should initialize component", () => {
     expect(component).toBeTruthy();
+  });
+
+  it("should render a header breadcrumb that navigates back to the reports home page", async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl(
+      `/organizations/${orgId}/reporting/reports/passkey-report`,
+      OrgPasskeyReportComponent,
+    );
+
+    const breadcrumbs = harness.fixture.debugElement.query(
+      By.css("bit-breadcrumbs[slot=breadcrumbs]"),
+    );
+    expect(breadcrumbs).not.toBeNull();
+
+    const links = breadcrumbs.queryAll(By.css("a[href]"));
+    expect(links).toHaveLength(1);
+    expect(links[0].nativeElement.getAttribute("href")).toBe(
+      `/organizations/${orgId}/reporting/reports`,
+    );
   });
 
   describe("loading ciphers", () => {
@@ -218,6 +258,40 @@ describe("OrgPasskeyReportComponent", () => {
       } as unknown as CipherView;
 
       expect((component as any).canManageCipher(cipher)).toBe(false);
+    });
+  });
+
+  it("should render the current page breadcrumb when the VFO1 feature flag is enabled", async () => {
+    configService.getFeatureFlag$.mockReturnValue(of(true));
+    const i18nService = TestBed.inject(I18nService) as MockProxy<I18nService>;
+    i18nService.t.mockImplementation((key) => key);
+
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl(
+      `/organizations/${orgId}/reporting/reports/passkey-report`,
+      OrgPasskeyReportComponent,
+    );
+
+    const breadcrumbs = harness.fixture.debugElement.query(
+      By.css("bit-breadcrumbs[slot=breadcrumbs]"),
+    );
+    const crumbs = breadcrumbs.queryAll(By.css("span[bitOverflowItem]"));
+    expect(crumbs).toHaveLength(2);
+    expect(crumbs[1].nativeElement.textContent.trim()).toBe("passkeyLoginReport");
+  });
+
+  describe("refresh", () => {
+    it("decrypts the saved cipher through the cipher service", async () => {
+      const savedCipher = new Cipher();
+      savedCipher.id = "cipher-id";
+      const savedCipherView = new CipherView();
+      savedCipherView.id = "cipher-id";
+      cipherServiceMock.get.mockResolvedValue(savedCipher);
+      cipherServiceMock.decrypt.mockResolvedValue(savedCipherView);
+
+      await component["refresh"](VaultItemDialogResult.Saved, savedCipherView);
+
+      expect(cipherServiceMock.decrypt).toHaveBeenCalledWith(savedCipher, userId);
     });
   });
 });

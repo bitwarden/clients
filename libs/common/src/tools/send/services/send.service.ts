@@ -208,6 +208,9 @@ export class SendService implements InternalSendServiceAbstraction {
             case "file":
               //Files are never updated so never will be changed.
               return true;
+            case "data":
+              // Item data is never updated so never will be changed.
+              return true;
             case "revisionDate":
             case "expirationDate":
             case "deletionDate":
@@ -344,6 +347,10 @@ export class SendService implements InternalSendServiceAbstraction {
   ): Promise<SendWithIdRequest[]> {
     if (await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi)) {
       return this.toRotatedKeyRequestMapSdk(sends, rotateUserKey, userId);
+    }
+
+    if (sends.some((s) => s.type === SendType.Item)) {
+      throw new Error("Item type Sends require the SDK to rotate");
     }
 
     const requests = await Promise.all(
