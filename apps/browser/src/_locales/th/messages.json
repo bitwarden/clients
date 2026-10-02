@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "คลิกรายการเพื่อป้อนข้อมูลอัตโนมัติในมุมมองตู้นิรภัย"
   },
-  "clickToAutofill": {
-    "message": "คลิกรายการในคำแนะนำเพื่อป้อนข้อมูล"
-  },
   "clearClipboard": {
     "message": "ล้างคลิปบอร์ด",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "เสียบ YubiKey ที่เชื่อมโยงกับบัญชี LastPass เข้ากับพอร์ต USB ของคอมพิวเตอร์ แล้วแตะที่ปุ่ม"
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "อีเมล Keeper"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "เปลี่ยนรหัสผ่านที่มีความเสี่ยง"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "ข้อมูลเข้าสู่ระบบนี้มีความเสี่ยงและไม่มีเว็บไซต์ เพิ่มเว็บไซต์และเปลี่ยนรหัสผ่านเพื่อความปลอดภัยที่รัดกุมยิ่งขึ้น"
-  },
   "vulnerablePassword": {
     "message": "รหัสผ่านที่มีช่องโหว่"
   },
   "changeNow": {
     "message": "เปลี่ยนตอนนี้"
-  },
-  "missingWebsite": {
-    "message": "ไม่มีเว็บไซต์"
   },
   "settingsVaultOptions": {
     "message": "ตัวเลือกตู้นิรภัย"
