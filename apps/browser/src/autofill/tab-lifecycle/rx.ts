@@ -59,6 +59,11 @@ function step(ctx: MachineContext, event: TabLifecycleEvent): Observable<Machine
  * tab's pending timer without replacing it, leaving the tab stranded in a state it never exits. A
  * producer that cannot guarantee uniqueness must diff its facts before mapping them to events.
  *
+ * It must also be **scoped to the tab**: `focus` and `blur` describe the tab that is its window's
+ * active tab, and a tab that is not active has no focus to gain or lose. Delivering one anyway
+ * strands the tab the same way a redundant event does, so a producer that reads window focus must
+ * resolve it against the tab's own activity rather than forwarding it to every tab in the window.
+ *
  * @param seed - the tab's initial state: `Frozen` for a tab opened while logged out, `Cold` for one
  *   opened while logged in.
  */
