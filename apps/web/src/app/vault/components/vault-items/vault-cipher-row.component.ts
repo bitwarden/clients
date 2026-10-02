@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import {
   Component,
-  computed,
   EventEmitter,
   HostListener,
   inject,
@@ -18,8 +17,6 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherId } from "@bitwarden/common/types/guid";
@@ -52,18 +49,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
   private readonly vaultCopyButtonsService = inject(VaultCopyButtonsService);
 
-  private readonly quickCopyIconFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
-    { initialValue: false },
-  );
-
-  private readonly quickCopyActionsSetting = toSignal(
+  protected readonly showQuickCopyActions = toSignal(
     this.vaultCopyButtonsService.showQuickCopyActions$,
     { initialValue: false },
-  );
-
-  protected readonly showQuickCopyActions = computed(
-    () => this.quickCopyIconFeatureFlag() && this.quickCopyActionsSetting(),
   );
 
   protected RowHeightClass = RowHeightClass;
@@ -164,7 +152,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     private accountService: AccountService,
     private cipherService: CipherService,
     private platformUtilsService: PlatformUtilsService,
-    private configService: ConfigService,
   ) {}
 
   /**

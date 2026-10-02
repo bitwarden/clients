@@ -1106,35 +1106,7 @@ describe("SettingsDialogComponent", () => {
   });
 
   describe("quick copy actions", () => {
-    /**
-     * `showQuickCopyActionsSetting` is a `toSignal()` initialized at class level, so the feature
-     * flag mock must be in place before the component is constructed.
-     */
-    function createComponentWithFlag(enabled: boolean) {
-      configService.getFeatureFlag$.mockImplementation((flag) =>
-        of(flag === FeatureFlag.PM40435_QuickCopyIconSetting ? enabled : false),
-      );
-
-      fixture = TestBed.createComponent(SettingsDialogComponent);
-      component = fixture.componentInstance;
-    }
-
-    it("is not visible when the feature flag is disabled", async () => {
-      createComponentWithFlag(false);
-
-      await component.ngOnInit();
-      fixture.detectChanges();
-
-      const showQuickCopyActionsInput = fixture.debugElement.query(
-        By.css("input[formControlName='showQuickCopyActions']"),
-      );
-      expect(showQuickCopyActionsInput).toBeNull();
-      expect((component as any).showQuickCopyActionsSetting()).toBe(false);
-    });
-
-    it("is visible when the feature flag is enabled", async () => {
-      createComponentWithFlag(true);
-
+    it("renders the quick copy actions checkbox", async () => {
       await component.ngOnInit();
       fixture.detectChanges();
 
@@ -1145,7 +1117,6 @@ describe("SettingsDialogComponent", () => {
       expect(showQuickCopyActionsInput.attributes).toMatchObject({
         type: "checkbox",
       });
-      expect((component as any).showQuickCopyActionsSetting()).toBe(true);
     });
 
     test.each([true, false])(

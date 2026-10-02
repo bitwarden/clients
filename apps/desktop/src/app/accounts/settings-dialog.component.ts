@@ -23,7 +23,6 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { AutotypeFeatureFlagState } from "@bitwarden/common/desktop-native/enums/autotype-feature-flag-state.enum";
 import { autotypeFeatureFlagState$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { DeviceType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -163,12 +162,6 @@ export class SettingsDialogComponent implements OnInit {
   protected readonly currentUserId = computed(() => this.activeAccount().id);
   protected readonly userHasMasterPassword = signal(false);
   protected readonly userHasPinSet = signal(false);
-
-  /** Controls whether the quick copy actions setting is shown */
-  protected readonly showQuickCopyActionsSetting = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
-    { initialValue: false },
-  );
 
   protected readonly pinEnabled = toSignal(
     this.accountService.activeAccount$.pipe(
