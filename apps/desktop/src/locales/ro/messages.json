@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "Introdu YubiKey asociat contului tău LastPass în portul USB al calculatorului, apoi atinge butonul acestuia."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Email Keeper"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Extensia de browser pe care o utilizezi este depășită. Actualizează-o sau dezactivează validarea amprentei de integrare a browserului în setările aplicației desktop."
   },
-  "changeAtRiskPassword": {
-    "message": "Schimbă parola cu risc"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Această autentificare este cu risc și lipsește un site web. Adaugă un site web și schimbă parola pentru o securitate mai mare."
-  },
   "vulnerablePassword": {
     "message": "Parolă vulnerabilă."
   },
   "changeNow": {
     "message": "Schimbă acum"
-  },
-  "missingWebsite": {
-    "message": "Site web lipsă"
   },
   "missingPermissions": {
     "message": "Nu ai permisiunile necesare pentru a efectua această acțiune."

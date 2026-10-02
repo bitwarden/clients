@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "Insire a YubiKey asociada á túa conta de LastPass no porto USB do teu ordenador e despois preme o seu botón."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Correo de Keeper"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "A extensión do navegador que estás usando está desactualizada. Actualízaa ou desactiva a validación de pegada da integración co navegador na configuración da aplicación de escritorio."
   },
-  "changeAtRiskPassword": {
-    "message": "Cambiar contrasinal en risco"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Este inicio de sesión está en risco e carece de sitio web. Engade un sitio web e cambia o contrasinal para unha maior seguridade."
-  },
   "vulnerablePassword": {
     "message": "Contrasinal vulnerable."
   },
   "changeNow": {
     "message": "Cambiar agora"
-  },
-  "missingWebsite": {
-    "message": "Falta sitio web"
   },
   "missingPermissions": {
     "message": "Non tes os permisos necesarios para realizar esta acción."

@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "将与您的 LastPass 账户关联的 YubiKey 插入计算机的 USB 端口，然后触摸其按钮。"
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper 电子邮箱"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "您正在使用的浏览器扩展已过时。请更新它或在桌面 App 的设置中禁用浏览器集成指纹验证。"
   },
-  "changeAtRiskPassword": {
-    "message": "更改存在风险的密码"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "此登录存在风险且缺少网站。请添加网站并更改密码以增强安全性。"
-  },
   "vulnerablePassword": {
     "message": "易受攻击的密码。"
   },
   "changeNow": {
     "message": "立即更改"
-  },
-  "missingWebsite": {
-    "message": "缺少网站"
   },
   "missingPermissions": {
     "message": "您缺乏执行此操作所需的权限。"

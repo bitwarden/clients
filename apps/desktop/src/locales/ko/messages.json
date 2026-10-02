@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "LastPass 계정과 연결된 YubiKey를 컴퓨터의 USB 포트에 삽입한 후 버튼을 터치하세요."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper 이메일"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "사용 중인 브라우저 확장 프로그램이 오래되었습니다. 업데이트하거나 데스크톱 앱 설정에서 브라우저 통합 지문 검증을 비활성화하세요."
   },
-  "changeAtRiskPassword": {
-    "message": "위험한 비밀번호 변경"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "이 로그인은 위험하며 웹사이트가 누락되었습니다. 보안 강화를 위해 웹사이트를 추가하고 비밀번호를 변경하세요."
-  },
   "vulnerablePassword": {
     "message": "취약한 비밀번호입니다."
   },
   "changeNow": {
     "message": "지금 변경"
-  },
-  "missingWebsite": {
-    "message": "웹사이트 누락"
   },
   "missingPermissions": {
     "message": "이 작업을 수행하는 데 필요한 권한이 없습니다."

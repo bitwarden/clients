@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "നിങ്ങളുടെ LastPass അക്കൗണ്ടുമായി ബന്ധപ്പെട്ട YubiKey നിങ്ങളുടെ കമ്പ്യൂട്ടറിന്റെ USB പോർട്ടിലേക്ക് തിരുകുക, തുടർന്ന് അതിന്റെ ബട്ടൺ സ്പർശിക്കുക."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper ഇമെയിൽ"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "നിങ്ങൾ ഉപയോഗിക്കുന്ന ബ്രൗസർ എക്സ്റ്റൻഷൻ കാലഹരണപ്പെട്ടതാണ്. ദയവായി ഇത് അപ്ഡേറ്റ് ചെയ്യുക അല്ലെങ്കിൽ ഡെസ്ക്ടോപ്പ് ആപ്പ് ക്രമീകരണങ്ങളിൽ ബ്രൗസർ സംയോജന ഫിംഗർപ്രിന്റ് സാധൂകരണം നിർജ്ജീവമാക്കുക."
   },
-  "changeAtRiskPassword": {
-    "message": "അപകടസാധ്യതയുള്ള പാസ്വേഡ് മാറ്റുക"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "ഈ ലോഗിൻ അപകടസാധ്യതയുള്ളതും ഒരു വെബ്സൈറ്റ് ഇല്ലാത്തതുമാണ്. കൂടുതൽ സുരക്ഷയ്ക്കായി ഒരു വെബ്സൈറ്റ് ചേർത്ത് പാസ്വേഡ് മാറ്റുക."
-  },
   "vulnerablePassword": {
     "message": "കേടായ പാസ്വേഡ്."
   },
   "changeNow": {
     "message": "ഇപ്പോൾ മാറ്റുക"
-  },
-  "missingWebsite": {
-    "message": "വെബ്സൈറ്റ് ഇല്ല"
   },
   "missingPermissions": {
     "message": "ഈ പ്രവർത്തനം നിർവഹിക്കുന്നതിന് ആവശ്യമായ അനുമതികൾ നിങ്ങൾക്ക് ഇല്ല."

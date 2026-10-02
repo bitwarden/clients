@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "Mewnosodwch y YubiKey sy'n gysylltiedig â'ch cyfrif LastPass ym mhorth USB eich cyfrifiadur, yna cyffyrddwch â'i fotwm."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "E-bost Keeper"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Mae'r estyniad porwr rydych yn ei ddefnyddio wedi dyddio. Diweddarwch ef neu analluogwch ddilysu olion bysedd integreiddio porwr yng ngosodiadau'r ap bwrdd gwaith."
   },
-  "changeAtRiskPassword": {
-    "message": "Newid cyfrinair sydd mewn perygl"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Mae'r mewngofnodi hwn mewn perygl ac mae gwefan ar goll. Ychwanegwch wefan a newidiwch y cyfrinair ar gyfer diogelwch cryfach."
-  },
   "vulnerablePassword": {
     "message": "Cyfrinair bregus."
   },
   "changeNow": {
     "message": "Newid nawr"
-  },
-  "missingWebsite": {
-    "message": "Gwefan ar goll"
   },
   "missingPermissions": {
     "message": "Nid oes gennych y caniatadau angenrheidiol i gyflawni'r weithred hon."

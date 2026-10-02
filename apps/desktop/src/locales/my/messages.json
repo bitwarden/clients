@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "သင့် LastPass အကောင့်နှင့် ဆက်စပ်နေသော YubiKey ကို သင့်ကွန်ပျူတာ၏ USB အပေါက်ထဲသို့ ထည့်သွင်းပြီး ၎င်း၏ခလုတ်ကို နှိပ်ပါ။"
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper အီးမေးလ်"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "သင်အသုံးပြုနေသော ဘရောက်ဆာတိုးချဲ့မှုသည် ခေတ်နောက်ကျနေသည်။ ကျေးဇူးပြု၍ ၎င်းကိုအပ်ဒိတ်လုပ်ပါ သို့မဟုတ် ဒက်စ်တော့အက်ပ်ဆက်တင်များတွင် ဘရောက်ဆာပေါင်းစည်းမှု လက်ဗွေအတည်ပြုခြင်းကို ပိတ်ပါ။"
   },
-  "changeAtRiskPassword": {
-    "message": "အန္တရာယ်ရှိသော စကားဝှက်ကို ပြောင်းရန်"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "ဤဝင်ရောက်မှုသည် အန္တရာယ်ရှိပြီး ဝက်ဘ်ဆိုက်တစ်ခု ပျောက်ဆုံးနေသည်။ ပိုမိုခိုင်မာသောလုံခြုံရေးအတွက် ဝက်ဘ်ဆိုက်တစ်ခုထည့်ပြီး စကားဝှက်ကို ပြောင်းပါ။"
-  },
   "vulnerablePassword": {
     "message": "အားနည်းချက်ရှိသော စကားဝှက်။"
   },
   "changeNow": {
     "message": "ယခုပြောင်းရန်"
-  },
-  "missingWebsite": {
-    "message": "ဝက်ဘ်ဆိုက်ပျောက်ဆုံးနေသည်"
   },
   "missingPermissions": {
     "message": "ဤလုပ်ဆောင်ချက်ကို လုပ်ဆောင်ရန် လိုအပ်သော ခွင့်ပြုချက်များ သင့်တွင်မရှိပါ။"

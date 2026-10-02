@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "ನಿಮ್ಮ LastPass ಖಾತೆಯೊಂದಿಗೆ ಸಂಬಂಧಿಸಿದ YubiKey ಅನ್ನು ನಿಮ್ಮ ಕಂಪ್ಯೂಟರ್ನ USB ಪೋರ್ಟ್ಗೆ ಸೇರಿಸಿ, ನಂತರ ಅದರ ಬಟನ್ ಅನ್ನು ಸ್ಪರ್ಶಿಸಿ."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper ಇಮೇಲ್"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "ನೀವು ಬಳಸುತ್ತಿರುವ ಬ್ರೌಸರ್ ವಿಸ್ತರಣೆಯು ಹಳೆಯದಾಗಿದೆ. ದಯವಿಟ್ಟು ಅದನ್ನು ನವೀಕರಿಸಿ ಅಥವಾ ಡೆಸ್ಕ್ಟಾಪ್ ಅಪ್ಲಿಕೇಶನ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳಲ್ಲಿ ಬ್ರೌಸರ್ ಏಕೀಕರಣ ಫಿಂಗರ್ಪ್ರಿಂಟ್ ಮೌಲ್ಯೀಕರಣವನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ."
   },
-  "changeAtRiskPassword": {
-    "message": "ಅಪಾಯದಲ್ಲಿರುವ ಪಾಸ್ವರ್ಡ್ ಬದಲಾಯಿಸಿ"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "ಈ ಲಾಗಿನ್ ಅಪಾಯದಲ್ಲಿದೆ ಮತ್ತು ವೆಬ್ಸೈಟ್ ಕಾಣೆಯಾಗಿದೆ. ಉತ್ತಮ ಭದ್ರತೆಗಾಗಿ ವೆಬ್ಸೈಟ್ ಸೇರಿಸಿ ಮತ್ತು ಪಾಸ್ವರ್ಡ್ ಬದಲಾಯಿಸಿ."
-  },
   "vulnerablePassword": {
     "message": "ದುರ್ಬಲ ಪಾಸ್ವರ್ಡ್."
   },
   "changeNow": {
     "message": "ಈಗ ಬದಲಾಯಿಸಿ"
-  },
-  "missingWebsite": {
-    "message": "ಕಾಣೆಯಾದ ವೆಬ್ಸೈಟ್"
   },
   "missingPermissions": {
     "message": "ಈ ಕ್ರಿಯೆಯನ್ನು ನಿರ್ವಹಿಸಲು ನಿಮಗೆ ಅಗತ್ಯವಾದ ಅನುಮತಿಗಳಿಲ್ಲ."
