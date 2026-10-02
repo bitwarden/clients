@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { filter, firstValueFrom, Observable } from "rxjs";
+import { combineLatest, filter, firstValueFrom, Observable } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -13,6 +13,7 @@ import {
   isExternalMessage,
   MessageListener,
 } from "@bitwarden/common/platform/messaging";
+import { UserId } from "@bitwarden/common/types/guid";
 import { LockService, LockSource } from "@bitwarden/unlock";
 
 // FIXME (PM-22628): Popup imports are forbidden in background
@@ -116,6 +117,9 @@ export default class CommandsBackground {
         await this.lockService.lock(activeUserId, LockSource.Manual);
         break;
       }
+      case ExtensionCommand.SwitchAccount:
+        await this.switchToNextAccount();
+        break;
       default:
         break;
     }
@@ -154,6 +158,35 @@ export default class CommandsBackground {
     }
 
     await this.main.collectPageDetailsForContentScript(tab, commandSender);
+  }
+
+  private async switchToNextAccount() {
+    const [accounts, statuses, activeAccount] = await firstValueFrom(
+      combineLatest([
+        this.accountService.accounts$,
+        this.authService.authStatuses$,
+        this.accountService.activeAccount$,
+      ]),
+    );
+    const loggedInIds = (Object.keys(accounts) as UserId[]).filter(
+      (id) => statuses[id] !== AuthenticationStatus.LoggedOut,
+    );
+    const nextUserId =
+      loggedInIds[(loggedInIds.indexOf(activeAccount?.id) + 1) % loggedInIds.length];
+    if (nextUserId == null || nextUserId === activeAccount?.id) {
+      return;
+    }
+
+    await this.main.switchAccount(nextUserId);
+
+    if ((await this.authService.getAuthStatus(nextUserId)) >= AuthenticationStatus.Unlocked) {
+      return;
+    }
+
+    const tab = await BrowserApi.getTabFromCurrentWindowId();
+    if (tab != null) {
+      await openUnlockPopout(tab);
+    }
   }
 
   private async openPopup() {

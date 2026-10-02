@@ -154,6 +154,9 @@
     },
     "lock_vault": {
       "description": "__MSG_commandLockVaultDesc__"
+    },
+    "switch_account": {
+      "description": "__MSG_commandSwitchAccountDesc__"
     }
   },
   "web_accessible_resources": [

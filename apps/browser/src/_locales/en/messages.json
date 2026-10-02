@@ -2177,6 +2177,9 @@
   "commandLockVaultDesc": {
     "message": "Lock the vault"
   },
+  "commandSwitchAccountDesc": {
+    "message": "Switch account"
+  },
   "customFields": {
     "message": "Custom fields"
   },
