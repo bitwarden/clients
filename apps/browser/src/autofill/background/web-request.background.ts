@@ -57,7 +57,7 @@ const ANSWERABLE_SUBRESOURCE_TYPES: ReadonlySet<string> = new Set<string>([
   // the browser already caches and sends preemptively.
   // FIXME reconsider the case for these inclusions
   // "xmlhttprequest",
-  // "sub_frame"
+  // "sub_frame",
 ]);
 
 const DEFAULT_PORT_BY_PROTOCOL: Record<string, number> = {
@@ -244,22 +244,30 @@ export default class WebRequestBackground {
 
   /**
    * Emits `true` only when the feature flag is on and the active user has opted in.
+   *
    * Fails closed: no active user, or an error from either source, emits `false`.
+   * Each source is caught on its own so that an error yields `false` for that
+   * source while the combined stream stays alive; catching downstream of the
+   * combination would end the subscription and leave the listeners unregistered
+   * for the life of the background context.
    */
   private basicAuthResponseEnabled$(): Observable<boolean> {
+    const featureFlagEnabled$ = this.configService
+      .getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse)
+      .pipe(catchError(() => of(false)));
+
     const userSettingEnabled$ = this.accountService.activeAccount$.pipe(
       getOptionalUserId,
       switchMap((userId) =>
-        userId == null ? of(false) : this.autofillSettingsService.enableBasicAuthResponse$,
+        userId == null
+          ? of(false)
+          : this.autofillSettingsService.enableBasicAuthResponse$.pipe(catchError(() => of(false))),
       ),
+      catchError(() => of(false)),
     );
 
-    return combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse),
-      userSettingEnabled$,
-    ]).pipe(
+    return combineLatest([featureFlagEnabled$, userSettingEnabled$]).pipe(
       map(([featureFlagEnabled, userSettingEnabled]) => featureFlagEnabled && userSettingEnabled),
-      catchError(() => of(false)),
       distinctUntilChanged(),
     );
   }
