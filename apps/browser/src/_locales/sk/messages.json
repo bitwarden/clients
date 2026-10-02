@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Kliknutím na položky v trezore automaticky vyplniť"
   },
-  "clickToAutofill": {
-    "message": "Kliknutím na položky v ponuke automatického vypĺňania vyplniť"
-  },
   "clearClipboard": {
     "message": "Vymazať schránku",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Vložte kľúč YubiKey priradený k vášmu účtu LastPass do USB portu počítača a potom sa dotknite jeho tlačidla."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "E-mail pre Keeper"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Zmeniť rizikové heslá"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Toto prihlásenie je v ohrození a chýba mu webová stránka. Pridajte webovú stránku a zmeňte heslo na silnejšie zabezpečenie."
-  },
   "vulnerablePassword": {
     "message": "Zraniteľné heslo."
   },
   "changeNow": {
     "message": "Zmeniť teraz"
-  },
-  "missingWebsite": {
-    "message": "Chýbajúca webová stránka"
   },
   "settingsVaultOptions": {
     "message": "Možnosti trezoru"
