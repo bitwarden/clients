@@ -93,11 +93,14 @@ export class BulkConfirmDialogComponent extends BaseBulkConfirmComponent {
 
   protected readonly getPublicKeys = async (): Promise<
     ListResponse<OrganizationUserBulkPublicKeyResponse | ProviderUserBulkPublicKeyResponse>
-  > =>
-    await this.organizationUserApiService.postOrganizationUsersPublicKey(
+  > => {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    return await this.organizationUserApiService.postOrganizationUsersPublicKey(
       this.organization.id,
       this.filteredUsers().map((user) => user.id),
+      userId,
     );
+  };
 
   protected readonly isAccepted = (user: BulkUserDetails) =>
     user.status === OrganizationUserStatusType.Accepted;
