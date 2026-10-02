@@ -1,8 +1,7 @@
 import { Observable } from "rxjs";
 
-import { UserId } from "@bitwarden/common/types/guid";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-
+import { UserId } from "../../../../types/guid";
+import { CipherView } from "../../../../vault/models/view/cipher.view";
 import { VaultHealthReportState } from "../../models";
 
 /**

@@ -1,7 +1,7 @@
-import { View } from "@bitwarden/common/models/view/view";
-
-import { CipherHealthView } from "../../../access-intelligence/models/view/cipher-health.view";
+import { View } from "../../../../models/view/view";
 import { RiskCategory } from "../risk-category";
+
+import { CipherHealthView } from "./cipher-health.view";
 
 type CategoryRecord<T> = Record<RiskCategory, T>;
 

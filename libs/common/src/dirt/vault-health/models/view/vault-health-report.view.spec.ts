@@ -1,6 +1,6 @@
-import { CipherHealthView } from "../../../access-intelligence/models/view/cipher-health.view";
 import { RiskCategory } from "../risk-category";
 
+import { CipherHealthView } from "./cipher-health.view";
 import { VaultHealthReportView } from "./vault-health-report.view";
 
 describe("VaultHealthReportView", () => {

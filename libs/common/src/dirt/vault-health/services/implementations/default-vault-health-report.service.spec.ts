@@ -1,21 +1,21 @@
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { UserId } from "@bitwarden/common/types/guid";
-import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import type { CipherRiskResult } from "@bitwarden/sdk-internal";
 
-import { CipherHealthView } from "../../../access-intelligence/models/view/cipher-health.view";
+import { LogService } from "../../../../platform/abstractions/log.service";
+import { UserId } from "../../../../types/guid";
+import { CipherRiskService } from "../../../../vault/abstractions/cipher-risk.service";
+import { CipherType } from "../../../../vault/enums/cipher-type";
+import { CipherView } from "../../../../vault/models/view/cipher.view";
+import { LoginView } from "../../../../vault/models/view/login.view";
 import {
+  CipherHealthView,
   VAULT_HEALTH_REPORT_IDLE,
   VaultHealthReportState,
-} from "../../models/vault-health-report-state";
-import { VaultHealthReportStatus } from "../../models/vault-health-report-status";
-import { VaultHealthReportView } from "../../models/view/vault-health-report.view";
+  VaultHealthReportStatus,
+  VaultHealthReportView,
+} from "../../models";
 
 import { DefaultVaultHealthReportService } from "./default-vault-health-report.service";
 
