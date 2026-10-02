@@ -246,7 +246,7 @@
       "jest-environment-jsdom": "29.7.0"
     },
     "tmp": ">=0.2.4",
-    "vite": "^7.3.6"
+    "vite": "7.3.6"
   },
   "engines": {
     "node": ">=24.17.0",
