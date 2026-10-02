@@ -19,6 +19,8 @@ import { CipherView } from "../models/view/cipher.view";
 import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
 import { CipherViewLike } from "../utils/cipher-view-like-utils";
 
+import { DecryptAllCiphersResult } from "./cipher-sdk.service";
+
 export type EncryptionContext = {
   cipher: Cipher;
   /** The Id of the user that encrypted the cipher. It should always represent a UserId, even for Organization-owned ciphers */
@@ -107,10 +109,10 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    */
   abstract getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]>;
   /**
-   * Gets all Login-type ciphers belonging to the specified organization, including those in default
-   * user collections. Optimized for Access Intelligence use cases where only login credentials are needed.
+   * Gets all Login ciphers belonging to the specified organization, including those in default
+   * user collections. Ciphers that fail to decrypt are returned separately in `failures`.
    */
-  abstract getCiphersOrganizationLogins(organizationId: string): Promise<CipherView[]>;
+  abstract getCiphersOrganizationLogins(organizationId: string): Promise<DecryptAllCiphersResult>;
   abstract getLastUsedForUrl(
     url: string,
     userId: UserId,

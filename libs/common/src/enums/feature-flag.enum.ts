@@ -94,7 +94,6 @@ export enum FeatureFlag {
 
   /* Vault */
   PM32009NewItemTypes = "pm-32009-new-item-types",
-  PM28190CipherSharingOpsToSdk = "pm-28190-cipher-sharing-ops-to-sdk",
   PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
   PM28192_CipherAttachmentOpsToSdk = "pm-28192-cipher-attachment-ops-to-sdk",
@@ -179,7 +178,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
-  [FeatureFlag.PM28190CipherSharingOpsToSdk]: FALSE,
   [FeatureFlag.PM28192_CipherAttachmentOpsToSdk]: FALSE,
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
