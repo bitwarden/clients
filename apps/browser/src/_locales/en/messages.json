@@ -5963,8 +5963,32 @@
     "description": "Form error shown when a website URI using the 'regular expression' match detection uses a backreference, which isn't supported."
   },
   "uriRegexLookaround": {
-    "message": "Only negative lookaheads are allowed, such as ^https://(?!admin\\.).",
+    "message": "Include only negative lookaheads, such as ^https://(?!admin\\.).",
     "description": "Form error shown when a website URI using the 'regular expression' match detection uses a lookaround other than a negative lookahead right after a fixed start."
+  },
+  "uriRegexSavedWarningTitle": {
+    "message": "Invalid regular expression",
+    "description": "Title of the popover explaining why an already-saved website URI using the 'regular expression' match detection won't be used for autofill."
+  },
+  "uriRegexSavedInvalid": {
+    "message": "This regular expression isn't valid. It won't be used for autofill until it's updated.",
+    "description": "Warning shown when an already-saved website URI using the 'regular expression' match detection is not a valid regular expression."
+  },
+  "uriRegexSavedTooLong": {
+    "message": "This regular expression must be 1,000 characters or fewer. It won't be used for autofill until it's updated.",
+    "description": "Warning shown when an already-saved website URI using the 'regular expression' match detection exceeds the maximum length."
+  },
+  "uriRegexSavedTooComplex": {
+    "message": "This regular expression must use smaller repeat counts, such as {50} instead of {1000}, or less nesting. It won't be used for autofill until it's updated.",
+    "description": "Warning shown when an already-saved website URI using the 'regular expression' match detection is too large or complex to evaluate safely."
+  },
+  "uriRegexSavedBackreference": {
+    "message": "This regular expression must have no backreferences, such as \\1. It won't be used for autofill until it's updated.",
+    "description": "Warning shown when an already-saved website URI using the 'regular expression' match detection uses a backreference, which isn't supported."
+  },
+  "uriRegexSavedLookaround": {
+    "message": "Only negative lookarounds are allowed, such as ^https://(?!admin\\.). This regular expression won't be used for autofill until it's updated.",
+    "description": "Warning shown when an already-saved website URI using the 'regular expression' match detection uses a lookaround other than a negative lookahead right after a fixed start."
   },
   "startsWithAdvancedOptionWarning": {
     "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",

@@ -137,7 +137,7 @@ describe("UriOptionComponent", () => {
       loadRegex("x(?!.*logout)");
 
       expect(component.validate()).toBeNull();
-      expect(component["savedRegexWarning"]).toBe("uriRegexLookaround");
+      expect(component["savedRegexWarning"]).toBe("uriRegexSavedLookaround");
     });
 
     it("blocks save once a rejected saved pattern is edited", () => {

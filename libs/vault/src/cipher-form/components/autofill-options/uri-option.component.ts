@@ -39,7 +39,8 @@ import {
   DialogService,
   FormFieldModule,
   IconButtonModule,
-  IconComponent,
+  LinkModule,
+  PopoverModule,
   SelectComponent,
   SelectModule,
 } from "@bitwarden/components";
@@ -54,6 +55,14 @@ const regexErrorMessageKeys: Partial<Record<UriRegexValidationError, string>> = 
   PatternTooComplex: "uriRegexTooComplex",
   UnsupportedBackreference: "uriRegexBackreference",
   UnsupportedLookaround: "uriRegexLookaround",
+};
+
+/** i18n keys for why an already-saved regular expression won't be used for autofill. */
+const savedRegexWarningKeys: Partial<Record<UriRegexValidationError, string>> = {
+  PatternTooLong: "uriRegexSavedTooLong",
+  PatternTooComplex: "uriRegexSavedTooComplex",
+  UnsupportedBackreference: "uriRegexSavedBackreference",
+  UnsupportedLookaround: "uriRegexSavedLookaround",
 };
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -78,8 +87,9 @@ const regexErrorMessageKeys: Partial<Record<UriRegexValidationError, string>> = 
     FormFieldModule,
     ReactiveFormsModule,
     IconButtonModule,
-    IconComponent,
     JslibModule,
+    LinkModule,
+    PopoverModule,
     SelectModule,
   ],
 })
@@ -346,13 +356,15 @@ export class UriOptionComponent implements ControlValueAccessor, Validator {
     if (error == null) {
       return null;
     }
-    const message = this.i18nService.t(regexErrorMessageKeys[error] ?? "uriRegexInvalid");
 
     // Blocking an unchanged saved rule would stop users saving unrelated edits to the item.
     if (this.isUnchangedSavedRegex(pattern)) {
-      this.savedRegexWarning = message;
+      this.savedRegexWarning = this.i18nService.t(
+        savedRegexWarningKeys[error] ?? "uriRegexSavedInvalid",
+      );
       return null;
     }
+    const message = this.i18nService.t(regexErrorMessageKeys[error] ?? "uriRegexInvalid");
     return { invalidRegex: { message } };
   }
 
