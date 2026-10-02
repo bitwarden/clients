@@ -115,8 +115,6 @@ describe("VaultComponent", () => {
 
     const cipherServiceMock = mock<CipherService>();
     cipherServiceMock.get.mockResolvedValue(mockCipher);
-    // The vault list opts into the partials-inclusive stream; the vault filter and other
-    // consumers use the partials-excluded stream.
     cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(of([]));
     cipherServiceMock.cipherListViews$.mockReturnValue(of([]));
     cipherServiceMock.failedToDecryptCiphers$.mockReturnValue(of([]));
@@ -461,8 +459,7 @@ describe("VaultComponent", () => {
   });
 
   describe("viewCipherById", () => {
-    // viewCipherById awaits the dialog's `closed` stream, which the mock never completes,
-    // so kick it off and drain the pending microtasks instead of awaiting it.
+    // viewCipherById awaits the dialog's `closed` stream, which the mock never completes.
     async function openAndFlush(): Promise<void> {
       void component.viewCipherById(TEST_CIPHER_ID);
       await new Promise((resolve) => setTimeout(resolve, 0));
