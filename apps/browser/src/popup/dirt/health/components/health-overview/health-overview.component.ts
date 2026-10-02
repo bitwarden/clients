@@ -12,9 +12,8 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { RiskCategoryNavItemComponent } from "../risk-category-nav-item/risk-category-nav-item.component";
 import { AtRiskGaugeComponent } from "../shared/at-risk-gauge/at-risk-gauge.component";
-
-import { RiskCategoryNavItemComponent } from "./risk-category-nav-item.component";
 
 /**
  * How each risk category renders, in the fixed order the overview shows them.

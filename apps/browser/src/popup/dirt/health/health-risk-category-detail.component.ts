@@ -14,7 +14,8 @@ import {
   RiskCategory,
   VAULT_HEALTH_REPORT_IDLE,
   VaultHealthReportStatus,
- CipherHealthView } from "@bitwarden/common/dirt/vault-health/models";
+  CipherHealthView,
+} from "@bitwarden/common/dirt/vault-health/models";
 import { VaultHealthReportService } from "@bitwarden/common/dirt/vault-health/services";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
@@ -48,9 +49,9 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 import {
   HealthDeleteAtRiskItemDialogComponent,
   HealthDeleteAtRiskItemDialogData,
-} from "./health-delete-at-risk-item-dialog.component";
-import { HealthScanErrorComponent } from "./health-scan-error.component";
-import { HealthScanningComponent } from "./health-scanning.component";
+} from "./components/health-delete-at-risk-item-dialog/health-delete-at-risk-item-dialog.component";
+import { HealthScanErrorComponent } from "./components/health-scan-error/health-scan-error.component";
+import { HealthScanningComponent } from "./components/health-scanning/health-scanning.component";
 import { HealthScanService } from "./services/health-scan.service";
 
 const HEALTH_OVERVIEW_ROUTE = "/tabs/health";

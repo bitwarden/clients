@@ -5,8 +5,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { ReplaySubject } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { CipherHealthView } from "@bitwarden/common/dirt/vault-health/models";
-import { RiskCategory } from "@bitwarden/common/dirt/vault-health/models";
+import { CipherHealthView , RiskCategory } from "@bitwarden/common/dirt/vault-health/models";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";

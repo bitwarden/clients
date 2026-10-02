@@ -12,7 +12,8 @@ import {
   RiskCategory,
   VaultHealthReportStatus,
   VaultHealthReportView,
- CipherHealthView } from "@bitwarden/common/dirt/vault-health/models";
+  CipherHealthView,
+} from "@bitwarden/common/dirt/vault-health/models";
 import { VaultHealthReportService } from "@bitwarden/common/dirt/vault-health/services";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -37,10 +38,10 @@ import { PopOutComponent } from "../../../platform/popup/components/pop-out.comp
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
-import { HealthDeleteAtRiskItemDialogComponent } from "./health-delete-at-risk-item-dialog.component";
+import { HealthDeleteAtRiskItemDialogComponent } from "./components/health-delete-at-risk-item-dialog/health-delete-at-risk-item-dialog.component";
+import { HealthScanErrorComponent } from "./components/health-scan-error/health-scan-error.component";
+import { HealthScanningComponent } from "./components/health-scanning/health-scanning.component";
 import { HealthRiskCategoryDetailComponent } from "./health-risk-category-detail.component";
-import { HealthScanErrorComponent } from "./health-scan-error.component";
-import { HealthScanningComponent } from "./health-scanning.component";
 
 // eslint-disable-next-line no-console
 const originalError = console.error;

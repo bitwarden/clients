@@ -19,10 +19,10 @@ import { PopOutComponent } from "../../../platform/popup/components/pop-out.comp
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
-import { HealthIntroComponent } from "./health-intro.component";
-import { HealthOverviewComponent } from "./health-overview.component";
-import { HealthScanErrorComponent } from "./health-scan-error.component";
-import { HealthScanningComponent } from "./health-scanning.component";
+import { HealthIntroComponent } from "./components/health-intro/health-intro.component";
+import { HealthOverviewComponent } from "./components/health-overview/health-overview.component";
+import { HealthScanErrorComponent } from "./components/health-scan-error/health-scan-error.component";
+import { HealthScanningComponent } from "./components/health-scanning/health-scanning.component";
 import { HealthAccessService } from "./services/health-access.service";
 import { HealthScanService } from "./services/health-scan.service";
 

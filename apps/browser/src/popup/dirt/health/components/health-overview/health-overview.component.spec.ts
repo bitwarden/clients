@@ -2,14 +2,16 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterTestingModule } from "@angular/router/testing";
 
-import { CipherHealthView } from "@bitwarden/common/dirt/vault-health/models";
-import { VaultHealthReportView } from "@bitwarden/common/dirt/vault-health/models";
+import {
+  CipherHealthView,
+  VaultHealthReportView,
+} from "@bitwarden/common/dirt/vault-health/models";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { RiskCategoryNavItemComponent } from "../risk-category-nav-item/risk-category-nav-item.component";
 import { AtRiskGaugeComponent } from "../shared/at-risk-gauge/at-risk-gauge.component";
 
 import { HealthOverviewComponent } from "./health-overview.component";
-import { RiskCategoryNavItemComponent } from "./risk-category-nav-item.component";
 
 @Component({
   selector: "dirt-at-risk-gauge",
