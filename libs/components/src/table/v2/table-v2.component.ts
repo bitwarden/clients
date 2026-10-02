@@ -24,12 +24,15 @@ import {
   untracked,
   viewChild,
 } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { of, switchMap } from "rxjs";
 
 import { NoResults } from "@bitwarden/assets/svg";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { CheckboxModule } from "../../checkbox";
+import { DialogService } from "../../dialog";
 import { FILTER_HOST, FilterControl, FilterHost } from "../../filter-menu/filter-tokens";
 import { IconComponent } from "../../icon/icon.component";
 import { ItemComponent } from "../../item/item.component";
@@ -48,16 +51,38 @@ import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowGroupComponent } from "./bit-row-group.component";
 import { BitRowComponent } from "./bit-row.component";
 import { BitTablePaginatorComponent } from "./bit-table-paginator.component";
-import { ColumnName } from "./column";
+import { ColumnName, RemovableColumn } from "./column";
+import {
+  CustomizeColumnsDialogComponent,
+  CustomizeColumnsDialogParams,
+} from "./customize-columns-dialog.component";
 import { SortState, cycleSort } from "./sort-model";
 import { SyncScrollLeftDirective } from "./sync-scroll-left.directive";
+import { TableColumnPreferencesService } from "./table-column-preferences.service";
 import { TableDef } from "./table-def";
 import { TABLE_PRESENTATION, TablePresentation } from "./table-presentation";
 import { TableSelectionConfig, TableSelectionModel } from "./table-selection-model";
+import { TABLE_STATE_KEYS, TableStateKey } from "./table-state-keys";
 import { TableVirtualScrollStrategy } from "./table-virtual-scroll.strategy";
 
 /** Grid track width for the internal selection column: the 24px checkbox plus the cell's `tw-px-4`. */
 const SELECTION_COLUMN_WIDTH = "56px";
+
+/** The `min` of a `minmax(min, max)` track. */
+const MINMAX_MIN = /^minmax\(\s*([^,]+?)\s*,/;
+
+/**
+ * Whether a track can absorb the row's leftover width: only an `fr` max grows. `fr` is invalid
+ * as a `minmax` min, so a trailing `fr` can only be the max.
+ */
+function growsToFill(width: string): boolean {
+  return /fr\)?$/.test(width.trim());
+}
+
+/** The same track with its minimum intact and its max freed: `240px` becomes `minmax(240px, 1fr)`. */
+function grown(width: string): string {
+  return `minmax(${MINMAX_MIN.exec(width)?.[1] ?? width.trim()}, 1fr)`;
+}
 
 /**
  * Fixed heights (px) of group headers when virtualized. Must match the header chrome
@@ -295,6 +320,15 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * params win over `[filters]` and `defaultSort`. A no-op without a router in context.
    */
   readonly queryParam = input<string>();
+
+  /**
+   * Namespaces this table's stored column preference, and opts it into customization.
+   * Required once any `<bit-column>` is marked `removable` — without it there is
+   * nowhere to persist the user's choice, so the Customize control stays hidden.
+   *
+   * Register new keys in `table-state-keys.ts`.
+   */
+  readonly stateKey = input<TableStateKey>();
 
   /**
    * The table's combined URL state, mirrored to the `queryParam` namespace. Seeds from
@@ -607,10 +641,10 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   }
 
   /**
-   * Registered columns resolved against {@link displayedColumns}, omitting any name
-   * with no registered `<bit-column>`.
+   * Registered columns resolved against {@link displayedColumns}, omitting any name with
+   * no registered `<bit-column>`. What the host allows, before the user's choices narrow it.
    */
-  readonly effectiveColumns = computed(() => {
+  private readonly availableColumns = computed(() => {
     const registered = this._columns();
     const displayed = this.displayedColumns();
     if (!displayed) {
@@ -620,6 +654,56 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     return displayed
       .map((name) => registry.get(name))
       .filter((c): c is BitColumnComponent => c !== undefined);
+  });
+
+  /** The columns the user may toggle: those marked `removable` that have a `label`. */
+  private readonly removableColumns = computed<RemovableColumn[]>(() =>
+    this.availableColumns().flatMap((col) => {
+      const name = col.name();
+      const label = col.label();
+      return col.removable() && name && label ? [{ name, label }] : [];
+    }),
+  );
+
+  /** Whether the Customize control applies to this table. */
+  readonly canCustomizeColumns = computed(
+    () =>
+      this.stateKey() != null &&
+      this.presentation() === "table" &&
+      this.removableColumns().length > 0,
+  );
+
+  private readonly columnPreferences = inject(TableColumnPreferencesService);
+
+  /** `undefined` until the stored preference loads. */
+  private readonly storedHiddenNames = toSignal(
+    toObservable(this.stateKey).pipe(
+      switchMap((key) =>
+        key == null ? of([]) : this.columnPreferences.hiddenColumns$(TABLE_STATE_KEYS[key]),
+      ),
+    ),
+  );
+
+  /** The stored hidden names, narrowed to columns that are currently togglable. */
+  private readonly hiddenColumnNames = computed<ReadonlySet<string>>(() => {
+    if (!this.canCustomizeColumns()) {
+      return new Set();
+    }
+    const names = this.removableColumns().map((col) => col.name);
+    const stored = this.storedHiddenNames();
+    // Hold back every removable column until preferences load, so none renders and then vanishes.
+    if (stored === undefined) {
+      return new Set(names);
+    }
+    const hidden = new Set(stored);
+    return new Set(names.filter((name) => hidden.has(name)));
+  });
+
+  /** {@link availableColumns} minus the columns the user hid. What actually renders. */
+  readonly effectiveColumns = computed(() => {
+    const hidden = this.hiddenColumnNames();
+    const available = this.availableColumns();
+    return hidden.size === 0 ? available : available.filter((col) => !hidden.has(col.name() ?? ""));
   });
 
   /** Total column count including the selection column — the `aria-colspan` a group header spans. */
@@ -636,13 +720,13 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     if (cols.length === 0) {
       return undefined;
     }
-    const parts: string[] = [];
-    if (this.selectionModel()) {
-      parts.push(SELECTION_COLUMN_WIDTH);
+    const widths = cols.map((col) => col.width() ?? "1fr");
+    // Hiding a column can strip the row of its last flexible track, so the first visible
+    // column absorbs the slack.
+    if (!widths.some(growsToFill)) {
+      widths[0] = grown(widths[0]);
     }
-    for (const col of cols) {
-      parts.push(col.width() ?? "1fr");
-    }
+    const parts = this.selectionModel() ? [SELECTION_COLUMN_WIDTH, ...widths] : widths;
     return parts.join(" ");
   });
 
@@ -688,6 +772,40 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   protected readonly isFill = computed(() => this.height() === "fill");
 
   private readonly scrollLayout = inject(ScrollLayoutService);
+
+  // Optional: only the toolbar's Customize button calls this, and the toolbar requires it.
+  private readonly dialogService = inject(DialogService, { optional: true });
+
+  /** Opens the Customize columns dialog. */
+  openCustomizeColumns(): void {
+    this.dialogService?.open<unknown, CustomizeColumnsDialogParams>(
+      CustomizeColumnsDialogComponent,
+      {
+        data: {
+          columns: this.removableColumns(),
+          hidden: this.hiddenColumnNames,
+          setHidden: (name, hidden) => this.setColumnHidden(name, hidden),
+          reset: () => this.resetColumns(),
+        },
+      },
+    );
+  }
+
+  /** Shows or hides one column. Idempotent, so callers needn't know the current state. */
+  private setColumnHidden(name: string, hidden: boolean): void {
+    const key = this.stateKey();
+    if (key != null) {
+      this.columnPreferences.setColumnHidden(TABLE_STATE_KEYS[key], name, hidden);
+    }
+  }
+
+  /** Clears this table's stored preference, restoring the declared column set. */
+  private resetColumns(): void {
+    const key = this.stateKey();
+    if (key != null) {
+      this.columnPreferences.reset(TABLE_STATE_KEYS[key]);
+    }
+  }
 
   /**
    * The element the body scrolls in, virtualized or not — replaced when the table swaps between
@@ -765,7 +883,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     if (!sort.column) {
       return filtered;
     }
-    const col = this.effectiveColumns().find((c) => c.name() === sort.column);
+    const col = this.availableColumns().find((c) => c.name() === sort.column);
     return sortRows(filtered, sort.column, sort.direction, sort.fn ?? col?.sortFn());
   });
 
@@ -982,7 +1100,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     // Seed the initial sort from the first column declaring `defaultSort`, unless
     // a sort column is already set (e.g. via `[(sort)]` or restored from the URL).
     if (!this.sort().column) {
-      const defaultCol = this.effectiveColumns().find((c) => c.defaultSort());
+      const defaultCol = this.availableColumns().find((c) => c.defaultSort());
       const name = defaultCol?.name();
       if (name) {
         this.sort.set({

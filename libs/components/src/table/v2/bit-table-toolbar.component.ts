@@ -249,6 +249,15 @@ export class BitTableToolbarComponent {
     });
   }
 
+  /** Whether to offer column customization. */
+  protected readonly canCustomizeColumns = computed(
+    () => this.table?.canCustomizeColumns() ?? false,
+  );
+
+  protected openCustomizeColumns(): void {
+    this.table?.openCustomizeColumns();
+  }
+
   /** Reset every projected filter's selection. Excludes search. */
   protected clearAll(): void {
     this.filters().forEach((filter) => filter.clear());

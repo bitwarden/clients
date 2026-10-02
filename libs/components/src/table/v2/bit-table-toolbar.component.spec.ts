@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, signal, viewChild } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { mock } from "jest-mock-extended";
+import { MockProxy, mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { StateProvider } from "@bitwarden/state";
 
 import { ChipComponent } from "../../chips";
 import { DialogService } from "../../dialog";
@@ -13,9 +14,18 @@ import { FilterToggleComponent } from "../../filter-menu/filter-toggle.component
 import { CollapseOnScrollDirective } from "../../layout/collapse-on-scroll.directive";
 import { SearchComponent } from "../../search/search.component";
 import { TooltipDirective } from "../../tooltip";
+import { StorybookStateProvider } from "../../utils";
 import { I18nMockService } from "../../utils/i18n-mock.service";
 
+import { BitCellDefDirective } from "./bit-cell-def.directive";
+import { BitCellComponent } from "./bit-cell.component";
+import { BitColumnComponent } from "./bit-column.component";
+import { BitHeaderCellComponent } from "./bit-header-cell.component";
 import { BitTableToolbarComponent } from "./bit-table-toolbar.component";
+import { CustomizeColumnsDialogComponent } from "./customize-columns-dialog.component";
+import { defineTable } from "./table-def";
+import { TableStateKey } from "./table-state-keys";
+import { BitTableV2Component } from "./table-v2.component";
 
 @Component({
   imports: [BitTableToolbarComponent, FilterToggleComponent, SearchComponent],
@@ -307,5 +317,109 @@ describe("BitTableToolbarComponent active filter chips", () => {
 
     expect(chipLabels()).toEqual([]);
     expect(host.vault().active()).toBe(false);
+  });
+});
+
+/** A toolbar inside a real table, so the Customize control has a table to ask. */
+@Component({
+  imports: [
+    BitTableToolbarComponent,
+    SearchComponent,
+    BitTableV2Component,
+    BitColumnComponent,
+    BitCellDefDirective,
+    BitHeaderCellComponent,
+    BitCellComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <bit-table-v2 [tableDef]="table" [stateKey]="key()">
+      <bit-table-toolbar>
+        <bit-search placeholder="Search"></bit-search>
+      </bit-table-toolbar>
+      <bit-column>
+        <bit-header-cell>Name</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+      </bit-column>
+      <bit-column label="Other" [removable]="removable()">
+        <bit-header-cell>Other</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
+      </bit-column>
+    </bit-table-v2>
+  `,
+})
+class RemovableHostComponent {
+  readonly key = signal<TableStateKey | undefined>("vaultItems");
+  readonly removable = signal(true);
+  readonly rows = signal([{ name: "one", other: "two" }]);
+  readonly table = defineTable<{ name: string; other: string }>(this.rows);
+}
+
+describe("BitTableToolbarComponent customize control", () => {
+  let fixture: ComponentFixture<RemovableHostComponent>;
+  let host: RemovableHostComponent;
+  let dialogService: MockProxy<DialogService>;
+
+  beforeEach(async () => {
+    dialogService = mock<DialogService>();
+
+    await TestBed.configureTestingModule({
+      imports: [RemovableHostComponent],
+      providers: [
+        { provide: StateProvider, useClass: StorybookStateProvider },
+        {
+          provide: I18nService,
+          useFactory: () =>
+            new I18nMockService({
+              filters: "Filters",
+              clearAll: "Clear all",
+              search: "Search",
+              resetSearch: "Reset search",
+              customize: "Customize",
+            }),
+        },
+        { provide: DialogService, useValue: dialogService },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(RemovableHostComponent);
+    host = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  const customizeButton = () =>
+    fixture.nativeElement.querySelector(
+      "[data-testid='customize-columns']",
+    ) as HTMLButtonElement | null;
+
+  // jsdom has no `matchMedia`, so these run at a small-screen width — where the control is
+  // still offered. Only `presentation` and `stateKey` decide, never the viewport.
+  it("offers the control at any width when the table has a removable column and a key", () => {
+    expect(customizeButton()).not.toBeNull();
+  });
+
+  it("withholds the control when no column is removable", () => {
+    host.removable.set(false);
+    fixture.detectChanges();
+
+    expect(customizeButton()).toBeNull();
+  });
+
+  it("withholds the control when the table has no stateKey", () => {
+    host.key.set(undefined);
+    fixture.detectChanges();
+
+    expect(customizeButton()).toBeNull();
+  });
+
+  it("opens the dialog with the table's togglable columns", () => {
+    customizeButton()!.click();
+
+    expect(dialogService.open).toHaveBeenCalledWith(
+      CustomizeColumnsDialogComponent,
+      expect.objectContaining({
+        data: expect.objectContaining({ columns: [{ name: "other", label: "Other" }] }),
+      }),
+    );
   });
 });

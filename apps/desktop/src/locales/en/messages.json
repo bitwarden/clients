@@ -6974,5 +6974,35 @@
   },
   "unknownCipher": {
     "message": "Unknown item, you may need to request permission to access this item."
+  },
+  "customize": {
+    "message": "Customize"
+  },
+  "customizeYourView": {
+    "message": "Customize your view"
+  },
+  "showColumns": {
+    "message": "Show columns"
+  },
+  "resetToDefault": {
+    "message": "Reset to default"
+  },
+  "columnShown": {
+    "message": "$COLUMN$ column shown",
+    "placeholders": {
+      "column": {
+        "content": "$1",
+        "example": "Vault"
+      }
+    }
+  },
+  "columnHidden": {
+    "message": "$COLUMN$ column hidden",
+    "placeholders": {
+      "column": {
+        "content": "$1",
+        "example": "Vault"
+      }
+    }
   }
 }
