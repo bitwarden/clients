@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Klik op items om automatisch in te vullen op de kluisweergave"
   },
-  "clickToAutofill": {
-    "message": "Klik items in de automatisch invullen suggestie om in te vullen"
-  },
   "clearClipboard": {
     "message": "Klembord wissen",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Steek de YubiKey die bij je LastPass account hoort in de USB poort van je computer en druk dan op de knop."
   },
+  "secretKey": {
+    "message": "Geheime sleutel"
+  },
+  "secretKeyAndPassword": {
+    "message": "Geheime sleutel en wachtwoord"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Je account is beveiligd met een geheime sleutel en wachtwoord. Je moet beide invoeren om door te gaan."
+  },
   "keeperEmail": {
     "message": "E-mailadres Keeper"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Risicovol wachtwoord wijzigen"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Deze login is in gevaar en mist een website. Voeg een website toe en verander het wachtwoord voor een sterkere beveiliging."
-  },
   "vulnerablePassword": {
     "message": "Kwetsbaar wachtwoord."
   },
   "changeNow": {
     "message": "Nu wijzigen"
-  },
-  "missingWebsite": {
-    "message": "Ontbrekende website"
   },
   "settingsVaultOptions": {
     "message": "Kluis-instellingen"

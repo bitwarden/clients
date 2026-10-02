@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "භාණ්ඩාගාර දර්ශනයේ ස්වයං පිරවීමට අයිතම ක්ලික් කරන්න"
   },
-  "clickToAutofill": {
-    "message": "පිරවීමට ස්වයං පිරවුම් යෝජනාවේ අයිතම ක්ලික් කරන්න"
-  },
   "clearClipboard": {
     "message": "පසුරු පුවරුවට පැහැදිලි",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "ඔබේ LastPass ගිණුම සමඟ සම්බන්ධිත YubiKey ඔබේ පරිගණකයේ USB පෝටයට ඇතුළු කර, ඉන්පසු එහි බොත්තම ස්පර්ශ කරන්න."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper විද්‍යුත් තැපෑල"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "අවදානම් මුරපදය වෙනස් කරන්න"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "මෙම පිවිසුම අවදානම් වන අතර වෙබ් අඩවියක් නොමැත. වඩාත් ශක්තිමත් ආරක්ෂාව සඳහා වෙබ් අඩවියක් එක් කර මුරපදය වෙනස් කරන්න."
-  },
   "vulnerablePassword": {
     "message": "අවදානම් සහගත මුරපදය."
   },
   "changeNow": {
     "message": "දැන් වෙනස් කරන්න"
-  },
-  "missingWebsite": {
-    "message": "වෙබ් අඩවිය නොමැත"
   },
   "settingsVaultOptions": {
     "message": "භාණ්ඩාගාර විකල්ප"
