@@ -61,6 +61,7 @@ import { VaultCopyButtonsService } from "@bitwarden/vault";
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
+import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
@@ -106,6 +107,7 @@ describe("SettingsDialogComponent", () => {
   const dialogService = mock<DialogService>();
   const desktopAutotypeMvpService = mock<DesktopAutotypeMvpService>();
   const desktopAutotypeService = mock<DesktopAutotypeService>();
+  const desktopAutofillService = mock<DesktopAutofillService>();
   const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
   const configService = mock<ConfigService>();
   const userVerificationService = mock<UserVerificationService>();
@@ -173,6 +175,7 @@ describe("SettingsDialogComponent", () => {
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: DesktopAutotypeMvpService, useValue: desktopAutotypeMvpService },
         { provide: DesktopAutotypeService, useValue: desktopAutotypeService },
+        { provide: DesktopAutofillService, useValue: desktopAutofillService },
         { provide: BillingAccountProfileStateService, useValue: billingAccountProfileStateService },
         { provide: VaultCopyButtonsService, useValue: vaultCopyButtonsService },
       ],
@@ -221,6 +224,10 @@ describe("SettingsDialogComponent", () => {
     billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
     configService.getFeatureFlag$.mockReturnValue(of(false));
     vaultCopyButtonsService.showQuickCopyActions$ = of(false);
+    desktopAutofillService.refreshPasskeyProviderState.mockResolvedValue({
+      registered: false,
+      enabled: false,
+    });
 
     fixture = TestBed.createComponent(SettingsDialogComponent);
     component = fixture.componentInstance;
@@ -1102,6 +1109,150 @@ describe("SettingsDialogComponent", () => {
         expect(desktopAutotypeService.setAutotypeEnabledState).toHaveBeenCalledWith(true);
         expect(desktopAutotypeMvpService.setAutotypeEnabledState).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe("passkey provider setting", () => {
+    // Registered components listen for window focus, so destroy them to keep tests independent.
+    afterEach(() => fixture.destroy());
+
+    function createComponent(deviceType: DeviceType) {
+      // `isMac` is captured in the constructor, so the device must be set before the component is
+      // created.
+      platformUtilsService.getDevice.mockReturnValue(deviceType);
+      fixture = TestBed.createComponent(SettingsDialogComponent);
+      component = fixture.componentInstance;
+    }
+
+    /** Runs `ngOnInit` once, through change detection, and renders the result. */
+    async function init() {
+      fixture.detectChanges();
+      await new Promise(process.nextTick);
+      fixture.detectChanges();
+    }
+
+    const passkeyProviderButton = () =>
+      fixture.debugElement
+        .queryAll(By.css("button"))
+        .find((button) => button.nativeElement.textContent.includes("passkeyProvider"));
+
+    it("is visible when the app is registered", async () => {
+      createComponent(DeviceType.MacOsDesktop);
+      desktopAutofillService.refreshPasskeyProviderState.mockResolvedValue({
+        registered: true,
+        enabled: true,
+      });
+
+      await init();
+
+      expect(passkeyProviderButton()).toBeDefined();
+    });
+
+    it("is not visible when the app is not registered", async () => {
+      createComponent(DeviceType.MacOsDesktop);
+
+      await init();
+
+      expect(passkeyProviderButton()).toBeUndefined();
+    });
+
+    it.each([
+      [true, "turnedOn"],
+      [false, "turnedOff"],
+    ])("shows the status when enabled is %s", async (enabled, status) => {
+      createComponent(DeviceType.MacOsDesktop);
+      desktopAutofillService.refreshPasskeyProviderState.mockResolvedValue({
+        registered: true,
+        enabled,
+      });
+
+      await init();
+
+      expect(passkeyProviderButton()!.nativeElement.textContent).toContain(status);
+    });
+
+    it("refreshes the status when the window regains focus", async () => {
+      createComponent(DeviceType.MacOsDesktop);
+      desktopAutofillService.refreshPasskeyProviderState.mockResolvedValue({
+        registered: true,
+        enabled: false,
+      });
+      desktopAutofillService.getPasskeyProviderState.mockResolvedValue({
+        registered: true,
+        enabled: true,
+      });
+      await init();
+
+      window.dispatchEvent(new Event("focus"));
+      await new Promise(process.nextTick);
+      fixture.detectChanges();
+
+      expect(passkeyProviderButton()!.nativeElement.textContent).toContain("turnedOn");
+    });
+
+    it("keeps refreshing the status on focus after a refresh fails", async () => {
+      createComponent(DeviceType.MacOsDesktop);
+      desktopAutofillService.refreshPasskeyProviderState.mockResolvedValue({
+        registered: true,
+        enabled: false,
+      });
+      desktopAutofillService.getPasskeyProviderState
+        .mockRejectedValueOnce(new Error("IPC failed"))
+        .mockResolvedValueOnce({ registered: true, enabled: true });
+      await init();
+
+      window.dispatchEvent(new Event("focus"));
+      await new Promise(process.nextTick);
+      window.dispatchEvent(new Event("focus"));
+      await new Promise(process.nextTick);
+      fixture.detectChanges();
+
+      expect(logService.error).toHaveBeenCalledWith(
+        "Failed to refresh passkey provider state",
+        expect.any(Error),
+      );
+      expect(passkeyProviderButton()!.nativeElement.textContent).toContain("turnedOn");
+    });
+
+    async function createRegisteredComponent(enabled: boolean) {
+      createComponent(DeviceType.MacOsDesktop);
+      desktopAutofillService.refreshPasskeyProviderState.mockResolvedValue({
+        registered: true,
+        enabled,
+      });
+      await init();
+    }
+
+    it("asks to turn on Bitwarden when it is off", async () => {
+      await createRegisteredComponent(false);
+      desktopAutofillService.requestEnableCredentialProvider.mockResolvedValue(true);
+
+      passkeyProviderButton()!.nativeElement.click();
+      await new Promise(process.nextTick);
+      fixture.detectChanges();
+
+      expect(passkeyProviderButton()!.nativeElement.textContent).toContain("turnedOn");
+      expect(desktopAutofillService.openCredentialProviderSettings).not.toHaveBeenCalled();
+    });
+
+    it("opens the system settings when the OS cannot ask to turn on Bitwarden", async () => {
+      await createRegisteredComponent(false);
+      desktopAutofillService.requestEnableCredentialProvider.mockResolvedValue(undefined);
+
+      passkeyProviderButton()!.nativeElement.click();
+      await new Promise(process.nextTick);
+
+      expect(desktopAutofillService.openCredentialProviderSettings).toHaveBeenCalled();
+    });
+
+    it("opens the system settings when Bitwarden is on", async () => {
+      await createRegisteredComponent(true);
+
+      passkeyProviderButton()!.nativeElement.click();
+      await new Promise(process.nextTick);
+
+      expect(desktopAutofillService.requestEnableCredentialProvider).not.toHaveBeenCalled();
+      expect(desktopAutofillService.openCredentialProviderSettings).toHaveBeenCalled();
     });
   });
 
