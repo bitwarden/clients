@@ -41,7 +41,6 @@ export class OrganizationUserView {
   readonly canRestore: boolean;
   readonly canRevoke: boolean;
   readonly canRemove: boolean;
-  readonly canManageMember: boolean;
 
   constructor(c: {
     id: Guid;
@@ -72,7 +71,6 @@ export class OrganizationUserView {
     this.canRestore = this.status === OrganizationUserStatusType.Revoked;
     this.canRevoke = this.status !== OrganizationUserStatusType.Revoked;
     this.canRemove = !this.claimedByOrganization;
-    this.canManageMember = this.status !== OrganizationUserStatusType.Staged;
   }
 
   static fromResponse(response: OrganizationUserUserDetailsResponse): OrganizationUserView {
