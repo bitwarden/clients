@@ -118,6 +118,8 @@ stateDiagram-v2
     }
 ```
 
+> **Perspective: System context perspective of one tab's lifecycle.** The diagram is for reasoning about when autofill may act on a given tab. Every tab runs an independent copy of this machine. Most labels name an external signal; `settle` and `cool-down elapses` are autofill's own timers firing, with no user or browser action behind them. This diagram omits timer duration, the page transition buffer, and messages transmitted in response to state changes.
+
 "Active" and "focused" are signals controlled by the browser. The states are virtual, owned by autofill and layered on top of them. The delays that make warm-up and cool-down stable and the churn they absorb belong to the protocol's [gating and delays](#gating-and-delays).
 
 ## The page lifecycle
@@ -200,83 +202,6 @@ Monitoring commands follow a tab's monitoring state: a `start monitors` reaches 
 | Logout                                                                    | Every connected `(tab, frame)`        | `disable autofiller` (the `stop monitors` is the frozen edge above) |
 
 The `Unlocked` boundary participates separately, but only at injection time: it gates whether a fresh navigation gets an autofiller. Transitions across `Unlocked` (lock and unlock events) emit no broadcast — monitoring rides tab state, which a lock does not change.
-
-### Message sequences
-
-#### Logging in (`LoggedOut → Locked` or `LoggedOut → Unlocked`)
-
-```mermaid
-sequenceDiagram
-    participant BG as Background
-    participant CS as Content script
-    Note over BG: auth crosses LoggedOut boundary; each window's active tab thaws
-    Note over BG: active tabs settle → warm/hot
-    BG->>CS: start monitors
-    Note over CS: attach observers, begin examining
-```
-
-Login thaws every tab out of frozen; each window's active tab then settles to warm or hot and its frames start monitoring, while the tabs the user is not viewing stay cold and inert. There is no blanket broadcast — the start reaches only the frames whose tab entered monitoring.
-
-#### Logging out (any logged-in state → `LoggedOut`)
-
-```mermaid
-sequenceDiagram
-    participant BG as Background
-    participant CS as Content script
-    participant AF as Autofiller
-    Note over BG: auth state crosses LoggedOut boundary
-    BG->>CS: stop monitors
-    Note over CS: detach observers, clear caches
-    BG->>AF: disable autofiller
-    Note over AF: halt interval
-```
-
-`disable autofiller` is sent to every live tab. Tabs that never had an autofiller (because the user was Locked at the time of their navigation) receive the message and no-op.
-
-#### Locking the vault (`Unlocked → Locked`)
-
-No broadcast. Monitors continue. A running autofiller continues its URL-change poll; the background ignores its transition reports until the vault is unlocked again. New navigations during the locked window get no autofiller (injection gate).
-
-#### Unlocking the vault (`Locked → Unlocked`)
-
-No broadcast. Monitors are already running. An autofiller surviving from a prior Unlocked window resumes reporting transitions with no message exchange. Tabs that navigated during the locked window pick up an autofiller on their next navigation, via the injection gate.
-
-#### Switching to and from a tab (logged in)
-
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant BG as Background
-    participant CS as Content script
-    U->>BG: switches to a tab (in the focused window)
-    Note over BG: tab settles → hot
-    BG->>CS: start monitors
-    Note over CS: attach observers, begin examining
-    U->>BG: switches away
-    Note over BG: hot → cool-down; cool-down elapses → cold
-    BG->>CS: stop monitors
-    Note over CS: detach observers, clear caches
-```
-
-Sent only while an account is logged in; a logged-out tab never monitors regardless of which tab is active. Switching to a tab in the _focused_ window settles it to hot (it fills); a background window's active tab settles to warm (it monitors but never fills). A flip-back during cool-down finds monitoring still in flight and sends nothing.
-
-#### New tab or frame on navigation
-
-```mermaid
-sequenceDiagram
-    participant Page
-    participant BG as Background
-    participant CS as Content script (freshly injected)
-    Page->>BG: navigation triggers injection
-    BG->>CS: inject bootstrap (+ autofiller if Unlocked)
-    Note over CS: injected-script port connects
-    opt the tab is monitoring (warm/hot/cool-down)
-        BG->>CS: start monitors
-    end
-    Note over CS: if no start was sent, sit inert
-```
-
-A page-level trigger script at `document_start, all_frames, *://*/*` wakes the service worker on every navigation regardless of auth state, so this flow runs on every new tab and frame — including for logged-out users, whose tabs end up with an inert bootstrap and no autofiller. A logged-in user's tab that is not the active tab is likewise left inert at injection; it begins monitoring only once it settles to warm or hot.
 
 ## Disposal
 
