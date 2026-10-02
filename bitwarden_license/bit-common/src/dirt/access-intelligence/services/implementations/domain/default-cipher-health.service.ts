@@ -8,7 +8,6 @@ import {
   Observable,
   of,
   switchMap,
-  take,
   toArray,
 } from "rxjs";
 
@@ -67,231 +66,54 @@ export class DefaultCipherHealthService extends CipherHealthService {
       .getFeatureFlag$(FeatureFlag.AccessIntelligencePerformanceAtScale)
       .pipe(
         first(),
+        // checkHealthPerCipher is the measurement baseline; checkHealthPerCipherOptimized is the improvement.
         switchMap((dedupeLookups) =>
           dedupeLookups
-            ? this.checkHealthByPasswordGroup(validCiphers)
+            ? this.checkHealthPerCipherOptimized(validCiphers)
             : this.checkHealthPerCipher(validCiphers),
         ),
       );
   }
 
-  /** One exposure lookup per distinct password. */
-  private checkHealthByPasswordGroup(
-    validCiphers: CipherView[],
-  ): Observable<Map<string, CipherHealthView>> {
-    // One grouping drives everything below: the exposure lookups, the reuse counts, and the
-    // password each cipher maps back to. Reuse is the premise of the report, so grouping first
-    // means the number of lookups tracks distinct passwords rather than cipher count.
-    const ciphersByPassword = this.groupByPassword(validCiphers);
-
-    return from(Array.from(ciphersByPassword.entries())).pipe(
-      mergeMap(([password, cipherGroup]) => this.analyzeGroup(password, cipherGroup)),
-      toArray(),
-      measureFlowStep(
-        this.logService,
-        "Generate: password strength and breach checks complete",
-        (groupHealths) => [
-          ["itemCount", groupHealths.length],
-          ["cipherCount", validCiphers.length],
-        ],
-      ),
-      map((groupHealths) => this.buildHealthMap(ciphersByPassword, groupHealths)),
-    );
-  }
-
-  /** One exposure lookup per cipher. Retained as the measurement baseline; remove with the flag. */
-  private checkHealthPerCipher(
-    validCiphers: CipherView[],
-  ): Observable<Map<string, CipherHealthView>> {
-    const reuseMap$ = this.detectPasswordReuse(validCiphers);
-
-    // Measured as a batch; per-cipher entries would swamp the performance panel.
-    const healthChecks$ = from(validCiphers).pipe(
-      mergeMap(
-        (cipher) => this.checkSingleCipherHealthInternal(cipher),
-        this.MAX_CONCURRENT_HIBP_CALLS,
-      ),
-      toArray(),
-      measureFlowStep(
-        this.logService,
-        "Generate: password strength and breach checks complete",
-        (results) => [
-          ["itemCount", results.length],
-          ["concurrencyLimit", this.MAX_CONCURRENT_HIBP_CALLS],
-        ],
-      ),
-    );
-
-    return forkJoin({
-      reuseMap: reuseMap$,
-      healthResults: healthChecks$,
-    }).pipe(
-      map(({ reuseMap, healthResults }) => {
-        const measureStep = flowTimer(this.logService);
-        const healthMap = new Map<string, CipherHealthView>();
-
-        healthResults.forEach((health) => {
-          const password = this.getCipherPassword(
-            validCiphers.find((c) => c.id === health.cipherId)!,
-          );
-          const reusedCipherIds = password ? reuseMap.get(password) : undefined;
-          health.hasReusedPassword = reusedCipherIds ? reusedCipherIds.length > 1 : false;
-          health.reuseCount = reusedCipherIds ? reusedCipherIds.length : 0;
-
-          healthMap.set(health.cipherId, health);
-        });
-
-        measureStep("Generate: health and reuse combined", [["itemCount", healthResults.length]]);
-
-        return healthMap;
-      }),
-    );
-  }
-
-  checkSingleCipherHealth(cipher: CipherView): Observable<CipherHealthView> {
-    if (!this.isValidCipher(cipher)) {
-      return of(
-        new CipherHealthView({
-          cipherId: cipher.id,
-          hasWeakPassword: false,
-          hasReusedPassword: false,
-          hasExposedPassword: false,
-          exposedCount: 0,
-          reuseCount: 0,
-        }),
-      );
-    }
-
-    return this.checkSingleCipherHealthInternal(cipher);
-  }
-
-  detectPasswordReuse(ciphers: CipherView[]): Observable<Map<string, string[]>> {
+  private detectPasswordReuse(ciphers: CipherView[]): Observable<Map<string, string[]>> {
     const measureStep = flowTimer(this.logService);
-    const reuseMap = new Map<string, string[]>();
+    const passwordMap = new Map<string, string[]>();
 
-    this.groupByPassword(ciphers.filter((c) => this.isValidCipher(c))).forEach(
-      (cipherGroup, password) => {
-        // Only keep passwords that are reused (2+ ciphers)
-        if (cipherGroup.length > 1) {
-          reuseMap.set(
-            password,
-            cipherGroup.map((c) => c.id),
-          );
-        }
-      },
-    );
+    ciphers.forEach((cipher) => {
+      if (!this.isValidCipher(cipher)) {
+        return;
+      }
+
+      const password = this.getCipherPassword(cipher);
+      if (!password) {
+        return;
+      }
+
+      if (!passwordMap.has(password)) {
+        passwordMap.set(password, []);
+      }
+      passwordMap.get(password)!.push(cipher.id);
+    });
+
+    // Only keep passwords that are reused (2+ ciphers)
+    const reuseMap = new Map<string, string[]>();
+    passwordMap.forEach((cipherIds, password) => {
+      if (cipherIds.length > 1) {
+        reuseMap.set(password, cipherIds);
+      }
+    });
 
     measureStep("Generate: reused password check complete", [["itemCount", ciphers.length]]);
 
     return of(reuseMap);
   }
 
-  /** Groups ciphers by their password. Ciphers without one are dropped. */
-  private groupByPassword(ciphers: CipherView[]): Map<string, CipherView[]> {
-    const grouped = new Map<string, CipherView[]>();
+  // ---- Pre-optimized flow: one HIBP lookup per cipher ----
 
-    for (const cipher of ciphers) {
-      const password = this.getCipherPassword(cipher);
-      if (!password) {
-        continue;
-      }
-
-      const cipherGroup = grouped.get(password);
-      if (cipherGroup) {
-        cipherGroup.push(cipher);
-      } else {
-        grouped.set(password, [cipher]);
-      }
-    }
-
-    return grouped;
-  }
-
-  /**
-   * Analyzes one password group: looks up its exposure count and scores each cipher's strength.
-   *
-   * Never errors: a failed lookup reports zero, so one unreachable request cannot cancel the batch
-   * and discard every lookup that already succeeded.
-   */
-  private analyzeGroup(
-    password: string,
-    cipherGroup: CipherView[],
-  ): Observable<PasswordGroupHealth> {
-    // Only reached with the performance flag on, which drops padding.
-    return from(this.auditService.passwordLeakedStrict(password, false)).pipe(
-      map((exposedCount) => ({ exposedCount, failed: false })),
-      catchError(() => of({ exposedCount: 0, failed: true })),
-      map(({ exposedCount, failed }) => ({
-        password,
-        exposedCount,
-        failed,
-        // Scored inside the fan-out on purpose. zxcvbn is synchronous and costs roughly a
-        // millisecond per cipher, so scoring the whole vault after the last lookup returns lands as
-        // one visible ~1s freeze. Here each group's scoring fills a gap between network responses.
-        strengthByCipherId: this.scoreGroup(cipherGroup),
-      })),
-    );
-  }
-
-  private scoreGroup(cipherGroup: CipherView[]): Map<string, number | undefined> {
-    const strengthByCipherId = new Map<string, number | undefined>();
-
-    for (const cipher of cipherGroup) {
-      strengthByCipherId.set(cipher.id, this.getPasswordStrength(cipher));
-    }
-
-    return strengthByCipherId;
-  }
-
-  /**
-   * Fans each group's exposure result back out across every cipher sharing the password, and folds
-   * in the strength scores computed during the fan-out.
-   */
-  private buildHealthMap(
-    ciphersByPassword: Map<string, CipherView[]>,
-    groupHealths: PasswordGroupHealth[],
-  ): Map<string, CipherHealthView> {
-    const failed = groupHealths.filter((g) => g.failed);
-
-    if (failed.length > 0) {
-      const affectedCiphers = failed.reduce(
-        (total, g) => total + (ciphersByPassword.get(g.password)?.length ?? 0),
-        0,
-      );
-      this.logService.warning(
-        `[DefaultCipherHealthService] ${failed.length} of ${groupHealths.length} exposure lookups failed, affecting ${affectedCiphers} ciphers; those passwords are reported as not exposed.`,
-      );
-    }
-
-    const healthMap = new Map<string, CipherHealthView>();
-
-    for (const { password, exposedCount, strengthByCipherId } of groupHealths) {
-      const cipherGroup = ciphersByPassword.get(password) ?? [];
-      // A password held by a single cipher is not reuse, and reports a count of zero rather than one.
-      const reuseCount = cipherGroup.length > 1 ? cipherGroup.length : 0;
-
-      for (const cipher of cipherGroup) {
-        const weakPasswordScore = strengthByCipherId.get(cipher.id);
-
-        healthMap.set(
-          cipher.id,
-          new CipherHealthView({
-            cipherId: cipher.id,
-            hasWeakPassword: weakPasswordScore != null && weakPasswordScore <= 2,
-            hasReusedPassword: reuseCount > 1,
-            reuseCount,
-            hasExposedPassword: exposedCount > 0,
-            exposedCount,
-            weakPasswordScore,
-          }),
-        );
-      }
-    }
-
-    return healthMap;
-  }
-
-  private checkSingleCipherHealthInternal(cipher: CipherView): Observable<CipherHealthView> {
+  private checkSingleCipherHealthInternal(
+    cipher: CipherView,
+    addPadding: boolean,
+  ): Observable<CipherHealthView> {
     const password = this.getCipherPassword(cipher);
     if (!password) {
       return of(
@@ -306,30 +128,22 @@ export class DefaultCipherHealthService extends CipherHealthService {
       );
     }
 
-    // Check weak password
     const weakPasswordScore = this.getPasswordStrength(cipher);
     const hasWeakPassword = weakPasswordScore != null && weakPasswordScore <= 2;
 
-    // Check HIBP exposure
-    return this.configService
-      .getFeatureFlag$(FeatureFlag.AccessIntelligencePerformanceAtScale)
-      .pipe(
-        take(1),
-        switchMap((accessIntelligencePerfEnabled) =>
-          this.auditService.passwordLeaked(password, !accessIntelligencePerfEnabled),
-        ),
-        map((exposedCount) => {
-          return new CipherHealthView({
-            cipherId: cipher.id,
-            hasWeakPassword,
-            hasReusedPassword: false, // Will be set by caller if checking multiple ciphers
-            reuseCount: 0, // Will be set by caller if checking multiple ciphers
-            hasExposedPassword: exposedCount > 0,
-            exposedCount,
-            weakPasswordScore,
-          });
-        }),
-      );
+    return from(this.auditService.passwordLeaked(password, addPadding)).pipe(
+      map((exposedCount) => {
+        return new CipherHealthView({
+          cipherId: cipher.id,
+          hasWeakPassword,
+          hasReusedPassword: false, // Will be set by caller if checking multiple ciphers
+          reuseCount: 0, // Will be set by caller if checking multiple ciphers
+          hasExposedPassword: exposedCount > 0,
+          exposedCount,
+          weakPasswordScore,
+        });
+      }),
+    );
   }
 
   private getPasswordStrength(cipher: CipherView): number | undefined {
@@ -387,5 +201,183 @@ export class DefaultCipherHealthService extends CipherHealthService {
       return false;
     }
     return true;
+  }
+
+  private checkHealthPerCipher(
+    validCiphers: CipherView[],
+  ): Observable<Map<string, CipherHealthView>> {
+    const passwordReuseMap$ = this.detectPasswordReuse(validCiphers);
+
+    // Measured as a batch; per-cipher entries would swamp the performance panel.
+    const healthChecks$ = from(validCiphers).pipe(
+      mergeMap(
+        (cipher) => this.checkSingleCipherHealthInternal(cipher, true),
+        this.MAX_CONCURRENT_HIBP_CALLS,
+      ),
+      toArray(),
+      measureFlowStep(
+        this.logService,
+        "Generate: password strength and breach checks complete",
+        (results) => [
+          ["itemCount", results.length],
+          ["concurrencyLimit", this.MAX_CONCURRENT_HIBP_CALLS],
+        ],
+      ),
+    );
+
+    return forkJoin({
+      reuseMap: passwordReuseMap$,
+      healthResults: healthChecks$,
+    }).pipe(
+      map(({ reuseMap, healthResults }) => {
+        const measureStep = flowTimer(this.logService);
+        const healthMap = new Map<string, CipherHealthView>();
+
+        healthResults.forEach((health) => {
+          const password = this.getCipherPassword(
+            validCiphers.find((c) => c.id === health.cipherId)!,
+          );
+          const reusedCipherIds = password ? reuseMap.get(password) : undefined;
+          health.hasReusedPassword = reusedCipherIds ? reusedCipherIds.length > 1 : false;
+          health.reuseCount = reusedCipherIds ? reusedCipherIds.length : 0;
+
+          healthMap.set(health.cipherId, health);
+        });
+
+        measureStep("Generate: health and reuse combined", [["itemCount", healthResults.length]]);
+
+        return healthMap;
+      }),
+    );
+  }
+
+  // ---- Optimized flow: one HIBP lookup per distinct password ----
+
+  /** One exposure lookup per distinct password. */
+  private checkHealthPerCipherOptimized(
+    validCiphers: CipherView[],
+  ): Observable<Map<string, CipherHealthView>> {
+    // One grouping drives everything below: the exposure lookups, the reuse counts, and the
+    // password each cipher maps back to. Reuse is the premise of the report, so grouping first
+    // means the number of lookups tracks distinct passwords rather than cipher count.
+    const ciphersByPassword = this.groupByPassword(validCiphers);
+
+    return from(Array.from(ciphersByPassword.entries())).pipe(
+      mergeMap(([password, cipherGroup]) => this.analyzeGroupOptimized(password, cipherGroup)),
+      toArray(),
+      measureFlowStep(
+        this.logService,
+        "Generate: password strength and breach checks complete",
+        (groupHealths) => [
+          ["itemCount", groupHealths.length],
+          ["cipherCount", validCiphers.length],
+        ],
+      ),
+      map((groupHealths) => this.buildHealthMapOptimized(ciphersByPassword, groupHealths)),
+    );
+  }
+
+  /** Groups ciphers by their password. Ciphers without one are dropped. */
+  private groupByPassword(ciphers: CipherView[]): Map<string, CipherView[]> {
+    const grouped = new Map<string, CipherView[]>();
+
+    for (const cipher of ciphers) {
+      const password = this.getCipherPassword(cipher);
+      if (!password) {
+        continue;
+      }
+
+      const cipherGroup = grouped.get(password);
+      if (cipherGroup) {
+        cipherGroup.push(cipher);
+      } else {
+        grouped.set(password, [cipher]);
+      }
+    }
+
+    return grouped;
+  }
+
+  /**
+   * Analyzes one password group: looks up its exposure count and scores each cipher's strength.
+   *
+   * Never errors: a failed lookup reports zero, so one unreachable request cannot cancel the batch
+   * and discard every lookup that already succeeded.
+   */
+  private analyzeGroupOptimized(
+    password: string,
+    cipherGroup: CipherView[],
+  ): Observable<PasswordGroupHealth> {
+    return from(this.auditService.passwordLeakedStrict(password, false)).pipe(
+      map((exposedCount) => ({ exposedCount, failed: false })),
+      catchError(() => of({ exposedCount: 0, failed: true })),
+      map(({ exposedCount, failed }) => ({
+        password,
+        exposedCount,
+        failed,
+        // Scored inside the fan-out on purpose. zxcvbn is synchronous and costs roughly a
+        // millisecond per cipher, so scoring the whole vault after the last lookup returns lands as
+        // one visible ~1s freeze. Here each group's scoring fills a gap between network responses.
+        strengthByCipherId: this.scoreGroupOptimized(cipherGroup),
+      })),
+    );
+  }
+
+  private scoreGroupOptimized(cipherGroup: CipherView[]): Map<string, number | undefined> {
+    const strengthByCipherId = new Map<string, number | undefined>();
+
+    for (const cipher of cipherGroup) {
+      strengthByCipherId.set(cipher.id, this.getPasswordStrength(cipher));
+    }
+
+    return strengthByCipherId;
+  }
+
+  /**
+   * Fans each group's exposure result back out across every cipher sharing the password, and folds
+   * in the strength scores computed during the fan-out.
+   */
+  private buildHealthMapOptimized(
+    ciphersByPassword: Map<string, CipherView[]>,
+    groupHealths: PasswordGroupHealth[],
+  ): Map<string, CipherHealthView> {
+    const failed = groupHealths.filter((g) => g.failed);
+
+    if (failed.length > 0) {
+      const affectedCiphers = failed.reduce(
+        (total, g) => total + (ciphersByPassword.get(g.password)?.length ?? 0),
+        0,
+      );
+      this.logService.warning(
+        `[DefaultCipherHealthService] ${failed.length} of ${groupHealths.length} exposure lookups failed, affecting ${affectedCiphers} ciphers; those passwords are reported as not exposed.`,
+      );
+    }
+
+    const healthMap = new Map<string, CipherHealthView>();
+
+    for (const { password, exposedCount, strengthByCipherId } of groupHealths) {
+      const cipherGroup = ciphersByPassword.get(password) ?? [];
+      // A password held by a single cipher is not reuse, and reports a count of zero rather than one.
+      const reuseCount = cipherGroup.length > 1 ? cipherGroup.length : 0;
+
+      for (const cipher of cipherGroup) {
+        const weakPasswordScore = strengthByCipherId.get(cipher.id);
+
+        healthMap.set(
+          cipher.id,
+          new CipherHealthView({
+            cipherId: cipher.id,
+            hasWeakPassword: weakPasswordScore != null && weakPasswordScore <= 2,
+            hasReusedPassword: reuseCount > 1,
+            reuseCount,
+            hasExposedPassword: exposedCount > 0,
+            exposedCount,
+            weakPasswordScore,
+          }),
+        );
+      }
+    }
+
+    return healthMap;
   }
 }

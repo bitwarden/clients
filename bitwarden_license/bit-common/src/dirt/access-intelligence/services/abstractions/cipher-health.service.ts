@@ -41,29 +41,4 @@ export abstract class CipherHealthService {
    * ```
    */
   abstract checkCipherHealth(ciphers: CipherView[]): Observable<Map<string, CipherHealthView>>;
-
-  /**
-   * Analyzes password health for a single cipher.
-   *
-   * Checks for weak password and HIBP exposure. Cannot detect password reuse
-   * without other ciphers for comparison (use checkCipherHealth for reuse detection).
-   *
-   * A network failure during the exposure lookup errors the observable, leaving the single caller
-   * to decide how to handle it.
-   *
-   * @param cipher - Single cipher to analyze
-   * @returns Health results for the cipher
-   */
-  abstract checkSingleCipherHealth(cipher: CipherView): Observable<CipherHealthView>;
-
-  /**
-   * Detects password reuse across all ciphers.
-   *
-   * Groups ciphers by password to identify reuse. Only returns passwords
-   * used by 2+ ciphers (unique passwords are excluded).
-   *
-   * @param ciphers - Array of ciphers to analyze
-   * @returns Map of password to array of cipher IDs sharing that password
-   */
-  abstract detectPasswordReuse(ciphers: CipherView[]): Observable<Map<string, string[]>>;
 }
