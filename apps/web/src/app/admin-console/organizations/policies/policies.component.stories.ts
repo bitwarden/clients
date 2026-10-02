@@ -15,6 +15,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -138,9 +139,9 @@ function makeMockPolicyResponse(overrides: Partial<PolicyResponse> = {}): Policy
 }
 
 const mockOrgPolicyResponses: PolicyResponse[] = [
-  makeMockPolicyResponse({ type: SingleOrgPolicy.prototype.type, enabled: true }),
-  makeMockPolicyResponse({ type: TwoFactorAuthenticationPolicy.prototype.type, enabled: true }),
-  makeMockPolicyResponse({ type: RequireSsoPolicy.prototype.type, enabled: false }),
+  makeMockPolicyResponse({ type: PolicyType.SingleOrg, enabled: true }),
+  makeMockPolicyResponse({ type: PolicyType.TwoFactorAuthentication, enabled: true }),
+  makeMockPolicyResponse({ type: PolicyType.RequireSso, enabled: false }),
 ];
 
 function makePolicyApiService(policies: PolicyResponse[]) {
