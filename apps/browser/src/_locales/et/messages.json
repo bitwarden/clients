@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Hoidla vaates automaattäitmiseks klõpsake üksustel"
   },
-  "clickToAutofill": {
-    "message": "Täitmiseks klõpsake automaattäitmise soovituses oleval üksusel"
-  },
   "clearClipboard": {
     "message": "Lõikelaua sisu kustutamine",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Sisestage oma LastPassi kontoga seotud YubiKey arvuti USB-porti, seejärel puudutage selle nuppu."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeperi e-post"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Muuda riskiparooli"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "See sisselogimine on riskantne ja puudub veebisait. Suurema turvalisuse huvides lisage veebisait ja muutke parooli."
-  },
   "vulnerablePassword": {
     "message": "Haavatav parool."
   },
   "changeNow": {
     "message": "Muuda kohe"
-  },
-  "missingWebsite": {
-    "message": "Puuduv veebisait"
   },
   "settingsVaultOptions": {
     "message": "Hoidla valikud"

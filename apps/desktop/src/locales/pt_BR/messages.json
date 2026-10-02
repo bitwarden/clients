@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "Insira a YubiKey associada com a sua conta do LastPass na porta USB do seu computador, e depois toque no botão dela."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "E-mail do Keeper"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "A extensão de navegador que você está usando está desatualizada. Atualize-a ou desative a validação da frase biométrica da integração do navegador nas configurações do aplicativo de computador."
   },
-  "changeAtRiskPassword": {
-    "message": "Alterar senhas em risco"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Esta credencial está em risco e está sem um site. Adicione um site e altere a senha para maior segurança."
-  },
   "vulnerablePassword": {
     "message": "Senha vulnerável."
   },
   "changeNow": {
     "message": "Alterar agora"
-  },
-  "missingWebsite": {
-    "message": "Site ausente"
   },
   "missingPermissions": {
     "message": "Você não tem a permissão necessária para executar esta ação."

@@ -15600,20 +15600,11 @@
   "atRiskPassword": {
     "message": "Riskli parollar"
   },
-  "changeAtRiskPassword": {
-    "message": "Riskli parolları dəyişdir"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Bu giriş risk altındadır və bir veb sayt əskikdir. Daha güclü təhlükəsizlik üçün bir veb sayt əlavə edin və parolu dəyişdirin."
-  },
   "vulnerablePassword": {
     "message": "Zəifliyi olan parol."
   },
   "changeNow": {
     "message": "İndi dəyişdir"
-  },
-  "missingWebsite": {
-    "message": "Əskik veb sayt"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Kilidi PIN ilə açmanı ləğv et"
@@ -17041,6 +17032,15 @@
         "example": "4"
       }
     }
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Keeper e-poçtu"
