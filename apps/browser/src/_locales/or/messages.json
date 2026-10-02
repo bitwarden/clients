@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "ଭଣ୍ଡାର ଦୃଶ୍ୟରେ ସ୍ୱତଃ ପୂରଣ କରିବାକୁ ଆଇଟମଗୁଡ଼ିକୁ କ୍ଲିକ୍ କରନ୍ତୁ"
   },
-  "clickToAutofill": {
-    "message": "ପୂରଣ କରିବାକୁ ସ୍ୱତଃ ପୂରଣ ସୂଚନାରେ ଆଇଟମଗୁଡ଼ିକୁ କ୍ଲିକ୍ କରନ୍ତୁ"
-  },
   "clearClipboard": {
     "message": "କ୍ଲିପବୋର୍ଡ ସଫା କରନ୍ତୁ",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "ଆପଣଙ୍କର LastPass ଖାତା ସହିତ ସଂଯୁକ୍ତ YubiKey କୁ ଆପଣଙ୍କର କମ୍ପ୍ୟୁଟରର USB ପୋର୍ଟରେ ଭର୍ତ୍ତି କରନ୍ତୁ, ତାପରେ ଏହାର ବଟନ୍ ସ୍ପର୍ଶ କରନ୍ତୁ।"
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper ଇମେଲ୍"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "ବିପଦରେ ଥିବା ପାସୱାର୍ଡ ପରିବର୍ତ୍ତନ କରନ୍ତୁ"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "ଏହି ଲଗଇନ୍ ବିପଦରେ ଅଛି ଏବଂ ଏକ ୱେବସାଇଟ୍ ଅନୁପସ୍ଥିତ। ଅଧିକ ସୁରକ୍ଷା ପାଇଁ ଏକ ୱେବସାଇଟ୍ ଯୋଡ଼ନ୍ତୁ ଏବଂ ପାସୱାର୍ଡ ପରିବର୍ତ୍ତନ କରନ୍ତୁ।"
-  },
   "vulnerablePassword": {
     "message": "ଅସୁରକ୍ଷିତ ପାସୱାର୍ଡ।"
   },
   "changeNow": {
     "message": "ଏବେ ପରିବର୍ତ୍ତନ କରନ୍ତୁ"
-  },
-  "missingWebsite": {
-    "message": "ଅନୁପସ୍ଥିତ ୱେବସାଇଟ୍"
   },
   "settingsVaultOptions": {
     "message": "ଭଣ୍ଡାର ବିକଳ୍ପଗୁଡ଼ିକ"

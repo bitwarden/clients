@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Kliknite elemente za samodejno izpolnjevanje v pogledu trezorja"
   },
-  "clickToAutofill": {
-    "message": "Kliknite elemente v predlogu za samodejno izpolnjevanje, da jih izpolnite"
-  },
   "clearClipboard": {
     "message": "Počisti odložišče",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Vstavite YubiKey, povezan z vašim računom LastPass, v USB-vrata svojega računalnika in se dotaknite njegovega gumba."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "E-pošta Keeper"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Spremeni ogroženo geslo"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Ta prijava je ogrožena in ji manjka spletno mesto. Dodajte spletno mesto in spremenite geslo za večjo varnost."
-  },
   "vulnerablePassword": {
     "message": "Ranljivo geslo."
   },
   "changeNow": {
     "message": "Spremeni zdaj"
-  },
-  "missingWebsite": {
-    "message": "Manjka spletno mesto"
   },
   "settingsVaultOptions": {
     "message": "Možnosti trezorja"

@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "ចុចធាតុដើម្បីបំពេញដោយស្វ័យប្រវត្តិនៅក្នុងទិដ្ឋភាពឃ្លាំងសម្ងាត់"
   },
-  "clickToAutofill": {
-    "message": "ចុចធាតុក្នុងសំណើបំពេញដោយស្វ័យប្រវត្តិដើម្បីបំពេញ"
-  },
   "clearClipboard": {
     "message": "សម្អាតក្តារតម្បៀតខ្ទាស់",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "បញ្ចូល YubiKey ដែលភ្ជាប់ជាមួយគណនី LastPass របស់អ្នកទៅក្នុងច្រក USB របស់កុំព្យូទ័រ បន្ទាប់មកប៉ះប៊ូតុងរបស់វា។"
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "អ៊ីមែល Keeper"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "ផ្លាស់ប្តូរពាក្យសម្ងាត់មានហានិភ័យ"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "ការចូលនេះមានហានិភ័យ និងខ្វះគេហទំព័រ។ បន្ថែមគេហទំព័រ និងផ្លាស់ប្តូរពាក្យសម្ងាត់សម្រាប់សុវត្ថិភាពខ្លាំងជាង។"
-  },
   "vulnerablePassword": {
     "message": "ពាក្យសម្ងាត់ងាយរងគ្រោះ។"
   },
   "changeNow": {
     "message": "ផ្លាស់ប្តូរឥឡូវនេះ"
-  },
-  "missingWebsite": {
-    "message": "ខ្វះគេហទំព័រ"
   },
   "settingsVaultOptions": {
     "message": "ជម្រើសឃ្លាំងសម្ងាត់"

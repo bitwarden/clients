@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Clicar nas entradas da caixa forte para autoencher"
   },
-  "clickToAutofill": {
-    "message": "Fai clic nos elementos da suxestión de autorrelleno para cubrir"
-  },
   "clearClipboard": {
     "message": "Baleirar portapapeis",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Conecta a YubiKey asociada á túa conta de LastPass, e preme o seu botón."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Correo electrónico de Keeper"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Cambiar contrasinal en risco"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Este inicio de sesión está en risco e falta un sitio web. Engade un sitio web e cambia o contrasinal para unha seguridade máis forte."
-  },
   "vulnerablePassword": {
     "message": "Contrasinal vulnerable."
   },
   "changeNow": {
     "message": "Cambiar agora"
-  },
-  "missingWebsite": {
-    "message": "Falta o sitio web"
   },
   "settingsVaultOptions": {
     "message": "Opcións do cofre"

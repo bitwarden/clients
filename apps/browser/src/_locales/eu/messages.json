@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Egin klik elementuetan Kutxa ikuspegian autobetetzeko"
   },
-  "clickToAutofill": {
-    "message": "Egin klik autobetetze-iradokizuneko elementuetan betetzeko"
-  },
   "clearClipboard": {
     "message": "Hustu arbela",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Sartu zure LastPass kontuarekin lotutako YubiKey zure ordenagailuaren USB atakan, eta gero ukitu bere botoia."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper helbide elektronikoa"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Aldatu arriskuan dagoen pasahitza"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Saio-hasiera hau arriskuan dago eta webgune bat falta zaio. Gehitu webgune bat eta aldatu pasahitza segurtasun handiagoa lortzeko."
-  },
   "vulnerablePassword": {
     "message": "Pasahitz ahula."
   },
   "changeNow": {
     "message": "Aldatu orain"
-  },
-  "missingWebsite": {
-    "message": "Webgunea falta da"
   },
   "settingsVaultOptions": {
     "message": "Kutxa aukerak"

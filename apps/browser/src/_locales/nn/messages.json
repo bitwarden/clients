@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Klikk på element for å autofylle i kvelvvisninga"
   },
-  "clickToAutofill": {
-    "message": "Klikk på element i autofyllingsforslag for å fylle ut"
-  },
   "clearClipboard": {
     "message": "Tøm utklippstavle",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Set YubiKey-en som er knytt til LastPass-kontoen din i USB-porten på datamaskina, og trykk deretter på knappen."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper-e-post"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Endre risikabelt passord"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Denne innlogginga er risikabel og manglar ein nettstad. Legg til ein nettstad og endre passordet for sterkare tryggleik."
-  },
   "vulnerablePassword": {
     "message": "Sårbart passord."
   },
   "changeNow": {
     "message": "Endre no"
-  },
-  "missingWebsite": {
-    "message": "Manglar nettstad"
   },
   "settingsVaultOptions": {
     "message": "Kvelvval"

@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Spustelėkite elementus, kad būtų automatiškai užpildyti saugyklos rodinyje"
   },
-  "clickToAutofill": {
-    "message": "Spustelėkite automatinio pildymo pasiūlymo elementus, kad užpildytumėte"
-  },
   "clearClipboard": {
     "message": "Išvalyti iškarpinę",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Su LastPass paskyra susietą YubiKey įkišk į kompiuterio USB jungtį, tada paliesk jo mygtuką."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "„Keeper“ el. paštas"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Pakeisti rizikingą slaptažodį"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Šis prisijungimas yra rizikingas ir trūksta svetainės. Pridėkite svetainę ir pakeiskite slaptažodį, kad būtų saugiau."
-  },
   "vulnerablePassword": {
     "message": "Pažeidžiamas slaptažodis."
   },
   "changeNow": {
     "message": "Pakeisti dabar"
-  },
-  "missingWebsite": {
-    "message": "Trūksta svetainės"
   },
   "settingsVaultOptions": {
     "message": "Saugyklos parinktys"

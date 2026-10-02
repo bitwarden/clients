@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Націскайце элементы для аўтазапаўнення ў праглядзе сховішча"
   },
-  "clickToAutofill": {
-    "message": "Націскайце элементы ў прапанове аўтазапаўнення для запаўнення"
-  },
   "clearClipboard": {
     "message": "Ачыстка буфера абмену",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Устаўце YubiKey, звязаны з вашым уліковым запісам LastPass, у USB-порт вашага кампутара, затым дакраніцеся да яго кнопкі."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Электронная пошта Keeper"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Змяніць пароль пад пагрозай"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Гэты ўваход пад пагрозай і не мае вэб-сайта. Дадайце вэб-сайт і змяніце пароль для большай бяспекі."
-  },
   "vulnerablePassword": {
     "message": "Уразлівы пароль."
   },
   "changeNow": {
     "message": "Змяніць зараз"
-  },
-  "missingWebsite": {
-    "message": "Адсутнічае вэб-сайт"
   },
   "settingsVaultOptions": {
     "message": "Параметры сховішча"

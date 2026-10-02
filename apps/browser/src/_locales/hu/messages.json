@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Kattintsunk az elemekre az automatikus kitöltéshez a Széf nézetben"
   },
-  "clickToAutofill": {
-    "message": "A kitöltéshez kattintsunk az automatikus kitöltési javaslat elemeire."
-  },
   "clearClipboard": {
     "message": "Vágólap ürítése",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Illesszük be a LastPass-fiókhoz társított YubiKey eszközt a számítógép USB portjába, majd érintsük meg annak gombját."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper email cím"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Kockázatos jelszó megváltoztatása"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Ez a bejelentkezés veszélyben van és hiányzik egy webhely. Adjunk hozzá egy webhelyet és módosítsuk a jelszót az erősebb biztonság érdekében."
-  },
   "vulnerablePassword": {
     "message": "A jelszó sérülékeny."
   },
   "changeNow": {
     "message": "Módosítás most"
-  },
-  "missingWebsite": {
-    "message": "Hiányzó webhely"
   },
   "settingsVaultOptions": {
     "message": "Széf opciók"

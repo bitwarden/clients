@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Clicca gli oggetti da riempire dalla sezione Cassaforte"
   },
-  "clickToAutofill": {
-    "message": "Clicca elementi nel suggerimento di riempimento automatico per riempire"
-  },
   "clearClipboard": {
     "message": "Cancella appunti",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Inserisci la tua YubiKey associata al tuo account LastPass nella porta USB del computer, poi premi il suo bottone."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Email Keeper"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Cambia parola d'accesso a rischio"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Questo login è a rischio e non contiene un sito web. Aggiungi un sito web e cambia la password per maggiore sicurezza."
-  },
   "vulnerablePassword": {
     "message": "Password vulnerabile."
   },
   "changeNow": {
     "message": "Cambiala subito!"
-  },
-  "missingWebsite": {
-    "message": "Sito web mancante"
   },
   "settingsVaultOptions": {
     "message": "Opzioni cassaforte"

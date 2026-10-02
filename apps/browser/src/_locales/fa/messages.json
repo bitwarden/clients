@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "برای پر کردن خودکار، روی موردها در نمای گاوصندوق کلیک کنید"
   },
-  "clickToAutofill": {
-    "message": "برای پر کردن، روی موردها در پیشنهادهای پرکردن خودکار کلیک کنید"
-  },
   "clearClipboard": {
     "message": "پاکسازی حافظه موقت",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "کلید YubiKey مربوط به حساب کاربری LastPass خود را در درگاه USB کامپیوتر قرار دهید، سپس دکمه آن را لمس کنید."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "ایمیل Keeper"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "تغییر کلمه عبور در معرض خطر"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "این اطلاعات ورود در معرض خطر است و وب‌سایتی برای آن ثبت نشده است. برای امنیت بیشتر، یک وب‌سایت اضافه کرده و کلمه عبور را تغییر دهید."
-  },
   "vulnerablePassword": {
     "message": "کلمه عبور آسیب پذیر."
   },
   "changeNow": {
     "message": "همین الان تغییر دهید"
-  },
-  "missingWebsite": {
-    "message": "وب سایت گم شده"
   },
   "settingsVaultOptions": {
     "message": "گزینه‌های گاوصندوق"

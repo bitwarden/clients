@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Feu clic als elements per emplenar automàticament en la vista de la caixa forta"
   },
-  "clickToAutofill": {
-    "message": "Feu clic als elements del suggeriment d'emplenament automàtic per omplir-los"
-  },
   "clearClipboard": {
     "message": "Buida el porta-retalls",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Inseriu la YubiKey associada al compte del LastPass al port USB de l'ordinador i, després, toqueu-ne el botó."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Correu electrònic de Keeper"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Canvia la contrasenya en risc"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Aquest inici de sessió està en risc i li falta un lloc web. Afegeix un lloc web i canvia la contrasenya per a una seguretat més forta."
-  },
   "vulnerablePassword": {
     "message": "Contrasenya vulnerable."
   },
   "changeNow": {
     "message": "Canvia ara"
-  },
-  "missingWebsite": {
-    "message": "Falta el lloc web"
   },
   "settingsVaultOptions": {
     "message": "Opcions de la caixa forta"

@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Nhấp vào mục để tự động điền trong giao diện kho"
   },
-  "clickToAutofill": {
-    "message": "Nhấp vào mục trong đề xuất tự động điền để điền thông tin"
-  },
   "clearClipboard": {
     "message": "Xóa bộ nhớ tạm",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Cắm khóa YubiKey được liên kết với tài khoản LastPass của bạn vào cổng USB của máy tính, sau đó nhấn nút trên YubiKey."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Email Keeper"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Thay đổi mật khẩu có rủi ro"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Thông tin đăng nhập này có rủi ro và thiếu một trang web. Hãy thêm trang web và đổi mật khẩu để tăng cường bảo mật."
-  },
   "vulnerablePassword": {
     "message": "Mật khẩu dễ bị tấn công."
   },
   "changeNow": {
     "message": "Thay đổi ngay"
-  },
-  "missingWebsite": {
-    "message": "Thiếu trang web"
   },
   "settingsVaultOptions": {
     "message": "Tùy chọn kho"

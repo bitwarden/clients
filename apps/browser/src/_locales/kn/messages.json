@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "ವಾಲ್ಟ್ ವೀಕ್ಷಣೆಯಲ್ಲಿ ಸ್ವಯಂ ಭರ್ತಿ ಮಾಡಲು ಐಟಂಗಳನ್ನು ಕ್ಲಿಕ್ ಮಾಡಿ"
   },
-  "clickToAutofill": {
-    "message": "ಭರ್ತಿ ಮಾಡಲು ಸ್ವಯಂ ಭರ್ತಿ ಸೂಚನೆಯಲ್ಲಿ ಐಟಂಗಳನ್ನು ಕ್ಲಿಕ್ ಮಾಡಿ"
-  },
   "clearClipboard": {
     "message": "ಕ್ಲಿಪ್‌ಬೋರ್ಡ್ ತೆರವುಗೊಳಿಸಿ",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "ನಿಮ್ಮ LastPass ಖಾತೆಗೆ ಸಂಬಂಧಿಸಿದ YubiKey ಅನ್ನು ನಿಮ್ಮ ಕಂಪ್ಯೂಟರ್ನ USB ಪೋರ್ಟ್ಗೆ ಸೇರಿಸಿ, ನಂತರ ಅದರ ಬಟನ್ ಅನ್ನು ಸ್ಪರ್ಶಿಸಿ."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper ಇಮೇಲ್"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "ಅಪಾಯದಲ್ಲಿರುವ ಪಾಸ್ವರ್ಡ್ ಬದಲಾಯಿಸಿ"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "ಈ ಲಾಗಿನ್ ಅಪಾಯದಲ್ಲಿದೆ ಮತ್ತು ವೆಬ್ಸೈಟ್ ಕಾಣೆಯಾಗಿದೆ. ಹೆಚ್ಚಿನ ಭದ್ರತೆಗಾಗಿ ವೆಬ್ಸೈಟ್ ಸೇರಿಸಿ ಮತ್ತು ಪಾಸ್ವರ್ಡ್ ಬದಲಾಯಿಸಿ."
-  },
   "vulnerablePassword": {
     "message": "ದುರ್ಬಲ ಪಾಸ್ವರ್ಡ್."
   },
   "changeNow": {
     "message": "ಈಗ ಬದಲಾಯಿಸಿ"
-  },
-  "missingWebsite": {
-    "message": "ಕಾಣೆಯಾದ ವೆಬ್ಸೈಟ್"
   },
   "settingsVaultOptions": {
     "message": "ವಾಲ್ಟ್ ಆಯ್ಕೆಗಳು"

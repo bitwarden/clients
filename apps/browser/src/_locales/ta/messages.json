@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "வால்ட் பார்வையில் உருப்படிகளை தானாக நிரப்ப கிளிக் செய்யவும்"
   },
-  "clickToAutofill": {
-    "message": "தானாக நிரப்பும் பரிந்துரையில் உருப்படிகளை நிரப்ப கிளிக் செய்யவும்"
-  },
   "clearClipboard": {
     "message": "கிளிப்போர்டை அழி",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "உங்கள் LastPass கணக்குடன் தொடர்புடைய YubiKey-யை உங்கள் கம்ப்யூட்டரின் USB போர்ட்டில் செருகவும், பின்னர் அதன் பட்டனைத் தொடவும்."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper மின்னஞ்சல்"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "அபாயத்திலுள்ள கடவுச்சொல்லை மாற்றவும்"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "இந்த உள்நுழைவு ஆபத்தில் உள்ளது, மேலும் அதில் ஒரு வலைத்தளமும் இல்லை. வலுவான பாதுகாப்பிற்காக ஒரு வலைத்தளத்தைச் சேர்த்து கடவுச்சொல்லை மாற்றவும்."
-  },
   "vulnerablePassword": {
     "message": "பாதிக்கப்படக்கூடிய கடவுச்சொல்."
   },
   "changeNow": {
     "message": "இப்போதே மாற்றவும்"
-  },
-  "missingWebsite": {
-    "message": "காணாமல் போன வலைத்தளம்"
   },
   "settingsVaultOptions": {
     "message": "சேமிப்பு பெட்டக விருப்பத்தேர்வுகள்"
