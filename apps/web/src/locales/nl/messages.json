@@ -15600,20 +15600,11 @@
   "atRiskPassword": {
     "message": "Risicovolle wachtwoorden"
   },
-  "changeAtRiskPassword": {
-    "message": "Risicovol wachtwoord wijzigen"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Deze login is in gevaar en mist een website. Voeg een website toe en verander het wachtwoord voor een sterkere beveiliging."
-  },
   "vulnerablePassword": {
     "message": "Kwetsbaar wachtwoord."
   },
   "changeNow": {
     "message": "Nu wijzigen"
-  },
-  "missingWebsite": {
-    "message": "Ontbrekende website"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Ontgrendelen met PIN verwijderen"
@@ -17041,6 +17032,15 @@
         "example": "4"
       }
     }
+  },
+  "secretKey": {
+    "message": "Geheime sleutel"
+  },
+  "secretKeyAndPassword": {
+    "message": "Geheime sleutel en wachtwoord"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Je account is beveiligd met een geheime sleutel en wachtwoord. Je moet beide invoeren om door te gaan."
   },
   "keeperEmail": {
     "message": "E-mailadres Keeper"

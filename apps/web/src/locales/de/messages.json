@@ -15600,20 +15600,11 @@
   "atRiskPassword": {
     "message": "Gefährdetes Passwort"
   },
-  "changeAtRiskPassword": {
-    "message": "Gefährdetes Passwort ändern"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Diese Zugangsdaten sind gefährdet und es fehlt eine Website. Füge eine Website hinzu und ändere das Passwort für mehr Sicherheit."
-  },
   "vulnerablePassword": {
     "message": "Gefährdetes Passwort."
   },
   "changeNow": {
     "message": "Jetzt ändern"
-  },
-  "missingWebsite": {
-    "message": "Fehlende Webseite"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Entsperren mit PIN entfernen"
@@ -17041,6 +17032,15 @@
         "example": "4"
       }
     }
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Keeper E-Mail-Adresse"

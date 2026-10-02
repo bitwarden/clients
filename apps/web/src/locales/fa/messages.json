@@ -15600,20 +15600,11 @@
   "atRiskPassword": {
     "message": "کلمه عبور در معرض خطر"
   },
-  "changeAtRiskPassword": {
-    "message": "تغییر کلمه عبور در معرض خطر"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "این اطلاعات ورود در معرض خطر است و وب‌سایتی برای آن ثبت نشده است. برای امنیت بیشتر، یک وب‌سایت اضافه کرده و کلمه عبور را تغییر دهید."
-  },
   "vulnerablePassword": {
     "message": "کلمه عبور آسیب پذیر."
   },
   "changeNow": {
     "message": "همین الان تغییر دهید"
-  },
-  "missingWebsite": {
-    "message": "وب‌سایت گم شده"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "حذف گزینه‌ی بازکردن با کد پین"
@@ -17041,6 +17032,15 @@
         "example": "4"
       }
     }
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "ایمیل Keeper"
