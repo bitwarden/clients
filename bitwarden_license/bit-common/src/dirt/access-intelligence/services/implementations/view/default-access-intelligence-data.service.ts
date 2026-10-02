@@ -1,7 +1,6 @@
 import {
   BehaviorSubject,
   catchError,
-  combineLatest,
   first,
   forkJoin,
   from,
@@ -482,25 +481,33 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     orgId: OrganizationId,
     trigger: "page open" | "generate",
   ): Observable<CipherView[]> {
-    return combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.PM27632_SdkCipherCrudOperations),
-      this.configService.getFeatureFlag$(FeatureFlag.AccessIntelligencePerformanceAtScale),
-    ]).pipe(
-      first(),
-      switchMap(([useSdk, useLoginOnlyEndpoint]) =>
-        from(
-          useLoginOnlyEndpoint
-            ? this.cipherService.getCiphersOrganizationLogins(orgId)
-            : this.cipherService.getAllFromApiForOrganization(orgId, true),
-        ).pipe(
-          measureFlowStep(
-            this.logService,
-            `Load: org ciphers fetched (${trigger}, ${useLoginOnlyEndpoint ? "logins-only" : useSdk ? "sdk" : "legacy"})`,
-            (ciphers) => [["itemCount", ciphers.length]],
-          ),
-        ),
-      ),
-    );
+    return this.configService
+      .getFeatureFlag$(FeatureFlag.AccessIntelligencePerformanceAtScale)
+      .pipe(
+        first(),
+        switchMap((useLoginOnlyEndpoint) => {
+          const ciphers$ = useLoginOnlyEndpoint
+            ? from(this.cipherService.getCiphersOrganizationLogins(orgId)).pipe(
+                map(({ successes, failures }) => {
+                  if (failures.length > 0) {
+                    this.logService.error(
+                      `[DefaultAccessIntelligenceDataService] ${failures.length} ciphers failed to decrypt`,
+                    );
+                  }
+                  return successes;
+                }),
+              )
+            : from(this.cipherService.getAllFromApiForOrganization(orgId, true));
+
+          return ciphers$.pipe(
+            measureFlowStep(
+              this.logService,
+              `Load: org ciphers fetched (${trigger}, ${useLoginOnlyEndpoint ? "logins-only" : "legacy"})`,
+              (ciphers) => [["itemCount", ciphers.length]],
+            ),
+          );
+        }),
+      );
   }
   /**
    * Load organization data in parallel (ciphers and users with collections/groups)

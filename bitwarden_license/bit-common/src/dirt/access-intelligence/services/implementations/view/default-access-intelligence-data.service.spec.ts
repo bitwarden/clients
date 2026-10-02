@@ -49,7 +49,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
     cipherService = {
       getAllFromApiForOrganization: jest.fn().mockResolvedValue([]),
-      getCiphersOrganizationLogins: jest.fn().mockResolvedValue([]),
+      getCiphersOrganizationLogins: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
     } as any;
 
     organizationUserApiService = {
@@ -166,7 +166,10 @@ describe("DefaultAccessIntelligenceDataService", () => {
         configService.getFeatureFlag$.mockImplementation((flag) =>
           of(flag === FeatureFlag.AccessIntelligencePerformanceAtScale),
         );
-        cipherService.getCiphersOrganizationLogins.mockResolvedValue(testCiphers);
+        cipherService.getCiphersOrganizationLogins.mockResolvedValue({
+          successes: testCiphers,
+          failures: [],
+        });
       });
 
       it("does not load ciphers when a report exists", async () => {
@@ -626,7 +629,10 @@ describe("DefaultAccessIntelligenceDataService", () => {
       configService.getFeatureFlag$.mockImplementation((flag) =>
         flag === FeatureFlag.AccessIntelligencePerformanceAtScale ? of(true) : of(false),
       );
-      cipherService.getCiphersOrganizationLogins.mockResolvedValue(testCiphers);
+      cipherService.getCiphersOrganizationLogins.mockResolvedValue({
+        successes: testCiphers,
+        failures: [],
+      });
 
       await firstValueFrom(service.generateNewReport$(orgId));
 
