@@ -7,7 +7,9 @@ import {
   buildSvgDomElement,
   debounce,
   generateRandomCustomElementName,
+  isCustomElement,
   isReadonlyOrDisabledFormFieldElement,
+  isShadowRootCandidate,
   isSubFramePositioningMessageData,
   sendExtensionMessage,
   setElementStyles,
@@ -244,6 +246,61 @@ describe("debounce", () => {
     jest.advanceTimersByTime(100);
 
     expect(debouncedFunction).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("isCustomElement", () => {
+  it("accepts a hyphenated HTML element", () => {
+    expect(isCustomElement(document.createElement("my-widget"))).toBe(true);
+  });
+
+  it("rejects a non-hyphenated HTML element", () => {
+    expect(isCustomElement(document.createElement("div"))).toBe(false);
+  });
+
+  it("rejects hyphenated names reserved by SVG and MathML", () => {
+    // Reachable from plain HTML markup, where they parse into the HTML namespace.
+    expect(isCustomElement(document.createElement("font-face"))).toBe(false);
+    expect(isCustomElement(document.createElement("annotation-xml"))).toBe(false);
+  });
+
+  it("rejects a hyphenated element outside the HTML namespace", () => {
+    const svgFontFace = document.createElementNS("http://www.w3.org/2000/svg", "font-face");
+
+    expect(isCustomElement(svgFontFace)).toBe(false);
+  });
+
+  it("accepts a custom element despite its uppercased tagName", () => {
+    const element = document.createElement("my-widget");
+
+    // Guards the nodeName/localName trap: tagName is uppercased for HTML-namespace elements, so
+    // the spec's "no ASCII upper alphas" rule applied to it would reject every custom element.
+    expect(element.tagName).toBe("MY-WIDGET");
+    expect(isCustomElement(element)).toBe(true);
+  });
+});
+
+describe("isShadowRootCandidate", () => {
+  it("accepts a known HTML host name", () => {
+    expect(isShadowRootCandidate(document.createElement("div"))).toBe(true);
+  });
+
+  it("accepts a custom element", () => {
+    expect(isShadowRootCandidate(document.createElement("my-widget"))).toBe(true);
+  });
+
+  it("rejects an element that cannot host a shadow root", () => {
+    expect(isShadowRootCandidate(document.createElement("input"))).toBe(false);
+  });
+
+  it("rejects a non-element node", () => {
+    expect(isShadowRootCandidate(document.createTextNode("text"))).toBe(false);
+  });
+
+  it("rejects an SVG element with a hyphenated local name", () => {
+    const svgFontFace = document.createElementNS("http://www.w3.org/2000/svg", "font-face");
+
+    expect(isShadowRootCandidate(svgFontFace)).toBe(false);
   });
 });
 

@@ -1,4 +1,7 @@
-import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
+import {
+  AUTOFILL_ATTRIBUTES,
+  SHADOW_ROOT_CANDIDATE_NODE_NAMES,
+} from "@bitwarden/common/autofill/constants";
 
 import { FieldRect } from "../background/abstractions/overlay.background";
 import { AutofillPort } from "../enums/autofill-port.enum";
@@ -206,8 +209,6 @@ export function elementIsFillableFormField(
 
 /**
  * Identifies whether an element is an instance of a specific tag name.
- *
- * @param element - The element to check.
  * @param tagName -  The tag name to check against.
  */
 export function elementIsInstanceOf<T extends Element>(
@@ -291,8 +292,6 @@ export function elementIsDescriptionTermElement(element: Element): element is HT
 
 /**
  * Identifies whether a node is an HTML element.
- *
- * @param node - The node to check.
  */
 export function nodeIsElement(node: Node): node is Element {
   if (!node) {
@@ -300,6 +299,55 @@ export function nodeIsElement(node: Node): node is Element {
   }
 
   return node?.nodeType === Node.ELEMENT_NODE;
+}
+
+// Hyphenated but reserved by SVG 2 and MathML, so never valid custom element names.
+const RESERVED_HYPHENATED_LOCAL_NAMES = Object.freeze(
+  new Set([
+    "annotation-xml",
+    "color-profile",
+    "font-face",
+    "font-face-src",
+    "font-face-uri",
+    "font-face-format",
+    "font-face-name",
+    "missing-glyph",
+  ]),
+);
+
+/**
+ * Identifies whether an element is a custom element.
+ * https://html.spec.whatwg.org/multipage/custom-elements.html#valid-custom-element-name
+ *
+ * Reads `localName`, never `nodeName`/`tagName` — those are uppercased for HTML-namespace
+ * elements and would fail the spec's "no ASCII upper alphas" rule. The other spec rules need no
+ * check: the HTML parser and `createElement` guarantee them.
+ *
+ * @param element - The element to check.
+ */
+export function isCustomElement(element: Element): boolean {
+  return (
+    element.namespaceURI === "http://www.w3.org/1999/xhtml" &&
+    element.localName.includes("-") &&
+    !RESERVED_HYPHENATED_LOCAL_NAMES.has(element.localName)
+  );
+}
+
+/**
+ * Identifies whether a node may host a shadow root — the union `attachShadow` accepts: a known
+ * HTML local name, or a custom element. https://dom.spec.whatwg.org/#dom-element-attachshadow
+ *
+ * The name-set check needs no namespace guard of its own: only HTML-namespace elements report an
+ * uppercased `nodeName`, so SVG and MathML cannot match the set.
+ *
+ * @param node - The node to check.
+ */
+export function isShadowRootCandidate(node: Node): boolean {
+  if (!nodeIsElement(node)) {
+    return false;
+  }
+
+  return SHADOW_ROOT_CANDIDATE_NODE_NAMES.has(node.nodeName) || isCustomElement(node);
 }
 
 export function elementIsTypeSubmitElement(element: Element): element is HTMLElement {
