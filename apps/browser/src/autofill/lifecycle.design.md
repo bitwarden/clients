@@ -118,7 +118,7 @@ stateDiagram-v2
     }
 ```
 
-> **Perspective: System context perspective of one tab's lifecycle.** The diagram is for reasoning about when autofill may act on a given tab. Every tab runs an independent copy of this machine. Most labels name an external signal; `settle` and `cool-down elapses` are autofill's own timers firing, with no user or browser action behind them. This diagram omits timer duration, the page transition buffer, and messages transmitted in response to state changes.
+> **Perspective: System context of one tab's lifecycle.** Use this to reason about when autofill may act on a given tab. Most labels name an external signal; `settle` and `cool-down elapses` are autofill's own timers firing, with no user or browser action behind them. This diagram omits timer duration, the page transition buffer, and messages transmitted in response to state changes.
 
 "Active" and "focused" are signals controlled by the browser. The states are virtual, owned by autofill and layered on top of them. The delays that make warm-up and cool-down stable and the churn they absorb belong to the protocol's [gating and delays](#gating-and-delays).
 
