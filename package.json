@@ -179,7 +179,7 @@
     "@angular/core": "21.2.17",
     "@angular/forms": "21.2.17",
     "@angular/platform-browser": "21.2.17",
-    "@angular/router": "21.2.17",
+    "@angular/router": "21.2.24",
     "@bitwarden/commercial-sdk-internal": "0.2.0-main.1075",
     "@bitwarden/desktop-napi": "file:apps/desktop/desktop_native/napi",
     "@bitwarden/sdk-internal": "0.2.0-main.1075",
