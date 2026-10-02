@@ -371,6 +371,16 @@ export declare namespace logging {
 }
 
 export declare namespace passkey_authenticator {
+  /**
+   * The error message thrown by {@link register} when the passkey plugin is not supported on
+   * this platform or by this build of the app.
+   */
+  export const NOT_SUPPORTED: string
+  /**
+   * Registers the app as a plugin authenticator with the OS.
+   * Throws {@link Error} with message {@link NOT_SUPPORTED} if the passkey plugin is not
+   * supported, which callers may ignore. Any other error means registration failed.
+   */
   export function register(): void
 }
 
