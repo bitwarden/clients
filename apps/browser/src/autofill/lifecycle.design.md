@@ -1,3 +1,7 @@
+> [!NOTE]
+> **Scope:** This document describes the desired state for web browser autofill.
+> **Audience:** Engineers should align their decisions and code generators should align their implementation with the design described within this document.
+
 # Autofill monitoring lifecycle
 
 Bitwarden's autofill content scripts are injected into every page a user visits. They examine form fields, observe DOM mutations, position the inline menu, and surface notifications. That examination is valuable when the user has reason to want it, and inert work otherwise. The autofill monitoring lifecycle governs when monitors are running and signals when a lifecycle transitions.
@@ -30,7 +34,7 @@ These scopes are formalized by separate interfaces. The `AutofillMonitor` contra
 
 Monitoring may be entered and exited many times during a single content script's life, absorbing every on-demand toggle. Disposal happens exactly once, at the end, and is irreversible.
 
-UI concerns — the autofill context menu, the overlay's event handlers, the notification surfaces — are deliberately _outside_ the monitoring scope. They are part of the always-on UI plane, not the examination system. Their interaction with monitoring is one-directional: they read monitoring's caches when monitoring is in flight, and find empty state when it is not. Empty state is a valid outcome at every UI consumer; the absence of monitoring data is itself the gate that keeps the UI inert.
+UI concerns are deliberately _outside_ the monitoring scope. They are part of the always-on UI plane, not the examination system. Their interaction with monitoring is one-directional: they read monitoring's caches when monitoring is in flight, and find empty state when it is not. Empty state is a valid outcome at every UI consumer; the absence of monitoring data is itself the gate that keeps the UI inert.
 
 ## The `AutofillMonitor` contract
 
@@ -75,21 +79,50 @@ This composition keeps each scope focused. Anything reversible belongs to monito
 
 ## The tab lifecycle
 
-The browser reports one fact about attention: which tab is active. A tab is active when it is the active tab **in its own window**, and autofill reads that fact per window — window focus is not consulted, so alt-tabbing between two windows changes neither window's active tab and leaves autofill undisturbed.
+The browser reports the following facts about attention:
 
-Autofill does not act on that raw fact directly. It maintains three states over it:
+- which tab is active **in each window**, and
+- which window is focused.
 
-- **Away** — the resting state of any tab the user is not working in. Autofill does nothing: no monitoring runs, and the tab holds none of the monitoring-scoped resources `stopMonitoring()` clears, so it costs nothing on its host page. A freshly-activated tab stays away until it has been active long enough to commit.
-- **Committed** — the tab autofill treats as the one the user is working in. A tab becomes committed once it has stayed active long enough to be more than a tab passed through. Monitoring runs, and filling happens only here, so a fill lands where the user is actually looking.
-- **Cooling down** — a committed tab the user has just left. Autofill keeps monitoring it briefly, so a quick return finds monitoring already in flight, but the tab is no longer committed, so nothing fills there. When the cool-down elapses the tab falls back to away and monitoring stands down.
+Autofill reads both, and they play different roles. **Monitoring** follows tab attention: a window's active tab is monitored whether or not that window is focused, so alt-tabbing between two windows won't flap monitoring state. **Filling** requires window attention too: a fill lands only on the active tab of the _focused_ window.
 
-Monitoring therefore runs while a tab is committed or cooling down, and only then; an away tab is inert.
+Autofill does not act on these raw facts directly. It maintains a state machine over them, using a _thermal_ model to represent monitoring levels. **Frozen** is a logged-out super-state: no tab monitors and no tab fills, whatever its activity. Login leaves it and logout returns to it from anywhere. The following states below all presuppose a logged-in account:
 
-"Active" is a real state, owned by the browser; "away", "committed", and "cooling down" are virtual states, owned by autofill and layered on top of it. The gates that move a tab between these virtual states, the delays that make them stable, and the churn those delays exist to absorb belong to the protocol's [gating and delays](#gating-and-delays).
+- **Cold** — a logged-in tab the user is not working in. Nothing monitors, and the tab holds none of the monitoring-scoped resources `stopMonitoring()` clears. If a page transition occurs in a cold state, it is buffered so that it can execute when the tab goes Hot.
+- **Warm-up** — a just-activated tab, settling. It has become its window's active tab but has not yet been active long enough to settle, so it does not monitor. Window focus at the moment it settles picks where it lands.
+- **Warm** — the active tab of an **unfocused** window. It monitors — the user may return to that window — but never fills, because the user is not looking at it.
+- **Hot** — the active tab of the **focused** window. It monitors, and it is the only state that fills, so a fill lands where the user is actually looking.
+- **Cool-down** — a tab that was hot and the user has just left. It keeps monitoring briefly, so a quick return finds monitoring already in flight, but it is no longer hot, so nothing fills there. When the cool-down elapses it falls back to cold and monitoring stands down.
+
+Monitoring therefore runs while a tab is warm, hot, or cooling down, and only then; a cold or frozen tab is inert. Filling happens only while a tab is hot.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Frozen
+    Frozen --> Thawed: login
+    Thawed --> Frozen: logout
+
+    state Thawed {
+        [*] --> Cold
+        Cold --> WarmUp: activate
+        WarmUp --> Hot: settle (focused) / command
+        WarmUp --> Warm: settle (unfocused)
+        WarmUp --> Cold: deactivate
+        Warm --> Hot: focus
+        Warm --> Cold: deactivate
+        Hot --> Warm: blur
+        Hot --> CoolDown: deactivate
+        CoolDown --> Hot: activate (focused)
+        CoolDown --> Warm: activate (unfocused)
+        CoolDown --> Cold: cool-down elapses
+    }
+```
+
+"Active" and "focused" are signals controlled by the browser. The states are virtual, owned by autofill and layered on top of them. The delays that make warm-up and cool-down stable and the churn they absorb belong to the protocol's [gating and delays](#gating-and-delays).
 
 ## The page lifecycle
 
-A page-lifecycle monitor watches for the moments a page becomes ready to act on — its load, and the navigations that follow — and reports each as a transition. It does not examine field data and is **not** an `AutofillMonitor`. The autofiller (`apps/browser/src/autofill/content/autofiller.ts`) is the current monitor of this lifecycle. The browser surfaces no reliable signal for single-page-app navigation, so the autofiller synthesizes these transitions itself: it polls for URL changes and reports each as a `pageTransitionDetected` fact to the background. Like the tab lifecycle's committed and cooling-down states, a page transition is a virtual state autofill maintains, not a fact the browser hands it.
+A page-lifecycle monitor watches for the moments a page becomes ready to act on — its load, and the navigations that follow — and reports each as a transition. It does not examine field data and is **not** an `AutofillMonitor`. The autofiller (`apps/browser/src/autofill/content/autofiller.ts`) is the current monitor of this lifecycle. The browser surfaces no reliable signal for single-page-app navigation, so the autofiller synthesizes these transitions itself: it polls for URL changes and reports each as a `pageTransitionDetected` fact to the background. Like the tab lifecycle's thermal states, a page transition is a virtual state autofill maintains, not a fact the browser hands it.
 
 Reporting is one-directional. The monitor states that a transition happened; it does not consult monitoring state, settings, or auth status, and it does not decide whether a fill should follow. Those are the background's decisions, made at a single evaluation point (see [Buffering transitions](#buffering-transitions)). This keeps the page-lifecycle monitor simple and lets new transition producers feed the same point without each re-deriving policy.
 
@@ -108,30 +141,25 @@ Autofill can only fill a frame that is monitoring — monitoring is what makes t
 
 The background bridges that sequencing gap with a buffer that carries each reported transition through a small state machine, keyed on `(tab, frame)` so simultaneous navigations across many frames advance independently. Only the latest transition per frame is kept; a fresh transition replaces the one before it.
 
-A transition occupies one of these states:
+Reconciliation reads the reporting tab's lifecycle state (see [The tab lifecycle](#the-tab-lifecycle)). A reported transition is:
 
-- **Pending** — reported, and waiting for its frame's tab to be committed (see [The tab lifecycle](#the-tab-lifecycle)) and an account to be logged in. A transition reported when those conditions already hold passes through pending at once.
-- **Paused** — its tab went inactive before it could resolve. Because monitoring itself may stand down while a tab is away, a paused transition can outlive active monitoring; it is held until its tab is committed again.
-- **Resolved** — its conditions are met, and it leaves the buffer as an opportunity for autofill to act on (see [`autofill.design.md`](./autofill.design.md)).
-- **Retired** — its frame disconnected, or the account logged out, and it is discarded, so it never outlives the conditions that kept it alive.
+- **buffered** while its tab is cold, warming up, or cooling down. A transition reported on such a tab is effectively "paused", and may resume when the user next selects the tab. A buffered transition can outlive active monitoring.
+- **resolved** when its tab reaches hot. Resolved transitions leave the buffer as an opportunity for autofill to act on (see [`autofill.design.md`](./autofill.design.md)). A transition reported while its tab is already hot resolves at once.
+- **dropped** when its tab is warm, when the account logs out, or when the frame is lost. Warm is deliberately a drop, not a buffer: a background window's active tab is out of scope for a page-load fill. Transitions are always dropped when the user logs out in order to prevent one session from leaking to another.
 
-```mermaid
-stateDiagram-v2
-    [*] --> Pending: transition reported
-    Pending --> Resolved: tab committed
-    Pending --> Paused: tab goes inactive
-    Paused --> Resolved: tab committed again
-    Pending --> Retired: frame lost / logout
-    Paused --> Retired: frame lost / logout
-    Resolved --> [*]: opportunity surfaced
-    Retired --> [*]: dropped
-```
+> [!NOTE]
+> **Buffering tracks the path to hot**, independent of monitoring state. Cold and warm are the instructive contrast: cold does not monitor but buffers (a _page loaded in the background_ waits for its first focus), while warm monitors but drops (_unfocused windows_ never fill).
 
-Committing the tab resolves a pending or paused transition; losing the frame or logging out retires it. **Retirement always wins:** a transition paused on an inactive tab retires the instant the account logs out, since a transition that resolved after logout would surface a fill on a logged-out account — precisely what the account lifecycle exists to prevent.
+A **command** — a user-initiated fill (keyboard shortcut, context menu, card/identity) targeting the tab — _consumes_ a buffered transition instead of resolving it. The command carries its own fill, so a page-load opportunity for the same tab would trigger a redundant second fill. The command drives the tab to hot early, which drops the pending transition rather than surfacing it.
 
-This state machine is virtual. The implementation holds no explicit state field; it folds three reactive inputs — the reported transition, the commit signal, and retirement events — into the same behavior a discrete machine would produce. The states are a way to reason about the fold, not objects the code instantiates.
+### States are virtual
 
-A resolved transition leaves the service as a signal that this frame has reached a point where autofill _may_ act. Whether a fill actually happens is autofill's decision, governed by its own settings and policy (see [`autofill.design.md`](./autofill.design.md)) and independent of the lifecycle. This is the reciprocal of one-directional reporting: producers report facts, the lifecycle reconciles them into an opportunity, and autofill decides what to make of it.
+This state machine models browser interaction patterns. Its states do not represent real experiences. They are a way to reason about events significant to the autofill system. Autofill logic must not couple to discreet states. It should, instead, interpret state transitions.
+
+> [!IMPORTANT]
+> A transition is a momentary fact: it states what changed, and it stays true after the moment passes. A state field offers no such guarantee. A settling tab moves on with no signal to mark its arrival, so a stored state describes the past as readily as the present. Reporting both the state being left and the state being entered is what lets a consumer act on a change without keeping a state of its own.
+
+A resolved transition leaves the service as a signal that this frame has reached a point where autofill _may_ act. Whether a fill actually happens is autofill's decision, governed by its own settings and policy (see [`autofill.design.md`](./autofill.design.md)), independent of the lifecycle. This is the reciprocal of one-directional reporting: producers report facts, the lifecycle reconciles them into an opportunity, and autofill decides what to make of it.
 
 ## The lifecycle protocol
 
@@ -155,28 +183,23 @@ A restart loses more than frame liveness. The gate timers and the monitoring sta
 
 Driving monitoring straight off the browser's raw active/inactive signal would churn: standing monitoring down discards the field maps and observer graph it built, and standing it back up rebuilds them from scratch. A user cycling through tabs with ctrl+tab, or flipping to a tab and straight back, would pay that teardown-and-rebuild cost on every flick. Two gates absorb the churn by delaying the state transitions the tab lifecycle triggers, and they are deliberately asymmetric.
 
-- The **commit gate** delays _entry_: a newly-active tab becomes committed only after it has stayed active for a short settling interval. A tab merely passed through never commits, so ctrl+tab cycling triggers nothing.
-- The **cool-down gate** delays _exit_: a tab the user leaves keeps monitoring for a cool-down interval before it stands down. A flip-back inside that interval finds monitoring still in flight and rebuilds nothing.
+- The **settle** delays _entry_: a newly-active tab begins monitoring only after it has stayed active for a short settling interval (warm-up). A tab merely passed through never settles, so ctrl+tab cycling triggers nothing. Window focus at the moment of the settle picks the destination — the focused window's active tab settles to hot, a background window's active tab to warm.
+- The **cool-down** delays _exit_: a tab the user leaves keeps monitoring for a cool-down interval before it stands down. A flip-back inside that interval finds monitoring still in flight and rebuilds nothing.
 
-The gates are chained — cool-down is measured from the moment a tab stops being committed — so monitoring inherits the commit delay on the way up and adds the cool-down delay on the way down. That asymmetry lets monitoring start decisively yet linger cheaply.
-
-The commit gate does double duty: it is also the fill gate. Because a fill lands only on a committed tab, and a tab stops being committed the instant it goes inactive, a fill only ever lands on the tab in front of the user — never on one still monitoring through its cool-down. Monitoring lingers through cool-down solely to spare a rebuild; the window in which a fill may land is exactly the committed window, no wider.
-
-The settling and cool-down intervals are tuned constants, chosen to sit below the time of a deliberate return to a tab; their values are an operational tuning concern, not part of the design.
+The two are asymmetric — a tab inherits the settle delay on the way up and adds the cool-down delay on the way down — so monitoring starts decisively yet lingers cheaply. The settling and cool-down intervals are tuned constants, chosen to sit below the time of a deliberate return to a tab; their values are an operational tuning concern, not part of the design.
 
 ### Triggers
 
-Lifecycle commands are emitted on account-state boundaries and on tab state changes. Every `start monitors` is gated on the tab being committed; only the logout `stop` fans out to everything:
+Monitoring commands follow a tab's monitoring state: a `start monitors` reaches a frame only when its tab is monitoring (warm, hot, or cooling down), and a `stop monitors` when its tab leaves those states. Login and a Manifest V3 restart are not distinct triggers — they are the machine driving each window's active tab up to warm or hot, which fires the same "tab enters monitoring" edge. Only the logout `disable autofiller` fans out to every frame.
 
-| Trigger                 | Target                          | Commands sent                                                                                             |
-| ----------------------- | ------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| Per-tab injection       | One `(tab, frame)`              | `start monitors` if the user is logged in (Locked or Unlocked) _and_ the tab is committed; otherwise none |
-| Login                   | Every committed `(tab, frame)`  | `start monitors`                                                                                          |
-| Tab becomes committed   | Every `(tab, frame)` on the tab | `start monitors`, if the user is logged in                                                                |
-| Tab leaves cooling down | Every `(tab, frame)` on the tab | `stop monitors`                                                                                           |
-| Logout                  | Every `(tab, frame)`            | `stop monitors` _and_ `disable autofiller`                                                                |
+| Trigger                                                                   | Target                                | Commands sent                                                       |
+| ------------------------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------- |
+| Frame connects (freshly injected)                                         | One `(tab, frame)`                    | `start monitors` if its tab is already monitoring; otherwise none   |
+| Tab enters monitoring (settles to warm or hot from cold)                  | Every connected `(tab, frame)` on it  | `start monitors`                                                    |
+| Tab leaves monitoring (cool-down → cold, warm → cold, or logout → frozen) | Every monitoring `(tab, frame)` on it | `stop monitors`                                                     |
+| Logout                                                                    | Every connected `(tab, frame)`        | `disable autofiller` (the `stop monitors` is the frozen edge above) |
 
-The `Unlocked` boundary participates separately, but only at injection time: it gates whether a fresh navigation gets an autofiller. Transitions across `Unlocked` (lock and unlock events) do not emit any broadcast.
+The `Unlocked` boundary participates separately, but only at injection time: it gates whether a fresh navigation gets an autofiller. Transitions across `Unlocked` (lock and unlock events) emit no broadcast — monitoring rides tab state, which a lock does not change.
 
 ### Message sequences
 
@@ -186,12 +209,13 @@ The `Unlocked` boundary participates separately, but only at injection time: it 
 sequenceDiagram
     participant BG as Background
     participant CS as Content script
-    Note over BG: auth state crosses LoggedOut boundary
+    Note over BG: auth crosses LoggedOut boundary; each window's active tab thaws
+    Note over BG: active tabs settle → warm/hot
     BG->>CS: start monitors
     Note over CS: attach observers, begin examining
 ```
 
-Sent to every live `(tab, frame)` on a committed tab. Logged-in tabs the user is not viewing stay inert until they become committed.
+Login thaws every tab out of frozen; each window's active tab then settles to warm or hot and its frames start monitoring, while the tabs the user is not viewing stay cold and inert. There is no blanket broadcast — the start reaches only the frames whose tab entered monitoring.
 
 #### Logging out (any logged-in state → `LoggedOut`)
 
@@ -224,17 +248,17 @@ sequenceDiagram
     participant U as User
     participant BG as Background
     participant CS as Content script
-    U->>BG: switches to a tab
-    Note over BG: tab settles → committed
+    U->>BG: switches to a tab (in the focused window)
+    Note over BG: tab settles → hot
     BG->>CS: start monitors
     Note over CS: attach observers, begin examining
     U->>BG: switches away
-    Note over BG: tab leaves cooling down → monitoring stands down
+    Note over BG: hot → cool-down; cool-down elapses → cold
     BG->>CS: stop monitors
     Note over CS: detach observers, clear caches
 ```
 
-Sent only while an account is logged in; a logged-out tab never monitors regardless of which tab is active. A flip-back during cool-down finds monitoring still in flight and sends nothing.
+Sent only while an account is logged in; a logged-out tab never monitors regardless of which tab is active. Switching to a tab in the _focused_ window settles it to hot (it fills); a background window's active tab settles to warm (it monitors but never fills). A flip-back during cool-down finds monitoring still in flight and sends nothing.
 
 #### New tab or frame on navigation
 
@@ -245,13 +269,14 @@ sequenceDiagram
     participant CS as Content script (freshly injected)
     Page->>BG: navigation triggers injection
     BG->>CS: inject bootstrap (+ autofiller if Unlocked)
-    opt user is logged in and the tab is committed
+    Note over CS: injected-script port connects
+    opt the tab is monitoring (warm/hot/cool-down)
         BG->>CS: start monitors
     end
     Note over CS: if no start was sent, sit inert
 ```
 
-A page-level trigger script at `document_start, all_frames, *://*/*` wakes the service worker on every navigation regardless of auth state, so this flow runs on every new tab and frame — including for logged-out users, whose tabs end up with an inert bootstrap and no autofiller. A logged-in user's tab that is not the active tab is likewise left inert at injection; it begins monitoring only once it becomes committed.
+A page-level trigger script at `document_start, all_frames, *://*/*` wakes the service worker on every navigation regardless of auth state, so this flow runs on every new tab and frame — including for logged-out users, whose tabs end up with an inert bootstrap and no autofiller. A logged-in user's tab that is not the active tab is likewise left inert at injection; it begins monitoring only once it settles to warm or hot.
 
 ## Disposal
 

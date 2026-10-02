@@ -1,6 +1,10 @@
+> [!NOTE]
+> **Scope:** This document describes the desired state for web browser autofill.
+> **Audience:** Engineers should align their decisions and code generators should align their implementation with the design described within this document.
+
 # Autofill
 
-> [!NOTE]
+> [!WARNING]
 > This document is **correct but incomplete**. Autofill
 > has many other surfaces that this document does not yet cover.
 
@@ -12,11 +16,13 @@ reconciles the page, account, extension, and tab lifecycles and, when a page tra
 surfaces an **opportunity**: this frame has reached a point where a fill _may_ be appropriate.
 Autofill decides _whether and how to fill_.
 
-One rule spans every fill: autofill fills only the **committed** tab — the one the user is working in
-(see the [tab lifecycle](./lifecycle.design.md#the-tab-lifecycle)) — and never an inactive one. The
-lifecycle carries this for page loads, surfacing an opportunity only once a tab is committed and
-holding it while the tab is away; a user-initiated fill acts on the active tab the user just used.
-Either way a fill lands where the user is looking, never on a background tab.
+One rule spans every fill: autofill fills only the **hot** tab — the active tab of the _focused_
+window (see the
+[tab lifecycle](./lifecycle.design.md#the-tab-lifecycle)) — and never a background or unfocused one.
+The lifecycle carries this for page loads, surfacing an opportunity only when the tab is hot and
+buffering it otherwise; a user-initiated fill acts on the active tab the user just used, which is
+hot by construction. Either way a fill lands where the user is looking, never on a background
+or background-window tab.
 
 ## Autofill on page load
 
@@ -24,7 +30,7 @@ Autofill on page load is the response to a resolved page transition. When the li
 opportunity, autofill applies its policy before touching the page:
 
 - **The autofill-on-page-load setting must be enabled.** It is off by default, and a user who has not
-  opted in gets no page-load fill even on a committed, monitored frame. The monitoring lifecycle
+  opted in gets no page-load fill even on a hot, monitored frame. The monitoring lifecycle
   gates the _autofiller's injection_ on this same setting, but an already-injected autofiller is not
   re-evaluated when the setting changes — it keeps reporting transitions until logout or context
   loss — so this fill-time check, not the injection-time gate, is what enforces the setting when a
@@ -53,16 +59,16 @@ place a credential chosen for the old page onto the new one.
 A page-load fill targets **the frame that produced the transition**, resolved live, by id, at the
 moment of the fill. It must not use a snapshot carried from when the transition was reported.
 
-The distinction is a security boundary. A transition can be paused (see the
-[tab lifecycle](./lifecycle.design.md#the-tab-lifecycle)): held while its tab is away and resolved
-later, when the tab is committed again. Between report and fill, the frame may have navigated. Filling
+The distinction is a security boundary. A transition can be buffered (see the
+[tab lifecycle](./lifecycle.design.md#buffering-transitions)): held while its tab is cold and resolved
+later, when the tab becomes hot. Between report and fill, the frame may have navigated. Filling
 from the transition's stale snapshot would put a cipher chosen for the _old_ page into whatever page
 now occupies that frame — a credential handed to the wrong origin.
 
 So the fill re-resolves the target tab by id and confirms the reporting frame still shows the URL it
 reported with the transition message. If the tab or frame is gone, or the frame has navigated, the fill
 is abandoned rather than redirected. Targeting the frame by its live identity and validating its origin
-keeps a paused-then-resumed transition from filling the wrong page.
+keeps a buffered-then-resolved transition from filling the wrong page.
 
 This applies to the page-load path specifically. Fills the user triggers directly — a keyboard
 shortcut, or choosing a card or identity — legitimately target the active tab, because the user just
@@ -83,7 +89,7 @@ not by a "did I already fill this page" flag:
   refusal. A successful fill is likewise terminal — there is nothing left to do.
 
 A retry is a fresh attempt at the page-load opportunity after a short delay, gated on the tab still
-being committed: if the tab has gone away or the transition has retired in the meantime, the retry is
+being hot: if the tab has gone cold or the transition has been dropped in the meantime, the retry is
 abandoned. Because the decision to retry is made from the honest outcome of the attempt — not from a
 flag set on the page — a page fills at most once per opportunity, whether it renders promptly or
 slowly.
