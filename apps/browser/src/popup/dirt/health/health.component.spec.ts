@@ -4,19 +4,15 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, map, of, ReplaySubject, Subject, throwError } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import {
   VAULT_HEALTH_REPORT_IDLE,
   VaultHealthReportState,
   VaultHealthReportStatus,
   VaultHealthReportView,
-} from "@bitwarden/bit-common/dirt/vault-health/models";
-import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
-import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
-import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
-import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
-import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+} from "@bitwarden/common/dirt/vault-health/models";
+import { VaultHealthReportService } from "@bitwarden/common/dirt/vault-health/services";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -25,6 +21,11 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
+
+import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
+import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
+import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
+import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
 import { HealthOverviewComponent } from "./health-overview.component";
 import { HealthScanErrorComponent } from "./health-scan-error.component";

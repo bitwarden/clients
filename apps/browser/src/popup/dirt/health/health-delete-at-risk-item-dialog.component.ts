@@ -2,9 +2,9 @@ import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, ChangeDetectionStrategy, inject, computed } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
-import { RiskCategory } from "@bitwarden/bit-common/dirt/vault-health/models";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { CipherHealthView } from "@bitwarden/common/dirt/vault-health/models";
+import { RiskCategory } from "@bitwarden/common/dirt/vault-health/models";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {

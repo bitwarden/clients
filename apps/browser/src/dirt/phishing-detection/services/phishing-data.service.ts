@@ -19,13 +19,13 @@ import {
   timer,
 } from "rxjs";
 
-import { devFlagEnabled, devFlagValue } from "@bitwarden/browser/platform/flags";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ScheduledTaskNames, TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
 import { LogService } from "@bitwarden/logging";
 import { GlobalStateProvider, KeyDefinition, PHISHING_DETECTION_DISK } from "@bitwarden/state";
 
+import { devFlagEnabled, devFlagValue } from "../../platform/flags";
 import { PhishingManifest } from "../phishing-manifest.types";
 import {
   PHISHING_CHECKSUM_URL,

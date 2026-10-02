@@ -7,18 +7,13 @@ import { BehaviorSubject, combineLatest, map, of } from "rxjs";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { BitSvg, ReportExposedPasswords, LockIcon, NoCredentialsIcon } from "@bitwarden/assets/svg";
-import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   RiskCategory,
   VaultHealthReportStatus,
   VaultHealthReportView,
-} from "@bitwarden/bit-common/dirt/vault-health/models";
-import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
-import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
-import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
-import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
-import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+ CipherHealthView } from "@bitwarden/common/dirt/vault-health/models";
+import { VaultHealthReportService } from "@bitwarden/common/dirt/vault-health/services";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -36,6 +31,11 @@ import {
   ScrollLayoutHostDirective,
 } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
+
+import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
+import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
+import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
+import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
 import { HealthDeleteAtRiskItemDialogComponent } from "./health-delete-at-risk-item-dialog.component";
 import { HealthRiskCategoryDetailComponent } from "./health-risk-category-detail.component";

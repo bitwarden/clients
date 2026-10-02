@@ -17,8 +17,8 @@ import {
   tap,
 } from "rxjs";
 
-import { VaultHealthReportStatus } from "@bitwarden/bit-common/dirt/vault-health/models";
-import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
+import { VaultHealthReportStatus } from "@bitwarden/common/dirt/vault-health/models";
+import { VaultHealthReportService } from "@bitwarden/common/dirt/vault-health/services";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";

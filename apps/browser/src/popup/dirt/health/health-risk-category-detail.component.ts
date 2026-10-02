@@ -7,20 +7,15 @@ import { map, switchMap } from "rxjs/operators";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoCredentialsIcon, ReportExposedPasswords, LockIcon } from "@bitwarden/assets/svg";
-import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   isRiskCategory,
   RiskCategory,
   VAULT_HEALTH_REPORT_IDLE,
   VaultHealthReportStatus,
-} from "@bitwarden/bit-common/dirt/vault-health/models";
-import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
-import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
-import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
-import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
-import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+ CipherHealthView } from "@bitwarden/common/dirt/vault-health/models";
+import { VaultHealthReportService } from "@bitwarden/common/dirt/vault-health/services";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -44,6 +39,11 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
+
+import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
+import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
+import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
+import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
 import {
   HealthDeleteAtRiskItemDialogComponent,

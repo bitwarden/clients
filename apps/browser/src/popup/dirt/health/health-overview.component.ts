@@ -1,9 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from "@angular/core";
 
-import {
-  RiskCategory,
-  VaultHealthReportView,
-} from "@bitwarden/bit-common/dirt/vault-health/models";
+import { RiskCategory, VaultHealthReportView } from "@bitwarden/common/dirt/vault-health/models";
 import {
   BitwardenIcon,
   ButtonModule,

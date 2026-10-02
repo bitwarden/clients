@@ -3,20 +3,21 @@ import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-i
 import { filter, map, of, switchMap, take } from "rxjs";
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import {
   VAULT_HEALTH_REPORT_IDLE,
   VaultHealthReportStatus,
-} from "@bitwarden/bit-common/dirt/vault-health/models";
-import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
-import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
-import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
-import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
-import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+} from "@bitwarden/common/dirt/vault-health/models";
+import { VaultHealthReportService } from "@bitwarden/common/dirt/vault-health/services";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { DialogService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
+import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
+import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
+import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
 import { HealthIntroComponent } from "./health-intro.component";
 import { HealthOverviewComponent } from "./health-overview.component";

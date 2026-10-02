@@ -117,6 +117,12 @@ import {
   ExtensionAnonLayoutWrapperComponent,
   ExtensionAnonLayoutWrapperData,
 } from "./components/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
+import { HealthRiskCategoryDetailComponent } from "./dirt/health/health-risk-category-detail.component";
+import { HealthComponent } from "./dirt/health/health.component";
+import {
+  canAccessHealth,
+  canAccessHealthDetail,
+} from "./dirt/health/services/health-access.service";
 import { debounceNavigationGuard } from "./services/debounce-navigation.service";
 import { TabsV2Component } from "./tabs-v2.component";
 
@@ -807,7 +813,19 @@ const routes: Routes = [
         canActivate: [authGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
+      {
+        path: "health",
+        component: HealthComponent,
+        canActivate: [authGuard, canAccessHealth],
+        data: { elevation: 0 } satisfies RouteDataProperties,
+      },
     ],
+  },
+  {
+    path: "health/:category",
+    component: HealthRiskCategoryDetailComponent,
+    canActivate: [authGuard, canAccessHealth, canAccessHealthDetail],
+    data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
     path: "at-risk-passwords",

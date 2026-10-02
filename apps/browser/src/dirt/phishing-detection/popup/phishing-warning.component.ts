@@ -4,7 +4,6 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { map } from "rxjs";
 
-import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -19,6 +18,7 @@ import {
 import { MessageSender } from "@bitwarden/messaging";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { BrowserApi } from "../../platform/browser/browser-api";
 import {
   PHISHING_DETECTION_CANCEL_COMMAND,
   PHISHING_DETECTION_CONTINUE_COMMAND,
