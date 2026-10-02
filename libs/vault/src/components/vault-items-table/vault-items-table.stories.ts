@@ -1,6 +1,6 @@
 import { PortalModule } from "@angular/cdk/portal";
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 import { action } from "storybook/actions";
 
@@ -528,13 +528,8 @@ export default {
   render: (args) => ({ props: args, template }),
   args: baseProps,
   decorators: [
-    moduleMetadata({
-      imports: [
-        ButtonModule,
-        TypographyModule,
-        VaultBatchActionComponent,
-        StoryLayoutFooterComponent,
-      ],
+    // App-level so dialogs opened through DialogService can resolve it.
+    applicationConfig({
       providers: [
         {
           provide: I18nService,
@@ -566,6 +561,13 @@ export default {
               clearAll: "Clear all",
               filtersSelected: (count) => `${count} selected`,
               removeItem: (name) => `Remove ${name}`,
+              // Column picker
+              customize: "Customize",
+              customizeYourView: "Customize your view",
+              showColumns: "Show columns",
+              resetToDefault: "Reset to default",
+              columnShown: (name) => `${name} column shown`,
+              columnHidden: (name) => `${name} column hidden`,
               // Cipher types, for the Type chip
               typeLogin: "Login",
               typeCard: "Card",
@@ -661,6 +663,16 @@ export default {
                 "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
             }),
         },
+      ],
+    }),
+    moduleMetadata({
+      imports: [
+        ButtonModule,
+        TypographyModule,
+        VaultBatchActionComponent,
+        StoryLayoutFooterComponent,
+      ],
+      providers: [
         {
           provide: AccountService,
           useValue: { activeAccount$: of({ id: "user-1" }) },
