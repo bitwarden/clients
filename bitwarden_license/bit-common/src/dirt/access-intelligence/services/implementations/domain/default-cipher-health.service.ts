@@ -157,9 +157,9 @@ export class DefaultCipherHealthService extends CipherHealthService {
     }
 
     // Extract username parts for better strength analysis
-    const userInput = this.isUsernameNotEmpty(cipher)
-      ? this.extractUsernameParts(cipher.login.username!)
-      : undefined;
+    const userInput = Utils.isNullOrWhitespace(cipher.login.username)
+      ? undefined
+      : this.extractUsernameParts(cipher.login.username!);
 
     const { score } = this.passwordStrengthService.getPasswordStrength(
       password,
@@ -179,10 +179,6 @@ export class DefaultCipherHealthService extends CipherHealthService {
       .trim()
       .toLowerCase()
       .split(/[^A-Za-z0-9]/);
-  }
-
-  private isUsernameNotEmpty(cipher: CipherView): boolean {
-    return !Utils.isNullOrWhitespace(cipher.login.username);
   }
 
   private getCipherPassword(cipher: CipherView): string | undefined {
@@ -325,9 +321,18 @@ export class DefaultCipherHealthService extends CipherHealthService {
 
   private scoreGroupOptimized(cipherGroup: CipherView[]): Map<string, number | undefined> {
     const strengthByCipherId = new Map<string, number | undefined>();
+    // All ciphers share the same password; username is the only other zxcvbn input, so score
+    // once per distinct username and reuse for ciphers that share it.
+    const scoreByUsername = new Map<string | undefined, number | undefined>();
 
     for (const cipher of cipherGroup) {
-      strengthByCipherId.set(cipher.id, this.getPasswordStrength(cipher));
+      const username = Utils.isNullOrWhitespace(cipher.login.username)
+        ? undefined
+        : cipher.login.username!;
+      if (!scoreByUsername.has(username)) {
+        scoreByUsername.set(username, this.getPasswordStrength(cipher));
+      }
+      strengthByCipherId.set(cipher.id, scoreByUsername.get(username));
     }
 
     return strengthByCipherId;

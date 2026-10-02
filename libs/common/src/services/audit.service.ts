@@ -137,7 +137,7 @@ export class AuditService implements AuditServiceAbstraction {
       headers.append("Add-Padding", "true");
     }
 
-    const request = new Request(PwnedPasswordsApi + hashStart, { headers, signal });
+    const request = new Request(`${PwnedPasswordsApi}${hashStart}`, { headers, signal });
     return { request, hashEnding };
   }
 
