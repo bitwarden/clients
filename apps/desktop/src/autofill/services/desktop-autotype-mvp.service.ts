@@ -88,7 +88,6 @@ export class DesktopAutotypeMvpService implements OnDestroy {
     private globalStateProvider: GlobalStateProvider,
     private platformUtilsService: PlatformUtilsService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    // Autotype MVP only
     private desktopAutotypePolicy: DesktopAutotypeDefaultSettingPolicy,
     private logService: LogService,
   ) {
@@ -126,9 +125,6 @@ export class DesktopAutotypeMvpService implements OnDestroy {
       callback(error, vaultData);
     });
 
-    // Autotype MVP only: the Autotype default setting policy is scoped to the Autotype MVP
-    // and must not be carried over to the GA implementation.
-    //
     // If `autotypeDefaultPolicy` is `true` for a user's organization, and the
     // user has never changed their local autotype setting (`autotypeEnabledState`),
     // we set their local setting to `true` (once the local user setting is changed
