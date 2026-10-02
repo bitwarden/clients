@@ -98,6 +98,7 @@ import { AppearanceComponent } from "./settings/appearance.component";
 import { DomainRulesComponent } from "./settings/domain-rules.component";
 import { CredentialGeneratorComponent } from "./tools/credential-generator/credential-generator.component";
 import { unsavedSendEditsGuard } from "./tools/guards/unsaved-send-edits.guard";
+import { ImportShellWebComponent } from "./tools/import/import-shell-web.component";
 import { AccessComponent, SendAccessExplainerComponent } from "./tools/send/send-access";
 import { SendComponent } from "./tools/send/send.component";
 import { BrowserExtensionPromptInstallComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt-install.component";
@@ -820,31 +821,32 @@ const routes: Routes = [
                   .getFeatureFlag$(FeatureFlag.ImportUpgrade)
                   .pipe(map((flagValue) => flagValue === true)),
             ],
-            // Lazy load vendor icon set
-            loadComponent: () =>
-              import("./tools/import/import-source-select-web.component").then(
-                (mod) => mod.ImportSourceSelectWebComponent,
-              ),
-            data: {
-              titleId: "importNoun",
-            } satisfies RouteDataProperties,
-          },
-          {
-            path: "import/:importType",
-            canMatch: [
-              () =>
-                inject(ConfigService)
-                  .getFeatureFlag$(FeatureFlag.ImportUpgrade)
-                  .pipe(map((flagValue) => flagValue === true)),
+            component: ImportShellWebComponent,
+            children: [
+              {
+                path: "",
+                pathMatch: "full",
+                // Lazy load vendor icon set
+                loadComponent: () =>
+                  import("./tools/import/import-source-select-web.component").then(
+                    (mod) => mod.ImportSourceSelectWebComponent,
+                  ),
+                data: {
+                  titleId: "importNoun",
+                } satisfies RouteDataProperties,
+              },
+              {
+                path: ":importType",
+                canActivate: [canActivateImportType("/tools/import")],
+                loadComponent: () =>
+                  import("./tools/import/import-controls-web.component").then(
+                    (mod) => mod.ImportControlsWebComponent,
+                  ),
+                data: {
+                  titleId: "importNoun",
+                } satisfies RouteDataProperties,
+              },
             ],
-            canActivate: [canActivateImportType("/tools/import")],
-            loadComponent: () =>
-              import("./tools/import/import-controls-web.component").then(
-                (mod) => mod.ImportControlsWebComponent,
-              ),
-            data: {
-              titleId: "importNoun",
-            } satisfies RouteDataProperties,
           },
           {
             path: "import",

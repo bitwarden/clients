@@ -1,8 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
-import { BitwardenLogo } from "@bitwarden/assets/svg";
-import { SvgModule, TypographyModule } from "@bitwarden/components";
 import {
   DefaultImportMetadataService,
   ImportMetadataServiceAbstraction,
@@ -13,14 +11,12 @@ import {
   importTypeFromRoute,
   SYSTEM_SERVICE_PROVIDER,
 } from "@bitwarden/importer-ui";
-import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
-
-import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
+import { safeProvider } from "@bitwarden/ui-common";
 
 @Component({
   templateUrl: "import-controls-browser.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ImportControlsComponent, I18nPipe, PopupPageComponent, SvgModule, TypographyModule],
+  imports: [ImportControlsComponent],
   providers: [
     ...ImporterProviders,
     safeProvider({
@@ -33,8 +29,6 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
 export class ImportControlsBrowserComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-
-  protected readonly logo = BitwardenLogo;
 
   protected readonly importType = importTypeFromRoute(this.route);
 

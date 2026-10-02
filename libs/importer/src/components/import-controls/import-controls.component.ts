@@ -41,7 +41,6 @@ import {
   IconButtonModule,
   IconComponent,
   LinkModule,
-  ProgressBarComponent,
   RadioButtonModule,
   SegmentedCardComponent,
   SelectModule,
@@ -133,7 +132,6 @@ function setEnabled(control: FormControl<unknown>, enabled: boolean): void {
     IconButtonModule,
     IconComponent,
     LinkModule,
-    ProgressBarComponent,
     ReactiveFormsModule,
     RadioButtonModule,
     SegmentedCardComponent,
@@ -162,21 +160,12 @@ export class ImportControlsComponent {
   /** The vendor chosen in step 1 — the picker's canonical `ImportType` for that vendor's card. */
   readonly importType = input.required<ImportType>();
 
-  /** Current position in the overall import flow, for the step progress bar. */
-  readonly currentStep = input(2);
-  readonly totalSteps = input(3);
-
   /** Fires once the import actually succeeds, not on button click, so the parent navigates only
    *  when there's something to see. */
   readonly continue = output<void>();
 
   /** Tells the parent component the user clicked back so that it can react.  */
   readonly back = output<void>();
-
-  protected readonly progressValue = computed(() => (this.currentStep() / this.totalSteps()) * 100);
-  protected readonly stepText = computed(() =>
-    this.i18nService.t("importSourceStepCount", this.currentStep(), this.totalSteps()),
-  );
 
   private readonly clientType = this.platformUtilsService.getClientType();
 
@@ -210,8 +199,16 @@ export class ImportControlsComponent {
       .join(","),
   );
 
-  protected readonly acceptedFileTypesHint = computed(() => this.acceptedFileTypes().join(", "));
-  protected readonly pasteFormatsHint = computed(() => this.pasteFormats().join(", "));
+  protected readonly acceptedFileTypesHint = computed(() =>
+    this.acceptedFileTypes()
+      .map((type) => `.${type}`)
+      .join(", "),
+  );
+  protected readonly pasteFormatsHint = computed(() =>
+    this.pasteFormats()
+      .map((type) => `.${type}`)
+      .join(", "),
+  );
 
   private readonly importType$ = toObservable(this.importType);
 
@@ -475,6 +472,12 @@ export class ImportControlsComponent {
       setEnabled(this.formGroup.controls.method, manualActive);
       setEnabled(this.formGroup.controls.file, manualActive);
       setEnabled(this.formGroup.controls.fileContents, manualActive);
+    });
+
+    effect(() => {
+      const fileRequired = this.method() === "file";
+      this.formGroup.controls.file.setValidators(fileRequired ? Validators.required : []);
+      this.formGroup.controls.file.updateValueAndValidity();
     });
 
     effect(() => {

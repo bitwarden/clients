@@ -4,7 +4,6 @@ import {
   Component,
   computed,
   inject,
-  input,
   linkedSignal,
   output,
   untracked,
@@ -24,7 +23,6 @@ import {
   DisclosureTriggerForDirective,
   IconTileComponent,
   LinkModule,
-  ProgressBarComponent,
   RadioButtonModule,
   SearchModule,
   SegmentedCardComponent,
@@ -58,7 +56,6 @@ import {
     I18nPipe,
     LinkModule,
     NgTemplateOutlet,
-    ProgressBarComponent,
     ReactiveFormsModule,
     RadioButtonModule,
     SearchModule,
@@ -78,18 +75,8 @@ export class ImportSourceSelectComponent {
     { initialValue: false },
   );
 
-  /** Current position in the overall import flow, for the step progress bar. */
-  readonly currentStep = input(1);
-  /** Total number of steps in the overall import flow. */
-  readonly totalSteps = input(3);
-
   /** Emits the chosen import format when Continue is pressed. */
   readonly continue = output<ImportType>();
-
-  protected readonly progressValue = computed(() => (this.currentStep() / this.totalSteps()) * 100);
-  protected readonly stepText = computed(() =>
-    this.i18nService.t("importSourceStepCount", this.currentStep(), this.totalSteps()),
-  );
 
   protected readonly sourceControl = new FormControl<ImportType | null>(null);
   protected readonly selectedSource = toSignal(this.sourceControl.valueChanges, {

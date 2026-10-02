@@ -13,12 +13,10 @@ import {
 } from "@bitwarden/importer-ui";
 import { safeProvider } from "@bitwarden/ui-common";
 
-import { HeaderModule } from "../../layouts/header/header.module";
-
 @Component({
   templateUrl: "import-controls-web.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ImportControlsComponent, HeaderModule],
+  imports: [ImportControlsComponent],
   providers: [
     ...ImporterProviders,
     safeProvider({

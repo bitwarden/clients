@@ -26,8 +26,6 @@ export default {
               search: "Search",
               resetSearch: "Reset search",
               continue: "Continue",
-              progressBar: "Progress",
-              importSourceBreadcrumb: "Select source",
               importSourceBrowsers: "Browsers",
               importSourcePasswordManagers: "Password managers",
               importSourceSelectTitle: "Select your source",
@@ -35,8 +33,6 @@ export default {
                 "Choose the password manager or browser you are importing from.",
               importSourceShowAll: "Show all",
               importSourceShowLess: "Show less",
-              importSourceStepCount: (current?: string, total?: string) =>
-                `Step ${current} of ${total}`,
               noMatchingItems: "No matching items",
             });
           },
@@ -52,12 +48,5 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: `<importer-source-select></importer-source-select>`,
-  }),
-};
-
-export const SecondStep: Story = {
-  render: (args) => ({
-    props: args,
-    template: `<importer-source-select [currentStep]="2" [totalSteps]="3"></importer-source-select>`,
   }),
 };

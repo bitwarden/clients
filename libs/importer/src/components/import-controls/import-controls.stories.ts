@@ -233,7 +233,7 @@ function decoratorsFor(
           useFactory: () =>
             new I18nMockService({
               back: "Back",
-              continue: "Continue",
+              importVerb: "Import",
               method: "Method",
               // bit-callout resolves these unconditionally (close button label, its default
               // landmark name when untitled) and bit-form-field resolves "required" whenever a
@@ -317,8 +317,6 @@ function decoratorsFor(
                 'Using the KeePass 2 desktop application, navigate to "File" → "Export" and select the "KeePass XML (2.x)" option.',
               importAcceptedFormats: (formats?: string) => `Accepted: ${formats}`,
               importWhichFormat: "Which of these matches what you're importing?",
-              importSourceStepCount: (current?: string, total?: string) =>
-                `Step ${current} of ${total}`,
               fastest: "Fastest",
               keePassMasterPassword: "Master password",
               keyFileUpload: "Key file",

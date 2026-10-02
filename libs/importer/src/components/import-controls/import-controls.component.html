@@ -1,17 +1,3 @@
-<bit-progress-bar
-  [hideStartHint]="true"
-  [value]="progressValue()"
-  [accessibleName]="stepText()"
-  [ariaValueText]="stepText()"
-></bit-progress-bar>
-<p
-  bitTypography="helper"
-  noMargin
-  aria-hidden="true"
-  class="tw-mt-1 tw-mb-4 tw-text-fg-body-subtle"
->
-  {{ stepText() }}
-</p>
 <form [formGroup]="formGroup" [bitSubmit]="submit" [allowDisabledFormSubmit]="true">
   <bit-card-segmented>
     <bit-card-content>
@@ -178,7 +164,7 @@
           </bit-callout>
         }
 
-        <bit-radio-group formControlName="method">
+        <bit-radio-group formControlName="method" [block]="true">
           <bit-label>{{ "method" | i18n }}</bit-label>
           <bit-radio-button class="tw-block" value="file" id="importer-controls_radio_file">
             <bit-label>{{ "uploadFile" | i18n }}</bit-label>
@@ -193,6 +179,7 @@
             formControlName="file"
             id="importer-controls_input_file"
             [accept]="fileAccept()"
+            class="[&_bit-form-field]:!tw-mb-0"
           >
             <bit-label>{{ "uploadFile" | i18n }}</bit-label>
             <bit-hint>{{ "importAcceptedFormats" | i18n: acceptedFileTypesHint() }}</bit-hint>
@@ -210,7 +197,7 @@
         }
 
         @if (needsFormatDisambiguation()) {
-          <bit-radio-group formControlName="formatChoice" class="tw-mt-4">
+          <bit-radio-group formControlName="formatChoice" [block]="true" class="tw-mt-4">
             <bit-label>{{ "importWhichFormat" | i18n }}</bit-label>
             @for (candidate of candidateFormats(); track candidate.id) {
               <bit-radio-button
@@ -303,7 +290,7 @@
             [disabled]="capabilitiesPending() || profilesPending()"
             id="importer-controls_button_continue"
           >
-            {{ "continue" | i18n }}
+            {{ "importVerb" | i18n }}
           </button>
         </div>
       </div>

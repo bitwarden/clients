@@ -4663,6 +4663,9 @@
   "importSourceBreadcrumb": {
     "message": "Select source"
   },
+  "importData": {
+    "message": "Import data"
+  },
   "importSourceSelectTitle": {
     "message": "Select your source"
   },
@@ -4839,7 +4842,7 @@
     }
   },
   "importDataManualSubtitle": {
-    "message": "Export from $VENDOR$ or copy and paste the export content.",
+    "message": "Import from $VENDOR$ or copy and paste the export content.",
     "placeholders": {
       "vendor": {
         "content": "$1",

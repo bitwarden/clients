@@ -1,5 +1,5 @@
-import { Injectable, NgModule } from "@angular/core";
-import { ActivatedRouteSnapshot, RouteReuseStrategy, RouterModule, Routes } from "@angular/router";
+import { NgModule } from "@angular/core";
+import { RouteReuseStrategy, RouterModule, Routes } from "@angular/router";
 
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
 import { AuthRoute } from "@bitwarden/angular/auth/constants";
@@ -86,6 +86,7 @@ import { SendV2Component } from "../tools/popup/send-v2/send-v2.component";
 import { AboutPageV2Component } from "../tools/popup/settings/about-page/about-page-v2.component";
 import { ExportBrowserV2Component } from "../tools/popup/settings/export/export-browser-v2.component";
 import { ImportBrowserV2Component } from "../tools/popup/settings/import/import-browser-v2.component";
+import { ImportShellBrowserComponent } from "../tools/popup/settings/import/import-shell-browser.component";
 import { SettingsV2Component } from "../tools/popup/settings/settings-v2.component";
 import { ShareItemComponent } from "../tools/popup/share/share-item.component";
 import { AtRiskPasswordsComponent } from "../vault/popup/components/at-risk-passwords/at-risk-passwords.component";
@@ -118,6 +119,7 @@ import {
   ExtensionAnonLayoutWrapperComponent,
   ExtensionAnonLayoutWrapperData,
 } from "./components/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
+import { NoRouteReuseStrategy } from "./no-route-reuse-strategy";
 import { debounceNavigationGuard } from "./services/debounce-navigation.service";
 import { TabsV2Component } from "./tabs-v2.component";
 
@@ -292,26 +294,30 @@ const routes: Routes = [
   },
   {
     path: "import-source-select",
-    // Lazy load vendor icon set
-    loadComponent: () =>
-      import("../tools/popup/settings/import/import-source-select-browser.component").then(
-        (m) => m.ImportSourceSelectBrowserComponent,
-      ),
+    component: ImportShellBrowserComponent,
     canActivate: [authGuard, importUpgradeRequiredGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
-  },
-  {
-    path: "import/:importType",
-    loadComponent: () =>
-      import("../tools/popup/settings/import/import-controls-browser.component").then(
-        (m) => m.ImportControlsBrowserComponent,
-      ),
-    canActivate: [
-      authGuard,
-      importUpgradeRequiredGuard,
-      canActivateImportType("/import-source-select"),
+    children: [
+      {
+        path: "",
+        pathMatch: "full",
+        // Lazy load vendor icon set
+        loadComponent: () =>
+          import("../tools/popup/settings/import/import-source-select-browser.component").then(
+            (m) => m.ImportSourceSelectBrowserComponent,
+          ),
+        data: { elevation: 1 } satisfies RouteDataProperties,
+      },
+      {
+        path: ":importType",
+        loadComponent: () =>
+          import("../tools/popup/settings/import/import-controls-browser.component").then(
+            (m) => m.ImportControlsBrowserComponent,
+          ),
+        canActivate: [canActivateImportType("/import-source-select")],
+        data: { elevation: 1 } satisfies RouteDataProperties,
+      },
     ],
-    data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
     path: "export",
@@ -871,30 +877,6 @@ const routes: Routes = [
     ],
   },
 ];
-
-@Injectable()
-export class NoRouteReuseStrategy implements RouteReuseStrategy {
-  shouldDetach(route: ActivatedRouteSnapshot) {
-    return false;
-  }
-
-  // eslint-disable-next-line
-  store(route: ActivatedRouteSnapshot, handle: {}) {
-    /* Nothing */
-  }
-
-  shouldAttach(route: ActivatedRouteSnapshot) {
-    return false;
-  }
-
-  retrieve(route: ActivatedRouteSnapshot): any {
-    return null;
-  }
-
-  shouldReuseRoute(future: ActivatedRouteSnapshot, curr: ActivatedRouteSnapshot) {
-    return false;
-  }
-}
 
 @NgModule({
   imports: [

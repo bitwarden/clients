@@ -1,0 +1,37 @@
+<popup-page disablePadding>
+  <!-- Per Figma discussion this should be fixed and not scroll with contents -->
+  <div class="tw-min-h-full tw-bg-bg-primary">
+    <!-- The logo sits at the true left edge of its own full-width strip
+     in order to match the Web Vault but without a nav panel below (per Figma) -->
+    <bit-svg
+      [content]="logo"
+      [ariaLabel]="'appLogoLabel' | i18n"
+      class="tw-mb-2 tw-block tw-w-40 tw-pl-4 tw-pt-4"
+    ></bit-svg>
+    <div class="tw-max-w-6xl tw-mx-auto tw-p-4 tw-py-0">
+      <h1 bitTypography="h1" noMargin>{{ "importNoun" | i18n }}</h1>
+    </div>
+    <div class="tw-max-w-6xl tw-mx-auto tw-p-4">
+      <p bitTypography="h5" noMargin class="tw-mb-2 !tw-text-fg-heading">
+        {{ headingKey() | i18n }}
+      </p>
+
+      <bit-progress-bar
+        [hideStartHint]="true"
+        [value]="progressValue()"
+        [accessibleName]="stepText()"
+        [ariaValueText]="stepText()"
+      ></bit-progress-bar>
+      <p
+        bitTypography="helper"
+        noMargin
+        aria-hidden="true"
+        class="tw-mt-1 tw-mb-4 tw-text-fg-body-subtle"
+      >
+        {{ stepText() }}
+      </p>
+
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</popup-page>

@@ -51,6 +51,6 @@ describe("ImportSourceSelectBrowserComponent", () => {
       .query(By.css("importer-source-select"))
       .triggerEventHandler("continue", "keeper");
 
-    expect(router.navigate).toHaveBeenCalledWith(["/import", "keeper"]);
+    expect(router.navigate).toHaveBeenCalledWith(["/import-source-select", "keeper"]);
   });
 });

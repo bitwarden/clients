@@ -639,6 +639,40 @@ describe("ImportControlsComponent", () => {
       );
     });
 
+    it("prefixes each extension with a dot in the hint text, unlike the raw acceptedFileTypes", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+      expect(component().acceptedFileTypesHint()).toBe(".csv, .json");
+
+      component().formGroup.controls.method.setValue("paste");
+      fixture.detectChanges();
+      expect(component().pasteFormatsHint()).toBe(".csv, .json");
+    });
+
+    it("binds the method radio group's block input to true, so it actually renders stacked vertically", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+      const radioGroup = fixture.debugElement.query(By.css("bit-radio-group"));
+
+      expect((radioGroup.componentInstance as { block: () => boolean }).block()).toBe(true);
+    });
+
+    it("applies the deep-selector margin override to the file-upload element", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+      const fileUpload = fixture.nativeElement.querySelector("bit-file-upload");
+
+      expect(fileUpload.className).toContain("[&_bit-form-field]:!tw-mb-0");
+    });
+
+    it("binds the formatChoice radio group's block input to true too", async () => {
+      await setup("1password1pux", ClientType.Web);
+      component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
+      fixture.detectChanges();
+
+      const radioGroups = fixture.debugElement.queryAll(By.css("bit-radio-group"));
+      const formatChoiceGroup = radioGroups[radioGroups.length - 1];
+
+      expect((formatChoiceGroup.componentInstance as { block: () => boolean }).block()).toBe(true);
+    });
+
     it("does not need disambiguation for a vendor with no extension collision", async () => {
       await setup("dashlanecsv", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.csv" } as File);

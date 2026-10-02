@@ -3671,7 +3671,7 @@
     }
   },
   "importDataManualSubtitle": {
-    "message": "Export from $VENDOR$ or copy and paste the export content.",
+    "message": "Import from $VENDOR$ or copy and paste the export content.",
     "placeholders": {
       "vendor": {
         "content": "$1",

@@ -11,14 +11,12 @@ import {
 } from "@bitwarden/importer-ui";
 import { safeProvider } from "@bitwarden/ui-common";
 
-import { DesktopHeaderComponent } from "../../layout/header";
-
 import { DesktopImportMetadataService } from "./desktop-import-metadata.service";
 
 @Component({
   templateUrl: "import-controls-desktop.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ImportControlsComponent, DesktopHeaderComponent],
+  imports: [ImportControlsComponent],
   providers: [
     ...ImporterProviders,
     safeProvider({
