@@ -209,6 +209,12 @@ export function libraryFileName(cargoPackage: string, target: RustTarget): strin
   return `${prefix}${cargoPackage}.${nodePlatform}-${nodeArch}${extension}`;
 }
 
+/// True when a target needs a different platform's toolchain, which is what napi-rs calls a
+/// cross compile. A different architecture on the same platform does not count.
+export function isCrossPlatform(host: HostPlatform, target: RustTarget): boolean {
+  return RUST_TARGETS[target].nodePlatform !== host;
+}
+
 export function crossCompilationPlan(
   host: HostPlatform,
   targets: RustTarget[],
