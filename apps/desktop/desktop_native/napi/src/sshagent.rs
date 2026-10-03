@@ -127,10 +127,14 @@ pub mod sshagent {
         #[cfg(unix)]
         return run_blocking(ssh_agent::apply_configuration).await;
 
+        // Routed through `run_blocking` so both platforms share the async signature.
         #[cfg(windows)]
-        Err(napi::Error::from_reason(
-            "Automatic configuration is not supported on windows",
-        ))
+        run_blocking(|| {
+            Err(anyhow::anyhow!(
+                "Automatic configuration is not supported on windows"
+            ))
+        })
+        .await
     }
 
     async fn run_blocking<T: Send + 'static>(

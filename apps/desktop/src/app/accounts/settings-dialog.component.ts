@@ -335,7 +335,8 @@ export class SettingsDialogComponent implements OnInit {
     this.form.setValue(initialValues, { emitEvent: false });
 
     // Kept off the critical render path: it shells out on Windows.
-    await this.refreshSshAgentConfigured();
+    // Not awaited; the method swallows its own errors.
+    void this.refreshSshAgentConfigured();
 
     if (this.isWindows) {
       this.billingAccountProfileStateService
