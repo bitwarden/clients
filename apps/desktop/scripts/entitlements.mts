@@ -108,6 +108,47 @@ export function masAppEntitlements(options: EntitlementsOptions): Entitlements {
   };
 }
 
+/// Inherited by the app's child processes on a directly distributed build. Not sandboxed, so
+/// there is nothing to inherit but the JIT permission the renderer needs.
+export function macAppInheritEntitlements(): Entitlements {
+  return { "com.apple.security.cs.allow-jit": true };
+}
+
+/// Inherited by the app's child processes inside the sandbox. `inherit` is what makes a child
+/// take the parent's sandbox rather than being denied everything.
+export function masAppInheritEntitlements(): Entitlements {
+  return {
+    "com.apple.security.app-sandbox": true,
+    "com.apple.security.cs.allow-jit": true,
+    "com.apple.security.inherit": true,
+  };
+}
+
+/// The App Store login helper, which only needs to be inside the sandbox.
+export function masLoginHelperEntitlements(): Entitlements {
+  return { "com.apple.security.app-sandbox": true };
+}
+
+/// The native messaging proxy on an App Store build. It is launched by the browser rather than
+/// by the app, so it does not inherit the app's sandbox and has to name the app group itself --
+/// that group is the only way it can reach the app.
+export function desktopProxyEntitlements(options: EntitlementsOptions): Entitlements {
+  return {
+    "com.apple.security.app-sandbox": true,
+    "com.apple.security.application-groups": [appGroup(options)],
+    "com.apple.security.cs.allow-jit": true,
+  };
+}
+
+/// The copy of the proxy that the app launches, which does inherit the sandbox.
+export function desktopProxyInheritEntitlements(): Entitlements {
+  return {
+    "com.apple.security.app-sandbox": true,
+    "com.apple.security.inherit": true,
+    "com.apple.security.cs.allow-jit": true,
+  };
+}
+
 /// Serializes to the plist dialect Xcode and codesign write: tab indented, keys in the order
 /// they were given, and a trailing newline.
 export function serializePlist(entitlements: Entitlements): string {
