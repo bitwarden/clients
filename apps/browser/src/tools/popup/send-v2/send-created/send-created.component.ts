@@ -16,10 +16,12 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { ButtonModule, SvgModule, ToastService } from "@bitwarden/components";
 
+import BrowserPopupUtils from "../../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
+import { SendPopoutType } from "../../utils/send-popout-window";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -86,6 +88,23 @@ export class SendCreatedComponent {
 
   async goBack() {
     await this.router.navigate(["/tabs/send"]);
+  }
+
+  /**
+   * Dismisses the created-Send view.
+   *
+   * File Sends prompt the user to pop the extension out, because the file picker cannot be opened
+   * from the popup on some browsers. That popout exists only to carry this flow, so finishing the
+   * flow should close it rather than leave the user holding a window they never asked for. A
+   * popout the user opened themselves is left alone — there, dismissing means going back.
+   */
+  async close() {
+    if (BrowserPopupUtils.inSingleActionPopout(window, SendPopoutType.addFileSend)) {
+      await BrowserPopupUtils.closeSingleActionPopout(SendPopoutType.addFileSend);
+      return;
+    }
+
+    await this.goBack();
   }
 
   async copyLink() {
