@@ -245,70 +245,70 @@
     "message": "Ko bo Access Intelligence imel podatke iz trezorja, bo imel vse, kar potrebuje za poročanje o stanju gesel vaše organizacije."
   },
   "accessIntelligenceWelcomeTour": {
-    "message": "Access Intelligence welcome tour"
+    "message": "Predstavitveni ogled Access Intelligence"
   },
   "startTour": {
-    "message": "Start tour"
+    "message": "Začni ogled"
   },
   "noDataInOrgTitle": {
-    "message": "No data found"
+    "message": "Podatki niso bili najdeni"
   },
   "noDataInOrgDescription": {
-    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
+    "message": "Uvozite prijavne podatke svoje organizacije in začnite uporabljati Access Intelligence. Ko to storite, boste lahko:"
   },
   "feature1Title": {
-    "message": "Mark applications as critical"
+    "message": "Označi aplikacije kot kritične"
   },
   "feature1Description": {
-    "message": "This will help you remove risks to your most important applications first."
+    "message": "To vam bo pomagalo, da najprej odpravite tveganja za svoje najpomembnejše aplikacije."
   },
   "feature2Title": {
-    "message": "Help members improve their security"
+    "message": "Pomagajte članom izboljšati njihovo varnost"
   },
   "feature2Description": {
-    "message": "Assign at-risk members guided security tasks to update credentials."
+    "message": "Članom, pri katerih obstaja tveganje, dodelite vodene varnostne naloge za posodobitev poverilnic."
   },
   "feature3Title": {
-    "message": "Monitor progress"
+    "message": "Spremljajte napredek"
   },
   "feature3Description": {
-    "message": "Track changes over time to show security improvements."
+    "message": "Spremljajte spremembe skozi čas in tako prikažite izboljšave na področju varnosti."
   },
   "noReportsRunTitle": {
-    "message": "Generate report"
+    "message": "Ustvari poročilo"
   },
   "noReportsRunDescription": {
-    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
+    "message": "Pripravljeni ste začeti ustvarjati poročila. Ko jih ustvarite, boste lahko:"
   },
   "noCriticalApplicationsTitle": {
-    "message": "You haven’t marked any applications as critical"
+    "message": "Nobene aplikacije niste označili kot kritične"
   },
   "noCriticalApplicationsDescription": {
-    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
+    "message": "Izberite svoje najpomembnejše aplikacije in določite prednostne varnostne ukrepe, s katerimi bodo uporabniki naslovili tvegana gesla."
   },
   "markCriticalApplications": {
-    "message": "Select critical applications"
+    "message": "Izberite kritične aplikacije"
   },
   "markAppAsCritical": {
-    "message": "Mark app as critical"
+    "message": "Označi aplikacijo kot kritično"
   },
   "markAsCritical": {
-    "message": "Mark as critical"
+    "message": "Označi kot kritično"
   },
   "applicationsSelected": {
-    "message": "applications selected"
+    "message": "izbrane aplikacije"
   },
   "selectApplication": {
-    "message": "Select application"
+    "message": "Izberite aplikacijo"
   },
   "unselectApplication": {
-    "message": "Unselect application"
+    "message": "Prekliči izbiro aplikacije"
   },
   "applicationsMarkedAsCriticalSuccess": {
-    "message": "Applications marked as critical"
+    "message": "Aplikacije, označene kot kritične"
   },
   "criticalApplicationsMarkedSuccess": {
-    "message": "$COUNT$ applications marked as critical",
+    "message": "$COUNT$ aplikacij, označenih kot kritične",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -317,7 +317,7 @@
     }
   },
   "numCriticalApplicationsMarkedSuccess": {
-    "message": "$COUNT$ applications marked critical",
+    "message": "$COUNT$ aplikacij označenih kot kritične",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -326,7 +326,7 @@
     }
   },
   "numApplicationsUnmarkedCriticalSuccess": {
-    "message": "$COUNT$ applications marked not critical",
+    "message": "$COUNT$ aplikacij je označenih kot nekritične",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -335,7 +335,7 @@
     }
   },
   "markAppCountAsCritical": {
-    "message": "Mark $COUNT$ as critical",
+    "message": "Označi $COUNT$ kot kritično",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -344,7 +344,7 @@
     }
   },
   "markAppCountAsNotCritical": {
-    "message": "Mark $COUNT$ as not critical",
+    "message": "Označi $COUNT$ kot nekritično",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -353,40 +353,40 @@
     }
   },
   "applicationsMarkedAsCriticalFail": {
-    "message": "Failed to mark applications as critical"
+    "message": "Označevanje aplikacij kot kritičnih ni uspelo"
   },
   "applicationsUnmarkedAsCriticalFail": {
-    "message": "Failed to unmark applications as critical"
+    "message": "Oznake aplikacij kot kritičnih ni bilo mogoče odstraniti"
   },
   "application": {
-    "message": "Application"
+    "message": "Aplikacija"
   },
   "applications": {
-    "message": "Applications"
+    "message": "Aplikacije"
   },
   "atRiskPasswords": {
-    "message": "At-risk passwords"
+    "message": "Ogrožena gesla"
   },
   "requestPasswordChange": {
-    "message": "Request password change"
+    "message": "Zahtevaj spremembo gesla"
   },
   "totalPasswords": {
-    "message": "Total passwords"
+    "message": "Skupno število gesel"
   },
   "searchApps": {
-    "message": "Search applications"
+    "message": "Iskanje aplikacij"
   },
   "atRiskMembers": {
-    "message": "At-risk members"
+    "message": "Ogroženi člani"
   },
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
-    "message": "These members have access to vulnerable items for critical applications."
+    "message": "Ti člani imajo dostop do občutljivih elementov za kritične aplikacije."
   },
   "membersWithAtRiskPwds": {
-    "message": "Members with at risk passwords"
+    "message": "Člani z ogroženimi gesli"
   },
   "membersWithAtRiskPasswordsAndForCriticalApplications": {
-    "message": "$ATRISKAPPCOUNT$ Members with at risk passwords for $CRITICALAPPCOUNT$ Critical applications",
+    "message": "$ATRISKAPPCOUNT$ uporabnikov z ogroženimi gesli za $CRITICALAPPCOUNT$ kritičnih aplikacij",
     "placeholders": {
       "atRiskAppCount": {
         "content": "$1",
@@ -399,10 +399,10 @@
     }
   },
   "membersWillReceiveSecurityTask": {
-    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
+    "message": "Članom vaše organizacije bo dodeljena naloga, da spremenijo ranljiva gesla. Prejeli bodo obvestilo v svoji razširitvi brskalnika Bitwarden."
   },
   "membersAtRiskCount": {
-    "message": "$COUNT$ members at-risk",
+    "message": "$COUNT$ ogroženih članov",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -411,7 +411,7 @@
     }
   },
   "atRiskMembersWithCount": {
-    "message": "At-risk members ($COUNT$)",
+    "message": "Člani, pri katerih obstaja tveganje ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -420,7 +420,7 @@
     }
   },
   "atRiskApplicationsWithCount": {
-    "message": "At-risk applications ($COUNT$)",
+    "message": "Aplikacije z visokim tveganjem ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -429,7 +429,7 @@
     }
   },
   "ofCountTotal": {
-    "message": "of $TOTAL$ total",
+    "message": "od skupno $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -438,19 +438,19 @@
     }
   },
   "atRiskMemberDescription": {
-    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
+    "message": "Ti uporabniki se v kritične aplikacije prijavljajo s šibkimi, razkritimi ali ponovno uporabljenimi gesli."
   },
   "atRiskMembersDescriptionNone": {
-    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+    "message": "To niso člani, ki se v aplikacije prijavljajo s šibkimi, razkritimi ali ponovno uporabljenimi gesli."
   },
   "atRiskApplicationsDescription": {
-    "message": "These applications have weak, exposed, or reused passwords."
+    "message": "Te aplikacije imajo šibka, izpostavljena ali ponovno uporabljena gesla."
   },
   "atRiskApplicationsDescriptionNone": {
-    "message": "These are no applications with weak, exposed, or reused passwords."
+    "message": "To niso aplikacije s šibkimi, izpostavljenimi ali ponovno uporabljenimi gesli."
   },
   "atRiskMembersDescriptionWithApp": {
-    "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
+    "message": "Ti člani se v $APPNAME$ prijavljajo s šibkimi, razkritimi ali ponovno uporabljenimi gesli.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -459,7 +459,7 @@
     }
   },
   "atRiskMembersDescriptionWithAppNone": {
-    "message": "There are no at risk members for $APPNAME$.",
+    "message": "Za $APPNAME$ ni ogroženih članov.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -471,7 +471,7 @@
     "message": "Skupaj članov"
   },
   "atRiskApplications": {
-    "message": "At-risk applications"
+    "message": "Ogrožene aplikacije"
   },
   "totalApplications": {
     "message": "Skupno število vlog"
@@ -1225,7 +1225,7 @@
     "message": "Shared folders"
   },
   "sharedFoldersInParent": {
-    "message": "Shared folders in $NAME$",
+    "message": "Deljene mape v $NAME$",
     "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
     "placeholders": {
       "name": {
@@ -1235,7 +1235,7 @@
     }
   },
   "sharedFolderCount": {
-    "message": "$COUNT$ shared folders",
+    "message": "$COUNT$ map v skupni rabi",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1244,27 +1244,13 @@
     }
   },
   "sharedFolderSingular": {
-    "message": "$COUNT$ shared folder",
+    "message": "$COUNT$ deljena mapa",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "1"
       }
     }
-  },
-  "moreSharedFoldersShownAbove": {
-    "message": "$COUNT$ more shared folders shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "1 more shared folder shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
   },
   "myFolder": {
     "message": "Moja mapa"
@@ -1275,8 +1261,11 @@
   "foldersFilterTooltip": {
     "message": "Dodajte mape elementom, da jih filtrirate tukaj."
   },
+  "myItemsFilterTooltip": {
+    "message": "Dodajte elemente med »Moje elemente«, da jih lahko tukaj filtrirate."
+  },
   "sharedFolderFilterTooltip": {
-    "message": "Add items to a shared folder to filter here."
+    "message": "Dodajte elemente v mapo v skupni rabi, da jih lahko tukaj filtrirate."
   },
   "addSharedFolder": {
     "message": "Dodaj mapo v skupni rabi"
@@ -1378,11 +1367,11 @@
     "message": "Če element premaknete v mapo v skupni rabi, ga lahko varno delite z drugimi člani trezorja."
   },
   "deleteManyOrganizationUsersWarningDescSharedFolders": {
-    "message": "This will permanently delete all items owned by the following members. Shared folder items are not impacted.",
+    "message": "S tem bodo trajno izbrisani vsi elementi v lasti spodnjih članov. Elementi v deljenih mapah ne bodo prizadeti.",
     "description": "Warning description for the bulk delete organization users dialog when the vault terminology feature flag is on"
   },
   "deleteOrganizationUserWarningDescSharedFolders": {
-    "message": "This will permanently delete all items owned by $NAME$. Shared folder items are not impacted.",
+    "message": "S tem bodo trajno izbrisani vsi elementi v lasti uporabnika $NAME$. Elementi v deljenih mapah ne bodo prizadeti.",
     "description": "Warning description for the delete organization user dialog when the vault terminology feature flag is on",
     "placeholders": {
       "name": {
@@ -1392,31 +1381,31 @@
     }
   },
   "adminDescSharedFolders": {
-    "message": "Manage organization access, all shared folders, members, reporting, and security settings"
+    "message": "Upravljajte dostop do organizacije, vse deljene mape, člane, poročanje in varnostne nastavitve"
   },
   "adminRoleDescSharedFolders": {
-    "message": "Manage all shared folders, members, reporting, and security settings"
+    "message": "Upravljajte vse deljene mape, člane, poročanje in varnostne nastavitve"
   },
   "userDescSharedFolders": {
-    "message": "Access and add items to assigned shared folders"
+    "message": "Dostopajte do dodeljenih skupnih map in vanje dodajajte elemente"
   },
   "groupAccessUserDescSharedFolders": {
-    "message": "Grant member access to shared folders by adding them to 1 or more groups."
+    "message": "Članom omogočite dostop do deljenih map tako, da jih dodate v eno ali več skupin."
   },
   "manageAllSharedFolders": {
-    "message": "Manage all shared folders"
+    "message": "Upravljajte vse mape v skupni rabi"
   },
   "createNewSharedFolders": {
-    "message": "Create new shared folders"
+    "message": "Ustvari nove mape v skupni rabi"
   },
   "editAnySharedFolder": {
-    "message": "Edit any shared folder"
+    "message": "Uredi katero koli deljeno mapo"
   },
   "deleteAnySharedFolder": {
-    "message": "Delete any shared folder"
+    "message": "Izbrišite katero koli deljeno mapo"
   },
   "cannotAddYourselfToSharedFolders": {
-    "message": "You cannot add yourself to shared folders."
+    "message": "Ne morete se dodati v mape v skupni rabi."
   },
   "attachments": {
     "message": "Priponke"
@@ -1431,7 +1420,7 @@
     "message": "Dodaj element"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "Izberite element za dodajanje"
   },
   "editItem": {
     "message": "Uredi element"
@@ -1440,51 +1429,51 @@
     "message": "Ogled elementa"
   },
   "addItemHeaderLogin": {
-    "message": "Add login",
+    "message": "Dodaj prijavo",
     "description": "Header for new login item type"
   },
   "addItemHeaderCard": {
-    "message": "Add card",
+    "message": "Dodaj kartico",
     "description": "Header for new card item type"
   },
   "addItemHeaderIdentity": {
-    "message": "Add identity",
+    "message": "Dodaj identiteto",
     "description": "Header for new identity item type"
   },
   "addItemHeaderNote": {
-    "message": "Add note",
+    "message": "Dodaj opombo",
     "description": "Header for new note item type"
   },
   "addItemHeaderSecureNote": {
-    "message": "Add secure note",
+    "message": "Dodaj varno opombo",
     "description": "Header for new secure note item type"
   },
   "addItemHeaderSshKey": {
-    "message": "Add SSH key",
+    "message": "Dodaj ključ SSH",
     "description": "Header for new SSH key item type"
   },
   "addItemHeaderBankAccount": {
-    "message": "Add bank account",
+    "message": "Dodaj bančni račun",
     "description": "Header for new bank account item type"
   },
   "addItemHeaderDriversLicense": {
-    "message": "Add license",
+    "message": "Dodaj licenco",
     "description": "Header for new license item type"
   },
   "addItemHeaderPassport": {
-    "message": "Add passport",
+    "message": "Dodaj potni list",
     "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "Nova prijava",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "Nova kartica",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "Nova identiteta",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
@@ -1492,43 +1481,43 @@
     "description": "Header for new note item type"
   },
   "newItemHeaderSecureNote": {
-    "message": "New secure note",
+    "message": "Nov varen zapisek",
     "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "Nov ključ SSH",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "Nov bančni račun",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "New license",
+    "message": "Nova licenca",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
-    "message": "New passport",
+    "message": "Nov potni list",
     "description": "Header for new passport item type"
   },
   "newItemHeaderTextSendV2": {
-    "message": "New text",
+    "message": "Novo besedilo",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSendV2": {
-    "message": "New file",
+    "message": "Nova datoteka",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "Uredi prijavo",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "Uredi kartico",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "Uredi identiteto",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
@@ -1536,47 +1525,47 @@
     "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
-    "message": "Edit secure note",
+    "message": "Uredi varno opombo",
     "description": "Header for edit secure note item type"
   },
   "editItemHeaderLoginSentenceCase": {
-    "message": "Edit login",
+    "message": "Uredi prijavo",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCardSentenceCase": {
-    "message": "Edit card",
+    "message": "Uredi kartico",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentitySentenceCase": {
-    "message": "Edit identity",
+    "message": "Uredi identiteto",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNoteSentenceCase": {
-    "message": "Edit note",
+    "message": "Uredi opombo",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "Uredi ključ SSH",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderBankAccount": {
-    "message": "Edit bank account",
+    "message": "Uredi bančni račun",
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderLicense": {
-    "message": "Edit license",
+    "message": "Uredi licenco",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
-    "message": "Edit passport",
+    "message": "Uredi potni list",
     "description": "Header for edit passport item type"
   },
   "editItemHeaderTextSendV2": {
-    "message": "Edit text",
+    "message": "Uredi besedilo",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSendV2": {
-    "message": "Edit file",
+    "message": "Uredi datoteko",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -1699,6 +1688,14 @@
   "copyUsername": {
     "message": "Kopiraj uporabniško ime",
     "description": "Copy username to clipboard"
+  },
+  "copyExternalId": {
+    "message": "Copy external ID",
+    "description": "Copy external ID to clipboard"
+  },
+  "copySsoExternalId": {
+    "message": "Copy SSO external ID",
+    "description": "Copy SSO external ID to clipboard"
   },
   "copyNumber": {
     "message": "Kopiraj številko",
@@ -1837,7 +1834,7 @@
     "message": "Select row"
   },
   "showingItemRange": {
-    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "message": "Prikazujem $START$ – $END$ od $TOTAL$",
     "placeholders": {
       "start": {
         "content": "$1",
@@ -1854,10 +1851,10 @@
     }
   },
   "rowsPerPage": {
-    "message": "Rows per page"
+    "message": "Vrstic na stran"
   },
   "rowsPerPageOption": {
-    "message": "$COUNT$ rows per page",
+    "message": "$COUNT$ vrstic na stran",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1866,7 +1863,7 @@
     }
   },
   "itemCount": {
-    "message": "$COUNT$ items",
+    "message": "$COUNT$ elementov",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1875,10 +1872,10 @@
     }
   },
   "clearAll": {
-    "message": "Clear all"
+    "message": "Počisti vse"
   },
   "filtersSelected": {
-    "message": "$COUNT$ selected",
+    "message": "$COUNT$ izbranih",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1887,16 +1884,16 @@
     }
   },
   "previousPage": {
-    "message": "Previous page"
+    "message": "Prejšnja stran"
   },
   "nextPage": {
-    "message": "Next page"
+    "message": "Naslednja stran"
   },
   "goToPage": {
-    "message": "Go to page"
+    "message": "Pojdi na stran"
   },
   "ofPageCount": {
-    "message": "of $COUNT$",
+    "message": "od $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1905,10 +1902,10 @@
     }
   },
   "noMatchingItems": {
-    "message": "No matching items"
+    "message": "Ni ustreznih zadetkov"
   },
   "noFiltersMatch": {
-    "message": "No filters match \"$SEARCH$\"",
+    "message": "Noben filter ne ustreza »$SEARCH$«",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -1916,20 +1913,44 @@
       }
     }
   },
+  "oneFilterResult": {
+    "message": "1 rezultat",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ rezultatov",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Noben filter ne ustreza »$SEARCH$«",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
   "clearSearch": {
-    "message": "Clear search"
+    "message": "Počisti iskanje"
   },
   "deselectAll": {
-    "message": "Deselect all"
+    "message": "Odznači vse"
   },
   "unselectAll": {
     "message": "Odizberi vse"
   },
   "bulkActionsBar": {
-    "message": "Bulk actions"
+    "message": "Množična dejanja"
   },
   "bulkActionsBarAnnouncement": {
-    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "message": "Izbranih je $COUNT$ elementov. Na dnu zaslona je zdaj na voljo vrstica za množična dejanja. Pritisnite $SHORTCUTBINDING$ za preklop fokusa na vrstico za množična dejanja.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1942,10 +1963,10 @@
     }
   },
   "selectionCleared": {
-    "message": "Selection cleared"
+    "message": "Izbor je počiščen"
   },
   "additionalActions": {
-    "message": "Additional actions"
+    "message": "Dodatna dejanja"
   },
   "launch": {
     "message": "Zaženi"
@@ -1966,7 +1987,7 @@
     "message": "Datoteka"
   },
   "photo": {
-    "message": "Photo"
+    "message": "Fotografija"
   },
   "selectFile": {
     "message": "Izberite datoteko."
@@ -1994,7 +2015,7 @@
     }
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "Elementi so bili premaknjeni v $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -2003,7 +2024,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "Element je bil premaknjen v $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -2015,7 +2036,7 @@
     "message": "Izbriši element"
   },
   "deleteItemsCount": {
-    "message": "Delete $COUNT$ items",
+    "message": "Izbriši $COUNT$ elementov",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2024,16 +2045,16 @@
     }
   },
   "deleteItemDesc": {
-    "message": "This item will be sent to your trash. After 30 days there, it will be permanently deleted."
+    "message": "Ta element bo premaknjen v koš. Po 30 dneh v košu bo trajno izbrisan."
   },
   "deleteItemsDesc": {
-    "message": "These items will be sent to your trash. After 30 days there, they will be permanently deleted."
+    "message": "Ti elementi bodo premaknjeni v koš. Po 30 dneh v košu bodo trajno izbrisani."
   },
   "deleteItemPermanently": {
-    "message": "Delete item permanently"
+    "message": "Trajno izbriši element"
   },
   "deleteItemsPermanentlyCount": {
-    "message": "Delete $COUNT$ items permanently",
+    "message": "Trajno izbriši $COUNT$ elementov",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2042,16 +2063,16 @@
     }
   },
   "deleteItemPermanentlyDesc": {
-    "message": "You will not be able to recover this item."
+    "message": "Tega elementa ne boste mogli obnoviti."
   },
   "deleteItemsPermanentlyDesc": {
-    "message": "You will not be able to recover these items."
+    "message": "Teh elementov ne boste mogli obnoviti."
   },
   "deleteSelection": {
-    "message": "Delete selection"
+    "message": "Izbriši izbiro"
   },
   "deleteItemsAndCollectionsDesc": {
-    "message": "The selected items and collections will be permanently deleted."
+    "message": "Izbrani elementi in zbirke bodo trajno izbrisani."
   },
   "deleteFolder": {
     "message": "Izbriši mapo"
@@ -2060,7 +2081,7 @@
     "message": "Izbriši priponoko"
   },
   "deleteAttachmentName": {
-    "message": "Delete attachment $NAME$",
+    "message": "Izbriši prilogo $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -2069,7 +2090,7 @@
     }
   },
   "downloadAttachmentName": {
-    "message": "Download $NAME$",
+    "message": "Prenesi $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -2087,7 +2108,7 @@
     "message": "Elementi poslani v smetnjak"
   },
   "movedItem": {
-    "message": "Item moved"
+    "message": "Element je bil premaknjen"
   },
   "movedItems": {
     "message": "Elementi premaknjeni"
@@ -2108,13 +2129,13 @@
     "message": "Mapa je bila izbrisana"
   },
   "folderEdited": {
-    "message": "Folder edited"
+    "message": "Mapa je bila urejena"
   },
   "foldersDeleted": {
-    "message": "Folders deleted"
+    "message": "Mape izbrisane"
   },
   "deleteFoldersCount": {
-    "message": "Delete $COUNT$ folders",
+    "message": "Izbriši $COUNT$ map",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2123,7 +2144,7 @@
     }
   },
   "deleteFolderDescription": {
-    "message": "When you delete the $NAME$ folder, it will be removed from every item it's been applied to. The items themselves won't be deleted.",
+    "message": "Ko izbrišete mapo $NAME$, bo ta odstranjena iz vseh elementov, na katere je bila uporabljena. Sami elementi ne bodo izbrisani.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -2132,10 +2153,10 @@
     }
   },
   "deleteFoldersDescription": {
-    "message": "When you delete these folders, they will be removed from every item they've been applied to. The items themselves won't be deleted."
+    "message": "Ko izbrišete te mape, bodo odstranjene z vseh elementov, na katere so bile uporabljene. Sami elementi ne bodo izbrisani."
   },
   "enterAName": {
-    "message": "Enter a name."
+    "message": "Vnesite ime."
   },
   "editInfo": {
     "message": "Uredi podatke"
@@ -2144,31 +2165,31 @@
     "message": "Dostop"
   },
   "accessLevel": {
-    "message": "Access level"
+    "message": "Raven dostopa"
   },
   "accessing": {
-    "message": "Accessing"
+    "message": "Dostopanje"
   },
   "loggedOut": {
     "message": "Odjavljen"
   },
   "loggedOutDesc": {
-    "message": "You have been logged out of your account."
+    "message": "Odjavljeni ste iz svojega računa."
   },
   "loginExpired": {
     "message": "Vaša seja je potekla."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Ponovni začetek registracije"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Povezava je potekla"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Prosimo, ponovno začnite postopek registracije ali poskusite z prijavo."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Morda že imate račun"
   },
   "logOutConfirmation": {
     "message": "Ste prepričani, da se želite odjaviti?"
@@ -2186,7 +2207,7 @@
     "message": "Ne"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Vsakdo s povezavo"
   },
   "anyOneWithPassword": {
     "message": "Anyone with a password set by you"
@@ -2539,11 +2560,80 @@
   "noItemsInTrashDesc": {
     "message": "Items you delete will appear here and be permanently deleted after 30 days"
   },
+  "noItemsInTrashDescription": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days."
+  },
   "noItemsInVault": {
     "message": "No items in the vault"
   },
+  "noItemsInMyVault": {
+    "message": "No items in My vault"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "No items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "No items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "emptyMyItems": {
+    "message": "No items in My items"
+  },
+  "noItemsInVaults": {
+    "message": "Your vaults are empty"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "No items match selected filters"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "No items match \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyVaultDescription": {
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Add items to this shared folder, then give access to other $VAULT_NAME$ members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
+  },
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
+  },
+  "emptyVaultsDescription": {
+    "message": "Add logins, IDs, cards, and other items to get started."
   },
   "emptyFavorites": {
     "message": "You haven't favorited any items"
@@ -3368,11 +3458,21 @@
   "selectImportCollection": {
     "message": "Select a collection"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Select this option if you want the imported file contents moved to a collection"
   },
   "importTargetHintFolder": {
     "message": "Select this option if you want the imported file contents moved to a folder"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "File contains unassigned items."
@@ -3382,6 +3482,40 @@
   },
   "selectImportFile": {
     "message": "Izberite datoteko za uvoz"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Izberi datoteko"
@@ -3807,6 +3941,9 @@
     "message": "Do not allow members to create and store credit card items. When this policy is turned on, existing cards will be automatically hidden.",
     "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
   },
+  "restrictedItemTypePolicyDescListVfo1": {
+    "message": "Do not allow members to create and store card items. Existing cards will be hidden."
+  },
   "restrictCardTypeImport": {
     "message": "Cannot import card item types"
   },
@@ -4172,8 +4309,11 @@
   "passkeyLoginFound": {
     "message": "Logins that support passkeys"
   },
-  "passkeyLoginFoundReportDesc": {
-    "message": "We found $COUNT$ login(s) in your vault that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+  "passkeyLoginFoundInfoPrefix": {
+    "message": "Great news! We found "
+  },
+  "loginsCount": {
+    "message": "$COUNT$ login(s)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4181,14 +4321,11 @@
       }
     }
   },
-  "passkeyLoginFoundReportDescPlural": {
-    "message": "We found $COUNT$ login(s) in your vaults that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "8"
-      }
-    }
+  "passkeyLoginFoundInfoSuffixSingular": {
+    "message": " in your vault that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory"
+  },
+  "passkeyLoginFoundInfoSuffixPlural": {
+    "message": " in your vaults that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory"
   },
   "noPasskeyLogin": {
     "message": "No accounts were found in your vault that support passkeys without one configured."
@@ -4372,6 +4509,14 @@
   "accountCredit": {
     "message": "Stanje na računu",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
+  },
+  "appliedBalance": {
+    "message": "Applied balance",
+    "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
+  },
+  "amountDue": {
+    "message": "Amount due",
+    "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
   },
   "accountBalance": {
     "message": "Sanje na računu",
@@ -4588,6 +4733,15 @@
   },
   "reinstateSubscription": {
     "message": "Ponovno vzpostavi naročnino"
+  },
+  "keepSubscription": {
+    "message": "Keep subscription"
+  },
+  "subscriptionPastDueWillPauseSoon": {
+    "message": "Your subscription is past due and will be paused soon."
+  },
+  "subscriptionPastDuePaused": {
+    "message": "Your subscription is past due and has been paused."
   },
   "reinstateConfirmation": {
     "message": "Are you sure you want to remove the pending cancellation request and reinstate your subscription?"
@@ -5322,10 +5476,6 @@
   },
   "collectionInfo": {
     "message": "Collection info"
-  },
-  "sharedFolderInfo": {
-    "message": "Shared folder info",
-    "description": "VFO1 terminology feature flag variant of collectionInfo"
   },
   "deleteCollectionConfirmation": {
     "message": "Are you sure you want to delete this collection?"
@@ -6790,6 +6940,9 @@
   "clickHereToAddPaymentMethod": {
     "message": "Click here to add a payment method."
   },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "Contact your Bitwarden sales representative to set up billing."
+  },
   "joinOrganization": {
     "message": "Join organization"
   },
@@ -7384,6 +7537,9 @@
   "inviteLinkRegenerated": {
     "message": "Invite link regenerated"
   },
+  "inviteLinkConfirmationUpdated": {
+    "message": "Invite link updated"
+  },
   "regenerateInviteLink": {
     "message": "Regenerate invite link"
   },
@@ -7405,8 +7561,62 @@
   "deactivateLink": {
     "message": "Deactivate link"
   },
+  "requireAdminConfirmation": {
+    "message": "Require admin confirmation"
+  },
+  "requireAdminConfirmationHint": {
+    "message": "An admin must manually approve new members before they’re added to the organization vault."
+  },
+  "setYourAllowedDomains": {
+    "message": "Set your allowed domains"
+  },
+  "setYourAllowedDomainsCoachMarkBody": {
+    "message": "Add allowed email domains (e.g. acme.com) so only users with matching emails can use this invite link. You can update this anytime."
+  },
+  "adjustTheLink": {
+    "message": "Adjust the link"
+  },
+  "adjustTheLinkCoachMarkBody": {
+    "message": "Your needs change, and the link can change with you. <strong>Regenerate</strong> the link to invalidate the old link and create a new one."
+  },
+  "adjustTheLinkCoachMarkBodyIntro": {
+    "message": "Your needs change, and the link can change with you."
+  },
+  "adjustTheLinkCoachMarkRegenerate": {
+    "message": "<strong>Regenerate</strong> the link to invalidate the old link and create a new one."
+  },
+  "adjustTheLinkCoachMarkAdminConfirmation": {
+    "message": "<strong>Require admin confirmation</strong> to approve new members before they can join the organization."
+  },
+  "shareTheLinkAnywhere": {
+    "message": "Share the link anywhere"
+  },
+  "shareTheLinkAnywhereCoachMarkBody": {
+    "message": "Copy and paste the link where your team will find it: your onboarding checklist, a Slack #new-joiners channel, Notion docs, or an email template."
+  },
+  "viewBitwardenOnboardingGuide": {
+    "message": "View Bitwarden onboarding guide"
+  },
+  "coachMarkStepOfTotal": {
+    "message": "$CURRENT$ of $TOTAL$",
+    "description": "Progress indicator for a coach mark tour step, e.g. '1 of 3'",
+    "placeholders": {
+      "current": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "finish": {
+    "message": "Finish"
+  },
   "inviteByLinkDesc": {
     "message": "Invite members to your organization with a link. If no role has been specified yet, they’ll be added as a default user."
+  },
+  "inviteLinkSelfHostEmailVerificationWarning": {
+    "message": "Using an invite link could be a security risk in your self-hosted environment because users don’t have to verify their emails."
   },
   "byContinuingYouAgreeToThe": {
     "message": "By continuing, you agree to the"
@@ -7719,9 +7929,8 @@
   "passwordGeneratorPolicyDescV2": {
     "message": "Select a set of minimum requirements for any member-generated passwords."
   },
-  "passwordGeneratorPolicyDescVfo1": {
-    "message": "Set requirements for password generator.",
-    "description": "VFO1 terminology variant of 'passwordGeneratorPolicyDescV2', shown in the policies list"
+  "passwordGeneratorPolicyDescListVfo1": {
+    "message": "Set minimum requirements for any member-generated passwords."
   },
   "generatedPassword": {
     "message": "Generated password"
@@ -7774,8 +7983,8 @@
   "minimumNumberOfWords": {
     "message": "Vsaj toliko besed"
   },
-  "overridePasswordTypePolicy": {
-    "message": "Password Type",
+  "overridePasswordTypePolicyV2": {
+    "message": "Password type",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -7978,9 +8187,8 @@
   "singleOrgDesc": {
     "message": "Restrict members from joining other organizations."
   },
-  "singleOrgPolicyDescVfo1": {
-    "message": "Restrict members from joining other shared or organization vaults.",
-    "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
+  "singleOrgPolicyDescListVfo1": {
+    "message": "Members cannot join other organization vaults."
   },
   "singleOrgPolicyDescV2": {
     "message": "Members of this organization cannot join other organizations. Existing members who belong to other organizations will have their access revoked when this policy is enabled. This policy won't be enforced for owners and admins."
@@ -8002,13 +8210,9 @@
     "message": "Require SSO",
     "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
   },
-  "requireSsoPolicyDescListVfo1": {
-    "message": "Require members to log in with the Enterprise Single Sign-On method.",
-    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
-  },
-  "requireSsoPolicyDescV2Vfo1": {
-    "message": "Require members to log in with the Enterprise Single Sign-On method. This policy won't be enforced for owners and admins.",
-    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
+  "requireSsoPolicyDescListV2Vfo1": {
+    "message": "Require members to log in using SSO.",
+    "description": "'SSO' is an abbreviation of 'single sign-on'."
   },
   "requireSsoPolicyTitle": {
     "message": "Require single sign-on (SSO)"
@@ -8426,9 +8630,8 @@
   "centralizeDataOwnershipDesc": {
     "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
   },
-  "centralizeDataOwnershipDescVfo1": {
-    "message": "Require members to save items to the organization by removing their personally owned My vault.",
-    "description": "VFO1 terminology variant of 'centralizeDataOwnershipDesc', shown in the policies list"
+  "centralizeDataOwnershipDescListVfo1": {
+    "message": "All member items will be owned and managed by the organization."
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "Learn more about centralized ownership",
@@ -8666,6 +8869,9 @@
   "desktopAutotypePolicyDescV2": {
     "message": "Enable desktop autotype for members. Members will be able to turn autotype off manually in the desktop client."
   },
+  "desktopAutotypePolicyDescVfo1": {
+    "message": "Enable desktop autotype for members."
+  },
   "disableSend": {
     "message": "Remove Send"
   },
@@ -8710,25 +8916,21 @@
   "sendControls": {
     "message": "Send controls"
   },
-  "manageSend": {
-    "message": "Manage Send",
-    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
-  },
-  "manageSendAndShareVfo1": {
+  "manageSendV2": {
     "message": "Manage Send and share",
-    "description": "VFO1 terminology variant of 'manageSend', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDesc": {
     "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV4": {
-    "message": "Manage how members use Send. This policy will apply to Sends created after you turn on this policy. Admins and owners are exempt.",
+  "sendControlsPolicyDescV5": {
+    "message": "Manage how members use Send and share Vault items. This policy won't be enforced for owners and admins.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescVfo1": {
-    "message": "Set Send configuration options.",
-    "description": "VFO1 terminology variant of 'sendControlsPolicyDescV4', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
+  "sendControlsPolicyDescListVfo1": {
+    "message": "Manage how members use Send.",
+    "description": "'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
     "message": "Možnosti pošiljke",
@@ -9185,9 +9387,8 @@
   "accountRecoveryPolicy": {
     "message": "Account recovery administration"
   },
-  "accountRecoveryPolicyDescVfo1": {
-    "message": "Allow admins to reset master passwords for members.",
-    "description": "VFO1 terminology variant of 'accountRecoveryPolicyDescV2', shown in the policies list"
+  "accountRecoveryPolicyDescListVfo1": {
+    "message": "Allow admins to help members regain access to their accounts."
   },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "The single organization Enterprise policy must be turned on before activating this policy."
@@ -9395,16 +9596,25 @@
   "decryptionError": {
     "message": "Decryption error"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden could not decrypt the vault item listed below. Contact Bitwarden Customer Support and provide the item ID below to see if it can be recovered."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden could not decrypt the vault items listed below. Contact Bitwarden Customer Support and provide the item IDs below to see if they can be recovered."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "Item ID",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "Item IDs",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Copy ID"
+  },
+  "copyAllIds": {
+    "message": "Copy all IDs"
   },
   "accountRecoveryManageUsers": {
     "message": "Manage users must also be granted with the manage account recovery permission"
@@ -9586,9 +9796,8 @@
   "sessionTimeoutPolicyDescription": {
     "message": "Set a maximum session timeout for all members except owners."
   },
-  "sessionTimeoutPolicyDescriptionVfo1": {
-    "message": "Set a maximum vault timeout for members.",
-    "description": "VFO1 terminology variant of 'sessionTimeoutPolicyDescription', shown in the policies list"
+  "sessionTimeoutPolicyDescriptionListVfo1": {
+    "message": "Set a maximum session timeout for members."
   },
   "maximumAllowedTimeout": {
     "message": "Maximum allowed timeout"
@@ -9716,21 +9925,20 @@
   "personalVaultExportPolicyInEffect": {
     "message": "One or more organization policies prevents you from exporting your individual vault."
   },
-  "activateAutofillPolicy": {
-    "message": "Activate autofill"
-  },
   "enableAutofillOnPageLoad": {
     "message": "Enable autofill on page load"
   },
   "activateAutofillPolicyDescription": {
     "message": "Activate the autofill on page load setting on the browser extension for all existing and new members."
   },
-  "activateAutofillPolicyDescriptionVfo1": {
-    "message": "Automatically fill logins on websites and apps.",
-    "description": "VFO1 terminology variant of 'activateAutofillPolicyDescription', shown in the policies list"
+  "activateAutofillPolicyDescriptionListVfo1": {
+    "message": "Enable autofill on page load setting in the browser extension for all members."
   },
   "activateAutofillPolicyDescV2": {
     "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Be aware that compromised or untrustworthy websites can"
+  },
+  "activateAutofillPolicyDescV3": {
+    "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Once this policy is on, members must adjust their personal settings to turn on autofill. Be aware that compromised or untrustworthy websites can"
   },
   "exploitAutofillOnPageLoad": {
     "message": "exploit autofill on page load"
@@ -9948,6 +10156,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "Select the organization you would like sponsored"
   },
+  "selectAFamilyVault": {
+    "message": "Select a family vault"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "Which Free Families offer would you like to redeem?"
   },
@@ -9959,6 +10170,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "Accept offer for an existing organization or create a new Families organization."
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ has sponsored a free Bitwarden Families plan for you! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "You've been sponsored a free Bitwarden Families plan! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "You've been offered a free Bitwarden Families plan organization. To continue, you need to log in to the account that received the offer."
@@ -9977,6 +10202,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "Accept Free Bitwarden Families"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "Accept Sponsored Families Plan"
+  },
+  "sponsoredPlanDetails": {
+    "message": "Sponsored plan details"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "Free Bitwarden Families offer successfully redeemed"
@@ -10146,14 +10377,24 @@
   "paymentSponsored": {
     "message": "Please provide a payment method to associate with the organization. Don't worry, we won't charge you anything unless you select additional features or your sponsorship expires. "
   },
+  "paymentSponsoredFamilyVault": {
+    "message": "Please provide a payment method to associate with your family vault. Don't worry, we won't charge you anything unless you select additional features or your sponsorship expires.",
+    "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
+  },
   "orgCreatedSponsorshipInvalid": {
     "message": "The sponsorship offer has expired. You may delete the organization you created to avoid a charge at the end of your 7 day trial. Otherwise you may close this prompt to keep the organization and assume billing responsibility."
   },
   "newFamiliesOrganization": {
     "message": "New Families organization"
   },
+  "createVault": {
+    "message": "Create vault"
+  },
   "acceptOffer": {
     "message": "Accept offer"
+  },
+  "applySponsorship": {
+    "message": "Apply sponsorship"
   },
   "sponsoringOrg": {
     "message": "Sponsoring organization"
@@ -10396,9 +10637,6 @@
   "billingHistory": {
     "message": "Zgodovina plačil"
   },
-  "backToReports": {
-    "message": "Back to reports"
-  },
   "organizationPicker": {
     "message": "Organization picker"
   },
@@ -10499,6 +10737,10 @@
   "random": {
     "message": "Random",
     "description": "Generates domain-based username using random letters"
+  },
+  "websiteName": {
+    "message": "Website name",
+    "description": "Username generator option that uses the current website hostname in the catch-all email address"
   },
   "randomWord": {
     "message": "Naključna beseda"
@@ -10785,18 +11027,6 @@
   "scimLearnMore": {
     "message": "Learn more about SCIM"
   },
-  "scimIntegrationDescription": {
-    "message": "Automatically provision users and groups with your preferred identity provider via SCIM provisioning. Find supported integrations",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDesc": {
-    "message": "Enable SCIM",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDescHelpText": {
-    "message": "Set up your preferred identity provider by configuring the URL and SCIM API Key",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
   "scimApiKeyHelperText": {
     "message": "This API key has access to manage users within your organization. It should be kept secret."
   },
@@ -10957,6 +11187,15 @@
       "count": {
         "content": "$1",
         "example": "20"
+      }
+    }
+  },
+  "tooManyEmailsForRemainingSeats": {
+    "message": "Only $COUNT$ seats remain. Remove an email address, or upgrade your plan.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
       }
     }
   },
@@ -11134,6 +11373,48 @@
   },
   "hardDeleteSecrets": {
     "message": "Permanently delete secrets"
+  },
+  "currentVersion": {
+    "message": "Current version",
+    "description": "Label for the current version section in the secret version history."
+  },
+  "modifiedBy": {
+    "message": "Modified by: $NAME$",
+    "description": "Label indicating the user who modified a version.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "secretValueCopied": {
+    "message": "Secret value copied",
+    "description": "Message displayed when a secret value has been copied to the clipboard."
+  },
+  "secretVersionRestored": {
+    "message": "Secret restored to selected version",
+    "description": "Message displayed when a secret has been restored to a previous version."
+  },
+  "restoreVersionConfirmTitle": {
+    "message": "Restore secret version",
+    "description": "Title for the confirmation dialog when restoring a secret to a previous version."
+  },
+  "restoreVersionConfirmMessage": {
+    "message": "Are you sure you want to restore this secret to the selected version? The current value will be replaced.",
+    "description": "Message displayed in the confirmation dialog when restoring a secret to a previous version."
+  },
+  "previousVersions": {
+    "message": "Previous versions",
+    "description": "Section header for previous versions of a secret in the version history."
+  },
+  "versionHistory": {
+    "message": "Version history",
+    "description": "Menu option to view the version history of a secret."
+  },
+  "noVersionHistory": {
+    "message": "No version history",
+    "description": "Empty state shown when a secret has no previous versions."
   },
   "secretProjectAssociationDescription": {
     "message": "Select projects that the secret will be associated with. Only organization users with access to these projects will be able to see the secret.",
@@ -11790,35 +12071,8 @@
   "switchProducts": {
     "message": "Switch products"
   },
-  "freeOrgInvLimitReachedManageBilling": {
-    "message": "Free organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to invite more members.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "freeOrgInvLimitReachedNoManageBilling": {
-    "message": "Free organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "10"
-      }
-    }
-  },
-  "teamsStarterPlanInvLimitReachedNoManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade your plan and invite more members.",
+  "seatLimitReachedContactOwner": {
+    "message": "Seat limit of $SEATCOUNT$ has been reached. Contact your organization owner to upgrade the plan.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -12341,6 +12595,9 @@
   },
   "restoreSecretsPrompt": {
     "message": "Are you sure you want to restore these secrets?"
+  },
+  "restoreThisVersion": {
+    "message": "Restore this version"
   },
   "secretRestoredSuccessToast": {
     "message": "Secret restored"
@@ -13154,14 +13411,14 @@
   "unexpectedErrorSend": {
     "message": "An unexpected error has occurred while loading this Send. Try again later."
   },
-  "seatLimitReached": {
-    "message": "Seat limit has been reached"
-  },
-  "contactYourProvider": {
-    "message": "Contact your provider to purchase additional seats."
-  },
-  "seatLimitReachedContactYourProvider": {
-    "message": "Seat limit has been reached. Contact your provider to purchase additional seats."
+  "seatLimitReachedContactProvider": {
+    "message": "Seat limit of $SEATCOUNT$ has been reached. Contact your provider to purchase additional seats.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "collectionAccessRestricted": {
     "message": "Collection access is restricted"
@@ -14550,24 +14807,6 @@
   "includeSsoAuthenticationMessage": {
     "message": "SSO Authentication"
   },
-  "familiesPlanInvLimitReachedManageBilling": {
-    "message": "Families organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to invite more members.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "6"
-      }
-    }
-  },
-  "familiesPlanInvLimitReachedNoManageBilling": {
-    "message": "Families organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "6"
-      }
-    }
-  },
   "familiesPlanRestoreLimitReachedManageBilling": {
     "message": "Families organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to restore this member's access.",
     "placeholders": {
@@ -14925,6 +15164,9 @@
   "freeFamiliesSponsorshipDescVfo1": {
     "message": "Remove the option for members to redeem a free Families plan.",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
+  },
+  "freeFamiliesSponsorshipDescV2Vfo1": {
+    "message": "Do not allow members to redeem a Families plan sponsored by your organization."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the organization's billing page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
@@ -15358,23 +15600,17 @@
   "atRiskPassword": {
     "message": "At-risk password"
   },
-  "changeAtRiskPassword": {
-    "message": "Change at-risk password"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
-  },
   "vulnerablePassword": {
     "message": "Vulnerable password."
   },
   "changeNow": {
     "message": "Change now"
   },
-  "missingWebsite": {
-    "message": "Missing website"
-  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"
+  },
+  "removeUnlockWithPinPolicyTitleVfo1": {
+    "message": "Remove unlock with PIN"
   },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "Members will not be allowed to unlock their account with a PIN."
@@ -16797,6 +17033,15 @@
       }
     }
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper email"
   },
@@ -17047,6 +17292,9 @@
   "singleOrgPrerequisite": {
     "message": "The single organization policy must be turned on before activating this policy."
   },
+  "singleOrgPrerequisiteVfo1": {
+    "message": "The single organization membership policy must be turned on before activating this policy."
+  },
   "enableBanner": {
     "message": "Enable banner"
   },
@@ -17248,6 +17496,9 @@
   },
   "pam": {
     "message": "PAM"
+  },
+  "pamAccessRequestsTitle": {
+    "message": "Access requests"
   },
   "pamAccessRules": {
     "message": "Access rules"
@@ -17579,5 +17830,152 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "inviteLinkCalloutHeading": {
+    "message": "Invite your whole team with a single link"
+  },
+  "inviteLinkCalloutBody": {
+    "message": "Anyone with a company email can use the invite link to join your organization. Drop it in onboarding resources so new hires can join when they're ready."
+  },
+  "inviteLinkCalloutImageAlt": {
+    "message": "Invite members dialog preview showing the new by-link tab"
+  },
+  "showMeHow": {
+    "message": "Show me how"
+  },
+  "shareVerb": {
+    "message": "Share"
+  },
+  "peopleWhoCanView": {
+    "message": "People who can view",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "After sharing this link, recipients will need to verify their email with a code to view the item.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "This link expires after this date, but recipients may retain previously shared information. Regenerate the credential to revoke access.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Link expires after",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "One time share",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Active links",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Link copied to clipboard",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Unable to create share link",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Link saved and copied to clipboard",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Failed to copy share link to clipboard",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Share link deleted",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Failed to delete share link",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Share via link",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Share for vault item $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareLinkExpires": {
+    "message": "Expires",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "sendAccessItemSubtitle": {
+    "message": "$SENDER_NAME$ has shared the following item with you.",
+    "placeholders": {
+      "sender_name": {
+        "content": "$1",
+        "example": "user@example.com"
+      }
+    }
+  },
+  "additionalServiceAccountsLower": {
+    "message": "additional service accounts"
+  },
+  "additionalStorageGbLower": {
+    "message": "additional storage GB"
+  },
+  "membersLower": {
+    "message": "members"
+  },
+  "memberLower": {
+    "message": "member"
+  },
+  "annualLower": {
+    "message": "annual"
+  },
+  "monthlyLower": {
+    "message": "monthly"
+  },
+  "organizationSubscriptionCardTitle": {
+    "message": "$PLAN$ $CADENCE$ subscription",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      },
+      "cadence": {
+        "content": "$2",
+        "example": "annual"
+      }
+    }
+  },
+  "keepAndReactivate": {
+    "message": "Keep and reactivate"
+  },
+  "subscriptionIsNowActive": {
+    "message": "Subscription is now active"
+  },
+  "undoCancellationRequestConfirmation": {
+    "message": "This will undo your cancellation request and reactivate your subscription."
+  },
+  "subscriptionDetailsNotLoading": {
+    "message": "Subscription details not loading"
+  },
+  "subscriptionDetailsNotLoadingDesc": {
+    "message": "Our billing service is unavailable, so we can't show your subscription and pricing right now. Your subscription itself hasn't been affected."
+  },
+  "passwordManagerProratedCharge": {
+    "message": "Password Manager prorated charge"
+  },
+  "storageProratedCharge": {
+    "message": "Storage prorated charge"
+  },
+  "secretsManagerProratedCharge": {
+    "message": "Secrets Manager prorated charge"
+  },
+  "serviceAccountsProratedCharge": {
+    "message": "Service accounts prorated charge"
   }
 }

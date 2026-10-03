@@ -14,7 +14,11 @@
     </div>
   </div>
 
-  <div class="tw-flex tw-gap-2 tw-items-center empty:tw-hidden">
+  <div
+    class="tw-flex tw-items-center empty:tw-hidden"
+    [class.tw-gap-2]="!isItemEndSlot()"
+    [attr.data-bit-item-end-slot]="isItemEndSlot() ? '' : null"
+  >
     <ng-content select="[slot=end]"></ng-content>
   </div>
 </div>

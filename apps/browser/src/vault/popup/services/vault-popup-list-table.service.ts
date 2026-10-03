@@ -1,32 +1,45 @@
 import { inject, Injectable, NgZone } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import {
+  BehaviorSubject,
   combineLatest,
   debounce,
   distinctUntilChanged,
   firstValueFrom,
   map,
   Observable,
+  shareReplay,
   startWith,
+  switchMap,
   tap,
   timer,
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogService } from "@bitwarden/components";
-import { DecryptionFailureDialogComponent, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  ALL_ITEMS_SCOPE,
+  cipherInScope,
+  DecryptionFailureDialogComponent,
+  matchesFolder,
+  matchesSharedFolder,
+  matchesType,
+  matchesVault,
+  PasswordRepromptService,
+  type VaultScope,
+  VaultScopeType,
+} from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
@@ -34,6 +47,7 @@ import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
 import { VaultPopupItemsService } from "./vault-popup-items.service";
+import { VaultPopupListTableFiltersService } from "./vault-popup-list-table-filters.service";
 import { VaultPopupLoadingService } from "./vault-popup-loading.service";
 
 /** The section a row belongs to within the vault list table. */
@@ -42,15 +56,13 @@ export type VaultSection = "autofill" | "favorites" | "allItems";
 /**
  * The resolved action affordances for a single row — which click action it takes and which
  * buttons/menu entries it exposes. Precomputed here so the template stays declarative and the
- * feature-flag/blocklist branching lives in one testable place.
+ * blocklist branching lives in one testable place.
  */
 export interface VaultRowActions {
   /** Whether clicking the row autofills (vs. navigating to view). */
   primaryAutofill: boolean;
-  /** Reveal the "Fill" text on hover — simplified (flag-on) design only. */
+  /** Reveal the "Fill" text on hover. */
   showFillOnHover: boolean;
-  /** Show the standalone primary "Fill" chip — legacy (flag-off) design only. */
-  showAutofillBadge: boolean;
   /** Show the launch-in-new-tab button (still gated on the cipher being launchable). */
   showLaunch: boolean;
   /** Offer "Autofill" in the more-options menu. */
@@ -68,11 +80,9 @@ export type VaultTableRow = {
   actions: VaultRowActions;
 };
 
-/** Feature-flag, blocklist, and click-setting inputs that decide a row's action affordances. */
+/** Inputs that decide a row's action affordances. */
 interface RowActionContext {
-  simplifiedItemActionEnabled: boolean;
   currentUriIsBlocked: boolean;
-  clickItemsToAutofillVaultView: boolean;
 }
 
 /**
@@ -93,8 +103,23 @@ export class VaultPopupListTableService {
   private readonly dialogService = inject(DialogService);
   private readonly router = inject(Router);
   private readonly vaultPopupAutofillService = inject(VaultPopupAutofillService);
-  private readonly configService = inject(ConfigService);
-  private readonly vaultSettingsService = inject(VaultSettingsService);
+  private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
+
+  /**
+   * The vault the page's `:vaultId` route segment narrows to.
+   */
+  private readonly scope$ = new BehaviorSubject<VaultScope>(ALL_ITEMS_SCOPE);
+
+  /** The scope currently narrowing the rows. Read by the table to gate its organization chip. */
+  readonly vaultScope = toSignal(this.scope$, { initialValue: ALL_ITEMS_SCOPE });
+
+  /**
+   * Narrows the vault to `scope`; {@link ALL_ITEMS_SCOPE} shows every vault's items. Does not
+   * clear the chips — this also fires on popup open, so the switcher does that instead.
+   */
+  setScope(scope: VaultScope | null): void {
+    this.scope$.next(scope ?? ALL_ITEMS_SCOPE);
+  }
 
   /**
    * Timeout used to add a small delay when selecting a cipher to allow for double click to launch.
@@ -117,23 +142,35 @@ export class VaultPopupListTableService {
   );
 
   /**
-   * The inputs that decide each row's action affordances. `startWith` defaults keep {@link rows$}
-   * emitting promptly: the feature flag and blocklist streams resolve asynchronously, so without a
-   * seed the whole list would wait on them before first render.
+   * Whether to show the tip that prompts the user to save a login for the current site. The tip
+   * stands in for the autofill section's rows, so it only applies when nothing narrows the list,
+   * the current context allows autofill (e.g. not a popout), and no login is suggested. A non-login
+   * suggestion (a card or an identity) still leaves the tip on, because the site has no login to
+   * fill.
    */
-  private readonly rowActionContext$: Observable<RowActionContext> = combineLatest([
-    this.configService
-      .getFeatureFlag$(FeatureFlag.PM31039ItemActionInExtension)
-      .pipe(startWith(false)),
-    this.vaultPopupAutofillService.currentTabIsOnBlocklist$.pipe(startWith(false)),
-    this.vaultSettingsService.clickItemsToAutofillVaultView$.pipe(startWith(true)),
+  readonly showEmptyAutofillTip$: Observable<boolean> = combineLatest([
+    this.vaultPopupItemsService.hasFilterApplied$,
+    this.vaultPopupItemsService.autoFillCiphers$,
+    this.vaultPopupAutofillService.autofillAllowed$,
   ]).pipe(
-    map(([simplifiedItemActionEnabled, currentUriIsBlocked, clickItemsToAutofillVaultView]) => ({
-      simplifiedItemActionEnabled,
-      currentUriIsBlocked,
-      clickItemsToAutofillVaultView: clickItemsToAutofillVaultView ?? true,
-    })),
+    map(
+      ([hasFilter, ciphers, autofillAllowed]) =>
+        !hasFilter &&
+        autofillAllowed &&
+        !ciphers.some((cipher) => CipherViewLikeUtils.getType(cipher) === CipherType.Login),
+    ),
   );
+
+  /**
+   * The inputs that decide each row's action affordances. The `startWith` default keeps
+   * {@link rows$} emitting promptly: the blocklist stream resolves asynchronously, so without a
+   * seed the whole list would wait on it before first render.
+   */
+  private readonly rowActionContext$: Observable<RowActionContext> =
+    this.vaultPopupAutofillService.currentTabIsOnBlocklist$.pipe(
+      startWith(false),
+      map((currentUriIsBlocked) => ({ currentUriIsBlocked })),
+    );
 
   /**
    * The rows to render, in display order. When a search is active the list collapses to a single
@@ -146,19 +183,90 @@ export class VaultPopupListTableService {
     this.vaultPopupItemsService.filteredCiphers$,
     this.vaultPopupItemsService.hasSearchText$,
     this.rowActionContext$,
+    this.scope$,
   ]).pipe(
-    map(([autoFillCiphers, favoriteCiphers, filteredCiphers, hasSearchText, context]) => {
+    map(([autoFillCiphers, favoriteCiphers, filteredCiphers, hasSearchText, context, scope]) => {
+      /** One section's rows: the ciphers the scope admits, in display order. */
+      const section = (ciphers: PopupCipherViewLike[], name: VaultSection) =>
+        ciphers
+          .filter((cipher) => cipherInScope(cipher, scope))
+          .map((cipher) => this.toRow(cipher, name, context));
+
       if (hasSearchText) {
-        return filteredCiphers.map((cipher) => this.toRow(cipher, "allItems", context));
+        return section(filteredCiphers, "allItems");
       }
 
       return [
-        ...autoFillCiphers.map((cipher) => this.toRow(cipher, "autofill", context)),
-        ...favoriteCiphers.map((cipher) => this.toRow(cipher, "favorites", context)),
-        ...filteredCiphers.map((cipher) => this.toRow(cipher, "allItems", context)),
+        ...section(autoFillCiphers, "autofill"),
+        ...section(favoriteCiphers, "favorites"),
+        ...section(filteredCiphers, "allItems"),
       ];
     }),
+    // The table renders these and the header counts them, so build the list once per emission.
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
+
+  /**
+   * Whether the vault in view is suspended, by route scope or by chip — only one is ever active.
+   */
+  readonly suspendedVault$: Observable<boolean> = combineLatest([
+    this.scope$,
+    this.listFiltersService.selectedFilters$,
+  ]).pipe(
+    switchMap(([scope, selected]) =>
+      this.listFiltersService.suspended$(
+        scope.type === VaultScopeType.Organization ? [scope.organizationId] : selected.organization,
+      ),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  /**
+   * The header's item count. Counts the `allItems` section, which holds every cipher once, and
+   * re-applies the chips, which never reach {@link rows$}. A suspended vault counts zero.
+   */
+  readonly itemCount$: Observable<number> = combineLatest([
+    this.rows$,
+    this.listFiltersService.selectedFilters$,
+    this.scope$,
+    this.suspendedVault$,
+  ]).pipe(
+    map(([rows, selected, scope, suspended]) => {
+      if (suspended) {
+        return 0;
+      }
+
+      const filters = this.scopedFilters(selected, scope);
+
+      return rows.filter(
+        (row) =>
+          row._section === "allItems" &&
+          matchesType(row.cipher, filters.cipherType) &&
+          matchesVault(row.cipher, filters.organization) &&
+          matchesSharedFolder(row.cipher, filters.collection) &&
+          matchesFolder(row.cipher, filters.folder),
+      ).length;
+    }),
+  );
+
+  /**
+   * The chip selection, less what the scope has taken away — a scoped vault renders no vault chip.
+   */
+  private scopedFilters(
+    selected: {
+      cipherType: CipherType | null;
+      organization: string[];
+      collection: string[];
+      folder: string[];
+    },
+    scope: VaultScope,
+  ) {
+    if (scope.type === VaultScopeType.AllItems) {
+      return selected;
+    }
+
+    return { ...selected, organization: [] as string[] };
+  }
 
   private toRow(
     cipher: PopupCipherViewLike,
@@ -174,44 +282,26 @@ export class VaultPopupListTableService {
 
   /**
    * Resolves a row's action affordances from its section and the current context. Pure so the
-   * feature-flag/blocklist branching can be exercised directly. The `simplifiedItemActionEnabled`
-   * (flag-off) branch mirrors the pre-flag `vault-list-items-container` behavior and can be removed
-   * once {@link FeatureFlag.PM31039ItemActionInExtension} is fully rolled out.
+   * blocklist branching can be exercised directly.
    */
   private resolveActions(
     cipher: PopupCipherViewLike,
     section: VaultSection,
-    {
-      simplifiedItemActionEnabled,
-      currentUriIsBlocked,
-      clickItemsToAutofillVaultView,
-    }: RowActionContext,
+    { currentUriIsBlocked }: RowActionContext,
   ): VaultRowActions {
     const isAutofill = section === "autofill";
 
-    // Whether clicking the row autofills. Simplified: the autofill section fills unless the URI is
-    // blocked. Legacy: the autofill section fills only when the user's click-to-autofill setting is
-    // on, and never when the URI is blocked.
-    const primaryAutofill = simplifiedItemActionEnabled
-      ? isAutofill && !currentUriIsBlocked
-      : !currentUriIsBlocked && isAutofill && clickItemsToAutofillVaultView;
+    // Whether clicking the row autofills: the autofill section fills unless the URI is blocked.
+    const primaryAutofill = isAutofill && !currentUriIsBlocked;
 
     const login = CipherViewLikeUtils.getLogin(cipher as CipherViewLike);
     const titleBase = primaryAutofill ? "autofillTitle" : "viewItemTitle";
 
     return {
       primaryAutofill,
-      showFillOnHover: simplifiedItemActionEnabled && primaryAutofill,
-      // Legacy standalone chip: shown on autofill rows when click-to-autofill is off and not blocked.
-      showAutofillBadge:
-        !simplifiedItemActionEnabled &&
-        isAutofill &&
-        !currentUriIsBlocked &&
-        !clickItemsToAutofillVaultView,
+      showFillOnHover: primaryAutofill,
       showLaunch: !isAutofill,
-      showAutofillInMenu: simplifiedItemActionEnabled
-        ? !primaryAutofill
-        : !currentUriIsBlocked && !isAutofill,
+      showAutofillInMenu: !primaryAutofill,
       showViewInMenu: primaryAutofill,
       // Name the login's username field in the label when it has one.
       titleKey: login?.username != null ? `${titleBase}WithField` : titleBase,

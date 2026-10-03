@@ -54,7 +54,7 @@ describe("navIconTile", () => {
     type: VaultNavItemType,
     icon: BitwardenIcon,
     color?: string,
-  ): VaultNavItemViewModel => ({ id: "1", label: "Vault", type, color, icon });
+  ): VaultNavItemViewModel => ({ id: "1", label: "Vault", type, color, icon, enabled: true });
 
   // Org tiles derive their color from `type` alone, so the view model carries no color for them.
   it("gives a family org the teal variant", () => {
@@ -104,6 +104,7 @@ describe("vaultScopeHeaderTile", () => {
         type: VaultNavItemType.Personal,
         color: "#abcdef",
         icon: "bwi-user",
+        enabled: true,
       },
     ],
     organizationDataOwnership: false,
@@ -117,6 +118,7 @@ describe("vaultScopeHeaderTile", () => {
         type: VaultNavItemType.Organization,
         icon: "bwi-business",
         defaultUserCollectionId: myItemsId,
+        enabled: true,
       },
     ],
     organizationDataOwnership: true,

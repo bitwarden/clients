@@ -451,6 +451,9 @@
   "noFolders": {
     "message": "V zozname sa nenachádzajú žiadne priečinky."
   },
+  "noFoldersFilter": {
+    "message": "Žiadne priečinky"
+  },
   "helpFeedback": {
     "message": "Pomoc a spätná väzba"
   },
@@ -1288,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Kliknutím na položky v trezore automaticky vyplniť"
   },
-  "clickToAutofill": {
-    "message": "Kliknutím na položky v ponuke automatického vypĺňania vyplniť"
-  },
   "clearClipboard": {
     "message": "Vymazať schránku",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1536,6 +1536,40 @@
   "importVerb": {
     "message": "Importovať",
     "description": "The verb form of the word Import"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Vybrať zdroj"
+  },
+  "importSourceSelectTitle": {
+    "message": "Vyberte zdroj"
+  },
+  "importSourceSelectDescription": {
+    "message": "Vyberte správcu hesiel alebo prehliadač, z ktorého chcete importovať."
+  },
+  "importSourceBrowsers": {
+    "message": "Prehliadače"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Správcovia hesiel"
+  },
+  "importSourceShowAll": {
+    "message": "Zobraziť všetko"
+  },
+  "importSourceShowLess": {
+    "message": "Zobraziť menej"
+  },
+  "importSourceStepCount": {
+    "message": "Krok $CURRENT$ z $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "importItems": {
     "message": "Importovať položky"
@@ -3191,7 +3225,7 @@
     }
   },
   "topLayerHijackWarning": {
-    "message": "Táto stránka narúša zážitok zo Bitwardenu. Inline ponuka Bitwardenu bola dočasne vypnutá ako bezpečnostné opatrenie."
+    "message": "Táto stránka narúša zážitok z Bitwardenu. Inline ponuka Bitwardenu bola dočasne vypnutá ako bezpečnostné opatrenie."
   },
   "setMasterPassword": {
     "message": "Nastaviť hlavné heslo"
@@ -4059,16 +4093,25 @@
   "errorGettingAutoFillData": {
     "message": "Chyba pri získavaní údajov automatického vypĺňania"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden nedokázal dešifrovať nižšie uvedené položky trezoru."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden nedokázal dešifrovať nižšie uvedenú položku v trezore. Obráťte sa na zákaznícku podporu Bitwarden a uveďte nižšie uvedené ID položky, aby sa zistilo, či je možné ju obnoviť."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Kontaktujte zákaznícku podporu,",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden nedokázal dešifrovať nižšie uvedené položky v trezore. Obráťte sa na zákaznícku podporu Bitwarden a uveďte nižšie uvedené ID položiek, aby sa zistilo, či je možné ich obnoviť."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "aby ste predišli ďalším stratám údajov.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "ID položky",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "ID položiek",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Kopírovať ID"
+  },
+  "copyAllIds": {
+    "message": "Kopírovať všetky ID"
   },
   "generateUsername": {
     "message": "Vygenerovať používateľské meno"
@@ -5129,11 +5172,21 @@
   "selectImportCollection": {
     "message": "Vyberte zbierku"
   },
+  "selectImportSharedFolder": {
+    "message": "Vyberte zdieľaný priečinok"
+  },
+  "importTargetMyFolder": {
+    "message": "Môj priečinok",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do zbierky"
   },
   "importTargetHintFolder": {
     "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do priečinka"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Túto možnosť vyberte, ak chcete obsah importovaného súboru presunúť do zdieľaného priečinka"
   },
   "importUnassignedItemsError": {
     "message": "Súbor obsahuje nepriradené položky."
@@ -5626,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Vložte kľúč YubiKey priradený k vášmu účtu LastPass do USB portu počítača a potom sa dotknite jeho tlačidla."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "E-mail pre Keeper"
   },
@@ -5820,6 +5882,9 @@
   },
   "switchAccounts": {
     "message": "Prepnúť účty"
+  },
+  "switchVault": {
+    "message": "Prepnúť trezor"
   },
   "switchToAccount": {
     "message": "Prepnúť na účet"
@@ -7186,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Zmeniť rizikové heslá"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Toto prihlásenie je v ohrození a chýba mu webová stránka. Pridajte webovú stránku a zmeňte heslo na silnejšie zabezpečenie."
-  },
   "vulnerablePassword": {
     "message": "Zraniteľné heslo."
   },
   "changeNow": {
     "message": "Zmeniť teraz"
-  },
-  "missingWebsite": {
-    "message": "Chýbajúca webová stránka"
   },
   "settingsVaultOptions": {
     "message": "Možnosti trezoru"
@@ -7228,11 +7284,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Nemáte žiadne priečinky."
+  "youHaveNoFoldersV2": {
+    "message": "Nemáte žiadne priečinky"
   },
-  "emptyFoldersDescription": {
-    "message": "Použite priečinky na usporiadanie položiek trezoru. Sú len pre vás – nikto iný ich neuvidí ani nepoužije."
+  "emptyFoldersDescriptionV2": {
+    "message": "Použite priečinky na usporiadanie položiek trezoru. Sú len pre vás. Nikto iný ich neuvidí ani nepoužije."
   },
   "introCarouselLabel": {
     "message": "Vitajte v Bitwardene"
@@ -8116,5 +8172,84 @@
   },
   "editItemsHidePass": {
     "message": "Upraviť položky, skryté heslá"
+  },
+  "shareVerb": {
+    "message": "Zdieľať"
+  },
+  "peopleWhoCanView": {
+    "message": "Ľudia, ktorí môžu zobraziť položky",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Po zdieľaní tohto odkazu budú musieť jednotlivci overiť svoju e-mailovú adresu pomocou kódu na zobrazenie tejto položky.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Tento odkaz exspiruje po tomto dátume, príjemcovia si však môžu ponechať informácie, ktoré im boli predtým zdieľané. Ak chcete zrušiť prístup, vygenerujte nové prihlasovacie údaje.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Odkaz exspiruje po",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Jednorazové zdieľanie",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Aktívne odkazy",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Odkaz bol skopírovaný do schránky",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Nepodarilo sa vytvoriť odkaz na zdieľanie",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Odkaz bol uložený a skopírovaný do schránky",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Nepodarilo sa skopírovať odkaz na zdieľanie do schránky",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Odkaz na zdieľanie bol odstránený",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Nepodarilo sa odstrániť odkaz na zdieľanie",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Zdieľať cez odkaz",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Zdieľať položku v trezore $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "share": {
+    "message": "Zdieľať",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareLinkExpires": {
+    "message": "Exspiruje",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Exspiruje",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Neznáma položka, možno budete musieť požiadať o povolenie na prístup k tejto položke."
   }
 }

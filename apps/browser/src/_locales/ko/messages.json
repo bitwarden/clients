@@ -451,6 +451,9 @@
   "noFolders": {
     "message": "폴더가 없습니다."
   },
+  "noFoldersFilter": {
+    "message": "No folders"
+  },
   "helpFeedback": {
     "message": "도움말 및 의견"
   },
@@ -1288,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "보관함 보기에서 항목을 클릭하여 자동 완성"
   },
-  "clickToAutofill": {
-    "message": "자동 완성 제안에서 항목 클릭으로 채우기"
-  },
   "clearClipboard": {
     "message": "클립보드 비우기",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1536,6 +1536,40 @@
   "importVerb": {
     "message": "가져오기",
     "description": "The verb form of the word Import"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "importItems": {
     "message": "Import items"
@@ -4059,16 +4093,25 @@
   "errorGettingAutoFillData": {
     "message": "자동 완성 데이터 획득 실패"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden이 아래의 보관함 항목을 복호화할 수 없었습니다."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden could not decrypt the vault item listed below. Contact Bitwarden Customer Support and provide the item ID below to see if it can be recovered."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "고객 지원 서비스에 문의하여",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden could not decrypt the vault items listed below. Contact Bitwarden Customer Support and provide the item IDs below to see if they can be recovered."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "추가 데이터 손실을 방지하세요.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "Item ID",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "Item IDs",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Copy ID"
+  },
+  "copyAllIds": {
+    "message": "Copy all IDs"
   },
   "generateUsername": {
     "message": "아이디 생성"
@@ -5129,11 +5172,21 @@
   "selectImportCollection": {
     "message": "컬렉션 선택"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "가져온 파일의 내용을 컬렉션으로 이동하려면 이 옵션을 선택하세요"
   },
   "importTargetHintFolder": {
     "message": "가져온 파일의 내용을 폴더로 이동하려면 이 옵션을 선택하세요"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "파일에 할당되지 않은 항목이 포함되어 있습니다."
@@ -5626,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "LastPass 계정과 연결된 YubiKey를 컴퓨터의 USB 포트에 삽입한 다음 버튼을 누릅니다."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper 이메일"
   },
@@ -5820,6 +5882,9 @@
   },
   "switchAccounts": {
     "message": "계정 전환"
+  },
+  "switchVault": {
+    "message": "Switch vault"
   },
   "switchToAccount": {
     "message": "계정 전환"
@@ -7186,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "위험한 비밀번호 변경"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "이 로그인 정보는 위험에 노출되어 있고 웹사이트가 누락되어 있습니다. 웹사이트를 추가하고 비밀번호를 변경하여 보안을 강화하세요."
-  },
   "vulnerablePassword": {
     "message": "취약한 비밀번호입니다."
   },
   "changeNow": {
     "message": "지금 변경"
-  },
-  "missingWebsite": {
-    "message": "누락된 웹사이트"
   },
   "settingsVaultOptions": {
     "message": "보관함 설정"
@@ -7228,11 +7284,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "You have no folders."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "Bitwarden 사용을 환영합니다"
@@ -8116,5 +8172,84 @@
   },
   "editItemsHidePass": {
     "message": "Edit items, hidden passwords"
+  },
+  "shareVerb": {
+    "message": "Share"
+  },
+  "peopleWhoCanView": {
+    "message": "People who can view",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "After sharing this link, recipients will need to verify their email with a code to view the item.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "This link expires after this date, but recipients may retain previously shared information. Regenerate the credential to revoke access.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Link expires after",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "One time share",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Active links",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Link copied to clipboard",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Unable to create share link",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Link saved and copied to clipboard",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Failed to copy share link to clipboard",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Share link deleted",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Failed to delete share link",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Share via link",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Share for vault item $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "share": {
+    "message": "Share",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareLinkExpires": {
+    "message": "Expires",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Expires",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Unknown item, you may need to request permission to access this item."
   }
 }

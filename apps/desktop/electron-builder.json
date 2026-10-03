@@ -22,7 +22,7 @@
     "!node_modules/@bitwarden/desktop-napi/build.rs",
     "!node_modules/@bitwarden/desktop-napi/package.json"
   ],
-  "electronVersion": "43.2.0",
+  "electronVersion": "43.5.0",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
@@ -33,6 +33,7 @@
     "category": "public.app-category.productivity",
     "darkModeSupport": true,
     "gatekeeperAssess": false,
+    "sign": "./scripts/sign-macos.js",
     "hardenedRuntime": true,
     "entitlements": "resources/entitlements.mac.plist",
     "entitlementsInherit": "resources/entitlements.mac.inherit.plist",
@@ -85,8 +86,7 @@
     "signIgnore": [
       "MacOS/desktop_proxy",
       "MacOS/desktop_proxy.inherit",
-      "Contents/PlugIns/autofill-extension.appex",
-      "Frameworks/Electron Framework.framework/(Electron Framework|Libraries|Resources|Versions/Current)/.*"
+      "Contents/PlugIns/autofill-extension.appex"
     ],
     "target": ["dmg", "zip"]
   },
@@ -95,7 +95,7 @@
     "target": ["portable", "nsis-web", "appx"],
     "signExts": [".dll", ".node"],
     "signtoolOptions": {
-      "sign": "./sign.js",
+      "sign": "./scripts/sign-windows.js",
       "publisherName": "Bitwarden Inc."
     },
     "extraFiles": [

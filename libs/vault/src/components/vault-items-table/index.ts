@@ -1,5 +1,6 @@
 export { VaultItemsTableActionsColumnComponent } from "./vault-items-table-actions-column.component";
 export {
+  copyPresentation$,
   DEFAULT_COPY_PRESENTATION,
   type VaultItemsTableCopyPresentation,
 } from "./vault-items-table-copy-presentation";

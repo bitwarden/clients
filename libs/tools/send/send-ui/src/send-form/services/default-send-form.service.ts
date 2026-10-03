@@ -51,6 +51,7 @@ export class DefaultSendFormService implements SendFormService {
   private readonly _updatedSendView = signal<SendView | null>(null);
   readonly updatedSendView = this._updatedSendView.asReadonly();
   private file: File | null = null;
+  private abortController: AbortController | null = null;
 
   async decryptSend(send: Send): Promise<SendView> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -103,6 +104,8 @@ export class DefaultSendFormService implements SendFormService {
 
   async submitSendForm() {
     this._submitting.set(true);
+    const abortController = new AbortController();
+    this.abortController = abortController;
     if (this._sendForm.invalid) {
       this._sendForm.markAllAsTouched();
       this._submitting.set(false);
@@ -136,6 +139,7 @@ export class DefaultSendFormService implements SendFormService {
         this._updatedSendView(),
         this.file,
         plaintextPassword,
+        abortController.signal,
       );
       const sendView = await this.decryptSend(newSend);
       this._originalSendView.set(null);
@@ -146,8 +150,22 @@ export class DefaultSendFormService implements SendFormService {
       // We surface any errors but make sure that the submitting
       // status signal is set to false before we do
       this._submitting.set(false);
+      // The Send was already rolled back by the API service when the abort was noticed; treat
+      // this the same as "nothing to submit" rather than surfacing an error toast for a cancel
+      // the user asked for.
+      if (err instanceof DOMException && err.name === "AbortError") {
+        return undefined;
+      }
       throw err;
+    } finally {
+      if (this.abortController === abortController) {
+        this.abortController = null;
+      }
     }
+  }
+
+  abortPendingSubmission(): void {
+    this.abortController?.abort();
   }
 
   sendFormHasEdits() {

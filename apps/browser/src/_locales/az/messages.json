@@ -451,6 +451,9 @@
   "noFolders": {
     "message": "Sadalanacaq heç bir qovluq yoxdur."
   },
+  "noFoldersFilter": {
+    "message": "Qovluq yoxdur"
+  },
   "helpFeedback": {
     "message": "Kömək və əks-əlaqə"
   },
@@ -510,10 +513,10 @@
     "message": "Parolu yenidən yarat"
   },
   "options": {
-    "message": "Seçimlər"
+    "message": "Seçənəklər"
   },
   "optionsForItem": {
-    "message": "$NAME$ üçün seçimlər",
+    "message": "$NAME$ üçün seçənəklər",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -555,13 +558,13 @@
     "message": "Seyfdə element yoxdur"
   },
   "noItemsInMyVault": {
-    "message": "No items in My vault"
+    "message": "Seyfimdə element yoxdur"
   },
   "emptyMyItems": {
-    "message": "No items in My items"
+    "message": "Elementlərimdə element yoxdur"
   },
   "noItemsInOrganizationVault": {
-    "message": "No items in $VAULT_NAME$",
+    "message": "$VAULT_NAME$ seyfində element yoxdur",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -570,7 +573,7 @@
     }
   },
   "noItemsInSharedFolder": {
-    "message": "No items in $VAULT_NAME$",
+    "message": "$VAULT_NAME$ seyfində element yoxdur",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -579,13 +582,13 @@
     }
   },
   "noItemsInVaults": {
-    "message": "Your vaults are empty"
+    "message": "Seyfləriniz boşdur"
   },
   "noItemsMatchSelectedFilters": {
-    "message": "No items match selected filters"
+    "message": "Seçilmiş filtrlərlə uyuşan heç bir element yoxdur"
   },
   "noItemsMatchSearchTerm": {
-    "message": "No items match \"$SEARCH_TERM$\"",
+    "message": "\"$SEARCH_TERM$\" ilə uyuşan heç bir element yoxdur",
     "placeholders": {
       "search_term": {
         "content": "$1",
@@ -652,7 +655,7 @@
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
-    "message": "Müəssisə siyasət tələbləri, yaradıcı seçimlərinizə tətbiq edildi.",
+    "message": "Müəssisə siyasət tələbləri, yaradıcı seçənəklərinizə tətbiq edildi.",
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchVault": {
@@ -819,7 +822,7 @@
     "message": "Digər"
   },
   "unlockMethods": {
-    "message": "Kilid açma seçimləri"
+    "message": "Kilid açma seçənəkləri"
   },
   "unlockMethodNeeded": {
     "message": "Ayarlarda bir kilid açma üsulu qurun"
@@ -828,7 +831,7 @@
     "message": "Sessiya vaxt bitməsi"
   },
   "otherOptions": {
-    "message": "Digər seçimlər"
+    "message": "Digər seçənəklər"
   },
   "rateExtension": {
     "message": "Uzantını qiymətləndir"
@@ -1259,7 +1262,7 @@
     "message": "Giriş əlavə etmək üçün soruş"
   },
   "vaultSaveOptionsTitle": {
-    "message": "Seyf seçimlərində saxla"
+    "message": "Seyfdə saxlama seçənəkləri"
   },
   "addLoginNotificationDesc": {
     "message": "Seyfinizdə tapılmayan elementin əlavə edilməsi soruşulsun."
@@ -1287,9 +1290,6 @@
   },
   "clickToAutofillOnVault": {
     "message": "Seyf görünüşündə avto-doldurmaq üçün elementlərə klikləyin"
-  },
-  "clickToAutofill": {
-    "message": "Avto-doldurma təkliflərində elementləri doldurmaq üçün klikləyin"
   },
   "clearClipboard": {
     "message": "Lövhəni təmizlə",
@@ -1459,7 +1459,7 @@
     "message": "Kilidi aç"
   },
   "additionalOptions": {
-    "message": "Əlavə seçimlər"
+    "message": "Əlavə seçənəklər"
   },
   "fillAssistActiveNoticeV2": {
     "message": "Bu səhifədə avto-doldurma \"Doldurma köməyi\"ni istifadə edir."
@@ -1486,7 +1486,7 @@
     "message": "Bir veb saytın `data-bwignore` atributu ilə işarələdiyi bütün span elementləri istifadə et."
   },
   "enableContextMenuItem": {
-    "message": "Konteks menyu seçimlərini göstər"
+    "message": "Konteks menyu seçənəklərini göstər"
   },
   "contextMenuItemDesc": {
     "message": "Veb sayt üçün parol yaradılmasına və uyuşan giriş məlumatlarına erişmək üçün sağ klikləməni istifadə edin."
@@ -1537,8 +1537,42 @@
     "message": "Daxilə köçür",
     "description": "The verb form of the word Import"
   },
+  "importSourceBreadcrumb": {
+    "message": "Mənbə seç"
+  },
+  "importSourceSelectTitle": {
+    "message": "Mənbənizi seçin"
+  },
+  "importSourceSelectDescription": {
+    "message": "Daxilə köçürəcəyiniz parol menecerini və ya brauzeri seçin."
+  },
+  "importSourceBrowsers": {
+    "message": "Brauzerlər"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Parol menecerləri"
+  },
+  "importSourceShowAll": {
+    "message": "Hamısını göstər"
+  },
+  "importSourceShowLess": {
+    "message": "Daha az göstər"
+  },
+  "importSourceStepCount": {
+    "message": "Addım $CURRENT$/$TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "importItems": {
-    "message": "Import items"
+    "message": "Elementləri daxilə köçür"
   },
   "fileFormat": {
     "message": "Fayl formatı"
@@ -1766,7 +1800,7 @@
     "message": "Fövqəladə hal erişimi."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "YubiKey və Duo kimi mülkiyyətçi iki addımlı giriş seçimləri."
+    "message": "YubiKey və Duo kimi mülkiyyətçi iki addımlı giriş seçənəkləri."
   },
   "premiumSubscriptionEnded": {
     "message": "Premium abunəliyiniz bitdi"
@@ -1887,7 +1921,7 @@
     "message": "Lütfən (Chrome kimi) dəstəklənən bir veb brauzer istifadə edin və/və ya veb brauzerlərə (kimlik doğrulayıcı tətbiq kimi) daha yaxşı dəstəklənən provayderlər əlavə edin."
   },
   "twoStepOptions": {
-    "message": "İki addımlı giriş seçimləri"
+    "message": "İki addımlı giriş seçənəkləri"
   },
   "selectTwoStepLoginMethod": {
     "message": "İki addımlı giriş üsulunu seçin"
@@ -2817,11 +2851,11 @@
     }
   },
   "oneFilterResult": {
-    "message": "1 result",
+    "message": "1 nəticə",
     "description": "Shown above a filter menu's option list when a search matches exactly one option."
   },
   "filterResults": {
-    "message": "$COUNT$ results",
+    "message": "$COUNT$ nəticə",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2831,7 +2865,7 @@
     "description": "Shown above a filter menu's option list when a search matches more than one option."
   },
   "noFiltersMatchTerm": {
-    "message": "No filters match “$SEARCH$”",
+    "message": "“$SEARCH$” ilə uyuşan heç bir filtr yoxdur",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -2922,7 +2956,7 @@
     "description": "Default URI match detection for autofill."
   },
   "toggleOptions": {
-    "message": "Seçimləri aç/bağla"
+    "message": "Seçənəkləri aç/bağla"
   },
   "toggleCurrentUris": {
     "message": "Hazırkı URI-ləri aç/bağla",
@@ -2973,7 +3007,7 @@
     "description": "ex. Date this password was updated"
   },
   "neverLockWarning": {
-    "message": "\"Heç vaxt\"i seçmək istədiyinizə əminsiniz? Kilid seçimini \"Heç vaxt\" olaraq ayarlasanız, seyfinizin şifrələmə açarı cihazınızda saxlanılacaq. Bu seçimi istifadə etsəniz, cihazınızı daha yaxşı mühafizə etdiyinizə əmin olmalısınız."
+    "message": "\"Heç vaxt\" seçənəyini istifadə etmək istədiyinizə əminsiniz? Kilid seçənəyinizi \"Heç vaxt\" olaraq ayarlasanız, seyfinizin şifrələmə açarı cihazınızda saxlanılacaq. Bu seçənəyi istifadə etsəniz, cihazınızı daha yaxşı mühafizə etdiyinizə əmin olmalısınız."
   },
   "noOrganizationsList": {
     "message": "Heç bir təşkilata aid deyilsiniz. Təşkilatlar, elementlərinizi digər istifadəçilərlə güvənli şəkildə paylaşmağınızı təmin edir."
@@ -3368,10 +3402,10 @@
     "message": "Bu əməliyyat yan çubuqda icra edilə bilməz. Lütfən açılan pəncərədə yenidən sınayın."
   },
   "personalOwnershipSubmitError": {
-    "message": "Müəssisə Siyasətinə görə, elementləri fərdi seyfinizdə saxlamağınız məhdudlaşdırılıb. Sahiblik seçimini təşkilat olaraq dəyişdirin və mövcud kolleksiyalar arasından seçim edin."
+    "message": "Müəssisə Siyasətinə görə, elementləri fərdi seyfinizdə saxlamağınız məhdudlaşdırılıb. Sahiblik seçənəyini təşkilat olaraq dəyişdirin və mövcud kolleksiyalar arasından seçim edin."
   },
   "personalOwnershipPolicyInEffect": {
-    "message": "Bir təşkilat siyasəti, sahiblik seçimlərinizə təsir edir."
+    "message": "Bir təşkilat siyasəti, sahiblik seçənəklərinizə təsir edir."
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "Bir təşkilat siyasəti, elementlərin fərdi seyfinizə köçürülməsini əngəllədi."
@@ -4059,16 +4093,25 @@
   "errorGettingAutoFillData": {
     "message": "Avto-doldurma verilərini alma xətası"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden, aşağıda sadalanan seyf element(lər)inin şifrəsini aça bilmədi."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden, aşağıda sadalanmış seyf elementinin şifrəsini aça bilmədi. Bitwarden Müştəri Dəstəyi ilə əlaqə saxlayın və həmin elementin bərpa edilib-edilə bilməyəcəyini öyrənmək üçün aşağıdakı element ID-sini təqdim edin."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Əlavə veri itkisini önləmək üçün",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden, aşağıda sadalanmış seyf elementlərinin şifrəsini aça bilmədi. Bitwarden Müştəri Dəstəyi ilə əlaqə saxlayın və həmin elementlərin bərpa edilib-edilə bilməyəcəyini öyrənmək üçün aşağıdakı element ID-lərini təqdim edin."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "müştəri dəstəyi ilə əlaqə saxlayın.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "Element ID-si",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "Element ID-ləri",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "ID-ni kopyala"
+  },
+  "copyAllIds": {
+    "message": "Bütün ID-ləri kopyala"
   },
   "generateUsername": {
     "message": "İstifadəçi adı yarat"
@@ -4360,7 +4403,7 @@
     "message": "Bildirişi təkrar göndər"
   },
   "viewAllLogInOptions": {
-    "message": "Bütün giriş seçimlərinə bax"
+    "message": "Bütün giriş seçənəklərinə bax"
   },
   "notificationSentDevice": {
     "message": "Cihazınıza bir bildiriş göndərildi."
@@ -4381,7 +4424,7 @@
     "message": "Tələbiniz təsdiqləndikdə bildiriş alacaqsınız"
   },
   "needAnotherOptionV1": {
-    "message": "Başqa bir seçimə ehtiyacınız var?"
+    "message": "Başqa bir seçənəyə ehtiyacınız var?"
   },
   "loginInitiated": {
     "message": "Giriş başladıldı"
@@ -4466,7 +4509,7 @@
     "message": "Təşkilatınızın siyasətləri, səhifə yüklənəndə avto-doldurmanı işə saldı."
   },
   "autofillSelectInfoWithCommand": {
-    "message": "Bu ekrandan bir element seçin, $COMMAND$ qısayolunu istifadə edin və ya ayarlardakı digər seçimləri kəşf edin.",
+    "message": "Bu ekrandan bir element seçin, $COMMAND$ qısayolunu istifadə edin və ya ayarlardakı digər seçənəkləri kəşf edin.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -4475,7 +4518,7 @@
     }
   },
   "autofillSelectInfoWithoutCommand": {
-    "message": "Bu ekrandan bir element seçin və ya ayarlardakı digər seçimləri kəşf edin."
+    "message": "Bu ekrandan bir element seçin və ya ayarlardakı digər seçənəkləri kəşf edin."
   },
   "gotIt": {
     "message": "Anladım"
@@ -4611,13 +4654,13 @@
     }
   },
   "deviceApprovalRequired": {
-    "message": "Cihaz təsdiqi tələb olunur. Aşağıdan bir təsdiq variantı seçin:"
+    "message": "Cihaz təsdiqi tələb olunur. Aşağıdan bir təsdiq seçənəyi seçin:"
   },
   "deviceApprovalRequiredV2": {
     "message": "Cihaz təsdiqi tələb olunur"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Aşağıdan bir təsdiq seçimi edin"
+    "message": "Aşağıdan bir təsdiq seçənəyi seçin"
   },
   "rememberThisDevice": {
     "message": "Bu cihazı xatırla"
@@ -4825,7 +4868,7 @@
     "message": "-- Filtrləmək üçün yazın --"
   },
   "multiSelectLoading": {
-    "message": "Seçimlər alınır..."
+    "message": "Seçənəklər alınır..."
   },
   "multiSelectNotFound": {
     "message": "Heç bir element tapılmadı"
@@ -5121,7 +5164,7 @@
     "message": "Hədəf"
   },
   "learnAboutImportOptions": {
-    "message": "Daxilə köçürmə seçimlərinizi öyrənin"
+    "message": "Daxilə köçürmə seçənəklərinizi öyrənin"
   },
   "selectImportFolder": {
     "message": "Bir qovluq seçin"
@@ -5129,11 +5172,21 @@
   "selectImportCollection": {
     "message": "Bir kolleksiya seçin"
   },
+  "selectImportSharedFolder": {
+    "message": "Paylaşılan bir qovluq seç"
+  },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
-    "message": "Daxilə köçürülən fayl məzmunlarının bir kolleksiyaya daşınmasını istəyirsinizsə bu variantı seçin"
+    "message": "Daxilə köçürülən fayl məzmunlarının bir kolleksiyaya daşınmasını istəyirsinizsə bu seçənəyi seçin"
   },
   "importTargetHintFolder": {
-    "message": "Daxilə köçürülən fayl məzmunlarının bir qovluğa daşınmasını istəyirsinizsə bu variantı seçin"
+    "message": "Daxilə köçürülən fayl məzmunlarının bir qovluğa daşınmasını istəyirsinizsə bu seçənəyi seçin"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Daxilə köçürülən fayl məzmunlarının paylaşılan qovluğa daşınmasını istəyirsinizsə bu seçənəyi seçin"
   },
   "importUnassignedItemsError": {
     "message": "Faylda təyin edilməmiş elementlər var."
@@ -5272,7 +5325,7 @@
     "message": "Padlock masaüstü tətbiqini istifadə edərək, sol üst küncdəki 3 xətt ikonuna klikləyin və \"Ayarlar\" → \"Xaricə köçür\" düyməsinə basın və faylı \"CSV olaraq\" saxlayın."
   },
   "importKeepass2Instructions": {
-    "message": "KeePass 2 masaüstü tətbiqini istifadə edərək, \"Fayl\" → \"Xaricə köçür\"ü seçin və \"KeePass XML (2.x)\" seçimini edin."
+    "message": "KeePass 2 masaüstü tətbiqini istifadə edərək, \"Fayl\" → \"Xaricə köçür\"ü seçin və \"KeePass XML (2.x)\" seçənəyini seçin."
   },
   "importUpmInstructions": {
     "message": "Universal Password Manager masaüstü tətbiqini istifadə edərək \"Veri bazası\" → \"Xaricə köçür\"ü seçin və CSV faylını saxlayın."
@@ -5314,13 +5367,13 @@
     "message": "Clipperz veb tətbiqinə (clipperz.is/app) giriş edin. Naviqasiya çubuğunu genişləndirmək üçün sağ üst küncdəki 3 xətt menyu ikonuna klikləyin. \"Verilər\" → \"Xaricə köçür\"ü seçin. HTML faylını saxlamaq üçün \"HTML+JSON endir\" düyməsinə klikləyin."
   },
   "importRoboformInstructions": {
-    "message": "RoboForm Editor masaüstü tətbiqini istifadə etmək üçün sol üstdəki \"RoboForm\" → \"Seçimlər\" → \"Hesab və verilər\"ə gedin və \"Xaricə köçür\" düyməsinə klikləyin. Verilərinizin hamısını seçin, \"Format\"ı \"CSV faylı\" kimi dəyişdirin və sonra CSV faylını saxlamaq üçün \"Xaricə köçür\" düyməsinə klikləyin. Qeyd: RoboForm, yalnız giriş etmə məlumatlarını xaricə köçürməyinizə icazə verir. Digər elementlər xaricə köçürülməyəcək."
+    "message": "RoboForm Editor masaüstü tətbiqini istifadə etmək üçün sol üstdəki \"RoboForm\" → \"Seçənəklər\" → \"Hesab və verilər\"ə gedin və \"Xaricə köçür\" düyməsinə klikləyin. Verilərinizin hamısını seçin, \"Format\"ı \"CSV faylı\" kimi dəyişdirin və sonra CSV faylını saxlamaq üçün \"Xaricə köçür\" düyməsinə klikləyin. Qeyd: RoboForm, yalnız giriş etmə məlumatlarını xaricə köçürməyinizə icazə verir. Digər elementlər xaricə köçürülməyəcək."
   },
   "importPassboltInstructions": {
     "message": "Passbolt veb seyfində giriş edin və \"Parollar\" bölməsinə gedin. Xaricə köçürmək istədiyiniz bütün parolları seçin və ən üstdəki \"Xaricə köçür\" düyməsinə klikləyin. \"csv (lastpass)\" xaricə köçürmə formatını seçin və \"Xaricə köçür\" düyməsinə klikləyin."
   },
   "importAscendoInstructions": {
-    "message": "Ascendo DataVault masaüstü tətbiqini istifadə edərək, \"Alətlər\" → \"Xaricə köçür\"ə gedin. Açılan pəncərədə \"Bütün elementlər (DVX, CSV)\" seçimini edin. CSV faylını saxlamaq üçün \"Oldu\" düyməsinə klikləyin."
+    "message": "Ascendo DataVault masaüstü tətbiqini istifadə edərək, \"Alətlər\" → \"Xaricə köçür\"ə gedin. Açılan pəncərədə \"Bütün elementlər (DVX, CSV)\" seçənəyini seçin. CSV faylını saxlamaq üçün \"Oldu\" düyməsinə klikləyin."
   },
   "importPasswordbossInstructions": {
     "message": "Password Boss masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Veriləri xaricə köçür\" → \"Password Boss JSON - şifrələnməmiş\"i seçin və JSON faylını saxlayın."
@@ -5423,7 +5476,7 @@
     "message": "ProtonPass brauzer uzantısında \"Ayarlar\" > \"Xaricə köçür\"ə gedin. PGP şifrələmə olmadan xaricə köçürün və zip faylını saxlayın."
   },
   "importPasswordxpInstructions": {
-    "message": "\"Veri bazası\"nı → \"Fayla köçür\" menyusunu seçin → Xaricə köçürmə seçimləri daxilində Qovluq adlarının və Sütun başlıqlarının işarələndiyinə əmin olun. → \"Nəzər sal\" düyməsinə basın və hədəf faylı seçin və növünü CSV faylı olaraq təyin edin."
+    "message": "\"Veri bazası\"nı → \"Fayla köçür\" menyusunu seçin → Xaricə köçürmə seçənəkləri daxilində Qovluq adlarının və Sütun başlıqlarının işarələndiyinə əmin olun. → \"Nəzər sal\" düyməsinə basın və hədəf faylı seçin və növünü CSV faylı olaraq təyin edin."
   },
   "importNetwrixInstructions": {
     "message": "FullClient-i açın, \"Əsas menyu\"ya gedin və \"Xaricə köçür\"ü seçin. \"Xaricə köçürmə sehrbazı\"nı başladın və CSV faylına köçürmək üçün təlimatları izləyin."
@@ -5626,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "LastPass hesabınızla əlaqələndirilmiş \"YubiKey\"i kompüterinizin USB yuvasına taxın, daha sonra düyməsinə basın."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper e-poçtu"
   },
@@ -5821,6 +5883,9 @@
   "switchAccounts": {
     "message": "Hesabları dəyişdir"
   },
+  "switchVault": {
+    "message": "Seyfi dəyişdir"
+  },
   "switchToAccount": {
     "message": "Hesaba keç"
   },
@@ -5878,11 +5943,11 @@
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Müntəzəm ifadə\", kimlik məlumatlarının ifşa olunma riskini artıran qabaqcıl bir seçimdir.",
+    "message": "\"Müntəzəm ifadə\", kimlik məlumatlarının ifşa olunma riskini artıran qabaqcıl bir seçənəkdir.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"İlə başlayır\", kimlik məlumatlarının ifşa olunma riskini artıran qabaqcıl bir seçimdir.",
+    "message": "\"İlə başlayır\", kimlik məlumatlarının ifşa olunma riskini artıran qabaqcıl bir seçənəkdir.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
@@ -5890,7 +5955,7 @@
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Qabaqcıl seçimlər",
+    "message": "Qabaqcıl seçənəklər",
     "description": "Advanced option placeholder for uri option component"
   },
   "confirmContinueToBrowserSettingsTitle": {
@@ -5922,7 +5987,7 @@
     "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
   },
   "overrideDefaultBrowserAutofillDescription": {
-    "message": "Bu seçimin yox sayılması, \"Bitwarden\"in və brauzerinizin avto-doldurma menyuları arasında ziddiyyətlərə səbəb ola bilər.",
+    "message": "Bu seçənəyin yox sayılması, \"Bitwarden\"in və brauzerinizin avto-doldurma menyuları arasında ziddiyyətlərə səbəb ola bilər.",
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
   "overrideDefaultBrowserAutoFillSettings": {
@@ -6046,7 +6111,7 @@
     "message": "Seyf elementlərini digər üzvlərlə təhlükəsiz şəkildə paylaşmaq üçün paylaşılan qovluq əlavə edin."
   },
   "moreOptionsLabel": {
-    "message": "Daha çox seçim, $ITEMNAME$",
+    "message": "Daha çox seçənək, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
     "placeholders": {
       "itemname": {
@@ -6056,10 +6121,10 @@
     }
   },
   "moreOptionsLabelNoPlaceholder": {
-    "message": "Daha çox seçim"
+    "message": "Daha çox seçənək"
   },
   "moreOptionsTitle": {
-    "message": "Daha çox seçim - $ITEMNAME$",
+    "message": "Daha çox seçənək - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
     "placeholders": {
       "itemname": {
@@ -6470,7 +6535,7 @@
     "message": "Kimlik doğrulayıcı açarı"
   },
   "autofillOptions": {
-    "message": "Avto-doldurma seçimləri"
+    "message": "Avto-doldurma seçənəkləri"
   },
   "websiteUri": {
     "message": "Veb sayt (URI)"
@@ -6920,7 +6985,7 @@
     "message": "Sildiyiniz elementlər burada görünəcək və 30 gün sonra birdəfəlik silinəcək"
   },
   "noItemsInTrashDescription": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days."
+    "message": "Sildiyiniz elementlər burada görünəcək və 30 gün sonra həmişəlik silinəcək."
   },
   "trashWarning": {
     "message": "Tullantıda 30 gündən çox qalan elementlər avtomatik silinəcək"
@@ -7186,32 +7251,23 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Riskli parolları dəyişdir"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Bu giriş risk altındadır və bir veb sayt əskikdir. Daha güclü təhlükəsizlik üçün bir veb sayt əlavə edin və parolu dəyişdirin."
-  },
   "vulnerablePassword": {
     "message": "Zəifliyi olan parol."
   },
   "changeNow": {
     "message": "İndi dəyişdir"
   },
-  "missingWebsite": {
-    "message": "Əskik veb sayt"
-  },
   "settingsVaultOptions": {
-    "message": "Seyf seçimləri"
+    "message": "Seyf seçənəkləri"
   },
   "emptyVaultDescription": {
     "message": "Seyf, yalnız parollarızı yox, həm də daha çoxunu qoruyur. Giriş məlumatlarınızı, kimlikləri, kartları və notları burada güvənli şəkildə saxlayın."
   },
   "emptyVaultsDescription": {
-    "message": "Add logins, IDs, cards, and other items to get started."
+    "message": "Başlamaq üçün giriş məlumatlarını, kimliklərinizi, kartlarınızı və digər elementlərinizi əlavə edin."
   },
   "emptySharedFolderDescription": {
-    "message": "Add items to this shared folder, then give access to other $VAULT_NAME$ members.",
+    "message": "Elementləri bu paylaşılan qovluğa əlavə et, sonra digər $VAULT_NAME$ üzvlərinə erişim hüququ verin.",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -7220,7 +7276,7 @@
     }
   },
   "emptyMyItemsDescription": {
-    "message": "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
+    "message": "“Elementlərim” sahibi $VAULT_NAME$ olan, lakin digər üzvlərə görünməyən elementləri saxlamaq üçün şəxsi məkanınızdır.",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -7228,11 +7284,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "You have no folders."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "Bitwarden-ə xoş gəlmisiniz"
@@ -8071,7 +8127,7 @@
     "message": "Bu girişlərdəki parollar təkrar istifadə olunub. Kiminsə sadəcə bir parol istifadə edərək birdən çox hesaba erişməsini önləmək üçün hər hesaba unikal bir parol təyin edin."
   },
   "deleteAtRiskItemDesc": {
-    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
+    "message": "Əvvəlcə parolunuzu dəyişdirdiyinizə əmin olun. Silmək, elementi yalnız seyfinizdən kənarlaşdırır, riski aradan qaldırmır."
   },
   "passwordHasAdditionalRisks": {
     "message": "Bu parol üçün əlavə risklər var:"
@@ -8116,5 +8172,84 @@
   },
   "editItemsHidePass": {
     "message": "Elementlərə, gizli parollara düzəliş et"
+  },
+  "shareVerb": {
+    "message": "Paylaş"
+  },
+  "peopleWhoCanView": {
+    "message": "Kimlər görə bilər",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Bu keçidi paylaşdıqdan sonra, alıcılar bu elementə baxmaq üçün öz e-poçtlarını bir kodla doğrulamalıdırlar.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Bu tarixdən sonra keçidin istifadə müddəti bitir, ancaq alıcılar daha əvvəl paylaşılan məlumatları saxlaya bilərlər. Erişimi ləğv etmək üçün kimlik məlumatlarını yenidən yaradın.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Keçidin etibarlılıq müddəti",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Təkistifadəlik paylaşma",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Aktiv keçidlər",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Keçid lövhəyə kopyalandı",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Paylaşım keçidi yaradıla bilmir",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Keçid saxlanıldı və lövhəyə kopyalandı",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Paylaşım keçidi lövhəyə kopyalanmadı",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Paylaşım keçidi silindi",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Paylaşım keçidi silinmədi",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Keçid ilə paylaş",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Seyf elementini paylaş: $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "share": {
+    "message": "Paylaş",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareLinkExpires": {
+    "message": "Müddəti bitir",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Müddəti bitir",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Bilinməyən element, bu elementə erişmək üçün izin istəməyiniz lazım gələ bilər."
   }
 }

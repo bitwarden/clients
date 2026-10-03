@@ -9,7 +9,12 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { CollectionId, UserId } from "@bitwarden/common/types/guid";
-import { NavigationModule, SideNavService } from "@bitwarden/components";
+import {
+  NavigationModule,
+  PopoverAnchorForDirective,
+  PopoverComponent,
+  SideNavService,
+} from "@bitwarden/components";
 import { GlobalStateProvider } from "@bitwarden/state";
 
 import {
@@ -29,6 +34,7 @@ const personalItem: VaultNavItemViewModel = {
   color: "coral",
   icon: "bwi-user",
   type: VaultNavItemType.Personal,
+  enabled: true,
 };
 
 const orgA: VaultNavItemViewModel = {
@@ -36,6 +42,7 @@ const orgA: VaultNavItemViewModel = {
   label: "Acme corporation",
   icon: "bwi-business",
   type: VaultNavItemType.Organization,
+  enabled: true,
 };
 
 const family: VaultNavItemViewModel = {
@@ -43,6 +50,7 @@ const family: VaultNavItemViewModel = {
   label: "Smith family",
   icon: "bwi-family",
   type: VaultNavItemType.Family,
+  enabled: true,
 };
 
 const personalOnly: VaultsNavViewModel = {
@@ -309,6 +317,56 @@ describe("VaultNavSectionComponent", () => {
     });
   });
 
+  describe("coachmark anchor", () => {
+    /** Where the tour's popover is open, as `"<organization>/<element>"`. */
+    const openAnchors = () =>
+      fixture.debugElement
+        .queryAll(By.directive(PopoverAnchorForDirective))
+        .filter((el) => el.injector.get(PopoverAnchorForDirective).popoverOpen())
+        .map((el) => {
+          let group = el;
+          while (group.parent != null && group.name !== "bit-nav-group") {
+            group = group.parent;
+          }
+          return `${group.componentInstance.text()}/${el.name}`;
+        });
+
+    const navGroup = (label: string) =>
+      fixture.debugElement
+        .queryAll(By.css("bit-nav-group"))
+        .find((el) => el.componentInstance.text() === label);
+
+    beforeEach(() => {
+      viewModel$.next(withOrgs);
+      // A real popover, so the anchor that opens can build its overlay from a template ref.
+      const popover = TestBed.createComponent(PopoverComponent);
+      popover.detectChanges();
+
+      fixture.componentRef.setInput("coachmarkPopover", popover.componentInstance);
+      fixture.componentRef.setInput("coachmarkTourRunning", true);
+      fixture.detectChanges();
+    });
+
+    it("opens the first organization's group for the whole tour", () => {
+      // Groups collapse by default. See the `coachmarkTourRunning` input for why the tour needs
+      // this one open for its whole run.
+      expect(navGroup("Acme corporation").componentInstance.open()).toBe(true);
+      expect(navGroup("Smith family").componentInstance.open()).toBe(false);
+    });
+
+    it("opens on the first organization's Shared folders entry only", () => {
+      fixture.componentRef.setInput("coachmarkPopoverOpen", true);
+      fixture.detectChanges();
+
+      // One Shared folders entry per organization, and a single popover to place.
+      expect(openAnchors()).toEqual(["Acme corporation/bit-nav-item"]);
+    });
+
+    it("stays closed while the step is not active", () => {
+      expect(openAnchors()).toEqual([]);
+    });
+  });
+
   describe("organization data ownership", () => {
     beforeEach(() => {
       viewModel$.next(orgDataOwnership);
@@ -336,6 +394,40 @@ describe("VaultNavSectionComponent", () => {
       const group = expandGroup("Acme corporation");
 
       expect(navItem(group, "myItemsV2")).toBeUndefined();
+    });
+  });
+
+  describe("a suspended organization", () => {
+    /** The suspended-org warning icons rendered in the nav, by the group each sits in. */
+    const suspendedIconGroups = () =>
+      fixture.debugElement
+        .queryAll(By.css("bit-nav-group"))
+        .filter(
+          (group) => group.nativeElement.querySelector("bit-icon.bwi-exclamation-triangle") != null,
+        )
+        .map((group) => group.componentInstance.text());
+
+    it("marks the suspended organization and leaves the enabled ones unmarked", () => {
+      viewModel$.next({ ...withOrgs, vaults: [personalItem, { ...orgA, enabled: false }, family] });
+      fixture.detectChanges();
+
+      expect(suspendedIconGroups()).toEqual(["Acme corporation"]);
+    });
+
+    it("labels the icon so it is not announced as decoration", () => {
+      viewModel$.next({ ...withOrgs, vaults: [personalItem, { ...orgA, enabled: false }, family] });
+      fixture.detectChanges();
+
+      const icon = fixture.nativeElement.querySelector("bit-icon.bwi-exclamation-triangle");
+
+      expect(icon.getAttribute("aria-label")).toBe("organizationIsDisabled");
+    });
+
+    it("marks no organization when every vault is enabled", () => {
+      viewModel$.next(withOrgs);
+      fixture.detectChanges();
+
+      expect(suspendedIconGroups()).toEqual([]);
     });
   });
 

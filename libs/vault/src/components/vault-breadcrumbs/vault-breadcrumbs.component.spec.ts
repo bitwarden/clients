@@ -47,6 +47,7 @@ describe("VaultBreadcrumbsComponent", () => {
           icon: "bwi-business",
           type: VaultNavItemType.Organization,
           defaultUserCollectionId: myItemsCollectionId,
+          enabled: true,
         },
       ],
       organizationDataOwnership: true,

@@ -117,8 +117,6 @@ import {
   VaultItemDialogMode,
   VaultItemDialogResult,
   BulkDeleteDialogResult,
-  BulkMoveDialogResult,
-  openBulkMoveDialog,
   VaultBatchBarService,
   VaultBatchActionComponent,
   ASSIGN_COLLECTIONS_DIALOG,
@@ -206,7 +204,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected refreshing = false;
   protected processingEvent = false;
   protected filter: RoutedVaultFilterModel = {};
-  protected showBulkMove: boolean = false;
   protected canAccessPremium: boolean = false;
   protected allCollections: CollectionView[] = [];
   protected allOrganizations: Organization[] = [];
@@ -225,11 +222,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
 
   protected showAddCipherBtn: boolean = false;
-
-  protected readonly vaultBatchBarFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
-    { initialValue: false },
-  );
 
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
@@ -639,7 +631,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
             (o) => o.canCreateNewCollections && !o.isProviderUser,
           );
 
-          this.showBulkMove = filter.type !== "trash";
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
           this.performingInitialLoad = false;
           this.refreshing = false;
@@ -656,10 +647,15 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.refresh());
 
-    combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0))])
+    combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0)), filter$])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([allCollections, hasCiphers]) =>
-        this.vaultBatchBarService.setConfig({ isOrgVault: false, allCollections, hasCiphers }),
+      .subscribe(([allCollections, hasCiphers, filter]) =>
+        this.vaultBatchBarService.setConfig({
+          isOrgVault: false,
+          allCollections,
+          hasCiphers,
+          inTrash: filter.type === "trash",
+        }),
       );
   }
 
@@ -693,9 +689,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           break;
         case "delete":
           await this.handleDeleteEvent(event.items);
-          break;
-        case "moveToFolder":
-          await this.bulkMove(event.items);
           break;
         case "copyField":
           await this.copy(event.item, event.field);
@@ -1549,30 +1542,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     const result = await lastValueFrom(dialog.closed);
     if (result === BulkDeleteDialogResult.Deleted) {
-      this.refresh();
-    }
-  }
-
-  async bulkMove(ciphers: C[]) {
-    if (!(await this.repromptCipher(ciphers))) {
-      return;
-    }
-
-    const selectedCipherIds = ciphers.map((cipher) => uuidAsString(cipher.id));
-    if (selectedCipherIds.length === 0) {
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("nothingSelected"),
-      });
-      return;
-    }
-
-    const dialog = openBulkMoveDialog(this.dialogService, {
-      data: { cipherIds: selectedCipherIds },
-    });
-
-    const result = await lastValueFrom(dialog.closed);
-    if (result === BulkMoveDialogResult.Moved) {
       this.refresh();
     }
   }

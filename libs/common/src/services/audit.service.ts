@@ -12,41 +12,68 @@ import { Utils } from "../platform/misc/utils";
 
 const PwnedPasswordsApi = "https://api.pwnedpasswords.com/range/";
 
+/**
+ * Ceiling on a single strict range lookup ({@link AuditService.passwordLeakedStrict} only).
+ *
+ * This is a safety valve, not a latency target: a request that never settles holds its slot in the
+ * concurrency limiter forever, so a caller fanning out over a whole vault silently loses throughput
+ * until nothing is left. Deliberately generous, because padded responses are ~40 kB and a slow
+ * network is not a failure.
+ */
+export const RangeRequestTimeoutMs = 30_000;
+
 export class AuditService implements AuditServiceAbstraction {
   private passwordLeakedSubject = new Subject<{
     password: string;
     resolve: (count: number) => void;
     reject: (err: any) => void;
+    addPadding: boolean;
+    strict: boolean;
   }>();
 
+  /**
+   * @param maxConcurrent Ceiling on in-flight range lookups, shared by every caller of
+   * {@link passwordLeaked} and {@link passwordLeakedStrict}. This is the only limiter on that
+   * path — callers fanning out over a vault should not add their own, or the effective ceiling
+   * stops being discoverable from either place. The Pwned Passwords API imposes no rate limit,
+   * needs no key, and asks for no attribution; the ceiling exists for self-hosted deployments,
+   * whose own network, proxy, or gateway may object to the volume.
+   */
   constructor(
     private cryptoFunctionService: CryptoFunctionService,
     private apiService: ApiService,
     private hibpApiService: HibpApiService,
-    private readonly maxConcurrent: number = 100, // default to 100, can be overridden
+    private readonly maxConcurrent: number = 100,
   ) {
-    this.maxConcurrent = maxConcurrent;
     this.passwordLeakedSubject
       .pipe(
         mergeMap(
           // Handle each password leak request, resolving or rejecting the associated promise.
           async (req) => {
             try {
-              const count = await this.fetchLeakedPasswordCount(req.password);
+              const count = req.strict
+                ? await this.fetchLeakedPasswordCountStrict(req.password, req.addPadding)
+                : await this.fetchLeakedPasswordCount(req.password, req.addPadding);
               req.resolve(count);
             } catch (err) {
               req.reject(err);
             }
           },
-          this.maxConcurrent, // Limit concurrent API calls
+          this.maxConcurrent,
         ),
       )
       .subscribe();
   }
 
-  async passwordLeaked(password: string): Promise<number> {
+  async passwordLeaked(password: string, addPadding: boolean = true): Promise<number> {
     return new Promise<number>((resolve, reject) => {
-      this.passwordLeakedSubject.next({ password, resolve, reject });
+      this.passwordLeakedSubject.next({ password, resolve, reject, addPadding, strict: false });
+    });
+  }
+
+  async passwordLeakedStrict(password: string, addPadding: boolean = true): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
+      this.passwordLeakedSubject.next({ password, resolve, reject, addPadding, strict: true });
     });
   }
 
@@ -55,15 +82,8 @@ export class AuditService implements AuditServiceAbstraction {
    * @param password The password to check.
    * @returns A promise that resolves to the number of times the password has been leaked.
    */
-  protected async fetchLeakedPasswordCount(password: string): Promise<number> {
-    const hashBytes = await this.cryptoFunctionService.hash(password, "sha1");
-    const hash = Utils.fromArrayToHex(hashBytes)!.toUpperCase();
-    const hashStart = hash.substr(0, 5);
-    const hashEnding = hash.substr(5);
-
-    const request = new Request(PwnedPasswordsApi + hashStart, {
-      headers: { "Add-Padding": "true" },
-    });
+  protected async fetchLeakedPasswordCount(password: string, addPadding: boolean): Promise<number> {
+    const { request, hashEnding } = await this.buildRangeRequest(password, addPadding);
     const response = await this.apiService.nativeFetch(request);
     const leakedHashes = await response.text();
     const match = leakedHashes.split(/\r?\n/).find((v) => {
@@ -71,6 +91,54 @@ export class AuditService implements AuditServiceAbstraction {
     });
 
     return match != null ? parseInt(match.split(":")[1], 10) : 0;
+  }
+
+  /**
+   * Like {@link fetchLeakedPasswordCount}, but rejects on a non-2xx status and settles within
+   * {@link RangeRequestTimeoutMs}.
+   *
+   * @param password The password to check.
+   * @returns A promise that resolves to the number of times the password has been leaked.
+   */
+  protected async fetchLeakedPasswordCountStrict(
+    password: string,
+    addPadding: boolean,
+  ): Promise<number> {
+    const { request, hashEnding } = await this.buildRangeRequest(
+      password,
+      addPadding,
+      AbortSignal.timeout(RangeRequestTimeoutMs),
+    );
+    const response = await this.apiService.nativeFetch(request);
+    if (!response.ok) {
+      // An error body would otherwise be parsed as a hash list, matching nothing and reporting
+      // the password as not exposed.
+      throw new Error(`Pwned Passwords request failed with status ${response.status}.`);
+    }
+    const leakedHashes = await response.text();
+    const match = new RegExp(`^${hashEnding}:(\\d+)`, "m").exec(leakedHashes);
+
+    return match != null ? parseInt(match[1], 10) : 0;
+  }
+
+  /** Builds the k-anonymity range request: only the first 5 hash characters leave the client. */
+  private async buildRangeRequest(
+    password: string,
+    addPadding: boolean,
+    signal?: AbortSignal,
+  ): Promise<{ request: Request; hashEnding: string }> {
+    const hashBytes = await this.cryptoFunctionService.hash(password, "sha1");
+    const hash = Utils.fromArrayToHex(hashBytes)!.toUpperCase();
+    const hashStart = hash.substr(0, 5);
+    const hashEnding = hash.substr(5);
+
+    const headers = new Headers();
+    if (addPadding) {
+      headers.append("Add-Padding", "true");
+    }
+
+    const request = new Request(`${PwnedPasswordsApi}${hashStart}`, { headers, signal });
+    return { request, hashEnding };
   }
 
   async breachedAccounts(username: string): Promise<BreachAccountResponse[]> {

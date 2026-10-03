@@ -1,12 +1,18 @@
-import { ChangeDetectionStrategy, Component, viewChild } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal, viewChild } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { ChipComponent } from "../../chips";
 import { DialogService } from "../../dialog";
+import { FilterMenuComponent } from "../../filter-menu/filter-menu.component";
+import { FilterOptionComponent } from "../../filter-menu/filter-option.component";
 import { FilterToggleComponent } from "../../filter-menu/filter-toggle.component";
+import { CollapseOnScrollDirective } from "../../layout/collapse-on-scroll.directive";
 import { SearchComponent } from "../../search/search.component";
+import { TooltipDirective } from "../../tooltip";
 import { I18nMockService } from "../../utils/i18n-mock.service";
 
 import { BitTableToolbarComponent } from "./bit-table-toolbar.component";
@@ -43,6 +49,20 @@ class HostComponent {
 })
 class SearchOnlyHostComponent {}
 
+/** A toolbar carrying `bitCollapseOnScroll`, whose enabled state decides who draws the divider. */
+@Component({
+  imports: [BitTableToolbarComponent, CollapseOnScrollDirective, SearchComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <bit-table-toolbar [bitCollapseOnScroll]="collapse()">
+      <bit-search placeholder="Search"></bit-search>
+    </bit-table-toolbar>
+  `,
+})
+class CollapsingHostComponent {
+  readonly collapse = signal(true);
+}
+
 describe("BitTableToolbarComponent", () => {
   let fixture: ComponentFixture<HostComponent>;
   let host: HostComponent;
@@ -61,7 +81,7 @@ describe("BitTableToolbarComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HostComponent, SearchOnlyHostComponent],
+      imports: [HostComponent, SearchOnlyHostComponent, CollapsingHostComponent],
       providers: [
         {
           provide: I18nService,
@@ -109,6 +129,15 @@ describe("BitTableToolbarComponent", () => {
     expect(host.search().value()).toBe("vault");
     expect(clearAllVisible()).toBe(false);
   });
+  it("tooltips an active filter chip with its full applied label", () => {
+    host.toggle().flip();
+    fixture.detectChanges();
+
+    const chip = fixture.debugElement.query(By.css("bit-chip"));
+    expect(chip).not.toBeNull();
+    expect(chip.injector.get(TooltipDirective).tooltipContent()).toBe("Favorites");
+  });
+
   it("leaves the filter row free of element children when no filters are projected", () => {
     const searchOnly = TestBed.createComponent(SearchOnlyHostComponent);
     searchOnly.detectChanges();
@@ -118,5 +147,165 @@ describe("BitTableToolbarComponent", () => {
     const filterRow = searchOnly.nativeElement.querySelector("[bitOverflowList]") as HTMLElement;
     expect(filterRow).not.toBeNull();
     expect(filterRow.childElementCount).toBe(0);
+  });
+
+  describe("with bitCollapseOnScroll", () => {
+    let collapsing: ComponentFixture<CollapsingHostComponent>;
+
+    const toolbar = () =>
+      collapsing.nativeElement.querySelector("bit-table-toolbar") as HTMLElement;
+
+    beforeEach(() => {
+      collapsing = TestBed.createComponent(CollapsingHostComponent);
+      collapsing.detectChanges();
+    });
+
+    it("leaves the divider to the directive while it is enabled", () => {
+      // The directive draws the page's seam on this same host, and two `border-color` utilities
+      // there would resolve by stylesheet order rather than by either one's intent.
+      expect(toolbar().className).not.toContain("tw-border-border-base");
+    });
+
+    it("keeps its own divider when the directive is opted out", () => {
+      collapsing.componentInstance.collapse.set(false);
+      collapsing.detectChanges();
+
+      expect(toolbar().className).toContain("tw-border-b");
+    });
+  });
+});
+
+/**
+ * A collapsed toolbar's filter row with both kinds of chip: a multi-select that draws one
+ * chip per selected option, and a single-select that draws one chip.
+ */
+@Component({
+  imports: [BitTableToolbarComponent, FilterMenuComponent, FilterOptionComponent, SearchComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <bit-table-toolbar>
+      <bit-search placeholder="Search"></bit-search>
+      <bit-filter-menu #type key="type" placeholderText="Type" icon="bwi-list" multiple>
+        <bit-filter-option [value]="'login'">Login</bit-filter-option>
+        <bit-filter-option [value]="'card'">Card</bit-filter-option>
+      </bit-filter-menu>
+      <bit-filter-menu #vault key="vault" placeholderText="Vault">
+        <bit-filter-option [value]="'mine'">My vault</bit-filter-option>
+      </bit-filter-menu>
+    </bit-table-toolbar>
+  `,
+})
+class FilterMenuHostComponent {
+  readonly type = viewChild.required<FilterMenuComponent>("type");
+  readonly vault = viewChild.required<FilterMenuComponent>("vault");
+}
+
+describe("BitTableToolbarComponent active filter chips", () => {
+  let fixture: ComponentFixture<FilterMenuHostComponent>;
+  let host: FilterMenuHostComponent;
+
+  const chips = () =>
+    fixture.debugElement
+      .queryAll(By.directive(ChipComponent))
+      .map((el) => el.componentInstance as ChipComponent);
+
+  const chipLabels = () => chips().map((chip) => chip.label());
+
+  // Scoped to `bit-chip`: every `bit-filter-menu` has its own dismiss button on the hidden
+  // wide-viewport row, and that one clears the whole filter.
+  const dismissButtons = () =>
+    Array.from(
+      fixture.nativeElement.querySelectorAll(
+        "bit-chip button[bit-chip-dismiss-button]",
+      ) as NodeListOf<HTMLButtonElement>,
+    );
+
+  const dismissLabels = () => dismissButtons().map((button) => button.getAttribute("aria-label"));
+
+  const dismiss = (index: number) => dismissButtons()[index].click();
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [FilterMenuHostComponent],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () =>
+            new I18nMockService({
+              filters: "Filters",
+              clearAll: "Clear all",
+              search: "Search",
+              resetSearch: "Reset search",
+              removeItem: (name?: string) => `Remove ${name}`,
+              // The menu's footer is projected content, so it renders with the chip even
+              // though the popover is closed.
+              clear: "Clear",
+              filtersSelected: (count?: string) => `${count} selected`,
+            }),
+        },
+        { provide: DialogService, useValue: mock<DialogService>() },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(FilterMenuHostComponent);
+    host = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it("draws a chip per selected option for a multi-select", () => {
+    host.type().setValue(["login", "card"]);
+    fixture.detectChanges();
+
+    expect(chipLabels()).toEqual(["Login", "Card"]);
+  });
+
+  it("leads each chip with the filter's icon", () => {
+    host.type().setValue(["login"]);
+    fixture.detectChanges();
+
+    expect(chips()[0].startIcon()).toBe("bwi-list");
+  });
+
+  it("names each chip's dismiss button with the filter and the option", () => {
+    host.type().setValue(["login", "card"]);
+    fixture.detectChanges();
+
+    // The chips show only the option name, and the dismiss button is the only focusable node
+    // in them, so its name is what identifies the filter to a screen reader.
+    expect(dismissLabels()).toEqual(["Remove Type: Login", "Remove Type: Card"]);
+  });
+
+  it("spells the filter out in each chip's tooltip", () => {
+    host.type().setValue(["login"]);
+    fixture.detectChanges();
+
+    const chip = fixture.debugElement.query(By.directive(ChipComponent));
+    expect(chip.injector.get(TooltipDirective).tooltipContent()).toBe("Type: Login");
+  });
+
+  it("drops only the dismissed option, leaving the filter's other chips", () => {
+    host.type().setValue(["login", "card"]);
+    fixture.detectChanges();
+
+    dismiss(0);
+    fixture.detectChanges();
+
+    expect(chipLabels()).toEqual(["Card"]);
+    expect(host.type().isSelected("login")).toBe(false);
+    expect(host.type().active()).toBe(true);
+  });
+
+  it("keeps one qualified chip for a single-select, cleared as a whole", () => {
+    host.vault().setValue("mine");
+    fixture.detectChanges();
+
+    expect(chipLabels()).toEqual(["Vault: My vault"]);
+    expect(dismissLabels()).toEqual(["Remove Vault: My vault"]);
+
+    dismiss(0);
+    fixture.detectChanges();
+
+    expect(chipLabels()).toEqual([]);
+    expect(host.vault().active()).toBe(false);
   });
 });

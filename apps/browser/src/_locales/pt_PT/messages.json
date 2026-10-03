@@ -451,6 +451,9 @@
   "noFolders": {
     "message": "Não existem pastas para apresentar."
   },
+  "noFoldersFilter": {
+    "message": "Sem pastas"
+  },
   "helpFeedback": {
     "message": "Ajuda e feedback"
   },
@@ -1288,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Clique nos itens para preencher automaticamente na vista do cofre"
   },
-  "clickToAutofill": {
-    "message": "Clique nos itens da sugestão de preenchimento automático para preencher"
-  },
   "clearClipboard": {
     "message": "Limpar área de transferência",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1536,6 +1536,40 @@
   "importVerb": {
     "message": "Importação",
     "description": "The verb form of the word Import"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Selecionar origem"
+  },
+  "importSourceSelectTitle": {
+    "message": "Selecionar a origem"
+  },
+  "importSourceSelectDescription": {
+    "message": "Escolha o gestor de palavras-passe ou navegador do qual está a importar."
+  },
+  "importSourceBrowsers": {
+    "message": "Navegadores"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Gestores de palavras-passe"
+  },
+  "importSourceShowAll": {
+    "message": "Mostrar tudo"
+  },
+  "importSourceShowLess": {
+    "message": "Mostrar menos"
+  },
+  "importSourceStepCount": {
+    "message": "Passo $CURRENT$ de $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "importItems": {
     "message": "Importar itens"
@@ -4059,16 +4093,25 @@
   "errorGettingAutoFillData": {
     "message": "Erro ao obter dados de preenchimento automático"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "O Bitwarden não conseguiu desencriptar o(s) item(ns) do cofre listado(s) abaixo."
+  "couldNotDecryptVaultItem": {
+    "message": "O Bitwarden não conseguiu desencriptar o item do cofre apresentado abaixo. Contacte o Apoio ao cliente do Bitwarden e forneça o ID do item abaixo para verificar se é possível recuperá-lo."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Contacte o serviço de apoio ao cliente",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "O Bitwarden não conseguiu desencriptar os itens do cofre apresentados abaixo. Contacte o Apoio ao cliente do Bitwarden e forneça os IDs dos itens abaixo para verificar se é possível recuperá-los."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "para evitar perdas adicionais de dados.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "ID do item",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "IDs dos itens",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Copiar ID"
+  },
+  "copyAllIds": {
+    "message": "Copiar todos os IDs"
   },
   "generateUsername": {
     "message": "Gerar nome de utilizador"
@@ -5129,11 +5172,21 @@
   "selectImportCollection": {
     "message": "Selecionar uma coleção"
   },
+  "selectImportSharedFolder": {
+    "message": "Selecionar uma pasta partilhada"
+  },
+  "importTargetMyFolder": {
+    "message": "A minha pasta",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
-    "message": "Selecione esta opção se pretender que o conteúdo do ficheiro importado seja transferido para uma coleção"
+    "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma coleção"
   },
   "importTargetHintFolder": {
-    "message": "Selecione esta opção se pretender que o conteúdo do ficheiro importado seja transferido para uma pasta"
+    "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma pasta"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma pasta partilhada"
   },
   "importUnassignedItemsError": {
     "message": "O ficheiro contém itens não atribuídos."
@@ -5626,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Insira a YubiKey associada à sua conta LastPass na porta USB do seu computador e, em seguida, toque no respetivo botão."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "E-mail do Keeper"
   },
@@ -5820,6 +5882,9 @@
   },
   "switchAccounts": {
     "message": "Mudar de conta"
+  },
+  "switchVault": {
+    "message": "Mudar de cofre"
   },
   "switchToAccount": {
     "message": "Mudar para conta"
@@ -7186,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Alterar palavra-passe em risco"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Esta credencial está em risco e não tem um site. Adicione um site e altere a palavra-passe para uma segurança mais forte."
-  },
   "vulnerablePassword": {
     "message": "Palavra-passe vulnerável."
   },
   "changeNow": {
     "message": "Alterar agora"
-  },
-  "missingWebsite": {
-    "message": "Site em falta"
   },
   "settingsVaultOptions": {
     "message": "Opções do cofre"
@@ -7228,11 +7284,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Não tem pastas."
+  "youHaveNoFoldersV2": {
+    "message": "Não tem pastas"
   },
-  "emptyFoldersDescription": {
-    "message": "Utilize pastas para organizar os itens do cofre. São apenas para si — mais ninguém as verá ou utilizará."
+  "emptyFoldersDescriptionV2": {
+    "message": "Utilize pastas para organizar os itens do cofre. São apenas para si. Mais ninguém as verá ou utilizará."
   },
   "introCarouselLabel": {
     "message": "Bem-vindo ao Bitwarden"
@@ -7678,7 +7734,7 @@
     "message": "E-mail protegido"
   },
   "sendPasswordHelperText": {
-    "message": "Os indivíduos terão de introduzir a palavra-passe para ver este Send",
+    "message": "Os destinatários terão de introduzir a palavra-passe para ver este Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "userVerificationFailed": {
@@ -8116,5 +8172,84 @@
   },
   "editItemsHidePass": {
     "message": "Editar itens, palavras-passe ocultas"
+  },
+  "shareVerb": {
+    "message": "Partilhar"
+  },
+  "peopleWhoCanView": {
+    "message": "Pessoas com acesso de visualização",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Depois de partilhar este link, os destinatários terão de verificar o seu e-mail com um código para ver o item.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Este link expira após esta data, mas os destinatários podem conservar as informações partilhadas anteriormente. Gere novamente a credencial para revogar o acesso.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "O link expira após",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Partilha única",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Links ativos",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Link copiado para a área de transferência",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Não foi possível criar o link de partilha",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Link guardado e copiado para a área de transferência",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Não foi possível copiar o link de partilha para a área de transferência",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Link de partilha eliminado",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Não foi possível eliminar o link de partilha",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Partilhar através de um link",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Partilha do item $ITEM$ do cofre",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "share": {
+    "message": "Partilhar",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareLinkExpires": {
+    "message": "Expira a",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Expira a",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Item desconhecido. Poderá ter de pedir permissão para aceder a este item."
   }
 }

@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -17,6 +17,11 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
+import {
+  IntraprocessMessageSender,
+  Message,
+  MessageListener,
+} from "@bitwarden/common/platform/messaging";
 import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
@@ -36,14 +41,21 @@ import { Fido2Background } from "../fido2/background/abstractions/fido2.backgrou
 import { FormData } from "../services/abstractions/autofill.service";
 import AutofillService from "../services/autofill.service";
 import { createAutofillPageDetailsMock, createChromeTabMock } from "../spec/autofill-mocks";
-import { flushPromises, sendMockExtensionMessage } from "../spec/testing-utils";
+import {
+  crossContextBoundary,
+  flushPromises,
+  sendMockExtensionMessage,
+} from "../spec/testing-utils";
 
 import {
   AddChangePasswordNotificationQueueMessage,
   AddLoginQueueMessage,
   AddUnlockVaultQueueMessage,
+  ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
   LockedVaultPendingNotificationsData,
   NotificationBackgroundExtensionMessage,
+  RETRY_SENDER,
+  RETRY_WHEN_UNLOCK_COMPLETED,
 } from "./abstractions/notification.background";
 import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import NotificationBackground from "./notification.background";
@@ -61,6 +73,10 @@ describe("NotificationBackground", () => {
   const messagingService = mock<MessagingService>();
   const taskService = mock<TaskService>();
   let notificationBackground: NotificationBackground;
+  // A real channel rather than a mock: what is under test is that the class reads the
+  // channel's own messages, which no mocked listener would demonstrate.
+  let intraprocessMessageSender: IntraprocessMessageSender;
+  let externalMessages: Subject<Message<Record<string, unknown>>>;
   const autofillService = mock<AutofillService>();
   const cipherService = mock<CipherService>();
   const collectionService = mock<CollectionService>();
@@ -102,6 +118,8 @@ describe("NotificationBackground", () => {
   });
 
   beforeEach(() => {
+    intraprocessMessageSender = new IntraprocessMessageSender();
+    externalMessages = new Subject<Message<Record<string, unknown>>>();
     activeAccountStatusMock$ = new BehaviorSubject(
       AuthenticationStatus.Locked as AuthenticationStatus,
     );
@@ -127,6 +145,9 @@ describe("NotificationBackground", () => {
       changeLoginPasswordService,
       messagingService,
       fido2Background,
+      intraprocessMessageSender,
+      // Wired as `MainBackground` wires it, so ingest tagging is exercised rather than faked.
+      new MessageListener(intraprocessMessageSender.messages$({ external$: externalMessages })),
     );
   });
 
@@ -350,22 +371,24 @@ describe("NotificationBackground", () => {
       expect(notificationBackground["handleSaveCipherMessage"]).not.toHaveBeenCalled();
     });
 
-    describe("unlockCompleted message handler", () => {
+    describe("unlockCompleted subscription", () => {
       it("sends a `closeNotificationBar` message if the retryCommand is for `autofill_login", async () => {
-        const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
-        const message: NotificationBackgroundExtensionMessage = {
-          command: "unlockCompleted",
-          data: {
-            commandToRetry: { message: { command: ExtensionCommand.AutofillLogin } },
-          } as LockedVaultPendingNotificationsData,
-        };
+        const retrySender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+        const data = {
+          commandToRetry: {
+            message: { command: ExtensionCommand.AutofillLogin },
+            [RETRY_SENDER]: retrySender,
+          },
+        } as LockedVaultPendingNotificationsData;
         jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
 
-        sendMockExtensionMessage(message, sender);
+        intraprocessMessageSender.send(RETRY_WHEN_UNLOCK_COMPLETED, { data });
         await flushPromises();
 
+        // The bar is closed in the tab the retry was queued for, which the background retained;
+        // there is no `chrome.runtime` sender on an intraprocess message to fall back to.
         expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
-          sender.tab,
+          retrySender.tab,
           "closeNotificationBar",
         );
       });
@@ -374,25 +397,97 @@ describe("NotificationBackground", () => {
         const retrySender = mock<chrome.runtime.MessageSender>({
           tab: { id: 1 } as chrome.tabs.Tab,
         });
-        const message: NotificationBackgroundExtensionMessage = {
-          command: "unlockCompleted",
-          data: {
-            commandToRetry: {
-              message: { command: "bgSaveCipher" },
-              sender: retrySender,
-            },
-            target: "notification.background",
-          } as LockedVaultPendingNotificationsData,
-        };
+        const data = {
+          commandToRetry: {
+            message: { command: "bgSaveCipher" },
+            [RETRY_SENDER]: retrySender,
+          },
+          target: "notification.background",
+        } as LockedVaultPendingNotificationsData;
         jest.spyOn(notificationBackground as any, "handleSaveCipherMessage").mockImplementation();
 
-        sendMockExtensionMessage(message);
+        intraprocessMessageSender.send(RETRY_WHEN_UNLOCK_COMPLETED, { data });
         await flushPromises();
 
         expect(notificationBackground["handleSaveCipherMessage"]).toHaveBeenCalledWith(
-          message.data?.commandToRetry?.message,
-          message.data?.commandToRetry?.sender,
+          data.commandToRetry.message,
+          data.commandToRetry[RETRY_SENDER],
         );
+      });
+
+      // Both effects of `handleUnlockCompleted` need a sender, and one fixture can only reach
+      // one of them: an allowed retry command closes the bar but has no `extensionMessageHandlers`
+      // entry, and `bgSaveCipher` has a handler but is not an allowed command.
+      it.each([
+        {
+          effect: "closes the notification bar",
+          command: ExtensionCommand.AutofillLogin,
+        },
+        {
+          effect: "dispatches the retry handler",
+          command: "bgSaveCipher",
+        },
+      ])(
+        "security: drops a retry whose sender did not survive leaving this context, so it never $effect",
+        async ({ command }) => {
+          const data = crossContextBoundary({
+            commandToRetry: {
+              message: { command },
+              [RETRY_SENDER]: { tab: createChromeTabMock({ id: 1 }) },
+            },
+            target: "notification.background",
+          });
+          jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
+          jest.spyOn(notificationBackground as any, "handleSaveCipherMessage").mockImplementation();
+
+          intraprocessMessageSender.send(RETRY_WHEN_UNLOCK_COMPLETED, { data });
+          await flushPromises();
+
+          expect(BrowserApi.tabSendMessageData).not.toHaveBeenCalled();
+          expect(notificationBackground["handleSaveCipherMessage"]).not.toHaveBeenCalled();
+        },
+      );
+
+      it("security: drops a retry whose sender names no tab", async () => {
+        // Both effects act on the tab: the bar is closed in it, and the dispatched handlers read
+        // it. A sender without one would reach `retryHandler` regardless.
+        jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
+        jest.spyOn(notificationBackground as any, "handleSaveCipherMessage").mockImplementation();
+
+        intraprocessMessageSender.send(RETRY_WHEN_UNLOCK_COMPLETED, {
+          data: {
+            commandToRetry: {
+              message: { command: "bgSaveCipher" },
+              [RETRY_SENDER]: { frameId: 0 },
+            },
+            target: "notification.background",
+          },
+        });
+        await flushPromises();
+
+        expect(BrowserApi.tabSendMessageData).not.toHaveBeenCalled();
+        expect(notificationBackground["handleSaveCipherMessage"]).not.toHaveBeenCalled();
+      });
+
+      it("security: ignores a retry that arrived from another context", async () => {
+        // `commandToRetry.message.command` is dispatched through `extensionMessageHandlers`, so
+        // honouring a payload from outside the background would be arbitrary handler dispatch
+        // with an attacker-authored sender.
+        jest.spyOn(notificationBackground as any, "handleSaveCipherMessage").mockImplementation();
+
+        externalMessages.next({
+          command: RETRY_WHEN_UNLOCK_COMPLETED.command,
+          data: {
+            commandToRetry: {
+              message: { command: "bgSaveCipher" },
+              [RETRY_SENDER]: { tab: createChromeTabMock({ id: 1 }) },
+            },
+            target: "notification.background",
+          },
+        } as unknown as Message<Record<string, unknown>>);
+        await flushPromises();
+
+        expect(notificationBackground["handleSaveCipherMessage"]).not.toHaveBeenCalled();
       });
     });
 
@@ -2621,10 +2716,22 @@ describe("NotificationBackground", () => {
         sendMockExtensionMessage(message, sender);
         await flushPromises();
 
-        expect(openUnlockPopoutSpy).toHaveBeenCalledWith(sender.tab, {
-          commandToRetry: { message, sender },
-          target: "notification.background",
-        });
+        // The retry is queued by the callback `openUnlockPopout` runs once the popout exists,
+        // so invoking it here is what proves the payload reaches the intraprocess channel.
+        expect(openUnlockPopoutSpy).toHaveBeenCalledWith(sender.tab, expect.any(Function));
+        const queued: unknown[] = [];
+        intraprocessMessageSender.messages$().subscribe((published) => queued.push(published));
+        openUnlockPopoutSpy.mock.calls[0][1]();
+
+        expect(queued).toEqual([
+          {
+            command: ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS.command,
+            data: {
+              commandToRetry: { message, [RETRY_SENDER]: sender },
+              target: "notification.background",
+            },
+          },
+        ]);
       });
 
       describe("saveOrUpdateCredentials", () => {

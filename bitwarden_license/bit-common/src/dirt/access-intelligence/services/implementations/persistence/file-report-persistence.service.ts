@@ -33,6 +33,7 @@ import {
   AccessReportSettingsView,
   MemberRegistryEntryView,
 } from "../../../models";
+import { flowTimer, measureFlowStep } from "../../../utils/measure-flow-step.operator";
 import {
   AccessIntelligenceApiService,
   AccessReportCreateRequest,
@@ -62,7 +63,15 @@ export class FileReportPersistenceService extends ReportPersistenceService {
 
     return from(firstValueFrom(getUserId(this.accountService.activeAccount$))).pipe(
       switchMap((userId) => {
+        // Read before the stopwatch starts so the key allocation is not timed as part of the step.
+        const counts: [string, number][] = [
+          ["memberCount", Object.keys(view.memberRegistry).length],
+          ["applicationCount", view.reports.length],
+        ];
+
+        const measureStep = flowTimer(this.logService);
         const payload = view.toEncryptionPayload();
+        measureStep("Save: encryption payload built", counts);
 
         return this.riskInsightsEncryptionService
           .encryptReportFile$({ organizationId, userId }, payload, view.contentEncryptionKey)
@@ -79,6 +88,11 @@ export class FileReportPersistenceService extends ReportPersistenceService {
               };
 
               return this.accessIntelligenceApiService.createReport$(organizationId, request).pipe(
+                measureFlowStep(this.logService, "Save: report row created", () => [
+                  ...counts,
+                  ["passwordCount", metrics.totalPasswordCount],
+                  ["byteSize", request.fileSize],
+                ]),
                 tap((createReportResponse) => {
                   const reportFileId = createReportResponse.reportResponse.reportFile?.id;
                   if (!reportFileId) {
@@ -106,6 +120,11 @@ export class FileReportPersistenceService extends ReportPersistenceService {
               );
 
               return upload$.pipe(
+                measureFlowStep(this.logService, "Save: report file uploaded", () => [
+                  ...counts,
+                  ["byteSize", encryptedData.encryptedReportData.buffer.byteLength],
+                ]),
+                tap(() => this.logService.mark("[AccessReportFlow]: report saved")),
                 map(() => ({
                   id: reportId,
                   contentEncryptionKey: encryptedData.contentEncryptionKey,
@@ -166,6 +185,7 @@ export class FileReportPersistenceService extends ReportPersistenceService {
     return from(firstValueFrom(getUserId(this.accountService.activeAccount$))).pipe(
       switchMap((userId) => {
         return this.accessIntelligenceApiService.getLatestReport$(organizationId).pipe(
+          measureFlowStep(this.logService, "Load: report metadata fetched"),
           catchError((error: unknown) => {
             if (error instanceof ErrorResponse && error.statusCode === 404) {
               return of(null);
@@ -196,8 +216,15 @@ export class FileReportPersistenceService extends ReportPersistenceService {
                       apiResponse.id as OrganizationReportId,
                     );
 
+              const measureStep = flowTimer(this.logService);
+
               return download$.pipe(
                 switchMap(({ blob }) => from(EncArrayBuffer.fromResponse(blob))),
+                tap((encArrayBuffer) =>
+                  measureStep("Load: report blob downloaded", [
+                    ["byteSize", encArrayBuffer.buffer.byteLength],
+                  ]),
+                ),
                 switchMap((encArrayBuffer) =>
                   this.riskInsightsEncryptionService.decryptReportFile$(
                     { organizationId, userId },
@@ -226,6 +253,12 @@ export class FileReportPersistenceService extends ReportPersistenceService {
                     AccessReportSettingsView.fromData,
                   );
                   view.summary = decryptedData.summaryData;
+
+                  measureStep("Load: report decrypted", [
+                    ["memberCount", Object.keys(view.memberRegistry).length],
+                    ["applicationCount", view.reports.length],
+                  ]);
+
                   return { report: view, hadLegacyBlobs: false };
                 }),
               );

@@ -1,7 +1,5 @@
-import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideRouter } from "@angular/router";
-import { mock, MockProxy } from "jest-mock-extended";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -34,7 +32,6 @@ const PARENT = { id: "engineering" as CollectionId, name: "Engineering" };
 
 describe("SharedFolderCardGridComponent", () => {
   let fixture: ComponentFixture<SharedFolderCardGridComponent>;
-  let liveAnnouncer: MockProxy<LiveAnnouncer>;
 
   /**
    * The observers the component has attached to its grid, and what each is watching. jsdom has no
@@ -131,9 +128,14 @@ describe("SharedFolderCardGridComponent", () => {
     return fixture.nativeElement.querySelector(TRIGGER_SELECTOR);
   }
 
-  beforeEach(async () => {
-    liveAnnouncer = mock<LiveAnnouncer>();
+  /** Uses the trigger, then settles the focus move it schedules for after the cards render. */
+  async function clickTrigger() {
+    trigger()?.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+  }
 
+  beforeEach(async () => {
     observers = [];
     global.ResizeObserver = class implements ResizeObserver {
       private readonly observed: { callback: ResizeObserverCallback; targets: Element[] };
@@ -170,7 +172,6 @@ describe("SharedFolderCardGridComponent", () => {
             },
           },
         },
-        { provide: LiveAnnouncer, useValue: liveAnnouncer },
       ],
     }).compileComponents();
   });
@@ -187,7 +188,9 @@ describe("SharedFolderCardGridComponent", () => {
       expect(cards().map((card) => card.textContent?.trim())).toEqual(["Folder 0", "Folder 1"]);
 
       cards().forEach((card) => {
-        expect(card.querySelector("bit-icon-tile i")?.classList).toContain("bwi-shared-folder");
+        expect(card.querySelector("bit-icon-tile bit-icon")?.classList).toContain(
+          "bwi-shared-folder",
+        );
         expect(card.querySelector(".bwi-angle-right")).not.toBeNull();
       });
     });
@@ -354,18 +357,16 @@ describe("SharedFolderCardGridComponent", () => {
       expect(trigger()).toBeNull();
     });
 
-    it("announces the overflow the current width leaves behind", () => {
+    it("focuses the card the current width had left behind", async () => {
       createComponent(children(8));
 
       resizeGridTo(600);
-      trigger()?.click();
-      fixture.detectChanges();
+      await clickTrigger();
 
-      // Two cards past the six the two-column grid shows, rather than the none a wider one hides.
-      expect(liveAnnouncer.announce).toHaveBeenCalledWith(
-        "moreSharedFoldersShownAbove:2",
-        "polite",
-      );
+      // The seventh card, first past the six the two-column grid shows, rather than the tenth a
+      // three-column grid would have cut off at.
+      expect(document.activeElement).toBe(cards()[6]);
+      expect(document.activeElement?.textContent?.trim()).toBe("Folder 6");
     });
   });
 
@@ -462,45 +463,52 @@ describe("SharedFolderCardGridComponent", () => {
     });
   });
 
-  describe("announcing expansion", () => {
-    it("announces how many rows were revealed above the trigger", () => {
+  // Why the expand moves focus: see SharedFolderCardGridComponent.toggleExpanded.
+  describe("focus on expansion", () => {
+    it("moves focus to the first card the trigger reveals", async () => {
       createComponent(children(COLLAPSED_CARD_COUNT + 4));
 
-      trigger()?.click();
-      fixture.detectChanges();
+      await clickTrigger();
 
-      expect(liveAnnouncer.announce).toHaveBeenCalledWith(
-        "moreSharedFoldersShownAbove:4",
-        "polite",
-      );
+      expect(cards()).toHaveLength(COLLAPSED_CARD_COUNT + 4);
+      expect(document.activeElement).toBe(cards()[COLLAPSED_CARD_COUNT]);
     });
 
-    it("does not announce on the initial collapsed render", () => {
+    it("moves focus to the lone card a single revealed row holds", async () => {
+      createComponent(children(COLLAPSED_CARD_COUNT + 1));
+
+      await clickTrigger();
+
+      expect(document.activeElement).toBe(cards()[COLLAPSED_CARD_COUNT]);
+    });
+
+    it("leaves focus alone on the initial collapsed render", async () => {
       createComponent(children(COLLAPSED_CARD_COUNT + 4));
+      await fixture.whenStable();
 
-      expect(liveAnnouncer.announce).not.toHaveBeenCalled();
+      expect(cards()).not.toContain(document.activeElement);
     });
 
-    // Nothing was revealed, so there is nothing to point the user back at.
-    it("does not announce when the host renders the grid expanded", () => {
+    // Nothing was revealed, so there is nothing to move focus to.
+    it("leaves focus alone when the host renders the grid expanded", async () => {
       createComponent(children(COLLAPSED_CARD_COUNT + 4), scopeTo(PARENT.id), {
         initiallyExpanded: true,
       });
+      await fixture.whenStable();
 
-      expect(liveAnnouncer.announce).not.toHaveBeenCalled();
+      expect(cards()).not.toContain(document.activeElement);
     });
 
-    it("does not announce when the trigger collapses the grid again", () => {
+    // The browser leaves focus on the trigger: collapsing reveals nothing to move it to.
+    it("keeps focus on the trigger when it collapses the grid again", async () => {
       createComponent(children(COLLAPSED_CARD_COUNT + 4));
 
-      trigger()?.click();
-      fixture.detectChanges();
-      liveAnnouncer.announce.mockClear();
+      await clickTrigger();
+      trigger()?.focus();
 
-      trigger()?.click();
-      fixture.detectChanges();
+      await clickTrigger();
 
-      expect(liveAnnouncer.announce).not.toHaveBeenCalled();
+      expect(document.activeElement).toBe(trigger());
     });
   });
 

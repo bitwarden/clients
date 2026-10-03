@@ -288,34 +288,57 @@ export function resolveVaultScope(
   return scope;
 }
 
+/** The path web and desktop mount the vault at; see `VAULT_BASE_ROUTE` for clients that differ. */
+export const DEFAULT_VAULT_BASE_ROUTE = "/vault";
+
 /**
  * The `Router.navigate` commands for a scope — the single place vault scope URLs are built, so
  * the nav and the route parser can't drift.
  */
-export function vaultScopeCommands(scope: VaultScope): string[] {
+export function vaultScopeCommands(
+  scope: VaultScope,
+  basePath: string = DEFAULT_VAULT_BASE_ROUTE,
+): string[] {
   switch (scope.type) {
     case VaultScopeType.MyVault:
-      return ["/vault", MY_VAULT_ROUTE];
+      return [basePath, MY_VAULT_ROUTE];
     case VaultScopeType.Organization: {
       const { organizationId, collectionId } = scope;
 
       if (collectionId == null) {
-        return ["/vault", organizationId];
+        return [basePath, organizationId];
       }
 
       // "My items" is its own page rather than a folder reached from the shared folders list, so
       // it hangs off the vault directly — see {@link MY_ITEMS_ROUTE}.
       return collectionId === MY_ITEMS_ROUTE
-        ? ["/vault", organizationId, MY_ITEMS_ROUTE]
-        : ["/vault", organizationId, SHARED_FOLDERS_ROUTE, collectionId];
+        ? [basePath, organizationId, MY_ITEMS_ROUTE]
+        : [basePath, organizationId, SHARED_FOLDERS_ROUTE, collectionId];
     }
     case VaultScopeType.Trash:
-      return ["/vault", TRASH_ROUTE];
+      return [basePath, TRASH_ROUTE];
     case VaultScopeType.Archive:
-      return ["/vault", ARCHIVE_ROUTE];
+      return [basePath, ARCHIVE_ROUTE];
     default:
-      return ["/vault"];
+      return [basePath];
   }
+}
+
+/**
+ * The key a scope's state is stored under — the vault filter memory keys its records by it.
+ *
+ * An organization's id is a guid and every other scope is a {@link VaultScopeType} name, so the two
+ * can't collide; a shared folder drill-in keys apart from the organization vault it was reached
+ * from, since the two show different rows.
+ */
+export function scopeKey(scope: VaultScope): string {
+  if (scope.type !== VaultScopeType.Organization) {
+    return scope.type;
+  }
+
+  return scope.collectionId == null
+    ? scope.organizationId
+    : `${scope.organizationId}/${scope.collectionId}`;
 }
 
 /**
