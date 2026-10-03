@@ -1,0 +1,133 @@
+<div bit-dialog>
+  <span bitDialogTitle>{{ "mtlsManagerTitle" | i18n }}</span>
+  <div bitDialogContent>
+    <p>{{ "mtlsSharedEndpointHint" | i18n }}</p>
+    <p>{{ "mtlsStorageDisclosure" | i18n }}</p>
+    <p *ngIf="view?.restartRequired" role="status" class="tw-text-warning">
+      {{ "mtlsRestartPending" | i18n }}
+    </p>
+    <p *ngIf="errorKey" role="alert" class="tw-text-danger">{{ errorKey | i18n }}</p>
+
+    <bit-form-field>
+      <bit-label>{{ "mtlsEndpoints" | i18n }}</bit-label>
+      <textarea bitInput rows="3" [(ngModel)]="endpointText"></textarea>
+      <bit-hint>{{ "mtlsEndpointsHint" | i18n }}</bit-hint>
+    </bit-form-field>
+    <label>
+      <input type="checkbox" [(ngModel)]="replaceExisting" />
+      {{ "mtlsReplaceBinding" | i18n }}
+    </label>
+
+    <div class="tw-mt-4">
+      <button
+        bitButton
+        type="button"
+        buttonType="secondary"
+        [disabled]="busy"
+        (click)="chooseFile()"
+      >
+        {{ "mtlsChooseFile" | i18n }}
+      </button>
+      <span *ngIf="fileName" class="tw-ml-2">{{ fileName }}</span>
+    </div>
+    <div *ngIf="selectionId && !inspected" class="tw-mt-3">
+      <bit-form-field>
+        <bit-label>{{ "mtlsFilePassword" | i18n }}</bit-label>
+        <input bitInput type="password" autocomplete="off" [(ngModel)]="password" />
+      </bit-form-field>
+      <button
+        bitButton
+        type="button"
+        buttonType="secondary"
+        [disabled]="busy || !password"
+        (click)="inspect()"
+      >
+        {{ "mtlsInspect" | i18n }}
+      </button>
+    </div>
+    <div *ngIf="inspected" class="tw-mt-3">
+      <p>{{ inspected.subject }} — {{ inspected.notAfter | date }}</p>
+      <button
+        bitButton
+        type="button"
+        buttonType="primary"
+        [disabled]="busy || !endpointText"
+        (click)="commit()"
+      >
+        {{ "mtlsSaveBinding" | i18n }}
+      </button>
+    </div>
+
+    <h3 class="tw-mt-5">{{ "mtlsSavedIdentities" | i18n }}</h3>
+    <p *ngIf="!identities.length">{{ "mtlsNoIdentities" | i18n }}</p>
+    <div *ngFor="let identity of identities" class="tw-mb-3">
+      <strong>{{ identity.label }}</strong>
+      <span class="tw-ml-2">{{ identity.subject }}</span>
+      <span class="tw-ml-2">{{ identity.notAfter | date }}</span>
+      <button
+        bitButton
+        type="button"
+        buttonType="secondary"
+        [disabled]="busy || !endpointText"
+        (click)="bind(identity.fingerprint)"
+      >
+        {{ "mtlsUseForEndpoints" | i18n }}
+      </button>
+      <button
+        bitButton
+        type="button"
+        buttonType="secondary"
+        [disabled]="busy"
+        (click)="removeCandidate = identity.fingerprint"
+      >
+        {{ "remove" | i18n }}
+      </button>
+    </div>
+    <div *ngIf="removeCandidate" role="alert" class="tw-mt-3">
+      <p>{{ "mtlsRemoveConfirmation" | i18n }}</p>
+      <button
+        bitButton
+        type="button"
+        buttonType="danger"
+        [disabled]="busy"
+        (click)="confirmRemove()"
+      >
+        {{ "mtlsConfirmRemove" | i18n }}
+      </button>
+      <button bitButton type="button" buttonType="secondary" (click)="removeCandidate = undefined">
+        {{ "cancel" | i18n }}
+      </button>
+    </div>
+
+    <h3 class="tw-mt-5">{{ "mtlsCurrentBindings" | i18n }}</h3>
+    <div *ngFor="let binding of bindings">
+      <strong>{{ binding[0] }}</strong> → {{ view?.identities?.[binding[1]]?.label || binding[1] }}
+      <span *ngIf="view?.activeBindings?.[binding[0]] !== binding[1]">
+        ({{ "mtlsPendingChange" | i18n }})
+      </span>
+      <button
+        bitButton
+        type="button"
+        buttonType="secondary"
+        [disabled]="busy"
+        (click)="unbind(binding[0])"
+      >
+        {{ "mtlsUnbind" | i18n }}
+      </button>
+    </div>
+  </div>
+  <div bitDialogFooter>
+    <button
+      *ngIf="allowRestart && view?.restartRequired"
+      bitButton
+      type="button"
+      buttonType="primary"
+      (click)="restartNow()"
+    >
+      {{ "mtlsRestartNow" | i18n }}
+    </button>
+    <button bitButton type="button" buttonType="secondary" (click)="close()">
+      {{ "close" | i18n }}
+    </button>
+  </div>
+</div>

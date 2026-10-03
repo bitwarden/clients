@@ -30,6 +30,8 @@ import {
 } from "@bitwarden/components";
 
 import { JslibModule } from "../../jslib.module";
+import { ClientCertificateManagerComponent } from "../client-certificate-manager/client-certificate-manager.component";
+import { ClientCertificateSettingsService } from "../services/client-certificate-settings.service";
 
 /**
  * Validator for self-hosted environment settings form.
@@ -161,6 +163,8 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
 
   showCustomEnv = false;
   showErrorSummary = false;
+  protected restartAvailable = false;
+  protected restartError = false;
 
   private destroy$ = new Subject<void>();
 
@@ -168,9 +172,53 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
     private dialogRef: DialogRef<boolean>,
     private formBuilder: FormBuilder,
     private environmentService: EnvironmentService,
+    protected certificates: ClientCertificateSettingsService,
+    private dialogService: DialogService,
   ) {}
 
+  async openClientCertificateManager(): Promise<void> {
+    const urls = [
+      this.baseUrl.value,
+      this.webVaultUrl.value,
+      this.apiUrl.value,
+      this.identityUrl.value,
+      this.iconsUrl.value,
+      this.notificationsUrl.value,
+      this.sendUrl.value,
+    ].filter((url): url is string => Boolean(url));
+    const dialog = ClientCertificateManagerComponent.open(this.dialogService, urls);
+    const restartPending = await firstValueFrom(dialog.closed);
+    if (restartPending && this.formGroup.valid) {
+      await this.environmentService.setEnvironment(Region.SelfHosted, {
+        base: this.baseUrl.value,
+        api: this.apiUrl.value,
+        identity: this.identityUrl.value,
+        webVault: this.webVaultUrl.value,
+        icons: this.iconsUrl.value,
+        notifications: this.notificationsUrl.value,
+        send: this.sendUrl.value,
+      });
+      this.restartAvailable = true;
+    }
+  }
+
+  async restartNow(): Promise<void> {
+    await this.submit();
+  }
+
   ngOnInit() {
+    if (this.certificates.supported()) {
+      void this.certificates.status().then(
+        (result) => {
+          if (result.ok === true && result.value.state === "restart-pending") {
+            this.restartAvailable = true;
+          }
+        },
+        () => {
+          this.restartError = true;
+        },
+      );
+    }
     // Populate the form with the current self-hosted environment settings.
     // Use the global environment because the user-scoped environment is not set until authentication is complete.
     this.environmentService.globalEnvironment$
@@ -200,6 +248,7 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
   submit = async () => {
     this.formGroup.markAllAsTouched();
     this.showErrorSummary = false;
+    this.restartError = false;
 
     if (this.formGroup.invalid) {
       this.showErrorSummary = Boolean(this.formGroup.errors?.["atLeastOneUrlIsRequired"]);
@@ -215,6 +264,12 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
       notifications: this.notificationsUrl.value,
       send: this.sendUrl.value,
     });
+
+    if (this.restartAvailable) {
+      const result = await this.certificates.restart();
+      this.restartError = result.ok === false;
+      return;
+    }
 
     await this.dialogRef.close(true);
   };
