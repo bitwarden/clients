@@ -52,6 +52,7 @@ import {
   BiometricsStatus,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
+import { measured } from "@bitwarden/logging";
 import { UnlockMethod, UnlockService } from "@bitwarden/unlock";
 
 import {
@@ -81,6 +82,9 @@ type AfterUnlockActions = {
 /// The minimum amount of time to wait after a process reload for a biometrics auto prompt to be possible
 /// Fixes safari autoprompt behavior
 const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
+
+const PERF_TRACK_GROUP = "Unlock";
+const PERF_TRACK = "Lock Component";
 
 const BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES = [
   BiometricsStatus.HardwareUnavailable,
@@ -540,6 +544,7 @@ export class LockComponent implements OnInit, OnDestroy {
    * {@link UnlockService.unlocked$} rather than called by each unlock method, so that an unlock
    * performed elsewhere continues the same way as one performed here.
    */
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   protected async continueAfterSettingUserKey(
     afterUnlockActions: AfterUnlockActions = {},
   ): Promise<void> {
@@ -605,23 +610,15 @@ export class LockComponent implements OnInit, OnDestroy {
     }
 
     if (this.platformUtilsService.getClientType() == ClientType.Web) {
-      const startSync = performance.now();
-
       // Web does not cache vault data and would be in a unusable state when unlocked.
       await this.syncService.fullSync(true);
-
-      this.logService.measure(startSync, "KeyManagement", "LockComponent", "sync complete");
     } else {
       // On non-web clients, we start a sync in the background, but to not block by it
       void this.syncService.fullSync(false);
     }
 
-    const startRegeneration = new Date().getTime();
     // TODO: This should probably not be blocking
     await this.userAsymmetricKeysRegenerationService.regenerateIfNeeded(this.activeAccount.id);
-    this.logService.info(
-      `[LockComponent] Private key regeneration took ${new Date().getTime() - startRegeneration}ms`,
-    );
 
     if (this.clientType === "browser") {
       const previousUrl = this.lockComponentService.getPreviousUrl();

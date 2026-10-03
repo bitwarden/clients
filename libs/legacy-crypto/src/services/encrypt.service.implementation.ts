@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { LogService } from "@bitwarden/logging";
+import { LogService, measured } from "@bitwarden/logging";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
@@ -12,6 +12,9 @@ import { EncArrayBuffer } from "../models/enc-array-buffer";
 import { EncString } from "../models/enc-string";
 import { SymmetricCryptoKey } from "../models/symmetric-crypto-key";
 
+const PERF_TRACK_GROUP = "Crypto";
+const PERF_TRACK = "Legacy Crypto";
+
 export class EncryptServiceImplementation implements EncryptService {
   constructor(
     protected cryptoFunctionService: CryptoFunctionService,
@@ -19,6 +22,7 @@ export class EncryptServiceImplementation implements EncryptService {
     protected logMacFailures: boolean,
   ) {}
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async encryptString(plainValue: string, key: SymmetricCryptoKey): Promise<EncString> {
     if (plainValue == null) {
       this.logService.warning(
@@ -31,16 +35,20 @@ export class EncryptServiceImplementation implements EncryptService {
     return new EncString(PureCrypto.symmetric_encrypt_string(plainValue, key.toEncoded()));
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async encryptBytes(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncString> {
     await SdkLoadService.Ready;
     return new EncString(PureCrypto.symmetric_encrypt_bytes(plainValue, key.toEncoded()));
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async encryptFileData(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncArrayBuffer> {
     await SdkLoadService.Ready;
     return new EncArrayBuffer(PureCrypto.symmetric_encrypt_filedata(plainValue, key.toEncoded()));
   }
 
+  // This will be enabled once all vault item decryption is moved to the SDK.
+  // @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async decryptString(encString: EncString, key: SymmetricCryptoKey): Promise<string> {
     if (encString.encryptionType === EncryptionType.AesCbc256_B64) {
       throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
@@ -49,6 +57,7 @@ export class EncryptServiceImplementation implements EncryptService {
     return PureCrypto.symmetric_decrypt_string(encString.encryptedString, key.toEncoded());
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async decryptBytes(encString: EncString, key: SymmetricCryptoKey): Promise<Uint8Array> {
     if (encString.encryptionType === EncryptionType.AesCbc256_B64) {
       throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
@@ -57,6 +66,7 @@ export class EncryptServiceImplementation implements EncryptService {
     return PureCrypto.symmetric_decrypt_bytes(encString.encryptedString, key.toEncoded());
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async decryptFileData(encBuffer: EncArrayBuffer, key: SymmetricCryptoKey): Promise<Uint8Array> {
     if (encBuffer.encryptionType === EncryptionType.AesCbc256_B64) {
       throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
@@ -65,6 +75,7 @@ export class EncryptServiceImplementation implements EncryptService {
     return PureCrypto.symmetric_decrypt_filedata(encBuffer.buffer, key.toEncoded());
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async wrapDecapsulationKey(
     decapsulationKeyPkcs8: Uint8Array,
     wrappingKey: SymmetricCryptoKey,
@@ -83,6 +94,7 @@ export class EncryptServiceImplementation implements EncryptService {
     );
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async wrapEncapsulationKey(
     encapsulationKeySpki: Uint8Array,
     wrappingKey: SymmetricCryptoKey,
@@ -101,6 +113,7 @@ export class EncryptServiceImplementation implements EncryptService {
     );
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async wrapSymmetricKey(
     keyToBeWrapped: SymmetricCryptoKey,
     wrappingKey: SymmetricCryptoKey,
@@ -119,6 +132,7 @@ export class EncryptServiceImplementation implements EncryptService {
     );
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async unwrapDecapsulationKey(
     wrappedDecapsulationKey: EncString,
     wrappingKey: SymmetricCryptoKey,
@@ -140,6 +154,7 @@ export class EncryptServiceImplementation implements EncryptService {
       wrappingKey.toEncoded(),
     );
   }
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async unwrapEncapsulationKey(
     wrappedEncapsulationKey: EncString,
     wrappingKey: SymmetricCryptoKey,
@@ -160,6 +175,7 @@ export class EncryptServiceImplementation implements EncryptService {
       wrappingKey.toEncoded(),
     );
   }
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async unwrapSymmetricKey(
     keyToBeUnwrapped: EncString,
     wrappingKey: SymmetricCryptoKey,
@@ -180,11 +196,13 @@ export class EncryptServiceImplementation implements EncryptService {
     );
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async hash(value: string | Uint8Array, algorithm: "sha1" | "sha256" | "sha512"): Promise<string> {
     const hashArray = await this.cryptoFunctionService.hash(value, algorithm);
     return Utils.fromBufferToB64(hashArray);
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async encapsulateKeyUnsigned(
     sharedKey: SymmetricCryptoKey,
     encapsulationKey: Uint8Array,
@@ -201,6 +219,7 @@ export class EncryptServiceImplementation implements EncryptService {
     );
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async decapsulateKeyUnsigned(
     encryptedSharedKey: EncString,
     decapsulationKey: Uint8Array,

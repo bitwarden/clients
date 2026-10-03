@@ -1,3 +1,4 @@
+import { measured } from "@bitwarden/logging";
 import { init_sdk, LogLevel } from "@bitwarden/sdk-internal";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used in docs
@@ -39,6 +40,7 @@ export abstract class SdkLoadService {
    * This method should be called once at the start of the application.
    * Raw functions and classes from the SDK can be used after this method resolves.
    */
+  @measured("SDK", "Load")
   async loadAndInit(): Promise<void> {
     try {
       await this.load();

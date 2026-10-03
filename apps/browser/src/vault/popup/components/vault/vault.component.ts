@@ -1,7 +1,17 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { Component, computed, DestroyRef, effect, inject, OnDestroy, OnInit } from "@angular/core";
+import {
+  afterNextRender,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  Injector,
+  OnDestroy,
+  OnInit,
+} from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import {
@@ -38,6 +48,7 @@ import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
@@ -94,6 +105,8 @@ import { VaultPopupListTableComponent } from "./vault-popup-list-table/vault-pop
 import { VaultSwitcherComponent } from "./vault-switcher/vault-switcher.component";
 
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
+
+const VAULT_RENDERED_MARK = "Vault rendered";
 
 const VaultState = {
   Empty: 0,
@@ -161,6 +174,10 @@ export class VaultComponent implements OnInit, OnDestroy {
    */
   private readySubject = new BehaviorSubject(false);
 
+  private readonly logService = inject(LogService);
+  private readonly injector = inject(Injector);
+  private vaultRenderedMarked = false;
+
   /**
    * Indicates whether the vault is loading and not yet ready to be displayed.
    * @protected
@@ -174,6 +191,18 @@ export class VaultComponent implements OnInit, OnDestroy {
     tap((loading) => {
       const key = loading ? "loadingVault" : "vaultLoaded";
       void this.liveAnnouncer.announce(this.i18nService.translate(key), "polite");
+    }),
+    tap((loading) => {
+      // Only the first paint ends unlock/login perf traces. loading$ has several subscribers,
+      // and background syncs flip it back to loading.
+      if (loading || this.vaultRenderedMarked) {
+        return;
+      }
+
+      this.vaultRenderedMarked = true;
+      afterNextRender(() => this.logService.mark(VAULT_RENDERED_MARK), {
+        injector: this.injector,
+      });
     }),
   );
 

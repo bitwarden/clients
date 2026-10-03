@@ -3,6 +3,7 @@
 
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { measured } from "@bitwarden/logging";
 import { PureCrypto, SdkRandomNumberClient } from "@bitwarden/sdk-internal";
 
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
@@ -12,9 +13,13 @@ import type { KdfConfig } from "../models/kdf-config";
 import { SymmetricCryptoKey } from "../models/symmetric-crypto-key";
 import { CsprngArray } from "../types/csprng";
 
+const PERF_TRACK_GROUP = "Crypto";
+const PERF_TRACK = "Legacy Crypto";
+
 export class DefaultKeyGenerationService implements KeyGenerationService {
   constructor(private cryptoFunctionService: CryptoFunctionService) {}
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async createKeyWithPurpose(
     bitLength: 128 | 192 | 256 | 512,
     purpose: string,
@@ -30,6 +35,7 @@ export class DefaultKeyGenerationService implements KeyGenerationService {
     return { salt, material, derivedKey: new SymmetricCryptoKey(key) };
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async deriveKeyFromMaterial(
     material: CsprngArray,
     salt: string,
@@ -39,6 +45,7 @@ export class DefaultKeyGenerationService implements KeyGenerationService {
     return new SymmetricCryptoKey(key);
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async deriveKeyFromPassword(
     password: string | Uint8Array,
     salt: string | Uint8Array,
@@ -57,6 +64,7 @@ export class DefaultKeyGenerationService implements KeyGenerationService {
     );
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async stretchKey(key: SymmetricCryptoKey): Promise<SymmetricCryptoKey> {
     // The key to be stretched is actually usually the output of a KDF, and not actually meant for AesCbc256_B64 encryption,
     // but has the same key length. Only 256-bit key materials should be stretched.
@@ -85,6 +93,7 @@ export class DefaultKeyGenerationService implements KeyGenerationService {
     return new SymmetricCryptoKey(newKey);
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async deriveVaultExportKey(
     password: string,
     salt: string,

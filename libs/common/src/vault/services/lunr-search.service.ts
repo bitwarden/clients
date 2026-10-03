@@ -3,6 +3,7 @@
 import * as lunr from "lunr";
 import { Opaque } from "type-fest";
 
+import { measured } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
 
 import { UriMatchStrategy } from "../../models/domain/domain-service";
@@ -22,6 +23,9 @@ type IndexState = {
   numberOfCiphers: number;
   revisionDate: Date;
 };
+
+const PERF_TRACK_GROUP = "Search";
+const PERF_TRACK = "Lunr";
 
 export class LunrSearchService {
   private static registeredPipeline = false;
@@ -46,6 +50,7 @@ export class LunrSearchService {
     }
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async searchCiphers<C extends CipherViewLike>(
     userId: UserId,
     organizationId: OrganizationId | null,
@@ -53,7 +58,6 @@ export class LunrSearchService {
     ciphers: C[],
   ): Promise<C[]> {
     const results: C[] = [];
-    const searchStartTime = performance.now();
     const index = await this.getOrCreateIndex(makeIndexId(userId, organizationId), ciphers);
 
     // Convert to map that can be looked up in
@@ -73,7 +77,6 @@ export class LunrSearchService {
       this.logService.error(e);
     }
 
-    this.logService.measure(searchStartTime, "Vault", "LunrSearchService", "search complete");
     return results;
   }
 
@@ -91,7 +94,11 @@ export class LunrSearchService {
         return this.lunrIndices.get(indexId)!.lunrIndex;
       }
 
-      const start = performance.now();
+      const measurement = this.logService.startMeasurement(
+        PERF_TRACK_GROUP,
+        PERF_TRACK,
+        "build index",
+      );
       this.logService.info("Starting Lunr index build");
 
       const index = await buildCipherIndex(ciphers);
@@ -103,9 +110,7 @@ export class LunrSearchService {
       });
 
       this.logService.info("Lunr index build complete");
-      this.logService.measure(start, "Vault", "LunrSearchService", "index build complete", [
-        ["Items Indexed", ciphers.length],
-      ]);
+      measurement.finish([["Items Indexed", ciphers.length]]);
 
       return index;
     } finally {
