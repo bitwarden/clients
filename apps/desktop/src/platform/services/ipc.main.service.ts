@@ -74,6 +74,8 @@ export class IpcMainService extends IpcService {
             } satisfies IpcMessage);
             return;
           }
+
+          throw new Error(`Destination not supported: ${JSON.stringify(message.destination)}`);
         },
       });
 
