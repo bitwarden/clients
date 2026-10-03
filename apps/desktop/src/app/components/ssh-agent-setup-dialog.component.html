@@ -19,9 +19,18 @@
         ></button>
       </div>
 
-      <p class="tw-mt-4">{{ "sshAgentSetupUnixApplyDesc" | i18n }}</p>
-      <p>{{ "sshAgentSetupUnixRestart" | i18n }}</p>
+      <p class="tw-mt-4">{{ "sshAgentSetupUnixRestart" | i18n }}</p>
     }
+
+    <a
+      bitLink
+      href="https://bitwarden.com/help/ssh-agent/"
+      target="_blank"
+      rel="noreferrer"
+      endIcon="bwi-external-link"
+    >
+      {{ "learnMore" | i18n }}
+    </a>
   </ng-container>
 
   <ng-container bitDialogFooter>
@@ -32,9 +41,6 @@
     }
     <button bitButton type="button" buttonType="secondary" [bitDialogClose]="undefined">
       {{ "ok" | i18n }}
-    </button>
-    <button bitButton type="button" buttonType="secondary" (click)="launchHelp()">
-      {{ "learnMore" | i18n }}
     </button>
   </ng-container>
 </bit-dialog>

@@ -14,11 +14,10 @@ import {
   DialogRef,
   DialogService,
   IconButtonModule,
+  LinkModule,
   ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-
-const SSH_AGENT_HELP_URI = "https://bitwarden.com/help/ssh-agent/";
 
 export type SshAgentSetupDialogData = {
   /** Unix socket path, or the Windows named pipe, the agent listens on. */
@@ -35,6 +34,7 @@ export type SshAgentSetupDialogData = {
     CalloutModule,
     DialogModule,
     IconButtonModule,
+    LinkModule,
   ],
 })
 export class SshAgentSetupDialogComponent {
@@ -93,8 +93,4 @@ export class SshAgentSetupDialogComponent {
     });
     await this.dialogRef.close();
   };
-
-  protected launchHelp() {
-    this.platformUtilsService.launchUri(SSH_AGENT_HELP_URI);
-  }
 }

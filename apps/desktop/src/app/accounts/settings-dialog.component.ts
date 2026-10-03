@@ -23,6 +23,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { AutotypeFeatureFlagState } from "@bitwarden/common/desktop-native/enums/autotype-feature-flag-state.enum";
 import { autotypeFeatureFlagState$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -152,7 +153,7 @@ export class SettingsDialogComponent implements OnInit {
   protected readonly showDuckDuckGoIntegrationOption: boolean;
   protected readonly runInBackgroundText: string;
   protected readonly runInBackgroundDescText: string;
-  
+
   /** Whether SSH clients on this machine already reach the agent. */
   protected readonly sshAgentConfigured = signal(false);
   protected readonly supportsBiometric = signal(false);
