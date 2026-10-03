@@ -52,7 +52,7 @@ export class SendTableComponent {
 
   /**
    * Whether Send functionality is disabled by policy.
-   * When true, the "Remove Password" option is hidden from the action menu.
+   * When true, the "Remove password or email verification" option is hidden from the action menu.
    */
   readonly disableSend = input(false);
 
@@ -69,11 +69,11 @@ export class SendTableComponent {
   readonly copySend = output<SendView>();
 
   /**
-   * Emitted when a user clicks the "Remove Password" action.
-   * The SendView is passed as the event payload for password removal.
+   * Emitted when a user clicks the "Remove password or email verification" action.
+   * The SendView is passed as the event payload for authentication removal.
    * This action is only available if the Send has a password and Send is not disabled.
    */
-  readonly removePassword = output<SendView>();
+  readonly removeAuth = output<SendView>();
 
   /**
    * Emitted when a user clicks the "Delete" action.
@@ -89,8 +89,8 @@ export class SendTableComponent {
     this.copySend.emit(send);
   }
 
-  protected onRemovePassword(send: SendView): void {
-    this.removePassword.emit(send);
+  protected onRemoveAuth(send: SendView): void {
+    this.removeAuth.emit(send);
   }
 
   protected onDelete(send: SendView): void {

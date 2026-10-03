@@ -467,8 +467,8 @@ export class SendDetailsComponent implements OnInit {
     });
   }
 
-  removePassword = async () => {
-    const removed = await this.sendFormService.removeSendPassword();
+  removeAuth = async () => {
+    const removed = await this.sendFormService.removeSendAuth();
     if (removed) {
       this.passwordRemoved = true;
       this.sendDetailsForm.patchValue({

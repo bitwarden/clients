@@ -160,14 +160,14 @@ export class SendComponent {
     });
   }
 
-  protected async onRemovePassword(send: SendView): Promise<void> {
+  protected async onRemoveAuth(send: SendView): Promise<void> {
     if (this.disableSend()) {
       return;
     }
 
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "removePassword" },
-      content: { key: "removePasswordConfirmation" },
+      title: { key: "removeAuth" },
+      content: { key: "removeAuthConfirmation" },
       type: "warning",
     });
 
@@ -176,11 +176,11 @@ export class SendComponent {
     }
 
     try {
-      await this.sendApiService.removePassword(send.id);
+      await this.sendApiService.removeAuth(send.id);
       this.toastService.showToast({
         variant: "success",
         title: null,
-        message: this.i18nService.t("removedPassword"),
+        message: this.i18nService.t("removedAuth"),
       });
     } catch (e) {
       this.logService.error(e);

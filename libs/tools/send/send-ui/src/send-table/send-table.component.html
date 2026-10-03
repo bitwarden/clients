@@ -99,9 +99,9 @@
               {{ "copySendLink" | i18n }}
             </button>
             @if (s.password && !disableSend()) {
-              <button type="button" bitMenuItem (click)="onRemovePassword(s)">
+              <button type="button" bitMenuItem (click)="onRemoveAuth(s)">
                 <bit-icon name="bwi-close" fixedWidth />
-                {{ "removePassword" | i18n }}
+                {{ "removeAuth" | i18n }}
               </button>
             }
             <button type="button" bitMenuItem variant="danger" (click)="onDelete(s)">

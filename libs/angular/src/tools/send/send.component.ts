@@ -41,7 +41,7 @@ export class SendComponent implements OnInit, OnDestroy {
   hasSearched = false; // search() function called - returns true if text qualifies for search
 
   actionPromise: any;
-  onSuccessfulRemovePassword: () => Promise<any>;
+  onSuccessfulRemoveAuth: () => Promise<any>;
   onSuccessfulDelete: () => Promise<any>;
   onSuccessfulLoad: () => Promise<any>;
 
@@ -166,14 +166,14 @@ export class SendComponent implements OnInit, OnDestroy {
     }, timeout);
   }
 
-  async removePassword(s: SendView): Promise<boolean> {
+  async removeAuth(s: SendView): Promise<boolean> {
     if (this.actionPromise != null || s.password == null) {
       return;
     }
 
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "removePassword" },
-      content: { key: "removePasswordConfirmation" },
+      title: { key: "removeAuth" },
+      content: { key: "removeAuthConfirmation" },
       type: "warning",
     });
 
@@ -182,18 +182,18 @@ export class SendComponent implements OnInit, OnDestroy {
     }
 
     try {
-      this.actionPromise = this.sendApiService.removePassword(s.id);
+      this.actionPromise = this.sendApiService.removeAuth(s.id);
       await this.actionPromise;
-      if (this.onSuccessfulRemovePassword != null) {
+      if (this.onSuccessfulRemoveAuth != null) {
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.onSuccessfulRemovePassword();
+        this.onSuccessfulRemoveAuth();
       } else {
         // Default actions
         this.toastService.showToast({
           variant: "success",
           title: null,
-          message: this.i18nService.t("removedPassword"),
+          message: this.i18nService.t("removedAuth"),
         });
         await this.load();
       }

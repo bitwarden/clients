@@ -20,7 +20,7 @@
     (editSend)="editSend($event)"
     (copySend)="onCopySend($event)"
     (deleteSend)="deleteSend($event)"
-    (removePassword)="onRemovePassword($event)"
+    (removeAuth)="onRemoveAuth($event)"
   >
     <!-- Hide the filters if a single type of Send is allowed -->
     @if (allowedSendTypes().length !== 1) {
