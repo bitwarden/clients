@@ -564,13 +564,15 @@ export class LockComponent implements OnInit, OnDestroy {
 
     await this.biometricStateService.resetUserPromptCancelled(this.activeAccount.id);
 
-    try {
-      await this.encryptedMigrator.runMigrations(
-        this.activeAccount.id,
-        afterUnlockActions.passwordEvaluation?.masterPassword ?? null,
-      );
-    } catch {
-      // Don't block login success on migration failure
+    const masterPassword = afterUnlockActions.passwordEvaluation?.masterPassword ?? null;
+    // Don't block login success on migration failure
+    const migrations = this.encryptedMigrator
+      .runMigrations(this.activeAccount.id, masterPassword)
+      .catch(() => {});
+    // Migrations that run without the master password can wait on the server. If the server is
+    // unreachable, waiting for them leaves the user on the lock screen until the requests time out.
+    if (masterPassword != null) {
+      await migrations;
     }
 
     this.messagingService.send("unlocked");

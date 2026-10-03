@@ -131,6 +131,28 @@ describe("EncryptedMigrator", () => {
       expect(mockMigration.runMigrations).toHaveBeenCalledWith(mockUserId, mockMasterPassword);
     });
 
+    it("should not run migrations concurrently when a skipped run finishes first", async () => {
+      let finishFirstRun: () => void = () => {};
+      mockMigration.needsMigration.mockResolvedValue("needsMigration");
+      mockMigration.runMigrations.mockReturnValueOnce(
+        new Promise<void>((resolve) => (finishFirstRun = resolve)),
+      );
+
+      const firstRun = sut.runMigrations(mockUserId, mockMasterPassword);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(mockMigration.runMigrations).toHaveBeenCalledTimes(1);
+
+      await sut.runMigrations(mockUserId, mockMasterPassword);
+      await sut.runMigrations(mockUserId, mockMasterPassword);
+
+      expect(mockMigration.runMigrations).toHaveBeenCalledTimes(1);
+      expect(sut.isRunningMigrations()).toBe(true);
+
+      finishFirstRun();
+      await firstRun;
+      expect(sut.isRunningMigrations()).toBe(false);
+    });
+
     it("should run migration when needsMigration returns 'needsMigrationWithMasterPassword'", async () => {
       mockMigration.needsMigration.mockResolvedValue("needsMigrationWithMasterPassword");
 
