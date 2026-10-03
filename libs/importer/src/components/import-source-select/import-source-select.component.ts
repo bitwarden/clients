@@ -4,7 +4,6 @@ import {
   Component,
   computed,
   inject,
-  input,
   linkedSignal,
   output,
   untracked,
@@ -24,7 +23,6 @@ import {
   DisclosureTriggerForDirective,
   IconTileComponent,
   LinkModule,
-  ProgressBarComponent,
   RadioButtonModule,
   SearchModule,
   SegmentedCardComponent,
@@ -35,15 +33,15 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ImportOption, importOptions, ImportType } from "../../models";
 
+import { pickerIconFor } from "./import-source-picker-metadata";
 import {
   isFeaturedPasswordManager,
   isPickerVendor,
   pickerDisplayNameFor,
-  pickerIconFor,
   PICKER_BROWSER_ORDER,
   PICKER_FEATURED_PASSWORD_MANAGER_ORDER,
   sortByPickerOrder,
-} from "./import-source-picker-metadata";
+} from "./picker-vendor-data";
 
 @Component({
   selector: "importer-source-select",
@@ -58,7 +56,6 @@ import {
     I18nPipe,
     LinkModule,
     NgTemplateOutlet,
-    ProgressBarComponent,
     ReactiveFormsModule,
     RadioButtonModule,
     SearchModule,
@@ -72,24 +69,14 @@ export class ImportSourceSelectComponent {
   private readonly themingService = inject(AbstractThemingService);
 
   /** A handful of vendor marks are a single fixed color and need a swapped variant against a dark
-   *  background — see `PickerVendorMetadata.darkIcon`. */
+   *  background — see `PickerVendorIcon.darkIcon`. */
   private readonly isDarkTheme = toSignal(
     this.themingService.theme$.pipe(map((theme) => theme === ThemeTypes.Dark)),
     { initialValue: false },
   );
 
-  /** Current position in the overall import flow, for the step progress bar. */
-  readonly currentStep = input(1);
-  /** Total number of steps in the overall import flow. */
-  readonly totalSteps = input(3);
-
   /** Emits the chosen import format when Continue is pressed. */
   readonly continue = output<ImportType>();
-
-  protected readonly progressValue = computed(() => (this.currentStep() / this.totalSteps()) * 100);
-  protected readonly stepText = computed(() =>
-    this.i18nService.t("importSourceStepCount", this.currentStep(), this.totalSteps()),
-  );
 
   protected readonly sourceControl = new FormControl<ImportType | null>(null);
   protected readonly selectedSource = toSignal(this.sourceControl.valueChanges, {

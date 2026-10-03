@@ -1,17 +1,20 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { Router } from "@angular/router";
 
-import { BitwardenLogo } from "@bitwarden/assets/svg";
-import { SvgModule, TypographyModule } from "@bitwarden/components";
+import { ImportType } from "@bitwarden/importer-core";
 import { ImportSourceSelectComponent } from "@bitwarden/importer-ui";
-import { I18nPipe } from "@bitwarden/ui-common";
-
-import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
 
 @Component({
   templateUrl: "import-source-select-browser.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ImportSourceSelectComponent, I18nPipe, PopupPageComponent, SvgModule, TypographyModule],
+  imports: [ImportSourceSelectComponent],
 })
 export class ImportSourceSelectBrowserComponent {
-  protected readonly logo = BitwardenLogo;
+  private readonly router = inject(Router);
+
+  protected onContinue(importType: ImportType): void {
+    // Not "/import" — that path is the legacy popup entry point (ImportBrowserV2Component),
+    // guarded to redirect out to this full-tab flow instead.
+    void this.router.navigate(["/import-source-select", importType]);
+  }
 }

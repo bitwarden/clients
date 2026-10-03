@@ -131,10 +131,6 @@ describe("ImportSourceSelectComponent", () => {
     expect(emitted).toEqual(["chromecsv"]);
   });
 
-  it("renders the breadcrumb label above the card", () => {
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain("importSourceBreadcrumb");
-  });
-
   it("renders every browser, regardless of featured-password-manager status", () => {
     expect(cardLabels()).toEqual(expect.arrayContaining(["Chrome", "Firefox"]));
   });

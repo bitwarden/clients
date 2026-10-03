@@ -25,7 +25,7 @@ export abstract class ImportServiceAbstraction {
   getImporter: (
     format: ImportType | "bitwardenpasswordprotected",
     promptForPassword_callback: () => Promise<string>,
-    organizationId: string,
+    organizationId?: string,
   ) => Importer;
 
   /** Maps an SDK importer error to a localization key, or `undefined` for the raw error. */
