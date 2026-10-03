@@ -51,20 +51,33 @@ export class DefaultPasswordPreloginService implements PasswordPreloginService {
     this.currentPreloginData$ = null;
   }
 
+  /**
+   * Resolves both the KDF config and the salt to derive with. The flag is read once, here, so
+   * that its outcome travels with the returned data. A second read downstream can observe a
+   * different value (the pre-auth server config renews on an interval) and disagree with the
+   * fetch that produced the data.
+   */
   private async fetchPreloginData(email: string): Promise<PasswordPreloginData> {
     // TODO: PM-40137 - Remove this flag
     const useSdk = await this.configService.getFeatureFlag(
       FeatureFlag.PM27060_PasswordPreloginFromSdk,
     );
 
-    return useSdk ? this.fetchPreloginDataFromSdk(email) : this.fetchPreloginDataFromApi(email);
+    if (useSdk) {
+      return this.fetchPreloginDataFromSdk(email);
+    }
+
+    // Kill switch: ignore any server-supplied salt and derive from the email, matching
+    // pre-PM-27060 behavior. `email` is already normalized by getPreloginData$.
+    const { kdfConfig } = await this.fetchPreloginDataFromApi(email);
+    return new PasswordPreloginData(kdfConfig, email);
   }
 
   private async fetchPreloginDataFromApi(email: string): Promise<PasswordPreloginData> {
     const response = await this.passwordPreloginApiService.getPreloginData(
       new PasswordPreloginRequest(email),
     );
-    return PasswordPreloginData.fromResponse(response);
+    return PasswordPreloginData.fromResponse(response, email);
   }
 
   private async fetchPreloginDataFromSdk(email: string): Promise<PasswordPreloginData> {

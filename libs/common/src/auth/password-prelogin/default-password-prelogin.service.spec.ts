@@ -46,10 +46,15 @@ describe("DefaultPasswordPreloginService", () => {
     kdf: { pBKDF2: { iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue } },
     salt: sdkSalt,
   };
-  const expectedData = new PasswordPreloginData(
-    new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
-    apiSalt,
-  );
+  // Flag off is the kill switch: the server's salt is discarded and the normalized email is
+  // used instead, so apiSalt must never appear in the result. That makes the expected salt a
+  // function of the email requested, hence the factory.
+  const expectedDataFor = (requestedEmail: string) =>
+    new PasswordPreloginData(
+      new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
+      requestedEmail,
+    );
+  const expectedData = expectedDataFor(email);
   const expectedSdkData = new PasswordPreloginData(
     new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
     sdkSalt,
@@ -101,6 +106,52 @@ describe("DefaultPasswordPreloginService", () => {
       );
     });
 
+    // The flag is read once, here, and its outcome travels with the returned data. A second read
+    // downstream could observe a different value and disagree with the fetch that produced it.
+    it("reads the feature flag exactly once per fetch", async () => {
+      await firstValueFrom(sut.getPreloginData$(email));
+
+      expect(configService.getFeatureFlag).toHaveBeenCalledTimes(1);
+    });
+
+    describe("salt resolution", () => {
+      it("ignores a server-supplied salt and uses the normalized email when the flag is off", async () => {
+        const result = await firstValueFrom(sut.getPreloginData$(email));
+
+        expect(result.salt).toBe(email);
+        expect(result.salt).not.toBe(apiSalt);
+      });
+
+      it("uses the normalized email when the flag is off and the server salt is null", async () => {
+        // User.MasterPasswordSalt is nullable and was never backfilled, so the server returns
+        // null for accounts predating the column.
+        apiService.getPreloginData.mockResolvedValue(
+          new PasswordPreloginResponse({
+            KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
+            Salt: null,
+          }),
+        );
+
+        const result = await firstValueFrom(sut.getPreloginData$(email));
+
+        expect(result.salt).toBe(email);
+      });
+
+      it("normalizes the email it falls back to when the flag is off", async () => {
+        const result = await firstValueFrom(sut.getPreloginData$("  USER@EXAMPLE.COM  "));
+
+        expect(result.salt).toBe(email);
+      });
+
+      it("uses the salt the SDK resolved when the flag is on", async () => {
+        configService.getFeatureFlag.mockResolvedValue(true);
+
+        const result = await firstValueFrom(sut.getPreloginData$(email));
+
+        expect(result.salt).toBe(sdkSalt);
+      });
+    });
+
     it("returns the same in-flight observable when called again with the same email", async () => {
       let resolveFn!: (v: PasswordPreloginResponse) => void;
       const deferred = new Promise<PasswordPreloginResponse>((res) => (resolveFn = res));
@@ -143,11 +194,11 @@ describe("DefaultPasswordPreloginService", () => {
 
       expect(second$).not.toBe(first$);
       expect(apiService.getPreloginData).toHaveBeenCalledTimes(2);
-      expect(await firstValueFrom(second$)).toEqual(expectedData);
+      expect(await firstValueFrom(second$)).toEqual(expectedDataFor(emailB));
 
       // The original in-flight observable still resolves correctly
       resolveA(response);
-      expect(await firstValueFrom(first$)).toEqual(expectedData);
+      expect(await firstValueFrom(first$)).toEqual(expectedDataFor(emailA));
     });
 
     it("starts a new request when called with a different email after the first has resolved", async () => {
@@ -158,8 +209,8 @@ describe("DefaultPasswordPreloginService", () => {
       const secondResult = await firstValueFrom(second$);
 
       expect(second$).not.toBe(first$);
-      expect(firstResult).toEqual(expectedData);
-      expect(secondResult).toEqual(expectedData);
+      expect(firstResult).toEqual(expectedDataFor(emailA));
+      expect(secondResult).toEqual(expectedDataFor(emailB));
       expect(apiService.getPreloginData).toHaveBeenCalledTimes(2);
     });
 
