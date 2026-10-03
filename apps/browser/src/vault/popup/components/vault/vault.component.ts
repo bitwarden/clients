@@ -58,6 +58,7 @@ import {
   ALL_ITEMS_SCOPE,
   DecryptionFailureDialogComponent,
   DefaultVaultItemsTransferService,
+  NewExperienceDialogComponent,
   resolveVaultScope,
   type VaultScope,
   VaultItemsTransferService,
@@ -102,6 +103,10 @@ const VaultState = {
 } as const;
 
 type VaultState = UnionOfValues<typeof VaultState>;
+
+// Resolved against the popup document at the extension root, not this file.
+const NEW_EXPERIENCE_LIGHT_IMG = "../../../../images/new-experience/new-experience.light.png";
+const NEW_EXPERIENCE_DARK_IMG = "../../../../images/new-experience/new-experience.dark.png";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -386,6 +391,12 @@ export class VaultComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
+    // Read before the call below marks it dismissed, so this reflects whether the user had already
+    // been through onboarding when they opened the popup.
+    const onboardingWelcomeDismissed = await firstValueFrom(
+      this.introCarouselService.introCarouselState$,
+    );
+
     await this.introCarouselService.setIntroCarouselDismissed();
 
     this.cipherService
@@ -454,6 +465,45 @@ export class VaultComponent implements OnInit, OnDestroy {
     await this.vaultItemsTransferService.enforceOrganizationDataOwnership(this.activeUserId);
 
     this.readySubject.next(true);
+
+    await this.openNewExperienceDialog(this.activeUserId, onboardingWelcomeDismissed);
+  }
+
+  /**
+   * Opens {@link NewExperienceDialogComponent} once, for accounts that predate the GA release.
+   *
+   * `Vfo1OnboardingNudgeService` decides which accounts qualify, auto-dismissing the nudge for
+   * profiles created on or after GA. The intro carousel check below backs up that same intent;
+   * it rarely fires, since the carousel is marked dismissed on every vault load.
+   *
+   * This is the only onboarding message that opens without a click, so
+   * `suppressOnboardingInterstitials` applies to it alone.
+   */
+  private async openNewExperienceDialog(userId: UserId, onboardingWelcomeDismissed: boolean) {
+    if (!onboardingWelcomeDismissed || !this.vfo1Enabled()) {
+      return;
+    }
+
+    const serverSettings = await firstValueFrom(this.configService.serverSettings$);
+    if (serverSettings?.suppressOnboardingInterstitials) {
+      return;
+    }
+
+    const showDialog = await firstValueFrom(
+      this.nudgesService.showNudgeSpotlight$(NudgeType.Vfo1NewExperience, userId),
+    );
+    if (!showDialog) {
+      return;
+    }
+
+    // Dismissed as soon as the dialog renders rather than once it closes: the "learn more" link
+    // opens a new tab, which tears down the popup before any close handler can run.
+    await this.nudgesService.dismissNudge(NudgeType.Vfo1NewExperience, userId);
+
+    await NewExperienceDialogComponent.open(this.dialogService, {
+      lightImgSrc: NEW_EXPERIENCE_LIGHT_IMG,
+      darkImgSrc: NEW_EXPERIENCE_DARK_IMG,
+    });
   }
 
   ngOnDestroy() {
