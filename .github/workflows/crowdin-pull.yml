@@ -64,7 +64,7 @@ jobs:
           persist-credentials: false
 
       - name: Download translations
-        uses: crowdin/github-action@8868a33591d21088edfc398968173a3b98d51706 # v2.16.2
+        uses: crowdin/github-action@8f01d54f70f1713ee3f09d82c2bbb2daeac28689 # v2.17.1
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets-crowdin.outputs.CROWDIN-API-TOKEN }}

@@ -135,7 +135,7 @@ jobs:
           fail-on-error: true
 
       - name: Upload results to codecov.io
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           report_type: test_results
 
@@ -247,7 +247,7 @@ jobs:
           components: llvm-tools
 
       - name: Cache cargo registry
-        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         with:
           workspaces: "apps/desktop/desktop_native -> target"
 
@@ -316,7 +316,7 @@ jobs:
           path: ./apps/desktop/desktop_native
 
       - name: Upload coverage to codecov.io
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: |
             ./jest-coverage-browser/lcov.info
