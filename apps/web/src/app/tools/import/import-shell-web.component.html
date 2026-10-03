@@ -1,22 +1,7 @@
 <app-header></app-header>
 
 <div class="tw-max-w-6xl">
-  <p bitTypography="h5" noMargin class="tw-mb-2 !tw-text-fg-heading">{{ headingKey() | i18n }}</p>
-
-  <bit-progress-bar
-    [hideStartHint]="true"
-    [value]="progressValue()"
-    [accessibleName]="stepText()"
-    [ariaValueText]="stepText()"
-  ></bit-progress-bar>
-  <p
-    bitTypography="helper"
-    noMargin
-    aria-hidden="true"
-    class="tw-mt-1 tw-mb-4 tw-text-fg-body-subtle"
-  >
-    {{ stepText() }}
-  </p>
+  <importer-shell-progress></importer-shell-progress>
 
   <router-outlet></router-outlet>
 </div>

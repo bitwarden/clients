@@ -1992,6 +1992,12 @@
   "selectFile": {
     "message": "Select a file."
   },
+  "selectFileUnsupportedType": {
+    "message": "That file type isn't accepted for this source. Choose a different file."
+  },
+  "pasteContentRequired": {
+    "message": "Paste the exported content."
+  },
   "errorReadingFile": {
     "message": "The selected file could not be read."
   },

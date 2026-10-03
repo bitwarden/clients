@@ -64,12 +64,8 @@ import {
 
 import { ImportType } from "../../models";
 
-/** Picker vendor icons, kept in their own icon-importing module — deliberately separate from
- *  `picker-vendor-data.ts` (displayName/formats/`isPickerVendor`), so that consumers which don't
- *  render an icon (e.g. `canActivateImportType`, wired into every client's eagerly-loaded root
- *  routing module) can import `picker-vendor-data.ts` directly and never pull the vendor icon set
- *  into their bundle. No re-export here in either direction — `ImportSourceSelectComponent` (the
- *  only consumer of this module) imports both modules directly. */
+/** Icons live in their own module, separate from `picker-vendor-data.ts`, so
+ * `canActivateImportType` (which needs only displayName/formats) doesn't pull them in. */
 interface PickerVendorIcon {
   /** Vendor logo. Absent ids fall back to a generic icon tile in the picker. */
   icon?: BitSvg;

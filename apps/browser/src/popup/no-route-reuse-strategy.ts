@@ -23,12 +23,19 @@ export class NoRouteReuseStrategy implements RouteReuseStrategy {
   }
 
   shouldReuseRoute(future: ActivatedRouteSnapshot, curr: ActivatedRouteSnapshot) {
-    // Exception for the import shell: reused only when both snapshots are literally its own route
-    // node, so its progress bar persists (and can animate) across its own child routes. No effect
-    // on any other route in the app.
-    return (
-      future.routeConfig === curr.routeConfig &&
-      future.routeConfig?.component === ImportShellBrowserComponent
-    );
+    if (future.routeConfig !== curr.routeConfig) {
+      return false;
+    }
+    // Root's routeConfig is always null; narrow reuse to both sides being the import shell so its
+    // cached ActivatedRoute/queryParams don't leak into unrelated navigations.
+    if (future.routeConfig === null) {
+      return (
+        future.firstChild?.routeConfig?.component === ImportShellBrowserComponent &&
+        curr.firstChild?.routeConfig?.component === ImportShellBrowserComponent
+      );
+    }
+    // Exception for the import shell: reused so its progress bar persists (and can animate) across
+    // its own child routes.
+    return future.routeConfig.component === ImportShellBrowserComponent;
   }
 }

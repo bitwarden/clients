@@ -1,0 +1,16 @@
+<h2 bitTypography="h5" noMargin class="tw-mb-2 !tw-text-fg-heading">{{ headingKey() | i18n }}</h2>
+
+<bit-progress-bar
+  [hideStartHint]="true"
+  [value]="progressValue()"
+  [accessibleName]="stepText()"
+  [ariaValueText]="stepText()"
+></bit-progress-bar>
+<p
+  bitTypography="helper"
+  noMargin
+  aria-hidden="true"
+  class="tw-mt-1 tw-mb-4 tw-text-fg-body-subtle"
+>
+  {{ stepText() }}
+</p>

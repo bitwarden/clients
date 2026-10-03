@@ -12,6 +12,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import {
+  AbstractControl,
   FormBuilder,
   FormControl,
   ReactiveFormsModule,
@@ -115,6 +116,10 @@ function setEnabled(control: FormControl<unknown>, enabled: boolean): void {
     control.disable();
   }
 }
+
+// Unlike Validators.required, also rejects whitespace-only content.
+const requiredTrimmedValidator: ValidatorFn = (control: AbstractControl<string>) =>
+  control.value == null || control.value.trim() === "" ? { required: true } : null;
 
 @Component({
   selector: "importer-controls",
@@ -344,7 +349,12 @@ export class ImportControlsComponent {
     keeperRegion: this.formBuilder.nonNullable.control<KeeperRegion>(KeeperRegion.Us),
     lastPassEmail: [{ value: "", disabled: true }, [Validators.required, Validators.email]],
     includeSharedFolders: [false],
-    kdbxPassword: [{ value: "", disabled: true }, this.masterPasswordRequiredValidator],
+    // Validators.required listed second: compose() preserves order, so the custom validator's
+    // "invalid master password" message wins over the generic one.
+    kdbxPassword: [
+      { value: "", disabled: true },
+      [this.masterPasswordRequiredValidator, Validators.required],
+    ],
     keyFile: [{ value: null as File | null, disabled: true }],
 
     profile: [{ value: "", disabled: true }, Validators.required],
@@ -355,7 +365,7 @@ export class ImportControlsComponent {
 
     // Only ever active when the resolved candidate set for the current file/paste content has
     // more than one entry — today, only 1Password's Windows vs. Mac legacy CSV export.
-    formatChoice: [{ value: null as ImportType | null, disabled: true }],
+    formatChoice: [{ value: null as ImportType | null, disabled: true }, Validators.required],
   });
 
   protected readonly method = toSignal(this.formGroup.controls.method.valueChanges, {
@@ -429,9 +439,12 @@ export class ImportControlsComponent {
   protected readonly showKeyFile = signal(false);
 
   constructor() {
-    this.formGroup.controls.method.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => this.formGroup.controls.formatChoice.reset(null));
+    this.formGroup.controls.method.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.formGroup.controls.formatChoice.reset(null);
+      // Not reset(): the value (chosen file, typed paste content) must survive the switch.
+      this.formGroup.controls.file.markAsUntouched();
+      this.formGroup.controls.fileContents.markAsUntouched();
+    });
 
     this.formGroup.controls.file.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       this.formGroup.controls.formatChoice.reset(null);
@@ -480,8 +493,24 @@ export class ImportControlsComponent {
       this.formGroup.controls.file.updateValueAndValidity();
     });
 
+    // Validators.required kept alongside requiredTrimmedValidator so hasValidator(Validators.
+    // required) still matches (drives the asterisk/required attribute).
     effect(() => {
-      setEnabled(this.formGroup.controls.formatChoice, this.needsFormatDisambiguation());
+      const pasteRequired = this.method() === "paste";
+      this.formGroup.controls.fileContents.setValidators(
+        pasteRequired ? [Validators.required, requiredTrimmedValidator] : [],
+      );
+      this.formGroup.controls.fileContents.updateValueAndValidity();
+    });
+
+    effect(() => {
+      // Gated on primaryMode too: needsFormatDisambiguation() alone can stay true after
+      // switching away from manual mode, since file/fileContents aren't cleared by that toggle.
+      const active = this.primaryMode() === "manual" && this.needsFormatDisambiguation();
+      setEnabled(this.formGroup.controls.formatChoice, active);
+      if (!active) {
+        this.formGroup.controls.formatChoice.reset(null);
+      }
     });
 
     effect(() => {
@@ -529,11 +558,15 @@ export class ImportControlsComponent {
   protected toggleToManual(): void {
     this.primaryModeOverride.set("manual");
     this.directStep.set("intro");
+    // touched survives disable/enable; clear it so a prior blocked submit doesn't flash here.
+    this.formGroup.controls.file.markAsUntouched();
+    this.formGroup.controls.fileContents.markAsUntouched();
   }
 
   protected toggleToAlternate(): void {
     this.primaryModeOverride.set(undefined);
     this.directStep.set("intro");
+    this.formGroup.controls.profile.markAsUntouched();
   }
 
   protected continueFromIntro(): void {
@@ -706,16 +739,23 @@ export class ImportControlsComponent {
     };
   }
 
+  private unresolvedImportMessageKey(): string {
+    if (this.candidateFormats().length > 1) {
+      return "selectFormat";
+    }
+    if (this.method() === "paste") {
+      return "pasteContentRequired";
+    }
+    return this.chosenFileName() != null ? "selectFileUnsupportedType" : "selectFile";
+  }
+
   private async runManualImport(): Promise<ImportOutcome> {
     const format = this.resolvedFormat();
     if (format == null) {
-      // Unresolved means no content yet, or an unresolved format collision — only the latter is
-      // genuinely "select a format".
-      const messageKey = this.candidateFormats().length > 1 ? "selectFormat" : "selectFile";
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t(messageKey),
+        message: this.i18nService.t(this.unresolvedImportMessageKey()),
       });
       return { kind: "cancelled" };
     }
@@ -747,14 +787,20 @@ export class ImportControlsComponent {
 
   private async runSdkImport(format: ImportType): Promise<ImportOutcome> {
     const file = this.chosenFile();
-    const fileBytes = file == null ? null : new Uint8Array(await file.arrayBuffer());
-    if (fileBytes == null || fileBytes.length === 0) {
+    if (file == null) {
+      // Defensive: unreachable through the UI.
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("errorOccurred"),
         message: this.i18nService.t("selectFile"),
       });
       return { kind: "cancelled" };
+    }
+
+    const fileBytes = new Uint8Array(await file.arrayBuffer());
+    if (fileBytes.length === 0) {
+      // A file was chosen — this is a bad-file error, not "nothing selected".
+      throw new Error(this.i18nService.t("errorReadingFile"));
     }
 
     const credentials = await this.collectSdkCredentials(

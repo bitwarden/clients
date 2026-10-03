@@ -233,7 +233,7 @@ function decoratorsFor(
           useFactory: () =>
             new I18nMockService({
               back: "Back",
-              importVerb: "Import",
+              continue: "Continue",
               method: "Method",
               // bit-callout resolves these unconditionally (close button label, its default
               // landmark name when untitled) and bit-form-field resolves "required" whenever a
@@ -247,6 +247,8 @@ function decoratorsFor(
               invalidMasterPassword: "Invalid master password",
               errorOccurred: "An error has occurred.",
               selectFile: "Select a file.",
+              selectFileUnsupportedType: "That file type isn't accepted for this source.",
+              pasteContentRequired: "Paste the exported content.",
               selectFormat: "Select the format of the import file.",
               // Chromium's stub always resolves zero logins, so Continue always hits this key.
               importNothingError: "Nothing was imported.",

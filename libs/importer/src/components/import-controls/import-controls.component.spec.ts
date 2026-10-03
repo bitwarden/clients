@@ -1,5 +1,6 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { Validators } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
 import { map, of } from "rxjs";
@@ -881,6 +882,287 @@ describe("ImportControlsComponent", () => {
     });
   });
 
+  describe("format choice required validation", () => {
+    it("marks formatChoice required once enabled by genuine ambiguity, with the correct asterisk/required affordances", async () => {
+      await setup("1password1pux", ClientType.Web);
+      component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
+      fixture.detectChanges();
+
+      expect(component().formGroup.controls.formatChoice.hasValidator(Validators.required)).toBe(
+        true,
+      );
+      expect(component().formGroup.controls.formatChoice.invalid).toBe(true);
+
+      const radioGroups = fixture.debugElement.queryAll(By.css("bit-radio-group"));
+      const formatChoiceGroup = radioGroups[radioGroups.length - 1];
+      expect((formatChoiceGroup.componentInstance as { required: () => boolean }).required()).toBe(
+        true,
+      );
+    });
+
+    it("blocks submit() with an inline required error, and never reaches onContinue(), when an ambiguous format is unresolved", async () => {
+      await setup("1password1pux", ClientType.Web);
+      component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
+      fixture.detectChanges();
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().submit();
+      fixture.detectChanges();
+
+      expect(component().formGroup.controls.formatChoice.touched).toBe(true);
+      expect(continueSpy).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalled();
+    });
+
+    it("disables and resets formatChoice (value and touched) when primaryMode leaves manual, independent of needsFormatDisambiguation() — the value isn't cleared by a primaryMode toggle, only by a method switch or a new file", async () => {
+      await setup("keeper", ClientType.Desktop);
+      component().toggleToManual();
+      fixture.detectChanges();
+
+      // Simulates a stale enabled+touched+selected formatChoice left over from manual mode.
+      component().formGroup.controls.formatChoice.enable();
+      component().formGroup.controls.formatChoice.setValue("1passwordmaccsv");
+      component().formGroup.controls.formatChoice.markAsTouched();
+
+      component().toggleToAlternate();
+      fixture.detectChanges();
+
+      expect(component().formGroup.controls.formatChoice.disabled).toBe(true);
+      expect(component().formGroup.controls.formatChoice.touched).toBe(false);
+      expect(component().formGroup.controls.formatChoice.value).toBeNull();
+    });
+  });
+
+  describe("file required validation", () => {
+    it("marks the file control required in file mode", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+
+      expect(component().formGroup.controls.file.hasValidator(Validators.required)).toBe(true);
+      expect(component().formGroup.controls.file.invalid).toBe(true);
+    });
+
+    it("clears the file control's required validator in paste mode", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+
+      component().formGroup.controls.method.setValue("paste");
+      fixture.detectChanges();
+
+      expect(component().formGroup.controls.file.hasValidator(Validators.required)).toBe(false);
+      expect(component().formGroup.controls.file.invalid).toBe(false);
+    });
+
+    it("blocks submit() with an inline required error, and never reaches onContinue(), when no file is chosen in file mode", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().submit();
+      fixture.detectChanges();
+
+      expect(component().formGroup.controls.file.touched).toBe(true);
+      expect(continueSpy).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalled();
+
+      const bitError = byId("importer-controls_input_file").query(By.css("bit-error"));
+      expect(bitError.nativeElement.textContent).toContain("inputRequired");
+    });
+
+    it("lets submit() proceed once a file is chosen in file mode", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      fixture.detectChanges();
+      importService.getImporter.mockReturnValue({} as any);
+      importService.import.mockResolvedValue(new ImportResult());
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().submit();
+
+      expect(continueSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("paste required validation", () => {
+    it("marks the fileContents control required in paste mode", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+
+      component().formGroup.controls.method.setValue("paste");
+      fixture.detectChanges();
+
+      expect(component().formGroup.controls.fileContents.invalid).toBe(true);
+      expect(component().formGroup.controls.fileContents.errors).toEqual({ required: true });
+    });
+
+    it("keeps Validators.required in the mix (not replaced by the trim-aware validator alone), so the field still renders as required before any submit attempt", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+
+      component().formGroup.controls.method.setValue("paste");
+      fixture.detectChanges();
+
+      expect(component().formGroup.controls.fileContents.hasValidator(Validators.required)).toBe(
+        true,
+      );
+      const textarea: HTMLTextAreaElement = byId(
+        "importer-controls_textarea_file-contents",
+      ).nativeElement;
+      expect(textarea.required).toBe(true);
+      expect(fixture.nativeElement.textContent).toContain("(required)");
+    });
+
+    it("also treats whitespace-only paste content as required-but-missing, not just a truly empty string", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+
+      component().formGroup.controls.method.setValue("paste");
+      component().formGroup.controls.fileContents.setValue("   \n  ");
+      fixture.detectChanges();
+
+      expect(component().formGroup.controls.fileContents.invalid).toBe(true);
+      expect(component().formGroup.controls.fileContents.errors).toEqual({ required: true });
+    });
+
+    it("clears the fileContents control's validator in file mode", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+
+      expect(component().formGroup.controls.fileContents.invalid).toBe(false);
+      expect(component().formGroup.controls.fileContents.errors).toBeNull();
+    });
+
+    it("blocks submit() with an inline required error, and never reaches onContinue(), when nothing is pasted in paste mode", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+      component().formGroup.controls.method.setValue("paste");
+      fixture.detectChanges();
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().submit();
+      fixture.detectChanges();
+
+      expect(component().formGroup.controls.fileContents.touched).toBe(true);
+      expect(continueSpy).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalled();
+
+      const bitErrors = fixture.debugElement.queryAll(By.css("bit-error"));
+      expect(bitErrors.length).toBe(1);
+      expect(bitErrors[0].nativeElement.textContent).toContain("inputRequired");
+    });
+
+    it("checks the required validator before the personal ownership policy, so a policy-restricted user still sees the real problem first", async () => {
+      policyService.policyAppliesToUser$.mockReturnValue(of(true));
+      await setup("dashlanecsv", ClientType.Web);
+      component().formGroup.controls.method.setValue("paste");
+      fixture.detectChanges();
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().submit();
+
+      expect(continueSpy).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ message: "personalOwnershipPolicyInEffectImports" }),
+      );
+    });
+
+    it("also blocks submit() inline for whitespace-only paste content, before the personal ownership policy check", async () => {
+      policyService.policyAppliesToUser$.mockReturnValue(of(true));
+      await setup("dashlanecsv", ClientType.Web);
+      component().formGroup.controls.method.setValue("paste");
+      component().formGroup.controls.fileContents.setValue("   ");
+      fixture.detectChanges();
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().submit();
+
+      expect(continueSpy).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalled();
+    });
+
+    it("lets submit() proceed once content is pasted in paste mode", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+      component().formGroup.controls.method.setValue("paste");
+      component().formGroup.controls.fileContents.setValue("a,b");
+      fixture.detectChanges();
+      importService.getImporter.mockReturnValue({} as any);
+      importService.import.mockResolvedValue(new ImportResult());
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().submit();
+
+      expect(continueSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("touched state across method switches", () => {
+    it("does not show a stale required error on fileContents after switching from a blocked file-mode submit to paste", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+
+      // markAllAsTouched() touches every control, enabled or not.
+      await component().submit();
+      fixture.detectChanges();
+      expect(component().formGroup.controls.file.touched).toBe(true);
+
+      component().formGroup.controls.method.setValue("paste");
+      fixture.detectChanges();
+
+      expect(component().formGroup.controls.fileContents.touched).toBe(false);
+      expect(fixture.debugElement.queryAll(By.css("bit-error")).length).toBe(0);
+    });
+
+    it("does not show a stale required error on file after switching from a blocked paste-mode submit to file", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+      component().formGroup.controls.method.setValue("paste");
+      fixture.detectChanges();
+
+      await component().submit();
+      fixture.detectChanges();
+      expect(component().formGroup.controls.fileContents.touched).toBe(true);
+
+      component().formGroup.controls.method.setValue("file");
+      fixture.detectChanges();
+
+      expect(component().formGroup.controls.file.touched).toBe(false);
+      expect(fixture.debugElement.queryAll(By.css("bit-error")).length).toBe(0);
+    });
+
+    it("does not show a stale required error on file/fileContents after switching from a blocked chromium submit to manual", async () => {
+      await setup("chromecsv", ClientType.Desktop);
+
+      // markAllAsTouched() touches file/fileContents even though chromium mode keeps them disabled.
+      await component().submit();
+      fixture.detectChanges();
+      expect(component().formGroup.controls.file.touched).toBe(true);
+      expect(component().formGroup.controls.fileContents.touched).toBe(true);
+
+      component().toggleToManual();
+      fixture.detectChanges();
+
+      expect(component().formGroup.controls.file.touched).toBe(false);
+      expect(component().formGroup.controls.fileContents.touched).toBe(false);
+      expect(fixture.debugElement.queryAll(By.css("bit-error")).length).toBe(0);
+    });
+
+    it("does not show a stale required error on profile after switching from a blocked manual submit to chromium", async () => {
+      importMetadataService.metadata$.mockReturnValue(
+        of<ImporterCapabilities>({ type: "chromecsv", loaders: [Loader.file, Loader.chromium] }),
+      );
+      await setup("chromecsv", ClientType.Desktop);
+      component().toggleToManual();
+      fixture.detectChanges();
+
+      await component().submit();
+      fixture.detectChanges();
+      expect(component().formGroup.controls.profile.touched).toBe(true);
+
+      component().toggleToAlternate();
+      fixture.detectChanges();
+
+      expect(component().formGroup.controls.profile.touched).toBe(false);
+      expect(fixture.debugElement.queryAll(By.css("bit-error")).length).toBe(0);
+    });
+  });
+
   describe("instructions callout", () => {
     it("renders both the alias preamble and the help link for a Chromium-alias vendor in manual mode, not either/or", async () => {
       await setup("bravecsv", ClientType.Web);
@@ -1013,6 +1295,33 @@ describe("ImportControlsComponent", () => {
 
       expect(component().formGroup.controls.kdbxPassword.touched).toBe(false);
     });
+
+    it("keeps Validators.required alongside the custom validator, so the password field still renders as required before any submit attempt", async () => {
+      await setup("keepass2xml", ClientType.Web);
+      component().formGroup.controls.file.setValue({ name: "export.kdbx" } as File);
+      fixture.detectChanges();
+
+      expect(component().formGroup.controls.kdbxPassword.hasValidator(Validators.required)).toBe(
+        true,
+      );
+      const input: HTMLInputElement = byId("importer-controls_input_kdbx-password").nativeElement;
+      expect(input.required).toBe(true);
+      expect(fixture.nativeElement.textContent).toContain("(required)");
+    });
+
+    it("shows the specific 'invalid master password' error, not the generic required message, when both validators fail on an empty value", async () => {
+      await setup("keepass2xml", ClientType.Web);
+      component().formGroup.controls.file.setValue({ name: "export.kdbx" } as File);
+      fixture.detectChanges();
+
+      await component().submit();
+      fixture.detectChanges();
+
+      const bitErrors = fixture.debugElement.queryAll(By.css("bit-error"));
+      expect(bitErrors.length).toBe(1);
+      expect(bitErrors[0].nativeElement.textContent).toContain("invalidMasterPassword");
+      expect(bitErrors[0].nativeElement.textContent).not.toContain("inputRequired");
+    });
   });
 
   describe("changing importType on a live instance", () => {
@@ -1133,8 +1442,22 @@ describe("ImportControlsComponent", () => {
       expect(logService.warning).toHaveBeenCalledWith("Post-import sync did not complete");
     });
 
-    it("does not emit continue — and shows a 'select a file' toast, not 'select a format' — when Continue is clicked with nothing to import", async () => {
-      // resolvedFormat() is undefined here for a different reason than a format collision.
+    it("does not emit continue — and shows a 'pasteContentRequired' toast, not 'select a file' — when Continue is clicked with nothing pasted", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+      component().formGroup.controls.method.setValue("paste");
+      fixture.detectChanges();
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(continueSpy).not.toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "pasteContentRequired" }),
+      );
+    });
+
+    it("shows a 'select a file' toast in file mode when nothing is chosen (defensive — submit()'s required validator blocks this in the real UI)", async () => {
       await setup("dashlanecsv", ClientType.Web);
       const continueSpy = jest.fn();
       component().continue.subscribe(continueSpy);
@@ -1160,6 +1483,21 @@ describe("ImportControlsComponent", () => {
       expect(continueSpy).not.toHaveBeenCalled();
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "error", message: "selectFormat" }),
+      );
+    });
+
+    it("shows a 'selectFileUnsupportedType' toast, not the generic 'select a file', when a chosen file's extension isn't accepted for this vendor", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+      component().formGroup.controls.file.setValue({ name: "export.pdf" } as File);
+      fixture.detectChanges();
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(continueSpy).not.toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "selectFileUnsupportedType" }),
       );
     });
 
@@ -1406,7 +1744,7 @@ describe("ImportControlsComponent", () => {
       expect(continueSpy).not.toHaveBeenCalled();
     });
 
-    it("shows a 'select a file' toast instead of submitting a zero-byte kdbx file to the SDK", async () => {
+    it("opens the error dialog with errorReadingFile — not a 'select a file' toast — instead of submitting a zero-byte kdbx file to the SDK", async () => {
       await setup("keepass2xml", ClientType.Web);
       component().formGroup.controls.file.setValue({
         name: "export.kdbx",
@@ -1419,8 +1757,12 @@ describe("ImportControlsComponent", () => {
       await component().onContinue();
 
       expect(importService.importWithSdk).not.toHaveBeenCalled();
-      expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "error", message: "selectFile" }),
+      expect(toastService.showToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ message: "selectFile" }),
+      );
+      expect(dialogService.open).toHaveBeenCalledWith(
+        ImportErrorDialogComponent,
+        expect.objectContaining({ data: expect.objectContaining({ message: "errorReadingFile" }) }),
       );
       expect(continueSpy).not.toHaveBeenCalled();
     });

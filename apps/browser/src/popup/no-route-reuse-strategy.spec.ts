@@ -26,4 +26,41 @@ describe("NoRouteReuseStrategy", () => {
 
     expect(strategy.shouldReuseRoute(snapshot(future), snapshot(curr))).toBe(false);
   });
+
+  const rootSnapshot = (firstChildComponent: unknown) =>
+    ({
+      routeConfig: null,
+      firstChild: { routeConfig: { component: firstChildComponent } },
+    }) as unknown as ActivatedRouteSnapshot;
+
+  it("reuses the root node when both sides stay inside the import shell, so the router recurses into children at all", () => {
+    expect(
+      strategy.shouldReuseRoute(
+        rootSnapshot(ImportShellBrowserComponent),
+        rootSnapshot(ImportShellBrowserComponent),
+      ),
+    ).toBe(true);
+  });
+
+  it("does not reuse the root node for a navigation unrelated to the import shell — the regression this narrowing exists to prevent", () => {
+    class Unrelated {}
+
+    expect(strategy.shouldReuseRoute(rootSnapshot(Unrelated), rootSnapshot(Unrelated))).toBe(false);
+  });
+
+  it("does not reuse the root node when entering the import shell from elsewhere", () => {
+    class Unrelated {}
+
+    expect(
+      strategy.shouldReuseRoute(rootSnapshot(ImportShellBrowserComponent), rootSnapshot(Unrelated)),
+    ).toBe(false);
+  });
+
+  it("does not reuse the root node when leaving the import shell for elsewhere", () => {
+    class Unrelated {}
+
+    expect(
+      strategy.shouldReuseRoute(rootSnapshot(Unrelated), rootSnapshot(ImportShellBrowserComponent)),
+    ).toBe(false);
+  });
 });
