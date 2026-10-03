@@ -2,13 +2,13 @@ import { Component, Inject } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { firstValueFrom, Observable } from "rxjs";
 
+import { LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { withPasswordManagerSdk } from "@bitwarden/common/key-management/utils";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
@@ -34,7 +34,7 @@ export class ChangeKdfConfirmationComponent {
 
   constructor(
     private i18nService: I18nService,
-    private messagingService: MessagingService,
+    private logoutService: LogoutService,
     @Inject(DIALOG_DATA) params: { kdf: KdfType; kdfConfig: KdfConfig },
     private accountService: AccountService,
     private toastService: ToastService,
@@ -66,7 +66,8 @@ export class ChangeKdfConfirmationComponent {
         title: this.i18nService.t("encKeySettingsChanged"),
         message: this.i18nService.t("logBackIn"),
       });
-      this.messagingService.send("logout");
+      const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      await this.logoutService.logout(userId, "kdfChanged");
     }
     this.loading = false;
   };

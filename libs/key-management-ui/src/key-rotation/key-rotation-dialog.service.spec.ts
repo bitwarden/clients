@@ -100,7 +100,7 @@ describe("KeyRotationDialogService", () => {
         message: "accountEncryptionKeyRotated-used-i18n",
         timeout: 15000,
       });
-      expect(mockLogoutService.logout).toHaveBeenCalledWith(mockUserId);
+      expect(mockLogoutService.logout).toHaveBeenCalledWith(mockUserId, "userKeyRotation");
       expect(result).toBe(true);
     });
 
@@ -140,7 +140,7 @@ describe("KeyRotationDialogService", () => {
         message: "accountEncryptionKeyRotated-used-i18n",
         timeout: 15000,
       });
-      expect(mockLogoutService.logout).toHaveBeenCalledWith(mockUserId);
+      expect(mockLogoutService.logout).toHaveBeenCalledWith(mockUserId, "userKeyRotation");
       expect(result).toBe(true);
     });
 
@@ -176,7 +176,7 @@ describe("KeyRotationDialogService", () => {
         message: "accountEncryptionKeyRotated-used-i18n",
         timeout: 15000,
       });
-      expect(mockLogoutService.logout).toHaveBeenCalledWith(mockUserId);
+      expect(mockLogoutService.logout).toHaveBeenCalledWith(mockUserId, "userKeyRotation");
       expect(result).toBe(true);
     });
 

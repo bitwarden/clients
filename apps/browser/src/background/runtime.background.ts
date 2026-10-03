@@ -398,7 +398,7 @@ export default class RuntimeBackground {
         }
         break;
       case "logout":
-        await this.main.logout(msg.expired, msg.userId);
+        await this.main.logout(msg.logoutReason, msg.userId);
         break;
       case "syncCompleted":
         if (msg.successfully) {
