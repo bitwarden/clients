@@ -83,7 +83,7 @@ function parseCookies(header: string | undefined): Record<string, string> {
   );
 }
 
-const BYPASS_PATHS = ["/api/config", "/api/cookie-vendor"];
+const BYPASS_PATHS = ["/api/config", "/api/sso-cookie-vendor"];
 
 function isBypassPath(urlPath: string): boolean {
   return BYPASS_PATHS.some((bp) => urlPath === bp || urlPath.startsWith(bp + "/"));
