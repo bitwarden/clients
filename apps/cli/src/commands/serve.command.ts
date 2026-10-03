@@ -75,6 +75,17 @@ export function buildOriginProtectionMiddleware(opts: {
   };
 }
 
+// Socket transports bind no TCP port, so the DNS-rebinding threat the Host
+// allowlist addresses (a browser resolving a hostname to the local machine)
+// cannot apply, and standard clients send a bare `Host: localhost` over them.
+const SOCKET_TRANSPORT_SCHEMES = ["unix://", "fd+listening://", "fd+connected://"];
+
+function isSocketTransport(hostname: string): boolean {
+  return SOCKET_TRANSPORT_SCHEMES.some((scheme) => hostname.startsWith(scheme));
+}
+
+export { isSocketTransport };
+
 export class ServeCommand {
   constructor(
     protected serviceContainer: ServiceContainer,
@@ -92,8 +103,12 @@ export class ServeCommand {
     );
 
     // `--hostname all` binds every interface, so a LAN client may legitimately
-    // reach the server via any local IP.
-    const ALLOWED_HOSTS = hostname === "all" ? null : buildServeAllowedHosts(hostname, port);
+    // reach the server via any local IP. Socket transports carry no TCP
+    // endpoint for the allowlist to protect.
+    const ALLOWED_HOSTS =
+      hostname === "all" || isSocketTransport(hostname)
+        ? null
+        : buildServeAllowedHosts(hostname, port);
 
     const server = new koa();
     const router = new Router();
