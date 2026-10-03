@@ -13,6 +13,8 @@ import { asUuid, uuidAsString } from "../../platform/abstractions/sdk/sdk.servic
 import { UserKey } from "../../types/key";
 import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault-timeout-settings.service";
 
+import { PeerLockState, PeerState } from "./peer-state";
+
 function fromSdkUserId(userId: UserId): TSUserId {
   return uuidAsString(userId) as TSUserId;
 }
@@ -29,6 +31,7 @@ export class JsSharedUnlockDriver implements SharedUnlockDriver {
     private platformUtilsService: PlatformUtilsService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private environmentService: EnvironmentService,
+    private reportPeerState: (state: PeerState) => void,
   ) {}
 
   async lock_user(user_id: UserId): Promise<void> {
@@ -40,6 +43,15 @@ export class JsSharedUnlockDriver implements SharedUnlockDriver {
       fromSdkUserId(user_id),
       SymmetricCryptoKey.fromSdk(user_key) as UserKey,
     );
+  }
+
+  /**
+   * A peer reported its state for a user. Reported for every sync this device accepts, so a client
+   * can tell a peer that answered and is locked from a peer that never answered — a locked peer
+   * reaching an already-locked device drives no {@link lock_user} call.
+   */
+  async on_peer_state(user_id: UserId, lock_state: PeerLockState): Promise<void> {
+    this.reportPeerState({ userId: fromSdkUserId(user_id), lockState: lock_state });
   }
 
   async list_users(): Promise<UserId[]> {

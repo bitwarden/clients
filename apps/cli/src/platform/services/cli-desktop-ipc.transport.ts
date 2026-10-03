@@ -14,8 +14,20 @@ import { resolveDesktopProxyPath } from "./cli-desktop-proxy-path";
 
 const MAX_MESSAGE_SIZE = 1024 * 1024;
 const CONNECTION_TIMEOUT_MS = 5_000;
+const DRAIN_TIMEOUT_MS = 500;
 
 type SpawnProxy = (proxyPath: string) => ChildProcessWithoutNullStreams;
+
+/**
+ * What the transport knows about its proxy, for telling apart a proxy that never started from one
+ * that started and reached nothing.
+ */
+export interface ProxyConnection {
+  /** The proxy reported reaching a desktop app over the IPC socket. */
+  connected: boolean;
+  /** The executable the proxy was spawned from, absent until one is spawned. */
+  proxyPath?: string;
+}
 
 const spawnProxy: SpawnProxy = (proxyPath) =>
   spawn(proxyPath, [], {
@@ -44,6 +56,7 @@ export class CliDesktopIpcTransport {
   private proxy?: ChildProcessWithoutNullStreams;
   private connection?: Promise<void>;
   private connected = false;
+  private proxyPath?: string;
   private messageBuffer = Buffer.alloc(0);
 
   constructor(
@@ -53,6 +66,10 @@ export class CliDesktopIpcTransport {
     private proxyPathResolver = resolveDesktopProxyPath,
     private proxySpawner: SpawnProxy = spawnProxy,
   ) {}
+
+  get proxyConnection(): ProxyConnection {
+    return { connected: this.connected, proxyPath: this.proxyPath };
+  }
 
   async send(message: OutgoingMessage): Promise<void> {
     await this.connect();
@@ -74,6 +91,31 @@ export class CliDesktopIpcTransport {
     await new Promise<void>((resolve, reject) => {
       proxy.stdin.write(frame, (error) => (error ? reject(error) : resolve()));
     });
+  }
+
+  /**
+   * Closes the proxy's input and gives it a moment to relay what is already in the pipe before
+   * {@link disconnect} kills it.
+   *
+   * `send` only awaits the write into the proxy's stdin, so killing the child straight afterwards
+   * can discard the frame before it reaches the desktop app's socket. That is the whole payload
+   * of a `bw lock`.
+   */
+  async drain(timeoutMs: number = DRAIN_TIMEOUT_MS): Promise<void> {
+    const proxy = this.proxy;
+    if (proxy == null) {
+      this.disconnect();
+      return;
+    }
+
+    proxy.stdin.end();
+    await Promise.race([
+      new Promise<void>((resolve) => proxy.once("exit", () => resolve())),
+      // Unreferenced so the wait itself can never be what holds the process open.
+      new Promise<void>((resolve) => setTimeout(resolve, timeoutMs).unref()),
+    ]);
+
+    this.disconnect();
   }
 
   disconnect(): void {
@@ -114,6 +156,7 @@ export class CliDesktopIpcTransport {
     const proxyPath = this.proxyPathResolver();
     const proxy = this.proxySpawner(proxyPath);
     this.proxy = proxy;
+    this.proxyPath = proxyPath;
 
     return new Promise<void>((resolve, reject) => {
       let settled = false;

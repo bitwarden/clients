@@ -1,5 +1,6 @@
 import { map, Observable } from "rxjs";
 
+import { ClientType } from "../../enums";
 import {
   SHARED_UNLOCK_SETTINGS_DISK,
   StateProvider,
@@ -38,18 +39,30 @@ const UNLOCK_SHARING_DISABLED = new UserKeyDefinition<boolean>(
 
 // Default off because of native messaging permission
 const DEFAULT_ALLOW_SHARING_UNLOCK_STATE_WITH_DESKTOP = false;
+// The CLI has no native messaging permission to prompt for and no settings UI to opt in from, so
+// the permission the browser default guards against does not apply to it. Reaching the desktop at
+// all already requires the desktop app to be running and to accept the connection.
+const DEFAULT_ALLOW_SHARING_UNLOCK_STATE_WITH_DESKTOP_CLI = true;
 const DEFAULT_ALLOW_SHARING_UNLOCK_STATE_WITH_WEB = true;
 const DEFAULT_UNLOCK_SHARING_DISABLED = false;
 
 export class DefaultSharedUnlockSettingsService extends SharedUnlockSettingsService {
-  constructor(private stateProvider: StateProvider) {
+  constructor(
+    private stateProvider: StateProvider,
+    private clientType: ClientType,
+  ) {
     super();
   }
 
   allowSharingUnlockStateWithDesktop$(userId: UserId): Observable<boolean> {
+    const defaultValue =
+      this.clientType === ClientType.Cli
+        ? DEFAULT_ALLOW_SHARING_UNLOCK_STATE_WITH_DESKTOP_CLI
+        : DEFAULT_ALLOW_SHARING_UNLOCK_STATE_WITH_DESKTOP;
+
     return this.stateProvider
       .getUserState$(ALLOW_SHARING_UNLOCK_STATE_WITH_DESKTOP, userId)
-      .pipe(map((v) => v ?? DEFAULT_ALLOW_SHARING_UNLOCK_STATE_WITH_DESKTOP));
+      .pipe(map((v) => v ?? defaultValue));
   }
 
   async setAllowSharingUnlockStateWithDesktop(value: boolean, userId: UserId): Promise<void> {
