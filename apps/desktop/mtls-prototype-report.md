@@ -2,7 +2,7 @@
 
 Status: incomplete. Do not enable certificate management or selection from the foundation code yet.
 
-Requirements revision: the user accepts an empty-password NSS store for the first version. Protected-store support is deferred. Client issuer/CA trust validation is not required; Authentik/the TLS terminator decides acceptance, including self-signed identities. Import must still preserve existing server trust. The revised baseline is defined in [MTLS_DETAILED_CONCEPT.md](MTLS_DETAILED_CONCEPT.md). The experiments below remain historical observations, not a claim that protected stores are impossible to support.
+Requirements revision: the user accepts an empty-password NSS store for the first version. Protected-store support is deferred. Client issuer/CA trust validation is not required; Authentik/the TLS terminator decides acceptance, including self-signed identities. Import must still preserve existing server trust. The revised baseline is defined in [mtls-detailed-concept.md](mtls-detailed-concept.md). The experiments below remain historical observations, not a claim that protected stores are impossible to support.
 
 ## Environment observed
 

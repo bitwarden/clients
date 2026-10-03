@@ -1,6 +1,6 @@
 # Flatpak desktop mTLS: detailed requirements and design
 
-Status: revised specification incorporating the isolated x86_64 experiments in [MTLS_PROTOTYPE_REPORT.md](MTLS_PROTOTYPE_REPORT.md). The real application integration and remaining gates are not complete. Proposed filenames and interfaces below are contracts for future implementation, not existing code.
+Status: design specification for the implemented Linux x86_64 Flatpak integration. See [mtls-prototype-report.md](mtls-prototype-report.md) for the current implementation, user retest, packaged bundle, and remaining validation gates. Some sections describe design contracts and release gates beyond the verified checkpoint.
 
 ## 1. Product behavior
 
@@ -351,7 +351,7 @@ Suggested commands once the named files exist, from repository root:
 
 ```sh
 npm test -- --runInBand --testPathPatterns=mtls
-npm exec prettier -- --check apps/desktop/MTLS_DETAILED_CONCEPT.md apps/desktop/MTLS_IMPLEMENTATION_PLAN.md
+npm exec prettier -- --check apps/desktop/mtls-detailed-concept.md apps/desktop/mtls-implementation-plan.md
 npm exec eslint -- apps/desktop/src/platform/main/mtls apps/desktop/src/platform/models/mtls.ts
 ```
 
@@ -359,7 +359,7 @@ Expand focused tests to the changed Angular components and credential listener, 
 
 ## 11. Current evidence and missing work
 
-Read [MTLS_PROTOTYPE_REPORT.md](MTLS_PROTOTYPE_REPORT.md) as historical observations, with this concept defining the revised requirements.
+Read [mtls-prototype-report.md](mtls-prototype-report.md) as historical observations, with this concept defining the revised requirements.
 
 - Implemented foundations: endpoint normalization, offered-certificate selection, atomic registry, and tests. They are not wired into app startup.
 - Verified by the report: isolated x86_64 Flatpak import and fetch/XHR/WebSocket authentication using the app-private XDG NSS store with an empty password.

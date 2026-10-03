@@ -1,17 +1,16 @@
 import { promises as fs } from "node:fs";
+import * as os from "node:os";
 import * as path from "node:path";
 
 import { resolveMtlsStoreLocation } from "./store-location";
 
 describe("mTLS NSS store location", () => {
   const appId = "com.bitwarden.desktop";
-  const testRoot = path.resolve(process.cwd(), "../../.flatpak/mtls-store-tests");
   let home: string;
   let dataHome: string;
 
   beforeEach(async () => {
-    await fs.mkdir(testRoot, { recursive: true });
-    home = await fs.mkdtemp(path.join(testRoot, "home-"));
+    home = await fs.mkdtemp(path.join(os.tmpdir(), "bitwarden-mtls-store-"));
     dataHome = path.join(home, ".var", "app", appId, "data");
     await fs.mkdir(path.join(dataHome, "pki", "nssdb"), { recursive: true, mode: 0o700 });
     await fs.chmod(path.join(dataHome, "pki"), 0o700);

@@ -1,5 +1,6 @@
 import { X509Certificate } from "node:crypto";
 import { promises as fs, readFileSync } from "node:fs";
+import * as os from "node:os";
 import * as path from "node:path";
 
 import { MtlsBackend } from "./mtls-backend";
@@ -44,17 +45,18 @@ process.stdin.on("end", () => {
 `;
 
 describe("mTLS helper client", () => {
-  const testRoot = path.resolve(process.cwd(), "../../.flatpak/mtls-backend-tests");
-  const helperPath = path.join(testRoot, "fake-helper");
+  let testRoot: string;
+  let helperPath: string;
   const allowedStore = async () => path.join(testRoot, "nssdb");
 
   beforeAll(async () => {
-    await fs.mkdir(testRoot, { recursive: true });
+    testRoot = await fs.mkdtemp(path.join(os.tmpdir(), "bitwarden-mtls-backend-"));
+    helperPath = path.join(testRoot, "fake-helper");
     await fs.writeFile(helperPath, fixture, { mode: 0o700 });
   });
 
   afterAll(async () => {
-    await fs.rm(helperPath, { force: true });
+    await fs.rm(testRoot, { recursive: true, force: true });
   });
 
   it("passes the password through stdin and accepts only a framed public certificate", async () => {

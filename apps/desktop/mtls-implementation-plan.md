@@ -1,8 +1,8 @@
 # Linux desktop mTLS implementation plan
 
-Status: x86_64 implementation and Flatpak packaging completed with a manual finish/export path; packaged end-to-end validation remains open. The standard Flatpak finisher lacks `appstreamcli-compose`. See [MTLS_PROTOTYPE_REPORT.md](MTLS_PROTOTYPE_REPORT.md). aarch64 is outside the user-requested scope.
+Status: x86_64 implementation and Flatpak packaging completed with a manual finish/export path; packaged end-to-end validation remains open. The standard Flatpak finisher lacks `appstreamcli-compose`. See [mtls-prototype-report.md](mtls-prototype-report.md). aarch64 is outside the user-requested scope.
 
-For concrete requirements, interfaces, lifecycle rules, implementation tasks, and prototype gates, see [MTLS_DETAILED_CONCEPT.md](MTLS_DETAILED_CONCEPT.md). Where this overview offers alternatives, the detailed concept defines the proposed baseline.
+For concrete requirements, interfaces, lifecycle rules, implementation tasks, and prototype gates, see [mtls-detailed-concept.md](mtls-detailed-concept.md). Where this overview offers alternatives, the detailed concept defines the proposed baseline.
 
 ## Requirements and scope
 
