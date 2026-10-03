@@ -21,6 +21,7 @@ import { autotypeFeatureFlagState$ } from "@bitwarden/common/desktop-native/serv
 import { DeviceType } from "@bitwarden/common/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import {
   GlobalStateProvider,
   AUTOTYPE_SETTINGS_DISK,
@@ -28,6 +29,7 @@ import {
 } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { LogService } from "@bitwarden/logging";
+import { autotypeRequestSetEnabled } from "@bitwarden/sdk-internal";
 
 import { DEFAULT_KEYBOARD_SHORTCUT } from "../models/main-autotype-keyboard-shortcut";
 
@@ -58,6 +60,11 @@ export const AUTOTYPE_GA_KEYBOARD_SHORTCUT = new KeyDefinition<string[]>(
   "autotypeGaKeyboardShortcut",
   { deserializer: (b) => b },
 );
+
+/*
+  How long to wait for the main process to answer a set-enabled request.
+*/
+const AUTOTYPE_SET_ENABLED_TIMEOUT_MS = 5_000;
 
 export type Result<T, E = Error> = [E, null] | [null, T];
 
@@ -93,6 +100,7 @@ export class DesktopAutotypeService implements OnDestroy {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private desktopAutotypePolicy: DesktopAutotypeDefaultSettingPolicy,
     private logService: LogService,
+    private ipcService: IpcService,
   ) {
     this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$.pipe(
       map((enabled) => enabled ?? false),
@@ -155,12 +163,30 @@ export class DesktopAutotypeService implements OnDestroy {
       )
       .subscribe();
 
-    // Enable or disable Autotype
+    // Enable or disable Autotype in the main process, which owns the global shortcut
     this.autotypeFeatureEnabled$
       .pipe(
         concatMap(async (enabled) => {
-          // TODO: inform the main process the keyboard shortcut setting changed
-          //       (PM-38967)
+          try {
+            const response = await autotypeRequestSetEnabled(
+              this.ipcService.client,
+              enabled,
+              AbortSignal.timeout(AUTOTYPE_SET_ENABLED_TIMEOUT_MS),
+            );
+
+            this.logService.info(
+              `Sent a request to set the Autotype enabled state, response: ${response}`,
+            );
+
+            if (!response.success) {
+              this.logService.error(`Failed to set the Autotype enabled state to: ${enabled}`);
+            }
+          } catch (e) {
+            this.logService.error(
+              "Failed to send the Autotype enabled state to the main process.",
+              e,
+            );
+          }
         }),
         takeUntil(this.destroy$),
       )
