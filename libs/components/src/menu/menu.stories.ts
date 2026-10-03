@@ -51,17 +51,16 @@ const DefaultMenuTemplate = `
     <button type="button" bitMenuItem variant="danger">
       Danger button
     </button>
-    <bit-menu-divider></bit-menu-divider>
-    <button type="button" bitMenuItem>
+    <button type="button" bitMenuItem slot="footer">
       <bit-icon name="bwi-key" slot="start" />
       Button with icons
       <bit-icon name="bwi-angle-right" slot="end" />
     </button>
-    <button type="button" bitMenuItem variant="danger">
+    <button type="button" bitMenuItem variant="danger" slot="footer">
       <bit-icon name="bwi-trash" slot="start" />
       Danger button with icon
     </button>
-    <button type="button" bitMenuItem disabled>
+    <button type="button" bitMenuItem disabled slot="footer">
       <bit-icon name="bwi-clone" slot="start" />
       Disabled button
     </button>
@@ -116,8 +115,7 @@ export const IconTileMenu: Story = {
           <bit-icon-tile icon="bwi-key" variant="green" size="xs" slot="start" />
           SSH Key
         </button>
-        <bit-menu-divider></bit-menu-divider>
-        <button type="button" bitMenuItem disabled>
+        <button type="button" bitMenuItem disabled slot="footer">
           <bit-icon-tile icon="bwi-folder" variant="gray" size="xs" slot="start" />
           Disabled item
         </button>
@@ -154,12 +152,11 @@ export const ActionMenu: Story = {
           <bit-icon name="bwi-key" slot="start" />
           SSH Key
         </button>
-        <bit-menu-divider></bit-menu-divider>
-        <button type="button" bitMenuItem>
+        <button type="button" bitMenuItem slot="footer">
           <bit-icon name="bwi-folder" slot="start" />
           Folder
         </button>
-        <button type="button" bitMenuItem>
+        <button type="button" bitMenuItem slot="footer">
           <bit-icon name="bwi-collection" slot="start" />
           Collection
         </button>
@@ -181,8 +178,7 @@ export const ActionMenu: Story = {
         <button type="button" bitMenuItem>
           Assign to collections
         </button>
-        <bit-menu-divider></bit-menu-divider>
-        <button type="button" bitMenuItem variant="danger">
+        <button type="button" bitMenuItem variant="danger" slot="footer">
           Delete
         </button>
       </bit-menu>
@@ -195,6 +191,23 @@ export const ActionMenu: Story = {
           <ng-container *ngTemplateOutlet="noIconsMenu.templateRef()"></ng-container>
         </div>
       </div>
+      `,
+  }),
+};
+
+export const ContextMenu: Story = {
+  render: () => ({
+    template: /*html*/ `
+      <div class="tw-h-80">
+        <div
+          tabindex="0"
+          [bitContextMenuTriggerFor]="myMenu"
+          class="tw-w-96 tw-rounded-lg tw-border tw-border-dashed tw-border-border-base tw-bg-bg-secondary tw-p-6 tw-text-main"
+        >
+          Right-click anywhere in this region, or focus it and press Shift+F10.
+        </div>
+      </div>
+      ${DefaultMenuTemplate}
       `,
   }),
 };

@@ -1,9 +1,11 @@
+import { OverlayRef } from "@angular/cdk/overlay";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
 import { TooltipDirective } from "../tooltip/tooltip.directive";
 
+import { ContextMenuTriggerForDirective } from "./context-menu-trigger-for.directive";
 import { defaultPositions } from "./default-positions";
 import { MenuTriggerForDirective } from "./menu-trigger-for.directive";
 
@@ -273,3 +275,152 @@ describe("Menu — host tooltip suppression", () => {
   imports: [MenuModule, TooltipDirective],
 })
 class TestAppWithTooltipComponent {}
+
+describe("Menu — bitContextMenuTriggerFor", () => {
+  let fixture: ComponentFixture<TestAppWithContextMenuComponent>;
+
+  const getBitMenuPanel = () => document.querySelector(".bit-menu-panel");
+
+  const queryRegion = () =>
+    fixture.debugElement.query(By.directive(ContextMenuTriggerForDirective));
+
+  const getRegion = () => queryRegion().nativeElement as HTMLElement;
+
+  /** Watches repositioning of the live overlay; the cast reaches past the private overlayRef. */
+  const spyOnReposition = () => {
+    const directive = queryRegion().injector.get(ContextMenuTriggerForDirective);
+    const overlayRef = (directive as unknown as { overlayRef: OverlayRef }).overlayRef;
+    return jest.spyOn(overlayRef, "updatePositionStrategy");
+  };
+
+  const rightClick = (init: MouseEventInit = {}) => {
+    const detail = { bubbles: true, cancelable: true, clientX: 10, clientY: 10, ...init };
+    // The whole gesture. CDK's outside-click dispatcher keys off pointerdown, so a bare
+    // contextmenu exercises a path that can't happen in a browser.
+    getRegion().dispatchEvent(new MouseEvent("pointerdown", { ...detail, button: 2 }));
+    const event = new MouseEvent("contextmenu", detail);
+    getRegion().dispatchEvent(event);
+    fixture.detectChanges();
+    return event;
+  };
+
+  const keydown = (init: KeyboardEventInit) => {
+    const event = new KeyboardEvent("keydown", { bubbles: true, cancelable: true, ...init });
+    getRegion().dispatchEvent(event);
+    fixture.detectChanges();
+    return event;
+  };
+
+  beforeEach(async () => {
+    TestBed.configureTestingModule({ imports: [TestAppWithContextMenuComponent] });
+    await TestBed.compileComponents();
+    fixture = TestBed.createComponent(TestAppWithContextMenuComponent);
+    fixture.detectChanges();
+  });
+
+  it("opens at the cursor on right-click and suppresses the native menu", () => {
+    const event = rightClick();
+
+    expect(getBitMenuPanel()).toBeTruthy();
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it("opens without a backdrop, so the next click reaches what is underneath", () => {
+    rightClick();
+
+    expect(document.querySelector(".cdk-overlay-backdrop")).toBeFalsy();
+  });
+
+  it("closes on the first outside click, not the second", () => {
+    rightClick();
+
+    // The full gesture, not just the contextmenu: CDK attaches its outside-click listeners
+    // during the open, so a dismissal that counted events would swallow this click.
+    const outside = fixture.debugElement.query(By.css("#outside")).nativeElement as HTMLElement;
+    outside.dispatchEvent(new MouseEvent("pointerdown", { bubbles: true }));
+    outside.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(getBitMenuPanel()).toBeFalsy();
+  });
+
+  it("stays open when the opening gesture emits an outside pointer event", () => {
+    rightClick();
+
+    // Some platforms fire auxclick on release after a prevented contextmenu; that belongs to
+    // the gesture that opened the menu and must not close it.
+    getRegion().dispatchEvent(new MouseEvent("auxclick", { bubbles: true, button: 2 }));
+    fixture.detectChanges();
+
+    expect(getBitMenuPanel()).toBeTruthy();
+  });
+
+  it("stays anchored to the element when the keyboard open also raises a contextmenu", () => {
+    keydown({ key: "F10", shiftKey: true });
+    const updatePositionStrategy = spyOnReposition();
+
+    // Windows and Linux fire this as the default action of shift+F10; it must not move a menu
+    // that was anchored to the element.
+    rightClick({ clientX: 400, clientY: 300 });
+
+    expect(updatePositionStrategy).not.toHaveBeenCalled();
+    expect(getBitMenuPanel()).toBeTruthy();
+  });
+
+  it("leaves the native menu alone for shift+ctrl+right-click", () => {
+    const event = rightClick({ shiftKey: true, ctrlKey: true });
+
+    expect(getBitMenuPanel()).toBeFalsy();
+    expect(event.defaultPrevented).toBe(false);
+  });
+
+  it("repositions the same overlay rather than reopening when right-clicked again", () => {
+    rightClick();
+    const panel = getBitMenuPanel();
+    const updatePositionStrategy = spyOnReposition();
+
+    rightClick({ clientX: 50, clientY: 80 });
+
+    expect(updatePositionStrategy).toHaveBeenCalledTimes(1);
+    // Node identity, not just presence: a close-and-reopen also leaves a panel on the page,
+    // but re-emits `closed` to consumers on every move.
+    expect(getBitMenuPanel()).toBe(panel);
+  });
+
+  it.each([
+    ["shift+F10", { key: "F10", shiftKey: true }],
+    ["the ContextMenu key", { key: "ContextMenu" }],
+  ])("opens on %s", (_name, init) => {
+    const event = keydown(init);
+
+    expect(getBitMenuPanel()).toBeTruthy();
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it("closes on escape and returns focus to the region", () => {
+    rightClick();
+
+    const escape = new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true });
+    (document.querySelector(".cdk-overlay-container") as HTMLElement).dispatchEvent(escape);
+    fixture.detectChanges();
+
+    expect(getBitMenuPanel()).toBeFalsy();
+    expect(document.activeElement).toBe(getRegion());
+  });
+});
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  selector: "test-app-with-context-menu",
+  template: `
+    <div tabindex="0" [bitContextMenuTriggerFor]="testMenu">Right-click me</div>
+    <div id="outside">Outside the menu</div>
+    <bit-menu #testMenu>
+      <a id="item1" bitMenuItem>Item 1</a>
+      <a id="item2" bitMenuItem>Item 2</a>
+    </bit-menu>
+  `,
+  imports: [MenuModule],
+})
+class TestAppWithContextMenuComponent {}
