@@ -135,9 +135,6 @@ describe("CipherFileUploadService", () => {
       configService.getFeatureFlag
         .calledWith(FeatureFlag.PM28192_CipherAttachmentOpsToSdk)
         .mockResolvedValue(flagOn);
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM34410AttachmentUploadProgress)
-        .mockResolvedValue(false);
 
       let capturedRollback: () => Promise<void>;
       fileUploadService.upload.mockImplementation(async (_data, _name, _enc, methods) => {
@@ -247,9 +244,6 @@ describe("CipherFileUploadService", () => {
       configService.getFeatureFlag
         .calledWith(FeatureFlag.PM28192_CipherAttachmentOpsToSdk)
         .mockResolvedValue(flagOn);
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM34410AttachmentUploadProgress)
-        .mockResolvedValue(false);
 
       let capturedRenew: () => Promise<string | undefined>;
       fileUploadService.upload.mockImplementation(async (_data, _name, _enc, methods) => {
@@ -288,12 +282,6 @@ describe("CipherFileUploadService", () => {
     const uploadUrl = "https://upload.example.com/slot";
     const encFileName = new EncString("encrypted-filename");
     const encData = { buffer: new ArrayBuffer(50) } as unknown as EncArrayBuffer;
-
-    beforeEach(() => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM34410AttachmentUploadProgress)
-        .mockResolvedValue(false);
-    });
 
     it("delegates to fileUploadService.upload with the supplied url and file upload type", async () => {
       fileUploadService.upload.mockResolvedValue(undefined);

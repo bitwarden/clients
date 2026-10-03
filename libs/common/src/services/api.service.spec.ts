@@ -21,6 +21,7 @@ import {
 import { ErrorResponse } from "../models/response/error.response";
 import { AppIdService } from "../platform/abstractions/app-id.service";
 import { Environment, EnvironmentService } from "../platform/abstractions/environment.service";
+import { UploadOptions } from "../platform/abstractions/file-upload/file-upload.service";
 import { LogService } from "../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
 
@@ -1305,6 +1306,83 @@ describe("ApiService", () => {
       await expect(sut.postEventsCollect(events)).resolves.toEqual(
         events.slice(EventUploadBatchSize),
       );
+    });
+  });
+
+  describe("postAttachmentFile", () => {
+    const uploadOptions: UploadOptions = { onProgress: jest.fn() };
+
+    beforeAll(() => {
+      // jsdom doesn't ship Request
+      (globalThis as any).Request = class {
+        constructor(
+          public url: string,
+          public init?: unknown,
+        ) {}
+      };
+    });
+
+    afterAll(() => {
+      delete (globalThis as any).Request;
+    });
+
+    beforeEach(() => {
+      environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+        of({
+          getApiUrl: () => "https://example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+
+      tokenService.getAccessToken.calledWith(testActiveUser).mockResolvedValue("access_token");
+      tokenService.tokenNeedsRefresh.calledWith(testActiveUser).mockResolvedValue(false);
+    });
+
+    it("throws when the progress-reporting XHR upload returns a non-success status", async () => {
+      const nativeXMLHttpRequest = jest.fn().mockResolvedValue({
+        status: 400,
+        json: () => Promise.resolve({ message: "Attachment too large" }),
+        headers: new Headers({
+          "content-type": "application/json",
+        }),
+      } satisfies Partial<Response> as Response);
+      sut.nativeXMLHttpRequest = nativeXMLHttpRequest;
+
+      await expect(
+        sut.postAttachmentFile("cipher-id", "attachment-id", new FormData(), uploadOptions),
+      ).rejects.toMatchObject({ message: "Attachment too large" });
+    });
+
+    it("returns the response when the progress-reporting XHR upload succeeds", async () => {
+      const response = {
+        status: 201,
+      } satisfies Partial<Response> as Response;
+      const nativeXMLHttpRequest = jest.fn().mockResolvedValue(response);
+      sut.nativeXMLHttpRequest = nativeXMLHttpRequest;
+
+      await expect(
+        sut.postAttachmentFile("cipher-id", "attachment-id", new FormData(), uploadOptions),
+      ).resolves.toBe(response);
+    });
+
+    it("falls back to send() (which already throws on failure) when no onProgress callback is given", async () => {
+      const nativeXMLHttpRequest = jest.fn();
+      sut.nativeXMLHttpRequest = nativeXMLHttpRequest;
+
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>().mockResolvedValue({
+        ok: false,
+        status: 400,
+        json: () => Promise.resolve({ message: "Attachment too large" }),
+        headers: new Headers({
+          "content-type": "application/json",
+        }),
+      } satisfies Partial<Response> as Response);
+      sut.nativeFetch = nativeFetch;
+
+      await expect(
+        sut.postAttachmentFile("cipher-id", "attachment-id", new FormData()),
+      ).rejects.toMatchObject({ message: "Attachment too large" });
+
+      expect(nativeXMLHttpRequest).not.toHaveBeenCalled();
     });
   });
 });

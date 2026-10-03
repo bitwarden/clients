@@ -16,7 +16,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -105,7 +104,6 @@ describe("CipherAttachmentsComponent", () => {
         },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: LogService, useValue: mock<LogService>() },
-        { provide: ConfigService, useValue: mock<ConfigService>() },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: AccountService,
@@ -367,7 +365,7 @@ describe("CipherAttachmentsComponent", () => {
           file,
           mockUserId,
           false,
-          undefined,
+          expect.objectContaining({ onProgress: expect.any(Function) }),
         );
       });
 
@@ -382,7 +380,7 @@ describe("CipherAttachmentsComponent", () => {
           file,
           mockUserId,
           true,
-          undefined,
+          expect.objectContaining({ onProgress: expect.any(Function) }),
         );
       });
 
@@ -418,9 +416,6 @@ describe("CipherAttachmentsComponent", () => {
 
     describe("uploadProgress", () => {
       beforeEach(async () => {
-        const configService = TestBed.inject(ConfigService);
-        (configService.getFeatureFlag as jest.Mock).mockResolvedValue(true);
-
         fixture = TestBed.createComponent(CipherAttachmentsComponent);
         component = fixture.componentInstance;
         fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);
