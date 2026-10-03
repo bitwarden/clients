@@ -13,8 +13,7 @@ type _CipherType = typeof _CipherType;
 
 export type CipherType = _CipherType[keyof _CipherType];
 
-// FIXME: Update typing of `CipherType` to be `Record<keyof _CipherType, CipherType>` which is ADR-0025 compliant when the TypeScript version is at least 5.8.
-export const CipherType: typeof _CipherType = _CipherType;
+export const CipherType = _CipherType satisfies Record<keyof _CipherType, CipherType>;
 
 /**
  * Reverse mapping of Cipher Types to their associated names.
