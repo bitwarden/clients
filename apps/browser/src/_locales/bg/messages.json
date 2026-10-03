@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Щракнете върху елементите в трезора за автоматично попълване"
   },
-  "clickToAutofill": {
-    "message": "Щракнете върху елементите в предложениета за автоматично попълване"
-  },
   "clearClipboard": {
     "message": "Изчистване на буфера",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Поставете устройството на YubiKey, което е свързано с регистрацията Ви в LastPass, в USB порт и натиснете бутона на устройството."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Е-поща за Keeper"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Промяна на парола в риск"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Този елемент за вписване е в риск и в него липсва уеб сайт. Добавете уеб сайт и сменете паролата, за по-добра сигурност."
-  },
   "vulnerablePassword": {
     "message": "Уязвима парола."
   },
   "changeNow": {
     "message": "Промяна сега"
-  },
-  "missingWebsite": {
-    "message": "Липсващ уеб сайт"
   },
   "settingsVaultOptions": {
     "message": "Настройки на трезора"

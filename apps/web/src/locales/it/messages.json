@@ -15600,20 +15600,11 @@
   "atRiskPassword": {
     "message": "At-risk password"
   },
-  "changeAtRiskPassword": {
-    "message": "Cambia parola d'accesso a rischio"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Questo login è a rischio e non contiene un sito web. Aggiungi un sito web e cambia la password per maggiore sicurezza."
-  },
   "vulnerablePassword": {
     "message": "Password vulnerabile."
   },
   "changeNow": {
     "message": "Cambiala subito"
-  },
-  "missingWebsite": {
-    "message": "Sito web mancante"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Rimuovi sblocco con PIN"
@@ -17041,6 +17032,15 @@
         "example": "4"
       }
     }
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Keeper email"

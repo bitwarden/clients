@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Klicke auf Einträge zum automatischen Ausfüllen in der Tresor-Ansicht"
   },
-  "clickToAutofill": {
-    "message": "Klick auf Einträge im Auto-Ausfüllen-Vorschlag zum Ausfüllen"
-  },
   "clearClipboard": {
     "message": "Zwischenablage leeren",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Stecke den YubiKey, der mit deinem LastPass Konto verknüpft ist, in den USB-Port deines Computers und drücke dann den Knopf des YubiKey."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper E-Mail-Adresse"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Gefährdetes Passwort ändern"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Diese Zugangsdaten sind gefährdet und es fehlt eine Website. Füge eine Website hinzu und ändere das Passwort für mehr Sicherheit."
-  },
   "vulnerablePassword": {
     "message": "Gefährdetes Passwort."
   },
   "changeNow": {
     "message": "Jetzt ändern"
-  },
-  "missingWebsite": {
-    "message": "Fehlende Website"
   },
   "settingsVaultOptions": {
     "message": "Tresoroptionen"

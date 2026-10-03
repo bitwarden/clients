@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Klik butir untuk mengisi otomatis pada tampilan Brankas"
   },
-  "clickToAutofill": {
-    "message": "Klik butir dalam saran isi otomatis untuk mengisi"
-  },
   "clearClipboard": {
     "message": "Hapus Papan Klip",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Masukkan YubiKey yang ditautkan dengan akun LastPass Anda ke port USB komputer Anda, kemudian sentuh tombolnya."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Email Keeper"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Ubah kata sandi yang berrisiko"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Login ini berisiko dan tidak memiliki situs web. Tambahkan situs web dan ubah kata sandi untuk keamanan yang lebih kuat."
-  },
   "vulnerablePassword": {
     "message": "Kata sandi rentan."
   },
   "changeNow": {
     "message": "Ubah sekarang"
-  },
-  "missingWebsite": {
-    "message": "Situs web tidak ada"
   },
   "settingsVaultOptions": {
     "message": "Pilihan brankas"
