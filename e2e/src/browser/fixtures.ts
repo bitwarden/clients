@@ -3,8 +3,9 @@ import { join, resolve } from "node:path";
 
 import { BrowserContext, Page, chromium, expect, test as base } from "@playwright/test";
 
+import { pruneVideo, startTrace, stopTrace, videoDir } from "../artifacts";
 import { BROWSER_BUILD_DIR, E2E_STATE_DIR } from "../paths";
-import { videoDir } from "../video";
+import { IS_DEV_SERVER } from "../server";
 
 const PROFILE_DIR = resolve(E2E_STATE_DIR, "chrome-profile");
 const EXTENSION_SCHEME = "chrome-extension://";
@@ -35,7 +36,7 @@ async function enableDeveloperMode(context: BrowserContext) {
 
 async function launch(
   baseURL: string | undefined,
-  recordVideoDir: string | undefined,
+  recordVideoDir: string,
 ): Promise<BrowserContext> {
   rmSync(PROFILE_DIR, { recursive: true, force: true });
 
@@ -43,10 +44,10 @@ async function launch(
     channel: "chromium",
     headless: false,
     // The local dev server serves a self-signed certificate.
-    ignoreHTTPSErrors: true,
+    ignoreHTTPSErrors: IS_DEV_SERVER,
     // Lets suites that also drive the web vault use relative URLs in this context.
     baseURL,
-    recordVideo: recordVideoDir == null ? undefined : { dir: recordVideoDir },
+    recordVideo: { dir: recordVideoDir },
     args: [
       `--load-extension=${BROWSER_BUILD_DIR}`,
       `--disable-extensions-except=${BROWSER_BUILD_DIR}`,
@@ -158,10 +159,15 @@ export async function reachLoginPage(page: Page) {
 /** `popup` is the extension popup opened as a full page, which is how Playwright can drive it. */
 export const test = base.extend<{ context: BrowserContext; popup: Page }>({
   context: async ({ baseURL }, use, testInfo) => {
-    const context = await launch(baseURL, videoDir(testInfo.outputDir));
+    const context = await launch(baseURL, videoDir(testInfo));
+    await startTrace(context);
     await enableDeveloperMode(context);
+
     await use(context);
+
+    await stopTrace(context, testInfo);
     await context.close();
+    pruneVideo(testInfo);
   },
   popup: async ({ context }, use) => {
     const page = await context.newPage();

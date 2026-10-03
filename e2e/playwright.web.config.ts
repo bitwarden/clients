@@ -1,6 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
-import { baseConfig, WEB_VAULT_URL, webVaultServer } from "./playwright.base";
+import { baseConfig, webVaultServer } from "./playwright.base";
+import { IS_DEV_SERVER, WEB_VAULT_URL } from "./src/server";
 
 export default defineConfig({
   ...baseConfig,
@@ -8,8 +9,7 @@ export default defineConfig({
   use: {
     ...baseConfig.use,
     baseURL: WEB_VAULT_URL,
-    // The dev server's certificate is self-signed.
-    ignoreHTTPSErrors: true,
+    ignoreHTTPSErrors: IS_DEV_SERVER,
   },
   webServer: webVaultServer,
 });
