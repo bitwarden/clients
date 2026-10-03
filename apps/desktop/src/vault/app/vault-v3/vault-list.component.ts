@@ -10,8 +10,6 @@ import { Observable, of, switchMap } from "rxjs";
 import { BitSvg } from "@bitwarden/assets/svg";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -133,7 +131,6 @@ export class VaultListComponent<C extends CipherViewLike> {
   protected cipherAuthorizationService = inject(CipherAuthorizationService);
   protected restrictedItemTypesService = inject(RestrictedItemTypesService);
   private premiumUpgradePromptService = inject(PremiumUpgradePromptService);
-  private configService = inject(ConfigService);
   private batchBarService = inject<VaultBatchBarService<C>>(VaultBatchBarService);
   private vaultCopyButtonsService = inject(VaultCopyButtonsService);
 
