@@ -147,11 +147,11 @@ export class SearchService implements SearchServiceAbstraction {
             if (!loginUri?.uri) {
               return false;
             }
-            const hostname = CipherViewLikeUtils.getUriHostname(loginUri);
-            if (!hostname) {
+            const uriToSearch = uriWithoutPathOrQuery(loginUri.uri);
+            if (!uriToSearch) {
               return false;
             }
-            return normalizeSearchQuery(hostname.toLowerCase()).indexOf(term) > -1;
+            return normalizeSearchQuery(uriToSearch.toLowerCase()).indexOf(term) > -1;
           })
         ) {
           return true;
@@ -201,4 +201,17 @@ export class SearchService implements SearchServiceAbstraction {
 // Remove accents/diacritics characters from text. This regex is equivalent to the Diacritic unicode property escape, i.e. it will match all diacritic characters.
 export function normalizeSearchQuery(query: string): string {
   return query?.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+export function uriWithoutPathOrQuery(uri: string): string {
+  const protocolIndex = uri.indexOf("://");
+  if (protocolIndex === -1) {
+    return "";
+  }
+  const afterScheme = uri.substring(protocolIndex + 3); // Skip the "://"
+  const pathOrQueryIndex = afterScheme.search(/[/?#]/);
+  if (pathOrQueryIndex === -1) {
+    return uri;
+  }
+  return uri.substring(0, protocolIndex + 3 + pathOrQueryIndex);
 }
