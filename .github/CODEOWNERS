@@ -108,6 +108,7 @@ apps/desktop/macos                @bitwarden/team-platform-dev
 apps/desktop/scripts              @bitwarden/team-platform-dev
 apps/desktop/src/platform         @bitwarden/team-platform-dev
 apps/desktop/resources            @bitwarden/team-platform-dev
+apps/desktop/electron-builder.json  @bitwarden/team-platform-dev
 apps/web/src/app/platform         @bitwarden/team-platform-dev
 libs/angular/src/platform         @bitwarden/team-platform-dev
 libs/common/src/platform          @bitwarden/team-platform-dev
