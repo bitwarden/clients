@@ -35,6 +35,7 @@ export * from "./icon";
 export * from "./svg";
 export * from "./icon-tile";
 export * from "./input";
+export * from "./kbd";
 export * from "./item";
 export * from "./landing-layout";
 export * from "./layout";
