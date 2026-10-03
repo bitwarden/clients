@@ -10,6 +10,7 @@ const ROW = "passkey-row";
 const NAME_CELL = "passkey-name";
 const USED_FOR_ENCRYPTION_LABEL = "passkey-used-for-encryption";
 const REMOVE_BUTTON = "passkey-remove-button";
+const LIMIT_REACHED_INFO = "passkey-limit-reached";
 const CREATE_NAME_INPUT = "create-passkey-name-input";
 const CREATE_ENCRYPTION_CHECKBOX = "create-passkey-encryption-checkbox";
 const CREATE_SUBMIT_BUTTON = "create-passkey-submit-button";
@@ -24,7 +25,9 @@ export class PasskeySettingsPage {
 
   async open() {
     await this.page.goto(SETTINGS_URL);
-    await expect(this.addButton()).toBeVisible();
+
+    // At the passkey cap the add button is hidden; wait on the cap notice too, so `removeAll` can still run.
+    await expect(this.addButton().or(this.page.getByTestId(LIMIT_REACHED_INFO))).toBeVisible();
   }
 
   /**

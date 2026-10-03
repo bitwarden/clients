@@ -79,7 +79,9 @@
   </tr>
 </table>
 
-<p bitTypography="body2" *ngIf="limitReached">{{ "passkeyLimitReachedInfo" | i18n }}</p>
+<p bitTypography="body2" *ngIf="limitReached" data-testid="passkey-limit-reached">
+  {{ "passkeyLimitReachedInfo" | i18n }}
+</p>
 
 <ng-container *ngIf="hasData && !limitReached && !requireSsoPolicyEnabled">
   <button
