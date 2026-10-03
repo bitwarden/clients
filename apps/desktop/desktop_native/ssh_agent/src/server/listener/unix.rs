@@ -78,7 +78,7 @@ fn get_peer_info(stream: &UnixStream) -> Option<PeerInfo> {
     PeerInfo::from_pid(pid)
 }
 
-fn get_socket_path() -> Result<PathBuf> {
+pub(crate) fn get_socket_path() -> Result<PathBuf> {
     if let Ok(path) = std::env::var(ENV_BITWARDEN_SSH_AUTH_SOCK) {
         Ok(PathBuf::from(path))
     } else {

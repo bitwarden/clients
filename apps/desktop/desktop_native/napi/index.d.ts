@@ -424,6 +424,19 @@ export declare namespace sshagent {
     replace(newKeys: Array<SshKeyData>): void
   }
   export type SSHAgentState = SshAgentState
+  /**
+   * Appliy the Bitwarden agent configuration to the system.
+   * Not supported on windows, where the user disables the openssh service manually.
+   */
+  export function applyConfiguration(): Promise<void>
+  /** The address SSH clients connect to in order to reach the agent. */
+  export function getSocketAddress(): string
+  /**
+   * Whether the Bitwarden agent is expected to work.
+   * This is defined by `SSH_AUTH_SOCK` being configured on unix or the
+   * openssh service being disabled on windows.
+   */
+  export function isConfigured(): Promise<boolean>
   /** SSH public key data */
   export interface PublicKey {
     alg: string
