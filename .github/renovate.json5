@@ -1,15 +1,11 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
-  extends: ["github>bitwarden/renovate-config"], // Extends our default configuration for pinned dependencies
+  extends: ["github>bitwarden/renovate-config"],
   enabledManagers: ["cargo", "github-actions", "npm", "custom.regex"],
   customManagers: [
     {
-      // Pinned binary cargo tools declared in [workspace.metadata.bin]. These are
-      // not real dependency tables, so Renovate's native cargo manager ignores
-      // them. The `locked = true` field is the discriminator that keeps this regex
-      // from also matching [workspace.dependencies] entries of the same shape.
       customType: "regex",
-      fileMatch: ["apps/desktop/desktop_native/Cargo\\.toml$"],
+      managerFilePatterns: ["/apps/desktop/desktop_native/Cargo\\.toml$/"],
       matchStrings: [
         '(?<depName>[a-z][a-z0-9_-]*)\\s*=\\s*\\{\\s*version\\s*=\\s*"=?(?<currentValue>\\d+\\.\\d+\\.\\d+)"\\s*,\\s*locked\\s*=\\s*true',
       ],
@@ -17,19 +13,14 @@
       versioningTemplate: "cargo",
     },
     {
-      // Bootstrap pin for cargo-run-bin across the CI workflows,
-      // scripts/prepare-env-rust.mjs, and the devcontainer. Keep these in sync.
-      // build.js is deliberately absent: it invokes cargo-xwin directly rather than
-      // through `cargo bin`, so it pins no cargo-run-bin version.
       customType: "regex",
-      fileMatch: [
-        "^\\.github/workflows/.*\\.ya?ml$",
-        "scripts/prepare-env-rust\\.mjs$",
-        "\\.devcontainer/common/post-create-command\\.sh$",
+      managerFilePatterns: [
+        "/^\\.github/workflows/.*\\.ya?ml$/",
+        "/scripts/prepare-env-rust\\.mjs$/",
+        "/\\.devcontainer/common/post-create-command\\.sh$/",
       ],
       matchStrings: [
         "cargo install (?<depName>cargo-run-bin) --locked --version (?<currentValue>\\d+\\.\\d+\\.\\d+)",
-        // JS const form: const CARGO_RUN_BIN_VERSION = "x" (in scripts/prepare-env-rust.mjs).
         'CARGO_RUN_BIN_VERSION\\s*=\\s*"(?<currentValue>\\d+\\.\\d+\\.\\d+)"',
       ],
       depNameTemplate: "cargo-run-bin",
@@ -37,38 +28,31 @@
       versioningTemplate: "cargo",
     },
     {
-      // Keep electronVersion in electron-builder.json in sync with the electron package.
       customType: "regex",
-      fileMatch: ["apps/desktop/electron-builder\\.json$"],
+      managerFilePatterns: ["/apps/desktop/electron-builder\\.json$/"],
       matchStrings: ['"electronVersion":\\s*"(?<currentValue>[\\d.]+)"'],
       depNameTemplate: "electron",
       datasourceTemplate: "npm",
     },
   ],
   packageRules: [
-    // ==================== Repo-Wide Update Behavior Rules ====================
     {
-      // Group all Github Action minor updates together to reduce PR noise.
       groupName: "Minor github-actions updates",
       matchManagers: ["github-actions"],
       matchUpdateTypes: ["minor"],
     },
     {
-      // Enable support for Rust toolchain updates.
       matchManagers: ["custom.regex"],
       matchDepNames: ["rust"],
       commitMessageTopic: "Rust",
     },
     {
-      // Disable major and minor updates for TypeScript and Zone.js because they are managed by Angular.
       matchPackageNames: ["typescript", "zone.js"],
       matchUpdateTypes: ["major", "minor"],
       description: "Determined by Angular",
       enabled: false,
     },
     {
-      // Disable major updates for core Angular dependencies because they are managed through ng update
-      // when we decide to upgrade.
       matchSourceUrls: [
         "https://github.com/angular-eslint/angular-eslint",
         "https://github.com/angular/angular-cli",
@@ -80,10 +64,15 @@
       description: "Manually updated using ng update",
       enabled: false,
     },
-
-    // ==================== Team Ownership Rules ====================
     {
-      matchPackageNames: ["buffer", "bufferutil", "core-js", "process", "url", "util"],
+      matchPackageNames: [
+        "buffer",
+        "bufferutil",
+        "core-js",
+        "process",
+        "url",
+        "util",
+      ],
       description: "Admin Console owned dependencies",
       commitMessagePrefix: "[deps] AC:",
       reviewers: ["team:team-admin-console-dev"],
@@ -403,10 +392,6 @@
       commitMessagePrefix: "[deps] DIRT:",
       reviewers: ["team:team-data-insights-and-reporting-dev"],
     },
-
-    // ==================== Grouping Rules ====================
-    // These come after any specific team assignment rules to ensure
-    // that grouping is not overridden by subsequent rule definitions.
     {
       matchPackageNames: [
         "@angular-eslint/schematics",
@@ -431,33 +416,35 @@
       matchUpdateTypes: ["minor", "patch"],
     },
     {
-      // We need to group all napi-related packages together to avoid build errors caused by version incompatibilities.
       groupName: "napi",
       matchPackageNames: ["napi", "napi-build", "napi-derive"],
     },
     {
-      // We need to group all macOS/iOS binding-related packages together to avoid build errors caused by version incompatibilities.
       groupName: "macOS/iOS bindings",
-      matchPackageNames: ["core-foundation", "security-framework", "security-framework-sys"],
+      matchPackageNames: [
+        "core-foundation",
+        "security-framework",
+        "security-framework-sys",
+      ],
     },
     {
-      // We need to group all zbus-related packages together to avoid build errors caused by version incompatibilities.
       groupName: "zbus",
       matchPackageNames: ["zbus", "zbus_polkit"],
     },
     {
-      // We need to group all windows-related packages together to avoid build errors caused by version incompatibilities.
       groupName: "windows",
-      matchPackageNames: ["windows", "windows-core", "windows-future", "windows-registry"],
+      matchPackageNames: [
+        "windows",
+        "windows-core",
+        "windows-future",
+        "windows-registry",
+      ],
     },
     {
-      // We need to group all tokio-related packages together to avoid build errors caused by version incompatibilities.
       groupName: "tokio",
       matchPackageNames: ["bytes", "tokio", "tokio-util"],
     },
     {
-      // We group all webpack build-related minor and patch updates together to reduce PR noise.
-      // We include patch updates here because we want PRs for webpack patch updates and it's in this group.
       matchPackageNames: [
         "@babel/core",
         "@babel/preset-env",
@@ -487,12 +474,15 @@
       matchUpdateTypes: ["minor", "patch"],
     },
     {
-      // We need to update several Jest-related packages together, for version compatibility.
       groupName: "jest",
-      matchPackageNames: ["@types/jest", "jest", "ts-jest", "jest-preset-angular"],
+      matchPackageNames: [
+        "@types/jest",
+        "jest",
+        "ts-jest",
+        "jest-preset-angular",
+      ],
     },
     {
-      // Some electron packages are version coupled
       groupName: "electron",
       matchPackageNames: [
         "@electron/fuses",
@@ -503,7 +493,6 @@
       ],
     },
     {
-      // Add snapcraft compatibility note to electron-builder PRs
       matchPackageNames: ["electron-builder"],
       prBodyNotes: [
         "⚠️ **Snapcraft Compatibility Check Required**",
@@ -519,13 +508,7 @@
         "Related: BRE-2018",
       ],
     },
-
-    // ==================== Dashboard Rules ====================
     {
-      // For the packages below, we have decided we will only be creating PRs
-      // for major updates, and sending minor (as well as patch) to the dashboard.
-      // This rule comes AFTER grouping rules so that groups are respected while still
-      // sending minor/patch updates to the dependency dashboard for approval.
       matchPackageNames: [
         "@types/jest",
         "anyhow",
@@ -617,22 +600,23 @@
       dependencyDashboardApproval: true,
     },
     {
-      // By default, we send patch updates to the Dependency Dashboard and do not generate a PR.
-      // We want to generate PRs for a select number of dependencies to ensure we stay up to date on these.
-      matchPackageNames: ["browserslist", "electron", "rxjs", "typescript", "webpack", "zone.js"],
+      matchPackageNames: [
+        "browserslist",
+        "electron",
+        "rxjs",
+        "typescript",
+        "webpack",
+        "zone.js",
+      ],
       matchUpdateTypes: ["patch"],
       dependencyDashboardApproval: false,
     },
-
-    // ==================== Special Version Constraints ====================
     {
-      // Any versions of lowdb above 1.0.0 are not compatible with CommonJS.
       matchPackageNames: ["lowdb"],
       allowedVersions: "1.0.0",
       description: "Higher versions of lowdb are not compatible with CommonJS",
     },
     {
-      // Pin types as well since we are not upgrading past v1 (and also v2+ does not need separate types).
       matchPackageNames: ["@types/lowdb"],
       allowedVersions: "< 2.0.0",
       description: "Higher versions of lowdb do not need separate types",
