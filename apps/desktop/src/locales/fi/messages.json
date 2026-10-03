@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "Kytke LastPass-tiliisi liitetty YubiKey tietokoneen USB-porttiin ja kosketa sen painiketta."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper-sähköposti"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Käyttämäsi selainlaajennus on vanhentunut. Päivitä se tai poista selainintegraation sormenjälkivahvistus käytöstä työpöytäsovelluksen asetuksissa."
   },
-  "changeAtRiskPassword": {
-    "message": "Vaihda vaarantunut salasana"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Tämä kirjautuminen on vaarassa ja siitä puuttuu verkkosivusto. Lisää verkkosivusto ja vaihda salasana vahvemman turvallisuuden vuoksi."
-  },
   "vulnerablePassword": {
     "message": "Haavoittuva salasana."
   },
   "changeNow": {
     "message": "Vaihda nyt"
-  },
-  "missingWebsite": {
-    "message": "Puuttuva verkkosivusto"
   },
   "missingPermissions": {
     "message": "Sinulla ei ole tarvittavia oikeuksia tämän toiminnon suorittamiseen."
