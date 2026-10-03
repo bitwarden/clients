@@ -101,6 +101,21 @@ const idnTestDomains = [
 ];
 
 describe("LoginUriView", () => {
+  it("invalidates cached URI components when the URI changes", () => {
+    const uri = new LoginUriView();
+    uri.uri = "https://old.example.com:8443/login";
+
+    expect(uri.domain).toBe("example.com");
+    expect(uri.hostname).toBe("old.example.com");
+    expect(uri.host).toBe("old.example.com:8443");
+
+    uri.uri = "https://new.example.net:9443/login";
+
+    expect(uri.domain).toBe("example.net");
+    expect(uri.hostname).toBe("new.example.net");
+    expect(uri.host).toBe("new.example.net:9443");
+  });
+
   it("isWebsite() given an invalid domain should return false", async () => {
     const uri = new LoginUriView();
     Object.assign(uri, { match: UriMatchStrategy.Host, uri: "bit!:_&ward.com" });
