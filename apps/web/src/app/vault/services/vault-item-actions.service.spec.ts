@@ -85,6 +85,14 @@ describe("WebVaultItemActionsService", () => {
     toastService = mock<ToastService>();
 
     cipherService.get.mockResolvedValue(buildStoredCipher());
+    // The reprompt reads the stored cipher off the config, as the real service sets it.
+    cipherFormConfigService.buildConfig.mockImplementation(
+      async (mode, id) =>
+        ({
+          mode,
+          originalCipher: id == null ? undefined : await cipherService.get(id, userId),
+        }) as CipherFormConfig,
+    );
     cipherService.decrypt.mockResolvedValue(buildCipher());
     passwordRepromptService.showPasswordPrompt.mockResolvedValue(true);
     router.navigate.mockResolvedValue(true);
