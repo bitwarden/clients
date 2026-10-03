@@ -63,3 +63,18 @@ fn run_powershell(script: &str) -> Result<Option<i32>> {
 
     Ok(output.status.code())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Queries the real `ssh-agent` service, so the result depends on the machine.
+    // Run manually with `cargo test -p ssh_agent -- --ignored --nocapture`.
+    #[test]
+    #[ignore = "Queries the host's ssh-agent service; run manually"]
+    #[allow(clippy::print_stdout)]
+    fn manual_is_configured() {
+        let configured = is_configured().unwrap();
+        println!("ssh-agent service out of the way: {configured}");
+    }
+}
