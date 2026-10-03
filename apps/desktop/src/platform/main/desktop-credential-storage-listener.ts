@@ -14,6 +14,15 @@ export class DesktopCredentialStorageListener {
   init() {
     ipcMain.handle("keytar", async (event: any, message: any) => {
       try {
+        if (
+          message == null ||
+          typeof message !== "object" ||
+          (typeof message.keySuffix !== "string" && message.keySuffix != null) ||
+          typeof message.key !== "string" ||
+          typeof message.action !== "string"
+        ) {
+          return;
+        }
         let serviceName = this.serviceName;
         message.keySuffix = "_" + (message.keySuffix ?? "");
         if (message.keySuffix !== "_") {
@@ -21,7 +30,7 @@ export class DesktopCredentialStorageListener {
         }
 
         // Biometric is internal to the main process and must not be exposed via IPC
-        if (serviceName.includes("biometric")) {
+        if (/biometric|mtls/i.test(serviceName)) {
           return;
         }
 

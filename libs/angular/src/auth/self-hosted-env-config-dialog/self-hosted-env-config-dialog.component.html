@@ -22,6 +22,20 @@
       {{ "customEnvironment" | i18n }}
     </button>
 
+    <div *ngIf="certificates.supported()" class="tw-mt-3">
+      <button
+        bitButton
+        buttonType="secondary"
+        type="button"
+        (click)="openClientCertificateManager()"
+      >
+        {{ "mtlsManagerTitle" | i18n }}
+      </button>
+      <p bitTypography="body2" class="tw-text-muted tw-mt-2">
+        {{ "mtlsSaveServerUrlsBeforeRestart" | i18n }}
+      </p>
+    </div>
+
     <ng-container *ngIf="showCustomEnv">
       <p bitTypography="body1" class="tw-text-muted tw-mt-3">
         {{ "selfHostedCustomEnvHeader" | i18n }}
@@ -104,12 +118,15 @@
     </span>
   </ng-container>
   <ng-container bitDialogFooter>
+    <span *ngIf="restartError" class="tw-text-danger" role="alert">
+      {{ "mtlsGeneralError" | i18n }}
+    </span>
     <button type="submit" bitButton bitFormButton buttonType="primary">
-      {{ "save" | i18n }}
+      {{ (restartAvailable ? "mtlsSaveAndRestart" : "save") | i18n }}
     </button>
 
     <button type="button" bitButton bitFormButton buttonType="secondary" (click)="cancel()">
-      {{ "cancel" | i18n }}
+      {{ (restartAvailable ? "mtlsLater" : "cancel") | i18n }}
     </button>
   </ng-container>
 </form>

@@ -65,6 +65,7 @@ import { flagEnabled } from "./platform/flags";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
+import { MtlsMain } from "./platform/main/mtls/mtls-main";
 import { SafeShell } from "./platform/main/safe-shell.main";
 import { CachedBackend } from "./platform/main/storage/cached-backend";
 import { ElectronStoreBackend } from "./platform/main/storage/electron-store-backend";
@@ -113,6 +114,7 @@ export class Main {
   mainDesktopAutotypeService: MainDesktopAutotypeService;
   ssoCookieMain: SsoCookieMain;
   ipcService: IpcService;
+  mtlsMain?: MtlsMain;
 
   constructor() {
     // Set paths for portable builds
@@ -247,6 +249,13 @@ export class Main {
       (arg) => this.processDeepLink(arg),
       (win) => this.trayMain.setupWindowListeners(win),
       () => this.trayMain.restoreFromTray(),
+      async () => {
+        try {
+          await this.mtlsMain?.reconcile();
+        } catch (error) {
+          this.logService.error("mTLS cleanup unavailable", error);
+        }
+      },
     );
 
     this.biometricsService = new MainBiometricsService(
@@ -369,6 +378,7 @@ export class Main {
     );
 
     app.on("will-quit", () => {
+      this.mtlsMain?.dispose();
       this.mainDesktopAutotypeMvpService.dispose();
       this.mainDesktopAutotypeService.dispose();
       this.storageService.dispose();
@@ -391,6 +401,24 @@ export class Main {
         // https://bugs.kde.org/show_bug.cgi?id=520724. Until it is fixed we must never call show when
         // autostart is enabled.
         const showWindow = !isAutostart;
+        if (
+          process.platform === "linux" &&
+          ["com.bitwarden.desktop", "com.bitwarden.desktop.beta"].includes(process.env.FLATPAK_ID)
+        ) {
+          try {
+            this.mtlsMain = await MtlsMain.load(
+              app.getPath("userData"),
+              (contents) => this.windowMain.ownsMtlsContents(contents),
+              (error) => this.logService.info("mTLS certificate selection", error),
+              (event) => this.windowMain.isTrustedIpcSender(event),
+              () => this.windowMain.win,
+              (diagnostic) => this.logService.info("mTLS TLS challenge", diagnostic),
+            );
+            this.mtlsMain.install();
+          } catch (error) {
+            this.logService.error("mTLS configuration unavailable", error);
+          }
+        }
         await this.windowMain.init(showWindow);
         this.ssoCookieMain.init(this.windowMain.session);
         await this.i18nService.init();

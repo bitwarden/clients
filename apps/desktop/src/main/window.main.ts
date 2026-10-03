@@ -7,6 +7,7 @@ import * as path from "path";
 import * as url from "url";
 
 import { app, BrowserWindow, ipcMain, nativeTheme, screen, session, protocol, net } from "electron";
+import type { IpcMainInvokeEvent } from "electron";
 import { concatMap, firstValueFrom, pairwise } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -126,6 +127,7 @@ export class WindowMain {
     private argvCallback: (argv: string[]) => void = null,
     private createWindowCallback: (win: BrowserWindow) => void,
     private focusWindowCallback: () => Promise<void> | void = null,
+    private beforeFirstWindow?: () => Promise<void>,
   ) {}
 
   init(show: boolean = true): Promise<any> {
@@ -246,54 +248,65 @@ export class WindowMain {
         // This method will be called when Electron is shutting
         // down the application.
         app.on("before-quit", async () => {
-          // Allow biometric to auto-prompt on reload
-          await this.biometricStateService.resetAllPromptCancelled();
+          // Electron does not await listeners before closing windows.
           this.isQuitting = true;
+          // Allow biometric to auto-prompt on reload
+          try {
+            await this.biometricStateService.resetAllPromptCancelled();
+          } catch (error) {
+            this.logService.error("Failed to reset biometric prompts during shutdown", error);
+          }
         });
 
         // This method will be called when Electron has finished
         // initialization and is ready to create browser windows.
         // Some APIs can only be used after this event occurs.
-        app.on("ready", async () => {
-          this.session = session.fromPartition("persist:bitwarden", { cache: false });
-          this.setupAppProtocol();
+        void app
+          .whenReady()
+          .then(async () => {
+            this.session = session.fromPartition("persist:bitwarden", { cache: false });
+            this.setupAppProtocol();
 
-          if (!isDev()) {
-            // This currently breaks the file portal for snap https://github.com/flatpak/xdg-desktop-portal/issues/785
-            if (!isConfinedSnap()) {
-              this.logService.info(
-                "[Process Isolation] Isolating process from debuggers and memory dumps",
-              );
-              try {
-                await processisolations.isolateProcess();
-              } catch (e) {
-                this.logService.error("[Process Isolation] Failed to isolate main process", e);
-              }
-            }
-
-            if (isLinux()) {
-              if (await processisolations.isCoreDumpingDisabled()) {
-                this.logService.info("Coredumps are disabled in renderer process");
-              } else {
-                this.enableRendererProcessForceCrashReload = false;
-                this.logService.info("Disabling coredumps in main process");
+            if (!isDev()) {
+              // This currently breaks the file portal for snap https://github.com/flatpak/xdg-desktop-portal/issues/785
+              if (!isConfinedSnap()) {
+                this.logService.info(
+                  "[Process Isolation] Isolating process from debuggers and memory dumps",
+                );
                 try {
-                  await processisolations.disableCoredumps();
-                  this.enableRendererProcessForceCrashReload = true;
+                  await processisolations.isolateProcess();
                 } catch (e) {
-                  this.logService.error("Failed to disable coredumps", e);
+                  this.logService.error("[Process Isolation] Failed to isolate main process", e);
+                }
+              }
+
+              if (isLinux()) {
+                if (await processisolations.isCoreDumpingDisabled()) {
+                  this.logService.info("Coredumps are disabled in renderer process");
+                } else {
+                  this.enableRendererProcessForceCrashReload = false;
+                  this.logService.info("Disabling coredumps in main process");
+                  try {
+                    await processisolations.disableCoredumps();
+                    this.enableRendererProcessForceCrashReload = true;
+                  } catch (e) {
+                    this.logService.error("Failed to disable coredumps", e);
+                  }
                 }
               }
             }
-          }
 
-          await this.createWindow("full-app", show);
-          resolve();
+            if (this.beforeFirstWindow) {
+              await this.beforeFirstWindow();
+            }
+            await this.createWindow("full-app", show);
+            resolve();
 
-          if (this.argvCallback != null) {
-            this.argvCallback(process.argv);
-          }
-        });
+            if (this.argvCallback != null) {
+              this.argvCallback(process.argv);
+            }
+          })
+          .catch(reject);
 
         // Quit when all windows are closed.
         app.on("window-all-closed", () => {
@@ -381,6 +394,37 @@ export class WindowMain {
     }
 
     return false;
+  }
+
+  isTrustedIpcSender(event: IpcMainInvokeEvent): boolean {
+    return (
+      this.win != null &&
+      event.sender === this.win.webContents &&
+      event.senderFrame != null &&
+      event.senderFrame === event.sender.mainFrame &&
+      this.isLocalBundleUrl(event.senderFrame.url)
+    );
+  }
+
+  ownsMtlsContents(contents: Electron.WebContents): boolean {
+    const mainContents = this.win?.webContents;
+    const sameId = mainContents != null && contents.id === mainContents.id;
+    // Use the session attached to the actual window. The separately retained
+    // session is not the authority for a renderer that Electron has created.
+    const sameSession = mainContents != null && contents.session === mainContents.session;
+    const localBundle = this.isLocalBundleUrl(contents.getURL());
+    const owned =
+      mainContents != null && !mainContents.isDestroyed() && sameId && sameSession && localBundle;
+    if (!owned) {
+      this.logService.info("mTLS renderer ownership", {
+        requestContentsId: contents.id,
+        mainContentsId: mainContents?.id,
+        sameId,
+        sameSession,
+        localBundle,
+      });
+    }
+    return owned;
   }
 
   // TODO: REMOVE ONCE WE CAN STOP USING FAKE POP UP BTN FROM TRAY

@@ -7,6 +7,7 @@ import { Subject, merge } from "rxjs";
 import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
+import { ClientCertificateSettingsService } from "@bitwarden/angular/auth/services/client-certificate-settings.service";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   SECURE_STORAGE,
@@ -175,6 +176,7 @@ import {
 
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
 import { DesktopAuthRequestAnsweringService } from "../../auth/services/auth-request-answering/desktop-auth-request-answering.service";
+import { DesktopClientCertificateSettingsService } from "../../auth/services/desktop-client-certificate-settings.service";
 import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
@@ -230,6 +232,11 @@ import { DesktopSetInitialPasswordService } from "./set-initial-password/desktop
  * If you need help please ask for it, do NOT change the type of this array.
  */
 const safeProviders: SafeProvider[] = [
+  safeProvider({
+    provide: ClientCertificateSettingsService,
+    useClass: DesktopClientCertificateSettingsService,
+    deps: [],
+  }),
   safeProvider(InitService),
   safeProvider({
     provide: CipherFormGenerationService,
