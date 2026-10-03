@@ -4,7 +4,21 @@
       <p bitTypography="body1">{{ "unexpectedErrorSend" | i18n }}</p>
     </div>
   }
-  @if (unavailable()) {
+  @if (pendingAccessToken()) {
+    <div class="tw-text-main tw-text-center">
+      <p bitTypography="body1">{{ "sendOpenToView" | i18n }}</p>
+      <button
+        bitButton
+        type="button"
+        buttonType="primary"
+        id="send-access_button_open"
+        class="tw-mt-2"
+        (click)="onOpen()"
+      >
+        {{ "open" | i18n }}
+      </button>
+    </div>
+  } @else if (unavailable()) {
     <div class="tw-text-main tw-text-center">
       <p bitTypography="body1">{{ "sendAccessUnavailable" | i18n }}</p>
     </div>
