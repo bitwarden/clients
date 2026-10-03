@@ -34,6 +34,7 @@ import {
 import {
   ACCESS_TOKEN_DISK,
   ACCESS_TOKEN_MEMORY,
+  ACCESS_TOKEN_MEMORY_CACHE,
   API_KEY_CLIENT_ID_DISK,
   API_KEY_CLIENT_ID_MEMORY,
   API_KEY_CLIENT_SECRET_DISK,
@@ -178,7 +179,20 @@ describe("TokenService", () => {
         expect(result).toEqual(true);
       });
 
-      it("returns false when no access token exists in memory, disk, or secure storage", async () => {
+      it("returns true when an access token exists only in the memory cache", async () => {
+        // Arrange
+        singleUserStateProvider
+          .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY_CACHE)
+          .nextState(accessTokenJwt);
+
+        // Act
+        const result = await firstValueFrom(tokenService.hasAccessToken$(userIdFromAccessToken));
+
+        // Assert
+        expect(result).toEqual(true);
+      });
+
+      it("returns false when no access token exists in memory, the memory cache, disk, or secure storage", async () => {
         // Act
         const result = await firstValueFrom(tokenService.hasAccessToken$(userIdFromAccessToken));
 
@@ -742,6 +756,10 @@ describe("TokenService", () => {
             .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
             .nextState(accessTokenJwt);
 
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY_CACHE)
+            .nextState(accessTokenJwt);
+
           // Need to have global active id set to the user id
           if (!userId) {
             globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
@@ -757,11 +775,287 @@ describe("TokenService", () => {
           expect(
             singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK).nextMock,
           ).toHaveBeenCalledWith(null);
+          expect(
+            singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY_CACHE)
+              .nextMock,
+          ).toHaveBeenCalledWith(null);
 
           expect(secureStorageService.remove).toHaveBeenCalledWith(
             accessTokenKeySecureStorageKey,
             secureStorageOptions,
           );
+        });
+
+        it("clears the memory cache before it removes the access token key", async () => {
+          // Arrange
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY_CACHE)
+            .nextState(accessTokenJwt);
+
+          const order: string[] = [];
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY_CACHE)
+            .nextMock.mockImplementation(() => {
+              order.push("clearCache");
+            });
+          secureStorageService.remove.mockImplementation(async () => {
+            order.push("removeKey");
+          });
+
+          // Act
+          await tokenService.clearAccessToken(userIdFromAccessToken);
+
+          // Assert: no window in which the cache serves a token whose key is already gone
+          expect(order).toEqual(["clearCache", "removeKey"]);
+        });
+      });
+    });
+
+    describe("access token memory cache", () => {
+      const accessTokenKey = new SymmetricCryptoKey(
+        new Uint8Array(64) as CsprngArray,
+      ) as AccessTokenKey;
+
+      beforeEach(() => {
+        const supportsSecureStorage = true;
+        tokenService = createTokenService(supportsSecureStorage);
+        globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
+      });
+
+      /** Makes the SecureStorage write path succeed. */
+      const arrangeSuccessfulSecureStorageWrite = () => {
+        jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(accessTokenKey);
+        encryptService.encryptString.mockResolvedValue({
+          encryptedString: "encryptedAccessToken",
+        } as any);
+        // First get resolves null (no existing key), later gets resolve the saved key.
+        secureStorageService.get.mockResolvedValueOnce(null).mockResolvedValue(accessTokenKeyB64);
+      };
+
+      const cacheNextMock = () =>
+        singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY_CACHE).nextMock;
+
+      describe("write path", () => {
+        it("writes the plaintext token to the cache when the durable location is secure storage", async () => {
+          // Arrange
+          arrangeSuccessfulSecureStorageWrite();
+
+          // Act
+          await tokenService.setAccessToken(
+            accessTokenJwt,
+            diskVaultTimeoutAction,
+            diskVaultTimeout,
+          );
+
+          // Assert
+          expect(
+            singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK).nextMock,
+          ).toHaveBeenCalledWith("encryptedAccessToken");
+          expect(cacheNextMock()).toHaveBeenCalledWith(accessTokenJwt);
+          expect(
+            singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY).nextMock,
+          ).toHaveBeenCalledWith(null);
+        });
+
+        it("writes the durable copy before it writes the cache", async () => {
+          // Arrange
+          arrangeSuccessfulSecureStorageWrite();
+
+          const order: string[] = [];
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
+            .nextMock.mockImplementation(() => {
+              order.push("disk");
+            });
+          cacheNextMock().mockImplementation(() => {
+            order.push("cache");
+          });
+
+          // Act
+          await tokenService.setAccessToken(
+            accessTokenJwt,
+            diskVaultTimeoutAction,
+            diskVaultTimeout,
+          );
+
+          // Assert: the cache must never hold a token that failed to persist
+          expect(order).toEqual(["disk", "cache"]);
+        });
+
+        it("writes the cache when the secure storage write fails and it falls back to plaintext disk", async () => {
+          // Arrange
+          jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(accessTokenKey);
+          secureStorageService.get.mockRejectedValue(new Error("Secure storage error"));
+
+          // Act
+          await tokenService.setAccessToken(
+            accessTokenJwt,
+            diskVaultTimeoutAction,
+            diskVaultTimeout,
+          );
+
+          // Assert
+          expect(
+            singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK).nextMock,
+          ).toHaveBeenCalledWith(accessTokenJwt);
+          expect(cacheNextMock()).toHaveBeenCalledWith(accessTokenJwt);
+        });
+
+        it("clears the cache when the durable location is memory", async () => {
+          // Arrange: the cache is warm from a previous secure storage write
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY_CACHE)
+            .nextState(accessTokenJwt);
+
+          // Act: LogOut + a timed timeout selects the memory location
+          await tokenService.setAccessToken(
+            accessTokenJwt,
+            memoryVaultTimeoutAction,
+            memoryVaultTimeout,
+          );
+
+          // Assert
+          expect(cacheNextMock()).toHaveBeenCalledWith(null);
+        });
+
+        it("clears the cache when the durable location is plaintext disk", async () => {
+          // Arrange: e.g. a portable build, or ACCESS_TOKEN_LOCATION=DISK
+          tokenService = createTokenService(false /* supportsSecureStorage */);
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY_CACHE)
+            .nextState(accessTokenJwt);
+
+          // Act
+          await tokenService.setAccessToken(
+            accessTokenJwt,
+            diskVaultTimeoutAction,
+            diskVaultTimeout,
+          );
+
+          // Assert
+          expect(cacheNextMock()).toHaveBeenCalledWith(null);
+        });
+      });
+
+      describe("read path", () => {
+        it("returns the cached token without a secure storage read", async () => {
+          // Arrange
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY_CACHE)
+            .nextState(accessTokenJwt);
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
+            .nextState(encryptedAccessToken);
+
+          // Act
+          const result = await tokenService.getAccessToken(userIdFromAccessToken);
+
+          // Assert
+          expect(result).toEqual(accessTokenJwt);
+          expect(secureStorageService.get).not.toHaveBeenCalled();
+          expect(encryptService.decryptString).not.toHaveBeenCalled();
+        });
+
+        it("prefers the memory location over the cache", async () => {
+          // Arrange: the two are mutually exclusive by construction, so this is defensive only
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
+            .nextState(accessTokenJwt);
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY_CACHE)
+            .nextState("staleCachedAccessToken");
+
+          // Act
+          const result = await tokenService.getAccessToken(userIdFromAccessToken);
+
+          // Assert
+          expect(result).toEqual(accessTokenJwt);
+        });
+
+        it("re-warms the cache on a miss that decrypts an access token from disk", async () => {
+          // Arrange: the state after a process reload - both memory locations are empty
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
+            .nextState("encryptedAccessToken");
+          secureStorageService.get.mockResolvedValue(accessTokenKeyB64);
+          encryptService.decryptString.mockResolvedValue("decryptedAccessToken");
+
+          // Act
+          const result = await tokenService.getAccessToken(userIdFromAccessToken);
+
+          // Assert
+          expect(result).toEqual("decryptedAccessToken");
+          expect(cacheNextMock()).toHaveBeenCalledWith("decryptedAccessToken");
+        });
+
+        it("does not warm the cache when the disk value is plaintext", async () => {
+          // Arrange: the fallback state, where the disk value was never encrypted
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
+            .nextState(accessTokenJwt);
+
+          // No access token key set, so the plaintext value is returned as is
+
+          // Act
+          const result = await tokenService.getAccessToken(userIdFromAccessToken);
+
+          // Assert
+          expect(result).toEqual(accessTokenJwt);
+          expect(cacheNextMock()).not.toHaveBeenCalled();
+        });
+      });
+
+      describe("vault timeout transitions", () => {
+        it("never -> timed + log out moves the token to memory and leaves no plaintext copy behind", async () => {
+          // Arrange: the secure storage state for timeout never
+          arrangeSuccessfulSecureStorageWrite();
+          await tokenService.setAccessToken(
+            accessTokenJwt,
+            diskVaultTimeoutAction,
+            diskVaultTimeout,
+          );
+
+          // Act: re-store for the new settings, as migrateTokenStorage does
+          await tokenService.setAccessToken(
+            accessTokenJwt,
+            memoryVaultTimeoutAction,
+            memoryVaultTimeout,
+          );
+
+          // Assert
+          expect(
+            singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY).nextMock,
+          ).toHaveBeenLastCalledWith(accessTokenJwt);
+          expect(
+            singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK).nextMock,
+          ).toHaveBeenLastCalledWith(null);
+          expect(cacheNextMock()).toHaveBeenLastCalledWith(null);
+        });
+
+        it("timed + log out -> never moves the token to secure storage and warms the cache", async () => {
+          // Arrange: the memory state for a timed timeout with the log out action
+          await tokenService.setAccessToken(
+            accessTokenJwt,
+            memoryVaultTimeoutAction,
+            memoryVaultTimeout,
+          );
+          arrangeSuccessfulSecureStorageWrite();
+
+          // Act
+          await tokenService.setAccessToken(
+            accessTokenJwt,
+            diskVaultTimeoutAction,
+            diskVaultTimeout,
+          );
+
+          // Assert
+          expect(
+            singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK).nextMock,
+          ).toHaveBeenLastCalledWith("encryptedAccessToken");
+          expect(
+            singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY).nextMock,
+          ).toHaveBeenLastCalledWith(null);
+          expect(cacheNextMock()).toHaveBeenLastCalledWith(accessTokenJwt);
         });
       });
     });
