@@ -96,7 +96,9 @@ export const LoginFieldType = Object.freeze({
 export type LoginFieldType = (typeof LoginFieldType)[keyof typeof LoginFieldType];
 
 export interface LoginFieldsEntity {
-  value: string;
+  // Usually a plain string, but linked-account values (e.g. a Fastmail alias)
+  // arrive as a structured object. See #22838.
+  value: string | { email_address?: unknown; string?: unknown };
   id: string;
   name: string;
   fieldType: LoginFieldType | string;

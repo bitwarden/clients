@@ -917,6 +917,104 @@ describe("1Password 1Pux Importer", () => {
     expect(result.errors[0].reason).toEqual(ImportRecordErrorReason.Error);
   });
 
+  // Fixes #22838: a login whose username is a Fastmail alias arrives as a
+  // structured object instead of a string, which previously crashed the
+  // whole import when the object reached the SDK.
+  it("should import a login whose username is a Fastmail alias object", async () => {
+    const data = {
+      accounts: [
+        {
+          vaults: [
+            {
+              items: [
+                {
+                  uuid: "fastmail-login-uuid",
+                  categoryUuid: "001",
+                  favIndex: 0,
+                  state: "active",
+                  overview: { title: "Fastmail Login" },
+                  details: {
+                    loginFields: [
+                      {
+                        designation: "username",
+                        value: {
+                          email_address: "alias@fastmail.com",
+                          provider: {
+                            fastmail: { aliasId: "masked-123456", accountId: "123abcde" },
+                          },
+                        },
+                        name: "username",
+                        fieldType: "T",
+                      },
+                      {
+                        designation: "password",
+                        value: "s3cret!",
+                        name: "password",
+                        fieldType: "P",
+                      },
+                    ],
+                    passwordHistory: [] as unknown[],
+                    sections: [] as unknown[],
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const importer = new OnePassword1PuxImporter(configService);
+    const result = await importer.parse(JSON.stringify(data));
+
+    expect(result.success).toBe(true);
+    expect(result.errors.length).toBe(0);
+    expect(result.ciphers.length).toBe(1);
+    expect(result.ciphers[0].login.username).toEqual("alias@fastmail.com");
+    expect(result.ciphers[0].login.password).toEqual("s3cret!");
+  });
+
+  it("should ignore an unrepresentable structured login field value", async () => {
+    const data = {
+      accounts: [
+        {
+          vaults: [
+            {
+              items: [
+                {
+                  uuid: "structured-value-uuid",
+                  categoryUuid: "001",
+                  favIndex: 0,
+                  state: "active",
+                  overview: { title: "Structured Login" },
+                  details: {
+                    loginFields: [
+                      {
+                        designation: "username",
+                        value: { unknownShape: { nested: true } },
+                        name: "username",
+                        fieldType: "T",
+                      },
+                    ],
+                    passwordHistory: [] as unknown[],
+                    sections: [] as unknown[],
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const importer = new OnePassword1PuxImporter(configService);
+    const result = await importer.parse(JSON.stringify(data));
+
+    expect(result.success).toBe(true);
+    expect(result.errors.length).toBe(0);
+    expect(result.ciphers.length).toBe(1);
+  });
+
   it("does not misattribute a skipped SSH key's folder to another item", async () => {
     const parseError: Error & { variant?: string } = new Error("Failed to parse key");
     parseError.name = "SshKeyImportError";
