@@ -112,6 +112,7 @@ export enum FeatureFlag {
 
   /* Secrets Manager */
   SecretVersioning = "sm-1587-secrets-versioning",
+  Sm2060MachineAccountAuditLogs = "sm-2060-machine-account-audit-logs",
 
   /* PAM */
   Pam = "pm-37044-pam-v-0",
@@ -230,6 +231,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Secrets Manager */
   [FeatureFlag.SecretVersioning]: FALSE,
+  [FeatureFlag.Sm2060MachineAccountAuditLogs]: FALSE,
 
   /* PAM */
   [FeatureFlag.Pam]: FALSE,
