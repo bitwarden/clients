@@ -108,7 +108,7 @@ module.exports.buildConfig = function buildConfig(params) {
     externals: [
       nodeExternals({
         modulesDir: params.externalsModulesDir,
-        allowlist: [/@bitwarden/, /^https-proxy-agent$/, /^agent-base$/],
+        allowlist: [/@bitwarden/, /^https-proxy-agent$/, /^agent-base$/, /^proxy-from-env$/],
       }),
     ],
     experiments: {
