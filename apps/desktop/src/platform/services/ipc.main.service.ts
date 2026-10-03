@@ -193,10 +193,9 @@ export class IpcMainService extends IpcService {
 
 /**
  * Addresses the CLI as its own endpoint.
- * Note: Merge only after cli changes merged!!!
  */
 function cliSource(clientId: number): Source {
-  return { Cli: { id: { Id: clientId } } } as unknown as Source;
+  return { Cli: { id: { Id: clientId } } };
 }
 
 /**

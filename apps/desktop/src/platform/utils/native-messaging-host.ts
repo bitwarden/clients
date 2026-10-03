@@ -19,7 +19,7 @@ export function nativeMessagingHost(
   }
 
   if ("Cli" in destination) {
-    return (destination as { Cli: NativeMessagingHost }).Cli;
+    return destination.Cli;
   }
 
   return undefined;
