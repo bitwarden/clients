@@ -103,6 +103,17 @@ describe("sso", () => {
       expect(paragraphElement?.innerText).toBe("SSO login successful");
     });
 
+    it("decodes a URI-encoded message from the cookie", () => {
+      const message = "Du kannst diesen Tab nun schließen und in der Erweiterung fortfahren.";
+      document.cookie = `ssoHandOffMessage=${encodeURIComponent(message)};SameSite=strict`;
+
+      initiateBrowserSso("testcode", "teststate", false);
+
+      const contentElement = document.getElementById("content");
+      const paragraphElement = contentElement?.querySelector("p");
+      expect(paragraphElement?.innerText).toBe(message);
+    });
+
     it("handles lastpass flag correctly", () => {
       const code = "testcode";
       const state = "teststate";
