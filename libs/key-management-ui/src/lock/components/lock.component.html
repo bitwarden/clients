@@ -18,6 +18,7 @@
       block
       [bitTooltip]="biometricUnavailabilityReason"
       (click)="unlockViaBiometrics()"
+      data-testid="lock-biometric-unlock-button"
     >
       <span> {{ biometricUnlockBtnText | i18n }}</span>
     </button>

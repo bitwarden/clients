@@ -17,7 +17,7 @@ npx playwright install chromium
 ```
 npm run test:e2e:web       # webpack dev server + chromium
 npm run test:e2e:browser   # builds the chrome extension, loads it unpacked
-npm run test:e2e:desktop   # builds electron main/renderer/preload, launches the app
+npm run test:e2e:desktop   # dev-builds electron main/renderer/preload, launches the app
 npm run test:e2e:all       # all three, sequentially
 ```
 
