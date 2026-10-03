@@ -114,13 +114,13 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
       return;
     }
 
-    try {
-      // No concurrent migrations allowed, so acquire a service-wide lock
-      if (this.isRunningMigration) {
-        return;
-      }
-      this.isRunningMigration = true;
+    // No concurrent migrations allowed, so acquire a service-wide lock
+    if (this.isRunningMigration) {
+      return;
+    }
+    this.isRunningMigration = true;
 
+    try {
       // Run all migrations sequentially in the order they were registered
       this.logService.mark("[Encrypted Migrator] Start");
       this.logService.info(`[Encrypted Migrator] Starting migrations for user: ${userId}`);
