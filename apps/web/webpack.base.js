@@ -345,6 +345,7 @@ module.exports.buildConfig = function buildConfig(params) {
                     https://app.simplelogin.io/api/alias/random/new
                     https://quack.duckduckgo.com/api/email/addresses
                     https://app.addy.io/api/v1/aliases
+                    https://app.skudo.org/api/v1/aliases
                     https://api.fastmail.com
                     https://api.forwardemail.net
                     http://localhost:5000
