@@ -82,82 +82,8 @@ export class MtlsBackend {
     ) {
       return { ok: false, error: { code: "invalid-file" } };
     }
-    try {
-      await this.validateStore();
-    } catch {
-      return { ok: false, error: { code: "store-location-unsupported" } };
-    }
-    return new Promise((resolve) => {
-      const child = spawn(this.helperPath, ["delete", storeId, fingerprint], {
-        shell: false,
-        stdio: ["ignore", "pipe", "ignore"],
-        env: {
-          HOME: process.env.HOME,
-          XDG_DATA_HOME: process.env.XDG_DATA_HOME,
-          FLATPAK_ID: process.env.FLATPAK_ID,
-        },
-      });
-      const chunks: Buffer[] = [];
-      let size = 0;
-      let finished = false;
-      const finish = (value: MtlsResult<void>) => {
-        if (finished) {
-          return;
-        }
-        finished = true;
-        clearTimeout(timer);
-        resolve(value);
-      };
-      const fail = () => finish({ ok: false, error: { code: "backend-failed" } });
-      const timer = setTimeout(() => {
-        child.kill();
-        fail();
-      }, TIMEOUT_MS);
-      child.on("error", fail);
-      child.stdout.on("data", (chunk: Buffer) => {
-        size += chunk.length;
-        if (size > MAX_RESPONSE + 4) {
-          child.kill();
-          fail();
-          return;
-        }
-        chunks.push(chunk);
-      });
-      child.on("close", (code) => {
-        if (finished) {
-          return;
-        }
-        if (code !== 0 || size < 4) {
-          return fail();
-        }
-        const output = Buffer.concat(chunks);
-        if (output.readUInt32BE(0) !== size - 4) {
-          return fail();
-        }
-        try {
-          const message: unknown = JSON.parse(output.subarray(4).toString("utf8"));
-          if (typeof message !== "object" || message === null || !("version" in message)) {
-            return fail();
-          }
-          if (message.version !== 1 || !("ok" in message)) {
-            return fail();
-          }
-          if (message.ok === true) {
-            return finish({ ok: true, value: undefined });
-          }
-          if (
-            message.ok === false &&
-            "error" in message &&
-            KNOWN_ERRORS.has(String(message.error))
-          ) {
-            return finish({ ok: false, error: { code: message.error as MtlsErrorCode } });
-          }
-        } catch {
-          // A malformed helper response is never shown to the renderer.
-        }
-        fail();
-      });
-    });
+    const result = await this.runHelper(["delete", storeId, fingerprint]);
+    return result.ok ? { ok: true, value: undefined } : result;
   }
 
   private async run(
@@ -166,19 +92,6 @@ export class MtlsBackend {
     password: string,
     storeId?: string,
   ): Promise<MtlsResult<InspectedBundle>> {
-    try {
-      await this.validateStore();
-    } catch (error) {
-      return {
-        ok: false,
-        error: {
-          code:
-            (error as Error).message === "unsupported"
-              ? "unsupported"
-              : "store-location-unsupported",
-        },
-      };
-    }
     const passwordBytes = Buffer.from(password, "utf8");
     if (
       passwordBytes.length < 1 ||
@@ -195,13 +108,44 @@ export class MtlsBackend {
     header.writeUInt32BE(passwordBytes.length, 4);
     header.writeUInt32BE(bundle.length, 8);
 
+    try {
+      return await this.runHelper(storeId ? [operation, storeId] : [operation], [
+        header,
+        passwordBytes,
+        bundle,
+      ]);
+    } finally {
+      passwordBytes.fill(0);
+    }
+  }
+
+  /** Shared bounded transport for every NSS helper operation. */
+  private runHelper(args: string[], input: Buffer[]): Promise<MtlsResult<InspectedBundle>>;
+  private runHelper(args: string[]): Promise<MtlsResult<undefined>>;
+  private async runHelper(
+    args: string[],
+    input?: Buffer[],
+  ): Promise<MtlsResult<InspectedBundle | undefined>> {
+    try {
+      await this.validateStore();
+    } catch (error) {
+      return {
+        ok: false,
+        error: {
+          code:
+            (error as Error).message === "unsupported"
+              ? "unsupported"
+              : "store-location-unsupported",
+        },
+      };
+    }
     return new Promise((resolve) => {
       let finished = false;
       let outputLength = 0;
       const chunks: Buffer[] = [];
-      const child = spawn(this.helperPath, storeId ? [operation, storeId] : [operation], {
+      const child = spawn(this.helperPath, args, {
         shell: false,
-        stdio: ["pipe", "pipe", "ignore"],
+        stdio: [input ? "pipe" : "ignore", "pipe", "ignore"],
         env: {
           HOME: process.env.HOME,
           XDG_DATA_HOME: process.env.XDG_DATA_HOME,
@@ -209,13 +153,12 @@ export class MtlsBackend {
         },
       });
 
-      const finish = (value: MtlsResult<InspectedBundle>) => {
+      const finish = (value: MtlsResult<InspectedBundle | undefined>) => {
         if (finished) {
           return;
         }
         finished = true;
         clearTimeout(timer);
-        passwordBytes.fill(0);
         resolve(value);
       };
       const fail = () => finish({ ok: false, error: { code: "backend-failed" } });
@@ -225,7 +168,7 @@ export class MtlsBackend {
       }, TIMEOUT_MS);
 
       child.on("error", fail);
-      child.stdin.on("error", fail);
+      child.stdin?.on("error", fail);
       child.stdout.on("data", (chunk: Buffer) => {
         outputLength += chunk.length;
         if (outputLength > MAX_RESPONSE + 4) {
@@ -262,9 +205,14 @@ export class MtlsBackend {
           if (
             message.ok === false &&
             "error" in message &&
-            KNOWN_ERRORS.has(String(message.error))
+            typeof message.error === "string" &&
+            KNOWN_ERRORS.has(message.error)
           ) {
             finish({ ok: false, error: { code: message.error as MtlsErrorCode } });
+            return;
+          }
+          if (message.ok === true && !input) {
+            finish({ ok: true, value: undefined });
             return;
           }
           if (message.ok === true && "certificateDer" in message) {
@@ -287,9 +235,12 @@ export class MtlsBackend {
         fail();
       });
 
-      child.stdin.write(header);
-      child.stdin.write(passwordBytes);
-      child.stdin.end(bundle);
+      if (input && child.stdin) {
+        for (const chunk of input) {
+          child.stdin.write(chunk);
+        }
+        child.stdin.end();
+      }
     });
   }
 }

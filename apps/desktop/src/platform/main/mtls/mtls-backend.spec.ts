@@ -97,6 +97,52 @@ describe("mTLS helper client", () => {
     });
   });
 
+  it.each(["inspect", "delete"] as const)(
+    "rejects malformed or oversized %s responses without exposing helper output",
+    async (operation) => {
+      const malformedHelper = path.join(testRoot, "malformed-helper");
+      const responses = [
+        Buffer.from([0, 0, 0]),
+        Buffer.from([0, 0, 0, 8, 123, 125]),
+        Buffer.alloc(64 * 1024 + 5),
+        ...[
+          { version: 2, ok: true },
+          { version: 1, ok: false, error: "private helper detail" },
+          { version: 1, ok: false, error: ["conflict"] },
+        ].map((message) => {
+          const body = Buffer.from(JSON.stringify(message));
+          const header = Buffer.alloc(4);
+          header.writeUInt32BE(body.length);
+          return Buffer.concat([header, body]);
+        }),
+      ];
+      try {
+        for (const response of responses) {
+          await fs.writeFile(
+            malformedHelper,
+            `#!/usr/bin/env node
+const respond = () => process.stdout.write(Buffer.from("${response.toString("base64")}", "base64"));
+if (process.argv[2] === "delete") { respond(); }
+else { process.stdin.resume(); process.stdin.on("end", respond); }
+`,
+            { mode: 0o700 },
+          );
+          const backend = new MtlsBackend(malformedHelper, allowedStore);
+          const result =
+            operation === "inspect"
+              ? await backend.inspectBundle(Buffer.from([4, 5]), "correct")
+              : await backend.deleteIdentity(
+                  "a".repeat(64),
+                  "12345678-1234-1234-1234-123456789abc",
+                );
+          expect(result).toEqual({ ok: false, error: { code: "backend-failed" } });
+        }
+      } finally {
+        await fs.rm(malformedHelper, { force: true });
+      }
+    },
+  );
+
   it("rejects an input outside the helper's bounds before spawning", async () => {
     const backend = new MtlsBackend("/nonexistent/mtls-helper", allowedStore);
     const result = await backend.inspectBundle(Buffer.from([4, 5]), "a".repeat(4097));

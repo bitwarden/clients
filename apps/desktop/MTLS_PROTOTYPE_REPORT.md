@@ -163,3 +163,29 @@ The helper is **not enabled**: it still lacks trust snapshots, reference-aware k
 The user reports that the startup-fixed Flatpak works correctly, including the restored Settings menu. This checkpoint records the Linux x86_64 Flatpak implementation, certificate import and endpoint binding, startup selection, management UI, restart activation, and the shutdown/readiness corrections. Accounts share the certificate bound to their endpoint; client CA trust is not required locally, and imported chain certificates are not promoted to server trust.
 
 The app-private NSS store remains passwordless, and configuration changes require restart. The user confirmation is a functional retest of the current bundle, not completion of all release gates. The broader lifecycle/trust-isolation matrix, aarch64 support, and activation without restart remain outside the verified checkpoint. Built Flatpak bundles, generated private identities, passwords, NSS databases, and user app data are not included in Git; the only certificate fixture checked in is a public self-signed localhost test certificate.
+
+## Minimality review (2026-10-03)
+
+Reviewed the certificate helper, transport, registry, TLS selection, IPC/preload, Angular manager, desktop service wiring, readiness changes, and existing desktop storage/platform utilities. Repository searches found no existing runtime desktop PKCS#12 manager or client-certificate selection handler to reuse. Code-signing PKCS#12 tooling serves a different purpose.
+
+Changes from this review:
+
+- Defined the public certificate-management types once in `libs/common/src/auth/models/client-certificate.ts`; desktop and Angular use that contract. Desktop-only registry persistence remains in the desktop model.
+- Consolidated helper inspect/import/delete process handling into one bounded transport, retaining timeout, store validation, response limits, password wiping, and sanitized errors. Errors must be strings from the allowlist. Added regression checks for malformed/truncated/oversized responses and unknown error values for both inspect and delete.
+- These changes remove about 70 production lines, with no NSS format, IPC channel, endpoint-binding, restart, or UI workflow changes.
+
+Existing facilities retained: `WindowMain.isTrustedIpcSender`, local bundle URL checks, Electron's managed session, the credential-storage listener, Angular dialogs, and existing app quit/relaunch behavior. The shared UI has one manager used from both pre-login configuration and desktop settings. The unsupported default service keeps other clients from exposing this Flatpak capability.
+
+The separate NSS helper remains necessary to import private keys into the store Chromium actually uses. The registry's immediate durable writes, active/pending snapshots, revision checks, and cleanup journal coordinate NSS mutations across restart and interrupted imports. The main mutation queue serializes complete helper/registry transactions; the registry queue protects individual file mutations. Their scopes differ. Store-path validation in both TypeScript and the helper protects each process entry point. These checks were retained.
+
+The existing desktop data backend is tied to the general `data` store. Moving certificate ownership and cleanup state there would require new persistence/ordering contracts and broader changes. Likewise, TLS challenge ownership requires WebContents and session checks, while management IPC additionally checks the sender frame. The existing shared local-URL predicate is reused for both.
+
+Verification: 85 existing focused desktop tests passed, then all 8 helper transport tests passed including the two new regression cases; all 3 self-hosted configuration tests passed. ESLint and production main, renderer, and preload builds passed; the renderer retained its 38 existing warnings. This refactor was not packaged or retested as an installed Flatpak; the user-tested startup-fixed bundle remains the runtime checkpoint. Native import and trust-isolation release gates from the earlier report still apply.
+
+## Reviewed Flatpak packaged (2026-10-03)
+
+Built `dist/com.bitwarden.desktop.mtls-reviewed-x86_64.flatpak` (104 MiB) from the minimality-review changes. Bundle SHA-256: `9418810c445aa0d603773c75bc0a9904164fb45eae6bbdf1f5e207052595f099`.
+
+The full main/preload/renderer production build, electron-builder directory package, and a fresh Flatpak build-only run passed. The native helper was rebuilt using the Flatpak SDK. As for earlier bundles, manual finish/export/bundle avoided the unavailable AppStream composition step and applied the manifest permissions. An isolated Platform-runtime sandbox check found the packaged executable, app archive, and NSS helper; the helper executed and returned its expected framed unsupported-operation response. The packaged app archive matched the fresh electron-builder archive byte for byte. All 87 focused desktop tests passed; the three Angular activation tests and ESLint passed during review. The renderer retained its 38 existing warnings.
+
+The bundle is an ignored build artifact. This packaging check did not install or launch the replacement against the user's app data, and did not repeat live mTLS login. The previous user-confirmed bundle remains the functional runtime checkpoint until this bundle is retested.
