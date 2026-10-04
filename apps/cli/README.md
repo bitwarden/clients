@@ -63,12 +63,18 @@ bw list --help
 bw create --help
 ```
 
-### Unlock with desktop biometrics
+### Unlock through the desktop app
 
-When `bw unlock` is run interactively without a password, the CLI first attempts to unlock through
-the Bitwarden desktop app. This requires Bitwarden Desktop 2026.9.0 or newer to be running, with
-biometric unlock enabled for the same account. If desktop biometric unlock is unavailable or is
-cancelled, the CLI falls back to the master password prompt.
+The CLI can borrow its unlock state from the Bitwarden desktop app instead of maintaining its own.
+This requires Bitwarden Desktop 2026.9.0 or newer to be running, with unlock sharing enabled for
+the same account.
+
+| Desktop app                                   | CLI behaviour                                                         |
+| --------------------------------------------- | --------------------------------------------------------------------- |
+| Running and unlocked                          | Every command works with no prompt, even with no `BW_SESSION` set     |
+| Running but locked, biometric unlock enabled  | A biometric prompt appears; the desktop window is not brought forward |
+| Running but locked, biometric unlock disabled | The CLI prompts for the master password                               |
+| Not running                                   | The CLI prompts for the master password                               |
 
 Passing a password, `--passwordenv`, or `--passwordfile` skips the biometric attempt. Biometric
 unlock is also skipped when `BW_NOINTERACTION=true`.

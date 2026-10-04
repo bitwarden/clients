@@ -40,6 +40,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { MasterPasswordApiService as MasterPasswordApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import {
   DefaultPasswordPreloginService,
   PasswordPreloginApiService,
@@ -101,6 +102,12 @@ import { SecurityStateService } from "@bitwarden/common/key-management/security-
 import { DefaultSecurityStateService } from "@bitwarden/common/key-management/security-state/services/security-state.service";
 import { SendPasswordService } from "@bitwarden/common/key-management/sends/abstractions/send-password.service";
 import { DefaultSendPasswordService } from "@bitwarden/common/key-management/sends/services/default-send-password.service";
+import {
+  DefaultSharedUnlockPeerService,
+  DefaultSharedUnlockSettingsService,
+  SharedUnlockPeerService,
+  SharedUnlockSettingsService,
+} from "@bitwarden/common/key-management/shared-unlock";
 import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { DefaultV2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/services/default-v2-upgrade-token-state.service";
 import {
@@ -238,7 +245,6 @@ import {
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import {
   AutoUnlockService,
-  DefaultAutoUnlockService,
   DefaultLockService,
   LockService,
   DefaultUnlockService,
@@ -255,8 +261,10 @@ import {
   DefaultVaultExportApiService,
 } from "@bitwarden/vault-export-core";
 
+import { CliAutoUnlockService } from "../key-management/cli-auto-unlock.service";
 import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { CliProcessReloadService } from "../key-management/cli-process-reload.service";
+import { CliSharedUnlockService } from "../key-management/cli-shared-unlock.service";
 import { CliUserKeyRotationService } from "../key-management/cli-user-key-rotation-service";
 import { CliSessionTimeoutTypeService } from "../key-management/session-timeout/services/cli-session-timeout-type.service";
 import { devFlagEnabled, devFlagValue, flagEnabled } from "../platform/flags";
@@ -395,6 +403,9 @@ export class ServiceContainer {
   autoUnlockService: AutoUnlockService;
   biometricsService: CliBiometricsService;
   ipcService: CliIpcService;
+  sharedUnlockSettingsService: SharedUnlockSettingsService;
+  sharedUnlockPeerService: SharedUnlockPeerService;
+  sharedUnlockService: CliSharedUnlockService;
   private accountCryptographicStateService: DefaultAccountCryptographicStateService;
   private v2UpgradeTokenStateService: V2UpgradeTokenStateService;
 
@@ -567,7 +578,7 @@ export class ServiceContainer {
       this.biometricsService,
     );
 
-    this.autoUnlockService = new DefaultAutoUnlockService(
+    this.autoUnlockService = new CliAutoUnlockService(
       this.keyService,
       this.stateService,
       this.stateProvider,
@@ -1063,6 +1074,26 @@ export class ServiceContainer {
       this.keyService,
     );
 
+    this.sharedUnlockSettingsService = new DefaultSharedUnlockSettingsService(this.stateProvider);
+    this.sharedUnlockPeerService = new DefaultSharedUnlockPeerService(
+      this.ipcService,
+      this.accountService,
+      this.lockService,
+      this.platformUtilsService,
+      this.vaultTimeoutSettingsService,
+      this.environmentService,
+      this.sharedUnlockSettingsService,
+      this.unlockService,
+      this.configService,
+    );
+    this.sharedUnlockService = new CliSharedUnlockService(
+      this.configService,
+      this.ipcService,
+      this.sharedUnlockPeerService,
+      this.unlockService,
+      this.logService,
+    );
+
     this.vaultTimeoutService = new DefaultVaultTimeoutService(
       this.accountService,
       this.platformUtilsService,
@@ -1260,7 +1291,8 @@ export class ServiceContainer {
     await this.migrationRunner.run();
 
     // Reading the flag needs migrated storage, so this cannot run any earlier.
-    await this.connectToDesktop();
+    const desktopConnected = await this.connectToDesktop();
+
     this.containerService.attachToGlobal(global);
     await this.i18nService.init();
     this.twoFactorService.init();
@@ -1280,6 +1312,10 @@ export class ServiceContainer {
       } catch (e) {
         this.logService.error("[ServiceContainer] Failed to auto-unlock user on init", e);
       }
+
+      if (desktopConnected) {
+        await this.startSharedUnlock(activeAccount.id);
+      }
     }
 
     this.inited = true;
@@ -1287,25 +1323,59 @@ export class ServiceContainer {
 
   /**
    * Opens SDK IPC to the desktop app, which spawns its native-messaging proxy. Skipped
-   * entirely when the flag is off, so an unflagged CLI never starts a proxy process.
+   * entirely when neither flag is on, so an unflagged CLI never starts a proxy process.
    *
    * Desktop IPC is optional: commands that do not use desktop integration must continue
    * to work when the desktop app is unavailable or incompatible.
    */
-  private async connectToDesktop(): Promise<void> {
-    if (!(await this.configService.getFeatureFlag(FeatureFlag.BiometricsSDKIPC))) {
-      return;
+  private async connectToDesktop(): Promise<boolean> {
+    const flags = await Promise.all([
+      this.configService.getFeatureFlag(FeatureFlag.BiometricsSDKIPC),
+      this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart2),
+    ]);
+    if (!flags.some((enabled) => enabled)) {
+      return false;
     }
 
     try {
       const desktopVersion = await this.ipcService.verifyDesktopConnection();
       this.logService.info(`[IPC] Connected to Bitwarden Desktop ${desktopVersion}`);
+      return true;
     } catch (error) {
       this.logService.info("[IPC] Could not connect to Bitwarden Desktop", error);
+      return false;
     }
   }
 
+  /**
+   * Connects to the desktop app to attempt to unlock via it
+   */
+  private async startSharedUnlock(userId: UserId): Promise<void> {
+    if (!(await this.sharedUnlockService.start())) {
+      return;
+    }
+
+    const locked =
+      (await firstValueFrom(this.authService.authStatusFor$(userId))) ===
+      AuthenticationStatus.Locked;
+    if (!locked) {
+      return;
+    }
+
+    await this.sharedUnlockService.waitForRemoteUnlock(userId);
+  }
+
   dispose(): void {
+    // Releases the peer's sync timer, without which the process would never exit.
+    this.sharedUnlockService.abort();
     this.ipcService.disconnect();
+  }
+
+  /**
+   * Disposes, giving anything the shared unlock peer just sent a moment to reach the desktop app.
+   * Prefer this wherever the caller can await; {@link dispose} is for exit handlers.
+   */
+  async disposeAndFlush(): Promise<void> {
+    await this.sharedUnlockService.stop();
   }
 }

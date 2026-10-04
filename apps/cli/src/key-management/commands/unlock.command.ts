@@ -4,6 +4,8 @@ import { firstValueFrom } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -35,6 +37,7 @@ export class UnlockCommand {
     private encryptedMigrator: EncryptedMigrator,
     private unlockService: UnlockService,
     private biometricsService: CliBiometricsService,
+    private authService: AuthService,
   ) {}
 
   async run(password: string, cmdOptions: Record<string, any>) {
@@ -44,6 +47,13 @@ export class UnlockCommand {
       return Response.error("No active account found");
     }
     const userId = activeAccount.id;
+
+    if (
+      (await firstValueFrom(this.authService.authStatusFor$(userId))) ===
+      AuthenticationStatus.Unlocked
+    ) {
+      return this.successResponse();
+    }
 
     const passwordWasProvided =
       (password != null && password !== "") ||
@@ -132,6 +142,11 @@ export class UnlockCommand {
   }
 
   private async successResponse() {
+    // Unlocked by the desktop app through shared unlock: there is no session key to hand out.
+    if (process.env.BW_SESSION == null || process.env.BW_SESSION === "") {
+      return Response.success(new MessageResponse("Your vault is now unlocked!", null));
+    }
+
     const res = new MessageResponse(
       "Your vault is now unlocked!",
       "\n" +

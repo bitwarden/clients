@@ -37,6 +37,11 @@ export class CliIpcService extends IpcService {
     this.transport?.disconnect();
   }
 
+  async drainAndDisconnect(): Promise<void> {
+    this.desktopVerification = undefined;
+    await this.transport?.drain();
+  }
+
   /**
    * Verifies that the connected desktop understands the SDK IPC protocol before
    * sending a biometric request. Older desktop versions expose the same socket,
