@@ -29,6 +29,7 @@ export class LowdbStorageService implements AbstractStorageService {
   private db: lowdb.LowdbSync<any>;
   private defaults: any;
   private ready = false;
+  private lockQueue: Promise<void> = Promise.resolve();
   private updatesSubject = new Subject<StorageUpdate>();
   updates$;
 
@@ -158,18 +159,29 @@ export class LowdbStorageService implements AbstractStorageService {
     });
   }
 
-  protected async lockDbFile<T>(action: () => T): Promise<T> {
+  /**
+   * Runs one access at a time within this process. The file lock only guards against other
+   * processes; contending for it with ourselves makes proper-lockfile back off for 100-250ms.
+   */
+  protected lockDbFile<T>(action: () => T): Promise<T> {
+    const result = this.lockQueue.then(() => this.lockDbFileNow(action));
+    this.lockQueue = result.then(
+      (): void => undefined,
+      (): void => undefined,
+    );
+    return result;
+  }
+
+  private async lockDbFileNow<T>(action: () => T): Promise<T> {
     if (this.requireLock && !Utils.isNullOrWhitespace(this.dataFilePath)) {
       this.logService.info("acquiring db file lock");
-      return await lock.lock(this.dataFilePath, { retries: retries }).then((release) => {
-        try {
-          return action();
-        } finally {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          release();
-        }
-      });
+      const release = await lock.lock(this.dataFilePath, { retries: retries });
+      try {
+        return action();
+      } finally {
+        // Awaited, so the next queued access finds the lock free.
+        await release();
+      }
     } else {
       return action();
     }
