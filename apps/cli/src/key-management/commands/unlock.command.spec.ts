@@ -3,6 +3,8 @@ import { of } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -39,6 +41,7 @@ describe("UnlockCommand", () => {
   const encryptedMigrator = mock<EncryptedMigrator>();
   const unlockService = mock<UnlockService>();
   const biometricsService = mock<CliBiometricsService>();
+  const authService = mock<AuthService>();
 
   const mockMasterPassword = "testExample";
   const activeAccount: Account = {
@@ -76,6 +79,7 @@ describe("UnlockCommand", () => {
     i18nService.t.mockImplementation((key: string) => key);
     accountService.activeAccount$ = of(activeAccount);
     keyConnectorService.convertAccountRequired$ = of(false);
+    authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Locked));
 
     Object.defineProperty(SdkLoadService, "Ready", {
       value: Promise.resolve(),
@@ -97,10 +101,52 @@ describe("UnlockCommand", () => {
       encryptedMigrator,
       unlockService,
       biometricsService,
+      authService,
     );
   });
 
   describe("run", () => {
+    describe("when the vault is already unlocked", () => {
+      beforeEach(() => {
+        // The container borrows the desktop app's unlock state on the way in, so `unlock` has
+        // nothing left to ask for.
+        authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+      });
+
+      afterEach(() => {
+        delete process.env.BW_SESSION;
+      });
+
+      it("returns success without prompting", async () => {
+        const getPassword = jest.spyOn(CliUtils, "getPassword");
+
+        const response = await command.run(null as unknown as string, {});
+
+        expect(response.success).toBe(true);
+        expect(getPassword).not.toHaveBeenCalled();
+        expect(biometricsService.unlockWithBiometricsForUser).not.toHaveBeenCalled();
+        expect(unlockService.unlockWithMasterPassword).not.toHaveBeenCalled();
+      });
+
+      it("hands out no session key when none is set", async () => {
+        delete process.env.BW_SESSION;
+
+        const response = await command.run(null as unknown as string, {});
+
+        expect(response.success).toBe(true);
+        expect((response.data as MessageResponse).raw).toBeUndefined();
+        expect((response.data as MessageResponse).message).toBeNull();
+      });
+
+      it("hands out the session key already in use", async () => {
+        process.env.BW_SESSION = "existing-session-key";
+
+        const response = await command.run(null as unknown as string, {});
+
+        expect((response.data as MessageResponse).raw).toBe("existing-session-key");
+      });
+    });
+
     test.each([null as unknown as Account, undefined as unknown as Account])(
       "returns error response when the active account is %s",
       async (account) => {

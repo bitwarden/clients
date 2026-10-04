@@ -2,7 +2,7 @@ import { firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
-import { UserId, SharedUnlockDriver, SymmetricKey } from "@bitwarden/sdk-internal";
+import { PeerLockState, UserId, SharedUnlockDriver, SymmetricKey } from "@bitwarden/sdk-internal";
 import { LockService, LockSource, UnlockService } from "@bitwarden/unlock";
 import { UserId as TSUserId } from "@bitwarden/user-core";
 
@@ -29,6 +29,7 @@ export class JsSharedUnlockDriver implements SharedUnlockDriver {
     private platformUtilsService: PlatformUtilsService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private environmentService: EnvironmentService,
+    private reportPeerState: (userId: TSUserId, lockState: PeerLockState) => void,
   ) {}
 
   async lock_user(user_id: UserId): Promise<void> {
@@ -40,6 +41,10 @@ export class JsSharedUnlockDriver implements SharedUnlockDriver {
       fromSdkUserId(user_id),
       SymmetricCryptoKey.fromSdk(user_key) as UserKey,
     );
+  }
+
+  async on_peer_state(user_id: UserId, lock_state: PeerLockState): Promise<void> {
+    this.reportPeerState(fromSdkUserId(user_id), lock_state);
   }
 
   async list_users(): Promise<UserId[]> {

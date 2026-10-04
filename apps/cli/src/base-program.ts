@@ -188,6 +188,7 @@ export abstract class BaseProgram {
         this.serviceContainer.encryptedMigrator,
         this.serviceContainer.unlockService,
         this.serviceContainer.biometricsService,
+        this.serviceContainer.authService,
       );
       const response = await command.run(null, null);
       if (!response.success) {

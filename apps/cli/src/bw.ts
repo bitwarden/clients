@@ -35,7 +35,11 @@ async function main() {
     await program.parseAsync(process.argv);
   } finally {
     process.removeListener("exit", dispose);
-    dispose();
+    try {
+      await serviceContainer.disposeAndFlush();
+    } finally {
+      dispose();
+    }
   }
 }
 
