@@ -496,11 +496,10 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Dismissed as soon as the dialog renders rather than once it closes: the "learn more" link
-    // opens a new tab, which tears down the popup before any close handler can run.
-    await this.nudgesService.dismissNudge(NudgeType.Vfo1NewExperience, userId);
-
+    // The dialog dismisses the nudge itself, and only from one of its actions, so a popup closed
+    // with the dialog still open shows it again on the next vault load.
     await NewExperienceDialogComponent.open(this.dialogService, {
+      userId,
       lightImgSrc: NEW_EXPERIENCE_LIGHT_IMG,
       darkImgSrc: NEW_EXPERIENCE_DARK_IMG,
     });

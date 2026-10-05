@@ -1,5 +1,15 @@
 <bit-dialog dialogSize="default">
   <span bitDialogTitle>{{ "newExperienceDialogTitle" | i18n }}</span>
+  <button
+    bitDialogHeaderEnd
+    type="button"
+    bitIconButton="bwi-close"
+    buttonType="primaryGhost"
+    size="default"
+    id="new-experience-dialog_button_close"
+    [label]="'close' | i18n"
+    (click)="close()"
+  ></button>
   <div bitDialogContent>
     <img
       class="tw-w-full tw-rounded-lg"
@@ -29,6 +39,7 @@
       target="_blank"
       rel="noreferrer"
       id="new-experience-dialog_anchor_learn-more"
+      (click)="learnMore($event)"
     >
       {{ "learnMore" | i18n }}
     </a>

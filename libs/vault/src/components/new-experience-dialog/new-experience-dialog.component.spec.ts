@@ -1,12 +1,15 @@
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, flushMicrotasks, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
+import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService } from "@bitwarden/components";
 
 import {
@@ -19,17 +22,22 @@ import {
 describe("NewExperienceDialogComponent", () => {
   let fixture: ComponentFixture<NewExperienceDialogComponent>;
   let dialogRef: MockProxy<DialogRef<NewExperienceDialogResult>>;
+  let nudgesService: MockProxy<NudgesService>;
+  let platformUtilsService: MockProxy<PlatformUtilsService>;
   let selectedTheme: BehaviorSubject<Theme>;
 
   const params: NewExperienceDialogParams = {
+    userId: "user-1" as UserId,
     lightImgSrc: "light.png",
     darkImgSrc: "dark.png",
   };
 
   const buildComponent = async () => {
     dialogRef = mock<DialogRef<NewExperienceDialogResult>>();
-    // A bare mock reports every property as truthy, which would hide `bit-dialog`'s close button.
-    Object.defineProperty(dialogRef, "disableClose", { value: false });
+    // Matches how `open` configures the dialog, which hides `bit-dialog`'s built-in close button.
+    Object.defineProperty(dialogRef, "disableClose", { value: true });
+    nudgesService = mock<NudgesService>();
+    platformUtilsService = mock<PlatformUtilsService>();
     selectedTheme = new BehaviorSubject<Theme>(ThemeTypes.Light);
 
     const i18nService = mock<I18nService>();
@@ -44,6 +52,8 @@ describe("NewExperienceDialogComponent", () => {
         { provide: DIALOG_DATA, useValue: params },
         { provide: DialogRef, useValue: dialogRef },
         { provide: I18nService, useValue: i18nService },
+        { provide: NudgesService, useValue: nudgesService },
+        { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: ThemeStateService, useValue: themeStateService },
         { provide: SYSTEM_THEME_OBSERVABLE, useValue: new BehaviorSubject(ThemeTypes.Light) },
       ],
@@ -62,6 +72,8 @@ describe("NewExperienceDialogComponent", () => {
     fixture.nativeElement.querySelector(
       "#new-experience-dialog_anchor_learn-more",
     ) as HTMLAnchorElement;
+  const closeButton = () =>
+    fixture.nativeElement.querySelector("#new-experience-dialog_button_close") as HTMLButtonElement;
 
   afterEach(() => {
     TestBed.resetTestingModule();
@@ -85,8 +97,11 @@ describe("NewExperienceDialogComponent", () => {
     expect(learnMoreLink().getAttribute("target")).toBe("_blank");
   });
 
-  it("offers a header close button, so the sheet can be dismissed without exploring", () => {
-    expect(fixture.nativeElement.querySelector("button[bitIconButton='bwi-close']")).not.toBeNull();
+  it("offers a single header close button, so the sheet can be dismissed without exploring", () => {
+    expect(
+      fixture.nativeElement.querySelectorAll("button[bitIconButton='bwi-close']"),
+    ).toHaveLength(1);
+    expect(closeButton()).not.toBeNull();
   });
 
   it("renders the description as secondary text, so the title carries the emphasis", () => {
@@ -120,10 +135,42 @@ describe("NewExperienceDialogComponent", () => {
     });
   });
 
-  it("closes with the explore result", () => {
-    exploreButton().click();
+  describe("actions", () => {
+    const expectNudgeDismissed = () =>
+      expect(nudgesService.dismissNudge).toHaveBeenCalledWith(
+        NudgeType.Vfo1NewExperience,
+        params.userId,
+      );
 
-    expect(dialogRef.close).toHaveBeenCalledWith(NewExperienceDialogResult.Explore);
+    it("dismisses the nudge and closes with the explore result", fakeAsync(() => {
+      exploreButton().click();
+      flushMicrotasks();
+
+      expectNudgeDismissed();
+      expect(dialogRef.close).toHaveBeenCalledWith(NewExperienceDialogResult.Explore);
+    }));
+
+    it("dismisses the nudge and closes with the dismissed result from the close button", fakeAsync(() => {
+      closeButton().click();
+      flushMicrotasks();
+
+      expectNudgeDismissed();
+      expect(dialogRef.close).toHaveBeenCalledWith(NewExperienceDialogResult.Dismissed);
+    }));
+
+    it("dismisses the nudge before opening the learn more link", fakeAsync(() => {
+      const click = new MouseEvent("click", { cancelable: true });
+      learnMoreLink().dispatchEvent(click);
+      flushMicrotasks();
+
+      expect(click.defaultPrevented).toBe(true);
+      expectNudgeDismissed();
+      expect(platformUtilsService.launchUri).toHaveBeenCalledWith(NEW_EXPERIENCE_LEARN_MORE_URL);
+      expect(nudgesService.dismissNudge.mock.invocationCallOrder[0]).toBeLessThan(
+        platformUtilsService.launchUri.mock.invocationCallOrder[0],
+      );
+      expect(dialogRef.close).toHaveBeenCalledWith(NewExperienceDialogResult.LearnMore);
+    }));
   });
 
   describe("open", () => {
@@ -141,15 +188,20 @@ describe("NewExperienceDialogComponent", () => {
       const { dialogService, result } = openWith(NewExperienceDialogResult.Explore);
       await result;
 
-      expect(dialogService.open).toHaveBeenCalledWith(NewExperienceDialogComponent, {
-        data: params,
-      });
+      expect(dialogService.open).toHaveBeenCalledWith(
+        NewExperienceDialogComponent,
+        expect.not.objectContaining({ positionStrategy: expect.anything() }),
+      );
     });
 
-    it("reports a close carrying no result as dismissed", async () => {
-      const { result } = openWith(undefined);
+    it("disables escape and backdrop closes, so only the dialog's actions dismiss the nudge", async () => {
+      const { dialogService, result } = openWith(NewExperienceDialogResult.Explore);
+      await result;
 
-      await expect(result).resolves.toBe(NewExperienceDialogResult.Dismissed);
+      expect(dialogService.open).toHaveBeenCalledWith(NewExperienceDialogComponent, {
+        data: params,
+        disableClose: true,
+      });
     });
 
     it("passes the explore result through", async () => {

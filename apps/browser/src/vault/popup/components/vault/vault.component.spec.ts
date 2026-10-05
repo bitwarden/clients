@@ -1259,25 +1259,22 @@ describe("VaultComponent", () => {
       expect(newExperienceDialogSpy).toHaveBeenCalledWith(
         expect.any(Object),
         expect.objectContaining({
+          userId: "user-1",
           lightImgSrc: expect.stringContaining("new-experience.light.png"),
           darkImgSrc: expect.stringContaining("new-experience.dark.png"),
         }),
       );
     }));
 
-    it("dismisses the nudge when the dialog is shown, so it does not return", fakeAsync(() => {
-      initVault();
-
-      expect(nudgesSvc.dismissNudge).toHaveBeenCalledWith(NudgeType.Vfo1NewExperience, "user-1");
-    }));
-
-    it("dismisses the nudge even when the dialog never closes", fakeAsync(() => {
-      // "Learn more" opens a new tab, which tears the popup down before the dialog can close.
+    it("leaves dismissing the nudge to the dialog's actions", fakeAsync(() => {
       newExperienceDialogSpy.mockReturnValue(new Promise(() => {}));
 
       initVault();
 
-      expect(nudgesSvc.dismissNudge).toHaveBeenCalledWith(NudgeType.Vfo1NewExperience, "user-1");
+      expect(nudgesSvc.dismissNudge).not.toHaveBeenCalledWith(
+        NudgeType.Vfo1NewExperience,
+        expect.anything(),
+      );
     }));
 
     it("does not open the dialog when the nudge is already dismissed", fakeAsync(() => {
