@@ -108,12 +108,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
 
   private readonly anchorElement = computed(() => {
     const anchor = this.anchor();
-    if (anchor) {
-      return anchor instanceof ElementRef ? anchor.nativeElement : anchor;
-    }
-    // An `<ng-container>` host is a comment node, which can't be anchored to
-    const host = this.hostElementRef.nativeElement;
-    return host instanceof HTMLElement ? host : undefined;
+    return anchor instanceof ElementRef ? anchor.nativeElement : anchor;
   });
   /** `anchorElement` once it has finished animating into place. */
   private readonly settledAnchor = signal<HTMLElement | undefined>(undefined);
@@ -189,7 +184,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
       if (this.isDestroyed) {
         return;
       }
-      const anchor = this.settledAnchor();
+      const anchor = this.readyAnchor();
 
       // Handle closing
       if (!this.popoverOpen() && this.overlayRef) {
@@ -198,7 +193,8 @@ export class PopoverAnchorForDirective implements OnDestroy {
       }
 
       // The anchor went away or was replaced while open
-      if (this.overlayRef && this.anchorElement() !== this.openAnchor) {
+      const target = this.anchorElement() ?? this.hostElement();
+      if (this.overlayRef && target !== this.openAnchor) {
         this.destroyPopover();
         return;
       }
@@ -214,7 +210,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
 
   /** Programmatically opens the popover */
   openPopover() {
-    const anchor = this.settledAnchor();
+    const anchor = this.readyAnchor();
     if (this.overlayRef || !anchor) {
       return;
     }
@@ -241,6 +237,18 @@ export class PopoverAnchorForDirective implements OnDestroy {
       }
       this.destroyPopover();
     });
+  }
+
+  /** Read on each call, since a `PopoverElementProvider` may rebind its element after init. */
+  private hostElement(): HTMLElement | undefined {
+    // An `<ng-container>` host is a comment node, which can't be anchored to
+    const host = this.hostElementRef.nativeElement;
+    return host instanceof HTMLElement ? host : undefined;
+  }
+
+  /** Undefined while an explicit `anchor` is missing or still animating. */
+  private readyAnchor(): HTMLElement | undefined {
+    return this.anchor() ? this.settledAnchor() : this.hostElement();
   }
 
   private getClosedEvents(): Observable<any> {
