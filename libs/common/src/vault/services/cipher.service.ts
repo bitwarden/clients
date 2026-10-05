@@ -38,7 +38,7 @@ import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid
 import { OrgKey, UserKey } from "../../types/key";
 import { filterOutNullish, perUserCache$ } from "../../vault/utils/observable-utilities";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
-import { CipherSdkService } from "../abstractions/cipher-sdk.service";
+import { CipherSdkService, DecryptAllCiphersResult } from "../abstractions/cipher-sdk.service";
 import {
   CipherService as CipherServiceAbstraction,
   EncryptionContext,
@@ -52,10 +52,8 @@ import { Cipher } from "../models/domain/cipher";
 import { SortedCiphersCache } from "../models/domain/sorted-ciphers-cache";
 import { CipherBulkDeleteRequest } from "../models/request/cipher-bulk-delete.request";
 import { CipherBulkRestoreRequest } from "../models/request/cipher-bulk-restore.request";
-import { CipherBulkShareRequest } from "../models/request/cipher-bulk-share.request";
 import { CipherCreateRequest } from "../models/request/cipher-create.request";
 import { CipherPartialRequest } from "../models/request/cipher-partial.request";
-import { CipherShareRequest } from "../models/request/cipher-share.request";
 import { CipherWithIdRequest } from "../models/request/cipher-with-id.request";
 import { CipherRequest } from "../models/request/cipher.request";
 import { CipherResponse } from "../models/response/cipher.response";
@@ -92,10 +90,6 @@ export class CipherService implements CipherServiceAbstraction {
    */
   private readonly sdkCipherCrudEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
     FeatureFlag.PM27632_SdkCipherCrudOperations,
-  );
-
-  private readonly sdkCipherShareEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
-    FeatureFlag.PM28190CipherSharingOpsToSdk,
   );
 
   private readonly sdkCipherAttachmentOpsEnabled$: Observable<boolean> =
@@ -626,6 +620,18 @@ export class CipherService implements CipherServiceAbstraction {
     }
   }
 
+  async getCiphersOrganizationLogins(organizationId: string): Promise<DecryptAllCiphersResult> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+
+    const result = await this.cipherSdkService.getOrganizationLoginCiphers(organizationId, userId);
+    result.successes.sort(this.getLocaleSortingFunction());
+
+    return result;
+  }
+
   private async decryptOrganizationCiphersResponse(
     response: ListResponse<CipherResponse>,
   ): Promise<CipherView[]> {
@@ -905,105 +911,6 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     originalCipherView?: CipherView,
   ): Promise<Cipher> {
-    const useSdkShare = await firstValueFrom(this.sdkCipherShareEnabled$);
-    if (useSdkShare) {
-      return this.shareWithServerUsingSdk(
-        cipher,
-        organizationId,
-        collectionIds,
-        userId,
-        originalCipherView,
-      );
-    }
-
-    // Get original cipher for adjustCipherHistory
-    let originalCipher: Cipher | undefined;
-    if (originalCipherView) {
-      // Encrypt the provided originalCipherView
-      const encryptResult = await this.cipherEncryptionService.encrypt(originalCipherView, userId);
-      originalCipher = encryptResult?.cipher;
-    }
-    // If originalCipher is undefined, adjustCipherHistory will fetch from cache
-    await this.adjustCipherHistory(cipher, userId, originalCipher);
-
-    // The SDK does not expect the cipher to already have an organizationId. It will result in the wrong
-    // cipher encryption key being used during the move to organization operation.
-    if (cipher.organizationId != null) {
-      throw new Error("Cipher is already associated with an organization.");
-    }
-
-    const encCipher = await this.cipherEncryptionService.moveToOrganization(
-      cipher,
-      organizationId as OrganizationId,
-      userId,
-    );
-    encCipher.cipher.collectionIds = collectionIds;
-
-    const request = new CipherShareRequest(encCipher);
-    const response = await this.apiService.putShareCipher(cipher.id, request);
-    const data = new CipherData(response, collectionIds);
-    await this.upsert(data);
-    return new Cipher(data, cipher.localData);
-  }
-
-  async shareManyWithServer(
-    ciphers: CipherView[],
-    organizationId: string,
-    collectionIds: string[],
-    userId: UserId,
-  ) {
-    const useSdkShare = await firstValueFrom(this.sdkCipherShareEnabled$);
-    if (useSdkShare) {
-      return this.shareManyWithServerUsingSdk(ciphers, organizationId, collectionIds, userId);
-    }
-
-    const promises: Promise<any>[] = [];
-    const encCiphers: Cipher[] = [];
-    for (const cipher of ciphers) {
-      // The SDK does not expect the cipher to already have an organizationId. It will result in the wrong
-      // cipher encryption key being used during the move to organization operation.
-      if (cipher.organizationId != null) {
-        throw new Error("Cipher is already associated with an organization.");
-      }
-
-      promises.push(
-        this.cipherEncryptionService
-          .moveToOrganization(cipher, organizationId as OrganizationId, userId)
-          .then((encCipher) => {
-            encCipher.cipher.collectionIds = collectionIds;
-            encCiphers.push(encCipher.cipher);
-          }),
-      );
-    }
-    await Promise.all(promises);
-    const request = new CipherBulkShareRequest(encCiphers, collectionIds, userId);
-    try {
-      const response = await this.apiService.putShareCiphers(request);
-      const responseMap = new Map(response.data.map((r) => [r.id, r]));
-
-      encCiphers.forEach((cipher) => {
-        const matchingCipher = responseMap.get(cipher.id);
-        if (matchingCipher) {
-          cipher.revisionDate = new Date(matchingCipher.revisionDate);
-        }
-      });
-      await this.upsert(encCiphers.map((c) => c.toCipherData()));
-    } catch (e) {
-      for (const cipher of ciphers) {
-        cipher.organizationId = null;
-        cipher.collectionIds = null;
-      }
-      throw e;
-    }
-  }
-
-  private async shareWithServerUsingSdk(
-    cipher: CipherView,
-    organizationId: string,
-    collectionIds: string[],
-    userId: UserId,
-    originalCipherView?: CipherView,
-  ): Promise<Cipher> {
     if (cipher.organizationId != null) {
       throw new Error("Cipher is already associated with an organization.");
     }
@@ -1025,7 +932,7 @@ export class CipherService implements CipherServiceAbstraction {
     return encryptResult.cipher;
   }
 
-  private async shareManyWithServerUsingSdk(
+  async shareManyWithServer(
     ciphers: CipherView[],
     organizationId: string,
     collectionIds: string[],

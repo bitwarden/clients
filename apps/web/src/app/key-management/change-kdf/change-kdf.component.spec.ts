@@ -4,7 +4,6 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -35,7 +34,6 @@ describe("ChangeKdfComponent", () => {
   // Mock Services
   let mockDialogService: MockProxy<DialogService>;
   let mockKdfConfigService: MockProxy<KdfConfigService>;
-  let mockConfigService: MockProxy<ConfigService>;
   let mockI18nService: MockProxy<I18nService>;
   let accountService: FakeAccountService;
   let mockSdkService: MockProxy<SdkService>;
@@ -99,12 +97,9 @@ describe("ChangeKdfComponent", () => {
   beforeEach(() => {
     mockDialogService = mock<DialogService>();
     mockKdfConfigService = mock<KdfConfigService>();
-    mockConfigService = mock<ConfigService>();
     mockI18nService = mock<I18nService>();
     accountService = mockAccountServiceWith(mockUserId);
     formBuilder = new FormBuilder();
-
-    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
     mockI18nService.t.mockImplementation((key) => `${key}-used-i18n`);
 
@@ -134,7 +129,6 @@ describe("ChangeKdfComponent", () => {
         { provide: KdfConfigService, useValue: mockKdfConfigService },
         { provide: AccountService, useValue: accountService },
         { provide: FormBuilder, useValue: formBuilder },
-        { provide: ConfigService, useValue: mockConfigService },
         { provide: I18nService, useValue: mockI18nService },
         { provide: SdkService, useValue: mockSdkService },
       ],
@@ -203,39 +197,6 @@ describe("ChangeKdfComponent", () => {
         );
       });
     });
-
-    it.each([
-      [true, false],
-      [false, true],
-    ])(
-      "should show log out banner = %s when feature flag observable is %s",
-      async (showLogOutBanner, forceUpgradeKdfFeatureFlag) => {
-        // Arrange
-        const mockPBKDF2Config = new PBKDF2KdfConfig(600_000);
-        mockKdfConfigService.getKdfConfig.mockResolvedValue(mockPBKDF2Config);
-        mockConfigService.getFeatureFlag$.mockReturnValue(of(forceUpgradeKdfFeatureFlag));
-
-        // Act
-        fixture = TestBed.createComponent(ChangeKdfComponent);
-        component = fixture.componentInstance;
-        await component.ngOnInit();
-        fixture.detectChanges();
-
-        // Assert
-        const calloutElement = fixture.debugElement.query((el) =>
-          el.nativeElement.textContent?.includes("kdfSettingsChangeLogoutWarning"),
-        );
-
-        if (showLogOutBanner) {
-          expect(calloutElement).not.toBeNull();
-          expect(calloutElement.nativeElement.textContent).toContain(
-            "kdfSettingsChangeLogoutWarning-used-i18n",
-          );
-        } else {
-          expect(calloutElement).toBeNull();
-        }
-      },
-    );
   });
 
   describe("KDF Type Switching", () => {
