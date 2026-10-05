@@ -226,12 +226,65 @@ describe("PamGatedCipherReloader", () => {
     await settleFake();
     expect(emissions[0]).toBeInstanceOf(Cipher);
 
-    // The server is never asked again, and would still hand back the lease if it were.
+    requestsApi.getCipherAccessState.mockResolvedValue(stateWithoutLease());
     await jest.advanceTimersByTimeAsync(150_000);
 
     expect(emissions).toHaveLength(2);
     expect(emissions[1]).toBeNull();
-    expect(requestsApi.getCipherAccessState).toHaveBeenCalledTimes(1);
+    expect(requestsApi.getCipherAccessState).toHaveBeenCalledTimes(2);
+  });
+
+  it("stays revealed past the original end of a lease extended elsewhere", async () => {
+    jest.useFakeTimers();
+    requestsApi.getCipherAccessState.mockResolvedValue(
+      stateWithLease("lease-1", Date.now() + 150_000),
+    );
+    apiService.getFullCipherDetails.mockResolvedValue(cipherResponse());
+
+    const emissions = collect();
+    await settleFake();
+
+    requestsApi.getCipherAccessState.mockResolvedValue(
+      stateWithLease("lease-1", Date.now() + 30 * 60 * 1000),
+    );
+    await jest.advanceTimersByTimeAsync(600_000);
+
+    expect(emissions).toHaveLength(1);
+    expect(emissions[0]).toBeInstanceOf(Cipher);
+    expect(apiService.getFullCipherDetails).toHaveBeenCalledTimes(1);
+  });
+
+  it("re-locks at the window's close when the re-read fails", async () => {
+    jest.useFakeTimers();
+    requestsApi.getCipherAccessState.mockResolvedValue(
+      stateWithLease("lease-1", Date.now() + 150_000),
+    );
+    apiService.getFullCipherDetails.mockResolvedValue(cipherResponse());
+
+    const emissions = collect();
+    await settleFake();
+
+    requestsApi.getCipherAccessState.mockRejectedValue(new Error("boom"));
+    await jest.advanceTimersByTimeAsync(150_000);
+
+    expect(emissions).toHaveLength(2);
+    expect(emissions[1]).toBeNull();
+  });
+
+  it("stays revealed when a re-read fails while the lease is still running", async () => {
+    requestsApi.getCipherAccessState.mockResolvedValue(stateWithLease("lease-1"));
+    apiService.getFullCipherDetails.mockResolvedValue(cipherResponse());
+
+    const emissions = collect();
+    await settle();
+
+    requestsApi.getCipherAccessState.mockRejectedValue(new Error("boom"));
+    accessRefresh.notifyAccessChanged(CIPHER_ID);
+    await settle();
+
+    expect(emissions).toHaveLength(1);
+    expect(emissions[0]).toBeInstanceOf(Cipher);
+    expect(logService.error).toHaveBeenCalled();
   });
 
   it("stays revealed while the lease's window is still open", async () => {

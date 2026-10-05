@@ -168,12 +168,31 @@ describe("ItemDetailsStateBadgeComponent", () => {
     await jest.advanceTimersByTimeAsync(6_000);
     fixture.detectChanges();
 
-    // Released, not re-read; the shared badge renders its own "Access ended" recipe.
     expect(component["badge"]()?.kind).toBe("active");
-    expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(1);
+    expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(2);
     expect(
       fixture.nativeElement.querySelector("[data-testid='access-state-badge-expired']"),
     ).not.toBeNull();
+  });
+
+  it("keeps the pill withheld past the original end of a lease extended elsewhere", async () => {
+    jest.useFakeTimers();
+    accessRequestSdkService.getCipherAccessState.mockResolvedValue(
+      activeLeaseState(Date.now() + 5_000),
+    );
+
+    create(gatedCipher());
+    await jest.advanceTimersByTimeAsync(0);
+    fixture.detectChanges();
+
+    accessRequestSdkService.getCipherAccessState.mockResolvedValue(
+      activeLeaseState(Date.now() + 1_800_000),
+    );
+    await jest.advanceTimersByTimeAsync(6_000);
+    fixture.detectChanges();
+
+    expect(component["badge"]()).toBeNull();
+    expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(2);
   });
 
   it("shows the badge for a lease the server still reports past its window", async () => {
