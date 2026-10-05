@@ -252,6 +252,25 @@ describe("VaultExportService", () => {
     expectEqualCiphers(UserCipherDomains.slice(0, 1), exportedData.data);
   });
 
+  it("exports the sealed data of blob ciphers in encrypted json", async () => {
+    const blobCipher = generateCipherDomain(false);
+    blobCipher.name = undefined;
+    blobCipher.login = undefined;
+    blobCipher.data = "SEALED_BLOB";
+    blobCipher.key = new EncString("CIPHER_KEY");
+    cipherService.getAll.mockResolvedValue([blobCipher]);
+
+    const actual = (await exportService.getExport(
+      userId,
+      "encrypted_json",
+    )) as ExportedVaultAsString;
+
+    const [item] = JSON.parse(actual.data).items;
+    expect(item.data).toBe("SEALED_BLOB");
+    expect(item.login).toBeUndefined();
+    expect(item.key).toBe("CIPHER_KEY");
+  });
+
   it("does not unencrypted export trashed user items", async () => {
     cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews);
 
