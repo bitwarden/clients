@@ -1041,7 +1041,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       );
     }).pipe(
       tap((cart) => {
-        this.previewCart.set(cart);
+        this.previewCart.set(this.withSponsorshipDiscount(cart));
         this.previewFailed.set(false);
       }),
       map((): void => undefined),
@@ -1056,6 +1056,26 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         return of(undefined);
       }),
     );
+  }
+
+  private withSponsorshipDiscount(cart: Cart): Cart {
+    const seats = cart.passwordManager.seats;
+    const sponsorshipDiscount = this.familiesSponsorshipDiscount;
+    if (!seats || sponsorshipDiscount <= 0) {
+      return cart;
+    }
+
+    return {
+      ...cart,
+      passwordManager: {
+        ...cart.passwordManager,
+        seats: { ...seats, cost: sponsorshipDiscount },
+      },
+      discounts: [
+        ...(cart.discounts ?? []),
+        { type: DiscountTypes.AmountOff, value: sponsorshipDiscount, amount: sponsorshipDiscount },
+      ],
+    };
   }
 
   private async refreshSalesTax(): Promise<void> {

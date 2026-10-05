@@ -39,6 +39,22 @@ const ProrationChargePlacements = {
 type ProrationChargePlacement =
   (typeof ProrationChargePlacements)[keyof typeof ProrationChargePlacements];
 
+const DiscountPlacements = {
+  CartLevel: "cart-level",
+  LineLevel: "line-level",
+} as const;
+type DiscountPlacement = (typeof DiscountPlacements)[keyof typeof DiscountPlacements];
+
+const getDiscountPlacement = (flowContext: InvoicePreviewFlowContext): DiscountPlacement => {
+  switch (flowContext) {
+    case InvoicePreviewFlowContext.PersonalCheckout:
+    case InvoicePreviewFlowContext.OrganizationCheckout:
+      return DiscountPlacements.CartLevel;
+    default:
+      return DiscountPlacements.LineLevel;
+  }
+};
+
 const getProrationChargePlacement = (
   flowContext: InvoicePreviewFlowContext,
 ): ProrationChargePlacement => {
@@ -65,6 +81,7 @@ export const adaptInvoicePreviewToCart = (
   options: AdaptInvoicePreviewOptions = {},
 ): Cart => {
   const { passwordManager, secretsManager, planTier } = preview;
+  const keepLineDiscounts = getDiscountPlacement(flowContext) === DiscountPlacements.LineLevel;
 
   const toCartItem = (item: InvoicePreviewItem, hideBreakdown: boolean = false): CartItem => ({
     translationKey: getCartItemTranslationKey(
@@ -78,9 +95,19 @@ export const adaptInvoicePreviewToCart = (
     cost: item.cost,
     // Discounts pass through untouched: the server's `amount` is authoritative and the renderer
     // does not cascade per-line discounts.
-    ...(item.discounts ? { discounts: item.discounts } : {}),
+    ...(keepLineDiscounts && item.discounts ? { discounts: item.discounts } : {}),
     ...(hideBreakdown ? { hideBreakdown: true } : {}),
   });
+
+  const hoistedLineDiscounts = keepLineDiscounts
+    ? []
+    : [
+        passwordManager.seats,
+        passwordManager.additionalStorage,
+        secretsManager?.seats,
+        secretsManager?.additionalServiceAccounts,
+      ].flatMap((item) => item?.discounts ?? []);
+  const discounts = [...(preview.discounts ?? []), ...hoistedLineDiscounts];
 
   /**
    * Constructs a proration charge line for the cart.
@@ -210,7 +237,7 @@ export const adaptInvoicePreviewToCart = (
       : {}),
     cadence: preview.cadence,
     ...(allProrationInvoice ? { hidePricingTerm: true } : {}),
-    ...(preview.discounts ? { discounts: preview.discounts } : {}),
+    ...(discounts.length ? { discounts } : {}),
     estimatedTax: preview.estimatedTax,
     total: preview.total,
   };

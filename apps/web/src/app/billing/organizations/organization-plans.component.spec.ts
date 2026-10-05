@@ -3231,7 +3231,7 @@ describe("OrganizationPlansComponent", () => {
         expect(purchase.passwordManager.additionalStorage).toBe(2);
       }));
 
-      it("renders the server's sponsored seat line without a client-side sponsorship discount", fakeAsync(() => {
+      it("re-prices the sponsored seat line at the Families price and adds the sponsorship discount", fakeAsync(() => {
         mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(scenarioFCart);
         fixture.componentRef.setInput("acceptingSponsorship", true);
 
@@ -3241,10 +3241,48 @@ describe("OrganizationPlansComponent", () => {
         tick(1500);
 
         const cart = component["cart"]();
-        expect(cart).toBe(scenarioFCart);
-        expect(cart.passwordManager.seats.cost).toBe(0);
-        expect(cart.discounts).toBeUndefined();
+        expect(cart.passwordManager.seats).toEqual({
+          translationKey: "familiesMembership",
+          cost: 40,
+          quantity: 1,
+        });
+        expect(cart.discounts).toEqual([{ type: DiscountTypes.AmountOff, value: 40, amount: 40 }]);
+        expect(cart.estimatedTax).toBe(0);
         expect(cart.total).toBe(0);
+        expect(scenarioFCart.passwordManager.seats.cost).toBe(0);
+      }));
+
+      it("leaves the sponsored storage line and the server totals untouched", fakeAsync(() => {
+        const sponsoredWithStorage = {
+          ...scenarioFCart,
+          passwordManager: {
+            ...scenarioFCart.passwordManager,
+            additionalStorage: { translationKey: "additionalStorageGb", cost: 4, quantity: 2 },
+          },
+          estimatedTax: 0.5,
+          total: 8.5,
+        } as unknown as Cart;
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(
+          sponsoredWithStorage,
+        );
+        fixture.componentRef.setInput("acceptingSponsorship", true);
+
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
+        component.changedProduct();
+        component["formGroup"].controls.additionalStorage.setValue(2);
+        enterValidAddress();
+        tick(1500);
+
+        const cart = component["cart"]();
+        expect(cart.passwordManager.additionalStorage).toEqual({
+          translationKey: "additionalStorageGb",
+          cost: 4,
+          quantity: 2,
+        });
+        expect(cart.passwordManager.seats.cost).toBe(40);
+        expect(cart.discounts).toEqual([{ type: DiscountTypes.AmountOff, value: 40, amount: 40 }]);
+        expect(cart.estimatedTax).toBe(0.5);
+        expect(cart.total).toBe(8.5);
       }));
     });
 

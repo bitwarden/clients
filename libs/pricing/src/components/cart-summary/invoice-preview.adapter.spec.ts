@@ -581,7 +581,7 @@ describe("adaptInvoicePreviewToCart", () => {
 
       const cart = adaptInvoicePreviewToCart(
         preview,
-        InvoicePreviewFlowContext.OrganizationCheckout,
+        InvoicePreviewFlowContext.OrganizationSubscriptionPage,
         logService,
       );
 
@@ -603,7 +603,7 @@ describe("adaptInvoicePreviewToCart", () => {
 
       const cart = adaptInvoicePreviewToCart(
         preview,
-        InvoicePreviewFlowContext.OrganizationCheckout,
+        InvoicePreviewFlowContext.OrganizationSubscriptionPage,
         logService,
       );
 
@@ -619,6 +619,96 @@ describe("adaptInvoicePreviewToCart", () => {
       );
 
       expect(cart.discounts).toEqual(discounts);
+    });
+  });
+
+  describe("discount placement", () => {
+    const lineDiscount = {
+      type: DiscountTypes.PercentOff,
+      value: 20,
+      amount: 9.58,
+      label: "20% Off Families",
+    };
+
+    it.each([
+      ["organization checkout", InvoicePreviewFlowContext.OrganizationCheckout],
+      ["personal checkout", InvoicePreviewFlowContext.PersonalCheckout],
+    ])("hoists a per-line discount onto the cart in %s", (_, flowContext) => {
+      const preview = basePreview({
+        passwordManager: {
+          seats: { reference: "pm-seat", quantity: 1, cost: 47.88, discounts: [lineDiscount] },
+        },
+        planTier: "families",
+      });
+
+      const cart = adaptInvoicePreviewToCart(preview, flowContext, logService);
+
+      expect(cart.discounts).toEqual([lineDiscount]);
+      expect(cart.passwordManager.seats.discounts).toBeUndefined();
+    });
+
+    it("appends hoisted line discounts after the cart-level ones in line order", () => {
+      const cartLevel = { type: DiscountTypes.AmountOff, value: 5, amount: 5, label: "WELCOME" };
+      const seatDiscount = { ...lineDiscount, label: "SEATS" };
+      const storageDiscount = { ...lineDiscount, label: "STORAGE" };
+      const smSeatDiscount = { ...lineDiscount, label: "SM-SEATS" };
+      const serviceAccountDiscount = { ...lineDiscount, label: "SM-SA" };
+      const preview = basePreview({
+        passwordManager: {
+          seats: { reference: "pm-seat", quantity: 5, cost: 50, discounts: [seatDiscount] },
+          additionalStorage: {
+            reference: "pm-storage",
+            quantity: 2,
+            cost: 10,
+            discounts: [storageDiscount],
+          },
+        },
+        secretsManager: {
+          seats: { reference: "sm-seat", quantity: 3, cost: 30, discounts: [smSeatDiscount] },
+          additionalServiceAccounts: {
+            reference: "sm-service-account",
+            quantity: 4,
+            cost: 3,
+            discounts: [serviceAccountDiscount],
+          },
+        },
+        discounts: [cartLevel],
+      });
+
+      const cart = adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.OrganizationCheckout,
+        logService,
+      );
+
+      expect(cart.discounts).toEqual([
+        cartLevel,
+        seatDiscount,
+        storageDiscount,
+        smSeatDiscount,
+        serviceAccountDiscount,
+      ]);
+      expect(cart.passwordManager.seats.discounts).toBeUndefined();
+      expect(cart.passwordManager.additionalStorage.discounts).toBeUndefined();
+      expect(cart.secretsManager.seats.discounts).toBeUndefined();
+      expect(cart.secretsManager.additionalServiceAccounts.discounts).toBeUndefined();
+    });
+
+    it("leaves per-line discounts on the line during an organization plan change", () => {
+      const preview = basePreview({
+        passwordManager: {
+          seats: { reference: "pm-seat", quantity: 5, cost: 50, discounts: [lineDiscount] },
+        },
+      });
+
+      const cart = adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.OrganizationPlanChange,
+        logService,
+      );
+
+      expect(cart.passwordManager.seats.discounts).toEqual([lineDiscount]);
+      expect(cart.discounts).toBeUndefined();
     });
   });
 
