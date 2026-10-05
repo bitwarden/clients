@@ -1,3 +1,4 @@
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import {
   booleanAttribute,
   ChangeDetectionStrategy,
@@ -252,6 +253,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   private readonly i18nService = inject(I18nService);
   private readonly accountService = inject(AccountService);
   private readonly avatarService = inject(AvatarService);
+  private readonly liveAnnouncer = inject(LiveAnnouncer, { optional: true });
 
   /**
    * The active user's avatar color, so the "My vault" tile matches their avatar and the side nav.
@@ -871,6 +873,39 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     this.searchTerm,
     this.scopedOrganizationId,
   );
+
+  protected readonly searchAnnouncement = signal<string>("");
+
+  /**
+   * Debounced announcement of vault item search / filter results for assistive technologies.
+   */
+  private readonly announceSearchResults = effect((onCleanup) => {
+    const table = this.tableComponent();
+    if (!table) {
+      return;
+    }
+    const search = this.searchTerm();
+    const count = table.filteredCount();
+
+    // Do not announce on initial unscoped mount before user has filtered or searched
+    if (!search && count === this.ciphers().length) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      const message =
+        count === 0
+          ? this.i18nService.t("noMatchingItems") || "No matching items"
+          : this.i18nService.t("itemCount", count) || `${count} items`;
+
+      this.searchAnnouncement.set(message);
+      if (this.liveAnnouncer) {
+        void this.liveAnnouncer.announce(message, "polite");
+      }
+    }, 400);
+
+    onCleanup(() => clearTimeout(timer));
+  });
 
   /**
    * The single client-side predicate `bit-table-v2` derives everything from: the visible rows,
