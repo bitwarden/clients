@@ -1,7 +1,7 @@
 #![cfg(target_os = "windows")]
 use std::collections::HashSet;
 
-use desktop_core::autofill::{read_plugin_config_file, read_plugin_logo};
+use desktop_core::autofill::{read_plugin_config_file, read_plugin_logos};
 use win_webauthn::{
     plugin::{Clsid, PluginAddAuthenticatorOptions, WebAuthnPlugin},
     AuthenticatorInfo, CtapVersion, PublicKeyCredentialParameters,
@@ -20,8 +20,8 @@ pub fn register() -> Result<(), String> {
         );
         return Ok(());
     };
-    let logo = read_plugin_logo()
-        .map_err(|err| format!("Could not read the plugin authenticator logo: {err:#}"))?;
+    let (light_logo, dark_logo) = read_plugin_logos()
+        .map_err(|err| format!("Could not read the plugin authenticator logos: {err:#}"))?;
 
     let aaguid = AAGUID
         .try_into()
@@ -33,8 +33,8 @@ pub fn register() -> Result<(), String> {
         authenticator_name: config.name.clone(),
         clsid,
         rp_id: Some(RPID.to_string()),
-        light_theme_logo_svg: Some(logo.to_string()),
-        dark_theme_logo_svg: Some(logo.to_string()),
+        light_theme_logo_svg: Some(light_logo),
+        dark_theme_logo_svg: Some(dark_logo),
         authenticator_info: AuthenticatorInfo {
             versions: HashSet::from([CtapVersion::Fido2_0, CtapVersion::Fido2_1]),
             aaguid,
