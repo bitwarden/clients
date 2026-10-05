@@ -271,13 +271,6 @@ export const WithTrailingElements: StoryObj<NavGroupComponent> = {
   }),
 };
 
-/**
- * A `bit-icon-tile` projected into a top-level nav group becomes its leading glyph — no `slot`
- * attribute needed, the tile is matched by its own selector. (Other leading content still uses
- * `slot="start"`.) This is only available for v2 top-level groups (this story enables the
- * VFO1Foundation flag) — the collapse toggle owns the leading position for v1 groups and v2
- * nested groups.
- */
 export const WithHoverReveal: StoryObj<NavGroupComponent> = {
   render: (args) => ({
     props: args,
@@ -314,6 +307,13 @@ export const WithHoverRevealVfo1: StoryObj<NavGroupComponent> = {
   globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };
 
+/**
+ * A `bit-icon-tile` projected into a top-level nav group becomes its leading glyph — no `slot`
+ * attribute needed, the tile is matched by its own selector. (Other leading content still uses
+ * `slot="start"`.) This is only available for v2 top-level groups (this story enables the
+ * VFO1Foundation flag) — the collapse toggle owns the leading position for v1 groups and v2
+ * nested groups.
+ */
 export const WithStartSlot: StoryObj<NavGroupComponent> = {
   globals: enabledFlags(FeatureFlag.VFO1Foundation),
   render: (args) => ({
