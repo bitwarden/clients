@@ -19,4 +19,23 @@ pub mod passkey_authenticator {
             }
         })
     }
+
+    /// The app's status as a passkey provider with the OS.
+    #[napi(object)]
+    pub struct PasskeyProviderState {
+        /// Whether the app is registered with the OS as a passkey provider.
+        pub registered: bool,
+        /// Whether the user has enabled the app as a passkey provider.
+        pub enabled: bool,
+    }
+
+    /// Gets the app's status as a passkey provider with the OS.
+    #[napi]
+    pub async fn get_state() -> napi::Result<PasskeyProviderState> {
+        crate::passkey_authenticator_internal::get_state()
+            .await
+            .map_err(|e| {
+                napi::Error::from_reason(format!("Failed to get passkey provider state: {e:#}"))
+            })
+    }
 }
