@@ -239,7 +239,6 @@ describe("CipherViewComponent", () => {
             useValue: mockBillingAccountProfileStateService,
           },
           { provide: VaultSettingsService, useValue: mockVaultSettingsService },
-          { provide: ConfigService, useValue: mockConfigService },
           ...(provideBanner
             ? [{ provide: CIPHER_VIEW_BANNER, useValue: TestBannerComponent }]
             : []),
