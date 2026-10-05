@@ -17959,7 +17959,7 @@
     "message": "You have no requests"
   },
   "pamMyRequestsEmptyDescription": {
-    "message": "Currently, you have no active requests for access to sensitive credentials."
+    "message": "You have no requests for access to sensitive credentials at the moment."
   },
   "pamColumnItem": {
     "message": "Item"
