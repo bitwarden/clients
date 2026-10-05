@@ -250,9 +250,7 @@ mod tests {
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
     // A valid 64-byte (AES-CBC-HMAC) encoded user key
     const TEST_VECTOR_USER_KEY: &[u8] = &[9u8; 64];
-    // A V2 XAES-256-GCM user key: a padded COSE key, base64-encoded exactly as the renderer sends
-    // it (`SymmetricCryptoKey.toBase64()`). Same fixed key as the SDK's
-    // `test_xaes256_gcm_encoding_roundtrips` vector (key id 0..=15, key bytes 0..=31).
+    // A valid XAES-256-GCM user key
     const TEST_VECTOR_XAES_USER_KEY_B64: &str =
         "pQEEAlAAAQIDBAUGBwgJCgsMDQ4PAzoAARF5BIIDBCBYIAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fAQ==";
 
