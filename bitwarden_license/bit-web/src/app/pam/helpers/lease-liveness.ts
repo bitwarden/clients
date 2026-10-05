@@ -44,3 +44,29 @@ export function rereadOnLapse<T extends CipherAccessStateView | null | undefined
     );
   return next$();
 }
+
+/**
+ * `read$`'s state, read again once its lease's window closes on `ticks$`, since the lease may have
+ * been extended without this surface hearing of it (PAM-152).
+ */
+export function rereadOnLapse<T extends CipherAccessStateView | null | undefined>(
+  read$: () => Observable<T>,
+  ticks$: Observable<number>,
+): Observable<T> {
+  const next$ = (): Observable<T> =>
+    read$().pipe(
+      switchMap((state) =>
+        liveActiveLease(state, Date.now()) == null
+          ? of(state)
+          : concat(
+              of(state),
+              ticks$.pipe(
+                filter((nowMs) => liveActiveLease(state, nowMs) == null),
+                take(1),
+                switchMap(next$),
+              ),
+            ),
+      ),
+    );
+  return next$();
+}

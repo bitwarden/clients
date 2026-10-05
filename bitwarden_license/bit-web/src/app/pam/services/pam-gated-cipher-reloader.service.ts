@@ -1,9 +1,8 @@
 import { NgZone } from "@angular/core";
 import {
   catchError,
-  concat,
+  defer,
   distinctUntilChanged,
-  filter,
   from,
   map,
   merge,
@@ -11,7 +10,7 @@ import {
   Observable,
   of,
   switchMap,
-  take,
+  tap,
 } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -21,7 +20,7 @@ import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { GatedCipherReloader } from "@bitwarden/vault";
 
-import { AccessRefreshService, AccessRequestSdkService, liveActiveLease } from "..";
+import { AccessRefreshService, AccessRequestSdkService, liveActiveLease, rereadOnLapse } from "..";
 import type { CipherAccessStateView } from "../abstractions/access-lease";
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 
@@ -33,7 +32,7 @@ import { AccessBadgeTickerService } from "../access-state-badge/access-badge-tic
  * Reads through the STANDARD single-cipher endpoint, not a PAM-specific one, since the server
  * already decides per caller what a cipher's payload contains.
  *
- * "Ends" includes running out of time, which nothing announces; {@link whileLeaseRuns$} supplies
+ * "Ends" includes running out of time, which nothing announces; {@link rereadOnLapse} supplies
  * that tick (PM-41837).
  *
  * THIS IS THE MODULE'S LAST RAW-HTTP CALL: swap {@link fetchLeased} onto
@@ -53,47 +52,29 @@ export class PamGatedCipherReloader implements GatedCipherReloader {
   ) {}
 
   fullCipher$(cipherId: string): Observable<Cipher | null> {
-    return merge(of(undefined), this.accessRefreshService.accessChanged$(cipherId)).pipe(
-      switchMap(() =>
+    return defer(() => {
+      let held: CipherAccessStateView | null = null;
+      const read$ = () =>
         from(this.accessRequestSdkService.getCipherAccessState(cipherId)).pipe(
           catchError((error: unknown) => {
-            // An unreadable access state must leave the item gated, not reveal it.
+            // A failed read keeps the last answer, so it can hold a reveal but never grant one.
             this.logService.error(error);
-            return of(null);
+            return of(held);
           }),
-        ),
-      ),
-      switchMap((state) => this.whileLeaseRuns$(state)),
-      map((state) => {
-        // Clock read: this resolving to `undefined` on a later tick is what re-locks the item.
-        const leaseId = liveActiveLease(state, Date.now())?.id;
-        return leaseId == null ? null : uuidAsString(leaseId);
-      }),
-      distinctUntilChanged(),
-      this.inAngularZone(),
-      switchMap((leaseId) => (leaseId == null ? of(null) : from(this.fetchLeased(cipherId)))),
-    );
-  }
+          tap((state) => (held = state)),
+        );
 
-  /**
-   * `state`, re-emitted once its lease's window closes. `take(1)` because a lease lapses once, and
-   * the shared badge clock rather than a timer here, so the surfaces on one item cannot disagree
-   * about when it ended.
-   */
-  private whileLeaseRuns$(
-    state: CipherAccessStateView | null,
-  ): Observable<CipherAccessStateView | null> {
-    if (liveActiveLease(state, Date.now()) == null) {
-      return of(state);
-    }
-    return concat(
-      of(state),
-      this.ticker.ticks$.pipe(
-        filter((nowMs) => liveActiveLease(state, nowMs) == null),
-        take(1),
-        map(() => state),
-      ),
-    );
+      return merge(of(undefined), this.accessRefreshService.accessChanged$(cipherId)).pipe(
+        switchMap(() => rereadOnLapse(read$, this.ticker.ticks$)),
+        map((state) => {
+          const leaseId = liveActiveLease(state, Date.now())?.id;
+          return leaseId == null ? null : uuidAsString(leaseId);
+        }),
+        distinctUntilChanged(),
+        this.inAngularZone(),
+        switchMap((leaseId) => (leaseId == null ? of(null) : from(this.fetchLeased(cipherId)))),
+      );
+    });
   }
 
   /**

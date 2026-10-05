@@ -69,6 +69,7 @@ import {
   composeRequestWindow,
   defaultRequestWindow,
   liveActiveLease,
+  rereadOnLapse,
   requestDurationOptions,
   requestedWindowSeconds,
   snapToNearestDuration,
@@ -79,6 +80,7 @@ import {
 } from "..";
 import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dialog/extend-lease-dialog.component";
 import { ENDING_SOON_THRESHOLD_MS } from "../access-state-badge/access-badge-state";
+import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { DurationLongPipe } from "../date/duration-long.pipe";
 import { DurationShortPipe } from "../date/duration-short.pipe";
 import { formatCompoundDuration, formatDuration } from "../date/format-duration";
@@ -134,6 +136,7 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly accessRequestCancelService = inject(AccessRequestCancelService);
   private readonly accessLeaseSdkService = inject(AccessLeaseSdkService);
   private readonly accessRefreshService = inject(AccessRefreshService);
+  private readonly ticker = inject(AccessBadgeTickerService);
   private readonly leasingErrorService = inject(LeasingErrorService);
   private readonly configService = inject(ConfigService);
   private readonly accountService = inject(AccountService);
@@ -196,17 +199,17 @@ export class CipherViewBannerComponent implements OnInit {
           return of(null);
         }
         const cipherId = String(cipher.id);
+        const read$ = () =>
+          from(this.accessRequestSdkService.getCipherAccessState(cipherId)).pipe(
+            catchError((e: unknown) => {
+              // A gated cipher whose state can't be read renders no banner, not an error, matching the
+              // vault-row badge.
+              this.logService.error(e);
+              return of(null);
+            }),
+          );
         return merge(of(undefined), this.accessRefreshService.accessChanged$(cipherId)).pipe(
-          switchMap(() =>
-            from(this.accessRequestSdkService.getCipherAccessState(cipherId)).pipe(
-              catchError((e: unknown) => {
-                // A gated cipher whose state can't be read renders no banner, not an error, matching the
-                // vault-row badge.
-                this.logService.error(e);
-                return of(null);
-              }),
-            ),
-          ),
+          switchMap(() => rereadOnLapse(read$, this.ticker.ticks$)),
         );
       }),
     ),

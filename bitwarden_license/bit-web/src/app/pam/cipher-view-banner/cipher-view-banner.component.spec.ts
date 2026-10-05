@@ -739,17 +739,33 @@ describe("CipherViewBannerComponent", () => {
       expect(query('[data-testid="cipher-view-banner-request"]')).not.toBeNull();
     });
 
-    it("locks without asking the server again", async () => {
-      // Deliberately local: a trailing server clock would answer with the lease still on it.
+    it("locks even when a trailing server clock still reports the lease", async () => {
       await openWithLeaseEndingAt(ENDS_AT);
       expect(requestsApi.getCipherAccessState).toHaveBeenCalledTimes(1);
 
       jest.spyOn(Date, "now").mockReturnValue(NOW + 61_000);
       await waitForTick();
+      await fixture.whenStable();
       fixture.detectChanges();
 
       expect(query('[data-testid="cipher-view-banner-active"]')).toBeNull();
-      expect(requestsApi.getCipherAccessState).toHaveBeenCalledTimes(1);
+      expect(requestsApi.getCipherAccessState).toHaveBeenCalledTimes(2);
+    });
+
+    it("keeps the active card past the original end of a lease extended elsewhere", async () => {
+      await openWithLeaseEndingAt(ENDS_AT);
+
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({
+          activeLease: leaseView({ notAfter: new Date(NOW + 1_860_000).toISOString() }),
+        }),
+      );
+      jest.spyOn(Date, "now").mockReturnValue(NOW + 61_000);
+      await waitForTick();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(query('[data-testid="cipher-view-banner-active"]')).not.toBeNull();
     });
 
     it("keeps the active card while the window is still open", async () => {
