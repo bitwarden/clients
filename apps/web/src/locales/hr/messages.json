@@ -15600,20 +15600,11 @@
   "atRiskPassword": {
     "message": "Rizična lozinka"
   },
-  "changeAtRiskPassword": {
-    "message": "Promijeni rizičnu lozinku"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Ova prijava je ugrožena i nedostaje joj web-stranica. Dodaj web-stranicu i promijeni lozinku za veću sigurnost."
-  },
   "vulnerablePassword": {
     "message": "Ranjiva lozinka."
   },
   "changeNow": {
     "message": "Promijeni sada"
-  },
-  "missingWebsite": {
-    "message": "Nedostaje web-stranica"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Ukloni otključavanje PIN-om"
@@ -17041,6 +17032,15 @@
         "example": "4"
       }
     }
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Keeper email"
