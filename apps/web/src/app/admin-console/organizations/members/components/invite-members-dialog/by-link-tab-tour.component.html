@@ -77,7 +77,7 @@ by-link-tab-tour.component.ts for the full removal checklist. -->
 </div>
 
 <ng-template #tourFooter>
-  <bit-popover-footer class="tw-flex tw-w-full tw-items-center tw-justify-between">
+  <div class="tw-flex tw-w-full tw-items-center tw-justify-between">
     <span bitTypography="body2" class="tw-text-muted">
       {{ "coachMarkStepOfTotal" | i18n: tourStep() : totalTourSteps }}
     </span>
@@ -95,7 +95,7 @@ by-link-tab-tour.component.ts for the full removal checklist. -->
         {{ tourStep() === totalTourSteps ? ("finish" | i18n) : ("next" | i18n) }}
       </button>
     </div>
-  </bit-popover-footer>
+  </div>
 </ng-template>
 
 <bit-popover [title]="'setYourAllowedDomains' | i18n" #tourStep1>
