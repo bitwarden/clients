@@ -55,12 +55,16 @@ import { IpcListenerBindFn } from "../models/ipc-handler.type";
 
 import type { NativeWindowObject } from "./desktop-fido2-user-interface.service";
 
+type NativeCredentialSyncFeatureFlag =
+  typeof FeatureFlag.MacOsNativeCredentialSync | typeof FeatureFlag.WindowsNativeCredentialSync;
+
 @Injectable()
 export class DesktopAutofillService implements OnDestroy {
   private destroy$ = new Subject<void>();
-  private featureFlag?:
-    typeof FeatureFlag.MacOsNativeCredentialSync | typeof FeatureFlag.WindowsNativeCredentialSync;
+  private featureFlag?: NativeCredentialSyncFeatureFlag;
   private isEnabled: boolean = false;
+  /** Whether syncing and IPC listeners have been started. */
+  private started = false;
   private readonly inFlightRequests: Record<string, AbortController> = {};
 
   constructor(
@@ -84,25 +88,57 @@ export class DesktopAutofillService implements OnDestroy {
     if (!this.featureFlag) {
       return;
     }
-    this.isEnabled = (await this.configService.getFeatureFlag(this.featureFlag)) === true;
-    if (!this.isEnabled) {
-      return;
-    }
 
-    // Signal the main process to register the native OS credential provider and start the autofill
-    // IPC server. Gated here because the main process cannot evaluate the feature flag itself.
-    const ipcServerStarted = await ipc.autofill.desktopAutofill.setEnabled(true);
-    if (!ipcServerStarted) {
-      this.logService.error(
-        "[DesktopAutofillService]",
-        "Main process failed to start native autofill; aborting init",
-      );
-      this.isEnabled = false;
-      return;
-    }
-
+    // Enable as soon as the flag turns on, so a flag value that arrives after startup takes
+    // effect without restarting the app.
     this.configService
       .getFeatureFlag$(this.featureFlag)
+      .pipe(
+        distinctUntilChanged(),
+        filter((enabled) => enabled === true),
+        mergeMap(() => this.ensureEnabled()),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+  }
+
+  /**
+   * Signals the main process to register the native OS credential provider and start the autofill
+   * IPC server, then starts syncing and listening for requests. Safe to call repeatedly: syncing and
+   * listeners are only started once.
+   *
+   * @returns whether native autofill is running.
+   */
+  private async ensureEnabled(): Promise<boolean> {
+    if (!this.featureFlag) {
+      return false;
+    }
+    this.isEnabled = (await this.configService.getFeatureFlag(this.featureFlag)) === true;
+    if (!this.isEnabled) {
+      return false;
+    }
+
+    // Gated here because the main process cannot evaluate the feature flag itself.
+    const running = await ipc.autofill.desktopAutofill.setEnabled(true);
+    if (!running) {
+      this.logService.error(
+        "[DesktopAutofillService]",
+        "Main process failed to enable native autofill",
+      );
+      return false;
+    }
+
+    if (!this.started) {
+      this.started = true;
+      this.startSync(this.featureFlag);
+      this.listenIpc();
+    }
+    return true;
+  }
+
+  private startSync(featureFlag: NativeCredentialSyncFeatureFlag) {
+    this.configService
+      .getFeatureFlag$(featureFlag)
       .pipe(
         distinctUntilChanged(),
         tap((enabled) => (this.isEnabled = enabled === true)),
@@ -138,8 +174,6 @@ export class DesktopAutofillService implements OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
-
-    this.listenIpc();
   }
 
   async adHocSync(): Promise<any> {
