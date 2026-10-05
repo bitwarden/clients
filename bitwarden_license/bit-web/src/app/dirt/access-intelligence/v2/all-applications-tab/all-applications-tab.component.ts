@@ -9,7 +9,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
-import { combineLatest, debounceTime, finalize } from "rxjs";
+import { debounceTime, finalize } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
@@ -75,9 +75,6 @@ export class AllApplicationsTabComponent {
   protected readonly loading = toSignal(this.accessIntelligenceService.loading$, {
     initialValue: false,
   });
-  protected readonly ciphers = toSignal(this.accessIntelligenceService.ciphers$, {
-    initialValue: [],
-  });
 
   protected readonly drawerState = this.drawerStateService.drawerState;
 
@@ -88,36 +85,30 @@ export class AllApplicationsTabComponent {
       .pipe(debounceTime(200), takeUntilDestroyed())
       .subscribe((v) => (this.dataSource.filter = v));
 
-    combineLatest([this.accessIntelligenceService.report$, this.accessIntelligenceService.ciphers$])
-      .pipe(takeUntilDestroyed())
-      .subscribe(([report, ciphers]) => {
-        if (!report) {
-          this.dataSource.data = [];
-          return;
-        }
+    this.accessIntelligenceService.report$.pipe(takeUntilDestroyed()).subscribe((report) => {
+      if (!report) {
+        this.dataSource.data = [];
+        return;
+      }
 
-        const appMetadataMap = new Map(
-          report.applications.map((app) => [app.applicationName, app]),
-        );
+      const appMetadataMap = new Map(report.applications.map((app) => [app.applicationName, app]));
 
-        const tableData: ApplicationTableRowV2[] = report.reports.map((reportData) => {
-          const metadata = appMetadataMap.get(reportData.applicationName);
-          const iconCipherId = reportData.getIconCipherId();
-          const iconCipher = iconCipherId ? ciphers.find((c) => c.id === iconCipherId) : undefined;
+      const tableData: ApplicationTableRowV2[] = report.reports.map((reportData) => {
+        const metadata = appMetadataMap.get(reportData.applicationName);
 
-          return {
-            applicationName: reportData.applicationName,
-            passwordCount: reportData.passwordCount,
-            atRiskPasswordCount: reportData.atRiskPasswordCount,
-            memberCount: reportData.memberCount,
-            atRiskMemberCount: reportData.atRiskMemberCount,
-            isMarkedAsCritical: metadata?.isCritical ?? false,
-            iconCipher,
-          };
-        });
-
-        this.dataSource.data = tableData;
+        return {
+          applicationName: reportData.applicationName,
+          passwordCount: reportData.passwordCount,
+          atRiskPasswordCount: reportData.atRiskPasswordCount,
+          memberCount: reportData.memberCount,
+          atRiskMemberCount: reportData.atRiskMemberCount,
+          isMarkedAsCritical: metadata?.isCritical ?? false,
+          iconCipher: reportData.iconCipher,
+        };
       });
+
+      this.dataSource.data = tableData;
+    });
   }
 
   protected markAppsAsCritical(): void {

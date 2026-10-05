@@ -36,9 +36,8 @@ export class ApplicationHealthData {
   memberCount: number = 0;
   atRiskMemberCount: number = 0;
 
-  // TODO: This has been added but we should review if this is how we want to handle the icon metadata
+  // Used to render an icon for the application in the UI
   iconUri?: string;
-  iconCipherId?: string;
 
   constructor(data?: ApplicationHealthApi) {
     if (data == null) {
