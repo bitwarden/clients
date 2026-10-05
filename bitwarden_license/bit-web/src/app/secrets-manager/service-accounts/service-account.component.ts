@@ -3,16 +3,24 @@
 import { Component, inject, OnDestroy, OnInit } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { Subject, combineLatest, filter, map, startWith, switchMap, takeUntil } from "rxjs";
-
 import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+  Observable,
+  Subject,
+  combineLatest,
+  filter,
+  map,
+  startWith,
+  switchMap,
+  takeUntil,
+} from "rxjs";
+
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { getById } from "@bitwarden/common/platform/misc";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 
 import { ServiceAccountCounts } from "../models/view/counts.view";
@@ -64,13 +72,17 @@ export class ServiceAccountComponent implements OnInit, OnDestroy {
   private readonly organizationService = inject(OrganizationService);
   private readonly accountService = inject(AccountService);
 
+  private readonly organizationId$: Observable<OrganizationId> = this.route.params.pipe(
+    map((params) => params.organizationId as OrganizationId),
+  );
+
+  private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
+
   // Events are only recorded for organizations with events enabled (e.g. not Free)
   protected readonly useEvents = toSignal(
-    combineLatest([this.route.params, getUserId(this.accountService.activeAccount$)]).pipe(
-      switchMap(([params, userId]) =>
-        this.organizationService
-          .organizations$(userId)
-          .pipe(getOrganizationById(params.organizationId)),
+    combineLatest([this.organizationId$, this.userId$]).pipe(
+      switchMap(([orgId, userId]) =>
+        this.organizationService.organizations$(userId).pipe(getById(orgId)),
       ),
       map((org) => org?.useEvents ?? false),
     ),
