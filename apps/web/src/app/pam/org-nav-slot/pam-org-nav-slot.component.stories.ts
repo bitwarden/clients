@@ -60,7 +60,10 @@ function featureFlags(options: { rotationEnabled?: boolean } = {}) {
         provide: ConfigService,
         useValue: {
           getFeatureFlag$: (flag: FeatureFlag) =>
-            of(flag === FeatureFlag.Pam || (rotationEnabled && flag === FeatureFlag.PamRotation)),
+            of(
+              flag === FeatureFlag.Pam ||
+                (rotationEnabled && flag === FeatureFlag.PamAccessConnector),
+            ),
         },
       },
     ],

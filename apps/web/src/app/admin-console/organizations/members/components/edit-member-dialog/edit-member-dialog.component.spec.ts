@@ -178,7 +178,7 @@ async function createComponent(
   billingConstraint.seatLimitReached.mockResolvedValue(false);
   // Read once at construction, so the values have to be in place before createComponent returns.
   configService.getFeatureFlag.mockImplementation(async (flag) =>
-    flag === FeatureFlag.PamRotation
+    flag === FeatureFlag.PamAccessConnector
       ? (overrides.rotationEnabled ?? false)
       : (overrides.pamEnabled ?? false),
   );

@@ -150,7 +150,7 @@ export class InviteMembersDialogComponent {
   );
 
   protected readonly rotationEnabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PamRotation),
+    this.configService.getFeatureFlag$(FeatureFlag.PamAccessConnector),
     { initialValue: false },
   );
 
