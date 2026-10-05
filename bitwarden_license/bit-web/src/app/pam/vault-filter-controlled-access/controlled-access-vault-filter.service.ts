@@ -22,6 +22,7 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { MY_REQUESTS_FILTER_ID, PRIVILEGED_FILTER_ID } from "@bitwarden/vault";
 import {
   ControlledAccessFilterOption,
   VaultControlledAccessFilter,
@@ -29,13 +30,6 @@ import {
 
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 import { AccessBadgeState, cipherAccessBadgeState } from "../access-state-badge/access-badge-state";
-
-/**
- * The ids of the group's children, as they appear in the vault's URL. Stable: they are written
- * into links users bookmark and share, so they are not derived from the copy.
- */
-export const PRIVILEGED_FILTER_ID = "privileged";
-export const MY_REQUESTS_FILTER_ID = "my-requests";
 
 type ControlledAccessFilterDefinition = Omit<ControlledAccessFilterOption, "name"> & {
   readonly nameKey: string;
