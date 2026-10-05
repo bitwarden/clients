@@ -27,9 +27,7 @@ import {
 } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
@@ -115,7 +113,6 @@ export class GroupsComponent {
   private readonly toastService = inject(ToastService);
   private readonly keyService = inject(KeyService);
   private readonly accountService = inject(AccountService);
-  private readonly configService = inject(ConfigService);
 
   protected readonly loading = signal(true);
 
@@ -128,11 +125,6 @@ export class GroupsComponent {
 
   protected readonly ModalTabType = GroupAddEditTabType;
   private readonly refreshGroups$ = new BehaviorSubject<void>(undefined);
-
-  protected readonly btnTextAddCreateFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
-    { initialValue: false },
-  );
 
   private readonly rows = signal<GroupDetailsRow[]>([]);
   private readonly search = toSignal(this.searchControl.valueChanges.pipe(debounceTime(200)), {
