@@ -21,7 +21,7 @@
     (blur)="onTouch()"
     [attr.aria-keyshortcuts]="useKeyShortcuts() && !disabled() ? 'Control+f Meta+f' : null"
   />
-  @if (useKeyShortcuts() && !searchText()) {
+  @if (useKeyShortcuts() && !disabled() && !searchText()) {
     <span
       class="tw-flex tw-items-center tw-pe-1 tw-shrink-0 tw-select-none group-has-[:focus]/form-field:tw-hidden"
       aria-hidden="true"

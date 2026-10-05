@@ -219,8 +219,11 @@ describe("SearchComponent", () => {
       expect(hints()).toEqual([["Esc"]]);
     });
 
-    it("renders no hint without the opt-in", () => {
-      host.useKeyShortcuts.set(false);
+    it.each([
+      ["without the opt-in", () => host.useKeyShortcuts.set(false)],
+      ["while disabled", () => host.disabled.set(true)],
+    ])("renders no hint %s", (_, arrange) => {
+      arrange();
       fixture.detectChanges();
 
       expect(hints()).toEqual([]);
