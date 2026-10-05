@@ -13,8 +13,6 @@ import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { DialogService } from "@bitwarden/components";
 import { KdfConfigService } from "@bitwarden/key-management";
@@ -52,7 +50,6 @@ export class ChangeKdfComponent implements OnInit {
   private readonly kdfConfigService = inject(KdfConfigService);
   private readonly accountService = inject(AccountService);
   private readonly formBuilder = inject(FormBuilder);
-  private readonly configService = inject(ConfigService);
   private readonly sdkService = inject(SdkService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -94,10 +91,6 @@ export class ChangeKdfComponent implements OnInit {
   protected readonly ARGON2_ITERATIONS = Argon2KdfConfig.ITERATIONS;
   protected readonly ARGON2_MEMORY = Argon2KdfConfig.MEMORY;
   protected readonly ARGON2_PARALLELISM = Argon2KdfConfig.PARALLELISM;
-
-  protected readonly noLogoutOnKdfChangeFeatureFlag$ = this.configService.getFeatureFlag$(
-    FeatureFlag.NoLogoutOnKdfChange,
-  );
 
   async ngOnInit() {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
