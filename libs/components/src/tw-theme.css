@@ -873,7 +873,7 @@
     z-index: 2000 !important;
   }
 
-  /* Two classes out-specify the rule above, so a spotlight paints over a dialog. */
+  /* Two classes out-specify the rule above, so a spotlight can display on top of a dialog. */
   .cdk-overlay-pane.bit-spotlight-pane {
     z-index: 2010 !important;
   }

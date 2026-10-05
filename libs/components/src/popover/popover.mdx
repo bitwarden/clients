@@ -123,8 +123,8 @@ inside a dialog — the component exposes it as a public signal, and the consume
 />
 ```
 
-`undefined` means the element hasn't rendered yet: opening waits for it, and for anything it's
-animating in with (such as a dialog sliding up), and the popover closes if it goes away.
+The popover waits for the anchor to render and finish animating in (such as a dialog sliding up)
+before opening, and closes if the anchor goes away.
 
 Library components exposing an anchor name it `<part>Anchor` — a signal for a single element, or a
 method like `filterDialogRowAnchor(key)` for one of many.

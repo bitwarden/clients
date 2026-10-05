@@ -93,8 +93,8 @@ export class PopoverAnchorForDirective implements OnDestroy {
   readonly spotlight = input<boolean>(false);
 
   /**
-   * Anchor to this element instead of the host. On an `<ng-container>`, `undefined` means it hasn't
-   * rendered yet: opening waits for it, and the popover closes if it goes away.
+   * Anchor to this element instead of the host. Must be a rendered element, not an `<ng-container>`.
+   * Opening waits for it to render and finish animating in; the popover closes if it goes away.
    */
   readonly anchor = input<HTMLElement | ElementRef<HTMLElement>>();
 
