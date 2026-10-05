@@ -154,7 +154,7 @@ describe("buffer actions", () => {
         TabEdgeCause.Activate,
         "drop",
       ],
-      // Buffering → buffering keeps waiting; cool-down → cold survives (D6).
+      // Buffering → buffering keeps waiting; cool-down → cold survives.
       ["Cold → WarmUp (activate)", TabState.Cold, TabState.WarmUp, TabEdgeCause.Activate, "keep"],
       [
         "WarmUp → Cold (deactivate)",
