@@ -2,7 +2,7 @@
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig } from "@bitwarden/legacy-crypto";
 
-import { PasswordPreloginResponse } from "./password-prelogin.response";
+import { MasterPasswordSalt } from "../../key-management/master-password/types/master-password.types";
 
 /**
  * Domain model representing the server's prelogin response for password-based authentication.
@@ -12,16 +12,10 @@ import { PasswordPreloginResponse } from "./password-prelogin.response";
 export class PasswordPreloginData {
   constructor(
     readonly kdfConfig: KdfConfig,
-    readonly salt: string,
+    /**
+     * The salt to derive the master key with. This is not always a verbatim echo of the server
+     * response: the server salt is nullable, so a null falls back to the normalized email.
+     */
+    readonly salt: MasterPasswordSalt,
   ) {}
-
-  /**
-   * Creates a PasswordPreloginData instance from a prelogin API response.
-   * @param response The raw API response from the prelogin endpoint.
-   */
-  static fromResponse(response: PasswordPreloginResponse): PasswordPreloginData {
-    const kdfConfig = response.kdfSettings.toKdfConfig();
-    kdfConfig.validateKdfConfigForPrelogin();
-    return new PasswordPreloginData(kdfConfig, response.salt);
-  }
 }

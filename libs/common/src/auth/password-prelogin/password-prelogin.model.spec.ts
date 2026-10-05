@@ -2,151 +2,54 @@
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 
+import { MasterPasswordSalt } from "../../key-management/master-password/types/master-password.types";
+
 import { PasswordPreloginData } from "./password-prelogin.model";
-import { PasswordPreloginResponse } from "./password-prelogin.response";
 
-const salt = "user@example.com";
+const salt = "server.normalized+salt@example.com" as MasterPasswordSalt;
 
+// PasswordPreloginData is a plain carrier. Response mapping, the null-salt fallback, and the
+// pre-login downgrade guard moved into DefaultPasswordPreloginService when fromResponse was
+// removed — that coverage lives in default-password-prelogin.service.spec.ts and
+// password-prelogin-api.service.spec.ts. The tests below pin the responsibilities this model
+// must NOT take back on, so a future refactor cannot quietly reintroduce them here.
 describe("PasswordPreloginData", () => {
-  describe("fromResponse", () => {
-    it.each([
-      {
-        description: "PBKDF2",
-        response: {
-          KdfSettings: {
-            KdfType: 0,
-            Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue,
-          },
-          Salt: salt,
-        },
-        expected: new PasswordPreloginData(
-          new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
-          salt,
-        ),
-      },
-      {
-        description: "Argon2",
-        response: {
-          KdfSettings: {
-            KdfType: 1,
-            Iterations: Argon2KdfConfig.ITERATIONS.defaultValue,
-            Memory: Argon2KdfConfig.MEMORY.defaultValue,
-            Parallelism: Argon2KdfConfig.PARALLELISM.defaultValue,
-          },
-          Salt: salt,
-        },
-        expected: new PasswordPreloginData(
-          new Argon2KdfConfig(
-            Argon2KdfConfig.ITERATIONS.defaultValue,
-            Argon2KdfConfig.MEMORY.defaultValue,
-            Argon2KdfConfig.PARALLELISM.defaultValue,
-          ),
-          salt,
-        ),
-      },
-    ])("maps a $description response to a PasswordPreloginData", ({ response, expected }) => {
-      const result = PasswordPreloginData.fromResponse(new PasswordPreloginResponse(response));
+  it("carries the kdf config and salt it was constructed with", () => {
+    const kdfConfig = PBKDF2KdfConfig.createDefault();
 
-      expect(result).toEqual(expected);
-    });
+    const result = new PasswordPreloginData(kdfConfig, salt);
 
-    it("carries the server-supplied salt through to the model", () => {
-      const serverSalt = "  Normalized.Salt@Example.com ";
+    expect(result.kdfConfig).toBe(kdfConfig);
+    expect(result.salt).toBe(salt);
+  });
 
-      const result = PasswordPreloginData.fromResponse(
-        new PasswordPreloginResponse({
-          KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
-          Salt: serverSalt,
-        }),
-      );
+  it("accepts any KdfConfig variant", () => {
+    const kdfConfig = new Argon2KdfConfig(
+      Argon2KdfConfig.ITERATIONS.defaultValue,
+      Argon2KdfConfig.MEMORY.defaultValue,
+      Argon2KdfConfig.PARALLELISM.defaultValue,
+    );
 
-      // The model is a pass-through: it does not normalize. Callers that derive a key still
-      // normalize on their own (LegacyCompatKeyService, MasterPasswordService).
-      expect(result.salt).toBe(serverSalt);
-    });
+    const result = new PasswordPreloginData(kdfConfig, salt);
 
-    it("maps a camelCase response, matching the casing the server actually serializes", () => {
-      const result = PasswordPreloginData.fromResponse(
-        new PasswordPreloginResponse({
-          kdfSettings: { kdfType: 0, iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
-          salt,
-        }),
-      );
+    expect(result.kdfConfig).toBe(kdfConfig);
+  });
 
-      expect(result).toEqual(
-        new PasswordPreloginData(
-          new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
-          salt,
-        ),
-      );
-    });
+  it("does not normalize the salt", () => {
+    // LegacyCompatKeyService.makeMasterKey trims and lower-cases the salt before deriving, so
+    // the model must hand over exactly what it was given.
+    const unnormalized = "  MiXeD.Case@Example.Com  " as MasterPasswordSalt;
 
-    it.each([
-      {
-        description: "PBKDF2 iterations below minimum",
-        response: {
-          KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1 },
-          Salt: salt,
-        },
-        expectedError: new RegExp(
-          `PBKDF2 iterations must be at least ${PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN}`,
-        ),
-      },
-      {
-        description: "Argon2 iterations below minimum",
-        response: {
-          KdfSettings: {
-            KdfType: 1,
-            Iterations: Argon2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1,
-            Memory: Argon2KdfConfig.MEMORY.defaultValue,
-            Parallelism: Argon2KdfConfig.PARALLELISM.defaultValue,
-          },
-          Salt: salt,
-        },
-        expectedError: new RegExp(
-          `Argon2 iterations must be at least ${Argon2KdfConfig.PRELOGIN_ITERATIONS_MIN}`,
-        ),
-      },
-      {
-        description: "Argon2 memory below minimum",
-        response: {
-          KdfSettings: {
-            KdfType: 1,
-            Iterations: Argon2KdfConfig.ITERATIONS.defaultValue,
-            Memory: Argon2KdfConfig.PRELOGIN_MEMORY_MIN - 1,
-            Parallelism: Argon2KdfConfig.PARALLELISM.defaultValue,
-          },
-          Salt: salt,
-        },
-        expectedError: new RegExp(
-          `Argon2 memory must be at least ${Argon2KdfConfig.PRELOGIN_MEMORY_MIN} MiB`,
-        ),
-      },
-      {
-        description: "Argon2 parallelism below minimum",
-        response: {
-          KdfSettings: {
-            KdfType: 1,
-            Iterations: Argon2KdfConfig.ITERATIONS.defaultValue,
-            Memory: Argon2KdfConfig.MEMORY.defaultValue,
-            Parallelism: Argon2KdfConfig.PRELOGIN_PARALLELISM_MIN - 1,
-          },
-          Salt: salt,
-        },
-        expectedError: new RegExp(
-          `Argon2 parallelism must be at least ${Argon2KdfConfig.PRELOGIN_PARALLELISM_MIN}`,
-        ),
-      },
-    ])("throws for $description", ({ response, expectedError }) => {
-      expect(() =>
-        PasswordPreloginData.fromResponse(new PasswordPreloginResponse(response)),
-      ).toThrow(expectedError);
-    });
+    const result = new PasswordPreloginData(PBKDF2KdfConfig.createDefault(), unnormalized);
 
-    it("throws when the response omits KdfSettings entirely", () => {
-      expect(() => new PasswordPreloginResponse({ Salt: salt })).toThrow(
-        "KDF config response does not contain a valid KDF type",
-      );
-    });
+    expect(result.salt).toBe(unnormalized);
+  });
+
+  it("does not validate the kdf config", () => {
+    // The pre-login downgrade guard runs in DefaultPasswordPreloginService, before it constructs
+    // this model. Constructing one directly must stay guard-free so the service owns that check.
+    const belowPreloginMinimum = new PBKDF2KdfConfig(PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1);
+
+    expect(() => new PasswordPreloginData(belowPreloginMinimum, salt)).not.toThrow();
   });
 });

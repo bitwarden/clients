@@ -21,6 +21,7 @@ import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-m
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
+import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
@@ -62,7 +63,10 @@ import { UserDecryptionOptionsService } from "../user-decryption-options/user-de
 import { LoginStrategyService } from "./login-strategy.service";
 import { CacheData } from "./login-strategy.state";
 
-const argon2PreloginData = new PasswordPreloginData(new Argon2KdfConfig(2, 16, 1), "prelogin-salt");
+const argon2PreloginData = new PasswordPreloginData(
+  new Argon2KdfConfig(2, 16, 1),
+  "prelogin-salt" as MasterPasswordSalt,
+);
 
 describe("LoginStrategyService", () => {
   let sut: LoginStrategyService;
@@ -158,7 +162,12 @@ describe("LoginStrategyService", () => {
     });
 
     passwordPreloginService.getPreloginData$.mockReturnValue(
-      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault(), "prelogin-salt")),
+      of(
+        new PasswordPreloginData(
+          PBKDF2KdfConfig.createDefault(),
+          "prelogin-salt" as MasterPasswordSalt,
+        ),
+      ),
     );
     legacyCompatKeyService.makeMasterKey.mockResolvedValue({} as any);
 
