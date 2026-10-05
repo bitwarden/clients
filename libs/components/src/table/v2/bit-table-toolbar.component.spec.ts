@@ -194,7 +194,12 @@ describe("BitTableToolbarComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HostComponent, SearchOnlyHostComponent, CollapsingHostComponent, CountHostComponent],
+      imports: [
+        HostComponent,
+        SearchOnlyHostComponent,
+        CollapsingHostComponent,
+        CountHostComponent,
+      ],
       providers: [
         {
           provide: I18nService,
