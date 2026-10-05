@@ -156,7 +156,7 @@ export class EditMemberDialogComponent {
   );
 
   protected readonly rotationEnabled = toSignal(
-    from(this.configService.getFeatureFlag(FeatureFlag.PamRotation)),
+    from(this.configService.getFeatureFlag(FeatureFlag.PamAccessConnector)),
   );
 
   protected readonly emailEditable = computed(

@@ -112,7 +112,7 @@ export enum FeatureFlag {
 
   /* PAM */
   Pam = "pm-37044-pam-v-0",
-  PamRotation = "pm-42354-rotation-daemon",
+  PamAccessConnector = "pm-42354-rotation-daemon",
 
   /* VFO */
   VFO1Foundation = "vfo1-foundation",
@@ -231,7 +231,7 @@ export const DefaultFeatureFlagValue = {
   // pam/uat only - do not carry this to main. On by default so a branch build works
   // against a server that does not report the flag; a server that reports it still wins.
   [FeatureFlag.Pam]: TRUE,
-  [FeatureFlag.PamRotation]: FALSE,
+  [FeatureFlag.PamAccessConnector]: FALSE,
 
   /* VFO */
   [FeatureFlag.VFO1Foundation]: FALSE,
