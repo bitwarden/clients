@@ -7,15 +7,12 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { MY_REQUESTS_FILTER_ID, PRIVILEGED_FILTER_ID } from "@bitwarden/vault";
 
 import type { CipherAccessStateView } from "../abstractions/access-lease";
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 
-import {
-  ControlledAccessVaultFilterService,
-  MY_REQUESTS_FILTER_ID,
-  PRIVILEGED_FILTER_ID,
-} from "./controlled-access-vault-filter.service";
+import { ControlledAccessVaultFilterService } from "./controlled-access-vault-filter.service";
 
 const PAM_ORG = "org-1";
 const PLAIN_ORG = "org-2";

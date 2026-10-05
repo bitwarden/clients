@@ -4,6 +4,9 @@ import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-u
 import { BitwardenIcon } from "@bitwarden/components";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 
+export const MY_REQUESTS_FILTER_ID = "my-requests";
+export const PRIVILEGED_FILTER_ID = "privileged";
+
 /** One child of the "Controlled access" group, already localized by the host that supplies it. */
 export type ControlledAccessFilterOption = {
   readonly id: string;
