@@ -172,7 +172,6 @@ describe("CipherViewComponent", () => {
             useValue: mockBillingAccountProfileStateService,
           },
           { provide: VaultSettingsService, useValue: mockVaultSettingsService },
-          { provide: ConfigService, useValue: mockConfigService },
           ...(provideBanner
             ? [{ provide: CIPHER_VIEW_BANNER, useValue: TestBannerComponent }]
             : []),
@@ -190,7 +189,9 @@ describe("CipherViewComponent", () => {
 
     it("injects null and renders no banner when the host provides none", async () => {
       await setupBanner(false);
-      fixture.componentRef.setInput("cipher", mockCipherView);
+      const cipher = new CipherView();
+      cipher.id = "cipher-id";
+      fixture.componentRef.setInput("cipher", cipher);
       fixture.detectChanges();
 
       expect(component["bannerComponent"]).toBeNull();
