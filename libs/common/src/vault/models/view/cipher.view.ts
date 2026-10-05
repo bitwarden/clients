@@ -108,7 +108,7 @@ export class CipherView implements View, InitializerMetadata {
     // Old locally stored ciphers might have reprompt == null. If so set it to None.
     this.reprompt = c.reprompt ?? CipherRepromptType.None;
     // The SDK decrypt path sets this from the SDK view instead, see fromSdkCipherView.
-    this.partial = c.partialData != null;
+    this.partial = c.isPartial;
   }
 
   private get item(): ItemView | undefined {

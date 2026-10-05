@@ -256,7 +256,7 @@ export class IndividualVaultExportService
         ciphers = c.filter(
           (f) =>
             // Gated ("partial") rows have no sensitive fields; they would export as blanks.
-            f.partialData == null &&
+            !f.isPartial &&
             f.deletedDate == null &&
             !this.restrictedItemTypesService.isCipherRestricted(f, restrictions),
         );
