@@ -1,17 +1,5 @@
 import { CommonModule } from "@angular/common";
-import {
-  afterNextRender,
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  ElementRef,
-  inject,
-  Injector,
-  input,
-  signal,
-  viewChild,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
@@ -47,7 +35,6 @@ import {
   FormFieldModule,
   IconButtonModule,
   LinkComponent,
-  PopoverModule,
   SwitchComponent,
   ToastService,
   TooltipDirective,
@@ -79,7 +66,6 @@ function parseDomains(rawDomains: string | null | undefined): string[] {
     FormFieldModule,
     I18nPipe,
     IconButtonModule,
-    PopoverModule,
     ReactiveFormsModule,
     LinkComponent,
     SwitchComponent,
@@ -91,17 +77,6 @@ export class ByLinkTabComponent {
     transform: (value: string) => value as OrganizationId,
   });
 
-  readonly showCoachMarks = input<boolean>(false);
-
-  readonly tourStep = signal<number>(0);
-
-  // TODO(coachmark cleanup): remove domainsInput and injector along with the rest of the
-  // guided tour (showCoachMarks, tourStep, and the effect() below in the constructor). They
-  // exist only to work around the step 1 popover's backdrop blocking clicks into the page — see
-  // the focus() call sites in save() for the other half of this workaround.
-  protected readonly domainsInput = viewChild<ElementRef<HTMLInputElement>>("domainsInput");
-
-  private readonly injector = inject(Injector);
   private readonly accountService = inject(AccountService);
   private readonly inviteLinkService = inject(OrganizationInviteLinkService);
   private readonly orgDomainApiService = inject(OrgDomainApiServiceAbstraction);
@@ -180,21 +155,8 @@ export class ByLinkTabComponent {
   );
 
   private readonly prefillAttempted = signal(false);
-  private readonly tourStarted = signal(false);
 
   constructor() {
-    // TODO(coachmark cleanup): remove this effect() with the rest of the guided tour. The step 1
-    // popover sits behind a backdrop that blocks clicks into the page, so the domains input can't
-    // be focused by clicking it while the popover is open. Focus it directly instead.
-    effect(() => {
-      if (this.tourStep() !== 1) {
-        return;
-      }
-      afterNextRender(() => this.domainsInput()?.nativeElement.focus(), {
-        injector: this.injector,
-      });
-    });
-
     this.inviteLink$.pipe(takeUntilDestroyed()).subscribe((inviteLink) => {
       if (inviteLink && !this.form.dirty) {
         this.prefillAttempted.set(true);
@@ -210,12 +172,6 @@ export class ByLinkTabComponent {
         this.requireAdminConfirmation.setValue(!inviteLink.supportsConfirmation, {
           emitEvent: false,
         });
-      }
-
-      if (this.showCoachMarks() && inviteLink == null && !this.tourStarted()) {
-        this.tourStarted.set(true);
-        // HACK: wait until the dialog has settled, otherwise the popover can anchor to a stale rect and render out of place.
-        setTimeout(() => this.tourStep.set(1), 250);
       }
     });
 
@@ -284,40 +240,27 @@ export class ByLinkTabComponent {
     this.form.markAllAsTouched();
     // NOTE: this parses domains (not just `Validators.required` on the raw string) so that
     // comma/whitespace-only input (e.g. ",  ,") is treated as empty here, rather than reaching
-    // the service layer and throwing "At least one allowed domain is required." This check
-    // should stay even after the guided tour is removed.
+    // the service layer and throwing "At least one allowed domain is required."
     const domains = parseDomains(this.form.value.domains);
     if (this.form.invalid || domains.length === 0) {
-      // TODO(coachmark cleanup): the focus() call below can be removed once the guided tour
-      // (and its backdrop, which blocks clicks into the page) is gone — see domainsInput above.
-      this.domainsInput()?.nativeElement.focus();
       return;
     }
 
     const userId = await firstValueFrom(this.userId$);
     const inviteLink = await firstValueFrom(this.inviteLink$);
 
-    try {
-      if (inviteLink) {
-        // Save only ever edits the domains once a link exists; the switch saves itself.
-        await this.inviteLinkService.updateAllowedDomains(userId, this.organizationId(), domains);
-      } else {
-        // The switch is hidden until a link exists, so a new link always starts on the
-        // link-confirm flow — that is the behaviour we want admins defaulted into.
-        await this.inviteLinkService.createInviteLink(
-          userId,
-          this.organizationId(),
-          domains,
-          this.autoConfirmEnabled(),
-        );
-      }
-    } catch (e) {
-      // The server can still reject domains that passed client-side parsing (e.g. malformed or
-      // duplicate domains), so refocus here too rather than only on the local validation path.
-      // TODO(coachmark cleanup): this focus() call exists for the same backdrop-blocks-clicks
-      // reason as the one above — remove both together with the guided tour.
-      this.domainsInput()?.nativeElement.focus();
-      throw e;
+    if (inviteLink) {
+      // Save only ever edits the domains once a link exists; the switch saves itself.
+      await this.inviteLinkService.updateAllowedDomains(userId, this.organizationId(), domains);
+    } else {
+      // The switch is hidden until a link exists, so a new link always starts on the
+      // link-confirm flow — that is the behaviour we want admins defaulted into.
+      await this.inviteLinkService.createInviteLink(
+        userId,
+        this.organizationId(),
+        domains,
+        this.autoConfirmEnabled(),
+      );
     }
 
     this.form.markAsPristine();
@@ -326,16 +269,6 @@ export class ByLinkTabComponent {
       variant: "success",
       message: this.i18nService.t("domainsEdited"),
     });
-  };
-
-  readonly saveAndAdvanceToStep2 = async () => {
-    if (this.form.dirty || (await firstValueFrom(this.inviteLink$)) == null) {
-      await this.save();
-      if (this.form.invalid || this.domainsEmpty()) {
-        return;
-      }
-    }
-    this.tourStep.set(2);
   };
 
   readonly copyLink = async () => {

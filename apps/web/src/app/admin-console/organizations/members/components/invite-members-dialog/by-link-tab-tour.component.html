@@ -1,0 +1,141 @@
+<!-- TODO(guided-tour removal): this entire file is temporary — see the header comment in
+by-link-tab-tour.component.ts for the full removal checklist. -->
+<div [attr.inert]="''" aria-hidden="true">
+  <p bitTypography="body1">
+    {{ "inviteByLinkDesc" | i18n }}
+    <a
+      bitLink
+      href="https://bitwarden.com/help/managing-users/#add-new-members"
+      target="_blank"
+      rel="noreferrer"
+      endIcon="bwi-external-link"
+    >
+      {{ "learnMore" | i18n }}
+    </a>
+  </p>
+
+  <bit-form-field class="tw-flex-1">
+    <bit-label> {{ "allowedDomains" | i18n }} </bit-label>
+    <input
+      bitInput
+      type="text"
+      readonly
+      [value]="dummyAllowedDomains"
+      data-testid="allowedDomains"
+    />
+    <bit-hint>{{ "allowedDomainsHint" | i18n }}</bit-hint>
+    <button
+      type="button"
+      bitButton
+      bitFormButton
+      buttonType="primary"
+      [disabled]="true"
+      slot="inline-end"
+      data-testid="saveDomains"
+      [bitPopoverAnchorFor]="tourStep1"
+      [popoverOpen]="tourStep() === 1"
+      (popoverOpenChange)="$event || tourFinished.emit()"
+      [spotlight]="false"
+      [position]="'right-center'"
+      [closeOnBackdropClick]="false"
+    >
+      {{ "save" | i18n }}
+    </button>
+  </bit-form-field>
+
+  <bit-form-field
+    [bitPopoverAnchorFor]="tourStep2"
+    [popoverOpen]="tourStep() === 2"
+    (popoverOpenChange)="$event || tourFinished.emit()"
+    [spotlight]="false"
+    [position]="'right-start'"
+    [closeOnBackdropClick]="false"
+  >
+    <bit-label>{{ "inviteLink" | i18n }}</bit-label>
+    <input bitInput type="text" readonly [value]="dummyInviteLinkUrl" data-testid="inviteLink" />
+    <button
+      type="button"
+      bitSuffix
+      bitIconButton="bwi-refresh"
+      [label]="'regenerateInviteLink' | i18n"
+      [disabled]="true"
+    ></button>
+    <button
+      type="button"
+      bitSuffix
+      bitIconButton="bwi-clone"
+      [label]="'copyLink' | i18n"
+      [disabled]="true"
+      [bitPopoverAnchorFor]="tourStep3"
+      [popoverOpen]="tourStep() === 3"
+      (popoverOpenChange)="$event || tourFinished.emit()"
+      [spotlight]="false"
+      [position]="'right-start'"
+      [closeOnBackdropClick]="false"
+    ></button>
+  </bit-form-field>
+</div>
+
+<ng-template #tourFooter>
+  <bit-popover-footer class="tw-flex tw-w-full tw-items-center tw-justify-between">
+    <span bitTypography="body2" class="tw-text-muted">
+      {{ "coachMarkStepOfTotal" | i18n: tourStep() : totalTourSteps }}
+    </span>
+    <div class="tw-flex tw-gap-2">
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        [disabled]="tourStep() === 1"
+        (click)="back()"
+      >
+        {{ "back" | i18n }}
+      </button>
+      <button type="button" bitButton buttonType="primary" (click)="next()">
+        {{ tourStep() === totalTourSteps ? ("finish" | i18n) : ("next" | i18n) }}
+      </button>
+    </div>
+  </bit-popover-footer>
+</ng-template>
+
+<bit-popover [title]="'setYourAllowedDomains' | i18n" #tourStep1>
+  <p bitTypography="body1">
+    {{ "setYourAllowedDomainsCoachMarkBody" | i18n }}
+  </p>
+  <p class="tw-mb-0 tw-flex tw-items-center tw-gap-2 tw-text-fg-body-subtle" bitTypography="body2">
+    <i class="bwi bwi-info-circle" aria-hidden="true"></i>
+    {{ "tourPreviewExampleDomainsNotice" | i18n }}
+  </p>
+  <bit-popover-footer>
+    <ng-container *ngTemplateOutlet="tourFooter"></ng-container>
+  </bit-popover-footer>
+</bit-popover>
+
+<bit-popover [title]="'adjustTheLink' | i18n" #tourStep2>
+  <p bitTypography="body1" class="!tw-mb-0">
+    <span [innerHTML]="'adjustTheLinkCoachMarkBody' | i18n"></span>
+  </p>
+  <bit-popover-footer>
+    <ng-container *ngTemplateOutlet="tourFooter"></ng-container>
+  </bit-popover-footer>
+</bit-popover>
+
+<bit-popover [title]="'shareTheLinkAnywhere' | i18n" #tourStep3>
+  <p bitTypography="body1">
+    {{ "shareTheLinkAnywhereCoachMarkBody" | i18n }}
+  </p>
+  <p bitTypography="body1" class="!tw-mb-0">
+    <a
+      bitLink
+      href="https://bitwarden.com/help/bitwarden-onboarding-playbook/"
+      target="_blank"
+      rel="noreferrer"
+      endIcon="bwi-arrow-right"
+    >
+      {{ "viewBitwardenOnboardingGuide" | i18n }}
+    </a>
+  </p>
+  <bit-popover-footer>
+    <ng-container *ngTemplateOutlet="tourFooter"></ng-container>
+  </bit-popover-footer>
+</bit-popover>
