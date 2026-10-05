@@ -73,6 +73,9 @@ export class BackgroundIpcTransport {
         this.port = undefined;
       }
       void this.sessionRepository.remove(BACKGROUND_SOURCE);
+
+      // Suppress error message
+      void chrome.runtime.lastError;
     });
 
     this.port = port;

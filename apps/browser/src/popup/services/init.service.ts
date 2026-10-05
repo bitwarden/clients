@@ -38,7 +38,7 @@ export class InitService {
     return async () => {
       await this.sdkLoadService.loadAndInit();
       this.unlockService.init();
-      void this.ipcService.init();
+      await this.ipcService.init();
       await this.migrationRunner.waitForCompletion(); // Browser background is responsible for migrations
       await this.i18nService.init();
       this.twoFactorService.init();

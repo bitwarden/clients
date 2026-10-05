@@ -65,6 +65,9 @@ export class ForegroundIpcTransport {
         port.onMessage.removeListener(onMessage);
         this.ports.delete(id);
         void this.sessionRepository.remove(source);
+
+        // Suppress error message
+        void chrome.runtime.lastError;
       });
     });
   }
