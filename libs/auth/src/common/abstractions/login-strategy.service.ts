@@ -20,30 +20,30 @@ export abstract class LoginStrategyServiceAbstraction {
   abstract currentAuthType$: Observable<AuthenticationType | null>;
   /**
    * If the login strategy uses the email address of the user, this
-   * will return it. Otherwise, it will return null.
+   * will return it. Otherwise, it will return undefined.
    */
-  abstract getEmail(): Promise<string | null>;
+  abstract getEmail(): Promise<string | undefined>;
   /**
    * If the user is logging in with a master password, this will return
-   * the master password hash. Otherwise, it will return null.
+   * the master password hash. Otherwise, it will return undefined.
    */
-  abstract getMasterPasswordHash(): Promise<string | null>;
+  abstract getMasterPasswordHash(): Promise<string | undefined>;
   /**
    * If the user is logging in with SSO, this will return
-   * the email auth token. Otherwise, it will return null.
+   * the email auth token. Otherwise, it will return undefined.
    * @see {@link SsoLoginStrategyData.ssoEmail2FaSessionToken}
    */
-  abstract getSsoEmail2FaSessionToken(): Promise<string | null>;
+  abstract getSsoEmail2FaSessionToken(): Promise<string | undefined>;
   /**
    * Returns the access code if the user is logging in with an
-   * Auth Request. Otherwise, it will return null.
+   * Auth Request. Otherwise, it will return undefined.
    */
-  abstract getAccessCode(): Promise<string | null>;
+  abstract getAccessCode(): Promise<string | undefined>;
   /**
    * Returns the auth request ID if the user is logging in with an
-   * Auth Request. Otherwise, it will return null.
+   * Auth Request. Otherwise, it will return undefined.
    */
-  abstract getAuthRequestId(): Promise<string | null>;
+  abstract getAuthRequestId(): Promise<string | undefined>;
   /**
    * Sends a token request to the server using the provided credentials.
    */
