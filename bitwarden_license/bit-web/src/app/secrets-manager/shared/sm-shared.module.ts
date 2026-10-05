@@ -57,7 +57,6 @@ import { SecretsListComponent } from "./secrets-list.component";
     AccessPolicySelectorComponent,
     BulkConfirmationDialogComponent,
     BulkStatusDialogComponent,
-    BulkStatusDialogComponent,
     NewMenuComponent,
     OrgSuspendedComponent,
     ProjectsListComponent,

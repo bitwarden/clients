@@ -13,7 +13,11 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { mockAccountServiceWith, ObservableTracker } from "@bitwarden/common/spec";
+import {
+  FakeAccountService,
+  mockAccountServiceWith,
+  ObservableTracker,
+} from "@bitwarden/common/spec";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
@@ -573,6 +577,42 @@ describe("VaultPopupItemsService", () => {
     });
 
     service.applyFilter("test search");
+  });
+
+  describe("clearSearchText on account switch", () => {
+    it("should clear search text when the active account changes", () => {
+      service.applyFilter("some search text");
+      expect(viewCacheService.mockSignal()).toBe("some search text");
+
+      const accountService = testBed.inject(AccountService) as FakeAccountService;
+      const newUserId = Utils.newGuid() as UserId;
+      accountService.activeAccountSubject.next({
+        id: newUserId,
+        name: "New User",
+        email: "new@example.com",
+        emailVerified: true,
+        creationDate: new Date(),
+      });
+
+      expect(viewCacheService.mockSignal()).toBe("");
+    });
+
+    it("should not clear search text when the same account re-emits", () => {
+      service.applyFilter("some search text");
+      expect(viewCacheService.mockSignal()).toBe("some search text");
+
+      const accountService = testBed.inject(AccountService) as FakeAccountService;
+      // Re-emit the same userId — distinctUntilChanged should swallow it
+      accountService.activeAccountSubject.next({
+        id: "UserId" as UserId,
+        name: "name",
+        email: "email",
+        emailVerified: true,
+        creationDate: new Date(),
+      });
+
+      expect(viewCacheService.mockSignal()).toBe("some search text");
+    });
   });
 });
 

@@ -62,6 +62,7 @@ import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
+import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
@@ -104,6 +105,7 @@ describe("SettingsDialogComponent", () => {
   const autoUnlockService = mock<AutoUnlockService>();
   const dialogService = mock<DialogService>();
   const desktopAutotypeMvpService = mock<DesktopAutotypeMvpService>();
+  const desktopAutotypeService = mock<DesktopAutotypeService>();
   const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
   const configService = mock<ConfigService>();
   const userVerificationService = mock<UserVerificationService>();
@@ -170,6 +172,7 @@ describe("SettingsDialogComponent", () => {
         { provide: MessagingService, useValue: messagingService },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: DesktopAutotypeMvpService, useValue: desktopAutotypeMvpService },
+        { provide: DesktopAutotypeService, useValue: desktopAutotypeService },
         { provide: BillingAccountProfileStateService, useValue: billingAccountProfileStateService },
         { provide: VaultCopyButtonsService, useValue: vaultCopyButtonsService },
       ],
@@ -213,6 +216,8 @@ describe("SettingsDialogComponent", () => {
     policyService.policiesByType$.mockReturnValue(of([null]));
     desktopAutotypeMvpService.autotypeEnabledUserSetting$ = of(false);
     desktopAutotypeMvpService.autotypeKeyboardShortcut$ = of(["Control", "Alt", "B"]);
+    desktopAutotypeService.autotypeEnabledUserSetting$ = of(false);
+    desktopAutotypeService.autotypeKeyboardShortcut$ = of(["Control", "Alt", "G"]);
     billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
     configService.getFeatureFlag$.mockReturnValue(of(false));
     vaultCopyButtonsService.showQuickCopyActions$ = of(false);
@@ -976,9 +981,30 @@ describe("SettingsDialogComponent", () => {
 
       // `showEnableAutotype` signal should be false
       expect((component as any).showEnableAutotype()).toBe(false);
+
+      // `enableAutotypeGa` input shouldn't be found
+      const enableAutotypeGaInput = fixture.debugElement.query(
+        By.css("input[formControlName='enableAutotypeGa']"),
+      );
+      expect(enableAutotypeGaInput).toBeNull();
+
+      // `showEnableAutotypeGa` signal should be false
+      expect((component as any).showEnableAutotypeGa()).toBe(false);
     });
 
     describe("flag-driven visibility on windows", () => {
+      function mockAutotypeFlags(mvpEnabled: boolean, gaEnabled: boolean) {
+        configService.getFeatureFlag$.mockImplementation((flag) => {
+          if (flag === FeatureFlag.WindowsDesktopAutotypeGA) {
+            return of(gaEnabled);
+          }
+          if (flag === FeatureFlag.WindowsDesktopAutotype) {
+            return of(mvpEnabled);
+          }
+          throw new Error(`Unexpected feature flag requested in test: ${flag}`);
+        });
+      }
+
       beforeEach(() => {
         // `isWindows` is captured in the constructor, so the device must be set before
         // the component is created.
@@ -988,9 +1014,8 @@ describe("SettingsDialogComponent", () => {
         component = fixture.componentInstance;
       });
 
-      it("shows the enable autotype control when the feature flag is enabled", async () => {
-        configService.getFeatureFlag$.mockReturnValue(of(true) as any);
-
+      it("shows the enable autotype control when the MVP flag is enabled", async () => {
+        mockAutotypeFlags(true, false);
         await component.ngOnInit();
         fixture.detectChanges();
 
@@ -1010,39 +1035,78 @@ describe("SettingsDialogComponent", () => {
           fixture.debugElement.query(By.css("input[formControlName='enableAutotype']")),
         ).toBeNull();
       });
+
+      it("hides the enable autotype control when only the GA flag is enabled", async () => {
+        mockAutotypeFlags(false, true);
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect((component as any).showEnableAutotype()).toBe(false);
+      });
+
+      it("hides the enable autotype control when both the MVP and GA flags are enabled", async () => {
+        mockAutotypeFlags(true, true);
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect((component as any).showEnableAutotype()).toBe(false);
+      });
+
+      it("shows the enable autotype GA control when the GA flag is enabled", async () => {
+        mockAutotypeFlags(false, true);
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect((component as any).showEnableAutotypeGa()).toBe(true);
+        expect(
+          fixture.debugElement.query(By.css("input[formControlName='enableAutotypeGa']")),
+        ).not.toBeNull();
+      });
+
+      it("hides the enable autotype GA control when the feature flag is disabled", async () => {
+        // The top-level `beforeEach` already mocks every feature flag as false.
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect((component as any).showEnableAutotypeGa()).toBe(false);
+        expect(
+          fixture.debugElement.query(By.css("input[formControlName='enableAutotypeGa']")),
+        ).toBeNull();
+      });
+
+      it("hides the enable autotype GA control when only the MVP flag is enabled", async () => {
+        mockAutotypeFlags(true, false);
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect((component as any).showEnableAutotypeGa()).toBe(false);
+      });
+
+      it("hides the enable autotype GA control when both the MVP and GA flags are enabled", async () => {
+        mockAutotypeFlags(true, true);
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect((component as any).showEnableAutotypeGa()).toBe(false);
+      });
+    });
+
+    describe("saveEnableAutotypeGa", () => {
+      it("saves the enable autotype GA setting through the GA service", async () => {
+        await component.ngOnInit();
+        (component as any).form.controls.enableAutotypeGa.enable();
+        (component as any).form.controls.enableAutotypeGa.setValue(true);
+
+        await (component as any).saveEnableAutotypeGa();
+
+        expect(desktopAutotypeService.setAutotypeEnabledState).toHaveBeenCalledWith(true);
+        expect(desktopAutotypeMvpService.setAutotypeEnabledState).not.toHaveBeenCalled();
+      });
     });
   });
 
   describe("quick copy actions", () => {
-    /**
-     * `showQuickCopyActionsSetting` is a `toSignal()` initialized at class level, so the feature
-     * flag mock must be in place before the component is constructed.
-     */
-    function createComponentWithFlag(enabled: boolean) {
-      configService.getFeatureFlag$.mockImplementation((flag) =>
-        of(flag === FeatureFlag.PM40435_QuickCopyIconSetting ? enabled : false),
-      );
-
-      fixture = TestBed.createComponent(SettingsDialogComponent);
-      component = fixture.componentInstance;
-    }
-
-    it("is not visible when the feature flag is disabled", async () => {
-      createComponentWithFlag(false);
-
-      await component.ngOnInit();
-      fixture.detectChanges();
-
-      const showQuickCopyActionsInput = fixture.debugElement.query(
-        By.css("input[formControlName='showQuickCopyActions']"),
-      );
-      expect(showQuickCopyActionsInput).toBeNull();
-      expect((component as any).showQuickCopyActionsSetting()).toBe(false);
-    });
-
-    it("is visible when the feature flag is enabled", async () => {
-      createComponentWithFlag(true);
-
+    it("renders the quick copy actions checkbox", async () => {
       await component.ngOnInit();
       fixture.detectChanges();
 
@@ -1053,7 +1117,6 @@ describe("SettingsDialogComponent", () => {
       expect(showQuickCopyActionsInput.attributes).toMatchObject({
         type: "checkbox",
       });
-      expect((component as any).showQuickCopyActionsSetting()).toBe(true);
     });
 
     test.each([true, false])(

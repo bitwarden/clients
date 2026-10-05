@@ -6,7 +6,6 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptedString, PBKDF2KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
-import { ManagedSettingsService } from "@bitwarden/managed-settings";
 import { PasswordManagerClient } from "@bitwarden/sdk-internal";
 
 import {
@@ -15,12 +14,14 @@ import {
   FakeStateProvider,
   mockAccountServiceWith,
   mockAccountInfoWith,
+  mockManagedSettingsService,
 } from "../../../../spec";
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountCryptographicStateService } from "../../../key-management/account-cryptography/account-cryptographic-state.service";
 import { V2UpgradeTokenStateService } from "../../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
+import { AppIdService } from "../../abstractions/app-id.service";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
@@ -40,57 +41,76 @@ class TestSdkLoadService extends SdkLoadService {
 }
 
 describe("DefaultSdkService", () => {
-  describe("userClient$", () => {
-    let sdkClientFactory!: MockProxy<SdkClientFactory>;
-    let environmentService!: MockProxy<EnvironmentService>;
-    let platformUtilsService!: MockProxy<PlatformUtilsService>;
-    let kdfConfigService!: MockProxy<KdfConfigService>;
-    let keyService!: MockProxy<KeyService>;
-    let accountCryptographicStateService!: MockProxy<AccountCryptographicStateService>;
-    let configService!: MockProxy<ConfigService>;
-    let service!: DefaultSdkService;
-    let accountService!: FakeAccountService;
-    let fakeStateProvider!: FakeStateProvider;
-    let apiService!: MockProxy<ApiService>;
-    let upgradeTokenStateService!: MockProxy<V2UpgradeTokenStateService>;
+  const appId = "app-id";
 
-    beforeEach(async () => {
-      await new TestSdkLoadService().loadAndInit();
+  let sdkClientFactory!: MockProxy<SdkClientFactory>;
+  let environmentService!: MockProxy<EnvironmentService>;
+  let platformUtilsService!: MockProxy<PlatformUtilsService>;
+  let kdfConfigService!: MockProxy<KdfConfigService>;
+  let keyService!: MockProxy<KeyService>;
+  let accountCryptographicStateService!: MockProxy<AccountCryptographicStateService>;
+  let configService!: MockProxy<ConfigService>;
+  let service!: DefaultSdkService;
+  let accountService!: FakeAccountService;
+  let fakeStateProvider!: FakeStateProvider;
+  let apiService!: MockProxy<ApiService>;
+  let upgradeTokenStateService!: MockProxy<V2UpgradeTokenStateService>;
+  let appIdService!: MockProxy<AppIdService>;
 
-      sdkClientFactory = mock<SdkClientFactory>();
-      environmentService = mock<EnvironmentService>();
-      platformUtilsService = mock<PlatformUtilsService>();
-      kdfConfigService = mock<KdfConfigService>();
-      keyService = mock<KeyService>();
-      accountCryptographicStateService = mock<AccountCryptographicStateService>();
-      apiService = mock<ApiService>();
-      const mockUserId = Utils.newGuid() as UserId;
-      accountService = mockAccountServiceWith(mockUserId);
-      fakeStateProvider = new FakeStateProvider(accountService);
-      configService = mock<ConfigService>();
-      upgradeTokenStateService = mock<V2UpgradeTokenStateService>();
+  beforeEach(async () => {
+    await new TestSdkLoadService().loadAndInit();
 
-      configService.serverConfig$ = new BehaviorSubject(null);
+    sdkClientFactory = mock<SdkClientFactory>();
+    environmentService = mock<EnvironmentService>();
+    platformUtilsService = mock<PlatformUtilsService>();
+    kdfConfigService = mock<KdfConfigService>();
+    keyService = mock<KeyService>();
+    accountCryptographicStateService = mock<AccountCryptographicStateService>();
+    apiService = mock<ApiService>();
+    const mockUserId = Utils.newGuid() as UserId;
+    accountService = mockAccountServiceWith(mockUserId);
+    fakeStateProvider = new FakeStateProvider(accountService);
+    configService = mock<ConfigService>();
+    upgradeTokenStateService = mock<V2UpgradeTokenStateService>();
+    appIdService = mock<AppIdService>();
+    appIdService.getAppId.mockResolvedValue(appId);
 
-      // Can't use `of(mock<Environment>())` for some reason
-      environmentService.environment$ = new BehaviorSubject(mock<Environment>());
+    configService.serverConfig$ = new BehaviorSubject(null);
 
-      service = new DefaultSdkService(
-        sdkClientFactory,
-        environmentService,
-        platformUtilsService,
-        accountService,
-        kdfConfigService,
-        keyService,
-        accountCryptographicStateService,
-        apiService,
-        fakeStateProvider,
-        configService,
-        upgradeTokenStateService,
-        mock<ManagedSettingsService>(),
-      );
+    // Can't use `of(mock<Environment>())` for some reason
+    environmentService.environment$ = new BehaviorSubject(mock<Environment>());
+
+    service = new DefaultSdkService(
+      sdkClientFactory,
+      environmentService,
+      platformUtilsService,
+      accountService,
+      kdfConfigService,
+      keyService,
+      accountCryptographicStateService,
+      apiService,
+      fakeStateProvider,
+      configService,
+      upgradeTokenStateService,
+      mockManagedSettingsService(),
+      appIdService,
+    );
+  });
+
+  describe("client$ without BW user", () => {
+    beforeEach(() => {
+      sdkClientFactory.createSdkClient.mockResolvedValue(createMockClient());
     });
 
+    it("creates the SDK client with the app ID as the device identifier", async () => {
+      await firstValueFrom(service.client$);
+
+      const [, settings] = sdkClientFactory.createSdkClient.mock.calls[0];
+      expect(settings?.deviceIdentifier).toBe(appId);
+    });
+  });
+
+  describe("userClient$", () => {
     describe("given the user is logged in", () => {
       const userId = "0da62ebd-98bb-4f42-a846-64e8555087d7" as UserId;
       beforeEach(() => {
@@ -134,6 +154,13 @@ describe("DefaultSdkService", () => {
           await firstValueFrom(service.userClient$(userId));
 
           expect(sdkClientFactory.createSdkClient).toHaveBeenCalled();
+        });
+
+        it("creates the SDK client with the app ID as the device identifier", async () => {
+          await firstValueFrom(service.userClient$(userId));
+
+          const [, settings] = sdkClientFactory.createSdkClient.mock.calls[0];
+          expect(settings?.deviceIdentifier).toBe(appId);
         });
 
         it("does not create an SDK client when called the second time with same userId", async () => {

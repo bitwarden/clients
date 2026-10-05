@@ -61,8 +61,18 @@ export default {
                   return "due on";
                 case "premiumSubscriptionCredit":
                   return "Premium subscription credit";
+                case "accountCredit":
+                  return "Account credit";
+                case "appliedSubscriptionCredits":
+                  return "Applied subscription credits";
+                case "passwordManagerProratedCharge":
+                  return "Password Manager prorated charge";
                 case "discount":
                   return "discount";
+                case "appliedBalance":
+                  return "Applied balance";
+                case "amountDue":
+                  return "Amount due";
                 default:
                   return key;
               }
@@ -413,6 +423,22 @@ export const WithCredit: Story = {
   },
 };
 
+export const WithAppliedBalance: Story = {
+  name: "With Applied Account Balance (Premium Renewal)",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: { quantity: 1, translationKey: "premiumMembership", cost: 19.8 },
+      },
+      cadence: "annually",
+      estimatedTax: 1.58,
+      total: 21.38,
+      appliedBalance: 12.96,
+      amountDue: 8.42,
+    } satisfies Cart,
+  },
+};
+
 export const WithDiscountAndCredit: Story = {
   name: "With Both Discount and Credit",
   args: {
@@ -695,5 +721,65 @@ export const HiddenPricingTerm: Story = {
       estimatedTax: 9.6,
     } satisfies Cart,
     hidePricingTerm: true,
+  },
+};
+
+export const AllProrationInvoice: Story = {
+  name: "All Proration (Mid-Cycle Transition)",
+  args: {
+    cart: {
+      passwordManager: {
+        prorationCharges: [
+          {
+            translationKey: "passwordManagerProratedCharge",
+            quantity: 1,
+            cost: 188.22,
+            hideBreakdown: true,
+          },
+        ],
+      },
+      cadence: "annually",
+      credit: {
+        translationKey: "appliedSubscriptionCredits",
+        value: 37.64,
+      },
+      estimatedTax: 12.05,
+      // Seatless one-time invoice: the total carries no term.
+      hidePricingTerm: true,
+    } satisfies Cart,
+  },
+};
+
+export const RecurringWithProration: Story = {
+  name: "Recurring Items With Proration",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 3,
+          translationKey: "members",
+          cost: 48.0,
+        },
+        additionalStorage: {
+          quantity: 5,
+          translationKey: "additionalStorageGB",
+          cost: 3.0,
+        },
+        prorationCharges: [
+          {
+            translationKey: "passwordManagerProratedCharge",
+            quantity: 1,
+            cost: 13.52,
+            hideBreakdown: true,
+          },
+        ],
+      },
+      cadence: "annually",
+      credit: {
+        translationKey: "appliedSubscriptionCredits",
+        value: 9.02,
+      },
+      estimatedTax: 0.36,
+    } satisfies Cart,
   },
 };

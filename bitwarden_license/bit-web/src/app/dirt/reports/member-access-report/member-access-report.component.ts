@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Component, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { BehaviorSubject, debounceTime, firstValueFrom, lastValueFrom } from "rxjs";
@@ -15,6 +15,8 @@ import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -26,16 +28,14 @@ import {
   TableDataSource,
   IconModule,
   ToastService,
+  BreadcrumbsModule,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService } from "@bitwarden/legacy-crypto";
 import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import { ExportHelper } from "@bitwarden/vault-export-core";
-import {
-  CoreOrganizationModule,
-  GroupApiService,
-} from "@bitwarden/web-vault/app/admin-console/organizations/core";
+import { GroupApiService } from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import { EditMemberDialogComponent } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/edit-member-dialog";
 import {
   MemberDialogResult,
@@ -56,14 +56,7 @@ import { MemberAccessReportView } from "./view/member-access-report.view";
 @Component({
   selector: "member-access-report",
   templateUrl: "member-access-report.component.html",
-  imports: [
-    SharedModule,
-    SearchModule,
-    HeaderModule,
-    CoreOrganizationModule,
-    IconModule,
-    Vfo1I18nPipe,
-  ],
+  imports: [SharedModule, SearchModule, HeaderModule, IconModule, Vfo1I18nPipe, BreadcrumbsModule],
   providers: [
     safeProvider({
       provide: MemberAccessReportServiceAbstraction,
@@ -86,6 +79,16 @@ import { MemberAccessReportView } from "./view/member-access-report.view";
   ],
 })
 export class MemberAccessReportComponent implements OnInit {
+  private readonly configService = inject(ConfigService);
+
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    {
+      initialValue: false,
+    },
+  );
+  protected readonly reportTitleKey = "memberAccessReport";
+
   protected dataSource = new TableDataSource<MemberAccessReportView>();
   protected searchControl = new FormControl("", { nonNullable: true });
   protected organizationId: OrganizationId;

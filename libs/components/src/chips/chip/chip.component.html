@@ -5,7 +5,7 @@
     bit-chip-dismiss-button
     slot="end"
     type="button"
-    [attr.aria-label]="'removeItem' | i18n: label()"
+    [attr.aria-label]="'removeItem' | i18n: accessibleName() ?? label()"
     [disabled]="baseChip.disabled()"
     (click)="handleDismiss($event)"
     [size]="baseChip.size()"

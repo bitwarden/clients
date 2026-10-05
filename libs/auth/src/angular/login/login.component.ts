@@ -29,11 +29,9 @@ import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { PasswordPreloginService } from "@bitwarden/common/auth/password-prelogin";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -147,7 +145,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private validationService: ValidationService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
-    private configService: ConfigService,
     private ssoLoginService: SsoLoginServiceAbstraction,
     private environmentService: EnvironmentService,
     private passwordPreloginService: PasswordPreloginService,
@@ -650,18 +647,11 @@ export class LoginComponent implements OnInit, OnDestroy {
    * Pre-auth UX check for open-org-invite domain restrictions. Layered UX only — the
    * accept endpoint enforces the policy server-side, so this fails open on transient
    * errors (returns true) rather than blocking login. Also returns true when no
-   * open-org invite is stashed or the feature is off.
+   * open-org invite is stashed.
    */
   private async openOrgInviteDomainAllowed(email: string): Promise<boolean> {
     const invite = await this.organizationInviteService.getOpenOrgInvite();
     if (invite == null) {
-      return true;
-    }
-    // Defense in depth: stale flag-on state may persist into a flag-off session.
-    // Skip the domain check when disabled.
-    // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop this
-    // guard clause.
-    if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
       return true;
     }
     const result = await this.organizationInviteService.validateOpenOrgInviteEmailDomain(
@@ -690,33 +680,13 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Returns the open-org-invite if one is in state and the feature is enabled; otherwise
-   * `null`. Centralizes the "should we apply open-org-invite chrome here?" predicate so
-   * the kind + flag guard isn't restated at every override site.
-   *
-   * Defense in depth: stale flag-on state may persist into a flag-off session.
-   */
-  private async getActiveOpenOrgInvite(): Promise<{ organizationName: string } | null> {
-    const invite = await this.organizationInviteService.getOpenOrgInvite();
-    if (invite == null) {
-      return null;
-    }
-    // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop this
-    // guard clause.
-    if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
-      return null;
-    }
-    return invite;
-  }
-
-  /**
    * Pushes the "Join <organizationName>" title for the email-entry surface when an
    * open org invite is in state. The override is the last write to the anon-layout
    * wrapper data on this surface, so it survives until the next state transition
    * (which is expected to re-apply it where needed — see `toggleLoginUiState`).
    */
   private async applyOpenOrgInviteTitleOverride(): Promise<void> {
-    const invite = await this.getActiveOpenOrgInvite();
+    const invite = await this.organizationInviteService.getOpenOrgInvite();
     if (invite == null) {
       return;
     }
@@ -735,7 +705,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   private async buildOpenOrgInviteMpEntryOverride(): Promise<
     Partial<AnonLayoutWrapperData> | undefined
   > {
-    const invite = await this.getActiveOpenOrgInvite();
+    const invite = await this.organizationInviteService.getOpenOrgInvite();
     if (invite == null) {
       return undefined;
     }

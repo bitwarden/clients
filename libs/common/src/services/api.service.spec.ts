@@ -10,9 +10,16 @@ import { UserId } from "@bitwarden/user-core";
 import { mockAccountInfoWith } from "../../spec";
 import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
+import { TwoFactorProviderType } from "../auth/enums/two-factor-provider-type";
+import { PasswordTokenRequest } from "../auth/models/request/identity-token/password-token.request";
+import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token.request";
+import { TokenTwoFactorRequest } from "../auth/models/request/identity-token/token-two-factor.request";
+import { UserApiTokenRequest } from "../auth/models/request/identity-token/user-api-token.request";
+import { WebAuthnLoginTokenRequest } from "../auth/models/request/identity-token/webauthn-login-token.request";
+import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { EventRequest } from "../dirt/event-logs";
 import { EventType } from "../dirt/event-logs/enums/event-type.enum";
-import { DeviceType } from "../enums";
+import { ClientType, DeviceType } from "../enums";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
@@ -92,6 +99,134 @@ describe("ApiService", () => {
       httpOperations,
       "custom-user-agent",
     );
+  });
+
+  describe("identity token environment", () => {
+    let nativeFetch: jest.Mock<Promise<Response>, [request: Request]>;
+    const accountIdentityUrl = "https://identity.bitwarden.com";
+    const selectedIdentityUrl = "https://selfhosted.example.com/identity";
+    const ssoRequest = () =>
+      new SsoTokenRequest(
+        "code",
+        "verifier",
+        "https://selfhosted.example.com/sso-connector.html",
+        undefined,
+      );
+
+    beforeEach(() => {
+      platformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
+      environmentService.environment$ = of({
+        getIdentityUrl: () => accountIdentityUrl,
+        hasBaseUrl: () => false,
+      } satisfies Partial<Environment> as Environment);
+      environmentService.globalEnvironment$ = of({
+        getIdentityUrl: () => selectedIdentityUrl,
+        hasBaseUrl: () => true,
+      } satisfies Partial<Environment> as Environment);
+      nativeFetch = jest.fn().mockResolvedValue({
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        json: () =>
+          Promise.resolve({ access_token: "access_token", token_type: "Bearer", ...kdfFields }),
+      } satisfies Partial<Response> as Response);
+      sut.nativeFetch = nativeFetch;
+    });
+
+    it("uses the selected server for browser SSO and its two-factor retry", async () => {
+      nativeFetch.mockResolvedValueOnce({
+        status: 400,
+        headers: new Headers({ "content-type": "application/json" }),
+        json: () =>
+          Promise.resolve({ TwoFactorProviders2: { [TwoFactorProviderType.Authenticator]: {} } }),
+      } satisfies Partial<Response> as Response);
+      const request = ssoRequest();
+
+      await expect(sut.postIdentityToken(request)).resolves.toBeInstanceOf(
+        IdentityTwoFactorResponse,
+      );
+      request.setTwoFactor(
+        new TokenTwoFactorRequest(TwoFactorProviderType.Authenticator, "123456"),
+      );
+      await sut.postIdentityToken(request);
+
+      expect(nativeFetch.mock.calls.map(([request]) => request.url)).toEqual([
+        selectedIdentityUrl + "/connect/token",
+        selectedIdentityUrl + "/connect/token",
+      ]);
+      const retryBody = new URLSearchParams(
+        httpOperations.createRequest.mock.calls[1][1].body as string,
+      );
+      expect(retryBody.get("twoFactorToken")).toBe("123456");
+    });
+
+    it.each([
+      {
+        name: "password",
+        request: () => new PasswordTokenRequest("user@example.com", "hash", undefined),
+      },
+      {
+        name: "WebAuthn",
+        request: () =>
+          WebAuthnLoginTokenRequest.fromJSON({
+            token: "token",
+            deviceResponse: {
+              id: "credential-id",
+              rawId: "credential-id",
+              type: "public-key",
+              extensions: {},
+              response: {
+                authenticatorData: "data",
+                signature: "signature",
+                clientDataJSON: "data",
+                userHandle: "user",
+              },
+            },
+          }),
+      },
+      {
+        name: "API key",
+        request: () => new UserApiTokenRequest("user.id", "secret", undefined),
+      },
+    ])("preserves the account server for browser $name login", async ({ request }) => {
+      await sut.postIdentityToken(request());
+
+      expect(nativeFetch.mock.calls[0][0].url).toBe(accountIdentityUrl + "/connect/token");
+    });
+
+    it.each([ClientType.Web, ClientType.Desktop, ClientType.Cli])(
+      "preserves the account server for %s SSO",
+      async (clientType) => {
+        platformUtilsService.getClientType.mockReturnValue(clientType);
+
+        await sut.postIdentityToken(ssoRequest());
+
+        expect(nativeFetch.mock.calls[0][0].url).toBe(accountIdentityUrl + "/connect/token");
+      },
+    );
+
+    it("preserves the account server when renewing an API key token", async () => {
+      tokenService.getRefreshToken.mockResolvedValue(null);
+      tokenService.getClientId.mockResolvedValue("user.id");
+      tokenService.getClientSecret.mockResolvedValue("secret");
+      appIdService.getAppId.mockResolvedValue("app-id");
+      tokenService.decodeAccessToken.mockResolvedValue({ sub: testActiveUser });
+      vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockReturnValue(
+        of(VaultTimeoutAction.Lock),
+      );
+      vaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockReturnValue(
+        of(VaultTimeoutStringType.Never),
+      );
+      tokenService.setAccessToken.mockResolvedValue("access_token");
+
+      await sut.refreshIdentityToken(testActiveUser);
+
+      expect(nativeFetch.mock.calls[0][0].url).toBe(accountIdentityUrl + "/connect/token");
+      expect(tokenService.setAccessToken).toHaveBeenCalledWith(
+        "access_token",
+        VaultTimeoutAction.Lock,
+        VaultTimeoutStringType.Never,
+      );
+    });
   });
 
   describe("send", () => {

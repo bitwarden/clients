@@ -41,6 +41,7 @@ import { AccountCryptographicStateService } from "../../../key-management/accoun
 import { JsWasmStateBridge } from "../../../key-management/state-bridge";
 import { V2UpgradeTokenStateService } from "../../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { OrganizationId, UserId } from "../../../types/guid";
+import { AppIdService } from "../../abstractions/app-id.service";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
@@ -90,9 +91,11 @@ export class DefaultSdkService implements SdkService {
     concatMap(async (env) => {
       await SdkLoadService.Ready;
       const settings = await this.toSettings(env);
+      const managedSettings = await firstValueFrom(this.managedSettingsService.client$);
       const client = await this.sdkClientFactory.createSdkClient(
         new JsTokenProvider(this.apiService),
         settings,
+        managedSettings,
       );
       await this.loadFeatureFlags(client);
       return client;
@@ -117,10 +120,8 @@ export class DefaultSdkService implements SdkService {
     private stateProvider: StateProvider,
     private configService: ConfigService,
     private v2UpgradeTokenStateService: V2UpgradeTokenStateService,
-    // Not yet read. The SDK's `PasswordManagerClient` constructor gains a `ManagedSettingsClient`
-    // parameter in sdk-internal#1405; once that publishes, `client$` is resolved here and passed to
-    // `createSdkClient`.
     private managedSettingsService: ManagedSettingsService,
+    private appIdService: AppIdService,
     private userAgent: string | null = null,
   ) {}
 
@@ -224,9 +225,11 @@ export class DefaultSdkService implements SdkService {
               }
 
               const settings = await this.toSettings(env);
+              const managedSettings = await firstValueFrom(this.managedSettingsService.client$);
               const client = await this.sdkClientFactory.createSdkClient(
                 new JsTokenProvider(this.apiService, userId),
                 settings,
+                managedSettings,
               );
               await this.initializeClient(userId, client);
 
@@ -327,6 +330,7 @@ export class DefaultSdkService implements SdkService {
       apiUrl: env.getApiUrl(),
       identityUrl: env.getIdentityUrl(),
       deviceType: toSdkDevice(this.platformUtilsService.getDevice()),
+      deviceIdentifier: await this.appIdService.getAppId(),
       bitwardenClientVersion: await this.platformUtilsService.getApplicationVersionNumber(),
       userAgent: this.userAgent ?? navigator.userAgent,
     };

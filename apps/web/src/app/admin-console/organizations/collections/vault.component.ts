@@ -84,6 +84,7 @@ import {
   VaultBatchBarService,
   VaultFilterServiceAbstraction as VaultFilterService,
   VaultFilter,
+  Vfo1TerminologyService,
   createFilterFunction,
 } from "@bitwarden/vault";
 import {
@@ -109,7 +110,8 @@ import { DefaultVaultCollectionService } from "./services/default-vault-collecti
 import { VaultCipherActionsService } from "./services/vault-cipher-actions.service";
 import { VaultCollectionActionsService } from "./services/vault-collection-actions.service";
 import { AddAccessStatusType, VaultCollectionService } from "./services/vault-collection.service";
-import { VaultFilterModule } from "./vault-filter/vault-filter.module";
+import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
+import { VaultFilterService as OrganizationVaultFilterService } from "./vault-filter/vault-filter.service";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 
 const SearchTextDebounceInterval = 200;
@@ -121,7 +123,7 @@ const SearchTextDebounceInterval = 200;
   imports: [
     VaultHeaderComponent,
     CollectionAccessRestrictedComponent,
-    VaultFilterModule,
+    VaultFilterComponent,
     VaultItemsModule,
     SharedModule,
     BannerModule,
@@ -139,6 +141,11 @@ const SearchTextDebounceInterval = 200;
     { provide: VaultCollectionService, useClass: DefaultVaultCollectionService },
     VaultCipherActionsService,
     VaultBatchBarService,
+    safeProvider({
+      provide: VaultFilterService,
+      useClass: OrganizationVaultFilterService,
+      useAngularDecorators: true,
+    }),
     safeProvider({
       provide: ASSIGN_COLLECTIONS_DIALOG,
       useClass: AssignCollectionsWebDialogAdapter,
@@ -180,14 +187,10 @@ export class VaultComponent implements OnInit, OnDestroy {
   private readonly cipherActions = inject(VaultCipherActionsService);
   private readonly vaultBatchBarService = inject(VaultBatchBarService);
   private readonly configService = inject(ConfigService);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
-    { initialValue: false },
-  );
-
-  protected readonly vaultBatchBarFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
     { initialValue: false },
   );
 
@@ -422,14 +425,15 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.vaultBatchBarService.completed$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.refresh());
-    combineLatest([this.organization$, this.allCollections$, this.ciphers$])
+    combineLatest([this.organization$, this.allCollections$, this.ciphers$, this.filter$])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([organization, allCollections, ciphers]) => {
+      .subscribe(([organization, allCollections, ciphers, filter]) => {
         this.vaultBatchBarService.setConfig({
           isOrgVault: true,
           organization,
           allCollections,
           hasCiphers: ciphers.length > 0,
+          inTrash: filter.type === "trash",
         });
       });
 
@@ -642,9 +646,6 @@ export class VaultComponent implements OnInit, OnDestroy {
             event.initialPermission,
           );
           break;
-        case "bulkEditCollectionAccess":
-          await this.collectionActions.bulkEditCollectionAccess(event.items, organization);
-          break;
         case "assignToCollections":
           await this.cipherActions.bulkAssignToCollections(event.items);
           break;
@@ -724,7 +725,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       const activeFilter = this.activeFilter();
       queryParams = {
         type: activeFilter.cipherType,
-        collectionId: activeFilter.collectionId,
+        ...this.vfo1TerminologyService.collectionQueryParams(activeFilter.collectionId),
         deleted: activeFilter.isDeleted || null,
       };
     }

@@ -5,6 +5,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { isImportError, PasswordManagerClient } from "@bitwarden/sdk-internal";
 
+import { toSdkCollectionType } from "../sdk-collection-type";
 import { SdkImportContext } from "../sdk-vault-importer";
 
 import { KdbxSdkImporter } from "./kdbx-sdk-importer";
@@ -90,7 +91,11 @@ describe("KdbxSdkImporter", () => {
     expect(importKdbx).toHaveBeenCalledWith(new Uint8Array([2]), "pw", keyFile, {
       organization_id: organizationId,
       target_folder: undefined,
-      target_collection: { id: collection.id, name: "Shared" },
+      target_collection: {
+        id: collection.id,
+        name: "Shared",
+        type: toSdkCollectionType(collection.type),
+      },
       restricted_types: [],
     });
   });

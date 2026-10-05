@@ -20,9 +20,8 @@ import {
 
 export class ActivateAutofillPolicy extends BasePolicyEditDefinition {
   name = "enableAutofillOnPageLoad";
-  nameVfo1 = "activateAutofillPolicy";
   description = "activateAutofillPolicyDescription";
-  descriptionVfo1 = "activateAutofillPolicyDescriptionVfo1";
+  descriptionVfo1 = "activateAutofillPolicyDescriptionListVfo1";
   type = PolicyType.ActivateAutofill;
   category = PolicyCategory.VaultManagement;
   priority = 40;
@@ -38,7 +37,7 @@ export class ActivateAutofillPolicy extends BasePolicyEditDefinition {
   selector: "activate-autofill-policy-edit",
   template: `
     <p bitTypography="body1">
-      {{ "activateAutofillPolicyDescV2" | i18n }}
+      {{ "activateAutofillPolicyDescV3" | i18n }}
       <a
         bitLink
         href="https://bitwarden.com/help/auto-fill-browser/#on-page-load"

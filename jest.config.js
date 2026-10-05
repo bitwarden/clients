@@ -23,6 +23,7 @@ module.exports = {
     "<rootDir>/bitwarden_license/bit-browser/jest.config.js",
     "<rootDir>/bitwarden_license/bit-cli/jest.config.js",
     "<rootDir>/bitwarden_license/bit-common/jest.config.js",
+    "<rootDir>/bitwarden_license/bit-desktop/jest.config.js",
     "<rootDir>/bitwarden_license/bit-web/jest.config.js",
 
     "<rootDir>/libs/admin-console/jest.config.js",
@@ -60,6 +61,7 @@ module.exports = {
     "<rootDir>/libs/tools/generator/extensions/legacy/jest.config.js",
     "<rootDir>/libs/tools/generator/extensions/navigation/jest.config.js",
     "<rootDir>/libs/tools/send/send-ui/jest.config.js",
+    "<rootDir>/libs/tools/share/jest.config.js",
     "<rootDir>/libs/user-core/jest.config.js",
     "<rootDir>/libs/vault/jest.config.js",
     "<rootDir>/libs/auto-confirm/jest.config.js",

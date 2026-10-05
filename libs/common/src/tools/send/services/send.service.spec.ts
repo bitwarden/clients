@@ -35,13 +35,13 @@ import { SendTextApi } from "../models/api/send-text.api";
 import { SendFileData } from "../models/data/send-file.data";
 import { SendTextData } from "../models/data/send-text.data";
 import { SendData } from "../models/data/send.data";
-import { Send } from "../models/domain/send";
 import { SendTextView } from "../models/view/send-text.view";
 import { SendView } from "../models/view/send.view";
 import { AuthType } from "../types/auth-type";
 import { SendType } from "../types/send-type";
 
 import { SEND_USER_DECRYPTED, SEND_USER_ENCRYPTED } from "./key-definitions";
+import { SendDecryptionService } from "./send-decryption.service";
 import { SendStateProvider } from "./send-state.provider";
 import { SendService } from "./send.service";
 import {
@@ -60,6 +60,7 @@ describe("SendService", () => {
   const environmentService = mock<EnvironmentService>();
   const configService = mock<ConfigService>();
   const sdkService = mock<SdkService>();
+  const sendDecryptionService = mock<SendDecryptionService>();
   let sendStateProvider: SendStateProvider;
   let sendService: SendService;
 
@@ -111,6 +112,7 @@ describe("SendService", () => {
       encryptService,
       configService,
       sdkService,
+      sendDecryptionService,
     );
   });
 
@@ -581,7 +583,9 @@ describe("SendService", () => {
         decryptedView.deletionDate = null;
         decryptedView.emails = [];
         decryptedView.authType = AuthType.None;
-        decryptSpy = jest.spyOn(Send.prototype, "decrypt").mockResolvedValue(decryptedView);
+        decryptSpy = jest
+          .spyOn(sendDecryptionService, "decryptSend")
+          .mockResolvedValue(decryptedView);
 
         const rotatedSdkSend = {
           id: sendGuid,
@@ -651,6 +655,7 @@ describe("SendService", () => {
           authType: AuthType.Password,
           // No `password` field: the rotated SDK Send never carries the existing hash either.
         });
+        sendDecryptionService.decryptSend.mockResolvedValue(decryptedView);
 
         const result = await sendService.getRotatedData(originalUserKey, newUserKey, mockUserId);
 

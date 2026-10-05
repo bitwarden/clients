@@ -16,6 +16,7 @@ import { BaseChipDirective } from "../chips/shared/base-chip.directive";
 import { ChipContentComponent } from "../chips/shared/chip-content.component";
 import { OverflowItemDirective } from "../overflow-list";
 import { BitwardenIcon } from "../shared/icon";
+import { TooltipDirective } from "../tooltip";
 
 import {
   FILTER_CONTROL,
@@ -23,6 +24,7 @@ import {
   FILTER_PRESENTER,
   FilterControl,
   FilterPresenter,
+  FilterSelection,
 } from "./filter-tokens";
 
 /**
@@ -41,7 +43,7 @@ import {
 @Component({
   selector: "bit-filter-toggle",
   templateUrl: "./filter-toggle.component.html",
-  imports: [ChipContentComponent],
+  imports: [ChipContentComponent, TooltipDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     { provide: FILTER_CONTROL, useExisting: forwardRef(() => FilterToggleComponent) },
@@ -69,6 +71,13 @@ export class FilterToggleComponent implements FilterControl, FilterPresenter, On
    */
   readonly iconActive = input<BitwardenIcon>();
 
+  /**
+   * Tooltip text to explain why the chip is disabled. The chip carries no tooltip otherwise, so
+   * this is the only one it shows, and only while {@link disabled} is true. Pass an
+   * already-localized string.
+   */
+  readonly disabledTooltip = input("");
+
   protected readonly baseChip = inject(BaseChipDirective, { host: true });
 
   /** The filterable surface this chip is projected into, if any. */
@@ -86,11 +95,14 @@ export class FilterToggleComponent implements FilterControl, FilterPresenter, On
   /** Whether the toggle is on. */
   readonly active = computed(() => this._value());
 
+  /** @see FilterPresenter.multiple — a toggle holds one boolean. */
+  readonly multiple = computed(() => false);
+
   /** @see FilterPresenter.summary — a toggle has no per-option summary. */
   readonly summary = computed(() => "");
 
-  /** @see FilterPresenter.summaryLabels — likewise nothing to list. */
-  readonly summaryLabels = computed<readonly string[]>(() => []);
+  /** @see FilterPresenter.selections — a toggle has no options; `active` stands in for them. */
+  readonly selections = computed<readonly FilterSelection[]>(() => []);
 
   /** @see FilterPresenter.optionsTemplate — a toggle has no drill-in; it flips in place. */
   readonly optionsTemplate = computed<TemplateRef<unknown> | undefined>(() => undefined);
@@ -101,6 +113,19 @@ export class FilterToggleComponent implements FilterControl, FilterPresenter, On
   );
 
   protected readonly disabled = computed(() => this.baseChip.disabled());
+
+  /** Whether a {@link disabledTooltip} is in play, i.e. the chip is disabled and has a reason. */
+  protected readonly showDisabledReason = computed(
+    () => this.disabled() && this.disabledTooltip().length > 0,
+  );
+
+  /**
+   * The chip's tooltip: the disabled reason, and nothing otherwise. The label is already the
+   * chip's accessible name, so it gets no tooltip of its own.
+   */
+  protected readonly chipTooltip = computed(() =>
+    this.showDisabledReason() ? this.disabledTooltip() : "",
+  );
 
   constructor() {
     // The base chip defaults to `primary`, which it only draws while selected.
@@ -126,6 +151,11 @@ export class FilterToggleComponent implements FilterControl, FilterPresenter, On
       return;
     }
     this._value.update((v) => !v);
+  }
+
+  /** @see FilterPresenter.deselect — a toggle has no values to remove; `clear` turns it off. */
+  deselect(): void {
+    /* no-op: a toggle has no individual selections. */
   }
 
   /** @see FilterPresenter.clear */

@@ -62,7 +62,6 @@ import { IdentityDeviceVerificationResponse } from "../auth/models/response/iden
 import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
-import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
 import { RefreshTokenResponse } from "../auth/models/response/refresh-token.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
@@ -101,19 +100,14 @@ import { SyncResponse } from "../platform/sync";
 import { UserId } from "../types/guid";
 import { AttachmentRequest } from "../vault/models/request/attachment.request";
 import { CipherBulkDeleteRequest } from "../vault/models/request/cipher-bulk-delete.request";
-import { CipherBulkMoveRequest } from "../vault/models/request/cipher-bulk-move.request";
 import { CipherBulkRestoreRequest } from "../vault/models/request/cipher-bulk-restore.request";
-import { CipherBulkShareRequest } from "../vault/models/request/cipher-bulk-share.request";
-import { CipherCollectionsRequest } from "../vault/models/request/cipher-collections.request";
 import { CipherCreateRequest } from "../vault/models/request/cipher-create.request";
 import { CipherPartialRequest } from "../vault/models/request/cipher-partial.request";
-import { CipherShareRequest } from "../vault/models/request/cipher-share.request";
 import { CipherRequest } from "../vault/models/request/cipher.request";
 import { AttachmentUploadDataResponse } from "../vault/models/response/attachment-upload-data.response";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
 import { CipherResponse } from "../vault/models/response/cipher.response";
 import { DeleteAttachmentResponse } from "../vault/models/response/delete-attachment.response";
-import { OptionalCipherResponse } from "../vault/models/response/optional-cipher.response";
 
 import { InsecureUrlNotAllowedError } from "./api-errors";
 
@@ -187,8 +181,13 @@ export class ApiService implements ApiServiceAbstraction {
         ? request.toIdentityToken()
         : request.toIdentityToken(this.platformUtilsService.getClientType());
 
-    // Use the selected login server for every identity-token request.
-    const env = await firstValueFrom(this.environmentService.globalEnvironment$);
+    // Browser SSO must exchange its code with the selected login server.
+    const env = await firstValueFrom(
+      request instanceof SsoTokenRequest &&
+        this.platformUtilsService.getClientType() === ClientType.Browser
+        ? this.environmentService.globalEnvironment$
+        : this.environmentService.environment$,
+    );
 
     const response = await this.fetch(
       this.httpOperations.createRequest(env.getIdentityUrl() + "/connect/token", {
@@ -357,10 +356,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new ApiKeyResponse(r);
   }
 
-  postConvertToKeyConnector(): Promise<void> {
-    return this.send("POST", "/accounts/convert-to-key-connector", null, true, false);
-  }
-
   // Account Billing APIs
 
   async getUserBillingHistory(): Promise<BillingHistoryResponse> {
@@ -441,38 +436,6 @@ export class ApiService implements ApiServiceAbstraction {
 
   deleteManyCiphersAdmin(request: CipherBulkDeleteRequest): Promise<any> {
     return this.send("DELETE", "/ciphers/admin", request, true, false);
-  }
-
-  putMoveCiphers(request: CipherBulkMoveRequest): Promise<any> {
-    return this.send("PUT", "/ciphers/move", request, true, false);
-  }
-
-  async putShareCipher(id: string, request: CipherShareRequest): Promise<CipherResponse> {
-    const r = await this.send("PUT", "/ciphers/" + id + "/share", request, true, true);
-    return new CipherResponse(r);
-  }
-
-  async putShareCiphers(request: CipherBulkShareRequest): Promise<ListResponse<CipherResponse>> {
-    const r = await this.send("PUT", "/ciphers/share", request, true, true);
-    return new ListResponse<CipherResponse>(r, CipherResponse);
-  }
-
-  async putCipherCollections(
-    id: string,
-    request: CipherCollectionsRequest,
-  ): Promise<OptionalCipherResponse> {
-    const response = await this.send(
-      "PUT",
-      "/ciphers/" + id + "/collections_v2",
-      request,
-      true,
-      true,
-    );
-    return new OptionalCipherResponse(response);
-  }
-
-  putCipherCollectionsAdmin(id: string, request: CipherCollectionsRequest): Promise<any> {
-    return this.send("PUT", "/ciphers/" + id + "/collections-admin", request, true, true);
   }
 
   postPurgeCiphers(
@@ -676,6 +639,19 @@ export class ApiService implements ApiServiceAbstraction {
     const r = await this.send(
       "GET",
       "/organizations/" + organizationId + "/collections/details",
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, CollectionAccessDetailsResponse);
+  }
+
+  async getManyCollectionsWithOrganizationDetails(
+    organizationId: string,
+  ): Promise<ListResponse<CollectionAccessDetailsResponse>> {
+    const r = await this.send(
+      "GET",
+      "/organizations/" + organizationId + "/collections/access",
       null,
       true,
       true,
@@ -1249,34 +1225,6 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   // Key Connector
-
-  async getMasterKeyFromKeyConnector(
-    keyConnectorUrl: string,
-  ): Promise<KeyConnectorUserKeyResponse> {
-    const activeUser = await this.getActiveUser();
-    if (activeUser == null) {
-      throw new Error("No active user, cannot get master key from key connector.");
-    }
-    const authHeader = await this.getActiveBearerToken(activeUser);
-
-    const response = await this.fetch(
-      this.httpOperations.createRequest(keyConnectorUrl + "/user-keys", {
-        cache: "no-store",
-        method: "GET",
-        headers: new Headers({
-          Accept: "application/json",
-          Authorization: "Bearer " + authHeader,
-        }),
-      }),
-    );
-
-    if (response.status !== HttpStatusCode.Ok) {
-      const error = await this.handleApiRequestError(response, true);
-      return Promise.reject(error);
-    }
-
-    return new KeyConnectorUserKeyResponse(await response.json());
-  }
 
   async postUserKeyToKeyConnector(
     keyConnectorUrl: string,

@@ -2,11 +2,30 @@
   "bitwarden": {
     "message": "Bitwarden"
   },
+  "bitwardenBeta": {
+    "message": "Bitwarden Beta",
+    "description": "Product name for the beta channel; shown in the tray tooltip and About dialog"
+  },
   "filters": {
     "message": "Фільтры"
   },
   "allItems": {
     "message": "Усе элементы"
+  },
+  "allVaultItems": {
+    "message": "Усе элементы сховішча"
+  },
+  "myItemsV2": {
+    "message": "Мае элементы"
+  },
+  "vaults": {
+    "message": "Сховішчы"
+  },
+  "tools": {
+    "message": "Інструменты"
+  },
+  "manage": {
+    "message": "Кіраванне"
   },
   "favorites": {
     "message": "Абраныя"
@@ -113,6 +132,34 @@
   "sharedFolders": {
     "message": "Агульныя тэчкі"
   },
+  "sharedFoldersInParent": {
+    "message": "Агульныя папкі ў $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ агульных папак",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ агульная папка",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "myFolder": {
     "message": "Мая тэчка"
   },
@@ -121,6 +168,12 @@
   },
   "foldersFilterTooltip": {
     "message": "Дадавайце тэчкі да элементаў, каб фільтраваць іх тут."
+  },
+  "myItemsFilterTooltip": {
+    "message": "Дадайце элементы ў «Мае элементы», каб фільтраваць іх тут."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Дадайце элементы ў агульную папку, каб фільтраваць тут."
   },
   "addSharedFolder": {
     "message": "Дадаць агульную тэчку"
@@ -738,16 +791,25 @@
   "decryptionError": {
     "message": "Памылка расшыфроўкі"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden не змог расшыфраваць элементы сховішча, пералічаныя ніжэй."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden не змог расшыфраваць элемент сховішча, паказаны ніжэй. Звяжыцеся з падтрымкай кліентаў Bitwarden і паведаміце ідэнтыфікатар элемента ніжэй, каб даведацца, ці можна яго аднавіць."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Звяжыцеся з Customer Success",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden не змог расшыфраваць элементы сховішча, паказаныя ніжэй. Звяжыцеся з падтрымкай кліентаў Bitwarden і паведаміце ідэнтыфікатары элементаў ніжэй, каб даведацца, ці можна іх аднавіць."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "каб пазбегнуць дадатковай страты даных.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "ID элемента",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "ID элементаў",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Капіяваць ID"
+  },
+  "copyAllIds": {
+    "message": "Капіяваць усе ID"
   },
   "january": {
     "message": "Студзень"
@@ -1172,6 +1234,24 @@
   "editFolder": {
     "message": "Рэдагаваць тэчку"
   },
+  "editFolderNamed": {
+    "message": "Рэдагаваць $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
+  "deleteFolderNamed": {
+    "message": "Выдаліць $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "regeneratePassword": {
     "message": "Паўторна генерыраваць пароль"
   },
@@ -1355,11 +1435,41 @@
   "addedFolder": {
     "message": "Папка дададзена"
   },
+  "folderEdited": {
+    "message": "Папка адрэдагавана"
+  },
+  "enterAName": {
+    "message": "Увядзіце назву."
+  },
   "deleteFolderConfirmation": {
     "message": "Вы сапраўды хочаце выдаліць гэтую тэчку?"
   },
   "deletedFolder": {
     "message": "Папка выдалена"
+  },
+  "foldersDeleted": {
+    "message": "Папкі выдалены"
+  },
+  "deleteFoldersCount": {
+    "message": "Выдаліць $COUNT$ папак",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteFolderDescription": {
+    "message": "Калі вы выдаліце папку $NAME$, яна будзе выдалена з кожнага элемента, да якога была прыменена. Самі элементы не будуць выдалены.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "deleteFoldersDescription": {
+    "message": "Калі вы выдаліце гэтыя папкі, яны будуць выдалены з кожнага элемента, да якога былі прыменены. Самі элементы не будуць выдалены."
   },
   "loginOrCreateNewAccount": {
     "message": "Увайдзіце або стварыце новы ўліковы запіс для доступу да бяспечнага сховішча."
@@ -2302,6 +2412,42 @@
   },
   "noMatchingItems": {
     "message": "Няма адпаведных элементаў"
+  },
+  "noFiltersMatch": {
+    "message": "Няма фільтраў, якія адпавядаюць \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "oneFilterResult": {
+    "message": "1 вынік",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ вынікаў",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Няма фільтраў, якія адпавядаюць “$SEARCH$”",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
+  "clearSearch": {
+    "message": "Ачысціць пошук"
   },
   "selected": {
     "message": "Выбрана"
@@ -4480,11 +4626,21 @@
   "selectImportCollection": {
     "message": "Абярыце калекцыю"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Абярыце гэты варыянт, калі хочаце перамясціць змесціва імпартаванага файла ў калекцыю"
   },
   "importTargetHintFolder": {
     "message": "Абярыце гэты варыянт, калі хочаце перамясціць змесціва імпартаванага файла ў тэчку"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Файл змяшчае неназначаныя элементы."
@@ -4494,6 +4650,40 @@
   },
   "selectImportFile": {
     "message": "Абярыце файл для імпарту"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Абраць файл"
@@ -4589,6 +4779,207 @@
         "example": "LastPass (csv)"
       }
     }
+  },
+  "importHelpCenterInstructions": {
+    "message": "Глядзіце падрабязныя інструкцыі $NAME$ у нашым",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Даведачны цэнтр"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "Працэс цалкам такі ж, як імпарт з Google Chrome.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "У настольным дадатку KeePassX перайдзіце ў \"Database\" → \"Export to CSV file\" і захавайце CSV-файл."
+  },
+  "importAviraInstructions": {
+    "message": "У вэб-сховішчы Avira перайдзіце ў \"Settings\" → \"My Data\" → \"Export data\" і захавайце CSV-файл."
+  },
+  "importBlurInstructions": {
+    "message": "У вэб-сховішчы Blur націсніце сваё імя карыстальніка ўверсе і перайдзіце ў \"Settings\" → \"Export Data\", затым націсніце \"Export CSV\" для вашых \"Accounts\"."
+  },
+  "importSafeincloudInstructions": {
+    "message": "У настольным дадатку SafeInCloud перайдзіце ў \"File\" → \"Export\" → \"As XML\" і захавайце XML-файл."
+  },
+  "importPadlockInstructions": {
+    "message": "У настольным дадатку Padlock націсніце значок гамбургера ў верхнім левым куце і перайдзіце ў \"Settings\" → кнопка \"Export\" і захавайце файл як \"As CSV\"."
+  },
+  "importKeepass2Instructions": {
+    "message": "У настольным дадатку KeePass 2 перайдзіце ў \"File\" → \"Export\" і выберыце опцыю \"KeePass XML (2.x)\"."
+  },
+  "importUpmInstructions": {
+    "message": "У настольным дадатку Universal Password Manager перайдзіце ў \"Database\" → \"Export\" і захавайце CSV-файл."
+  },
+  "importSaferpassInstructions": {
+    "message": "У пашырэнні браўзера SaferPass націсніце значок гамбургера ў верхнім левым куце і перайдзіце ў \"Settings\". Націсніце кнопку \"Export accounts\", каб захаваць CSV-файл."
+  },
+  "importMeldiumInstructions": {
+    "message": "У вэб-сховішчы Meldium перайдзіце ў \"Settings\". Знайдзіце функцыю \"Export data\" і націсніце \"Show me my data\", каб захаваць CSV-файл."
+  },
+  "importPassworddragonInstructions": {
+    "message": "У настольным дадатку Password Dragon перайдзіце ў \"File\" → \"Export\" → \"To XML\". У дыялогавым акне выберыце \"All Rows\" і адзначце ўсе палі. Націсніце кнопку \"Export\" і захавайце XML-файл."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "У настольным дадатку Enpass перайдзіце ў \"File\" → \"Export\" → \"As CSV\". Націсніце \"OK\" у папярэджанні і захавайце CSV-файл. Звярніце ўвагу, што імпартэр падтрымлівае толькі файлы, экспартаваныя, калі Enpass усталяваны на англійскую мову, таму змяніце налады адпаведна."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "У настольным дадатку Enpass 6 націсніце кнопку меню і перайдзіце ў \"File\" → \"Export\". Выберыце опцыю фармату файла \".json\" і захавайце JSON-файл."
+  },
+  "importPwsafeInstructions": {
+    "message": "У настольным дадатку Password Safe перайдзіце ў \"File\" → \"Export To\" → \"XML format...\" і захавайце XML-файл."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Увайдзіце ў Dashlane, націсніце \"My Account\" → \"Settings\" → \"Export file\" і выберыце \"Export as a CSV file\". Гэта спампуе zip-архіў, які змяшчае розныя CSV-файлы. Распакуйце архіў і імпартуйце кожны CSV-файл асобна."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane больш не падтрымлівае фармат JSON. Выкарыстоўвайце гэта, толькі калі ў вас ёсць існуючы JSON для імпарту. Выкарыстоўвайце імпартэр CSV пры стварэнні новых экспартаў."
+  },
+  "importMsecureInstructions": {
+    "message": "У настольным дадатку mSecure перайдзіце ў \"File\" → \"Export\" → \"CSV File...\" і захавайце CSV-файл."
+  },
+  "importStickypasswordInstructions": {
+    "message": "У настольным дадатку Sticky Password перайдзіце ў \"Menu\" (справа ўверсе) → \"Export\" → \"Export all\". Выберыце незашыфраваны фармат XML і захавайце XML-файл."
+  },
+  "importTruekeyInstructions": {
+    "message": "У настольным дадатку True Key націсніце значок шасцярні (справа ўверсе), затым перайдзіце ў \"App Settings\". Націсніце кнопку \"Export\", увядзіце пароль і захавайце CSV-файл."
+  },
+  "importClipperzInstructions": {
+    "message": "Увайдзіце ў вэб-дадатак Clipperz (clipperz.is/app). Націсніце значок меню гамбургера справа ўверсе, каб разгарнуць панэль навігацыі. Перайдзіце ў \"Data\" → \"Export\". Націсніце кнопку \"download HTML+JSON\", каб захаваць HTML-файл."
+  },
+  "importRoboformInstructions": {
+    "message": "У настольным дадатку RoboForm Editor перайдзіце ў \"RoboForm\" (злева ўверсе) → \"Options\" → \"Account & Data\" і націсніце кнопку \"Export\". Выберыце ўсе свае даныя, змяніце \"Format\" на \"CSV file\" і затым націсніце кнопку \"Export\", каб захаваць CSV-файл. Заўвага: RoboForm дазваляе экспартаваць толькі лагіны. Іншыя элементы не будуць экспартаваны."
+  },
+  "importPassboltInstructions": {
+    "message": "Увайдзіце ў вэб-сховішча Passbolt і перайдзіце да спісу \"Passwords\". Выберыце ўсе паролі, якія хочаце экспартаваць, і націсніце кнопку \"Export\" уверсе спісу. Выберыце фармат экспарту \"csv (lastpass)\" і націсніце кнопку \"Export\"."
+  },
+  "importAscendoInstructions": {
+    "message": "У настольным дадатку Ascendo DataVault перайдзіце ў \"Tools\" → \"Export\". У дыялогавым акне выберыце опцыю \"All Items (DVX, CSV)\". Націсніце кнопку \"Ok\", каб захаваць CSV-файл."
+  },
+  "importPasswordbossInstructions": {
+    "message": "У настольным дадатку Password Boss перайдзіце ў \"File\" → \"Export data\" → \"Password Boss JSON - not encrypted\" і захавайце JSON-файл."
+  },
+  "importZohoInstructions": {
+    "message": "Увайдзіце ў вэб-сховішча Zoho (vault.zoho.com). Перайдзіце ў \"Tools\" → \"Export Secrets\". Выберыце \"All Secrets\" і націсніце кнопку \"Zoho Vault Format CSV\". Выдзеліце і скапіруйце даныя з тэкставага поля. Адкрыйце тэкставы рэдактар, напрыклад Notepad, і ўстаўце даныя. Захавайце даныя з тэкставага рэдактара як",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "У настольным дадатку SplashID Safe націсніце на сіні значок замка SplashID у верхнім правым куце. Перайдзіце ў \"Export\" → \"Export as CSV\" і захавайце CSV-файл."
+  },
+  "importPasskeepInstructions": {
+    "message": "У мабільным дадатку PassKeep перайдзіце ў \"Backup/Restore\". Знайдзіце раздзел \"CSV Backup/Restore\" і націсніце \"Backup to CSV\", каб захаваць CSV-файл."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Пераканайцеся, што ў вас усталяваны python-keyring і python-gnomekeyring. Захавайце",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "Імпарт/Экспарт GNOME Keyring"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "python-скрыпт на працоўны стол як",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Адкрыйце тэрмінал і выканайце",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "і затым",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". Затым загрузіце атрыманы",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "файл сюды ў Bitwarden.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "У настольным дадатку Password Agent перайдзіце ў \"File\" → \"Export\", націсніце кнопку \"Fields to export\" і адзначце ўсе палі, змяніце \"Output format\" на \"CSV\", затым націсніце кнопку \"Start\", каб захаваць CSV-файл."
+  },
+  "importPasspackInstructions": {
+    "message": "Увайдзіце ў вэб-сховішча Passpack і перайдзіце ў \"Settings\" → \"Export\", затым націсніце кнопку \"Download\", каб захаваць CSV-файл."
+  },
+  "importPassmanInstructions": {
+    "message": "Адкрыйце сваё сховішча Passman і націсніце \"Settings\" у ніжнім левым куце. У акне \"Settings\" пераключыцеся на ўкладку \"Export credentials\" і выберыце \"JSON\" як тып экспарту. Увядзіце парольную фразу сховішча і націсніце кнопку \"Export\", каб захаваць JSON-файл."
+  },
+  "importAvastCsvInstructions": {
+    "message": "Адкрыйце настольны дадатак Avast Passwords і перайдзіце ў \"Settings\" → \"Import/export data\". Націсніце кнопку \"Export\" для опцыі \"Export to CSV file\", каб захаваць CSV-файл."
+  },
+  "importAvastJsonInstructions": {
+    "message": "Адкрыйце настольны дадатак Avast Passwords і перайдзіце ў \"Settings\" → \"Import/export data\". Націсніце кнопку \"Export\" для опцыі \"Export to JSON file\", каб захаваць JSON-файл."
+  },
+  "importFsecureInstructions": {
+    "message": "Адкрыйце настольны дадатак F-Secure KEY і перайдзіце ў \"Settings\" → \"Export Passwords\". Націсніце кнопку \"Export\", увядзіце галоўны пароль і захавайце FSK-файл."
+  },
+  "importKasperskyInstructions": {
+    "message": "Адкрыйце настольны дадатак Kaspersky Password Manager і перайдзіце ў \"Settings\" → \"Import/Export\". Знайдзіце раздзел \"Export to text file\" і націсніце кнопку \"Export\", каб захаваць TXT-файл."
+  },
+  "importRemembearInstructions": {
+    "message": "Адкрыйце настольны дадатак RememBear і перайдзіце ў \"Settings\" → \"Account\" → \"Export\". Увядзіце галоўны пароль і націсніце кнопку \"Export Anyway\", каб захаваць CSV-файл."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "Адкрыйце настольны дадатак PasswordWallet і перайдзіце ў \"File\" → \"Export\" → \"Visible entries to text file\". Увядзіце пароль і націсніце кнопку \"Ok\", каб захаваць TXT-файл."
+  },
+  "importMykiInstructions": {
+    "message": "Адкрыйце настольнае пашырэнне браўзера Myki і перайдзіце ў \"Advanced\" → \"Export Accounts\", затым адсканіруйце QR-код з дапамогай мабільнай прылады. Розныя CSV-файлы будуць захаваны ў папку загрузак вашага кампутара."
+  },
+  "importSecuresafeInstructions": {
+    "message": "Экспартуйце свой сейф пароляў SecureSafe у CSV-файл з разделяльнікам-коскай."
+  },
+  "importLogmeonceInstructions": {
+    "message": "Адкрыйце пашырэнне браўзера LogMeOnce, затым перайдзіце ў \"Open Menu\" → \"Export To\" і выберыце \"CSV File\", каб захаваць CSV-файл."
+  },
+  "importBlackberryInstructions": {
+    "message": "Адкрыйце дадатак BlackBerry Password Keeper, затым перайдзіце ў \"Settings\" → \"Import/Export\". Выберыце \"Export Passwords\" і выконвайце інструкцыі на экране, каб захаваць незашыфраваны CSV-файл."
+  },
+  "importButtercupInstructions": {
+    "message": "Адкрыйце настольны дадатак Buttercup і разблакіруйце сваё сховішча. Пстрыкніце правай кнопкай мышы па значку сховішча і выберыце \"Export\", каб захаваць CSV-файл."
+  },
+  "importCodebookInstructions": {
+    "message": "Адкрыйце настольны дадатак Codebook і ўвайдзіце. Перайдзіце ў \"File\" → \"Export all\", затым націсніце \"Yes\" у дыялогавым акне і захавайце CSV-файл."
+  },
+  "importEncryptrInstructions": {
+    "message": "Адкрыйце найноўшую версію настольнага дадатка Encryptr і дазвольце сінхранізаваць усе свае даныя. Пасля завяршэння сінхранізацыі значок загрузкі ў верхнім правым куце стане ружовым. Націсніце значок загрузкі і захавайце CSV-файл."
+  },
+  "importYotiInstructions": {
+    "message": "У пашырэнні браўзера Yoti націсніце \"Settings\", затым \"Export Saved Logins\" і захавайце CSV-файл."
+  },
+  "importPsonoInstructions": {
+    "message": "Увайдзіце ў вэб-сховішча Psono, націсніце на выпадальны спіс \"Signed in as\", выберыце \"Others\". Перайдзіце на ўкладку \"Export\" і выберыце экспарт тыпу json, затым націсніце Export."
+  },
+  "importPasskyInstructions": {
+    "message": "Увайдзіце ў \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" у раздзеле Passky. (\"Backup\" не падтрымліваецца, бо ён зашыфраваны)."
+  },
+  "importProtonpassInstructions": {
+    "message": "У пашырэнні браўзера ProtonPass перайдзіце ў Settings > Export. Экспартуйце без PGP-шыфравання і захавайце zip-файл."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Выберыце меню Database → Export to file... → У параметрах экспарту пераканайцеся, што адзначаны Folder names і Column titles. → Націсніце кнопку Browse... і выберыце мэтавы файл, усталюйце яго тып як CSV file."
+  },
+  "importNetwrixInstructions": {
+    "message": "Адкрыйце FullClient, перайдзіце ў галоўнае меню і выберыце Export. Запусціце майстар экспарту пароляў і выконвайце інструкцыі, каб экспартаваць CSV-файл."
+  },
+  "importNordpassInstructions": {
+    "message": "Увайдзіце ў NordPass і адкрыйце Settings → Прагартайце ўніз да раздзела Import and Export і выберыце Export items → Увядзіце галоўны пароль і выберыце Continue. → Захавайце CSV-файл на сваёй прыладзе."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "У настольным дадатку перайдзіце ў Tools → Export → Увядзіце галоўны пароль → Выберыце XML Format (*.xml) як фармат экспарту → Націсніце next → Выберыце, якія запісы ўключыць у экспарт → Націсніце next, каб экспартаваць у папярэдне выбранае месца."
+  },
+  "importDelineaInstructions": {
+    "message": "Увайдзіце ў Delinea, знайдзіце “Import/Export” -> выберыце “Export” -> Выберыце “XML” як фармат экспарту -> Выберыце “QuantumLock” як тып аўтэнтыфікатара -> увядзіце пароль і выберыце “Export”, каб захаваць XML-файл."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Увайдзіце ў Delinea, знайдзіце “Import/Export” -> выберыце “Export” -> Выберыце “CSV” як фармат экспарту -> Выберыце “QuantumLock” як тып аўтэнтыфікатара -> увядзіце пароль і выберыце “Export”, каб захаваць CSV-файл."
   },
   "confirmVaultImport": {
     "message": "Пацвердзіць імпарт у сховішча"
@@ -4704,10 +5095,6 @@
   "browserProfile": {
     "message": "Профіль браўзера"
   },
-  "seeDetailedInstructions": {
-    "message": "Глядзіце падрабязныя інструкцыі на нашым сайце дапамогі па адрасе",
-    "description": "This is followed a by a hyperlink to the help website."
-  },
   "importDirectlyFromLastPass": {
     "message": "Імпартаваць непасрэдна з LastPass"
   },
@@ -4722,6 +5109,15 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Устаўце YubiKey, звязаны з вашым рахункам LastPass, у USB-порт камп'ютара, затым націсніце яго кнопку."
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Email Keeper"
@@ -5234,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Пашырэнне браўзера, якое вы выкарыстоўваеце, састарэла. Калі ласка, абнавіце яго або адключыце праверку адбіткаў інтэграцыі з браўзерам у наладах настольнай праграмы."
   },
-  "changeAtRiskPassword": {
-    "message": "Змяніць пароль пад рызыкай"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Гэты ўваход знаходзіцца пад рызыкай і не мае вэб-сайта. Дадайце вэб-сайт і змяніце пароль для павышэння бяспекі."
-  },
   "vulnerablePassword": {
     "message": "Уразлівы пароль."
   },
   "changeNow": {
     "message": "Змяніць зараз"
-  },
-  "missingWebsite": {
-    "message": "Адсутнічае вэб-сайт"
   },
   "missingPermissions": {
     "message": "У вас няма неабходных дазволаў для выканання гэтага дзеяння."
@@ -5593,6 +5980,15 @@
   "showMore": {
     "message": "Паказаць яшчэ"
   },
+  "showMoreCount": {
+    "message": "Паказаць яшчэ $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "showLess": {
     "message": "Паказаць менш"
   },
@@ -5627,6 +6023,9 @@
   },
   "enableAutotypeShortcutPreview": {
     "message": "Уключыць хуткі клавіш аўтазапаўнення (папярэдні прагляд функцыі)"
+  },
+  "enableAutotypeGaShortcut": {
+    "message": "Уключыць спалучэнне клавіш аўтатыпу"
   },
   "enableAutotypeShortcutDescription": {
     "message": "Пераканайцеся, што вы ў правільным полі, перад выкарыстаннем хуткага клавіша, каб не запоўніць даныя ў няправільнае месца."
@@ -5946,11 +6345,80 @@
   "noItemsInTrashDesc": {
     "message": "Выдаленыя элементы будуць з'яўляцца тут і канчаткова выдалены праз 30 дзён"
   },
+  "noItemsInTrashDescription": {
+    "message": "Элементы, якія вы выдаляеце, з'явяцца тут і будуць назаўсёды выдалены праз 30 дзён."
+  },
   "noItemsInVault": {
     "message": "Няма элементаў у сховішчы"
   },
+  "noItemsInMyVault": {
+    "message": "Няма элементаў у Маім сховішчы"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Няма элементаў у $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Няма элементаў у $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "emptyMyItems": {
+    "message": "Няма элементаў у «Мае элементы»"
+  },
+  "noItemsInVaults": {
+    "message": "Вашы сховішчы пустыя"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Няма элементаў, якія адпавядаюць выбраным фільтрам"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Няма элементаў, якія адпавядаюць \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyVaultDescription": {
     "message": "Сховішча абараняе больш, чым проста вашы паролі. Захоўвайце тут бяспечныя ўваходы, ID, карты і нататкі."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Дадайце элементы ў гэтую агульную папку, затым дайце доступ іншым удзельнікам $VAULT_NAME$.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "«Мае элементы» — гэта ваша прыватная прастора для захоўвання элементаў, якія застаюцца ўласнасцю $VAULT_NAME$, але не бачныя іншым удзельнікам.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
+  },
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
+  },
+  "emptyVaultsDescription": {
+    "message": "Дадайце лагіны, ID, карткі і іншыя элементы, каб пачаць."
   },
   "emptyFavorites": {
     "message": "Вы не дадавалі элементы ў абранае"
@@ -5963,6 +6431,12 @@
   },
   "clearFiltersOrTryAnother": {
     "message": "Ачысціце фільтры або паспрабуйце іншы пошукавы запыт"
+  },
+  "noSharedFoldersAdded": {
+    "message": "Агульныя папкі не дададзены"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Дадайце агульную папку, каб бяспечна дзяліцца элементамі сховішча з іншымі ўдзельнікамі."
   },
   "sendPasswordHelperText": {
     "message": "Карыстальнікам трэба будзе ўвесці пароль, каб праглядаць гэты Send",
@@ -6404,5 +6878,95 @@
         "example": "user@acme.com"
       }
     }
+  },
+  "permissions": {
+    "message": "Дазволы"
+  },
+  "viewItems": {
+    "message": "Прагляд элементаў"
+  },
+  "viewItemsHidePass": {
+    "message": "Прагляд элементаў, схаваныя паролі"
+  },
+  "editItems": {
+    "message": "Рэдагаванне элементаў"
+  },
+  "editItemsHidePass": {
+    "message": "Рэдагаванне элементаў, схаваныя паролі"
+  },
+  "shareVerb": {
+    "message": "Падзяліцца"
+  },
+  "peopleWhoCanView": {
+    "message": "Хто можа праглядаць",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Пасля адпраўкі гэтай спасылкі атрымальнікам трэба будзе пацвердзіць сваю электронную пошту кодам, каб прагледзець элемент.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Гэтая спасылка сканчаецца пасля гэтай даты, але атрымальнікі могуць захаваць раней перададзеную інфармацыю. Перагенеруйце ўліковыя даныя, каб адазваць доступ.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Спасылка сканчаецца праз",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Аднаразовае сумеснае выкарыстанне",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Актыўныя спасылкі",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Спасылка скапіявана ў буфер абмену",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Не ўдалося стварыць спасылку для сумеснага доступу",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Спасылка захавана і скапіявана ў буфер абмену",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Не ўдалося скапіяваць спасылку для сумеснага доступу ў буфер абмену",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Спасылка для сумеснага доступу выдалена",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Не ўдалося выдаліць спасылку для сумеснага доступу",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Падзяліцца праз спасылку",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Сумесны доступ для элемента сховішча $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareLinkExpires": {
+    "message": "Сканчаецца",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Сканчаецца",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Невядомы элемент, магчыма, вам трэба запытаць дазвол на доступ да гэтага элемента."
   }
 }

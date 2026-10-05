@@ -90,7 +90,7 @@ describe("ExtensionLoginComponentService", () => {
   });
 
   describe("redirectToSso", () => {
-    it("launches SSO browser window", async () => {
+    it("launches SSO on the selected server without an organization identifier", async () => {
       const email = "test@bitwarden.com";
       const state = "testState";
       const expectedState = "testState:clientId=browser";
@@ -105,6 +105,15 @@ describe("ExtensionLoginComponentService", () => {
 
       await service.redirectToSsoLogin(email);
 
+      expect(ssoUrlService.buildSsoUrl).toHaveBeenCalledWith(
+        globalBaseUrl,
+        ClientType.Browser,
+        globalBaseUrl + "/sso-connector.html",
+        expectedState,
+        codeChallenge,
+        email,
+        undefined,
+      );
       expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(expectedState);
       expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
       expect(platformUtilsService.launchUri).toHaveBeenCalled();

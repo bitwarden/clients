@@ -177,6 +177,7 @@ export class OssServeConfigurator {
       this.serviceContainer.i18nService,
       this.serviceContainer.encryptedMigrator,
       this.serviceContainer.unlockService,
+      this.serviceContainer.biometricsService,
     );
 
     this.sendCreateCommand = new SendCreateCommand(
@@ -187,6 +188,7 @@ export class OssServeConfigurator {
       this.serviceContainer.accountService,
       this.serviceContainer.policyService,
       this.serviceContainer.configService,
+      this.serviceContainer.sendDecryptionService,
     );
     this.sendDeleteCommand = new SendDeleteCommand(
       this.serviceContainer.sendService,
@@ -199,6 +201,7 @@ export class OssServeConfigurator {
       this.serviceContainer.encryptService,
       this.serviceContainer.apiService,
       this.serviceContainer.accountService,
+      this.serviceContainer.sendDecryptionService,
     );
     this.sendEditCommand = new SendEditCommand(
       this.serviceContainer.sendService,
@@ -206,6 +209,7 @@ export class OssServeConfigurator {
       this.serviceContainer.sendApiService,
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.accountService,
+      this.serviceContainer.sendDecryptionService,
     );
     this.sendListCommand = new SendListCommand(
       this.serviceContainer.sendService,
@@ -218,6 +222,7 @@ export class OssServeConfigurator {
       this.serviceContainer.sendApiService,
       this.serviceContainer.environmentService,
       this.serviceContainer.accountService,
+      this.serviceContainer.sendDecryptionService,
     );
   }
 
@@ -322,7 +327,14 @@ export class OssServeConfigurator {
       await next();
     });
 
-    router.post("/attachment", koaMulter().single("file"), async (ctx, next) => {
+    // Multer parses every text field into ctx.request.body before this handler runs, and an
+    // unbounded array index in a field name blocks the event loop (CVE-2026-82333).
+    // @types/koa__multer does not declare fieldArrayIndexLimit yet.
+    const attachmentLimits: koaMulter.Options["limits"] & { fieldArrayIndexLimit: number } = {
+      fieldArrayIndexLimit: 0,
+    };
+    const attachmentUpload = koaMulter({ limits: attachmentLimits }).single("file");
+    router.post("/attachment", attachmentUpload, async (ctx, next) => {
       if (await this.errorIfLocked(ctx.response)) {
         await next();
         return;

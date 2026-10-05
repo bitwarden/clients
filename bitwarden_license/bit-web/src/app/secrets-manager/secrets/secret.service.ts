@@ -114,13 +114,26 @@ export class SecretService {
     organizationId: string,
     secretView: SecretView,
     secretAccessPoliciesView: SecretAccessPoliciesView,
+    valueChanged: boolean = false,
   ) {
     const request = await this.getSecretRequest(
       organizationId,
       secretView,
       secretAccessPoliciesView,
+      valueChanged,
     );
     const r = await this.apiService.send("PUT", "/secrets/" + secretView.id, request, true, true);
+    this._secret.next(await this.createSecretView(new SecretResponse(r)));
+  }
+
+  async restoreVersion(secretId: string, versionId: string): Promise<void> {
+    const r = await this.apiService.send(
+      "PUT",
+      `/secrets/${secretId}/versions/restore`,
+      { versionId },
+      true,
+      true,
+    );
     this._secret.next(await this.createSecretView(new SecretResponse(r)));
   }
 
@@ -178,6 +191,7 @@ export class SecretService {
     organizationId: string,
     secretView: SecretView,
     secretAccessPoliciesView: SecretAccessPoliciesView,
+    valueChanged: boolean = false,
   ): Promise<SecretRequest> {
     const orgKey = await this.getOrganizationKey(organizationId);
     const request = new SecretRequest();
@@ -190,6 +204,7 @@ export class SecretService {
     request.value = value.encryptedString;
     request.note = note.encryptedString;
     request.projectIds = [];
+    request.valueChanged = valueChanged;
 
     secretView.projects?.forEach((e) => request.projectIds.push(e.id));
 

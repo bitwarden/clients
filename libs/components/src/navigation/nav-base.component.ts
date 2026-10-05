@@ -67,6 +67,13 @@ export abstract class NavBaseComponent {
   });
 
   /**
+   * Passed to internal `routerLink`.
+   *
+   * @see {@link RouterLink.queryParamsHandling}
+   */
+  readonly queryParamsHandling = input<RouterLink["queryParamsHandling"]>();
+
+  /**
    * If `true`, do not change styles when nav item is active.
    */
   readonly hideActiveStyles = input(false);

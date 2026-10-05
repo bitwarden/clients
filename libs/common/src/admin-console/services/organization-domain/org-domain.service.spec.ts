@@ -121,7 +121,7 @@ describe("Org Domain Service", () => {
 
     orgDomainService.upsert([changedOrgDomain]);
 
-    expect(orgDomainService.get(mockedVerifiedOrgDomainResponse.id).domainName).toEqual(
+    expect(orgDomainService.get(mockedVerifiedOrgDomainResponse.id)?.domainName).toEqual(
       changedOrgDomain.domainName,
     );
 

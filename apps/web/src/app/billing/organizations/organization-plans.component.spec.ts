@@ -1,9 +1,17 @@
 // These are disabled until we can migrate to signals and remove the use of @Input properties that are used within the mocked child components
 /* eslint-disable @angular-eslint/prefer-output-emitter-ref */
 /* eslint-disable @angular-eslint/prefer-signals */
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  signal,
+} from "@angular/core";
 import { ComponentFixture, fakeAsync, flushMicrotasks, TestBed, tick } from "@angular/core/testing";
 import { FormBuilder, Validators } from "@angular/forms";
+import { By } from "@angular/platform-browser";
 import { Router } from "@angular/router";
 import { BehaviorSubject, of, Subject } from "rxjs";
 
@@ -25,11 +33,12 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { ToastService } from "@bitwarden/components";
+import { SectionComponent, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { DiscountTypes } from "@bitwarden/pricing";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 import {
   AccountBillingClient,
   PreviewInvoiceClient,
@@ -377,6 +386,12 @@ const createMockPlans = (): PlanResponse[] => {
   ];
 };
 
+/** Types `value` into a rendered input so the bound form control picks it up. */
+function setInputValue(input: HTMLInputElement, value: string) {
+  input.value = value;
+  input.dispatchEvent(new Event("input"));
+}
+
 describe("OrganizationPlansComponent", () => {
   let component: OrganizationPlansComponent;
   let fixture: ComponentFixture<OrganizationPlansComponent>;
@@ -401,6 +416,7 @@ describe("OrganizationPlansComponent", () => {
   let mockSubscriberBillingClient: jest.Mocked<SubscriberBillingClient>;
   let mockPreviewInvoiceClient: jest.Mocked<PreviewInvoiceClient>;
   let mockConfigService: jest.Mocked<ConfigService>;
+  const vfo1Enabled = signal(true);
   let mockBillingAccountProfileService: jest.Mocked<BillingAccountProfileStateService>;
   let mockPremiumOrgUpgradeService: jest.Mocked<PremiumOrgUpgradeService>;
   let mockSubscriptionDiscountService: jest.Mocked<SubscriptionDiscountService>;
@@ -538,6 +554,9 @@ describe("OrganizationPlansComponent", () => {
       getFeatureFlag$: jest.fn().mockReturnValue(of(true)),
     } as any;
 
+    // Vfo1TerminologyService is mocked directly; flag-off tests call vfo1Enabled.set(false).
+    vfo1Enabled.set(true);
+
     mockPremiumOrgUpgradeService = {
       upgradeToOrganization: jest.fn().mockResolvedValue("new-premium-org-id"),
       generateOrganizationEncryptionData: jest.fn().mockResolvedValue({
@@ -593,6 +612,33 @@ describe("OrganizationPlansComponent", () => {
       setHasPremium: jest.fn().mockResolvedValue(undefined),
     } as any;
 
+    await configureTestBed();
+
+    fixture = TestBed.createComponent(OrganizationPlansComponent);
+    component = fixture.componentInstance;
+  });
+
+  /**
+   * Configures the TestBed for `OrganizationPlansComponent`.
+   *
+   * Child components are swapped for mocks by default. Pass `{ useRealOrgInfo: true }` to keep the
+   * real standalone `OrganizationInformationComponent` mounted so its rendered form can be driven
+   * through the DOM.
+   */
+  async function configureTestBed({ useRealOrgInfo = false } = {}) {
+    const realChildren = [
+      SecretsManagerSubscribeComponent,
+      EnterPaymentMethodComponent,
+      EnterBillingAddressComponent,
+      OrganizationSelfHostingLicenseUploaderComponent,
+    ];
+    const mockChildren = [
+      MockSmSubscribeComponent,
+      MockEnterPaymentMethodComponent,
+      MockEnterBillingAddressComponent,
+      MockOrganizationSelfHostingLicenseUploaderComponent,
+    ];
+
     await TestBed.configureTestingModule({
       providers: [
         { provide: ApiService, useValue: mockApiService },
@@ -616,18 +662,18 @@ describe("OrganizationPlansComponent", () => {
         { provide: ConfigService, useValue: mockConfigService },
         { provide: BillingAccountProfileStateService, useValue: mockBillingAccountProfileService },
         { provide: PremiumOrgUpgradeService, useValue: mockPremiumOrgUpgradeService },
+        {
+          provide: Vfo1TerminologyService,
+          useValue: { iconClass: (icon: string) => icon, enabled: vfo1Enabled },
+        },
       ],
     })
       // Override the component to replace child components with mocks and provide mock services
       .overrideComponent(OrganizationPlansComponent, {
         remove: {
-          imports: [
-            OrganizationInformationComponent,
-            SecretsManagerSubscribeComponent,
-            EnterPaymentMethodComponent,
-            EnterBillingAddressComponent,
-            OrganizationSelfHostingLicenseUploaderComponent,
-          ],
+          imports: useRealOrgInfo
+            ? realChildren
+            : [OrganizationInformationComponent, ...realChildren],
           providers: [
             AccountBillingClient,
             PreviewInvoiceClient,
@@ -637,13 +683,7 @@ describe("OrganizationPlansComponent", () => {
           ],
         },
         add: {
-          imports: [
-            MockOrgInfoComponent,
-            MockSmSubscribeComponent,
-            MockEnterPaymentMethodComponent,
-            MockEnterBillingAddressComponent,
-            MockOrganizationSelfHostingLicenseUploaderComponent,
-          ],
+          imports: useRealOrgInfo ? mockChildren : [MockOrgInfoComponent, ...mockChildren],
           providers: [
             { provide: AccountBillingClient, useValue: mockAccountBillingClient },
             { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
@@ -654,10 +694,7 @@ describe("OrganizationPlansComponent", () => {
         },
       })
       .compileComponents();
-
-    fixture = TestBed.createComponent(OrganizationPlansComponent);
-    component = fixture.componentInstance;
-  });
+  }
 
   describe("component creation", () => {
     it("should create", () => {
@@ -1348,6 +1385,72 @@ describe("OrganizationPlansComponent", () => {
 
       expect(mockOrganizationApiService.create).toHaveBeenCalled();
       expect(mockPremiumOrgUpgradeService.upgradeToOrganization).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("plan section heading and sponsored spacing", () => {
+    // Second detectChanges renders the plan form once loading has settled.
+    async function render(acceptingSponsorship: boolean) {
+      fixture.componentRef.setInput("acceptingSponsorship", acceptingSponsorship);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      const sections = fixture.debugElement.queryAll(By.directive(SectionComponent));
+      return {
+        heading: el.querySelector("bit-section h2")?.textContent?.trim(),
+        form: el.querySelector("form") as HTMLFormElement,
+        orgInfoSection: sections[0].componentInstance as SectionComponent,
+        orgInfoSectionEl: sections[0].nativeElement as HTMLElement,
+        planSectionEl: sections[1].nativeElement as HTMLElement,
+        planWrapperEl: el.querySelector("bit-radio-group bit-radio-button")
+          ?.parentElement as HTMLElement,
+        priceSpanCount: el.querySelectorAll("bit-radio-group span.tw-pl-4").length,
+        everySectionMarginDisabled: sections.every((s) =>
+          (s.componentInstance as SectionComponent).disableMargin(),
+        ),
+      };
+    }
+
+    it("uses the sponsored heading and 24px section spacing when accepting sponsorship with VFO1 on", async () => {
+      const r = await render(true);
+
+      expect(r.heading).toBe("sponsoredPlanDetails");
+      expect(r.form.classList.contains("tw-pt-2")).toBe(true);
+      expect(r.form.classList.contains("tw-pt-6")).toBe(false);
+      expect(r.everySectionMarginDisabled).toBe(true);
+      expect(r.orgInfoSectionEl.classList.contains("tw-mb-6")).toBe(true);
+      expect(r.orgInfoSectionEl.classList.contains("tw-block")).toBe(true);
+      expect(r.planSectionEl.classList.contains("tw-mb-6")).toBe(true);
+      // Nothing but the section margin may sit between the plan card and the next heading.
+      expect(r.planWrapperEl.classList.contains("tw-mb-3")).toBe(false);
+      expect(r.priceSpanCount).toBe(0);
+    });
+
+    it("uses the choose-plan heading and default spacing when not accepting sponsorship", async () => {
+      const r = await render(false);
+
+      expect(r.heading).toBe("choosePlan");
+      expect(r.form.classList.contains("tw-pt-6")).toBe(true);
+      expect(r.form.classList.contains("tw-pt-2")).toBe(false);
+      expect(r.orgInfoSection.disableMargin()).toBe(false);
+      expect(r.planSectionEl.classList.contains("tw-mb-6")).toBe(false);
+      expect(r.planWrapperEl.classList.contains("tw-mb-3")).toBe(true);
+      expect(r.priceSpanCount).toBeGreaterThan(0);
+    });
+
+    it("keeps the legacy heading and default spacing when accepting sponsorship with VFO1 off", async () => {
+      vfo1Enabled.set(false);
+
+      const r = await render(true);
+
+      expect(r.heading).toBe("chooseYourPlan");
+      expect(r.form.classList.contains("tw-pt-6")).toBe(true);
+      expect(r.orgInfoSection.disableMargin()).toBe(false);
+      expect(r.planSectionEl.classList.contains("tw-mb-6")).toBe(false);
+      expect(r.planWrapperEl.classList.contains("tw-mb-3")).toBe(true);
+      expect(r.priceSpanCount).toBeGreaterThan(0);
     });
   });
 
@@ -2187,6 +2290,20 @@ describe("OrganizationPlansComponent", () => {
       expect(paymentDesc.length).toBeGreaterThan(0);
     });
 
+    it("uses the family-vault payment copy when accepting sponsorship with VFO1 on", () => {
+      fixture.componentRef.setInput("acceptingSponsorship", true);
+
+      expect(component.paymentDesc).toBe("paymentSponsoredFamilyVault");
+      expect(mockI18nService.t).not.toHaveBeenCalledWith("paymentSponsored");
+    });
+
+    it("keeps the legacy sponsored payment copy when VFO1 is off", () => {
+      vfo1Enabled.set(false);
+      fixture.componentRef.setInput("acceptingSponsorship", true);
+
+      expect(component.paymentDesc).toBe("paymentSponsored");
+    });
+
     it("should use paymentChargedWithTrialSpecificLength with plan's trialPeriodDays when on a trial plan and no custom trialLength", () => {
       component["formGroup"].controls.productTier.setValue(ProductTierType.Enterprise);
       component.changedProduct();
@@ -2882,6 +2999,48 @@ describe("OrganizationPlansComponent", () => {
           mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
         ).toHaveBeenCalledTimes(1);
       }));
+    });
+  });
+
+  describe("organization information step", () => {
+    // Mounts the real standalone OrganizationInformationComponent instead of MockOrgInfoComponent,
+    // so the step's own template dependencies and its form wiring into the parent are exercised.
+    beforeEach(async () => {
+      TestBed.resetTestingModule();
+      await configureTestBed({ useRealOrgInfo: true });
+
+      fixture = TestBed.createComponent(OrganizationPlansComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    });
+
+    it("renders the information step", () => {
+      const orgInfo = fixture.nativeElement.querySelector("app-org-info");
+
+      expect(orgInfo).not.toBeNull();
+      expect(orgInfo.querySelectorAll("bit-form-field").length).toBe(2);
+      expect(orgInfo.querySelector('input[formcontrolname="name"]')).not.toBeNull();
+      expect(orgInfo.querySelector('input[formcontrolname="billingEmail"]')).not.toBeNull();
+    });
+
+    it("submits the values entered into the information step", async () => {
+      mockOrganizationApiService.create.mockResolvedValue({ id: "new-org-id" } as any);
+
+      const orgInfo = fixture.nativeElement.querySelector("app-org-info");
+      setInputValue(orgInfo.querySelector('input[formcontrolname="name"]'), "Typed Org Name");
+      setInputValue(
+        orgInfo.querySelector('input[formcontrolname="billingEmail"]'),
+        "typed@example.com",
+      );
+      fixture.detectChanges();
+
+      await component.submit();
+
+      expect(mockOrganizationApiService.create).toHaveBeenCalledWith(
+        expect.objectContaining({ name: "Typed Org Name", billingEmail: "typed@example.com" }),
+      );
     });
   });
 });

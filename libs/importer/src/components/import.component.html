@@ -21,7 +21,11 @@
         </bit-select>
       </bit-form-field>
       <bit-form-field disableMargin>
-        <bit-label>{{ organizationId ? ("collection" | i18n) : ("folder" | i18n) }}</bit-label>
+        <bit-label>{{
+          organizationId
+            ? ((vfo1Enabled() ? "sharedFolder" : "collection") | i18n)
+            : ((vfo1Enabled() ? "importTargetMyFolder" : "folder") | i18n)
+        }}</bit-label>
         <bit-select formControlName="targetSelector">
           @if (!organizationId) {
             <bit-option [value]="null" label="-- {{ 'selectImportFolder' | i18n }} --" />
@@ -30,15 +34,24 @@
             }
           }
           @if (organizationId) {
-            <bit-option [value]="null" label="-- {{ 'selectImportCollection' | i18n }} --" />
+            <bit-option
+              [value]="null"
+              label="-- {{
+                (vfo1Enabled() ? 'selectImportSharedFolder' : 'selectImportCollection') | i18n
+              }} --"
+            />
             @for (c of collections$ | async; track c) {
               <bit-option [value]="c" [label]="c.name" [icon]="collectionIcon(c.type)" />
             }
           }
         </bit-select>
-        <bit-hint>{{
-          organizationId ? ("importTargetHintCollection" | i18n) : ("importTargetHintFolder" | i18n)
-        }}</bit-hint>
+        @if (!vfo1Enabled()) {
+          <bit-hint>{{
+            organizationId
+              ? ("importTargetHintCollection" | i18n)
+              : ("importTargetHintFolder" | i18n)
+          }}</bit-hint>
+        }
       </bit-form-field>
     </bit-card>
   </bit-section>
@@ -50,7 +63,7 @@
     <bit-card>
       <bit-form-field class="@2xl:tw-w-1/2">
         <bit-label>{{ "fileFormat" | i18n }}</bit-label>
-        <bit-select formControlName="format">
+        <bit-select formControlName="source">
           <bit-option value="" label="-- {{ 'select' | i18n }} --" />
           <bit-option
             class="tw-font-medium tw-text-muted tw-text-xs"
@@ -58,12 +71,12 @@
             label="{{ 'commonImportFormats' | i18n }}"
             disabled
           />
-          @for (o of featuredImportOptions; track o) {
+          @for (o of featuredImportSources; track o) {
             <bit-option [value]="o.id" [label]="o.name" />
           }
-          @if (importOptions && importOptions.length) {
+          @if (importSources && importSources.length) {
             <bit-option value="-" label="--------------------------------------" disabled />
-            @for (o of importOptions; track o) {
+            @for (o of importSources; track o) {
               <bit-option [value]="o.id" [label]="o.name" />
             }
           }
@@ -151,6 +164,16 @@
             </bit-radio-group>
           }
         </bit-callout>
+      }
+      @if (selectedSourceGroup; as group) {
+        <bit-form-field class="@2xl:tw-w-1/2">
+          <bit-label>{{ "method" | i18n }}</bit-label>
+          <bit-select formControlName="method" id="import_bit-select_method">
+            @for (m of group.methods; track m.format) {
+              <bit-option [value]="m.format" [label]="m.label" />
+            }
+          </bit-select>
+        </bit-form-field>
       }
       @if (showLastPassOptions) {
         <import-lastpass

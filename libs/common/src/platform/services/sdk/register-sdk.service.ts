@@ -22,6 +22,7 @@ import { AccountService } from "../../../auth/abstractions/account.service";
 import { JsWasmStateBridge } from "../../../key-management/state-bridge";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { UserId } from "../../../types/guid";
+import { AppIdService } from "../../abstractions/app-id.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { RegisterSdkService } from "../../abstractions/sdk/register-sdk.service";
@@ -65,9 +66,11 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
     concatMap(async (env) => {
       await SdkLoadService.Ready;
       const settings = await this.toSettings(env);
+      const managedSettings = await firstValueFrom(this.managedSettingsService.client$);
       const client = await this.sdkClientFactory.createSdkClient(
         new JsTokenProvider(this.apiService),
         settings,
+        managedSettings,
       );
       await this.loadFeatureFlags(client);
       return client;
@@ -83,10 +86,8 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
     private apiService: ApiService,
     private stateProvider: StateProvider,
     private configService: ConfigService,
-    // Not yet read. The SDK's `PasswordManagerClient` constructor gains a `ManagedSettingsClient`
-    // parameter in sdk-internal#1405; once that publishes, `client$` is resolved here and passed to
-    // `createSdkClient`.
     private managedSettingsService: ManagedSettingsService,
+    private appIdService: AppIdService,
     private userAgent: string | null = null,
   ) {}
 
@@ -144,9 +145,11 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
             }
 
             const settings = await this.toSettings(env);
+            const managedSettings = await firstValueFrom(this.managedSettingsService.client$);
             const client = await this.sdkClientFactory.createSdkClient(
               new JsTokenProvider(this.apiService, userId),
               settings,
+              managedSettings,
             );
 
             // Initialize the client managed repositories.
@@ -203,6 +206,7 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
       apiUrl: env.getApiUrl(),
       identityUrl: env.getIdentityUrl(),
       deviceType: toSdkDevice(this.platformUtilsService.getDevice()),
+      deviceIdentifier: await this.appIdService.getAppId(),
       userAgent: this.userAgent ?? navigator.userAgent,
       bitwardenClientVersion: await this.platformUtilsService.getApplicationVersionNumber(),
     };

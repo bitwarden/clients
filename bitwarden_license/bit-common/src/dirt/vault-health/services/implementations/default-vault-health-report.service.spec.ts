@@ -95,13 +95,19 @@ describe("DefaultVaultHealthReportService", () => {
 
   const risk = (
     id: string,
-    opts: { strength?: number; exposed?: number; reuse?: number } = {},
+    opts: { strength?: number; exposed?: number; reuse?: number; exposedError?: string } = {},
   ): CipherRiskResult => {
     const exposed = opts.exposed ?? 0;
+    const exposedResult =
+      opts.exposedError != null
+        ? { type: "Error", value: opts.exposedError }
+        : exposed > 0
+          ? { type: "Found", value: exposed }
+          : { type: "NotChecked" };
     return {
       id,
       password_strength: opts.strength ?? 4,
-      exposed_result: exposed > 0 ? { type: "Found", value: exposed } : { type: "NotChecked" },
+      exposed_result: exposedResult,
       reuse_count: opts.reuse ?? 1,
     } as unknown as CipherRiskResult;
   };
@@ -331,6 +337,99 @@ describe("DefaultVaultHealthReportService", () => {
     expect(cipherIds(result.categoryItems.exposed)).toEqual(["a"]);
     expect(cipherIds(result.categoryItems.weak)).toEqual(["b"]);
     expect(cipherIds(result.categoryItems.reused)).toEqual(["c"]);
+  });
+
+  describe("a failed exposed-password check", () => {
+    it("publishes an error state when every login's exposed check failed", async () => {
+      const ciphers = withRisks([
+        { cipher: login("a"), risk: risk("a", { exposedError: "network error" }) },
+        { cipher: login("b"), risk: risk("b", { exposedError: "network error" }) },
+      ]);
+
+      await service.buildVaultHealthReport(ciphers, userId);
+
+      const state = await firstValueFrom(service.getVaultHealthReport$(userId));
+      expect(state.status).toBe(VaultHealthReportStatus.Error);
+    });
+
+    it("publishes an error state when only one login's exposed check failed", async () => {
+      const ciphers = withRisks([
+        { cipher: login("a"), risk: risk("a", { exposed: 5 }) },
+        { cipher: login("b"), risk: risk("b", { exposedError: "429 Too Many Requests" }) },
+        { cipher: login("c"), risk: risk("c") },
+      ]);
+
+      await service.buildVaultHealthReport(ciphers, userId);
+
+      const state = await firstValueFrom(service.getVaultHealthReport$(userId));
+      expect(state.status).toBe(VaultHealthReportStatus.Error);
+    });
+
+    it("does not publish a report that under-counts the exposed category", async () => {
+      const ciphers = withRisks([
+        { cipher: login("a"), risk: risk("a", { exposedError: "network error" }) },
+      ]);
+
+      await service.buildVaultHealthReport(ciphers, userId);
+
+      expect(await currentReport()).toBeNull();
+    });
+
+    it("logs how many logins could not be checked", async () => {
+      const ciphers = withRisks([
+        { cipher: login("a"), risk: risk("a", { exposedError: "network error" }) },
+        { cipher: login("b"), risk: risk("b", { exposedError: "network error" }) },
+      ]);
+
+      await service.buildVaultHealthReport(ciphers, userId);
+
+      expect(logService.error).toHaveBeenCalledWith(
+        "Vault health report generation failed",
+        expect.objectContaining({ message: expect.stringContaining("2 of 2") }),
+      );
+    });
+
+    it("still scores an unchecked login as healthy, so a scan without breach data does not fail", async () => {
+      const built = await report(withRisks([{ cipher: login("a"), risk: risk("a") }]));
+
+      expect(built.atRiskCount).toBe(0);
+      expect(built.categoryItems.exposed).toEqual([]);
+    });
+
+    it("keeps the previous report readable when a rescan's exposed check fails", async () => {
+      const healthy = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 5 }) }]);
+      await service.buildVaultHealthReport(healthy, userId);
+      const before = await currentReport();
+
+      const failing = withRisks([
+        { cipher: editedLogin("a"), risk: risk("a", { exposedError: "network error" }) },
+      ]);
+      await service.buildVaultHealthReport(failing, userId);
+
+      expect(await currentReport()).toBe(before);
+    });
+
+    it("leaves the report on screen when a background refresh's exposed check fails", async () => {
+      const healthy = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 5 }) }]);
+      await service.buildVaultHealthReport(healthy, userId);
+      const before = await currentReport();
+
+      const failing = withRisks([
+        { cipher: editedLogin("a"), risk: risk("a", { exposedError: "network error" }) },
+      ]);
+      await service.refreshVaultHealthReport(failing, userId);
+
+      const state = await firstValueFrom(service.getVaultHealthReport$(userId));
+      expect(state.status).toBe(VaultHealthReportStatus.Success);
+      expect(state.report).toBe(before);
+    });
+
+    it("does not fail an empty vault, which is never checked against the breach API", async () => {
+      const built = await report([]);
+
+      expect(built.totalCount).toBe(0);
+      expect(cipherRiskService.computeRiskForCiphers).not.toHaveBeenCalled();
+    });
   });
 
   // --- the published state and report --------------------------------------

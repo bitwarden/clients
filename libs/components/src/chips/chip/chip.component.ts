@@ -39,6 +39,12 @@ export class ChipComponent {
   readonly startIcon = input<BitwardenIcon | undefined>();
 
   /**
+   * Provide a specific accessible name for the dismiss button if you want to use something
+   * different than the chip's label for the dismiss button.
+   */
+  readonly accessibleName = input<string>();
+
+  /**
    * Output event emitted when the dismiss button is clicked. Does not emit if the chip is disabled.
    */
   readonly dismissed = output<void>();

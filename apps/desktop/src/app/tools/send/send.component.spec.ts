@@ -11,6 +11,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -19,6 +20,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -62,6 +64,7 @@ describe("SendComponent", () => {
   let i18nService: MockProxy<I18nService>;
   let configService: MockProxy<ConfigService>;
   let sendFormService: MockProxy<SendFormService>;
+  let sendDecryptionService: MockProxy<SendDecryptionService>;
 
   beforeEach(async () => {
     sendService = mock<SendService>();
@@ -77,9 +80,20 @@ describe("SendComponent", () => {
     i18nService = mock<I18nService>();
     configService = mock<ConfigService>();
     sendFormService = mock<SendFormService>();
+    sendDecryptionService = mock<SendDecryptionService>();
 
-    // Setup configService mock - feature flag returns true to test the new drawer mode
-    configService.getFeatureFlag$.mockReturnValue(of(true));
+    configService.getFeatureFlag$.mockImplementation((ff) => {
+      if (ff === FeatureFlag.PM32380_BtnTextAddCreate) {
+        return of(true);
+      }
+      return of(false);
+    });
+    configService.getFeatureFlag.mockImplementation((ff) => {
+      if (ff === FeatureFlag.PM32380_BtnTextAddCreate) {
+        return true;
+      }
+      return false;
+    });
 
     // Setup environmentService mock
     environmentService.getEnvironment.mockResolvedValue({
@@ -146,6 +160,10 @@ describe("SendComponent", () => {
         {
           provide: SendFormService,
           useValue: sendFormService,
+        },
+        {
+          provide: SendDecryptionService,
+          useValue: sendDecryptionService,
         },
       ],
     })

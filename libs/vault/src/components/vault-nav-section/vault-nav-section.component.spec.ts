@@ -9,7 +9,12 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { CollectionId, UserId } from "@bitwarden/common/types/guid";
-import { NavigationModule, SideNavService } from "@bitwarden/components";
+import {
+  NavigationModule,
+  PopoverAnchorForDirective,
+  PopoverComponent,
+  SideNavService,
+} from "@bitwarden/components";
 import { GlobalStateProvider } from "@bitwarden/state";
 
 import {
@@ -29,6 +34,7 @@ const personalItem: VaultNavItemViewModel = {
   color: "coral",
   icon: "bwi-user",
   type: VaultNavItemType.Personal,
+  enabled: true,
 };
 
 const orgA: VaultNavItemViewModel = {
@@ -36,6 +42,7 @@ const orgA: VaultNavItemViewModel = {
   label: "Acme corporation",
   icon: "bwi-business",
   type: VaultNavItemType.Organization,
+  enabled: true,
 };
 
 const family: VaultNavItemViewModel = {
@@ -43,6 +50,7 @@ const family: VaultNavItemViewModel = {
   label: "Smith family",
   icon: "bwi-family",
   type: VaultNavItemType.Family,
+  enabled: true,
 };
 
 const personalOnly: VaultsNavViewModel = {
@@ -128,6 +136,14 @@ describe("VaultNavSectionComponent", () => {
 
   const navItemHref = (root: HTMLElement, text: string) =>
     navItem(root, text).querySelector("a")?.getAttribute("href");
+
+  const clickNavItem = async (root: HTMLElement, text: string) => {
+    navItem(root, text)
+      .querySelector("a")
+      ?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
 
   /**
    * Whether the nav item labelled `text` is marked as the page in view. `routerLinkActive` writes
@@ -274,8 +290,7 @@ describe("VaultNavSectionComponent", () => {
     });
 
     it("leaves All vault items unlit on the My items route", async () => {
-      // Its own page beside All vault items rather than beneath it, so the vault route's exact
-      // match is what keeps them apart. My items has no nav entry of its own yet.
+      // My items sits beside All vault items, not beneath it, so the exact match keeps them apart.
       await navigateTo("/vault/org-a/my-items");
       const group = expandGroup("Acme corporation");
 
@@ -302,20 +317,156 @@ describe("VaultNavSectionComponent", () => {
     });
   });
 
+  describe("coachmark anchor", () => {
+    /** Where the tour's popover is open, as `"<organization>/<element>"`. */
+    const openAnchors = () =>
+      fixture.debugElement
+        .queryAll(By.directive(PopoverAnchorForDirective))
+        .filter((el) => el.injector.get(PopoverAnchorForDirective).popoverOpen())
+        .map((el) => {
+          let group = el;
+          while (group.parent != null && group.name !== "bit-nav-group") {
+            group = group.parent;
+          }
+          return `${group.componentInstance.text()}/${el.name}`;
+        });
+
+    const navGroup = (label: string) =>
+      fixture.debugElement
+        .queryAll(By.css("bit-nav-group"))
+        .find((el) => el.componentInstance.text() === label);
+
+    beforeEach(() => {
+      viewModel$.next(withOrgs);
+      // A real popover, so the anchor that opens can build its overlay from a template ref.
+      const popover = TestBed.createComponent(PopoverComponent);
+      popover.detectChanges();
+
+      fixture.componentRef.setInput("coachmarkPopover", popover.componentInstance);
+      fixture.componentRef.setInput("coachmarkTourRunning", true);
+      fixture.detectChanges();
+    });
+
+    it("opens the first organization's group for the whole tour", () => {
+      // Groups collapse by default. See the `coachmarkTourRunning` input for why the tour needs
+      // this one open for its whole run.
+      expect(navGroup("Acme corporation").componentInstance.open()).toBe(true);
+      expect(navGroup("Smith family").componentInstance.open()).toBe(false);
+    });
+
+    it("opens on the first organization's Shared folders entry only", () => {
+      fixture.componentRef.setInput("coachmarkPopoverOpen", true);
+      fixture.detectChanges();
+
+      // One Shared folders entry per organization, and a single popover to place.
+      expect(openAnchors()).toEqual(["Acme corporation/bit-nav-item"]);
+    });
+
+    it("stays closed while the step is not active", () => {
+      expect(openAnchors()).toEqual([]);
+    });
+  });
+
   describe("organization data ownership", () => {
     beforeEach(() => {
       viewModel$.next(orgDataOwnership);
       fixture.detectChanges();
     });
 
-    it("renders the org vault with no My items, Vaults header, or personal vault", () => {
+    it("renders the org vault with no Vaults header or personal vault", () => {
       const text = navText();
 
       expect(text).toContain("Acme corporation");
-      expect(text).not.toContain("myItems");
       expect(text).not.toContain("vaults");
       expect(text).not.toContain("My vault");
       expect(text).not.toContain("allItems");
+    });
+
+    it("links My items to the organization's collection by the sentinel segment", () => {
+      const group = expandGroup("Acme corporation");
+
+      expect(navItemHref(group, "myItemsV2")).toBe("/vault/org-a/my-items");
+    });
+
+    it("omits My items for an organization with no default user collection", () => {
+      viewModel$.next({ vaults: [orgA], organizationDataOwnership: true });
+      fixture.detectChanges();
+      const group = expandGroup("Acme corporation");
+
+      expect(navItem(group, "myItemsV2")).toBeUndefined();
+    });
+  });
+
+  describe("a suspended organization", () => {
+    /** The suspended-org warning icons rendered in the nav, by the group each sits in. */
+    const suspendedIconGroups = () =>
+      fixture.debugElement
+        .queryAll(By.css("bit-nav-group"))
+        .filter(
+          (group) => group.nativeElement.querySelector("bit-icon.bwi-exclamation-triangle") != null,
+        )
+        .map((group) => group.componentInstance.text());
+
+    it("marks the suspended organization and leaves the enabled ones unmarked", () => {
+      viewModel$.next({ ...withOrgs, vaults: [personalItem, { ...orgA, enabled: false }, family] });
+      fixture.detectChanges();
+
+      expect(suspendedIconGroups()).toEqual(["Acme corporation"]);
+    });
+
+    it("labels the icon so it is not announced as decoration", () => {
+      viewModel$.next({ ...withOrgs, vaults: [personalItem, { ...orgA, enabled: false }, family] });
+      fixture.detectChanges();
+
+      const icon = fixture.nativeElement.querySelector("bit-icon.bwi-exclamation-triangle");
+
+      expect(icon.getAttribute("aria-label")).toBe("organizationIsDisabled");
+    });
+
+    it("marks no organization when every vault is enabled", () => {
+      viewModel$.next(withOrgs);
+      fixture.detectChanges();
+
+      expect(suspendedIconGroups()).toEqual([]);
+    });
+  });
+
+  describe("clicking the entry for the page in view", () => {
+    // The table writes its filters and sort to the query string, so a link that dropped them would
+    // reset the page the user is already looking at. PM-42525.
+    const withFilters = "/vault/org-a?vault.sort=name&vault.direction=asc";
+
+    beforeEach(() => {
+      viewModel$.next(withOrgs);
+      fixture.detectChanges();
+    });
+
+    it("leaves the page's query params in the URL", async () => {
+      await navigateTo(withFilters);
+      const group = expandGroup("Acme corporation");
+
+      await clickNavItem(group, "allVaultItems");
+
+      expect(TestBed.inject(Router).url).toBe(withFilters);
+    });
+
+    it("carries no query params onto another entry's page", async () => {
+      await navigateTo(withFilters);
+
+      await clickNavItem(fixture.nativeElement, "allItems");
+
+      expect(TestBed.inject(Router).url).toBe("/vault");
+    });
+
+    it("navigates up from a drill-in rather than holding the entry's own page", async () => {
+      // Shared folders is left on the default subset match so it lights on its drill-ins too; the
+      // current-page test is exact, so it stays a working link from one of them.
+      await navigateTo("/vault/org-a/shared-folders/22222222-2222-4222-8222-222222222222");
+      const group = expandGroup("Acme corporation");
+
+      await clickNavItem(group, "sharedFolders");
+
+      expect(TestBed.inject(Router).url).toBe("/vault/org-a/shared-folders");
     });
   });
 });

@@ -18,10 +18,27 @@ export type ScrollDirectionOptions = {
 
   /**
    * Within this many pixels of the bottom, hold `"down"`. Prevents an oscillation loop when a
-   * consumer collapses chrome in response to `"down"`: the collapse grows the viewport, the browser
-   * clamps `scrollTop`, and the smaller offset would otherwise read as `"up"`.
+   * consumer collapses a region in response to `"down"`: the collapse grows the viewport, the
+   * browser clamps `scrollTop`, and the smaller offset would otherwise read as `"up"`.
    */
   bottomOffset?: number;
+
+  /**
+   * How far the region must be able to scroll before `"down"` is reported at all.
+   *
+   * Without a floor here, a consumer that collapses a region on `"down"` can get stuck in a loop:
+   * the collapse gives that height back to the scroll region, and if there wasn't much to scroll to
+   * begin with, the browser snaps back to the top — which reads as `"up"`, reopens the region, and
+   * leaves the next scroll to start the loop over.
+   *
+   * Pass the collapsible height. A callback is re-read on each attempt to flip `"down"`, so the
+   * height can be measured after the first render.
+   *
+   * It is read while the region is expanded *or expanding*, since the gate tests the previous
+   * frame's direction. Collapsing consumers should pass a settled height (see `settledHeight`)
+   * rather than a live measurement, which reads an intermediate value while animating.
+   */
+  minScrollable?: number | (() => number);
 };
 
 type ScrollDirectionState = {
@@ -55,8 +72,16 @@ const nativeElement = (
  */
 export const scrollDirection = (
   scrollable: Signal<ElementRef<HTMLElement> | HTMLElement | null | undefined>,
-  { threshold = 16, topOffset = 0, bottomOffset = 24 }: ScrollDirectionOptions = {},
+  {
+    threshold = 16,
+    topOffset = 0,
+    bottomOffset = 24,
+    minScrollable = 0,
+  }: ScrollDirectionOptions = {},
 ): Signal<ScrollDirection> => {
+  const readMinScrollable =
+    typeof minScrollable === "function" ? minScrollable : () => minScrollable;
+
   const element$ = toObservable(scrollable).pipe(map(nativeElement));
 
   const direction$ = element$.pipe(
@@ -75,6 +100,13 @@ export const scrollDirection = (
         })),
         scan((state: ScrollDirectionState, { top, maxTop, viewport }): ScrollDirectionState => {
           if (maxTop <= 0 || top <= topOffset) {
+            return { direction: "up", anchor: top };
+          }
+
+          // Gates the flip only. Once `"down"`, the collapsed regions have legitimately reduced
+          // `maxTop`, and re-testing it here would expand them again. Equality still fails:
+          // giving back exactly `maxTop` leaves nothing to scroll.
+          if (state.direction === "up" && maxTop <= readMinScrollable()) {
             return { direction: "up", anchor: top };
           }
 
