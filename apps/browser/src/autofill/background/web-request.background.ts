@@ -1,9 +1,7 @@
 import {
   catchError,
-  combineLatest,
   distinctUntilChanged,
   firstValueFrom,
-  map,
   Observable,
   of,
   Subscription,
@@ -15,9 +13,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -218,7 +214,6 @@ export default class WebRequestBackground {
     private authService: AuthService,
     private accountService: AccountService,
     private readonly webRequest: typeof chrome.webRequest,
-    private configService: ConfigService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
   ) {
     this.isFirefox = platformUtilsService.isFirefox();
@@ -244,47 +239,45 @@ export default class WebRequestBackground {
   }
 
   /**
-   * Emits `true` only when the feature flag is on and the active user has opted in.
+   * Emits `true` only when the resolved setting is enabled for the active user.
    *
-   * Fails closed: no active user, or an error from either source, emits `false`.
-   * Each source is caught on its own so that an error yields `false` for that
-   * source while the combined stream stays alive; catching downstream of the
-   * combination would end the subscription and leave the listeners unregistered
-   * for the life of the background context.
+   * Fails closed: no active user, or an error resolving the setting, emits `false`.
    */
   private basicAuthResponseEnabled$(): Observable<boolean> {
-    const featureFlagEnabled$ = this.configService
-      .getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse)
-      .pipe(catchError(() => of(false)));
-
-    const userSettingEnabled$ = this.accountService.activeAccount$.pipe(
+    // The setting is resolved inside a `switchMap` on the active account so that an
+    // error is caught for that account alone and the setting is resolved again on
+    // the next account change; catching downstream would end the subscription and
+    // leave the listeners unregistered for the life of the background context.
+    return this.accountService.activeAccount$.pipe(
       getOptionalUserId,
       switchMap((userId) =>
         userId == null
           ? of(false)
-          : this.autofillSettingsService.enableBasicAuthResponse$.pipe(catchError(() => of(false))),
+          : this.autofillSettingsService.resolvedEnableBasicAuthResponse$.pipe(
+              catchError(() => of(false)),
+            ),
       ),
       catchError(() => of(false)),
-    );
-
-    return combineLatest([featureFlagEnabled$, userSettingEnabled$]).pipe(
-      map(([featureFlagEnabled, userSettingEnabled]) => featureFlagEnabled && userSettingEnabled),
       distinctUntilChanged(),
     );
   }
 
   /**
-   * Whether the feature flag is on and the given user has opted in. Fails closed
-   * on an error from either source.
+   * Whether the resolved setting is enabled for the active user, and that user is
+   * still the given one once the setting has been read. The resolved setting
+   * follows whichever user is active, so a change of active user during the read
+   * would otherwise apply one user's opt-in to another user's vault.
+   *
+   * Fails closed on error.
    */
   private async basicAuthResponseEnabledForUser(userId: UserId): Promise<boolean> {
     try {
-      const [featureFlagEnabled, userSettingEnabled] = await Promise.all([
-        firstValueFrom(this.configService.getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse)),
-        firstValueFrom(this.autofillSettingsService.getEnableBasicAuthResponse$(userId)),
-      ]);
+      const enabled = await firstValueFrom(this.basicAuthResponseEnabled$());
+      const activeUserIdAfterCheck = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(getOptionalUserId),
+      );
 
-      return featureFlagEnabled === true && userSettingEnabled === true;
+      return enabled === true && activeUserIdAfterCheck === userId;
     } catch {
       return false;
     }

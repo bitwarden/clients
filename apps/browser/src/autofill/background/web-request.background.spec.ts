@@ -1,13 +1,11 @@
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, of, Subject } from "rxjs";
+import { BehaviorSubject, defer, NEVER, of, Subject } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -39,11 +37,9 @@ describe("WebRequestBackground", () => {
   let cipherService: ReturnType<typeof mock<CipherService>>;
   let authService: ReturnType<typeof mock<AuthService>>;
   let accountService: ReturnType<typeof mock<AccountService>>;
-  let configService: ReturnType<typeof mock<ConfigService>>;
   let autofillSettingsService: ReturnType<typeof mock<AutofillSettingsServiceAbstraction>>;
   let activeAccount$: BehaviorSubject<Account | null>;
-  let featureFlag$: BehaviorSubject<boolean>;
-  let userSetting$: BehaviorSubject<boolean>;
+  let resolvedSetting$: BehaviorSubject<boolean>;
   let webRequest: {
     onAuthRequired: WebRequestEventMock;
     onCompleted: WebRequestEventMock;
@@ -58,7 +54,6 @@ describe("WebRequestBackground", () => {
       authService,
       accountService,
       webRequest as unknown as typeof chrome.webRequest,
-      configService,
       autofillSettingsService,
     );
 
@@ -85,14 +80,9 @@ describe("WebRequestBackground", () => {
     accountService = mock<AccountService>();
     accountService.activeAccount$ = activeAccount$;
 
-    featureFlag$ = new BehaviorSubject<boolean>(true);
-    configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(featureFlag$);
-
-    userSetting$ = new BehaviorSubject<boolean>(true);
+    resolvedSetting$ = new BehaviorSubject<boolean>(true);
     autofillSettingsService = mock<AutofillSettingsServiceAbstraction>();
-    autofillSettingsService.enableBasicAuthResponse$ = userSetting$;
-    autofillSettingsService.getEnableBasicAuthResponse$.mockReturnValue(userSetting$);
+    autofillSettingsService.resolvedEnableBasicAuthResponse$ = resolvedSetting$;
 
     webRequest = {
       onAuthRequired: createWebRequestEventMock(),
@@ -108,15 +98,7 @@ describe("WebRequestBackground", () => {
   });
 
   describe("startListening", () => {
-    it("evaluates the basic auth response feature flag", () => {
-      webRequestBackground.startListening();
-
-      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
-        FeatureFlag.EnableBasicAuthResponse,
-      );
-    });
-
-    it("registers listeners when the feature flag and user setting are both enabled", () => {
+    it("registers listeners when the resolved setting is enabled", () => {
       webRequestBackground.startListening();
 
       expectListenersRegistered(1);
@@ -140,16 +122,8 @@ describe("WebRequestBackground", () => {
       );
     });
 
-    it("does not register listeners when the feature flag is disabled", () => {
-      featureFlag$.next(false);
-
-      webRequestBackground.startListening();
-
-      expectListenersRegistered(0);
-    });
-
-    it("does not register listeners when the user setting is disabled", () => {
-      userSetting$.next(false);
+    it("does not register listeners when the resolved setting is disabled", () => {
+      resolvedSetting$.next(false);
 
       webRequestBackground.startListening();
 
@@ -164,20 +138,32 @@ describe("WebRequestBackground", () => {
       expectListenersRegistered(0);
     });
 
-    it("does not register listeners when evaluating the feature flag errors", () => {
-      const erroringFeatureFlag$ = new Subject<boolean>();
-      configService.getFeatureFlag$.mockReturnValue(erroringFeatureFlag$);
+    it("does not register listeners when resolving the setting errors", () => {
+      const erroringResolvedSetting$ = new Subject<boolean>();
+      autofillSettingsService.resolvedEnableBasicAuthResponse$ = erroringResolvedSetting$;
 
       webRequestBackground.startListening();
-      erroringFeatureFlag$.error(new Error("config unavailable"));
+      erroringResolvedSetting$.error(new Error("config unavailable"));
 
       expectListenersRegistered(0);
     });
 
-    it("removes the same listeners it registered when the user setting is disabled", () => {
+    it("keeps reacting to account changes after resolving the setting errors", () => {
+      const erroringResolvedSetting$ = new Subject<boolean>();
+      autofillSettingsService.resolvedEnableBasicAuthResponse$ = erroringResolvedSetting$;
+
+      webRequestBackground.startListening();
+      erroringResolvedSetting$.error(new Error("config unavailable"));
+      autofillSettingsService.resolvedEnableBasicAuthResponse$ = resolvedSetting$;
+      activeAccount$.next({ ...account });
+
+      expectListenersRegistered(1);
+    });
+
+    it("removes the same listeners it registered when the resolved setting is disabled", () => {
       webRequestBackground.startListening();
 
-      userSetting$.next(false);
+      resolvedSetting$.next(false);
 
       expectListenersUnregistered(1);
       expect(webRequest.onAuthRequired.removeListener).toHaveBeenCalledWith(
@@ -191,10 +177,12 @@ describe("WebRequestBackground", () => {
       );
     });
 
-    it("removes listeners when the feature flag is disabled", () => {
+    it("removes listeners when the active user changes to one with the setting disabled", () => {
+      const otherUserId = "other-user-id" as UserId;
       webRequestBackground.startListening();
 
-      featureFlag$.next(false);
+      autofillSettingsService.resolvedEnableBasicAuthResponse$ = of(false);
+      activeAccount$.next({ id: otherUserId, ...mockAccountInfoWith() });
 
       expectListenersUnregistered(1);
     });
@@ -207,11 +195,11 @@ describe("WebRequestBackground", () => {
       expectListenersUnregistered(1);
     });
 
-    it("re-registers listeners when the user setting is re-enabled", () => {
+    it("re-registers listeners when the resolved setting is re-enabled", () => {
       webRequestBackground.startListening();
 
-      userSetting$.next(false);
-      userSetting$.next(true);
+      resolvedSetting$.next(false);
+      resolvedSetting$.next(true);
 
       expectListenersRegistered(2);
       expectListenersUnregistered(1);
@@ -220,17 +208,17 @@ describe("WebRequestBackground", () => {
     it("does not register listeners more than once for repeated enabled emissions", () => {
       webRequestBackground.startListening();
 
-      userSetting$.next(true);
-      featureFlag$.next(true);
+      resolvedSetting$.next(true);
+      activeAccount$.next({ ...account });
 
       expectListenersRegistered(1);
     });
 
     it("does not remove listeners that were never registered", () => {
-      userSetting$.next(false);
+      resolvedSetting$.next(false);
       webRequestBackground.startListening();
 
-      featureFlag$.next(false);
+      activeAccount$.next(null);
 
       expectListenersUnregistered(0);
     });
@@ -239,7 +227,7 @@ describe("WebRequestBackground", () => {
       webRequestBackground.startListening();
       webRequestBackground.startListening();
 
-      userSetting$.next(false);
+      resolvedSetting$.next(false);
 
       expectListenersRegistered(1);
       expectListenersUnregistered(1);
@@ -326,33 +314,22 @@ describe("WebRequestBackground", () => {
       expect(callback).toHaveBeenCalledWith({});
     });
 
-    it("checks the opt-in of the user whose vault it would read", async () => {
+    it("does not look up ciphers when the active user changes while the setting is read", async () => {
       cipherService.getAllDecryptedForUrl.mockResolvedValue([
         createCipher("jane.doe@example.com", "fake-password"),
       ]);
-
-      await triggerAuthRequired();
-
-      expect(autofillSettingsService.getEnableBasicAuthResponse$).toHaveBeenCalledWith(userId);
-    });
-
-    it("does not look up ciphers when the active user changes to one that has not opted in", async () => {
-      const otherUserId = "other-user-id" as UserId;
-      autofillSettingsService.getEnableBasicAuthResponse$.mockImplementation((requestedUserId) =>
-        of(requestedUserId === userId),
-      );
-      // Delivered directly to the active account stream, so the listeners stay
-      // registered as they do before the user setting state catches up.
-      activeAccount$.next({ id: otherUserId, ...mockAccountInfoWith() });
-
-      await triggerAuthRequired();
-
-      expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
-      expect(callback).toHaveBeenCalledWith({});
-    });
-
-    it("does not look up ciphers when the feature flag is disabled before the challenge is answered", async () => {
-      configService.getFeatureFlag$.mockReturnValue(of(false));
+      const otherAccount: Account = {
+        id: "other-user-id" as UserId,
+        ...mockAccountInfoWith(),
+      };
+      let accountSwitched = false;
+      autofillSettingsService.resolvedEnableBasicAuthResponse$ = defer(() => {
+        if (!accountSwitched) {
+          accountSwitched = true;
+          activeAccount$.next(otherAccount);
+        }
+        return of(true);
+      });
 
       await triggerAuthRequired();
 
@@ -360,12 +337,41 @@ describe("WebRequestBackground", () => {
       expect(callback).toHaveBeenCalledWith({});
     });
 
-    it("does not look up ciphers when reading the user setting errors", async () => {
-      const erroringUserSetting$ = new Subject<boolean>();
-      autofillSettingsService.getEnableBasicAuthResponse$.mockReturnValue(erroringUserSetting$);
+    it("declines without waiting when the active user logs out while the setting is read", async () => {
+      let loggedOut = false;
+      autofillSettingsService.resolvedEnableBasicAuthResponse$ = defer(() => {
+        if (!loggedOut) {
+          loggedOut = true;
+          activeAccount$.next(null);
+        }
+        // The active-user stream does not emit while there is no active user.
+        return NEVER;
+      });
+
+      await triggerAuthRequired();
+
+      expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
+      expect(callback).toHaveBeenCalledWith({});
+    });
+
+    it("does not look up ciphers when the resolved setting is disabled before the listeners are removed", async () => {
+      // The handler is captured from the registration while enabled, then
+      // invoked as a challenge already in flight would be.
+      const handleAuthRequired = webRequest.onAuthRequired.addListener.mock.calls[0][0];
+      autofillSettingsService.resolvedEnableBasicAuthResponse$ = of(false);
+
+      await handleAuthRequired(buildAuthRequiredDetails({ url, requestId: "request-1" }), callback);
+
+      expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
+      expect(callback).toHaveBeenCalledWith({});
+    });
+
+    it("does not look up ciphers when resolving the setting errors", async () => {
+      const erroringResolvedSetting$ = new Subject<boolean>();
+      autofillSettingsService.resolvedEnableBasicAuthResponse$ = erroringResolvedSetting$;
 
       const challenge = triggerAuthRequired();
-      erroringUserSetting$.error(new Error("state unavailable"));
+      erroringResolvedSetting$.error(new Error("state unavailable"));
       await challenge;
 
       expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
@@ -428,8 +434,8 @@ describe("WebRequestBackground", () => {
       ]);
       await triggerAuthRequired();
 
-      userSetting$.next(false);
-      userSetting$.next(true);
+      resolvedSetting$.next(false);
+      resolvedSetting$.next(true);
       callback.mockClear();
       await triggerAuthRequired();
 
