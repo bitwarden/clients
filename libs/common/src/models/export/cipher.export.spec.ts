@@ -1,4 +1,6 @@
+import { EncString } from "@bitwarden/legacy-crypto";
 import { CipherType } from "../../vault/enums";
+import { Cipher } from "../../vault/models/domain/cipher";
 import { CipherView } from "../../vault/models/view/cipher.view";
 
 import { CipherExport } from "./cipher.export";
@@ -38,6 +40,60 @@ describe("Cipher Export", () => {
       expect(resultView.creationDate).toEqual(request.creationDate);
       expect(resultView.revisionDate).toEqual(request.revisionDate);
       expect(resultView.deletedDate).toEqual(request.deletedDate);
+    });
+  });
+
+  // Blob ciphers seal all content in `data`; the legacy per-field properties are undefined.
+  describe("blob ciphers", () => {
+    const sealedData = "SEALED_BLOB";
+
+    function blobCipher(): Cipher {
+      const cipher = new Cipher();
+      cipher.id = "25c8c414-b446-48e9-a1bd-b10700bbd740";
+      cipher.type = CipherType.Login;
+      cipher.key = new EncString("CIPHER_KEY");
+      cipher.data = sealedData;
+      return cipher;
+    }
+
+    it("build exports the sealed data", () => {
+      const exported = new CipherExport();
+      exported.build(blobCipher());
+
+      expect(exported.data).toBe(sealedData);
+    });
+
+    it("build exports the cipher key", () => {
+      const exported = new CipherExport();
+      exported.build(blobCipher());
+
+      expect(exported.key).toBeInstanceOf(EncString);
+    });
+
+    it("build does not export empty legacy content", () => {
+      const exported = new CipherExport();
+      exported.build(blobCipher());
+
+      expect(exported.login).toBeUndefined();
+    });
+
+    it("toDomain restores the sealed data", () => {
+      const exported = new CipherExport();
+      exported.build(blobCipher());
+
+      const domain = CipherExport.toDomain(exported);
+
+      expect(domain.data).toBe(sealedData);
+    });
+
+    it("toDomain leaves legacy content undefined", () => {
+      const exported = new CipherExport();
+      exported.build(blobCipher());
+
+      const domain = CipherExport.toDomain(exported);
+
+      expect(domain.name).toBeUndefined();
+      expect(domain.login).toBeUndefined();
     });
   });
 
