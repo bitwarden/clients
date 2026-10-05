@@ -16,6 +16,16 @@ export interface CopyClickListener {
 
 export const COPY_CLICK_LISTENER = new SafeInjectionToken<CopyClickListener>("CopyClickListener");
 
+/**
+ * Directive that attaches copy-to-clipboard behavior to an element.
+ *
+ * Screen reader accessibility contract:
+ * - When visual toasts are enabled via `showToast`, the resulting toast notification triggers
+ *   a live announcement through `ToastService`.
+ * - When toasts are disabled, the directive directly announces successful clipboard copy
+ *   via `LiveAnnouncer` ("Value copied" or "Copy successful") with `'polite'` politeness so
+ *   screen reader users always receive confirmation that clipboard state changed.
+ */
 @Directive({
   selector: "[appCopyClick]",
 })
