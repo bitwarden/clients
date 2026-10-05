@@ -162,6 +162,15 @@ export class Cipher extends Domain {
     }
   }
 
+  /**
+   * @returns `true` when this is a PAM-gated ("partial") row, whose sensitive fields the server
+   *   suppressed in favour of the {@link partialData} envelope. The decrypted-side equivalent is
+   *   `CipherViewLikeUtils.isPartial`.
+   */
+  get isPartial(): boolean {
+    return this.partialData != null;
+  }
+
   toCipherData(): CipherData {
     const c = new CipherData();
     c.id = this.id;

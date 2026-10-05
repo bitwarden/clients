@@ -295,7 +295,7 @@ export class OrganizationVaultExportService
     encCiphers = allCiphers.filter(
       (f) =>
         // Gated ("partial") rows have no sensitive fields; they would export as blanks.
-        f.partialData == null &&
+        !f.isPartial &&
         f.deletedDate == null &&
         f.organizationId == organizationId &&
         encCollections.some((eC) => f.collectionIds.some((cId) => eC.id === cId)) &&
