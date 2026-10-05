@@ -73,11 +73,6 @@ export class NewCipherMenuComponent {
 
   private readonly terminology = inject(Vfo1TerminologyService);
 
-  private readonly btnTextAddCreateFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
-    { initialValue: false },
-  );
-
   protected readonly useNewItemDialog = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
     { initialValue: false },
@@ -120,27 +115,14 @@ export class NewCipherMenuComponent {
     const canCreateCipher = this.canCreateCipher();
     const canCreateFolder = this.canCreateFolder();
     const canCreateCollection = this.canCreateCollection();
-    const btnTextAddCreateFeatureFlag = this.btnTextAddCreateFeatureFlag();
 
     // If only collections can be created, be specific
     if (!canCreateCipher && !canCreateFolder && canCreateCollection) {
       const sharedFolderTerminology = this.terminology.enabled();
-      if (btnTextAddCreateFeatureFlag) {
-        return sharedFolderTerminology ? "addSharedFolder" : "addCollection";
-      } else {
-        return sharedFolderTerminology ? "newSharedFolder" : "newCollection";
-      }
+      return sharedFolderTerminology ? "addSharedFolder" : "addCollection";
     }
 
-    if (btnTextAddCreateFeatureFlag) {
-      if (this.buttonType() === "secondary") {
-        return "addItem";
-      } else {
-        return "add";
-      }
-    } else {
-      return this.terminology.enabled() ? "add" : "new";
-    }
+    return this.buttonType() === "secondary" ? "addItem" : "add";
   }
 
   /**
