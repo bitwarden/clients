@@ -11,7 +11,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, convertToParamMap, Params, provideRouter, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, EMPTY, of, Subject } from "rxjs";
+import { BehaviorSubject, EMPTY, firstValueFrom, of, Subject } from "rxjs";
 import { map } from "rxjs/operators";
 
 import {
@@ -69,8 +69,10 @@ import {
   BulkDeleteDialogRef,
   BulkDeleteDialogResult,
   DefaultCipherFormConfigService,
+  MY_REQUESTS_FILTER_ID,
   PasswordRepromptService,
   RoutedVaultFilterBridgeService,
+  RoutedVaultFilterModel,
   RoutedVaultFilterService,
   VaultBatchBarService,
   VaultCopyButtonsService,
@@ -117,12 +119,14 @@ describe("VaultComponent", () => {
   let component: VaultComponent<any>;
   let fixture: ComponentFixture<VaultComponent<any>>;
   let queryParamsSubject: BehaviorSubject<Params>;
+  let routedFilterSubject: BehaviorSubject<RoutedVaultFilterModel>;
 
   let mockCipher: Cipher;
   let openVaultItemDialogSpy: jest.SpyInstance;
 
   beforeEach(async () => {
     queryParamsSubject = new BehaviorSubject<Params>({});
+    routedFilterSubject = new BehaviorSubject<RoutedVaultFilterModel>({});
     openVaultItemDialogSpy = jest.spyOn(VaultItemDialogComponent, "open").mockReturnValue({
       closed: new Subject<VaultItemDialogResult>(),
     } as unknown as DialogRef<VaultItemDialogResult, unknown>);
@@ -303,7 +307,7 @@ describe("VaultComponent", () => {
           providers: [
             {
               provide: RoutedVaultFilterService,
-              useValue: { filter$: of({}) },
+              useValue: { filter$: routedFilterSubject },
             },
             {
               provide: RoutedVaultFilterBridgeService,
@@ -516,6 +520,50 @@ describe("VaultComponent", () => {
       selectCollection(undefined);
 
       expect(banner()).toBeNull();
+    });
+  });
+
+  describe("emptyState$", () => {
+    async function emptyState() {
+      return await firstValueFrom((component as any).emptyState$);
+    }
+
+    it("shows the My requests empty state, without Add item, for the My requests filter", async () => {
+      routedFilterSubject.next({ controlledAccess: MY_REQUESTS_FILTER_ID });
+
+      expect(await emptyState()).toEqual({
+        title: "pamMyRequestsEmptyTitle",
+        description: "pamMyRequestsEmptyDescription",
+        icon: (component as any).userLockIcon,
+      });
+      expect((component as any).showAddCipherBtn).toBe(false);
+    });
+
+    it("falls back to the generic vault state for another controlled-access filter", async () => {
+      routedFilterSubject.next({ controlledAccess: "privileged" });
+
+      expect(await emptyState()).toEqual(expect.objectContaining({ title: "noItemsInVault" }));
+      expect((component as any).showAddCipherBtn).toBe(true);
+    });
+
+    it("still resolves a type filter's empty state", async () => {
+      routedFilterSubject.next({ type: "trash" });
+
+      expect(await emptyState()).toEqual(expect.objectContaining({ title: "noItemsInTrash" }));
+    });
+
+    it("ignores an inherited object key smuggled in through the URL", async () => {
+      routedFilterSubject.next({ controlledAccess: "constructor" });
+
+      expect(await emptyState()).toEqual(expect.objectContaining({ title: "noItemsInVault" }));
+      expect((component as any).showAddCipherBtn).toBe(true);
+    });
+
+    it("lets an active search win over the My requests empty state", async () => {
+      routedFilterSubject.next({ controlledAccess: MY_REQUESTS_FILTER_ID });
+      queryParamsSubject.next({ search: "prod" });
+
+      expect(await emptyState()).toEqual(expect.objectContaining({ title: "noSearchResults" }));
     });
   });
 
