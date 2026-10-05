@@ -18,15 +18,19 @@ const buildCollection = (
   id: string,
   flags: CollectionFlags = {},
   collectionOrganizationId: OrganizationId = organizationId,
+  name: string = id,
 ): CollectionView =>
   Object.assign(
     new CollectionView({
       id: id as CollectionId,
       organizationId: collectionOrganizationId,
-      name: id,
+      name,
     }),
     flags,
   );
+
+const buildNestedCollection = (id: string, name: string): CollectionView =>
+  buildCollection(id, {}, organizationId, name);
 
 const buildDefaultCollection = (id: string): CollectionView =>
   Object.assign(buildCollection(id), { type: CollectionTypes.DefaultUserCollection });
@@ -60,6 +64,48 @@ describe("sharedFolderRows", () => {
     });
 
     expect(rows.map((row) => row.id)).toEqual(["mine"]);
+  });
+
+  it("lists only top-level folders, counting the folders directly inside each", () => {
+    const rows = sharedFolderRows({
+      organizationId,
+      organization: undefined,
+      collections: [
+        buildNestedCollection("eng", "Engineering"),
+        buildNestedCollection("backend", "Engineering/Backend"),
+        buildNestedCollection("api", "Engineering/Backend/API"),
+        buildNestedCollection("frontend", "Engineering/Frontend"),
+        buildNestedCollection("finance", "Finance"),
+      ],
+      ciphers: [],
+    });
+
+    expect(
+      rows.map(({ id, name, nestedSharedFolders }) => ({ id, name, nestedSharedFolders })),
+    ).toEqual([
+      { id: "eng", name: "Engineering", nestedSharedFolders: 2 },
+      { id: "finance", name: "Finance", nestedSharedFolders: 0 },
+    ]);
+  });
+
+  it("lists a folder whose parent is missing at the top level, under its full name", () => {
+    const orphan = buildNestedCollection("backend", "Engineering/Backend");
+
+    const rows = sharedFolderRows({
+      organizationId,
+      organization: undefined,
+      collections: [orphan],
+      ciphers: [],
+    });
+
+    expect(rows).toEqual([
+      expect.objectContaining({
+        id: "backend",
+        name: "Engineering/Backend",
+        nestedSharedFolders: 0,
+        collection: orphan,
+      }),
+    ]);
   });
 
   it("carries the collection each row was built from", () => {
@@ -177,6 +223,31 @@ describe("sharedFolderRows", () => {
     });
 
     expect(row.items).toBe(2);
+  });
+
+  it("counts the items of every folder nested beneath a row, each item once", () => {
+    const rows = sharedFolderRows({
+      organizationId,
+      organization: undefined,
+      collections: [
+        buildNestedCollection("eng", "Engineering"),
+        buildNestedCollection("backend", "Engineering/Backend"),
+        buildNestedCollection("api", "Engineering/Backend/API"),
+        buildNestedCollection("finance", "Finance"),
+      ],
+      ciphers: [
+        buildCipher("in-eng", ["eng"]),
+        buildCipher("in-backend", ["backend"]),
+        buildCipher("in-api", ["api"]),
+        buildCipher("in-eng-and-api", ["eng", "api"]),
+        buildCipher("in-api-and-finance", ["api", "finance"]),
+      ],
+    });
+
+    expect(rows.map((row) => [row.id, row.items])).toEqual([
+      ["eng", 5],
+      ["finance", 1],
+    ]);
   });
 
   it("counts each folder's own items when a cipher belongs to several", () => {
