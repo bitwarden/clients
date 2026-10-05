@@ -5,6 +5,7 @@ use std::vec;
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio_util::codec::{Framed, LengthDelimitedCodec};
 
+pub mod announcement;
 pub mod client;
 pub mod server;
 
