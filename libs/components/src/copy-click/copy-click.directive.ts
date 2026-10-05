@@ -1,3 +1,4 @@
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { Directive, HostListener, Inject, Optional, input, computed } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -38,6 +39,7 @@ export class CopyClickDirective {
     private toastService: ToastService,
     private i18nService: I18nService,
     @Optional() @Inject(COPY_CLICK_LISTENER) private copyListener?: CopyClickListener,
+    @Optional() private liveAnnouncer?: LiveAnnouncer,
   ) {}
 
   readonly valueToCopy = input("", { alias: "appCopyClick" });
@@ -71,16 +73,18 @@ export class CopyClickDirective {
       this.copyListener.onCopy(valueToCopy);
     }
 
-    if (this._showToast()) {
-      const valueLabel = this.valueLabel();
-      const message = valueLabel
-        ? this.i18nService.t("valueCopied", valueLabel)
-        : this.i18nService.t("copySuccessful");
+    const valueLabel = this.valueLabel();
+    const message = valueLabel
+      ? this.i18nService.t("valueCopied", valueLabel)
+      : this.i18nService.t("copySuccessful");
 
+    if (this._showToast()) {
       this.toastService.showToast({
         variant: this.toastVariant(),
         message,
       });
+    } else if (this.liveAnnouncer) {
+      void this.liveAnnouncer.announce(message, "polite");
     }
   }
 }
