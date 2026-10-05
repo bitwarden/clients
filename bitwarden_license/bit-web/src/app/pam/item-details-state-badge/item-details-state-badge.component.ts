@@ -6,7 +6,6 @@ import {
   concat,
   filter,
   from,
-  map,
   merge,
   Observable,
   of,
@@ -66,18 +65,18 @@ export class ItemDetailsStateBadgeComponent {
         return of(null);
       }
       const cipherId = String(cipher.id);
+      const read$ = () =>
+        from(this.accessRequestSdkService.getCipherAccessState(cipherId)).pipe(
+          catchError((e: unknown) => {
+            // An unreadable access state renders no pill rather than an error: the item itself
+            // is still useful, and the banner below behaves the same way.
+            this.logService.error(e);
+            return of(null);
+          }),
+        );
       return merge(of(undefined), this.accessRefreshService.accessChanged$(cipherId)).pipe(
-        switchMap(() =>
-          from(this.accessRequestSdkService.getCipherAccessState(cipherId)).pipe(
-            catchError((e: unknown) => {
-              // An unreadable access state renders no pill rather than an error: the item itself
-              // is still useful, and the banner below behaves the same way.
-              this.logService.error(e);
-              return of(null);
-            }),
-          ),
-        ),
-        switchMap((state) => this.badgeWhileLeaseRuns$(state)),
+        switchMap(read$),
+        switchMap((state) => this.badgeWhileLeaseRuns$(state, read$)),
       );
     }),
   );
@@ -88,10 +87,12 @@ export class ItemDetailsStateBadgeComponent {
    * Withheld on a LIVE lease, not on the SDK's `active` ranking. The two part ways when a server
    * whose clock trails this one still reports the lease, and the ranking would then hide the pill
    * for good while the banner below had already fallen back to "Request access". The released
-   * badge lands on {@link AccessStateBadgeComponent}'s `remainingMs <= 0` "Access ended" recipe.
+   * badge lands on {@link AccessStateBadgeComponent}'s `remainingMs <= 0` "Access ended" recipe,
+   * unless the server, asked again, reports the lease extended (PAM-152).
    */
   private badgeWhileLeaseRuns$(
     state: CipherAccessStateView | null,
+    read$: () => Observable<CipherAccessStateView | null>,
   ): Observable<AccessBadgeState | null> {
     const badge = cipherAccessBadgeState(state);
     if (liveActiveLease(state, Date.now()) == null) {
@@ -102,7 +103,12 @@ export class ItemDetailsStateBadgeComponent {
       this.ticker.ticks$.pipe(
         filter((nowMs) => liveActiveLease(state, nowMs) == null),
         take(1),
-        map(() => badge),
+        switchMap(read$),
+        switchMap((fresh) =>
+          liveActiveLease(fresh, Date.now()) == null
+            ? of(badge)
+            : this.badgeWhileLeaseRuns$(fresh, read$),
+        ),
       ),
     );
   }
