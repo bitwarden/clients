@@ -12,20 +12,18 @@ import {
   switchMap,
 } from "rxjs";
 
-import { AccountLock, BitSvg } from "@bitwarden/assets/svg";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { compareValues } from "@bitwarden/common/platform/misc/compare-values";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { MY_REQUESTS_FILTER_ID } from "@bitwarden/vault";
 import {
-  ControlledAccessEmptyState,
   ControlledAccessFilterOption,
   VaultControlledAccessFilter,
 } from "@bitwarden/web-vault/app/vault/individual-vault/vault-controlled-access-filter.token";
@@ -35,23 +33,14 @@ import { AccessBadgeState, cipherAccessBadgeState } from "../access-state-badge/
 
 /**
  * The ids of the group's children, as they appear in the vault's URL. Stable: they are written
- * into links users bookmark and share, so they are not derived from the copy.
+ * into links users bookmark and share, so they are not derived from the copy. "My requests" lives
+ * in `@bitwarden/vault` because the vault keys its empty state off it.
  */
 export const PRIVILEGED_FILTER_ID = "privileged";
-export const MY_REQUESTS_FILTER_ID = "my-requests";
 
-type ControlledAccessFilterDefinition = Omit<
-  ControlledAccessFilterOption,
-  "name" | "emptyState"
-> & {
+type ControlledAccessFilterDefinition = Omit<ControlledAccessFilterOption, "name"> & {
   readonly nameKey: string;
   readonly kinds: readonly AccessBadgeState["kind"][];
-  readonly emptyState?: {
-    readonly titleKey: string;
-    readonly descriptionKey: string;
-    readonly genericDescriptionKey: string;
-    readonly icon: BitSvg;
-  };
 };
 
 const CONTROLLED_ACCESS_FILTERS: readonly ControlledAccessFilterDefinition[] = [
@@ -60,12 +49,6 @@ const CONTROLLED_ACCESS_FILTERS: readonly ControlledAccessFilterDefinition[] = [
     nameKey: "pamTabMyRequests",
     icon: "bwi-lock-encrypted",
     kinds: ["pending", "ready", "active"],
-    emptyState: {
-      titleKey: "pamMyRequestsEmptyTitle",
-      descriptionKey: "pamMyRequestsEmptyDescription",
-      genericDescriptionKey: "pamMyRequestsEmptyDescriptionGeneric",
-      icon: AccountLock,
-    },
   },
   {
     id: PRIVILEGED_FILTER_ID,
@@ -94,7 +77,7 @@ export class ControlledAccessVaultFilterService implements VaultControlledAccess
   private readonly accessRequestSdkService = inject(AccessRequestSdkService);
   private readonly i18nService = inject(I18nService);
 
-  private readonly pamOrganizations$: Observable<{ id: string; name: string }[]> =
+  private readonly pamOrganizationIds$: Observable<Set<string>> =
     this.accountService.activeAccount$.pipe(
       getOptionalUserId,
       // `getUserId` throws on a signed-out account, which would tear down the whole stream.
@@ -104,57 +87,46 @@ export class ControlledAccessVaultFilterService implements VaultControlledAccess
       map((organizations) =>
         organizations
           .filter((o) => o.usePam)
-          .map((o) => ({ id: o.id, name: o.name }))
-          .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)),
+          .map((o) => o.id)
+          .sort(),
       ),
       // `organizations$` re-emits on every sync, not just PAM changes; dedupe on content so an
-      // unrelated sync doesn't re-trigger the fan-out in `narrowTo$`.
-      distinctUntilChanged(compareValues),
+      // unrelated sync doesn't re-trigger the fan-out in `narrowToPrivileged$`.
+      distinctUntilChanged((a, b) => a.length === b.length && a.every((id, i) => id === b[i])),
+      map((ids) => new Set(ids)),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
   readonly options$: Observable<ControlledAccessFilterOption[]> = combineLatest([
-    this.configService.getFeatureFlag$(FeatureFlag.Pam).pipe(distinctUntilChanged()),
-    this.pamOrganizations$,
+    this.configService.getFeatureFlag$(FeatureFlag.Pam),
+    this.pamOrganizationIds$,
   ]).pipe(
-    map(([enabled, pamOrganizations]) =>
-      enabled && pamOrganizations.length > 0
-        ? CONTROLLED_ACCESS_FILTERS.map(({ id, nameKey, icon, emptyState }) => ({
+    map(([enabled, pamOrganizationIds]) =>
+      enabled && pamOrganizationIds.size > 0
+        ? CONTROLLED_ACCESS_FILTERS.map(({ id, nameKey, icon }) => ({
             id,
             name: this.i18nService.t(nameKey),
             icon,
-            emptyState: this.emptyStateFor(emptyState, pamOrganizations),
           }))
         : [],
+    ),
+    // `getFeatureFlag$`/`pamOrganizationIds$` re-emit their current value on renewal/sync;
+    // without a dedupe, `narrow$`'s `switchMap` would re-issue the `getCipherAccessState`
+    // fan-out for an identical option list.
+    distinctUntilChanged(
+      (a, b) => a.length === b.length && a.every((option, i) => option.id === b[i].id),
     ),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
-  private emptyStateFor(
-    emptyState: ControlledAccessFilterDefinition["emptyState"],
-    pamOrganizations: { id: string; name: string }[],
-  ): ControlledAccessEmptyState | undefined {
-    if (emptyState == null) {
-      return undefined;
-    }
-    const sole = pamOrganizations.length === 1 ? pamOrganizations[0] : undefined;
-    return {
-      title: emptyState.titleKey,
-      description: sole ? emptyState.descriptionKey : emptyState.genericDescriptionKey,
-      descriptionParam: sole?.name,
-      icon: emptyState.icon,
-    };
-  }
-
   narrow$<C extends CipherViewLike>(optionId: string, ciphers: C[]): Observable<C[]> {
     const definition = CONTROLLED_ACCESS_FILTERS.find((candidate) => candidate.id === optionId);
-    if (definition == null) {
-      return of(ciphers);
-    }
     return this.options$.pipe(
-      map((options) => options.some((option) => option.id === optionId)),
-      distinctUntilChanged(),
-      switchMap((onOffer) => (onOffer ? this.narrowTo$(definition, ciphers) : of(ciphers))),
+      switchMap((options) =>
+        definition != null && options.some((option) => option.id === optionId)
+          ? this.narrowTo$(definition, ciphers)
+          : of(ciphers),
+      ),
     );
   }
 
@@ -162,9 +134,8 @@ export class ControlledAccessVaultFilterService implements VaultControlledAccess
     definition: ControlledAccessFilterDefinition,
     ciphers: C[],
   ): Observable<C[]> {
-    return this.pamOrganizations$.pipe(
-      switchMap((pamOrganizations) => {
-        const pamOrganizationIds = new Set(pamOrganizations.map((o) => o.id));
+    return this.pamOrganizationIds$.pipe(
+      switchMap((pamOrganizationIds) => {
         const candidates = ciphers.filter(
           (cipher) =>
             CipherViewLikeUtils.isPartial(cipher) &&

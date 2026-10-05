@@ -1,4 +1,3 @@
-export * from "./account-lock.icon";
 export * from "./account-warning.icon";
 export * from "./active-send.icon";
 export { default as AdminConsoleLogo } from "./admin-console";

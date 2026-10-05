@@ -1,24 +1,17 @@
 import { Observable } from "rxjs";
 
-import { BitSvg } from "@bitwarden/assets/svg";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { BitwardenIcon } from "@bitwarden/components";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 
-export type ControlledAccessEmptyState = {
-  readonly title: string;
-  readonly description: string;
-  readonly descriptionParam?: string;
-  readonly icon?: BitSvg;
-  readonly allowAddItem?: boolean;
-};
+/** Id of the "My requests" option, which the vault gives a dedicated empty state. */
+export const MY_REQUESTS_FILTER_ID = "my-requests";
 
 /** One child of the "Controlled access" group, already localized by the host that supplies it. */
 export type ControlledAccessFilterOption = {
   readonly id: string;
   readonly name: string;
   readonly icon: BitwardenIcon;
-  readonly emptyState?: ControlledAccessEmptyState;
 };
 
 /**

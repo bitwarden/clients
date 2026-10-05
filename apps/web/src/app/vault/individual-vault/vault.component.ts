@@ -35,6 +35,7 @@ import {
   EmptyTrash,
   FavoritesIcon,
   ItemTypes,
+  UserLockIcon,
   BitSvg,
 } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -127,6 +128,7 @@ import {
   VaultOrganizationUserNotificationsComponent,
   Vfo1TerminologyService,
   deleteFailureMessageKey,
+  MY_REQUESTS_FILTER_ID,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
@@ -161,17 +163,20 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
 
 const BroadcasterSubscriptionId = "VaultComponent";
 
-type EmptyStateType = "trash" | "favorites" | "archive";
+type EmptyStateType = "trash" | "favorites" | "archive" | typeof MY_REQUESTS_FILTER_ID;
 
 type EmptyStateItem = {
   title: string;
   description: string;
   icon: BitSvg;
-  descriptionParam?: string;
-  allowAddItem?: boolean;
 };
 
 type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
+
+/** Own keys only: `controlledAccess` comes straight off the URL, so `constructor` must not match. */
+function isEmptyStateType(map: EmptyStateMap, key: string | undefined): key is EmptyStateType {
+  return key != null && Object.prototype.hasOwnProperty.call(map, key);
+}
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -223,6 +228,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected favoritesIcon = FavoritesIcon;
   protected itemTypesIcon = ItemTypes;
   protected noResultsIcon = NoResults;
+  protected userLockIcon = UserLockIcon;
   protected performingInitialLoad = true;
   protected refreshing = false;
   protected processingEvent = false;
@@ -244,6 +250,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
 
+  protected showAddCipherBtn: boolean = false;
+
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
@@ -253,17 +261,17 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     .pipe(map((a) => a?.id))
     .pipe(switchMap((id) => (id ? this.organizationService.organizations$(id) : of([]))));
 
-  emptyState$: Observable<EmptyStateItem> = combineLatest([
+  emptyState$ = combineLatest([
     this.currentSearchText$,
     this.routedVaultFilterService.filter$,
     this.organizations$,
-    this.controlledAccessFilter?.options$ ?? of([]),
   ]).pipe(
-    map(([searchText, filter, organizations, controlledAccessOptions]) => {
+    map(([searchText, filter, organizations]) => {
       const selectedOrg = organizations.find((org) => org.id === filter.organizationId);
       const isOrgDisabled = selectedOrg && !selectedOrg.enabled;
 
       if (isOrgDisabled) {
+        this.showAddCipherBtn = false;
         return {
           title: "organizationIsSuspended",
           description: "organizationIsSuspendedDesc",
@@ -277,14 +285,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           description: "clearFiltersOrTryAnother",
           icon: this.noResultsIcon,
         };
-      }
-
-      const activeControlledAccess = controlledAccessOptions.find(
-        (option) => option.id === filter?.controlledAccess,
-      );
-      if (activeControlledAccess?.emptyState != null) {
-        const emptyState = activeControlledAccess.emptyState;
-        return { ...emptyState, icon: emptyState.icon ?? this.noResultsIcon };
       }
 
       const emptyStateMap: EmptyStateMap = {
@@ -303,17 +303,26 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           description: "noItemsInArchiveDesc",
           icon: this.itemTypesIcon,
         },
+        [MY_REQUESTS_FILTER_ID]: {
+          title: "pamMyRequestsEmptyTitle",
+          description: "pamMyRequestsEmptyDescription",
+          icon: this.userLockIcon,
+        },
       };
 
-      if (filter?.type && filter.type in emptyStateMap) {
-        return emptyStateMap[filter.type as EmptyStateType];
+      // `??` is safe: selecting a controlled-access child clears `type` and vice versa
+      // (`RoutedVaultFilterBridge`), so at most one is set.
+      const emptyStateKey = filter?.controlledAccess ?? filter?.type;
+      if (isEmptyStateType(emptyStateMap, emptyStateKey)) {
+        this.showAddCipherBtn = false;
+        return emptyStateMap[emptyStateKey];
       }
 
+      this.showAddCipherBtn = true;
       return {
         title: "noItemsInVault",
         description: "emptyVaultDescription",
         icon: this.itemTypesIcon,
-        allowAddItem: true,
       };
     }),
   );

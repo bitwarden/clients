@@ -2,19 +2,18 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
-import { AccountLock } from "@bitwarden/assets/svg";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { MY_REQUESTS_FILTER_ID } from "@bitwarden/vault";
 
 import type { CipherAccessStateView } from "../abstractions/access-lease";
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 
 import {
   ControlledAccessVaultFilterService,
-  MY_REQUESTS_FILTER_ID,
   PRIVILEGED_FILTER_ID,
 } from "./controlled-access-vault-filter.service";
 
@@ -32,14 +31,14 @@ function accessState(badgeState: unknown): CipherAccessStateView {
 describe("ControlledAccessVaultFilterService", () => {
   let service: ControlledAccessVaultFilterService;
   let enabled$: BehaviorSubject<boolean>;
-  let organizations$: BehaviorSubject<{ id: string; name: string; usePam: boolean }[]>;
+  let organizations$: BehaviorSubject<{ id: string; usePam: boolean }[]>;
   let accessRequestSdkService: MockProxy<AccessRequestSdkService>;
 
   beforeEach(() => {
     enabled$ = new BehaviorSubject<boolean>(true);
-    organizations$ = new BehaviorSubject<{ id: string; name: string; usePam: boolean }[]>([
-      { id: PAM_ORG, name: "Acme Inc", usePam: true },
-      { id: PLAIN_ORG, name: "Initech", usePam: false },
+    organizations$ = new BehaviorSubject<{ id: string; usePam: boolean }[]>([
+      { id: PAM_ORG, usePam: true },
+      { id: PLAIN_ORG, usePam: false },
     ]);
     accessRequestSdkService = mock<AccessRequestSdkService>();
     accessRequestSdkService.getCipherAccessState.mockResolvedValue(accessState("privileged"));
@@ -61,28 +60,13 @@ describe("ControlledAccessVaultFilterService", () => {
   describe("options$", () => {
     it("offers Privileged and My requests while Unavailable stays deferred", async () => {
       expect(await firstValueFrom(service.options$)).toEqual([
-        {
-          id: MY_REQUESTS_FILTER_ID,
-          name: "pamTabMyRequests",
-          icon: "bwi-lock-encrypted",
-          emptyState: {
-            title: "pamMyRequestsEmptyTitle",
-            description: "pamMyRequestsEmptyDescription",
-            descriptionParam: "Acme Inc",
-            icon: AccountLock,
-          },
-        },
-        {
-          id: PRIVILEGED_FILTER_ID,
-          name: "pamAccessBadgePrivileged",
-          icon: "bwi-key",
-          emptyState: undefined,
-        },
+        { id: MY_REQUESTS_FILTER_ID, name: "pamTabMyRequests", icon: "bwi-lock-encrypted" },
+        { id: PRIVILEGED_FILTER_ID, name: "pamAccessBadgePrivileged", icon: "bwi-key" },
       ]);
     });
 
     it("offers nothing when no organization in view carries the feature", async () => {
-      organizations$.next([{ id: PLAIN_ORG, name: "Initech", usePam: false }]);
+      organizations$.next([{ id: PLAIN_ORG, usePam: false }]);
 
       expect(await firstValueFrom(service.options$)).toEqual([]);
     });
@@ -91,34 +75,6 @@ describe("ControlledAccessVaultFilterService", () => {
       enabled$.next(false);
 
       expect(await firstValueFrom(service.options$)).toEqual([]);
-    });
-
-    describe("My requests empty state", () => {
-      async function myRequestsEmptyState() {
-        const options = await firstValueFrom(service.options$);
-        return options.find((option) => option.id === MY_REQUESTS_FILTER_ID)?.emptyState;
-      }
-
-      it("stays generic across several PAM organizations, having no single one to name", async () => {
-        organizations$.next([
-          { id: PAM_ORG, name: "Acme Inc", usePam: true },
-          { id: "org-3", name: "Globex", usePam: true },
-        ]);
-
-        expect(await myRequestsEmptyState()).toEqual({
-          title: "pamMyRequestsEmptyTitle",
-          description: "pamMyRequestsEmptyDescriptionGeneric",
-          icon: AccountLock,
-        });
-      });
-
-      it("re-emits when the named organization is renamed, rather than deduping the copy away", async () => {
-        expect((await myRequestsEmptyState())?.descriptionParam).toBe("Acme Inc");
-
-        organizations$.next([{ id: PAM_ORG, name: "Acme Corporation", usePam: true }]);
-
-        expect((await myRequestsEmptyState())?.descriptionParam).toBe("Acme Corporation");
-      });
     });
   });
 
