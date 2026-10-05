@@ -160,20 +160,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "$COUNT$ more shared folders shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "1 more shared folder shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "මගේ ෆෝල්ඩරය"
   },
@@ -4640,11 +4626,21 @@
   "selectImportCollection": {
     "message": "එකතුවක් තෝරන්න"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "ආනයනය කළ ගොනු අන්තර්ගතය එකතුවකට ගෙන යාමට ඔබට අවශ්‍ය නම් මෙම විකල්පය තෝරන්න"
   },
   "importTargetHintFolder": {
     "message": "ආනයනය කළ ගොනු අන්තර්ගතය ෆෝල්ඩරයකට ගෙන යාමට ඔබට අවශ්‍ය නම් මෙම විකල්පය තෝරන්න"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "ගොනුවේ පවරා නොමැති අයිතම අඩංගු වේ."
@@ -4654,6 +4650,40 @@
   },
   "selectImportFile": {
     "message": "ආනයන ගොනුව තෝරන්න"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "ගොනුව තෝරන්න"
@@ -5079,6 +5109,15 @@
   },
   "lastPassYubikeyDesc": {
     "message": "ඔබගේ LastPass ගිණුම හා සම්බන්ධ YubiKey ඔබගේ පරිගණකයේ USB කෙවෙනියට ඇතුළු කර, ඉන්පසු එහි බොත්තම ස්පර්ශ කරන්න."
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Keeper ඊමේල්"
@@ -5591,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "ඔබ භාවිතා කරන බ්‍රවුසර දිගුව යල් පැන ගිය එකකි. කරුණාකර එය යාවත්කාලීන කරන්න හෝ ඩෙස්ක්ටොප් යෙදුම් සැකසීම්වල බ්‍රවුසර ඒකාබද්ධ කිරීමේ ඇඟිලි සලකුණු වලංගු කිරීම අක්‍රිය කරන්න."
   },
-  "changeAtRiskPassword": {
-    "message": "අවදානම් සහිත මුරපදය වෙනස් කරන්න"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "මෙම පුරනය අවදානම් සහිත වන අතර වෙබ් අඩවියක් අතුරුදහන්ය. වඩා ශක්තිමත් ආරක්ෂාව සඳහා වෙබ් අඩවියක් එක් කර මුරපදය වෙනස් කරන්න."
-  },
   "vulnerablePassword": {
     "message": "අවදානම් සහිත මුරපදය."
   },
   "changeNow": {
     "message": "දැන් වෙනස් කරන්න"
-  },
-  "missingWebsite": {
-    "message": "වෙබ් අඩවිය අතුරුදහන්"
   },
   "missingPermissions": {
     "message": "මෙම ක්‍රියාව සිදු කිරීමට ඔබට අවශ්‍ය අවසර නැත."
@@ -6381,11 +6411,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "You have no folders."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "emptyVaultsDescription": {
     "message": "Add logins, IDs, cards, and other items to get started."

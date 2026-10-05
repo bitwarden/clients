@@ -729,6 +729,7 @@ export class ServiceContainer {
       this.configService,
       this.v2UpgradeTokenStateService,
       managedSettingsService,
+      this.appIdService,
       customUserAgent,
     );
 
@@ -792,6 +793,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.configService,
       managedSettingsService,
+      this.appIdService,
       customUserAgent,
     );
 
@@ -800,6 +802,7 @@ export class ServiceContainer {
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
       this.sdkService,
       this.logService,
+      this.configService,
     );
 
     this.collectionService = new DefaultCollectionService(

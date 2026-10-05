@@ -3,7 +3,6 @@ import { Component, input, output, ChangeDetectionStrategy, signal, computed } f
 import { FormsModule } from "@angular/forms";
 
 import { ApplicationHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ButtonModule, DialogModule, SearchModule, TypographyModule } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
@@ -33,11 +32,6 @@ export class ReviewApplicationsViewV2Component {
   readonly applications = input.required<ApplicationHealthView[]>();
 
   /**
-   * Ciphers for icon lookup
-   */
-  readonly ciphers = input.required<CipherView[]>();
-
-  /**
    * Currently selected application names
    */
   readonly selectedApplications = input.required<Set<string>>();
@@ -46,11 +40,6 @@ export class ReviewApplicationsViewV2Component {
    * Current search text (local state)
    */
   protected readonly searchText = signal<string>("");
-
-  /**
-   * Map of cipher ID → CipherView for O(1) icon lookup
-   */
-  private readonly cipherMap = computed(() => new Map(this.ciphers().map((c) => [c.id, c])));
 
   /**
    * Filtered applications based on search text
@@ -103,13 +92,5 @@ export class ReviewApplicationsViewV2Component {
    */
   onSearchTextChanged(searchText: string): void {
     this.searchText.set(searchText);
-  }
-
-  /**
-   * Get the cipher to use for icon display for a given application report
-   */
-  getIconCipher(app: ApplicationHealthView): CipherView | undefined {
-    const iconCipherId = app.getIconCipherId();
-    return iconCipherId ? this.cipherMap().get(iconCipherId) : undefined;
   }
 }
