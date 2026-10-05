@@ -11,6 +11,7 @@ import type { CipherAccessStateView } from "@bitwarden/sdk-internal";
 
 import { AccessRefreshService } from "../abstractions/access-refresh.service";
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
+import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 
 import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge.component";
 
@@ -27,6 +28,7 @@ describe("VaultRowLeaseBadgeComponent", () => {
   let organizations$: BehaviorSubject<{ id: string; usePam: boolean }[]>;
   let accessChanged$: Subject<void>;
   let accessRefresh: MockProxy<AccessRefreshService>;
+  let ticks$: Subject<number>;
 
   function create(cipher: CipherView): void {
     fixture = TestBed.createComponent(VaultRowLeaseBadgeComponent);
@@ -72,6 +74,7 @@ describe("VaultRowLeaseBadgeComponent", () => {
     accessChanged$ = new Subject<void>();
     accessRefresh = mock<AccessRefreshService>();
     accessRefresh.accessChanged$.mockReturnValue(accessChanged$);
+    ticks$ = new Subject<number>();
 
     TestBed.configureTestingModule({
       imports: [VaultRowLeaseBadgeComponent],
@@ -79,6 +82,7 @@ describe("VaultRowLeaseBadgeComponent", () => {
         { provide: ConfigService, useValue: { getFeatureFlag$: () => enabled$ } },
         { provide: AccessRequestSdkService, useValue: accessRequestSdkService },
         { provide: AccessRefreshService, useValue: accessRefresh },
+        { provide: AccessBadgeTickerService, useValue: { ticks$ } },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
         {
@@ -184,6 +188,30 @@ describe("VaultRowLeaseBadgeComponent", () => {
       fixture.detectChanges();
 
       expect(component["badge"]()?.kind).toBe("privileged");
+    });
+
+    it("re-reads once the lease's window closes, picking up an extension made elsewhere", async () => {
+      const originalEnd = Date.now() + 60_000;
+      const extendedEnd = new Date(originalEnd + 1_800_000).toISOString();
+      accessRequestSdkService.getCipherAccessState
+        .mockResolvedValueOnce({
+          activeLease: { id: "lease-1", notAfter: new Date(originalEnd).toISOString() },
+          badgeState: { active: { expiresAt: new Date(originalEnd).toISOString() } },
+        } as unknown as CipherAccessStateView)
+        .mockResolvedValueOnce({
+          activeLease: { id: "lease-1", notAfter: extendedEnd },
+          badgeState: { active: { expiresAt: extendedEnd } },
+        } as unknown as CipherAccessStateView);
+
+      create(gatedCipher());
+      await fixture.whenStable();
+
+      ticks$.next(originalEnd + 1_000);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(2);
+      expect(component["badge"]()).toEqual({ kind: "active", expiresAt: new Date(extendedEnd) });
     });
 
     // A broadcast subscription would re-read every gated row in the viewport on any mutation.
