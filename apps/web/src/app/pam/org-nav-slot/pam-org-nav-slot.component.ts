@@ -14,7 +14,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
  *
  * Each item mirrors the guard on its own route, so the group appears whenever any item would be
  * reachable and never renders one that would redirect. Rotation additionally sits behind
- * {@link FeatureFlag.PamRotation}.
+ * {@link FeatureFlag.PamAccessConnector}.
  */
 @Component({
   selector: "app-pam-org-nav-slot",
@@ -35,7 +35,7 @@ export class PamOrgNavSlotComponent {
     initialValue: false,
   });
   private readonly rotationEnabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PamRotation),
+    this.configService.getFeatureFlag$(FeatureFlag.PamAccessConnector),
     { initialValue: false },
   );
   protected readonly showAccessRules = computed(

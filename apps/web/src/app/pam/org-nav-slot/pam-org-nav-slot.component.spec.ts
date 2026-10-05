@@ -32,7 +32,7 @@ describe("PamOrgNavSlotComponent", () => {
     // Off by default, matching the flag's shipped default.
     rotationEnabled$ = new BehaviorSubject<boolean>(false);
     getFeatureFlag$ = jest.fn((flag: FeatureFlag) =>
-      flag === FeatureFlag.PamRotation ? rotationEnabled$ : pamEnabled$,
+      flag === FeatureFlag.PamAccessConnector ? rotationEnabled$ : pamEnabled$,
     );
 
     await TestBed.configureTestingModule({
@@ -124,7 +124,7 @@ describe("PamOrgNavSlotComponent", () => {
   describe("rotation", () => {
     it("gates on the rotation feature flag", () => {
       fixture.detectChanges();
-      expect(getFeatureFlag$).toHaveBeenCalledWith(FeatureFlag.PamRotation);
+      expect(getFeatureFlag$).toHaveBeenCalledWith(FeatureFlag.PamAccessConnector);
     });
 
     it("shows Rotation when its flag is on and the org can manage rotation", () => {
