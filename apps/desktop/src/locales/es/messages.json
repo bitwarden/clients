@@ -4629,6 +4629,10 @@
   "selectImportSharedFolder": {
     "message": "Seleccionar una carpeta compartida"
   },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Seleccione esta opción si desea que al importar el contenido del archivo se mueva a una colección"
   },
@@ -5105,6 +5109,15 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Inserta la YubiKey asociada a tu cuenta de LastPass en el puerto USB de tu ordenador y, pulsa su botón."
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Correo electrónico de Keeper"
@@ -5617,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "La extensión del navegador que estás utilizando está desactualizada. Por favor, actualízala o desactiva la integración del navegador de la validación de la huella digital en los ajustes de la aplicación de escritorio."
   },
-  "changeAtRiskPassword": {
-    "message": "Cambiar contraseña en riesgo"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Este inicio de sesión está en riesgo y le falta un sitio web. Añada un sitio web y cambie la contraseña para mayor seguridad."
-  },
   "vulnerablePassword": {
     "message": "Contraseña vulnerable."
   },
   "changeNow": {
     "message": "Cambiar ahora"
-  },
-  "missingWebsite": {
-    "message": "Sitio web no encontrado"
   },
   "missingPermissions": {
     "message": "No tienes los permisos necesarios para realizar esta acción."
@@ -6407,11 +6411,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "No tienes ninguna carpeta."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Utilice carpetas para organizar los elementos de la caja fuerte. Son solo para usted; nadie más las verá ni las usará."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "emptyVaultsDescription": {
     "message": "Añade datos de acceso, identificadores, tarjetas y otros elementos para empezar."

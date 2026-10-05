@@ -41,6 +41,7 @@ import { AccountCryptographicStateService } from "../../../key-management/accoun
 import { JsWasmStateBridge } from "../../../key-management/state-bridge";
 import { V2UpgradeTokenStateService } from "../../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { OrganizationId, UserId } from "../../../types/guid";
+import { AppIdService } from "../../abstractions/app-id.service";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
@@ -120,6 +121,7 @@ export class DefaultSdkService implements SdkService {
     private configService: ConfigService,
     private v2UpgradeTokenStateService: V2UpgradeTokenStateService,
     private managedSettingsService: ManagedSettingsService,
+    private appIdService: AppIdService,
     private userAgent: string | null = null,
   ) {}
 
@@ -328,6 +330,7 @@ export class DefaultSdkService implements SdkService {
       apiUrl: env.getApiUrl(),
       identityUrl: env.getIdentityUrl(),
       deviceType: toSdkDevice(this.platformUtilsService.getDevice()),
+      deviceIdentifier: await this.appIdService.getAppId(),
       bitwardenClientVersion: await this.platformUtilsService.getApplicationVersionNumber(),
       userAgent: this.userAgent ?? navigator.userAgent,
     };

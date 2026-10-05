@@ -4629,6 +4629,10 @@
   "selectImportSharedFolder": {
     "message": "Select a shared folder"
   },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Изаберите ову опцију ако желите да се садржај увезене датотеке пребацио у колекцију"
   },
@@ -5105,6 +5109,15 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Унети YubiKey који је асоциран са LastPass налогом у УСБ порт вашег рачунара, и затим додирните његово дугме."
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Keeper imejl"
@@ -5617,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Додатак који користите је застарело. Молимо ажурирајте га или онемогућите валидацију отисача претраживача Интеграција на поставки апликација за компјутер."
   },
-  "changeAtRiskPassword": {
-    "message": "Променити ризичну лозинку"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Ова пријава је ризична и недостаје веб локација. Додајте веб страницу и промените лозинку за јачу сигурност."
-  },
   "vulnerablePassword": {
     "message": "Ranjiva lozinka."
   },
   "changeNow": {
     "message": "Promeni sada"
-  },
-  "missingWebsite": {
-    "message": "Недостаје веб страница"
   },
   "missingPermissions": {
     "message": "Nemate potrebne dozvole za izvršavanje ove radnje."
@@ -6407,11 +6411,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Nemate fascikle."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Koristite fascikle za organizovanje stavki trezora. One su samo za vas — niko drugi ih neće videti niti koristiti."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "emptyVaultsDescription": {
     "message": "Dodajte prijave, lične karte, kartice i druge stavke da biste počeli."

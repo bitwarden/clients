@@ -2626,11 +2626,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Нямате никакви папки."
+  "youHaveNoFoldersV2": {
+    "message": "Нямате никакви папки"
   },
-  "emptyFoldersDescription": {
-    "message": "Използвайте папки, за да внесете ред в трезора си. Те са само за Вас — никой друг няма да ги вижда или използва."
+  "emptyFoldersDescriptionV2": {
+    "message": "Използвайте папки, за да внесете ред в трезора си. Те са само за Вас. Никой друг няма да ги вижда или използва."
   },
   "emptyVaultsDescription": {
     "message": "За да започнете, добавете данни за вписване, идентичности, карти и други елементи."
@@ -3460,6 +3460,10 @@
   },
   "selectImportSharedFolder": {
     "message": "Изберете споделена папка"
+  },
+  "importTargetMyFolder": {
+    "message": "Моята папка",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в колекция"
@@ -4507,11 +4511,11 @@
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
   },
   "appliedBalance": {
-    "message": "Applied balance",
+    "message": "Приложен баланс",
     "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
   },
   "amountDue": {
-    "message": "Amount due",
+    "message": "Дължима сума",
     "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
   },
   "accountBalance": {
@@ -9934,7 +9938,7 @@
     "message": "Включване на автоматичното попълване при зареждане на страница в добавката за браузъра, за всички текущи и нови членове. Имайте предвид, че злонамерени и други съмнителни уеб сайтове могат"
   },
   "activateAutofillPolicyDescV3": {
-    "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Once this policy is on, members must adjust their personal settings to turn on autofill. Be aware that compromised or untrustworthy websites can"
+    "message": "Включете автоматичното попълване при зареждане на страница в добавката за браузър, за всички текущи и бъдещи членове. След като тази политика бъде включена, членовете ще трябва да нагласят личните си настройки, ако искат да включат автоматичното попълване. Имайте предвид, че компроментирани и недоброжалателни уеб сайтове могат да"
   },
   "exploitAutofillOnPageLoad": {
     "message": "да се възползват от автоматичното попълване при зареждане на страницата"
@@ -15596,20 +15600,11 @@
   "atRiskPassword": {
     "message": "Парола в риск"
   },
-  "changeAtRiskPassword": {
-    "message": "Промяна на парола в риск"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Този елемент за вписване е в риск и в него липсва уеб сайт. Добавете уеб сайт и сменете паролата, за по-добра сигурност."
-  },
   "vulnerablePassword": {
     "message": "Уязвима парола."
   },
   "changeNow": {
     "message": "Промяна сега"
-  },
-  "missingWebsite": {
-    "message": "Липсващ уеб сайт"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Премахване на отключването чрез ПИН"
@@ -17038,6 +17033,15 @@
       }
     }
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Е-поща за Keeper"
   },
@@ -17492,6 +17496,9 @@
   },
   "pam": {
     "message": "PAM"
+  },
+  "pamAccessRequestsTitle": {
+    "message": "Заявки за достъп"
   },
   "pamAccessRules": {
     "message": "Правила за достъп"
