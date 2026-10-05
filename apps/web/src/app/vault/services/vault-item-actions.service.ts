@@ -58,6 +58,11 @@ export class WebVaultItemActionsService {
       return;
     }
 
+    if (CipherViewLikeUtils.decryptionFailure(cipher)) {
+      await this.showDecryptionFailure(id);
+      return;
+    }
+
     await this.viewById(id);
   }
 
@@ -68,11 +73,6 @@ export class WebVaultItemActionsService {
   async viewById(id: CipherId): Promise<void> {
     const stored = await this.getCipherOrToast(id);
     if (stored == null) {
-      return;
-    }
-
-    if (!(await this.reprompt(stored.reprompt))) {
-      await this.clearItemQueryParams();
       return;
     }
 
@@ -164,8 +164,8 @@ export class WebVaultItemActionsService {
   }
 
   /**
-   * Reports that an item could not be decrypted, for the `?action=showFailedToDecrypt` deep link.
-   * The item query params are cleared so a reload does not reopen the dialog.
+   * Reports that an item could not be decrypted, for {@link view} and for the item deep link. The
+   * item query params are cleared so a reload does not reopen the dialog.
    */
   async showDecryptionFailure(id: CipherId): Promise<void> {
     DecryptionFailureDialogComponent.open(this.dialogService, { cipherIds: [id] });
@@ -201,11 +201,6 @@ export class WebVaultItemActionsService {
   }
 
   private async openForm(stored: Cipher, id: CipherId, mode: "edit" | "clone"): Promise<void> {
-    if (!(await this.reprompt(stored.reprompt))) {
-      await this.clearItemQueryParams();
-      return;
-    }
-
     const formConfig = await this.cipherFormConfigService.buildConfig(mode, id, stored.type);
 
     await this.openItemDialog("form", formConfig, {
@@ -228,6 +223,12 @@ export class WebVaultItemActionsService {
     try {
       if (link != null) {
         await this.setItemQueryParams(link);
+      }
+
+      const reprompt = formConfig.originalCipher?.reprompt ?? CipherRepromptType.None;
+      if (!(await this.reprompt(reprompt))) {
+        await this.clearItemQueryParams();
+        return;
       }
 
       const dialogRef = VaultItemDialogComponent.open(this.dialogService, { mode, formConfig });
