@@ -6,6 +6,7 @@ import { fromSdkKdfConfig } from "@bitwarden/legacy-crypto";
 import { PasswordPreloginResponse as SdkPasswordPreloginResponse } from "@bitwarden/sdk-internal";
 
 import { FeatureFlag } from "../../enums/feature-flag.enum";
+import { MasterPasswordSalt } from "../../key-management/master-password/types/master-password.types";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 
@@ -80,7 +81,7 @@ export class DefaultPasswordPreloginService implements PasswordPreloginService {
 
     // The server's salt column is nullable and was never backfilled, so a null reaches us for
     // accounts that predate it. `email` is already normalized by getPreloginData$.
-    return new PasswordPreloginData(kdfConfig, response.salt ?? email);
+    return new PasswordPreloginData(kdfConfig, response.salt ?? (email as MasterPasswordSalt));
   }
 
   private async fetchPreloginDataFromSdk(email: string): Promise<PasswordPreloginData> {
@@ -89,6 +90,6 @@ export class DefaultPasswordPreloginService implements PasswordPreloginService {
     const sdkResponse: SdkPasswordPreloginResponse = await loginClient.get_password_prelogin(email);
     const kdfConfig = fromSdkKdfConfig(sdkResponse.kdf);
     kdfConfig.validateKdfConfigForPrelogin();
-    return new PasswordPreloginData(kdfConfig, sdkResponse.salt);
+    return new PasswordPreloginData(kdfConfig, sdkResponse.salt as MasterPasswordSalt);
   }
 }

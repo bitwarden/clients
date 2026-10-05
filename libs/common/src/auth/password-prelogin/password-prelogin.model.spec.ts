@@ -2,9 +2,11 @@
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 
+import { MasterPasswordSalt } from "../../key-management/master-password/types/master-password.types";
+
 import { PasswordPreloginData } from "./password-prelogin.model";
 
-const salt = "server.normalized+salt@example.com";
+const salt = "server.normalized+salt@example.com" as MasterPasswordSalt;
 
 // PasswordPreloginData is a plain carrier. Response mapping, the null-salt fallback, and the
 // pre-login downgrade guard moved into DefaultPasswordPreloginService when fromResponse was
@@ -36,7 +38,7 @@ describe("PasswordPreloginData", () => {
   it("does not normalize the salt", () => {
     // LegacyCompatKeyService.makeMasterKey trims and lower-cases the salt before deriving, so
     // the model must hand over exactly what it was given.
-    const unnormalized = "  MiXeD.Case@Example.Com  ";
+    const unnormalized = "  MiXeD.Case@Example.Com  " as MasterPasswordSalt;
 
     const result = new PasswordPreloginData(PBKDF2KdfConfig.createDefault(), unnormalized);
 

@@ -7,6 +7,7 @@ import { Argon2KdfConfig, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 import { PasswordPreloginResponse as SdkPasswordPreloginResponse } from "@bitwarden/sdk-internal";
 
 import { FeatureFlag } from "../../enums/feature-flag.enum";
+import { MasterPasswordSalt } from "../../key-management/master-password/types/master-password.types";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { MockSdkService } from "../../platform/spec/mock-sdk.service";
 
@@ -34,8 +35,8 @@ describe("DefaultPasswordPreloginService", () => {
   const emailB = "b@example.com";
 
   // The API and SDK paths return different salts so tests can prove which source was used.
-  const apiSalt = "api-salt";
-  const sdkSalt = "sdk-salt";
+  const apiSalt = "api-salt" as MasterPasswordSalt;
+  const sdkSalt = "sdk-salt" as MasterPasswordSalt;
 
   // PBKDF2 backs the shared fixtures; KDF type coverage lives in the "kdf config" describe.
   const response = new PasswordPreloginResponse({
