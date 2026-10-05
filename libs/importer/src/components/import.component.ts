@@ -741,6 +741,20 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     this.onePasswordImportRunning = true;
     try {
+      const selectedImportTarget = this.formGroup.controls.targetSelector.value;
+      const canAccessImportExport = (this.organization?.canAccessImport && this.isFromAC) ?? false;
+
+      // The import service rejects this too, but only after the user has typed their
+      // credentials, and the prompt reports it as a generic failure.
+      if (this.organizationId && !selectedImportTarget && !canAccessImportExport) {
+        this.toastService.showToast({
+          variant: "error",
+          title: null,
+          message: this.i18nService.t("importUnassignedItemsError"),
+        });
+        return;
+      }
+
       if (!(await this.validateImport())) {
         return;
       }
@@ -748,8 +762,8 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       await this.importOnePassword?.submitDirect(
         {
           organizationId: this.organizationId ?? undefined,
-          selectedImportTarget: this.formGroup.controls.targetSelector.value ?? undefined,
-          canAccessImportExport: (this.organization?.canAccessImport && this.isFromAC) ?? false,
+          selectedImportTarget: selectedImportTarget ?? undefined,
+          canAccessImportExport,
         },
         (summary) => this.showOnePasswordResult(summary),
       );
