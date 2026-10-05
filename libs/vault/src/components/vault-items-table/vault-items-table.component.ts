@@ -8,6 +8,7 @@ import {
   input,
   output,
   signal,
+  TrackByFunction,
   untracked,
   viewChild,
 } from "@angular/core";
@@ -101,6 +102,26 @@ export const MAX_SELECTION_COUNT = 500;
  * `position: fixed`, so without this the last row sits underneath it and is unreachable.
  */
 const BULK_BAR_CLEARANCE = 53;
+
+/** Fixed height (px) of a row. The table virtualizes, so rows can't size to their content. */
+const ROW_HEIGHT = 56;
+
+/** Rows the table stays tall enough to show. */
+const MIN_ROWS = 5;
+
+/**
+ * Height (px) of the chrome above the rows: the toolbar's search row (a 40px field plus `py-5`)
+ * and its 60px filter row, then the 48px header row. Approximate by design — it only backs a
+ * minimum, so chrome that grows later costs a fraction of a row rather than breaking the layout.
+ */
+const TABLE_CHROME_HEIGHT = 188;
+
+/**
+ * Floor (px) for the table's height. Content above it on the page — the shared folder card grid
+ * most of all — takes its natural height, so without a floor the table is what gives way, down to
+ * a row or two on a short viewport. Below this the page scrolls instead.
+ */
+const MIN_TABLE_HEIGHT = MIN_ROWS * ROW_HEIGHT + TABLE_CHROME_HEIGHT;
 
 export { VAULT_FILTER_KEYS, type VaultItemsTableFilters } from "./vault-items-table-filter-keys";
 
@@ -200,6 +221,9 @@ function chipItem(id: string, label: string, startIcon: BitwardenIcon): ChipGrou
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: "tw-flex tw-flex-col tw-flex-1 tw-min-h-0",
+    // Inline rather than a `tw-min-h-*` utility: it has to beat the `tw-min-h-0` above, which
+    // otherwise lets the flex parent shrink the table to nothing.
+    "[style.minHeight.px]": "minTableHeight",
     "[style.marginBottom.px]": "bulkBarClearance()",
   },
   imports: [
@@ -255,6 +279,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   protected readonly filterNamespace = VAULT_FILTER_NAMESPACE;
   protected readonly filterKeys = VAULT_FILTER_KEYS;
+  protected readonly rowHeight = ROW_HEIGHT;
+  protected readonly minTableHeight = MIN_TABLE_HEIGHT;
 
   /** Bottom margin held while the bulk-actions bar is up. */
   protected readonly bulkBarClearance = computed(() =>
@@ -399,7 +425,18 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly selection: SelectionConfig<C> = {
     multiple: true,
     max: MAX_SELECTION_COUNT,
+    // No bulk action can operate on an item that failed to decrypt. `TableSelectionModel` enforces
+    // this on `select`, so select-all skips it too.
+    canSelect: (row) => !CipherViewLikeUtils.decryptionFailure(row),
   };
+
+  /**
+   * Keys rows by cipher id rather than object identity. `cipherListViews$` rebuilds every row
+   * on each emission (see {@link reconcileSelection}), so without this `bit-table-v2` would treat
+   * every unrelated row as new on any sync or edit and tear down and recreate its cells —
+   * including `app-vault-icon`, which is what actually caused the icon flicker.
+   */
+  protected readonly trackByCipherId: TrackByFunction<C> = (_, row) => String(row.id);
 
   /** The configured column set to display */
   protected readonly displayedColumns = signal<VaultItemsTableColumn[]>([...VAULT_COLUMNS]);

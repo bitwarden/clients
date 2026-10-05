@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import {
   Component,
-  computed,
   EventEmitter,
   HostListener,
   inject,
@@ -12,19 +11,16 @@ import {
   ViewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { firstValueFrom, Observable } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -53,18 +49,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
   private readonly vaultCopyButtonsService = inject(VaultCopyButtonsService);
 
-  private readonly quickCopyIconFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
-    { initialValue: false },
-  );
-
-  private readonly quickCopyActionsSetting = toSignal(
+  protected readonly showQuickCopyActions = toSignal(
     this.vaultCopyButtonsService.showQuickCopyActions$,
     { initialValue: false },
-  );
-
-  protected readonly showQuickCopyActions = computed(
-    () => this.quickCopyIconFeatureFlag() && this.quickCopyActionsSetting(),
   );
 
   protected RowHeightClass = RowHeightClass;
@@ -88,9 +75,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showGroups: boolean;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() showPremiumFeatures: boolean;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() useEvents: boolean;
@@ -151,7 +135,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() checkedToggled = new EventEmitter<void>();
 
-  protected CipherType = CipherType;
   private permissionList = getPermissionList();
   // Ordered highest to lowest priority; compared against `CollectionPermission` values (not
   // label ids) so the priority is unaffected by which terminology (VFO1 or legacy) is displayed.
@@ -164,19 +147,12 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   ];
   protected organization?: Organization;
 
-  protected showCopyAndLaunchActions$: Observable<boolean>;
-
   constructor(
     private i18nService: I18nService,
     private accountService: AccountService,
     private cipherService: CipherService,
     private platformUtilsService: PlatformUtilsService,
-    private configService: ConfigService,
-  ) {
-    this.showCopyAndLaunchActions$ = this.configService.getFeatureFlag$(
-      FeatureFlag.PM28091_AddCopyAndQuickLaunchActions,
-    );
-  }
+  ) {}
 
   /**
    * Lifecycle hook for component initialization.
@@ -215,14 +191,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     }
 
     return "view";
-  }
-
-  protected get showTotpCopyButton() {
-    const login = CipherViewLikeUtils.getLogin(this.cipher);
-
-    const hasTotp = login?.totp ?? false;
-
-    return hasTotp && (this.cipher.organizationUseTotp || this.showPremiumFeatures);
   }
 
   protected get showFixOldAttachments() {
@@ -285,14 +253,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected get showEventLogs() {
     return this.useEvents && this.cipher.organizationId;
-  }
-
-  protected get isLoginCipher() {
-    return (
-      CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Login &&
-      !CipherViewLikeUtils.isDeleted(this.cipher) &&
-      !CipherViewLikeUtils.isArchived(this.cipher)
-    );
   }
 
   protected get permissionTooltip(): string | undefined {
@@ -362,113 +322,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     }
 
     return this.i18nService.t("noAccess");
-  }
-
-  protected get hasVisibleLoginOptions() {
-    return (
-      this.isLoginCipher &&
-      (CipherViewLikeUtils.hasCopyableValue(this.cipher, "username") ||
-        (this.cipher.viewPassword &&
-          CipherViewLikeUtils.hasCopyableValue(this.cipher, "password")) ||
-        this.showTotpCopyButton ||
-        this.canLaunch)
-    );
-  }
-
-  protected get isCardCipher(): boolean {
-    return CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Card && !this.isDeleted;
-  }
-
-  protected get hasVisibleCardOptions(): boolean {
-    return (
-      this.isCardCipher &&
-      (CipherViewLikeUtils.hasCopyableValue(this.cipher, "cardNumber") ||
-        CipherViewLikeUtils.hasCopyableValue(this.cipher, "securityCode"))
-    );
-  }
-
-  protected get isIdentityCipher() {
-    if (CipherViewLikeUtils.isArchived(this.cipher) && !this.userCanArchive) {
-      return false;
-    }
-    return CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Identity && !this.isDeleted;
-  }
-
-  protected get hasVisibleIdentityOptions(): boolean {
-    return (
-      this.isIdentityCipher &&
-      (CipherViewLikeUtils.hasCopyableValue(this.cipher, "address") ||
-        CipherViewLikeUtils.hasCopyableValue(this.cipher, "email") ||
-        CipherViewLikeUtils.hasCopyableValue(this.cipher, "username") ||
-        CipherViewLikeUtils.hasCopyableValue(this.cipher, "phone"))
-    );
-  }
-
-  protected get isBankAccountCipher(): boolean {
-    return (
-      CipherViewLikeUtils.getType(this.cipher) === this.CipherType.BankAccount && !this.isDeleted
-    );
-  }
-
-  protected get isPassportCipher(): boolean {
-    return CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Passport && !this.isDeleted;
-  }
-
-  protected get isSecureNoteCipher() {
-    return (
-      CipherViewLikeUtils.getType(this.cipher) === this.CipherType.SecureNote &&
-      !(this.isDeleted && this.canRestoreCipher)
-    );
-  }
-
-  protected get isDriversLicenseCipher(): boolean {
-    return (
-      CipherViewLikeUtils.getType(this.cipher) === this.CipherType.DriversLicense && !this.isDeleted
-    );
-  }
-
-  protected get hasVisibleSecureNoteOptions(): boolean {
-    return (
-      this.isSecureNoteCipher && CipherViewLikeUtils.hasCopyableValue(this.cipher, "secureNote")
-    );
-  }
-
-  protected get hasBankAccountOptions(): boolean {
-    return (
-      this.isBankAccountCipher &&
-      (CipherViewLikeUtils.hasCopyableValue(this.cipher, "accountNumber") ||
-        CipherViewLikeUtils.hasCopyableValue(this.cipher, "routingNumber") ||
-        CipherViewLikeUtils.hasCopyableValue(this.cipher, "pin") ||
-        CipherViewLikeUtils.hasCopyableValue(this.cipher, "iban"))
-    );
-  }
-
-  protected get hasPassportOptions(): boolean {
-    return (
-      this.isPassportCipher && CipherViewLikeUtils.hasCopyableValue(this.cipher, "passportNumber")
-    );
-  }
-
-  protected get hasVisibleDriversLicenseOptions(): boolean {
-    return (
-      this.isDriversLicenseCipher &&
-      (CipherViewLikeUtils.hasCopyableValue(this.cipher, "firstName") ||
-        CipherViewLikeUtils.hasCopyableValue(this.cipher, "middleName") ||
-        CipherViewLikeUtils.hasCopyableValue(this.cipher, "lastName") ||
-        CipherViewLikeUtils.hasCopyableValue(this.cipher, "licenseNumber"))
-    );
-  }
-
-  protected get showMenuDivider(): boolean {
-    return (
-      this.hasVisibleLoginOptions ||
-      this.hasVisibleCardOptions ||
-      this.hasVisibleIdentityOptions ||
-      this.hasVisibleSecureNoteOptions ||
-      this.hasBankAccountOptions ||
-      this.hasVisibleDriversLicenseOptions ||
-      this.hasPassportOptions
-    );
   }
 
   protected clone() {

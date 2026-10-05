@@ -11,7 +11,6 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
-  EncString,
   KdfConfig,
   KdfType,
   LegacyCompatKeyService,
@@ -37,9 +36,9 @@ import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../platform/misc/utils";
 import { KEY_CONNECTOR_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
-import { MasterKey } from "../../../types/key";
 import { AccountCryptographicStateService } from "../../account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
+import { withPasswordManagerSdk } from "../../utils";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstractions/key-connector.service";
 import { KeyConnectorDomainConfirmation } from "../models/key-connector-domain-confirmation";
 import { KeyConnectorUserKeyRequest } from "../models/key-connector-user-key.request";
@@ -132,47 +131,18 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   }
 
   async migrateUser(keyConnectorUrl: string, userId: UserId) {
-    const sdkKeyConnectorMigration = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.SdkKeyConnectorMigration),
-    );
-    if (sdkKeyConnectorMigration) {
-      try {
-        await firstValueFrom(
-          this.sdkService.userClient$(userId).pipe(
-            map(async (sdk) => {
-              if (!sdk) {
-                throw new Error("SDK not available");
-              }
-
-              using ref = sdk.take();
-
-              return await ref.value
-                .user_crypto_management()
-                .migrate_to_key_connector(keyConnectorUrl);
-            }),
-          ),
-        );
-      } catch (e) {
-        this.handleKeyConnectorError(e);
-      }
-    } else {
-      const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-      const keyConnectorRequest = new KeyConnectorUserKeyRequest(
-        Utils.fromBufferToB64(masterKey.inner().encryptionKey),
-      );
-
-      try {
-        await this.apiService.postUserKeyToKeyConnector(keyConnectorUrl, keyConnectorRequest);
-      } catch (e) {
-        this.handleKeyConnectorError(e);
-      }
-
-      await this.apiService.postConvertToKeyConnector();
+    try {
+      await withPasswordManagerSdk(userId, this.sdkService, async (sdk) => {
+        await sdk.user_crypto_management().migrate_to_key_connector(keyConnectorUrl);
+      });
+    } catch (e) {
+      this.handleKeyConnectorError(e);
     }
 
     await this.setUsesKeyConnector(true, userId);
 
     // Clear master password unlock from state
+    // TODO(https://bitwarden.atlassian.net/browse/PM-43754): move to sdk's migrate_to_key_connector
     await this.masterPasswordService.clearMasterPasswordUnlockData(userId);
 
     const userDecryptionOptions = await firstValueFrom(
@@ -186,18 +156,6 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       userId,
       userDecryptionOptions,
     );
-  }
-
-  // TODO: UserKey should be renamed to MasterKey and typed accordingly
-  async setMasterKeyFromUrl(keyConnectorUrl: string, userId: UserId) {
-    try {
-      const masterKeyResponse = await this.apiService.getMasterKeyFromKeyConnector(keyConnectorUrl);
-      const keyArr = Utils.fromB64ToArray(masterKeyResponse.key);
-      const masterKey = new SymmetricCryptoKey(keyArr) as MasterKey;
-      await this.masterPasswordService.setMasterKey(masterKey, userId);
-    } catch (e) {
-      this.handleKeyConnectorError(e);
-    }
   }
 
   async getManagingOrganization(userId: UserId): Promise<Organization> {
@@ -268,15 +226,6 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       throw new Error(`Unexpected account cryptographic state version ${version}`);
     }
 
-    await this.masterPasswordService.setMasterKey(
-      SymmetricCryptoKey.fromString(result.key_connector_key) as MasterKey,
-      userId,
-    );
-    await this.masterPasswordService.setMasterKeyEncryptedUserKey(
-      new EncString(result.key_connector_key_wrapped_user_key),
-      userId,
-    );
-
     // Note: When SDK state management matures, the state writes and the unlock below should all be
     // moved into post_keys_for_key_connector_registration
     await this.accountCryptographicStateService.setAccountCryptographicState(
@@ -309,10 +258,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     const keyConnectorRequest = new KeyConnectorUserKeyRequest(
       Utils.fromBufferToB64(masterKey.inner().encryptionKey),
     );
-    await this.masterPasswordService.setMasterKey(masterKey, userId);
-
     const userKey = await this.legacyCompatKeyService.makeUserKey(masterKey);
-    await this.masterPasswordService.setMasterKeyEncryptedUserKey(userKey[1], userId);
 
     const [pubKey, privKey] = await this.legacyCompatKeyService.makeKeyPair(userKey[0]);
 
