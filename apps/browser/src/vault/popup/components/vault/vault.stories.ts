@@ -7,7 +7,6 @@ import { applicationConfig, componentWrapperDecorator, Meta, StoryObj } from "@s
 import { BehaviorSubject, NEVER, of } from "rxjs";
 
 import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
-import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { NudgesService, NudgeType, PremiumUpsellService } from "@bitwarden/angular/vault";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm/angular";
@@ -493,6 +492,7 @@ const buildProviders = (args: StoryArgs) => {
         saveFilters: () => {},
         cachedFilters: signal({}),
         clearVaultScopedFilters: () => {},
+        filterDialogOpen: signal(false),
         vaultScopedFiltersCleared$: NEVER,
         suspended$: () => of(false),
         selectedFilters$: of({
@@ -869,12 +869,6 @@ const buildProviders = (args: StoryArgs) => {
             "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
           switchVault: "Switch vault",
         }),
-    },
-    {
-      provide: ViewCacheService,
-      useValue: {
-        signal: ({ initialValue }: { initialValue: unknown }) => signal(initialValue),
-      },
     },
   ];
 };

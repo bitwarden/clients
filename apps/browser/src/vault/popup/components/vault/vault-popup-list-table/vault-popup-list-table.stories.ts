@@ -4,7 +4,6 @@ import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/an
 import { BehaviorSubject, NEVER, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -362,6 +361,7 @@ const buildProviders = (args: StoryArgs) => {
         restoreFilters$: () => of(args.appliedFilters ?? {}),
         saveFilters: () => {},
         clearVaultScopedFilters: () => {},
+        filterDialogOpen: signal(false),
         vaultScopedFiltersCleared$: NEVER,
         suspended$: () => of(false),
         selectedFilters$: of({
@@ -443,12 +443,6 @@ const buildProviders = (args: StoryArgs) => {
         inject(VaultPopupListTableService).setScope(args.scope);
       }
     }),
-    {
-      provide: ViewCacheService,
-      useValue: {
-        signal: ({ initialValue }: { initialValue: unknown }) => signal(initialValue),
-      },
-    },
     {
       provide: ConfigService,
       useValue: {
