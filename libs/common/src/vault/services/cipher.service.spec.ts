@@ -1139,6 +1139,13 @@ describe("Cipher Service", () => {
     const normal_id = "44444444-4444-4444-4444-444444444444";
 
     it("passes gated ciphers through the SDK like any other cipher", async () => {
+      keyService.cipherDecryptionKeys$.mockReturnValue(
+        of({
+          userKey: makeSymmetricCryptoKey(64) as UserKey,
+          orgKeys: { [orgId]: makeSymmetricCryptoKey(32) as OrgKey },
+        } as CipherDecryptionKeys),
+      );
+
       const gatedCipher = new Cipher({ ...cipherData, id: gated_id, organizationId: orgId });
       gatedCipher.partialData = '{"Name":"enc-name"}';
       const normalCipher = new Cipher({ ...cipherData, id: normal_id, organizationId: orgId });
