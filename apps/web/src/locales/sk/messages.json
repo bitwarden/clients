@@ -15600,20 +15600,11 @@
   "atRiskPassword": {
     "message": "Ohrozené heslá"
   },
-  "changeAtRiskPassword": {
-    "message": "Zmeniť ohrozené heslo"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Toto prihlásenie je v ohrození a chýba mu webová stránka. Pridajte webovú stránku a zmeňte heslo na silnejšie zabezpečenie."
-  },
   "vulnerablePassword": {
     "message": "Zraniteľné heslo."
   },
   "changeNow": {
     "message": "Zmeniť teraz"
-  },
-  "missingWebsite": {
-    "message": "Chýbajúca webová stránka"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Odstrániť odomknutie PIN kódom"
@@ -17041,6 +17032,15 @@
         "example": "4"
       }
     }
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "E-mail pre Keeper"

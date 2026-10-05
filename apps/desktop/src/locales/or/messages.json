@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "ଆପଣଙ୍କ LastPass ଆକାଉଣ୍ଟ ସହ ସମ୍ବନ୍ଧିତ YubiKey କୁ ଆପଣଙ୍କ କମ୍ପ୍ୟୁଟରର USB ପୋର୍ଟରେ ଭର୍ତ୍ତି କରନ୍ତୁ, ତାପରେ ଏହାର ବଟନ୍ ସ୍ପର୍ଶ କରନ୍ତୁ।"
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper ଇମେଲ୍"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "ଆପଣ ବ୍ୟବହାର କରୁଥିବା ବ୍ରାଉଜର୍ ଏକ୍ସଟେନସନ୍ ପୁରୁଣା। ଦୟାକରି ଏହାକୁ ଅପଡେଟ୍ କରନ୍ତୁ କିମ୍ବା ଡେସ୍କଟପ୍ ଆପ୍ ସେଟିଂସ୍ ରେ ବ୍ରାଉଜର୍ ଏକୀକରଣ ଆଙ୍ଗୁଠି ଛାପ ଯାଞ୍ଚକୁ ନିଷ୍କ୍ରିୟ କରନ୍ତୁ।"
   },
-  "changeAtRiskPassword": {
-    "message": "ବିପଦପୂର୍ଣ୍ଣ ପାସୱର୍ଡ ପରିବର୍ତ୍ତନ କରନ୍ତୁ"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "ଏହି ଲଗଇନ୍ ବିପଦପୂର୍ଣ୍ଣ ଏବଂ ଏଥିରେ ଏକ ୱେବସାଇଟ୍ ନାହିଁ। ଅଧିକ ସୁରକ୍ଷା ପାଇଁ ଏକ ୱେବସାଇଟ୍ ଯୋଡନ୍ତୁ ଏବଂ ପାସୱର୍ଡ ପରିବର୍ତ୍ତନ କରନ୍ତୁ।"
-  },
   "vulnerablePassword": {
     "message": "ଅସୁରକ୍ଷିତ ପାସୱର୍ଡ।"
   },
   "changeNow": {
     "message": "ବର୍ତ୍ତମାନ ପରିବର୍ତ୍ତନ କରନ୍ତୁ"
-  },
-  "missingWebsite": {
-    "message": "ୱେବସାଇଟ୍ ନାହିଁ"
   },
   "missingPermissions": {
     "message": "ଏହି କାର୍ଯ୍ୟ କରିବାକୁ ଆପଣଙ୍କର ଆବଶ୍ୟକ ଅନୁମତି ନାହିଁ।"

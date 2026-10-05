@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "在密碼庫檢視中點選項目即可自動填入"
   },
-  "clickToAutofill": {
-    "message": "點選自動填入建議中的項目進行填入"
-  },
   "clearClipboard": {
     "message": "清除剪貼簿",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "將與您的 LastPass 帳戶連結的 YubiKey 插入電腦的 USB 連接埠，然後按下按鈕。"
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper電子郵件"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "變更有風險的密碼"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "此登入資訊存在風險，且缺少網站。請新增網站並變更密碼以提升安全性。"
-  },
   "vulnerablePassword": {
     "message": "有安全疑慮的密碼。"
   },
   "changeNow": {
     "message": "立即變更"
-  },
-  "missingWebsite": {
-    "message": "缺少網站"
   },
   "settingsVaultOptions": {
     "message": "密碼庫選項"
