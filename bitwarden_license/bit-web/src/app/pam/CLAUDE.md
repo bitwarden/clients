@@ -249,6 +249,12 @@ active lease, so its clamp is one `computed`. `ItemDetailsStateBadgeComponent` a
 `PamGatedCipherReloader` take a single tick off `AccessBadgeTickerService.ticks$`, the shared
 clock the badges run on, and only while the state they hold carries a live lease.
 
+**A lapse is a cue to ask again, not proof the lease ended.** It may have been extended on another
+device, and no push need ever reach this tab (PAM-152). So every surface that caches a state
+re-reads it when its lease lapses, through `rereadOnLapse` (`helpers/lease-liveness.ts`), and
+judges the answer with `liveActiveLease` again. A server whose clock trails still hands back the
+old `notAfter`, so the item still locks; only a genuinely later end keeps it open.
+
 Both tick OUTSIDE the Angular zone, or NgZone never settles and `whenStable()` hangs for every
 host embedding a gated item. Signals carry out of it, so the banner and the pill need nothing
 more; the reloader re-enters explicitly, because the re-lock writes plain component fields on
