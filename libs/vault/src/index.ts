@@ -130,6 +130,7 @@ export { ITEM_DETAILS_STATE_BADGE } from "./tokens/item-details-state-badge.toke
 export type { GatedCipherReloader } from "./tokens/gated-cipher-reloader.token";
 export {
   MY_REQUESTS_FILTER_ID,
+  PRIVILEGED_FILTER_ID,
   VAULT_CONTROLLED_ACCESS_FILTER,
   VaultControlledAccessFilter,
 } from "./tokens/vault-controlled-access-filter.token";
