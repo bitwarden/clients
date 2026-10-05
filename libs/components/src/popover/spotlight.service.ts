@@ -155,7 +155,6 @@ export class SpotlightService {
       .withPush(false);
 
     this.borderOverlayRef = this.overlay.create({
-      panelClass: "bit-spotlight-pane",
       positionStrategy,
       scrollStrategy: this.overlay.scrollStrategies.reposition(),
       width: target.offsetWidth + this.padding * 2,

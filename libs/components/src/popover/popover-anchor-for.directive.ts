@@ -94,7 +94,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
 
   /**
    * Anchor to this element instead of the host. Must be a rendered element, not an `<ng-container>`.
-   * Opening waits for it to render and finish animating in; the popover closes if it goes away.
+   * Opening waits for it to render and finish animating in; the popover hides until it returns.
    */
   readonly anchor = input<HTMLElement | ElementRef<HTMLElement>>();
 
@@ -141,8 +141,6 @@ export class PopoverAnchorForDirective implements OnDestroy {
   get defaultPopoverConfig(): OverlayConfig {
     return {
       hasBackdrop: !this.spotlight(), // Spotlight manages its own backdrop
-      // Raised above dialogs in tw-theme.css, so a spotlight can point into one
-      panelClass: this.spotlight() ? "bit-spotlight-popover-pane" : undefined,
       backdropClass: "cdk-overlay-transparent-backdrop",
       scrollStrategy: this.overlay.scrollStrategies.reposition(),
       positionStrategy: this.overlay
@@ -186,17 +184,10 @@ export class PopoverAnchorForDirective implements OnDestroy {
       }
       const anchor = this.readyAnchor();
 
-      // Handle closing
-      if (!this.popoverOpen() && this.overlayRef) {
-        this.disposeAll();
-        return;
-      }
-
-      // The anchor went away or was replaced while open
       const target = this.anchorElement() ?? this.hostElement();
-      if (this.overlayRef && target !== this.openAnchor) {
-        this.destroyPopover();
-        return;
+      // Losing the anchor keeps `popoverOpen` set, so the popover reattaches when one is ready
+      if (this.overlayRef && (!this.popoverOpen() || target !== this.openAnchor)) {
+        this.disposeAll();
       }
 
       // Handle opening — hasInitialized() ensures layout is stable on first open

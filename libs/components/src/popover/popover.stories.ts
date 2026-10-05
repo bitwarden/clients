@@ -843,7 +843,7 @@ export const AnchorElement: Story = {
 
       <bit-popover [title]="'Anchored by reference'" #anchorPopover>
         <div>This popover's anchor sits elsewhere in the template and points here by reference.</div>
-        <p class="tw-mt-2 tw-mb-0">When the anchor goes away, the popover closes.</p>
+        <p class="tw-mt-2 tw-mb-0">When the anchor goes away, the popover hides until it returns.</p>
         <div class="tw-mt-4">
           <button type="button" bitButton buttonType="secondary" (click)="showTarget.set(false)">
             Remove anchor

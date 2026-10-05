@@ -124,7 +124,8 @@ inside a dialog — the component exposes it as a public signal, and the consume
 ```
 
 The popover waits for the anchor to render and finish animating in (such as a dialog sliding up)
-before opening, and closes if the anchor goes away.
+before opening. If the anchor goes away, the popover hides and reopens once it returns, so a one-way
+`[popoverOpen]` binding stays in control.
 
 Library components exposing an anchor name it `<part>Anchor` — a signal for a single element, or a
 method like `filterDialogRowAnchor(key)` for one of many.
