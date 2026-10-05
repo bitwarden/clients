@@ -874,10 +874,23 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     this.scopedOrganizationId,
   );
 
+  /**
+   * Status message rendered in a live region (`role="status" aria-live="polite" aria-atomic="true"`)
+   * to communicate filtered item count to screen readers.
+   */
   protected readonly searchAnnouncement = signal<string>("");
 
   /**
    * Debounced announcement of vault item search / filter results for assistive technologies.
+   *
+   * Screen reader accessibility contract:
+   * - Debounced by 400ms to avoid noisy announcements while the user is actively typing a query.
+   * - Emits dual-channel updates: updates `searchAnnouncement` (bound to an in-DOM live region)
+   *   and invokes `LiveAnnouncer.announce()` with `'polite'` politeness.
+   * - Zero-result state announces localized "No matching items", and positive matches announce
+   *   localized count (e.g. "X items").
+   * - Suppressed on initial component mount when no search or filter has been applied to avoid
+   *   unsolicited chatter upon navigation.
    */
   private readonly announceSearchResults = effect((onCleanup) => {
     const table = this.tableComponent();
