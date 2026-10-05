@@ -18169,9 +18169,6 @@
   "pamMyRequestsHistoryEmpty": {
     "message": "No request history"
   },
-  "pamMyRequestsEmptyDescription": {
-    "message": "You have no requests for access to sensitive credentials at the moment."
-  },
   "pamColumnItem": {
     "message": "Item"
   },
@@ -19367,6 +19364,12 @@
   },
   "pamMyRequestsHistoryEmpty": {
     "message": "No request history"
+  },
+  "pamMyRequestsEmptyTitle": {
+    "message": "You have no requests"
+  },
+  "pamMyRequestsEmptyDescription": {
+    "message": "You have no requests for access to sensitive credentials at the moment."
   },
   "pamColumnItem": {
     "message": "Item"
