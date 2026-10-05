@@ -1,7 +1,8 @@
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
   "extraMetadata": {
-    "name": "bitwarden-beta"
+    "name": "bitwarden-beta",
+    "productName": "Bitwarden Beta"
   },
   "productName": "Bitwarden Beta",
   "appId": "com.bitwarden.desktop.beta",
@@ -34,6 +35,7 @@
     "category": "public.app-category.productivity",
     "darkModeSupport": true,
     "gatekeeperAssess": false,
+    "sign": "./scripts/sign-macos.js",
     "hardenedRuntime": true,
     "entitlements": "resources/entitlements.mac.plist",
     "entitlementsInherit": "resources/entitlements.mac.inherit.plist",
@@ -87,8 +89,7 @@
     "signIgnore": [
       "MacOS/desktop_proxy",
       "MacOS/desktop_proxy.inherit",
-      "Contents/Plugins/autofill-extension.appex",
-      "Frameworks/Electron Framework.framework/(Electron Framework|Libraries|Resources|Versions/Current)/.*"
+      "Contents/Plugins/autofill-extension.appex"
     ],
     "target": ["dmg", "zip"],
     "artifactName": "Bitwarden-${version}-${arch}-mac.${ext}"
@@ -122,7 +123,7 @@
     "target": ["portable", "nsis-web", "appx"],
     "signExts": [".dll", ".node"],
     "signtoolOptions": {
-      "sign": "./sign.js",
+      "sign": "./scripts/sign-windows.js",
       "publisherName": "Bitwarden Inc."
     },
     "extraFiles": [
@@ -145,8 +146,12 @@
         "to": "plugin_authenticator_config.json"
       },
       {
-        "from": "resources/windows_plugin_authenticator_logo.beta.svg",
-        "to": "plugin_authenticator_logo.svg"
+        "from": "resources/windows_plugin_authenticator_logo_light.beta.svg",
+        "to": "plugin_authenticator_logo_light.svg"
+      },
+      {
+        "from": "resources/windows_plugin_authenticator_logo_dark.beta.svg",
+        "to": "plugin_authenticator_logo_dark.svg"
       }
     ]
   },
@@ -164,7 +169,7 @@
   },
   "appx": {
     "artifactName": "Bitwarden-Beta-${version}-${arch}.${ext}",
-    "backgroundColor": "#FDC700",
+    "backgroundColor": "#175DDC",
     "customExtensionsPath": "../custom-appx-extensions.beta.xml",
     "minVersion": "10.0.14393.0",
     "applicationId": "BitwardenBeta",

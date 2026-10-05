@@ -211,9 +211,7 @@ import { KeyConnectorApiService } from "@bitwarden/common/key-management/key-con
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { DefaultKeyConnectorApiService } from "@bitwarden/common/key-management/key-connector/services/default-key-connector-api.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
-import { KeyApiService } from "@bitwarden/common/key-management/keys/services/abstractions/key-api-service.abstraction";
 import { RotateableKeySetService } from "@bitwarden/common/key-management/keys/services/abstractions/rotateable-key-set.service";
-import { DefaultKeyApiService } from "@bitwarden/common/key-management/keys/services/default-key-api-service.service";
 import { DefaultRotateableKeySetService } from "@bitwarden/common/key-management/keys/services/default-rotateable-key-set.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import {
@@ -397,7 +395,10 @@ import {
   LegacyCompatKeyService,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
-import { FlightRecorderService } from "@bitwarden/logging-angular";
+import {
+  FlightRecorderLogRecorderService,
+  FlightRecorderService,
+} from "@bitwarden/logging-angular";
 import {
   DefaultManagedSettingsService,
   DevManagedSettingsService,
@@ -812,8 +813,9 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: LogService,
-    useFactory: () => new ConsoleLogService(process.env.NODE_ENV === "development"),
-    deps: [],
+    useFactory: (recorder: FlightRecorderLogRecorderService) =>
+      new ConsoleLogService(process.env.NODE_ENV === "development", null, recorder),
+    deps: [FlightRecorderLogRecorderService],
   }),
   safeProvider({
     provide: CollectionEncryptionService,
@@ -1028,11 +1030,6 @@ const safeProviders: SafeProvider[] = [
     provide: SendApiServiceAbstraction,
     useClass: SendApiServiceSelector,
     deps: [ConfigService, SendApiService, SendSdkApiService],
-  }),
-  safeProvider({
-    provide: KeyApiService,
-    useClass: DefaultKeyApiService,
-    deps: [ApiServiceAbstraction],
   }),
   safeProvider({
     provide: SyncService,
@@ -1934,6 +1931,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       ConfigService,
       ManagedSettingsService,
+      AppIdServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -1952,6 +1950,7 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       V2UpgradeTokenStateService,
       ManagedSettingsService,
+      AppIdServiceAbstraction,
     ],
   }),
   safeProvider({
