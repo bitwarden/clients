@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "انقر على العناصر للملء التلقائي في تبويب الخزنة"
   },
-  "clickToAutofill": {
-    "message": "انقر على العناصر في اقتراح الملء التلقائي للملء"
-  },
   "clearClipboard": {
     "message": "مسح الحافظة",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "أدخل YubiKey المرتبط بحسابك LastPass في منفذ USB بجهاز الكمبيوتر، ثم اضغط على زره."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "البريد الإلكتروني لـ Keeper"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "تغيير كلمة المرور المعرضة للخطر"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "حساب الدخول هذا معرض للخطر ولا يرتبط بأي موقع إلكتروني. أضف موقعا إلكترونيا و استبدل كلمة المرور لتعزيز الأمان."
-  },
   "vulnerablePassword": {
     "message": "كلمة مرور ضعيفة."
   },
   "changeNow": {
     "message": "تغيير الآن"
-  },
-  "missingWebsite": {
-    "message": "ينقص موقع ويب"
   },
   "settingsVaultOptions": {
     "message": "خيارات الخزنة"

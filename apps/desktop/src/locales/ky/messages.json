@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "LastPass аккаунтуңузга байланышкан YubiKey'ди компьютериңиздин USB портуна сайыңыз, андан кийин анын баскычын басыңыз."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper электрондук почтасы"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Сиз колдонуп жаткан браузер кеңейтүүсү эскирген. Аны жаңыртыңыз же иш такта колдонмосунун параметрлеринде браузер интеграциясынын манжа изин текшерүүнү өчүрүңүз."
   },
-  "changeAtRiskPassword": {
-    "message": "Тобокел сырсөздү өзгөртүү"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Бул кирүү тобокелде жана веб-сайт жок. Коопсуздукту күчөтүү үчүн веб-сайт кошуп, сырсөздү өзгөртүңүз."
-  },
   "vulnerablePassword": {
     "message": "Алсыз сырсөз."
   },
   "changeNow": {
     "message": "Азыр өзгөртүү"
-  },
-  "missingWebsite": {
-    "message": "Веб-сайт жок"
   },
   "missingPermissions": {
     "message": "Бул аракетти аткаруу үчүн керектүү укуктар жок."

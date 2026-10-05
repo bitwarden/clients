@@ -1,12 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, Inject, OnInit } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogRef, DIALOG_DATA, BitValidators, ToastService } from "@bitwarden/components";
 
@@ -34,10 +31,6 @@ export interface ServiceAccountOperation {
   standalone: false,
 })
 export class ServiceAccountDialogComponent implements OnInit {
-  protected readonly btnTextAddCreateFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
-    { initialValue: false },
-  );
   protected formGroup = new FormGroup(
     {
       name: new FormControl("", {
@@ -56,7 +49,6 @@ export class ServiceAccountDialogComponent implements OnInit {
     private serviceAccountService: ServiceAccountService,
     private i18nService: I18nService,
     private toastService: ToastService,
-    private configService: ConfigService,
     private router: Router,
   ) {}
 
@@ -134,11 +126,7 @@ export class ServiceAccountDialogComponent implements OnInit {
 
   get title() {
     if (this.data.operation === OperationType.Add) {
-      if (this.btnTextAddCreateFeatureFlag()) {
-        return "addMachineAccount";
-      } else {
-        return "newMachineAccount";
-      }
+      return "addMachineAccount";
     } else {
       return "editMachineAccount";
     }

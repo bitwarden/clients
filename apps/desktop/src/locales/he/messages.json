@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "הכנס את ה־YubiKey המשויך עם חשבון ה־LastPass שלך אל תוך יציאת USB של המחשב שלך, לאחר מכן גע בכפתור שלו."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "דוא\"ל Keeper"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "הרחבת הדפדפן בה אתה משתמש היא מיושנת. נא לעדכן אותה או להשבית אימות טביעת אצבע של שילוב דפדפן בהגדרות יישום שולחן העבודה."
   },
-  "changeAtRiskPassword": {
-    "message": "שנה סיסמה בסיכון"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "כניסה זו נמצאת בסיכון וחסר בה אתר אינטרנט. הוסף אתר אינטרנט ושנה את הסיסמה לאבטחה חזקה יותר."
-  },
   "vulnerablePassword": {
     "message": "סיסמה פגיעה."
   },
   "changeNow": {
     "message": "שנה עכשיו"
-  },
-  "missingWebsite": {
-    "message": "לא נמצא אתר אינטרנט"
   },
   "missingPermissions": {
     "message": "אין לך ההרשאות הדרושות לביצוע פעולה זו."

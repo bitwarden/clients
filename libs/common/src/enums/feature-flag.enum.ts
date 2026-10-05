@@ -11,6 +11,7 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
+  CollectionsDecryptListFailures = "pm-43375-collections-decrypt-list-failures",
   InviteLinkNotification = "pm-39601-invite-link-notification",
   InviteLinkAutoConfirm = "pm-34429-invite-link-auto-confirm",
 
@@ -62,7 +63,6 @@ export enum FeatureFlag {
   // get to use the feature.
   SharedUnlockPart1 = "innovation-sprint-shared-unlock-part-1",
   SharedUnlockPart2 = "innovation-sprint-shared-unlock-part-2",
-  NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
@@ -94,24 +94,17 @@ export enum FeatureFlag {
 
   /* Vault */
   PM32009NewItemTypes = "pm-32009-new-item-types",
-  PM28190CipherSharingOpsToSdk = "pm-28190-cipher-sharing-ops-to-sdk",
   PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
-  PM28191CipherAdminOpsToSdk = "pm-28191-cipher-admin-ops-to-sdk",
   PM28192_CipherAttachmentOpsToSdk = "pm-28192-cipher-attachment-ops-to-sdk",
   PM29438_DialogWithExtensionPromptAccountAge = "pm-29438-dialog-with-extension-prompt-account-age",
-  PM31039ItemActionInExtension = "pm-31039-item-action-in-extension",
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
-  PM40435_QuickCopyIconSetting = "pm-40435-quick-copy-icon-setting",
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
-  PM32016RemoveAtRiskCallout = "pm-32016-remove-at-risk-callout",
-  PM32380_BtnTextAddCreate = "pm-32380-btn-text-add-create",
   PM40201_DeriveSSHKeys = "pm-40201-derive-ssh-keys",
 
   /* Platform */
   FedRampGovRegion = "fedramp-gov-region",
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
-  WebAuthnRelatedOrigins = "pm-30529-webauthn-related-origins",
   PM34410AttachmentUploadProgress = "pm-34410-attachment-upload-progress",
   ManagedDeviceFramework = "pm-27719-managed-device-framework",
   PM30935_FlightRecorderTsLogging = "pm-30935-flight-recorder-ts-logging",
@@ -141,6 +134,7 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
+  [FeatureFlag.CollectionsDecryptListFailures]: FALSE,
   [FeatureFlag.InviteLinkNotification]: FALSE,
   [FeatureFlag.InviteLinkAutoConfirm]: FALSE,
 
@@ -149,7 +143,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.LitInlineMenuComponents]: FALSE,
-  [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
   [FeatureFlag.EnableBasicAuthResponse]: FALSE,
 
   /* Desktop Native */
@@ -184,15 +177,10 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
-  [FeatureFlag.PM28191CipherAdminOpsToSdk]: FALSE,
-  [FeatureFlag.PM28190CipherSharingOpsToSdk]: FALSE,
   [FeatureFlag.PM28192_CipherAttachmentOpsToSdk]: FALSE,
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
-  [FeatureFlag.PM40435_QuickCopyIconSetting]: FALSE,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
-  [FeatureFlag.PM32016RemoveAtRiskCallout]: FALSE,
-  [FeatureFlag.PM32380_BtnTextAddCreate]: FALSE,
   [FeatureFlag.PM40201_DeriveSSHKeys]: FALSE,
 
   /* Auth */
@@ -223,7 +211,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SdkKeyRotation]: FALSE,
   [FeatureFlag.SharedUnlockPart1]: FALSE,
   [FeatureFlag.SharedUnlockPart2]: FALSE,
-  [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
   [FeatureFlag.NoLogoutOnKeyUpgradeRotation]: FALSE,
   [FeatureFlag.ForceUpgradeV2Encryption]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
@@ -235,7 +222,6 @@ export const DefaultFeatureFlagValue = {
   /* Platform */
   [FeatureFlag.FedRampGovRegion]: FALSE,
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
-  [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
   [FeatureFlag.PM34410AttachmentUploadProgress]: FALSE,
   [FeatureFlag.ManagedDeviceFramework]: FALSE,
   [FeatureFlag.PM30935_FlightRecorderTsLogging]: FALSE,

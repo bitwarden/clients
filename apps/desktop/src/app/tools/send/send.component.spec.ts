@@ -11,7 +11,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -82,18 +81,8 @@ describe("SendComponent", () => {
     sendFormService = mock<SendFormService>();
     sendDecryptionService = mock<SendDecryptionService>();
 
-    configService.getFeatureFlag$.mockImplementation((ff) => {
-      if (ff === FeatureFlag.PM32380_BtnTextAddCreate) {
-        return of(true);
-      }
-      return of(false);
-    });
-    configService.getFeatureFlag.mockImplementation((ff) => {
-      if (ff === FeatureFlag.PM32380_BtnTextAddCreate) {
-        return true;
-      }
-      return false;
-    });
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+    configService.getFeatureFlag.mockResolvedValue(false);
 
     // Setup environmentService mock
     environmentService.getEnvironment.mockResolvedValue({
