@@ -1,7 +1,7 @@
-import { EncString } from "@bitwarden/legacy-crypto";
 import { CipherType } from "../../vault/enums";
 import { Cipher } from "../../vault/models/domain/cipher";
 import { CipherView } from "../../vault/models/view/cipher.view";
+import { conditionalEncString } from "../../vault/utils/domain-utils";
 
 import { CipherExport } from "./cipher.export";
 import { SecureNoteExport } from "./secure-note.export";
@@ -46,12 +46,13 @@ describe("Cipher Export", () => {
   // Blob ciphers seal all content in `data`; the legacy per-field properties are undefined.
   describe("blob ciphers", () => {
     const sealedData = "SEALED_BLOB";
+    const cipherKey = "CIPHER_KEY";
 
     function blobCipher(): Cipher {
       const cipher = new Cipher();
       cipher.id = "25c8c414-b446-48e9-a1bd-b10700bbd740";
       cipher.type = CipherType.Login;
-      cipher.key = new EncString("CIPHER_KEY");
+      cipher.key = conditionalEncString(cipherKey);
       cipher.data = sealedData;
       return cipher;
     }
@@ -67,7 +68,7 @@ describe("Cipher Export", () => {
       const exported = new CipherExport();
       exported.build(blobCipher());
 
-      expect(exported.key).toBeInstanceOf(EncString);
+      expect(exported.key).toBe(cipherKey);
     });
 
     it("build does not export empty legacy content", () => {
