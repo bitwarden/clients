@@ -821,6 +821,7 @@ export default class MainBackground {
       this.messagingService,
       () => this.vaultTimeoutSettingsService,
       () => this.ipcService,
+      this.platformUtilsService,
     );
     // Temporary dependency cycle workaround, until browser biometrics is replaced by shared unlock
     this.biometricsService = browserBiometricsService;
@@ -1002,6 +1003,7 @@ export default class MainBackground {
       this.configService,
       this.v2UpgradeTokenStateService,
       this.managedSettingsService,
+      this.appIdService,
     );
 
     this.registerSdkService = new DefaultRegisterSdkService(
@@ -1013,11 +1015,13 @@ export default class MainBackground {
       this.stateProvider,
       this.configService,
       this.managedSettingsService,
+      this.appIdService,
     );
 
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
       this.sdkService,
       this.logService,
+      this.configService,
     );
 
     this.collectionService = new DefaultCollectionService(
@@ -1764,6 +1768,7 @@ export default class MainBackground {
         this.accountService,
         chrome.webRequest,
         this.configService,
+        this.autofillSettingsService,
       );
     }
 
@@ -1893,7 +1898,7 @@ export default class MainBackground {
       await BrowserApi.setSidePanelOptions({ enabled: false });
     }
     this.idleBackground.init();
-    await this.webRequestBackground?.startListening();
+    this.webRequestBackground?.startListening();
     this.syncServiceListener?.listener$().subscribe();
     await this.autoSubmitLoginBackground.init();
     await this.targetingRulesDataService.init();

@@ -1,9 +1,6 @@
 import { Injectable, inject } from "@angular/core";
 import { lastValueFrom } from "rxjs";
-import { map } from "rxjs/operators";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService, Translation } from "@bitwarden/components";
 import {
@@ -15,36 +12,25 @@ import {
   Vfo1TerminologyService,
 } from "@bitwarden/vault";
 
-import { openBulkDeleteDialog } from "./bulk-delete-dialog/bulk-delete-dialog.component";
-
 @Injectable()
 export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
   private readonly dialogService = inject(DialogService);
-  private readonly configService = inject(ConfigService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly bulkDelete = inject(BulkDeleteService);
   private readonly vfo1Terminology = inject(Vfo1TerminologyService);
 
   async open(params: BulkDeleteDialogParams): Promise<BulkDeleteDialogResult> {
-    const batchBarEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM37785_VaultBatchBar,
-    );
-
-    if (batchBarEnabled) {
-      if (this.hasItems(params) && this.hasCollections(params)) {
-        return this.confirmAndDeleteMixed(params);
-      }
-      if (this.hasCollections(params)) {
-        return this.confirmAndDeleteCollections(params);
-      }
-      if (this.hasItems(params)) {
-        return this.confirmAndDeleteItems(params);
-      }
+    if (this.hasItems(params) && this.hasCollections(params)) {
+      return this.confirmAndDeleteMixed(params);
     }
-
-    const dialog = openBulkDeleteDialog(this.dialogService, { data: params });
-    return lastValueFrom(dialog.closed.pipe(map((r) => r ?? BulkDeleteDialogResult.Canceled)));
+    if (this.hasCollections(params)) {
+      return this.confirmAndDeleteCollections(params);
+    }
+    if (this.hasItems(params)) {
+      return this.confirmAndDeleteItems(params);
+    }
+    return BulkDeleteDialogResult.Canceled;
   }
 
   private hasItems(params: BulkDeleteDialogParams): boolean {
