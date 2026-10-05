@@ -359,8 +359,17 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   /** The shared folder the current vault scope has drilled into — relayed to the empty state untouched. */
   readonly sharedFolderName = input<string>();
 
+  /**
+   * Whether My vault holds items this page leaves out and the nav offers no way back to. The Vault
+   * chip then keeps its "My vault" option, and picking it emits {@link myVaultSelected}.
+   */
+  readonly myVaultOutsideScope = input(false);
+
   /** Emits the selected rows whenever the selection changes. */
   readonly selectedChange = output<readonly C[]>();
+
+  /** Emits when "My vault" is picked while {@link myVaultOutsideScope}; the host navigates there. */
+  readonly myVaultSelected = output<void>();
 
   /**
    * Elements that own their own click behaviour. A click originating inside one of these must not
@@ -572,10 +581,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     this.ciphers().some((cipher) => !idString(cipher.organizationId)),
   );
 
-  /**
-   * Whether the Vault chip offers "My vault".
-   */
-  protected readonly showMyVaultOption = computed(() => {
+  /** Whether the rows can include My vault items. */
+  private readonly myVaultInRows = computed(() => {
     const canHaveEmptyPersonalVault =
       !this.ciphers().filter((cipher) => !cipher.organizationId).length &&
       !this.scopedOrganizationId() &&
@@ -584,12 +591,19 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   });
 
   /**
+   * Whether the Vault chip offers "My vault".
+   */
+  protected readonly showMyVaultOption = computed(
+    () => this.myVaultInRows() || this.myVaultOutsideScope(),
+  );
+
+  /**
    * Whether the user's items can span more than one vault:
    * - multiple organizations are present, or
-   * - exactly one organization is present alongside a personal vault option.
+   * - exactly one organization is present alongside a personal vault.
    */
-  private spansMultipleVaults(organizations: Organization[]): boolean {
-    return organizations.length > 1 || (this.showMyVaultOption() && organizations.length === 1);
+  private spansMultipleVaults(organizations: Organization[], includesMyVault: boolean): boolean {
+    return organizations.length > 1 || (includesMyVault && organizations.length === 1);
   }
 
   /**
@@ -597,16 +611,17 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * only appears when the user can filter between the vaults it actually offers.
    */
   protected readonly showVaults = computed(() =>
-    this.spansMultipleVaults(this.sortedOrganizations()),
+    this.spansMultipleVaults(this.sortedOrganizations(), this.showMyVaultOption()),
   );
 
   /**
    * Whether the Vault column should be shown. Driven by the unfiltered `organizations` input
    * rather than {@link sortedOrganizations}: a disabled organization still owns rows in the table,
    * so the column has to label them even though the chip doesn't offer the organization.
+   * Ignores {@link myVaultOutsideScope}, whose items never appear as rows here.
    */
   protected readonly showVaultColumn = computed(() =>
-    this.spansMultipleVaults(this.organizations()),
+    this.spansMultipleVaults(this.organizations(), this.myVaultInRows()),
   );
 
   /**
@@ -821,6 +836,31 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     // The service is provided above this table, so without this its selection would outlive the
     // component that owns it.
     onCleanup(teardown);
+  });
+
+  /**
+   * Hands a "My vault" pick to the host when this page can't show it. Cleared from the chip before
+   * the table mirrors it to the URL, so the page never records it in its filter memory.
+   */
+  private readonly redirectMyVaultPick = effect(() => {
+    const control = this.tableComponent()
+      ?.filterControls()
+      .find((filterControl) => filterControl.key() === VAULT_FILTER_KEYS.vault);
+    const value = control?.value();
+    if (
+      control == null ||
+      !this.myVaultOutsideScope() ||
+      !Array.isArray(value) ||
+      !value.includes(MY_VAULT)
+    ) {
+      return;
+    }
+
+    untracked(() => {
+      const rest = value.filter((vault) => vault !== MY_VAULT);
+      control.setValue(rest.length > 0 ? rest : undefined);
+      this.myVaultSelected.emit();
+    });
   });
 
   /** Carries the selection onto each new set of rows — see {@link reconcileSelection}. */

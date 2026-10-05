@@ -770,6 +770,32 @@ describe("VaultNextComponent", () => {
         expect(component().showBreadcrumbs()).toBe(false);
         expect(component().headerTile()).toBeDefined();
       });
+
+      it("leaves My vault to the nav without data ownership", () => {
+        expect(component().myVaultOutsideScope()).toBe(false);
+      });
+
+      describe("under data ownership", () => {
+        beforeEach(() => {
+          vaultNav$.next({
+            vaults: [buildOrgNavItem(organizationId, "Acme corporation")],
+            organizationDataOwnership: true,
+          });
+          fixture.detectChanges();
+        });
+
+        it("offers the My vault items the nav no longer leads to", () => {
+          expect(component().myVaultOutsideScope()).toBe(true);
+        });
+
+        it("sends a My vault pick to All items, filtered to My vault", async () => {
+          await component().showMyVault();
+
+          expect(router.navigate).toHaveBeenCalledWith(["/vault"], {
+            queryParams: { "vault.vault": "myVault" },
+          });
+        });
+      });
     });
 
     describe("scoped to an organization's My items", () => {

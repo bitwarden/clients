@@ -5,6 +5,7 @@ import {
   VAULT_FILTER_NAMESPACE,
 } from "../components/vault-items-table/vault-items-table.component";
 import { parseVaultScope, VaultScope } from "../models/vault-scope";
+import { MY_VAULT } from "../utils/vault-filter-predicates";
 
 import { scopedCollectionSegment } from "./scoped-collection";
 
@@ -18,6 +19,11 @@ export const VAULT_FILTER_SCOPE = "vaultFilterScope";
 export const VAULT_SCOPE_PARAM = "vaultId";
 
 export type VaultScopeRouteData = { [VAULT_FILTER_SCOPE]: true };
+
+/** Query params opening the vault with its Vault chip set to My vault. */
+export const MY_VAULT_FILTER_PARAMS: Params = {
+  [`${VAULT_FILTER_NAMESPACE}.${VAULT_FILTER_KEYS.vault}`]: MY_VAULT,
+};
 
 /**
  * The `bit-table-v2` param keys carrying sort state. Mirrored rather than imported because the

@@ -149,7 +149,11 @@ export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-re
 export { vaultFilterRestoreGuard } from "./routing/vault-filter-restore.guard";
 export { vaultScopeGuard } from "./routing/vault-scope.guard";
 export { VAULT_BASE_ROUTE } from "./routing/vault-base-route";
-export { VAULT_FILTER_SCOPE, type VaultScopeRouteData } from "./routing/vault-filter-scope";
+export {
+  MY_VAULT_FILTER_PARAMS,
+  VAULT_FILTER_SCOPE,
+  type VaultScopeRouteData,
+} from "./routing/vault-filter-scope";
 export {
   matchesType,
   matchesFavorite,

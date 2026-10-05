@@ -45,12 +45,14 @@
   [scopedOrganizationId]="scopedOrganizationId()"
   [defaultCollectionId]="defaultCollectionId()"
   [orgRequiresDataOwnership]="orgRequiresDataOwnership()"
+  [myVaultOutsideScope]="myVaultOutsideScope()"
   [itemAction]="itemAction"
   [copyPresentation]="copyPresentation()"
   [scope]="vaultScope()"
   [organizationName]="emptyVaultOrganizationName()"
   [hasMultipleVaults]="hasMultipleVaults()"
   [sharedFolderName]="emptySharedFolderName()"
+  (myVaultSelected)="showMyVault()"
 >
   @if (showItemCreation()) {
     <vault-new-cipher-menu

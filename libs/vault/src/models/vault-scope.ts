@@ -373,6 +373,22 @@ export function scopedSharedFolderId(scope: VaultScope): ScopedCollectionId | un
   return scope.type === VaultScopeType.Organization ? scope.collectionId : undefined;
 }
 
+/**
+ * Whether My vault holds items the scope leaves out with no nav entry back to them — an org page
+ * under data ownership, which drops My vault from the nav.
+ */
+export function myVaultOutsideScope(
+  scope: VaultScope,
+  nav: VaultsNavViewModel | undefined,
+  hasMyVaultItems: boolean,
+): boolean {
+  return (
+    scope.type === VaultScopeType.Organization &&
+    nav?.organizationDataOwnership === true &&
+    hasMyVaultItems
+  );
+}
+
 /** Whether the scope is the personal vault — drives the empty vault's "My vault" copy. */
 export function isMyVaultScope(scope: VaultScope): boolean {
   return scope.type === VaultScopeType.MyVault;

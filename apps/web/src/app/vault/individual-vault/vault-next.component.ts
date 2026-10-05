@@ -67,6 +67,9 @@ import {
   VaultBatchBarService,
   VaultRemountOnDirective,
   ALL_ITEMS_SCOPE,
+  MY_VAULT_FILTER_PARAMS,
+  myVaultOutsideScope,
+  vaultScopeCommands,
   cipherInScope,
   collectionInScope,
   hasMultipleVaults,
@@ -517,6 +520,22 @@ export class VaultNextComponent implements OnInit {
     ),
     { initialValue: false },
   );
+
+  /** Whether the Vault chip offers My vault items this page leaves out — see `myVaultOutsideScope`. */
+  protected readonly myVaultOutsideScope = computed(() =>
+    myVaultOutsideScope(
+      this.vaultScope(),
+      this.vaultNav(),
+      this.activeCiphers().some((cipher) => cipher.organizationId == null),
+    ),
+  );
+
+  /** Sends a "My vault" pick from an org page to All items, filtered to My vault. */
+  protected async showMyVault(): Promise<void> {
+    await this.router.navigate(vaultScopeCommands(ALL_ITEMS_SCOPE), {
+      queryParams: MY_VAULT_FILTER_PARAMS,
+    });
+  }
 
   /**
    * Clicking an item's name opens the read-only view, matching the legacy vault — the dialog offers

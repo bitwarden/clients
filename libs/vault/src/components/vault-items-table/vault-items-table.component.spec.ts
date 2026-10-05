@@ -968,6 +968,62 @@ describe("VaultItemsTableComponent", () => {
       });
     });
 
+    describe("My vault items outside the scope", () => {
+      beforeEach(() => {
+        fixture.componentRef.setInput("organizations", [
+          { id: "org-1", name: "Acme corporation", enabled: true } as Organization,
+        ]);
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ id: "a", organizationId: "org-1" as never }),
+        ]);
+        fixture.componentRef.setInput("scopedOrganizationId", "org-1" as never);
+        fixture.componentRef.setInput("orgRequiresDataOwnership", true);
+      });
+
+      it("hides the Vault chip on an org page when My vault has nothing outside it", () => {
+        expect(component["showMyVaultOption"]()).toBe(false);
+        expect(component["showVaults"]()).toBe(false);
+      });
+
+      it("keeps the Vault chip and its My vault option, without adding the Vault column", () => {
+        fixture.componentRef.setInput("myVaultOutsideScope", true);
+
+        expect(component["showMyVaultOption"]()).toBe(true);
+        expect(component["showVaults"]()).toBe(true);
+        expect(component["showVaultColumn"]()).toBe(false);
+      });
+
+      it("hands a My vault pick to the host and clears it from the chip", () => {
+        fixture.componentRef.setInput("myVaultOutsideScope", true);
+        const selected = jest.fn();
+        component.myVaultSelected.subscribe(selected);
+        fixture.detectChanges();
+
+        filterMenu("vault").setValue([MY_VAULT, "org-1"]);
+        fixture.detectChanges();
+
+        expect(selected).toHaveBeenCalledTimes(1);
+        expect(filterControl("vault").value()).toEqual(["org-1"]);
+      });
+
+      it("leaves a My vault pick alone when the page can show it", () => {
+        fixture.componentRef.setInput("scopedOrganizationId", undefined);
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ id: "a", organizationId: undefined }),
+          cipherView({ id: "b", organizationId: "org-1" as never }),
+        ]);
+        const selected = jest.fn();
+        component.myVaultSelected.subscribe(selected);
+        fixture.detectChanges();
+
+        filterMenu("vault").setValue([MY_VAULT]);
+        fixture.detectChanges();
+
+        expect(selected).not.toHaveBeenCalled();
+        expect(filterControl("vault").value()).toEqual([MY_VAULT]);
+      });
+    });
+
     describe("chip option icon tiles", () => {
       it("tints the My vault option with the user's avatar color", () => {
         expect(component["myVaultFilterTile"]()).toEqual({
