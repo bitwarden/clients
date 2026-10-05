@@ -360,15 +360,15 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   readonly sharedFolderName = input<string>();
 
   /**
-   * Whether My vault holds items this page leaves out and the nav offers no way back to. The Vault
-   * chip then keeps its "My vault" option, and picking it emits {@link myVaultSelected}.
+   * How many My vault items this page leaves out with no nav entry back to them. When nonzero, the
+   * Vault chip keeps "My vault" with this count, and picking it emits {@link myVaultSelected}.
    */
-  readonly myVaultOutsideScope = input(false);
+  readonly myVaultItemsOutsideScope = input(0);
 
   /** Emits the selected rows whenever the selection changes. */
   readonly selectedChange = output<readonly C[]>();
 
-  /** Emits when "My vault" is picked while {@link myVaultOutsideScope}; the host navigates there. */
+  /** Emits when "My vault" is picked while {@link myVaultItemsOutsideScope}; the host navigates there. */
   readonly myVaultSelected = output<void>();
 
   /**
@@ -590,11 +590,18 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     return this.hasPersonalCiphers() || canHaveEmptyPersonalVault;
   });
 
+  private readonly myVaultOutsideScope = computed(() => this.myVaultItemsOutsideScope() > 0);
+
   /**
    * Whether the Vault chip offers "My vault".
    */
   protected readonly showMyVaultOption = computed(
     () => this.myVaultInRows() || this.myVaultOutsideScope(),
+  );
+
+  /** Overrides the chip's row count, which can't see My vault items outside the rows. */
+  protected readonly myVaultOptionCount = computed(() =>
+    this.myVaultOutsideScope() ? this.myVaultItemsOutsideScope() : undefined,
   );
 
   /**
@@ -618,7 +625,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * Whether the Vault column should be shown. Driven by the unfiltered `organizations` input
    * rather than {@link sortedOrganizations}: a disabled organization still owns rows in the table,
    * so the column has to label them even though the chip doesn't offer the organization.
-   * Ignores {@link myVaultOutsideScope}, whose items never appear as rows here.
+   * Ignores {@link myVaultItemsOutsideScope}, which never appear as rows here.
    */
   protected readonly showVaultColumn = computed(() =>
     this.spansMultipleVaults(this.organizations(), this.myVaultInRows()),

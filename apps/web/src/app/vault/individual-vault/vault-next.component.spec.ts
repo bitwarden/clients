@@ -772,7 +772,7 @@ describe("VaultNextComponent", () => {
       });
 
       it("leaves My vault to the nav without data ownership", () => {
-        expect(component().myVaultOutsideScope()).toBe(false);
+        expect(component().myVaultItemsOutsideScope()).toBe(0);
       });
 
       describe("under data ownership", () => {
@@ -785,7 +785,7 @@ describe("VaultNextComponent", () => {
         });
 
         it("offers the My vault items the nav no longer leads to", () => {
-          expect(component().myVaultOutsideScope()).toBe(true);
+          expect(component().myVaultItemsOutsideScope()).toBe(1);
         });
 
         it("sends a My vault pick to All items, filtered to My vault", async () => {

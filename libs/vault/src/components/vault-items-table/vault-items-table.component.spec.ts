@@ -986,15 +986,23 @@ describe("VaultItemsTableComponent", () => {
       });
 
       it("keeps the Vault chip and its My vault option, without adding the Vault column", () => {
-        fixture.componentRef.setInput("myVaultOutsideScope", true);
+        fixture.componentRef.setInput("myVaultItemsOutsideScope", 3);
 
         expect(component["showMyVaultOption"]()).toBe(true);
         expect(component["showVaults"]()).toBe(true);
         expect(component["showVaultColumn"]()).toBe(false);
       });
 
+      it("counts My vault from the items outside the scope, not the rows", () => {
+        expect(component["myVaultOptionCount"]()).toBeUndefined();
+
+        fixture.componentRef.setInput("myVaultItemsOutsideScope", 3);
+
+        expect(component["myVaultOptionCount"]()).toBe(3);
+      });
+
       it("hands a My vault pick to the host and clears it from the chip", () => {
-        fixture.componentRef.setInput("myVaultOutsideScope", true);
+        fixture.componentRef.setInput("myVaultItemsOutsideScope", 3);
         const selected = jest.fn();
         component.myVaultSelected.subscribe(selected);
         fixture.detectChanges();

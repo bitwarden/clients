@@ -68,7 +68,7 @@ import {
   VaultRemountOnDirective,
   ALL_ITEMS_SCOPE,
   MY_VAULT_FILTER_PARAMS,
-  myVaultOutsideScope,
+  myVaultItemsOutsideScope,
   vaultScopeCommands,
   cipherInScope,
   collectionInScope,
@@ -521,12 +521,12 @@ export class VaultNextComponent implements OnInit {
     { initialValue: false },
   );
 
-  /** Whether the Vault chip offers My vault items this page leaves out — see `myVaultOutsideScope`. */
-  protected readonly myVaultOutsideScope = computed(() =>
-    myVaultOutsideScope(
+  /** How many My vault items the Vault chip offers that this page leaves out. */
+  protected readonly myVaultItemsOutsideScope = computed(() =>
+    myVaultItemsOutsideScope(
       this.vaultScope(),
       this.vaultNav(),
-      this.activeCiphers().some((cipher) => cipher.organizationId == null),
+      this.activeCiphers().filter((cipher) => cipher.organizationId == null).length,
     ),
   );
 

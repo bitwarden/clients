@@ -88,8 +88,8 @@ export class VaultListTableComponent<C extends CipherViewLike> {
   /** Whether the account has more than one vault — relayed to `vault-items-table` untouched. */
   readonly hasMultipleVaults = input(false);
 
-  /** Whether My vault holds items this page leaves out — relayed to `vault-items-table` untouched. */
-  readonly myVaultOutsideScope = input(false);
+  /** My vault items this page leaves out — relayed to `vault-items-table` untouched. */
+  readonly myVaultItemsOutsideScope = input(0);
 
   /** Relays `vault-items-table`'s "My vault" pick from a page that can't show it. */
   readonly myVaultSelected = output<void>();

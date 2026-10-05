@@ -124,7 +124,7 @@ import {
   ALL_ITEMS_SCOPE,
   cipherInScope,
   MY_VAULT_FILTER_PARAMS,
-  myVaultOutsideScope,
+  myVaultItemsOutsideScope,
   collectionInScope,
   FilterFunction,
   hasMultipleVaults,
@@ -338,22 +338,24 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     { initialValue: scopeKey(ALL_ITEMS_SCOPE) },
   );
 
-  /** Whether the Vault chip offers My vault items this page leaves out — see `myVaultOutsideScope`. */
-  protected readonly myVaultOutsideScope = toSignal(
+  /** How many My vault items the Vault chip offers that this page leaves out. */
+  protected readonly myVaultItemsOutsideScope = toSignal(
     combineLatest([
       this.vaultScope$,
       this.vaultNav$,
       this.userId$.pipe(switchMap((userId) => this.cipherService.cipherListViews$(userId))),
     ]).pipe(
       map(([scope, nav, ciphers]) =>
-        myVaultOutsideScope(
+        myVaultItemsOutsideScope(
           scope,
           nav,
-          (ciphers ?? []).some((cipher) => cipherInScope(cipher, { type: VaultScopeType.MyVault })),
+          (ciphers ?? []).filter((cipher) =>
+            cipherInScope(cipher, { type: VaultScopeType.MyVault }),
+          ).length,
         ),
       ),
     ),
-    { initialValue: false },
+    { initialValue: 0 },
   );
 
   /** {@link vaultNav$} as a signal for use in computed properties. */
