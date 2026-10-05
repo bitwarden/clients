@@ -95,8 +95,9 @@ export class PopoverAnchorForDirective implements OnDestroy {
   /**
    * Anchor to this element instead of the host. Must be a rendered element, not an `<ng-container>`.
    * Opening waits for it to render and finish animating in; the popover hides until it returns.
+   * Leave unbound to anchor to the host; a bound `undefined` waits instead of falling back.
    */
-  readonly anchor = input<HTMLElement | ElementRef<HTMLElement>>();
+  readonly anchor = input<HTMLElement | ElementRef<HTMLElement> | undefined | null>(null);
 
   private readonly popoverElementProvider = inject<PopoverElementProvider>(PopoverElementProvider, {
     host: true,
@@ -108,7 +109,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
 
   private readonly anchorElement = computed(() => {
     const anchor = this.anchor();
-    return anchor instanceof ElementRef ? anchor.nativeElement : anchor;
+    return anchor instanceof ElementRef ? anchor.nativeElement : (anchor ?? undefined);
   });
   /** `anchorElement` once it has finished animating into place. */
   private readonly settledAnchor = signal<HTMLElement | undefined>(undefined);
@@ -184,7 +185,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
       }
       const anchor = this.readyAnchor();
 
-      const target = this.anchorElement() ?? this.hostElement();
+      const target = this.anchor() === null ? this.hostElement() : this.anchorElement();
       // Losing the anchor keeps `popoverOpen` set, so the popover reattaches when one is ready
       if (this.overlayRef && (!this.popoverOpen() || target !== this.openAnchor)) {
         this.disposeAll();
@@ -239,7 +240,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
 
   /** Undefined while an explicit `anchor` is missing or still animating. */
   private readyAnchor(): HTMLElement | undefined {
-    return this.anchor() ? this.settledAnchor() : this.hostElement();
+    return this.anchor() === null ? this.hostElement() : this.settledAnchor();
   }
 
   private getClosedEvents(): Observable<any> {
