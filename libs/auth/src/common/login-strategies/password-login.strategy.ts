@@ -90,8 +90,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
         preFetchedPreloginData,
       );
     } finally {
-      // Clear on failure too: otherwise a derivation that throws leaves the fetched data in the
-      // service's replay cache, and every retry on the same email replays it.
+      // Clear no matter what. Let the prelogin data exist only for the creation of the key
       this.passwordPreloginService.clearCache();
     }
     data.masterPassword = masterPassword;

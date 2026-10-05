@@ -63,21 +63,24 @@ export class DefaultPasswordPreloginService implements PasswordPreloginService {
       FeatureFlag.PM27060_PasswordPreloginFromSdk,
     );
 
-    if (useSdk) {
-      return this.fetchPreloginDataFromSdk(email);
-    }
-
-    // Kill switch: ignore any server-supplied salt and derive from the email, matching
-    // pre-PM-27060 behavior. `email` is already normalized by getPreloginData$.
-    const { kdfConfig } = await this.fetchPreloginDataFromApi(email);
-    return new PasswordPreloginData(kdfConfig, email);
+    // The flag picks the transport only. Both transports resolve the salt the same way:
+    // the server's salt when it supplies one, the normalized email when it does not.
+    return useSdk ? this.fetchPreloginDataFromSdk(email) : this.fetchPreloginDataFromApi(email);
   }
 
   private async fetchPreloginDataFromApi(email: string): Promise<PasswordPreloginData> {
     const response = await this.passwordPreloginApiService.getPreloginData(
       new PasswordPreloginRequest(email),
     );
-    return PasswordPreloginData.fromResponse(response, email);
+
+    const kdfConfig = response.kdfSettings.toKdfConfig();
+    // Pre-login downgrade guard. Validate the instance we return, not a throwaway copy.
+    // The SDK path validates the same way.
+    kdfConfig.validateKdfConfigForPrelogin();
+
+    // The server's salt column is nullable and was never backfilled, so a null reaches us for
+    // accounts that predate it. `email` is already normalized by getPreloginData$.
+    return new PasswordPreloginData(kdfConfig, response.salt ?? email);
   }
 
   private async fetchPreloginDataFromSdk(email: string): Promise<PasswordPreloginData> {

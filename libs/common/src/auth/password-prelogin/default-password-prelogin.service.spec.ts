@@ -3,7 +3,7 @@ import { firstValueFrom } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
+import { Argon2KdfConfig, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 import { PasswordPreloginResponse as SdkPasswordPreloginResponse } from "@bitwarden/sdk-internal";
 
 import { FeatureFlag } from "../../enums/feature-flag.enum";
@@ -37,24 +37,27 @@ describe("DefaultPasswordPreloginService", () => {
   const apiSalt = "api-salt";
   const sdkSalt = "sdk-salt";
 
-  // PBKDF2 is used as a stand-in throughout; KDF type coverage is in password-prelogin.model.spec.ts.
+  // PBKDF2 backs the shared fixtures; KDF type coverage lives in the "kdf config" describe.
   const response = new PasswordPreloginResponse({
     KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
     Salt: apiSalt,
+  });
+  // The reproduction for PM-44073. User.MasterPasswordSalt is nullable and was never
+  // backfilled, so the server returns null for accounts that predate the column.
+  const nullSaltResponse = new PasswordPreloginResponse({
+    KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
+    Salt: null,
   });
   const sdkResponse: SdkPasswordPreloginResponse = {
     kdf: { pBKDF2: { iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue } },
     salt: sdkSalt,
   };
-  // Flag off is the kill switch: the server's salt is discarded and the normalized email is
-  // used instead, so apiSalt must never appear in the result. That makes the expected salt a
-  // function of the email requested, hence the factory.
-  const expectedDataFor = (requestedEmail: string) =>
-    new PasswordPreloginData(
-      new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
-      requestedEmail,
-    );
-  const expectedData = expectedDataFor(email);
+  // The flag picks the transport only. Both transports keep the salt the server supplied, so
+  // the API path is expected to carry apiSalt through untouched.
+  const expectedData = new PasswordPreloginData(
+    new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
+    apiSalt,
+  );
   const expectedSdkData = new PasswordPreloginData(
     new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
     sdkSalt,
@@ -115,29 +118,23 @@ describe("DefaultPasswordPreloginService", () => {
     });
 
     describe("salt resolution", () => {
-      it("ignores a server-supplied salt and uses the normalized email when the flag is off", async () => {
+      it("keeps the server-supplied salt when the flag is off", async () => {
         const result = await firstValueFrom(sut.getPreloginData$(email));
 
-        expect(result.salt).toBe(email);
-        expect(result.salt).not.toBe(apiSalt);
+        expect(result.salt).toBe(apiSalt);
       });
 
-      it("uses the normalized email when the flag is off and the server salt is null", async () => {
-        // User.MasterPasswordSalt is nullable and was never backfilled, so the server returns
-        // null for accounts predating the column.
-        apiService.getPreloginData.mockResolvedValue(
-          new PasswordPreloginResponse({
-            KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
-            Salt: null,
-          }),
-        );
+      it("falls back to the normalized email when the flag is off and the server salt is null", async () => {
+        apiService.getPreloginData.mockResolvedValue(nullSaltResponse);
 
         const result = await firstValueFrom(sut.getPreloginData$(email));
 
         expect(result.salt).toBe(email);
       });
 
-      it("normalizes the email it falls back to when the flag is off", async () => {
+      it("normalizes the email it falls back to", async () => {
+        apiService.getPreloginData.mockResolvedValue(nullSaltResponse);
+
         const result = await firstValueFrom(sut.getPreloginData$("  USER@EXAMPLE.COM  "));
 
         expect(result.salt).toBe(email);
@@ -149,6 +146,137 @@ describe("DefaultPasswordPreloginService", () => {
         const result = await firstValueFrom(sut.getPreloginData$(email));
 
         expect(result.salt).toBe(sdkSalt);
+      });
+
+      // The strategy hands this straight to makeMasterKey, which calls .trim() on it. A null
+      // here is the PM-44073 crash.
+      it("never emits a null salt", async () => {
+        apiService.getPreloginData.mockResolvedValue(nullSaltResponse);
+
+        const result = await firstValueFrom(sut.getPreloginData$(email));
+
+        expect(result.salt).not.toBeNull();
+        expect(typeof result.salt).toBe("string");
+      });
+    });
+
+    // Migrated from password-prelogin.model.spec.ts. PasswordPreloginData.fromResponse was
+    // removed, so mapping and the pre-login downgrade guard now live in this service.
+    describe("kdf config", () => {
+      it.each([
+        {
+          description: "PBKDF2",
+          kdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
+          expected: new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
+        },
+        {
+          description: "Argon2",
+          kdfSettings: {
+            KdfType: 1,
+            Iterations: Argon2KdfConfig.ITERATIONS.defaultValue,
+            Memory: Argon2KdfConfig.MEMORY.defaultValue,
+            Parallelism: Argon2KdfConfig.PARALLELISM.defaultValue,
+          },
+          expected: new Argon2KdfConfig(
+            Argon2KdfConfig.ITERATIONS.defaultValue,
+            Argon2KdfConfig.MEMORY.defaultValue,
+            Argon2KdfConfig.PARALLELISM.defaultValue,
+          ),
+        },
+      ])("maps a $description response from the API", async ({ kdfSettings, expected }) => {
+        apiService.getPreloginData.mockResolvedValue(
+          new PasswordPreloginResponse({ KdfSettings: kdfSettings, Salt: apiSalt }),
+        );
+
+        const result = await firstValueFrom(sut.getPreloginData$(email));
+
+        expect(result.kdfConfig).toEqual(expected);
+      });
+
+      // Pre-login downgrade guard. A server offering sub-minimum KDF settings would make the
+      // master password cheap to brute force, so the fetch must reject before any derivation.
+      it.each([
+        {
+          description: "PBKDF2 iterations below minimum",
+          kdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1 },
+          expectedError: new RegExp(
+            `PBKDF2 iterations must be at least ${PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN}`,
+          ),
+        },
+        {
+          description: "Argon2 iterations below minimum",
+          kdfSettings: {
+            KdfType: 1,
+            Iterations: Argon2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1,
+            Memory: Argon2KdfConfig.MEMORY.defaultValue,
+            Parallelism: Argon2KdfConfig.PARALLELISM.defaultValue,
+          },
+          expectedError: new RegExp(
+            `Argon2 iterations must be at least ${Argon2KdfConfig.PRELOGIN_ITERATIONS_MIN}`,
+          ),
+        },
+        {
+          description: "Argon2 memory below minimum",
+          kdfSettings: {
+            KdfType: 1,
+            Iterations: Argon2KdfConfig.ITERATIONS.defaultValue,
+            Memory: Argon2KdfConfig.PRELOGIN_MEMORY_MIN - 1,
+            Parallelism: Argon2KdfConfig.PARALLELISM.defaultValue,
+          },
+          expectedError: new RegExp(
+            `Argon2 memory must be at least ${Argon2KdfConfig.PRELOGIN_MEMORY_MIN} MiB`,
+          ),
+        },
+        {
+          description: "Argon2 parallelism below minimum",
+          kdfSettings: {
+            KdfType: 1,
+            Iterations: Argon2KdfConfig.ITERATIONS.defaultValue,
+            Memory: Argon2KdfConfig.MEMORY.defaultValue,
+            Parallelism: Argon2KdfConfig.PRELOGIN_PARALLELISM_MIN - 1,
+          },
+          expectedError: new RegExp(
+            `Argon2 parallelism must be at least ${Argon2KdfConfig.PRELOGIN_PARALLELISM_MIN}`,
+          ),
+        },
+      ])("rejects $description from the API", async ({ kdfSettings, expectedError }) => {
+        apiService.getPreloginData.mockResolvedValue(
+          new PasswordPreloginResponse({ KdfSettings: kdfSettings, Salt: apiSalt }),
+        );
+
+        await expect(firstValueFrom(sut.getPreloginData$(email))).rejects.toThrow(expectedError);
+      });
+
+      it("rejects sub-minimum kdf settings from the SDK", async () => {
+        configService.getFeatureFlag.mockResolvedValue(true);
+        sdkService.client.auth
+          .mockDeep()
+          .login.mockDeep()
+          .get_password_prelogin.mockResolvedValue({
+            kdf: { pBKDF2: { iterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1 } },
+            salt: sdkSalt,
+          });
+
+        await expect(firstValueFrom(sut.getPreloginData$(email))).rejects.toThrow(
+          /PBKDF2 iterations must be at least/,
+        );
+      });
+
+      it("does not cache a rejected fetch, so a retry refetches", async () => {
+        apiService.getPreloginData.mockResolvedValueOnce(
+          new PasswordPreloginResponse({
+            KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1 },
+            Salt: apiSalt,
+          }),
+        );
+        apiService.getPreloginData.mockResolvedValueOnce(response);
+
+        await expect(firstValueFrom(sut.getPreloginData$(email))).rejects.toThrow(
+          /pre-login downgrade attack/,
+        );
+
+        expect(await firstValueFrom(sut.getPreloginData$(email))).toEqual(expectedData);
+        expect(apiService.getPreloginData).toHaveBeenCalledTimes(2);
       });
     });
 
@@ -194,11 +322,11 @@ describe("DefaultPasswordPreloginService", () => {
 
       expect(second$).not.toBe(first$);
       expect(apiService.getPreloginData).toHaveBeenCalledTimes(2);
-      expect(await firstValueFrom(second$)).toEqual(expectedDataFor(emailB));
+      expect(await firstValueFrom(second$)).toEqual(expectedData);
 
       // The original in-flight observable still resolves correctly
       resolveA(response);
-      expect(await firstValueFrom(first$)).toEqual(expectedDataFor(emailA));
+      expect(await firstValueFrom(first$)).toEqual(expectedData);
     });
 
     it("starts a new request when called with a different email after the first has resolved", async () => {
@@ -209,8 +337,8 @@ describe("DefaultPasswordPreloginService", () => {
       const secondResult = await firstValueFrom(second$);
 
       expect(second$).not.toBe(first$);
-      expect(firstResult).toEqual(expectedDataFor(emailA));
-      expect(secondResult).toEqual(expectedDataFor(emailB));
+      expect(firstResult).toEqual(expectedData);
+      expect(secondResult).toEqual(expectedData);
       expect(apiService.getPreloginData).toHaveBeenCalledTimes(2);
     });
 

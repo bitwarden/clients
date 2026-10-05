@@ -113,6 +113,48 @@ describe("PasswordPreloginApiService", () => {
       );
     });
 
+    // Migrated from password-prelogin.model.spec.ts: response shape is this layer's concern.
+    it("maps a camelCase response, matching the casing the server actually serializes", async () => {
+      const request = new PasswordPreloginRequest("user@example.com");
+      apiService.send.mockResolvedValue({
+        kdfSettings: { kdfType: 0, iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
+        salt,
+      });
+
+      const result = await sut.getPreloginData(request);
+
+      expect(result.kdfSettings.kdfType).toBe(0);
+      expect(result.kdfSettings.iterations).toBe(PBKDF2KdfConfig.ITERATIONS.defaultValue);
+      expect(result.salt).toBe(salt);
+    });
+
+    // The server declares Salt as `string?` and returns the nullable User.MasterPasswordSalt
+    // column verbatim, so a null reaches the client for accounts that predate the column.
+    // The salt fallback that depends on this lives in DefaultPasswordPreloginService.
+    it.each([
+      { description: "Salt is explicitly null", payload: { Salt: null } },
+      { description: "Salt is absent", payload: {} },
+    ])("maps a response to a null salt when $description", async ({ payload }) => {
+      const request = new PasswordPreloginRequest("user@example.com");
+      apiService.send.mockResolvedValue({
+        KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
+        ...payload,
+      });
+
+      const result = await sut.getPreloginData(request);
+
+      expect(result.salt).toBeNull();
+    });
+
+    it("throws when the response omits KdfSettings entirely", async () => {
+      const request = new PasswordPreloginRequest("user@example.com");
+      apiService.send.mockResolvedValue({ Salt: salt });
+
+      await expect(sut.getPreloginData(request)).rejects.toThrow(
+        "KDF config response does not contain a valid KDF type",
+      );
+    });
+
     it("propagates api errors", async () => {
       const request = new PasswordPreloginRequest("user@example.com");
       apiService.send.mockRejectedValue(new Error("API Error"));
