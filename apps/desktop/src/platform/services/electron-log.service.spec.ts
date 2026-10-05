@@ -64,25 +64,40 @@ describe("ElectronLogMainService", () => {
 
 describe("ElectronLogRendererService", () => {
   let recorder: MockProxy<LogRecorder>;
+  let consoleLog: jest.SpyInstance;
 
   beforeEach(() => {
     recorder = mock<LogRecorder>();
     (global as any).ipc = {
       platform: { isDev: false, log: jest.fn().mockResolvedValue(undefined) },
     };
-    jest.spyOn(console, "info").mockImplementation(() => {});
+    consoleLog = jest.spyOn(console, "log").mockImplementation(() => {});
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  it("tees writes to the recorder", () => {
+  it("tees writes to the recorder once", () => {
     const logService = new ElectronLogRendererService(null, recorder);
 
     logService.write(LogLevelType.Info, "hello", "world");
 
+    expect(recorder.record).toHaveBeenCalledTimes(1);
     expect(recorder.record).toHaveBeenCalledWith(LogLevelType.Info, "hello", "world");
+  });
+
+  it("writes to the console and forwards to the main process", () => {
+    const logService = new ElectronLogRendererService(null, recorder);
+
+    logService.write(LogLevelType.Info, "hello", "world");
+
+    expect(consoleLog).toHaveBeenCalledWith("hello", "world");
+    expect((global as any).ipc.platform.log).toHaveBeenCalledWith(
+      LogLevelType.Info,
+      "hello",
+      "world",
+    );
   });
 
   it("records events the filter suppresses", () => {
@@ -91,6 +106,7 @@ describe("ElectronLogRendererService", () => {
     logService.write(LogLevelType.Info, "quiet");
 
     expect(recorder.record).toHaveBeenCalledWith(LogLevelType.Info, "quiet");
+    expect(consoleLog).not.toHaveBeenCalled();
     expect((global as any).ipc.platform.log).not.toHaveBeenCalled();
   });
 });
