@@ -232,6 +232,15 @@ mod tests {
         SymmetricCryptoKey::try_from(&BitwardenLegacyKeyBytes::from(encoded.to_vec())).unwrap()
     }
 
+    /// The legacy-encoded bytes of `TEST_VECTOR_XAES_USER_KEY_B64`, as handed to
+    /// `enroll_persistent` over NAPI.
+    fn xaes_user_key_bytes() -> Vec<u8> {
+        SymmetricCryptoKey::try_from(TEST_VECTOR_XAES_USER_KEY_B64.to_string())
+            .expect("XAES-256-GCM user key must parse")
+            .to_encoded()
+            .to_vec()
+    }
+
     // Fixed, deterministic inputs used to produce and verify the test vector below. The Windows
     // Hello key stands in for the PRF that Windows Hello would derive from the challenge; the test
     // never calls Windows, it re-derives the sealing secret directly from these bytes.
@@ -241,12 +250,21 @@ mod tests {
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
     // A valid 64-byte (AES-CBC-HMAC) encoded user key
     const TEST_VECTOR_USER_KEY: &[u8] = &[9u8; 64];
+    // A V2 XAES-256-GCM user key: a padded COSE key, base64-encoded exactly as the renderer sends
+    // it (`SymmetricCryptoKey.toBase64()`). Same fixed key as the SDK's
+    // `test_xaes256_gcm_encoding_roundtrips` vector (key id 0..=15, key bytes 0..=31).
+    const TEST_VECTOR_XAES_USER_KEY_B64: &str =
+        "pQEEAlAAAQIDBAUGBwgJCgsMDQ4PAzoAARF5BIIDBCBYIAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fAQ==";
 
     // A `WindowsHelloKeychainEntryV2` (challenge + `SecretProtectedKeyEnvelope`), serialized
     // exactly as it is persisted to the OS keychain. Sealing with
     // `TEST_VECTOR_WINDOWS_HELLO_KEY` must keep unsealing to `TEST_VECTOR_USER_KEY`; if this
     // stops decoding, the persisted format broke.
     const TEST_VECTOR_ENTRY_V2_JSON: &str = r#"{"challenge":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"envelope":"hFg0pAEDA3giYXBwbGljYXRpb24veC5iaXR3YXJkZW4ubGVnYWN5LWtleToAATiBBjoAATiAAqEFTJX+FbmsYy42SWrfHFhQI16UOuY0GTZtLbTetv+Wqj6lVecK8DtCRcyn/e1ULGKaf13Q9tXSrg4rJl4v8GKIJv361FCsgOZ8kxzN7qUDFAUIGYEEW2hDG7kWOVkD56GBg0CiASkzWCAqKJNBFc+VbkGF4V0sv5HXgCn4CcMpw8/UGHyrvP95v/Y="}"#;
+
+    // Same as `TEST_VECTOR_ENTRY_V2_JSON`, but sealing the V2 user key
+    // `TEST_VECTOR_XAES_USER_KEY_B64`.
+    const TEST_VECTOR_ENTRY_V2_XAES_JSON: &str = r#"{"challenge":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"envelope":"hFgopQEDAxhlOgABFVxQAAECAwQFBgcICQoLDA0ODzoAATiBBjoAATiAAqEFTAhzV1nsS8nwiBB941hSVBdkuOJlKq6EQqOJu/gjEHRb5d92VzeDY/KeN8uDDJEUQ/PcEFHuoEVhIygQoZhctS5/JXYsVU78zu1SWeEoVh6hZHa44C/btYTL5Xw10gmvb4GDQKIBKTNYICHDHN60gyovxQyGsMmZ8ZBHejd0HMfnwpwmwMwHMs7B9g=="}"#;
 
     // Fixed nonce used to wrap the V1 test vector below. V1 seals with a random nonce, but the
     // recorded vector pins one so the ciphertext is reproducible.
@@ -283,6 +301,21 @@ mod tests {
         println!(
             "const TEST_VECTOR_ENTRY_V2_JSON: &str = r#\"{}\"#;",
             serde_json::to_string(&v2).unwrap()
+        );
+
+        let v2_xaes = WindowsHelloKeychainEntryV2::seal(
+            Challenge::from_bytes(TEST_VECTOR_CHALLENGE),
+            &windows_hello_key,
+            &user_key(&xaes_user_key_bytes()),
+        )
+        .unwrap();
+
+        let unsealed = v2_xaes.unseal(&windows_hello_key).unwrap();
+        assert_eq!(unsealed.to_encoded().to_vec(), xaes_user_key_bytes());
+
+        println!(
+            "const TEST_VECTOR_ENTRY_V2_XAES_JSON: &str = r#\"{}\"#;",
+            serde_json::to_string(&v2_xaes).unwrap()
         );
 
         // V1 wraps the user key directly with XChaCha20Poly1305. `seal` picks a random nonce, so
@@ -329,6 +362,30 @@ mod tests {
 
     /// Never regenerate the test vector, it would be a breaking change
     #[test]
+    fn test_keychain_entry_v2_xaes_test_vector() {
+        let windows_hello_key = WindowsHelloPrf::from_bytes(TEST_VECTOR_WINDOWS_HELLO_KEY);
+
+        let entry: WindowsHelloKeychainEntry =
+            serde_json::from_str(TEST_VECTOR_ENTRY_V2_XAES_JSON).unwrap();
+        let WindowsHelloKeychainEntry::V2(entry) = entry else {
+            panic!("Test vector must decode as a V2 keychain entry");
+        };
+
+        let unsealed = entry.unseal(&windows_hello_key).unwrap();
+        assert!(matches!(unsealed, SymmetricCryptoKey::XAes256GcmKey(_)));
+        assert_eq!(unsealed.to_encoded().to_vec(), xaes_user_key_bytes());
+    }
+
+    /// V2 user keys are XAES-256-GCM. `enroll_persistent` parses the key bytes it receives over
+    /// NAPI before sealing, so this parse must succeed for persistent enrollment to work.
+    #[test]
+    fn test_parse_xaes_user_key() {
+        let key = user_key(&xaes_user_key_bytes());
+        assert!(matches!(key, SymmetricCryptoKey::XAes256GcmKey(_)));
+    }
+
+    /// Never regenerate the test vector, it would be a breaking change
+    #[test]
     fn test_keychain_entry_v1_test_vector() {
         let windows_hello_key = WindowsHelloPrf::from_bytes(TEST_VECTOR_WINDOWS_HELLO_KEY);
 
@@ -351,6 +408,7 @@ mod tests {
         for key in [
             SymmetricCryptoKey::make(SymmetricKeyAlgorithm::Aes256CbcHmac),
             SymmetricCryptoKey::make(SymmetricKeyAlgorithm::Aes256Gcm),
+            SymmetricCryptoKey::make(SymmetricKeyAlgorithm::XAes256Gcm),
         ] {
             let entry = WindowsHelloKeychainEntryV2::seal(
                 Challenge::from_bytes([0u8; CHALLENGE_LENGTH]),
