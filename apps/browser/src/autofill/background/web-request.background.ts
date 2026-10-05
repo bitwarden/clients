@@ -19,6 +19,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 const webRequestUrlFilter: chrome.webRequest.RequestFilter = {
@@ -272,6 +273,23 @@ export default class WebRequestBackground {
     );
   }
 
+  /**
+   * Whether the feature flag is on and the given user has opted in. Fails closed
+   * on an error from either source.
+   */
+  private async basicAuthResponseEnabledForUser(userId: UserId): Promise<boolean> {
+    try {
+      const [featureFlagEnabled, userSettingEnabled] = await Promise.all([
+        firstValueFrom(this.configService.getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse)),
+        firstValueFrom(this.autofillSettingsService.getEnableBasicAuthResponse$(userId)),
+      ]);
+
+      return featureFlagEnabled === true && userSettingEnabled === true;
+    } catch {
+      return false;
+    }
+  }
+
   private registerListeners() {
     if (this.listenersRegistered) {
       return;
@@ -341,6 +359,12 @@ export default class WebRequestBackground {
     );
 
     if (activeUserId == null) {
+      return {};
+    }
+
+    // Listener removal trails the state it reacts to, so a challenge can arrive
+    // after the active account changes to one that has not opted in.
+    if (!(await this.basicAuthResponseEnabledForUser(activeUserId))) {
       return {};
     }
 

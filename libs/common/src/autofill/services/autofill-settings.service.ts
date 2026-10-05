@@ -15,6 +15,7 @@ import {
   StateProvider,
   UserKeyDefinition,
 } from "../../platform/state";
+import { UserId } from "../../types/guid";
 import { CipherType } from "../../vault/enums";
 import { RestrictedItemTypesService } from "../../vault/services/restricted-item-types.service";
 import { ClearClipboardDelay, AutofillOverlayVisibility } from "../constants";
@@ -173,6 +174,7 @@ export abstract class AutofillSettingsServiceAbstraction {
   honorBitwardenAutofillAttribute$: Observable<boolean>;
   setHonorBitwardenAutofillAttribute: (newValue: boolean) => Promise<void>;
   enableBasicAuthResponse$: Observable<boolean>;
+  getEnableBasicAuthResponse$: (userId: UserId) => Observable<boolean>;
   setEnableBasicAuthResponse: (newValue: boolean) => Promise<void>;
   enableContextMenu$: Observable<boolean>;
   setEnableContextMenu: (newValue: boolean) => Promise<void>;
@@ -405,6 +407,12 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
 
   async setHonorBitwardenAutofillAttribute(newValue: boolean): Promise<void> {
     await this.honorBitwardenAutofillAttributeState.update(() => newValue);
+  }
+
+  getEnableBasicAuthResponse$(userId: UserId): Observable<boolean> {
+    return this.stateProvider
+      .getUser(userId, ENABLE_BASIC_AUTH_RESPONSE)
+      .state$.pipe(map((x) => x ?? false));
   }
 
   async setEnableBasicAuthResponse(newValue: boolean): Promise<void> {

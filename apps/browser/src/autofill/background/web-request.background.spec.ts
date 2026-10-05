@@ -92,6 +92,7 @@ describe("WebRequestBackground", () => {
     userSetting$ = new BehaviorSubject<boolean>(true);
     autofillSettingsService = mock<AutofillSettingsServiceAbstraction>();
     autofillSettingsService.enableBasicAuthResponse$ = userSetting$;
+    autofillSettingsService.getEnableBasicAuthResponse$.mockReturnValue(userSetting$);
 
     webRequest = {
       onAuthRequired: createWebRequestEventMock(),
@@ -320,6 +321,52 @@ describe("WebRequestBackground", () => {
       authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Locked));
 
       await triggerAuthRequired();
+
+      expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
+      expect(callback).toHaveBeenCalledWith({});
+    });
+
+    it("checks the opt-in of the user whose vault it would read", async () => {
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+        createCipher("jane.doe@example.com", "fake-password"),
+      ]);
+
+      await triggerAuthRequired();
+
+      expect(autofillSettingsService.getEnableBasicAuthResponse$).toHaveBeenCalledWith(userId);
+    });
+
+    it("does not look up ciphers when the active user changes to one that has not opted in", async () => {
+      const otherUserId = "other-user-id" as UserId;
+      autofillSettingsService.getEnableBasicAuthResponse$.mockImplementation((requestedUserId) =>
+        of(requestedUserId === userId),
+      );
+      // Delivered directly to the active account stream, so the listeners stay
+      // registered as they do before the user setting state catches up.
+      activeAccount$.next({ id: otherUserId, ...mockAccountInfoWith() });
+
+      await triggerAuthRequired();
+
+      expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
+      expect(callback).toHaveBeenCalledWith({});
+    });
+
+    it("does not look up ciphers when the feature flag is disabled before the challenge is answered", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(false));
+
+      await triggerAuthRequired();
+
+      expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
+      expect(callback).toHaveBeenCalledWith({});
+    });
+
+    it("does not look up ciphers when reading the user setting errors", async () => {
+      const erroringUserSetting$ = new Subject<boolean>();
+      autofillSettingsService.getEnableBasicAuthResponse$.mockReturnValue(erroringUserSetting$);
+
+      const challenge = triggerAuthRequired();
+      erroringUserSetting$.error(new Error("state unavailable"));
+      await challenge;
 
       expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
       expect(callback).toHaveBeenCalledWith({});
