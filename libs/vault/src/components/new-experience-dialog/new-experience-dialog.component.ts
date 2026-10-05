@@ -30,9 +30,7 @@ export type NewExperienceDialogParams = {
   darkImgSrc: string;
 };
 
-// TODO(https://bitwarden.atlassian.net/browse/PM-43953): Confirm the final help center article
-// with Product before release.
-export const NEW_EXPERIENCE_LEARN_MORE_URL = "https://bitwarden.com/help/";
+export const NEW_EXPERIENCE_LEARN_MORE_URL = "https://bitwarden.com/blog/2026-design-update";
 
 /**
  * Announces the redesigned vault to users who created their account before the redesign shipped.
