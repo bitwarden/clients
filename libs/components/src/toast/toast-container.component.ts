@@ -1,4 +1,4 @@
-import { Component, OnInit, viewChild } from "@angular/core";
+import { Component, effect, viewChild } from "@angular/core";
 import { ToastContainerDirective, ToastrService } from "ngx-toastr";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -8,12 +8,15 @@ import { ToastContainerDirective, ToastrService } from "ngx-toastr";
   templateUrl: "toast-container.component.html",
   imports: [ToastContainerDirective],
 })
-export class ToastContainerComponent implements OnInit {
+export class ToastContainerComponent {
   readonly toastContainer = viewChild(ToastContainerDirective);
 
-  constructor(private toastrService: ToastrService) {}
-
-  ngOnInit(): void {
-    this.toastrService.overlayContainer = this.toastContainer();
+  constructor(private toastrService: ToastrService) {
+    effect(() => {
+      const container = this.toastContainer();
+      if (container != null) {
+        this.toastrService.overlayContainer = container;
+      }
+    });
   }
 }
