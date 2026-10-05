@@ -47,7 +47,6 @@ import { PreloadedEnglishI18nModule } from "../../../core/tests";
 import { OrganizationUserView } from "../core/views/organization-user.view";
 
 import { MembersComponent } from "./members.component";
-import { MembersModule } from "./members.module";
 import { DeleteManagedMemberWarningService } from "./services/delete-managed-member/delete-managed-member-warning.service";
 import { MemberActionsService } from "./services/member-actions/member-actions.service";
 import { MemberDialogManagerService } from "./services/member-dialog-manager/member-dialog-manager.service";
@@ -285,7 +284,7 @@ export default {
       (story) => `<bit-layout style="height: 800px" class="tw-p-6">${story}</bit-layout>`,
     ),
     moduleMetadata({
-      imports: [MembersModule, StubHeaderComponent, RouterOutlet, LayoutComponent],
+      imports: [MembersComponent, StubHeaderComponent, RouterOutlet, LayoutComponent],
       providers: [
         { provide: AccountService, useValue: mockAccountService },
         { provide: PolicyService, useValue: mockPolicyService },
