@@ -16,7 +16,9 @@ import {
 import { AccessRefreshService } from "../abstractions/access-refresh.service";
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 import { AccessBadgeState, cipherAccessBadgeState } from "../access-state-badge/access-badge-state";
+import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
+import { rereadOnLapse } from "../helpers/lease-liveness";
 
 /**
  * The collection field the badge reads, structurally — the host passes its own
@@ -57,6 +59,7 @@ export class VaultRowLeaseBadgeComponent {
   private readonly configService = inject(ConfigService);
   private readonly accessRequestSdkService = inject(AccessRequestSdkService);
   private readonly accessRefreshService = inject(AccessRefreshService);
+  private readonly ticker = inject(AccessBadgeTickerService);
   private readonly accountService = inject(AccountService);
   private readonly organizationService = inject(OrganizationService);
 
@@ -125,13 +128,15 @@ export class VaultRowLeaseBadgeComponent {
       return of(null);
     }
     const cipherId = String(cipher.id);
+    const read$ = () =>
+      from(this.accessRequestSdkService.getCipherAccessState(cipherId)).pipe(
+        // A failed read is not evidence of anything, so it must not draw the placeholder.
+        catchError(() => of(undefined)),
+      );
     return merge(of(undefined), this.accessRefreshService.accessChanged$(cipherId)).pipe(
-      switchMap(() =>
-        from(this.accessRequestSdkService.getCipherAccessState(cipherId)).pipe(
-          map((state): LeaseBadgeCell => cipherAccessBadgeState(state) ?? "none"),
-          // A failed read is not evidence of anything, so it must not draw the placeholder.
-          catchError(() => of(null)),
-        ),
+      switchMap(() => rereadOnLapse(read$, this.ticker.ticks$)),
+      map((state): LeaseBadgeCell =>
+        state === undefined ? null : (cipherAccessBadgeState(state) ?? "none"),
       ),
     );
   }
