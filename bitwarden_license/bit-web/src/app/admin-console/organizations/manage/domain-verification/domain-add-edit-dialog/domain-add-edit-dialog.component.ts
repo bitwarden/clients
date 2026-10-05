@@ -1,8 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { CommonModule } from "@angular/common";
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from "@angular/forms";
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidatorFn,
+  Validators,
+} from "@angular/forms";
 import { Subject, takeUntil } from "rxjs";
 
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
@@ -10,12 +17,25 @@ import { OrgDomainServiceAbstraction } from "@bitwarden/common/admin-console/abs
 import { OrganizationDomainResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain.response";
 import { OrganizationDomainRequest } from "@bitwarden/common/admin-console/services/organization-domain/requests/organization-domain.request";
 import { HttpStatusCode } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { DialogRef, DIALOG_DATA, DialogService, ToastService } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  AutofocusDirective,
+  BadgeModule,
+  ButtonModule,
+  DialogModule,
+  DialogRef,
+  DIALOG_DATA,
+  DialogService,
+  FormFieldModule,
+  IconButtonModule,
+  LinkModule,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { domainNameValidator } from "./validators/domain-name.validator";
 import { uniqueInArrayValidator } from "./validators/unique-in-array.validator";
@@ -29,14 +49,22 @@ export interface DomainAddEditDialogData {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "domain-add-edit-dialog.component.html",
-  standalone: false,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    DialogModule,
+    TypographyModule,
+    BadgeModule,
+    FormFieldModule,
+    AutofocusDirective,
+    ButtonModule,
+    AsyncActionsModule,
+    IconButtonModule,
+    LinkModule,
+    I18nPipe,
+  ],
 })
 export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
-  protected readonly btnTextAddCreateFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
-    { initialValue: false },
-  );
-
   private componentDestroyed$: Subject<void> = new Subject();
 
   domainForm: FormGroup;
@@ -63,7 +91,6 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
     private validationService: ValidationService,
     private dialogService: DialogService,
     private toastService: ToastService,
-    private configService: ConfigService,
   ) {}
 
   // Angular Method Implementations

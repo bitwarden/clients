@@ -325,7 +325,6 @@ describe("VaultComponent", () => {
                 bulkDelete: jest.fn(),
                 bulkMoveToFolder: jest.fn(),
                 bulkAssignToCollections: jest.fn(),
-                enabled: signal(false),
                 barVisible: signal(false),
               },
             },

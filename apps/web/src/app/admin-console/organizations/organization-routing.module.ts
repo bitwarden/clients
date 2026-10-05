@@ -45,7 +45,7 @@ const routes: Routes = [
       },
       {
         path: "members",
-        loadChildren: () => import("./members").then((m) => m.MembersModule),
+        loadChildren: () => import("./members").then((m) => m.membersRoutes),
       },
       {
         component: GroupsComponent,
@@ -58,8 +58,8 @@ const routes: Routes = [
       {
         path: "reporting",
         loadChildren: () =>
-          import("../organizations/reporting/organization-reporting.module").then(
-            (m) => m.OrganizationReportingModule,
+          import("../organizations/reporting/organization-reporting.routes").then(
+            (m) => m.organizationReportingRoutes,
           ),
       },
       {

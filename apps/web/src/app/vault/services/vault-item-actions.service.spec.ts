@@ -41,6 +41,7 @@ describe("WebVaultItemActionsService", () => {
 
   let itemDialogOpen: jest.SpyInstance;
   let assignCollectionsDialogOpen: jest.SpyInstance;
+  let decryptionFailureDialogOpen: jest.SpyInstance;
 
   /**
    * A test that exercises the dialog config, the reprompt, or the passkey warning sets this
@@ -75,6 +76,14 @@ describe("WebVaultItemActionsService", () => {
     toastService = mock<ToastService>();
 
     cipherService.get.mockResolvedValue(buildStoredCipher());
+    // The reprompt reads the stored cipher off the config, as the real service sets it.
+    cipherFormConfigService.buildConfig.mockImplementation(
+      async (mode, id) =>
+        ({
+          mode,
+          originalCipher: id == null ? undefined : await cipherService.get(id, userId),
+        }) as CipherFormConfig,
+    );
     passwordRepromptService.showPasswordPrompt.mockResolvedValue(true);
     router.navigate.mockResolvedValue(true);
 
@@ -89,6 +98,11 @@ describe("WebVaultItemActionsService", () => {
       .mockReturnValue({ closed: of(undefined) } as unknown as DialogRef<never>);
     assignCollectionsDialogOpen = jest
       .spyOn(AssignCollectionsWebComponent, "open")
+      .mockReturnValue({ closed: of(undefined) } as unknown as DialogRef<never>);
+
+    decryptionFailureDialogOpen = jest
+      .spyOn(DecryptionFailureDialogComponent, "open")
+      .mockClear()
       .mockReturnValue({ closed: of(undefined) } as unknown as DialogRef<never>);
 
     TestBed.configureTestingModule({
@@ -141,6 +155,48 @@ describe("WebVaultItemActionsService", () => {
           queryParams: { cipherId: null, itemId: null, action: null },
         }),
       );
+    });
+
+    it("does not open the clone form when the prompt is refused", async () => {
+      await service.clone(buildCipher());
+
+      expect(itemDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ["view", "view"],
+      ["edit", "edit"],
+      ["clone", "clone"],
+    ] as const)(
+      "names the item on the URL before the prompt shows, on %s",
+      async (method, action) => {
+        const order: string[] = [];
+        router.navigate.mockImplementation(async (_commands, extras) => {
+          order.push(`navigate:${extras?.queryParams?.action}`);
+          return true;
+        });
+        passwordRepromptService.showPasswordPrompt.mockImplementation(async () => {
+          order.push("prompt");
+          return false;
+        });
+
+        await service[method](buildCipher());
+
+        expect(order).toEqual([`navigate:${action}`, "prompt", "navigate:null"]);
+      },
+    );
+
+    it("reports the dialog open while the prompt shows, so the page ignores the params", async () => {
+      let openDuringPrompt: boolean | undefined;
+      passwordRepromptService.showPasswordPrompt.mockImplementation(async () => {
+        openDuringPrompt = service.itemDialogOpen();
+        return false;
+      });
+
+      await service.view(buildCipher());
+
+      expect(openDuringPrompt).toBe(true);
+      expect(service.itemDialogOpen()).toBe(false);
     });
 
     it("does not open the assign dialog when the prompt is refused", async () => {
@@ -202,6 +258,25 @@ describe("WebVaultItemActionsService", () => {
           replaceUrl: true,
         }),
       );
+    });
+
+    describe("an item that failed to decrypt", () => {
+      it("opens the failure dialog instead of the item dialog", async () => {
+        await service.view(buildCipher({ decryptionFailure: true }));
+
+        expect(decryptionFailureDialogOpen).toHaveBeenCalledWith(dialogService, {
+          cipherIds: [cipherId],
+        });
+        expect(itemDialogOpen).not.toHaveBeenCalled();
+      });
+
+      it("does not prompt for the password first", async () => {
+        await service.view(
+          buildCipher({ decryptionFailure: true, reprompt: CipherRepromptType.Password }),
+        );
+
+        expect(passwordRepromptService.showPasswordPrompt).not.toHaveBeenCalled();
+      });
     });
   });
 

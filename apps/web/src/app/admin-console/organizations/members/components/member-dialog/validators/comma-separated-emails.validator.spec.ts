@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { FormControl } from "@angular/forms";
 
 import { commaSeparatedEmails } from "./comma-separated-emails.validator";
@@ -64,6 +62,6 @@ describe("commaSeparatedEmails", () => {
   });
 });
 
-function createControl(input: string) {
+function createControl(input: string | null) {
   return new FormControl(input);
 }

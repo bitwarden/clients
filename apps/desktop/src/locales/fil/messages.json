@@ -160,20 +160,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "$COUNT$ pang shared folder na ipinapakita sa itaas ng button na ito",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "1 pang shared folder na ipinapakita sa itaas ng button na ito",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "Aking folder"
   },
@@ -4640,11 +4626,21 @@
   "selectImportCollection": {
     "message": "Pumili ng koleksyon"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Piliin ang opsyong ito kung gusto mong ilipat ang mga nilalaman ng na-import na file sa isang koleksyon"
   },
   "importTargetHintFolder": {
     "message": "Piliin ang opsyong ito kung gusto mong ilipat ang mga nilalaman ng na-import na file sa isang folder"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Ang file ay naglalaman ng mga hindi nakatalagang item."
@@ -4654,6 +4650,40 @@
   },
   "selectImportFile": {
     "message": "Piliin ang import file"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Pumili ng File"
@@ -5079,6 +5109,15 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Ipasok ang YubiKey na nauugnay sa iyong LastPass account sa USB port ng iyong computer, pagkatapos ay pindutin ang button nito."
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Email ng Keeper"
@@ -5591,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Ang browser extension na ginagamit mo ay luma na. Mangyaring i-update ito o i-disable ang browser integration fingerprint validation sa mga setting ng desktop app."
   },
-  "changeAtRiskPassword": {
-    "message": "Palitan ang nanganganib na password"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Ang login na ito ay nanganganib at kulang ng website. Magdagdag ng website at palitan ang password para sa mas matibay na seguridad."
-  },
   "vulnerablePassword": {
     "message": "Nanganganib na password."
   },
   "changeNow": {
     "message": "Palitan ngayon"
-  },
-  "missingWebsite": {
-    "message": "Nawawalang website"
   },
   "missingPermissions": {
     "message": "Kulang ka sa mga kinakailangang pahintulot upang gawin ang aksyon na ito."
@@ -6381,11 +6411,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Wala kang mga folder."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Gumamit ng mga folder upang ayusin ang mga item sa vault. Para sa iyo lamang ang mga ito — walang ibang makakakita o makakagamit sa mga ito."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "emptyVaultsDescription": {
     "message": "Magdagdag ng mga login, ID, card, at iba pang mga item upang magsimula."

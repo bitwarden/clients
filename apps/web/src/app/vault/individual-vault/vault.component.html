@@ -57,9 +57,6 @@
       [showOwner]="true"
       [showCollections]="false"
       [showGroups]="false"
-      [showPremiumFeatures]="canAccessPremium"
-      [showBulkMove]="showBulkMove"
-      [showBulkTrashOptions]="filter.type === 'trash'"
       [useEvents]="false"
       [showAdminActions]="false"
       [showBulkAddToCollections]="true"
@@ -91,13 +88,12 @@
           @if (showAddCipherBtn) {
             <button
               type="button"
-              [buttonType]="btnTextAddCreateFeatureFlag() ? 'secondary' : 'primary'"
+              buttonType="secondary"
               bitButton
               (click)="addCipher()"
               slot="button"
-              [startIcon]="btnTextAddCreateFeatureFlag() ? null : 'bwi-plus'"
             >
-              {{ (btnTextAddCreateFeatureFlag() ? "addItem" : "newItem") | i18n }}
+              {{ "addItem" | i18n }}
             </button>
           }
         </bit-status-lockup>
@@ -106,6 +102,4 @@
   </div>
 </div>
 
-@if (vaultBatchBarFeatureFlag()) {
-  <bit-vault-batch-action />
-}
+<bit-vault-batch-action />
