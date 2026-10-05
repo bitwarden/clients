@@ -10,13 +10,13 @@ import { Directive } from "@angular/core";
     class: [
       "[--bit-hover-reveal:0]",
       "hover:[--bit-hover-reveal:1]",
-      "has-[:focus-visible]:[--bit-hover-reveal:1]",
+      // Focus outside a boundary reveals even while a boundary is hovered
+      "[&:has(:focus-visible):not(:has([data-hover-reveal-boundary]_:focus-visible))]:![--bit-hover-reveal:1]",
       "has-[.tw-test-focus-visible]:[--bit-hover-reveal:1]",
-      // Touch devices can't hover, so always show; `!` outranks the more specific boundary resets
+      // Touch devices can't hover, so always show; `!` outranks the more specific boundary reset
       "[@media(hover:none)]:![--bit-hover-reveal:1]",
-      // Hover or focus inside a nested `data-hover-reveal-boundary` region doesn't count
+      // Hover inside a nested `data-hover-reveal-boundary` region doesn't count
       "[&:has([data-hover-reveal-boundary]:hover)]:[--bit-hover-reveal:0]",
-      "[&:has([data-hover-reveal-boundary]_:focus-visible)]:[--bit-hover-reveal:0]",
     ].join(" "),
   },
 })
