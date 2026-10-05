@@ -66,6 +66,7 @@ import {
   FeatureFlagsCapability,
   LockCapability,
   LoggingCapability,
+  SdkDebugCapability,
   StateCapability,
 } from "@bitwarden/automation-driver";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
@@ -1673,6 +1674,12 @@ const safeProviders: SafeProvider[] = [
     provide: AutomationCapability,
     useFactory: (flightRecorder: FlightRecorderService) => new LoggingCapability(flightRecorder),
     deps: [FlightRecorderService],
+    multi: true,
+  }),
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: (sdkService: SdkService) => new SdkDebugCapability(sdkService),
+    deps: [SdkService],
     multi: true,
   }),
   safeProvider({
