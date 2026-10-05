@@ -1,132 +1,47 @@
-import { Signal } from "@angular/core";
-import { TestBed } from "@angular/core/testing";
+import { detectInitialModifier, isPrimaryModifier } from "./modifier-key";
 
-import { injectModifierGlyph, injectModifierKey } from "./modifier-key";
+const keydown = (init: KeyboardEventInit) => new KeyboardEvent("keydown", init);
 
-/**
- * jsdom reports a Linux-ish `navigator`, so the Mac seed has to be faked. `navigator.platform` is
- * readonly, hence `defineProperty` rather than assignment.
- */
-const setPlatform = (platform: string, userAgent: string) => {
-  Object.defineProperty(window.navigator, "platform", { value: platform, configurable: true });
-  Object.defineProperty(window.navigator, "userAgent", { value: userAgent, configurable: true });
-};
+/** A stand-in for `DOCUMENT`; only `defaultView.navigator` is read. */
+const docWith = (navigator: Partial<Navigator> | undefined) =>
+  ({ defaultView: navigator && { navigator } }) as unknown as Document;
 
-const asMac = () => setPlatform("MacIntel", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)");
-const asWindows = () => setPlatform("Win32", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-
-const keydown = (init: KeyboardEventInit) =>
-  document.dispatchEvent(new KeyboardEvent("keydown", init));
-
-describe("injectModifierKey", () => {
-  const { platform, userAgent } = window.navigator;
-
-  afterEach(() => setPlatform(platform, userAgent));
-
-  const create = (): Signal<"Command" | "Ctrl"> =>
-    TestBed.runInInjectionContext(() => injectModifierKey());
-
-  it("seeds Command from a Mac navigator", () => {
-    asMac();
-
-    expect(create()()).toBe("Command");
+describe("isPrimaryModifier", () => {
+  it.each([
+    ["Ctrl alone", { ctrlKey: true }, true],
+    ["Cmd alone", { metaKey: true }, true],
+    ["both, which is ambiguous", { ctrlKey: true, metaKey: true }, false],
+    ["neither", {}, false],
+  ])("is %s -> %s", (_, init, expected) => {
+    expect(isPrimaryModifier(keydown(init))).toBe(expected);
   });
 
-  it("seeds Command from a Mac user agent alone", () => {
-    setPlatform("", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)");
-
-    expect(create()()).toBe("Command");
-  });
-
-  it("seeds Ctrl everywhere else", () => {
-    asWindows();
-
-    expect(create()()).toBe("Ctrl");
-  });
-
-  it("corrects a wrong Ctrl seed on a Cmd chord", () => {
-    asWindows();
-    const key = create();
-
-    keydown({ key: "f", metaKey: true });
-
-    expect(key()).toBe("Command");
-  });
-
-  // The macOS caret bindings — Ctrl+A/E/K/D — fire while typing in any input and still reach the
-  // document, so a Ctrl chord says nothing about the platform.
-  it.each(["a", "e", "k", "d"])("keeps Command when a Mac user presses Ctrl+%s", (letter) => {
-    asMac();
-    const key = create();
-
-    keydown({ key: letter, ctrlKey: true });
-
-    expect(key()).toBe("Command");
-  });
-
-  it("keeps Ctrl on a Ctrl chord", () => {
-    asWindows();
-    const key = create();
-
-    keydown({ key: "f", ctrlKey: true });
-
-    expect(key()).toBe("Ctrl");
-  });
-
-  // The Windows key reports `key: "Meta"` with `metaKey: true`, which would otherwise look like Cmd.
-  it("ignores a bare Meta press", () => {
-    asWindows();
-    const key = create();
-
-    keydown({ key: "Meta", metaKey: true });
-
-    expect(key()).toBe("Ctrl");
-  });
-
-  it("ignores a bare Control press", () => {
-    asMac();
-    const key = create();
-
-    keydown({ key: "Control", ctrlKey: true });
-
-    expect(key()).toBe("Command");
-  });
-
-  it("ignores Cmd+Ctrl chords, which are ambiguous", () => {
-    asWindows();
-    const key = create();
-
-    keydown({ key: "f", metaKey: true, ctrlKey: true });
-
-    expect(key()).toBe("Ctrl");
+  it("ignores Alt and Shift, which the caller guards separately", () => {
+    expect(isPrimaryModifier(keydown({ ctrlKey: true, altKey: true, shiftKey: true }))).toBe(true);
   });
 });
 
-describe("injectModifierGlyph", () => {
-  const { platform, userAgent } = window.navigator;
-
-  afterEach(() => setPlatform(platform, userAgent));
-
-  const create = (): Signal<string> => TestBed.runInInjectionContext(() => injectModifierGlyph());
-
-  it("renders the Command glyph on a Mac", () => {
-    asMac();
-
-    expect(create()()).toBe("⌘");
+describe("detectInitialModifier", () => {
+  it("seeds Command from a Mac platform", () => {
+    expect(detectInitialModifier(docWith({ platform: "MacIntel" }))).toBe("Command");
   });
 
-  it("renders Ctrl elsewhere", () => {
-    asWindows();
+  it("seeds Command from a Mac user agent alone", () => {
+    const navigator = {
+      platform: "",
+      userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+    };
 
-    expect(create()()).toBe("Ctrl");
+    expect(detectInitialModifier(docWith(navigator))).toBe("Command");
   });
 
-  it("follows the key signal", () => {
-    asWindows();
-    const glyph = create();
+  it("seeds Ctrl everywhere else", () => {
+    const navigator = { platform: "Win32", userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" };
 
-    keydown({ key: "f", metaKey: true });
+    expect(detectInitialModifier(docWith(navigator))).toBe("Ctrl");
+  });
 
-    expect(glyph()).toBe("⌘");
+  it("falls back to Ctrl when there is no window to read", () => {
+    expect(detectInitialModifier(docWith(undefined))).toBe("Ctrl");
   });
 });

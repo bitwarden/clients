@@ -1,12 +1,4 @@
-import {
-  Meta,
-  Canvas,
-  Source,
-  Primary,
-  Controls,
-  Title,
-  Description,
-} from "@storybook/addon-docs/blocks";
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
 
 import * as stories from "./search.stories";
 
@@ -27,3 +19,56 @@ import { SearchModule } from "@bitwarden/components";
 ### Default
 
 <Canvas of={stories.Default} />
+
+## Keyboard shortcuts
+
+Shortcuts are opt-in. Set `useKeyShortcuts` and the field claims ⌘/Ctrl+F, renders a hint badge, and
+advertises itself with `aria-keyshortcuts`.
+
+<Canvas of={stories.WithShortcutHints} />
+
+Esc clears the field whether or not you opt in. It clears only when there is something to clear, and
+it stops there — so inside a menu or dialog the first press clears the field and a second closes the
+overlay. The badge follows the same rule: ⌘/Ctrl+F while the field is empty, Esc once it has text.
+
+### Which surfaces should opt in
+
+⌘/Ctrl+F overrides the browser's native find-in-page. That is a deliberate trade for a virtualized
+list, where native find cannot reach rows that are not rendered — but it is a real cost anywhere
+else, so opt in only where the search covers data the browser cannot see.
+
+**Desktop must not opt in.** It ships a native `CmdOrCtrl+F` menu accelerator
+(`apps/desktop/src/main/menu/menu.view.ts`) that focuses and selects the vault search and is
+disabled while the vault is locked. Opting in would install a second handler for the same chord.
+Desktop therefore shows no hint badge, which is intentional.
+
+Web needs no equivalent lock guard: `authGuard` redirects a locked vault to `/lock`, whose route
+renders no search, so the shortcut cannot be reached in a locked state. The browser popup gains
+little — its search already carries `appAutofocus`, and the popup has no native find bar to reclaim.
+
+### Arbitration
+
+Every opted-in search registers with `KeyboardShortcutService`, which runs a single document
+listener and hands a press to exactly one owner: the one nearest the focused element, falling back
+to the most recently registered. A search inside an open menu therefore wins over a page-level one.
+While a dialog is open, only a search inside it can claim the chord; everything else defers to the
+browser.
+
+<Canvas of={stories.WithDialogOpen} />
+
+### Platform legends
+
+The hint renders ⌘ on macOS and the localized Control abbreviation elsewhere. The platform is first
+guessed from `navigator`, then upgraded the first time a Cmd chord is observed.
+
+<Canvas of={stories.WithShortcutHintsWindows} />
+<Canvas of={stories.WithShortcutHintsMac} />
+
+### Accessibility
+
+`aria-keyshortcuts="Control+f Meta+f"` is set on the input whenever the shortcut is live, and
+dropped when the field is disabled so it never advertises a shortcut that will not fire. The hint
+badge itself is `aria-hidden`, since it duplicates what the attribute already conveys.
+
+WCAG 2.1 SC 2.1.4 (Character Key Shortcuts) does not apply here — it governs single-character
+shortcuts with no modifier, and this chord requires one.
