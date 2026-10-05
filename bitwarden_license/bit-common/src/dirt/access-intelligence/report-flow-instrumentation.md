@@ -29,7 +29,7 @@ panel both read in flow order.
 | `Load: org members fetched`                     | The organization users request, groups included                                 | `orgMemberCount`                               |
 | `Load: org collections fetched`                 | The collections with access details request                                     | `collectionCount`                              |
 
-`<trigger>` is `page open` or `generate`; `<impl>` is `sdk` or `legacy`. See
+`<trigger>` is `page open` or `generate`; `<impl>` is `logins-only` or `legacy`. See
 [Why the cipher fetch name carries two variables](#why-the-cipher-fetch-name-carries-two-variables).
 
 This table groups by kind of work, not by user flow, so not every row occurs on every run.
@@ -45,15 +45,27 @@ probably was one, and the presence of save entries under it is how to tell.
 
 ### Generate
 
-| Measurement                                              | What it covers                                                                                               | Properties                                                                          |
-| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
-| `Generate: reused password check complete`               | One pass over every cipher building a password to ciphers map, then reducing it to the reused entries        | `itemCount`                                                                         |
-| `Generate: ciphers mapped to members`                    | Resolving which members can see each cipher through collections and groups, and building the member registry | `itemCount`, `orgMemberCount`, `collectionCount`, `groupCount`, `mappedMemberCount` |
-| `Generate: password strength and breach checks complete` | Per cipher weak password scoring and the breach lookup fan out together, bounded by the concurrency limit    | `itemCount`, `concurrencyLimit`                                                     |
-| `Generate: health and reuse combined`                    | Merging per cipher health results with the reuse map                                                         | `itemCount`                                                                         |
-| `Generate: applications grouped`                         | Grouping ciphers by URI into per application records, with their member and cipher references                | `itemCount`, `memberCount`, `applicationCount`                                      |
-| `Generate: previous metadata carried over`               | Building the report view, then merging the previous report's per application settings into it                | `applicationCount`, `previousApplicationCount`                                      |
-| `Generate: summary recomputed`                           | Recomputing every summary aggregate from the finished report                                                 | `itemCount`, `passwordCount`, `memberCount`, `applicationCount`                     |
+> **Two arms emit this stage.** `pm-43231-access-intelligence-performance-at-scale` selects between
+> them, and it defaults to off, so the baseline arm is what emits until the flag is turned on. Both
+> arms emit the same step names, so check which arm produced a row before comparing two runs:
+>
+> |                                                          | Flag off (baseline)                        | Flag on (deduplicated)                                    |
+> | -------------------------------------------------------- | ------------------------------------------ | --------------------------------------------------------- |
+> | Breach lookups                                           | one per cipher, capped at 5 in flight here | one per distinct password, bounded only by `AuditService` |
+> | `Generate: password strength and breach checks complete` | `itemCount` (ciphers), `concurrencyLimit`  | `itemCount` (distinct passwords), `cipherCount`           |
+> | `Generate: reused password check complete`               | emitted, via `detectPasswordReuse`         | not emitted, reuse is derived inline                      |
+> | `Generate: health and reuse combined`                    | emitted                                    | not emitted                                               |
+>
+> The rows below describe the flag-on arm. The baseline arm is temporary and goes away with the flag.
+
+| Measurement                                              | What it covers                                                                                                                                                                                                                                                                                | Properties                                                                          |
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `Generate: reused password check complete`               | One pass over every cipher building a password to ciphers map, then reducing it to the reused entries. **Flag-off arm only**: with the perf flag on, `checkCipherHealth` derives reuse counts inline while building its health map, so `detectPasswordReuse` and this measurement do not run. | `itemCount`                                                                         |
+| `Generate: ciphers mapped to members`                    | Resolving which members can see each cipher through collections and groups, and building the member registry                                                                                                                                                                                  | `itemCount`, `orgMemberCount`, `collectionCount`, `groupCount`, `mappedMemberCount` |
+| `Generate: password strength and breach checks complete` | Per cipher weak password scoring and the breach lookup fan out together, one lookup per distinct password. Bounded by `AuditService`'s own shared limiter (100 in flight), not a limiter at this layer.                                                                                       | `itemCount` (distinct passwords), `cipherCount`                                     |
+| `Generate: applications grouped`                         | Grouping ciphers by URI into per application records, with their member and cipher references                                                                                                                                                                                                 | `itemCount`, `memberCount`, `applicationCount`                                      |
+| `Generate: previous metadata carried over`               | Building the report view, then merging the previous report's per application settings into it                                                                                                                                                                                                 | `applicationCount`, `previousApplicationCount`                                      |
+| `Generate: summary recomputed`                           | Recomputing every summary aggregate from the finished report                                                                                                                                                                                                                                  | `itemCount`, `passwordCount`, `memberCount`, `applicationCount`                     |
 
 Reuse detection is measured despite producing no network traffic because it is a full pass over
 every cipher that allocates a map keyed by password, and because the combine step downstream
@@ -98,18 +110,19 @@ tells you which one you are reading.
 
 #### Counts
 
-| Property                   | Counts                                                                    |
-| -------------------------- | ------------------------------------------------------------------------- |
-| `itemCount`                | Ciphers the step worked on                                                |
-| `passwordCount`            | Cipher references, summed across applications                             |
-| `orgMemberCount`           | Members the organization returned                                         |
-| `mappedMemberCount`        | Members resolving to at least one cipher                                  |
-| `memberCount`              | Members in the report's member registry                                   |
-| `applicationCount`         | Application records in the report, one per URI grouping                   |
-| `previousApplicationCount` | Application settings the previous report supplied                         |
-| `collectionCount`          | Collections returned for the organization, with access details            |
-| `groupCount`               | Groups with at least one member, derived from the member response         |
-| `concurrencyLimit`         | Breach lookups allowed in flight at once. A source constant, not measured |
+| Property                   | Counts                                                                                                                                                                                                                                                                    |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `itemCount`                | Ciphers the step worked on. **Exception:** on `Generate: password strength and breach checks complete` this is the distinct-password group count, since that step's unit of work is one lookup per distinct password. Use that step's `cipherCount` for the cipher total. |
+| `cipherCount`              | Ciphers behind the distinct-password groups a step worked on (only emitted by the breach-check step)                                                                                                                                                                      |
+| `passwordCount`            | Cipher references, summed across applications                                                                                                                                                                                                                             |
+| `orgMemberCount`           | Members the organization returned                                                                                                                                                                                                                                         |
+| `mappedMemberCount`        | Members resolving to at least one cipher                                                                                                                                                                                                                                  |
+| `memberCount`              | Members in the report's member registry                                                                                                                                                                                                                                   |
+| `applicationCount`         | Application records in the report, one per URI grouping                                                                                                                                                                                                                   |
+| `previousApplicationCount` | Application settings the previous report supplied                                                                                                                                                                                                                         |
+| `collectionCount`          | Collections returned for the organization, with access details                                                                                                                                                                                                            |
+| `groupCount`               | Groups with at least one member, derived from the member response                                                                                                                                                                                                         |
+| `concurrencyLimit`         | Breach lookups allowed in flight at once, flag-off arm only. A source constant, not measured                                                                                                                                                                              |
 
 Three of these count members, and they narrow in that order:
 `memberCount` ≤ `mappedMemberCount` ≤ `orgMemberCount`. Resolution drops members with no collection
@@ -255,19 +268,15 @@ One boundary spans the whole set and carries all three artifact sizes.
 
 #### Why the cipher fetch name carries two variables
 
-`CipherService.getAllFromApiForOrganization` chooses between an SDK and a legacy implementation
-internally. That file is owned by another team, so the fetch is measured from the outside and the
-name records which implementation ran. This costs the split between request, decrypt and locale
-sort, which is only available from inside that method.
+The trigger is recorded because the flow fetches the cipher set twice in a session: once at page
+open, and again when an administrator generates. Distinct names keep the two attributable.
 
-The trigger is recorded because the flow fetches the full cipher set twice in a session: once at
-page open, and again when an administrator generates. Distinct names keep the two attributable.
-
-To label the step, `fetchOrgCiphers$` reads `PM27632_SdkCipherCrudOperations` itself and does not
-act on it: there is no branch on the value, and the same flag is resolved inside `CipherService`
-anyway. It is read only to name the measurement. The cost is that the fetch now waits on a config
-emission it previously contained, so the flag is taken with `first()` and the label reflects the
-implementation that ran rather than gating it.
+`<impl>` records which endpoint was called. When `AccessIntelligencePerformanceAtScale` is on,
+`fetchOrgLogins$` calls `getCiphersOrganizationLogins` and labels the step `logins-only`. When off,
+it calls `getAllFromApiForOrganization` and labels it `legacy`. The label follows the same flag that
+controls the branch, so no additional flag read is needed. In both cases the measurement covers the
+full call — request, decrypt and locale sort — because the internal phases are not observable from
+the outside.
 
 ## Privacy
 
@@ -283,7 +292,7 @@ Properties are limited to three kinds of value:
 - **Cardinality.** How many ciphers, members, applications, collections or groups took part in a
   step.
 - **Artifact size.** Byte and character lengths of the serialized and encrypted report artifacts.
-- **Code constants.** `concurrencyLimit` is a literal read from the source.
+- **Code constants.** `concurrencyLimit` is a literal read from the source (flag-off arm only).
 
 Nothing derived from vault content is recorded. Specifically absent, and deliberately so:
 application names and hostnames, cipher identifiers, member identifiers, email addresses,
@@ -298,20 +307,7 @@ save returns as soon as the upload resolves, and no read path checks the validat
 **The cipher fetch is not broken into phases.** See
 [Why the cipher fetch name carries two variables](#why-the-cipher-fetch-name-carries-two-variables).
 
-**Weak password scoring and breach lookups are not split.** Both run per cipher inside one
-concurrency bounded fan out, so `Generate: password strength and breach checks complete` gives their
-combined cost and nothing attributes it between them.
-
-Both obvious ways to split it cost more than the gap. Scoring runs inside the `mergeMap` project
-function, so it happens only as a concurrency slot frees up, filling main thread time that would
-otherwise be spent waiting on a lookup. Hoisting it into its own pass up front makes each half
-separately measurable but serializes two things that currently overlap, turning the step's cost into
-scoring plus lookups rather than roughly the larger of the two. Accumulating scoring time in place
-preserves the overlap, but `performance.now()` is coarsened to between 100µs and 1ms depending on
-the browser, so per cipher deltas quantize and the total is biased low by an unknown amount.
-
-Scoring is a plausible hot spot in its own right, so this stays worth closing, but it needs a
-measurement that neither reshapes the work nor depends on sub-tick resolution.
+**Weak password scoring and breach lookups are not split.** `Generate: password strength and breach checks complete` gives their combined cost; nothing attributes it between them.
 
 **A page open that migrates legacy blobs is not separable from one that does not.** Both emit
 `Load: page initialized`, but the migrating run also performs a full save inside that window.
@@ -322,5 +318,5 @@ measurements. This gap closes when the inline path is removed.
 ---
 
 **Document Version:** 1.0
-**Last Updated:** 2026-09-11
+**Last Updated:** 2026-10-02
 **Maintainer:** DIRT Team
