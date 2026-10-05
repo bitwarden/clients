@@ -15600,20 +15600,11 @@
   "atRiskPassword": {
     "message": "At-risk password"
   },
-  "changeAtRiskPassword": {
-    "message": "Zmień hasło zagrożone"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
-  },
   "vulnerablePassword": {
     "message": "Vulnerable password."
   },
   "changeNow": {
     "message": "Change now"
-  },
-  "missingWebsite": {
-    "message": "Missing website"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Usuń odblokowanie kodem PIN"
@@ -17041,6 +17032,15 @@
         "example": "4"
       }
     }
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Keeper email"
