@@ -1,3 +1,4 @@
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import {
   AfterContentInit,
   Directive,
@@ -7,6 +8,7 @@ import {
   HostListener,
   model,
   OnChanges,
+  Optional,
   Output,
 } from "@angular/core";
 
@@ -49,12 +51,20 @@ export class BitPasswordInputToggleDirective implements AfterContentInit, OnChan
     this.toggledChange.emit(this.toggled());
 
     this.update();
+
+    if (this.liveAnnouncer) {
+      const announceKey = this.toggled() ? "passwordShown" : "passwordHidden";
+      const message =
+        this.i18nService.t(announceKey) || (this.toggled() ? "Password shown" : "Password hidden");
+      void this.liveAnnouncer.announce(message, "polite");
+    }
   }
 
   constructor(
     @Host() private button: BitIconButtonComponent,
     private formField: BitFormFieldComponent,
     private i18nService: I18nService,
+    @Optional() private liveAnnouncer?: LiveAnnouncer,
   ) {}
 
   get icon() {
