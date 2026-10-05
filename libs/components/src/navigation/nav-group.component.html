@@ -3,11 +3,13 @@
   <ng-container *ngTemplateOutlet="groupContent"></ng-container>
 }
 
+<!-- `data-hover-reveal-boundary` keeps child hover from revealing `bitHoverReveal` content in this group's row. -->
 <ng-template #defaultContent>
   <div
     [attr.id]="contentId"
     [attr.aria-label]="[text(), 'submenu' | i18n].join(' ')"
     role="group"
+    data-hover-reveal-boundary
     class="tw-flex tw-flex-col"
     [class]="sideNavService.version() === 'vfo1' ? 'tw-gap-0.5' : ''"
   >
@@ -84,7 +86,7 @@
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
       } @else {
         <!-- Magic number needed for visual consistency -->
-        <div class="tw-ps-[19px] tw-pt-1">
+        <div class="tw-ps-[19px] tw-pt-1" data-hover-reveal-boundary>
           <div
             class="tw-flex tw-flex-col tw-gap-0.5 tw-ps-3"
             [class.tw-items-center]="!sideNavOpen()"

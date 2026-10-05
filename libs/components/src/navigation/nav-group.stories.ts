@@ -10,9 +10,11 @@ import { enabledFlags } from "@bitwarden/storybook";
 
 import { BerryComponent } from "../berry";
 import { ChipActionComponent } from "../chips";
+import { HoverRevealContainerDirective, HoverRevealDirective } from "../hover-reveal";
 import { IconButtonModule } from "../icon-button";
 import { IconTileComponent } from "../icon-tile";
 import { LayoutComponent } from "../layout";
+import { MenuModule } from "../menu";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
 import { StorybookGlobalStateProvider } from "../utils/state-mock";
@@ -43,6 +45,9 @@ export default {
         BerryComponent,
         ChipActionComponent,
         IconTileComponent,
+        HoverRevealContainerDirective,
+        HoverRevealDirective,
+        MenuModule,
       ],
       providers: [
         {
@@ -273,6 +278,42 @@ export const WithTrailingElements: StoryObj<NavGroupComponent> = {
  * VFO1Foundation flag) — the collapse toggle owns the leading position for v1 groups and v2
  * nested groups.
  */
+export const WithHoverReveal: StoryObj<NavGroupComponent> = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-side-nav>
+        <bit-nav-group text="Shared folder" icon="bwi-folder" [open]="true" bitHoverRevealContainer>
+          <button
+            type="button"
+            slot="end"
+            bitHoverReveal
+            bitIconButton="bwi-ellipsis-v"
+            buttonType="side-nav"
+            size="xsmall"
+            label="Options"
+            [bitMenuTriggerFor]="menu"
+          ></button>
+          <bit-nav-item text="Child A" icon="bwi-folder"></bit-nav-item>
+          <bit-nav-item text="Child B" icon="bwi-folder"></bit-nav-item>
+        </bit-nav-group>
+      </bit-side-nav>
+      <bit-menu #menu>
+        <button type="button" bitMenuItem>Rename</button>
+        <button type="button" bitMenuItem>Unpin</button>
+      </bit-menu>
+    `,
+  }),
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
+};
+
+export const WithHoverRevealVfo1: StoryObj<NavGroupComponent> = {
+  ...WithHoverReveal,
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
 export const WithStartSlot: StoryObj<NavGroupComponent> = {
   globals: enabledFlags(FeatureFlag.VFO1Foundation),
   render: (args) => ({
