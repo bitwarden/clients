@@ -169,6 +169,15 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   }
 
   /**
+   * @returns `true` when this is a PAM-gated ("partial") row, whose sensitive fields the server
+   *   suppressed in favour of the {@link partialData} envelope. The decrypted-side equivalent is
+   *   `CipherViewLikeUtils.isPartial`.
+   */
+  get isPartial(): boolean {
+    return this.partialData != null;
+  }
+
+  /**
    * @deprecated WARNING: This API may fail to decrypt ciphers if they are using blob encryption.
    * If you are using this, please migrate off of it immediately! This function will be removed
    * in a near release.
