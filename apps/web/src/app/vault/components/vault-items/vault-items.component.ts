@@ -3,7 +3,7 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Observable, combineLatest, map, of, switchMap } from "rxjs";
+import { Observable, of, switchMap } from "rxjs";
 
 import {
   CollectionAdminView,
@@ -11,8 +11,6 @@ import {
   CollectionView,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
   RestrictedCipherType,
@@ -146,12 +144,8 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   constructor(
     protected cipherAuthorizationService: CipherAuthorizationService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
-    private configService: ConfigService,
   ) {
-    this.showQuickCopyActions$ = combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
-      this.vaultCopyButtonsService.showQuickCopyActions$,
-    ]).pipe(map(([flagEnabled, settingEnabled]) => flagEnabled && settingEnabled));
+    this.showQuickCopyActions$ = this.vaultCopyButtonsService.showQuickCopyActions$;
     this.restrictedItemTypesService.restricted$.pipe(takeUntilDestroyed()).subscribe((types) => {
       this.restrictedTypes = types;
       this.refreshItems();

@@ -169,8 +169,8 @@ if ($Beta) {
     Copy-Item $srcDir/resources/windows_plugin_authenticator_logo.beta.svg $outDir/appx/app/resources/plugin_authenticator_logo.svg
 }
 else {
-    Copy-Item $srcDir/resources/windows_plugin_authenticator_config.json $outDir/appx/app/resources/plugin_authenticator_config.json
-    Copy-Item $srcDir/resources/windows_plugin_authenticator_logo.svg $outDir/appx/app/resources/plugin_authenticator_logo.svg
+    Copy-Item $srcDir/resources/windows_plugin_authenticator_config.stable.json $outDir/appx/app/resources/plugin_authenticator_config.json
+    Copy-Item $srcDir/resources/windows_plugin_authenticator_logo.stable.svg $outDir/appx/app/resources/plugin_authenticator_logo.svg
 }
 
 Write-Host "Building Appx manifest"
