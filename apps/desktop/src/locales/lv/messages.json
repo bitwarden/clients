@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "Jāievieto ar LastPass kontu sasaistītā YubiKey datora USB ligzdā, tad jāpieskaras tās pogai."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper e-pasts"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Izmantotais pārlūka paplašinājums ir novecojis. Lūgums atjaunināt to vai atspējot pārlūka sasaistīšanas pirkstu nospieduma pārbaudi darbvirsmas lietotnes iestatījumos."
   },
-  "changeAtRiskPassword": {
-    "message": "Mainīt riskam pakļautu paroli"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Šis pieteikšanās vienums ir pakļauts riskam, un tam nav norādīta tīmekļvietne. Lielākai drošībai jāpievieno tīmekļvietne un jānomaina parole."
-  },
   "vulnerablePassword": {
     "message": "Ievainojama parole."
   },
   "changeNow": {
     "message": "Mainīt tagad"
-  },
-  "missingWebsite": {
-    "message": "Nav norādīta tīmekļvietne"
   },
   "missingPermissions": {
     "message": "Jums nav nepieciešamo atļauju, lai veiktu šo darbību."

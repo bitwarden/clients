@@ -15600,20 +15600,11 @@
   "atRiskPassword": {
     "message": "Ризикований пароль"
   },
-  "changeAtRiskPassword": {
-    "message": "Змінити ризикований пароль"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Цей запис ризикований, і не має адреси вебсайту. Додайте адресу вебсайту і змініть пароль для вдосконалення безпеки."
-  },
   "vulnerablePassword": {
     "message": "Вразливий пароль."
   },
   "changeNow": {
     "message": "Змінити зараз"
-  },
-  "missingWebsite": {
-    "message": "Немає вебсайту"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Вилучити розблокування з PIN-кодом"
@@ -17041,6 +17032,15 @@
         "example": "4"
       }
     }
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Keeper email"
