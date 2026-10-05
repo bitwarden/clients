@@ -1,3 +1,7 @@
+<div role="status" aria-live="polite" aria-atomic="true" class="tw-sr-only">
+  {{ searchAnnouncement() }}
+</div>
+
 <bit-table-v2
   #vaultTable="bitTableV2"
   [tableDef]="table"
@@ -12,10 +16,6 @@
   height="fill"
   (selectedChange)="selectedChange.emit($event)"
 >
-  <div role="status" aria-live="polite" aria-atomic="true" class="tw-sr-only">
-    {{ searchAnnouncement() }}
-  </div>
-
   <bit-table-toolbar>
     <bit-search class="tw-flex-1" [placeholder]="'search' | i18n"></bit-search>
 
