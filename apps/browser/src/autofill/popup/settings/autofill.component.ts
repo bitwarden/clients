@@ -135,6 +135,8 @@ export class AutofillComponent implements OnInit {
   protected fillAssistFeatureEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
     FeatureFlag.FillAssistTargetingRules,
   );
+  protected basicAuthResponseSettingIsAvailable$: Observable<boolean> =
+    this.configService.getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse);
 
   protected autofillOnPageLoadForm = new FormGroup({
     autofillOnPageLoad: new FormControl(),
@@ -145,7 +147,7 @@ export class AutofillComponent implements OnInit {
    * Gates the settings UI for controlling if `data-bwignore` and
    * `data-bwautofill` attributes should be honored by autofill heuristics.
    */
-  protected bitwardenAutofillAttributesSettingsVisible = devFlagEnabled(
+  protected bitwardenAutofillAttributesSettingsAreAvailable = devFlagEnabled(
     "useBitwardenAutofillAttributes",
   );
 
@@ -155,6 +157,7 @@ export class AutofillComponent implements OnInit {
     honorBitwardenAutofillAttribute: new FormControl(),
     enableContextMenuItem: new FormControl(),
     enableAutoTotpCopy: new FormControl(),
+    enableBasicAuthResponse: new FormControl(),
     clearClipboard: new FormControl(),
     defaultUriMatch: new FormControl(),
   });
@@ -382,6 +385,21 @@ export class AutofillComponent implements OnInit {
     this.additionalOptionsForm.controls.enableAutoTotpCopy.patchValue(this.enableAutoTotpCopy, {
       emitEvent: false,
     });
+
+    const enableBasicAuthResponse = await firstValueFrom(
+      this.autofillSettingsService.enableBasicAuthResponse$,
+    );
+
+    this.additionalOptionsForm.controls.enableBasicAuthResponse.patchValue(
+      enableBasicAuthResponse,
+      { emitEvent: false },
+    );
+
+    this.additionalOptionsForm.controls.enableBasicAuthResponse.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setEnableBasicAuthResponse(value);
+      });
 
     this.clearClipboard = await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$);
 

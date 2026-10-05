@@ -294,7 +294,7 @@
               </bit-label>
             </bit-form-control>
           }
-          @if (bitwardenAutofillAttributesSettingsVisible) {
+          @if (bitwardenAutofillAttributesSettingsAreAvailable) {
             <bit-form-control>
               <input
                 formControlName="honorBitwardenIgnoreAttribute"
@@ -321,6 +321,26 @@
               </bit-label>
               <bit-hint class="tw-text-sm">
                 {{ "honorDataBitwardenAutofillAttributeHint" | i18n }}
+              </bit-hint>
+            </bit-form-control>
+          }
+          @if (basicAuthResponseSettingIsAvailable$ | async) {
+            <bit-form-control>
+              <input
+                formControlName="enableBasicAuthResponse"
+                bitCheckbox
+                id="basic-auth-response"
+                type="checkbox"
+              />
+              <bit-label for="basic-auth-response">
+                {{ "enableBasicAuthResponseLabel" | i18n }}
+              </bit-label>
+              <bit-hint class="tw-text-sm">
+                {{ "enableBasicAuthResponseHint" | i18n }}
+                <span
+                  ><b>{{ "warningCapitalized" | i18n }}</b
+                  >: {{ "enableBasicAuthResponseWarning" | i18n }}</span
+                >
               </bit-hint>
             </bit-form-control>
           }
