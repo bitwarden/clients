@@ -1270,9 +1270,6 @@
   "addSharedFolder": {
     "message": "Add shared folder"
   },
-  "newSharedFolder": {
-    "message": "New shared folder"
-  },
   "searchSharedFolder": {
     "message": "Search shared folder"
   },
@@ -1464,42 +1461,6 @@
     "message": "Add passport",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "New Login",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "New Card",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "New Identity",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "New Note",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "New secure note",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "New SSH key",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "New bank account",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "New license",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "New passport",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "New text",
     "description": "Header for new text send"
@@ -1507,22 +1468,6 @@
   "newItemHeaderFileSendV2": {
     "message": "New file",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Edit Login",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Edit Card",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Edit Identity",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Edit Note",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Edit secure note",
@@ -3882,9 +3827,6 @@
   "customize": {
     "message": "Customize"
   },
-  "newCustomDomain": {
-    "message": "New custom domain"
-  },
   "addCustomDomain": {
     "message": "Add custom domain"
   },
@@ -5400,9 +5342,6 @@
   "groups": {
     "message": "Groups"
   },
-  "newGroup": {
-    "message": "New group"
-  },
   "addGroup": {
     "message": "Add group"
   },
@@ -5457,9 +5396,6 @@
   },
   "readOnly": {
     "message": "Read only"
-  },
-  "newCollection": {
-    "message": "New collection"
   },
   "addCollection": {
     "message": "Add collection"
@@ -11876,9 +11812,6 @@
   "domainVerification": {
     "message": "Domain verification"
   },
-  "newDomain": {
-    "message": "New domain"
-  },
   "addDomain": {
     "message": "Add domain"
   },
@@ -13863,10 +13796,6 @@
   "machineAccounts": {
     "message": "Machine accounts",
     "description": "The title for the section that deals with machine accounts."
-  },
-  "newMachineAccount": {
-    "message": "New machine account",
-    "description": "Title for creating a new machine account."
   },
   "addMachineAccount": {
     "message": "Add machine account",

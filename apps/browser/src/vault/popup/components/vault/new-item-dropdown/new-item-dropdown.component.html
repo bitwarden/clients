@@ -8,7 +8,7 @@
     [bitTooltip]="!canCreateCipher() ? ('organizationIsDeactivated' | i18n) : ''"
     startIcon="bwi-plus"
   >
-    {{ (btnTextAddCreateFeatureFlag() ? "add" : "new") | i18n }}
+    {{ "add" | i18n }}
   </button>
 } @else {
   <button
@@ -20,7 +20,7 @@
     [disabled]="!canCreateCipher()"
     [bitTooltip]="!canCreateCipher() ? ('organizationIsDeactivated' | i18n) : ''"
   >
-    {{ (btnTextAddCreateFeatureFlag() ? "add" : "new") | i18n }}
+    {{ "add" | i18n }}
   </button>
   <bit-menu #itemOptions>
     @for (menuItem of cipherMenuItems$ | async; track menuItem.type) {

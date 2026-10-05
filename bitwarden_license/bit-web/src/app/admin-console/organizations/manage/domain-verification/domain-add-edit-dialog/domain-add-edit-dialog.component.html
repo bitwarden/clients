@@ -5,9 +5,7 @@
   [dialogSize]="'default'"
 >
   <span bitDialogTitle>
-    <span *ngIf="!data.orgDomain">{{
-      (btnTextAddCreateFeatureFlag() ? "addDomain" : "newDomain") | i18n
-    }}</span>
+    <span *ngIf="!data.orgDomain">{{ "addDomain" | i18n }}</span>
     <span *ngIf="data.orgDomain">
       {{ "claimDomain" | i18n }}
     </span>
