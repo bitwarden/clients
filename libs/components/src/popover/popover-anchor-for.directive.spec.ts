@@ -18,7 +18,7 @@ import { PopoverPanelComponent } from "./popover-panel.component";
 })
 class TestHostComponent {
   readonly open = signal(false);
-  readonly anchor = signal<HTMLElement | undefined>(undefined);
+  readonly anchor = signal<HTMLElement | null | undefined>(undefined);
 }
 
 describe("PopoverAnchorForDirective", () => {
@@ -47,6 +47,13 @@ describe("PopoverAnchorForDirective", () => {
   });
 
   it("waits instead of falling back to the host while a bound `anchor` is undefined", async () => {
+    await open();
+
+    expect(overlayText()).not.toContain("Anchor popover");
+  });
+
+  it("waits instead of falling back to the host while a bound `anchor` is null", async () => {
+    await update((host) => host.anchor.set(null));
     await open();
 
     expect(overlayText()).not.toContain("Anchor popover");

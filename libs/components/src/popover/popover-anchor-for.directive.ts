@@ -31,6 +31,9 @@ function runningAnimations(element: HTMLElement): Animation[] {
   });
 }
 
+/** Default for `anchor`; templates can't produce it, so unbound is distinguishable from a bound `null`. */
+const UNBOUND = Symbol("unbound anchor");
+
 /** Implement and provide as `useExisting` to redirect `[bitPopoverAnchorFor]` from the host to another element. */
 export abstract class PopoverElementProvider {
   abstract readonly popoverAnchorElementRef: ElementRef<HTMLElement>;
@@ -95,9 +98,11 @@ export class PopoverAnchorForDirective implements OnDestroy {
   /**
    * Anchor to this element instead of the host. Must be a rendered element, not an `<ng-container>`.
    * Opening waits for it to render and finish animating in; the popover hides until it returns.
-   * Leave unbound to anchor to the host; a bound `undefined` waits instead of falling back.
+   * Leave unbound to anchor to the host; a bound `null` or `undefined` waits instead of falling back.
    */
-  readonly anchor = input<HTMLElement | ElementRef<HTMLElement> | undefined | null>(null);
+  readonly anchor = input<
+    HTMLElement | ElementRef<HTMLElement> | null | undefined | typeof UNBOUND
+  >(UNBOUND);
 
   private readonly popoverElementProvider = inject<PopoverElementProvider>(PopoverElementProvider, {
     host: true,
@@ -109,6 +114,9 @@ export class PopoverAnchorForDirective implements OnDestroy {
 
   private readonly anchorElement = computed(() => {
     const anchor = this.anchor();
+    if (anchor === UNBOUND) {
+      return undefined;
+    }
     return anchor instanceof ElementRef ? anchor.nativeElement : (anchor ?? undefined);
   });
   /** `anchorElement` once it has finished animating into place. */
@@ -185,7 +193,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
       }
       const anchor = this.readyAnchor();
 
-      const target = this.anchor() === null ? this.hostElement() : this.anchorElement();
+      const target = this.anchor() === UNBOUND ? this.hostElement() : this.anchorElement();
       // Losing the anchor keeps `popoverOpen` set, so the popover reattaches when one is ready
       if (this.overlayRef && (!this.popoverOpen() || target !== this.openAnchor)) {
         this.disposeAll();
@@ -240,7 +248,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
 
   /** Undefined while an explicit `anchor` is missing or still animating. */
   private readyAnchor(): HTMLElement | undefined {
-    return this.anchor() === null ? this.hostElement() : this.settledAnchor();
+    return this.anchor() === UNBOUND ? this.hostElement() : this.settledAnchor();
   }
 
   private getClosedEvents(): Observable<any> {
