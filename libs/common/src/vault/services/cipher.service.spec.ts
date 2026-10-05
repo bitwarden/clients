@@ -1666,33 +1666,23 @@ describe("Cipher Service", () => {
       expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId, false);
       expect(apiSpy).not.toHaveBeenCalled();
     });
-  });
 
-  describe("getManyFromApiForOrganization()", () => {
-    const testOrgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
-
-    it("should call apiService.send when feature flag is disabled", async () => {
-      sdkAdminOpsFeatureFlag$.next(false);
-
-      const apiSpy = jest.spyOn(apiService, "send").mockResolvedValue({ data: [] });
-
-      await cipherService.getManyFromApiForOrganization(testOrgId);
-
-      expect(apiSpy).toHaveBeenCalledWith(
-        "GET",
-        `/ciphers/organization-details/assigned?organizationId=${testOrgId}`,
-        null,
-        true,
-        true,
-      );
-    });
-
+    // PAM gated rows are handled on the legacy (non-SDK) branch of this method, which is the
+    // path that still runs `decryptOrganizationCiphersResponse`.
     it("routes PAM-gated (partial) rows through the SDK decryption, so they keep their name", async () => {
-      sdkAdminOpsFeatureFlag$.next(false);
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+      keyService.cipherDecryptionKeys$.mockReturnValue(
+        of({
+          userKey: makeSymmetricCryptoKey(64) as UserKey,
+          orgKeys: { [orgId]: makeSymmetricCryptoKey(32) as OrgKey },
+        } as CipherDecryptionKeys),
+      );
 
       // A gated row as the server sends it: secrets suppressed, a `PartialData` envelope in
       // their place.
-      jest.spyOn(apiService, "send").mockResolvedValue({
+      jest.spyOn(apiService, "getCiphersOrganization").mockResolvedValue({
         data: [
           {
             id: "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22",
@@ -1702,14 +1692,14 @@ describe("Cipher Service", () => {
             partialData: '{"name":"EncryptedString"}',
           },
         ],
-      });
+      } as any);
 
       const partialView = new CipherView();
       partialView.name = "AWS Root Account";
       partialView.partial = true;
       cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[partialView], []]);
 
-      const result = await cipherService.getManyFromApiForOrganization(testOrgId);
+      const result = await cipherService.getAllFromApiForOrganization(testOrgId);
 
       expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledTimes(1);
       const [ciphers] = cipherEncryptionService.decryptManyLegacy.mock.calls[0];
@@ -1719,9 +1709,11 @@ describe("Cipher Service", () => {
     });
 
     it("keeps ungated rows on the legacy org-key decrypt, never touching the SDK path", async () => {
-      sdkAdminOpsFeatureFlag$.next(false);
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
 
-      jest.spyOn(apiService, "send").mockResolvedValue({
+      jest.spyOn(apiService, "getCiphersOrganization").mockResolvedValue({
         data: [
           {
             id: "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22",
@@ -1731,12 +1723,13 @@ describe("Cipher Service", () => {
             name: "EncryptedString",
           },
         ],
-      });
+      } as any);
+
       const legacyView = new CipherView();
       legacyView.name = "Legacy decrypted";
       const legacyDecrypt = jest.spyOn(Cipher.prototype, "decrypt").mockResolvedValue(legacyView);
 
-      const result = await cipherService.getManyFromApiForOrganization(testOrgId);
+      const result = await cipherService.getAllFromApiForOrganization(testOrgId);
 
       expect(legacyDecrypt).toHaveBeenCalledTimes(1);
       expect(cipherEncryptionService.decryptManyLegacy).not.toHaveBeenCalled();
@@ -1744,10 +1737,12 @@ describe("Cipher Service", () => {
 
       legacyDecrypt.mockRestore();
     });
+  });
 
-    it("should use SDK to list assigned organization ciphers when feature flag is enabled", async () => {
-      sdkAdminOpsFeatureFlag$.next(true);
+  describe("getManyFromApiForOrganization()", () => {
+    const testOrgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
 
+    it("should use SDK to list assigned organization ciphers", async () => {
       const mockCipher1 = new Cipher(cipherData);
       const mockCipher2 = new Cipher(cipherData);
 
