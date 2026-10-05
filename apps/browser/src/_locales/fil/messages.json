@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "I-click ang mga item upang i-autofill sa Vault view"
   },
-  "clickToAutofill": {
-    "message": "I-click ang mga item sa autofill suggestion upang punan"
-  },
   "clearClipboard": {
     "message": "Linisin ang clipboard",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Ipasok ang YubiKey na nauugnay sa iyong LastPass account sa USB port ng iyong computer, pagkatapos ay pindutin ang button nito."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Email ng Keeper"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Palitan ang password na nasa panganib"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Ang login na ito ay nasa panganib at kulang ng website. Magdagdag ng website at palitan ang password para sa mas matibay na seguridad."
-  },
   "vulnerablePassword": {
     "message": "Mahinang password."
   },
   "changeNow": {
     "message": "Palitan ngayon"
-  },
-  "missingWebsite": {
-    "message": "Kulang na website"
   },
   "settingsVaultOptions": {
     "message": "Mga opsyon sa vault"

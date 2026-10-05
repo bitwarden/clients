@@ -83,9 +83,7 @@ describe("CipherReportComponent", () => {
 
     component.ciphers = [cipherViewToUpdate];
     mockCipherService.get.mockResolvedValue(updatedCipher);
-    mockCipherService.getKeyForCipherKeyDecryption.mockResolvedValue("key");
-
-    jest.spyOn(updatedCipher, "decrypt").mockResolvedValue(updatedCipherView);
+    mockCipherService.decrypt.mockResolvedValue(updatedCipherView);
 
     jest
       .spyOn(component, "determinedUpdatedCipherReportStatus")
@@ -108,9 +106,7 @@ describe("CipherReportComponent", () => {
     component.ciphers = [cipherViewToUpdate];
 
     mockCipherService.get.mockResolvedValue(updatedCipher);
-    mockCipherService.getKeyForCipherKeyDecryption.mockResolvedValue("key");
-
-    jest.spyOn(updatedCipher, "decrypt").mockResolvedValue(updatedCipherView);
+    mockCipherService.decrypt.mockResolvedValue(updatedCipherView);
 
     jest.spyOn(component, "determinedUpdatedCipherReportStatus").mockResolvedValue(null);
 
@@ -121,5 +117,22 @@ describe("CipherReportComponent", () => {
       VaultItemDialogResult.Saved,
       updatedCipherView,
     );
+  });
+
+  it("should decrypt the updated cipher through the cipher service", async () => {
+    const updatedCipher = { ...mockCipher, name: "Updated" } as unknown as Cipher;
+    const updatedCipherView = { ...updatedCipher } as unknown as CipherView;
+
+    component.ciphers = [updatedCipherView];
+    mockCipherService.get.mockResolvedValue(updatedCipher);
+    mockCipherService.decrypt.mockResolvedValue(updatedCipherView);
+
+    jest.spyOn(updatedCipher, "decrypt");
+    jest.spyOn(component, "determinedUpdatedCipherReportStatus").mockResolvedValue(null);
+
+    await component.refresh(VaultItemDialogResult.Saved, updatedCipherView);
+
+    expect(mockCipherService.decrypt).toHaveBeenCalledWith(updatedCipher, "user1");
+    expect(updatedCipher.decrypt).not.toHaveBeenCalled();
   });
 });

@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
@@ -11,11 +11,152 @@ import { Importer } from "./importer";
 
 export class PasswordBossJsonImporter extends BaseImporter implements Importer {
   parse(data: string): Promise<ImportResult> {
-    const result = new ImportResult();
     const results = JSON.parse(data);
+
+    // Current export ("Password Boss JSON - Not Encrypted"): a flat array of items, with card/login
+    // fields living directly on each item rather than nested under `identifiers`, and no separate
+    // top-level `folders` list — each item names its own folder (if any) directly.
+    if (Array.isArray(results)) {
+      return Promise.resolve(this.parseFlatItems(results));
+    }
+
+    // Older export shape, kept for anyone importing a backup made before Password Boss changed
+    // its export format: a top-level object with `items` and `folders` arrays, and each item's
+    // fields nested under `identifiers`.
+    return Promise.resolve(this.parseLegacyExport(results));
+  }
+
+  // Fields consumed explicitly below regardless of item type, or intentionally discarded
+  // (id/itemType/logoColor are presentational).
+  private readonly commonHandledKeys = new Set([
+    "id",
+    "itemType",
+    "itemTypeName",
+    "logoColor",
+    "folder",
+    "name",
+    "notes",
+    "customFields",
+    "tags",
+  ]);
+
+  // cardType is redundant with the brand detected from cardNumber.
+  private readonly cardHandledKeys = new Set([
+    "cardNumber",
+    "nameOnCard",
+    "securityCode",
+    "expirationDate",
+    "cardType",
+    "issuingBank",
+    "issueDate",
+    "pin",
+  ]);
+
+  // "email" is deliberately excluded: it's only consumed as a username fallback when `username`
+  // is blank, so it's tracked per-item via `usernameFromEmail` instead of statically here.
+  private readonly loginHandledKeys = new Set(["url", "username", "password", "totp"]);
+
+  private parseFlatItems(items: any[]): ImportResult {
+    const result = new ImportResult();
+
+    items.forEach((value: any) => {
+      const isCard = value.itemTypeName === "CreditCard";
+      const cipher = this.initLoginCipher();
+      cipher.name = this.getValueOrDefault(value.name, "--");
+
+      if (isCard) {
+        cipher.card = new CardView();
+        cipher.type = CipherType.Card;
+      }
+
+      this.processFolder(result, value.folder);
+
+      if (!this.isNullOrWhitespace(value.notes)) {
+        cipher.notes = value.notes;
+      }
+
+      if (isCard) {
+        cipher.card.number = this.getValueOrDefault(value.cardNumber);
+        if (cipher.card.number != null) {
+          cipher.card.brand = CardView.getCardBrandByPatterns(cipher.card.number);
+        }
+        cipher.card.cardholderName = this.getValueOrDefault(value.nameOnCard);
+        cipher.card.code = this.getValueOrDefault(value.securityCode);
+        if (!this.isNullOrWhitespace(value.expirationDate)) {
+          const expDate = new Date(value.expirationDate);
+          if (!isNaN(expDate.getTime())) {
+            cipher.card.expYear = expDate.getUTCFullYear().toString();
+            cipher.card.expMonth = (expDate.getUTCMonth() + 1).toString();
+          }
+        }
+        this.processKvp(cipher, "Issuing Bank", value.issuingBank);
+        this.processKvp(cipher, "Issue Date", value.issueDate);
+        this.processKvp(cipher, "PIN", value.pin, FieldType.Hidden);
+      }
+
+      let usernameFromEmail = false;
+      if (!isCard) {
+        cipher.login.uris = this.makeUriArray(value.url);
+        cipher.login.username = this.getValueOrDefault(value.username);
+        cipher.login.password = this.getValueOrDefault(value.password);
+        if (
+          this.isNullOrWhitespace(cipher.login.username) &&
+          !this.isNullOrWhitespace(value.email)
+        ) {
+          cipher.login.username = value.email;
+          usernameFromEmail = true;
+        }
+        if (!this.isNullOrWhitespace(value.totp)) {
+          cipher.login.totp = value.totp;
+        }
+      }
+
+      if (Array.isArray(value.customFields)) {
+        value.customFields.forEach((cf: any) => {
+          this.processKvp(cipher, cf.name, cf.value);
+        });
+      }
+
+      if (Array.isArray(value.tags) && value.tags.length > 0) {
+        this.processKvp(cipher, "Tags", value.tags.join(", "));
+      }
+
+      // Anything Password Boss adds that we don't explicitly map above still ends up on the
+      // cipher, instead of silently disappearing.
+      const typeHandledKeys = isCard ? this.cardHandledKeys : this.loginHandledKeys;
+      for (const property in value) {
+        if (
+          !Object.prototype.hasOwnProperty.call(value, property) ||
+          this.commonHandledKeys.has(property) ||
+          typeHandledKeys.has(property) ||
+          (property === "email" && usernameFromEmail)
+        ) {
+          continue;
+        }
+        const val = value[property];
+        const isSensitive = this.passwordFieldNames.indexOf(property.toLowerCase()) > -1;
+        this.processKvp(
+          cipher,
+          property,
+          val != null ? val.toString() : null,
+          isSensitive ? FieldType.Hidden : FieldType.Text,
+        );
+      }
+
+      this.convertToNoteIfNeeded(cipher);
+      this.cleanupCipher(cipher);
+      result.ciphers.push(cipher);
+    });
+
+    result.success = true;
+    return result;
+  }
+
+  private parseLegacyExport(results: any): ImportResult {
+    const result = new ImportResult();
     if (results == null || results.items == null) {
       result.success = false;
-      return Promise.resolve(result);
+      return result;
     }
 
     const foldersMap = new Map<string, string>();
@@ -128,6 +269,6 @@ export class PasswordBossJsonImporter extends BaseImporter implements Importer {
     });
 
     result.success = true;
-    return Promise.resolve(result);
+    return result;
   }
 }

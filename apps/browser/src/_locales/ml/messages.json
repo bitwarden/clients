@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "വോൾട്ട് വ്യൂവിൽ ഓട്ടോഫിൽ ചെയ്യാൻ ഇനങ്ങളിൽ ക്ലിക്ക് ചെയ്യുക"
   },
-  "clickToAutofill": {
-    "message": "പൂരിപ്പിക്കാൻ ഓട്ടോഫിൽ നിർദ്ദേശത്തിലെ ഇനങ്ങളിൽ ക്ലിക്ക് ചെയ്യുക"
-  },
   "clearClipboard": {
     "message": "ക്ലിപ്ബോര്‍ഡ് മായ്ക്കുക",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "നിങ്ങളുടെ LastPass അക്കൗണ്ടുമായി ബന്ധപ്പെട്ട YubiKey നിങ്ങളുടെ കമ്പ്യൂട്ടറിന്റെ USB പോർട്ടിൽ ഇൻസേർട്ട് ചെയ്ത് അതിന്റെ ബട്ടൺ തൊടുക."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper ഇമെയിൽ"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "അപകടസാധ്യതയുള്ള പാസ്‌വേഡ് മാറ്റുക"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "ഈ ലോഗിൻ അപകടസാധ്യതയിലാണ്, ഒരു വെബ്‌സൈറ്റ് കാണുന്നില്ല. കൂടുതൽ സുരക്ഷയ്ക്കായി ഒരു വെബ്‌സൈറ്റ് ചേർത്ത് പാസ്‌വേഡ് മാറ്റുക."
-  },
   "vulnerablePassword": {
     "message": "ദുർബലമായ പാസ്‌വേഡ്."
   },
   "changeNow": {
     "message": "ഇപ്പോൾ മാറ്റുക"
-  },
-  "missingWebsite": {
-    "message": "വെബ്‌സൈറ്റ് കാണുന്നില്ല"
   },
   "settingsVaultOptions": {
     "message": "വോൾട്ട് ഓപ്ഷനുകൾ"
