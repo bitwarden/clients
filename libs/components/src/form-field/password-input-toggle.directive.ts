@@ -31,8 +31,15 @@ export class BitPasswordInputToggleDirective implements AfterContentInit, OnChan
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() toggledChange = new EventEmitter<boolean>();
 
-  @HostBinding("attr.title") title = this.i18nService.t("toggleVisibility");
-  @HostBinding("attr.aria-label") label = this.i18nService.t("toggleVisibility");
+  @HostBinding("attr.title") get title(): string {
+    return this.label;
+  }
+
+  @HostBinding("attr.aria-label") get label(): string {
+    const key = this.toggled() ? "hidePassword" : "showPassword";
+    const localized = this.i18nService.t(key);
+    return localized || (this.toggled() ? "Hide password" : "Show password");
+  }
 
   /**
    * Click handler to toggle the state of the input type.
