@@ -9,14 +9,14 @@
       <ng-content select="bit-search"></ng-content>
     </div>
     <!-- Below md the chip row collapses into this single trigger + applied-count berry. -->
-    @if (collapsed() && hasFilters()) {
+    @if (showFilterTrigger()) {
       <div class="tw-relative tw-flex-none">
         <button
           type="button"
           bitIconButton="bwi-sliders"
           #filtersButton
           [label]="'filters' | i18n"
-          (click)="filterDialogOpen.set(true)"
+          (click)="openFilterDialog()"
         ></button>
         @if (appliedCount()) {
           <bit-berry

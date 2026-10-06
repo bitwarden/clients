@@ -773,6 +773,7 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       CipherServiceAbstraction,
       StateProvider,
+      LogService,
     ],
   }),
   safeProvider({
@@ -829,6 +830,7 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       StateProvider,
       CollectionEncryptionService,
+      LogService,
     ],
   }),
   safeProvider({
@@ -1944,6 +1946,7 @@ const safeProviders: SafeProvider[] = [
       V2UpgradeTokenStateService,
       ManagedSettingsService,
       AppIdServiceAbstraction,
+      LogService,
     ],
   }),
   safeProvider({

@@ -71,13 +71,14 @@ import { BitTableV2Component } from "./table-v2.component";
 })
 export class BitTableToolbarComponent {
   private readonly dialogService = inject(DialogService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  /** Whether the filter dialog is open. Bind two-way to open or close it programmatically. */
+  /** Whether the collapsed filter dialog is open. Two-way so a consumer can persist it. */
   readonly filterDialogOpen = model(false);
-  private readonly filterDialogRef = signal<DialogRef<unknown, FilterDialogComponent> | undefined>(
+
+  private readonly dialogRef = signal<DialogRef<unknown, FilterDialogComponent> | undefined>(
     undefined,
   );
-  private readonly destroyRef = inject(DestroyRef);
 
   private readonly filtersButton = viewChild("filtersButton", { read: ElementRef<HTMLElement> });
 
@@ -92,7 +93,7 @@ export class BitTableToolbarComponent {
    * `undefined` while the dialog is closed or drilled into a filter.
    */
   filterDialogRowAnchor(key: string): HTMLElement | undefined {
-    return this.filterDialogRef()?.componentInstance?.rowAnchor(key);
+    return this.dialogRef()?.componentInstance?.rowAnchor(key);
   }
 
   /** The table this toolbar is projected into; the source of the item count. */
@@ -144,6 +145,14 @@ export class BitTableToolbarComponent {
     const list = this.overflowList();
     return (list?.ready() && list.overflow().length > 0) ?? false;
   });
+
+  /** Whether the collapsed trigger renders: the single button that stands in for the chip row. */
+  protected readonly showFilterTrigger = computed(() => this.collapsed() && this.hasFilters());
+
+  /** Above `md` the collapse decision isn't known until the chip row has been measured. */
+  private readonly collapseSettled = computed(
+    () => !this.isLargeScreen() || (this.overflowList()?.ready() ?? false),
+  );
 
   /** Whether a filter row renders below the search row; gates the divider between the two. */
   protected readonly hasFilterRow = computed(() =>
@@ -249,9 +258,25 @@ export class BitTableToolbarComponent {
       this.overflowList()?.remeasure();
     });
 
+    // Reconcile the model against the dialog. The trigger gates opening only: a dialog already up
+    // stays up when the chip row goes inline, so a resize can't drop a drill-in page or its focus.
     effect(() => {
       const open = this.filterDialogOpen();
-      untracked(() => this.syncFilterDialog(open));
+      const canOpen = this.showFilterTrigger();
+      const settled = this.collapseSettled();
+      untracked(() => {
+        const ref = this.dialogRef();
+        if (open && !ref) {
+          if (canOpen) {
+            this.showFilterDialog();
+          } else if (settled) {
+            // No trigger could have opened it, so drop the state rather than let it open later.
+            this.filterDialogOpen.set(false);
+          }
+        } else if (!open && ref) {
+          void ref.close();
+        }
+      });
     });
   }
 
@@ -275,23 +300,22 @@ export class BitTableToolbarComponent {
   /** The count's width tracks its digits, not its value — see the remeasure effect. */
   private readonly countDigits = computed(() => String(this.itemCount()).length);
 
-  /** Opens or closes the filter dialog to match `filterDialogOpen`. */
-  private syncFilterDialog(open: boolean): void {
-    if (!open) {
-      void this.filterDialogRef()?.close();
-      return;
-    }
-    if (this.filterDialogRef()) {
-      return;
-    }
-    const data: FilterDialogParams = { filters: this.filters() };
-    const ref: DialogRef<unknown, FilterDialogComponent> = this.dialogService.open(
+  /** The collapsed trigger's click. */
+  protected openFilterDialog(): void {
+    this.filterDialogOpen.set(true);
+  }
+
+  private showFilterDialog(): void {
+    const ref = this.dialogService.open<unknown, FilterDialogParams, FilterDialogComponent>(
       FilterDialogComponent,
-      { data },
+      { data: { filters: this.filters } },
     );
-    this.filterDialogRef.set(ref);
+    this.dialogRef.set(ref);
+
+    // `takeUntilDestroyed` matters for the persisting consumer: views are destroyed before root
+    // providers, so `CdkDialog`'s own teardown can't write a spurious `false` back out.
     ref.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.filterDialogRef.set(undefined);
+      this.dialogRef.set(undefined);
       this.filterDialogOpen.set(false);
     });
   }

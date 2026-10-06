@@ -17,7 +17,7 @@
       </div>
     } @else {
       <div class="tw-flex tw-flex-col tw-gap-2">
-        @for (filter of filters; track filter.key()) {
+        @for (filter of filters(); track filter.key()) {
           <button
             #row
             type="button"
