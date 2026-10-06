@@ -25,7 +25,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CipherId, CollectionId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -54,9 +54,11 @@ import {
   ASSIGN_COLLECTIONS_DIALOG,
   BULK_DELETE_DIALOG,
   BulkDeleteDialogRef,
+  BulkDeleteDialogResult,
   CipherRowMenuHandlers,
   CipherRowMenuService,
   COLLECTION_DIALOG,
+  CollectionDialogOutcome,
   CollectionDialogRef,
   CollectionDialogTab,
   copyPresentation$,
@@ -84,6 +86,7 @@ import {
   parseVaultScope,
   resolveVaultScope,
   scopedCollectionSegment,
+  sharedFoldersCommands,
   vaultScopeHeaderTile,
   vaultScopeTitle,
   scopedSharedFolderId,
@@ -744,7 +747,11 @@ export class VaultNextComponent implements OnInit {
     if (organizationId == null || collectionId == null) {
       return;
     }
-    await this.collectionDialog?.open({ organizationId, collectionId, initialTab });
+    const outcome = await this.collectionDialog?.open({ organizationId, collectionId, initialTab });
+    if (outcome === CollectionDialogOutcome.Deleted) {
+      // The Info tab has its own Delete button, so a dialog opened to edit can still delete.
+      await this.navigateToSharedFolders(organizationId);
+    }
   }
 
   protected async deleteCurrentCollection(): Promise<void> {
@@ -753,7 +760,15 @@ export class VaultNextComponent implements OnInit {
     if (organization == null || collection == null) {
       return;
     }
-    await this.bulkDeleteDialog?.open({ organization, collections: [collection] });
+    const result = await this.bulkDeleteDialog?.open({ organization, collections: [collection] });
+    if (result === BulkDeleteDialogResult.Deleted) {
+      await this.navigateToSharedFolders(organization.id);
+    }
+  }
+
+  /** Where the deleted folder's own page can no longer show anything. */
+  private async navigateToSharedFolders(organizationId: OrganizationId): Promise<void> {
+    await this.router.navigate(sharedFoldersCommands(organizationId), { replaceUrl: true });
   }
 
   protected async openImport(): Promise<void> {

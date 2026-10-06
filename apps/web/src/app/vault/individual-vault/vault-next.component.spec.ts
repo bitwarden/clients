@@ -38,9 +38,11 @@ import {
   AddItemDialogResult,
   BULK_DELETE_DIALOG,
   BulkDeleteDialogRef,
+  BulkDeleteDialogResult,
   CipherRowMenuHandlers,
   CipherRowMenuService,
   COLLECTION_DIALOG,
+  CollectionDialogOutcome,
   CollectionDialogRef,
   CollectionDialogTab,
   DecryptionFailureDialogComponent,
@@ -48,6 +50,7 @@ import {
   MY_ITEMS_ROUTE,
   MY_ITEMS_ROUTE_DATA,
   MY_VAULT_ROUTE,
+  sharedFoldersCommands,
   TRASH_ROUTE,
   VaultCopyButtonsService,
   VaultNavItemType,
@@ -890,6 +893,64 @@ describe("VaultNextComponent", () => {
           expect(bulkDeleteDialog.open).toHaveBeenCalledWith({
             organization: expect.objectContaining({ id: organizationId }),
             collections: [folder],
+          });
+        });
+
+        describe("navigating away after a delete", () => {
+          it("goes to the organization's shared folders list when the Info tab deletes the folder", async () => {
+            collectionDialog.open.mockResolvedValue(CollectionDialogOutcome.Deleted);
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            await component().editCollectionInfo();
+
+            expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
+              replaceUrl: true,
+            });
+          });
+
+          it("goes to the organization's shared folders list when the Access tab deletes the folder", async () => {
+            collectionDialog.open.mockResolvedValue(CollectionDialogOutcome.Deleted);
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            await component().editCollectionAccess();
+
+            expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
+              replaceUrl: true,
+            });
+          });
+
+          it("stays put when the collection dialog only saves", async () => {
+            collectionDialog.open.mockResolvedValue(CollectionDialogOutcome.Saved);
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            await component().editCollectionInfo();
+
+            expect(router.navigate).not.toHaveBeenCalled();
+          });
+
+          it("goes to the organization's shared folders list when Delete succeeds", async () => {
+            bulkDeleteDialog.open.mockResolvedValue(BulkDeleteDialogResult.Deleted);
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            await component().deleteCurrentCollection();
+
+            expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
+              replaceUrl: true,
+            });
+          });
+
+          it("stays put when Delete is canceled", async () => {
+            bulkDeleteDialog.open.mockResolvedValue(BulkDeleteDialogResult.Canceled);
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            await component().deleteCurrentCollection();
+
+            expect(router.navigate).not.toHaveBeenCalled();
           });
         });
       });
