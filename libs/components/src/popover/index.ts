@@ -1,3 +1,4 @@
+export * from "./anchor-parts";
 export * from "./default-positions";
 export * from "./popover.module";
 export * from "./popover-anchor-for.directive";

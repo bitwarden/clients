@@ -109,26 +109,26 @@ first.
 ### Anchoring to an element inside another component
 
 To point a popover at an element a component renders internally — a button inside a toolbar, a row
-inside a dialog — the component exposes it as a public signal, and the consumer passes it to
-`[anchor]`. The anchor directive can then sit on an `<ng-container>` anywhere in the template:
+inside a dialog — pass it to `[anchor]` from the component's `anchors`. The anchor directive can
+then sit on an `<ng-container>` anywhere in the template:
 
 ```html
 <bit-table-toolbar #toolbar>…</bit-table-toolbar>
 
 <ng-container
   [bitPopoverAnchorFor]="coachmark"
-  [anchor]="toolbar.filtersAnchor()"
+  [anchor]="toolbar.anchors.get('filters')"
   [popoverOpen]="open"
   [spotlight]="true"
 />
 ```
 
 The popover waits for the anchor to render and finish animating in (such as a dialog sliding up)
-before opening. If the anchor goes away, the popover hides and reopens once it returns, so a one-way
-`[popoverOpen]` binding stays in control.
+before opening. If the anchor goes away, the popover hides and reopens once it returns.
 
-Library components exposing an anchor name it `<part>Anchor` — a signal for a single element, or a
-method like `filterDialogRowAnchor(key)` for one of many.
+To expose anchors from a library component, provide `AnchorParts` on it, inject it as a public
+`anchors`, and tag elements with `bitAnchorPart="name"`. Pass the instance to anything the component
+opens in a dialog, and re-provide it there, so the dialog's elements join the same names.
 
 This differs from `data-spotlight-target`, which only moves a spotlight's ring onto an element
 inside the anchor's own host (as `bit-nav-item` does).

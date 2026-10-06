@@ -38,6 +38,7 @@ import {
   OverflowListDirective,
   OverflowTriggerDirective,
 } from "../../overflow-list";
+import { AnchorPartDirective, AnchorParts } from "../../popover/anchor-parts";
 import { TooltipDirective } from "../../tooltip";
 import { focusAfterRender } from "../../utils/focus-after-render";
 import { isAtOrLargerThanBreakpointSignal } from "../../utils/responsive-utils";
@@ -62,7 +63,9 @@ import { BitTableV2Component } from "./table-v2.component";
     OverflowItemDirective,
     OverflowTriggerDirective,
     TooltipDirective,
+    AnchorPartDirective,
   ],
+  providers: [AnchorParts],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: "tw-block",
@@ -72,6 +75,7 @@ import { BitTableV2Component } from "./table-v2.component";
 export class BitTableToolbarComponent {
   private readonly dialogService = inject(DialogService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly anchorParts = inject(AnchorParts);
 
   /** Whether the collapsed filter dialog is open. Two-way so a consumer can persist it. */
   readonly filterDialogOpen = model(false);
@@ -80,21 +84,11 @@ export class BitTableToolbarComponent {
     undefined,
   );
 
-  private readonly filtersButton = viewChild("filtersButton", { read: ElementRef<HTMLElement> });
-
   /**
-   * The small-screen filter button, for `[bitPopoverAnchorFor]`'s `anchor`. `undefined` while the
-   * chips are shown inline instead.
+   * Elements for `[bitPopoverAnchorFor]`'s `anchor`: `filters` (the small-screen filter button) and
+   * `filter:<key>` (a row on the filter dialog's list page).
    */
-  readonly filtersAnchor = computed(() => this.filtersButton()?.nativeElement);
-
-  /**
-   * The filter dialog's top-level row for filter `key`, for `[bitPopoverAnchorFor]`'s `anchor`.
-   * `undefined` while the dialog is closed or drilled into a filter.
-   */
-  filterDialogRowAnchor(key: string): HTMLElement | undefined {
-    return this.dialogRef()?.componentInstance?.rowAnchor(key);
-  }
+  readonly anchors: Pick<AnchorParts, "get"> = this.anchorParts;
 
   /** The table this toolbar is projected into; the source of the item count. */
   protected readonly table = inject(BitTableV2Component, { optional: true });
@@ -308,7 +302,7 @@ export class BitTableToolbarComponent {
   private showFilterDialog(): void {
     const ref = this.dialogService.open<unknown, FilterDialogParams, FilterDialogComponent>(
       FilterDialogComponent,
-      { data: { filters: this.filters } },
+      { data: { filters: this.filters, anchors: this.anchorParts } },
     );
     this.dialogRef.set(ref);
 

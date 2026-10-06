@@ -67,7 +67,7 @@ export abstract class PopoverElementProvider {
  * Anchored to an element a component exposes, from an `<ng-container>` anywhere in the template:
  * ```html
  * <bit-table-toolbar #toolbar>…</bit-table-toolbar>
- * <ng-container [bitPopoverAnchorFor]="myPopover" [anchor]="toolbar.filtersAnchor()"
+ * <ng-container [bitPopoverAnchorFor]="myPopover" [anchor]="toolbar.anchors.get('filters')"
  *   [(popoverOpen)]="isOpen" />
  * ```
  *
@@ -96,13 +96,10 @@ export class PopoverAnchorForDirective implements OnDestroy {
   readonly spotlight = input<boolean>(false);
 
   /**
-   * Anchor to this element instead of the host. Must be a rendered element, not an `<ng-container>`.
-   * Opening waits for it to render and finish animating in; the popover hides until it returns.
-   * Leave unbound to anchor to the host; a bound `null` or `undefined` waits instead of falling back.
+   * Anchor to this rendered element instead of the host, once it finishes animating in.
+   * Unbound anchors to the host; a bound `null` or `undefined` hides the popover until it resolves.
    */
-  readonly anchor = input<
-    HTMLElement | ElementRef<HTMLElement> | null | undefined | typeof UNBOUND
-  >(UNBOUND);
+  readonly anchor = input<HTMLElement | null | undefined | typeof UNBOUND>(UNBOUND);
 
   private readonly popoverElementProvider = inject<PopoverElementProvider>(PopoverElementProvider, {
     host: true,
@@ -114,10 +111,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
 
   private readonly anchorElement = computed(() => {
     const anchor = this.anchor();
-    if (anchor === UNBOUND) {
-      return undefined;
-    }
-    return anchor instanceof ElementRef ? anchor.nativeElement : (anchor ?? undefined);
+    return anchor === UNBOUND ? undefined : (anchor ?? undefined);
   });
   /** `anchorElement` once it has finished animating into place. */
   private readonly settledAnchor = signal<HTMLElement | undefined>(undefined);
@@ -193,14 +187,13 @@ export class PopoverAnchorForDirective implements OnDestroy {
       }
       const anchor = this.readyAnchor();
 
-      const target = this.anchor() === UNBOUND ? this.hostElement() : this.anchorElement();
       // Losing the anchor keeps `popoverOpen` set, so the popover reattaches when one is ready
-      if (this.overlayRef && (!this.popoverOpen() || target !== this.openAnchor)) {
+      if (this.overlayRef && (!this.popoverOpen() || anchor !== this.openAnchor)) {
         this.disposeAll();
       }
 
       // Handle opening — hasInitialized() ensures layout is stable on first open
-      if (!this.popoverOpen() || this.overlayRef || !this.hasInitialized() || !anchor) {
+      if (!this.popoverOpen() || this.overlayRef || !this.hasInitialized()) {
         return;
       }
 

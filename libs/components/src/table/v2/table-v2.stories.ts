@@ -423,10 +423,6 @@ class DemoFilterableTableComponent {
   protected readonly typeName = typeLabel;
 }
 
-/**
- * A two-step coachmark tour pointing into the toolbar: the collapsed filter button, then a row in
- * the filter dialog it opens.
- */
 @Component({
   selector: "demo-filter-coachmark-table",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -502,14 +498,14 @@ class DemoFilterableTableComponent {
 
     <ng-container
       [bitPopoverAnchorFor]="filtersCoachmark"
-      [anchor]="toolbar.filtersAnchor()"
+      [anchor]="toolbar.anchors.get('filters')"
       [popoverOpen]="step() === 1"
       [spotlight]="true"
       [position]="'below-end'"
     />
     <ng-container
       [bitPopoverAnchorFor]="vaultRowCoachmark"
-      [anchor]="toolbar.filterDialogRowAnchor('vault')"
+      [anchor]="toolbar.anchors.get('filter:vault')"
       [popoverOpen]="step() === 2"
       [spotlight]="true"
       [position]="'above-center'"
@@ -534,7 +530,7 @@ class DemoFilterCoachmarkTableComponent extends DemoFilterableTableComponent {
   protected readonly filterDialogOpen = signal(false);
 
   protected next(): void {
-    // Opening the dialog renders the row; the second coachmark waits for it before opening.
+    // The second coachmark waits for the dialog row to render.
     this.filterDialogOpen.set(true);
     this.step.set(2);
   }

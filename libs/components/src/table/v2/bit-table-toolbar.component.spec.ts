@@ -182,12 +182,7 @@ describe("BitTableToolbarComponent", () => {
   describe("filterDialogOpen", () => {
     let dialogService: MockProxy<DialogService>;
     let closed: Subject<unknown>;
-    let ref: {
-      closed: Subject<unknown>;
-      close: jest.Mock;
-      componentInstance: { rowAnchor: jest.Mock };
-    };
-    const row = document.createElement("button");
+    let ref: { closed: Subject<unknown>; close: jest.Mock };
 
     const toolbar = () =>
       fixture.debugElement.query(By.directive(BitTableToolbarComponent))
@@ -201,13 +196,7 @@ describe("BitTableToolbarComponent", () => {
     beforeEach(() => {
       dialogService = TestBed.inject(DialogService) as MockProxy<DialogService>;
       closed = new Subject();
-      ref = {
-        closed,
-        close: jest.fn(() => closed.next(undefined)),
-        componentInstance: {
-          rowAnchor: jest.fn((key: string) => (key === "vault" ? row : undefined)),
-        },
-      };
+      ref = { closed, close: jest.fn(() => closed.next(undefined)) };
       dialogService.open.mockReturnValue(ref as unknown as DialogRef);
     });
 
@@ -232,14 +221,12 @@ describe("BitTableToolbarComponent", () => {
       expect(toolbar().filterDialogOpen()).toBe(false);
     });
 
-    it("forwards a dialog row anchor while the dialog is open", () => {
-      expect(toolbar().filterDialogRowAnchor("vault")).toBeUndefined();
-
+    it("passes its anchors to the dialog so the rows register there", () => {
       setOpen(true);
-      expect(toolbar().filterDialogRowAnchor("vault")).toBe(row);
 
-      closed.next(undefined);
-      expect(toolbar().filterDialogRowAnchor("vault")).toBeUndefined();
+      expect(dialogService.open.mock.calls[0][1]?.data).toMatchObject({
+        anchors: toolbar().anchors,
+      });
     });
 
     it("can reopen after the dialog closes", () => {
