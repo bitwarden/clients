@@ -21,11 +21,16 @@ import {
   SendAccessDomainCredentials,
   TryGetSendAccessTokenError,
 } from "@bitwarden/common/auth/send-access";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { toSdkDevice } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SEND_KDF_ITERATIONS } from "@bitwarden/common/tools/send/send-kdf";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
@@ -39,6 +44,11 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { NodeUtils } from "@bitwarden/node/node-utils";
+import {
+  SendReceiveClient,
+  isAccessSendError,
+  isGetFileDownloadDataError,
+} from "@bitwarden/sdk-internal";
 
 import { DownloadCommand } from "../../../commands/download.command";
 import { Response } from "../../../models/response";
@@ -58,9 +68,21 @@ type SendServer = {
   isConfiguredServer: boolean;
 };
 
+/**
+ * The network and decryption steps of receiving a Send, bound to the server that hosts it. Output
+ * handling is the same whichever implementation is in use.
+ */
+type SendReceiver = {
+  /** Accesses the Send and decrypts it. */
+  access(accessToken: SendAccessToken): Promise<SendAccessView>;
+  /** Resolves where a file Send's encrypted contents can be downloaded from. */
+  getFileDownloadUrl(send: SendAccessView, accessToken: SendAccessToken): Promise<string>;
+  /** Decrypts a file Send's downloaded contents. Only valid after {@link access} resolves. */
+  decryptFile(response: globalThis.Response): Promise<Uint8Array>;
+};
+
 export class SendReceiveCommand extends DownloadCommand {
   private canInteract: boolean;
-  private decKey: SymmetricCryptoKey;
 
   constructor(
     encryptService: EncryptService,
@@ -72,6 +94,7 @@ export class SendReceiveCommand extends DownloadCommand {
     private sendTokenService: SendTokenService,
     private sendDecryptionService: SendDecryptionService,
     private appIdService: AppIdService,
+    private configService: ConfigService,
   ) {
     super(encryptService, apiService);
   }
@@ -214,7 +237,7 @@ export class SendReceiveCommand extends DownloadCommand {
     const currentResponse = await this.getTokenWithRetry(sendServer, id);
 
     if (currentResponse instanceof SendAccessToken) {
-      return await this.accessSendWithToken(currentResponse, keyArray, sendServer.apiUrl, options);
+      return await this.accessSendWithToken(currentResponse, keyArray, sendServer, options);
     }
 
     if (currentResponse.kind === "expected_server") {
@@ -461,7 +484,7 @@ export class SendReceiveCommand extends DownloadCommand {
         });
 
         if (otpResponse instanceof SendAccessToken) {
-          return await this.accessSendWithToken(otpResponse, keyArray, sendServer.apiUrl, options);
+          return await this.accessSendWithToken(otpResponse, keyArray, sendServer, options);
         }
 
         if (otpResponse.kind === "expected_server") {
@@ -514,7 +537,7 @@ export class SendReceiveCommand extends DownloadCommand {
     });
 
     if (response instanceof SendAccessToken) {
-      return await this.accessSendWithToken(response, keyArray, sendServer.apiUrl, options);
+      return await this.accessSendWithToken(response, keyArray, sendServer, options);
     }
 
     if (response.kind === "expected_server") {
@@ -535,17 +558,17 @@ export class SendReceiveCommand extends DownloadCommand {
   private async accessSendWithToken(
     accessToken: SendAccessToken,
     keyArray: Uint8Array,
-    apiUrl: string,
+    sendServer: SendServer,
     options: OptionValues,
   ): Promise<Response> {
     try {
-      const sendResponse = await this.sendApiService.postSendAccess(accessToken, apiUrl);
+      using receiveClient = await this.createSendReceiveClient(sendServer);
+      const receiver =
+        receiveClient != null
+          ? this.sdkReceiver(receiveClient, keyArray)
+          : this.legacyReceiver(keyArray, sendServer.apiUrl);
 
-      const [decryptedView, decKey] = await this.sendDecryptionService.decryptSendAccess(
-        sendResponse,
-        keyArray,
-      );
-      this.decKey = decKey;
+      const decryptedView = await receiver.access(accessToken);
 
       if (options.obj != null) {
         return Response.success(new SendAccessResponse(decryptedView));
@@ -557,21 +580,12 @@ export class SendReceiveCommand extends DownloadCommand {
           return Response.success();
 
         case SendType.File: {
-          const downloadData = await this.sendApiService.getSendFileDownloadData(
-            decryptedView,
-            accessToken,
-            apiUrl,
-          );
-
-          const decryptBufferFn = async (resp: globalThis.Response) => {
-            const encBuf = await EncArrayBuffer.fromResponse(resp);
-            return this.encryptService.decryptFileData(encBuf, this.decKey);
-          };
+          const downloadUrl = await receiver.getFileDownloadUrl(decryptedView, accessToken);
 
           return await this.saveAttachmentToFile(
-            downloadData.url,
+            downloadUrl,
             path.basename(decryptedView?.file?.fileName ?? `BitwardenSendFile-${Date.now()}`),
-            decryptBufferFn,
+            (resp) => receiver.decryptFile(resp),
             options.output,
           );
         }
@@ -580,12 +594,90 @@ export class SendReceiveCommand extends DownloadCommand {
           return Response.success(new SendAccessResponse(decryptedView));
       }
     } catch (e) {
-      if (e instanceof ErrorResponse) {
-        if (e.statusCode === 404) {
-          return Response.notFound();
-        }
+      if (this.isNotFound(e)) {
+        return Response.notFound();
       }
       return Response.error(e);
     }
+  }
+
+  /**
+   * Builds a receive-scoped SDK client pointed at the server that hosts a cross-instance Send, so
+   * the access token is spent at the same server that minted it.
+   *
+   * Returns null — keeping {@link SendApiService} — for a Send on the configured server, which
+   * needs no client of its own, and while the SDK Sends flag is off.
+   */
+  private async createSendReceiveClient(sendServer: SendServer): Promise<SendReceiveClient | null> {
+    if (sendServer.isConfiguredServer) {
+      return null;
+    }
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi))) {
+      return null;
+    }
+
+    await SdkLoadService.Ready;
+    return new SendReceiveClient({
+      apiUrl: sendServer.apiUrl,
+      identityUrl: sendServer.identityUrl,
+      deviceType: toSdkDevice(this.platformUtilsService.getDevice()),
+      bitwardenClientVersion: await this.platformUtilsService.getApplicationVersionNumber(),
+    });
+  }
+
+  /** Receives through {@link SendApiService}, spending the token at `apiUrl`. */
+  private legacyReceiver(keyArray: Uint8Array, apiUrl: string): SendReceiver {
+    let decKey: SymmetricCryptoKey;
+    return {
+      access: async (accessToken) => {
+        const sendResponse = await this.sendApiService.postSendAccess(accessToken, apiUrl);
+        const [view, key] = await this.sendDecryptionService.decryptSendAccess(
+          sendResponse,
+          keyArray,
+        );
+        decKey = key;
+        return view;
+      },
+      getFileDownloadUrl: async (send, accessToken) =>
+        (await this.sendApiService.getSendFileDownloadData(send, accessToken, apiUrl)).url,
+      decryptFile: async (resp) => {
+        const encBuf = await EncArrayBuffer.fromResponse(resp);
+        return this.encryptService.decryptFileData(encBuf, decKey);
+      },
+    };
+  }
+
+  /**
+   * Receives through a {@link SendReceiveClient}. Requests go to the server the client was built
+   * for, and decryption happens in the SDK using the key from the Send url.
+   */
+  private sdkReceiver(client: SendReceiveClient, keyArray: Uint8Array): SendReceiver {
+    const keyB64 = Utils.fromArrayToUrlB64(keyArray);
+    return {
+      access: async (accessToken) => {
+        const response = await client.access_send(accessToken.token);
+        return SendAccessView.fromSdk(client.decrypt_send_access(keyB64, response));
+      },
+      getFileDownloadUrl: async (send, accessToken) =>
+        (await client.get_file_download_data(accessToken.token, send.file.id)).url,
+      decryptFile: async (resp) =>
+        client.decrypt_send_access_file(keyB64, new Uint8Array(await resp.arrayBuffer())),
+    };
+  }
+
+  /**
+   * SendApiService surfaces a missing Send as an {@link ErrorResponse}. The SDK has no status field
+   * on its API errors, so the status is only recoverable from the message ApiError formats
+   * ("error in response: status code 404 Not Found: ...").
+   */
+  private isNotFound(e: unknown): boolean {
+    if (e instanceof ErrorResponse) {
+      return e.statusCode === 404;
+    }
+    return (
+      (isAccessSendError(e) || isGetFileDownloadDataError(e)) &&
+      e.variant === "Api" &&
+      e.message.includes("status code 404")
+    );
   }
 }
