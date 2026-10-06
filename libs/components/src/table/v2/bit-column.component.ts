@@ -40,6 +40,15 @@ export class BitColumnComponent {
   readonly sortable = input(false, { transform: booleanAttribute });
 
   /**
+   * Let the user hide this column. Opt-in, so leave it off for row-action columns.
+   * Requires {@link label}, and `stateKey` on the surrounding `<bit-table-v2>`.
+   */
+  readonly removable = input(false, { transform: booleanAttribute });
+
+  /** The column's name in the Customize dialog. */
+  readonly label = input<string>();
+
+  /**
    * Apply this sort direction as the initial sort. Only one column should set
    * this per table; if multiple do, the first registered wins.
    */
@@ -95,6 +104,12 @@ export class BitColumnComponent {
         logService?.warning(
           "bit-table-v2: a `<bit-column>` is missing a `*bitCellDef` and has no column key, " +
             'so it will not render. Add `*bitCellDef="table.columns.<field>"`.',
+        );
+      }
+      if (this.removable() && !this.label()) {
+        logService?.warning(
+          `bit-table-v2: column "${this.name()}" is removable but has no \`label\`, ` +
+            "so it can't be offered in the Customize dialog. It will stay visible.",
         );
       }
     });
