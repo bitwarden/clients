@@ -5,12 +5,12 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { measured } from "@bitwarden/logging";
+import { measured, PerfTrackGroup } from "@bitwarden/logging";
 
 import { KeyService } from "../../abstractions/key.service";
 import { UserAsymmetricKeysRegenerationService } from "../abstractions/user-asymmetric-key-regeneration.service";
 
-const PERF_TRACK_GROUP = "Unlock";
+const PERF_TRACK_GROUP = PerfTrackGroup.Unlock;
 const PERF_TRACK = "Key Regeneration";
 
 export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmetricKeysRegenerationService {

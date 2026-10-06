@@ -15,7 +15,7 @@ import {
   EncString,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
-import { measured } from "@bitwarden/logging";
+import { measured, PerfTrackGroup } from "@bitwarden/logging";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -68,7 +68,7 @@ export const SHOULD_TRUST_DEVICE = new UserKeyDefinition<boolean | null>(
   },
 );
 
-const PERF_TRACK_GROUP = "Unlock";
+const PERF_TRACK_GROUP = PerfTrackGroup.Unlock;
 const PERF_TRACK = "Device Trust";
 
 export class DeviceTrustService implements DeviceTrustServiceAbstraction {

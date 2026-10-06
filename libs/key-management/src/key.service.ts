@@ -47,7 +47,7 @@ import {
   SymmetricCryptoKey,
   WrappedSigningKey,
 } from "@bitwarden/legacy-crypto";
-import { measured } from "@bitwarden/logging";
+import { measured, PerfTrackGroup } from "@bitwarden/logging";
 import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
 import {
@@ -56,7 +56,7 @@ import {
 } from "./abstractions/key.service";
 import { BiometricsService } from "./biometrics/biometric.service";
 
-const PERF_TRACK_GROUP = "KeyManagement";
+const PERF_TRACK_GROUP = PerfTrackGroup.KeyManagement;
 const PERF_TRACK = "DefaultKeyService";
 
 export class DefaultKeyService implements KeyServiceAbstraction {
@@ -435,7 +435,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         ]).pipe(
           switchMap(async ([encryptedOrgKeys, providerKeys]) => {
             const measurement = this.logService.startMeasurement(
-              "Unlock",
+              PerfTrackGroup.Unlock,
               "Crypto",
               "Reencrypt Organization Keys",
             );

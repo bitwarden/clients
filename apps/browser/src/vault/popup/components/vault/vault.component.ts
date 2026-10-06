@@ -74,6 +74,7 @@ import {
   VaultItemsTransferService,
   VaultNavService,
   VaultOrganizationUserNotificationsComponent,
+  VAULT_RENDERED_MARK,
 } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
@@ -105,8 +106,6 @@ import { VaultPopupListTableComponent } from "./vault-popup-list-table/vault-pop
 import { VaultSwitcherComponent } from "./vault-switcher/vault-switcher.component";
 
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
-
-const VAULT_RENDERED_MARK = "Vault rendered";
 
 const VaultState = {
   Empty: 0,

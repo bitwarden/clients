@@ -5,7 +5,7 @@ import {
   KdfConfigService,
   KeyService,
 } from "@bitwarden/key-management";
-import { LogService, measured } from "@bitwarden/logging";
+import { LogService, measured, PerfTrackGroup } from "@bitwarden/logging";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { assertNonNullish } from "../../auth/utils";
@@ -26,7 +26,7 @@ import { MinimumKdfMigration } from "./migrations/minimum-kdf-migration";
 import { UserKeyIdBackfillMigration } from "./migrations/user-key-id-backfill-migration";
 import { V2KeyRotationMigration } from "./migrations/v2-key-rotation-migration";
 
-const PERF_TRACK_GROUP = "Migrations";
+const PERF_TRACK_GROUP = PerfTrackGroup.Migrations;
 const PERF_TRACK = "Encrypted Migrator";
 
 export class DefaultEncryptedMigrator implements EncryptedMigrator {

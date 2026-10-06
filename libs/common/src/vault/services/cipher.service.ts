@@ -16,7 +16,7 @@ import {
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncArrayBuffer, EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
-import { Measurement } from "@bitwarden/logging";
+import { Measurement, PerfTrackGroup } from "@bitwarden/logging";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -73,6 +73,9 @@ import {
   FAILED_DECRYPTED_CIPHERS,
   LOCAL_DATA_KEY,
 } from "./key-state/ciphers.state";
+
+const PERF_TRACK_GROUP = PerfTrackGroup.Unlock;
+const PERF_TRACK = "Vault Items";
 
 export class CipherService implements CipherServiceAbstraction {
   private sortedCiphersCache: SortedCiphersCache = new SortedCiphersCache(
@@ -154,8 +157,8 @@ export class CipherService implements CipherServiceAbstraction {
           ),
           tap(() => {
             decryptMeasurement = this.logService.startMeasurement(
-              "Unlock",
-              "Vault Items",
+              PERF_TRACK_GROUP,
+              PERF_TRACK,
               "listViewDecrypt",
             );
           }),
@@ -250,8 +253,8 @@ export class CipherService implements CipherServiceAbstraction {
 
   private async setDecryptedCiphers(value: CipherView[], userId: UserId) {
     const measurement = this.logService.startMeasurement(
-      "Unlock",
-      "Vault Items",
+      PERF_TRACK_GROUP,
+      PERF_TRACK,
       "setDecryptedCiphers",
     );
     const cipherViews: { [id: string]: CipherView } = {};
@@ -383,8 +386,8 @@ export class CipherService implements CipherServiceAbstraction {
 
     try {
       const sdkMeasurement = this.logService.startMeasurement(
-        "Unlock",
-        "Vault Items",
+        PERF_TRACK_GROUP,
+        PERF_TRACK,
         "getAllDecrypted",
       );
       const result = await this.cipherSdkService.getAllDecrypted(userId);
@@ -429,8 +432,8 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     const decryptMeasurement = this.logService.startMeasurement(
-      "Unlock",
-      "Vault Items",
+      PERF_TRACK_GROUP,
+      PERF_TRACK,
       "decryptCiphers",
     );
 

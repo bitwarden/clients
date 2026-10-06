@@ -3,7 +3,7 @@
 
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { measured } from "@bitwarden/logging";
+import { measured, PerfTrackGroup } from "@bitwarden/logging";
 import { PureCrypto, SdkRandomNumberClient } from "@bitwarden/sdk-internal";
 
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
@@ -13,7 +13,7 @@ import type { KdfConfig } from "../models/kdf-config";
 import { SymmetricCryptoKey } from "../models/symmetric-crypto-key";
 import { CsprngArray } from "../types/csprng";
 
-const PERF_TRACK_GROUP = "Crypto";
+const PERF_TRACK_GROUP = PerfTrackGroup.Crypto;
 const PERF_TRACK = "Legacy Crypto";
 
 export class DefaultKeyGenerationService implements KeyGenerationService {

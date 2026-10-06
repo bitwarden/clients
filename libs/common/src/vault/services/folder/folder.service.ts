@@ -17,6 +17,7 @@ import {
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { PerfTrackGroup } from "@bitwarden/logging";
 
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { LogService } from "../../../platform/abstractions/log.service";
@@ -278,7 +279,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
     }
 
     const decryptMeasurement = this.logService.startMeasurement(
-      "Unlock",
+      PerfTrackGroup.Unlock,
       "Folders",
       "decryptFolders",
     );

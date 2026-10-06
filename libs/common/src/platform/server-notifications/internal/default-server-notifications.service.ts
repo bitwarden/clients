@@ -17,6 +17,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
+import { PerfTrackGroup } from "@bitwarden/logging";
 
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "../../../auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
@@ -358,7 +359,11 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         mergeMap(async ([notification, userId]) => {
           // Instant event per incoming notification, e.g. "SyncCipherUpdate"
           this.logService
-            .startMeasurement("Notifications", "Incoming", NotificationType[notification.type])
+            .startMeasurement(
+              PerfTrackGroup.Notifications,
+              "Incoming",
+              NotificationType[notification.type],
+            )
             .finishWithDefaultTime();
 
           try {

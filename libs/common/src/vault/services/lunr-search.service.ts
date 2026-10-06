@@ -3,7 +3,7 @@
 import * as lunr from "lunr";
 import { Opaque } from "type-fest";
 
-import { measured } from "@bitwarden/logging";
+import { measured, PerfTrackGroup } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
 
 import { UriMatchStrategy } from "../../models/domain/domain-service";
@@ -24,7 +24,7 @@ type IndexState = {
   revisionDate: Date;
 };
 
-const PERF_TRACK_GROUP = "Search";
+const PERF_TRACK_GROUP = PerfTrackGroup.Search;
 const PERF_TRACK = "Lunr";
 
 export class LunrSearchService {

@@ -9,7 +9,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { OrgKey, UserKey, MasterKey, ProviderKey } from "@bitwarden/common/types/key";
 // Type-only: @bitwarden/key-management re-exports this package, so a value import would be circular.
 import type { KdfConfigService, KeyService } from "@bitwarden/key-management";
-import { LogService, measured } from "@bitwarden/logging";
+import { LogService, measured, PerfTrackGroup } from "@bitwarden/logging";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
@@ -22,7 +22,7 @@ import { KdfConfig } from "../models/kdf-config";
 import { SymmetricCryptoKey } from "../models/symmetric-crypto-key";
 import { CsprngArray } from "../types/csprng";
 
-const PERF_TRACK_GROUP = "Crypto";
+const PERF_TRACK_GROUP = PerfTrackGroup.Crypto;
 const PERF_TRACK = "Legacy Crypto";
 
 export class DefaultLegacyCompatKeyService implements LegacyCompatKeyServiceAbstraction {

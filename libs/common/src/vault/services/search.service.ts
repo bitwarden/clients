@@ -1,6 +1,6 @@
 import { BehaviorSubject, Observable } from "rxjs";
 
-import { measured } from "@bitwarden/logging";
+import { measured, PerfTrackGroup } from "@bitwarden/logging";
 
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
@@ -15,7 +15,7 @@ import { LunrSearchService } from "./lunr-search.service";
 // Time to wait before performing a search after the user stops typing.
 export const SearchTextDebounceInterval = 100; // milliseconds
 
-const PERF_TRACK_GROUP = "Search";
+const PERF_TRACK_GROUP = PerfTrackGroup.Search;
 const PERF_TRACK = "Basic";
 
 export class SearchService implements SearchServiceAbstraction {

@@ -148,6 +148,7 @@ import {
   vaultScopeTitle,
   VaultScopeType,
   defaultUserCollectionId,
+  VAULT_RENDERED_MARK,
 } from "@bitwarden/vault";
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
@@ -161,7 +162,6 @@ import { VaultListTableComponent } from "./vault-list-table/vault-list-table.com
 import { VaultListComponent } from "./vault-list.component";
 
 const BroadcasterSubscriptionId = "VaultComponent";
-const VAULT_RENDERED_MARK = "Vault rendered";
 
 type EmptyStateType = "trash" | "favorites" | "archive";
 

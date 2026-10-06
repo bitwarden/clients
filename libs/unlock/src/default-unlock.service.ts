@@ -16,7 +16,7 @@ import {
 } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
-import { LogService, measured } from "@bitwarden/logging";
+import { LogService, measured, PerfTrackGroup } from "@bitwarden/logging";
 import {
   EncString,
   InitUserCryptoMethod,
@@ -44,7 +44,7 @@ export type KeyConnectorUnlockData = {
   keyConnectorKeyWrappedUserKey: EncString;
 };
 
-const PERF_TRACK_GROUP = "Unlock";
+const PERF_TRACK_GROUP = PerfTrackGroup.Unlock;
 const PERF_TRACK = "Unlock Service";
 
 export class DefaultUnlockService implements UnlockService {

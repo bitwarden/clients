@@ -30,6 +30,7 @@ import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService } from "@bitwarden/legacy-crypto";
+import { PerfTrackGroup } from "@bitwarden/logging";
 
 import { CollectionEncryptionService } from "../abstractions/collection-encryption.service";
 import { CollectionService } from "../abstractions/collection.service";
@@ -119,7 +120,7 @@ export class DefaultCollectionService implements CollectionService {
     ]).pipe(
       switchMap(([collections]) => {
         const decryptMeasurement = this.logService.startMeasurement(
-          "Unlock",
+          PerfTrackGroup.Unlock,
           "Collections",
           "decryptMany",
         );

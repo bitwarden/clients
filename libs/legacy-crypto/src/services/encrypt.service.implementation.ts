@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { LogService, measured } from "@bitwarden/logging";
+import { LogService, measured, PerfTrackGroup } from "@bitwarden/logging";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
@@ -12,7 +12,7 @@ import { EncArrayBuffer } from "../models/enc-array-buffer";
 import { EncString } from "../models/enc-string";
 import { SymmetricCryptoKey } from "../models/symmetric-crypto-key";
 
-const PERF_TRACK_GROUP = "Crypto";
+const PERF_TRACK_GROUP = PerfTrackGroup.Crypto;
 const PERF_TRACK = "Legacy Crypto";
 
 export class EncryptServiceImplementation implements EncryptService {

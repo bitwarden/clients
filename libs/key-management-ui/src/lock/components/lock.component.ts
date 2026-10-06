@@ -52,7 +52,7 @@ import {
   BiometricsStatus,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
-import { measured } from "@bitwarden/logging";
+import { measured, PerfTrackGroup } from "@bitwarden/logging";
 import { UnlockMethod, UnlockService } from "@bitwarden/unlock";
 
 import {
@@ -83,7 +83,7 @@ type AfterUnlockActions = {
 /// Fixes safari autoprompt behavior
 const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
 
-const PERF_TRACK_GROUP = "Unlock";
+const PERF_TRACK_GROUP = PerfTrackGroup.Unlock;
 const PERF_TRACK = "Lock Component";
 
 const BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES = [

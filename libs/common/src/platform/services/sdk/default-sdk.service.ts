@@ -24,6 +24,7 @@ import {
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncString } from "@bitwarden/legacy-crypto";
+import { PerfTrackGroup } from "@bitwarden/logging";
 import { ManagedSettingsService } from "@bitwarden/managed-settings";
 import {
   PasswordManagerClient,
@@ -82,9 +83,9 @@ class JsTokenProvider implements TokenProvider {
   }
 }
 
-const LIFETIME_TRACK_GROUP = "SDK";
+const LIFETIME_TRACK_GROUP = PerfTrackGroup.Sdk;
 const LIFETIME_TRACK = "Lifetime";
-const CRYPTO_TRACK_GROUP = "Unlock";
+const CRYPTO_TRACK_GROUP = PerfTrackGroup.Unlock;
 const CRYPTO_TRACK = "Crypto";
 
 export class DefaultSdkService implements SdkService {

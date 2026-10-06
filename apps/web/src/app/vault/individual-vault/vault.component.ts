@@ -123,6 +123,7 @@ import {
   openDeleteSharedFolderDialog,
   VaultOrganizationUserNotificationsComponent,
   Vfo1TerminologyService,
+  VAULT_RENDERED_MARK,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
@@ -148,7 +149,6 @@ import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
 
 const BroadcasterSubscriptionId = "VaultComponent";
-const VAULT_RENDERED_MARK = "Vault rendered";
 
 type EmptyStateType = "trash" | "favorites" | "archive";
 
