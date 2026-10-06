@@ -1076,8 +1076,6 @@ export default {
               customizeYourView: "Customize your view",
               showColumns: "Show columns",
               resetToDefault: "Reset to default",
-              columnShown: (name) => `${name} column shown`,
-              columnHidden: (name) => `${name} column hidden`,
               oneFilterResult: "1 result",
               filterResults: (count) => `${count} results`,
               selectAllRows: "Select all rows",

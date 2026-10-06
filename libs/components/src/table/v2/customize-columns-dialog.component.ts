@@ -1,4 +1,3 @@
-import { LiveAnnouncer } from "@angular/cdk/a11y";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -12,7 +11,6 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ButtonModule } from "../../button";
@@ -56,8 +54,6 @@ export interface CustomizeColumnsDialogParams {
 })
 export class CustomizeColumnsDialogComponent {
   private readonly injector = inject(Injector);
-  private readonly liveAnnouncer = inject(LiveAnnouncer);
-  private readonly i18nService = inject(I18nService);
   private readonly params = inject<CustomizeColumnsDialogParams>(DIALOG_DATA);
 
   private readonly doneButtonEl = viewChild("doneButton", { read: ElementRef<HTMLElement> });
@@ -92,9 +88,6 @@ export class CustomizeColumnsDialogComponent {
         }
         this.shown.set(col.name, shown);
         this.params.setHidden(col.name, !shown);
-        void this.liveAnnouncer.announce(
-          this.i18nService.t(shown ? "columnShown" : "columnHidden", col.label),
-        );
       }
       this.modified.set(this.anyHidden());
     });
