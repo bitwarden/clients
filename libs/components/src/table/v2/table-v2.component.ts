@@ -24,8 +24,6 @@ import {
   untracked,
   viewChild,
 } from "@angular/core";
-import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { of, switchMap } from "rxjs";
 
 import { NoResults } from "@bitwarden/assets/svg";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -671,27 +669,21 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
 
   private readonly columnPreferences = inject(TableColumnPreferencesService);
 
-  /** `undefined` until the stored preference loads. */
-  private readonly storedHiddenNames = toSignal(
-    toObservable(this.stateKey).pipe(
-      switchMap((key) =>
-        key == null ? of([]) : this.columnPreferences.hiddenColumns$(TABLE_STATE_KEYS[key]),
-      ),
-    ),
-  );
-
   /** The stored hidden names, narrowed to columns that are currently togglable. */
   private readonly hiddenColumnNames = computed<ReadonlySet<string>>(() => {
-    if (!this.canCustomizeColumns()) {
+    const key = this.stateKey();
+    if (key == null || !this.canCustomizeColumns()) {
       return new Set();
     }
     const names = this.removableColumns().map((col) => col.name() ?? "");
-    const stored = this.storedHiddenNames();
+    const prefs = this.columnPreferences.preferences();
     // Hold back every removable column until preferences load, so none renders and then vanishes.
-    if (stored === undefined) {
+    if (prefs === undefined) {
       return new Set(names);
     }
-    const hidden = new Set(stored);
+    // Disk may hold a malformed value from an older or foreign write.
+    const stored = prefs[TABLE_STATE_KEYS[key]];
+    const hidden = new Set(Array.isArray(stored) ? stored : []);
     return new Set(names.filter((name) => hidden.has(name)));
   });
 

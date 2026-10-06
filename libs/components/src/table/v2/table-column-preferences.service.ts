@@ -1,5 +1,6 @@
 import { Injectable, inject } from "@angular/core";
-import { Observable, map } from "rxjs";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { map, of } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateProvider } from "@bitwarden/state";
@@ -7,24 +8,20 @@ import { StateProvider } from "@bitwarden/state";
 import { TABLE_COLUMN_PREFERENCES, TableColumnPreferences } from "./table-column-preferences.state";
 
 /**
- * Stores which columns each table has hidden, per user. `StateProvider` is resolved lazily,
- * so tables without a `stateKey` need none.
+ * Stores which columns each table has hidden, per user. Without a `StateProvider` nothing is
+ * stored, so only tables with a `stateKey` need one.
  */
 @Injectable({ providedIn: "root" })
 export class TableColumnPreferencesService {
   private readonly stateProvider = inject(StateProvider, { optional: true });
   private readonly logService = inject(LogService, { optional: true });
 
-  /** The hidden column names stored for `key`. */
-  hiddenColumns$(key: string): Observable<readonly string[]> {
-    // Disk may hold a malformed value from an older or foreign write.
-    return this.state().state$.pipe(
-      map((prefs) => {
-        const names = prefs?.[key];
-        return Array.isArray(names) ? names.filter((n) => typeof n === "string") : [];
-      }),
-    );
-  }
+  /** Every table's stored hidden names. `undefined` until the stored value loads. */
+  readonly preferences = toSignal<TableColumnPreferences>(
+    this.stateProvider == null
+      ? of({})
+      : this.stateProvider.getActive(TABLE_COLUMN_PREFERENCES).state$.pipe(map((p) => p ?? {})),
+  );
 
   /**
    * Shows or hides one column. Derived inside the update so quick successive toggles don't

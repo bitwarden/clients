@@ -369,4 +369,19 @@ describe("BitTableV2Component while preferences load", () => {
 
     expect(names()).toEqual(["name", "vault", "actions"]);
   });
+
+  it("ignores a malformed stored value", async () => {
+    const stateProvider = mock<StateProvider>();
+    stateProvider.getActive.mockReturnValue({
+      state$: of({ "vault-items": "nonsense" }),
+    } as unknown as ActiveUserState<unknown>);
+    const fixture = await renderHost(TestHostComponent, stateProvider);
+
+    expect(
+      fixture.componentInstance
+        .tableCmp()
+        .effectiveColumns()
+        .map((c) => c.name()),
+    ).toEqual(["name", "vault", "folder", "actions"]);
+  });
 });
