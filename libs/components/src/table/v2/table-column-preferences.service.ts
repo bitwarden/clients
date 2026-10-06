@@ -6,8 +6,6 @@ import { StateProvider } from "@bitwarden/state";
 
 import { TABLE_COLUMN_PREFERENCES, TableColumnPreferences } from "./table-column-preferences.state";
 
-const EMPTY: TableColumnPreferences = Object.freeze({});
-
 /**
  * Stores which columns each table has hidden, per user. `StateProvider` is resolved lazily,
  * so tables without a `stateKey` need none.
@@ -58,7 +56,7 @@ export class TableColumnPreferencesService {
 
   private write(update: (prefs: TableColumnPreferences) => TableColumnPreferences): void {
     void this.state()
-      .update((prefs) => update(prefs ?? EMPTY))
+      .update((prefs) => update(prefs ?? {}))
       .catch((e: unknown) => this.logService?.error(e));
   }
 }
