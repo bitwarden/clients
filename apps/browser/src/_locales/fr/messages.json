@@ -10,7 +10,7 @@
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extNameBeta": {
-    "message": "Bitwarden Password Manager Beta",
+    "message": "Gestionnaire de Mots de Passe Bitwarden Beta",
     "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
@@ -451,6 +451,9 @@
   "noFolders": {
     "message": "Aucun dossier à lister."
   },
+  "noFoldersFilter": {
+    "message": "Aucun dossier"
+  },
   "helpFeedback": {
     "message": "Aide et commentaires"
   },
@@ -540,7 +543,7 @@
     "message": "Ajouter des dossiers aux éléments pour les filtrer ici."
   },
   "sharedFolderFilterTooltip": {
-    "message": "Add items to a shared folder to filter here."
+    "message": "Ajouter des éléments à un dossier partagé pour filtrer ici."
   },
   "editItemWithName": {
     "message": "Modifier l'élément - $NAME$",
@@ -553,6 +556,45 @@
   },
   "noItemsInVault": {
     "message": "Aucun élément dans le coffre"
+  },
+  "noItemsInMyVault": {
+    "message": "Aucun élément dans Mon coffre"
+  },
+  "emptyMyItems": {
+    "message": "Aucun élément dans Mes éléments"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Aucun élément dans $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Aucun élément dans $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "Vos coffres sont vides"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Aucun élément ne correspond aux filtres sélectionnés"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Aucun élément ne correspond à « $SEARCH_TERM$ »",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
   },
   "length": {
     "message": "Longueur"
@@ -759,7 +801,7 @@
     "message": "Ouvrir le site web"
   },
   "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
+    "message": "Lancer le site web de $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1249,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Cliquez sur les éléments dans l'affichage du coffre pour la saisie automatique"
   },
-  "clickToAutofill": {
-    "message": "Cliquez sur les éléments de la suggestion de saisie automatique pour les remplir"
-  },
   "clearClipboard": {
     "message": "Effacer le presse-papiers",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1497,6 +1536,43 @@
   "importVerb": {
     "message": "Importer",
     "description": "The verb form of the word Import"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Sélectionner la source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Sélectionnez votre source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choisissez le gestionnaire de mots de passe ou le navigateur à partir duquel vous importez."
+  },
+  "importSourceBrowsers": {
+    "message": "Navigateurs"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Gestionnaires de mots de passe"
+  },
+  "importSourceShowAll": {
+    "message": "Tout afficher"
+  },
+  "importSourceShowLess": {
+    "message": "Afficher moins"
+  },
+  "importSourceStepCount": {
+    "message": "Étape $CURRENT$ de $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "importItems": {
+    "message": "Importer des éléments"
   },
   "fileFormat": {
     "message": "Format de fichier"
@@ -2766,7 +2842,7 @@
     "message": "Aucun élément correspondant"
   },
   "noFiltersMatch": {
-    "message": "No filters match \"$SEARCH$\"",
+    "message": "Aucun filtre ne correspond à « $SEARCH$ »",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -2774,8 +2850,32 @@
       }
     }
   },
+  "oneFilterResult": {
+    "message": "1 résultat",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ résultats",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Aucun filtre ne correspond à “$SEARCH$”",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
   "clearSearch": {
-    "message": "Clear search"
+    "message": "Effacer la recherche"
   },
   "selected": {
     "message": "Sélectionné(s)"
@@ -3993,16 +4093,25 @@
   "errorGettingAutoFillData": {
     "message": "Erreur lors de l'obtention des données de saisie automatique"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden n’a pas pu déchiffrer le(s) élément(s) du coffre listé(s) ci-dessous."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden n'a pas pu déchiffrer l'élément du coffre listé ci-dessous. Contactez l'assistance à la clientèle de Bitwarden et fournissez l'ID de l'élément ci-dessous pour voir s'il peut être récupéré."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Contacter succès client",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden n'a pas pu déchiffrer les éléments du coffre listés ci-dessous. Contactez l'assistance à la clientèle de Bitwarden et fournissez les IDs des éléments ci-dessous pour voir s'ils peuvent être récupérés."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "afin d'éviter toute perte de données supplémentaire.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "ID de l'élément",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "ID des éléments",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Copier l'ID"
+  },
+  "copyAllIds": {
+    "message": "Copier tous les IDs"
   },
   "generateUsername": {
     "message": "Générer un nom d'utilisateur"
@@ -5063,11 +5172,21 @@
   "selectImportCollection": {
     "message": "Sélectionner une collection"
   },
+  "selectImportSharedFolder": {
+    "message": "Sélectionnez un dossier partagé"
+  },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Sélectionnez cette option si vous voulez que le contenu du fichier importé soit déplacé vers une collection"
   },
   "importTargetHintFolder": {
     "message": "Sélectionnez cette option si vous voulez que le contenu du fichier importé soit déplacé vers un dossier"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Sélectionnez cette option si vous voulez que le contenu du fichier importé soit déplacé vers un dossier partagé"
   },
   "importUnassignedItemsError": {
     "message": "Le fichier contient des éléments non assignés."
@@ -5560,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Insérez la YubiKey associée à votre compte LastPass dans le port USB de votre ordinateur, puis appuyez sur son bouton."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Courriel de Keeper"
   },
@@ -5754,6 +5882,9 @@
   },
   "switchAccounts": {
     "message": "Basculer les comptes"
+  },
+  "switchVault": {
+    "message": "Changez de coffre-fort"
   },
   "switchToAccount": {
     "message": "Basculer vers le compte"
@@ -5974,10 +6105,10 @@
     "message": "Effacer les filtres ou essayer un autre terme de recherche"
   },
   "noSharedFoldersAdded": {
-    "message": "No shared folders added"
+    "message": "Aucun dossier partagé ajouté"
   },
   "noSharedFoldersAddedDescription": {
-    "message": "Add a shared folder to securely share vault items with other members."
+    "message": "Ajouter un dossier partagé pour partager de façon sécuritaire les éléments du coffre avec d'autres membres."
   },
   "moreOptionsLabel": {
     "message": "Plus d'options, $ITEMNAME$",
@@ -6853,6 +6984,9 @@
   "noItemsInTrashDesc": {
     "message": "Les éléments que vous supprimez apparaîtront ici et seront définitivement supprimés au bout de 30 jours"
   },
+  "noItemsInTrashDescription": {
+    "message": "Les éléments que vous supprimez apparaîtront ici et seront définitivement supprimés au bout de 30 jours."
+  },
   "trashWarning": {
     "message": "Les éléments qui se trouvent dans la corbeille depuis plus de 30 jours sont automatiquement supprimés"
   },
@@ -7117,26 +7251,44 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Changer le mot de passe à risque"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Cet identifiant est à risques et manque un site web. Ajoutez un site web et changez le mot de passe pour une meilleure sécurité."
-  },
   "vulnerablePassword": {
     "message": "Mot de passe vulnérable."
   },
   "changeNow": {
     "message": "Changer maintenant"
   },
-  "missingWebsite": {
-    "message": "Site Web manquant"
-  },
   "settingsVaultOptions": {
     "message": "Options du coffre"
   },
   "emptyVaultDescription": {
     "message": "Le coffre-fort protège bien plus que vos mots de passe. Stockez ici en toute sécurité des identifiants, des cartes d'identité, des cartes et des notes sécurisés."
+  },
+  "emptyVaultsDescription": {
+    "message": "Ajoutez des identifiants, des ID, des cartes de paiement et d'autres éléments pour commencer."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Ajouter des éléments à ce dossier partagé, puis donner accès aux autres membres de $VAULT_NAME$.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "Mes éléments est votre espace privé pour sauvegarder des éléments qui restent détenus par $VAULT_NAME$ mais qui ne sont pas visibles par les autres membres.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
+  },
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "Bienvenue sur Bitwarden"
@@ -7307,7 +7459,7 @@
     "message": "Afficher plus"
   },
   "showMoreCount": {
-    "message": "Show $COUNT$ more",
+    "message": "Afficher $COUNT$ de plus",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7975,7 +8127,7 @@
     "message": "Ces identifiants ont un mot de passe réutilisé. Créez un mot de passe unique pour chaque compte pour empêcher quelqu'un d'accéder à plusieurs comptes avec un seul mot de passe."
   },
   "deleteAtRiskItemDesc": {
-    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
+    "message": "Assurez-vous de changer votre mot de passe d'abord. La suppression supprime uniquement l'élément de votre coffre, cela ne résout pas le risque."
   },
   "passwordHasAdditionalRisks": {
     "message": "Ce mot de passe comporte des risques supplémentaires :"
@@ -8007,18 +8159,97 @@
     "message": "Vous êtes prêt !"
   },
   "permissions": {
-    "message": "Permissions"
+    "message": "Autorisations"
   },
   "viewItems": {
-    "message": "View items"
+    "message": "Afficher les éléments"
   },
   "viewItemsHidePass": {
-    "message": "View items, hidden passwords"
+    "message": "Afficher les éléments, mots de passe cachés"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "Modifier les éléments"
   },
   "editItemsHidePass": {
-    "message": "Edit items, hidden passwords"
+    "message": "Modifier les éléments, mots de passe cachés"
+  },
+  "shareVerb": {
+    "message": "Partager"
+  },
+  "peopleWhoCanView": {
+    "message": "Personnes qui peuvent afficher",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Après avoir partagé ce lien, les destinataires devront vérifier leur courriel avec un code pour afficher l'élément.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Ce lien expire après cette date, mais les destinataires peuvent conserver des informations partagées précédemment. Régénérez les identifiants pour révoquer l'accès.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Le lien expire après",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Partage unique",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Liens actifs",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Lien copié dans le presse-papiers",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Incapable de créer le lien de partage",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Lien enregistré et copié dans le presse-papiers",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Échec de la copie du lien de partage dans le presse-papiers",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Lien de partage supprimé",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Incapable de supprimer le lien de partage",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Partager via le lien",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Partage pour l'élément du coffre $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "share": {
+    "message": "Partager",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareLinkExpires": {
+    "message": "Expire",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Expire",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Élément inconnu, vous devrez peut-être demander l'autorisation d'accéder à cet élément."
   }
 }

@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
+import { of, Subject } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
@@ -365,6 +365,52 @@ describe("SendSdkApiService", () => {
         expect(legacySendApiService.getSend).toHaveBeenCalledWith("server-id");
       });
 
+      it("does not abandon an in-flight upload when userClient$ emits again mid-upload", async () => {
+        const userClient$ = new Subject<{ take: jest.Mock }>();
+        (sdkService.userClient$ as jest.Mock).mockReturnValue(userClient$);
+
+        let resolveUpload: () => void;
+        sendsClient.upload_send_file.mockReturnValue(
+          new Promise<void>((resolve) => {
+            resolveUpload = resolve;
+          }),
+        );
+
+        const makeClient = () => ({
+          take: jest.fn().mockReturnValue({
+            value: { sends: () => sendsClient },
+            [Symbol.dispose]: jest.fn(),
+          }),
+        });
+
+        // A macrotask boundary flushes all currently-queued microtasks in one step, so
+        // execution below is synchronized with the async callback without counting ticks.
+        const flushMicrotasks = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+        const result = service.saveView(fileView(), plaintextBytes.buffer);
+
+        // Let execution reach the point of subscribing to userClient$ before emitting.
+        await flushMicrotasks();
+        expect(sdkService.userClient$).toHaveBeenCalled();
+        userClient$.next(makeClient());
+
+        // Let the concatMap callback run through create_file_send and start awaiting
+        // upload_send_file.
+        await flushMicrotasks();
+        expect(sendsClient.upload_send_file).toHaveBeenCalledTimes(1);
+
+        // Simulate an unrelated re-emission of userClient$ while the upload is still pending.
+        userClient$.next(makeClient());
+
+        resolveUpload();
+
+        await expect(result).resolves.toBeDefined();
+        // The original in-flight execution completed — it was not restarted for the second
+        // client.
+        expect(sendsClient.create_file_send).toHaveBeenCalledTimes(1);
+        expect(sendsClient.upload_send_file).toHaveBeenCalledTimes(1);
+      }, 2000);
+
       it("rejects a file create with no file data, which the create step cannot size", async () => {
         await expect(service.saveView(fileView(), null)).rejects.toThrow(
           "File send creation requires file data.",
@@ -432,6 +478,49 @@ describe("SendSdkApiService", () => {
             "upload failed",
           );
         });
+      });
+
+      describe("when the caller aborts after a successful upload", () => {
+        // Regression guard for PM-42963: cancelling the Send dialog used to just close it,
+        // leaving whatever the in-flight upload produced (even a corrupted file) as a
+        // permanent send, since nothing threw for rollback to react to.
+        //
+        // The signal must still be unaborted when `saveView()` starts — otherwise the early
+        // bail (below) would intercept it before the upload ever runs, which is a different
+        // scenario. Aborting from inside the upload mock simulates the user cancelling while
+        // the upload is genuinely in flight.
+        it("rolls back the created send and throws an AbortError instead of returning it", async () => {
+          const controller = new AbortController();
+          sendsClient.upload_send_file.mockImplementation(async () => {
+            controller.abort();
+          });
+
+          await expect(
+            service.saveView(fileView(), plaintextBytes.buffer, undefined, controller.signal),
+          ).rejects.toMatchObject({ name: "AbortError" });
+
+          expect(sendsClient.delete).toHaveBeenCalledWith("server-id");
+        });
+
+        it("does not roll back or throw when the signal was never aborted", async () => {
+          const controller = new AbortController();
+
+          await service.saveView(fileView(), plaintextBytes.buffer, undefined, controller.signal);
+
+          expect(sendsClient.delete).not.toHaveBeenCalled();
+        });
+      });
+
+      it("bails before calling the SDK when the signal is already aborted", async () => {
+        const controller = new AbortController();
+        controller.abort();
+
+        await expect(
+          service.saveView(fileView(), plaintextBytes.buffer, undefined, controller.signal),
+        ).rejects.toMatchObject({ name: "AbortError" });
+
+        expect(sendsClient.create_file_send).not.toHaveBeenCalled();
+        expect(sendsClient.upload_send_file).not.toHaveBeenCalled();
       });
 
       it("edits an existing file send through the SDK", async () => {

@@ -2,11 +2,12 @@ import { ChangeDetectionStrategy, Component, input, NO_ERRORS_SCHEMA } from "@an
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, convertToParamMap, Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, Observable, Subject, of } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { NudgeType, NudgesService, PremiumUpsellService } from "@bitwarden/angular/vault";
 import {
@@ -36,18 +37,22 @@ import { DialogService } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
 import {
   DecryptionFailureDialogComponent,
+  DefaultVaultItemsTransferService,
   VaultCopyButtonsService,
   VaultItemsTransferService,
-  DefaultVaultItemsTransferService,
+  VaultNavService,
   VaultOrganizationUserNotificationsComponent,
 } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../platform/browser/browser-popup-utils";
+import { ImportUpgradeNavigationService } from "../../../../tools/popup/settings/import/import-upgrade-navigation.service";
 import { IntroCarouselService } from "../../services/intro-carousel.service";
 import { VaultPopupAutofillService } from "../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
+import { VaultPopupListTableFiltersService } from "../../services/vault-popup-list-table-filters.service";
+import { VaultPopupListTableService } from "../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
 import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-password-callout.component";
@@ -59,6 +64,7 @@ import { NewItemDropdownComponent } from "./new-item-dropdown/new-item-dropdown.
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultListItemsContainerComponent } from "./vault-list-items-container/vault-list-items-container.component";
 import { VaultPopupListTableComponent } from "./vault-popup-list-table/vault-popup-list-table.component";
+import { VaultSwitcherComponent } from "./vault-switcher/vault-switcher.component";
 import { VaultComponent } from "./vault.component";
 
 @Component({
@@ -78,6 +84,16 @@ export class PopupHeaderStubComponent {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VaultHeaderStubComponent {}
+
+@Component({
+  selector: "app-vault-switcher",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class VaultSwitcherStubComponent {
+  readonly scope = input<unknown>(null);
+}
 
 @Component({
   selector: "app-current-account",
@@ -166,7 +182,10 @@ class VaultListItemsContainerStubComponent {
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class VaultPopupListTableStubComponent {}
+class VaultPopupListTableStubComponent {
+  /** Declares `scope` so the page's binding resolves with the real table removed. */
+  readonly scope = input<unknown>(null);
+}
 
 const mockDialogRef = {
   close: jest.fn(),
@@ -212,9 +231,18 @@ describe("VaultComponent", () => {
     hasSearchText$: new BehaviorSubject<boolean>(false),
   } as Partial<VaultPopupItemsService>;
 
+  /** Rows as the list table service builds them; the header counts the `allItems` section. */
+  const itemCount$ = new BehaviorSubject<number>(0);
+  const listTableSvc = { setScope: jest.fn(), itemCount$ };
+
+  /** The account's vaults, as the header reads them to decide whether to show a page title. */
+  const vaultNav$ = new BehaviorSubject<any>({ vaults: [], organizationDataOwnership: false });
+
   const filtersSvc: any = {
     allFilters$: new Subject<any>(),
     filters$: new BehaviorSubject<any>({}),
+    // Read by the vault switcher in the header; empty keeps it hidden by default.
+    organizations$: new BehaviorSubject<any[]>([]),
     filterVisibilityState$: new BehaviorSubject<any>({}),
     numberOfAppliedFilters$: new BehaviorSubject<number>(0),
   };
@@ -235,7 +263,9 @@ describe("VaultComponent", () => {
     dismissNudge: jest.fn().mockResolvedValue(undefined),
   };
 
-  const dialogSvc = {} as Partial<DialogService>;
+  const dialogSvc = {
+    openSimpleDialog: jest.fn().mockResolvedValue(false),
+  } as Partial<DialogService>;
 
   const introSvc = {
     setIntroCarouselDismissed: jest.fn().mockResolvedValue(undefined),
@@ -263,7 +293,10 @@ describe("VaultComponent", () => {
 
   const configSvc = {
     getFeatureFlag$: jest.fn().mockImplementation((_flag: string) => of(false)),
+    getFeatureFlag: jest.fn().mockResolvedValue(false),
   };
+
+  const importUpgradeNavigationSvc = mock<ImportUpgradeNavigationService>();
 
   const premiumUpsellSvc = {
     showUpsell: jest.fn().mockReturnValue(false),
@@ -286,6 +319,22 @@ describe("VaultComponent", () => {
         provideNoopAnimations(),
         { provide: VaultPopupItemsService, useValue: itemsSvc },
         { provide: VaultPopupListFiltersService, useValue: filtersSvc },
+        {
+          // Read by the vault switcher; empty organizations keep it hidden by default.
+          provide: VaultPopupListTableFiltersService,
+          useValue: { organizations$: new BehaviorSubject<any[]>([]) },
+        },
+        {
+          // The page pushes its resolved scope here; the service narrows the rows with it.
+          provide: VaultPopupListTableService,
+          useValue: listTableSvc,
+        },
+        {
+          provide: VaultNavService,
+          useValue: {
+            viewModel$: () => vaultNav$,
+          },
+        },
         { provide: VaultPopupLoadingService, useValue: loadingSvc },
         { provide: VaultPopupScrollPositionService, useValue: scrollSvc },
         {
@@ -310,9 +359,13 @@ describe("VaultComponent", () => {
         },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
         { provide: RestrictedItemTypesService, useValue: { restricted$: new BehaviorSubject([]) } },
+        {
+          provide: VaultPopupListTableFiltersService,
+          useValue: { cachedFilters: jest.fn().mockReturnValue({}) },
+        },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: AvatarService, useValue: mock<AvatarService>() },
-        { provide: ActivatedRoute, useValue: mock<ActivatedRoute>() },
+        { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },
         { provide: AuthService, useValue: mock<AuthService>() },
         { provide: AutofillService, useValue: mock<AutofillService>() },
         {
@@ -326,6 +379,10 @@ describe("VaultComponent", () => {
           useValue: configSvc,
         },
         {
+          provide: ImportUpgradeNavigationService,
+          useValue: importUpgradeNavigationSvc,
+        },
+        {
           provide: SearchService,
           useValue: { isCipherSearching$: of(false) },
         },
@@ -336,9 +393,16 @@ describe("VaultComponent", () => {
         { provide: EventCollectionService, useValue: mock<EventCollectionService>() },
         {
           provide: InternalOrganizationServiceAbstraction,
-          useValue: { organizations$: jest.fn().mockReturnValue(of([])) },
+          useValue: {
+            organizations$: jest.fn().mockReturnValue(of([])),
+            memberOrganizations$: jest.fn().mockReturnValue(of([])),
+          },
         },
         { provide: PremiumUpsellService, useValue: premiumUpsellSvc },
+        {
+          provide: CollectionService,
+          useValue: { decryptedCollections$: jest.fn().mockReturnValue(of([])) },
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -358,6 +422,7 @@ describe("VaultComponent", () => {
           VaultListItemsContainerComponent,
           VaultOrganizationUserNotificationsComponent,
           VaultPopupListTableComponent,
+          VaultSwitcherComponent,
         ],
         providers: [
           { provide: VaultItemsTransferService, useValue: DefaultVaultItemsTransferService },
@@ -377,6 +442,7 @@ describe("VaultComponent", () => {
           VaultListItemsContainerStubComponent,
           VaultOrganizationUserNotificationsStubComponent,
           VaultPopupListTableStubComponent,
+          VaultSwitcherStubComponent,
         ],
         providers: [{ provide: VaultItemsTransferService, useValue: vaultItemsTransferSvc }],
       },
@@ -503,6 +569,93 @@ describe("VaultComponent", () => {
 
       return fixture;
     }
+
+    it("shows the list table's item count in the header", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      itemCount$.next(10);
+
+      let count: number | undefined;
+      fixture.componentInstance["cipherCount$"].subscribe((c: number) => (count = c));
+      expect(count).toBe(10);
+
+      flush();
+      fixture.destroy();
+    }));
+
+    /** The count tracks the rows, so narrowing to a vault moves it too. */
+    it("tracks the count as the rows narrow", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      const seen: number[] = [];
+      fixture.componentInstance["cipherCount$"].subscribe((c: number) => seen.push(c));
+
+      itemCount$.next(10);
+      itemCount$.next(3);
+
+      expect(seen.slice(-2)).toEqual([10, 3]);
+
+      flush();
+      fixture.destroy();
+    }));
+
+    /**
+     * The switcher names the page only when it renders, so a one-vault account keeps the title.
+     */
+    describe("page title", () => {
+      const title = (fixture: ComponentFixture<VaultComponent>) =>
+        fixture.debugElement.query(By.css("popup-header")).componentInstance.pageTitle();
+
+      it("drops the title when the switcher names the page", fakeAsync(() => {
+        vaultNav$.next({
+          vaults: [{ id: "user-1" }, { id: "org-1" }],
+          organizationDataOwnership: false,
+        });
+
+        const fixture = createWithFlag(true);
+
+        expect(title(fixture)).toBe("");
+
+        flush();
+        fixture.destroy();
+      }));
+
+      it("keeps the title when there is only one vault to switch between", fakeAsync(() => {
+        vaultNav$.next({ vaults: [{ id: "user-1" }], organizationDataOwnership: false });
+
+        const fixture = createWithFlag(true);
+
+        expect(title(fixture)).toBe("vault");
+
+        flush();
+        fixture.destroy();
+      }));
+
+      it("keeps the title with the flag off", fakeAsync(() => {
+        vaultNav$.next({
+          vaults: [{ id: "user-1" }, { id: "org-1" }],
+          organizationDataOwnership: false,
+        });
+
+        const fixture = createWithFlag(false);
+
+        expect(title(fixture)).toBe("vault");
+
+        flush();
+        fixture.destroy();
+      }));
+    });
+
+    it("publishes the route's vault scope to the list table service", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      expect(listTableSvc.setScope).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "allItems" }),
+      );
+
+      flush();
+      fixture.destroy();
+    }));
 
     it("renders the table and drops the legacy header and list when the flag is on", fakeAsync(() => {
       const fixture = createWithFlag(true);
@@ -633,6 +786,7 @@ describe("VaultComponent", () => {
   });
 
   it("navigateToImport navigates to import route", fakeAsync(async () => {
+    configSvc.getFeatureFlag.mockResolvedValue(false);
     const ngRouter = TestBed.inject(Router);
     jest.spyOn(ngRouter, "navigate").mockResolvedValue(true as any);
 
@@ -640,6 +794,17 @@ describe("VaultComponent", () => {
 
     expect(ngRouter.navigate).toHaveBeenCalledWith(["/import"]);
   }));
+
+  it("navigateToImport opens the import picker's own extension tab immediately, with no confirmation, when the import upgrade flag is on", async () => {
+    configSvc.getFeatureFlag.mockResolvedValue(true);
+    const ngRouter = TestBed.inject(Router);
+    jest.spyOn(ngRouter, "navigate");
+
+    await component["navigateToImport"]();
+
+    expect(importUpgradeNavigationSvc.openImportSourceSelectTab).toHaveBeenCalled();
+    expect(ngRouter.navigate).not.toHaveBeenCalled();
+  });
 
   it("ngOnInit dismisses intro carousel and opens decryption dialog for non-deleted failures", fakeAsync(() => {
     (cipherSvc.failedToDecryptCiphers$ as any).mockReturnValue(

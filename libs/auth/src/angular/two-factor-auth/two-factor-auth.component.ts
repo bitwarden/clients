@@ -17,9 +17,9 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import {
   TwoFactorAuthAuthenticatorIcon,
-  TwoFactorAuthEmailIcon,
+  EmailCodeSentIcon,
   TwoFactorAuthWebAuthnIcon,
-  TwoFactorAuthSecurityKeyIcon,
+  SecurityKeyIcon,
   TwoFactorAuthDuoIcon,
 } from "@bitwarden/assets/svg";
 import {
@@ -409,7 +409,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       case TwoFactorProviderType.Email:
         this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
           pageSubtitle: this.i18nService.t("enterTheCodeSentToYourEmail"),
-          pageIcon: TwoFactorAuthEmailIcon,
+          pageIcon: EmailCodeSentIcon,
         });
         break;
       case TwoFactorProviderType.Duo:
@@ -422,7 +422,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       case TwoFactorProviderType.Yubikey:
         this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
           pageSubtitle: this.i18nService.t("pressYourYubiKeyToAuthenticate"),
-          pageIcon: TwoFactorAuthSecurityKeyIcon,
+          pageIcon: SecurityKeyIcon,
         });
         break;
       case TwoFactorProviderType.WebAuthn:

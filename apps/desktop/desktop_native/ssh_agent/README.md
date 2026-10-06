@@ -214,7 +214,7 @@ requests approvals through.
 
 ## Napi bindings
 
-The `sshagent_v2` module contains the definitions for the napi bindings which act as the bridge
+The `sshagent` module contains the definitions for the napi bindings which act as the bridge
 between the Rust implementation of the agent, and the Electron UI.
 
 This layer is intentionally a pass-through. There is no unique logic. A wrapper around the agent is

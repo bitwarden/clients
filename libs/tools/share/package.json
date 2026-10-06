@@ -3,9 +3,12 @@
   "version": "0.0.1",
   "description": "Components developed by the Tools Team for sharing ciphers via Send",
   "private": true,
-  "type": "commonjs",
-  "main": "index.js",
-  "types": "index.d.ts",
   "license": "GPL-3.0",
-  "author": "tools"
+  "author": "tools",
+  "scripts": {
+    "test": "jest",
+    "clean": "rimraf dist",
+    "build": "npm run clean && tsc",
+    "build:watch": "npm run clean && tsc -watch"
+  }
 }

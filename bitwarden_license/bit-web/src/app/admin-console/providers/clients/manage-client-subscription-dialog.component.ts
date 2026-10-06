@@ -103,9 +103,10 @@ export class ManageClientSubscriptionDialogComponent implements OnInit {
     }
 
     try {
-      const request = new UpdateProviderOrganizationRequest();
-      request.assignedSeats = this.formGroup.value.assignedSeats;
-      request.name = this.dialogParams.organization.organizationName;
+      const request = new UpdateProviderOrganizationRequest({
+        assignedSeats: this.formGroup.value.assignedSeats,
+        name: this.dialogParams.organization.organizationName,
+      });
 
       await this.providerApiService.updateProviderOrganization(
         this.dialogParams.provider.id,

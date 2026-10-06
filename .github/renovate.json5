@@ -2,6 +2,11 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["github>bitwarden/renovate-config"], // Extends our default configuration for pinned dependencies
   enabledManagers: ["cargo", "github-actions", "npm", "custom.regex"],
+  // Renovate's current default Rust (1.99) ignores
+  // registry.global-min-publish-age in .cargo/config.toml. Remove once
+  // Renovate installs Rust 1.100+ This should be in stable 2026-11-12,
+  // but double check before removing this line.
+  constraints: { rust: "nightly-2026-09-25" },
   customManagers: [
     {
       // Pinned binary cargo tools declared in [workspace.metadata.bin]. These are
@@ -131,8 +136,6 @@
         "prettier",
         "prettier-plugin-tailwindcss",
         "rimraf",
-        "ssh-encoding",
-        "ssh-key",
         "@storybook/web-components-vite",
         "tabbable",
         "tldts",
@@ -143,8 +146,8 @@
       reviewers: ["team:team-autofill-dev"],
     },
     {
-      matchPackageNames: ["mockall", "serial_test"],
-      description: "Autofill-Desktop owned dependencies",
+      matchPackageNames: ["mockall", "serial_test", "ssh-key"],
+      description: "Desktop Native owned dependencies",
       commitMessagePrefix: "[deps] Desktop Native:",
       reviewers: ["team:team-desktop-native-dev"],
     },
@@ -226,13 +229,10 @@
         "nx",
         "oo7",
         "oslog",
-        "pin-project",
         "pkg",
         "postcss",
         "postcss-loader",
         "rxjs",
-        "sass",
-        "sass-loader",
         "scopeguard",
         "secmem-proc",
         "security-framework",
@@ -254,7 +254,6 @@
         "ts-node",
         "tsconfig-paths-webpack-plugin",
         "type-fest",
-        "typenum",
         "typescript",
         "typescript-strict-plugin",
         "uniffi",
@@ -293,6 +292,7 @@
         "@angular/core",
         "@angular/forms",
         "@angular/platform-browser",
+        "@angular/platform-browser-dynamic",
         "@angular/platform",
         "@angular/router",
         "axe-playwright",
@@ -315,6 +315,8 @@
         "react",
         "react-dom",
         "remark-gfm",
+        "sass",
+        "sass-loader",
         "storybook",
         "svgo",
         "tailwindcss",
@@ -394,7 +396,6 @@
         "rand",
         "rand_core",
         "rsa",
-        "russh-cryptovec",
         "sha2",
       ],
       description: "Key Management owned dependencies",
@@ -577,7 +578,6 @@
         "nx",
         "oo7",
         "oslog",
-        "pin-project",
         "pkg",
         "postcss",
         "postcss-loader",
@@ -604,7 +604,6 @@
         "ts-node",
         "tsconfig-paths-webpack-plugin",
         "type-fest",
-        "typenum",
         "typescript-strict-plugin",
         "uniffi",
         "webpack-cli",
@@ -650,6 +649,5 @@
     "node-ipc",
     "@bitwarden/sdk-internal",
     "@bitwarden/commercial-sdk-internal",
-    "bitwarden-russh",
   ],
 }

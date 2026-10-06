@@ -26,7 +26,7 @@ import {
 } from "@bitwarden/organization-invite-link";
 import {
   HighEntropySecret,
-  isInviteLinkError,
+  isAcceptInviteLinkError,
   isRegistrationError,
   OpenOrgInvite,
   OrganizationId as SdkOrganizationId,
@@ -266,14 +266,14 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
 
   /**
    * Top-level classifier for accept-flow errors. Branches, in order:
-   *   1. Not an `InviteLinkError` → `unexpected` with an extracted message.
+   *   1. Not an `AcceptInviteLinkError` → `unexpected` with an extracted message.
    *   2. `RecoveryKeyMismatch` → `recovery-key-mismatch`; signals org-key substitution.
    *   3. Any other non-`Api` variant → `unexpected` with the SDK message.
    *   4. `Api` variant → unwrap the `ApiError::Response` display string and delegate to
    *      {@link classifyOpenOrgInviteAcceptApiError}, or `unexpected` if the format has drifted.
    */
   private classifyOpenOrgInviteAcceptError(e: unknown): OpenOrgInviteAcceptError {
-    if (!isInviteLinkError(e)) {
+    if (!isAcceptInviteLinkError(e)) {
       return { kind: "unexpected", errorMessage: this.extractErrorMessage(e) };
     }
     if (e.variant === "RecoveryKeyMismatch") {
@@ -514,11 +514,6 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   }
 
   async sealOpenOrgInvite(email: string, invite: OpenOrgInviteLinkData): Promise<string | null> {
-    // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop this
-    // guard clause and update the abstraction JSDoc that documents it.
-    if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
-      return null;
-    }
     const client: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
     const sealed: SealedOpenOrgInvite = client.auth().registration().seal_open_org_invite_data({
       organizationId: invite.organizationId,

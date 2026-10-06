@@ -451,6 +451,9 @@
   "noFolders": {
     "message": "没有可列出的文件夹。"
   },
+  "noFoldersFilter": {
+    "message": "无文件夹"
+  },
   "helpFeedback": {
     "message": "帮助与反馈"
   },
@@ -553,6 +556,45 @@
   },
   "noItemsInVault": {
     "message": "密码库中没有项目"
+  },
+  "noItemsInMyVault": {
+    "message": "「我的密码库」中没有项目"
+  },
+  "emptyMyItems": {
+    "message": "「我的项目」中没有项目"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "$VAULT_NAME$ 中没有项目",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "$VAULT_NAME$ 中没有项目",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "您的密码库是空的"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "没有匹配所选筛选规则的项目"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "没有匹配「$SEARCH_TERM$」的项目",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
   },
   "length": {
     "message": "长度"
@@ -1249,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "在密码库视图中点击项目以自动填充"
   },
-  "clickToAutofill": {
-    "message": "点击自动填充建议中的项目以填充"
-  },
   "clearClipboard": {
     "message": "清空剪贴板",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1497,6 +1536,43 @@
   "importVerb": {
     "message": "导入",
     "description": "The verb form of the word Import"
+  },
+  "importSourceBreadcrumb": {
+    "message": "选择源"
+  },
+  "importSourceSelectTitle": {
+    "message": "选择您的源"
+  },
+  "importSourceSelectDescription": {
+    "message": "选择您要从中导入数据的密码管理器或浏览器。"
+  },
+  "importSourceBrowsers": {
+    "message": "浏览器"
+  },
+  "importSourcePasswordManagers": {
+    "message": "密码管理器"
+  },
+  "importSourceShowAll": {
+    "message": "显示全部"
+  },
+  "importSourceShowLess": {
+    "message": "显示更少"
+  },
+  "importSourceStepCount": {
+    "message": "步骤 $CURRENT$ / $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "importItems": {
+    "message": "导入项目"
   },
   "fileFormat": {
     "message": "文件格式"
@@ -2774,6 +2850,30 @@
       }
     }
   },
+  "oneFilterResult": {
+    "message": "1 个结果",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ 个结果",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "没有匹配「$SEARCH$」的筛选",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
   "clearSearch": {
     "message": "清除搜索"
   },
@@ -3993,16 +4093,25 @@
   "errorGettingAutoFillData": {
     "message": "获取自动填充数据时出错"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden 无法解密下列密码库项目。"
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden 无法解密下面列出的密码库项目。请联系 Bitwarden 客户支持并提供下面的项目 ID，以查看它是否可以恢复。"
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "联系客户成功团队",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden 无法解密下面列出的密码库项目。请联系 Bitwarden 客户支持并提供下面的项目 ID，以查看它们是否可以恢复。"
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "以避免进一步的数据丢失。",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "项目 ID",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "项目 ID",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "复制 ID"
+  },
+  "copyAllIds": {
+    "message": "复制所有 ID"
   },
   "generateUsername": {
     "message": "生成用户名"
@@ -5063,11 +5172,21 @@
   "selectImportCollection": {
     "message": "选择一个集合"
   },
+  "selectImportSharedFolder": {
+    "message": "选择共享文件夹"
+  },
+  "importTargetMyFolder": {
+    "message": "我的文件夹",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "如果希望将导入的文件内容移动到集合中，请选择此选项"
   },
   "importTargetHintFolder": {
     "message": "如果希望将导入的文件内容移动到文件夹中，请选择此选项"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "如果希望将导入的文件内容移动到共享文件夹中，请选择此选项"
   },
   "importUnassignedItemsError": {
     "message": "文件包含未分配项目。"
@@ -5560,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "将与您的 LastPass 账户关联的 YubiKey 插入计算机的 USB 端口，然后触摸其按钮。"
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper 电子邮箱"
   },
@@ -5754,6 +5882,9 @@
   },
   "switchAccounts": {
     "message": "切换账户"
+  },
+  "switchVault": {
+    "message": "切换密码库"
   },
   "switchToAccount": {
     "message": "切换到账户"
@@ -6851,7 +6982,10 @@
     "message": "回收站中没有项目"
   },
   "noItemsInTrashDesc": {
-    "message": "您删除的项目将显示在这里，并在 30 天后永久删除"
+    "message": "您删除的项目将显示在这里，并将在 30 天后被永久删除"
+  },
+  "noItemsInTrashDescription": {
+    "message": "您删除的项目将显示在这里，并将在 30 天后被永久删除。"
   },
   "trashWarning": {
     "message": "回收站中超过 30 天的项目将被自动删除"
@@ -7117,26 +7251,44 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "更改存在风险的密码"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "此登录存在风险且缺少网站。请添加网站并更改密码以增强安全性。"
-  },
   "vulnerablePassword": {
     "message": "易受攻击的密码。"
   },
   "changeNow": {
     "message": "立即更改"
   },
-  "missingWebsite": {
-    "message": "缺少网站"
-  },
   "settingsVaultOptions": {
     "message": "密码库选项"
   },
   "emptyVaultDescription": {
     "message": "密码库不仅保护您的密码。在这里还可以安全地存储登录、ID、支付卡和笔记。"
+  },
+  "emptyVaultsDescription": {
+    "message": "添加登录、ID、支付卡和其他项目以开始使用。"
+  },
+  "emptySharedFolderDescription": {
+    "message": "将项目添加到此共享文件夹，然后授予其他 $VAULT_NAME$ 成员访问权限。",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "「我的项目」是您的私人空间，用于存储由 $VAULT_NAME$ 拥有、但其他成员不可见的项目。",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFoldersV2": {
+    "message": "您没有文件夹"
+  },
+  "emptyFoldersDescriptionV2": {
+    "message": "使用文件夹来整理密码库项目。文件夹只对您可用，其他人无法看到或使用它们。"
   },
   "introCarouselLabel": {
     "message": "欢迎使用 Bitwarden"
@@ -8020,5 +8172,84 @@
   },
   "editItemsHidePass": {
     "message": "编辑项目，隐藏密码"
+  },
+  "shareVerb": {
+    "message": "共享"
+  },
+  "peopleWhoCanView": {
+    "message": "可以查看的人",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "分享此链接后，接收者需要使用验证码验证他们的电子邮箱才能查看此项目。",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "此链接将在该日期后过期，但接收者可能会保留此前已共享的信息。重新生成凭据以撤销访问权限。",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "链接过期时间",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "一次性共享",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "活动链接",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "链接已复制到剪贴板",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "无法创建共享链接",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "链接已保存并复制到剪贴板",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "复制共享链接到剪贴板失败",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "共享链接已删除",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "删除共享链接失败",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "通过链接共享",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "共享密码库项目 $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "share": {
+    "message": "共享",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareLinkExpires": {
+    "message": "到期",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "到期",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "未知的项目，您可能需要请求权限才能访问此项目。"
   }
 }

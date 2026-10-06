@@ -1,28 +1,41 @@
 <ng-content select="[slot=header]"></ng-content>
-<main class="tw-flex-1 tw-overflow-hidden tw-flex tw-flex-col tw-relative tw-bg-background-alt">
+<!--
+  A table toolbar supplies its own top inset, so the `above-scroll-area` slot drops its bottom
+  padding rather than doubling up. `:has()` since the toolbar is projected too deep to query.
+-->
+<main
+  class="tw-flex-1 tw-overflow-hidden tw-flex tw-flex-col tw-relative tw-bg-background-alt [&:has(bit-table-toolbar)_[data-above-scroll-area]]:!tw-pb-0"
+>
   <ng-content select="[slot=full-width-notice]"></ng-content>
   <!--
-    x padding on this container is designed to always be a minimum of 0.75rem (equivalent to tailwind's tw-px-3), or 0.5rem (equivalent
-    to tailwind's tw-px-2) in compact mode, but stretch to fill the remainder of the container when the content reaches a maximum of
-    640px in width (equivalent to tailwind's `sm` breakpoint)
+    Opted in, the seam belongs to `bitCollapseOnScroll`; opted out, this wrapper draws it. Hidden
+    while the slot projects nothing — `:has()`, since a binding would go stale under OnPush.
   -->
-  @let hideNonScrollable = loading() || nonScrollable.childElementCount === 0;
   <div
-    #nonScrollable
-    class="tw-transition-colors tw-duration-200 tw-border-0 tw-border-b tw-border-solid tw-border-transparent tw-py-3 bit-compact:tw-py-2 tw-px-[max(0.75rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] bit-compact:tw-px-[max(0.5rem,calc((100%-(var(--tw-sm-breakpoint)))/2))]"
-    [class.tw-invisible]="hideNonScrollable"
-    [class.!tw-p-0]="hideNonScrollable"
-    [class.!tw-border-none]="hideNonScrollable"
-    [class.!tw-border-border-base]="scrolled()"
+    class="tw-transition-colors tw-duration-200 tw-border-0 tw-border-b tw-border-solid tw-border-transparent [&:not(:has([data-above-scroll-area]>*))]:tw-hidden"
+    [class.tw-hidden]="loading()"
+    [class.!tw-border-none]="collapseAboveScrollArea()"
+    [class.!tw-border-border-base]="!collapseAboveScrollArea() && isScrolled()"
   >
-    <ng-content select="[slot=above-scroll-area]"></ng-content>
+    <div [bitCollapseOnScroll]="collapseAboveScrollArea()">
+      <div
+        data-above-scroll-area
+        class="tw-py-3 bit-compact:tw-py-2 tw-px-[max(0.75rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] bit-compact:tw-px-[max(0.5rem,calc((100%-(var(--tw-sm-breakpoint)))/2))]"
+      >
+        <ng-content select="[slot=above-scroll-area]"></ng-content>
+      </div>
+    </div>
   </div>
   <!--
     Declared before the scroll region so keyboard users reach it without tabbing through every row.
     The scroll region's clearance uses `:has()` because a bound class would go stale under OnPush.
+
+    Two selectors handle bottom clearance for the floating action:
+    - one targets the scroll region div directly (non-virtual content)
+    - one targets `.cdk-virtual-scroll-content-wrapper` (virtual content)
   -->
   <div
-    class="tw-absolute tw-inset-x-0 tw-bottom-0 tw-z-10 tw-p-3 bit-compact:tw-p-2 tw-pointer-events-none [&:has([slot=floating-action])~div]:!tw-pb-20"
+    class="tw-absolute tw-inset-x-0 tw-bottom-0 tw-z-10 tw-p-4 bit-compact:tw-p-2 tw-pointer-events-none [&:has([slot=floating-action])~div:not(:has(cdk-virtual-scroll-viewport))]:!tw-pb-20 [&:has([slot=floating-action])~div_cdk-virtual-scroll-viewport>div]:!tw-pb-20"
     [class.tw-invisible]="loading()"
   >
     <div class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-justify-end [&>*]:tw-pointer-events-auto">

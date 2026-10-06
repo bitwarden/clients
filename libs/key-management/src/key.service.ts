@@ -43,9 +43,7 @@ import {
   EncryptedString,
   EncryptService,
   EncString,
-  SignedPublicKey,
   SymmetricCryptoKey,
-  WrappedSigningKey,
 } from "@bitwarden/legacy-crypto";
 import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
@@ -247,7 +245,11 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   userKey$(userId: UserId): Observable<UserKey | null> {
-    return this.stateProvider.getUser(userId, USER_KEY).state$.pipe(map((key) => key ?? null));
+    return this.stateProvider.getUser(userId, USER_KEY).state$.pipe(
+      map((key) => key ?? null),
+      // Rewriting the same key must not make consumers, e.g. vault decryption, start over.
+      distinctUntilChanged((a, b) => a?.keyB64 === b?.keyB64),
+    );
   }
 
   userPublicKey$(userId: UserId) {
@@ -346,6 +348,19 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     )) as UserPrivateKey;
   }
 
+  // Sync rewrites unchanged key state; each emission makes consumers decrypt the whole vault.
+  private encryptedOrgKeysState$(userId: UserId) {
+    return this.stateProvider
+      .getUser(userId, USER_ENCRYPTED_ORGANIZATION_KEYS)
+      .state$.pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)));
+  }
+
+  private encryptedProviderKeysState$(userId: UserId) {
+    return this.stateProvider
+      .getUser(userId, USER_ENCRYPTED_PROVIDER_KEYS)
+      .state$.pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)));
+  }
+
   /**
    * A helper for decrypting provider keys that requires a user id and that users decrypted private key
    * this is helpful for when you may have already grabbed the user private key and don't want to redo
@@ -355,7 +370,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     userId: UserId,
     userPrivateKey: UserPrivateKey,
   ): Observable<Record<ProviderId, ProviderKey> | null> {
-    return this.stateProvider.getUser(userId, USER_ENCRYPTED_PROVIDER_KEYS).state$.pipe(
+    return this.encryptedProviderKeysState$(userId).pipe(
       // Convert each value in the record to it's own decryption observable
       convertValues(async (_, value) => {
         const decapsulatedKey = await this.encryptService.decapsulateKeyUnsigned(
@@ -380,21 +395,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     );
   }
 
-  userSigningKey$(userId: UserId): Observable<WrappedSigningKey | null> {
-    return this.accountCryptographyStateService.accountCryptographicState$(userId).pipe(
-      map((state: WrappedAccountCryptographicState | null) => {
-        if (state == null) {
-          return null;
-        }
-        if ("V2" in state) {
-          return state.V2.signing_key as WrappedSigningKey;
-        } else {
-          return null;
-        }
-      }),
-    );
-  }
-
   orgKeys$(userId: UserId): Observable<Record<OrganizationId, OrgKey> | null> {
     return this.cipherDecryptionKeys$(userId).pipe(map((keys) => keys?.orgKeys ?? null));
   }
@@ -408,7 +408,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         }
 
         return combineLatest([
-          this.stateProvider.getUser(userId, USER_ENCRYPTED_ORGANIZATION_KEYS).state$,
+          this.encryptedOrgKeysState$(userId),
           this.providerKeysHelper$(userId, userPrivateKey),
         ]).pipe(
           switchMap(async ([encryptedOrgKeys, providerKeys]) => {
@@ -474,7 +474,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         }
 
         return combineLatest([
-          this.stateProvider.getUser(userId, USER_ENCRYPTED_ORGANIZATION_KEYS).state$,
+          this.encryptedOrgKeysState$(userId),
           this.providerKeysHelper$(userId, userPrivateKey),
         ]).pipe(
           switchMap(async ([encryptedOrgKeys, providerKeys]) => {
@@ -508,21 +508,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
           // Combine them back together
           map((orgKeys) => ({ userKey: userKeys.userKey, orgKeys: orgKeys })),
         );
-      }),
-    );
-  }
-
-  userSignedPublicKey$(userId: UserId): Observable<SignedPublicKey | null> {
-    return this.accountCryptographyStateService.accountCryptographicState$(userId).pipe(
-      map((state: WrappedAccountCryptographicState | null) => {
-        if (state == null) {
-          return null;
-        }
-        if ("V2" in state) {
-          return state.V2.signed_public_key as SignedPublicKey;
-        } else {
-          return null;
-        }
       }),
     );
   }

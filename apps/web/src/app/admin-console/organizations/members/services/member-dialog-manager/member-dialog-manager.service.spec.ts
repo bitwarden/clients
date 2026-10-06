@@ -1,3 +1,4 @@
+import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -9,7 +10,6 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
@@ -25,18 +25,14 @@ import { BulkRemoveDialogComponent } from "../../components/bulk/bulk-remove-dia
 import { BulkRestoreRevokeComponent } from "../../components/bulk/bulk-restore-revoke.component";
 import { BulkStatusComponent } from "../../components/bulk/bulk-status.component";
 import { EditMemberDialogComponent } from "../../components/edit-member-dialog";
-import {
-  MemberDialogComponent,
-  MemberDialogResult,
-  MemberDialogTab,
-} from "../../components/member-dialog";
+import { InviteMembersDialogComponent } from "../../components/invite-members-dialog";
+import { MemberDialogResult, MemberDialogTab } from "../../components/member-dialog";
 import { DeleteManagedMemberWarningService } from "../delete-managed-member/delete-managed-member-warning.service";
 
 import { MemberDialogManagerService } from "./member-dialog-manager.service";
 
 describe("MemberDialogManagerService", () => {
   let service: MemberDialogManagerService;
-  let configService: MockProxy<ConfigService>;
   let dialogService: MockProxy<DialogService>;
   let i18nService: MockProxy<I18nService>;
   let toastService: MockProxy<ToastService>;
@@ -49,7 +45,6 @@ describe("MemberDialogManagerService", () => {
   let mockBillingMetadata: OrganizationBillingMetadataResponse;
 
   beforeEach(() => {
-    configService = mock<ConfigService>();
     dialogService = mock<DialogService>();
     i18nService = mock<I18nService>();
     toastService = mock<ToastService>();
@@ -57,18 +52,24 @@ describe("MemberDialogManagerService", () => {
     deleteManagedMemberWarningService = mock<DeleteManagedMemberWarningService>();
     vfo1TerminologyService = mock<Vfo1TerminologyService>();
 
-    configService.getFeatureFlag.mockResolvedValue(false);
     vfo1TerminologyService.enabled.mockReturnValue(false);
 
-    service = new MemberDialogManagerService(
-      configService,
-      dialogService,
-      i18nService,
-      toastService,
-      userNamePipe,
-      deleteManagedMemberWarningService,
-      vfo1TerminologyService,
-    );
+    TestBed.configureTestingModule({
+      providers: [
+        MemberDialogManagerService,
+        { provide: DialogService, useValue: dialogService },
+        { provide: I18nService, useValue: i18nService },
+        { provide: ToastService, useValue: toastService },
+        { provide: UserNamePipe, useValue: userNamePipe },
+        {
+          provide: DeleteManagedMemberWarningService,
+          useValue: deleteManagedMemberWarningService,
+        },
+        { provide: Vfo1TerminologyService, useValue: vfo1TerminologyService },
+      ],
+    });
+
+    service = TestBed.inject(MemberDialogManagerService);
 
     // Setup mock data
     mockOrganization = {
@@ -115,14 +116,14 @@ describe("MemberDialogManagerService", () => {
       );
 
       expect(dialogService.open).toHaveBeenCalledWith(
-        MemberDialogComponent,
+        InviteMembersDialogComponent,
         expect.objectContaining({
           data: {
-            kind: "Add",
             organizationId: mockOrganization.id,
             allOrganizationUsers: allUsers,
             occupiedSeatCount: 10,
             isOnSecretsManagerStandalone: false,
+            showCoachMarks: false,
           },
         }),
       );
@@ -145,7 +146,7 @@ describe("MemberDialogManagerService", () => {
       await service.openInviteDialog(mockOrganization, null, []);
 
       expect(dialogService.open).toHaveBeenCalledWith(
-        MemberDialogComponent,
+        InviteMembersDialogComponent,
         expect.objectContaining({
           data: expect.objectContaining({
             occupiedSeatCount: 0,
@@ -175,7 +176,7 @@ describe("MemberDialogManagerService", () => {
             organizationUserId: mockUser.id,
             usesKeyConnector: false,
             isOnSecretsManagerStandalone: false,
-            initialTab: MemberDialogTab.Role,
+            initialTab: MemberDialogTab.Details,
             claimedByOrganization: false,
             hasMasterPassword: true,
           },

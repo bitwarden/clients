@@ -1,23 +1,32 @@
 import { ChangeDetectionStrategy, Component, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { Router, RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DeviceType } from "@bitwarden/common/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { DialogService, NavigationModule, SideNavService } from "@bitwarden/components";
+import {
+  DialogService,
+  LayoutComponent,
+  NavigationModule,
+  SideNavService,
+} from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { VaultNavItemType, VaultNavService, VaultsNavViewModel } from "@bitwarden/vault";
 
 import { AccountSwitcherV2Component } from "../../auth/components/account-switcher/account-switcher-v2.component";
 import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
+import { ImportDesktopComponent } from "../tools/import/import-desktop.component";
 import { SendFiltersNavComponent } from "../tools/send/send-filters-nav.component";
 
 import { DesktopLayoutComponent } from "./desktop-layout.component";
@@ -76,6 +85,7 @@ describe("DesktopLayoutComponent", () => {
         color: "brand",
         icon: "bwi-user",
         type: VaultNavItemType.Personal,
+        enabled: true,
       },
       {
         id: "org-id",
@@ -83,6 +93,7 @@ describe("DesktopLayoutComponent", () => {
         color: "purple",
         icon: "bwi-business",
         type: VaultNavItemType.Organization,
+        enabled: true,
       },
     ],
     organizationDataOwnership: false,
@@ -94,6 +105,11 @@ describe("DesktopLayoutComponent", () => {
   const vaultNavService = mock<VaultNavService>();
   const cipherArchiveService = mock<CipherArchiveService>();
   const premiumUpgradePromptService = mock<PremiumUpgradePromptService>();
+  const platformUtilsService = mock<PlatformUtilsService>();
+
+  /** Whether the layout was told to draw its rounded top-left corner. */
+  const rounded = (f: ComponentFixture<DesktopLayoutComponent>) =>
+    f.debugElement.query(By.directive(LayoutComponent)).componentInstance.rounded();
 
   /** Trimmed text of every rendered nav item, group, and section heading, in document order. */
   const navText = () =>
@@ -124,6 +140,7 @@ describe("DesktopLayoutComponent", () => {
     configService.getFeatureFlag$.mockReturnValue(flag$);
 
     i18nService.t.mockImplementation((key: string) => key);
+    platformUtilsService.getDevice.mockReturnValue(DeviceType.MacOsDesktop);
     cipherArchiveService.userCanArchive$.mockReturnValue(canArchive$);
     cipherArchiveService.archivedCiphers$.mockReturnValue(archivedCiphers$ as any);
     vaultNavService.viewModel$.mockReturnValue(viewModel$);
@@ -140,6 +157,7 @@ describe("DesktopLayoutComponent", () => {
         { provide: AccountService, useValue: { activeAccount$: of({ id: userId }) } },
         { provide: CipherArchiveService, useValue: cipherArchiveService },
         { provide: PremiumUpgradePromptService, useValue: premiumUpgradePromptService },
+        { provide: PlatformUtilsService, useValue: platformUtilsService },
       ],
     })
       .overrideComponent(DesktopLayoutComponent, {
@@ -155,8 +173,12 @@ describe("DesktopLayoutComponent", () => {
     router = TestBed.inject(Router);
     jest.spyOn(router, "navigate").mockResolvedValue(true);
 
-    // Nav items only render their text when the side nav is expanded.
-    TestBed.inject(SideNavService).open.set(true);
+    // Nav items only render their text when the side nav is expanded. The layout's
+    // ResizeObserver is stubbed out, so it measures a zero-width container and would
+    // collapse the nav on the next change detection without an explicit preference.
+    const sideNavService = TestBed.inject(SideNavService);
+    sideNavService.userCollapsePreference.set("open");
+    sideNavService.open.set(true);
 
     fixture = TestBed.createComponent(DesktopLayoutComponent);
     component = fixture.componentInstance;
@@ -214,6 +236,50 @@ describe("DesktopLayoutComponent", () => {
 
     it("keeps Send in Tools", () => {
       expect(fixture.nativeElement.querySelector("app-send-filters-nav")).toBeTruthy();
+    });
+
+    it("rounds the layout on macOS", () => {
+      expect(rounded(fixture)).toBe(true);
+    });
+
+    it.each([DeviceType.WindowsDesktop, DeviceType.LinuxDesktop])(
+      "does not round the layout on device type %i",
+      (deviceType) => {
+        platformUtilsService.getDevice.mockReturnValue(deviceType);
+
+        const nonMacFixture = TestBed.createComponent(DesktopLayoutComponent);
+        nonMacFixture.detectChanges();
+
+        expect(rounded(nonMacFixture)).toBe(false);
+      },
+    );
+  });
+
+  describe("openImport", () => {
+    it("opens the legacy import dialog when the import upgrade flag is off", async () => {
+      const configService = TestBed.inject(ConfigService);
+      jest.spyOn(configService, "getFeatureFlag").mockResolvedValue(false);
+      const dialogService = TestBed.inject(DialogService);
+      const router = TestBed.inject(Router);
+      jest.spyOn(router, "navigate");
+
+      await component["openImport"]();
+
+      expect(dialogService.open).toHaveBeenCalledWith(ImportDesktopComponent);
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it("navigates to the new import source picker page when the import upgrade flag is on", async () => {
+      const configService = TestBed.inject(ConfigService);
+      jest.spyOn(configService, "getFeatureFlag").mockResolvedValue(true);
+      const dialogService = TestBed.inject(DialogService);
+      const router = TestBed.inject(Router);
+      jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+      await component["openImport"]();
+
+      expect(router.navigate).toHaveBeenCalledWith(["/import"]);
+      expect(dialogService.open).not.toHaveBeenCalled();
     });
   });
 });

@@ -46,13 +46,15 @@
               </span>
             </div>
           </button>
-          <div slot="end" class="tw-flex tw-gap-2 tw-items-center">
+          <ng-container slot="end">
             @if (cipher.login.uri != null) {
               <bit-item-action>
                 <button
                   type="button"
                   bitButton
-                  buttonType="primaryOutline"
+                  buttonType="secondary"
+                  size="small"
+                  block
                   endIcon="bwi-external-link"
                   (click)="onChangePassword(cipher)"
                 >
@@ -64,6 +66,7 @@
               <button
                 type="button"
                 bitIconButton="bwi-more-horizontal"
+                size="small"
                 label="{{ 'options' | i18n }}"
                 [bitMenuTriggerFor]="itemMenu"
               ></button>
@@ -79,7 +82,7 @@
                 </button>
               </bit-menu>
             </bit-item-action>
-          </div>
+          </ng-container>
         </bit-item>
       </cdk-virtual-scroll-viewport>
     </bit-section>

@@ -1,7 +1,9 @@
+import { mock } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LogService } from "@bitwarden/logging";
 
 import {
   CollectionAccessDetails,
@@ -15,7 +17,7 @@ describe("DefaultMemberCipherMappingService", () => {
   let service: DefaultMemberCipherMappingService;
 
   beforeEach(() => {
-    service = new DefaultMemberCipherMappingService();
+    service = new DefaultMemberCipherMappingService(mock<LogService>());
   });
 
   // Test helpers

@@ -2,7 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
 import { newGuid } from "@bitwarden/guid";
-import { PolicyView } from "@bitwarden/sdk-internal";
+import { Policy as SdkPolicy } from "@bitwarden/sdk-internal";
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { FakeSingleUserState } from "../../../../spec/fake-state";
@@ -59,35 +59,25 @@ describe("PolicyService", () => {
   });
 
   it("upsert", async () => {
-    singleUserState.nextState(
-      arrayToRecord([
-        policyData("1", "test-organization", PolicyType.MaximumVaultTimeout, true, { minutes: 14 }),
-      ]),
-    );
-
-    await policyService.upsert(
-      policyData("99", "test-organization", PolicyType.DisableSend, true),
-      userId,
-    );
-
-    expect(await firstValueFrom(policyService.policies$(userId))).toEqual([
+    const existingPolicy = policyData(
+      "1",
+      "test-organization",
+      PolicyType.MaximumVaultTimeout,
+      true,
       {
-        id: "1",
-        organizationId: "test-organization",
-        type: PolicyType.MaximumVaultTimeout,
-        enabled: true,
-        data: { minutes: 14 },
-        revisionDate: expect.any(Date),
+        minutes: 14,
       },
-      {
-        id: "99",
-        organizationId: "test-organization",
-        type: PolicyType.DisableSend,
-        enabled: true,
-        data: undefined,
-        revisionDate: expect.any(Date),
-      },
-    ]);
+    );
+    const newPolicy = policyData("99", "test-organization", PolicyType.DisableSend, true);
+    singleUserState.nextState(arrayToRecord([existingPolicy]));
+
+    await policyService.upsert(newPolicy, userId);
+
+    // upsert writes to the legacy POLICIES state; assert against it directly since
+    // policies$ now reads from the new state (`policiesNew`).
+    expect(await firstValueFrom(singleUserState.state$)).toEqual(
+      arrayToRecord([existingPolicy, newPolicy]),
+    );
   });
 
   it("replace", async () => {
@@ -97,23 +87,12 @@ describe("PolicyService", () => {
       ]),
     );
 
-    await policyService.replace(
-      {
-        "2": policyData("2", "test-organization", PolicyType.DisableSend, true),
-      },
-      userId,
-    );
+    const replacementPolicy = policyData("2", "test-organization", PolicyType.DisableSend, true);
+    await policyService.replace({ "2": replacementPolicy }, userId);
 
-    expect(await firstValueFrom(policyService.policies$(userId))).toEqual([
-      {
-        id: "2",
-        organizationId: "test-organization",
-        type: PolicyType.DisableSend,
-        enabled: true,
-        data: undefined,
-        revisionDate: expect.any(Date),
-      },
-    ]);
+    // replace writes to the legacy POLICIES state; assert against it directly since
+    // policies$ now reads from the new state (`policiesNew`).
+    expect(await firstValueFrom(singleUserState.state$)).toEqual({ "2": replacementPolicy });
   });
 
   describe("masterPasswordPolicyOptions", () => {
@@ -248,13 +227,13 @@ describe("PolicyService", () => {
       const revisionDate = new Date("2026-01-15T12:00:00.000Z");
       const filterByType = jest.fn().mockReturnValue([
         {
-          id: policyId1,
+          id: asUuid(policyId1),
           organizationId: asUuid(orgId1),
           type: PolicyType.MaximumVaultTimeout as number,
           data: JSON.stringify({ minutes: 30 }),
           enabled: true,
           revisionDate: revisionDate.toISOString(),
-        } satisfies PolicyView,
+        } satisfies SdkPolicy,
       ]);
       sdkService.client.policies.mockReturnValue({ filter_by_type: filterByType } as any);
 
@@ -301,7 +280,7 @@ describe("PolicyService", () => {
       expect(sdkPolicies[0].data).toBeUndefined();
     });
 
-    it("maps an SDK PolicyView with no data back to a Policy with null data", async () => {
+    it("maps an SDK Policy with no data back to a Policy with null data", async () => {
       newPolicyService.policies$
         .calledWith(userId)
         .mockReturnValue(
@@ -311,13 +290,13 @@ describe("PolicyService", () => {
       sdkService.client.policies.mockReturnValue({
         filter_by_type: jest.fn().mockReturnValue([
           {
-            id: policyId1,
+            id: asUuid(policyId1),
             organizationId: asUuid(orgId1),
             type: PolicyType.DisableSend as number,
             data: undefined,
             enabled: true,
             revisionDate: new Date().toISOString(),
-          } satisfies PolicyView,
+          } satisfies SdkPolicy,
         ]),
       } as any);
 
@@ -363,56 +342,41 @@ describe("PolicyService", () => {
   });
 
   describe("policies$", () => {
-    it("returns all policies from state", async () => {
-      singleUserState.nextState(
-        arrayToRecord([
-          policyData("policy1", "org4", PolicyType.DisablePersonalVaultExport, true),
-          policyData("policy2", "org1", PolicyType.ActivateAutofill, true),
-          policyData("policy3", "org5", PolicyType.DisablePersonalVaultExport, false),
-          policyData("policy4", "org1", PolicyType.DisablePersonalVaultExport, true),
-        ]),
+    it("emits policies for confirmed organizations only and ignores accepted organizations", async () => {
+      const confirmedPolicy = new Policy(
+        policyData("policy1", "confirmedOrg", PolicyType.DisablePersonalVaultExport, true),
       );
+      const acceptedPolicy = new Policy(
+        policyData("policy2", "acceptedOrg", PolicyType.ActivateAutofill, true),
+      );
+      newPolicyService.policies$
+        .calledWith(userId)
+        .mockReturnValue(of([confirmedPolicy, acceptedPolicy]));
+      organizationService.organizations$
+        .calledWith(userId)
+        .mockReturnValue(
+          of([
+            organization("confirmedOrg", true, true, OrganizationUserStatusType.Confirmed, false),
+          ]),
+        );
+      organizationService.acceptedOrganizations$
+        .calledWith(userId)
+        .mockReturnValue(
+          of([organization("acceptedOrg", true, true, OrganizationUserStatusType.Accepted, false)]),
+        );
 
       const result = await firstValueFrom(policyService.policies$(userId));
 
-      expect(result).toEqual([
-        {
-          id: "policy1",
-          organizationId: "org4",
-          type: PolicyType.DisablePersonalVaultExport,
-          enabled: true,
-          data: undefined,
-          revisionDate: expect.any(Date),
-        },
-        {
-          id: "policy2",
-          organizationId: "org1",
-          type: PolicyType.ActivateAutofill,
-          enabled: true,
-          data: undefined,
-          revisionDate: expect.any(Date),
-        },
-        {
-          id: "policy3",
-          organizationId: "org5",
-          type: PolicyType.DisablePersonalVaultExport,
-          enabled: false,
-          data: undefined,
-          revisionDate: expect.any(Date),
-        },
-        {
-          id: "policy4",
-          organizationId: "org1",
-          type: PolicyType.DisablePersonalVaultExport,
-          enabled: true,
-          data: undefined,
-          revisionDate: expect.any(Date),
-        },
-      ]);
+      expect(result).toEqual([confirmedPolicy]);
     });
 
-    it("returns an empty array when there is no state", async () => {
-      singleUserState.nextState(null);
+    it("returns an empty array when there are no policies", async () => {
+      newPolicyService.policies$.calledWith(userId).mockReturnValue(of([]));
+      organizationService.organizations$
+        .calledWith(userId)
+        .mockReturnValue(
+          of([organization("org1", true, true, OrganizationUserStatusType.Confirmed, false)]),
+        );
 
       const result = await firstValueFrom(policyService.policies$(userId));
 

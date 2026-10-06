@@ -1,6 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-
 import { ApiService } from "../../../abstractions/api.service";
 import { OrganizationApiKeyRequest } from "../../../admin-console/models/request/organization-api-key.request";
 import { OrganizationSsoRequest } from "../../../auth/models/request/organization-sso.request";
@@ -260,10 +257,10 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
 
   async getApiKeyInformation(
     id: string,
-    organizationApiKeyType: OrganizationApiKeyType = null,
+    organizationApiKeyType?: OrganizationApiKeyType,
   ): Promise<ListResponse<OrganizationApiKeyInformationResponse>> {
     const uri =
-      organizationApiKeyType === null
+      organizationApiKeyType == null
         ? "/organizations/" + id + "/api-key-information"
         : "/organizations/" + id + "/api-key-information/" + organizationApiKeyType;
     const r = await this.apiService.send("GET", uri, null, true, true);

@@ -1,12 +1,8 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom, BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { UserApiTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/user-api-token.request";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UnlockService } from "@bitwarden/unlock";
@@ -17,21 +13,24 @@ import { CacheData } from "../services/login-strategies/login-strategy.state";
 import { LoginStrategy, LoginStrategyData } from "./login.strategy";
 
 export class UserApiLoginStrategyData implements LoginStrategyData {
-  tokenRequest: UserApiTokenRequest;
+  readonly tokenRequest: UserApiTokenRequest;
+
+  constructor(fields: UserApiLoginStrategyData) {
+    this.tokenRequest = fields.tokenRequest;
+  }
 
   static fromJSON(obj: Jsonify<UserApiLoginStrategyData>): UserApiLoginStrategyData {
-    return Object.assign(new UserApiLoginStrategyData(), obj, {
+    return new UserApiLoginStrategyData({
       tokenRequest: UserApiTokenRequest.fromJSON(obj.tokenRequest),
     });
   }
 }
 
-export class UserApiLoginStrategy extends LoginStrategy {
-  protected cache: BehaviorSubject<UserApiLoginStrategyData>;
+export class UserApiLoginStrategy extends LoginStrategy<UserApiLoginStrategyData> {
+  protected cache: BehaviorSubject<UserApiLoginStrategyData | undefined>;
 
   constructor(
-    data: UserApiLoginStrategyData,
-    private keyConnectorService: KeyConnectorService,
+    data: UserApiLoginStrategyData | undefined,
     private unlockService: UnlockService,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
@@ -41,57 +40,24 @@ export class UserApiLoginStrategy extends LoginStrategy {
   }
 
   override async logIn(credentials: UserApiLoginCredentials) {
-    const data = new UserApiLoginStrategyData();
-    data.tokenRequest = new UserApiTokenRequest(
+    const tokenRequest = new UserApiTokenRequest(
       credentials.clientId,
       credentials.clientSecret,
       await this.buildTwoFactor(),
       await this.buildDeviceRequest(),
     );
-    this.cache.next(data);
+    this.cache.next(new UserApiLoginStrategyData({ tokenRequest }));
 
     const [authResult] = await this.startLogIn();
     return authResult;
   }
 
-  protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {
-    const sdkHandledKeyConnector =
-      response.canUnlockWithKeyConnector() &&
-      (await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk));
-
-    if (!sdkHandledKeyConnector && response.apiUseKeyConnector) {
-      const env = await firstValueFrom(this.environmentService.environment$);
-      const keyConnectorUrl = env.getKeyConnectorUrl();
-      await this.keyConnectorService.setMasterKeyFromUrl(keyConnectorUrl, userId);
-    }
-  }
-
   protected override async unlock(response: IdentityTokenResponse, userId: UserId): Promise<void> {
-    const sdkHandledKeyConnector =
-      response.canUnlockWithKeyConnector() &&
-      (await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk));
-
-    if (sdkHandledKeyConnector) {
+    if (response.canUnlockWithKeyConnector()) {
       await this.unlockService.unlockWithKeyConnector(
         userId,
         response.intoKeyConnectorUnlockData(),
       );
-      return;
-    }
-
-    if (response.key) {
-      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
-    }
-
-    if (response.apiUseKeyConnector) {
-      const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-      if (masterKey) {
-        const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
-          masterKey,
-          userId,
-        );
-        await this.unlockService.unlockWithDecryptedUserKey(userId, userKey);
-      }
     }
   }
 
@@ -106,7 +72,7 @@ export class UserApiLoginStrategy extends LoginStrategy {
       this.vaultTimeoutSettingsService.getVaultTimeoutByUserId$(userId),
     );
 
-    const tokenRequest = this.cache.value.tokenRequest;
+    const { tokenRequest } = this.getLoginStrategyDataOrThrow();
 
     await this.tokenService.setClientId(
       tokenRequest.clientId,

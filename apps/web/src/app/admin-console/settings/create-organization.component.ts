@@ -1,6 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 import { first } from "rxjs/operators";
@@ -11,6 +10,9 @@ import {
   ProductTierType,
   ProductType,
 } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { BreadcrumbsModule } from "@bitwarden/components";
 import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { OrganizationPlansComponent } from "../../billing";
@@ -21,7 +23,13 @@ import { SharedModule } from "../../shared";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "create-organization.component.html",
-  imports: [SharedModule, OrganizationPlansComponent, HeaderModule, Vfo1I18nPipe],
+  imports: [
+    SharedModule,
+    OrganizationPlansComponent,
+    HeaderModule,
+    BreadcrumbsModule,
+    Vfo1I18nPipe,
+  ],
 })
 export class CreateOrganizationComponent implements OnInit, OnDestroy {
   protected secretsManager = false;
@@ -30,7 +38,15 @@ export class CreateOrganizationComponent implements OnInit, OnDestroy {
   protected trialLength?: number;
   protected initiationPath: InitiationPath = InitiationPath.NewOrganizationCreationInProduct;
 
-  constructor(private route: ActivatedRoute) {}
+  protected readonly showBreadcrumbs = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
+
+  constructor(
+    private route: ActivatedRoute,
+    private configService: ConfigService,
+  ) {}
 
   private destroy$ = new Subject<void>();
 

@@ -8,6 +8,7 @@ import { SEND_TYPE_FROM_SDK } from "../domain/send";
 import { SendAccess } from "../domain/send-access";
 
 import { SendFileView } from "./send-file.view";
+import { SendItemView } from "./send-item.view";
 import { SendTextView } from "./send-text.view";
 
 export class SendAccessView implements View {
@@ -16,6 +17,7 @@ export class SendAccessView implements View {
   type: SendType = null;
   text = new SendTextView();
   file = new SendFileView();
+  data = new SendItemView();
   expirationDate: Date = null;
   creatorIdentifier: string = null;
 
@@ -37,6 +39,7 @@ export class SendAccessView implements View {
     view.type = SEND_TYPE_FROM_SDK[obj.type];
     view.text = SendTextView.fromSdk(obj.text);
     view.file = SendFileView.fromSdk(obj.file);
+    view.data = SendItemView.fromSdk(obj.data);
     view.expirationDate = obj.expirationDate ? new Date(obj.expirationDate) : null;
     view.creatorIdentifier = obj.creatorIdentifier;
     return view;

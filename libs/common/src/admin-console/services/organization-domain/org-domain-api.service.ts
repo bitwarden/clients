@@ -2,6 +2,7 @@ import { ApiService } from "../../../abstractions/api.service";
 import { ListResponse } from "../../../models/response/list.response";
 import { OrgDomainApiServiceAbstraction } from "../../abstractions/organization-domain/org-domain-api.service.abstraction";
 import { OrgDomainInternalServiceAbstraction } from "../../abstractions/organization-domain/org-domain.service.abstraction";
+import { OrganizationDomainMiniResponse } from "../../abstractions/organization-domain/responses/organization-domain-mini.response";
 import { OrganizationDomainResponse } from "../../abstractions/organization-domain/responses/organization-domain.response";
 import { VerifiedOrganizationDomainSsoDetailsResponse } from "../../abstractions/organization-domain/responses/verified-organization-domain-sso-details.response";
 
@@ -30,6 +31,23 @@ export class OrgDomainApiService implements OrgDomainApiServiceAbstraction {
     this.orgDomainService.replace(orgDomains);
 
     return orgDomains;
+  }
+
+  async getAllMiniByOrgId(orgId: string): Promise<Array<OrganizationDomainMiniResponse>> {
+    const listResponse: ListResponse<any> = await this.apiService.send(
+      "GET",
+      `/organizations/${orgId}/domain/mini`,
+      null,
+      true,
+      true,
+    );
+
+    // Intentionally does not update OrgDomainService state: that store holds full
+    // OrganizationDomainResponse objects for the domain verification page, and these slim
+    // responses would replace them with partial data.
+    return listResponse.data.map(
+      (resultOrgDomain: any) => new OrganizationDomainMiniResponse(resultOrgDomain),
+    );
   }
 
   async getByOrgIdAndOrgDomainId(

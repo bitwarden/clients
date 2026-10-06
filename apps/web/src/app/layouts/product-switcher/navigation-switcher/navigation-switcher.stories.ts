@@ -12,6 +12,7 @@ import { ProviderService } from "@bitwarden/common/admin-console/abstractions/pr
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
@@ -32,7 +33,10 @@ import {
   StorybookGlobalStateProvider,
 } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
-import { positionFixedWrapperDecorator } from "@bitwarden/components/src/stories/storybook-decorators";
+import {
+  collapsedSideNavDecorator,
+  positionFixedWrapperDecorator,
+} from "@bitwarden/components/src/stories/storybook-decorators";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { enabledFlags } from "@bitwarden/storybook";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -127,6 +131,10 @@ class MockLockService implements Partial<LockService> {
   async lock() {}
 }
 
+class MockAvatarService implements Partial<AvatarService> {
+  avatarColor$ = of("#175ddc");
+}
+
 class MockBillingAccountProfileStateService implements Partial<BillingAccountProfileStateService> {
   hasPremiumFromAnySource$(userId: UserId): Observable<boolean> {
     return of(false);
@@ -161,6 +169,12 @@ const translations: Record<string, string> = {
   upgradeNow: "Upgrade now",
   getAdvancedOnlineSecurityWithBitwardenPremium:
     "Get advanced online security with Bitwarden premium.",
+  loggedInAs: "Logged in as",
+  accountSettings: "Account settings",
+  getHelp: "Get help",
+  getApps: "Get the apps",
+  lockNow: "Lock now",
+  logOut: "Log out",
 };
 
 export default {
@@ -190,6 +204,7 @@ export default {
         { provide: VaultTimeoutSettingsService, useClass: MockVaultTimeoutSettingsService },
         { provide: LogoutService, useClass: MockLogoutService },
         { provide: LockService, useClass: MockLockService },
+        { provide: AvatarService, useClass: MockAvatarService },
         {
           provide: BillingAccountProfileStateService,
           useClass: MockBillingAccountProfileStateService,
@@ -464,10 +479,12 @@ export const RealisticSideNavV2: Story = {
 };
 
 /**
- * Same as `RealisticSideNavV2`, but with the account menu's collapsed (icon-only) trigger —
- * the state the header uses when the nav itself is collapsed.
+ * Same as `RealisticSideNavV2`, but collapsed to the icon rail, with the account menu in its
+ * icon-only trigger state. Collapsed items have no visible label, so this is the story that shows
+ * the `bitTooltip` affordance naming them on hover and keyboard focus.
  */
 export const RealisticSideNavV2CollapsedAccount: Story = {
+  decorators: [collapsedSideNavDecorator],
   render: (args) => ({
     props: { ...args, logo: SideNavLogo },
     template: `

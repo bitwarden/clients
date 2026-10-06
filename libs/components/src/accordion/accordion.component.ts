@@ -20,6 +20,8 @@ export type AccordionSize = "sm" | "default";
 
 export type AccordionVariant = "default" | "subtle";
 
+export type AccordionHeight = "constrained" | "auto";
+
 let nextId = 0;
 
 @Component({
@@ -56,6 +58,7 @@ export class AccordionComponent {
   readonly disabled = input(false, { transform: booleanAttribute });
   readonly size = input<AccordionSize>("default");
   readonly variant = input<AccordionVariant>("default");
+  readonly height = input<AccordionHeight>("constrained");
 
   protected readonly resolvedVariant = computed(() => this.group?.variant() ?? this.variant());
 

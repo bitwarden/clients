@@ -230,6 +230,36 @@ describe("EmailRandomizer", () => {
       );
 
       expect(result.category).toEqual(Type.email);
+      expect(randomizer.chars).toHaveBeenCalledWith(8);
+    });
+
+    it("defaults catchall generation to random behavior", async () => {
+      const email = new EmailRandomizer(randomizer);
+
+      const result = await email.generate(
+        { algorithm: Algorithm.catchall, website: "example" },
+        {
+          catchallDomain: "example.com",
+        },
+      );
+
+      expect(result.credential).toEqual("aaaaaaaa@example.com");
+      expect(randomizer.chars).toHaveBeenCalledWith(8);
+    });
+
+    it("generates website-name catchalls from the request hostname", async () => {
+      const email = new EmailRandomizer(randomizer);
+
+      const result = await email.generate(
+        { algorithm: Algorithm.catchall, website: "https://example.com/login" },
+        {
+          catchallDomain: "example.com",
+          catchallType: "website-name",
+        },
+      );
+
+      expect(result.credential).toEqual("example.com@example.com");
+      expect(randomizer.chars).not.toHaveBeenCalled();
     });
 
     it("processes subaddress generation options", async () => {
