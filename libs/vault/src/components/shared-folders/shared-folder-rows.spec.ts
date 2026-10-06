@@ -88,8 +88,8 @@ describe("sharedFolderRows", () => {
     ]);
   });
 
-  it("lists a folder whose parent is missing at the top level, under its full name", () => {
-    const orphan = buildNestedCollection("backend", "Engineering/Backend");
+  it("lists a folder whose parent is missing at the top level, under its own name", () => {
+    const orphan = buildNestedCollection("deepest", "Top level/Next/Deeper/Deepest");
 
     const rows = sharedFolderRows({
       organizationId,
@@ -100,8 +100,8 @@ describe("sharedFolderRows", () => {
 
     expect(rows).toEqual([
       expect.objectContaining({
-        id: "backend",
-        name: "Engineering/Backend",
+        id: "deepest",
+        name: "Deepest",
         nestedSharedFolders: 0,
         collection: orphan,
       }),

@@ -8,6 +8,7 @@ import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { cipherInScope, VaultScope, VaultScopeType } from "../../models/vault-scope";
+import { sharedFolderName } from "../../utils/shared-folder-name";
 
 import { SharedFolderPermission } from "./shared-folder-permission";
 
@@ -15,7 +16,10 @@ import { SharedFolderPermission } from "./shared-folder-permission";
 export type SharedFolderRow = {
   id: CollectionId;
   organizationId: OrganizationId;
+
+  /** The folder's own name, without its parent path — see {@link sharedFolderName}. */
   name: string;
+
   permissions: SharedFolderPermission;
 
   /** Items in this folder and every folder nested beneath it, each counted once. */
@@ -91,7 +95,7 @@ export function sharedFolderRows({
     .map((collection) => ({
       id: collection.id,
       organizationId: collection.organizationId,
-      name: collection.name,
+      name: sharedFolderName(collection),
       permissions: sharedFolderPermission(collection, organization),
       items: itemCounts.get(collection.id) ?? 0,
       nestedSharedFolders: nestedCounts.get(collection.id) ?? 0,
