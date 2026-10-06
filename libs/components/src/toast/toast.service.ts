@@ -16,16 +16,7 @@ export type ToastOptions = {
 };
 
 /**
- * Presents toast notifications to users visually and audibly via screen reader announcements.
- *
- * Screen reader accessibility contract:
- * - Integrates with `@angular/cdk/a11y`'s `LiveAnnouncer` to emit live region announcements
- *   whenever a toast is presented.
- * - Error toasts (`variant: 'error'`) are announced with `'assertive'` politeness to immediately
- *   inform assistive technology users of critical failures.
- * - All other toast variants (info, success, warning) are announced with `'polite'` politeness
- *   to avoid abruptly interrupting ongoing screen reader speech.
- * - Titles and messages are merged into a single coherent utterance (`"Title: Message"` or `"Message"`).
+ * Presents toast notifications visually and announces them to screen readers.
  **/
 @Injectable({ providedIn: "root" })
 export class ToastService {
@@ -34,9 +25,6 @@ export class ToastService {
     @Optional() private liveAnnouncer?: LiveAnnouncer,
   ) {}
 
-  /**
-   * Displays a toast notification and announces its content to screen readers via LiveAnnouncer.
-   */
   showToast(options: ToastOptions): void {
     const toastrConfig: Partial<IndividualConfig> = {
       payload: {

@@ -20,13 +20,6 @@ import { BitFormFieldComponent } from "./form-field.component";
 
 /**
  * Directive applied to toggle buttons on password inputs to show or hide plain text password values.
- *
- * Screen reader accessibility contract:
- * - Binds `aria-pressed` to indicate toggle state.
- * - Dynamically updates `aria-label` and `title` between localized "Show password" and "Hide password"
- *   to ensure screen readers announce the intended next action.
- * - On activation, triggers a polite live announcement via `LiveAnnouncer` ("Password shown" / "Password hidden")
- *   so users navigating with assistive technologies receive immediate confirmation without changing focus.
  */
 @Directive({
   selector: "[bitPasswordInputToggle]",
