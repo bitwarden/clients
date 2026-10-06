@@ -1049,9 +1049,9 @@ export class CipherService implements CipherServiceAbstraction {
           fileName: encFileName.encryptedString,
           fileSize: encData.buffer.byteLength,
           lastKnownRevisionDate: cipher.revisionDate.toISOString(),
-          asAdmin: admin,
         },
         userId,
+        admin,
       );
 
       await this.cipherFileUploadService.uploadPrepared(
