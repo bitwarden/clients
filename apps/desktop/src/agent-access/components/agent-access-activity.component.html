@@ -46,14 +46,22 @@
                 }
               </div>
               @if (entry.queryValue) {
-                <span class="tw-font-mono tw-break-all">{{ entry.queryValue }}</span>
+                <!-- A `name` query is a Secrets Manager secret name — the one case where the raw
+                     query value itself is the sensitive identifier (agent-access-design-spec.md
+                     §2.3). Every other query type (domain/id/search) is agent-supplied text that
+                     doesn't name a specific vault item, so it stays in the plain treatment. -->
+                <span
+                  class="tw-font-mono tw-break-all"
+                  [class.tw-text-fg-sensitive]="entry.queryType === CredentialQueryType.Name"
+                  >{{ entry.queryValue }}</span
+                >
               }
             </td>
             <td bitCell class="tw-align-top">
               <span
                 bitBadge
-                [variant]="statusVariant(entry.status)"
-                [startIcon]="null"
+                [variant]="statusVariant(entry)"
+                [startIcon]="statusIcon(entry)"
                 size="small"
               >
                 {{ statusLabel(entry.status) }}
@@ -68,7 +76,7 @@
               <span
                 bitBadge
                 [variant]="lifecycleVariant(entry.kind)"
-                [startIcon]="null"
+                [startIcon]="lifecycleIcon(entry.kind)"
                 size="small"
               >
                 {{ lifecycleLabel(entry.kind) }}

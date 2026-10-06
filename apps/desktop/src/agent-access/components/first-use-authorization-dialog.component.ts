@@ -2,24 +2,26 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   AsyncActionsModule,
   ButtonModule,
   DIALOG_DATA,
-  DialogModule,
   DialogRef,
   DialogService,
-  IconComponent,
   RadioButtonModule,
-  SvgComponent,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { AGENT_LOGOS } from "../icons";
+import { AgentAccessConsequence } from "../models/agent-access-consequence";
 import { AgentAccessGrantScope } from "../models/agent-access-grant";
 import { AGENT_DEFINITIONS } from "../models/agent-registry";
 import { resolveAgentBrand } from "../utils/agent-brand.util";
+
+import { AgentAccessRequestDialogComponent } from "./shared/agent-access-request-dialog.component";
+import { AgentAccessRequesterView } from "./shared/agent-access-requester.component";
 
 /** The two napi `SignatureKindData` members that carry an actual verified code signature —
  *  everything else (no signature captured, `linuxPathOnly`, or a signature that failed
@@ -68,6 +70,15 @@ export interface FirstUseAuthorizationDialogResult {
  * claims safety: attestation is defense-in-depth, not a boundary — same-user software could still
  * act through a legitimate signed binary, or simply wait for the user to approve a request and
  * read the result (agent-access-desktop-plan.md, "Risks" — "Attestation overclaim").
+ *
+ * This dialog is the *source* of the design language the whole Agent Access family now shares
+ * (agent-access-design-spec.md §1, fault 3 and §7): its identity block was promoted out to
+ * `app-agent-access-requester` almost unchanged, and this dialog now consumes that shared
+ * component (`change`-graded, per spec §3.2) instead of hand-rolling its own copy. The
+ * signedBy/publishedBy/path *selection* logic (`descriptorKind` below) deliberately stays local —
+ * it's per-dialog i18n, not shared chrome (§7) — but the shared component only accepts a single
+ * pre-resolved, already-localized `descriptor` string, so `resolvedDescriptor` below does the
+ * `i18nService.t()` call that the template used to do directly via `| i18n`.
  */
 @Component({
   selector: "app-first-use-authorization-dialog",
@@ -77,20 +88,20 @@ export interface FirstUseAuthorizationDialogResult {
     CommonModule,
     I18nPipe,
     ButtonModule,
-    DialogModule,
     ReactiveFormsModule,
     AsyncActionsModule,
     TypographyModule,
     RadioButtonModule,
-    IconComponent,
-    SvgComponent,
+    AgentAccessRequestDialogComponent,
   ],
 })
 export class FirstUseAuthorizationDialogComponent {
   protected readonly AgentAccessGrantScope = AgentAccessGrantScope;
+  protected readonly AgentAccessConsequence = AgentAccessConsequence;
 
   private readonly formBuilder = inject(FormBuilder);
   private readonly dialogRef = inject<DialogRef<FirstUseAuthorizationDialogResult>>(DialogRef);
+  private readonly i18nService = inject(I18nService);
   protected readonly params = inject<FirstUseAuthorizationDialogParams>(DIALOG_DATA);
 
   // Only one scope exists in Phase 1 (agent-access-desktop-plan.md, W5's intro): "All logins",
@@ -149,6 +160,33 @@ export class FirstUseAuthorizationDialogComponent {
   protected readonly pathDescriptorValue = computed(
     () => this.params.signatureIdentity || this.params.exePath || "",
   );
+
+  /** The finished, already-localized descriptor line `app-agent-access-requester` renders as-is
+   *  (its `descriptor` input is a single pre-resolved string, not a kind to switch on — spec §7).
+   *  `descriptorKind` above still decides WHICH sentence; this only resolves the i18n call that
+   *  used to live directly in the template's `@switch`. */
+  protected readonly resolvedDescriptor = computed<string>(() => {
+    switch (this.descriptorKind()) {
+      case "signedBy":
+        return this.i18nService.t("agentAccessFirstUseSignedBy", this.params.signatureIdentity);
+      case "publishedBy":
+        return this.i18nService.t("agentAccessFirstUsePublishedBy", this.params.signatureIdentity);
+      default:
+        return this.i18nService.t("agentAccessFirstUseAtPath", this.pathDescriptorValue());
+    }
+  });
+
+  /** WHO is asking (spec §2), assembled for `app-agent-access-requester` from the pieces above.
+   *  `unverified` is deliberately `signatureInvalid()` and nothing broader — an unrecognized but
+   *  never-signed requester is not itself alarming (see the class doc comment and the shared
+   *  component's own doc comment on not training users to click through warnings that don't
+   *  matter). */
+  protected readonly requesterView = computed<AgentAccessRequesterView>(() => ({
+    name: this.requesterName(),
+    descriptor: this.resolvedDescriptor(),
+    brandLogo: this.brandLogo(),
+    unverified: this.signatureInvalid(),
+  }));
 
   static open(dialogService: DialogService, params: FirstUseAuthorizationDialogParams) {
     return dialogService.open<FirstUseAuthorizationDialogResult, FirstUseAuthorizationDialogParams>(

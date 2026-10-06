@@ -19,6 +19,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import {
   BadgeModule,
   BadgeVariant,
+  BitwardenIcon,
   NoItemsModule,
   TableModule,
   TypographyModule,
@@ -31,6 +32,7 @@ import {
   AgentAccessRequestStatus,
   CredentialRequestActivity,
 } from "../models/agent-access-activity";
+import { AgentAccessConsequence } from "../models/agent-access-consequence";
 import { AgentAccessOperation } from "../models/agent-access-operation";
 import { AgentAccessResourceType } from "../models/agent-access-resource-type";
 import { CredentialQueryType } from "../models/credential-query-type";
@@ -57,55 +59,74 @@ const LIFECYCLE_LABEL_KEYS = Object.freeze({
   handshake_completed: "agentAccessEventHandshakeCompleted",
 } as const);
 
-/** Badge color per lifecycle `kind`. Anything unmapped renders neutral. */
-const LIFECYCLE_BADGE_VARIANTS: Readonly<Record<string, BadgeVariant>> = Object.freeze({
-  connection_established: "success",
-  session_refreshed: "subtle",
-  connection_rejected: "danger",
-  reconnecting: "warning",
-  reconnected: "success",
-  error: "danger",
-  handshake_completed: "subtle",
+/**
+ * Lifecycle `kind`s that are a *fault* — an anomaly in the connection itself that may need the
+ * user's attention — as opposed to a routine state transition. This is a deliberately separate
+ * axis from the consequence grade: grade answers "what happened to the vault" (see
+ * {@link AgentAccessActivityComponent.lifecycleGrade}), and no lifecycle event ever touches the
+ * vault, so every one of them grades as `metadata`. Fault answers a different question — "does
+ * this row need a second look" — and is layered on top with its own signal
+ * ({@link AgentAccessActivityComponent.lifecycleVariant}), not borrowed from the `destroy`
+ * grade's red (which would misleadingly imply something irreversible happened to vault data).
+ *
+ * `connection_rejected` is deliberately **not** here: a rejected connection is the system working
+ * as designed (the user, or an automatic gate, said no) — colouring it as a fault would train the
+ * user to read their own correct decision as a failure. `error` is the one lifecycle kind that
+ * genuinely represents something going wrong.
+ */
+const LIFECYCLE_FAULT_KINDS: ReadonlySet<string> = new Set(["error"]);
+
+/**
+ * i18n key per credential-request outcome. Colour used to live alongside this as a per-status
+ * `variant`, chosen independently of the lifecycle table below — two parallel, ad hoc colour
+ * systems. Both are now unified behind the consequence grade
+ * (agent-access-design-spec.md §2.1, §3.5): see {@link AgentAccessActivityComponent.requestGrade}
+ * and {@link GRADE_BADGE_VARIANTS}. This map keeps only the label.
+ */
+const REQUEST_STATUS_LABEL_KEYS: Readonly<Record<AgentAccessRequestStatus, string>> = Object.freeze(
+  {
+    [AgentAccessRequestStatus.Pending]: "agentAccessStatusPending",
+    [AgentAccessRequestStatus.Shared]: "agentAccessStatusShared",
+    [AgentAccessRequestStatus.Denied]: "agentAccessStatusDenied",
+    [AgentAccessRequestStatus.NotFound]: "agentAccessStatusNotFound",
+    [AgentAccessRequestStatus.Created]: "agentAccessStatusCreated",
+    [AgentAccessRequestStatus.Filled]: "agentAccessStatusFilled",
+    [AgentAccessRequestStatus.FillFailed]: "agentAccessStatusFillFailed",
+    [AgentAccessRequestStatus.Updated]: "agentAccessStatusUpdated",
+    [AgentAccessRequestStatus.Deleted]: "agentAccessStatusDeleted",
+    [AgentAccessRequestStatus.Listed]: "agentAccessStatusListed",
+  },
+);
+
+/**
+ * Badge colour per consequence grade (agent-access-design-spec.md §2.2), reused by both row
+ * shapes so the same colour means the same thing everywhere in the log — the whole point of
+ * bringing the log into the dialogs' system (spec §3.5). `bit-badge` only accepts one of its own
+ * closed `BadgeVariant` set, not §2.2's raw `tw-border-*`/`tw-bg-*` classes directly (that raw
+ * treatment is `app-agent-access-consequence`'s, a shared dialog component out of this file's
+ * lane), so each grade maps to the nearest existing variant whose own token bindings
+ * (`badge.component.ts`'s `variantStyles`) already resolve to an equivalent or identical
+ * background/text pair: `change`, `disclose`, and `destroy` land on a badge variant whose
+ * background/text tokens are an exact match for §2.2's table (`primary`, `warning`, `danger`
+ * respectively); `metadata` lands on `subtle`, whose background/border match §2.2's `metadata`
+ * row exactly (its text token is `fg-body` rather than `text-muted` — the nearest existing option
+ * without inventing a new `BadgeVariant`, which is out of this file's lane).
+ */
+const GRADE_BADGE_VARIANTS: Readonly<Record<AgentAccessConsequence, BadgeVariant>> = Object.freeze({
+  [AgentAccessConsequence.Metadata]: "subtle",
+  [AgentAccessConsequence.Change]: "primary",
+  [AgentAccessConsequence.Disclose]: "warning",
+  [AgentAccessConsequence.Destroy]: "danger",
 });
 
-/** i18n key + badge color per credential-request outcome. */
-const REQUEST_STATUS_META: Readonly<
-  Record<AgentAccessRequestStatus, { labelKey: string; variant: BadgeVariant }>
-> = Object.freeze({
-  [AgentAccessRequestStatus.Pending]: {
-    labelKey: "agentAccessStatusPending",
-    variant: "subtle",
-  },
-  [AgentAccessRequestStatus.Shared]: { labelKey: "agentAccessStatusShared", variant: "success" },
-  [AgentAccessRequestStatus.Denied]: { labelKey: "agentAccessStatusDenied", variant: "danger" },
-  [AgentAccessRequestStatus.NotFound]: {
-    labelKey: "agentAccessStatusNotFound",
-    variant: "warning",
-  },
-  [AgentAccessRequestStatus.Created]: {
-    labelKey: "agentAccessStatusCreated",
-    variant: "success",
-  },
-  [AgentAccessRequestStatus.Filled]: {
-    labelKey: "agentAccessStatusFilled",
-    variant: "success",
-  },
-  [AgentAccessRequestStatus.FillFailed]: {
-    labelKey: "agentAccessStatusFillFailed",
-    variant: "warning",
-  },
-  [AgentAccessRequestStatus.Updated]: {
-    labelKey: "agentAccessStatusUpdated",
-    variant: "success",
-  },
-  [AgentAccessRequestStatus.Deleted]: {
-    labelKey: "agentAccessStatusDeleted",
-    variant: "danger",
-  },
-  [AgentAccessRequestStatus.Listed]: {
-    labelKey: "agentAccessStatusListed",
-    variant: "subtle",
-  },
+/** Icon per consequence grade, identical to §2.2's table and to
+ *  `app-agent-access-consequence`'s own icon map, so the badge carries the same glyph the user
+ *  saw on the approval dialog. */
+const GRADE_BADGE_ICONS: Readonly<Record<AgentAccessConsequence, BitwardenIcon>> = Object.freeze({
+  [AgentAccessConsequence.Metadata]: "bwi-list",
+  [AgentAccessConsequence.Change]: "bwi-pencil",
+  [AgentAccessConsequence.Disclose]: "bwi-key",
+  [AgentAccessConsequence.Destroy]: "bwi-trash",
 });
 
 /** i18n key per query type, used to caption the query text (e.g. `Domain  github.com`). The
@@ -160,6 +181,7 @@ export class AgentAccessActivityComponent implements OnInit {
   protected readonly NoResults = NoResults;
   protected readonly AgentAccessActivityType = AgentAccessActivityType;
   protected readonly AgentAccessResourceType = AgentAccessResourceType;
+  protected readonly CredentialQueryType = CredentialQueryType;
 
   /** Oldest -> newest, exactly as the main process holds it. */
   private readonly entries = signal<AgentAccessActivityEntry[]>([]);
@@ -242,16 +264,108 @@ export class AgentAccessActivityComponent implements OnInit {
     return labelKey ? this.i18nService.t(labelKey) : kind;
   }
 
+  /**
+   * Connection/transport events never release a secret value or change vault contents, so every
+   * `kind` grades as `metadata` (agent-access-design-spec.md §2.1) — the badge's *label* still
+   * names the specific event (see {@link lifecycleLabel}); only its colour is unified with
+   * {@link requestGrade}, so `subtle` means the same thing (nothing crossed the boundary) on
+   * either row shape. This is the *consequence* axis only — see {@link isLifecycleFault} for the
+   * separate *fault* axis layered on top of it.
+   */
+  protected lifecycleGrade(): AgentAccessConsequence {
+    return AgentAccessConsequence.Metadata;
+  }
+
+  /** Whether `kind` is an anomaly worth flagging on its own terms, independent of consequence
+   *  grade — see {@link LIFECYCLE_FAULT_KINDS}'s doc for why this is a separate axis and why
+   *  `connection_rejected` is deliberately excluded. */
+  protected isLifecycleFault(kind: string): boolean {
+    return LIFECYCLE_FAULT_KINDS.has(kind);
+  }
+
+  /**
+   * A fault overrides the grade-derived colour with the badge library's own `danger` treatment.
+   * Deliberately **not** routed through {@link gradeVariant}/{@link GRADE_BADGE_VARIANTS} — this
+   * red means "this connection had a problem", never "this grades as `destroy`", and keeping the
+   * two paths visibly separate in code is what stops that from being ambiguous to a future
+   * reader. Every other kind, including `connection_rejected`, is coloured by grade alone.
+   */
   protected lifecycleVariant(kind: string): BadgeVariant {
-    return LIFECYCLE_BADGE_VARIANTS[kind] ?? "subtle";
+    return this.isLifecycleFault(kind) ? "danger" : this.gradeVariant(this.lifecycleGrade());
+  }
+
+  /** See {@link lifecycleVariant}. `bwi-error` is the fault's own icon — never `bwi-trash` (the
+   *  `destroy` grade's icon), which would misleadingly suggest something irreversible happened to
+   *  vault data rather than a connection fault. */
+  protected lifecycleIcon(kind: string): BitwardenIcon {
+    return this.isLifecycleFault(kind) ? "bwi-error" : this.gradeIcon(this.lifecycleGrade());
   }
 
   protected statusLabel(status: AgentAccessRequestStatus): string {
-    return this.i18nService.t(REQUEST_STATUS_META[status].labelKey);
+    return this.i18nService.t(REQUEST_STATUS_LABEL_KEYS[status]);
   }
 
-  protected statusVariant(status: AgentAccessRequestStatus): BadgeVariant {
-    return REQUEST_STATUS_META[status].variant;
+  /**
+   * The row's consequence grade (agent-access-design-spec.md §2.1), derived from what actually
+   * happened — resource type, operation, and outcome status — never inferred from a field a
+   * given request path may not populate (the trap `isReferenceMode` fell into on the dialog side,
+   * spec §3.3 BUG 2: the secret path never sets `deliveryMode`, so a field-based inference would
+   * silently be wrong there too). This is the single source of truth for the result badge's
+   * colour and icon; see {@link statusVariant}.
+   */
+  protected requestGrade(entry: CredentialRequestActivity): AgentAccessConsequence {
+    switch (entry.status) {
+      case AgentAccessRequestStatus.Shared:
+        // A bulk project-secrets release or a single Secrets Manager secret always discloses a
+        // value — neither has a reference mode (agent-access-design-spec.md §3.2:
+        // `project-secrets-request` and the secret-kind `approve-credential-request` are both
+        // graded `disclose`). A vault-credential row discloses only when the password field
+        // itself was released; `fieldsShared` without `"password"` is the reference-delivery
+        // case, whose entire point is that the password never leaves the device.
+        if (this.isBulkSecretsRequest(entry) || this.isSecretRequest(entry)) {
+          return AgentAccessConsequence.Disclose;
+        }
+        return entry.fieldsShared?.includes("password")
+          ? AgentAccessConsequence.Disclose
+          : AgentAccessConsequence.Metadata;
+      case AgentAccessRequestStatus.Filled:
+        // A browser fill always types a stored value into the page — `approve-fill-request` is
+        // graded `disclose` for the same reason (spec §3.2).
+        return AgentAccessConsequence.Disclose;
+      case AgentAccessRequestStatus.Created:
+      case AgentAccessRequestStatus.Updated:
+        // Vault contents created or modified; nothing existing is disclosed (spec §2.1 `change`).
+        return AgentAccessConsequence.Change;
+      case AgentAccessRequestStatus.Deleted:
+        // Irreversible removal (spec §2.1 `destroy`).
+        return AgentAccessConsequence.Destroy;
+      case AgentAccessRequestStatus.Pending:
+      case AgentAccessRequestStatus.Denied:
+      case AgentAccessRequestStatus.NotFound:
+      case AgentAccessRequestStatus.FillFailed:
+      case AgentAccessRequestStatus.Listed:
+      default:
+        // Nothing left the device and nothing in the vault changed: an unresolved request, a
+        // refusal, a miss, a failed fill, or a project *list* (names/ids only — spec §2.1
+        // `metadata`).
+        return AgentAccessConsequence.Metadata;
+    }
+  }
+
+  protected statusVariant(entry: CredentialRequestActivity): BadgeVariant {
+    return this.gradeVariant(this.requestGrade(entry));
+  }
+
+  protected statusIcon(entry: CredentialRequestActivity): BitwardenIcon {
+    return this.gradeIcon(this.requestGrade(entry));
+  }
+
+  protected gradeVariant(grade: AgentAccessConsequence): BadgeVariant {
+    return GRADE_BADGE_VARIANTS[grade];
+  }
+
+  protected gradeIcon(grade: AgentAccessConsequence): BitwardenIcon {
+    return GRADE_BADGE_ICONS[grade];
   }
 
   protected queryTypeLabel(queryType: CredentialQueryType): string {
@@ -274,6 +388,14 @@ export class AgentAccessActivityComponent implements OnInit {
     return entry.operation === AgentAccessOperation.Create;
   }
 
+  /** Whether a row is a `projectSecretsRequest` bulk release (agent-access-architecture.md,
+   *  "M7") rather than a single-secret lookup — both are `resourceType: "secret"`, so this keys
+   *  off `operation` instead. Like a create row, a bulk row has no `queryType`/`queryValue`
+   *  (force-filled out main-side, same `operation !== Request` gate M6 generalized). */
+  protected isBulkSecretsRequest(entry: CredentialRequestActivity): boolean {
+    return entry.operation === AgentAccessOperation.BulkRequest;
+  }
+
   /**
    * What the request produced, as one line: the released item and its fields when the user
    * approved, otherwise a short explanation of why nothing was released. Returns `undefined` while
@@ -289,6 +411,20 @@ export class AgentAccessActivityComponent implements OnInit {
   protected requestResultLabel(entry: CredentialRequestActivity): string | undefined {
     switch (entry.status) {
       case AgentAccessRequestStatus.Shared: {
+        // M7 (`projectSecretsRequest`): the sole bulk-value release. Distinguished by
+        // `operation`, not `resourceType` — a bulk row is `resourceType: "secret"` just like a
+        // single-secret `Shared` row, but the label names the count and the *project*, never an
+        // individual secret name (agent-access-architecture.md, "M7": "Shared N secrets from
+        // project {name}"). `secretIds.length` drives the count, never `fieldsShared` (a bulk row
+        // sets no `fieldsShared` — there is no single item's fields to summarize).
+        if (this.isBulkSecretsRequest(entry)) {
+          const projectName =
+            (entry.projectId
+              ? this.agentAccessSecretsService.resolveProjectName(entry.projectId)
+              : undefined) ?? this.i18nService.t("agentAccessBulkProjectFallbackName");
+          const count = entry.secretIds?.length ?? 0;
+          return this.i18nService.t("agentAccessSharedProjectSecrets", count, projectName);
+        }
         const fields = entry.fieldsShared?.join(", ") ?? "";
         if (this.isSecretRequest(entry)) {
           const secretName =

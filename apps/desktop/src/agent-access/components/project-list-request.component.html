@@ -1,43 +1,50 @@
-<bit-dialog>
-  <div class="tw-font-medium" bitDialogTitle>{{ "agentAccessProjectListRequestTitle" | i18n }}</div>
-  <div bitDialogContent>
-    <div class="tw-flex tw-flex-col tw-gap-4">
-      <bit-callout type="warning" title="{{ 'agentAccessProjectListRequestTitle' | i18n }}">
-        {{ "agentAccessRequestedBy" | i18n: requesterDisplayName }}
-      </bit-callout>
+<app-agent-access-request-dialog
+  [dialogTitle]="'agentAccessProjectListRequestTitle' | i18n"
+  [requester]="requesterView"
+  [grade]="AgentAccessConsequence.Metadata"
+  [consequenceSummary]="'agentAccessProjectListConsequenceSummary' | i18n"
+  dialogSize="large"
+>
+  <p class="tw-m-0 tw-text-muted" bitTypography="helper">
+    {{ "agentAccessProjectListCountSummary" | i18n: params.entries.length }}
+    @if (isTruncated) {
+      {{ "agentAccessProjectListTruncatedNotice" | i18n }}
+    }
+  </p>
 
-      <p class="tw-m-0 tw-text-muted" bitTypography="helper">
-        {{ "agentAccessProjectListRequestIntro" | i18n: params.entries.length }}
-      </p>
-
-      <bit-table>
-        <ng-container header>
-          <tr>
-            <th bitCell>{{ "agentAccessProject" | i18n }}</th>
-            <th bitCell>{{ "organization" | i18n }}</th>
-            <th bitCell>{{ "agentAccessProjectListAccessColumn" | i18n }}</th>
+  <div class="tw-max-h-96 tw-overflow-y-auto">
+    <bit-table layout="fixed">
+      <ng-container header>
+        <tr>
+          <th bitCell class="tw-w-1/2">{{ "agentAccessProject" | i18n }}</th>
+          <th bitCell class="tw-w-1/4">{{ "organization" | i18n }}</th>
+          <th bitCell class="tw-w-1/4">{{ "agentAccessProjectListAccessColumn" | i18n }}</th>
+        </tr>
+      </ng-container>
+      <ng-template body>
+        @for (entry of params.entries; track entry.name) {
+          <tr bitRow>
+            <td bitCell class="tw-truncate tw-font-mono tw-text-fg-sensitive">
+              {{ entry.name }}
+            </td>
+            <td bitCell class="tw-truncate tw-text-muted">
+              {{ entry.organizationName || "—" }}
+            </td>
+            <td bitCell class="tw-truncate tw-text-muted">
+              {{
+                (entry.write
+                  ? "agentAccessProjectListWriteAccess"
+                  : "agentAccessProjectListReadOnlyAccess"
+                ) | i18n
+              }}
+            </td>
           </tr>
-        </ng-container>
-        <ng-template body>
-          @for (entry of params.entries; track entry.name) {
-            <tr bitRow>
-              <td bitCell class="tw-font-mono">{{ entry.name }}</td>
-              <td bitCell class="tw-text-muted">{{ entry.organizationName || "—" }}</td>
-              <td bitCell class="tw-text-muted">
-                {{
-                  (entry.write
-                    ? "agentAccessProjectListWriteAccess"
-                    : "agentAccessProjectListReadOnlyAccess"
-                  ) | i18n
-                }}
-              </td>
-            </tr>
-          }
-        </ng-template>
-      </bit-table>
-    </div>
+        }
+      </ng-template>
+    </bit-table>
   </div>
-  <ng-container bitDialogFooter>
+
+  <ng-container dialogFooter>
     <button
       id="project-list-request_button_authorize"
       type="button"
@@ -57,4 +64,4 @@
       {{ "deny" | i18n }}
     </button>
   </ng-container>
-</bit-dialog>
+</app-agent-access-request-dialog>

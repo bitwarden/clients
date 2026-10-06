@@ -1,0 +1,24 @@
+<bit-dialog [dialogSize]="dialogSize()">
+  <div class="tw-font-medium" bitDialogTitle>{{ dialogTitle() }}</div>
+  <div bitDialogContent>
+    <div class="tw-flex tw-flex-col tw-gap-4">
+      <app-agent-access-requester
+        [name]="requester().name"
+        [descriptor]="requester().descriptor"
+        [brandLogo]="requester().brandLogo"
+        [unverified]="requester().unverified ?? false"
+      />
+      <app-agent-access-consequence
+        [grade]="grade()"
+        [summary]="consequenceSummary()"
+        [detail]="consequenceDetail()"
+      />
+      <!-- WHICH exact items — dialog-specific body, e.g. the credential picker or secrets table. -->
+      <ng-content></ng-content>
+      <ng-content select="[footnote]"></ng-content>
+    </div>
+  </div>
+  <ng-container bitDialogFooter>
+    <ng-content select="[dialogFooter]"></ng-content>
+  </ng-container>
+</bit-dialog>

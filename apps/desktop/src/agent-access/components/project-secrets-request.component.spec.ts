@@ -9,38 +9,38 @@ import { AGENT_LOGOS } from "../icons";
 import { AgentId } from "../models/agent-id";
 
 import {
-  ProjectListRequestComponent,
-  ProjectListRequestEntry,
-  ProjectListRequestParams,
-  ProjectListRequestResult,
-} from "./project-list-request.component";
+  ProjectSecretsRequestComponent,
+  ProjectSecretsRequestEntry,
+  ProjectSecretsRequestParams,
+  ProjectSecretsRequestResult,
+} from "./project-secrets-request.component";
 
-function makeParams(overrides: Partial<ProjectListRequestParams> = {}): ProjectListRequestParams {
+function makeParams(
+  overrides: Partial<ProjectSecretsRequestParams> = {},
+): ProjectSecretsRequestParams {
   return {
-    entries: [{ name: "my-app", organizationName: "Acme Inc", write: true }],
+    projectName: "my-app",
+    organizationName: "Acme Inc",
+    entries: [{ name: "DB_PASSWORD" }, { name: "API_KEY" }],
     ...overrides,
   };
 }
 
-function makeEntries(count: number): ProjectListRequestEntry[] {
-  return Array.from({ length: count }, (_, index) => ({
-    name: `project-${index}`,
-    organizationName: "Acme Inc",
-    write: index % 2 === 0,
-  }));
+function makeEntries(count: number): ProjectSecretsRequestEntry[] {
+  return Array.from({ length: count }, (_, index) => ({ name: `SECRET_${index}` }));
 }
 
-describe("ProjectListRequestComponent", () => {
-  let mockDialogRef: MockProxy<DialogRef<ProjectListRequestResult>>;
+describe("ProjectSecretsRequestComponent", () => {
+  let mockDialogRef: MockProxy<DialogRef<ProjectSecretsRequestResult>>;
   let mockI18nService: MockProxy<I18nService>;
 
   beforeEach(() => {
-    mockDialogRef = mock<DialogRef<ProjectListRequestResult>>();
+    mockDialogRef = mock<DialogRef<ProjectSecretsRequestResult>>();
     mockI18nService = mock<I18nService>();
     mockI18nService.t.mockImplementation((key: string) => key);
   });
 
-  function createComponent(params: ProjectListRequestParams): ProjectListRequestComponent {
+  function createComponent(params: ProjectSecretsRequestParams): ProjectSecretsRequestComponent {
     TestBed.configureTestingModule({
       providers: [
         { provide: DIALOG_DATA, useValue: params },
@@ -49,21 +49,35 @@ describe("ProjectListRequestComponent", () => {
       ],
     });
 
-    return TestBed.runInInjectionContext(() => new ProjectListRequestComponent());
+    return TestBed.runInInjectionContext(() => new ProjectSecretsRequestComponent());
   }
 
-  it("exposes every entry that will be released, display-only", () => {
+  it("exposes every secret name that will be released, display-only, never a value", () => {
     const component = createComponent(
       makeParams({
-        entries: [
-          { name: "my-app", organizationName: "Acme Inc", write: true },
-          { name: "other-app", organizationName: "Acme Inc", write: false },
-        ],
+        entries: [{ name: "DB_PASSWORD" }, { name: "API_KEY" }, { name: "SMTP_PASS" }],
       }),
     );
 
-    expect(component.params.entries).toHaveLength(2);
-    expect(component.params.entries.map((e) => e.name)).toEqual(["my-app", "other-app"]);
+    expect(component.params.entries).toHaveLength(3);
+    expect(component.params.entries.map((e) => e.name)).toEqual([
+      "DB_PASSWORD",
+      "API_KEY",
+      "SMTP_PASS",
+    ]);
+    // No entry carries anything but a name — no `value` field exists on the params shape at all.
+    for (const entry of component.params.entries) {
+      expect(Object.keys(entry)).toEqual(["name"]);
+    }
+  });
+
+  it("exposes the resolved project and organization names", () => {
+    const component = createComponent(
+      makeParams({ projectName: "billing-service", organizationName: "Acme Inc" }),
+    );
+
+    expect(component.params.projectName).toBe("billing-service");
+    expect(component.params.organizationName).toBe("Acme Inc");
   });
 
   describe("submit", () => {
@@ -91,6 +105,22 @@ describe("ProjectListRequestComponent", () => {
       const component = createComponent(makeParams({ requesterFingerprint: "abcdef123456" }));
 
       expect(component["requesterDisplayName"]).toBe("ABCDEF…");
+    });
+
+    it("falls back to the unknown-application label when neither name nor fingerprint is present", () => {
+      mockI18nService.t.mockImplementation((key: string) =>
+        key === "agentAccessUnknownApplication" ? "Unknown application" : key,
+      );
+
+      const component = createComponent(makeParams());
+
+      expect(component["requesterDisplayName"]).toBe("Unknown application");
+    });
+
+    it("prefers the requester name when present", () => {
+      const component = createComponent(makeParams({ requesterName: "Claude Code" }));
+
+      expect(component["requesterDisplayName"]).toBe("Claude Code");
     });
   });
 
@@ -153,11 +183,15 @@ describe("ProjectListRequestComponent", () => {
 
   /**
    * Renders the full template through `app-agent-access-request-dialog` (the shared shell,
-   * agent-access-design-spec.md §7) so the consequence band, count summary, and truncation notice
-   * — none of which the direct-instantiation tests above can see — are actually exercised.
+   * agent-access-design-spec.md §7) so the consequence band, count summary, truncation notice,
+   * and the environment/scrubbing caveat — none of which the direct-instantiation tests above can
+   * see — are actually exercised. This is the `disclose`-grade sibling of
+   * `ProjectListRequestComponent`'s `metadata` grade; the grade assertion below is what proves the
+   * two dialogs are visually distinguishable rather than wearing the same warning callout
+   * (agent-access-design-spec.md §1, fault 2).
    */
   describe("rendered", () => {
-    let fixture: ComponentFixture<ProjectListRequestComponent>;
+    let fixture: ComponentFixture<ProjectSecretsRequestComponent>;
 
     beforeAll(() => {
       // jsdom does not implement IntersectionObserver; bit-dialog's scroll-shadow logic uses it
@@ -173,8 +207,8 @@ describe("ProjectListRequestComponent", () => {
       };
     });
 
-    function render(params: ProjectListRequestParams) {
-      mockDialogRef = mock<DialogRef<ProjectListRequestResult>>();
+    function render(params: ProjectSecretsRequestParams) {
+      mockDialogRef = mock<DialogRef<ProjectSecretsRequestResult>>();
       // jest-mock-extended proxies every unknown property access, including plain fields, into a
       // truthy mock function. DialogComponent branches on `disableClose`/`isDrawer` to decide
       // whether to render its close button and how to route closing — leaving these unset would
@@ -189,7 +223,7 @@ describe("ProjectListRequestComponent", () => {
       );
 
       TestBed.configureTestingModule({
-        imports: [ProjectListRequestComponent],
+        imports: [ProjectSecretsRequestComponent],
         providers: [
           { provide: DIALOG_DATA, useValue: params },
           { provide: DialogRef, useValue: mockDialogRef },
@@ -197,56 +231,55 @@ describe("ProjectListRequestComponent", () => {
         ],
       });
 
-      fixture = TestBed.createComponent(ProjectListRequestComponent);
+      fixture = TestBed.createComponent(ProjectSecretsRequestComponent);
       fixture.detectChanges();
     }
 
     it("shows a count summary reflecting the entry count", () => {
       render(makeParams({ entries: makeEntries(47) }));
 
-      expect(fixture.nativeElement.textContent).toContain("agentAccessProjectListCountSummary:47");
+      expect(fixture.nativeElement.textContent).toContain("agentAccessBulkRequestCountSummary:47");
     });
 
     it("does not show the truncation notice below the cap", () => {
       render(makeParams({ entries: makeEntries(199) }));
 
       expect(fixture.nativeElement.textContent).not.toContain(
-        "agentAccessProjectListTruncatedNotice",
+        "agentAccessBulkRequestTruncatedNotice",
       );
     });
 
     it("shows the truncation notice exactly at the cap", () => {
       render(makeParams({ entries: makeEntries(200) }));
 
-      expect(fixture.nativeElement.textContent).toContain("agentAccessProjectListTruncatedNotice");
+      expect(fixture.nativeElement.textContent).toContain("agentAccessBulkRequestTruncatedNotice");
     });
 
-    // Per design spec §7.5.1, the filled/left-ruled band is reserved for `Disclose`/`Destroy`.
-    // `Metadata` — this dialog's grade, and the calmest in the family — states the same sentence
-    // as plain text with no icon. This dialog releases project names only; dressing it like a
-    // warning is precisely the wallpaper effect the revision removes.
-    it("states the metadata grade's consequence as plain text, with no filled band or icon", () => {
+    it("renders the disclose grade, distinct from project-list-request's metadata grade", () => {
       render(makeParams());
 
-      const consequence = fixture.nativeElement.querySelector(
-        "app-agent-access-consequence",
-      ) as HTMLElement | null;
-
-      expect(consequence).not.toBeNull();
-      expect(consequence?.textContent).toContain("agentAccessProjectListConsequenceSummary");
-      expect(consequence?.querySelector(".tw-border-s-4")).toBeNull();
-      expect(consequence?.querySelector("bit-icon")).toBeNull();
+      expect(fixture.nativeElement.querySelector(".tw-border-border-warning")).not.toBeNull();
+      expect(fixture.nativeElement.querySelector("bit-icon.bwi-key")).not.toBeNull();
+      expect(fixture.nativeElement.textContent).toContain(
+        "agentAccessBulkRequestConsequenceSummary:2,my-app",
+      );
     });
 
-    it("renders at the large dialog size, for its cramped 3-column table", () => {
+    it("states the environment/scrubbing caveat truthfully — never implies the agent can't see the value", () => {
+      render(makeParams());
+
+      expect(fixture.nativeElement.textContent).toContain("agentAccessBulkRequestConsequenceNote");
+    });
+
+    it("stays at the default dialog size — a single-column name list doesn't need the width", () => {
       render(makeParams());
 
       const dialogEl: HTMLElement = fixture.nativeElement.querySelector("bit-dialog");
-      expect(dialogEl.className).toContain("md:tw-max-w-3xl");
-      expect(dialogEl.className).not.toContain("md:tw-max-w-xl");
+      expect(dialogEl.className).toContain("md:tw-max-w-xl");
+      expect(dialogEl.className).not.toContain("md:tw-max-w-3xl");
     });
 
-    it("keeps the bounded-height internal scroll region and pinned footer at the wider size", () => {
+    it("keeps the bounded-height internal scroll region and pinned footer at the default size", () => {
       render(makeParams({ entries: makeEntries(200) }));
 
       // The table's own scroll region — independent of dialog width, which only changes
@@ -257,41 +290,32 @@ describe("ProjectListRequestComponent", () => {
       expect(scrollRegion).not.toBeNull();
       expect(scrollRegion.querySelector("bit-table")).not.toBeNull();
 
-      // The consequence band and footer buttons must still render outside/after that scroll
-      // region rather than inside it, so widening never risks pushing them out of reach.
+      // The consequence band (carrying the environment/scrubbing caveat) and footer buttons must
+      // still render outside/after that scroll region rather than inside it.
       expect(fixture.nativeElement.querySelector("app-agent-access-consequence")).not.toBeNull();
       expect(
-        fixture.debugElement.query(By.css("#project-list-request_button_authorize")),
+        fixture.debugElement.query(By.css("#project-secrets-request_button_authorize")),
       ).not.toBeNull();
       expect(
-        fixture.debugElement.query(By.css("#project-list-request_button_deny")),
+        fixture.debugElement.query(By.css("#project-secrets-request_button_deny")),
       ).not.toBeNull();
     });
 
-    it("still renders every project, organization, and access-level column", () => {
-      render(
-        makeParams({
-          entries: [
-            { name: "billing-service", organizationName: "Acme Inc", write: true },
-            { name: "auth-service", organizationName: "Other Org", write: false },
-          ],
-        }),
-      );
+    it("never renders a secret value, only names", () => {
+      render(makeParams({ entries: [{ name: "DB_PASSWORD" }] }));
 
-      const rows = fixture.nativeElement.querySelectorAll("tbody tr");
-      expect(rows.length).toBe(2);
-      const text = fixture.nativeElement.textContent;
-      expect(text).toContain("billing-service");
-      expect(text).toContain("Acme Inc");
-      expect(text).toContain("auth-service");
-      expect(text).toContain("Other Org");
+      const text = fixture.nativeElement.textContent as string;
+      expect(text).toContain("DB_PASSWORD");
+      // The params shape has no `value` field at all (asserted above), so this is a template-level
+      // sanity check that nothing else was concatenated in next to the name.
+      expect(fixture.nativeElement.querySelectorAll("tbody tr td").length).toBe(1);
     });
 
     it("approves and closes the dialog when the authorize button is clicked", async () => {
       render(makeParams());
 
       fixture.debugElement
-        .query(By.css("#project-list-request_button_authorize"))
+        .query(By.css("#project-secrets-request_button_authorize"))
         .nativeElement.click();
       fixture.detectChanges();
       await fixture.whenStable();
@@ -302,7 +326,9 @@ describe("ProjectListRequestComponent", () => {
     it("denies and closes the dialog when the deny button is clicked", () => {
       render(makeParams());
 
-      fixture.debugElement.query(By.css("#project-list-request_button_deny")).nativeElement.click();
+      fixture.debugElement
+        .query(By.css("#project-secrets-request_button_deny"))
+        .nativeElement.click();
       fixture.detectChanges();
 
       expect(mockDialogRef.close).toHaveBeenCalledWith({ approved: false });

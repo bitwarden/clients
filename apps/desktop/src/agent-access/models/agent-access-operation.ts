@@ -25,6 +25,12 @@ export const AgentAccessOperation = Object.freeze({
   /** Release the readable SM project list (names/ids/write flags only) in one approval (M6). */
   List: "list",
   /**
+   * Release ALL secrets of one project for env injection into one command (M7,
+   * `projectSecretsRequest`) — the sole bulk read; the approval dialog enumerates every
+   * secret name being released, and the activity row keeps ids only (`secretIds`).
+   */
+  BulkRequest: "bulkRequest",
+  /**
    * Approval-free, vault-free, unlock-free page description (M5): the renderer round-trips to
    * the browser extension and replies with the active tab's login surface — no vault data is
    * ever touched, no activity row is opened, and no dialog is shown.

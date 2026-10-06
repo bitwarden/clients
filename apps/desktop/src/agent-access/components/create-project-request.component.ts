@@ -11,20 +11,35 @@ import {
   DialogRef,
   AsyncActionsModule,
   ButtonModule,
-  DialogModule,
   DialogService,
-  CalloutModule,
+  IconComponent,
   TypographyModule,
   FormFieldModule,
   SelectModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { AGENT_LOGOS } from "../icons";
+import { AgentAccessConsequence } from "../models/agent-access-consequence";
+import { resolveAgentBrand } from "../utils/agent-brand.util";
 import { shortenFingerprint } from "../utils/shorten-fingerprint";
+
+import { AgentAccessRequestDialogComponent } from "./shared/agent-access-request-dialog.component";
+import { AgentAccessRequesterView } from "./shared/agent-access-requester.component";
 
 export interface CreateProjectRequestParams {
   requesterName?: string;
   requesterFingerprint?: string;
+  /**
+   * Attested code-signature facts for the requester (agent-access-design-spec.md §7.5.2), read
+   * from `localPeer.signature` on the wire message — never from `requesterName`, which is
+   * self-reported and must never influence which brand logo resolves. `undefined` on a relay-
+   * origin request, which has no OS-verified peer at all; see `resolveAgentBrand`'s contract for
+   * why an absent/invalid signature always falls back to the neutral glyph rather than a logo.
+   */
+  signatureKind?: string;
+  signatureIdentity?: string;
+  signatureValid?: boolean;
   /** `"create"` (default) shows an organization picker for a brand-new project.
    *  `"rename"` shows a from -> to summary for an existing project already in a known org — no
    *  organization picker, since the project's org never changes on a rename. */
@@ -52,22 +67,28 @@ export interface CreateProjectRequestResult {
  * rename request — one component for both (agent-access-architecture.md, "M6-D": "D's choice, but
  * ONE simple component for both is preferred over a fourth dialog"), since a rename is just a
  * create with the organization already fixed and a from -> to summary instead of a picker.
+ *
+ * Grade `change` in both modes (agent-access-design-spec.md §2.1, §3.2): creating or renaming a
+ * project modifies vault contents but discloses nothing that already existed. The two modes still
+ * differ in copy and submit-gating below — creating chooses a destination organization and gates
+ * on form validity; renaming has no organization to pick (a project's org never changes) and
+ * approves unconditionally.
  */
 @Component({
   selector: "app-create-project-request",
   templateUrl: "create-project-request.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DialogModule,
     CommonModule,
     I18nPipe,
     ButtonModule,
     ReactiveFormsModule,
     AsyncActionsModule,
-    CalloutModule,
+    IconComponent,
     TypographyModule,
     FormFieldModule,
     SelectModule,
+    AgentAccessRequestDialogComponent,
   ],
 })
 export class CreateProjectRequestComponent {
@@ -83,6 +104,36 @@ export class CreateProjectRequestComponent {
       : this.i18nService.t("agentAccessUnknownApplication"));
 
   protected readonly isRename = computed(() => this.params.mode === "rename");
+
+  /** The known agent behind a *verified* signature, or `undefined` for an unrecognized/unverified
+   *  requester — decoration only, never a factor in what's authorized (see `resolveAgentBrand`'s
+   *  contract). SECURITY: resolved from `params.signature*` only; `params.requesterName` is
+   *  self-reported and must never influence this (agent-access-design-spec.md §7.5.2). */
+  protected readonly brand = resolveAgentBrand(this.params);
+
+  /** Brand mark for the resolved agent; `undefined` renders the neutral `bwi-terminal` glyph. */
+  protected readonly brandLogo = this.brand == null ? undefined : AGENT_LOGOS[this.brand];
+
+  protected readonly requesterView: AgentAccessRequesterView = {
+    name: this.requesterDisplayName,
+    brandLogo: this.brandLogo,
+  };
+
+  /** Always `change` — creating or renaming a project modifies vault contents but discloses
+   *  nothing that already existed (agent-access-design-spec.md §2.1, §3.2). */
+  protected readonly grade: AgentAccessConsequence = AgentAccessConsequence.Change;
+
+  protected readonly dialogTitle = this.i18nService.t(
+    this.isRename()
+      ? "agentAccessProjectRenameRequestTitle"
+      : "agentAccessProjectCreateRequestTitle",
+  );
+
+  protected readonly consequenceSummary = this.i18nService.t(
+    this.isRename()
+      ? "agentAccessProjectRenameConsequenceSummary"
+      : "agentAccessProjectCreateConsequenceSummary",
+  );
 
   private readonly initialOrganizationId = (
     (this.params.lastOrganizationId != null &&

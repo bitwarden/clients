@@ -125,6 +125,16 @@ pub enum RequestOperation {
     /// target — `CredentialRequestData::query_type`/`query_value`/`target_id` carry no
     /// meaningful data for this operation, same treatment as [`DescribeFillTarget`](Self::DescribeFillTarget).
     List,
+    /// Release the full enumerated secret set of one Secrets Manager project for env injection
+    /// into one command, in a single approval (`projectSecretsRequest`) — M7, "bws run parity".
+    /// Local-transport-only, always paired with [`ResourceKind::Secret`]. No new field: the
+    /// project selector rides in the existing `target_id`/`query_value` fields — `target_id` is
+    /// `Some(project.id)` when the request selects by id, `None` when it selects by name
+    /// instead (in which case `query_value` carries the name; see those fields' docs and
+    /// `local_listener::mod`'s force-fill construction). The sole bulk **read** release this
+    /// protocol represents (invariant 20 in agent-access-architecture.md's "M7" section); bulk
+    /// writes remain unrepresentable on the wire.
+    BulkRequest,
 }
 
 /// How the requester wants an approved credential delivered. Only meaningful for
@@ -158,12 +168,17 @@ pub enum DeliveryMode {
 pub struct CredentialRequestData {
     /// Which field `query_value` should be matched against. For [`RequestOperation::Create`]
     /// requests (which have no query) this is [`CredentialQueryKind::Name`], mirroring
-    /// `query_value` below.
+    /// `query_value` below. For [`RequestOperation::BulkRequest`] (M7) this is
+    /// [`CredentialQueryKind::Id`] when the project is selected by id (`target_id` is `Some`),
+    /// or [`CredentialQueryKind::Name`] when it's selected by name instead — see `target_id`'s
+    /// docs and `local_listener::mod`'s force-fill construction.
     pub query_type: CredentialQueryKind,
     /// The domain, vault item ID, or search text to match. For [`RequestOperation::Create`]
     /// requests (which have no query on the wire) this carries the new secret's name, so a
     /// handler that inspects `query_value` before branching on `operation` still sees something
-    /// meaningful rather than an empty string.
+    /// meaningful rather than an empty string. For [`RequestOperation::BulkRequest`] (M7) this
+    /// carries the project id (id-form) or project name (name-form) — the same "force-filled
+    /// target selector" treatment `Update`/`Delete` give `target_id` (see that field's docs).
     pub query_value: String,
     /// Stable identity fingerprint (64-char hex) of the requesting device. `None` for
     /// [`CredentialRequestOrigin::Local`] — local requesters have no cryptographic identity;
@@ -212,7 +227,11 @@ pub struct CredentialRequestData {
     /// [`RequestOperation::Create`]/[`RequestOperation::Update`] requests.
     pub project_hint: Option<String>,
     /// Id of the existing Secrets Manager secret or project a [`RequestOperation::Update`]/
-    /// [`RequestOperation::Delete`] request targets (M6). An opaque identifier, never a name or
+    /// [`RequestOperation::Delete`] request targets (M6), or the project a
+    /// [`RequestOperation::BulkRequest`] request selects **by id** (M7) — `None` when a
+    /// `BulkRequest` instead selects by name (the name then lives in `query_value`; see that
+    /// field's docs — the two forms are mutually exclusive, enforced by
+    /// `local_listener::local_protocol::validate`). An opaque identifier, never a name or
     /// value, so it's printed verbatim in `Debug` rather than presence-only.
     pub target_id: Option<String>,
     /// When `true`, the desktop generates the secret's value at approval time instead of the
@@ -321,6 +340,31 @@ pub struct ProjectEntry {
     pub organization: Option<String>,
 }
 
+/// One entry of an approved [`RequestOperation::BulkRequest`] response (M7,
+/// `projectSecretsRequest`) — unlike [`ProjectEntry`] this rides next to a live secret value,
+/// so it gets the same manual, redacting `Debug` every other secret-value-carrying type in
+/// this crate has (e.g.
+/// [`WireSecret`](crate::local_listener::local_protocol::WireSecret) at the wire layer):
+/// `name`/`value` never appear in a `{:?}`, darker than `ProjectEntry`'s plain derive. `id` is
+/// an opaque identifier, never a name or value, so it's printed verbatim — same treatment as
+/// [`CredentialResponseData::secret_id`].
+#[derive(Clone)]
+pub struct SecretEntry {
+    pub id: String,
+    pub name: String,
+    pub value: Zeroizing<String>,
+}
+
+impl std::fmt::Debug for SecretEntry {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("SecretEntry")
+            .field("id", &self.id)
+            .field("name", &"<redacted>")
+            .field("value", &"<redacted>")
+            .finish()
+    }
+}
+
 /// The host's answer to a [`CredentialRequestData`].
 ///
 /// Only the fields the host explicitly chooses to release are populated. `approved: false`
@@ -364,6 +408,15 @@ pub struct CredentialResponseData {
     /// response; they are never buffered (this crate's `Debug` impl below prints only the
     /// count). Unset for every other operation.
     pub projects: Option<Vec<ProjectEntry>>,
+    /// The secret set released by an approved [`RequestOperation::BulkRequest`] request (M7,
+    /// `projectSecretsRequest`) — one entry per secret the user saw enumerated in the approval
+    /// dialog; the released set == the displayed set (invariant 20). Carries live secret
+    /// VALUES: unlike [`projects`](Self::projects) this rides next to values, so it's darker
+    /// than [`ProjectEntry`] (see [`SecretEntry`]'s docs) — this struct's own `Debug` impl
+    /// below prints only the count, mirroring [`projects`](Self::projects)'s treatment.
+    /// Entries transit main only inside this in-flight response and are never buffered there.
+    /// Unset for every other operation.
+    pub secrets: Option<Vec<SecretEntry>>,
     /// Value-free JSON pass-through describing a `delivery: "fill"` request's execution outcome
     /// (M5's `fill` response object: `{status, origin, fields: [...]}`) — produced by the TS
     /// host, parsed into a `serde_json::Value` by `local_listener::local_protocol`. Set for
@@ -411,6 +464,10 @@ impl std::fmt::Debug for CredentialResponseData {
             // and this crate's blanket "an accidental Debug can't leak it" rule applies here
             // too, even though `ProjectEntry` itself derives a plain `Debug` (see its docs).
             .field("projects_count", &self.projects.as_ref().map(Vec::len))
+            // Same "never `{:?}` the Vec itself" rule as `projects_count` above — even though
+            // `SecretEntry`'s own `Debug` already redacts name/value, count-only keeps this
+            // impl's blanket guarantee independent of any single type's redaction correctness.
+            .field("secrets_count", &self.secrets.as_ref().map(Vec::len))
             .field("has_fill_result", &self.fill_result.is_some())
             .field("has_fill_target", &self.fill_target.is_some())
             .field("has_denial_detail", &self.denial_detail.is_some())

@@ -43,12 +43,30 @@ const markAgentMediated = (headers: Headers): void => {
  * One Secrets Manager secret that matched a request's query, with its (decrypted, but value-less)
  * name resolved — the SM analogue of `CredentialMatch`/`CipherView` in the credential path. Never
  * carries a value; see {@link SmSecretValue} for that.
+ *
+ * `projectId`/`projectName` identify the secret's first associated Secrets Manager project
+ * (decrypted alongside `name`, using the same org key — SM project names are org-key-encrypted
+ * like secret names; server field `Projects[0]`, same "primary project" precedent
+ * `SmSecretDetailResponse.currentProjectId` already uses). This matters because SM enforces
+ * secret-name uniqueness *per project*, not per organization — `findSecrets` lists secrets
+ * org-wide across every project a user can read, so two secrets can legitimately share both
+ * `name` and `organizationName` while living in different projects. Without a project identifier,
+ * the approval picker could render two candidates with identical label AND identical hint,
+ * forcing a blind choice of which secret's value to release.
+ *
+ * Both fields are optional and may be absent: Secrets Manager allows project-less secrets (an
+ * `isAdmin` org member can create one without a project — see `createSecret`'s doc comment — and
+ * a secret can also end up orphaned if its only project is deleted). Consumers must not assume
+ * presence and should fall back to another disambiguator (e.g. a shortened id) when both are
+ * absent.
  */
 export interface SmSecretMatch {
   secretId: string;
   name: string;
   organizationId: string;
   organizationName?: string;
+  projectId?: string;
+  projectName?: string;
 }
 
 /**
@@ -83,6 +101,32 @@ export interface SmProjectMatch {
 }
 
 /**
+ * A resolved project target for an M7 `projectSecretsRequest` (agent-access-architecture.md,
+ * "M7 — `bws run` parity"): the id-or-name selector the wire carried, resolved to a concrete
+ * project (and its org) BEFORE the release dialog opens — same TOCTOU discipline as every other
+ * write/bulk path: what is approved is what was resolved, never re-resolved after the fact.
+ */
+export interface SmProjectSelectorResult {
+  projectId: string;
+  projectName: string;
+  organizationId: string;
+  organizationName?: string;
+}
+
+/**
+ * One Secrets Manager secret's decrypted name AND value, as part of an approved
+ * `projectSecretsRequest` bulk release (M7). Distinct from {@link SmSecretValue} (`secretId`,
+ * single-fetch shape) because this is built from `POST /secrets/get-by-ids`'s per-entry shape,
+ * which the wire protocol and napi's `AgentAccessSecretEntry` both key by `id`, not `secretId`.
+ * Never carries a note, for the same reason {@link SmSecretValue} doesn't.
+ */
+export interface SmSecretBulkValue {
+  id: string;
+  name: string;
+  value: string;
+}
+
+/**
  * A single Secrets Manager secret's ciphertexts, fetched to build an `updateSecret` PUT (M6-D —
  * "the rename/move path touches no plaintext value at any layer"). `nameDecrypted` is the ONLY
  * decrypted field here — it exists purely for display (the update dialog's "current name"). The
@@ -101,13 +145,26 @@ export interface SmSecretForUpdate {
 }
 
 /** A single Secrets Manager secret as returned by `GET /organizations/{orgId}/secrets` — no
- *  value, `Key` is the (encrypted) secret name. */
+ *  value, `Key` is the (encrypted) secret name. Also carries the secret's first associated
+ *  project, if any (server field `Projects[0]`, verified against the read-only reference wire
+ *  shape in `bitwarden_license/bit-web/.../secrets-manager/secrets/responses/secret-list-item.response.ts`,
+ *  not imported — see this file's class doc) — `SmSecretMatch.projectId`/`projectName` exist
+ *  specifically to disambiguate same-named secrets that live in different projects of the same
+ *  org (SM enforces name uniqueness per project, not per org). `Projects[0].Name` is still
+ *  ciphertext here; `findSecrets` decrypts it with the same org key as the secret's own name. */
 class SmSecretListItemResponse extends BaseResponse {
   id: string;
   organizationId: string;
   /** Encrypted secret name (server field `Key`). */
   name: string;
   read: boolean;
+  /** First associated project's id, if any (server field `Projects[0].Id`). Absent when the
+   *  secret has no project. */
+  projectId?: string;
+  /** First associated project's still-encrypted name, if any (server field `Projects[0].Name`) —
+   *  decrypted by the caller alongside `name`, never here. Absent when the secret has no
+   *  project. */
+  projectNameEncrypted?: string;
 
   constructor(response: unknown) {
     super(response);
@@ -115,6 +172,12 @@ class SmSecretListItemResponse extends BaseResponse {
     this.organizationId = this.getResponseProperty("OrganizationId");
     this.name = this.getResponseProperty("Key");
     this.read = this.getResponseProperty("Read");
+
+    const projects = this.getResponseProperty("Projects");
+    if (Array.isArray(projects) && projects.length > 0) {
+      this.projectId = this.getResponseProperty("Id", projects[0]);
+      this.projectNameEncrypted = this.getResponseProperty("Name", projects[0]);
+    }
   }
 }
 
@@ -231,6 +294,43 @@ class SmBulkDeleteResponse extends BaseResponse {
   }
 }
 
+/** One secret's decrypted-name-eligible name AND value, as returned inside `POST
+ *  /secrets/get-by-ids`'s response (M7). Deliberately reads only `Id`/`Key`/`Value` — a bulk
+ *  release never needs `Note` (never released, M4 invariant 2) or `Projects` (the caller already
+ *  knows which project it asked for). */
+class SmSecretGetByIdsItemResponse extends BaseResponse {
+  id: string;
+  /** Encrypted secret name (server field `Key`). */
+  name: string;
+  /** Encrypted secret value (server field `Value`). */
+  value: string;
+
+  constructor(response: unknown) {
+    super(response);
+    this.id = this.getResponseProperty("Id");
+    this.name = this.getResponseProperty("Key");
+    this.value = this.getResponseProperty("Value");
+  }
+}
+
+/** Wire shape of `POST /secrets/get-by-ids` — VERIFIED against the server action
+ *  (`SecretsController.GetSecretsByIdsAsync` returns `ListResponseModel<BaseSecretResponseModel>`),
+ *  so the wrapper property is `Data`, NOT the `Secrets` wrapper the org/project list endpoints
+ *  use. Note the server also 404s the WHOLE call when any requested id is missing
+ *  (`secrets.Count != request.Ids.Count()`) — a TOCTOU-deleted secret therefore surfaces as an
+ *  `apiService.send` failure, which `getSecretValuesByIds` deliberately propagates. */
+class SmSecretGetByIdsResponse extends BaseResponse {
+  secrets: SmSecretGetByIdsItemResponse[];
+
+  constructor(response: unknown) {
+    super(response);
+    const secrets = this.getResponseProperty("Data");
+    this.secrets = Array.isArray(secrets)
+      ? secrets.map((item: unknown) => new SmSecretGetByIdsItemResponse(item))
+      : [];
+  }
+}
+
 /** Wire shape of `POST /organizations/{orgId}/secrets` — only `Id` is read; the created secret's
  *  own `Key`/`Value`/`Note` are never parsed back out of the response (the caller already knows
  *  the plaintext it sent, and the stored value must never be echoed back — M4b invariant 7). */
@@ -267,7 +367,11 @@ class SmSecretCreateResponse extends BaseResponse {
  * update that doesn't change the value/note never decrypts it (ciphertext passthrough), and a
  * generated value (`generateSecretValue`) lives only in the caller's local scope between
  * generation and the encrypted POST/PUT — never returned to main, never logged
- * (agent-access-architecture.md, "M6", invariants 14-15).
+ * (agent-access-architecture.md, "M6", invariants 14-15). M7 additions (`listSecretsInProject`,
+ * `resolveProjectSelector`, `getSecretValuesByIds`) extend the read-path discipline to a bulk
+ * shape: `listSecretsInProject`/`resolveProjectSelector` fetch names only, before any dialog;
+ * `getSecretValuesByIds` fetches values only AFTER approval, filtered to exactly the approved id
+ * set (agent-access-architecture.md, "M7", invariants 20-22).
  */
 @Injectable({
   providedIn: "root",
@@ -322,7 +426,13 @@ export class AgentAccessSecretsService {
    * Finds every Secrets Manager secret the user can read that matches `queryType`/`queryValue`,
    * across every org where the user has Secrets Manager access. Values are NOT fetched here —
    * only the (decrypted) name, so this is safe to call for every incoming request regardless of
-   * whether anything ends up approved. Capped at {@link MAX_SM_MATCHES}.
+   * whether anything ends up approved. `matches` is capped at {@link MAX_SM_MATCHES}; `truncated`
+   * reports whether the cap actually cut off further matches, computed by `matchSecrets` — which
+   * sees the full, uncapped `readable` list below before it applies the cap — rather than
+   * inferred by a caller from `matches.length` alone (a request with exactly
+   * `MAX_SM_MATCHES` genuine matches and nothing cut off would otherwise report a false
+   * positive; agent-access-design-spec.md §3.3, "a silently truncated list misrepresents what
+   * matched").
    *
    * Never throws: an HTTP failure listing one org's secrets, or decrypting one secret's name,
    * skips that org/secret rather than failing the whole lookup (deny-by-default happens upstream
@@ -332,11 +442,11 @@ export class AgentAccessSecretsService {
     queryType: CredentialQueryType,
     queryValue: string,
     userId: UserId,
-  ): Promise<SmSecretMatch[]> {
+  ): Promise<{ matches: SmSecretMatch[]; truncated: boolean }> {
     try {
       const orgs = await this.smOrganizations(userId);
       if (orgs.length === 0) {
-        return [];
+        return { matches: [], truncated: false };
       }
 
       const orgKeys = await firstValueFrom(
@@ -370,11 +480,33 @@ export class AgentAccessSecretsService {
             .filter((item) => item.read === true)
             .map(async (item) => {
               try {
+                // The secret's own name must decrypt for this entry to be usable at all. Its
+                // project name (if any) is a secondary, display-only disambiguator — SM project
+                // names are org-key-encrypted the same way secret names are (see
+                // `listProjects`/`SmProjectListItemResponse`), so the same key decrypts both. A
+                // project name that fails to decrypt degrades to an absent `projectName` rather
+                // than failing the whole secret, matching the per-item-skip discipline this
+                // method uses everywhere else — a disambiguation hint is not worth losing an
+                // otherwise-valid match over.
                 const name = await this.encryptService.decryptString(
                   new EncString(item.name),
                   orgKey,
                 );
-                return { item, name };
+                let projectName: string | undefined;
+                if (item.projectNameEncrypted != null) {
+                  try {
+                    projectName = await this.encryptService.decryptString(
+                      new EncString(item.projectNameEncrypted),
+                      orgKey,
+                    );
+                  } catch (e) {
+                    this.logService.error(
+                      "Agent Access: failed to decrypt a Secrets Manager secret's project name",
+                      e,
+                    );
+                  }
+                }
+                return { item, name, projectName };
               } catch (e) {
                 // A single undecryptable name skips that secret; it never fails the whole
                 // lookup. Never logs the ciphertext or any decrypted content.
@@ -397,6 +529,8 @@ export class AgentAccessSecretsService {
             name: entry.name,
             organizationId: org.id,
             organizationName: org.name,
+            projectId: entry.item.projectId,
+            projectName: entry.projectName,
           });
         }
       }
@@ -404,8 +538,202 @@ export class AgentAccessSecretsService {
       return this.matchSecrets(queryType, queryValue, readable);
     } catch (e) {
       this.logService.error("Agent Access: Secrets Manager lookup failed", e);
+      return { matches: [], truncated: false };
+    }
+  }
+
+  /**
+   * Every readable secret in one Secrets Manager project — the enumeration step of an M7
+   * `projectSecretsRequest` (agent-access-architecture.md, "M7 — `bws run` parity"). Names only,
+   * no values: this runs BEFORE the release dialog, so fetching a value here would forge a
+   * retrieval trail for secrets the user hasn't approved yet, same reasoning as `findSecrets`
+   * (M4c). `GET /projects/{id}/secrets` is unlogged server-side (no agent-mediated header needed
+   * — the same endpoint `countSecretsInProject` already calls for its orphan-count warning).
+   *
+   * Never throws: degrades to an empty list on a missing org key, a failed list call, or an
+   * undecryptable name (per-item skip, same discipline as `findSecrets`/`listProjects`) — the
+   * caller's own zero-secrets ⇒ `notFound` rule turns an empty result into the correct deny.
+   */
+  async listSecretsInProject(
+    projectId: string,
+    organizationId: string,
+    userId: UserId,
+  ): Promise<SmSecretMatch[]> {
+    try {
+      const orgKey = await this.resolveOrgKey(organizationId, userId);
+      if (orgKey == null) {
+        return [];
+      }
+
+      let listed: SmOrganizationSecretsListResponse;
+      try {
+        listed = await this.listProjectSecretsWire(projectId);
+      } catch (e) {
+        this.logService.error(
+          "Agent Access: failed to list Secrets Manager secrets for a project",
+          e,
+        );
+        return [];
+      }
+
+      const decrypted = await Promise.all(
+        listed.secrets
+          .filter((item) => item.read === true)
+          .map(async (item): Promise<SmSecretMatch | null> => {
+            try {
+              const name = await this.encryptService.decryptString(
+                new EncString(item.name),
+                orgKey,
+              );
+              this.secretNameCache.set(item.id, name);
+              return { secretId: item.id, name, organizationId };
+            } catch (e) {
+              this.logService.error(
+                "Agent Access: failed to decrypt a Secrets Manager secret name for a project",
+                e,
+              );
+              return null;
+            }
+          }),
+      );
+
+      return decrypted.filter((secret): secret is SmSecretMatch => secret != null);
+    } catch (e) {
+      this.logService.error("Agent Access: Secrets Manager project-secrets lookup failed", e);
       return [];
     }
+  }
+
+  /**
+   * Resolves an M7 `projectSecretsRequest`'s id-or-name project selector against every SM
+   * organization the user can read (agent-access-architecture.md, "M7"). `id` is a direct match;
+   * `name` is exact-then-unique-case-insensitive, the same rule `matchSecrets`'s `Name` query
+   * type and the wire protocol's `bws`-prior-art doc both use. Zero or ambiguous (>1
+   * case-insensitive, 0-length) matches resolve to `null` — the caller denies with `notFound`,
+   * never opens a dialog for an unresolved target.
+   *
+   * Never throws: a failure listing any org's projects degrades toward "not found" rather than
+   * failing the whole resolution — same read-path convention as every lookup in this class.
+   */
+  async resolveProjectSelector(
+    selector: { id?: string; name?: string },
+    userId: UserId,
+  ): Promise<SmProjectSelectorResult | null> {
+    try {
+      const orgs = await this.smOrganizations(userId);
+      if (orgs.length === 0) {
+        return null;
+      }
+
+      const candidates: Array<{
+        project: SmProjectMatch;
+        organizationId: string;
+        organizationName?: string;
+      }> = [];
+      for (const org of orgs) {
+        const projects = await this.listProjects(org.id, userId);
+        for (const project of projects) {
+          candidates.push({ project, organizationId: org.id, organizationName: org.name });
+        }
+      }
+
+      const toResult = (entry: (typeof candidates)[number]): SmProjectSelectorResult => ({
+        projectId: entry.project.id,
+        projectName: entry.project.name,
+        organizationId: entry.organizationId,
+        organizationName: entry.organizationName,
+      });
+
+      if (selector.id != null) {
+        const match = candidates.find((entry) => entry.project.id === selector.id);
+        return match != null ? toResult(match) : null;
+      }
+
+      if (selector.name != null) {
+        const exact = candidates.find((entry) => entry.project.name === selector.name);
+        if (exact != null) {
+          return toResult(exact);
+        }
+        const lowerQuery = selector.name.toLowerCase();
+        const caseInsensitive = candidates.filter(
+          (entry) => entry.project.name.toLowerCase() === lowerQuery,
+        );
+        return caseInsensitive.length === 1 ? toResult(caseInsensitive[0]) : null;
+      }
+
+      return null;
+    } catch (e) {
+      this.logService.error("Agent Access: Secrets Manager project selector resolution failed", e);
+      return null;
+    }
+  }
+
+  /**
+   * Fetches the decrypted values of every secret in `ids`, in one `POST /secrets/get-by-ids`
+   * call — the M7 bulk analogue of `getSecretValue`, called only AFTER the user approved a
+   * `projectSecretsRequest` release naming exactly these ids (agent-access-architecture.md,
+   * "M7": "every `Secret_RetrievedByAgent` row the server writes corresponds to a secret the
+   * user saw in the dialog and released"). Marked agent-mediated like every other post-approval
+   * value fetch.
+   *
+   * SECURITY: the response is filtered to `ids` — an id the server includes but the caller never
+   * asked for is dropped, never released (the subset-of-approved direction is always safe; the
+   * reverse never happens because the caller passes back exactly the ids it displayed). A single
+   * secret missing from the response, or one whose name/value fails to decrypt, is skipped
+   * (never fails the whole release) — the same per-item-skip discipline as `findSecrets`, kept
+   * here because dropping one secret from a bulk release is still safe, whereas failing the
+   * entire release over one bad entry would deny the whole approved request.
+   *
+   * Does NOT swallow the API call itself failing: a transport/HTTP failure (or a missing org
+   * key) must reach the caller so the release pipeline can deny with a generic error + toast,
+   * same discipline as `getSecretValue`/`createSecret`.
+   */
+  async getSecretValuesByIds(
+    ids: string[],
+    organizationId: string,
+    userId: UserId,
+  ): Promise<SmSecretBulkValue[]> {
+    const orgKey = await this.resolveOrgKey(organizationId, userId);
+    if (orgKey == null) {
+      throw new Error("Agent Access: no organization key available to fetch secret values");
+    }
+
+    // Marked `Bitwarden-Agent-Mediated` (agent-access-architecture.md, "M7-E") so the server logs
+    // `Secret_RetrievedByAgent` per secret instead of `Secret_Retrieved`.
+    const response = await this.apiService.send(
+      "POST",
+      "/secrets/get-by-ids",
+      { ids },
+      true,
+      true,
+      null,
+      markAgentMediated,
+    );
+    const listed = new SmSecretGetByIdsResponse(response);
+
+    const requested = new Set(ids);
+    const decrypted = await Promise.all(
+      listed.secrets
+        .filter((item) => requested.has(item.id))
+        .map(async (item): Promise<SmSecretBulkValue | null> => {
+          try {
+            const [name, value] = await Promise.all([
+              this.encryptService.decryptString(new EncString(item.name), orgKey),
+              this.encryptService.decryptString(new EncString(item.value), orgKey),
+            ]);
+            this.secretNameCache.set(item.id, name);
+            return { id: item.id, name, value };
+          } catch (e) {
+            this.logService.error(
+              "Agent Access: failed to decrypt a Secrets Manager secret in a bulk release",
+              e,
+            );
+            return null;
+          }
+        }),
+    );
+
+    return decrypted.filter((entry): entry is SmSecretBulkValue => entry != null);
   }
 
   /**
@@ -650,8 +978,14 @@ export class AgentAccessSecretsService {
    * unchanged field falls back to the matching `*EncString` ciphertext passed through verbatim
    * from `getSecretForUpdate`, NEVER decrypted. `update.note === ""` clears the note (encrypts an
    * empty string) — distinct from `undefined`, which passes the original ciphertext through.
-   * `projectIds` is omitted unless `update.projectId` is set (a confirmed move), and is NEVER an
-   * empty array (the server denies that for non-admins).
+   * `projectIds` must ALWAYS carry the secret's post-update project when it has one — either
+   * `update.projectId` (a confirmed move) or, failing that, `update.currentProjectId` (the project
+   * it already belongs to, from `getSecretForUpdate`). Omitting it does NOT mean "leave the
+   * assignment alone": `SecretUpdateRequestModel.ToSecret` compares the incoming first project id
+   * against the stored one and, on any difference, replaces the association wholesale — so a null
+   * `ProjectIds` against a project-assigned secret sets `Projects = []` and silently UNASSIGNS it.
+   * Re-sending the current id makes that comparison match, which is the server's "no change"
+   * sentinel. Still NEVER an empty array (the server denies that for non-admins).
    *
    * Does NOT swallow failures: this is the post-approval write, so an API failure (including a
    * generic-message rejection) must reach the caller so it can deny with a generic error + toast.
@@ -668,6 +1002,7 @@ export class AgentAccessSecretsService {
       noteEncString: string;
       note?: string;
       projectId?: string;
+      currentProjectId?: string;
     },
   ): Promise<void> {
     const orgKey = await this.resolveOrgKey(organizationId, userId);
@@ -687,6 +1022,10 @@ export class AgentAccessSecretsService {
         : update.noteEncString,
     ]);
 
+    // A confirmed move wins; otherwise carry the existing assignment forward so the server's
+    // "unchanged" comparison matches instead of stripping the secret out of its project.
+    const finalProjectId = update.projectId ?? update.currentProjectId;
+
     await this.apiService.send(
       "PUT",
       `/secrets/${secretId}`,
@@ -694,7 +1033,7 @@ export class AgentAccessSecretsService {
         key,
         value,
         note,
-        projectIds: update.projectId != null ? [update.projectId] : undefined,
+        projectIds: finalProjectId != null ? [finalProjectId] : undefined,
       },
       true,
       true,
@@ -790,16 +1129,8 @@ export class AgentAccessSecretsService {
     userId: UserId,
   ): Promise<number | undefined> {
     try {
-      const response = await this.apiService.send(
-        "GET",
-        `/projects/${projectId}/secrets`,
-        null,
-        true,
-        true,
-      );
-      // Wraps under `Secrets`, like `GET /organizations/{orgId}/secrets` (see
-      // `SmOrganizationSecretsListResponse`) — verified against that existing parser.
-      const listed = new SmOrganizationSecretsListResponse(response);
+      // Shared with `listSecretsInProject` (M7) — same endpoint, same wrapper.
+      const listed = await this.listProjectSecretsWire(projectId);
       return listed.secrets.length;
     } catch (e) {
       this.logService.error(
@@ -888,6 +1219,23 @@ export class AgentAccessSecretsService {
     return new SmOrganizationSecretsListResponse(response);
   }
 
+  /** `GET /projects/{id}/secrets` — no values, wraps under `Secrets` like
+   *  `GET /organizations/{orgId}/secrets` (`SmOrganizationSecretsListResponse`, verified against
+   *  that existing parser). Shared by `countSecretsInProject` (M6-D) and `listSecretsInProject`
+   *  (M7). Unlogged server-side — no agent-mediated header. */
+  private async listProjectSecretsWire(
+    projectId: string,
+  ): Promise<SmOrganizationSecretsListResponse> {
+    const response = await this.apiService.send(
+      "GET",
+      `/projects/${projectId}/secrets`,
+      null,
+      true,
+      true,
+    );
+    return new SmOrganizationSecretsListResponse(response);
+  }
+
   /** `GET /secrets/{id}` — the single, post-approval detail fetch `getSecretValue` uses. Marked
    *  `Bitwarden-Agent-Mediated` (agent-access-architecture.md, "M4c") so the server logs
    *  `Secret_RetrievedByAgent` instead of `Secret_Retrieved`. */
@@ -907,49 +1255,75 @@ export class AgentAccessSecretsService {
   /** `name` = exact match, else a unique case-insensitive match; `id` = secret UUID; `search` =
    *  substring, exact-name matches ranked first (mirrors `findCiphers`'s search ranking in
    *  `desktop-agent-access.service.ts`). Any other query type (the credential-only types) matches
-   *  nothing here — the pipeline never routes those to this service. */
+   *  nothing here — the pipeline never routes those to this service.
+   *
+   *  `secrets` (the caller's `readable`) is always the *full, uncapped* list of every secret the
+   *  user can read across every org — this method is the one place that both sees that full list
+   *  and applies {@link MAX_SM_MATCHES}, so it's the exact (not heuristic) source of `truncated`
+   *  for both branches that can cut matches off (`Name`'s exact-match case, and `Search`).
+   *  Returning `{ matches, truncated }` rather than just `SmSecretMatch[]` is a pure reporting
+   *  addition — which secrets match, and their order, is unchanged from before. */
   private matchSecrets(
     queryType: CredentialQueryType,
     queryValue: string,
     secrets: SmSecretMatch[],
-  ): SmSecretMatch[] {
+  ): { matches: SmSecretMatch[]; truncated: boolean } {
     switch (queryType) {
       case CredentialQueryType.Name: {
-        const exact = secrets.find((secret) => secret.name === queryValue);
-        if (exact != null) {
-          return [exact];
+        // Exact match returns EVERY secret with that exact name, not just the first — SM enforces
+        // name uniqueness per project, not per org (see `SmSecretMatch`'s doc comment), so two
+        // secrets in different orgs (or different projects of the same org) can legitimately
+        // share an exact name. A single `.find()` here used to silently drop every match but the
+        // first, with no trace shown to the user at all; returning all of them (capped, like the
+        // Search path) lets the approval picker disambiguate instead of losing a match outright.
+        const exact = secrets.filter((secret) => secret.name === queryValue);
+        if (exact.length > 0) {
+          return {
+            matches: exact.slice(0, MAX_SM_MATCHES),
+            truncated: exact.length > MAX_SM_MATCHES,
+          };
         }
+        // The case-insensitive fallback only ever returns 0 or 1 secrets (it requires a *unique*
+        // match to resolve at all), so the cap can never bind here — always untruncated.
         const lowerQuery = queryValue.toLowerCase();
         const caseInsensitive = secrets.filter(
           (secret) => secret.name.toLowerCase() === lowerQuery,
         );
-        return caseInsensitive.length === 1 ? caseInsensitive : [];
+        return { matches: caseInsensitive.length === 1 ? caseInsensitive : [], truncated: false };
       }
       case CredentialQueryType.Id: {
+        // At most one secret can ever match a UUID — the cap can never bind here either.
         const match = secrets.find((secret) => secret.secretId === queryValue);
-        return match != null ? [match] : [];
+        return { matches: match != null ? [match] : [], truncated: false };
       }
       case CredentialQueryType.Search: {
         const lowerQuery = queryValue.toLowerCase();
         const ordered: SmSecretMatch[] = [];
         const seenIds = new Set<string>();
+        // Previously returned as soon as the cap was hit — a pure optimization, since no further
+        // secret would ever have been pushed past that point anyway. Kept scanning (instead of
+        // returning) so a match found after the cap can still flip `truncated`, without changing
+        // which secrets land in `ordered` or their order.
+        let truncated = false;
         const addMatches = (predicate: (secret: SmSecretMatch) => boolean) => {
           for (const secret of secrets) {
+            if (seenIds.has(secret.secretId) || !predicate(secret)) {
+              continue;
+            }
             if (ordered.length >= MAX_SM_MATCHES) {
-              return;
+              truncated = true;
+              continue;
             }
-            if (!seenIds.has(secret.secretId) && predicate(secret)) {
-              seenIds.add(secret.secretId);
-              ordered.push(secret);
-            }
+            seenIds.add(secret.secretId);
+            ordered.push(secret);
           }
         };
         addMatches((secret) => secret.name.toLowerCase() === lowerQuery);
         addMatches((secret) => secret.name.toLowerCase().includes(lowerQuery));
-        return ordered;
+        return { matches: ordered, truncated };
       }
       default:
-        return [];
+        return { matches: [], truncated: false };
     }
   }
 }

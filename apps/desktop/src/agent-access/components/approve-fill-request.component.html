@@ -1,83 +1,118 @@
-<form [bitSubmit]="submit" [formGroup]="approveFillRequestForm" bit-dialog>
-  <div class="tw-font-medium" bitDialogTitle>{{ "agentAccessFillTitle" | i18n }}</div>
-  <div bitDialogContent>
-    <bit-callout type="warning" title="{{ 'agentAccessFillTitle' | i18n }}">
-      {{ "agentAccessFillRequestedBy" | i18n: requesterDisplayName }}
-    </bit-callout>
-
+<form [bitSubmit]="submit" [formGroup]="approveFillRequestForm">
+  <app-agent-access-request-dialog
+    [dialogTitle]="'agentAccessFillTitle' | i18n"
+    [requester]="requesterView"
+    [grade]="AgentAccessConsequence.Disclose"
+    [consequenceSummary]="consequenceSummary"
+    [consequenceDetail]="consequenceDetail"
+  >
     <!-- The origin is the visually dominant element (M5). It comes from the extension's own
-         report of the active tab, never from the request — see ApproveFillRequestParams.origin. -->
-    <p class="tw-text-muted tw-mb-1" bitTypography="helper">
-      {{ "agentAccessFillOriginLabel" | i18n }}
-    </p>
-    <h3 class="tw-break-all tw-font-semibold" bitTypography="h3" aria-live="polite">
-      {{ params.origin }}
-    </h3>
+         report of the active tab, never from the request — see ApproveFillRequestParams.origin.
+         The consequence band above already names this origin in its one sentence, but stays
+         deliberately quiet (spec §2 — it's the only place that carries strong colour, not the
+         only place that carries size); this block is what makes the origin dominant: its own
+         line, larger type, and `aria-live="polite"` so a correction from the extension's re-poll
+         is announced without needing the dialog reopened. -->
+    <div>
+      <p class="tw-m-0 tw-mb-1 tw-text-muted" bitTypography="helper">
+        {{ "agentAccessFillOriginLabel" | i18n }}
+      </p>
+      <h3 class="tw-m-0 tw-break-all tw-font-semibold" bitTypography="h3" aria-live="polite">
+        {{ params.origin }}
+      </h3>
+    </div>
 
     @if (hasMultipleMatches) {
-      <p bitTypography="body1">
-        {{ "agentAccessFillMultipleMatches" | i18n: params.matches.length }}
-      </p>
+      <div class="tw-flex tw-flex-col tw-gap-2">
+        <p class="tw-m-0" bitTypography="body1">
+          {{ "agentAccessFillMultipleMatches" | i18n: params.matches.length }}
+        </p>
 
-      <bit-form-control-group [block]="true" formControlName="selectedId">
-        <bit-label>{{ "agentAccessSelectCredential" | i18n }}</bit-label>
+        <bit-form-control-group [block]="true" formControlName="selectedId">
+          <bit-label>{{ "agentAccessSelectCredential" | i18n }}</bit-label>
 
-        @for (match of params.matches; track match.cipherId) {
-          <bit-form-control-card>
-            <input
-              id="approve-fill-request_radio_match-{{ match.cipherId }}"
-              type="radio"
-              bitRadio
-              [value]="match.cipherId"
-            />
-            <bit-label>{{ match.cipherName }}</bit-label>
-            @if (match.username) {
-              <bit-hint>{{ match.username }}</bit-hint>
-            }
-          </bit-form-control-card>
-        }
-      </bit-form-control-group>
+          @for (match of params.matches; track match.cipherId) {
+            <bit-form-control-card>
+              <input
+                id="approve-fill-request_radio_match-{{ match.cipherId }}"
+                type="radio"
+                bitRadio
+                [value]="match.cipherId"
+              />
+              <bit-label class="tw-font-mono tw-text-fg-sensitive">{{
+                match.cipherName
+              }}</bit-label>
+              <!-- Always rendered, never conditional on `match.username` alone — a fallback
+                   shortened id keeps two cards with the same name and no username from ever
+                   rendering identically (agent-access-design-spec.md §3.3, BUG 1). -->
+              <bit-hint>{{ matchDisambiguator(match) }}</bit-hint>
+            </bit-form-control-card>
+          }
+        </bit-form-control-group>
+      </div>
     } @else if (selectedMatch(); as singleMatch) {
-      <p bitTypography="body1">
-        {{ "agentAccessFillSingleMatch" | i18n: singleMatch.cipherName }}
-      </p>
+      <div class="tw-flex tw-flex-col tw-gap-1">
+        <span class="tw-text-muted" bitTypography="helper">{{
+          "agentAccessSelectCredential" | i18n
+        }}</span>
+        <span class="tw-font-mono tw-text-fg-sensitive" bitTypography="body1">{{
+          singleMatch.cipherName
+        }}</span>
+        <span class="tw-text-muted" bitTypography="helper">{{
+          matchDisambiguator(singleMatch)
+        }}</span>
+      </div>
     }
 
-    <p bitTypography="body2">{{ "agentAccessFillFieldPlan" | i18n }}</p>
-    <ul class="tw-list-disc tw-pl-6">
-      @for (entry of params.fieldPlan; track entry.role) {
-        <li>
-          <span class="tw-font-semibold">{{ roleLabel(entry.role) }}</span>
-          <span class="tw-text-muted"> — {{ entry.target }}</span>
-        </li>
-      }
-      @for (entry of params.skipped; track entry.role) {
-        <li class="tw-text-muted">
-          {{ roleLabel(entry.role) }} — {{ "agentAccessFillSkippedReason" | i18n: entry.reason }}
-        </li>
-      }
-    </ul>
-  </div>
-  <ng-container bitDialogFooter>
-    <button
-      id="approve-fill-request_button_authorize"
-      type="submit"
-      bitButton
-      bitFormButton
-      buttonType="primary"
-      [disabled]="approveFillRequestForm.invalid"
-    >
-      <span>{{ "agentAccessFillApprove" | i18n }}</span>
-    </button>
-    <button
-      id="approve-fill-request_button_deny"
-      type="button"
-      bitButton
-      bitFormButton
-      buttonType="secondary"
-      (click)="deny()"
-    >
-      {{ "deny" | i18n }}
-    </button>
-  </ng-container>
+    <div class="tw-flex tw-flex-col tw-gap-2">
+      <p class="tw-m-0" bitTypography="body2">{{ "agentAccessFillFieldPlan" | i18n }}</p>
+      <ul class="tw-m-0 tw-flex tw-list-none tw-flex-col tw-gap-1 tw-p-0">
+        @for (entry of params.fieldPlan; track entry.role) {
+          <li class="tw-flex tw-items-baseline tw-gap-2">
+            <bit-icon
+              name="bwi-check"
+              class="tw-shrink-0 tw-text-fg-success"
+              aria-hidden="true"
+            ></bit-icon>
+            <span>
+              <span class="tw-font-semibold">{{ roleLabel(entry.role) }}</span>
+              <span class="tw-text-muted"> — {{ entry.target }}</span>
+            </span>
+          </li>
+        }
+        @for (entry of params.skipped; track entry.role) {
+          <li class="tw-flex tw-items-baseline tw-gap-2 tw-text-muted">
+            <bit-icon name="bwi-minus-circle" class="tw-shrink-0" aria-hidden="true"></bit-icon>
+            <span>
+              {{ roleLabel(entry.role) }}
+              — {{ "agentAccessFillSkippedReason" | i18n: entry.reason }}
+            </span>
+          </li>
+        }
+      </ul>
+    </div>
+
+    <ng-container dialogFooter>
+      <button
+        id="approve-fill-request_button_authorize"
+        type="submit"
+        bitButton
+        bitFormButton
+        buttonType="primary"
+        [disabled]="approveFillRequestForm.invalid"
+      >
+        <span>{{ "agentAccessFillApprove" | i18n }}</span>
+      </button>
+      <button
+        id="approve-fill-request_button_deny"
+        type="button"
+        bitButton
+        bitFormButton
+        buttonType="secondary"
+        (click)="deny()"
+      >
+        {{ "deny" | i18n }}
+      </button>
+    </ng-container>
+  </app-agent-access-request-dialog>
 </form>

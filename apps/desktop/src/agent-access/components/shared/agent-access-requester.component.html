@@ -1,0 +1,37 @@
+<!-- Who is asking. The logo only ever renders for a verified signature (resolved by the caller
+     via `resolveAgentBrand` and passed in as `brandLogo`), so an unrecognized or unsigned
+     requester gets the neutral glyph rather than borrowing a familiar brand mark. -->
+<div
+  class="tw-flex tw-items-center tw-gap-3 tw-rounded-lg tw-border tw-border-solid tw-border-border-base tw-bg-bg-secondary tw-p-3"
+>
+  <div
+    class="tw-flex tw-size-10 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-lg tw-border tw-border-solid tw-border-border-base tw-bg-bg-primary tw-p-1.5"
+  >
+    @if (brandLogo(); as logo) {
+      <bit-svg [content]="logo" class="tw-w-full"></bit-svg>
+    } @else {
+      <bit-icon name="bwi-terminal" class="tw-text-lg tw-text-muted"></bit-icon>
+    }
+  </div>
+
+  <div class="tw-flex tw-min-w-0 tw-flex-col">
+    <span class="tw-font-bold" bitTypography="body1">{{ name() }}</span>
+    @if (descriptor(); as descriptorText) {
+      <span class="tw-break-all tw-text-muted" bitTypography="helper">{{ descriptorText }}</span>
+    }
+  </div>
+</div>
+
+<!-- Warn only when there is something to warn about. A signature that failed verification is the
+     alarming case; a signature that verified (or was never claimed) is not, and dressing every
+     requester up as a warning trains the user to click through the ones that matter. -->
+@if (unverified()) {
+  <div
+    class="tw-flex tw-items-start tw-gap-2 tw-rounded-lg tw-border tw-border-solid tw-border-border-warning tw-bg-bg-secondary tw-p-3 tw-text-warning-600"
+  >
+    <bit-icon name="bwi-exclamation-triangle" class="tw-shrink-0"></bit-icon>
+    <span bitTypography="helper">
+      {{ "agentAccessRequesterSignatureUnverified" | i18n }}
+    </span>
+  </div>
+}

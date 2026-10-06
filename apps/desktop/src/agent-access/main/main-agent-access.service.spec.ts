@@ -1111,6 +1111,174 @@ describe("MainAgentAccessService", () => {
         expect(entry.projectId).toBeUndefined();
       });
     });
+
+    // M7 (agent-access-architecture.md, "M7 — bws run parity: project-scoped bulk secret
+    // injection"). `operation: "bulkRequest"` = the napi surface for `projectSecretsRequest`:
+    // one approval releases a whole project's secret set for env injection. Same ids-only
+    // activity-buffer invariant as every other write/list op (M4b/M6) — the row keeps
+    // `secretIds` (ids only), never the `secrets` array of live values that only ever transits
+    // the in-flight response.
+    describe("M7 — bulkRequest (projectSecretsRequest)", () => {
+      const getActivity = () => ipcHandlers.get("agentaccess.getactivity")!({});
+      const respond = (requestId: number, body: Record<string, unknown>) =>
+        ipcHandlers.get("agentaccess.credentialrequestresponse")!({}, { requestId, ...body });
+
+      const bulkRequestByIdData: agent_access.CredentialRequestData = {
+        ...mockCredentialData,
+        // Force-filled by the Rust side with the target selector for bulkRequest (M7's
+        // force-fill extension of update/delete's queryValue=targetId precedent) — a
+        // recognizable fixture so a regression copying it into the buffer is caught below.
+        queryValue: "project-1",
+        resourceType: "secret",
+        operation: "bulkRequest",
+        targetId: "project-1",
+      } as agent_access.CredentialRequestData;
+
+      const bulkRequestByNameData: agent_access.CredentialRequestData = {
+        ...mockCredentialData,
+        queryValue: "my-app",
+        resourceType: "secret",
+        operation: "bulkRequest",
+        projectName: "my-app",
+      } as agent_access.CredentialRequestData;
+
+      it("narrows operation bulkRequest without degrading to the Request fallback", async () => {
+        void capturedCredentialCb(null, bulkRequestByIdData);
+
+        const [entry] = await getActivity();
+        expect(entry).toMatchObject({ operation: "bulkRequest", resourceType: "secret" });
+      });
+
+      it("forwards targetId and projectName to the renderer's live request message (id form)", () => {
+        void capturedCredentialCb(null, bulkRequestByIdData);
+
+        expect(mockMessagingService.send).toHaveBeenCalledWith(
+          "agentaccess.credentialrequest",
+          expect.objectContaining({
+            operation: "bulkRequest",
+            targetId: "project-1",
+            projectName: undefined,
+          }),
+        );
+      });
+
+      it("forwards projectName to the renderer's live request message (name form)", () => {
+        void capturedCredentialCb(null, bulkRequestByNameData);
+
+        expect(mockMessagingService.send).toHaveBeenCalledWith(
+          "agentaccess.credentialrequest",
+          expect.objectContaining({
+            operation: "bulkRequest",
+            targetId: undefined,
+            projectName: "my-app",
+          }),
+        );
+      });
+
+      it("never stores queryType or queryValue on a bulkRequest row — ids only", async () => {
+        void capturedCredentialCb(null, bulkRequestByIdData);
+
+        const [entry] = await getActivity();
+        expect(entry).not.toHaveProperty("queryType");
+        expect(entry).not.toHaveProperty("queryValue");
+        expect(JSON.stringify(entry)).not.toContain("project-1");
+      });
+
+      it("records projectId and secretIds on a Shared resolution", async () => {
+        const credentialPromise = capturedCredentialCb(null, bulkRequestByIdData);
+        const { requestId } = lastMessage("agentaccess.credentialrequest");
+
+        await respond(requestId, {
+          response: {
+            approved: true,
+            projectId: "project-1",
+            itemName: "my-app",
+            secrets: [
+              { id: "secret-1", name: "DB_PASSWORD", value: "hunter2" },
+              { id: "secret-2", name: "API_KEY", value: "s3cr3t" },
+            ],
+          },
+          outcome: {
+            status: "shared",
+            projectId: "project-1",
+            secretIds: ["secret-1", "secret-2"],
+          },
+        });
+        await credentialPromise;
+
+        const [entry] = await getActivity();
+        expect(entry).toMatchObject({
+          status: "shared",
+          projectId: "project-1",
+          secretIds: ["secret-1", "secret-2"],
+        });
+      });
+
+      it("does not record projectId or secretIds when a bulkRequest is denied", async () => {
+        const credentialPromise = capturedCredentialCb(null, bulkRequestByIdData);
+        const { requestId } = lastMessage("agentaccess.credentialrequest");
+
+        await respond(requestId, {
+          response: { approved: false, reason: "denied" },
+          outcome: { status: "denied", projectId: "project-1", secretIds: ["secret-1"] },
+        });
+        await credentialPromise;
+
+        const [entry] = await getActivity();
+        expect(entry.status).toBe("denied");
+        expect(entry.projectId).toBeUndefined();
+        expect(entry.secretIds).toBeUndefined();
+      });
+
+      it("never copies the secrets array (names or live values) out of the response payload into the activity buffer", async () => {
+        const credentialPromise = capturedCredentialCb(null, bulkRequestByIdData);
+        const { requestId } = lastMessage("agentaccess.credentialrequest");
+
+        await respond(requestId, {
+          response: {
+            approved: true,
+            projectId: "project-1",
+            itemName: "my-app",
+            secrets: [
+              { id: "secret-1", name: "DB_PASSWORD_LEAK_IF_STORED", value: "hunter2-leak" },
+              { id: "secret-2", name: "API_KEY_LEAK_IF_STORED", value: "s3cr3t-leak" },
+            ],
+          },
+          outcome: {
+            status: "shared",
+            projectId: "project-1",
+            secretIds: ["secret-1", "secret-2"],
+          },
+        });
+        await credentialPromise;
+
+        const serialized = JSON.stringify(await getActivity());
+        expect(serialized).not.toContain("DB_PASSWORD_LEAK_IF_STORED");
+        expect(serialized).not.toContain("API_KEY_LEAK_IF_STORED");
+        expect(serialized).not.toContain("hunter2-leak");
+        expect(serialized).not.toContain("s3cr3t-leak");
+        // Ids are expected to appear (secretIds is the intentional ids-only projection) — this
+        // assertion is scoped to names/values only, not a blanket "no secret- string" check.
+      });
+
+      it("resolves with the renderer's full response, including the secrets array, on the in-flight callback (never buffered)", async () => {
+        const credentialPromise = capturedCredentialCb(null, bulkRequestByIdData);
+        const { requestId } = lastMessage("agentaccess.credentialrequest");
+
+        const response: agent_access.CredentialResponseData = {
+          approved: true,
+          projectId: "project-1",
+          itemName: "my-app",
+          secrets: [{ id: "secret-1", name: "DB_PASSWORD", value: "hunter2" }],
+        };
+        await respond(requestId, {
+          response,
+          outcome: { status: "shared", projectId: "project-1", secretIds: ["secret-1"] },
+        });
+
+        expect(await credentialPromise).toEqual(response);
+      });
+    });
   });
 
   // Browser fill delivery (agent-access-architecture.md, "M5"): fill-delivery and

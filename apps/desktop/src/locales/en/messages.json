@@ -767,35 +767,32 @@
   "agentAccessAgentName": {
     "message": "Agent name"
   },
-  "agentAccessApprovalTitle": {
+  "agentAccessApprovalTitleCredential": {
     "message": "Credential request"
   },
-  "agentAccessRequestedBy": {
-    "message": "$AGENT$ is requesting access to a vault item.",
+  "agentAccessApprovalTitleSecret": {
+    "message": "Secret request"
+  },
+  "agentAccessCredentialDiscloseSummary": {
+    "message": "receives the full credential, including the password"
+  },
+  "agentAccessCredentialMetadataSummary": {
+    "message": "receives a reference to this credential — the password stays on this device"
+  },
+  "agentAccessSecretDiscloseSummary": {
+    "message": "receives this secret's value"
+  },
+  "agentAccessCredentialFieldsSummary": {
+    "message": "Shares: $FIELDS$",
     "placeholders": {
-      "agent": {
+      "fields": {
         "content": "$1",
-        "example": "Claude Code"
+        "example": "Username, Password"
       }
     }
   },
-  "agentAccessReferenceModeNotice": {
-    "message": "It will receive only a reference to this item, along with its name and username — never the password."
-  },
-  "agentAccessFullCredentialNotice": {
-    "message": "It will receive the full credential for this item, including the password."
-  },
-  "agentAccessRequestedCredential": {
-    "message": "Requesting: $ITEM$",
-    "placeholders": {
-      "item": {
-        "content": "$1",
-        "example": "Example Login"
-      }
-    }
-  },
-  "agentAccessFieldsShared": {
-    "message": "The following fields will be shared:"
+  "agentAccessMatchesTruncatedDetail": {
+    "message": "Only the closest matches are shown. If more matched, they aren't included here."
   },
   "agentAccessMultipleMatches": {
     "message": "$COUNT$ vault items matched this request. Choose which one to share:",
@@ -858,10 +855,10 @@
     "message": "Agents"
   },
   "agentAccessActivityEmpty": {
-    "message": "No activity yet."
+    "message": "No activity yet"
   },
   "agentAccessActivityEmptyDescription": {
-    "message": "Connections and credential requests will appear here."
+    "message": "Every credential and secret request will show up here, along with what was shared, changed, or removed. It fills in as soon as an agent connects."
   },
   "agentAccessEventConnectionEstablished": {
     "message": "Connection established"
@@ -939,6 +936,12 @@
   "agentAccessFirstUseTitle": {
     "message": "New application requesting vault access"
   },
+  "agentAccessFirstUseConsequenceSummary": {
+    "message": "Lets this application ask for credentials going forward."
+  },
+  "agentAccessFirstUseConsequenceDetail": {
+    "message": "Each request is still approved individually."
+  },
   "agentAccessFirstUseSignedBy": {
     "message": "Signed by $IDENTITY$",
     "placeholders": {
@@ -966,7 +969,7 @@
       }
     }
   },
-  "agentAccessFirstUseSignatureUnverified": {
+  "agentAccessRequesterSignatureUnverified": {
     "message": "Its code signature could not be verified."
   },
   "agentAccessFirstUseWeakerGuaranteeNote": {
@@ -983,9 +986,6 @@
   },
   "agentAccessFirstUseScopeAllLoginsHint": {
     "message": "This application can request any login item in your vault by name, domain, or search."
-  },
-  "agentAccessFirstUseNotStandingAccess": {
-    "message": "Authorizing doesn't grant standing access. You'll still review and approve every credential request individually."
   },
   "agentAccessConnectTitle": {
     "message": "Agents on this computer"
@@ -1143,8 +1143,17 @@
   "agentAccessCreateRequestTitle": {
     "message": "New Secrets Manager secret requested"
   },
+  "agentAccessCreateSecretConsequenceSummary": {
+    "message": "creates a new secret in your vault"
+  },
   "agentAccessCreateRequestIntro": {
-    "message": "This agent wants to create a new secret in Secrets Manager. Choose where it should live, then review the value before authorizing."
+    "message": "Review what's being created, then choose where it should live."
+  },
+  "agentAccessCreateReviewHeading": {
+    "message": "What's being created"
+  },
+  "agentAccessCreateDestinationHeading": {
+    "message": "Where it should live"
   },
   "agentAccessProject": {
     "message": "Project"
@@ -1188,14 +1197,17 @@
   "agentAccessFillTitle": {
     "message": "Fill login in your browser?"
   },
-  "agentAccessFillRequestedBy": {
-    "message": "$AGENT$ is asking Bitwarden to fill a login into the page open in your browser. Nothing is shared with the agent itself.",
+  "agentAccessFillDiscloseSummary": {
+    "message": "fills this credential into $ORIGIN$ in your browser",
     "placeholders": {
-      "agent": {
+      "origin": {
         "content": "$1",
-        "example": "Cursor"
+        "example": "https://github.com"
       }
     }
+  },
+  "agentAccessFillAgentNotShownDetail": {
+    "message": "Nothing is shared with the agent itself."
   },
   "agentAccessFillOriginLabel": {
     "message": "Filling on"
@@ -1206,15 +1218,6 @@
       "count": {
         "content": "$1",
         "example": "3"
-      }
-    }
-  },
-  "agentAccessFillSingleMatch": {
-    "message": "The item \"$ITEM$\" will be filled.",
-    "placeholders": {
-      "item": {
-        "content": "$1",
-        "example": "GitHub"
       }
     }
   },
@@ -1293,12 +1296,22 @@
   "agentAccessUpdateRequestTitle": {
     "message": "Secret update requested"
   },
+  "agentAccessUpdateConsequenceSummary": {
+    "message": "changes an existing secret"
+  },
   "agentAccessUpdateRequestIntro": {
-    "message": "This agent wants to update the secret \"$SECRET$\" in Secrets Manager. Review each proposed change before authorizing.",
+    "message": "This agent wants to update this secret in Secrets Manager. Review each proposed change below before authorizing."
+  },
+  "agentAccessUpdateNameChangeAria": {
+    "message": "Name changes from \"$FROM$\" to \"$TO$\".",
     "placeholders": {
-      "secret": {
+      "from": {
         "content": "$1",
-        "example": "DB_PASSWORD"
+        "example": "OLD_NAME"
+      },
+      "to": {
+        "content": "$2",
+        "example": "NEW_NAME"
       }
     }
   },
@@ -1333,13 +1346,13 @@
     "message": "Project deletion requested"
   },
   "agentAccessDeleteSecretTrashNotice": {
-    "message": "The secret will be moved to the Secrets Manager trash. An organization admin can restore it."
+    "message": "Moves the secret to the Secrets Manager trash. An organization admin can restore it."
   },
   "agentAccessDeleteProjectPermanentWarning": {
-    "message": "This is permanent. The project cannot be restored."
+    "message": "Permanently deletes the project. This can't be undone."
   },
   "agentAccessDeleteProjectContainedSecretsWarning": {
-    "message": "$COUNT$ secrets will lose this project. They are not deleted, but may become inaccessible to non-admin users.",
+    "message": "$COUNT$ secrets lose this project. They aren't deleted, but may become inaccessible to non-admin users.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1348,7 +1361,7 @@
     }
   },
   "agentAccessDeleteProjectContainedSecretsUnknownWarning": {
-    "message": "Secrets in this project will lose it. They are not deleted, but may become inaccessible to non-admin users."
+    "message": "Secrets in this project lose it too, and may become inaccessible to non-admin users. We couldn't determine how many."
   },
   "agentAccessDeleteConfirmAction": {
     "message": "Delete"
@@ -1356,14 +1369,29 @@
   "agentAccessProjectCreateRequestTitle": {
     "message": "New Secrets Manager project requested"
   },
+  "agentAccessProjectCreateConsequenceSummary": {
+    "message": "creates a new project in your vault"
+  },
   "agentAccessProjectRenameRequestTitle": {
     "message": "Project rename requested"
+  },
+  "agentAccessProjectRenameConsequenceSummary": {
+    "message": "renames an existing project"
+  },
+  "agentAccessProjectCurrentNameLabel": {
+    "message": "Current name"
+  },
+  "agentAccessProjectNewNameLabel": {
+    "message": "New name"
   },
   "agentAccessProjectListRequestTitle": {
     "message": "Project list requested"
   },
-  "agentAccessProjectListRequestIntro": {
-    "message": "This agent wants to see every Secrets Manager project you can access. Authorizing releases all $COUNT$ names below.",
+  "agentAccessProjectListConsequenceSummary": {
+    "message": "sees project names, organizations, and access levels — no secret value leaves this device"
+  },
+  "agentAccessProjectListCountSummary": {
+    "message": "$COUNT$ projects will be shared.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1371,14 +1399,67 @@
       }
     }
   },
+  "agentAccessProjectListTruncatedNotice": {
+    "message": "Showing the first 200 projects. If you have more, they aren't included here."
+  },
   "agentAccessProjectListAccessColumn": {
-    "message": "Access"
+    "message": "Standing access"
   },
   "agentAccessProjectListWriteAccess": {
     "message": "Read & write"
   },
   "agentAccessProjectListReadOnlyAccess": {
     "message": "Read only"
+  },
+  "agentAccessBulkRequestTitle": {
+    "message": "Project secrets requested"
+  },
+  "agentAccessBulkRequestConsequenceSummary": {
+    "message": "runs a command with all $COUNT$ secret values from $PROJECT$ in its environment",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      },
+      "project": {
+        "content": "$2",
+        "example": "my-app"
+      }
+    }
+  },
+  "agentAccessBulkRequestCountSummary": {
+    "message": "$COUNT$ secrets will be released.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "agentAccessBulkRequestTruncatedNotice": {
+    "message": "Showing the first 200 secrets. If the project has more, they aren't included here."
+  },
+  "agentAccessBulkRequestConsequenceNote": {
+    "message": "Values are injected into the command's environment and scrubbed from anything it prints back — but the command itself can still read them."
+  },
+  "agentAccessBulkTooManySecretsToast": {
+    "message": "This project has too many secrets to release at once. Ask the agent to request a smaller project, or individual secrets."
+  },
+  "agentAccessSharedProjectSecrets": {
+    "message": "Shared $COUNT$ secrets from project $PROJECT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      },
+      "project": {
+        "content": "$2",
+        "example": "my-app"
+      }
+    }
+  },
+  "agentAccessBulkProjectFallbackName": {
+    "message": "a project"
   },
   "premiumRequired": {
     "message": "Premium required"

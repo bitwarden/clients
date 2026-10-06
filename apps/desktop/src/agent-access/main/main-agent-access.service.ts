@@ -539,12 +539,20 @@ export class MainAgentAccessService {
       const fillOutcome =
         outcome.status === AgentAccessRequestStatus.Filled ||
         outcome.status === AgentAccessRequestStatus.FillFailed;
+      // `secretIds` (M7, `bulkRequest`) is narrower than the `pointsAtSecretOrProject` group
+      // above: it is only ever meaningful alongside `Shared` (an approved
+      // `projectSecretsRequest` release) — `Created`/`Updated`/`Deleted` never carry a set of
+      // released secret ids, only a single target id. Gating on `Shared` specifically (rather
+      // than reusing `pointsAtSecretOrProject`) keeps that distinction explicit rather than
+      // accidentally copying a stray array through on some future status.
+      const pointsAtSecrets = outcome.status === AgentAccessRequestStatus.Shared;
       const resolved: AgentAccessActivityEntry = {
         ...entry,
         status: outcome.status,
         cipherId: pointsAtCipher ? outcome.cipherId : undefined,
         secretId: pointsAtSecretOrProject ? outcome.secretId : undefined,
         projectId: pointsAtSecretOrProject ? outcome.projectId : undefined,
+        secretIds: pointsAtSecrets ? outcome.secretIds : undefined,
         fieldsShared: pointsAtCipher ? outcome.fieldsShared : undefined,
         fillOrigin: fillOutcome ? outcome.fillOrigin : undefined,
         resolvedAtMs: `${Date.now()}`,
@@ -618,6 +626,14 @@ export class MainAgentAccessService {
         // boolean, a length, a symbols flag) — none of these ride `activityBuffer` either, same
         // as the create fields above.
         targetId: data.targetId,
+        // Additive (M7): the project selector for an `operation: "bulkRequest"` request
+        // (`projectSecretsRequest`) — `targetId` carries the id form (reusing the M6 field
+        // above), `projectName` the name form; the wire layer enforces exactly one is present.
+        // Value-free (an id or an agent-supplied name string, never a secret) — like `targetId`,
+        // this rides the live IPC message only and never enters `activityBuffer` (the
+        // `operation !== "request"` gate in `openCredentialRequest` already excludes every
+        // bulkRequest row's query fields; this is a distinct field, not queryValue).
+        projectName: data.projectName,
         generateValue: data.generateValue,
         generateLength: data.generateLength,
         generateSymbols: data.generateSymbols,

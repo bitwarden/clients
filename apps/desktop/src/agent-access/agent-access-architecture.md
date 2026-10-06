@@ -809,12 +809,13 @@ enum value + CollectController case + humanization alongside the uncommitted M4c
 
 Direction (Max, 2026-08-12): the MCP server should expose "pretty much all functions we have
 available in sdk-sm" — the target flow is an agent that identifies hardcoded credentials, creates
-or **generates** secrets in SM *without ever knowing the generated values*, and rewires code to
+or **generates** secrets in SM _without ever knowing the generated values_, and rewires code to
 reference `bw://secret/<uuid>` + the bws SDK. This supersedes M4b's create-only stance; the
 blast-radius bound moves from "additive writes only" to "every write is a separate, single-target,
 human-approved operation with truthful consequence labeling."
 
 Explicitly excluded, with reasons the tools' descriptions must NOT contradict:
+
 - `/secrets/sync` — service-account-only on the server (400 for users).
 - A standalone "generate a password and hand it to the agent" tool — plaintext to the agent is
   the anti-pattern this feature removes; generation exists only inside create/update.
@@ -863,6 +864,7 @@ must be between 12 and 128"), not a clamp. Response unchanged (reference + item,
 **`secretUpdate`:**
 `{"version":1,"op":"secretUpdate","target":{"id":"<uuid>"},"update":{"name"?,"value"?,
 "generate"?:{...},"note"?,"project"?},"client":{...}}`
+
 - `target.id` required non-empty; `update` requires ≥1 field; `value`/`generate` mutually
   exclusive; `generate` same shape/bounds as create.
 - Field semantics: absent = unchanged. `name` = rename. `note: ""` = clear note (desktop encrypts
@@ -870,7 +872,7 @@ must be between 12 and 128"), not a clamp. Response unchanged (reference + item,
   preselects an exact decrypted-name match among writable projects, user always sees/changes it).
   There is deliberately NO "remove project" form (server denies it for non-admins anyway).
 - Response (approved): `{"version":1,"status":"approved","reference":"bw://secret/<id>",
-  "item":{"name":"<post-update name>"}}`.
+"item":{"name":"<post-update name>"}}`.
 
 **`secretDelete`:** `{"version":1,"op":"secretDelete","target":{"id":"<uuid>"},"client":{...}}`
 — no query/delivery/create/update/fill. Response (approved): reference + `item{name}` of the
@@ -908,13 +910,14 @@ material); interpreters follow the existing per-op pattern (version check first,
 start with the right prefix, derived id non-empty). Delete outcomes parse reference + name.
 
 `command/mcp.rs` — tool count 8 → **15**, definitions in this order after `create_secret`:
+
 1. `generate_secret({name, note?, project?, length?, symbols?})` → `{secretId, reference, name}`.
    Description MUST state: the value is generated inside the Bitwarden desktop app and encrypted
    before storage; **it is never shown to you and cannot be retrieved through this interface**;
    use `run_with_secret` to use it and the reference/UUID to wire SDK integration; requires
    desktop approval.
 2. `update_secret({secretId? | reference?, name?, value?, generate?, length?, symbols?, note?,
-   project?})` → `{secretId, reference, name}`. Exactly one of `secretId`/`reference`; ≥1 change
+project?})` → `{secretId, reference, name}`. Exactly one of `secretId`/`reference`; ≥1 change
    field; `value` xor `generate` (a bare `generate: true` uses default options). Description: for
    rotation prefer `generate: true` so the new value never passes through you; renames/moves
    never expose the value to anyone.
@@ -926,13 +929,13 @@ start with the right prefix, derived id non-empty). Delete outcomes parse refere
 7. `delete_project({projectId? | reference?})` → `{deleted: true, projectId, name}`. Description
    MUST warn: permanent; secrets inside are NOT deleted but lose the project and may become
    inaccessible to non-admin users.
-Every description states that each call requires approval in the Bitwarden desktop app (the
-existing "Bitwarden desktop" description test enforces this). NO new CLI subcommands (argv
-plaintext anti-pattern; MCP only). Update `SERVER_INSTRUCTIONS` with the remediation workflow
-(find hardcoded creds → `generate_secret`/`create_secret` into a project → replace literals with
-references/UUIDs → `run_with_secret` at runtime) and the count/name tests (`tools.len()==15`,
-required-field assertions per tool, value-never-in-output table tests for update mirroring
-`create_secret_value_never_in_output_on_every_status`).
+   Every description states that each call requires approval in the Bitwarden desktop app (the
+   existing "Bitwarden desktop" description test enforces this). NO new CLI subcommands (argv
+   plaintext anti-pattern; MCP only). Update `SERVER_INSTRUCTIONS` with the remediation workflow
+   (find hardcoded creds → `generate_secret`/`create_secret` into a project → replace literals with
+   references/UUIDs → `run_with_secret` at runtime) and the count/name tests (`tools.len()==15`,
+   required-field assertions per tool, value-never-in-output table tests for update mirroring
+   `create_secret_value_never_in_output_on_every_status`).
 
 ### Desktop Rust + napi (M6-B)
 
@@ -986,14 +989,20 @@ resolved statuses, copying `secretId`/`projectId` on `updated`/`deleted` (like `
 
 `agent-access-secrets.service.ts` new/changed methods (all propagate failures on post-approval
 paths, degrade-to-empty on read paths, per existing convention):
+
 - `getSecretForUpdate(secretId, organizationId, userId)` → `GET /secrets/{id}` **with the
   agent-mediated header**, returning `{ nameDecrypted, keyEncString, valueEncString,
-  noteEncString, currentProjectId? }` — Key decrypted for display; **Value and Note ciphertexts
+noteEncString, currentProjectId? }` — Key decrypted for display; **Value and Note ciphertexts
   are passed through verbatim when unchanged, never decrypted** (the rename/move path touches no
   plaintext value at any layer).
 - `updateSecret(...)` → `PUT /secrets/{id}` with header; body always carries key/value/note
   (changed fields freshly encrypted, unchanged fields = original ciphertexts; note cleared =
-  encrypt `""`); `projectIds` OMITTED unless the user confirmed a move, then `[newProjectId]`.
+  encrypt `""`); `projectIds` carries `[newProjectId]` on a confirmed move, else
+  `[currentProjectId]` — and is omitted ONLY when the secret has no project at all. Omitting it for
+  a project-assigned secret does **not** mean "unchanged": the server
+  (`SecretUpdateRequestModel.ToSecret`) treats the association as unchanged only when the incoming
+  first project id equals the stored one, so a null `ProjectIds` falls through to `Projects = []`
+  and silently UNASSIGNS the secret. Re-sending the current id is the "no change" sentinel.
 - `deleteSecret(secretId, organizationId, userId)` → `POST /secrets/delete` with header, body
   `[secretId]`; a non-null per-id `error` throws (pipeline denies with generic error + toast).
 - `updateProject` / `deleteProject` → `PUT /projects/{id}` / `POST /projects/delete` with header,
@@ -1001,8 +1010,8 @@ paths, degrade-to-empty on read paths, per existing convention):
 - `countSecretsInProject(projectId, organizationId, userId)` → `GET /projects/{id}/secrets`,
   count only, degrade to `undefined` on failure (dialog then warns without a number).
 - `generateSecretValue(options)` — thin wrapper over `PasswordGenerationServiceAbstraction
-  .generatePassword({length, uppercase, lowercase, number: true, minNumber: 1, special: symbols,
-  minSpecial: symbols ? 1 : 0})` (provided app-wide by JslibServicesModule; the deprecated façade
+.generatePassword({length, uppercase, lowercase, number: true, minNumber: 1, special: symbols,
+minSpecial: symbols ? 1 : 0})` (provided app-wide by JslibServicesModule; the deprecated façade
   is a deliberate choice over `CredentialGeneratorService.generate$`'s account-bound ceremony —
   comment this). Value lives only in the local scope of the create/update handler: generated at
   submit time, encrypted, POSTed, discarded.
@@ -1017,30 +1026,31 @@ each after the SAME enable/unlock/grant gates, each resolving names/state BEFORE
 Unknown resource/operation combinations deny (fail-closed), never fall through to lookup.
 
 Dialogs (params/results pinned so the pipeline and components can be built against this doc):
+
 - `update-secret-request.component`: params `{requesterName?, requesterFingerprint?, secretName,
-  organizationName, currentProjectName?, changes: { name?: {from, to}, value?: "agent" |
-  "generated", note?: {to} , project?: {toHint} }, writableProjects?, preselectedProjectId?,
-  userId}`; result `{approved, projectId?}`. Agent-supplied values masked with reveal toggle
+organizationName, currentProjectName?, changes: { name?: {from, to}, value?: "agent" |
+"generated", note?: {to} , project?: {toHint} }, writableProjects?, preselectedProjectId?,
+userId}`; result `{approved, projectId?}`. Agent-supplied values masked with reveal toggle
   (create-dialog pattern); generated values shown as the notice chip; project picker rendered
   ONLY when a move was requested.
 - `confirm-delete-request.component` (shared secret/project): params `{requesterName?,
-  requesterFingerprint?, kind: "secret" | "project", itemName, organizationName?,
-  containedSecretCount?}`; result `{approved}`. Danger-styled submit. Secret copy: moved to SM
+requesterFingerprint?, kind: "secret" | "project", itemName, organizationName?,
+containedSecretCount?}`; result `{approved}`. Danger-styled submit. Secret copy: moved to SM
   trash, org-admin-restorable. Project copy: permanent, contained secrets lose their project and
   may become inaccessible to non-admins (count shown when known).
 - `create-project-request.component`: params `{requesterName?, requesterFingerprint?,
-  projectName, organizations, lastOrganizationId?, userId}`; result `{approved,
-  organizationId?}`. (Rename reuses this shape with from→to copy via a `mode` param — D's
+projectName, organizations, lastOrganizationId?, userId}`; result `{approved,
+organizationId?}`. (Rename reuses this shape with from→to copy via a `mode` param — D's
   choice, but ONE simple component for both is preferred over a fourth dialog.)
 - `project-list-request.component`: params `{requesterName?, requesterFingerprint?, entries:
-  [{name, organizationName, write}]}`; result `{approved}` — the dialog lists every name being
+[{name, organizationName, write}]}`; result `{approved}` — the dialog lists every name being
   released.
-Activity component: exhaustive `REQUEST_STATUS_META` gains `updated`/`deleted`/`listed` (the
-Record type forces the locale keys); result labels resolve secret names via the existing cache
-and project names via the new one; `deleted` label must not degrade to a bare id when the cache
-misses — fall back like `Created` does. i18n: extend the staged `agentAccess*` block in
-`locales/en/messages.json` (merge, never regenerate; `en` only; follow the `agentAccessCreate*`
-family naming — new families `agentAccessUpdate*`, `agentAccessDelete*`, `agentAccessProject*`).
+  Activity component: exhaustive `REQUEST_STATUS_META` gains `updated`/`deleted`/`listed` (the
+  Record type forces the locale keys); result labels resolve secret names via the existing cache
+  and project names via the new one; `deleted` label must not degrade to a bare id when the cache
+  misses — fall back like `Created` does. i18n: extend the staged `agentAccess*` block in
+  `locales/en/messages.json` (merge, never regenerate; `en` only; follow the `agentAccessCreate*`
+  family naming — new families `agentAccessUpdate*`, `agentAccessDelete*`, `agentAccessProject*`).
 
 ### Server + clients event mirror (M6-E)
 
@@ -1079,6 +1089,197 @@ ciphertexts; documented rather than suppressed.
     change the target. Removing a secret's project via agent is unrepresentable on the wire.
 19. All SM value-reads and mutations send `Bitwarden-Agent-Mediated: 1`; list endpoints are
     unlogged server-side and need no header.
+
+## M7 — `bws run` parity: project-scoped bulk secret injection (`projectSecretsRequest`)
+
+Direction (Max, 2026-08-12): integrate the `bws run` command into the MCP server and the desktop
+app. `bws run` (sdk-sm `crates/bws/src/command/run.rs`) lists a project's (or the whole org's)
+secrets, fetches all values, injects each as an environment variable named by the secret key, and
+spawns a shell command. M7 is the agent-access analogue: **one human approval releases the
+enumerated secret set of exactly one project for injection into one command**, values flowing only
+desktop → `aac` → child-process environment, never to the agent conversationally.
+
+Deltas vs `bws run`, with reasons the tool description must not contradict:
+
+- **Project is REQUIRED** — `bws run` without `--project-id` injects every org secret; an
+  unscoped all-org release is an unbounded blast radius behind a single click. Agents that want
+  org-wide behavior see it fail and must pick a project (via `list_projects`).
+- **No `--shell` / stdin-command / `--no-inherit-env` forms** — `aac` already has its own child
+  spawn model (`run_child_captured`: argv array, captured+scrubbed output). We keep it; the tool
+  takes `command: string[]` like `run_with_secret`, not a shell string.
+- **Duplicate env names fail closed** (bws bails too unless `--uuids-as-keynames`); the
+  `uuidsAsKeynames` escape hatch is kept, applied `aac`-side (wire already carries `secretId`).
+- Values are born on the desktop, transit the local socket once, and exist in `aac` only as
+  `Zeroizing` strings feeding the child env + Redactor scrub list. `run_with_secret`'s honesty
+  caveat applies unchanged: a child that re-encodes a value defeats scrubbing; the dialog copy
+  must say values are _injected into the command's environment_, not "never visible".
+
+### Wire protocol v1 — new op `projectSecretsRequest` (local socket ONLY)
+
+Op string ⇒ (resource, operation): `projectSecretsRequest` = (Secret, **BulkRequest**). Same
+framing, caps, 60 s deny-by-default timeout, attestation, and status vocabulary. Never rides the
+relay.
+
+**Request:** `{"version":1,"op":"projectSecretsRequest","project":{"id":"<uuid>"} |
+{"name":"…"},"client":{…}}`
+
+- Exactly one of `project.id` / `project.name`, non-empty (validation error otherwise). `id` is a
+  bare UUID — `aac` strips `bw://project/` before sending (existing `strip_project_reference`).
+- NO `query`, `delivery`, `fill`, `create`, `update`, or `target` objects — each is a validation
+  error on this op (per-arm foreign-object rejection, existing pattern). Delivery is implicitly
+  inject; there is no reference form (reference-shaped discovery is `find_secrets`/`list_projects`).
+- `project.name` resolution (desktop, pre-dialog): exact decrypted-name match among the user's
+  readable projects across SM orgs, falling back to a unique case-insensitive match (bws prior
+  art, same rule as secret `name` queries). Zero or >1 matches ⇒ `notFound` (generic; the agent
+  is told to use `list_projects` and pass the reference). A project with zero readable secrets ⇒
+  `notFound` (consistent with name-query misses; no dialog is shown for a release of nothing).
+
+**Response (approved):**
+`{"version":1,"status":"approved","reference":"bw://project/<uuid>","item":{"name":"<project
+name>"},"secrets":[{"name":"DB_PASSWORD","value":"…","secretId":"<uuid>"}, …]}` — new top-level
+`secrets` array (each entry shaped exactly like M4's single `secret` object). Capped at **200**
+entries; a project over the cap ⇒ wire `error` with a generic "too many secrets" message
+(pre-dialog — don't ask a human to approve a release we won't perform). `note` is never present
+(M4 invariant 2).
+
+### aac (SDK repo) — MCP tool + CLI (M7-A)
+
+`transport/local.rs`: `ProjectQueryInput { Id(String) | Name(String) }` +
+`project_query_from_flag` (sibling of `secret_query_from_flag`, strips `bw://project/`);
+`request_project_secrets(endpoint, &query) -> ProjectSecretsOutcome { project_name, reference,
+secrets: Vec<WireSecret> }` — reuses `WireSecret` (already `Zeroizing` value + redacting `Debug`);
+`WireResponse` gains `#[serde(default)] secrets: Option<Vec<WireSecret>>`; interpreter checks
+version, `bw://project/` prefix, non-empty derived id, and **rejects an approved reply with a
+missing `secrets` array** (fail closed — an empty-but-present array is impossible by the desktop's
+zero-secrets ⇒ `notFound` rule, treat it as an error too).
+
+`command/mcp.rs` — tool count 15 → **16**: `run_with_project_secrets({project, command,
+uuidsAsKeynames?})` → `{exitCode, output: {stdout, stderr}, injected: ["DB_PASSWORD", …]}`.
+
+- `project`: name, bare UUID, or `bw://project/<id>` reference; `command`: non-empty string array.
+- Env naming: per secret, `secret_env_var_name(name)` (the pinned uppercase/`_` algorithm above),
+  or `uuid_to_posix`-style `_`-prefixed hyphens-to-underscores UUID form when
+  `uuidsAsKeynames: true` (mirror bws `util::uuid_to_posix`: `_<uuid with '-'→'_'>`).
+- **Collision check before spawn**: two secrets mapping to the same env name ⇒ tool error naming
+  the colliding _env var name_ (never values), child never spawned. `uuidsAsKeynames` cannot
+  collide.
+- Every non-empty value joins the Redactor scrub list; `injected` lists env var _names_ only
+  (names were displayed to the user in the approval dialog; no values, ever, on any status —
+  extend the value-never-in-output table tests to the new tool).
+- Description MUST state: requires approval in the Bitwarden desktop app; the user sees the full
+  list of secret names before approving; values are injected into the command's environment and
+  scrubbed from captured output, never returned to you; prefer this over N `run_with_secret`
+  calls when a command needs a whole project's secrets (one approval instead of N).
+- Update `SERVER_INSTRUCTIONS` (runtime step of the remediation workflow: a service consuming a
+  whole project runs under `run_with_project_secrets`) and the count/name/required-field tests.
+
+CLI: `aac run --project <name|uuid|bw://project/id>` — conflicts with
+`domain`/`id`/`search`/`reference`/`secret`/`env_mappings`/`env_all` and with `--secret-env`
+(per-secret override is meaningless for a set; runtime-validated like `--secret-env` itself).
+`--uuids-as-keynames` flag valid only with `--project` (runtime-validated). Local transport only,
+no relay fallback (`fetch_project_secrets_dispatch` sibling in `connect.rs`). No new single-shot
+print form — a reference-mode project fetch is `list_projects`' job; `--project` exists for `run`
+only.
+
+### Desktop Rust + napi (M7-B)
+
+`callbacks.rs`: `RequestOperation` += `BulkRequest`; `CredentialRequestData` += nothing new
+(`target_id` carries `project.id`, `query_value` carries the name form — see force-fill below);
+`CredentialResponseData` += `secrets: Option<Vec<SecretEntry>>`
+(`SecretEntry { id, name, value: Zeroizing<String> }`, `Debug` prints count/presence only —
+names AND values redacted: unlike `ProjectEntry` this rides next to values, keep the whole entry
+dark). Entries transit main only inside the in-flight response, never buffered.
+
+`local_protocol.rs`: `WireProjectSelector { id?, name? }` (exactly-one in validate);
+`ValidatedRequest::BulkRequest { project_id: Option<String>, project_name: Option<String>,
+client }`; `build_response` `(BulkRequest, _)` arm → approved reply from `project_id` +
+`item_name` + `secrets` vec, **fail-closed if any of the three is missing/empty**; response
+`WireSecretEntry` serialization identical to M4's `secret` object (`name`/`value`/`secretId`).
+
+**Force-fill** (`local_listener/mod.rs`): `query_type` omitted, `query_value` = `project.id` if
+present else `project.name` (the target selector, same spirit as update/delete's `target_id`);
+`target_id` = `project.id` when id-form. Main TS keeps queryType/queryValue out of the activity
+row (`operation !== "request"` gate, unchanged). Spec-assert.
+
+napi: `OperationType` += `bulkRequest`; `CredentialRequestData` unchanged shape-wise (reuses
+`targetId?`; name-form arrives via a new `projectName?: string` field — presence-only in `Debug`);
+`CredentialResponseData` += `secrets?: Array<AgentAccessSecretEntry>`;
+`AgentAccessSecretEntry { id, name, value }`. The `.d.ts` additions are hand-applied by the
+architect; make the Rust match exactly.
+
+### Desktop TS main + models (M7-C)
+
+Models: `AgentAccessOperation` += `BulkRequest: "bulkRequest"`;
+`CredentialRequestActivity`/`CredentialRequestOutcome` += `secretIds?: string[]` (ids only —
+invariant 3 unchanged; `projectId?` exists since M6). Main service: pass `targetId`/`projectName`
+through to the renderer message; activity row for `bulkRequest` carries no query fields (existing
+gate); `resolveCredentialRequest` copies `projectId` + `secretIds` on `Shared` for `bulkRequest`
+rows (status vocabulary unchanged — an approved bulk release IS `Shared`). Pending-timeout,
+one-way Pending→resolved, ids-only buffer: unchanged, spec-asserted for the new op.
+
+### Desktop TS renderer (M7-D)
+
+`agent-access-secrets.service.ts`:
+
+- `listSecretsInProject(projectId, organizationId, userId)` → `GET /projects/{id}/secrets`
+  (unlogged), decrypt names with the org key, filter `read === true`, return
+  `[{secretId, name}]`. Degrade-to-empty on read failures (existing convention).
+- `resolveProjectSelector({id?, name?}, userId)` → reuse `listProjects` across SM orgs; id ⇒
+  direct lookup; name ⇒ exact-then-unique-case-insensitive match; returns
+  `{projectId, projectName, organizationId, organizationName}` or null.
+- `getSecretValuesByIds(ids, organizationId, userId)` → **post-approval** `POST
+/secrets/get-by-ids` **with the agent-mediated header** (this reintroduces the bulk fetch M4c
+  removed — the difference is it now runs AFTER approval, so every `Secret_RetrievedByAgent` row
+  the server writes corresponds to a secret the user saw in the dialog and released). **Filter
+  the response to the approved id set** (never release more than was displayed); a failed call
+  denies with a generic error + toast. Decrypt values (and names for the reply) with the org
+  key. Server facts (VERIFIED against `SecretsController.GetSecretsByIdsAsync`): the response
+  is `ListResponseModel<BaseSecretResponseModel>` — wrapper property `data`, NOT the `secrets`
+  wrapper the org/project list endpoints use — and the server 404s the WHOLE call when any
+  requested id is missing (`secrets.Count != request.Ids.Count()`), so a TOCTOU-deleted secret
+  surfaces as a call failure → post-approval generic denial, never a silently smaller release.
+  The header treatment on this action already existed server-side (pre-M6); M7-E was a no-op.
+
+Pipeline (`desktop-agent-access.service.ts`): `operation === "bulkRequest"` →
+`handleProjectSecretsRequest` after the same enable/unlock/grant gates. Resolve selector →
+`listSecretsInProject` → zero secrets or unresolvable selector ⇒ `notFound`; >200 ⇒ generic
+error; else dialog. On approve: `getSecretValuesByIds`, respond `{approved, projectId,
+secretIds, secrets: [{id, name, value}], itemName: projectName}`. Names enter the session cache
+for activity display (secrets and project both).
+
+Dialog `project-secrets-request.component`: params `{requesterName?, requesterFingerprint?,
+projectName, organizationName, entries: [{name}]}`; result `{approved}`. Copy: the agent will run
+a command with **all N secrets of project X** injected as environment variables; the full name
+list is shown (scrollable, like `project-list-request`); values are not displayed and are not
+returned to the agent, but the command it runs can read them (truthful consequence labeling —
+this is `run_with_secret`'s trust model × N, say so plainly). Danger-adjacent primary style not
+required; this is a read release.
+
+Activity: `bulkRequest` + `Shared` renders "Shared N secrets from project {name}" — project name
+via cache with id fallback (like `Created`); the count comes from `secretIds.length`. i18n: new
+`agentAccessBulk*` family in the staged `agentAccess*` block (merge, never regenerate; `en` only).
+
+### Server (M7-E, branch `prototype/agentic-event-logs`)
+
+`SecretsController.GetSecretsByIds` currently logs hardcoded `Secret_Retrieved` per secret for
+the user branch; apply the existing `AgentMediation` helper (`ResolveAgentMediatedEventType`) so
+a header-marked call logs `Secret_RetrievedByAgent = 2106` per secret instead. No new event
+types, no client enum changes. Tests mirror the committed `SetAgentMediatedHeader` pattern on the
+get-by-ids action.
+
+### Invariants (additive to M4/M5/M6's)
+
+20. Invariant 16 is amended, not broken: `projectSecretsRequest` is the sole bulk **read**
+    release; it is single-target (one project), fully enumerated in the dialog (released set ==
+    displayed set, by ids fixed at approval), capped at 200, and carries no write semantics.
+    Bulk writes remain unrepresentable on the wire.
+21. The `secrets` array appears only in an approved `projectSecretsRequest` reply on the local
+    socket; never in any other op's reply, never in `find_secrets`/tool output, never in main's
+    activity buffer (ids only), never logged (presence/count-only `Debug` at every layer).
+22. The bulk value fetch is post-approval and id-filtered: the server sees exactly one
+    agent-mediated `get-by-ids` per approved release, covering only displayed ids — one event row
+    per released secret, none for secrets the user never approved.
+23. Whole-org (project-less) bulk release is unrepresentable on the wire.
 
 ## Sequencing & ownership
 

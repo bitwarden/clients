@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
@@ -9,8 +8,6 @@ import {
   DialogRef,
   AsyncActionsModule,
   ButtonModule,
-  DialogModule,
-  IconButtonModule,
   DialogService,
   CalloutModule,
   TypographyModule,
@@ -19,8 +16,14 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { AGENT_LOGOS } from "../icons";
+import { AgentAccessConsequence } from "../models/agent-access-consequence";
 import { SmProjectMatch } from "../services/agent-access-secrets.service";
+import { resolveAgentBrand } from "../utils/agent-brand.util";
 import { shortenFingerprint } from "../utils/shorten-fingerprint";
+
+import { AgentAccessRequestDialogComponent } from "./shared/agent-access-request-dialog.component";
+import { AgentAccessRequesterView } from "./shared/agent-access-requester.component";
 
 /**
  * What an agent's `secretUpdate` request proposes to change, resolved BEFORE this dialog opens
@@ -31,9 +34,11 @@ import { shortenFingerprint } from "../utils/shorten-fingerprint";
  */
 export interface UpdateSecretRequestChanges {
   name?: { from: string; to: string };
-  /** `"agent"` — the agent supplied a new value, shown masked with a reveal toggle, exactly like
-   *  `create-secret-request`. `"generated"` — Bitwarden will generate the new value at approval
-   *  time; it is never shown here or anywhere else (agent-access-architecture.md, invariant 14). */
+  /** `"agent"` — the agent supplied a new value, shown masked, with no reveal — unlike
+   *  `create-secret-request`, this dialog has no sanctioned exception to the "never render a
+   *  secret value" invariant, so the actual string never reaches this component's params at all.
+   *  `"generated"` — Bitwarden will generate the new value at approval time; it is never shown
+   *  here or anywhere else (agent-access-architecture.md, invariant 14). */
   value?: "agent" | "generated";
   /** The agent's PROPOSED new note text. Never the secret's CURRENT note — that is write-only
    *  through Agent Access and is never fetched, let alone rendered, by this dialog (M4 invariant
@@ -46,6 +51,16 @@ export interface UpdateSecretRequestChanges {
 export interface UpdateSecretRequestParams {
   requesterName?: string;
   requesterFingerprint?: string;
+  /**
+   * Attested code-signature facts for the requester (agent-access-design-spec.md §7.5.2), read
+   * from `localPeer.signature` on the wire message — never from `requesterName`, which is
+   * self-reported and must never influence which brand logo resolves. `undefined` on a relay-
+   * origin request, which has no OS-verified peer at all; see `resolveAgentBrand`'s contract for
+   * why an absent/invalid signature always falls back to the neutral glyph rather than a logo.
+   */
+  signatureKind?: string;
+  signatureIdentity?: string;
+  signatureValid?: boolean;
   /** The secret's CURRENT decrypted name — display only, for the dialog's header/identity block.
    *  Never the proposed value for anything the agent didn't ask to change. */
   secretName: string;
@@ -75,34 +90,37 @@ const NO_MOVE_SENTINEL = "__agent-access-no-move__";
 /**
  * Approval dialog for a `secretUpdate` request (agent-access-architecture.md, "M6-D"). Unlike
  * `CreateSecretRequestComponent`, there is no single "the proposed item" — only a list of
- * individual field changes, each displayed with a from -> to (or "will be generated") summary so
- * approving this dialog releases exactly, and only, what it displays (payload-built-before-dialog
- * invariant).
+ * individual field changes, each displayed as a labeled before/after (or "will be generated")
+ * card so approving this dialog releases exactly, and only, what it displays
+ * (payload-built-before-dialog invariant).
  *
  * SECURITY: never renders the secret's current value or current note — only the proposed new
  * value's *origin* (`"agent"` vs `"generated"`) and the proposed new note text, which came from
- * the agent, not from decrypting anything currently stored.
+ * the agent, not from decrypting anything currently stored. Unlike `create-secret-request`, the
+ * `"agent"` value case has no reveal toggle: the actual proposed string never reaches this
+ * component's `DIALOG_DATA` at all, only the `"agent"` tag, so there is nothing here that could
+ * be revealed even by a future bug in this file (agent-access-design-spec.md §2.3's invariant 21
+ * — "never render a secret value" — has no sanctioned exception in this dialog).
  */
 @Component({
   selector: "app-update-secret-request",
   templateUrl: "update-secret-request.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DialogModule,
-    CommonModule,
     I18nPipe,
     ButtonModule,
-    IconButtonModule,
     ReactiveFormsModule,
     AsyncActionsModule,
     CalloutModule,
     TypographyModule,
     FormFieldModule,
     SelectModule,
+    AgentAccessRequestDialogComponent,
   ],
 })
 export class UpdateSecretRequestComponent {
   protected readonly NO_MOVE_SENTINEL = NO_MOVE_SENTINEL;
+  protected readonly AgentAccessConsequence = AgentAccessConsequence;
 
   private readonly formBuilder = inject(FormBuilder);
   private readonly dialogRef = inject<DialogRef<UpdateSecretRequestResult>>(DialogRef);
@@ -114,6 +132,26 @@ export class UpdateSecretRequestComponent {
     (this.params.requesterFingerprint
       ? shortenFingerprint(this.params.requesterFingerprint)
       : this.i18nService.t("agentAccessUnknownApplication"));
+
+  /** The known agent behind a *verified* signature, or `undefined` for an unrecognized/unverified
+   *  requester — decoration only, never a factor in what's authorized (see `resolveAgentBrand`'s
+   *  contract). SECURITY: resolved from `params.signature*` only; `params.requesterName` is
+   *  self-reported and must never influence this (agent-access-design-spec.md §7.5.2). */
+  protected readonly brand = resolveAgentBrand(this.params);
+
+  /** Brand mark for the resolved agent; `undefined` renders the neutral `bwi-terminal` glyph. */
+  protected readonly brandLogo = this.brand == null ? undefined : AGENT_LOGOS[this.brand];
+
+  /** WHO is asking (spec §2). */
+  protected readonly requesterView: AgentAccessRequesterView = {
+    name: this.requesterDisplayName,
+    brandLogo: this.brandLogo,
+  };
+
+  /** WHAT happens if I say yes (spec §2) — always `change`: the vault is mutated, but nothing
+   *  that already exists is disclosed, whichever of the three change kinds below are present.
+   *  The specifics live in the body's before/after cards, not in this one-sentence summary. */
+  protected readonly consequenceSummary = this.i18nService.t("agentAccessUpdateConsequenceSummary");
 
   protected readonly showProjectPicker = computed(() => this.params.changes.project != null);
 

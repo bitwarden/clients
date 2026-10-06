@@ -12,7 +12,7 @@ use zeroize::Zeroizing;
 
 use crate::callbacks::{
     CallbackError, CredentialDenialReason, CredentialQueryKind, CredentialResponseData,
-    DeliveryMode, ProjectEntry, RequestOperation, ResourceKind,
+    DeliveryMode, ProjectEntry, RequestOperation, ResourceKind, SecretEntry,
 };
 
 /// The only protocol version this server understands. Requests with a different `version` are
@@ -58,8 +58,26 @@ pub(super) struct WireRequest {
     /// be the same class of confusing client-bug-goes-unnoticed as an ignored `create` object.
     #[serde(default)]
     pub(super) fill: Option<WireFillParams>,
+    /// Present only on a `projectSecretsRequest` request (M7, "bws run parity: project-scoped
+    /// bulk secret injection"). [`validate`] rejects it on every other `op`, same reasoning as
+    /// [`create`] above.
+    #[serde(default)]
+    pub(super) project: Option<WireProjectSelector>,
     #[serde(default)]
     pub(super) client: Option<WireClientInfo>,
+}
+
+/// The `project` object on a `projectSecretsRequest` request (M7) — selects the single project
+/// whose secrets are being released, by id or by name. [`validate`] requires exactly one of the
+/// two, non-empty. Value-free (an opaque id or a project name — project names are org metadata,
+/// not secret material, same reasoning as `callbacks::ProjectEntry::name`), so a derived `Debug`
+/// is fine.
+#[derive(Debug, Deserialize, Clone, PartialEq, Eq)]
+pub(super) struct WireProjectSelector {
+    #[serde(default)]
+    pub(super) id: Option<String>,
+    #[serde(default)]
+    pub(super) name: Option<String>,
 }
 
 /// The `target` object on a `secretUpdate`/`secretDelete`/`projectUpdate`/`projectDelete`
@@ -310,6 +328,16 @@ pub(super) enum ValidatedRequest {
     /// fillable fields. No query, no delivery, no fill/create/update/target object on the wire —
     /// [`validate`] rejects a request that carries any of them under this op.
     DescribeFillTarget { client: Option<WireClientInfo> },
+    /// `projectSecretsRequest` (M7, "bws run parity") — release the full enumerated secret set
+    /// of one project in a single approval. Exactly one of `project_id`/`project_name` is
+    /// `Some` (enforced by [`validate`]). No query, no delivery, no create/update/target object
+    /// on the wire — delivery is implicitly inject (agent-access-architecture.md's "M7" wire
+    /// section: "there is no reference form").
+    BulkRequest {
+        project_id: Option<String>,
+        project_name: Option<String>,
+        client: Option<WireClientInfo>,
+    },
 }
 
 /// Requested field roles + optional target-token binding for a `delivery: "fill"` request (M5).
@@ -395,6 +423,19 @@ impl std::fmt::Debug for ValidatedRequest {
                 .debug_struct("ValidatedRequest::DescribeFillTarget")
                 .field("client", client)
                 .finish(),
+            // Value-free (an opaque id, or a project name — project names are org metadata,
+            // not secret material, same reasoning as `WireProjectSelector`'s docs), so both
+            // fields are printed verbatim rather than presence-only.
+            Self::BulkRequest {
+                project_id,
+                project_name,
+                client,
+            } => f
+                .debug_struct("ValidatedRequest::BulkRequest")
+                .field("project_id", project_id)
+                .field("project_name", project_name)
+                .field("client", client)
+                .finish(),
         }
     }
 }
@@ -410,7 +451,8 @@ impl std::fmt::Debug for ValidatedRequest {
 /// new ops"): `"credentialRequest"` → `Credential`/`Request`, `"secretRequest"` →
 /// `Secret`/`Request`, `"secretCreate"`/`"projectCreate"` → `Secret`/`Project`/`Create`,
 /// `"secretUpdate"`/`"projectUpdate"` → `.../Update`, `"secretDelete"`/`"projectDelete"` →
-/// `.../Delete`, `"projectList"` → `Project`/`List`. Each op is delegated to its own helper
+/// `.../Delete`, `"projectList"` → `Project`/`List`, `"projectSecretsRequest"` (M7) →
+/// `Secret`/`BulkRequest`. Each op is delegated to its own helper
 /// below, and every helper rejects every wire-level object that doesn't belong to its op
 /// explicitly (a silently-ignored foreign object would let a client bug go unnoticed) — the
 /// specific set of "foreign" fields differs per op and is documented on each helper.
@@ -428,6 +470,7 @@ pub(super) fn validate(request: WireRequest) -> Result<ValidatedRequest, &'stati
         "projectDelete" => validate_delete(ResourceKind::Project, request),
         "projectList" => validate_list(request),
         "describeFillTarget" => validate_describe_fill_target(request),
+        "projectSecretsRequest" => validate_bulk_request(request),
         _ => Err("unknown operation"),
     }
 }
@@ -786,6 +829,57 @@ fn validate_describe_fill_target(request: WireRequest) -> Result<ValidatedReques
     })
 }
 
+/// `projectSecretsRequest` (M7, "bws run parity: project-scoped bulk secret injection") —
+/// release the full enumerated secret set of one project in a single approval. Foreign objects:
+/// `query`, `delivery`, `fill`, `create`, `update`, `target` — the project selector rides in its
+/// own `project` object (mirroring `secretRequest`'s `query` shape, but scoped to exactly one
+/// project rather than an arbitrary lookup); delivery is implicitly inject, so there is no
+/// `delivery`/`fill` object either.
+fn validate_bulk_request(request: WireRequest) -> Result<ValidatedRequest, &'static str> {
+    if request.query.is_some() {
+        return Err("query is not valid for this operation");
+    }
+    if request.delivery.is_some() {
+        return Err("delivery is not valid for this operation");
+    }
+    if request.fill.is_some() {
+        return Err("fill object is not valid for this operation");
+    }
+    if request.create.is_some() {
+        return Err("create object is not valid for this operation");
+    }
+    if request.update.is_some() {
+        return Err("update object is not valid for this operation");
+    }
+    if request.target.is_some() {
+        return Err("target object is not valid for this operation");
+    }
+    let project = request.project.ok_or("missing project")?;
+    let (project_id, project_name) = match (project.id, project.name) {
+        (Some(id), None) => {
+            if id.is_empty() {
+                return Err("project.id must not be empty");
+            }
+            (Some(id), None)
+        }
+        (None, Some(name)) => {
+            if name.is_empty() {
+                return Err("project.name must not be empty");
+            }
+            (None, Some(name))
+        }
+        (Some(_), Some(_)) => {
+            return Err("project.id and project.name are mutually exclusive");
+        }
+        (None, None) => return Err("project.id or project.name is required"),
+    };
+    Ok(ValidatedRequest::BulkRequest {
+        project_id,
+        project_name,
+        client: request.client,
+    })
+}
+
 // ---------------------------------------------------------------------------------------------
 // Response
 // ---------------------------------------------------------------------------------------------
@@ -864,6 +958,29 @@ impl std::fmt::Debug for WireSecret {
     }
 }
 
+/// One entry of an approved `projectSecretsRequest` reply's `secrets` array (M7) — shaped
+/// identically to [`WireSecret`] (same `name`/`value`/`secretId` keys on the wire), and
+/// redacted the same way. A separate type (rather than reusing [`WireSecret`] directly) so a
+/// future divergence between the single-secret and bulk-secret wire shapes doesn't require
+/// unpicking a shared type first.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct WireSecretEntry {
+    pub(super) name: String,
+    pub(super) value: String,
+    pub(super) secret_id: String,
+}
+
+impl std::fmt::Debug for WireSecretEntry {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("WireSecretEntry")
+            .field("name", &"<redacted>")
+            .field("value", &"<redacted>")
+            .field("secret_id", &self.secret_id)
+            .finish()
+    }
+}
+
 /// One entry of an approved `projectList` reply (M6) — project metadata only, no secret
 /// material (agent-access-architecture.md's "M6" wire section: "names are org metadata, no
 /// secret material"). Plain `Debug`/`Serialize` are fine, same reasoning as
@@ -915,6 +1032,11 @@ pub(super) struct WireResponse {
     /// list-shaped release"). `None`/absent for every other op.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(super) projects: Option<Vec<WireProjectEntry>>,
+    /// The full enumerated secret set released by an approved `projectSecretsRequest` reply
+    /// (M7) — invariant 21: appears only here, never in any other op's reply. `None`/absent for
+    /// every other op.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(super) secrets: Option<Vec<WireSecretEntry>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(super) message: Option<String>,
     /// M5's `fill` response object (`delivery: "fill"`'s execution outcome) — a value-free
@@ -942,6 +1064,7 @@ impl WireResponse {
             reference: None,
             item: None,
             projects: None,
+            secrets: None,
             message: Some(message.to_string()),
             fill: None,
             fill_target: None,
@@ -1004,6 +1127,13 @@ pub(super) fn build_response(
                 // The one list-shaped release (invariant 16) — no fields_shared concept applies
                 // to a list of names/ids/flags.
                 (RequestOperation::List, _) => (build_approved_list(&response), None),
+                // The sole bulk *read* release (invariant 20) — no fields_shared concept
+                // applies to a set of secrets the way it does to a single credential's fields;
+                // the activity log's per-secret accounting comes from `secretIds` on the M7-C
+                // outcome instead, not this crate's `fields_shared`.
+                (RequestOperation::BulkRequest, _) => {
+                    (build_approved_bulk_request(&response), None)
+                }
                 // A describe reply is page metadata, not vault data — no delivery mode to
                 // branch on, same shape as a create in that respect.
                 (RequestOperation::DescribeFillTarget, _) => {
@@ -1191,6 +1321,7 @@ fn build_approved_credential(
                 reference: Some(reference),
                 item: None,
                 projects: None,
+                secrets: None,
                 message: None,
                 fill: None,
                 fill_target: None,
@@ -1209,6 +1340,7 @@ fn build_approved_credential(
                     username: username.map(str::to_string),
                 }),
                 projects: None,
+                secrets: None,
                 message: None,
                 fill: None,
                 fill_target: None,
@@ -1253,6 +1385,7 @@ fn build_approved_fill(response: &CredentialResponseData, reference: String) -> 
             username: response.username.clone(),
         }),
         projects: None,
+        secrets: None,
         message: None,
         fill: Some(fill),
         fill_target: None,
@@ -1287,6 +1420,7 @@ fn build_approved_describe_fill_target(response: &CredentialResponseData) -> Wir
         reference: None,
         item: None,
         projects: None,
+        secrets: None,
         message: None,
         fill: None,
         fill_target: Some(fill_target),
@@ -1328,6 +1462,7 @@ fn build_approved_secret(
                 reference: Some(format!("bw://secret/{secret_id}")),
                 item: None,
                 projects: None,
+                secrets: None,
                 message: None,
                 fill: None,
                 fill_target: None,
@@ -1354,6 +1489,7 @@ fn build_approved_secret(
                     username: None,
                 }),
                 projects: None,
+                secrets: None,
                 message: None,
                 fill: None,
                 fill_target: None,
@@ -1412,10 +1548,8 @@ fn build_approved_reference_and_name(
     response: &CredentialResponseData,
     resource: ResourceKind,
 ) -> WireResponse {
-    let (Some(id), Some(name)) = (
-        resource_id(response, resource),
-        response.item_name.clone(),
-    ) else {
+    let (Some(id), Some(name)) = (resource_id(response, resource), response.item_name.clone())
+    else {
         return WireResponse::status(WireStatus::Error, "Approved response missing id or name");
     };
     WireResponse {
@@ -1432,6 +1566,7 @@ fn build_approved_reference_and_name(
             username: None,
         }),
         projects: None,
+        secrets: None,
         message: None,
         fill: None,
         fill_target: None,
@@ -1469,6 +1604,71 @@ fn build_approved_list(response: &CredentialResponseData) -> WireResponse {
         reference: None,
         item: None,
         projects: Some(entries),
+        secrets: None,
+        message: None,
+        fill: None,
+        fill_target: None,
+    }
+}
+
+/// Cap on the number of entries released in a single `projectSecretsRequest` reply —
+/// defensive-in-depth, mirroring [`MAX_PROJECT_LIST_ENTRIES`]; the renderer applies the same
+/// cap *before* the dialog is ever shown (agent-access-architecture.md's "M7" wire section: "a
+/// project over the cap ⇒ wire error with a generic message — pre-dialog"), so this should
+/// never actually trim a real approved response.
+const MAX_BULK_SECRET_ENTRIES: usize = 200;
+
+/// Builds the `status: "approved"` reply for `projectSecretsRequest` (M7, "bws run parity") —
+/// the sole bulk **read** release this protocol represents (invariant 20). `reference` +
+/// `item.name` mirror every other approved reply's project/item shape; `secrets` is the one
+/// new top-level array, appearing only here (invariant 21). Missing `project_id`/`item_name`,
+/// or a missing/empty `secrets` vec, on an approved response is a handler contract violation —
+/// fail closed, mirroring every other builder in this module (e.g.
+/// [`build_approved_list`]'s missing-`projects` handling). An empty-but-present `secrets` vec
+/// is deliberately treated the same as a missing one: the desktop's own "a project with zero
+/// readable secrets ⇒ `notFound`" rule (agent-access-architecture.md's "M7" wire section) means
+/// a *real* approved release can never legitimately carry zero entries, so an empty vec here is
+/// itself a handler contract violation, not a valid "nothing to release" response.
+fn build_approved_bulk_request(response: &CredentialResponseData) -> WireResponse {
+    let (Some(project_id), Some(item_name), Some(secrets)) = (
+        response.project_id.clone(),
+        response.item_name.clone(),
+        response.secrets.as_ref(),
+    ) else {
+        return WireResponse::status(
+            WireStatus::Error,
+            "Approved response missing project id, name, or secrets",
+        );
+    };
+    if secrets.is_empty() {
+        return WireResponse::status(
+            WireStatus::Error,
+            "Approved response missing project id, name, or secrets",
+        );
+    }
+    let entries: Vec<WireSecretEntry> = secrets
+        .iter()
+        .take(MAX_BULK_SECRET_ENTRIES)
+        .map(|entry: &SecretEntry| WireSecretEntry {
+            name: entry.name.clone(),
+            value: entry.value.to_string(),
+            secret_id: entry.id.clone(),
+        })
+        .collect();
+    WireResponse {
+        version: VERSION,
+        status: WireStatus::Approved,
+        credential: None,
+        secret: None,
+        reference: Some(format!("bw://project/{project_id}")),
+        item: Some(WireItem {
+            name: Some(item_name),
+            // `item.username` is a credential-only concept; a bulk secret release never
+            // populates it, same treatment as the project/secret create/update/delete replies.
+            username: None,
+        }),
+        projects: None,
+        secrets: Some(entries),
         message: None,
         fill: None,
         fill_target: None,
@@ -1644,6 +1844,7 @@ mod tests {
             update: None,
             target: None,
             fill: None,
+            project: None,
             client: None,
         }
     }
@@ -1788,6 +1989,7 @@ mod tests {
             update: None,
             target: None,
             fill: None,
+            project: None,
             client: None,
         }
     }
@@ -2216,6 +2418,7 @@ mod tests {
                 project: Some("my-app".to_string()),
             }),
             fill: None,
+            project: None,
             client: None,
         }
     }
@@ -2291,7 +2494,9 @@ mod tests {
             ..base_secret_update_request()
         };
         match validate(request).unwrap() {
-            ValidatedRequest::Update { value, generate, .. } => {
+            ValidatedRequest::Update {
+                value, generate, ..
+            } => {
                 assert!(value.is_none());
                 let generate = generate.expect("generate options expected");
                 assert_eq!(generate.length, Some(20));
@@ -2573,6 +2778,7 @@ mod tests {
                 id: "secret-1".to_string(),
             }),
             fill: None,
+            project: None,
             client: None,
         }
     }
@@ -2705,6 +2911,7 @@ mod tests {
             update: None,
             target: None,
             fill: None,
+            project: None,
             client: None,
         }
     }
@@ -2771,6 +2978,225 @@ mod tests {
             ..base_project_list_request()
         };
         assert_validation_error(request, "create object is not valid for this operation");
+    }
+
+    // --- projectSecretsRequest (M7) -----------------------------------------------------------
+
+    fn base_bulk_request_by_id() -> WireRequest {
+        WireRequest {
+            version: 1,
+            op: "projectSecretsRequest".to_string(),
+            query: None,
+            delivery: None,
+            create: None,
+            update: None,
+            target: None,
+            fill: None,
+            project: Some(WireProjectSelector {
+                id: Some("project-1".to_string()),
+                name: None,
+            }),
+            client: Some(WireClientInfo {
+                name: "aac".to_string(),
+                version: "0.1.0".to_string(),
+            }),
+        }
+    }
+
+    fn base_bulk_request_by_name() -> WireRequest {
+        WireRequest {
+            project: Some(WireProjectSelector {
+                id: None,
+                name: Some("my-app".to_string()),
+            }),
+            ..base_bulk_request_by_id()
+        }
+    }
+
+    #[test]
+    fn validate_accepts_a_well_formed_bulk_request_by_id() {
+        let request = base_bulk_request_by_id();
+        match validate(request).unwrap() {
+            ValidatedRequest::BulkRequest {
+                project_id,
+                project_name,
+                ..
+            } => {
+                assert_eq!(project_id.as_deref(), Some("project-1"));
+                assert!(project_name.is_none());
+            }
+            other => panic!("expected a BulkRequest, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn validate_accepts_a_well_formed_bulk_request_by_name() {
+        let request = base_bulk_request_by_name();
+        match validate(request).unwrap() {
+            ValidatedRequest::BulkRequest {
+                project_id,
+                project_name,
+                ..
+            } => {
+                assert!(project_id.is_none());
+                assert_eq!(project_name.as_deref(), Some("my-app"));
+            }
+            other => panic!("expected a BulkRequest, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn validate_rejects_bulk_request_missing_project() {
+        let request = WireRequest {
+            project: None,
+            ..base_bulk_request_by_id()
+        };
+        assert_validation_error(request, "missing project");
+    }
+
+    #[test]
+    fn validate_rejects_bulk_request_with_empty_project_id() {
+        let request = WireRequest {
+            project: Some(WireProjectSelector {
+                id: Some(String::new()),
+                name: None,
+            }),
+            ..base_bulk_request_by_id()
+        };
+        assert_validation_error(request, "project.id must not be empty");
+    }
+
+    #[test]
+    fn validate_rejects_bulk_request_with_empty_project_name() {
+        let request = WireRequest {
+            project: Some(WireProjectSelector {
+                id: None,
+                name: Some(String::new()),
+            }),
+            ..base_bulk_request_by_id()
+        };
+        assert_validation_error(request, "project.name must not be empty");
+    }
+
+    #[test]
+    fn validate_rejects_bulk_request_with_neither_id_nor_name() {
+        let request = WireRequest {
+            project: Some(WireProjectSelector {
+                id: None,
+                name: None,
+            }),
+            ..base_bulk_request_by_id()
+        };
+        assert_validation_error(request, "project.id or project.name is required");
+    }
+
+    #[test]
+    fn validate_rejects_bulk_request_with_both_id_and_name() {
+        let request = WireRequest {
+            project: Some(WireProjectSelector {
+                id: Some("project-1".to_string()),
+                name: Some("my-app".to_string()),
+            }),
+            ..base_bulk_request_by_id()
+        };
+        assert_validation_error(
+            request,
+            "project.id and project.name are mutually exclusive",
+        );
+    }
+
+    #[test]
+    fn validate_rejects_query_on_bulk_request() {
+        let request = WireRequest {
+            query: Some(WireQuery {
+                kind: WireQueryType::Id,
+                value: "x".to_string(),
+            }),
+            ..base_bulk_request_by_id()
+        };
+        assert_validation_error(request, "query is not valid for this operation");
+    }
+
+    #[test]
+    fn validate_rejects_delivery_on_bulk_request() {
+        let request = WireRequest {
+            delivery: Some(WireDelivery::Inject),
+            ..base_bulk_request_by_id()
+        };
+        assert_validation_error(request, "delivery is not valid for this operation");
+    }
+
+    #[test]
+    fn validate_rejects_fill_on_bulk_request() {
+        let request = WireRequest {
+            fill: Some(WireFillParams::default()),
+            ..base_bulk_request_by_id()
+        };
+        assert_validation_error(request, "fill object is not valid for this operation");
+    }
+
+    #[test]
+    fn validate_rejects_create_on_bulk_request() {
+        let request = WireRequest {
+            create: Some(WireCreate {
+                name: "x".to_string(),
+                value: None,
+                generate: None,
+                note: None,
+                project: None,
+            }),
+            ..base_bulk_request_by_id()
+        };
+        assert_validation_error(request, "create object is not valid for this operation");
+    }
+
+    #[test]
+    fn validate_rejects_update_on_bulk_request() {
+        let request = WireRequest {
+            update: Some(WireUpdate {
+                name: Some("x".to_string()),
+                value: None,
+                generate: None,
+                note: None,
+                project: None,
+            }),
+            ..base_bulk_request_by_id()
+        };
+        assert_validation_error(request, "update object is not valid for this operation");
+    }
+
+    #[test]
+    fn validate_rejects_target_on_bulk_request() {
+        let request = WireRequest {
+            target: Some(WireTarget {
+                id: "x".to_string(),
+            }),
+            ..base_bulk_request_by_id()
+        };
+        assert_validation_error(request, "target object is not valid for this operation");
+    }
+
+    #[test]
+    fn deserializes_a_well_formed_bulk_request_by_id() {
+        let json = r#"{"version":1,"op":"projectSecretsRequest",
+            "project":{"id":"project-1"},
+            "client":{"name":"aac","version":"0.1.0"}}"#;
+        let request: WireRequest = serde_json::from_str(json).unwrap();
+        assert_eq!(request.op, "projectSecretsRequest");
+        let project = request.project.unwrap();
+        assert_eq!(project.id.as_deref(), Some("project-1"));
+        assert!(project.name.is_none());
+    }
+
+    #[test]
+    fn deserializes_a_well_formed_bulk_request_by_name() {
+        let json = r#"{"version":1,"op":"projectSecretsRequest",
+            "project":{"name":"my-app"},
+            "client":{"name":"aac","version":"0.1.0"}}"#;
+        let request: WireRequest = serde_json::from_str(json).unwrap();
+        let project = request.project.unwrap();
+        assert!(project.id.is_none());
+        assert_eq!(project.name.as_deref(), Some("my-app"));
     }
 
     // --- validate: delivery "fill" (M5) -------------------------------------------------------
@@ -2916,6 +3342,7 @@ mod tests {
             update: None,
             target: None,
             fill: None,
+            project: None,
             client: Some(WireClientInfo {
                 name: "aac".to_string(),
                 version: "0.1.0".to_string(),
@@ -3924,6 +4351,169 @@ mod tests {
         );
         assert_eq!(outcome.response.status, WireStatus::Error);
         assert!(outcome.response.projects.is_none());
+    }
+
+    // --- projectSecretsRequest response construction (M7) ----------------------------------
+
+    fn approving_bulk_response(entries: Vec<SecretEntry>) -> CredentialResponseData {
+        CredentialResponseData {
+            approved: true,
+            project_id: Some("project-1".to_string()),
+            item_name: Some("my-app".to_string()),
+            secrets: Some(entries),
+            ..Default::default()
+        }
+    }
+
+    fn sample_secret_entries() -> Vec<SecretEntry> {
+        vec![
+            SecretEntry {
+                id: "secret-1".to_string(),
+                name: "DB_PASSWORD".to_string(),
+                value: zeroize::Zeroizing::new("hunter2".to_string()),
+            },
+            SecretEntry {
+                id: "secret-2".to_string(),
+                name: "API_KEY".to_string(),
+                value: zeroize::Zeroizing::new("abc123".to_string()),
+            },
+        ]
+    }
+
+    /// Wire round-trip against the exact response literal shape from
+    /// agent-access-architecture.md's "M7" section:
+    /// `{"version":1,"status":"approved","reference":"bw://project/<uuid>",
+    /// "item":{"name":"<project name>"},"secrets":[{"name":...,"value":...,"secretId":...}]}` —
+    /// each entry shaped exactly like M4's single `secret` object.
+    #[test]
+    fn approved_bulk_request_response_matches_the_contract_literal_shape() {
+        let outcome = build_response(
+            Ok(Ok(approving_bulk_response(sample_secret_entries()))),
+            ResourceKind::Secret,
+            RequestOperation::BulkRequest,
+            None,
+        );
+        assert_eq!(outcome.response.status, WireStatus::Approved);
+        assert!(outcome.fields_shared.is_none());
+        let value: serde_json::Value = serde_json::to_value(&outcome.response).unwrap();
+        assert_eq!(value["version"], 1);
+        assert_eq!(value["status"], "approved");
+        assert_eq!(value["reference"], "bw://project/project-1");
+        assert_eq!(value["item"]["name"], "my-app");
+        assert!(value["item"].get("username").is_none());
+        assert_eq!(value["secrets"][0]["name"], "DB_PASSWORD");
+        assert_eq!(value["secrets"][0]["value"], "hunter2");
+        assert_eq!(value["secrets"][0]["secretId"], "secret-1");
+        assert_eq!(value["secrets"][1]["name"], "API_KEY");
+        assert_eq!(value["secrets"][1]["value"], "abc123");
+        assert_eq!(value["secrets"][1]["secretId"], "secret-2");
+        assert!(value.get("secret").is_none());
+        assert!(value.get("credential").is_none());
+        assert!(value.get("projects").is_none());
+    }
+
+    #[test]
+    fn approved_bulk_request_missing_project_id_denies_safely() {
+        let mut response = approving_bulk_response(sample_secret_entries());
+        response.project_id = None;
+        let outcome = build_response(
+            Ok(Ok(response)),
+            ResourceKind::Secret,
+            RequestOperation::BulkRequest,
+            None,
+        );
+        assert_eq!(outcome.response.status, WireStatus::Error);
+        assert!(outcome.response.reference.is_none());
+        assert!(outcome.response.secrets.is_none());
+    }
+
+    #[test]
+    fn approved_bulk_request_missing_item_name_denies_safely() {
+        let mut response = approving_bulk_response(sample_secret_entries());
+        response.item_name = None;
+        let outcome = build_response(
+            Ok(Ok(response)),
+            ResourceKind::Secret,
+            RequestOperation::BulkRequest,
+            None,
+        );
+        assert_eq!(outcome.response.status, WireStatus::Error);
+        assert!(outcome.response.secrets.is_none());
+    }
+
+    #[test]
+    fn approved_bulk_request_missing_secrets_denies_safely() {
+        let response = CredentialResponseData {
+            approved: true,
+            project_id: Some("project-1".to_string()),
+            item_name: Some("my-app".to_string()),
+            secrets: None,
+            ..Default::default()
+        };
+        let outcome = build_response(
+            Ok(Ok(response)),
+            ResourceKind::Secret,
+            RequestOperation::BulkRequest,
+            None,
+        );
+        assert_eq!(outcome.response.status, WireStatus::Error);
+        assert!(outcome.response.secrets.is_none());
+    }
+
+    /// The desktop's own "zero readable secrets ⇒ notFound" rule (agent-access-architecture.md's
+    /// "M7" wire section) means a *real* approved release never carries an empty `secrets`
+    /// vec — an empty-but-present vec here is itself a handler contract violation, so it must
+    /// fail closed the same as a missing one, never serialize as an empty `"secrets":[]` array.
+    #[test]
+    fn approved_bulk_request_with_empty_secrets_vec_denies_safely() {
+        let response = approving_bulk_response(vec![]);
+        let outcome = build_response(
+            Ok(Ok(response)),
+            ResourceKind::Secret,
+            RequestOperation::BulkRequest,
+            None,
+        );
+        assert_eq!(outcome.response.status, WireStatus::Error);
+        assert!(outcome.response.secrets.is_none());
+    }
+
+    #[test]
+    fn approved_bulk_request_truncates_to_the_200_entry_cap() {
+        let entries: Vec<SecretEntry> = (0..250)
+            .map(|i| SecretEntry {
+                id: format!("secret-{i}"),
+                name: format!("SECRET_{i}"),
+                value: zeroize::Zeroizing::new("v".to_string()),
+            })
+            .collect();
+        let outcome = build_response(
+            Ok(Ok(approving_bulk_response(entries))),
+            ResourceKind::Secret,
+            RequestOperation::BulkRequest,
+            None,
+        );
+        let value: serde_json::Value = serde_json::to_value(&outcome.response).unwrap();
+        assert_eq!(value["secrets"].as_array().unwrap().len(), 200);
+    }
+
+    /// `notes`/`note` are never read anywhere in this crate's local reply construction — the
+    /// bulk path has no note-carrying field to begin with (`SecretEntry` has no `note` field),
+    /// so this pins that a handler stuffing extra context into `item_name`/entry `name`/`value`
+    /// is the only surface that could leak, and none of it does beyond the intended fields.
+    #[test]
+    fn approved_bulk_request_never_leaks_beyond_the_intended_fields() {
+        let outcome = build_response(
+            Ok(Ok(approving_bulk_response(sample_secret_entries()))),
+            ResourceKind::Secret,
+            RequestOperation::BulkRequest,
+            None,
+        );
+        let json = serde_json::to_string(&outcome.response).unwrap();
+        assert!(
+            json.contains("hunter2"),
+            "values must be released on approval"
+        );
+        assert!(!json.contains("\"note\""));
     }
 
     #[test]

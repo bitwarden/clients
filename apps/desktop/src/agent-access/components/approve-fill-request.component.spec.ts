@@ -1,8 +1,12 @@
-import { TestBed } from "@angular/core/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
+
+import { AGENT_LOGOS } from "../icons";
+import { AgentAccessConsequence } from "../models/agent-access-consequence";
+import { AgentId } from "../models/agent-id";
 
 import { CredentialLoginMatch } from "./approve-credential-request.component";
 import {
@@ -170,6 +174,262 @@ describe("ApproveFillRequestComponent", () => {
       );
 
       expect(component["requesterDisplayName"]).toBe("agentAccessUnknownApplication");
+    });
+  });
+
+  describe("matchDisambiguator", () => {
+    it("uses the username when present", () => {
+      const component = createComponent(makeParams());
+      const match = makeMatch({ username: "user@example.com" });
+
+      expect(component["matchDisambiguator"](match)).toBe("user@example.com");
+    });
+
+    it("falls back to a shortened, guaranteed-unique cipher id when the username is absent, so two identically-named cards never look the same", () => {
+      const component = createComponent(makeParams());
+      const withoutUsername = makeMatch({ cipherId: "cipher-id-12345", username: undefined });
+
+      const disambiguator = component["matchDisambiguator"](withoutUsername);
+
+      expect(disambiguator).not.toBe("");
+      expect(disambiguator).toContain("cipher-i");
+    });
+  });
+
+  // agent-access-design-spec.md §7.5.2 — the reported scope regression: the agent's brand logo
+  // must appear on every request dialog, but only when it derives from an ATTESTED (verified
+  // code-signature) identity. `brand`/`brandLogo` are resolved from `params.signature*` only.
+  describe("brandLogo", () => {
+    it("resolves the brand logo for a verified signature matching a known agent", () => {
+      const component = createComponent(
+        makeParams({
+          signatureKind: "macosTeamId",
+          signatureIdentity: "Q6L2SF6YDW:com.anthropic.claude-code",
+          signatureValid: true,
+        }),
+      );
+
+      expect(component["brand"]).toBe(AgentId.Claude);
+      expect(component["brandLogo"]).toBe(AGENT_LOGOS[AgentId.Claude]);
+      expect(component["requesterView"].brandLogo).toBe(AGENT_LOGOS[AgentId.Claude]);
+    });
+
+    it("falls back to the neutral glyph for a verified signature with no matching brand", () => {
+      const component = createComponent(
+        makeParams({
+          signatureKind: "macosTeamId",
+          signatureIdentity: "ABCDE12345:com.example.someagent",
+          signatureValid: true,
+        }),
+      );
+
+      expect(component["brand"]).toBeUndefined();
+      expect(component["brandLogo"]).toBeUndefined();
+    });
+
+    it("never resolves a logo for an invalid/unverified signature, even when the identity would otherwise match a known agent", () => {
+      const component = createComponent(
+        makeParams({
+          signatureKind: "macosTeamId",
+          signatureIdentity: "Q6L2SF6YDW:com.anthropic.claude-code",
+          signatureValid: false,
+        }),
+      );
+
+      expect(component["brand"]).toBeUndefined();
+      expect(component["brandLogo"]).toBeUndefined();
+    });
+
+    // Regression test: `requesterName` is self-reported and must never let a spoofed name borrow
+    // a known agent's logo — only a verified code signature can (agent-access-design-spec.md
+    // §7.5.2, constraint 2).
+    it("does not resolve a logo from a spoofed requesterName claiming to be a known agent, with no signature present", () => {
+      const component = createComponent(
+        makeParams({
+          requesterName: "Claude Code",
+          signatureKind: undefined,
+          signatureIdentity: undefined,
+          signatureValid: undefined,
+        }),
+      );
+
+      expect(component["brand"]).toBeUndefined();
+      expect(component["brandLogo"]).toBeUndefined();
+      expect(component["requesterView"].name).toBe("Claude Code");
+      expect(component["requesterView"].brandLogo).toBeUndefined();
+    });
+  });
+
+  describe("consequence grade", () => {
+    it("is graded disclose and names the origin in the summary", () => {
+      const component = createComponent(makeParams({ origin: "https://github.com" }));
+
+      expect(component["AgentAccessConsequence"].Disclose).toBe(AgentAccessConsequence.Disclose);
+      // The `createComponent` helper's mocked `i18nService.t` echoes only the key (see its
+      // `mockImplementation` above), so this only confirms the right key and grade are wired up —
+      // the rendering suite below confirms the origin actually lands in the rendered text.
+      expect(component["consequenceSummary"]).toBe("agentAccessFillDiscloseSummary");
+      expect(component["consequenceDetail"]).toBe("agentAccessFillAgentNotShownDetail");
+    });
+  });
+
+  /**
+   * Rendering tests — `createComponent` above (matching `ApproveCredentialRequestComponent`'s and
+   * `ConfirmDeleteRequestComponent`'s precedent) never renders the template, so it can't catch a
+   * regression in the shared-shell migration itself: the origin staying the visually dominant
+   * element alongside the new consequence band, the disclose grade actually painting, the picker
+   * cards actually staying distinguishable with no username, or the field-plan/skipped lists
+   * actually rendering every entry. These use a real `TestBed.createComponent` fixture instead.
+   */
+  describe("rendering", () => {
+    let fixture: ComponentFixture<ApproveFillRequestComponent>;
+    let renderedDialogRef: MockProxy<DialogRef<ApproveFillRequestResult>>;
+
+    beforeAll(() => {
+      // jsdom does not implement IntersectionObserver; bit-dialog's scroll-shadow logic uses it
+      // internally (mirrors the polyfill in agent-access-request-dialog.component.spec.ts and
+      // confirm-delete-request.component.spec.ts).
+      (global as unknown as { IntersectionObserver: unknown }).IntersectionObserver = class {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+        takeRecords(): IntersectionObserverEntry[] {
+          return [];
+        }
+      };
+    });
+
+    async function render(params: ApproveFillRequestParams) {
+      renderedDialogRef = mock<DialogRef<ApproveFillRequestResult>>();
+      // jest-mock-extended proxies every unset property access as a truthy mock function.
+      // DialogComponent branches on `disableClose`/`isDrawer` to decide whether to render its
+      // close button and how to route it — see agent-access-request-dialog.component.spec.ts for
+      // the full explanation of this gotcha.
+      renderedDialogRef.disableClose = false;
+      renderedDialogRef.isDrawer = false;
+
+      const i18nService = mock<I18nService>();
+      i18nService.t.mockImplementation((key: string, ...args: (string | number)[]) =>
+        args.length > 0 ? `${key}::${args.join(",")}` : key,
+      );
+
+      await TestBed.configureTestingModule({
+        imports: [ApproveFillRequestComponent],
+        providers: [
+          { provide: DIALOG_DATA, useValue: params },
+          { provide: DialogRef, useValue: renderedDialogRef },
+          { provide: I18nService, useValue: i18nService },
+        ],
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(ApproveFillRequestComponent);
+      fixture.detectChanges();
+    }
+
+    const text = () => (fixture.nativeElement.textContent as string) ?? "";
+    const originHeading = () =>
+      fixture.nativeElement.querySelector('[aria-live="polite"]') as HTMLElement | null;
+
+    it("renders the disclose grade's warning-family styling on the consequence band", async () => {
+      await render(makeParams());
+
+      const consequenceBand = fixture.nativeElement.querySelector(
+        ".tw-border-border-warning",
+      ) as HTMLElement | null;
+      expect(consequenceBand).not.toBeNull();
+      expect(consequenceBand?.className).toContain("tw-bg-bg-warning-soft");
+    });
+
+    it("keeps the origin as its own aria-live heading, distinct from (and larger than) the consequence band's text", async () => {
+      await render(makeParams({ origin: "https://bitnotes.io" }));
+
+      const heading = originHeading();
+      expect(heading).not.toBeNull();
+      expect(heading?.tagName.toLowerCase()).toBe("h3");
+      expect(heading?.textContent?.trim()).toBe("https://bitnotes.io");
+
+      // The consequence band also names the origin, but only inside its own quiet one-line
+      // summary — the dominant, large-type rendering stays the dedicated heading above.
+      const band = fixture.nativeElement.querySelector(".tw-border-border-warning") as HTMLElement;
+      expect(band.textContent).toContain("agentAccessFillDiscloseSummary");
+      expect(band.contains(heading)).toBe(false);
+    });
+
+    it("renders a single match's name in mono/sensitive styling with no picker", async () => {
+      await render(makeParams({ matches: [makeMatch({ cipherName: "GitHub" })] }));
+
+      const nameEl = fixture.nativeElement.querySelector(
+        ".tw-font-mono.tw-text-fg-sensitive",
+      ) as HTMLElement | null;
+      expect(nameEl?.textContent?.trim()).toBe("GitHub");
+      expect(fixture.nativeElement.querySelector("bit-form-control-group")).toBeNull();
+    });
+
+    it("renders every match as a distinguishable card when there are multiple, even with identical names and no usernames", async () => {
+      const matches = [
+        makeMatch({ cipherId: "c1", cipherName: "API_KEY", username: undefined }),
+        makeMatch({ cipherId: "c2", cipherName: "API_KEY", username: undefined }),
+      ];
+      await render(makeParams({ matches }));
+
+      const cards = fixture.nativeElement.querySelectorAll("bit-form-control-card");
+      expect(cards.length).toBe(2);
+      const hints = Array.from(cards).map((card) =>
+        (card as HTMLElement).querySelector("bit-hint")?.textContent?.trim(),
+      );
+      // Both cards share a name, but their fallback disambiguators (shortened cipher ids) must
+      // differ — otherwise the user is picking blind (agent-access-design-spec.md §3.3, BUG 1).
+      expect(hints[0]).not.toBe(hints[1]);
+      expect(hints[0]).toBeTruthy();
+      expect(hints[1]).toBeTruthy();
+    });
+
+    it("renders every field-plan entry and every skipped entry, dropping none", async () => {
+      await render(
+        makeParams({
+          fieldPlan: [
+            { role: "username", target: "input#email (login form)" },
+            { role: "password", target: "input[type=password]#pw" },
+          ],
+          skipped: [{ role: "totp", reason: "no-otp-field" }],
+        }),
+      );
+
+      expect(text()).toContain("input#email (login form)");
+      expect(text()).toContain("input[type=password]#pw");
+      expect(text()).toContain("agentAccessFillSkippedReason::no-otp-field");
+    });
+
+    it("no longer prints the dialog title twice via a duplicated callout", async () => {
+      await render(makeParams());
+
+      const callouts = fixture.nativeElement.querySelectorAll("bit-callout");
+      for (const callout of Array.from(callouts) as HTMLElement[]) {
+        expect(callout.getAttribute("title")).not.toBe("agentAccessFillTitle");
+      }
+    });
+
+    it("closes with the selected cipher id when the authorize button is submitted", async () => {
+      const matches = [
+        makeMatch({ cipherId: "c1", cipherName: "GitHub" }),
+        makeMatch({ cipherId: "c2", cipherName: "GitLab" }),
+      ];
+      await render(makeParams({ matches }));
+
+      const radio = fixture.nativeElement.querySelector(
+        "#approve-fill-request_radio_match-c2",
+      ) as HTMLInputElement;
+      radio.click();
+      fixture.detectChanges();
+
+      const authorizeButton = fixture.nativeElement.querySelector(
+        "#approve-fill-request_button_authorize",
+      ) as HTMLButtonElement;
+      authorizeButton.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(renderedDialogRef.close).toHaveBeenCalledWith({ approved: true, selectedId: "c2" });
     });
   });
 });

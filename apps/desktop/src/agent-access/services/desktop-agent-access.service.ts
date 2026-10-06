@@ -75,6 +75,10 @@ import {
   ProjectListRequestResult,
 } from "../components/project-list-request.component";
 import {
+  ProjectSecretsRequestComponent,
+  ProjectSecretsRequestResult,
+} from "../components/project-secrets-request.component";
+import {
   UpdateSecretRequestChanges,
   UpdateSecretRequestComponent,
   UpdateSecretRequestResult,
@@ -122,6 +126,13 @@ const MAX_CREDENTIAL_MATCHES = 20;
  *  This is the one list-shaped release; every other op stays single-target." */
 const MAX_PROJECT_LIST_ENTRIES = 200;
 
+/** Caps a `projectSecretsRequest` release (agent-access-architecture.md, "M7"): "Capped at 200
+ *  entries; a project over the cap ⇒ wire `error` with a generic 'too many secrets' message
+ *  (pre-dialog — don't ask a human to approve a release we won't perform)." Unlike
+ *  `MAX_PROJECT_LIST_ENTRIES`, exceeding this denies the whole request rather than truncating —
+ *  a truncated bulk release would silently omit secrets the agent's command still expects. */
+const MAX_PROJECT_SECRETS_ENTRIES = 200;
+
 // Actionable, value-free `denialDetail` strings for `deliveryMode: "fill"` pre-prompt failures
 // (agent-access-architecture.md, "M5": "Extension unreachable / ambiguous browser count
 // pre-prompt -> existing `status: "error"` with an actionable message"). These go to the
@@ -165,19 +176,41 @@ type CredentialCandidate = {
  * path, the payload here is built only *after* approval, from exactly the id the user selected
  * (see `resolveSecretRequest`).
  */
+/**
+ * `projectId`/`projectName` are carried through from `AgentAccessSecretsService.findSecrets`'s
+ * `SmSecretMatch` (see that interface's doc comment for why): SM enforces secret-name uniqueness
+ * per project, not per org, so `findSecrets`'s org-wide listing can surface two candidates with
+ * identical `name` AND `organizationName` — the project is what the approval picker uses to tell
+ * them apart. Both are optional for the same reason they are on `SmSecretMatch`: a project-less
+ * secret carries neither.
+ */
 type SecretCandidate = {
   secretId: string;
   name: string;
   organizationId: string;
   organizationName?: string;
+  projectId?: string;
+  projectName?: string;
 };
 
 /** Which resource kind a request's matches are, and the (already payload-built) candidates for
  *  it — the pipeline branches on this once, right after lookup, and both branches share the same
- *  deny/dialog/release shape from there on. */
+ *  deny/dialog/release shape from there on. `truncated` reports whether the lookup that produced
+ *  `candidates` actually cut off further matches at its cap (see `findCiphers`'s and
+ *  `lookupSecret`'s docs) — carried through to the approval dialog so it can say so truthfully
+ *  instead of guessing from `candidates.length` alone (agent-access-design-spec.md §3.3: "a
+ *  silently truncated list misrepresents what matched"). */
 type ResolvedCandidates =
-  | { resourceType: typeof AgentAccessResourceType.Credential; candidates: CredentialCandidate[] }
-  | { resourceType: typeof AgentAccessResourceType.Secret; candidates: SecretCandidate[] };
+  | {
+      resourceType: typeof AgentAccessResourceType.Credential;
+      candidates: CredentialCandidate[];
+      truncated: boolean;
+    }
+  | {
+      resourceType: typeof AgentAccessResourceType.Secret;
+      candidates: SecretCandidate[];
+      truncated: boolean;
+    };
 
 /**
  * Narrows the wire's `deliveryMode` (`string | undefined` per napi's `CredentialRequestData`) to
@@ -223,6 +256,44 @@ function releasedFieldNames(
           ["uri", response.uri],
         ];
   return present.filter(([, value]) => value != null).map(([name]) => name);
+}
+
+/**
+ * Extracts the attested code-signature facts from a request's `localPeer` (napi's
+ * `LocalPeerInfoData`) so every request-dialog call site can resolve `AgentAccessRequesterView
+ * .brandLogo` from the same OS-verified data `authorizeLocalRequest` already uses to open the
+ * first-use dialog (agent-access-design-spec.md §7.5.2 — the reported scope regression: only
+ * `first-use-authorization-dialog` passed a brand logo, so the requesting agent's mark never
+ * appeared on the request dialogs users actually see most often).
+ *
+ * `localPeer` is attached only for `origin: "local"` requests (see `agent_access
+ * .CredentialRequestData.localPeer`'s docs — "`None` on the relay path") and survives
+ * `authorizeLocalRequest`'s `{ ...message, requesterName: displayName }` spread untouched, so it
+ * is still reachable on `message` at every downstream call site in this file. A relay-origin
+ * request carries no `localPeer` at all, so this returns an all-`undefined` result for it —
+ * `resolveAgentBrand` requires `signatureValid === true` to resolve anything, so the bare absence
+ * of a signature is already enough to keep a relay-origin request on the neutral glyph (design
+ * spec constraint 1: only a *verified* signature resolves a brand).
+ *
+ * SECURITY: deliberately reads only `message.localPeer?.signature` — never
+ * `message.requesterName`. That field is self-reported by the requesting process (or, for a
+ * local request, the OS-attested display name `authorizeLocalRequest` substitutes in — still not
+ * a code signature) and must never influence which brand, and therefore which logo, is resolved:
+ * keying a brand off a self-reported name would let any local process claim a known agent's mark
+ * by simply naming itself "Claude" (design spec constraint 2). `requesterName` remains usable as
+ * a display name only, exactly as before this change.
+ */
+function attestedSignatureLookup(message: Record<string, unknown>): {
+  signatureKind?: string;
+  signatureIdentity?: string;
+  signatureValid?: boolean;
+} {
+  const localPeer = message.localPeer as agent_access.LocalPeerInfoData | undefined;
+  return {
+    signatureKind: localPeer?.signature?.kind,
+    signatureIdentity: localPeer?.signature?.identity,
+    signatureValid: localPeer?.signature?.valid,
+  };
 }
 
 @Injectable({
@@ -463,6 +534,19 @@ export class DesktopAgentAccessService implements OnDestroy {
           }
           return of([message, userId] as const);
         }),
+        // Bulk-read branch (agent-access-architecture.md, "M7 — `bws run` parity"): a
+        // `projectSecretsRequest` has its own resolve/dialog/approve/deny/respond lifecycle, like
+        // the write/list branch above, but it isn't a write or a list — it releases every secret
+        // VALUE in one project, so it gets its own handler rather than joining
+        // `handleWriteOrListRequest`'s switch.
+        concatMap(([message, userId]: [Record<string, unknown>, UserId]) => {
+          if ((message.operation as string | undefined) === AgentAccessOperation.BulkRequest) {
+            return from(this.handleProjectSecretsRequest(message, userId)).pipe(
+              switchMap(() => EMPTY),
+            );
+          }
+          return of([message, userId] as const);
+        }),
         // describeFillTarget branch (agent-access-architecture.md, "M5"): approval-free and
         // vault-free — nothing to look up, no dialog, no activity row — so it takes its own path
         // after the shared enable/grant gates (the unlock gate was already bypassed above) and
@@ -524,11 +608,22 @@ export class DesktopAgentAccessService implements OnDestroy {
             ipc.platform.focusWindow();
 
             if (resolved.resourceType === AgentAccessResourceType.Secret) {
-              await this.resolveSecretRequest(message, requestId, resolved.candidates, userId);
+              await this.resolveSecretRequest(
+                message,
+                requestId,
+                resolved.candidates,
+                userId,
+                resolved.truncated,
+              );
               return;
             }
 
-            await this.resolveCredentialRequest(message, requestId, resolved.candidates);
+            await this.resolveCredentialRequest(
+              message,
+              requestId,
+              resolved.candidates,
+              resolved.truncated,
+            );
           },
         ),
         catchError((error: unknown, source) => {
@@ -550,6 +645,7 @@ export class DesktopAgentAccessService implements OnDestroy {
     message: Record<string, unknown>,
     requestId: number,
     candidates: CredentialCandidate[],
+    truncated: boolean,
   ): Promise<void> {
     // Drives both what the dialog claims will be shared (below) and what the activity log
     // records as actually shared (at release, below) — a single source of truth so the two can
@@ -576,10 +672,12 @@ export class DesktopAgentAccessService implements OnDestroy {
     const dialogRef = ApproveCredentialRequestComponent.open(this.dialogService, {
       requesterName: message.requesterName as string | undefined,
       requesterFingerprint: message.requesterFingerprint as string | undefined,
+      ...attestedSignatureLookup(message),
       queryType: message.queryType as CredentialQueryType,
       queryValue: message.queryValue as string,
       deliveryMode,
       matches,
+      matchesTruncated: truncated,
     });
 
     const result = await firstValueFrom(dialogRef.closed);
@@ -625,31 +723,37 @@ export class DesktopAgentAccessService implements OnDestroy {
   }
 
   // Secret analogue of `resolveCredentialRequest` (agent-access-architecture.md, "M4"/"M4c").
-  // Unlike the credential path, candidates carry no value — the dialog shows name/org only (see
-  // `SecretCandidate`'s doc comment) — so the response payload is built here, *after* approval,
-  // from a fresh single-secret fetch of exactly the id the user selected. This keeps one approved
-  // release equal to exactly one server-side `Secret_Retrieved` audit event. `fieldsShared` is
-  // always exactly `["value"]` — there is no per-field release for secrets — and the activity
-  // outcome carries `secretId`, never `cipherId`.
+  // Unlike the credential path, candidates carry no value — the dialog shows name/org/project only
+  // (see `SecretCandidate`'s doc comment; project is carried so same-named secrets in different
+  // projects of the same org render distinguishably) — so the response payload is built here,
+  // *after* approval, from a fresh single-secret fetch of exactly the id the user selected. This
+  // keeps one approved release equal to exactly one server-side `Secret_Retrieved` audit event.
+  // `fieldsShared` is always exactly `["value"]` — there is no per-field release for secrets — and
+  // the activity outcome carries `secretId`, never `cipherId`.
   private async resolveSecretRequest(
     message: Record<string, unknown>,
     requestId: number,
     candidates: SecretCandidate[],
     userId: UserId,
+    truncated: boolean,
   ): Promise<void> {
     const matches: CredentialMatch[] = candidates.map((candidate) => ({
       kind: "secret",
       secretId: candidate.secretId,
       secretName: candidate.name,
       organizationName: candidate.organizationName,
+      projectId: candidate.projectId,
+      projectName: candidate.projectName,
     }));
 
     const dialogRef = ApproveCredentialRequestComponent.open(this.dialogService, {
       requesterName: message.requesterName as string | undefined,
       requesterFingerprint: message.requesterFingerprint as string | undefined,
+      ...attestedSignatureLookup(message),
       queryType: message.queryType as CredentialQueryType,
       queryValue: message.queryValue as string,
       matches,
+      matchesTruncated: truncated,
     });
 
     const result = await firstValueFrom(dialogRef.closed);
@@ -844,6 +948,7 @@ export class DesktopAgentAccessService implements OnDestroy {
     const dialogRef = ApproveFillRequestComponent.open(this.dialogService, {
       requesterName: message.requesterName as string | undefined,
       requesterFingerprint: message.requesterFingerprint as string | undefined,
+      ...attestedSignatureLookup(message),
       // The extension-reported origin, never anything from the request (invariant 9).
       origin: description.origin,
       matches,
@@ -1081,6 +1186,7 @@ export class DesktopAgentAccessService implements OnDestroy {
     const dialogRef = CreateSecretRequestComponent.open(this.dialogService, {
       requesterName: message.requesterName as string | undefined,
       requesterFingerprint: message.requesterFingerprint as string | undefined,
+      ...attestedSignatureLookup(message),
       secretName,
       secretValue,
       generated: generate
@@ -1208,6 +1314,7 @@ export class DesktopAgentAccessService implements OnDestroy {
     const dialogRef = CreateProjectRequestComponent.open(this.dialogService, {
       requesterName: message.requesterName as string | undefined,
       requesterFingerprint: message.requesterFingerprint as string | undefined,
+      ...attestedSignatureLookup(message),
       mode: "create",
       projectName: proposedName,
       organizations,
@@ -1268,7 +1375,9 @@ export class DesktopAgentAccessService implements OnDestroy {
       return;
     }
 
-    const located = await this.agentAccessSecretsService.findSecrets(
+    // An `Id` query can never truncate (see `matchSecrets`'s doc) — `truncated` is irrelevant here
+    // and intentionally ignored.
+    const { matches: located } = await this.agentAccessSecretsService.findSecrets(
       CredentialQueryType.Id,
       targetId,
       userId,
@@ -1345,6 +1454,7 @@ export class DesktopAgentAccessService implements OnDestroy {
     const dialogRef = UpdateSecretRequestComponent.open(this.dialogService, {
       requesterName: message.requesterName as string | undefined,
       requesterFingerprint: message.requesterFingerprint as string | undefined,
+      ...attestedSignatureLookup(message),
       secretName: detail.nameDecrypted,
       organizationName: match.organizationName,
       changes,
@@ -1384,6 +1494,10 @@ export class DesktopAgentAccessService implements OnDestroy {
         noteEncString: detail.noteEncString,
         note: changes.note?.to,
         projectId: result.projectId,
+        // Without this, an update that proposes no move (e.g. a plain value rotation) sends no
+        // `projectIds` at all, which the server reads as "unassign" rather than "unchanged" —
+        // silently stripping the secret out of its project. See `updateSecret`'s doc comment.
+        currentProjectId: detail.currentProjectId,
       });
 
       const response: agent_access.CredentialResponseData = {
@@ -1439,6 +1553,7 @@ export class DesktopAgentAccessService implements OnDestroy {
     const dialogRef = CreateProjectRequestComponent.open(this.dialogService, {
       requesterName: message.requesterName as string | undefined,
       requesterFingerprint: message.requesterFingerprint as string | undefined,
+      ...attestedSignatureLookup(message),
       mode: "rename",
       projectName: located.name,
       newProjectName: proposedName,
@@ -1505,7 +1620,9 @@ export class DesktopAgentAccessService implements OnDestroy {
     let containedSecretCount: number | undefined;
 
     if (resourceType === AgentAccessResourceType.Secret) {
-      const located = await this.agentAccessSecretsService.findSecrets(
+      // An `Id` query can never truncate (see `matchSecrets`'s doc) — `truncated` is irrelevant
+      // here and intentionally ignored.
+      const { matches: located } = await this.agentAccessSecretsService.findSecrets(
         CredentialQueryType.Id,
         targetId,
         userId,
@@ -1538,6 +1655,7 @@ export class DesktopAgentAccessService implements OnDestroy {
     const dialogRef = ConfirmDeleteRequestComponent.open(this.dialogService, {
       requesterName: message.requesterName as string | undefined,
       requesterFingerprint: message.requesterFingerprint as string | undefined,
+      ...attestedSignatureLookup(message),
       kind: resourceType,
       itemName,
       organizationName,
@@ -1622,6 +1740,7 @@ export class DesktopAgentAccessService implements OnDestroy {
     const dialogRef = ProjectListRequestComponent.open(this.dialogService, {
       requesterName: message.requesterName as string | undefined,
       requesterFingerprint: message.requesterFingerprint as string | undefined,
+      ...attestedSignatureLookup(message),
       entries: entries.map((entry) => ({
         name: entry.name,
         organizationName: entry.organizationName,
@@ -1648,6 +1767,122 @@ export class DesktopAgentAccessService implements OnDestroy {
       status: AgentAccessRequestStatus.Listed,
       operation: AgentAccessOperation.List,
     });
+  }
+
+  // `projectSecretsRequest` branch (agent-access-architecture.md, "M7 — `bws run` parity"): the
+  // sole bulk *value* release on the whole Agent Access surface. Resolves the project selector
+  // (id or name — the wire message carries `targetId` for the id form, `projectName` for the
+  // name form) and enumerates its readable secret NAMES before the dialog (TOCTOU discipline
+  // unchanged: what is approved is exactly what was displayed), then fetches VALUES for exactly
+  // that displayed id set only after approval — mirroring `resolveSecretRequest`'s post-approval,
+  // id-scoped fetch (M4c's per-fetch audit-event discipline), just for many ids at once instead
+  // of one.
+  private async handleProjectSecretsRequest(
+    message: Record<string, unknown>,
+    userId: UserId,
+  ): Promise<void> {
+    const requestId = message.requestId as number;
+    const targetId = message.targetId as string | undefined;
+    const projectName = message.projectName as string | undefined;
+
+    if (!targetId && !projectName) {
+      // Defensive: the wire contract requires exactly one of `project.id`/`project.name`
+      // (agent-access-architecture.md, "M7") — this should be unreachable, but deny rather than
+      // resolve against an empty selector.
+      this.logService.error(
+        "Agent Access: project secrets request is missing both a project id and a project name",
+      );
+      await this.denyCredentialRequest(requestId);
+      return;
+    }
+
+    const selector = await this.agentAccessSecretsService.resolveProjectSelector(
+      { id: targetId, name: projectName },
+      userId,
+    );
+    if (selector == null) {
+      // Zero or ambiguous matches — the agent is expected to use `list_projects` and pass an
+      // unambiguous reference (agent-access-architecture.md, "M7").
+      await this.denyCredentialRequest(requestId, CredentialDenialReason.NotFound);
+      return;
+    }
+
+    const secrets = await this.agentAccessSecretsService.listSecretsInProject(
+      selector.projectId,
+      selector.organizationId,
+      userId,
+    );
+    if (secrets.length === 0) {
+      // A project with zero readable secrets denies the same way an unresolvable selector does
+      // (agent-access-architecture.md, "M7": "no dialog is shown for a release of nothing").
+      await this.denyCredentialRequest(requestId, CredentialDenialReason.NotFound);
+      return;
+    }
+    if (secrets.length > MAX_PROJECT_SECRETS_ENTRIES) {
+      // Pre-dialog refusal: don't ask a human to approve a release the wire protocol won't
+      // perform (agent-access-architecture.md, "M7").
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("agentAccessBulkTooManySecretsToast"),
+      });
+      await this.denyCredentialRequest(requestId, CredentialDenialReason.Error);
+      return;
+    }
+
+    ipc.platform.focusWindow();
+    const dialogRef = ProjectSecretsRequestComponent.open(this.dialogService, {
+      requesterName: message.requesterName as string | undefined,
+      requesterFingerprint: message.requesterFingerprint as string | undefined,
+      ...attestedSignatureLookup(message),
+      projectName: selector.projectName,
+      organizationName: selector.organizationName,
+      entries: secrets.map((secret) => ({ name: secret.name })),
+    });
+
+    const result: ProjectSecretsRequestResult | undefined = await firstValueFrom(dialogRef.closed);
+    if (result == null || !result.approved) {
+      await this.denyCredentialRequest(requestId);
+      return;
+    }
+
+    try {
+      // Post-approval, id-filtered bulk fetch (agent-access-architecture.md, "M7"/invariant 22):
+      // exactly the ids just displayed and approved, never re-resolved from the selector.
+      const ids = secrets.map((secret) => secret.secretId);
+      const values = await this.agentAccessSecretsService.getSecretValuesByIds(
+        ids,
+        selector.organizationId,
+        userId,
+      );
+
+      const response: agent_access.CredentialResponseData = {
+        approved: true,
+        projectId: selector.projectId,
+        itemName: selector.projectName,
+        secrets: values.map((value) => ({ id: value.id, name: value.name, value: value.value })),
+      };
+      await ipc.agentAccess.credentialRequestResponse(requestId, response, {
+        status: AgentAccessRequestStatus.Shared,
+        projectId: selector.projectId,
+        secretIds: values.map((value) => value.id),
+        operation: AgentAccessOperation.BulkRequest,
+      });
+    } catch (e) {
+      // API failure after approval: deny with a generic error rather than leaving the request to
+      // time out, mirroring `resolveSecretRequest`'s (M4c) and `handleCreateRequest`'s (M4b)
+      // identical catch.
+      this.logService.error(
+        "Agent Access: failed to fetch approved Secrets Manager secret values for a project bulk release",
+        e,
+      );
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("errorOccurred"),
+      });
+      await this.denyCredentialRequest(requestId);
+    }
   }
 
   // Shared by `handleUpdateProjectRequest`/`handleDeleteRequest`: finds a project (and its org)
@@ -1810,15 +2045,11 @@ export class DesktopAgentAccessService implements OnDestroy {
     userId: UserId,
   ): Promise<ResolvedCandidates> {
     if ((message.resourceType as string | undefined) === AgentAccessResourceType.Secret) {
-      return {
-        resourceType: AgentAccessResourceType.Secret,
-        candidates: await this.lookupSecret(message, userId),
-      };
+      const { candidates, truncated } = await this.lookupSecret(message, userId);
+      return { resourceType: AgentAccessResourceType.Secret, candidates, truncated };
     }
-    return {
-      resourceType: AgentAccessResourceType.Credential,
-      candidates: await this.lookupCredential(message, userId),
-    };
+    const { candidates, truncated } = await this.lookupCredential(message, userId);
+    return { resourceType: AgentAccessResourceType.Credential, candidates, truncated };
   }
 
   // Looks up every active Login cipher matching the request's query and, for each, builds the
@@ -1826,16 +2057,18 @@ export class DesktopAgentAccessService implements OnDestroy {
   // payload before the dialog opens preserves the invariant that what's approved is exactly
   // what's released. Returns an empty array when nothing matches, which the caller treats as an
   // automatic "not found" deny with no approval dialog. NEVER logs the returned responses — they
-  // may carry live passwords.
+  // may carry live passwords. `truncated` passes `findCiphers`'s cap signal straight through so
+  // the approval dialog can report it truthfully (see `ResolvedCandidates`'s doc).
   private async lookupCredential(
     message: Record<string, unknown>,
     userId: UserId,
-  ): Promise<CredentialCandidate[]> {
+  ): Promise<{ candidates: CredentialCandidate[]; truncated: boolean }> {
     const queryType = message.queryType as CredentialQueryType;
     const queryValue = message.queryValue as string;
 
-    const ciphers = await this.findCiphers(queryType, queryValue, userId);
-    return Promise.all(ciphers.map((cipher) => this.buildCandidate(cipher)));
+    const { ciphers, truncated } = await this.findCiphers(queryType, queryValue, userId);
+    const candidates = await Promise.all(ciphers.map((cipher) => this.buildCandidate(cipher)));
+    return { candidates, truncated };
   }
 
   // Secrets Manager analogue of `lookupCredential` (agent-access-architecture.md, "M4"/"M4c").
@@ -1846,20 +2079,33 @@ export class DesktopAgentAccessService implements OnDestroy {
   // `resolveSecretRequest`), so that the server's per-fetch `Secret_Retrieved` audit event stays
   // accurate. Returns an empty array when nothing matches (or the user has no Secrets Manager
   // access), which the caller treats as an automatic "not found" deny.
+  //
+  // `truncated` now passes straight through from `findSecrets`, which computes it exactly the
+  // same way `findCiphers` (below, same file) does for the credential path — `findSecrets`'s
+  // internal `matchSecrets` sees the full, uncapped candidate list before it applies
+  // `MAX_SM_MATCHES`, so it's an exact signal, not a guess from `matches.length` landing on the
+  // cap.
   private async lookupSecret(
     message: Record<string, unknown>,
     userId: UserId,
-  ): Promise<SecretCandidate[]> {
+  ): Promise<{ candidates: SecretCandidate[]; truncated: boolean }> {
     const queryType = message.queryType as CredentialQueryType;
     const queryValue = message.queryValue as string;
 
-    const matches = await this.agentAccessSecretsService.findSecrets(queryType, queryValue, userId);
-    return matches.map((match) => ({
+    const { matches, truncated } = await this.agentAccessSecretsService.findSecrets(
+      queryType,
+      queryValue,
+      userId,
+    );
+    const candidates = matches.map((match) => ({
       secretId: match.secretId,
       name: match.name,
       organizationId: match.organizationId,
       organizationName: match.organizationName,
+      projectId: match.projectId,
+      projectName: match.projectName,
     }));
+    return { candidates, truncated };
   }
 
   private async buildCandidate(cipher: CipherView): Promise<CredentialCandidate> {
@@ -1891,14 +2137,20 @@ export class DesktopAgentAccessService implements OnDestroy {
     };
   }
 
-  // Returns every active Login cipher matching the query, capped at MAX_CREDENTIAL_MATCHES.
-  // Domain/Id queries are ordered by the underlying lookup; Search ranks exact name matches
-  // before substring matches, with duplicates removed.
+  // Returns every active Login cipher matching the query, capped at MAX_CREDENTIAL_MATCHES, plus
+  // whether the cap actually cut off further matches — this is the one place that both applies
+  // the cap and can see the pre-cap count, so it's the exact (not heuristic) source for
+  // `ResolvedCandidates.truncated` on the credential path (contrast `lookupSecret`, which cannot
+  // get an equally exact signal without reaching into `agent-access-secrets.service.ts`). Domain
+  // /Id queries are ordered by the underlying lookup; Search ranks exact name matches before
+  // substring matches, with duplicates removed. Returning `{ ciphers, truncated }` rather than
+  // just `CipherView[]` is a pure reporting addition — the returned `ciphers` list, its order, and
+  // which items match are unchanged from before.
   private async findCiphers(
     queryType: CredentialQueryType,
     queryValue: string,
     userId: UserId,
-  ): Promise<CipherView[]> {
+  ): Promise<{ ciphers: CipherView[]; truncated: boolean }> {
     const isActiveLogin = (c: CipherView) =>
       c.type === CipherType.Login && !c.isDeleted && !c.isArchived;
 
@@ -1908,12 +2160,16 @@ export class DesktopAgentAccessService implements OnDestroy {
           ? queryValue
           : `https://${queryValue}`;
         const matches = await this.cipherService.getAllDecryptedForUrl(url, userId);
-        return matches.filter(isActiveLogin).slice(0, MAX_CREDENTIAL_MATCHES);
+        const filtered = matches.filter(isActiveLogin);
+        return {
+          ciphers: filtered.slice(0, MAX_CREDENTIAL_MATCHES),
+          truncated: filtered.length > MAX_CREDENTIAL_MATCHES,
+        };
       }
       case CredentialQueryType.Id: {
         const all = await this.cipherService.getAllDecrypted(userId);
         const match = all.find((c) => c.id === queryValue && isActiveLogin(c));
-        return match != null ? [match] : [];
+        return { ciphers: match != null ? [match] : [], truncated: false };
       }
       case CredentialQueryType.Search: {
         const all = (await this.cipherService.getAllDecrypted(userId)).filter(isActiveLogin);
@@ -1921,24 +2177,31 @@ export class DesktopAgentAccessService implements OnDestroy {
 
         const ordered: CipherView[] = [];
         const seenIds = new Set<string>();
+        // Previously returned as soon as the cap was hit — a pure optimization, since no further
+        // item would ever have been pushed past that point anyway. Kept scanning (instead of
+        // returning) so a match found after the cap can still flip `truncated`, without changing
+        // which items land in `ordered` or their order.
+        let truncated = false;
         const addMatches = (predicate: (c: CipherView) => boolean) => {
           for (const cipher of all) {
+            if (cipher.id == null || seenIds.has(cipher.id) || !predicate(cipher)) {
+              continue;
+            }
             if (ordered.length >= MAX_CREDENTIAL_MATCHES) {
-              return;
+              truncated = true;
+              continue;
             }
-            if (cipher.id != null && !seenIds.has(cipher.id) && predicate(cipher)) {
-              seenIds.add(cipher.id);
-              ordered.push(cipher);
-            }
+            seenIds.add(cipher.id);
+            ordered.push(cipher);
           }
         };
 
         addMatches((c) => c.name?.toLowerCase() === lowerQuery);
         addMatches((c) => !!c.name?.toLowerCase().includes(lowerQuery));
-        return ordered;
+        return { ciphers: ordered, truncated };
       }
       default:
-        return [];
+        return { ciphers: [], truncated: false };
     }
   }
 

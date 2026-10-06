@@ -12,10 +12,8 @@ import {
   DialogRef,
   AsyncActionsModule,
   ButtonModule,
-  DialogModule,
   IconButtonModule,
   DialogService,
-  CalloutModule,
   TypographyModule,
   FormFieldModule,
   SelectModule,
@@ -23,11 +21,17 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { AGENT_LOGOS } from "../icons";
+import { AgentAccessConsequence } from "../models/agent-access-consequence";
 import {
   AgentAccessSecretsService,
   SmProjectMatch,
 } from "../services/agent-access-secrets.service";
+import { resolveAgentBrand } from "../utils/agent-brand.util";
 import { shortenFingerprint } from "../utils/shorten-fingerprint";
+
+import { AgentAccessRequestDialogComponent } from "./shared/agent-access-request-dialog.component";
+import { AgentAccessRequesterView } from "./shared/agent-access-requester.component";
 
 /** Selected in the project `bit-select` to reveal the "new project name" input, instead of
  *  picking an existing project. Never a legal project id (see `deriveAgentAccessAttestationKey`
@@ -39,6 +43,16 @@ export interface CreateSecretRequestParams {
    *  from the OS/connection store, never self-reported by the requester. */
   requesterName?: string;
   requesterFingerprint?: string;
+  /**
+   * Attested code-signature facts for the requester (agent-access-design-spec.md §7.5.2), read
+   * from `localPeer.signature` on the wire message — never from `requesterName`, which is
+   * self-reported and must never influence which brand logo resolves. `undefined` on a relay-
+   * origin request, which has no OS-verified peer at all; see `resolveAgentBrand`'s contract for
+   * why an absent/invalid signature always falls back to the neutral glyph rather than a logo.
+   */
+  signatureKind?: string;
+  signatureIdentity?: string;
+  signatureValid?: boolean;
   /** The agent's proposed secret. Display-only everywhere in this dialog: if the user wants a
    *  different name or value, they deny and the agent can re-request (agent-access-architecture
    *  .md, "M4b" — "the item shown here is exactly the one released/created"). */
@@ -89,24 +103,30 @@ export interface CreateSecretRequestResult {
  * on screen by default just because a dialog is open. Never editable: what the agent proposed is
  * what gets created, or the user denies (agent-access-desktop-plan.md, "What is already
  * correct" — displayed payload = released payload).
+ *
+ * Grade `change` (agent-access-design-spec.md §2.1, §3.2): this dialog creates vault content but
+ * discloses nothing that already existed — the reveal toggle is the one sanctioned exception to
+ * "never render a value" (spec §2.3), because the value being shown is one the agent itself just
+ * supplied, not something read out of the vault. The `generated` branch is a step further still:
+ * a generated value is produced inside this process and never crosses back to the agent at all,
+ * so there is nothing to reveal — see the quiet reassurance notice in the template.
  */
 @Component({
   selector: "app-create-secret-request",
   templateUrl: "create-secret-request.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DialogModule,
     CommonModule,
     I18nPipe,
     ButtonModule,
     IconButtonModule,
     ReactiveFormsModule,
     AsyncActionsModule,
-    CalloutModule,
     TypographyModule,
     FormFieldModule,
     SelectModule,
     IconComponent,
+    AgentAccessRequestDialogComponent,
   ],
 })
 export class CreateSecretRequestComponent {
@@ -125,6 +145,29 @@ export class CreateSecretRequestComponent {
     (this.params.requesterFingerprint
       ? shortenFingerprint(this.params.requesterFingerprint)
       : this.i18nService.t("agentAccessUnknownApplication"));
+
+  /** The known agent behind a *verified* signature, or `undefined` for an unrecognized/unverified
+   *  requester — decoration only, never a factor in what's authorized (see `resolveAgentBrand`'s
+   *  contract). SECURITY: resolved from `params.signature*` only; `params.requesterName` is
+   *  self-reported and must never influence this (agent-access-design-spec.md §7.5.2). */
+  protected readonly brand = resolveAgentBrand(this.params);
+
+  /** Brand mark for the resolved agent; `undefined` renders the neutral `bwi-terminal` glyph. */
+  protected readonly brandLogo = this.brand == null ? undefined : AGENT_LOGOS[this.brand];
+
+  protected readonly requesterView: AgentAccessRequesterView = {
+    name: this.requesterDisplayName,
+    brandLogo: this.brandLogo,
+  };
+
+  /** Always `change` — creating a secret modifies vault contents but discloses nothing that
+   *  already existed, regardless of whether the value was agent-supplied or generated in-process
+   *  (agent-access-design-spec.md §2.1, §3.2). */
+  protected readonly grade: AgentAccessConsequence = AgentAccessConsequence.Change;
+
+  protected readonly consequenceSummary = this.i18nService.t(
+    "agentAccessCreateSecretConsequenceSummary",
+  );
 
   private readonly initialOrganizationId = (
     (this.params.lastOrganizationId != null &&

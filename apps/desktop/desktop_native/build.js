@@ -113,9 +113,11 @@ const agentAccessCliManifest = path.join(agentAccessRoot, "crates", "ap-cli", "C
  * {@link agentAccessCliManifest} instead of the `desktop_native` workspace, so the resulting
  * binary is read from the `agent-access` checkout's own `target` directory.
  *
- * Built with `--no-default-features` to drop the `bws` feature (Bitwarden Secrets Manager
- * support), which pulls in the full Secrets Manager SDK that the bundled binary never needs -
- * it is only ever invoked as `aac connect`.
+ * Built with `--no-default-features` to drop the `bws` feature (the access-token Secrets
+ * Manager *provider*), which pulls in the full Secrets Manager SDK that the bundled binary
+ * never needs — desktop-mediated secrets flow through the local socket instead. The secret
+ * scanning engine (`bitwarden-scan`, backing the MCP `scan_secrets` tool) is a non-optional
+ * dependency of ap-cli, so it survives this flag and ships in the bundled binary.
  * @param {string} target Rust compiler target, e.g. `aarch64-pc-windows-msvc`.
  * @param {boolean} release Whether to build in release mode.
  */

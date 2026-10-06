@@ -243,6 +243,7 @@ async fn handle_connection<S: AsyncRead + AsyncWrite + Unpin>(
         ValidatedRequest::Delete { client, .. } => client,
         ValidatedRequest::List { client, .. } => client,
         ValidatedRequest::DescribeFillTarget { client } => client,
+        ValidatedRequest::BulkRequest { client, .. } => client,
     };
     if let Some(client) = client {
         debug!(
@@ -508,6 +509,60 @@ async fn handle_connection<S: AsyncRead + AsyncWrite + Unpin>(
             (
                 ResourceKind::Credential,
                 RequestOperation::DescribeFillTarget,
+                None,
+                request_data,
+            )
+        }
+        ValidatedRequest::BulkRequest {
+            project_id,
+            project_name,
+            ..
+        } => {
+            emit_event(
+                &event_sink,
+                "credential_requested",
+                &peer,
+                Some("bulkRequest".to_string()),
+                None,
+            );
+            // Force-fill (M7's "Force-fill" wire section): `query_value` carries the id
+            // (id-form) or the name (name-form) — the target selector itself, same spirit as
+            // Update/Delete's force-fill of `query_value` with `target_id`. `target_id` stays
+            // `Some` only for the id-form (mirrors `callbacks::CredentialRequestData::target_id`'s
+            // docs); the name-form has no id to carry there.
+            let (query_type, query_value) = match (&project_id, &project_name) {
+                (Some(id), None) => (CredentialQueryKind::Id, id.clone()),
+                (None, Some(name)) => (CredentialQueryKind::Name, name.clone()),
+                // Unreachable in practice — `local_protocol::validate` guarantees exactly one
+                // of `project_id`/`project_name` is `Some`. Deny-safe fallback rather than a
+                // panic on a caller-controlled input, mirroring this module's other
+                // never-panic-on-a-connection guarantees.
+                _ => (CredentialQueryKind::Id, String::new()),
+            };
+            let request_data = CredentialRequestData {
+                query_type,
+                query_value,
+                requester_fingerprint: None,
+                requester_name: None,
+                origin: CredentialRequestOrigin::Local,
+                local_peer: peer.clone(),
+                delivery_mode: None,
+                resource: ResourceKind::Secret,
+                operation: RequestOperation::BulkRequest,
+                new_secret_name: None,
+                new_secret_value: None,
+                new_secret_note: None,
+                project_hint: None,
+                target_id: project_id,
+                generate_value: false,
+                generate_length: None,
+                generate_symbols: None,
+                fill_fields: None,
+                fill_target_token: None,
+            };
+            (
+                ResourceKind::Secret,
+                RequestOperation::BulkRequest,
                 None,
                 request_data,
             )
@@ -825,6 +880,73 @@ mod tests {
                     name: "My Project".to_string(),
                     write: true,
                     organization: Some("Acme".to_string()),
+                }]),
+                ..Default::default()
+            })
+        }
+    }
+
+    /// Asserts a `projectSecretsRequest` request carries `resource: Secret`,
+    /// `operation: BulkRequest`, and threads the id-form target through `target_id`/
+    /// `query_value`/`query_type` (M7's force-fill rule).
+    struct BulkRequestByIdApprovingHandler;
+
+    #[async_trait]
+    impl CredentialRequestHandler for BulkRequestByIdApprovingHandler {
+        async fn handle_credential_request(
+            &self,
+            request: CredentialRequestData,
+        ) -> Result<CredentialResponseData, CallbackError> {
+            assert_eq!(request.resource, ResourceKind::Secret);
+            assert_eq!(request.operation, RequestOperation::BulkRequest);
+            assert_eq!(request.target_id.as_deref(), Some("project-1"));
+            assert_eq!(request.query_type, CredentialQueryKind::Id);
+            assert_eq!(request.query_value, "project-1");
+            Ok(CredentialResponseData {
+                approved: true,
+                project_id: Some("project-1".to_string()),
+                item_name: Some("my-app".to_string()),
+                secrets: Some(vec![
+                    crate::callbacks::SecretEntry {
+                        id: "secret-1".to_string(),
+                        name: "DB_PASSWORD".to_string(),
+                        value: zeroize::Zeroizing::new("hunter2".to_string()),
+                    },
+                    crate::callbacks::SecretEntry {
+                        id: "secret-2".to_string(),
+                        name: "API_KEY".to_string(),
+                        value: zeroize::Zeroizing::new("abc123".to_string()),
+                    },
+                ]),
+                ..Default::default()
+            })
+        }
+    }
+
+    /// Asserts a `projectSecretsRequest` request selecting by name carries no `target_id` (M7's
+    /// force-fill rule: the name-form has no id to carry there) and threads the name through
+    /// `query_value`/`query_type` instead.
+    struct BulkRequestByNameApprovingHandler;
+
+    #[async_trait]
+    impl CredentialRequestHandler for BulkRequestByNameApprovingHandler {
+        async fn handle_credential_request(
+            &self,
+            request: CredentialRequestData,
+        ) -> Result<CredentialResponseData, CallbackError> {
+            assert_eq!(request.resource, ResourceKind::Secret);
+            assert_eq!(request.operation, RequestOperation::BulkRequest);
+            assert!(request.target_id.is_none());
+            assert_eq!(request.query_type, CredentialQueryKind::Name);
+            assert_eq!(request.query_value, "my-app");
+            Ok(CredentialResponseData {
+                approved: true,
+                project_id: Some("project-1".to_string()),
+                item_name: Some("my-app".to_string()),
+                secrets: Some(vec![crate::callbacks::SecretEntry {
+                    id: "secret-1".to_string(),
+                    name: "DB_PASSWORD".to_string(),
+                    value: zeroize::Zeroizing::new("hunter2".to_string()),
                 }]),
                 ..Default::default()
             })
@@ -1170,6 +1292,95 @@ mod tests {
         assert!(!line.contains("\"item\""));
     }
 
+    /// End-to-end `projectSecretsRequest` (id-form) round trip against the exact response shape
+    /// from agent-access-architecture.md's "M7" section: a `secrets` array shaped like M4's
+    /// single `secret` object, per entry.
+    #[tokio::test]
+    async fn bulk_request_by_id_wire_round_trip() {
+        let request = "{\"version\":1,\"op\":\"projectSecretsRequest\",\
+            \"project\":{\"id\":\"project-1\"},\
+            \"client\":{\"name\":\"aac\",\"version\":\"0.1.0\"}}\n";
+        let line = round_trip(
+            request,
+            Arc::new(BulkRequestByIdApprovingHandler),
+            Arc::new(NoopEventSink),
+        )
+        .await;
+
+        assert!(line.contains("\"status\":\"approved\""));
+        assert!(line.contains("\"reference\":\"bw://project/project-1\""));
+        assert!(line.contains("\"item\""));
+        assert!(line.contains("my-app"));
+        assert!(line.contains("\"secrets\""));
+        assert!(line.contains("DB_PASSWORD"));
+        assert!(line.contains("hunter2"));
+        assert!(line.contains("API_KEY"));
+        assert!(line.contains("abc123"));
+        assert!(!line.contains("\"projects\""));
+        assert!(!line.contains("\"secret\":"));
+        assert!(!line.contains("\"credential\""));
+    }
+
+    /// Same as [`bulk_request_by_id_wire_round_trip`] but selecting by name — asserts the
+    /// name-form request is served identically (delivery is implicitly inject either way).
+    #[tokio::test]
+    async fn bulk_request_by_name_wire_round_trip() {
+        let request = "{\"version\":1,\"op\":\"projectSecretsRequest\",\
+            \"project\":{\"name\":\"my-app\"},\
+            \"client\":{\"name\":\"aac\",\"version\":\"0.1.0\"}}\n";
+        let line = round_trip(
+            request,
+            Arc::new(BulkRequestByNameApprovingHandler),
+            Arc::new(NoopEventSink),
+        )
+        .await;
+
+        assert!(line.contains("\"status\":\"approved\""));
+        assert!(line.contains("\"reference\":\"bw://project/project-1\""));
+        assert!(line.contains("\"secrets\""));
+        assert!(line.contains("DB_PASSWORD"));
+        assert!(line.contains("hunter2"));
+    }
+
+    #[tokio::test]
+    async fn bulk_request_with_both_id_and_name_is_rejected_as_protocol_error() {
+        let request = "{\"version\":1,\"op\":\"projectSecretsRequest\",\
+            \"project\":{\"id\":\"project-1\",\"name\":\"my-app\"}}\n";
+        let line = round_trip(
+            request,
+            Arc::new(BulkRequestByIdApprovingHandler),
+            Arc::new(NoopEventSink),
+        )
+        .await;
+
+        assert!(line.contains("\"status\":\"error\""));
+    }
+
+    #[tokio::test]
+    async fn bulk_request_emits_requested_and_approved_activity_events() {
+        let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
+        let request = "{\"version\":1,\"op\":\"projectSecretsRequest\",\
+            \"project\":{\"id\":\"project-1\"}}\n";
+        let _line = round_trip(
+            request,
+            Arc::new(BulkRequestByIdApprovingHandler),
+            Arc::new(ChannelEventSink(tx)),
+        )
+        .await;
+
+        let requested = rx.recv().await.unwrap();
+        assert_eq!(requested.kind, "credential_requested");
+        assert_eq!(requested.detail.as_deref(), Some("bulkRequest"));
+
+        let approved = rx.recv().await.unwrap();
+        assert_eq!(approved.kind, "credential_approved");
+        assert!(
+            approved.fields_shared.is_none(),
+            "the bulk secret count is reported via secretIds on the M7-C outcome, not \
+             this crate's fields_shared"
+        );
+    }
+
     /// Force-fill matrix (M6's "Invariant guard extension"): `query_value` must never carry a
     /// name for a non-lookup op — create uses the proposed name (existing, M4b), update/delete
     /// use the target id, and list uses the empty string. Asserted here (rather than only via
@@ -1196,7 +1407,7 @@ mod tests {
             }
         }
 
-        let cases: [(&str, CredentialQueryKind, &str); 4] = [
+        let cases: [(&str, CredentialQueryKind, &str); 6] = [
             (
                 "{\"version\":1,\"op\":\"secretCreate\",\"create\":{\"name\":\"NEW\",\"value\":\"v\"}}\n",
                 CredentialQueryKind::Name,
@@ -1217,15 +1428,31 @@ mod tests {
                 CredentialQueryKind::Search,
                 "",
             ),
+            // M7: `projectSecretsRequest` (id-form) — `query_value` carries the project id,
+            // same "target selector" treatment as update/delete's `target_id` above.
+            (
+                "{\"version\":1,\"op\":\"projectSecretsRequest\",\"project\":{\"id\":\"id-1\"}}\n",
+                CredentialQueryKind::Id,
+                "id-1",
+            ),
+            // M7: `projectSecretsRequest` (name-form) — `query_value` carries the project name
+            // instead, since there is no id to force-fill `target_id` with.
+            (
+                "{\"version\":1,\"op\":\"projectSecretsRequest\",\"project\":{\"name\":\"my-app\"}}\n",
+                CredentialQueryKind::Name,
+                "my-app",
+            ),
         ];
 
         for (request, expected_kind, expected_value) in cases {
             let recorded = Arc::new(std::sync::Mutex::new(None));
             let handler = Arc::new(RecordingHandler(Arc::clone(&recorded)));
             let _line = round_trip(request, handler, Arc::new(NoopEventSink)).await;
-            let (kind, value) = recorded.lock().unwrap().clone().unwrap_or_else(|| {
-                panic!("handler was never invoked for request {request:?}")
-            });
+            let (kind, value) = recorded
+                .lock()
+                .unwrap()
+                .clone()
+                .unwrap_or_else(|| panic!("handler was never invoked for request {request:?}"));
             assert_eq!(kind, expected_kind, "request {request:?}");
             assert_eq!(value, expected_value, "request {request:?}");
         }

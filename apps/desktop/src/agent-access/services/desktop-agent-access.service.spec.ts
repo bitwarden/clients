@@ -142,6 +142,9 @@ describe("DesktopAgentAccessService", () => {
   let mockCountSecretsInProject: jest.Mock;
   let mockGenerateSecretValue: jest.Mock;
   let mockResolveProjectName: jest.Mock;
+  let mockResolveProjectSelector: jest.Mock;
+  let mockListSecretsInProject: jest.Mock;
+  let mockGetSecretValuesByIds: jest.Mock;
 
   function authSubjectFor(userId: string): BehaviorSubject<AuthenticationStatus> {
     if (!authStatusPerUser.has(userId)) {
@@ -203,6 +206,9 @@ describe("DesktopAgentAccessService", () => {
       deleteProject: mockDeleteProject,
       countSecretsInProject: mockCountSecretsInProject,
       generateSecretValue: mockGenerateSecretValue,
+      resolveProjectSelector: mockResolveProjectSelector,
+      listSecretsInProject: mockListSecretsInProject,
+      getSecretValuesByIds: mockGetSecretValuesByIds,
     };
     const mockEventCollectionService = { collect: mockCollect };
     const mockDomainSettingsService = {
@@ -264,7 +270,7 @@ describe("DesktopAgentAccessService", () => {
     mockSendMessage = jest.fn();
     // Secrets Manager path (M4): default to "nothing found" so a stray secret-resourceType test
     // that doesn't configure these explicitly denies with NotFound rather than silently matching.
-    mockFindSecrets = jest.fn().mockResolvedValue([]);
+    mockFindSecrets = jest.fn().mockResolvedValue({ matches: [], truncated: false });
     // Post-approval, single-secret fetch (M4c): default to a rejection so a stray test that
     // reaches approval without configuring this explicitly denies (via the fetch-failure path)
     // rather than silently releasing a fabricated value.
@@ -291,6 +297,15 @@ describe("DesktopAgentAccessService", () => {
     mockCountSecretsInProject = jest.fn().mockResolvedValue(undefined);
     mockGenerateSecretValue = jest.fn().mockResolvedValue("generated-value");
     mockResolveProjectName = jest.fn().mockReturnValue(undefined);
+    // M7 bulk-secrets path: default to "unresolvable"/"empty"/"reject" so a stray
+    // operation: "bulkRequest" test that doesn't configure these explicitly denies (notFound, or
+    // a fetch-failure generic deny) rather than silently fabricating a project or releasing
+    // values.
+    mockResolveProjectSelector = jest.fn().mockResolvedValue(null);
+    mockListSecretsInProject = jest.fn().mockResolvedValue([]);
+    mockGetSecretValuesByIds = jest
+      .fn()
+      .mockRejectedValue(new Error("no getSecretValuesByIds fixture configured"));
     // Cipher release events (M4c): default resolves so credential-release tests that don't care
     // about the event call don't have to configure it explicitly.
     mockCollect = jest.fn().mockResolvedValue(undefined);
@@ -842,6 +857,116 @@ describe("DesktopAgentAccessService", () => {
       );
     });
 
+    // `matchesTruncated` (agent-access-design-spec.md §3.3): the dialog used to guess truncation
+    // from `matches.length` landing exactly on `MAX_CREDENTIAL_MATCHES`, which was wrong for a
+    // request with exactly that many genuine matches and nothing cut off. `findCiphers` now knows
+    // the true pre-cap count for both query shapes that can truncate (Domain and Search) and
+    // reports it precisely — these two pairs (one per query shape) prove the exactly-at-cap case
+    // reports `false` and a genuinely-over-cap case reports `true`, using the same 20-match cap
+    // the service applies (`MAX_CREDENTIAL_MATCHES`, not exported — mirrored here as a literal,
+    // same as the dialog component used to mirror it before this fix).
+    describe("matchesTruncated — reports whether the cap actually cut off matches", () => {
+      it("domain query: reports false when the match count lands exactly on the cap", async () => {
+        const ciphers = Array.from({ length: 20 }, (_, i) => makeLoginCipher(`c${i}`, `Item ${i}`));
+        mockGetAllDecryptedForUrl.mockResolvedValue(ciphers);
+        mockDialogOpen.mockReturnValue({ closed: of({ approved: true, selectedId: "c0" }) });
+
+        credentialRequestSubject.next({
+          requestId: 200,
+          queryType: "domain",
+          queryValue: "example.com",
+          requesterFingerprint: "fp",
+        });
+        await flush();
+
+        expect(mockDialogOpen).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
+            data: expect.objectContaining({ matchesTruncated: false }),
+          }),
+        );
+        const [, { data }] = mockDialogOpen.mock.calls[0];
+        expect((data.matches as unknown[]).length).toBe(20);
+      });
+
+      it("domain query: reports true when more than the cap actually matched", async () => {
+        const ciphers = Array.from({ length: 21 }, (_, i) => makeLoginCipher(`c${i}`, `Item ${i}`));
+        mockGetAllDecryptedForUrl.mockResolvedValue(ciphers);
+        mockDialogOpen.mockReturnValue({ closed: of({ approved: true, selectedId: "c0" }) });
+
+        credentialRequestSubject.next({
+          requestId: 201,
+          queryType: "domain",
+          queryValue: "example.com",
+          requesterFingerprint: "fp",
+        });
+        await flush();
+
+        expect(mockDialogOpen).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
+            data: expect.objectContaining({ matchesTruncated: true }),
+          }),
+        );
+        // The cap itself is unaffected by the fix — still exactly 20 shown, one truncated flag
+        // added on top.
+        const [, { data }] = mockDialogOpen.mock.calls[0];
+        expect((data.matches as unknown[]).length).toBe(20);
+      });
+
+      it("search query: reports false when the match count lands exactly on the cap", async () => {
+        const ciphers = Array.from({ length: 20 }, (_, i) => makeLoginCipher(`c${i}`, `bank ${i}`));
+        mockGetAllDecrypted.mockResolvedValue(ciphers);
+        mockDialogOpen.mockReturnValue({ closed: of({ approved: true, selectedId: "c0" }) });
+
+        credentialRequestSubject.next({
+          requestId: 202,
+          queryType: "search",
+          queryValue: "bank",
+          requesterFingerprint: "fp",
+        });
+        await flush();
+
+        expect(mockDialogOpen).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
+            data: expect.objectContaining({ matchesTruncated: false }),
+          }),
+        );
+      });
+
+      it("search query: reports true when a substring match exists beyond the cap", async () => {
+        // 20 exact "bank" matches fill the cap on the first pass; one further cipher only matches
+        // the substring pass and would previously never have been considered at all once the cap
+        // was hit — it must still be able to flip `truncated` even though it's never added to
+        // `matches`.
+        const exact = Array.from({ length: 20 }, (_, i) => makeLoginCipher(`c${i}`, "bank"));
+        const overflowSubstringOnly = makeLoginCipher("c-overflow", "Bank of Example");
+        mockGetAllDecrypted.mockResolvedValue([...exact, overflowSubstringOnly]);
+        mockDialogOpen.mockReturnValue({ closed: of({ approved: true, selectedId: "c0" }) });
+
+        credentialRequestSubject.next({
+          requestId: 203,
+          queryType: "search",
+          queryValue: "bank",
+          requesterFingerprint: "fp",
+        });
+        await flush();
+
+        expect(mockDialogOpen).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
+            data: expect.objectContaining({ matchesTruncated: true }),
+          }),
+        );
+        const [, { data }] = mockDialogOpen.mock.calls[0];
+        expect((data.matches as unknown[]).length).toBe(20);
+        expect(
+          (data.matches as { cipherId: string }[]).some((m) => m.cipherId === "c-overflow"),
+        ).toBe(false);
+      });
+    });
+
     it("releases only the selected candidate's payload when several matches are shown", async () => {
       const first = makeLoginCipher("c-first", "GitHub", { password: "first-password" });
       const second = makeLoginCipher("c-second", "GitHub", { password: "second-password" });
@@ -1277,6 +1402,339 @@ describe("DesktopAgentAccessService", () => {
     });
   });
 
+  // agent-access-design-spec.md §7.5.2 — the reported scope regression: only the first-use dialog
+  // received `signatureIdentity`/`signatureValid` from the attested `localPeer`, so a request
+  // dialog never showed the requesting agent's brand logo. `localPeer` (and therefore its
+  // signature) survives `authorizeLocalRequest`'s `{ ...message, requesterName: displayName }`
+  // spread unchanged, so every downstream dialog call site can — and, per these tests, does —
+  // read it straight off the message via `attestedSignatureLookup`.
+  describe("credential request — attested signature plumbing for brand logo resolution (agent-access-design-spec.md §7.5.2)", () => {
+    const claudeLocalPeer = {
+      pid: 555,
+      processName: "aac",
+      exePath: "/usr/local/bin/aac",
+      parent: { pid: 1, processName: "Claude Code", exePath: "/Applications/Claude.app" },
+      signature: {
+        kind: "macosTeamId",
+        identity: "Q6L2SF6YDW:com.anthropic.claude-code",
+        valid: true,
+      },
+    };
+
+    const expectedSignatureFields = {
+      signatureKind: "macosTeamId",
+      signatureIdentity: "Q6L2SF6YDW:com.anthropic.claude-code",
+      signatureValid: true,
+    };
+
+    beforeEach(async () => {
+      service = buildService(true);
+      await service.init();
+      agentAccessEnabledSubject.next(true);
+      accountSubject.next({ id: "user-1" as UserId });
+      activeAccountStatusSubject.next(AuthenticationStatus.Unlocked);
+      authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+      // A grant already exists for this peer: skips the first-use dialog so `mockDialogOpen`'s
+      // one call in each test below is unambiguously the request dialog under test.
+      mockFindGrant.mockResolvedValue({
+        id: "grant-1",
+        signatureKind: "macosTeamId",
+        signatureIdentity: "Q6L2SF6YDW:com.anthropic.claude-code",
+        displayName: "Claude Code",
+        scope: "allLogins",
+        createdAt: 1_700_000_000,
+        lastUsedAt: 1_700_000_000,
+      });
+    });
+
+    it("passes the attested signature to the credential approval dialog", async () => {
+      const cipher = makeLoginCipher("c1", "My Login");
+      mockGetAllDecrypted.mockResolvedValue([cipher]);
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
+
+      credentialRequestSubject.next({
+        requestId: 400,
+        queryType: "id",
+        queryValue: "c1",
+        origin: "local",
+        localPeer: claudeLocalPeer,
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ data: expect.objectContaining(expectedSignatureFields) }),
+      );
+    });
+
+    it("passes the attested signature to the Secrets Manager secret approval dialog", async () => {
+      mockFindSecrets.mockResolvedValue({
+        matches: [
+          {
+            secretId: "s1",
+            name: "DB_PASSWORD",
+            organizationId: "org-1",
+            organizationName: "Acme Inc",
+          },
+        ],
+        truncated: false,
+      });
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
+
+      credentialRequestSubject.next({
+        requestId: 401,
+        queryType: "id",
+        queryValue: "s1",
+        resourceType: "secret",
+        origin: "local",
+        localPeer: claudeLocalPeer,
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ data: expect.objectContaining(expectedSignatureFields) }),
+      );
+    });
+
+    it("passes the attested signature to the create-secret dialog", async () => {
+      mockSmOrganizations.mockResolvedValue([{ id: "org-1", name: "Acme Inc", isAdmin: true }]);
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
+
+      credentialRequestSubject.next({
+        requestId: 402,
+        operation: "create",
+        resourceType: "secret",
+        newSecretName: "DB_PASSWORD",
+        newSecretValue: "hunter2",
+        origin: "local",
+        localPeer: claudeLocalPeer,
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ data: expect.objectContaining(expectedSignatureFields) }),
+      );
+    });
+
+    it("passes the attested signature to the create-project dialog", async () => {
+      mockSmOrganizations.mockResolvedValue([{ id: "org-1", name: "Acme Inc" }]);
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
+
+      credentialRequestSubject.next({
+        requestId: 403,
+        operation: "create",
+        resourceType: "project",
+        newSecretName: "my-app",
+        origin: "local",
+        localPeer: claudeLocalPeer,
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ data: expect.objectContaining(expectedSignatureFields) }),
+      );
+    });
+
+    it("passes the attested signature to the rename-project dialog", async () => {
+      mockSmOrganizations.mockResolvedValue([{ id: "org-1", name: "Acme Inc" }]);
+      mockListProjects.mockResolvedValue([{ id: "proj-1", name: "my-app", write: true }]);
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
+
+      credentialRequestSubject.next({
+        requestId: 404,
+        operation: "update",
+        resourceType: "project",
+        targetId: "proj-1",
+        newSecretName: "renamed-app",
+        origin: "local",
+        localPeer: claudeLocalPeer,
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ data: expect.objectContaining(expectedSignatureFields) }),
+      );
+    });
+
+    it("passes the attested signature to the update-secret dialog", async () => {
+      mockFindSecrets.mockResolvedValue({
+        matches: [
+          {
+            secretId: "s-a",
+            name: "DB_PASSWORD",
+            organizationId: "org-1",
+            organizationName: "Acme Inc",
+          },
+        ],
+        truncated: false,
+      });
+      mockGetSecretForUpdate.mockResolvedValue({
+        secretId: "s-a",
+        organizationId: "org-1",
+        nameDecrypted: "DB_PASSWORD",
+        keyEncString: "key-ct",
+        valueEncString: "value-ct",
+        noteEncString: "note-ct",
+        currentProjectId: "proj-current",
+      });
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
+
+      credentialRequestSubject.next({
+        requestId: 405,
+        operation: "update",
+        resourceType: "secret",
+        targetId: "s-a",
+        newSecretName: "RENAMED",
+        origin: "local",
+        localPeer: claudeLocalPeer,
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ data: expect.objectContaining(expectedSignatureFields) }),
+      );
+    });
+
+    it("passes the attested signature to the project-list dialog", async () => {
+      mockSmOrganizations.mockResolvedValue([{ id: "org-1", name: "Acme Inc" }]);
+      mockListProjects.mockResolvedValue([{ id: "proj-1", name: "my-app", write: true }]);
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
+
+      credentialRequestSubject.next({
+        requestId: 406,
+        operation: "list",
+        resourceType: "project",
+        origin: "local",
+        localPeer: claudeLocalPeer,
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ data: expect.objectContaining(expectedSignatureFields) }),
+      );
+    });
+
+    it("passes the attested signature to the project-secrets (bulk) dialog", async () => {
+      mockResolveProjectSelector.mockResolvedValue({
+        projectId: "proj-1",
+        projectName: "my-app",
+        organizationId: "org-1",
+        organizationName: "Acme Inc",
+      });
+      mockListSecretsInProject.mockResolvedValue([
+        { secretId: "s-db", name: "DB_PASSWORD", organizationId: "org-1" },
+      ]);
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
+
+      credentialRequestSubject.next({
+        requestId: 407,
+        operation: "bulkRequest",
+        targetId: "proj-1",
+        origin: "local",
+        localPeer: claudeLocalPeer,
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ data: expect.objectContaining(expectedSignatureFields) }),
+      );
+    });
+
+    it("passes the attested signature to the browser-fill dialog", async () => {
+      const cipher = makeLoginCipher("c1", "My Login");
+      mockGetAllDecryptedForUrl.mockResolvedValue([cipher]);
+      mockDescribeTarget.mockResolvedValue(makeFillDescription());
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
+
+      credentialRequestSubject.next({
+        requestId: 408,
+        queryType: "domain",
+        queryValue: "example.com",
+        deliveryMode: "fill",
+        resourceType: "credential",
+        origin: "local",
+        localPeer: claudeLocalPeer,
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ data: expect.objectContaining(expectedSignatureFields) }),
+      );
+    });
+
+    it("passes the attested signature to the confirm-delete dialog", async () => {
+      mockFindSecrets.mockResolvedValue({
+        matches: [
+          {
+            secretId: "s-a",
+            name: "DB_PASSWORD",
+            organizationId: "org-1",
+            organizationName: "Acme Inc",
+          },
+        ],
+        truncated: false,
+      });
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
+
+      credentialRequestSubject.next({
+        requestId: 410,
+        operation: "delete",
+        resourceType: "secret",
+        targetId: "s-a",
+        origin: "local",
+        localPeer: claudeLocalPeer,
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ data: expect.objectContaining(expectedSignatureFields) }),
+      );
+    });
+
+    // SECURITY regression test: a relay-origin request has no OS-verified peer at all
+    // (`localPeer` is never attached on that path — see `agent_access.CredentialRequestData
+    // .localPeer`'s docs), so it must never carry attested signature fields to the dialog. A
+    // relay-origin agent therefore has no way to claim a brand logo, no matter what
+    // `requesterName` it self-reports — `requesterName` still reaches the dialog as a display
+    // name, but never as a signature.
+    it("never passes signature fields to the credential approval dialog for a relay-origin request, even with a requesterName claiming a known agent", async () => {
+      const cipher = makeLoginCipher("c1", "My Login");
+      mockGetAllDecrypted.mockResolvedValue([cipher]);
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
+
+      credentialRequestSubject.next({
+        requestId: 409,
+        queryType: "id",
+        queryValue: "c1",
+        origin: "relay",
+        requesterName: "Claude Code",
+        requesterFingerprint: "fp-1",
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({
+            requesterName: "Claude Code",
+            signatureKind: undefined,
+            signatureIdentity: undefined,
+            signatureValid: undefined,
+          }),
+        }),
+      );
+    });
+  });
+
   describe("credential request — relay origin never touches the grant path", () => {
     beforeEach(async () => {
       service = buildService(true);
@@ -1342,7 +1800,7 @@ describe("DesktopAgentAccessService", () => {
     });
 
     it("never calls the vault lookup for a secret request", async () => {
-      mockFindSecrets.mockResolvedValue([secretMatch]);
+      mockFindSecrets.mockResolvedValue({ matches: [secretMatch], truncated: false });
       mockGetSecretValue.mockResolvedValue(secretValue);
       mockDialogOpen.mockReturnValue({ closed: of({ approved: true, selectedId: "s1" }) });
 
@@ -1361,7 +1819,7 @@ describe("DesktopAgentAccessService", () => {
     });
 
     it("denies with reason notFound without opening a dialog when no secret matches", async () => {
-      mockFindSecrets.mockResolvedValue([]);
+      mockFindSecrets.mockResolvedValue({ matches: [], truncated: false });
 
       credentialRequestSubject.next({
         requestId: 81,
@@ -1382,7 +1840,7 @@ describe("DesktopAgentAccessService", () => {
     });
 
     it("never fetches a value before or during dialog open — a match alone must not trigger a retrieval", async () => {
-      mockFindSecrets.mockResolvedValue([secretMatch]);
+      mockFindSecrets.mockResolvedValue({ matches: [secretMatch], truncated: false });
       mockGetSecretValue.mockResolvedValue(secretValue);
       mockDialogOpen.mockImplementation(() => {
         // If the dialog opening triggered a fetch, that would write a Secret_Retrieved event for
@@ -1411,7 +1869,7 @@ describe("DesktopAgentAccessService", () => {
         organizationId: "org-2",
         organizationName: "Other Org",
       };
-      mockFindSecrets.mockResolvedValue([secretMatch, other]);
+      mockFindSecrets.mockResolvedValue({ matches: [secretMatch, other], truncated: false });
       mockGetSecretValue.mockResolvedValue(secretValue);
       mockDialogOpen.mockReturnValue({ closed: of({ approved: true, selectedId: "s1" }) });
 
@@ -1430,7 +1888,7 @@ describe("DesktopAgentAccessService", () => {
     });
 
     it("releases the freshly-fetched secret payload and records secretId + fieldsShared: ['value'] on approval", async () => {
-      mockFindSecrets.mockResolvedValue([secretMatch]);
+      mockFindSecrets.mockResolvedValue({ matches: [secretMatch], truncated: false });
       mockGetSecretValue.mockResolvedValue(secretValue);
       mockDialogOpen.mockReturnValue({ closed: of({ approved: true, selectedId: "s1" }) });
 
@@ -1461,7 +1919,7 @@ describe("DesktopAgentAccessService", () => {
     });
 
     it("shows the secret's name and organization to the approval dialog, with no value on the match", async () => {
-      mockFindSecrets.mockResolvedValue([secretMatch]);
+      mockFindSecrets.mockResolvedValue({ matches: [secretMatch], truncated: false });
       mockGetSecretValue.mockResolvedValue(secretValue);
       mockDialogOpen.mockReturnValue({ closed: of({ approved: true, selectedId: "s1" }) });
 
@@ -1492,7 +1950,7 @@ describe("DesktopAgentAccessService", () => {
     });
 
     it("denies when the user rejects the secret approval dialog, without ever fetching a value", async () => {
-      mockFindSecrets.mockResolvedValue([secretMatch]);
+      mockFindSecrets.mockResolvedValue({ matches: [secretMatch], truncated: false });
       mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
 
       credentialRequestSubject.next({
@@ -1513,7 +1971,7 @@ describe("DesktopAgentAccessService", () => {
     });
 
     it("denies with a generic reason and shows an error toast when the post-approval fetch fails", async () => {
-      mockFindSecrets.mockResolvedValue([secretMatch]);
+      mockFindSecrets.mockResolvedValue({ matches: [secretMatch], truncated: false });
       mockGetSecretValue.mockRejectedValue(new Error("network boom"));
       mockDialogOpen.mockReturnValue({ closed: of({ approved: true, selectedId: "s1" }) });
 
@@ -1535,7 +1993,7 @@ describe("DesktopAgentAccessService", () => {
     });
 
     it("never calls collect for a secret release — server-authored events, not client-collected", async () => {
-      mockFindSecrets.mockResolvedValue([secretMatch]);
+      mockFindSecrets.mockResolvedValue({ matches: [secretMatch], truncated: false });
       mockGetSecretValue.mockResolvedValue(secretValue);
       mockDialogOpen.mockReturnValue({ closed: of({ approved: true, selectedId: "s1" }) });
 
@@ -1549,6 +2007,209 @@ describe("DesktopAgentAccessService", () => {
       await flush();
 
       expect(mockCollect).not.toHaveBeenCalled();
+    });
+
+    // BUG 1 fix (agent-access-architecture.md / agent-access-design-spec.md §3.3): SM enforces
+    // secret-name uniqueness per project, not per org, so `findSecrets` can legitimately surface
+    // two secrets sharing both name and organization. These tests confirm
+    // `DesktopAgentAccessService` plumbs `projectId`/`projectName` from `SmSecretMatch` through
+    // `SecretCandidate` to the dialog's `SecretMatch`, unchanged, rather than dropping them.
+    it("carries a matched secret's project through to the approval dialog", async () => {
+      const withProject: SmSecretMatch = {
+        ...secretMatch,
+        projectId: "proj-1",
+        projectName: "web-app",
+      };
+      mockFindSecrets.mockResolvedValue({ matches: [withProject], truncated: false });
+      mockGetSecretValue.mockResolvedValue(secretValue);
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true, selectedId: "s1" }) });
+
+      credentialRequestSubject.next({
+        requestId: 89,
+        queryType: "name",
+        queryValue: "DB_PASSWORD",
+        requesterFingerprint: "fp",
+        resourceType: "secret",
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({
+            matches: [
+              expect.objectContaining({
+                kind: "secret",
+                secretId: "s1",
+                projectId: "proj-1",
+                projectName: "web-app",
+              }),
+            ],
+          }),
+        }),
+      );
+    });
+
+    // `matchesTruncated` on the secret path (agent-access-design-spec.md §3.3): `lookupSecret`
+    // now passes `AgentAccessSecretsService.findSecrets`'s `truncated` straight through rather
+    // than guessing from `matches.length` landing on the cap — `findSecrets` (mocked here via
+    // `mockFindSecrets`) is itself exact, since `matchSecrets` sees the full, uncapped candidate
+    // list before applying `MAX_SM_MATCHES` (see the real cap-detection tests in
+    // `agent-access-secrets.service.spec.ts`'s `describe("truncated"...)`). This test is the
+    // regression test for the old length-based heuristic: exactly `MAX_SM_MATCHES` matches used to
+    // report `matchesTruncated: true` unconditionally here, even when `findSecrets` itself knew
+    // nothing was cut off — this proves the dialog now reports exactly what the lookup says,
+    // not a guess.
+    it("passes matchesTruncated straight through from the lookup — exactly at the cap but not truncated", async () => {
+      const matches: SmSecretMatch[] = Array.from({ length: 20 }, (_, i) => ({
+        secretId: `s${i}`,
+        name: `SECRET_${i}`,
+        organizationId: "org-1",
+        organizationName: "Acme Inc",
+      }));
+      mockFindSecrets.mockResolvedValue({ matches, truncated: false });
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true, selectedId: "s0" }) });
+
+      credentialRequestSubject.next({
+        requestId: 90,
+        queryType: "search",
+        queryValue: "secret",
+        requesterFingerprint: "fp",
+        resourceType: "secret",
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({ matchesTruncated: false }),
+        }),
+      );
+    });
+
+    it("passes matchesTruncated straight through from the lookup — genuinely truncated", async () => {
+      const matches: SmSecretMatch[] = Array.from({ length: 20 }, (_, i) => ({
+        secretId: `s${i}`,
+        name: `SECRET_${i}`,
+        organizationId: "org-1",
+        organizationName: "Acme Inc",
+      }));
+      mockFindSecrets.mockResolvedValue({ matches, truncated: true });
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true, selectedId: "s0" }) });
+
+      credentialRequestSubject.next({
+        requestId: 92,
+        queryType: "search",
+        queryValue: "secret",
+        requesterFingerprint: "fp",
+        resourceType: "secret",
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({ matchesTruncated: true }),
+        }),
+      );
+    });
+
+    it("reports matchesTruncated: false when the secret match count is below the cap", async () => {
+      mockFindSecrets.mockResolvedValue({ matches: [secretMatch], truncated: false });
+      mockGetSecretValue.mockResolvedValue(secretValue);
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true, selectedId: "s1" }) });
+
+      credentialRequestSubject.next({
+        requestId: 91,
+        queryType: "name",
+        queryValue: "DB_PASSWORD",
+        requesterFingerprint: "fp",
+        resourceType: "secret",
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({ matchesTruncated: false }),
+        }),
+      );
+    });
+
+    it("shows two same-named, same-org secrets to the dialog with their distinct project names, so the picker can disambiguate", async () => {
+      const web: SmSecretMatch = {
+        secretId: "s1",
+        name: "API_KEY",
+        organizationId: "org-1",
+        organizationName: "Acme Inc",
+        projectId: "proj-web",
+        projectName: "web-app",
+      };
+      const mobile: SmSecretMatch = {
+        secretId: "s2",
+        name: "API_KEY",
+        organizationId: "org-1",
+        organizationName: "Acme Inc",
+        projectId: "proj-mobile",
+        projectName: "mobile-app",
+      };
+      mockFindSecrets.mockResolvedValue({ matches: [web, mobile], truncated: false });
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
+
+      credentialRequestSubject.next({
+        requestId: 90,
+        queryType: "search",
+        queryValue: "api",
+        requesterFingerprint: "fp",
+        resourceType: "secret",
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({
+            matches: [
+              expect.objectContaining({
+                kind: "secret",
+                secretId: "s1",
+                secretName: "API_KEY",
+                organizationName: "Acme Inc",
+                projectName: "web-app",
+              }),
+              expect.objectContaining({
+                kind: "secret",
+                secretId: "s2",
+                secretName: "API_KEY",
+                organizationName: "Acme Inc",
+                projectName: "mobile-app",
+              }),
+            ],
+          }),
+        }),
+      );
+    });
+
+    it("leaves projectId/projectName absent on the dialog match for a secret with no project", async () => {
+      // `secretMatch` (the describe block's default fixture) carries no projectId/projectName —
+      // this asserts the field stays absent end-to-end rather than being coerced to some sentinel.
+      mockFindSecrets.mockResolvedValue({ matches: [secretMatch], truncated: false });
+      mockGetSecretValue.mockResolvedValue(secretValue);
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true, selectedId: "s1" }) });
+
+      credentialRequestSubject.next({
+        requestId: 91,
+        queryType: "name",
+        queryValue: "DB_PASSWORD",
+        requesterFingerprint: "fp",
+        resourceType: "secret",
+      });
+      await flush();
+
+      const [, openArgs] = mockDialogOpen.mock.calls[0];
+      const [match] = (openArgs.data as { matches: Array<Record<string, unknown>> }).matches;
+      expect(match.projectId).toBeUndefined();
+      expect(match.projectName).toBeUndefined();
     });
   });
 
@@ -2040,14 +2701,17 @@ describe("DesktopAgentAccessService", () => {
     });
 
     function stubFoundSecret() {
-      mockFindSecrets.mockResolvedValue([
-        {
-          secretId: "s-a",
-          name: "DB_PASSWORD",
-          organizationId: "org-1",
-          organizationName: "Acme Inc",
-        },
-      ]);
+      mockFindSecrets.mockResolvedValue({
+        matches: [
+          {
+            secretId: "s-a",
+            name: "DB_PASSWORD",
+            organizationId: "org-1",
+            organizationName: "Acme Inc",
+          },
+        ],
+        truncated: false,
+      });
       mockGetSecretForUpdate.mockResolvedValue({
         secretId: "s-a",
         organizationId: "org-1",
@@ -2055,11 +2719,12 @@ describe("DesktopAgentAccessService", () => {
         keyEncString: "key-ct",
         valueEncString: "value-ct",
         noteEncString: "note-ct",
+        currentProjectId: "proj-current",
       });
     }
 
     it("denies with reason notFound without opening a dialog when the target secret can't be located", async () => {
-      mockFindSecrets.mockResolvedValue([]);
+      mockFindSecrets.mockResolvedValue({ matches: [], truncated: false });
 
       credentialRequestSubject.next({
         requestId: 220,
@@ -2108,6 +2773,7 @@ describe("DesktopAgentAccessService", () => {
         noteEncString: "note-ct",
         note: undefined,
         projectId: undefined,
+        currentProjectId: "proj-current",
       });
     });
 
@@ -2152,6 +2818,30 @@ describe("DesktopAgentAccessService", () => {
         "user-1",
         "s-a",
         expect.objectContaining({ value: "new-hunter3" }),
+      );
+    });
+
+    // Regression: a rotation proposes no move, so `result.projectId` is undefined — the target's
+    // existing project must still reach `updateSecret`, or the server unassigns the secret (see
+    // `AgentAccessSecretsService.updateSecret`'s doc comment).
+    it("forwards the target's current project so a rotation with no move does not unassign it", async () => {
+      stubFoundSecret();
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
+
+      credentialRequestSubject.next({
+        requestId: 229,
+        operation: "update",
+        resourceType: "secret",
+        targetId: "s-a",
+        newSecretValue: "new-hunter3",
+      });
+      await flush();
+
+      expect(mockUpdateSecret).toHaveBeenCalledWith(
+        "org-1",
+        "user-1",
+        "s-a",
+        expect.objectContaining({ projectId: undefined, currentProjectId: "proj-current" }),
       );
     });
 
@@ -2323,9 +3013,10 @@ describe("DesktopAgentAccessService", () => {
     });
 
     it("denies when the pre-dialog fetch of ciphertexts fails", async () => {
-      mockFindSecrets.mockResolvedValue([
-        { secretId: "s-a", name: "DB_PASSWORD", organizationId: "org-1" },
-      ]);
+      mockFindSecrets.mockResolvedValue({
+        matches: [{ secretId: "s-a", name: "DB_PASSWORD", organizationId: "org-1" }],
+        truncated: false,
+      });
       mockGetSecretForUpdate.mockRejectedValue(new Error("fetch failed"));
 
       credentialRequestSubject.next({
@@ -2412,14 +3103,17 @@ describe("DesktopAgentAccessService", () => {
     });
 
     it("secret: resolves the name before the dialog, then deletes on approval", async () => {
-      mockFindSecrets.mockResolvedValue([
-        {
-          secretId: "s-a",
-          name: "DB_PASSWORD",
-          organizationId: "org-1",
-          organizationName: "Acme Inc",
-        },
-      ]);
+      mockFindSecrets.mockResolvedValue({
+        matches: [
+          {
+            secretId: "s-a",
+            name: "DB_PASSWORD",
+            organizationId: "org-1",
+            organizationName: "Acme Inc",
+          },
+        ],
+        truncated: false,
+      });
       mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
 
       credentialRequestSubject.next({
@@ -2445,7 +3139,7 @@ describe("DesktopAgentAccessService", () => {
     });
 
     it("secret: denies with reason notFound without a dialog when the secret can't be located", async () => {
-      mockFindSecrets.mockResolvedValue([]);
+      mockFindSecrets.mockResolvedValue({ matches: [], truncated: false });
 
       credentialRequestSubject.next({
         requestId: 251,
@@ -2460,9 +3154,10 @@ describe("DesktopAgentAccessService", () => {
     });
 
     it("secret: denies when the user rejects the confirmation dialog, without calling deleteSecret", async () => {
-      mockFindSecrets.mockResolvedValue([
-        { secretId: "s-a", name: "DB_PASSWORD", organizationId: "org-1" },
-      ]);
+      mockFindSecrets.mockResolvedValue({
+        matches: [{ secretId: "s-a", name: "DB_PASSWORD", organizationId: "org-1" }],
+        truncated: false,
+      });
       mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
 
       credentialRequestSubject.next({
@@ -2482,9 +3177,10 @@ describe("DesktopAgentAccessService", () => {
     });
 
     it("secret: denies with a generic error and toast when the delete call fails after approval", async () => {
-      mockFindSecrets.mockResolvedValue([
-        { secretId: "s-a", name: "DB_PASSWORD", organizationId: "org-1" },
-      ]);
+      mockFindSecrets.mockResolvedValue({
+        matches: [{ secretId: "s-a", name: "DB_PASSWORD", organizationId: "org-1" }],
+        truncated: false,
+      });
       mockDeleteSecret.mockRejectedValue(new Error("server error"));
       mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
 
@@ -2650,6 +3346,270 @@ describe("DesktopAgentAccessService", () => {
 
       expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
         262,
+        { approved: false, reason: "denied" },
+        { status: "denied" },
+      );
+    });
+  });
+
+  // M7: `projectSecretsRequest` — the sole bulk-value release, `operation: "bulkRequest"`.
+  describe("credential request — operation: 'bulkRequest'", () => {
+    beforeEach(async () => {
+      service = buildService(true);
+      await service.init();
+      agentAccessEnabledSubject.next(true);
+      accountSubject.next({ id: "user-1" as UserId });
+      activeAccountStatusSubject.next(AuthenticationStatus.Unlocked);
+      authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    });
+
+    function stubResolvedProject() {
+      mockResolveProjectSelector.mockResolvedValue({
+        projectId: "proj-1",
+        projectName: "my-app",
+        organizationId: "org-1",
+        organizationName: "Acme Inc",
+      });
+      mockListSecretsInProject.mockResolvedValue([
+        { secretId: "s-db", name: "DB_PASSWORD", organizationId: "org-1" },
+        { secretId: "s-api", name: "API_KEY", organizationId: "org-1" },
+      ]);
+    }
+
+    it("TOCTOU: shows the dialog (with the resolved names) before any value fetch, and never re-resolves after approval", async () => {
+      stubResolvedProject();
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
+      mockGetSecretValuesByIds.mockResolvedValue([
+        { id: "s-db", name: "DB_PASSWORD", value: "hunter2" },
+        { id: "s-api", name: "API_KEY", value: "sk-live-123" },
+      ]);
+
+      credentialRequestSubject.next({
+        requestId: 300,
+        operation: "bulkRequest",
+        targetId: "proj-1",
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({
+            projectName: "my-app",
+            organizationName: "Acme Inc",
+            entries: [{ name: "DB_PASSWORD" }, { name: "API_KEY" }],
+          }),
+        }),
+      );
+      // resolveProjectSelector/listSecretsInProject each ran exactly once — the dialog's own
+      // display drives what's released, never a fresh resolution after approval.
+      expect(mockResolveProjectSelector).toHaveBeenCalledTimes(1);
+      expect(mockListSecretsInProject).toHaveBeenCalledTimes(1);
+      expect(mockGetSecretValuesByIds).toHaveBeenCalledTimes(1);
+    });
+
+    it("calls getSecretValuesByIds only after approval, with exactly the ids that were displayed", async () => {
+      stubResolvedProject();
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
+      mockGetSecretValuesByIds.mockResolvedValue([
+        { id: "s-db", name: "DB_PASSWORD", value: "hunter2" },
+        { id: "s-api", name: "API_KEY", value: "sk-live-123" },
+      ]);
+
+      credentialRequestSubject.next({
+        requestId: 301,
+        operation: "bulkRequest",
+        targetId: "proj-1",
+      });
+      await flush();
+
+      expect(mockGetSecretValuesByIds).toHaveBeenCalledWith(["s-db", "s-api"], "org-1", "user-1");
+    });
+
+    it("does not call getSecretValuesByIds when the user rejects the dialog", async () => {
+      stubResolvedProject();
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
+
+      credentialRequestSubject.next({
+        requestId: 302,
+        operation: "bulkRequest",
+        targetId: "proj-1",
+      });
+      await flush();
+
+      expect(mockGetSecretValuesByIds).not.toHaveBeenCalled();
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        302,
+        { approved: false, reason: "denied" },
+        { status: "denied" },
+      );
+    });
+
+    it("responds with the released secrets, project id, and item name on approval, and records secretIds/projectId on the Shared outcome", async () => {
+      stubResolvedProject();
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
+      mockGetSecretValuesByIds.mockResolvedValue([
+        { id: "s-db", name: "DB_PASSWORD", value: "hunter2" },
+        { id: "s-api", name: "API_KEY", value: "sk-live-123" },
+      ]);
+
+      credentialRequestSubject.next({
+        requestId: 303,
+        operation: "bulkRequest",
+        targetId: "proj-1",
+      });
+      await flush();
+
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        303,
+        {
+          approved: true,
+          projectId: "proj-1",
+          itemName: "my-app",
+          secrets: [
+            { id: "s-db", name: "DB_PASSWORD", value: "hunter2" },
+            { id: "s-api", name: "API_KEY", value: "sk-live-123" },
+          ],
+        },
+        {
+          status: "shared",
+          projectId: "proj-1",
+          secretIds: ["s-db", "s-api"],
+          operation: "bulkRequest",
+        },
+      );
+    });
+
+    it("resolves the project by targetId (id form)", async () => {
+      stubResolvedProject();
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
+
+      credentialRequestSubject.next({
+        requestId: 304,
+        operation: "bulkRequest",
+        targetId: "proj-1",
+      });
+      await flush();
+
+      expect(mockResolveProjectSelector).toHaveBeenCalledWith(
+        { id: "proj-1", name: undefined },
+        "user-1",
+      );
+    });
+
+    it("resolves the project by projectName (name form)", async () => {
+      stubResolvedProject();
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
+
+      credentialRequestSubject.next({
+        requestId: 305,
+        operation: "bulkRequest",
+        projectName: "my-app",
+      });
+      await flush();
+
+      expect(mockResolveProjectSelector).toHaveBeenCalledWith(
+        { id: undefined, name: "my-app" },
+        "user-1",
+      );
+    });
+
+    it("denies with reason notFound, without a dialog, when the project selector can't be resolved", async () => {
+      mockResolveProjectSelector.mockResolvedValue(null);
+
+      credentialRequestSubject.next({
+        requestId: 306,
+        operation: "bulkRequest",
+        projectName: "no-such-project",
+      });
+      await flush();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+      expect(mockListSecretsInProject).not.toHaveBeenCalled();
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        306,
+        { approved: false, reason: "notFound" },
+        { status: "not_found" },
+      );
+    });
+
+    it("denies with reason notFound, without a dialog, when the project has zero readable secrets", async () => {
+      mockResolveProjectSelector.mockResolvedValue({
+        projectId: "proj-empty",
+        projectName: "empty-project",
+        organizationId: "org-1",
+        organizationName: "Acme Inc",
+      });
+      mockListSecretsInProject.mockResolvedValue([]);
+
+      credentialRequestSubject.next({
+        requestId: 307,
+        operation: "bulkRequest",
+        targetId: "proj-empty",
+      });
+      await flush();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("denies with a generic error and toast, without a dialog, when the project has more than 200 secrets", async () => {
+      mockResolveProjectSelector.mockResolvedValue({
+        projectId: "proj-big",
+        projectName: "big-project",
+        organizationId: "org-1",
+        organizationName: "Acme Inc",
+      });
+      mockListSecretsInProject.mockResolvedValue(
+        Array.from({ length: 201 }, (_, i) => ({
+          secretId: `s-${i}`,
+          name: `SECRET_${i}`,
+          organizationId: "org-1",
+        })),
+      );
+
+      credentialRequestSubject.next({
+        requestId: 308,
+        operation: "bulkRequest",
+        targetId: "proj-big",
+      });
+      await flush();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+      expect(mockShowToast).toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        308,
+        { approved: false, reason: "error" },
+        { status: "denied" },
+      );
+    });
+
+    it("denies with a generic error and toast when the bulk value fetch fails after approval", async () => {
+      stubResolvedProject();
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
+      mockGetSecretValuesByIds.mockRejectedValue(new Error("server error"));
+
+      credentialRequestSubject.next({
+        requestId: 309,
+        operation: "bulkRequest",
+        targetId: "proj-1",
+      });
+      await flush();
+
+      expect(mockShowToast).toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        309,
+        { approved: false, reason: "denied" },
+        { status: "denied" },
+      );
+    });
+
+    it("denies without calling resolveProjectSelector when neither a target id nor a project name is given", async () => {
+      credentialRequestSubject.next({ requestId: 310, operation: "bulkRequest" });
+      await flush();
+
+      expect(mockResolveProjectSelector).not.toHaveBeenCalled();
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        310,
         { approved: false, reason: "denied" },
         { status: "denied" },
       );

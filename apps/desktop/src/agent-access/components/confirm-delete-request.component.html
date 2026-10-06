@@ -1,46 +1,21 @@
-<bit-dialog>
-  <div class="tw-font-medium" bitDialogTitle>
-    @if (isProject()) {
-      {{ "agentAccessDeleteProjectRequestTitle" | i18n }}
-    } @else {
-      {{ "agentAccessDeleteSecretRequestTitle" | i18n }}
+<app-agent-access-request-dialog
+  [dialogTitle]="dialogTitle()"
+  [requester]="requesterView()"
+  [grade]="AgentAccessConsequence.Destroy"
+  [consequenceSummary]="consequenceSummary()"
+  [consequenceDetail]="consequenceDetail()"
+>
+  <!-- WHICH exact item — name only, never a value (agent-access-design-spec.md §2.3, invariant 21). -->
+  <div class="tw-flex tw-flex-col tw-gap-1">
+    <span class="tw-break-all tw-font-mono tw-text-fg-sensitive" bitTypography="body2">{{
+      params.itemName
+    }}</span>
+    @if (params.organizationName) {
+      <span class="tw-text-muted" bitTypography="helper">{{ params.organizationName }}</span>
     }
   </div>
-  <div bitDialogContent>
-    <div class="tw-flex tw-flex-col tw-gap-4">
-      <bit-callout
-        type="warning"
-        title="{{ 'agentAccessRequestedBy' | i18n: requesterDisplayName }}"
-      >
-        <span class="tw-font-mono">{{ params.itemName }}</span>
-        @if (params.organizationName) {
-          <span class="tw-text-muted"> · {{ params.organizationName }}</span>
-        }
-      </bit-callout>
 
-      @if (isProject()) {
-        <p class="tw-m-0 tw-text-danger" bitTypography="helper">
-          {{ "agentAccessDeleteProjectPermanentWarning" | i18n }}
-        </p>
-        @if (params.containedSecretCount != null) {
-          <p class="tw-m-0 tw-text-danger" bitTypography="helper">
-            {{
-              "agentAccessDeleteProjectContainedSecretsWarning" | i18n: params.containedSecretCount
-            }}
-          </p>
-        } @else {
-          <p class="tw-m-0 tw-text-danger" bitTypography="helper">
-            {{ "agentAccessDeleteProjectContainedSecretsUnknownWarning" | i18n }}
-          </p>
-        }
-      } @else {
-        <p class="tw-m-0 tw-text-muted" bitTypography="helper">
-          {{ "agentAccessDeleteSecretTrashNotice" | i18n }}
-        </p>
-      }
-    </div>
-  </div>
-  <ng-container bitDialogFooter>
+  <ng-container dialogFooter>
     <button
       id="confirm-delete-request_button_authorize"
       type="button"
@@ -60,4 +35,4 @@
       {{ "deny" | i18n }}
     </button>
   </ng-container>
-</bit-dialog>
+</app-agent-access-request-dialog>

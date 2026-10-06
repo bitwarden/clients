@@ -252,6 +252,30 @@ export declare namespace agent_access {
      */
     fieldsShared?: string
   }
+  /**
+   * One entry of an approved `operation: "list"` response (M6, `projectList`) — project
+   * metadata only, no secret material. `organization` is the org's display name, resolved
+   * renderer-side.
+   */
+  export interface AgentAccessProjectEntry {
+    id: string
+    name: string
+    write: boolean
+    organization?: string
+  }
+  /**
+   * One entry of an approved `operation: "bulkRequest"` response (M7,
+   * `projectSecretsRequest`). Unlike [`AgentAccessProjectEntry`] this carries a live secret
+   * value — no `#[derive(Debug)]`: the manual impl below prints presence/count only (`id` is
+   * an opaque identifier, printed verbatim; `name`/`value` are redacted, darker than
+   * [`AgentAccessProjectEntry`]'s plain derive), and nothing outside the in-flight response
+   * path may hold one.
+   */
+  export interface AgentAccessSecretEntry {
+    id: string
+    name: string
+    value: string
+  }
   /** Summary of a cached connection for the `listConnections()` surface. */
   export interface ConnectionInfoData {
     fingerprint: string
@@ -323,9 +347,23 @@ export declare namespace agent_access {
     projectHint?: string
     /**
      * Id of the existing secret or project an `operation: "update"`/`"delete"` request
-     * targets (M6). An opaque identifier, never a name or value.
+     * targets (M6), or of the project an `operation: "bulkRequest"` selects by id (M7).
+     * An opaque identifier, never a name or value.
      */
     targetId?: string
+    /**
+     * Project name an `operation: "bulkRequest"` selects by name (M7) — mutually
+     * exclusive with `targetId` for that operation (enforced in
+     * `local_protocol::validate`). Resolved renderer-side against the user's readable
+     * projects; never trusted as an exact identity. Unset for every other operation.
+     *
+     * Not carried as a distinct field on `agent_access_core::CredentialRequestData` — the
+     * core crate reuses `query_value` for the name form (see that field's docs); this
+     * field is derived from `operation`/`target_id`/`query_value` in the `From` impl
+     * below, purely to give the napi/TS surface an unambiguous, purpose-specific field
+     * rather than requiring the renderer to infer "is this a name?" from `query_value`.
+     */
+    projectName?: string
     /**
      * When true, the desktop generates the secret's value at approval time instead of the
      * agent supplying one (M6): renderer-side generation, org-key encryption, then discard —
@@ -334,11 +372,15 @@ export declare namespace agent_access {
      * `operation: "create"` and `"update"` on `resourceType: "secret"`.
      */
     generateValue?: boolean
-    /** Requested generated-value length, already validated to [12, 128] by the wire layer.
-     *  Absent means the desktop default (40). Only set alongside `generateValue: true`. */
+    /**
+     * Requested generated-value length, already validated to `[12, 128]` by the wire layer.
+     * Absent means the desktop default (40). Only set alongside `generateValue: true`.
+     */
     generateLength?: number
-    /** Whether the generated value includes symbols (default true). Only set alongside
-     *  `generateValue: true`. */
+    /**
+     * Whether the generated value includes symbols (default true). Only set alongside
+     * `generateValue: true`.
+     */
     generateSymbols?: boolean
     /**
      * Requested field roles (`"username"`/`"password"`/`"totp"`) for a
@@ -408,6 +450,14 @@ export declare namespace agent_access {
      * invariant). Unset for every other operation.
      */
     projects?: Array<AgentAccessProjectEntry>
+    /**
+     * The secret set released by an approved `operation: "bulkRequest"` request (M7,
+     * `projectSecretsRequest`) — one entry per secret the user saw enumerated in the
+     * approval dialog. Carries live secret VALUES: entries transit main only inside this
+     * in-flight response and are never buffered there (the activity row keeps ids only,
+     * via `secretIds` on the outcome). Unset for every other operation.
+     */
+    secrets?: Array<AgentAccessSecretEntry>
     /**
      * Value-free JSON pass-through describing a `deliveryMode: "fill"` request's execution
      * outcome (M5's `fill` response object) — the renderer builds this directly (its shape
@@ -496,18 +546,13 @@ export declare namespace agent_access {
     Delete = 'delete',
     /** Release the readable SM project list in one approval (M6, `projectList`). */
     List = 'list',
+    /**
+     * Release ALL secrets of one project for env injection into one command (M7,
+     * `projectSecretsRequest`) — the sole bulk read; fully enumerated in the approval
+     * dialog, capped at 200, local-transport-only like every non-`request` operation.
+     */
+    BulkRequest = 'bulkRequest',
     DescribeFillTarget = 'describeFillTarget'
-  }
-  /**
-   * One entry of an approved `operation: "list"` response (M6, `projectList`) — project
-   * metadata only, no secret material. `organization` is the org's display name, resolved
-   * renderer-side.
-   */
-  export interface AgentAccessProjectEntry {
-    id: string
-    name: string
-    write: boolean
-    organization?: string
   }
   /**
    * Best-effort one-level parent-chain walk from the local peer (W2a, `crate::attestation`

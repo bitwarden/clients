@@ -127,6 +127,10 @@ pub mod agent_access {
         Delete,
         /// Release the readable SM project list in one approval (M6, `projectList`).
         List,
+        /// Release ALL secrets of one project for env injection into one command (M7,
+        /// `projectSecretsRequest`) — the sole bulk read; fully enumerated in the approval
+        /// dialog, capped at 200, local-transport-only like every non-`request` operation.
+        BulkRequest,
         DescribeFillTarget,
     }
 
@@ -138,6 +142,7 @@ pub mod agent_access {
                 agent_access_core::RequestOperation::Update => Self::Update,
                 agent_access_core::RequestOperation::Delete => Self::Delete,
                 agent_access_core::RequestOperation::List => Self::List,
+                agent_access_core::RequestOperation::BulkRequest => Self::BulkRequest,
                 agent_access_core::RequestOperation::DescribeFillTarget => Self::DescribeFillTarget,
             }
         }
@@ -317,8 +322,20 @@ pub mod agent_access {
         /// project move (M6).
         pub project_hint: Option<String>,
         /// Id of the existing secret or project an `operation: "update"`/`"delete"` request
-        /// targets (M6). An opaque identifier, never a name or value.
+        /// targets (M6), or of the project an `operation: "bulkRequest"` selects by id (M7).
+        /// An opaque identifier, never a name or value.
         pub target_id: Option<String>,
+        /// Project name an `operation: "bulkRequest"` selects by name (M7) — mutually
+        /// exclusive with `targetId` for that operation (enforced in
+        /// `local_protocol::validate`). Resolved renderer-side against the user's readable
+        /// projects; never trusted as an exact identity. Unset for every other operation.
+        ///
+        /// Not carried as a distinct field on `agent_access_core::CredentialRequestData` — the
+        /// core crate reuses `query_value` for the name form (see that field's docs); this
+        /// field is derived from `operation`/`target_id`/`query_value` in the `From` impl
+        /// below, purely to give the napi/TS surface an unambiguous, purpose-specific field
+        /// rather than requiring the renderer to infer "is this a name?" from `query_value`.
+        pub project_name: Option<String>,
         /// When true, the desktop generates the secret's value at approval time instead of the
         /// agent supplying one (M6): renderer-side generation, org-key encryption, then discard —
         /// the value never crosses this boundary in either direction. Mutually exclusive with
@@ -342,6 +359,18 @@ pub mod agent_access {
 
     impl From<agent_access_core::CredentialRequestData> for CredentialRequestData {
         fn from(data: agent_access_core::CredentialRequestData) -> Self {
+            // M7: `agent_access_core::CredentialRequestData` carries no distinct field for the
+            // name-form project selector — it reuses `query_value` (see that field's docs on
+            // the core struct). Derive the napi/TS surface's dedicated `projectName` field here,
+            // before `query_value` is moved below: a `bulkRequest` selects by name exactly when
+            // `target_id` is absent (the id-form always sets it) — see
+            // `local_listener::mod`'s force-fill construction, which this mirrors.
+            let project_name = match data.operation {
+                agent_access_core::RequestOperation::BulkRequest if data.target_id.is_none() => {
+                    Some(data.query_value.clone())
+                }
+                _ => None,
+            };
             Self {
                 query_type: data.query_type.into(),
                 query_value: data.query_value,
@@ -362,6 +391,7 @@ pub mod agent_access {
                 new_secret_note: data.new_secret_note,
                 project_hint: data.project_hint,
                 target_id: data.target_id,
+                project_name,
                 generate_value: Some(data.generate_value),
                 generate_length: data.generate_length,
                 generate_symbols: data.generate_symbols,
@@ -388,6 +418,7 @@ pub mod agent_access {
                 .field("has_new_secret_note", &self.new_secret_note.is_some())
                 .field("has_project_hint", &self.project_hint.is_some())
                 .field("target_id", &self.target_id)
+                .field("has_project_name", &self.project_name.is_some())
                 .field("generate_value", &self.generate_value)
                 .field("generate_length", &self.generate_length)
                 .field("generate_symbols", &self.generate_symbols)
@@ -416,6 +447,43 @@ pub mod agent_access {
                 name: entry.name,
                 write: entry.write,
                 organization: entry.organization,
+            }
+        }
+    }
+
+    /// One entry of an approved `operation: "bulkRequest"` response (M7,
+    /// `projectSecretsRequest`). Unlike [`AgentAccessProjectEntry`] this carries a live secret
+    /// value — no `#[derive(Debug)]`: the manual impl below prints presence/count only (`id` is
+    /// an opaque identifier, printed verbatim; `name`/`value` are redacted, darker than
+    /// [`AgentAccessProjectEntry`]'s plain derive), and nothing outside the in-flight response
+    /// path may hold one.
+    #[napi(object)]
+    #[derive(Clone)]
+    pub struct AgentAccessSecretEntry {
+        pub id: String,
+        pub name: String,
+        pub value: String,
+    }
+
+    impl std::fmt::Debug for AgentAccessSecretEntry {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            f.debug_struct("AgentAccessSecretEntry")
+                .field("id", &self.id)
+                .field("name", &"<redacted>")
+                .field("value", &"<redacted>")
+                .finish()
+        }
+    }
+
+    impl From<AgentAccessSecretEntry> for agent_access_core::SecretEntry {
+        fn from(entry: AgentAccessSecretEntry) -> Self {
+            Self {
+                id: entry.id,
+                name: entry.name,
+                // Values cross the napi boundary as a plain `String` (existing precedent:
+                // `secretValue` on `CredentialResponseData` below) — `Zeroizing`-wrapped only
+                // once back on the `agent_access_core` side of the FFI boundary.
+                value: zeroize::Zeroizing::new(entry.value),
             }
         }
     }
@@ -458,6 +526,12 @@ pub mod agent_access {
         /// inside this in-flight response and are never buffered there (ids-only activity
         /// invariant). Unset for every other operation.
         pub projects: Option<Vec<AgentAccessProjectEntry>>,
+        /// The secret set released by an approved `operation: "bulkRequest"` request (M7,
+        /// `projectSecretsRequest`) — one entry per secret the user saw enumerated in the
+        /// approval dialog. Carries live secret VALUES: entries transit main only inside this
+        /// in-flight response and are never buffered there (the activity row keeps ids only,
+        /// via `secretIds` on the outcome). Unset for every other operation.
+        pub secrets: Option<Vec<AgentAccessSecretEntry>>,
         /// Value-free JSON pass-through describing a `deliveryMode: "fill"` request's execution
         /// outcome (M5's `fill` response object) — the renderer builds this directly (its shape
         /// mirrors the wire example in agent-access-architecture.md's "M5" section). Parsed into
@@ -504,6 +578,12 @@ pub mod agent_access {
                     entries
                         .into_iter()
                         .map(agent_access_core::ProjectEntry::from)
+                        .collect()
+                }),
+                secrets: data.secrets.map(|entries| {
+                    entries
+                        .into_iter()
+                        .map(agent_access_core::SecretEntry::from)
                         .collect()
                 }),
                 fill_result: data.fill_result,
@@ -744,6 +824,7 @@ pub mod agent_access {
                     write: true,
                     organization: None,
                 }]),
+                secrets: None,
                 fill_result: None,
                 fill_target: None,
                 denial_detail: None,
@@ -757,6 +838,202 @@ pub mod agent_access {
             assert_eq!(projects[0].name, "My Project");
             assert!(projects[0].write);
             assert!(projects[0].organization.is_none());
+        }
+    }
+
+    /// M7 ("bws run parity: project-scoped bulk secret injection") DTO-conversion tests: the
+    /// `OperationType::BulkRequest` mirror, the derived `projectName` field (M7-B's "nothing new
+    /// on the core struct" design — see the request-side `From` impl's docs), and the
+    /// response-side secret set (`secrets`/`AgentAccessSecretEntry`).
+    #[cfg(test)]
+    mod m7_conversion_tests {
+        use super::*;
+
+        fn base_bulk_request_core(
+            target_id: Option<&str>,
+            query_value: &str,
+        ) -> agent_access_core::CredentialRequestData {
+            agent_access_core::CredentialRequestData {
+                query_type: agent_access_core::CredentialQueryKind::Id,
+                query_value: query_value.to_string(),
+                requester_fingerprint: None,
+                requester_name: None,
+                origin: agent_access_core::CredentialRequestOrigin::Local,
+                local_peer: None,
+                delivery_mode: None,
+                resource: agent_access_core::ResourceKind::Secret,
+                operation: agent_access_core::RequestOperation::BulkRequest,
+                new_secret_name: None,
+                new_secret_value: None,
+                new_secret_note: None,
+                project_hint: None,
+                target_id: target_id.map(str::to_string),
+                generate_value: false,
+                generate_length: None,
+                generate_symbols: None,
+                fill_fields: None,
+                fill_target_token: None,
+            }
+        }
+
+        #[test]
+        fn operation_type_bulk_request_round_trips() {
+            assert!(matches!(
+                OperationType::from(agent_access_core::RequestOperation::BulkRequest),
+                OperationType::BulkRequest
+            ));
+        }
+
+        /// The id-form: `target_id` is `Some`, so `projectName` must stay unset — the renderer
+        /// distinguishes "selected by id" vs. "selected by name" by which of `targetId`/
+        /// `projectName` is present, not by inspecting `queryValue`.
+        #[test]
+        fn project_name_absent_for_id_form_bulk_request() {
+            let core_request = base_bulk_request_core(Some("project-1"), "project-1");
+            let napi_request = CredentialRequestData::from(core_request);
+            assert_eq!(napi_request.target_id.as_deref(), Some("project-1"));
+            assert!(napi_request.project_name.is_none());
+        }
+
+        /// The name-form: `target_id` is `None` on the core struct, and the name lives in
+        /// `query_value` (per `agent_access_core::CredentialRequestData::query_value`'s docs) —
+        /// the napi `From` impl must derive `projectName` from exactly that.
+        #[test]
+        fn project_name_derived_for_name_form_bulk_request() {
+            let core_request = base_bulk_request_core(None, "my-app");
+            let napi_request = CredentialRequestData::from(core_request);
+            assert!(napi_request.target_id.is_none());
+            assert_eq!(napi_request.project_name.as_deref(), Some("my-app"));
+        }
+
+        /// A non-`bulkRequest` operation must never populate `projectName`, even though its
+        /// `query_value` could coincidentally look like a project name — the derivation is
+        /// gated on `operation`, not merely on `target_id` being absent (e.g. `secretCreate`'s
+        /// `query_value` carries the proposed secret name and also has no `target_id`).
+        #[test]
+        fn project_name_absent_for_non_bulk_request_operations() {
+            let mut core_request = base_bulk_request_core(None, "my-app");
+            core_request.operation = agent_access_core::RequestOperation::Create;
+            let napi_request = CredentialRequestData::from(core_request);
+            assert!(napi_request.project_name.is_none());
+        }
+
+        #[test]
+        fn secret_entry_converts_to_core_with_value_zeroized() {
+            let entry = AgentAccessSecretEntry {
+                id: "secret-1".to_string(),
+                name: "DB_PASSWORD".to_string(),
+                value: "hunter2".to_string(),
+            };
+            let core_entry = agent_access_core::SecretEntry::from(entry);
+            assert_eq!(core_entry.id, "secret-1");
+            assert_eq!(core_entry.name, "DB_PASSWORD");
+            assert_eq!(core_entry.value.as_str(), "hunter2");
+        }
+
+        /// Values cross the napi boundary as plain, non-empty-collapsing `String`s — mirrors
+        /// `secretValue`'s existing precedent (see `CredentialResponseData::secret_value`'s
+        /// docs) and the M6 note-`""` rule this module already guards elsewhere: an empty
+        /// string is a real (if unusual) secret value, never collapsed to absence.
+        #[test]
+        fn secret_entry_preserves_an_empty_value() {
+            let entry = AgentAccessSecretEntry {
+                id: "secret-1".to_string(),
+                name: "EMPTY".to_string(),
+                value: String::new(),
+            };
+            let core_entry = agent_access_core::SecretEntry::from(entry);
+            assert_eq!(core_entry.value.as_str(), "");
+        }
+
+        #[test]
+        fn response_secrets_convert() {
+            let response = CredentialResponseData {
+                approved: true,
+                username: None,
+                password: None,
+                totp: None,
+                uri: None,
+                notes: None,
+                credential_id: None,
+                reason: None,
+                item_name: Some("my-app".to_string()),
+                secret_value: None,
+                secret_id: None,
+                project_id: Some("project-1".to_string()),
+                projects: None,
+                secrets: Some(vec![
+                    AgentAccessSecretEntry {
+                        id: "secret-1".to_string(),
+                        name: "DB_PASSWORD".to_string(),
+                        value: "hunter2".to_string(),
+                    },
+                    AgentAccessSecretEntry {
+                        id: "secret-2".to_string(),
+                        name: "API_KEY".to_string(),
+                        value: "abc123".to_string(),
+                    },
+                ]),
+                fill_result: None,
+                fill_target: None,
+                denial_detail: None,
+                fill_fields_shared: None,
+            };
+            let core_response: agent_access_core::CredentialResponseData = response.into();
+            let secrets = core_response.secrets.expect("secrets expected");
+            assert_eq!(secrets.len(), 2);
+            assert_eq!(secrets[0].id, "secret-1");
+            assert_eq!(secrets[0].name, "DB_PASSWORD");
+            assert_eq!(secrets[0].value.as_str(), "hunter2");
+            assert_eq!(secrets[1].id, "secret-2");
+            assert_eq!(secrets[1].name, "API_KEY");
+            assert_eq!(secrets[1].value.as_str(), "abc123");
+        }
+
+        #[test]
+        fn response_secrets_absent_when_unset() {
+            let response = CredentialResponseData {
+                approved: true,
+                username: None,
+                password: None,
+                totp: None,
+                uri: None,
+                notes: None,
+                credential_id: None,
+                reason: None,
+                item_name: None,
+                secret_value: None,
+                secret_id: None,
+                project_id: None,
+                projects: None,
+                secrets: None,
+                fill_result: None,
+                fill_target: None,
+                denial_detail: None,
+                fill_fields_shared: None,
+            };
+            let core_response: agent_access_core::CredentialResponseData = response.into();
+            assert!(core_response.secrets.is_none());
+        }
+
+        /// [`AgentAccessSecretEntry`]'s manual `Debug` impl must never print the real name or
+        /// value — this is the one type in this module that rides a live secret value directly
+        /// (unlike [`AgentAccessProjectEntry`], which carries only org metadata and is fine with
+        /// a plain derive).
+        #[test]
+        fn secret_entry_debug_redacts_name_and_value() {
+            let entry = AgentAccessSecretEntry {
+                id: "secret-1".to_string(),
+                name: "DB_PASSWORD".to_string(),
+                value: "hunter2".to_string(),
+            };
+            let debugged = format!("{entry:?}");
+            assert!(
+                debugged.contains("secret-1"),
+                "id should be printed verbatim"
+            );
+            assert!(!debugged.contains("DB_PASSWORD"));
+            assert!(!debugged.contains("hunter2"));
         }
     }
 

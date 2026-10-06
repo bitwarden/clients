@@ -167,7 +167,11 @@ describe("AgentAccessSecretsService", () => {
     it("filters out secrets the user can't read", async () => {
       stubOrgSecretsList();
 
-      const result = await service.findSecrets(CredentialQueryType.Search, "", UserOne);
+      const { matches: result } = await service.findSecrets(
+        CredentialQueryType.Search,
+        "",
+        UserOne,
+      );
 
       expect(result.map((r) => r.secretId)).not.toContain("s-hidden");
     });
@@ -175,7 +179,11 @@ describe("AgentAccessSecretsService", () => {
     it("skips a secret whose name fails to decrypt, without failing the whole lookup", async () => {
       stubOrgSecretsList();
 
-      const result = await service.findSecrets(CredentialQueryType.Search, "", UserOne);
+      const { matches: result } = await service.findSecrets(
+        CredentialQueryType.Search,
+        "",
+        UserOne,
+      );
 
       expect(result.map((r) => r.secretId)).not.toContain("s-bad");
       expect(result.map((r) => r.secretId).sort()).toEqual(["s-api", "s-db"]);
@@ -184,7 +192,11 @@ describe("AgentAccessSecretsService", () => {
     it("Name query: exact match wins outright", async () => {
       stubOrgSecretsList();
 
-      const result = await service.findSecrets(CredentialQueryType.Name, "DB_PASSWORD", UserOne);
+      const { matches: result } = await service.findSecrets(
+        CredentialQueryType.Name,
+        "DB_PASSWORD",
+        UserOne,
+      );
 
       expect(result).toEqual([expect.objectContaining({ secretId: "s-db", name: "DB_PASSWORD" })]);
     });
@@ -192,7 +204,11 @@ describe("AgentAccessSecretsService", () => {
     it("Name query: falls back to a unique case-insensitive match", async () => {
       stubOrgSecretsList();
 
-      const result = await service.findSecrets(CredentialQueryType.Name, "db_password", UserOne);
+      const { matches: result } = await service.findSecrets(
+        CredentialQueryType.Name,
+        "db_password",
+        UserOne,
+      );
 
       expect(result).toEqual([expect.objectContaining({ secretId: "s-db", name: "DB_PASSWORD" })]);
     });
@@ -213,7 +229,11 @@ describe("AgentAccessSecretsService", () => {
         decryptByCiphertext({ "enc-1": "db_password", "enc-2": "Db_Password" }),
       );
 
-      const result = await service.findSecrets(CredentialQueryType.Name, "DB_PASSWORD", UserOne);
+      const { matches: result } = await service.findSecrets(
+        CredentialQueryType.Name,
+        "DB_PASSWORD",
+        UserOne,
+      );
 
       expect(result).toEqual([]);
     });
@@ -221,7 +241,11 @@ describe("AgentAccessSecretsService", () => {
     it("Id query: matches by secret UUID", async () => {
       stubOrgSecretsList();
 
-      const result = await service.findSecrets(CredentialQueryType.Id, "s-api", UserOne);
+      const { matches: result } = await service.findSecrets(
+        CredentialQueryType.Id,
+        "s-api",
+        UserOne,
+      );
 
       expect(result).toEqual([expect.objectContaining({ secretId: "s-api", name: "API_KEY" })]);
     });
@@ -240,7 +264,11 @@ describe("AgentAccessSecretsService", () => {
         decryptByCiphertext({ "enc-partial": "PROD_TOKEN_EXTRA", "enc-exact": "TOKEN" }),
       );
 
-      const result = await service.findSecrets(CredentialQueryType.Search, "token", UserOne);
+      const { matches: result } = await service.findSecrets(
+        CredentialQueryType.Search,
+        "token",
+        UserOne,
+      );
 
       expect(result.map((r) => r.secretId)).toEqual(["s-exact", "s-partial"]);
     });
@@ -251,7 +279,11 @@ describe("AgentAccessSecretsService", () => {
       );
       apiService.send.mockRejectedValue(new ErrorResponse({}, 404));
 
-      const result = await service.findSecrets(CredentialQueryType.Search, "anything", UserOne);
+      const { matches: result } = await service.findSecrets(
+        CredentialQueryType.Search,
+        "anything",
+        UserOne,
+      );
 
       expect(result).toEqual([]);
     });
@@ -274,6 +306,389 @@ describe("AgentAccessSecretsService", () => {
       const [, , , , , apiUrl, alterHeaders] = apiService.send.mock.calls[0];
       expect(apiUrl).toBeUndefined();
       expect(alterHeaders).toBeUndefined();
+    });
+
+    // BUG 1 fix: SM enforces secret-name uniqueness per project, not per org, so `findSecrets`'s
+    // org-wide listing can legitimately surface two secrets sharing both `name` and
+    // `organizationName`. Without a project identifier the approval picker cannot tell them apart
+    // (identical label AND identical hint) — these tests confirm `projectId`/`projectName` are
+    // decrypted and carried through so it can.
+    describe("project disambiguation", () => {
+      it("carries a secret's project id and decrypted project name, for disambiguation", async () => {
+        organizationService.organizations$.mockReturnValue(
+          of([makeOrg({ id: OrgReadable, enabled: true, canAccessSecretsManager: true })]),
+        );
+        apiService.send.mockResolvedValue({
+          secrets: [
+            {
+              Id: "s-1",
+              OrganizationId: OrgReadable,
+              Key: "enc-name",
+              Read: true,
+              Projects: [{ Id: "proj-1", Name: "enc-proj-web" }],
+            },
+          ],
+        });
+        encryptService.decryptString.mockImplementation(
+          decryptByCiphertext({ "enc-name": "API_KEY", "enc-proj-web": "web-app" }),
+        );
+
+        const { matches: result } = await service.findSecrets(
+          CredentialQueryType.Search,
+          "",
+          UserOne,
+        );
+
+        expect(result).toEqual([
+          expect.objectContaining({
+            secretId: "s-1",
+            name: "API_KEY",
+            projectId: "proj-1",
+            projectName: "web-app",
+          }),
+        ]);
+      });
+
+      it("leaves projectId/projectName absent for a secret with no associated project", async () => {
+        stubOrgSecretsList();
+
+        const { matches: result } = await service.findSecrets(
+          CredentialQueryType.Search,
+          "",
+          UserOne,
+        );
+
+        for (const match of result) {
+          expect(match.projectId).toBeUndefined();
+          expect(match.projectName).toBeUndefined();
+        }
+      });
+
+      it("two secrets, same name, same org, different projects: both surface with distinct project names", async () => {
+        organizationService.organizations$.mockReturnValue(
+          of([makeOrg({ id: OrgReadable, enabled: true, canAccessSecretsManager: true })]),
+        );
+        apiService.send.mockResolvedValue({
+          secrets: [
+            {
+              Id: "s-web",
+              OrganizationId: OrgReadable,
+              Key: "enc-api-key",
+              Read: true,
+              Projects: [{ Id: "proj-web", Name: "enc-proj-web" }],
+            },
+            {
+              Id: "s-mobile",
+              OrganizationId: OrgReadable,
+              Key: "enc-api-key",
+              Read: true,
+              Projects: [{ Id: "proj-mobile", Name: "enc-proj-mobile" }],
+            },
+          ],
+        });
+        encryptService.decryptString.mockImplementation(
+          decryptByCiphertext({
+            "enc-api-key": "API_KEY",
+            "enc-proj-web": "web-app",
+            "enc-proj-mobile": "mobile-app",
+          }),
+        );
+
+        const { matches: result } = await service.findSecrets(
+          CredentialQueryType.Search,
+          "api",
+          UserOne,
+        );
+
+        expect(result).toHaveLength(2);
+        expect(result).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              secretId: "s-web",
+              name: "API_KEY",
+              organizationName: "Acme Inc",
+              projectName: "web-app",
+            }),
+            expect.objectContaining({
+              secretId: "s-mobile",
+              name: "API_KEY",
+              organizationName: "Acme Inc",
+              projectName: "mobile-app",
+            }),
+          ]),
+        );
+        // The two matches must be distinguishable from each other purely on their own fields.
+        expect(result[0].projectName).not.toEqual(result[1].projectName);
+      });
+
+      it("skips (but does not fail the whole secret) a project name that fails to decrypt", async () => {
+        organizationService.organizations$.mockReturnValue(
+          of([makeOrg({ id: OrgReadable, enabled: true, canAccessSecretsManager: true })]),
+        );
+        apiService.send.mockResolvedValue({
+          secrets: [
+            {
+              Id: "s-1",
+              OrganizationId: OrgReadable,
+              Key: "enc-name",
+              Read: true,
+              Projects: [{ Id: "proj-1", Name: "enc-proj-corrupt" }],
+            },
+          ],
+        });
+        encryptService.decryptString.mockImplementation((async (encString: EncString) => {
+          const ciphertext = (encString as unknown as { encryptedString: string }).encryptedString;
+          if (ciphertext === "enc-proj-corrupt") {
+            throw new Error("decrypt failed");
+          }
+          return ({ "enc-name": "API_KEY" } as Record<string, string>)[ciphertext];
+        }) as any);
+
+        const { matches: result } = await service.findSecrets(
+          CredentialQueryType.Search,
+          "",
+          UserOne,
+        );
+
+        expect(result).toEqual([
+          expect.objectContaining({ secretId: "s-1", name: "API_KEY", projectId: "proj-1" }),
+        ]);
+        expect(result[0].projectName).toBeUndefined();
+      });
+    });
+
+    // BUG 2 fix: the exact-match branch used to `.find()` and silently drop every match but the
+    // first when two secrets shared the exact queried name — the dropped secret was never shown
+    // to the user at all, not even in a picker. It must now behave like the Search path and
+    // surface every exact match.
+    it("Name query: returns every exact match, not just the first, when the name collides", async () => {
+      organizationService.organizations$.mockReturnValue(
+        of([
+          makeOrg({ id: OrgReadable, enabled: true, canAccessSecretsManager: true }),
+          makeOrg({
+            id: OrgSecond,
+            name: "Other Org",
+            enabled: true,
+            canAccessSecretsManager: true,
+          }),
+        ]),
+      );
+      apiService.send.mockImplementation((async (method: string, path: string) => {
+        if (method === "GET" && path === `/organizations/${OrgReadable}/secrets`) {
+          return {
+            secrets: [{ Id: "s-1", OrganizationId: OrgReadable, Key: "enc-1", Read: true }],
+          };
+        }
+        if (method === "GET" && path === `/organizations/${OrgSecond}/secrets`) {
+          return { secrets: [{ Id: "s-2", OrganizationId: OrgSecond, Key: "enc-2", Read: true }] };
+        }
+        throw new Error(`unexpected request: ${method} ${path}`);
+      }) as any);
+      encryptService.decryptString.mockImplementation(
+        decryptByCiphertext({ "enc-1": "API_KEY", "enc-2": "API_KEY" }),
+      );
+
+      const { matches: result } = await service.findSecrets(
+        CredentialQueryType.Name,
+        "API_KEY",
+        UserOne,
+      );
+
+      expect(result.map((r) => r.secretId).sort()).toEqual(["s-1", "s-2"]);
+    });
+
+    // `truncated` (agent-access-design-spec.md §3.3): `matchSecrets` sees the full, uncapped
+    // candidate list before applying `MAX_SM_MATCHES` (not exported — mirrored here as a literal,
+    // same discipline the service itself already uses for this value), so it can report exactly
+    // whether the cap actually cut anything off, rather than a caller guessing from
+    // `matches.length` landing on the cap. These mirror the exactly-at-cap vs. genuinely-over-cap
+    // pairs already covering `findCiphers`'s Domain/Search paths in
+    // `desktop-agent-access.service.spec.ts`.
+    describe("truncated — reports whether the cap actually cut off matches", () => {
+      function stubManySecrets(count: number, name: string) {
+        organizationService.organizations$.mockReturnValue(
+          of([makeOrg({ id: OrgReadable, enabled: true, canAccessSecretsManager: true })]),
+        );
+        apiService.send.mockResolvedValue({
+          secrets: Array.from({ length: count }, (_, i) => ({
+            Id: `s-${i}`,
+            OrganizationId: OrgReadable,
+            Key: `enc-${i}`,
+            Read: true,
+          })),
+        });
+        // Every secret in the fixture shares the same encrypted name, decrypting to `name`
+        // regardless of which ciphertext it is — the point of this helper is a uniform batch of
+        // same-named secrets to exercise the cap, not distinct names.
+        encryptService.decryptString.mockResolvedValue(name);
+      }
+
+      it("Name query: reports truncated: false when exact matches land exactly on the cap", async () => {
+        stubManySecrets(20, "SHARED_NAME");
+
+        const { matches, truncated } = await service.findSecrets(
+          CredentialQueryType.Name,
+          "SHARED_NAME",
+          UserOne,
+        );
+
+        expect(matches).toHaveLength(20);
+        expect(truncated).toBe(false);
+      });
+
+      it("Name query: reports truncated: true when more exact matches exist beyond the cap", async () => {
+        stubManySecrets(21, "SHARED_NAME");
+
+        const { matches, truncated } = await service.findSecrets(
+          CredentialQueryType.Name,
+          "SHARED_NAME",
+          UserOne,
+        );
+
+        expect(matches).toHaveLength(20);
+        expect(truncated).toBe(true);
+      });
+
+      it("Search query: reports truncated: false when the match count lands exactly on the cap", async () => {
+        stubManySecrets(20, "shared_name");
+
+        const { matches, truncated } = await service.findSecrets(
+          CredentialQueryType.Search,
+          "shared_name",
+          UserOne,
+        );
+
+        expect(matches).toHaveLength(20);
+        expect(truncated).toBe(false);
+      });
+
+      it("Search query: reports truncated: true when a substring match exists beyond the cap", async () => {
+        // 20 exact matches fill the cap on the first pass; one further secret only matches the
+        // substring pass and would previously never have been considered at all once the cap was
+        // hit — it must still be able to flip `truncated` even though it never lands in `matches`.
+        organizationService.organizations$.mockReturnValue(
+          of([makeOrg({ id: OrgReadable, enabled: true, canAccessSecretsManager: true })]),
+        );
+        apiService.send.mockResolvedValue({
+          secrets: [
+            ...Array.from({ length: 20 }, (_, i) => ({
+              Id: `s-${i}`,
+              OrganizationId: OrgReadable,
+              Key: `enc-${i}`,
+              Read: true,
+            })),
+            { Id: "s-overflow", OrganizationId: OrgReadable, Key: "enc-overflow", Read: true },
+          ],
+        });
+        encryptService.decryptString.mockImplementation((async (encString: EncString) => {
+          const ciphertext = (encString as unknown as { encryptedString: string }).encryptedString;
+          return ciphertext === "enc-overflow" ? "shared_name_extra" : "shared_name";
+        }) as any);
+
+        const { matches, truncated } = await service.findSecrets(
+          CredentialQueryType.Search,
+          "shared_name",
+          UserOne,
+        );
+
+        expect(matches).toHaveLength(20);
+        expect(matches.some((m) => m.secretId === "s-overflow")).toBe(false);
+        expect(truncated).toBe(true);
+      });
+    });
+  });
+
+  // M7 (agent-access-architecture.md, "M7 — `bws run` parity"): the enumeration step of a
+  // `projectSecretsRequest` — names only, before any dialog, unlogged server-side (no header).
+  describe("listSecretsInProject", () => {
+    function stubProjectSecretsList() {
+      apiService.send.mockImplementation((async (method: string, path: string) => {
+        if (method === "GET" && path === "/projects/proj-1/secrets") {
+          return {
+            Secrets: [
+              { Id: "s-db", OrganizationId: OrgReadable, Key: "enc-db", Read: true },
+              { Id: "s-api", OrganizationId: OrgReadable, Key: "enc-api", Read: true },
+              // Not readable: filtered out before decryption.
+              { Id: "s-hidden", OrganizationId: OrgReadable, Key: "enc-hidden", Read: false },
+              // Undecryptable: skips this one secret, never fails the whole call.
+              { Id: "s-bad", OrganizationId: OrgReadable, Key: "enc-corrupt", Read: true },
+            ],
+          };
+        }
+        throw new Error(`unexpected request: ${method} ${path}`);
+      }) as any);
+      encryptService.decryptString.mockImplementation((async (encString: EncString) => {
+        const ciphertext = (encString as unknown as { encryptedString: string }).encryptedString;
+        if (ciphertext === "enc-corrupt") {
+          throw new Error("decrypt failed");
+        }
+        return ({ "enc-db": "DB_PASSWORD", "enc-api": "API_KEY" } as Record<string, string>)[
+          ciphertext
+        ];
+      }) as any);
+    }
+
+    it("returns every readable secret's decrypted name, scoped to the project", async () => {
+      stubProjectSecretsList();
+
+      const result = await service.listSecretsInProject("proj-1", OrgReadable, UserOne);
+
+      expect(result.map((r) => r.secretId).sort()).toEqual(["s-api", "s-db"]);
+      expect(result).toEqual(
+        expect.arrayContaining([
+          { secretId: "s-db", name: "DB_PASSWORD", organizationId: OrgReadable },
+          { secretId: "s-api", name: "API_KEY", organizationId: OrgReadable },
+        ]),
+      );
+    });
+
+    it("filters out secrets the user can't read", async () => {
+      stubProjectSecretsList();
+
+      const result = await service.listSecretsInProject("proj-1", OrgReadable, UserOne);
+
+      expect(result.map((r) => r.secretId)).not.toContain("s-hidden");
+    });
+
+    it("skips a secret whose name fails to decrypt, without failing the whole call", async () => {
+      stubProjectSecretsList();
+
+      const result = await service.listSecretsInProject("proj-1", OrgReadable, UserOne);
+
+      expect(result.map((r) => r.secretId)).not.toContain("s-bad");
+    });
+
+    it("populates the session-scoped name cache as it decrypts", async () => {
+      stubProjectSecretsList();
+
+      await service.listSecretsInProject("proj-1", OrgReadable, UserOne);
+
+      expect(service.resolveSecretName("s-db")).toBe("DB_PASSWORD");
+    });
+
+    it("does not mark the call as agent-mediated (list endpoints are unlogged)", async () => {
+      stubProjectSecretsList();
+
+      await service.listSecretsInProject("proj-1", OrgReadable, UserOne);
+
+      const [, , , , , apiUrl, alterHeaders] = apiService.send.mock.calls[0];
+      expect(apiUrl).toBeUndefined();
+      expect(alterHeaders).toBeUndefined();
+    });
+
+    it("returns an empty array, without throwing, when the API call fails", async () => {
+      apiService.send.mockRejectedValue(new ErrorResponse({}, 404));
+
+      const result = await service.listSecretsInProject("proj-1", OrgReadable, UserOne);
+
+      expect(result).toEqual([]);
+    });
+
+    it("returns an empty array when the account has no key for the organization", async () => {
+      const result = await service.listSecretsInProject("proj-1", OrgNoAccess, UserOne);
+
+      expect(result).toEqual([]);
+      expect(apiService.send).not.toHaveBeenCalled();
     });
   });
 
@@ -407,6 +822,114 @@ describe("AgentAccessSecretsService", () => {
     });
   });
 
+  // M7 (agent-access-architecture.md, "M7 — `bws run` parity"): the post-approval bulk value
+  // fetch behind `projectSecretsRequest` — the multi-secret analogue of `getSecretValue`.
+  describe("getSecretValuesByIds", () => {
+    it("posts the id array to /secrets/get-by-ids with the agent-mediated header and decrypts names+values", async () => {
+      apiService.send.mockResolvedValue({
+        Data: [
+          { Id: "s-db", Key: "enc-db", Value: "enc-val-db" },
+          { Id: "s-api", Key: "enc-api", Value: "enc-val-api" },
+        ],
+      });
+      encryptService.decryptString.mockImplementation(
+        decryptByCiphertext({
+          "enc-db": "DB_PASSWORD",
+          "enc-val-db": "hunter2",
+          "enc-api": "API_KEY",
+          "enc-val-api": "sk-live-123",
+        }),
+      );
+
+      const result = await service.getSecretValuesByIds(["s-db", "s-api"], OrgReadable, UserOne);
+
+      expect(apiService.send).toHaveBeenCalledTimes(1);
+      const [method, path, body, authed, hasResponse, apiUrl, alterHeaders] =
+        apiService.send.mock.calls[0];
+      expect(method).toBe("POST");
+      expect(path).toBe("/secrets/get-by-ids");
+      expect(body).toEqual({ ids: ["s-db", "s-api"] });
+      expect(authed).toBe(true);
+      expect(hasResponse).toBe(true);
+      expect(apiUrl).toBeNull();
+      expect(result).toEqual(
+        expect.arrayContaining([
+          { id: "s-db", name: "DB_PASSWORD", value: "hunter2" },
+          { id: "s-api", name: "API_KEY", value: "sk-live-123" },
+        ]),
+      );
+
+      // M7-E: marked agent-mediated so the server logs Secret_RetrievedByAgent per secret.
+      expect(typeof alterHeaders).toBe("function");
+      const headers = new Headers();
+      (alterHeaders as (headers: Headers) => void)(headers);
+      expect(headers.get("Bitwarden-Agent-Mediated")).toBe("1");
+    });
+
+    it("filters the response to only the requested id set — never releases an id that wasn't asked for", async () => {
+      apiService.send.mockResolvedValue({
+        Data: [
+          { Id: "s-db", Key: "enc-db", Value: "enc-val-db" },
+          // The server included this one even though it wasn't requested — it must be dropped.
+          { Id: "s-unrequested", Key: "enc-other", Value: "enc-val-other" },
+        ],
+      });
+      encryptService.decryptString.mockImplementation(
+        decryptByCiphertext({
+          "enc-db": "DB_PASSWORD",
+          "enc-val-db": "hunter2",
+          "enc-other": "OTHER",
+          "enc-val-other": "should-not-be-released",
+        }),
+      );
+
+      const result = await service.getSecretValuesByIds(["s-db"], OrgReadable, UserOne);
+
+      expect(result).toEqual([{ id: "s-db", name: "DB_PASSWORD", value: "hunter2" }]);
+      expect(result.map((r) => r.id)).not.toContain("s-unrequested");
+    });
+
+    it("skips (does not fail the whole call for) an entry whose value fails to decrypt", async () => {
+      apiService.send.mockResolvedValue({
+        Data: [
+          { Id: "s-db", Key: "enc-db", Value: "enc-val-db" },
+          { Id: "s-bad", Key: "enc-bad", Value: "enc-corrupt" },
+        ],
+      });
+      encryptService.decryptString.mockImplementation((async (encString: EncString) => {
+        const ciphertext = (encString as unknown as { encryptedString: string }).encryptedString;
+        if (ciphertext === "enc-corrupt") {
+          throw new Error("decrypt failed");
+        }
+        return (
+          { "enc-db": "DB_PASSWORD", "enc-val-db": "hunter2", "enc-bad": "BAD" } as Record<
+            string,
+            string
+          >
+        )[ciphertext];
+      }) as any);
+
+      const result = await service.getSecretValuesByIds(["s-db", "s-bad"], OrgReadable, UserOne);
+
+      expect(result).toEqual([{ id: "s-db", name: "DB_PASSWORD", value: "hunter2" }]);
+    });
+
+    it("throws (does not swallow) when the account has no key for the organization", async () => {
+      await expect(service.getSecretValuesByIds(["s-db"], OrgNoAccess, UserOne)).rejects.toThrow(
+        /no organization key/,
+      );
+      expect(apiService.send).not.toHaveBeenCalled();
+    });
+
+    it("throws (does not swallow) when the API call fails", async () => {
+      apiService.send.mockRejectedValue(new ErrorResponse({}, 404));
+
+      await expect(
+        service.getSecretValuesByIds(["s-db"], OrgReadable, UserOne),
+      ).rejects.toBeInstanceOf(ErrorResponse);
+    });
+  });
+
   // M4b (agent-access-architecture.md, "M4b — secret creation"): the project picker in the
   // secret-creation dialog.
   describe("listProjects", () => {
@@ -472,6 +995,136 @@ describe("AgentAccessSecretsService", () => {
       const [, , , , , apiUrl, alterHeaders] = apiService.send.mock.calls[0];
       expect(apiUrl).toBeUndefined();
       expect(alterHeaders).toBeUndefined();
+    });
+  });
+
+  // M7 (agent-access-architecture.md, "M7 — `bws run` parity"): resolves a `projectSecretsRequest`
+  // wire message's `project.id`/`project.name` selector against every SM org, BEFORE the release
+  // dialog opens.
+  describe("resolveProjectSelector", () => {
+    function stubTwoOrgProjects() {
+      organizationService.organizations$.mockReturnValue(
+        of([
+          makeOrg({
+            id: OrgReadable,
+            name: "Acme Inc",
+            enabled: true,
+            canAccessSecretsManager: true,
+          }),
+          makeOrg({
+            id: OrgSecond,
+            name: "Other Co",
+            enabled: true,
+            canAccessSecretsManager: true,
+          }),
+        ]),
+      );
+      apiService.send.mockImplementation((async (method: string, path: string) => {
+        if (method === "GET" && path === `/organizations/${OrgReadable}/projects`) {
+          return {
+            data: [{ Id: "p-1", OrganizationId: OrgReadable, Name: "enc-my-app", Write: true }],
+          };
+        }
+        if (method === "GET" && path === `/organizations/${OrgSecond}/projects`) {
+          return {
+            data: [{ Id: "p-2", OrganizationId: OrgSecond, Name: "enc-other-app", Write: false }],
+          };
+        }
+        throw new Error(`unexpected request: ${method} ${path}`);
+      }) as any);
+      encryptService.decryptString.mockImplementation(
+        decryptByCiphertext({ "enc-my-app": "my-app", "enc-other-app": "other-app" }),
+      );
+    }
+
+    it("id form: resolves the matching project across every SM org", async () => {
+      stubTwoOrgProjects();
+
+      const result = await service.resolveProjectSelector({ id: "p-2" }, UserOne);
+
+      expect(result).toEqual({
+        projectId: "p-2",
+        projectName: "other-app",
+        organizationId: OrgSecond,
+        organizationName: "Other Co",
+      });
+    });
+
+    it("id form: returns null when no project matches the id", async () => {
+      stubTwoOrgProjects();
+
+      const result = await service.resolveProjectSelector({ id: "p-missing" }, UserOne);
+
+      expect(result).toBeNull();
+    });
+
+    it("name form: exact match wins outright", async () => {
+      stubTwoOrgProjects();
+
+      const result = await service.resolveProjectSelector({ name: "my-app" }, UserOne);
+
+      expect(result).toEqual(expect.objectContaining({ projectId: "p-1", projectName: "my-app" }));
+    });
+
+    it("name form: falls back to a unique case-insensitive match", async () => {
+      stubTwoOrgProjects();
+
+      const result = await service.resolveProjectSelector({ name: "MY-APP" }, UserOne);
+
+      expect(result).toEqual(expect.objectContaining({ projectId: "p-1", projectName: "my-app" }));
+    });
+
+    it("name form: returns null when the case-insensitive match is ambiguous", async () => {
+      organizationService.organizations$.mockReturnValue(
+        of([
+          makeOrg({
+            id: OrgReadable,
+            name: "Acme Inc",
+            enabled: true,
+            canAccessSecretsManager: true,
+          }),
+          makeOrg({
+            id: OrgSecond,
+            name: "Other Co",
+            enabled: true,
+            canAccessSecretsManager: true,
+          }),
+        ]),
+      );
+      apiService.send.mockImplementation((async (method: string, path: string) => {
+        if (method === "GET" && path === `/organizations/${OrgReadable}/projects`) {
+          return { data: [{ Id: "p-1", OrganizationId: OrgReadable, Name: "enc-1", Write: true }] };
+        }
+        if (method === "GET" && path === `/organizations/${OrgSecond}/projects`) {
+          return { data: [{ Id: "p-2", OrganizationId: OrgSecond, Name: "enc-2", Write: true }] };
+        }
+        throw new Error(`unexpected request: ${method} ${path}`);
+      }) as any);
+      // Neither is an exact match for the query below, but both match it case-insensitively.
+      encryptService.decryptString.mockImplementation(
+        decryptByCiphertext({ "enc-1": "my-app", "enc-2": "My-App" }),
+      );
+
+      const result = await service.resolveProjectSelector({ name: "MY-APP" }, UserOne);
+
+      expect(result).toBeNull();
+    });
+
+    it("returns null when the user has no SM organizations", async () => {
+      organizationService.organizations$.mockReturnValue(of([]));
+
+      const result = await service.resolveProjectSelector({ id: "p-1" }, UserOne);
+
+      expect(result).toBeNull();
+      expect(apiService.send).not.toHaveBeenCalled();
+    });
+
+    it("returns null when neither id nor name is given", async () => {
+      stubTwoOrgProjects();
+
+      const result = await service.resolveProjectSelector({}, UserOne);
+
+      expect(result).toBeNull();
     });
   });
 
@@ -819,7 +1472,7 @@ describe("AgentAccessSecretsService", () => {
       );
     });
 
-    it("omits projectIds when no move was confirmed", async () => {
+    it("omits projectIds when the secret has no project and no move was confirmed", async () => {
       apiService.send.mockResolvedValue({});
 
       await service.updateSecret(OrgReadable, UserOne, "s-a", {
@@ -832,6 +1485,26 @@ describe("AgentAccessSecretsService", () => {
       expect((body as any).projectIds).toBeUndefined();
     });
 
+    // Regression: the server's `SecretUpdateRequestModel.ToSecret` only treats the association as
+    // unchanged when the incoming first project id EQUALS the stored one — a null `ProjectIds`
+    // against a project-assigned secret falls through to `Projects = []` and unassigns it. A plain
+    // value rotation proposes no move, so without carrying `currentProjectId` forward every
+    // agent-mediated rotation silently stripped the secret out of its project.
+    it("re-sends the current projectId when no move was confirmed, so the server does not unassign", async () => {
+      apiService.send.mockResolvedValue({});
+
+      await service.updateSecret(OrgReadable, UserOne, "s-a", {
+        keyEncString: "k",
+        valueEncString: "v",
+        value: "rotated",
+        noteEncString: "n",
+        currentProjectId: "proj-current",
+      });
+
+      const [, , body] = apiService.send.mock.calls[0];
+      expect((body as any).projectIds).toEqual(["proj-current"]);
+    });
+
     it("sends projectIds: [newProjectId] when a move was confirmed — never an empty array", async () => {
       apiService.send.mockResolvedValue({});
 
@@ -840,6 +1513,21 @@ describe("AgentAccessSecretsService", () => {
         valueEncString: "v",
         noteEncString: "n",
         projectId: "proj-new",
+      });
+
+      const [, , body] = apiService.send.mock.calls[0];
+      expect((body as any).projectIds).toEqual(["proj-new"]);
+    });
+
+    it("prefers a confirmed move over the current project", async () => {
+      apiService.send.mockResolvedValue({});
+
+      await service.updateSecret(OrgReadable, UserOne, "s-a", {
+        keyEncString: "k",
+        valueEncString: "v",
+        noteEncString: "n",
+        projectId: "proj-new",
+        currentProjectId: "proj-current",
       });
 
       const [, , body] = apiService.send.mock.calls[0];

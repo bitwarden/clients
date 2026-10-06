@@ -1,0 +1,21 @@
+@if (style(); as bandStyle) {
+  <!-- Disclose / Destroy: filled, left-ruled, icon-bearing band (spec §7.5.1). -->
+  <div [class]="wrapperClasses()">
+    <bit-icon [name]="bandStyle.icon" class="tw-mt-0.5 tw-shrink-0"></bit-icon>
+    <div class="tw-flex tw-min-w-0 tw-flex-col tw-gap-0.5">
+      <span bitTypography="body2" noMargin class="tw-font-semibold">{{ summary() }}</span>
+      @if (detail(); as detailText) {
+        <span bitTypography="helper" noMargin class="tw-text-muted">{{ detailText }}</span>
+      }
+    </div>
+  </div>
+} @else {
+  <!-- Metadata / Change: the identical sentence, plain — no fill, no border box, no icon
+       (spec §7.5.1). -->
+  <div class="tw-flex tw-min-w-0 tw-flex-col tw-gap-0.5">
+    <p bitTypography="body2" noMargin class="tw-text-muted">{{ summary() }}</p>
+    @if (detail(); as detailText) {
+      <span bitTypography="helper" noMargin class="tw-text-muted">{{ detailText }}</span>
+    }
+  </div>
+}

@@ -145,10 +145,20 @@ export interface CredentialRequestActivity extends AgentAccessActivityBase {
   secretId?: string;
   /**
    * Id of the Secrets Manager project a `Created`/`Updated`/`Deleted` row targeted, for
-   * {@link AgentAccessResourceType.Project} requests (M6). An opaque identifier — names resolve
-   * at render time from the renderer-side project name cache, ids-only invariant unchanged.
+   * {@link AgentAccessResourceType.Project} requests (M6) — or, for an
+   * `operation: "bulkRequest"` row (M7), of the project whose secret set was released. An
+   * opaque identifier — names resolve at render time from the renderer-side project name
+   * cache, ids-only invariant unchanged.
    */
   projectId?: string;
+  /**
+   * Ids of the Secrets Manager secrets released by an approved `operation: "bulkRequest"` row
+   * (M7, `projectSecretsRequest`) — the enumerated set the user saw in the approval dialog.
+   * Opaque identifiers only; names resolve at render time from the renderer-side cache, and the
+   * row's `projectId` names the project they came from. Only ever set alongside
+   * {@link AgentAccessRequestStatus.Shared}.
+   */
+  secretIds?: string[];
   /** Which fields were released, e.g. `["username", "password"]`. Never their values. */
   fieldsShared?: string[];
   /**
@@ -187,8 +197,12 @@ export interface CredentialRequestOutcome {
    *  meaningful alongside a `Shared`, `Created`, `Updated`, or `Deleted` status. */
   secretId?: string;
   /** Id of the created/updated/deleted Secrets Manager project — see
-   *  {@link CredentialRequestActivity.projectId}. */
+   *  {@link CredentialRequestActivity.projectId} — or, for an `operation: "bulkRequest"` row
+   *  (M7), of the project whose secret set was released. */
   projectId?: string;
+  /** Ids of the secrets a `bulkRequest` release covered — see
+   *  {@link CredentialRequestActivity.secretIds}. Only meaningful alongside `Shared`. */
+  secretIds?: string[];
   fieldsShared?: string[];
   /** Extension-reported page origin of a fill attempt — see
    *  {@link CredentialRequestActivity.fillOrigin}. Only meaningful alongside a `Filled` or
