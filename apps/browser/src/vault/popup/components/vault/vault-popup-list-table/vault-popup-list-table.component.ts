@@ -302,6 +302,9 @@ export class VaultPopupListTableComponent {
    */
   protected readonly filtersToRestore = toSignal(this.listFiltersService.restoreFilters$());
 
+  /** Whether the toolbar's filter dialog is open. */
+  protected readonly filterDialogOpen = this.listFiltersService.filterDialogOpen;
+
   protected readonly organizationOptions = toSignal(this.listFiltersService.organizations$, {
     initialValue: [] as ChipFilterOption<Organization>[],
   });
