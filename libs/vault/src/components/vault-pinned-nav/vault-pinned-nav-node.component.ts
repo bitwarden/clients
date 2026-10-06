@@ -1,7 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
+import { isActive, Router } from "@angular/router";
 
 import { CollectionId } from "@bitwarden/common/types/guid";
 import { NavigationModule } from "@bitwarden/components";
+
+import { EXACT_PATH } from "../../routing/exact-path";
 
 import { PinnedFolderNode } from "./pinned-shared-folder-nodes";
 
@@ -28,5 +31,16 @@ export class VaultPinnedNavNodeComponent {
    */
   readonly routes = input.required<ReadonlyMap<CollectionId, string[]>>();
 
+  private readonly router = inject(Router);
+
   protected readonly route = computed(() => this.routes().get(this.node().id));
+
+  /**
+   * Whether this folder's own page is in view. An open group hides the active styles of its row, so
+   * the group is told to keep them while its folder is the page in view.
+   */
+  protected readonly active = computed(() => {
+    const route = this.route();
+    return route != null && isActive(this.router.createUrlTree(route), this.router, EXACT_PATH)();
+  });
 }

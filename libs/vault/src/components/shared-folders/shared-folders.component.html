@@ -32,7 +32,7 @@
       key="pinned"
       [label]="'pinned' | i18n"
       icon="bwi-pin"
-      [disabled]="noPinned()"
+      [disabled]="noPinned() && !sharedFoldersTable.filterValues().pinned"
       [disabledTooltip]="pinnedDisabledTooltip()"
     ></bit-filter-toggle>
 

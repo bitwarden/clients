@@ -693,6 +693,23 @@ describe("SharedFoldersComponent", () => {
       expect(tooltip).toBe("noPinnedFoldersTooltip");
     });
 
+    it("stays enabled while on, so it can be turned off after the last pin is removed", async () => {
+      await setupPinnable();
+      filterControl("pinned").setValue(true);
+      fixture.detectChanges();
+
+      await pinnedSharedFolders.unpin(PINNED_USER, "b" as CollectionId);
+      await pinnedSharedFolders.unpin(PINNED_USER, "c" as CollectionId);
+      fixture.detectChanges();
+
+      expect(pinnedToggle().button.getAttribute("aria-disabled")).not.toBe("true");
+
+      pinnedToggle().button.click();
+      fixture.detectChanges();
+
+      expect(filterControl("pinned").active()).toBe(false);
+    });
+
     it("cannot be turned on by a click while nothing is pinned", async () => {
       await setup({ collections: [collection({ id: "a" })] });
       fixture.detectChanges();
