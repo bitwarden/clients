@@ -11,10 +11,6 @@ import { DesktopHeaderComponent } from "../../../app/layout/header";
 /**
  * The desktop client's shared folders page: the shared {@link VaultSharedFoldersComponent} with the
  * desktop header projected into it.
- *
- * Read-only for now. Every Add, row, and bulk action opens a collection dialog desktop doesn't
- * have, so no dialog token is provided and the page lists the folders without offering an action it
- * can't carry out.
  */
 @Component({
   templateUrl: "./shared-folders.component.html",

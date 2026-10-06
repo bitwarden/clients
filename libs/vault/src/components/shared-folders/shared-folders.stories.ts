@@ -1,7 +1,7 @@
 import { importProvidersFrom } from "@angular/core";
 import { provideRouter, RouterOutlet, Routes, withHashLocation } from "@angular/router";
 import { applicationConfig, Decorator, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
-import { of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 import { action } from "storybook/actions";
 
 // eslint-disable-next-line no-restricted-imports
@@ -14,9 +14,10 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogModule, I18nMockService } from "@bitwarden/components";
+import { DialogModule, I18nMockService, ToastService } from "@bitwarden/components";
 
 import { SHARED_FOLDERS_ROUTE } from "../../models/vault-scope";
+import { PinnedSharedFoldersService } from "../../services/pinned-shared-folders.service";
 import { BULK_DELETE_DIALOG, BulkDeleteDialogResult } from "../../tokens/bulk-delete-dialog.token";
 import {
   BULK_EDIT_COLLECTION_ACCESS_DIALOG,
@@ -100,6 +101,8 @@ type StoryProps = {
   folders: FolderFixture[];
   loading: boolean;
   canCreateNewCollections: boolean;
+  /** Ids of the folders that start out pinned to the side nav. */
+  pinnedIds: string[];
 };
 
 /**
@@ -128,8 +131,25 @@ const withVault: Decorator = (storyFn, context) => {
     } as Organization,
   ];
 
+  // Held in memory, so Pin to sidebar and Unpin from sidebar toggle in the story.
+  const pinned$ = new BehaviorSubject<CollectionId[]>(args.pinnedIds as CollectionId[]);
+  const pinnedSharedFolders = {
+    pinnedIds$: () => pinned$,
+    pin: (_userId: UserId, id: CollectionId) => {
+      action("pin")(id);
+      pinned$.next([...pinned$.value, id]);
+      return Promise.resolve();
+    },
+    unpin: (_userId: UserId, id: CollectionId) => {
+      action("unpin")(id);
+      pinned$.next(pinned$.value.filter((pinnedId) => pinnedId !== id));
+      return Promise.resolve();
+    },
+  };
+
   return applicationConfig({
     providers: [
+      { provide: PinnedSharedFoldersService, useValue: pinnedSharedFolders },
       { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" as UserId }) } },
       { provide: CollectionService, useValue: { decryptedCollections$: () => of(collections) } },
       { provide: CipherService, useValue: { cipherListViews$: () => of(ciphers) } },
@@ -179,6 +199,7 @@ export default {
     folders,
     loading: false,
     canCreateNewCollections: true,
+    pinnedIds: [],
   },
   decorators: [
     withVault,
@@ -192,7 +213,7 @@ export default {
         // from its module graph; a story has to supply it.
         importProvidersFrom(DialogModule),
         // The client's dialogs, stubbed to log rather than open. Withhold `COLLECTION_DIALOG` and
-        // the page lists its folders read-only — see the ReadOnly story.
+        // the page offers only Pin to sidebar — see the ReadOnly story.
         {
           provide: COLLECTION_DIALOG,
           useValue: {
@@ -201,6 +222,11 @@ export default {
               return Promise.resolve(CollectionDialogOutcome.Canceled);
             },
           },
+        },
+        // The row menu confirms a pin or unpin with a toast; logged here rather than shown.
+        {
+          provide: ToastService,
+          useValue: { showToast: (options: unknown) => action("toast")(options) },
         },
         {
           provide: BULK_DELETE_DIALOG,
@@ -256,6 +282,10 @@ export default {
               edit: "Edit",
               access: "Access",
               delete: "Delete",
+              pinToSidebar: "Pin to sidebar",
+              unpinFromSidebar: "Unpin from sidebar",
+              folderPinnedToSidebar: (name) => `${name} pinned to sidebar`,
+              folderUnpinnedFromSidebar: (name) => `${name} unpinned from sidebar`,
               // Paginator
               rowsPerPage: "Rows per page",
               rowsPerPageOption: (count) => `${count} rows per page`,
@@ -319,10 +349,10 @@ export const Loading: Story = {
 };
 
 /**
- * The desktop page, which provides no dialog at all: every write action opens one it doesn't have.
- * Without `COLLECTION_DIALOG` the Options column and the Add button go, and without either bulk
- * dialog so do the bulk actions bar and the checkbox column it would need. What's left lists the
- * folders and offers no action the client can't carry out.
+ * A client that provides no dialog at all: every write action opens one it doesn't have.
+ * Without `COLLECTION_DIALOG` the Add button and the Edit, Access, and Delete menu items go, and
+ * without either bulk dialog so do the bulk actions bar and the checkbox column it would need.
+ * What's left lists the folders, and the Options menu offers only Pin to sidebar.
  */
 export const ReadOnly: Story = {
   decorators: [
@@ -342,7 +372,7 @@ export const ReadOnly: Story = {
  * since a selection with nothing to act on would only raise an empty bar. An action the member
  * could never run is dropped rather than offered permanently disabled.
  *
- * The Options column stays — see `showOptions`.
+ * The Options column stays, offering Pin to sidebar to every row.
  */
 export const NoBulkActions: Story = {
   args: {
