@@ -215,6 +215,7 @@ import { ExtensionTwoFactorAuthDuoComponentService } from "../../auth/services/e
 import { ExtensionTwoFactorAuthWebAuthnComponentService } from "../../auth/services/extension-two-factor-auth-webauthn-component.service";
 import { AutofillLifecycleService } from "../../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
+import { AgentFillSettingsService } from "../../autofill/services/agent-fill-settings.service";
 import AutofillService from "../../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
 import { NoopAutofillLifecycleService } from "../../autofill/services/noop-autofill-lifecycle.service";
@@ -588,6 +589,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SharedUnlockSettingsService,
     useClass: DefaultSharedUnlockSettingsService,
+    deps: [StateProvider],
+  }),
+  // PROTOTYPE: agent autofill.
+  safeProvider({
+    provide: AgentFillSettingsService,
+    useClass: AgentFillSettingsService,
     deps: [StateProvider],
   }),
   safeProvider({

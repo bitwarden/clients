@@ -14,6 +14,8 @@ export type Flags = SharedFlags;
 // required to avoid linting errors when there are no flags
 export type DevFlags = {
   managedEnvironment?: GroupPolicyEnvironment;
+  /** PROTOTYPE (agent autofill): native messaging host name for dev builds. */
+  nativeMessagingHostName?: string;
 } & SharedDevFlags;
 
 export function flagEnabled(flag: keyof Flags): boolean {
@@ -26,4 +28,18 @@ export function devFlagEnabled(flag: keyof DevFlags) {
 
 export function devFlagValue(flag: keyof DevFlags) {
   return baseDevFlagValue(flag);
+}
+
+const DEFAULT_NATIVE_MESSAGING_HOST = "com.8bit.bitwarden";
+
+/**
+ * PROTOTYPE (agent autofill): the native messaging host the extension connects to. Dev builds can
+ * set `devFlags.nativeMessagingHostName` (e.g. in `config/local.json`) so a dev extension and a
+ * debug desktop app pair up without touching the installed desktop app's host registration.
+ */
+export function nativeMessagingHostName(): string {
+  if (devFlagEnabled("nativeMessagingHostName")) {
+    return devFlagValue("nativeMessagingHostName") as string;
+  }
+  return DEFAULT_NATIVE_MESSAGING_HOST;
 }

@@ -18,7 +18,7 @@ import {
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   AutofillOverlayVisibility,
   BrowserClientVendors,
@@ -64,6 +64,7 @@ import {
 } from "@bitwarden/components";
 import { AdvancedUriOptionDialogComponent } from "@bitwarden/vault";
 
+import { AgentFillSettingsService } from "../../../autofill/services/agent-fill-settings.service";
 import { AutofillBrowserSettingsService } from "../../../autofill/services/autofill-browser-settings.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import { devFlagEnabled } from "../../../platform/flags";
@@ -158,6 +159,7 @@ export class AutofillComponent implements OnInit {
     enableContextMenuItem: new FormControl(),
     enableAutoTotpCopy: new FormControl(),
     enableBasicAuthResponse: new FormControl(),
+    enableAgentFill: new FormControl(),
     clearClipboard: new FormControl(),
     defaultUriMatch: new FormControl(),
   });
@@ -200,6 +202,7 @@ export class AutofillComponent implements OnInit {
     private accountService: AccountService,
     private autofillBrowserSettingsService: AutofillBrowserSettingsService,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private agentFillSettingsService: AgentFillSettingsService,
   ) {
     this.autofillOnPageLoadOptions = [
       { name: this.i18nService.t("autoFillOnPageLoadYes"), value: true },
@@ -400,6 +403,22 @@ export class AutofillComponent implements OnInit {
       .subscribe((value) => {
         void this.autofillSettingsService.setEnableBasicAuthResponse(value);
       });
+
+    // PROTOTYPE: agent autofill opt-in, per account.
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (activeUserId != null) {
+      this.additionalOptionsForm.controls.enableAgentFill.patchValue(
+        await firstValueFrom(this.agentFillSettingsService.agentFillAllowed$(activeUserId)),
+        { emitEvent: false },
+      );
+      this.additionalOptionsForm.controls.enableAgentFill.valueChanges
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((value) => {
+          void this.agentFillSettingsService.setAgentFillAllowed(!!value, activeUserId);
+        });
+    }
 
     this.clearClipboard = await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$);
 

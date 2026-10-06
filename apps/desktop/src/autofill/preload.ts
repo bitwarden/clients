@@ -1,10 +1,15 @@
 import { ipcRenderer } from "electron";
 
 import { DesktopAutofillPreload } from "./desktop-autofill.preload";
+import { AgentFillApprovalResponse } from "./models/agent-fill-approval";
 import { AutotypeConfig } from "./models/autotype-config";
 import { AutotypeMatchError } from "./models/autotype-errors";
 import { AutotypeVaultData } from "./models/autotype-vault-data";
-import { AUTOTYPE_MVP_IPC_CHANNELS, SSH_AGENT_IPC_CHANNELS } from "./models/ipc-channels";
+import {
+  AGENT_FILL_IPC_CHANNELS,
+  AUTOTYPE_MVP_IPC_CHANNELS,
+  SSH_AGENT_IPC_CHANNELS,
+} from "./models/ipc-channels";
 
 const sshAgent = {
   init: async () => {
@@ -22,6 +27,12 @@ const sshAgent = {
     return ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.IS_LOADED);
   },
   stop: async () => ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.STOP),
+};
+
+// PROTOTYPE: agent autofill with approval.
+const agentFill = {
+  approvalResponse: (requestId: string, response: AgentFillApprovalResponse): Promise<void> =>
+    ipcRenderer.invoke(AGENT_FILL_IPC_CHANNELS.APPROVAL_RESPONSE, { requestId, response }),
 };
 
 // MVP, delete with PM-41067
@@ -71,6 +82,8 @@ export default {
   desktopAutofill: DesktopAutofillPreload,
 
   sshAgent,
+
+  agentFill,
 
   autotypeMvp,
 };

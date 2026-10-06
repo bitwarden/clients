@@ -14,6 +14,7 @@ import {
 } from "@bitwarden/legacy-crypto";
 
 import { BrowserApi } from "../platform/browser/browser-api";
+import { nativeMessagingHostName } from "../platform/flags";
 
 const MessageValidTimeout = 10 * 1000;
 const MessageNoResponseTimeout = 60 * 1000;
@@ -109,7 +110,7 @@ export class NativeMessagingBackground {
     this.appId = appId;
 
     return new Promise<void>((resolve, reject) => {
-      this.port = BrowserApi.connectNative("com.8bit.bitwarden");
+      this.port = BrowserApi.connectNative(nativeMessagingHostName());
 
       this.connecting = true;
 

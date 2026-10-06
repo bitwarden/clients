@@ -1,3 +1,5 @@
+import { Observable, ReplaySubject } from "rxjs";
+
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
@@ -16,6 +18,14 @@ export class IpcBackgroundService extends IpcService {
   private communicationBackend?: IpcCommunicationBackend;
   private webTransport?: WebIpcTransport;
   private desktopTransport?: DesktopIpcTransport;
+
+  private _desktopConnected$ = new ReplaySubject<void>(1);
+  /**
+   * PROTOTYPE (agent autofill): emits each time the connection to the desktop app is established
+   * or re-established, after the discover handshake. Replays the latest connection to late
+   * subscribers.
+   */
+  readonly desktopConnected$: Observable<void> = this._desktopConnected$.asObservable();
 
   constructor(
     private platformUtilsService: PlatformUtilsService,
@@ -66,7 +76,9 @@ export class IpcBackgroundService extends IpcService {
       });
 
       if (!this.platformUtilsService.isSafari()) {
-        this.desktopTransport = new DesktopIpcTransport(this.client, this.logService, receive);
+        this.desktopTransport = new DesktopIpcTransport(this.client, this.logService, receive, () =>
+          this._desktopConnected$.next(),
+        );
         this.desktopTransport.init();
       }
     } catch (e) {

@@ -8231,5 +8231,11 @@
   },
   "resetToDefault": {
     "message": "Reset to default"
+  },
+  "allowAgentFill": {
+    "message": "Allow agents to fill in this browser"
+  },
+  "allowAgentFillDesc": {
+    "message": "Lets the Bitwarden desktop app fill logins and cards in this browser for AI agents, after you approve each request in the desktop app."
   }
 }

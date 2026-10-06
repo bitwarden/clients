@@ -163,7 +163,6 @@ import {
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { ActionsService } from "@bitwarden/common/platform/actions/actions-service";
-import { IpcService } from "@bitwarden/common/platform/ipc";
 import {
   IntraprocessMessageSender,
   MessageListener,
@@ -344,6 +343,7 @@ import {
   OverlayBackground as OverlayBackgroundInterface,
   PasswordGenerateRequestSource,
 } from "../autofill/background/abstractions/overlay.background";
+import { AgentFillBackground } from "../autofill/background/agent-fill.background";
 import { AutoSubmitLoginBackground } from "../autofill/background/auto-submit-login.background";
 import { AutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
 import ContextMenusBackground from "../autofill/background/context-menus.background";
@@ -365,6 +365,7 @@ import {
 } from "../autofill/fido2/services/browser-fido2-user-interface.service";
 import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService as AutofillServiceAbstraction } from "../autofill/services/abstractions/autofill.service";
+import { AgentFillSettingsService } from "../autofill/services/agent-fill-settings.service";
 import { AutofillBadgeUpdaterService } from "../autofill/services/autofill-badge-updater.service";
 import { DefaultAutofillLifecycleService } from "../autofill/services/autofill-lifecycle.service";
 import { AutofillTriageService } from "../autofill/services/autofill-triage.service";
@@ -463,6 +464,7 @@ export default class MainBackground {
   autofillLifecycleService: AutofillLifecycleService;
   autofillService: AutofillServiceAbstraction;
   autofillOrchestrator: AutofillOrchestrator;
+  agentFillBackground: AgentFillBackground;
   containerService: ContainerService;
   auditService: AuditServiceAbstraction;
   authService: AuthServiceAbstraction;
@@ -573,7 +575,7 @@ export default class MainBackground {
   private restrictedItemTypesService: RestrictedItemTypesService;
 
   ipcContentScriptManagerService: IpcContentScriptManagerService;
-  ipcService: IpcService;
+  ipcService: IpcBackgroundService;
   sharedUnlockPeerService: SharedUnlockPeerService;
   sharedUnlockSettingsService: SharedUnlockSettingsService;
   unlockService: BackgroundUnlockService;
@@ -1376,6 +1378,18 @@ export default class MainBackground {
       () => this.updateOverlayCiphers(),
       this.logService,
     );
+    // PROTOTYPE: agent autofill with approval.
+    this.agentFillBackground = new AgentFillBackground(
+      this.ipcService,
+      this.autofillService,
+      this.cipherService,
+      this.accountService,
+      this.authService,
+      this.platformUtilsService,
+      this.logService,
+      new AgentFillSettingsService(this.stateProvider),
+      this.ipcService.desktopConnected$,
+    );
     this.auditService = new AuditService(
       this.cryptoFunctionService,
       this.apiService,
@@ -1921,6 +1935,7 @@ export default class MainBackground {
     await this.initOverlayAndTabsBackground();
     await this.ipcContentScriptManagerService.init();
     await this.ipcService.init();
+    this.agentFillBackground.init();
     await this.sharedUnlockPeerService.start();
     this.badgeService.startListening();
 

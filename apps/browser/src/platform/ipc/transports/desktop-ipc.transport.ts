@@ -13,6 +13,7 @@ import {
 } from "@bitwarden/sdk-internal";
 
 import { BrowserApi } from "../../browser/browser-api";
+import { nativeMessagingHostName } from "../../flags";
 
 import { DESTINATION_UNREACHABLE_ERROR } from "./errors";
 
@@ -55,6 +56,8 @@ export class DesktopIpcTransport {
     private client: IpcClient,
     private logService: LogService,
     private receive: (message: IncomingMessage) => void,
+    /** PROTOTYPE (agent autofill): called after each successful handshake with the desktop app. */
+    private onConnected: () => void = () => {},
   ) {}
 
   async send(message: OutgoingMessage): Promise<void> {
@@ -104,7 +107,7 @@ export class DesktopIpcTransport {
 
     let activePort: NativePort | undefined;
     try {
-      const port = BrowserApi.connectNative("com.8bit.bitwarden");
+      const port = BrowserApi.connectNative(nativeMessagingHostName());
       activePort = port;
 
       let resolveReady: () => void;
@@ -174,6 +177,7 @@ export class DesktopIpcTransport {
         this.logService.info(
           `[IPC] Connected to Bitwarden Desktop App with version ${version.version}`,
         );
+        this.onConnected();
       } catch (e) {
         this.logService.error("[IPC] Failed to handshake with Bitwarden Desktop App", e);
       }

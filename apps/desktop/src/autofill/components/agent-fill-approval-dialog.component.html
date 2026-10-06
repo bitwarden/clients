@@ -1,0 +1,69 @@
+<form [bitSubmit]="approve" [formGroup]="form" bit-dialog>
+  <span bitDialogTitle>{{ "agentFillApprovalTitle" | i18n }}</span>
+  <div bitDialogContent>
+    <p bitTypography="body1">
+      {{
+        messageKey
+          | i18n: params.request.connectionName : params.request.domain : params.request.browser
+      }}
+    </p>
+
+    @if (params.items.length === 1) {
+      <div class="tw-mb-4">
+        <div class="tw-font-medium">{{ params.items[0].name }}</div>
+        @if (params.items[0].subtitle) {
+          <div class="tw-text-muted">{{ params.items[0].subtitle }}</div>
+        }
+      </div>
+    } @else {
+      <bit-radio-group formControlName="cipherId" [block]="true">
+        <bit-label>{{ "agentFillChooseItem" | i18n }}</bit-label>
+        @for (item of params.items; track item.id) {
+          <bit-radio-button [id]="'agent-fill-approval_radio_item-' + item.id" [value]="item.id">
+            <bit-label>{{ item.name }}</bit-label>
+            @if (item.subtitle) {
+              <bit-hint>{{ item.subtitle }}</bit-hint>
+            }
+          </bit-radio-button>
+        }
+      </bit-radio-group>
+    }
+
+    <bit-radio-group formControlName="denyReason" [block]="true">
+      <bit-label>{{ "agentFillDenyReasonLabel" | i18n }}</bit-label>
+      <bit-radio-button
+        id="agent-fill-approval_radio_wrong-account"
+        [value]="DenyReason.WrongAccount"
+      >
+        <bit-label>{{ "agentFillDenyReasonWrongAccount" | i18n }}</bit-label>
+      </bit-radio-button>
+      <bit-radio-button
+        id="agent-fill-approval_radio_not-requested"
+        [value]="DenyReason.NotRequested"
+      >
+        <bit-label>{{ "agentFillDenyReasonNotRequested" | i18n }}</bit-label>
+      </bit-radio-button>
+    </bit-radio-group>
+  </div>
+  <ng-container bitDialogFooter>
+    <button
+      id="agent-fill-approval_button_approve"
+      type="submit"
+      bitButton
+      bitFormButton
+      buttonType="primary"
+    >
+      {{ "approve" | i18n }}
+    </button>
+    <button
+      id="agent-fill-approval_button_deny"
+      type="button"
+      bitButton
+      bitFormButton
+      buttonType="secondary"
+      [bitAction]="deny"
+    >
+      {{ "deny" | i18n }}
+    </button>
+  </ng-container>
+</form>

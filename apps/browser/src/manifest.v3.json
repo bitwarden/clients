@@ -53,6 +53,7 @@
     "clipboardWrite",
     "contextMenus",
     "idle",
+    "nativeMessaging",
     "offscreen",
     "scripting",
     "sidePanel",

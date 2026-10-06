@@ -43,6 +43,7 @@ import {
 import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitwarden/storage-core";
 
 import { SSOLocalhostCallbackService } from "./auth/services/sso-localhost-callback.service";
+import { MainAgentFillService } from "./autofill/main/main-agent-fill.service";
 import { DesktopAutofillMain } from "./autofill/main/main-desktop-autofill.service";
 import { MainDesktopAutotypeMvpService } from "./autofill/main/main-desktop-autotype-mvp.service";
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
@@ -108,6 +109,7 @@ export class Main {
   versionMain: VersionMain;
   shell: SafeShell;
   sshAgentService: MainSshAgentService;
+  agentFillService: MainAgentFillService;
   sdkLoadService: SdkLoadService;
   mainDesktopAutotypeMvpService: MainDesktopAutotypeMvpService;
   mainDesktopAutotypeService: MainDesktopAutotypeService;
@@ -330,12 +332,13 @@ export class Main {
       app.getAppPath(),
     );
 
-    this.ipcService = new IpcMainService(
+    const ipcMainService = new IpcMainService(
       this.logService,
       app,
       this.nativeMessagingMain,
       this.windowMain,
     );
+    this.ipcService = ipcMainService;
 
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
 
@@ -343,6 +346,15 @@ export class Main {
     this.clipboardMain.init();
 
     this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
+
+    // PROTOTYPE: agent autofill with approval.
+    this.agentFillService = new MainAgentFillService(
+      this.logService,
+      this.messagingService,
+      ipcMainService,
+      this.windowMain,
+      accountService,
+    );
 
     new EphemeralValueStorageService();
 
@@ -469,6 +481,7 @@ export class Main {
 
         await this.sdkLoadService.loadAndInit();
         await this.ipcService.init();
+        await this.agentFillService.init();
       },
       (e: any) => {
         this.logService.error("Error while running migrations:", e);

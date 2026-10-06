@@ -6947,5 +6947,54 @@
   },
   "resetToDefault": {
     "message": "Reset to default"
+  },
+  "agentFillApprovalTitle": {
+    "message": "AI agent sign-in request"
+  },
+  "agentFillApprovalLoginMessage": {
+    "message": "$CONNECTION$ wants to fill your $DOMAIN$ login in $BROWSER$",
+    "placeholders": {
+      "connection": {
+        "content": "$1",
+        "example": "Claude Desktop"
+      },
+      "domain": {
+        "content": "$2",
+        "example": "delta.com"
+      },
+      "browser": {
+        "content": "$3",
+        "example": "Chrome"
+      }
+    }
+  },
+  "agentFillApprovalCardMessage": {
+    "message": "$CONNECTION$ wants to fill your card on $DOMAIN$ in $BROWSER$",
+    "placeholders": {
+      "connection": {
+        "content": "$1",
+        "example": "Claude Desktop"
+      },
+      "domain": {
+        "content": "$2",
+        "example": "delta.com"
+      },
+      "browser": {
+        "content": "$3",
+        "example": "Chrome"
+      }
+    }
+  },
+  "agentFillChooseItem": {
+    "message": "Item to fill"
+  },
+  "agentFillDenyReasonLabel": {
+    "message": "Reason for denying (optional)"
+  },
+  "agentFillDenyReasonWrongAccount": {
+    "message": "Wrong account"
+  },
+  "agentFillDenyReasonNotRequested": {
+    "message": "I didn't ask for this"
   }
 }

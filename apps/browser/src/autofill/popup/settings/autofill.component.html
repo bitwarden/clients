@@ -357,6 +357,16 @@
             <input formControlName="enableAutoTotpCopy" bitCheckbox id="totp" type="checkbox" />
             <bit-label for="totp">{{ "enableAutoTotpCopy" | i18n }}</bit-label>
           </bit-form-control>
+          <bit-form-control>
+            <input
+              formControlName="enableAgentFill"
+              bitCheckbox
+              id="autofill_input_agent-fill"
+              type="checkbox"
+            />
+            <bit-label for="autofill_input_agent-fill">{{ "allowAgentFill" | i18n }}</bit-label>
+            <bit-hint class="tw-text-sm">{{ "allowAgentFillDesc" | i18n }}</bit-hint>
+          </bit-form-control>
           <bit-form-field
             id="clearClipboardField"
             [disableMargin]="isDefaultUriMatchDisabledByPolicy"
