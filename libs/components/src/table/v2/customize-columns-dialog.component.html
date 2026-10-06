@@ -16,8 +16,6 @@
     <button bitButton buttonType="primary" type="button" bitDialogClose #doneButton>
       {{ "done" | i18n }}
     </button>
-    <!-- Only offered once something has actually been changed. Resetting removes it, so
-         it hands focus to Done rather than dropping it to the body. -->
     @if (modified()) {
       <button
         bitButton

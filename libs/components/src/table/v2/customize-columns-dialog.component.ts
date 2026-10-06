@@ -3,7 +3,6 @@ import {
   Component,
   ElementRef,
   Injector,
-  Signal,
   inject,
   signal,
   viewChild,
@@ -25,8 +24,8 @@ import { RemovableColumn } from "./column";
 export interface CustomizeColumnsDialogParams {
   /** The togglable columns, in display order. */
   readonly columns: readonly RemovableColumn[];
-  /** The currently hidden names — live, so the switches track the table. */
-  readonly hidden: Signal<ReadonlySet<string>>;
+  /** The names hidden when the dialog opens. */
+  readonly hidden: ReadonlySet<string>;
   /** Shows or hides one column. Idempotent. */
   readonly setHidden: (name: string, hidden: boolean) => void;
   /** Restores the declared column set. */
@@ -36,8 +35,7 @@ export interface CustomizeColumnsDialogParams {
 /**
  * Picks which of a `bit-table-v2`'s columns are shown. Opened by `bit-table-toolbar`.
  *
- * Each switch applies immediately — the table re-lays out behind the scrim — so there is
- * no submit step and no cancel: Done and the dialog's X both just dismiss.
+ * Switches apply immediately, so there's no submit or cancel; Done and X just dismiss.
  */
 @Component({
   selector: "bit-customize-columns-dialog",
@@ -65,49 +63,37 @@ export class CustomizeColumnsDialogComponent {
     Object.fromEntries(
       this.columns.map((col) => [
         col.name,
-        new FormControl(!this.params.hidden().has(col.name), { nonNullable: true }),
+        new FormControl(!this.params.hidden.has(col.name), { nonNullable: true }),
       ]),
     ),
-  );
-
-  /**
-   * The last value forwarded to the table. Changes diff against this rather than the
-   * table's hidden set, which is written asynchronously and so can still be stale.
-   */
-  private readonly shown = new Map(
-    this.columns.map((col) => [col.name, !this.params.hidden().has(col.name)]),
   );
 
   /** Whether any column is switched off. Drives the Reset control, offered only then. */
   protected readonly modified = signal(this.anyHidden());
 
   constructor() {
-    // Switches act immediately, so each change writes straight through with no submit.
-    this.form.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
-      for (const col of this.columns) {
-        const shown = value[col.name] === true;
-        if (shown === this.shown.get(col.name)) {
-          continue;
-        }
-        this.shown.set(col.name, shown);
-        this.params.setHidden(col.name, !shown);
-      }
-      this.modified.set(this.anyHidden());
-    });
+    for (const [name, control] of Object.entries(this.form.controls)) {
+      control.valueChanges.pipe(takeUntilDestroyed()).subscribe((shown) => {
+        this.params.setHidden(name, !shown);
+        this.modified.set(this.anyHidden());
+      });
+    }
   }
 
   private anyHidden(): boolean {
-    return [...this.shown.values()].some((shown) => !shown);
+    return Object.values(this.form.getRawValue()).some((shown) => !shown);
   }
 
   /** Restores the declared column set, re-syncing the switches without re-firing toggles. */
   protected resetToDefault(): void {
     this.params.reset();
-    this.columns.forEach((col) => this.shown.set(col.name, true));
+    this.form.patchValue(
+      Object.fromEntries(Object.keys(this.form.controls).map((name) => [name, true])),
+      {
+        emitEvent: false,
+      },
+    );
     this.modified.set(false);
-    this.form.patchValue(Object.fromEntries(this.columns.map((col) => [col.name, true])), {
-      emitEvent: false,
-    });
     // Resetting clears `modified`, which removes this very button, so hand focus to Done
     // rather than letting it fall to the body.
     focusAfterRender(this.injector, () => this.doneButtonEl()?.nativeElement);

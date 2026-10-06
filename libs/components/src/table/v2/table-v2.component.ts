@@ -783,7 +783,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       {
         data: {
           columns: this.removableColumns(),
-          hidden: this.hiddenColumnNames,
+          hidden: this.hiddenColumnNames(),
           setHidden: (name, hidden) => this.setColumnHidden(name, hidden),
           reset: () => this.resetColumns(),
         },
