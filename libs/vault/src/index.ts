@@ -35,6 +35,12 @@ export { truncateFilename } from "./components/truncated-filename/truncate-filen
 export { TruncateFilenamePipe } from "./components/truncated-filename/truncate-filename.pipe";
 export { PasswordHistoryViewComponent } from "./components/password-history-view/password-history-view.component";
 export { DecryptionFailureDialogComponent } from "./components/decryption-failure-dialog/decryption-failure-dialog.component";
+export {
+  NewExperienceDialogComponent,
+  NewExperienceDialogParams,
+  NewExperienceDialogResult,
+  NEW_EXPERIENCE_LEARN_MORE_URL,
+} from "./components/new-experience-dialog/new-experience-dialog.component";
 export { VaultItemCopyActionsComponent } from "./components/item-copy-actions/item-copy-actions.component";
 export { openPasswordHistoryDialog } from "./components/password-history/password-history.component";
 export { VaultViewPasswordHistoryService } from "./services/view-password-history.service";
