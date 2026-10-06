@@ -84,9 +84,12 @@ export class NewExperienceDialogComponent {
    */
   protected async learnMore(event: MouseEvent) {
     event.preventDefault();
-    await this.nudgesService.dismissNudge(NudgeType.Vfo1NewExperience, this.params.userId);
-    this.platformUtilsService.launchUri(this.learnMoreUrl);
-    await this.dialogRef.close(NewExperienceDialogResult.LearnMore);
+    try {
+      await this.nudgesService.dismissNudge(NudgeType.Vfo1NewExperience, this.params.userId);
+      this.platformUtilsService.launchUri(this.learnMoreUrl);
+    } finally {
+      await this.dialogRef.close(NewExperienceDialogResult.LearnMore);
+    }
   }
 
   protected async close() {
@@ -94,8 +97,11 @@ export class NewExperienceDialogComponent {
   }
 
   private async dismiss(result: NewExperienceDialogResult) {
-    await this.nudgesService.dismissNudge(NudgeType.Vfo1NewExperience, this.params.userId);
-    await this.dialogRef.close(result);
+    try {
+      await this.nudgesService.dismissNudge(NudgeType.Vfo1NewExperience, this.params.userId);
+    } finally {
+      await this.dialogRef.close(result);
+    }
   }
 
   static async open(
