@@ -11,6 +11,7 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
+  CollectionsDecryptListFailures = "pm-43375-collections-decrypt-list-failures",
   InviteLinkNotification = "pm-39601-invite-link-notification",
   InviteLinkAutoConfirm = "pm-34429-invite-link-auto-confirm",
 
@@ -99,7 +100,6 @@ export enum FeatureFlag {
   PM29438_DialogWithExtensionPromptAccountAge = "pm-29438-dialog-with-extension-prompt-account-age",
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
-  PM32380_BtnTextAddCreate = "pm-32380-btn-text-add-create",
   PM40201_DeriveSSHKeys = "pm-40201-derive-ssh-keys",
 
   /* Platform */
@@ -134,6 +134,7 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
+  [FeatureFlag.CollectionsDecryptListFailures]: FALSE,
   [FeatureFlag.InviteLinkNotification]: FALSE,
   [FeatureFlag.InviteLinkAutoConfirm]: FALSE,
 
@@ -180,7 +181,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
-  [FeatureFlag.PM32380_BtnTextAddCreate]: FALSE,
   [FeatureFlag.PM40201_DeriveSSHKeys]: FALSE,
 
   /* Auth */

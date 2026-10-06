@@ -36,7 +36,6 @@ describe("CipherReportComponent", () => {
   } as unknown as Cipher;
   const mockCipherService = mock<CipherService>();
   mockCipherService.get.mockResolvedValue(mockCipher as unknown as Cipher);
-  mockCipherService.getKeyForCipherKeyDecryption.mockResolvedValue({});
   mockCipherService.deleteWithServer.mockResolvedValue(undefined);
   mockCipherService.softDeleteWithServer.mockResolvedValue(undefined);
 
