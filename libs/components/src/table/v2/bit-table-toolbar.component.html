@@ -9,7 +9,7 @@
       <ng-content select="bit-search"></ng-content>
     </div>
     <!-- Below md the chip row collapses into this single trigger + applied-count berry. -->
-    @if (collapsed() && hasFilters()) {
+    @if (showFilterTrigger()) {
       <div class="tw-relative tw-flex-none">
         <button
           type="button"
