@@ -1,4 +1,5 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
+import { signal } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -8,6 +9,7 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -157,6 +159,7 @@ describe("VaultPopupListTableComponent", () => {
     restoreFilters$: jest.fn().mockReturnValue(of({})),
     saveFilters: jest.fn(),
     clearVaultScopedFilters: jest.fn(),
+    filterDialogOpen: signal(false),
     vaultScopedFiltersCleared$: vaultScopedFiltersCleared$.asObservable(),
     selectedFilters$: of({
       cipherType: null,
@@ -170,6 +173,9 @@ describe("VaultPopupListTableComponent", () => {
     collections$: collections$.asObservable(),
     folders$: folders$.asObservable(),
   };
+
+  /** Like the popup's view cache, every `signal()` call seeds from the snapshot taken at popup open. */
+  let viewCacheSnapshot: Record<string, unknown>;
 
   const compactModeEnabled$ = new BehaviorSubject<boolean>(false);
   const compactModeService = {
@@ -228,6 +234,8 @@ describe("VaultPopupListTableComponent", () => {
     organizationNames$.next(new Map());
     collections$.next([]);
     folders$.next([]);
+    vaultPopupListTableFiltersService.filterDialogOpen.set(false);
+    viewCacheSnapshot = {};
     nav$.next({ vaults: [], organizationDataOwnership: false });
     vaultNavService.viewModel$.mockReturnValue(nav$.asObservable());
     liveAnnouncer.announce.mockClear();
@@ -236,6 +244,13 @@ describe("VaultPopupListTableComponent", () => {
       imports: [VaultPopupListTableComponent, NoopAnimationsModule, RouterTestingModule],
       providers: [
         { provide: WINDOW, useValue: window },
+        {
+          provide: ViewCacheService,
+          useValue: {
+            signal: ({ key, initialValue }: { key: string; initialValue: unknown }) =>
+              signal(key in viewCacheSnapshot ? viewCacheSnapshot[key] : initialValue),
+          },
+        },
         { provide: ConfigService, useValue: configService },
         { provide: ImportUpgradeNavigationService, useValue: importUpgradeNavigationService },
         { provide: VaultPopupAutofillService, useValue: vaultPopupAutofillService },
@@ -1062,6 +1077,30 @@ describe("VaultPopupListTableComponent", () => {
             .map((c) => c.value()),
         ).toEqual(["f-2"]);
       });
+    });
+  });
+
+  describe("filter dialog state", () => {
+    // `DialogModule` provides its own instance, so spy on the class rather than the TestBed mock.
+    let open: jest.SpyInstance;
+    beforeEach(() => (open = jest.spyOn(DialogService.prototype, "open")));
+    afterEach(() => open.mockRestore());
+
+    it("doesn't reopen a closed dialog when the vault page is recreated", () => {
+      // The popup opened with the dialog left open, and the snapshot keeps saying so.
+      viewCacheSnapshot["vault-filter-dialog-open"] = true;
+      vaultPopupListTableFiltersService.filterDialogOpen.set(true);
+
+      const first = TestBed.createComponent(VaultPopupListTableComponent);
+      first.detectChanges();
+      expect(open).toHaveBeenCalledTimes(1);
+
+      open.mock.results[0].value.close();
+      first.destroy();
+
+      // Navigating back rebuilds the page: `NoRouteReuseStrategy` never reuses it.
+      TestBed.createComponent(VaultPopupListTableComponent).detectChanges();
+      expect(open).toHaveBeenCalledTimes(1);
     });
   });
 

@@ -15,7 +15,7 @@
     list. Has to stay outside the virtual scroll viewport: `bit-table-v2` renders the toolbar above
     it, so the height it gives up goes to that viewport rather than to the scrolled content.
   -->
-  <bit-table-toolbar bitCollapseOnScroll>
+  <bit-table-toolbar bitCollapseOnScroll [(filterDialogOpen)]="filterDialogOpen">
     <bit-search
       class="tw-flex-1"
       autocomplete="off"

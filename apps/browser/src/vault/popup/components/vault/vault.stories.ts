@@ -492,6 +492,7 @@ const buildProviders = (args: StoryArgs) => {
         saveFilters: () => {},
         cachedFilters: signal({}),
         clearVaultScopedFilters: () => {},
+        filterDialogOpen: signal(false),
         vaultScopedFiltersCleared$: NEVER,
         suspended$: () => of(false),
         selectedFilters$: of({
