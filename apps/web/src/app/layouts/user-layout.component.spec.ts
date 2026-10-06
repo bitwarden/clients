@@ -5,6 +5,7 @@ import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -17,7 +18,7 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { NavigationModule, PopoverAnchorForDirective, SideNavService } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
-import { VaultNavService, VaultsNavViewModel } from "@bitwarden/vault";
+import { PinnedSharedFoldersService, VaultNavService, VaultsNavViewModel } from "@bitwarden/vault";
 
 import { PremiumSubscriptionRoutingService } from "../billing/individual/services/premium-subscription-routing.service";
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
@@ -185,6 +186,18 @@ describe("UserLayoutComponent", () => {
         { provide: I18nService, useValue: i18nService },
         { provide: ConfigService, useValue: configService },
         { provide: VaultNavService, useValue: vaultNavService },
+        {
+          provide: CollectionService,
+          useValue: mock<CollectionService>({ decryptedCollections$: () => of([]) }),
+        },
+        {
+          // Nothing pinned and the hint dismissed, so the nav's Pinned section stays out of these tests.
+          provide: PinnedSharedFoldersService,
+          useValue: mock<PinnedSharedFoldersService>({
+            pinnedIds$: () => of([]),
+            emptyStateDismissed$: () => of(true),
+          }),
+        },
         { provide: PolicyService, useValue: policyService },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
         { provide: SyncService, useValue: mock<SyncService>() },

@@ -1,0 +1,15 @@
+@if (node().children.length > 0) {
+  <!-- The row navigates; only the chevron toggles the folders beneath it. -->
+  <bit-nav-group
+    icon="bwi-shared-folder"
+    [text]="node().name"
+    [route]="route()"
+    [disableToggleOnClick]="true"
+  >
+    @for (child of node().children; track child.id) {
+      <vault-pinned-nav-node [node]="child" [routes]="routes()" />
+    }
+  </bit-nav-group>
+} @else {
+  <bit-nav-item icon="bwi-shared-folder" [text]="node().name" [route]="route()"></bit-nav-item>
+}

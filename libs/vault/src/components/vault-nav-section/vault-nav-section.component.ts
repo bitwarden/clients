@@ -31,6 +31,7 @@ import {
 } from "../../models/vault-scope";
 import { EXACT_PATH } from "../../routing/exact-path";
 import { VaultNavService } from "../../services/vault-nav.service";
+import { VaultPinnedNavComponent } from "../vault-pinned-nav/vault-pinned-nav.component";
 
 /**
  * Renders the Password Manager side-nav Vaults section from the shared {@link VaultNavService}
@@ -48,6 +49,7 @@ import { VaultNavService } from "../../services/vault-nav.service";
     IconModule,
     A11yTitleDirective,
     PopoverModule,
+    VaultPinnedNavComponent,
   ],
 })
 export class VaultNavSectionComponent {
@@ -181,6 +183,10 @@ export class VaultNavSectionComponent {
     const nav = this.vaultNav();
     return nav != null && isPersonalOnly(nav);
   });
+
+  protected organizationId(vault: VaultNavItemViewModel): OrganizationId {
+    return vault.id as OrganizationId;
+  }
 
   protected vaultRoute(vault: VaultNavItemViewModel): string[] | undefined {
     return this.vaultRoutes().get(vault.id);

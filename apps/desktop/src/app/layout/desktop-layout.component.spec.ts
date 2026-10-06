@@ -5,6 +5,7 @@ import { Router, RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DeviceType } from "@bitwarden/common/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -22,7 +23,12 @@ import {
 } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
-import { VaultNavItemType, VaultNavService, VaultsNavViewModel } from "@bitwarden/vault";
+import {
+  PinnedSharedFoldersService,
+  VaultNavItemType,
+  VaultNavService,
+  VaultsNavViewModel,
+} from "@bitwarden/vault";
 
 import { AccountSwitcherV2Component } from "../../auth/components/account-switcher/account-switcher-v2.component";
 import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
@@ -154,6 +160,18 @@ describe("DesktopLayoutComponent", () => {
         { provide: SendPolicyService, useValue: { disableSend$: of(false) } },
         { provide: ConfigService, useValue: configService },
         { provide: VaultNavService, useValue: vaultNavService },
+        {
+          provide: CollectionService,
+          useValue: mock<CollectionService>({ decryptedCollections$: () => of([]) }),
+        },
+        {
+          // Nothing pinned and the hint dismissed, so the nav's Pinned section stays out of these tests.
+          provide: PinnedSharedFoldersService,
+          useValue: mock<PinnedSharedFoldersService>({
+            pinnedIds$: () => of([]),
+            emptyStateDismissed$: () => of(true),
+          }),
+        },
         { provide: AccountService, useValue: { activeAccount$: of({ id: userId }) } },
         { provide: CipherArchiveService, useValue: cipherArchiveService },
         { provide: PremiumUpgradePromptService, useValue: premiumUpgradePromptService },

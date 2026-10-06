@@ -5,6 +5,8 @@ import { provideRouter, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
@@ -22,6 +24,7 @@ import {
   VaultNavItemViewModel,
   VaultsNavViewModel,
 } from "../../models/vault-nav-view-model";
+import { PinnedSharedFoldersService } from "../../services/pinned-shared-folders.service";
 import { VaultNavService } from "../../services/vault-nav.service";
 
 import { VaultNavSectionComponent } from "./vault-nav-section.component";
@@ -174,6 +177,18 @@ describe("VaultNavSectionComponent", () => {
         { provide: VaultNavService, useValue: vaultNavService },
         { provide: AccountService, useValue: accountService },
         { provide: I18nService, useValue: i18nService },
+        {
+          provide: CollectionService,
+          useValue: mock<CollectionService>({ decryptedCollections$: () => of([]) }),
+        },
+        {
+          // Nothing pinned and the hint dismissed, so the Pinned section stays out of these tests.
+          provide: PinnedSharedFoldersService,
+          useValue: mock<PinnedSharedFoldersService>({
+            pinnedIds$: () => of([]),
+            emptyStateDismissed$: () => of(true),
+          }),
+        },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
         provideRouter(routes),
       ],

@@ -86,6 +86,7 @@
             [closeOnBackdropClick]="false"
             [spotlight]="!!coachmarkPopover()"
           ></bit-nav-item>
+          <vault-pinned-nav [organizationId]="organizationId(vault)" />
         </bit-nav-group>
       }
     }
