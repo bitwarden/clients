@@ -21,8 +21,6 @@ import {
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { MockProxy } from "../../../platform/spec/mock-deep";
-import { UserId } from "../../../types/guid";
-import { CipherService } from "../../abstractions/cipher.service";
 import { FieldType, LoginLinkedId, SecureNoteType } from "../../enums";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
@@ -105,16 +103,9 @@ describe("Cipher DTO", () => {
     login.decrypt.mockResolvedValue(loginView);
     cipher.login = login;
 
-    const cipherService = mock<CipherService>();
-
     encryptService.unwrapSymmetricKey.mockRejectedValue(new Error("Failed to unwrap key"));
-    cipherService.getKeyForCipherKeyDecryption.mockResolvedValue(
-      new SymmetricCryptoKey(makeStaticByteArray(64)),
-    );
 
-    const cipherView = await cipher.decrypt(
-      await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
-    );
+    const cipherView = await cipher.decrypt(new SymmetricCryptoKey(makeStaticByteArray(64)));
 
     expect(cipherView).toMatchObject({
       id: "id",
@@ -1351,5 +1342,3 @@ describe("Cipher DTO", () => {
     });
   });
 });
-
-const mockUserId = "TestUserId" as UserId;
