@@ -72,6 +72,7 @@ describe("WebRequestBackground", () => {
   beforeEach(() => {
     platformUtilsService = mock<PlatformUtilsService>();
     platformUtilsService.isFirefox.mockReturnValue(false);
+    platformUtilsService.isSafari.mockReturnValue(false);
     cipherService = mock<CipherService>();
     authService = mock<AuthService>();
     authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
@@ -120,6 +121,21 @@ describe("WebRequestBackground", () => {
         { urls: ["http://*/*", "https://*/*"] },
         ["blocking"],
       );
+    });
+
+    it("does not register listeners or resolve the setting on Safari", () => {
+      let resolvedSettingSubscribed = false;
+      autofillSettingsService.resolvedEnableBasicAuthResponse$ = defer(() => {
+        resolvedSettingSubscribed = true;
+        return of(true);
+      });
+      platformUtilsService.isSafari.mockReturnValue(true);
+      webRequestBackground = createWebRequestBackground();
+
+      webRequestBackground.startListening();
+
+      expectListenersRegistered(0);
+      expect(resolvedSettingSubscribed).toBe(false);
     });
 
     it("does not register listeners when the resolved setting is disabled", () => {

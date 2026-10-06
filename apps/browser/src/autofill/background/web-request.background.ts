@@ -205,6 +205,7 @@ export function shouldAnswerAuthChallenge(
 export default class WebRequestBackground {
   private pendingAuthRequests: Set<string> = new Set<string>([]);
   private isFirefox: boolean;
+  private isSafari: boolean;
   private listenersRegistered = false;
   private basicAuthResponseEnabledSubscription?: Subscription;
 
@@ -217,6 +218,7 @@ export default class WebRequestBackground {
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
   ) {
     this.isFirefox = platformUtilsService.isFirefox();
+    this.isSafari = platformUtilsService.isSafari();
   }
 
   /**
@@ -226,6 +228,13 @@ export default class WebRequestBackground {
    * While registered, `webRequest.onAuthRequired` fires for any request that receives a 401.
    */
   startListening() {
+    // Safari does not dispatch `webRequest.onAuthRequired` for HTTP auth challenges,
+    // nor support the `blocking`/`asyncBlocking` options needed to answer one, so no
+    // listeners are registered there.
+    if (this.isSafari) {
+      return;
+    }
+
     this.basicAuthResponseEnabledSubscription?.unsubscribe();
     this.basicAuthResponseEnabledSubscription = this.basicAuthResponseEnabled$().subscribe(
       (basicAuthResponseEnabled) => {
