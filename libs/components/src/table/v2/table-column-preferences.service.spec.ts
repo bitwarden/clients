@@ -1,3 +1,4 @@
+import { Signal, signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { BehaviorSubject, Observable } from "rxjs";
 
@@ -5,6 +6,7 @@ import { StateProvider } from "@bitwarden/state";
 
 import { TableColumnPreferencesService } from "./table-column-preferences.service";
 import { TableColumnPreferences } from "./table-column-preferences.state";
+import { TableStateKey } from "./table-state-keys";
 
 /** The slice of `ActiveUserState` the service actually uses. */
 class FakeActiveUserState {
@@ -30,6 +32,19 @@ class FakeActiveUserState {
   }
 }
 
+/** Reads `hiddenColumns` the way a table does, from an injection context. */
+function readHidden(
+  service: TableColumnPreferencesService,
+  key: Signal<TableStateKey | undefined> = signal("vaultItems"),
+): () => string[] | undefined {
+  const hidden = TestBed.runInInjectionContext(() => service.hiddenColumns(key));
+  return () => {
+    TestBed.tick();
+    const names = hidden();
+    return names && [...names];
+  };
+}
+
 describe("TableColumnPreferencesService", () => {
   describe("with a StateProvider", () => {
     let state: FakeActiveUserState;
@@ -43,74 +58,68 @@ describe("TableColumnPreferencesService", () => {
       service = TestBed.inject(TableColumnPreferencesService);
     });
 
-    const hidden = (key: string) => service.preferences()?.[key] ?? [];
-
-    it("reports nothing hidden for an unknown table", () => {
-      expect(hidden("vault-items")).toEqual([]);
+    it("reports nothing hidden when nothing is stored", () => {
+      expect(readHidden(service)()).toEqual([]);
     });
 
-    it("round-trips a hidden column", () => {
-      service.setColumnHidden("vault-items", "vault", true);
+    it("round-trips a hidden column, idempotently", () => {
+      const hidden = readHidden(service);
 
-      expect(hidden("vault-items")).toEqual(["vault"]);
+      service.setColumnHidden("vaultItems", "vault", true);
+      service.setColumnHidden("vaultItems", "vault", true);
+
+      expect(hidden()).toEqual(["vault"]);
       expect(state.value).toEqual({ "vault-items": ["vault"] });
     });
 
     it("shows a column again", () => {
-      service.setColumnHidden("vault-items", "vault", true);
-      service.setColumnHidden("vault-items", "vault", false);
+      const hidden = readHidden(service);
 
-      expect(hidden("vault-items")).toEqual([]);
+      service.setColumnHidden("vaultItems", "vault", true);
+      service.setColumnHidden("vaultItems", "vault", false);
+
+      expect(hidden()).toEqual([]);
     });
 
-    it("is idempotent", () => {
-      service.setColumnHidden("vault-items", "vault", true);
-      service.setColumnHidden("vault-items", "vault", true);
+    it("keeps other tables' choices on write and reset", () => {
+      state.seed({ "shared-folders": ["items"] });
 
-      expect(hidden("vault-items")).toEqual(["vault"]);
-    });
+      service.setColumnHidden("vaultItems", "vault", true);
+      expect(state.value).toEqual({ "shared-folders": ["items"], "vault-items": ["vault"] });
 
-    it("keeps each table's choices separate", () => {
-      service.setColumnHidden("vault-items", "vault", true);
-      service.setColumnHidden("shared-folders", "items", true);
-
-      expect(hidden("vault-items")).toEqual(["vault"]);
-      expect(hidden("shared-folders")).toEqual(["items"]);
-    });
-
-    it("drops only its own key on reset", () => {
-      service.setColumnHidden("vault-items", "vault", true);
-      service.setColumnHidden("shared-folders", "items", true);
-
-      service.reset("vault-items");
-
-      expect(hidden("vault-items")).toEqual([]);
-      expect(hidden("shared-folders")).toEqual(["items"]);
+      service.reset("vaultItems");
       expect(state.value).toEqual({ "shared-folders": ["items"] });
     });
 
     it("preserves a stored name for a column the table no longer shows", () => {
       // `vault` was hidden, then the table stopped offering it. Hiding `folder` must not
       // quietly discard the earlier choice.
-      service.setColumnHidden("vault-items", "vault", true);
-      service.setColumnHidden("vault-items", "folder", true);
-
-      expect([...hidden("vault-items")].sort()).toEqual(["folder", "vault"]);
-    });
-
-    it("derives each write from what is stored, so quick successive writes both land", () => {
-      service.setColumnHidden("vault-items", "vault", true);
-      service.setColumnHidden("vault-items", "folder", true);
+      service.setColumnHidden("vaultItems", "vault", true);
+      service.setColumnHidden("vaultItems", "folder", true);
 
       expect(state.value).toEqual({ "vault-items": ["vault", "folder"] });
     });
 
-    it("reads an empty record when nothing is stored", () => {
-      expect(service.preferences()).toEqual({});
+    it("ignores a malformed stored value", () => {
+      state.seed({ "vault-items": "nonsense" } as unknown as TableColumnPreferences);
+
+      expect(readHidden(service)()).toEqual([]);
+    });
+
+    it("follows a changed key", () => {
+      state.seed({ "vault-items": ["vault"] });
+      const key = signal<TableStateKey | undefined>(undefined);
+      const hidden = readHidden(service, key);
+
+      expect(hidden()).toEqual([]);
+
+      key.set("vaultItems");
+
+      expect(hidden()).toEqual(["vault"]);
     });
   });
 
-  it("does not touch StateProvider until preferences are read", () => {
+  it("does not touch StateProvider without a key", () => {
     const getActive = jest.fn(() => new FakeActiveUserState());
     // Consumers often stub only the StateProvider methods they use.
     TestBed.configureTestingModule({
@@ -118,11 +127,9 @@ describe("TableColumnPreferencesService", () => {
     });
     const service = TestBed.inject(TableColumnPreferencesService);
 
+    readHidden(service, signal(undefined))();
+
     expect(getActive).not.toHaveBeenCalled();
-
-    service.preferences();
-
-    expect(getActive).toHaveBeenCalled();
   });
 
   describe("without a StateProvider", () => {
@@ -133,12 +140,12 @@ describe("TableColumnPreferencesService", () => {
       service = TestBed.inject(TableColumnPreferencesService);
     });
 
-    it("reads an empty record", () => {
-      expect(service.preferences()).toEqual({});
+    it("reports nothing hidden", () => {
+      expect(readHidden(service)()).toEqual([]);
     });
 
     it("throws on write", () => {
-      expect(() => service.setColumnHidden("vault-items", "vault", true)).toThrow(
+      expect(() => service.setColumnHidden("vaultItems", "vault", true)).toThrow(
         /requires a StateProvider/,
       );
     });

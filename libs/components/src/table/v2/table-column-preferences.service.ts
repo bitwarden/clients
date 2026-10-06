@@ -1,11 +1,12 @@
-import { DestroyRef, Injectable, Signal, inject, signal, untracked } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { map, of } from "rxjs";
+import { Injectable, Signal, inject } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { map, of, switchMap } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateProvider } from "@bitwarden/state";
 
 import { TABLE_COLUMN_PREFERENCES, TableColumnPreferences } from "./table-column-preferences.state";
+import { TABLE_STATE_KEYS, TableStateKey } from "./table-state-keys";
 
 /**
  * Stores which columns each table has hidden, per user. Without a `StateProvider` nothing is
@@ -16,46 +17,44 @@ export class TableColumnPreferencesService {
   private readonly stateProvider = inject(StateProvider, { optional: true });
   private readonly logService = inject(LogService, { optional: true });
 
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly _preferences = signal<TableColumnPreferences | undefined>(undefined);
-  private subscribed = false;
-
   /**
-   * Every table's stored hidden names. `undefined` until the stored value loads. Subscribes on
-   * first read, so tables without a `stateKey` never touch `StateProvider`.
+   * The hidden names stored for `key`, `undefined` until they load. A missing key never touches
+   * `StateProvider`. Call from an injection context.
    */
-  get preferences(): Signal<TableColumnPreferences | undefined> {
-    if (!this.subscribed) {
-      this.subscribed = true;
-      // `untracked` because the first read can come from a `computed`, where signal writes throw.
-      untracked(() =>
-        (this.stateProvider == null ? of({}) : this.state().state$.pipe(map((p) => p ?? {})))
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe((prefs) => this._preferences.set(prefs)),
-      );
-    }
-    return this._preferences.asReadonly();
+  hiddenColumns(key: Signal<TableStateKey | undefined>): Signal<ReadonlySet<string> | undefined> {
+    return toSignal(
+      toObservable(key).pipe(
+        switchMap((k) =>
+          k == null || this.stateProvider == null
+            ? of([])
+            : this.state().state$.pipe(map((prefs) => prefs?.[TABLE_STATE_KEYS[k]])),
+        ),
+        // Disk may hold a malformed value from an older or foreign write.
+        map((stored) => new Set(Array.isArray(stored) ? stored : [])),
+      ),
+    );
   }
 
   /**
    * Shows or hides one column. Derived inside the update so quick successive toggles don't
    * overwrite each other; names the table no longer shows are kept.
    */
-  setColumnHidden(key: string, name: string, hidden: boolean): void {
+  setColumnHidden(key: TableStateKey, name: string, hidden: boolean): void {
     this.write((prefs) => {
-      const names = new Set(prefs[key] ?? []);
+      const storageKey = TABLE_STATE_KEYS[key];
+      const names = new Set(prefs[storageKey] ?? []);
       if (hidden) {
         names.add(name);
       } else {
         names.delete(name);
       }
-      return { ...prefs, [key]: [...names] };
+      return { ...prefs, [storageKey]: [...names] };
     });
   }
 
   /** Drops `key` entirely, restoring the table's declared column set. */
-  reset(key: string): void {
-    this.write(({ [key]: _dropped, ...rest }) => rest);
+  reset(key: TableStateKey): void {
+    this.write(({ [TABLE_STATE_KEYS[key]]: _dropped, ...rest }) => rest);
   }
 
   private state() {
