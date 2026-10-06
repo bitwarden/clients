@@ -110,6 +110,21 @@ describe("TableColumnPreferencesService", () => {
     });
   });
 
+  it("does not touch StateProvider until preferences are read", () => {
+    const getActive = jest.fn(() => new FakeActiveUserState());
+    // Consumers often stub only the StateProvider methods they use.
+    TestBed.configureTestingModule({
+      providers: [{ provide: StateProvider, useValue: { getActive } }],
+    });
+    const service = TestBed.inject(TableColumnPreferencesService);
+
+    expect(getActive).not.toHaveBeenCalled();
+
+    service.preferences();
+
+    expect(getActive).toHaveBeenCalled();
+  });
+
   describe("without a StateProvider", () => {
     let service: TableColumnPreferencesService;
 

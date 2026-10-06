@@ -1,5 +1,5 @@
-import { Injectable, inject } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { DestroyRef, Injectable, Signal, inject, signal, untracked } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { map, of } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -16,12 +16,26 @@ export class TableColumnPreferencesService {
   private readonly stateProvider = inject(StateProvider, { optional: true });
   private readonly logService = inject(LogService, { optional: true });
 
-  /** Every table's stored hidden names. `undefined` until the stored value loads. */
-  readonly preferences = toSignal<TableColumnPreferences>(
-    this.stateProvider == null
-      ? of({})
-      : this.stateProvider.getActive(TABLE_COLUMN_PREFERENCES).state$.pipe(map((p) => p ?? {})),
-  );
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly _preferences = signal<TableColumnPreferences | undefined>(undefined);
+  private subscribed = false;
+
+  /**
+   * Every table's stored hidden names. `undefined` until the stored value loads. Subscribes on
+   * first read, so tables without a `stateKey` never touch `StateProvider`.
+   */
+  get preferences(): Signal<TableColumnPreferences | undefined> {
+    if (!this.subscribed) {
+      this.subscribed = true;
+      // `untracked` because the first read can come from a `computed`, where signal writes throw.
+      untracked(() =>
+        (this.stateProvider == null ? of({}) : this.state().state$.pipe(map((p) => p ?? {})))
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe((prefs) => this._preferences.set(prefs)),
+      );
+    }
+    return this._preferences.asReadonly();
+  }
 
   /**
    * Shows or hides one column. Derived inside the update so quick successive toggles don't
