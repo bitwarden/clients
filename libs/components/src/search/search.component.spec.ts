@@ -20,10 +20,8 @@ class HostComponent {
   readonly disabled = signal(false);
 }
 
-// Only `overlayRef.overlayElement` is read, and `mock<DialogRef>()` cannot supply it: its
-// DeepPartial argument recurses into the DOM types and fails to typecheck.
-const dialogOver = (overlayElement: HTMLElement) =>
-  ({ overlayRef: { overlayElement } }) as unknown as DialogRef;
+// Only identity is compared, so empty objects stand in for dialog refs.
+const newDialog = () => ({}) as DialogRef;
 
 const i18nMock = () =>
   new I18nMockService({
@@ -36,6 +34,7 @@ describe("SearchComponent", () => {
   let fixture: ComponentFixture<HostComponent>;
   let host: HostComponent;
   let openDialogs: DialogRef[];
+  const ownDialog = newDialog();
   let reachedDocument: jest.Mock;
 
   const input = () => fixture.nativeElement.querySelector("input") as HTMLInputElement;
@@ -65,6 +64,8 @@ describe("SearchComponent", () => {
       imports: [HostComponent],
       providers: [
         { provide: Dialog, useValue: { openDialogs } as unknown as Dialog },
+        // The search's own dialog; it counts as open only once pushed onto `openDialogs`.
+        { provide: DialogRef, useValue: ownDialog },
         { provide: I18nService, useFactory: i18nMock },
       ],
     }).compileComponents();
@@ -140,7 +141,7 @@ describe("SearchComponent", () => {
 
   describe("with a dialog open", () => {
     it("is a noop for a search behind the dialog", () => {
-      openDialogs.push(dialogOver(document.createElement("div")));
+      openDialogs.push(newDialog());
 
       const event = keydown({ key: "f", metaKey: true });
 
@@ -148,7 +149,7 @@ describe("SearchComponent", () => {
     });
 
     it("still focuses a search inside the dialog", () => {
-      openDialogs.push(dialogOver(document.body));
+      openDialogs.push(ownDialog);
 
       const event = keydown({ key: "f", metaKey: true });
 
