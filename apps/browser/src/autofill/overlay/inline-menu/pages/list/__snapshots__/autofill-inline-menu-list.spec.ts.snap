@@ -302,7 +302,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
           <span
             aria-hidden="true"
             class="cipher-icon"
-            style="background-image: url(https://jest-testing-website.com/image.png);"
+            style="background-image: url("https://jest-testing-website.com/image.png");"
           />
           <span
             class="cipher-details"
@@ -557,7 +557,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
           <span
             aria-hidden="true"
             class="cipher-icon"
-            style="background-image: url(https://jest-testing-website.com/image.png);"
+            style="background-image: url("https://jest-testing-website.com/image.png");"
           />
           <span
             class="cipher-details"
@@ -621,7 +621,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
           <span
             aria-hidden="true"
             class="cipher-icon"
-            style="background-image: url(https://jest-testing-website.com/image.png);"
+            style="background-image: url("https://jest-testing-website.com/image.png");"
           />
           <span
             class="cipher-details"
@@ -814,7 +814,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
           <span
             aria-hidden="true"
             class="cipher-icon"
-            style="background-image: url(https://jest-testing-website.com/image.png);"
+            style="background-image: url("https://jest-testing-website.com/image.png");"
           />
           <span
             class="cipher-details"
@@ -1069,7 +1069,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
           <span
             aria-hidden="true"
             class="cipher-icon"
-            style="background-image: url(https://jest-testing-website.com/image.png);"
+            style="background-image: url("https://jest-testing-website.com/image.png");"
           />
           <span
             class="cipher-details"
@@ -1133,7 +1133,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
           <span
             aria-hidden="true"
             class="cipher-icon"
-            style="background-image: url(https://jest-testing-website.com/image.png);"
+            style="background-image: url("https://jest-testing-website.com/image.png");"
           />
           <span
             class="cipher-details"
@@ -1209,7 +1209,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
           <span
             aria-hidden="true"
             class="cipher-icon"
-            style="background-image: url(https://jest-testing-website.com/image.png);"
+            style="background-image: url("https://jest-testing-website.com/image.png");"
           />
           <span
             class="cipher-details"
@@ -1464,7 +1464,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
           <span
             aria-hidden="true"
             class="cipher-icon"
-            style="background-image: url(https://jest-testing-website.com/image.png);"
+            style="background-image: url("https://jest-testing-website.com/image.png");"
           />
           <span
             class="cipher-details"
@@ -1528,7 +1528,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
           <span
             aria-hidden="true"
             class="cipher-icon"
-            style="background-image: url(https://jest-testing-website.com/image.png);"
+            style="background-image: url("https://jest-testing-website.com/image.png");"
           />
           <span
             class="cipher-details"
@@ -1607,7 +1607,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
           <span
             aria-hidden="true"
             class="cipher-icon"
-            style="background-image: url(https://jest-testing-website.com/image.png);"
+            style="background-image: url("https://jest-testing-website.com/image.png");"
           />
           <span
             class="cipher-details"
@@ -1686,7 +1686,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
           <span
             aria-hidden="true"
             class="cipher-icon"
-            style="background-image: url(https://jest-testing-website.com/image.png);"
+            style="background-image: url("https://jest-testing-website.com/image.png");"
           />
           <span
             class="cipher-details"
@@ -1765,7 +1765,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
           <span
             aria-hidden="true"
             class="cipher-icon"
-            style="background-image: url(https://jest-testing-website.com/image.png);"
+            style="background-image: url("https://jest-testing-website.com/image.png");"
           />
           <span
             class="cipher-details"
@@ -1853,7 +1853,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
           <span
             aria-hidden="true"
             class="cipher-icon"
-            style="background-image: url(https://jest-testing-website.com/image.png);"
+            style="background-image: url("https://jest-testing-website.com/image.png");"
           />
           <span
             class="cipher-details"
@@ -1917,7 +1917,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
           <span
             aria-hidden="true"
             class="cipher-icon"
-            style="background-image: url(https://jest-testing-website.com/image.png);"
+            style="background-image: url("https://jest-testing-website.com/image.png");"
           />
           <span
             class="cipher-details"
@@ -1981,7 +1981,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
           <span
             aria-hidden="true"
             class="cipher-icon"
-            style="background-image: url(https://jest-testing-website.com/image.png);"
+            style="background-image: url("https://jest-testing-website.com/image.png");"
           />
           <span
             class="cipher-details"
