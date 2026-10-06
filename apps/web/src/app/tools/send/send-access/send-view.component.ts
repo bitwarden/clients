@@ -126,7 +126,7 @@ export class SendViewComponent implements OnInit {
     const decSendAfterLoad = this.send();
     if (decSendAfterLoad?.type === SendType.Item) {
       this.layoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: { key: "viewItem" },
+        pageTitle: { key: "viewSharedItem" },
       });
     }
 

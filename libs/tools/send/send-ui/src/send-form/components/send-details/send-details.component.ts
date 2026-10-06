@@ -54,7 +54,7 @@ import {
   Option,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { CipherViewComponent, VaultViewPasswordHistoryService } from "@bitwarden/vault";
+import { VaultViewPasswordHistoryService } from "@bitwarden/vault";
 
 import { SendPolicyService } from "../../..";
 import { SendFormService } from "../../abstractions/send-form.service";
@@ -108,7 +108,6 @@ export class AuthTypeNamePipe implements PipeTransform {
     SelectModule,
     AsyncActionsModule,
     ButtonModule,
-    CipherViewComponent,
   ],
   providers: [
     {

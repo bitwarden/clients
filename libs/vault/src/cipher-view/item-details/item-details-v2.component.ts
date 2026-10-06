@@ -51,6 +51,7 @@ export class ItemDetailsV2Component {
   readonly organization = input<Organization | undefined>();
   readonly folder = input<FolderView | undefined>();
   readonly collections = input<CollectionView[] | undefined>();
+  readonly showEmptyDetails = input<boolean>(true);
   readonly showAllDetails = signal(false);
 
   readonly showOwnership = computed(() => {

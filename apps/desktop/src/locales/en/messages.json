@@ -6974,5 +6974,14 @@
   },
   "unknownCipher": {
     "message": "Unknown item, you may need to request permission to access this item."
+  },
+  "viewSharedItem": {
+    "message": "View shared item"
+  },
+  "copyShareLink": {
+    "message": "Copy share link"
+  },
+  "unableToDetermineItemId": {
+    "message": "Unable to determine item ID"
   }
 }

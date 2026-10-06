@@ -117,7 +117,7 @@ export class SendAddEditDialogComponent {
         add: "newItemHeaderFileSendV2",
       },
       [SendType.Item]: {
-        view: "viewItem",
+        view: "viewSharedItem",
         edit: "editItem",
         add: "addItem",
       },
