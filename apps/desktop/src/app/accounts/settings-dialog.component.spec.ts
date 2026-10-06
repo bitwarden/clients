@@ -421,6 +421,61 @@ describe("SettingsDialogComponent", () => {
         return [textContent];
       }
     });
+
+    describe("linux desktop", () => {
+      beforeEach(() => {
+        platformUtilsService.getDevice.mockReturnValue(DeviceType.LinuxDesktop);
+
+        // Recreate component to apply the correct device
+        fixture = TestBed.createComponent(SettingsDialogComponent);
+        component = fixture.componentInstance;
+      });
+
+      afterEach(() => {
+        platformUtilsService.getDevice.mockReset();
+      });
+
+      it("displays require MP on app restart checkbox with hint and warning callout when unchecked", async () => {
+        userVerificationService.hasMasterPassword.mockResolvedValue(true);
+
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        const input = fixture.debugElement.query(
+          By.css("input[formControlName='requireMasterPasswordOnAppRestart']"),
+        );
+        expect(input).not.toBeNull();
+
+        const formControl = input.parent;
+        const hint = formControl?.query(By.css("bit-hint"));
+        expect(hint?.nativeElement.textContent).toContain("requireMasterPasswordOnAppRestartDesc");
+
+        expect(fixture.debugElement.query(By.css("bit-callout[type='warning']"))).toBeNull();
+
+        (component as any).form.controls.requireMasterPasswordOnAppRestart.setValue(false);
+        fixture.detectChanges();
+
+        const callout = fixture.debugElement.query(By.css("bit-callout[type='warning']"));
+        expect(callout).not.toBeNull();
+        expect(callout.nativeElement.textContent).toContain(
+          "requireMasterPasswordOnAppRestartWarning",
+        );
+      });
+
+      it("does not display require MP/PIN on app restart checkbox without a master password or PIN", async () => {
+        userVerificationService.hasMasterPassword.mockResolvedValue(false);
+        pinServiceAbstraction.isPinSet.mockResolvedValue(false);
+
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect(
+          fixture.debugElement.query(
+            By.css("input[formControlName='requireMasterPasswordOnAppRestart']"),
+          ),
+        ).toBeNull();
+      });
+    });
   });
 
   describe("updatePinHandler", () => {
@@ -617,6 +672,36 @@ describe("SettingsDialogComponent", () => {
             expect(desktopBiometricsService.enrollPersistent).not.toHaveBeenCalled();
           },
         );
+      });
+
+      describe("on linux", () => {
+        beforeEach(() => {
+          keyService.userKey$.mockReturnValue(of(mockUserKey));
+        });
+
+        const setUpUserWithoutMasterPassword = async () => {
+          desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
+
+          await component.ngOnInit();
+          (component as any).isWindows = false;
+          (component as any).isLinux = true;
+          (component as any).form.value.requireMasterPasswordOnAppRestart = true;
+          (component as any).userHasMasterPassword.set(false);
+          (component as any).supportsBiometric.set(true);
+          (component as any).form.value.biometric = true;
+        };
+
+        it("enrolls a persistent key when turning off PIN", async () => {
+          await setUpUserWithoutMasterPassword();
+
+          await (component as any).updatePinHandler(false);
+
+          expect(desktopBiometricsService.enrollPersistent).toHaveBeenCalledWith(
+            mockUserId,
+            mockUserKey,
+          );
+          expect(pinServiceAbstraction.unsetPin).toHaveBeenCalled();
+        });
       });
     });
   });
@@ -857,6 +942,49 @@ describe("SettingsDialogComponent", () => {
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
 
+      describe("linux test cases", () => {
+        beforeEach(() => {
+          keyService.userKey$.mockReturnValue(of(mockUserKey));
+          (component as any).isWindows = false;
+          (component as any).isLinux = true;
+
+          desktopBiometricsService.getBiometricsStatus.mockResolvedValue(
+            BiometricsStatus.Available,
+          );
+          desktopBiometricsService.getBiometricsStatusForUser.mockResolvedValue(
+            BiometricsStatus.Available,
+          );
+        });
+
+        it("when the user doesn't have a master password or a PIN set, allows biometric unlock on app restart", async () => {
+          (component as any).userHasMasterPassword.set(false);
+          (component as any).userHasPinSet.set(false);
+          desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
+
+          await (component as any).updateBiometricHandler(true);
+
+          expect(desktopBiometricsService.enrollPersistent).toHaveBeenCalledWith(
+            mockUserId,
+            mockUserKey,
+          );
+          expect((component as any).form.controls.requireMasterPasswordOnAppRestart.value).toBe(
+            false,
+          );
+        });
+
+        it("when the user has a master password, requires it on app restart by default", async () => {
+          (component as any).userHasMasterPassword.set(true);
+          (component as any).userHasPinSet.set(false);
+
+          await (component as any).updateBiometricHandler(true);
+
+          expect(desktopBiometricsService.enrollPersistent).not.toHaveBeenCalled();
+          expect((component as any).form.controls.requireMasterPasswordOnAppRestart.value).toBe(
+            true,
+          );
+        });
+      });
+
       it.each([
         BiometricsStatus.UnlockNeeded,
         BiometricsStatus.HardwareUnavailable,
@@ -946,6 +1074,27 @@ describe("SettingsDialogComponent", () => {
 
     describe("when updating to false", () => {
       it("doesn't enroll persistent biometric if already enrolled", async () => {
+        await component.ngOnInit();
+        await (component as any).updateRequireMasterPasswordOnAppRestartHandler(false, mockUserId);
+
+        expect(keyService.userKey$).toHaveBeenCalledWith(mockUserId);
+        expect(desktopBiometricsService.enrollPersistent).toHaveBeenCalledWith(
+          mockUserId,
+          mockUserKey,
+        );
+        expect((component as any).form.controls.requireMasterPasswordOnAppRestart.value).toBe(
+          false,
+        );
+        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("when updating to false on linux", () => {
+      beforeEach(() => {
+        (component as any).isLinux = true;
+      });
+
+      it("enrolls persistent biometric if not already enrolled", async () => {
         await component.ngOnInit();
         await (component as any).updateRequireMasterPasswordOnAppRestartHandler(false, mockUserId);
 

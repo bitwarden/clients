@@ -80,6 +80,7 @@ import {
   OrgDomainInternalServiceAbstraction,
   OrgDomainServiceAbstraction,
 } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain.service.abstraction";
+import { OrganizationDomainsService } from "@bitwarden/common/admin-console/abstractions/organization-domain/organization-domains.service";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -91,6 +92,7 @@ import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/a
 import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
+import { DefaultOrganizationDomainsService } from "@bitwarden/common/admin-console/services/organization-domain/default-organization-domains.service";
 import { OrgDomainApiService } from "@bitwarden/common/admin-console/services/organization-domain/org-domain-api.service";
 import { OrgDomainService } from "@bitwarden/common/admin-console/services/organization-domain/org-domain.service";
 import { DefaultOrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/services/organization-management-preferences/default-organization-management-preferences.service";
@@ -223,8 +225,6 @@ import { MasterPasswordService } from "@bitwarden/common/key-management/master-p
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
-import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
-import { DefaultSecurityStateService } from "@bitwarden/common/key-management/security-state/services/security-state.service";
 import {
   DefaultSendPasswordService,
   SendPasswordService,
@@ -775,6 +775,7 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       CipherServiceAbstraction,
       StateProvider,
+      LogService,
     ],
   }),
   safeProvider({
@@ -831,6 +832,7 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       StateProvider,
       CollectionEncryptionService,
+      LogService,
     ],
   }),
   safeProvider({
@@ -910,11 +912,6 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       KeyService,
     ],
-  }),
-  safeProvider({
-    provide: SecurityStateService,
-    useClass: DefaultSecurityStateService,
-    deps: [AccountCryptographicStateService],
   }),
   safeProvider({
     provide: RestrictedItemTypesService,
@@ -1555,6 +1552,11 @@ const safeProviders: SafeProvider[] = [
     deps: [OrgDomainInternalServiceAbstraction, ApiServiceAbstraction],
   }),
   safeProvider({
+    provide: OrganizationDomainsService,
+    useClass: DefaultOrganizationDomainsService,
+    deps: [SdkService],
+  }),
+  safeProvider({
     provide: DevicesApiServiceAbstraction,
     useClass: DevicesApiServiceImplementation,
     deps: [ApiServiceAbstraction],
@@ -1951,6 +1953,7 @@ const safeProviders: SafeProvider[] = [
       V2UpgradeTokenStateService,
       ManagedSettingsService,
       AppIdServiceAbstraction,
+      LogService,
     ],
   }),
   safeProvider({

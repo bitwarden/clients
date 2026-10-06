@@ -124,6 +124,9 @@ export const NEW_WEB_LAYOUT_BANNER_DISK = new StateDefinition("newWebLayoutBanne
   web: "disk-local",
 });
 export const BIT_SIDE_NAV_DISK = new StateDefinition("bitSideNav", "disk");
+export const TABLE_COLUMN_PREFERENCES_DISK = new StateDefinition("tableColumnPreferences", "disk", {
+  web: "disk-local",
+});
 
 // DIRT
 

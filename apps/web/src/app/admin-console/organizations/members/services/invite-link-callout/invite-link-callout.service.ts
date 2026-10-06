@@ -117,6 +117,13 @@ export class InviteLinkCalloutService {
       return;
     }
 
+    // TODO(guided-tour removal): the splash dialog ("Show me how") and the invite dialog it
+    // opens are permanent — keep opening the invite dialog on the By Link tab here. Only the
+    // guided-tour-specific pieces below need to go: drop `originUrl` and the final
+    // `navigateByUrl` call, and change the final `openInviteDialog(...)` argument from `true`
+    // (showCoachMarks) back to omitted/false. See the header comment in
+    // by-link-tab-tour.component.ts for the full removal checklist.
+    const originUrl = this.router.url;
     await this.router.navigate(["organizations", organization.id, "members"]);
 
     const billingMetadata = await firstValueFrom(
@@ -125,5 +132,9 @@ export class InviteLinkCalloutService {
     const allUsers = await this.organizationMembersService.loadUsers(organization);
 
     await this.memberDialogManager.openInviteDialog(organization, billingMetadata, allUsers, true);
+
+    // The tour never creates/mutates a real invite link, so once it's done there's nothing to
+    // keep the admin on the Members page for — send them back to wherever they started.
+    await this.router.navigateByUrl(originUrl);
   }
 }
