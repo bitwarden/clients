@@ -31,9 +31,9 @@ describe("HoverReveal directives", () => {
     expect(classes).toContain("[--bit-hover-reveal:0]");
     expect(classes).toContain("hover:[--bit-hover-reveal:1]");
     expect(classes).toContain(
-      "[&:has(:focus-visible):not(:has([data-hover-reveal-boundary]_:focus-visible))]:![--bit-hover-reveal:1]",
+      "[&:has(:focus-visible):not(:has([bitHoverRevealBoundary]_:focus-visible))]:![--bit-hover-reveal:1]",
     );
-    expect(classes).toContain("[&:has([data-hover-reveal-boundary]:hover)]:[--bit-hover-reveal:0]");
+    expect(classes).toContain("[&:has([bitHoverRevealBoundary]:hover)]:[--bit-hover-reveal:0]");
   });
 
   it("binds the revealed element's opacity to the variable and pins it while expanded", () => {

@@ -3,14 +3,24 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { IconButtonModule } from "../icon-button";
 import { MenuModule } from "../menu";
 
-import { HoverRevealContainerDirective, HoverRevealDirective } from "./hover-reveal.directive";
+import {
+  HoverRevealBoundaryDirective,
+  HoverRevealContainerDirective,
+  HoverRevealDirective,
+} from "./hover-reveal.directive";
 
 export default {
   title: "Component Library/Hover Reveal",
   component: HoverRevealContainerDirective,
   decorators: [
     moduleMetadata({
-      imports: [HoverRevealContainerDirective, HoverRevealDirective, IconButtonModule, MenuModule],
+      imports: [
+        HoverRevealContainerDirective,
+        HoverRevealDirective,
+        HoverRevealBoundaryDirective,
+        IconButtonModule,
+        MenuModule,
+      ],
     }),
   ],
   parameters: {
@@ -79,7 +89,7 @@ export const Boundary: Story = {
           <span>Parent row</span>
           <button type="button" bitHoverReveal bitIconButton="bwi-pencil-square" label="Edit"></button>
         </div>
-        <ul data-hover-reveal-boundary class="tw-m-0 tw-p-3 tw-rounded-xl tw-bg-bg-secondary">
+        <ul bitHoverRevealBoundary class="tw-m-0 tw-p-3 tw-rounded-xl tw-bg-bg-secondary">
           <li>Hovering here doesn't reveal "Edit"</li>
         </ul>
       </div>

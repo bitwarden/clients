@@ -5,7 +5,11 @@ import * as stories from "./hover-reveal.stories";
 <Meta of={stories} />
 
 ```ts
-import { HoverRevealContainerDirective, HoverRevealDirective } from "@bitwarden/components";
+import {
+  HoverRevealBoundaryDirective,
+  HoverRevealContainerDirective,
+  HoverRevealDirective,
+} from "@bitwarden/components";
 ```
 
 # Hover Reveal
@@ -56,7 +60,7 @@ and the reveal on the action. Hovering or focusing the group's expanded children
 ## Boundaries
 
 A container matches `:hover` whenever the pointer is over any of its descendants. To exclude part of
-a container, such as a list of child rows, add `data-hover-reveal-boundary` to that region. Hover or
+a container, such as a list of child rows, add `bitHoverRevealBoundary` to that region. Hover or
 keyboard focus inside a boundary doesn't reveal the container's content.
 
 ```html
@@ -65,7 +69,7 @@ keyboard focus inside a boundary doesn't reveal the container's content.
     <span>Parent row</span>
     <button type="button" bitHoverReveal bitIconButton="bwi-pencil-square" label="Edit"></button>
   </div>
-  <ul data-hover-reveal-boundary>
+  <ul bitHoverRevealBoundary>
     <li>Hovering here doesn't reveal "Edit"</li>
   </ul>
 </div>

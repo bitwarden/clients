@@ -347,7 +347,7 @@ describe("side-nav v1 content projection", () => {
         .queryAll(By.directive(NavGroupComponent))
         .find((de) => de.componentInstance.text() === "Tools")!;
       const boundary = toolsGroup.nativeElement.querySelector(
-        "[data-hover-reveal-boundary]",
+        "[bitHoverRevealBoundary]",
       ) as HTMLElement;
 
       expect(boundary.textContent).toContain("Child A");
