@@ -29,9 +29,3 @@ export function createColumnRefs<T, S extends string = never>(): ColumnRefs<T, S
     get: (_target, prop) => prop,
   });
 }
-
-/** A column the user may toggle in the Customize columns dialog. */
-export interface RemovableColumn {
-  readonly name: string;
-  readonly label: string;
-}

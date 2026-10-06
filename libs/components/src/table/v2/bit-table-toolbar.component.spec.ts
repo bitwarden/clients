@@ -27,7 +27,10 @@ import { BitCellComponent } from "./bit-cell.component";
 import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderCellComponent } from "./bit-header-cell.component";
 import { BitTableToolbarComponent } from "./bit-table-toolbar.component";
-import { CustomizeColumnsDialogComponent } from "./customize-columns-dialog.component";
+import {
+  CustomizeColumnsDialogComponent,
+  CustomizeColumnsDialogParams,
+} from "./customize-columns-dialog.component";
 import { defineTable } from "./table-def";
 import { TableStateKey } from "./table-state-keys";
 import { BitTableV2Component } from "./table-v2.component";
@@ -420,12 +423,10 @@ describe("BitTableToolbarComponent customize control", () => {
   it("opens the dialog with the table's togglable columns", () => {
     customizeButton()!.click();
 
-    expect(dialogService.open).toHaveBeenCalledWith(
-      CustomizeColumnsDialogComponent,
-      expect.objectContaining({
-        data: expect.objectContaining({ columns: [{ name: "other", label: "Other" }] }),
-      }),
-    );
+    const [component, config] = dialogService.open.mock.lastCall!;
+    const { columns } = config!.data as CustomizeColumnsDialogParams;
+    expect(component).toBe(CustomizeColumnsDialogComponent);
+    expect(columns.map((c) => [c.name(), c.label()])).toEqual([["other", "Other"]]);
   });
 });
 

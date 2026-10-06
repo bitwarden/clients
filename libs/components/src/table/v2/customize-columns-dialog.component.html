@@ -3,10 +3,10 @@
     <!-- No `grid`: switch cards aren't supported in the group's grid layout. -->
     <bit-form-control-group>
       <bit-label>{{ "showColumns" | i18n }}</bit-label>
-      @for (col of columns; track col.name) {
+      @for (col of columns; track col.name()) {
         <bit-form-control-card>
-          <bit-switch [formControlName]="col.name"></bit-switch>
-          <bit-label>{{ col.label }}</bit-label>
+          <bit-switch [formControlName]="col.name()!"></bit-switch>
+          <bit-label>{{ col.label() }}</bit-label>
         </bit-form-control-card>
       }
     </bit-form-control-group>

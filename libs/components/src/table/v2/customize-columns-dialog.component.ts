@@ -18,12 +18,12 @@ import { FormControlModule } from "../../form-control";
 import { SwitchComponent } from "../../switch";
 import { focusAfterRender } from "../../utils/focus-after-render";
 
-import { RemovableColumn } from "./column";
+import type { BitColumnComponent } from "./bit-column.component";
 
 /** Data passed to {@link CustomizeColumnsDialogComponent} when the toolbar opens it. */
 export interface CustomizeColumnsDialogParams {
-  /** The togglable columns, in display order. */
-  readonly columns: readonly RemovableColumn[];
+  /** The togglable columns, in display order. Each has a name and a label. */
+  readonly columns: readonly BitColumnComponent[];
   /** The names hidden when the dialog opens. */
   readonly hidden: ReadonlySet<string>;
   /** Shows or hides one column. Idempotent. */
@@ -62,8 +62,8 @@ export class CustomizeColumnsDialogComponent {
   protected readonly form = new FormRecord(
     Object.fromEntries(
       this.columns.map((col) => [
-        col.name,
-        new FormControl(!this.params.hidden.has(col.name), { nonNullable: true }),
+        col.name()!,
+        new FormControl(!this.params.hidden.has(col.name()!), { nonNullable: true }),
       ]),
     ),
   );

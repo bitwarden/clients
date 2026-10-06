@@ -51,7 +51,7 @@ import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowGroupComponent } from "./bit-row-group.component";
 import { BitRowComponent } from "./bit-row.component";
 import { BitTablePaginatorComponent } from "./bit-table-paginator.component";
-import { ColumnName, RemovableColumn } from "./column";
+import { ColumnName } from "./column";
 import {
   CustomizeColumnsDialogComponent,
   CustomizeColumnsDialogParams,
@@ -657,12 +657,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   });
 
   /** The columns the user may toggle: those marked `removable` that have a `label`. */
-  private readonly removableColumns = computed<RemovableColumn[]>(() =>
-    this.availableColumns().flatMap((col) => {
-      const name = col.name();
-      const label = col.label();
-      return col.removable() && name && label ? [{ name, label }] : [];
-    }),
+  private readonly removableColumns = computed(() =>
+    this.availableColumns().filter((col) => col.removable() && col.name() && col.label()),
   );
 
   /** Whether the Customize control applies to this table. */
@@ -689,7 +685,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     if (!this.canCustomizeColumns()) {
       return new Set();
     }
-    const names = this.removableColumns().map((col) => col.name);
+    const names = this.removableColumns().map((col) => col.name() ?? "");
     const stored = this.storedHiddenNames();
     // Hold back every removable column until preferences load, so none renders and then vanishes.
     if (stored === undefined) {

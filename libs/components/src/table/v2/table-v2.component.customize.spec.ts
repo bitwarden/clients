@@ -111,7 +111,7 @@ describe("BitTableV2Component column customization", () => {
     table()
       .effectiveColumns()
       .map((c) => c.name());
-  const offered = () => openDialog(table()).columns.map((c) => c.name);
+  const offered = () => openDialog(table()).columns.map((c) => c.name());
   const setHidden = (name: string, hidden = true) => openDialog(table()).setHidden(name, hidden);
 
   it("offers only the columns marked removable", () => {
@@ -126,10 +126,7 @@ describe("BitTableV2Component column customization", () => {
   });
 
   it("labels each offered column with its `label`", () => {
-    expect(openDialog(table()).columns).toEqual([
-      { name: "vault", label: "Vault" },
-      { name: "folder", label: "Folder" },
-    ]);
+    expect(openDialog(table()).columns.map((c) => c.label())).toEqual(["Vault", "Folder"]);
   });
 
   it("hides a toggled column from the rendered columns", () => {
@@ -143,7 +140,7 @@ describe("BitTableV2Component column customization", () => {
     setHidden("vault");
     fixture.detectChanges();
 
-    expect(openDialog(table()).columns.map((c) => c.label)).toEqual(["Vault", "Folder"]);
+    expect(openDialog(table()).columns.map((c) => c.label())).toEqual(["Vault", "Folder"]);
   });
 
   it("drops the hidden column's track from the grid", () => {
