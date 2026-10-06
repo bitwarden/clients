@@ -219,7 +219,24 @@ describe("SharedFolderCardGridComponent", () => {
       createComponent([...children(2), grandchild]);
 
       // A grandchild arrives with the drill-in to its own parent, not before.
-      expect(cards().map((card) => card.textContent?.trim())).toEqual(["Folder 0", "Folder 1"]);
+      expect(cards().map((card) => card.id)).toEqual([
+        `shared-folder-card-grid_link_folder-${PARENT.id}-folder-0`,
+        `shared-folder-card-grid_link_folder-${PARENT.id}-folder-1`,
+      ]);
+    });
+
+    it("counts the folders nested directly inside each card beneath its name", () => {
+      createComponent([
+        ...children(3),
+        collection("backend", `${PARENT.name}/Folder 0/Backend`),
+        collection("frontend", `${PARENT.name}/Folder 0/Frontend`),
+        collection("api", `${PARENT.name}/Folder 0/Backend/API`),
+        collection("payroll", `${PARENT.name}/Folder 1/Payroll`),
+      ]);
+
+      expect(
+        cards().map((card) => card.querySelector('[slot="secondary"]')?.textContent?.trim()),
+      ).toEqual(["nestedSharedFolderCount:2", "nestedSharedFolderSingular", undefined]);
     });
 
     it("caps the grid at three columns, each at least 240px wide, with 12px spacing", () => {
