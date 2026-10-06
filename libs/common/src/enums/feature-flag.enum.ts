@@ -55,7 +55,6 @@ export enum FeatureFlag {
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
-  EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
   ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
   SdkKeyRotation = "pm-30144-sdk-key-rotation",
   // Note: Shared unlock is divided into two parts. Leader and follower. The leader is gated behind part 1, and
@@ -206,7 +205,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
-  [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
   [FeatureFlag.ForceUpdateKDFSettings]: FALSE,
   [FeatureFlag.SdkKeyRotation]: FALSE,
   [FeatureFlag.SharedUnlockPart1]: FALSE,
