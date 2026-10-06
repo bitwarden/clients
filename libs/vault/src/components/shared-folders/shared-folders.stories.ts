@@ -284,6 +284,8 @@ export default {
               delete: "Delete",
               pinToSidebar: "Pin to sidebar",
               unpinFromSidebar: "Unpin from sidebar",
+              pinned: "Pinned",
+              noPinnedFoldersTooltip: "Pin shared folders to the sidebar to filter them here.",
               folderPinnedToSidebar: (name) => `${name} pinned to sidebar`,
               folderUnpinnedFromSidebar: (name) => `${name} unpinned from sidebar`,
               // Paginator
@@ -329,7 +331,7 @@ export const Default: Story = {};
 
 /**
  * The Permissions chip is omitted when every folder carries the same permission: with one option it
- * has nothing to narrow. That takes the whole filter row with it, item count included.
+ * has nothing to narrow. The Pinned toggle stays, as it does whatever the permissions.
  */
 export const SinglePermission: Story = {
   args: {
@@ -338,6 +340,16 @@ export const SinglePermission: Story = {
       permissions: SharedFolderPermission.Manage,
     })),
   },
+};
+
+/**
+ * Two folders start out pinned: each carries a pin icon after its name. The Pinned toggle in the
+ * toolbar narrows the table to them, and Pin to sidebar or Unpin from sidebar in a row's Options
+ * menu updates the icons and the filter together. With nothing pinned the toggle stays on offer and
+ * leads to the no-matches empty state, whose Clear all turns it off.
+ */
+export const Pinned: Story = {
+  args: { pinnedIds: ["col-1", "col-3"] },
 };
 
 /**

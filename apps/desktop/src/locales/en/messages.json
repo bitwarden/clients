@@ -6444,6 +6444,10 @@
   "noSharedFoldersAddedDescription": {
     "message": "Add a shared folder to securely share vault items with other members."
   },
+  "pinned": {
+    "message": "Pinned",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
   "pinToSidebar": {
     "message": "Pin to sidebar",
     "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
@@ -6471,6 +6475,9 @@
         "example": "Engineering"
       }
     }
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Pin shared folders to the sidebar to filter them here."
   },
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",

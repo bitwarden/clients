@@ -135,12 +135,18 @@ export type SharedFoldersTableFilters = {
    * label so a URL-synced filter survives a change of locale.
    */
   permissions?: SharedFolderPermission[];
+
+  /**
+   * On/off: only the folders the user pinned to the side nav. `undefined` and `false` both mean
+   * unfiltered.
+   */
+  pinned?: boolean;
 };
 
 /**
  * The shared folders of one organization vault: name, permissions, item count, and a per-row
- * Options menu, with a search field, a Permissions filter chip, an Add button, and a bulk actions
- * bar. Self-contained — it reads the route, loads the folders, and owns its dialogs. Project the
+ * Options menu, with a search field, a Pinned toggle, a Permissions filter chip, an Add button, and a
+ * bulk actions bar. Self-contained — it reads the route, loads the folders, and owns its dialogs. Project the
  * client's page header into the default slot:
  *
  * ```html
@@ -247,8 +253,8 @@ export class SharedFoldersComponent {
   );
 
   /**
-   * The ids the user pinned, as a set. Read by the row menu, so its Pin and Unpin item follows a
-   * pin or unpin made anywhere.
+   * The ids the user pinned, as a set. Read inside the table filter and the Name cell, so both
+   * follow a pin or unpin made anywhere, the row menu included.
    */
   private readonly pinnedIds = toSignal(
     this.userId$.pipe(
@@ -256,6 +262,18 @@ export class SharedFoldersComponent {
       map((ids) => new Set<string>(ids)),
     ),
     { initialValue: new Set<string>() },
+  );
+
+  /**
+   * Whether the Pinned chip has nothing to offer.
+   */
+  protected readonly noPinned = computed(() => {
+    const pinned = this.pinnedIds();
+    return !this.sharedFolders().some((row) => pinned.has(row.id));
+  });
+
+  protected readonly pinnedDisabledTooltip = computed(() =>
+    this.noPinned() ? this.i18nService.t("noPinnedFoldersTooltip") : "",
   );
 
   protected readonly loading = computed(() => this.loaded() === undefined);
@@ -397,13 +415,15 @@ export class SharedFoldersComponent {
   protected readonly sortByPermission: SortFn = (a: SharedFolderRow, b: SharedFolderRow) =>
     sharedFolderPermissionOrder(a.permissions) - sharedFolderPermissionOrder(b.permissions);
 
-  /** Whether the user pinned the folder, for the row menu's item. */
+  /** Whether the user pinned the folder, for the Name cell's pin icon and the row menu's item. */
   protected isPinned(row: SharedFolderRow): boolean {
     return this.pinnedIds().has(row.id);
   }
 
   protected readonly filter = (row: SharedFolderRow, values: SharedFoldersTableFilters): boolean =>
-    this.matchesSearch(row, values.search) && this.matchesPermissions(row, values.permissions);
+    this.matchesSearch(row, values.search) &&
+    this.matchesPermissions(row, values.permissions) &&
+    this.matchesPinned(row, values.pinned);
 
   /**
    * The window's height, in px, so the fitted page follows a resize. Audited because `resize` fires
@@ -626,6 +646,11 @@ export class SharedFoldersComponent {
     permissions: SharedFolderPermission[] | undefined,
   ): boolean {
     return !permissions?.length || permissions.includes(row.permissions);
+  }
+
+  /** Reads the pinned set, so the table re-filters when a pin changes. `undefined` is unfiltered. */
+  private matchesPinned(row: SharedFolderRow, pinned: boolean | undefined): boolean {
+    return !pinned || this.pinnedIds().has(row.id);
   }
 
   protected hasActiveChipFilters(

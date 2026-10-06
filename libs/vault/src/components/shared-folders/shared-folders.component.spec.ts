@@ -26,6 +26,7 @@ import {
   BitTableV2Component,
   DialogService,
   FilterControl,
+  FilterToggleComponent,
   MenuTriggerForDirective,
   ToastService,
 } from "@bitwarden/components";
@@ -605,6 +606,233 @@ describe("SharedFoldersComponent", () => {
       fixture.detectChanges();
 
       expect(bitTable().filtered()).toEqual([expect.objectContaining({ name: "Finance archive" })]);
+    });
+  });
+
+  describe("the Pinned toggle", () => {
+    const PINNED_USER = "user-1" as UserId;
+
+    async function setupPinnable(): Promise<void> {
+      await setup({
+        collections: [
+          collectionWith(SharedFolderPermission.Manage, { id: "a", name: "Engineering" }),
+          collectionWith(SharedFolderPermission.View, { id: "b", name: "Finance" }),
+          collectionWith(SharedFolderPermission.Manage, { id: "c", name: "Finance archive" }),
+        ],
+      });
+      await pinnedSharedFolders.pin(PINNED_USER, "b" as CollectionId);
+      await pinnedSharedFolders.pin(PINNED_USER, "c" as CollectionId);
+      fixture.detectChanges();
+    }
+
+    function names(): string[] {
+      return bitTable()
+        .filtered()
+        .map((r) => r.name);
+    }
+
+    it("is offered ahead of the Permissions chip, with the pin icon", async () => {
+      await setupPinnable();
+
+      const toggle = fixture.nativeElement.querySelector("bit-filter-toggle") as HTMLElement;
+      const menu = fixture.nativeElement.querySelector("bit-filter-menu") as HTMLElement;
+      expect(toggle).not.toBeNull();
+      expect(toggle.textContent).toContain("pinned");
+      expect(toggle.querySelector(".bwi-pin")).not.toBeNull();
+      expect(toggle.compareDocumentPosition(menu) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    it("is offered when the Permissions chip is hidden", async () => {
+      await setup({
+        collections: [
+          collectionWith(SharedFolderPermission.Manage, { id: "a" }),
+          collectionWith(SharedFolderPermission.Manage, { id: "b" }),
+        ],
+      });
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("bit-filter-menu")).toBeNull();
+      expect(fixture.nativeElement.querySelector("bit-filter-toggle")).not.toBeNull();
+    });
+
+    function pinnedToggle(): { button: HTMLButtonElement; tooltip: string } {
+      const toggle = fixture.debugElement.query(By.directive(FilterToggleComponent));
+      return {
+        button: toggle.nativeElement.querySelector("button") as HTMLButtonElement,
+        tooltip: (toggle.componentInstance as FilterToggleComponent).disabledTooltip(),
+      };
+    }
+
+    it("is offered, but disabled with a reason, while nothing is pinned", async () => {
+      await setup({ collections: [collection({ id: "a" })] });
+      fixture.detectChanges();
+
+      expect(filterControl("pinned")).toBeDefined();
+      const { button, tooltip } = pinnedToggle();
+      expect(button.getAttribute("aria-disabled")).toBe("true");
+      expect(tooltip).toBe("noPinnedFoldersTooltip");
+    });
+
+    it("is enabled, without a reason, once a folder is pinned", async () => {
+      await setupPinnable();
+
+      const { button, tooltip } = pinnedToggle();
+      expect(button.getAttribute("aria-disabled")).not.toBe("true");
+      expect(tooltip).toBe("");
+    });
+
+    it("is disabled again when the last pin is removed", async () => {
+      await setupPinnable();
+
+      await pinnedSharedFolders.unpin(PINNED_USER, "b" as CollectionId);
+      await pinnedSharedFolders.unpin(PINNED_USER, "c" as CollectionId);
+      fixture.detectChanges();
+
+      const { button, tooltip } = pinnedToggle();
+      expect(button.getAttribute("aria-disabled")).toBe("true");
+      expect(tooltip).toBe("noPinnedFoldersTooltip");
+    });
+
+    it("cannot be turned on by a click while nothing is pinned", async () => {
+      await setup({ collections: [collection({ id: "a" })] });
+      fixture.detectChanges();
+
+      pinnedToggle().button.click();
+      fixture.detectChanges();
+
+      expect(filterControl("pinned").active()).toBe(false);
+    });
+
+    it("keeps every row while off", async () => {
+      await setupPinnable();
+
+      expect(names()).toEqual(["Engineering", "Finance", "Finance archive"]);
+
+      filterControl("pinned").setValue(false);
+      fixture.detectChanges();
+      expect(names()).toHaveLength(3);
+    });
+
+    it("keeps only the pinned rows while on", async () => {
+      await setupPinnable();
+
+      filterControl("pinned").setValue(true);
+      fixture.detectChanges();
+
+      expect(names()).toEqual(["Finance", "Finance archive"]);
+    });
+
+    it("follows a pin or unpin made while it is on", async () => {
+      await setupPinnable();
+      filterControl("pinned").setValue(true);
+      fixture.detectChanges();
+
+      await pinnedSharedFolders.unpin(PINNED_USER, "b" as CollectionId);
+      await pinnedSharedFolders.pin(PINNED_USER, "a" as CollectionId);
+      fixture.detectChanges();
+
+      expect(names()).toEqual(["Engineering", "Finance archive"]);
+    });
+
+    it("intersects with the permissions chip and the search term", async () => {
+      await setupPinnable();
+
+      filterControl("pinned").setValue(true);
+      filterControl("permissions").setValue([SharedFolderPermission.Manage]);
+      fixture.detectChanges();
+      expect(names()).toEqual(["Finance archive"]);
+
+      filterControl("permissions").setValue(undefined);
+      searchControl().setValue("fin");
+      fixture.detectChanges();
+      expect(names()).toEqual(["Finance", "Finance archive"]);
+
+      searchControl().setValue("engineering");
+      fixture.detectChanges();
+      expect(names()).toEqual([]);
+    });
+
+    it("counts as an active chip filter, and Clear all resets it", async () => {
+      await setup({
+        collections: [collection({ id: "a", name: "Engineering" })],
+      });
+      fixture.detectChanges();
+      const clearAll = (): HTMLButtonElement =>
+        fixture.nativeElement.querySelector("#shared-folders_button_clear-filters");
+
+      // Nothing pinned, so turning the toggle on leaves no rows and the empty state in view.
+      filterControl("pinned").setValue(true);
+      fixture.detectChanges();
+      expect(filterControl("pinned").active()).toBe(true);
+      expect(clearAll().classList).not.toContain("tw-hidden");
+
+      clearAll().click();
+      fixture.detectChanges();
+
+      expect(filterControl("pinned").active()).toBe(false);
+      expect(names()).toEqual(["Engineering"]);
+    });
+
+    it("shows the no-matches empty state when on with nothing pinned", async () => {
+      await setup({ collections: [collection({ id: "a", name: "Engineering" })] });
+      fixture.detectChanges();
+
+      filterControl("pinned").setValue(true);
+      fixture.detectChanges();
+
+      const text = fixture.nativeElement.textContent as string;
+      expect(names()).toEqual([]);
+      expect(text).toContain("noMatchingItems");
+      expect(text).toContain("clearFiltersOrTryAnother");
+    });
+
+    it("matches every row for an unset value", async () => {
+      await setup();
+      const stub = { id: "x" } as SharedFolderRow;
+
+      expect(applyFilter(stub, {})).toBe(true);
+      expect(applyFilter(stub, { pinned: false })).toBe(true);
+      expect(applyFilter(stub, { pinned: true })).toBe(false);
+    });
+  });
+
+  describe("the pin icon in the Name cell", () => {
+    const icon = (id: string): HTMLElement | null =>
+      fixture.nativeElement.querySelector(`#shared-folders_icon_pinned-${id}`);
+
+    it("shows after the name of a pinned row only", async () => {
+      await setup({
+        collections: [collection({ id: "a", name: "Engineering" }), collection({ id: "b" })],
+      });
+      await pinnedSharedFolders.pin("user-1" as UserId, "a" as CollectionId);
+      fixture.detectChanges();
+
+      expect(icon("a")).not.toBeNull();
+      expect(icon("a")?.getAttribute("aria-label")).toBe("pinned");
+      expect(icon("a")?.previousElementSibling?.id).toBe("shared-folders_link_name-a");
+      expect(icon("b")).toBeNull();
+    });
+
+    it("shows for a nested folder's row too", async () => {
+      await setup({ collections: [collection({ id: "a", name: "Engineering/Platform" })] });
+      await pinnedSharedFolders.pin("user-1" as UserId, "a" as CollectionId);
+      fixture.detectChanges();
+
+      expect(icon("a")).not.toBeNull();
+    });
+
+    it("comes and goes as the pin state changes", async () => {
+      await setup({ collections: [collection({ id: "a" })] });
+      fixture.detectChanges();
+      expect(icon("a")).toBeNull();
+
+      await pinnedSharedFolders.pin("user-1" as UserId, "a" as CollectionId);
+      fixture.detectChanges();
+      expect(icon("a")).not.toBeNull();
+
+      await pinnedSharedFolders.unpin("user-1" as UserId, "a" as CollectionId);
+      fixture.detectChanges();
+      expect(icon("a")).toBeNull();
     });
   });
 

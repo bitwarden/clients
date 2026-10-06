@@ -28,6 +28,14 @@
       {{ "add" | i18n }}
     </button>
 
+    <bit-filter-toggle
+      key="pinned"
+      [label]="'pinned' | i18n"
+      icon="bwi-pin"
+      [disabled]="noPinned()"
+      [disabledTooltip]="pinnedDisabledTooltip()"
+    ></bit-filter-toggle>
+
     @if (showPermissions()) {
       <bit-filter-menu key="permissions" [placeholderText]="'permissions' | i18n" multiple>
         @for (permission of permissionOptions(); track permission) {
@@ -93,21 +101,31 @@
       <!-- Decorative: the folder name beside it already names the row. -->
       <bit-icon-tile slot="start" icon="bwi-shared-folder" size="sm" aria-hidden="true" />
       <!-- An anchor rather than a click handler, so middle- and right-click behave as expected. -->
-      <a
-        bitLink
-        truncate
-        [bitTooltip]="row.name"
-        [attr.id]="'shared-folders_link_name-' + row.id"
-        [routerLink]="
-          vaultScopeCommands({
-            type: VaultScopeType.Organization,
-            organizationId: row.organizationId,
-            collectionId: row.id,
-          })
-        "
-      >
-        {{ row.name }}
-      </a>
+      <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-1.5">
+        <a
+          bitLink
+          truncate
+          [bitTooltip]="row.name"
+          [attr.id]="'shared-folders_link_name-' + row.id"
+          [routerLink]="
+            vaultScopeCommands({
+              type: VaultScopeType.Organization,
+              organizationId: row.organizationId,
+              collectionId: row.id,
+            })
+          "
+        >
+          {{ row.name }}
+        </a>
+        @if (isPinned(row)) {
+          <bit-icon
+            name="bwi-pin"
+            class="tw-shrink-0 tw-text-muted"
+            [attr.id]="'shared-folders_icon_pinned-' + row.id"
+            [ariaLabel]="'pinned' | i18n"
+          />
+        }
+      </span>
     </bit-cell>
   </bit-column>
 
