@@ -56,7 +56,11 @@ import { InlineMenuFillTypes, type InlineMenuFillType } from "../enums/autofill-
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
-import { fieldContainsKeyword, isNonLoginUsernameField } from "../utils/qualification";
+import {
+  fieldContainsKeyword,
+  isNonLoginUsernameField,
+  KeywordMatchMode,
+} from "../utils/qualification";
 
 import { AutofillLifecycleService } from "./abstractions/autofill-lifecycle.service";
 import {
@@ -1368,9 +1372,27 @@ export default class AutofillService implements AutofillServiceInterface {
           fieldContainsKeyword(field, AutoFillConstants.UsernameFieldNames) &&
           !isNonLoginUsernameField(field, pageDetails);
 
-        // Reliable TOTP signals win unconditionally; username wins over ambiguous TOTP signals.
+        // An ambiguous TOTP keyword matching a whole token (e.g. name="2fa") outranks a username
+        // keyword that only appears within a larger token (e.g. "login" in id="login-2fa-input").
+        const ambiguousTotpOutranksUsername =
+          maybeTotpField &&
+          isUsernameField &&
+          fieldContainsKeyword(
+            field,
+            AutoFillConstants.AmbiguousTotpFieldNames,
+            KeywordMatchMode.MatchesToken,
+          ) &&
+          !fieldContainsKeyword(
+            field,
+            AutoFillConstants.UsernameFieldNames,
+            KeywordMatchMode.MatchesToken,
+          );
+
+        // Reliable TOTP signals win unconditionally; username wins over ambiguous TOTP signals
+        // unless the ambiguous TOTP signal is the stronger (whole-token) match.
         switch (true) {
           case isTotpField:
+          case ambiguousTotpOutranksUsername:
             totps.push(field);
             return;
           case isUsernameField:
