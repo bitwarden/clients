@@ -869,7 +869,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.refresh());
 
-    void this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
+    await this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
 
     // Desktop has no prompt service to sequence onboarding, so the page opens this itself.
     await this.newExperienceDialogService.conditionallyOpen(activeUserId, {
