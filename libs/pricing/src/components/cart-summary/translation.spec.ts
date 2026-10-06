@@ -187,15 +187,15 @@ describe("getCreditTranslationKey", () => {
     );
   });
 
-  it("should map organization-plan-change to appliedSubscriptionCredits", () => {
+  it("should map organization-plan-change to appliedProrationCredits", () => {
     expect(getCreditTranslationKey(InvoicePreviewFlowContext.OrganizationPlanChange)).toBe(
-      "appliedSubscriptionCredits",
+      "appliedProrationCredits",
     );
   });
 
-  it("should map organization-subscription-page to appliedSubscriptionCredits", () => {
+  it("should map organization-subscription-page to appliedProrationCredits", () => {
     expect(getCreditTranslationKey(InvoicePreviewFlowContext.OrganizationSubscriptionPage)).toBe(
-      "appliedSubscriptionCredits",
+      "appliedProrationCredits",
     );
   });
 

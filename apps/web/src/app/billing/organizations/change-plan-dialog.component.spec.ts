@@ -2,6 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -10,6 +11,8 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/models/request/organization-upgrade.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -25,15 +28,23 @@ import {
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import { BillingNotificationService } from "../services/billing-notification.service";
+import { InvoicePreviewService } from "../services/invoice-preview.service";
 
 import { ChangePlanDialogComponent } from "./change-plan-dialog.component";
 
 describe("ChangePlanDialogComponent (additional service accounts)", () => {
   let component: ChangePlanDialogComponent;
   let vfo1Enabled: jest.Mock<boolean, []>;
+  let previewCartFlag$: BehaviorSubject<boolean>;
+  let invoicePreviewService: jest.Mocked<InvoicePreviewService>;
 
   beforeEach(() => {
     vfo1Enabled = jest.fn<boolean, []>().mockReturnValue(false);
+    previewCartFlag$ = new BehaviorSubject<boolean>(false);
+
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(previewCartFlag$);
+    invoicePreviewService = mock<InvoicePreviewService>();
 
     TestBed.configureTestingModule({
       imports: [ReactiveFormsModule],
@@ -61,6 +72,8 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
         { provide: PreviewInvoiceClient, useValue: mock<PreviewInvoiceClient>() },
         { provide: OrganizationWarningsService, useValue: mock<OrganizationWarningsService>() },
         { provide: Vfo1TerminologyService, useValue: { enabled: vfo1Enabled } },
+        { provide: ConfigService, useValue: configService },
+        { provide: InvoicePreviewService, useValue: invoicePreviewService },
       ],
     });
 
@@ -252,6 +265,294 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
 
     it("no longer exposes the client-side applied-discount calculation the provider-discount rows used", () => {
       expect((component as any).calculateTotalAppliedDiscount).toBeUndefined();
+    });
+  });
+
+  describe("preview-driven cart", () => {
+    const address = {
+      country: "US",
+      postalCode: "12345",
+      taxId: { code: "us_ein", value: "12-3456789" },
+    } as any;
+
+    const selectEnterpriseAnnual = () => {
+      component.organizationId = "organization-id";
+      component.selectedPlan = { type: PlanType.EnterpriseAnnually } as any;
+      component.billingAddress = address;
+    };
+
+    it("builds the plan-change request from the selected plan and saved billing address", () => {
+      selectEnterpriseAnnual();
+
+      const request = (component as any).buildPlanChangePreviewRequest();
+
+      expect(request).toEqual({
+        tier: "enterprise",
+        cadence: "annually",
+        billingAddress: {
+          country: "US",
+          postalCode: "12345",
+          taxId: { code: "us_ein", value: "12-3456789" },
+        },
+      });
+    });
+
+    it("returns no request when the address form is invalid and none is saved", () => {
+      component.selectedPlan = { type: PlanType.TeamsAnnually } as any;
+      component.billingAddress = null;
+
+      expect((component as any).buildPlanChangePreviewRequest()).toBeUndefined();
+    });
+
+    it("refreshCostSummary sets the preview request from the selection when the flag is on", async () => {
+      selectEnterpriseAnnual();
+      previewCartFlag$.next(true);
+      const previewTax = (component as any).previewInvoiceClient
+        .previewTaxForOrganizationSubscriptionPlanChange;
+
+      await (component as any).refreshCostSummary();
+
+      expect((component as any).planChangeRequest()).toEqual({
+        tier: "enterprise",
+        cadence: "annually",
+        billingAddress: {
+          country: "US",
+          postalCode: "12345",
+          taxId: { code: "us_ein", value: "12-3456789" },
+        },
+      });
+      // The legacy tax path is not used when the preview cart is on.
+      expect(previewTax).not.toHaveBeenCalled();
+    });
+
+    it("refreshCostSummary uses the legacy tax path and leaves the request signal untouched when the flag is off", async () => {
+      selectEnterpriseAnnual();
+      const previewTax = (component as any).previewInvoiceClient
+        .previewTaxForOrganizationSubscriptionPlanChange;
+      previewTax.mockResolvedValue({ tax: 0, total: 0 });
+
+      await (component as any).refreshCostSummary();
+
+      expect((component as any).planChangeRequest()).toBeUndefined();
+      expect(previewTax).toHaveBeenCalled();
+    });
+
+    it("fetches the preview cart when the flag is on and a selection exists", () => {
+      selectEnterpriseAnnual();
+      previewCartFlag$.next(true);
+      const request = (component as any).buildPlanChangePreviewRequest();
+      (component as any).planChangeRequest.set(request);
+
+      TestBed.tick();
+
+      expect(invoicePreviewService.previewPlanChangeCart).toHaveBeenCalledWith(
+        "organization-id",
+        request,
+      );
+    });
+
+    it("does not fetch the preview while the flag is off", () => {
+      selectEnterpriseAnnual();
+      (component as any).planChangeRequest.set((component as any).buildPlanChangePreviewRequest());
+
+      TestBed.tick();
+
+      expect(invoicePreviewService.previewPlanChangeCart).not.toHaveBeenCalled();
+    });
+
+    it("does not refetch when a rebuilt request is identical", () => {
+      selectEnterpriseAnnual();
+      previewCartFlag$.next(true);
+      invoicePreviewService.previewPlanChangeCart.mockResolvedValue({} as any);
+
+      (component as any).refreshPlanChangePreview();
+      TestBed.tick();
+      (component as any).refreshPlanChangePreview();
+      TestBed.tick();
+
+      expect(invoicePreviewService.previewPlanChangeCart).toHaveBeenCalledTimes(1);
+    });
+
+    it("refetches when the request changes", () => {
+      selectEnterpriseAnnual();
+      previewCartFlag$.next(true);
+      invoicePreviewService.previewPlanChangeCart.mockResolvedValue({} as any);
+
+      (component as any).refreshPlanChangePreview();
+      TestBed.tick();
+      component.selectedPlan = { type: PlanType.TeamsAnnually } as any;
+      (component as any).refreshPlanChangePreview();
+      TestBed.tick();
+
+      expect(invoicePreviewService.previewPlanChangeCart).toHaveBeenCalledTimes(2);
+    });
+
+    it("disables submit while the flag is on and the preview has not loaded", () => {
+      previewCartFlag$.next(true);
+      (component as any).planChangeCart = { hasValue: () => false };
+
+      expect((component as any).isSubmitDisabled).toBe(true);
+    });
+
+    it("enables submit once the preview has loaded", () => {
+      previewCartFlag$.next(true);
+      (component as any).planChangeCart = { hasValue: () => true };
+
+      expect((component as any).isSubmitDisabled).toBe(false);
+    });
+
+    it("leaves submit enabled when the flag is off, regardless of the preview", () => {
+      previewCartFlag$.next(false);
+      (component as any).planChangeCart = { hasValue: () => false };
+
+      expect((component as any).isSubmitDisabled).toBe(false);
+    });
+
+    it("uses the legacy tax path for a cancelled subscription even when the flag is on", async () => {
+      selectEnterpriseAnnual();
+      previewCartFlag$.next(true);
+      (component as any).isSubscriptionCanceled = true;
+      const previewTax = (component as any).previewInvoiceClient
+        .previewTaxForOrganizationSubscriptionPlanChange;
+      previewTax.mockResolvedValue({ tax: 0, total: 0 });
+
+      await (component as any).refreshCostSummary();
+
+      expect((component as any).planChangeRequest()).toBeUndefined();
+      expect(previewTax).toHaveBeenCalled();
+    });
+
+    it("leaves submit enabled for a cancelled subscription with the flag on", () => {
+      previewCartFlag$.next(true);
+      (component as any).isSubscriptionCanceled = true;
+      (component as any).planChangeCart = { hasValue: () => false };
+
+      expect((component as any).isSubmitDisabled).toBe(false);
+    });
+
+    it("holds the preview in a loading state (spinner shown, submit disabled) while the request is in flight", () => {
+      selectEnterpriseAnnual();
+      previewCartFlag$.next(true);
+      // A never-resolving preview keeps the resource loading so the spinner branch stays active.
+      invoicePreviewService.previewPlanChangeCart.mockReturnValue(new Promise(() => {}));
+
+      (component as any).refreshPlanChangePreview();
+      TestBed.tick();
+
+      expect((component as any).planChangeCart.isLoading()).toBe(true);
+      expect((component as any).planChangeCart.hasValue()).toBe(false);
+      expect((component as any).isSubmitDisabled).toBe(true);
+    });
+
+    it("shows a toast and surfaces the error callout (submit disabled) when the preview request fails", async () => {
+      selectEnterpriseAnnual();
+      previewCartFlag$.next(true);
+      invoicePreviewService.previewPlanChangeCart.mockRejectedValue(new Error("preview failed"));
+      const billingNotificationService = TestBed.inject(BillingNotificationService);
+      const i18nService = (component as any).i18nService as jest.Mocked<I18nService>;
+      i18nService.t.mockImplementation((key: string) => key);
+
+      (component as any).refreshPlanChangePreview();
+      TestBed.tick();
+      // Let the rejected loader settle, then flush the resource's status update.
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      TestBed.tick();
+
+      expect(billingNotificationService.showError).toHaveBeenCalledWith(
+        "invoicePreviewErrorMessage",
+      );
+      expect((component as any).planChangeCart.error()).toBeTruthy();
+      expect((component as any).planChangeCart.hasValue()).toBe(false);
+      expect((component as any).isSubmitDisabled).toBe(true);
+      expect((component as any).previewErrorMessageKey).toBe("invoicePreviewErrorMessage");
+    });
+
+    it("shows a toast pointing at the billing details when the preview fails validation (400)", async () => {
+      selectEnterpriseAnnual();
+      previewCartFlag$.next(true);
+      invoicePreviewService.previewPlanChangeCart.mockRejectedValue(
+        new ErrorResponse({ Message: "bad request" }, 400),
+      );
+      const billingNotificationService = TestBed.inject(BillingNotificationService);
+      const i18nService = (component as any).i18nService as jest.Mocked<I18nService>;
+      i18nService.t.mockImplementation((key: string) => key);
+
+      (component as any).refreshPlanChangePreview();
+      TestBed.tick();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      TestBed.tick();
+
+      expect(billingNotificationService.showError).toHaveBeenCalledWith(
+        "billingPreviewInvalidAddressError",
+      );
+      expect((component as any).previewErrorMessageKey).toBe("billingPreviewInvalidAddressError");
+    });
+  });
+
+  describe("trial callouts", () => {
+    it("flags a free-org upgrade to a plan that carries a trial", () => {
+      component.currentPlan = { productTier: ProductTierType.Free } as any;
+      component.selectedPlan = { trialPeriodDays: 7 } as any;
+
+      expect((component as any).isFreeUpgradeWithTrial).toBe(true);
+      expect((component as any).trialLengthDays).toBe(7);
+    });
+
+    it("does not flag a free-org upgrade when the plan has no trial", () => {
+      component.currentPlan = { productTier: ProductTierType.Free } as any;
+      component.selectedPlan = { trialPeriodDays: 0 } as any;
+
+      expect((component as any).isFreeUpgradeWithTrial).toBe(false);
+    });
+
+    it("does not flag a paid-org plan change as a free upgrade", () => {
+      component.currentPlan = { productTier: ProductTierType.Teams } as any;
+      component.selectedPlan = { trialPeriodDays: 7 } as any;
+
+      expect((component as any).isFreeUpgradeWithTrial).toBe(false);
+    });
+
+    it("reports the subscription as trialing from its status", () => {
+      component.sub = { subscription: { status: "trialing" } } as any;
+      expect((component as any).isTrialing).toBe(true);
+
+      component.sub = { subscription: { status: "active" } } as any;
+      expect((component as any).isTrialing).toBe(false);
+    });
+
+    it("counts the whole days left in an active trial", () => {
+      const trialEndDate = new Date(Date.now() + 3.2 * 24 * 60 * 60 * 1000).toISOString();
+      component.sub = { subscription: { status: "trialing", trialEndDate } } as any;
+
+      expect((component as any).remainingTrialDays).toBe(4);
+    });
+
+    it("reports no remaining trial days when the subscription is not trialing", () => {
+      const trialEndDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+      component.sub = { subscription: { status: "active", trialEndDate } } as any;
+
+      expect((component as any).remainingTrialDays).toBe(0);
+    });
+
+    it("exposes the subscription's trial end date for the callout", () => {
+      component.sub = { subscription: { trialEndDate: "2026-01-15" } } as any;
+
+      expect((component as any).trialEndDate).toBe("2026-01-15");
+    });
+
+    it("uses the singular trial message on the final day", () => {
+      const trialEndDate = new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString();
+      component.sub = { subscription: { status: "trialing", trialEndDate } } as any;
+
+      expect((component as any).remainingTrialDays).toBe(1);
+      expect((component as any).trialRemainingMessageKey).toBe("planChangeTrialRemaining");
+    });
+
+    it("uses the plural trial message with more than one day left", () => {
+      const trialEndDate = new Date(Date.now() + 3.2 * 24 * 60 * 60 * 1000).toISOString();
+      component.sub = { subscription: { status: "trialing", trialEndDate } } as any;
+
+      expect((component as any).trialRemainingMessageKey).toBe("planChangeTrialRemainingPlural");
     });
   });
 
