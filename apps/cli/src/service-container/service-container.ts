@@ -723,6 +723,7 @@ export class ServiceContainer {
       this.v2UpgradeTokenStateService,
       managedSettingsService,
       this.appIdService,
+      this.logService,
       customUserAgent,
     );
 
@@ -804,6 +805,7 @@ export class ServiceContainer {
       this.i18nService,
       this.stateProvider,
       this.collectionEncryptionService,
+      this.logService,
     );
 
     this.unlockService = new DefaultUnlockService(
@@ -1019,6 +1021,7 @@ export class ServiceContainer {
       this.i18nService,
       this.cipherService,
       this.stateProvider,
+      this.logService,
     );
 
     this.folderApiService = new FolderApiService(this.folderService, this.apiService);

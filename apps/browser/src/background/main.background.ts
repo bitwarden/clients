@@ -1004,6 +1004,7 @@ export default class MainBackground {
       this.v2UpgradeTokenStateService,
       this.managedSettingsService,
       this.appIdService,
+      this.logService,
     );
 
     this.registerSdkService = new DefaultRegisterSdkService(
@@ -1030,6 +1031,7 @@ export default class MainBackground {
       this.i18nService,
       this.stateProvider,
       this.collectionEncryptionService,
+      this.logService,
     );
 
     this.pinService = new PinService(this.sdkService);
@@ -1217,6 +1219,7 @@ export default class MainBackground {
       this.i18nService,
       this.cipherService,
       this.stateProvider,
+      this.logService,
     );
     this.folderApiService = new FolderApiService(this.folderService, this.apiService);
 

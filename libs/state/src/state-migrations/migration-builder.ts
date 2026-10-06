@@ -92,6 +92,12 @@ export class MigrationBuilder<TCurrent extends number = 0> {
       `Migrator ${migrator.constructor.name} (to version ${migrator.toVersion}) should migrate: ${shouldMigrate} - ${direction}`,
     );
     if (shouldMigrate) {
+      // Version in the name keeps entries identifiable when class names are minified
+      const measurement = helper.logService.startMeasurement(
+        "Migrations",
+        "Migrator",
+        `${migrator.constructor.name} (to version ${migrator.toVersion}) - ${direction}`,
+      );
       const method = direction === "up" ? migrator.migrate : migrator.rollback;
       await method.bind(migrator)(helper);
       helper.info(
@@ -101,6 +107,7 @@ export class MigrationBuilder<TCurrent extends number = 0> {
       helper.info(
         `Migrator ${migrator.constructor.name} (to version ${migrator.toVersion}) updated version - ${direction}`,
       );
+      measurement.finish();
     }
   }
 }

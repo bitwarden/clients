@@ -6,6 +6,7 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptedString, PBKDF2KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { Measurement } from "@bitwarden/logging";
 import { PasswordManagerClient } from "@bitwarden/sdk-internal";
 
 import {
@@ -24,6 +25,7 @@ import { UserKey } from "../../../types/key";
 import { AppIdService } from "../../abstractions/app-id.service";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
+import { LogService } from "../../abstractions/log.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
@@ -94,6 +96,7 @@ describe("DefaultSdkService", () => {
       upgradeTokenStateService,
       mockManagedSettingsService(),
       appIdService,
+      mock<LogService>({ startMeasurement: () => mock<Measurement>() }),
     );
   });
 

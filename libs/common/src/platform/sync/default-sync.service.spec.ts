@@ -14,6 +14,7 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { Measurement } from "@bitwarden/logging";
 import { CryptoSyncData } from "@bitwarden/sdk-internal";
 
 import { Matrix } from "../../../spec/matrix";
@@ -98,7 +99,7 @@ describe("DefaultSyncService", () => {
     policyService = mock();
     newPolicyService = mock();
     sendService = mock();
-    logService = mock();
+    logService = mock<LogService>({ startMeasurement: () => mock<Measurement>() });
     keyConnectorService = mock();
     keyConnectorService.convertAccountRequired$ = of(false);
     providerService = mock();

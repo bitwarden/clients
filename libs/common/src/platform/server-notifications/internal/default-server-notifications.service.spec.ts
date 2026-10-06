@@ -5,6 +5,7 @@ import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, of, Subj
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
+import { Measurement } from "@bitwarden/logging";
 
 import { awaitAsync, mockAccountInfoWith } from "../../../../spec";
 import { Matrix } from "../../../../spec/matrix";
@@ -117,7 +118,7 @@ describe("NotificationsService", () => {
     );
 
     sut = new DefaultServerNotificationsService(
-      mock<LogService>(),
+      mock<LogService>({ startMeasurement: () => mock<Measurement>() }),
       syncService,
       appIdService,
       environmentService,
