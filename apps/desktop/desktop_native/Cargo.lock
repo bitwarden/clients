@@ -1563,6 +1563,7 @@ dependencies = [
  "napi",
  "napi-build",
  "napi-derive",
+ "napi-derive-backend",
  "serde",
  "serde_json",
  "ssh_agent",
