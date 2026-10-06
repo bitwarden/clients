@@ -1,2 +1,2 @@
-export * from "./members.module";
+export * from "./members.routes";
 export * from "./pipes";
