@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "Enmetu la YubiKey asociitan kun via LastPass-konto en la USB-ingon de via komputilo, poste tuŝu ĝian butonon."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper-retpoŝto"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "La retumila etendaĵo, kiun vi uzas, estas malaktuala. Bonvolu ĝisdatigi ĝin aŭ malŝalti la retumilan integriĝan fingrospuran validigon en la surtablaj apagordoj."
   },
-  "changeAtRiskPassword": {
-    "message": "Ŝanĝi riskan pasvorton"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Ĉi tiu ensaluto estas riska kaj mankas retejo. Aldonu retejon kaj ŝanĝu la pasvorton por pli forta sekureco."
-  },
   "vulnerablePassword": {
     "message": "Vundebla pasvorto."
   },
   "changeNow": {
     "message": "Ŝanĝi nun"
-  },
-  "missingWebsite": {
-    "message": "Mankanta retejo"
   },
   "missingPermissions": {
     "message": "Vi mankas la necesajn permesojn por plenumi ĉi tiun agon."
