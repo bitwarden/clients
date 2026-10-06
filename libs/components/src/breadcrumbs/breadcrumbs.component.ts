@@ -11,6 +11,7 @@ import {
   inject,
   input,
   viewChild,
+  ViewContainerRef,
 } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
@@ -33,6 +34,9 @@ import { BreadcrumbComponent } from "./breadcrumb.component";
 
 /** Approximate width reserved for the trailing separator arrow (icon + margins), per size, in pixels. */
 const TRAILING_ARROW_RESERVE_PX = { base: 48, small: 34 } as const;
+
+/** Space between the promoted heading and the header's title suffix (`tw-ms-1`), in pixels. */
+const TITLE_SUFFIX_GAP_PX = 4;
 
 /**
  * Breadcrumbs are used to help users understand where they are in a products navigation. Typically
@@ -71,19 +75,28 @@ export class BreadcrumbsComponent {
   /** Live width of the host element, observed from a stable ancestor. */
   private readonly hostWidth = observedWidth(this.hostRef);
 
+  private readonly titleSuffixEl =
+    viewChild.required<ElementRef<HTMLElement>>("titleSuffixContainer");
+
+  /** Live width of the header's title suffix rendered after a promoted heading; 0 when absent. */
+  private readonly titleSuffixWidth = observedWidth(this.titleSuffixEl);
+
+  private readonly titleSuffixOutlet = viewChild("titleSuffixOutlet", { read: ViewContainerRef });
+
   /**
    * Width handed to the overflow list. Derived from the host rather than letting the list
    * observe its own element: the list host is content-sized (it shrinks as items hide), so
    * self-observation would feed the packing decision back into its own input and, once
    * collapsed, never re-expand. Reserve room for the trailing arrow when it's shown; the arrow
-   * shrinks with `size`, so the reserve tracks it too.
+   * shrinks with `size`, so the reserve tracks it too. Likewise reserve room for the header's
+   * title suffix when it follows a promoted heading.
    */
-  protected readonly availableWidth = computed(() =>
-    Math.max(
-      0,
-      this.hostWidth() - (this.showTrailingArrow() ? TRAILING_ARROW_RESERVE_PX[this.size()] : 0),
-    ),
-  );
+  protected readonly availableWidth = computed(() => {
+    const arrowReserve = this.showTrailingArrow() ? TRAILING_ARROW_RESERVE_PX[this.size()] : 0;
+    const suffixWidth = this.titleSuffixWidth();
+    const suffixReserve = suffixWidth > 0 ? suffixWidth + TITLE_SUFFIX_GAP_PX : 0;
+    return Math.max(0, this.hostWidth() - arrowReserve - suffixReserve);
+  });
 
   /**
    * The size of the breadcrumb text and icons. Defaults to "base" size.
@@ -107,9 +120,11 @@ export class BreadcrumbsComponent {
   constructor() {
     if (this.headerContext) {
       this.headerContext.registerPromotedHeading(this.displayActiveAsHeader);
-      inject(DestroyRef).onDestroy(() =>
-        this.headerContext?.unregisterPromotedHeading(this.displayActiveAsHeader),
-      );
+      this.headerContext.registerTitleSuffixOutlet(this.titleSuffixOutlet);
+      inject(DestroyRef).onDestroy(() => {
+        this.headerContext?.unregisterPromotedHeading(this.displayActiveAsHeader);
+        this.headerContext?.unregisterTitleSuffixOutlet(this.titleSuffixOutlet);
+      });
     }
 
     // Push our size down to each child crumb so they can size projected icon tiles in step.

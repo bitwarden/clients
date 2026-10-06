@@ -1,5 +1,17 @@
 import { NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  effect,
+  EmbeddedViewRef,
+  inject,
+  input,
+  TemplateRef,
+  untracked,
+  viewChild,
+  ViewContainerRef,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { of } from "rxjs";
 
@@ -69,4 +81,32 @@ export class HeaderComponent {
 
   /** Whether a projected `bit-breadcrumbs` has taken over rendering the page's `<h1>`. */
   protected readonly hasPromotedHeading = this.headerContext.hasPromotedHeading;
+
+  /** Title suffix slot template */
+  private readonly titleSuffix = viewChild<TemplateRef<unknown>>("titleSuffix");
+
+  /** The header's own title suffix outlet, after its `<h1>`. */
+  private readonly titleSuffixOutlet = viewChild("titleSuffixOutlet", { read: ViewContainerRef });
+
+  constructor() {
+    /**
+     * Render the title suffix after the visible heading: this header's `<h1>`, or the promoted
+     * breadcrumb. Projected content can only be in one place, and destroying a view removes its
+     * projected content even if another view has since rendered it. So this one view is moved by
+     * destroying it first, then re-creating it in the new outlet.
+     */
+    let titleSuffixView: EmbeddedViewRef<unknown> | undefined;
+    effect(() => {
+      const template = this.titleSuffix();
+      const outlet = this.hasPromotedHeading()
+        ? this.headerContext.titleSuffixOutlet()
+        : this.titleSuffixOutlet();
+
+      untracked(() => {
+        titleSuffixView?.destroy();
+        titleSuffixView = template ? outlet?.createEmbeddedView(template) : undefined;
+      });
+    });
+    inject(DestroyRef).onDestroy(() => titleSuffixView?.destroy());
+  }
 }
