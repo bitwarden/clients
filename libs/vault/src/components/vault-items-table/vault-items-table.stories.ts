@@ -1,7 +1,7 @@
 import { PortalModule } from "@angular/cdk/portal";
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
-import { of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 import { action } from "storybook/actions";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -36,6 +36,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { ConsoleLogService } from "@bitwarden/logging";
+import { StateProvider } from "@bitwarden/state";
 
 import { VaultScope, VaultScopeType } from "../../models/vault-scope";
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
@@ -528,7 +529,7 @@ export default {
   render: (args) => ({ props: args, template }),
   args: baseProps,
   decorators: [
-    // App-level so dialogs opened through DialogService can resolve it.
+    // App-level so root services and dialogs opened through DialogService can resolve these.
     applicationConfig({
       providers: [
         {
@@ -660,6 +661,20 @@ export default {
               emptyMyItemsDescription:
                 "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
             }),
+        },
+        // In-memory column preferences, so Customize toggles persist for the session.
+        {
+          provide: StateProvider,
+          useFactory: () => {
+            const prefs = new BehaviorSubject<unknown>(null);
+            return {
+              getActive: () => ({
+                state$: prefs.asObservable(),
+                update: async (configure: (state: unknown) => unknown) =>
+                  prefs.next(configure(prefs.value)),
+              }),
+            };
+          },
         },
       ],
     }),
