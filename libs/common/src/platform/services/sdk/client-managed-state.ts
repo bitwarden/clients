@@ -22,6 +22,7 @@ export async function initializeClientManagedState(
       new LocalUserDataKeyRecordMapper(),
     ),
     organization_shared_key: null,
+    policy: null,
     send: new RepositoryRecord(userId, stateProvider, new SendRecordMapper(), true),
   });
 }
