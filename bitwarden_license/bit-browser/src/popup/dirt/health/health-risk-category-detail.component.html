@@ -71,6 +71,12 @@
                 [bitMenuTriggerFor]="itemMenu"
               ></button>
               <bit-menu #itemMenu>
+                @if (exclusionsEnabled()) {
+                  <button bitMenuItem type="button" (click)="onExcludeItem(health)">
+                    <bit-icon name="bwi-error" slot="start" />
+                    {{ "excludeFromList" | i18n }}
+                  </button>
+                }
                 <button
                   bitMenuItem
                   type="button"
