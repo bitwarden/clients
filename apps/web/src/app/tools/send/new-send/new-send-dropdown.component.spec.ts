@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -13,7 +14,7 @@ import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { SendAddEditDialogComponent, SendFormService } from "@bitwarden/send-ui";
+import { SendAddEditDialogComponent, SendFormService, SendPolicyService } from "@bitwarden/send-ui";
 
 import { NewSendDropdownComponent } from "./new-send-dropdown.component";
 
@@ -57,7 +58,15 @@ describe("NewSendDropdownComponent", () => {
         { provide: LogService, useValue: mock<LogService>() },
         { provide: SendFormService, useValue: mock<SendFormService>() },
         { provide: PolicyService, useValue: mockPolicyService },
+        { provide: OrganizationService, useValue: mock<OrganizationService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
+        {
+          provide: SendPolicyService,
+          useValue: {
+            disableSend$: of(false),
+            allowedSendTypes$: of([SendType.Text, SendType.File]),
+          },
+        },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(NewSendDropdownComponent);

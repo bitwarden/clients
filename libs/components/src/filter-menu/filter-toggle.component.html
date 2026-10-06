@@ -1,0 +1,17 @@
+<bit-chip-content size="large">
+  <button
+    bit-chip-content
+    [startIcon]="displayIcon()"
+    type="button"
+    class="tw-w-full tw-truncate tw-border-none tw-bg-transparent tw-text-[length:inherit] tw-text-[color:inherit] tw-outline-none hover:tw-bg-transparent"
+    [class.tw-cursor-not-allowed]="disabled()"
+    [attr.aria-disabled]="disabled() || null"
+    [attr.aria-pressed]="active()"
+    [class.tw-pointer-events-auto]="showDisabledReason()"
+    [bitTooltip]="chipTooltip()"
+    [addTooltipToDescribedby]="showDisabledReason()"
+    (click)="flip()"
+  >
+    <span class="tw-block tw-min-w-0 tw-truncate">{{ label() }}</span>
+  </button>
+</bit-chip-content>

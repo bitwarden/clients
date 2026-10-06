@@ -2,7 +2,9 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
+import { Observable } from "rxjs";
 
+import { AvailableRegionsService } from "@bitwarden/common/platform/abstractions/available-regions.service";
 import {
   EnvironmentService,
   RegionConfig,
@@ -23,10 +25,12 @@ export class EnvironmentSelectorComponent implements OnInit {
   constructor(
     private platformUtilsService: PlatformUtilsService,
     private environmentService: EnvironmentService,
+    private availableRegionsService: AvailableRegionsService,
     private router: Router,
   ) {}
 
-  protected availableRegions = this.environmentService.availableRegions();
+  protected availableRegions$: Observable<RegionConfig[]> =
+    this.availableRegionsService.availableRegions$;
   protected currentRegion?: RegionConfig;
 
   protected showRegionSelector = false;
@@ -37,6 +41,8 @@ export class EnvironmentSelectorComponent implements OnInit {
     this.routeAndParams = `/#${this.router.url}`;
 
     const host = Utils.getHost(window.location.href);
-    this.currentRegion = this.availableRegions.find((r) => Utils.getHost(r.urls.webVault) === host);
+    this.currentRegion = this.environmentService
+      .availableRegions()
+      .find((r) => Utils.getHost(r.urls.webVault) === host);
   }
 }

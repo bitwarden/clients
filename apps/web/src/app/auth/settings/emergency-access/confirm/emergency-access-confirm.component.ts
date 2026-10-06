@@ -6,7 +6,8 @@ import { FormBuilder } from "@angular/forms";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogConfig, DialogRef, DIALOG_DATA, DialogService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { SharedModule } from "../../../../shared";
 
@@ -41,7 +42,7 @@ export class EmergencyAccessConfirmComponent implements OnInit {
   constructor(
     @Inject(DIALOG_DATA) protected params: EmergencyAccessConfirmDialogData,
     private formBuilder: FormBuilder,
-    private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     protected organizationManagementPreferencesService: OrganizationManagementPreferencesService,
     private logService: LogService,
     private dialogRef: DialogRef<EmergencyAccessConfirmDialogResult>,
@@ -49,7 +50,7 @@ export class EmergencyAccessConfirmComponent implements OnInit {
 
   async ngOnInit() {
     try {
-      const fingerprint = await this.keyService.getFingerprint(
+      const fingerprint = await this.legacyCompatKeyService.getFingerprint(
         this.params.userId,
         this.params.publicKey,
       );

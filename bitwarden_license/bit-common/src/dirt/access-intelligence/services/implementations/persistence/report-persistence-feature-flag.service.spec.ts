@@ -1,7 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
@@ -30,34 +29,23 @@ describe("ReportPersistenceFeatureFlagService", () => {
   });
 
   describe("loadLastReport$", () => {
-    it("delegates to fileService when flag is enabled", async () => {
+    it("always delegates to fileService", async () => {
       const expected = { report: view, hadLegacyBlobs: false };
-      configService.getFeatureFlag$.mockReturnValue(of(true));
       fileService.loadLastReport$.mockReturnValue(of(expected));
 
       const result = await firstValueFrom(service.loadLastReport$(orgId));
 
-      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
-        FeatureFlag.AccessIntelligenceReportFileStorage,
-      );
       expect(fileService.loadLastReport$).toHaveBeenCalledWith(orgId);
       expect(defaultService.loadLastReport$).not.toHaveBeenCalled();
       expect(result).toBe(expected);
     });
 
-    it("delegates to defaultService when flag is disabled", async () => {
-      const expected = { report: view, hadLegacyBlobs: false };
-      configService.getFeatureFlag$.mockReturnValue(of(false));
-      defaultService.loadLastReport$.mockReturnValue(of(expected));
+    it("does not read the file-storage flag for loads", async () => {
+      fileService.loadLastReport$.mockReturnValue(of(null));
 
-      const result = await firstValueFrom(service.loadLastReport$(orgId));
+      await firstValueFrom(service.loadLastReport$(orgId));
 
-      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
-        FeatureFlag.AccessIntelligenceReportFileStorage,
-      );
-      expect(defaultService.loadLastReport$).toHaveBeenCalledWith(orgId);
-      expect(fileService.loadLastReport$).not.toHaveBeenCalled();
-      expect(result).toBe(expected);
+      expect(configService.getFeatureFlag$).not.toHaveBeenCalled();
     });
   });
 

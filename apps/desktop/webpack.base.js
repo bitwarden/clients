@@ -1,3 +1,4 @@
+const fs = require("fs");
 const path = require("path");
 const webpack = require("webpack");
 const { merge } = require("webpack-merge");
@@ -42,6 +43,7 @@ const DEFAULT_PARAMS = {
  *    tsConfig: string;
  *  };
  *  outputPath?: string;
+ *  importAliases?: import("webpack").ResolveOptions["alias"];
  * }} params
  */
 module.exports.buildConfig = function buildConfig(params) {
@@ -50,7 +52,7 @@ module.exports.buildConfig = function buildConfig(params) {
 
   console.log(`Building ${params.configName} Desktop App`);
 
-  const envConfig = configurator.load(NODE_ENV);
+  const envConfig = configurator.load(NODE_ENV, process.env.CHANNEL);
   configurator.log(envConfig);
 
   const commonConfig = {
@@ -61,7 +63,32 @@ module.exports.buildConfig = function buildConfig(params) {
         path.resolve(__dirname, "../../node_modules"),
         path.resolve(process.cwd(), "node_modules"),
       ],
+      alias: params.importAliases,
     },
+  };
+
+  // Pick up locally linked @bitwarden packages (notably the SDK) on `--watch`:
+  //  - unmanagedPaths: content-hash them instead of trusting package.json version,
+  //    which a local build never bumps. Mirrors apps/web and apps/browser.
+  //  - poll: resolve.symlinks is false, so the native macOS watcher misses changes
+  //    made at the symlink's real path. Gated on a local symlink since polling has a
+  //    real CPU cost on registry installs.
+  const sdkLinkPaths = [
+    path.resolve(__dirname, "../../node_modules/@bitwarden/sdk-internal"),
+    path.resolve(process.cwd(), "node_modules/@bitwarden/sdk-internal"),
+  ];
+  const isLocalLinkedSdk = sdkLinkPaths.some((p) => {
+    try {
+      return fs.lstatSync(p).isSymbolicLink();
+    } catch {
+      return false;
+    }
+  });
+  const localSdkWatch = {
+    snapshot: {
+      unmanagedPaths: [path.resolve(__dirname, "../../node_modules/@bitwarden/")],
+    },
+    ...(isLocalLinkedSdk ? { watchOptions: { poll: 1000 } } : {}),
   };
 
   const getOutputConfig = (isDev) => ({
@@ -73,6 +100,7 @@ module.exports.buildConfig = function buildConfig(params) {
   const mainConfig = {
     name: "main",
     mode: NODE_ENV,
+    ...localSdkWatch,
     target: "electron-main",
     node: {
       __dirname: false,
@@ -113,7 +141,41 @@ module.exports.buildConfig = function buildConfig(params) {
       new CopyWebpackPlugin({
         patterns: [
           path.resolve(__dirname, "src/package.json"),
-          { from: path.resolve(__dirname, "src/images"), to: "images" },
+          // For beta builds (CHANNEL=beta), *_beta.{png,ico} variants overwrite their
+          // default siblings so the runtime tray/window icons resolve to beta assets
+          // without any code changes. Non-beta builds filter *_beta.* out entirely.
+          {
+            from: path.resolve(__dirname, "src/images"),
+            to: "images",
+            filter: (resourcePath) =>
+              !/_beta\.(png|ico)$/.test(resourcePath) && !/_dev\.png$/.test(resourcePath),
+          },
+          // Development builds ship the DEV-badged icon so a client running from
+          // source is distinguishable in the dock and taskbar.
+          ...(NODE_ENV === "development"
+            ? [
+                {
+                  context: path.resolve(__dirname, "src/images"),
+                  from: "*_dev.png",
+                  to: "images",
+                },
+              ]
+            : []),
+          ...(process.env.CHANNEL === "beta"
+            ? [
+                {
+                  context: path.resolve(__dirname, "src/images"),
+                  from: "*_beta.{png,ico}",
+                  to({ absoluteFilename }) {
+                    return path.join(
+                      "images",
+                      path.basename(absoluteFilename).replace("_beta", ""),
+                    );
+                  },
+                  force: true,
+                },
+              ]
+            : []),
           { from: path.resolve(__dirname, "src/locales"), to: "locales" },
         ],
       }),
@@ -134,6 +196,7 @@ module.exports.buildConfig = function buildConfig(params) {
   const preloadConfig = {
     name: "preload",
     mode: NODE_ENV,
+    ...localSdkWatch,
     target: "electron-preload",
     node: {
       __dirname: false,
@@ -173,6 +236,7 @@ module.exports.buildConfig = function buildConfig(params) {
   const rendererConfig = {
     name: "renderer",
     mode: NODE_ENV,
+    ...localSdkWatch,
     devtool: "source-map",
     target: "web",
     node: {
@@ -300,6 +364,7 @@ module.exports.buildConfig = function buildConfig(params) {
         path: require.resolve("path-browserify"),
         fs: false,
       },
+      plugins: [new TsconfigPathsPlugin({ configFile: params.renderer.tsConfig })],
     },
     plugins: [
       new AngularWebpackPlugin({

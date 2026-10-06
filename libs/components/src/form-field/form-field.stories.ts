@@ -84,6 +84,7 @@ const fb = new UntypedFormBuilder();
 const formObj = fb.group({
   test: [""],
   required: ["", [Validators.required]],
+  amount: [null],
 });
 
 const defaultFormObj = fb.group({
@@ -254,6 +255,34 @@ export const Required: Story = {
         <bit-label>FormControl</bit-label>
         <input bitInput formControlName="required" placeholder="Placeholder" />
       </bit-form-field>
+    `,
+  }),
+};
+
+export const HiddenLabel: Story = {
+  render: (args) => ({
+    props: {
+      formObj: formObj,
+      ...args,
+    },
+    template: /*html*/ `
+      <!--
+        A visually-hidden (\`sr-only\`) label keeps the field accessible while
+        collapsing the label/field gap, so the field stays vertically centered
+        alongside sibling controls in a row.
+      -->
+      <div class="tw-flex tw-items-center tw-gap-2">
+        <bit-form-field disableMargin class="tw-w-44">
+          <bit-label class="tw-sr-only">Rows per page</bit-label>
+          <bit-select>
+            <bit-option [value]="10" label="10 rows per page"></bit-option>
+            <bit-option [value]="25" label="25 rows per page"></bit-option>
+          </bit-select>
+        </bit-form-field>
+
+        <button type="button" bitIconButton="bwi-angle-left" size="small"></button>
+        <button type="button" bitIconButton="bwi-angle-right" size="small"></button>
+      </div>
     `,
   }),
 };
@@ -510,34 +539,39 @@ export const LargeAdvancedSelect: Story = {
   }),
 };
 
-export const FileInput: Story = {
+export const NumberInput: Story = {
   render: (args) => ({
     props: {
-      formObj: defaultFormObj,
-      submit: submit,
+      formObj: formObj,
       ...args,
     },
     template: /*html*/ `
-      <form [formGroup]="formObj">
-        <bit-form-field>
-          <bit-label>File</bit-label>
-          <div class="tw-text-main tw-flex tw-items-center tw-h-full tw-gap-2">
-            <button bitButton size="small" type="button" buttonType="secondary">
-              Choose File
-            </button>
-            No file chosen
-          </div>
-          <input
-            bitInput
-            #fileSelector
-            type="file"
-            formControlName="file"
-            hidden
-          />
-        </bit-form-field>
-      </form>
+      <bit-form-field [formGroup]="formObj">
+        <bit-label>Amount</bit-label>
+        <input bitInput type="number" formControlName="amount" placeholder="0" />
+        <span bitSuffix>USD</span>
+        <bit-hint>Enter a numeric value.</bit-hint>
+      </bit-form-field>
     `,
   }),
+  args: {},
+};
+
+export const DateInput: Story = {
+  render: (args) => ({
+    props: {
+      formObj: formObj,
+      ...args,
+    },
+    template: /*html*/ `
+      <bit-form-field [formGroup]="formObj">
+        <bit-label>Date</bit-label>
+        <input bitInput type="date" formControlName="test" />
+        <bit-hint>Select a date</bit-hint>
+      </bit-form-field>
+    `,
+  }),
+  args: {},
 };
 
 export const Textarea: Story = {
@@ -546,8 +580,21 @@ export const Textarea: Story = {
     template: /*html*/ `
       <bit-form-field>
         <bit-label>Textarea</bit-label>
-        <textarea bitInput rows="4"></textarea>
+        <textarea bitInput rows="4">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</textarea>
         <button type="button" bitSuffix bitIconButton="bwi-clone" label="Clone Label"></button>
+        <bit-hint>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</bit-hint>
+      </bit-form-field>
+      <bit-form-field>
+        <bit-label>Textarea disabled</bit-label>
+        <textarea bitInput rows="4" disabled>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</textarea>
+        <button type="button" bitSuffix bitIconButton="bwi-clone" label="Clone Label"></button>
+        <bit-hint>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</bit-hint>
+      </bit-form-field>
+      <bit-form-field>
+        <bit-label>Textarea readonly</bit-label>
+        <textarea bitInput rows="4" readonly>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</textarea>
+        <button type="button" bitSuffix bitIconButton="bwi-clone" label="Clone Label"></button>
+        <bit-hint>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</bit-hint>
       </bit-form-field>
     `,
   }),

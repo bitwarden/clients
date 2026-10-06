@@ -7,6 +7,7 @@ import {
   EventEmitter,
   forwardRef,
   Input,
+  input,
   Output,
   ViewChild,
 } from "@angular/core";
@@ -33,6 +34,8 @@ import {
   SelectModule,
 } from "@bitwarden/components";
 
+import { DESKTOP_APP_URI_PREFIX } from "../../../models/desktop-app-uri.constants";
+
 import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -40,6 +43,10 @@ import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.c
 @Component({
   selector: "vault-autofill-uri-option",
   templateUrl: "./uri-option.component.html",
+  host: {
+    class:
+      "tw-flex tw-flex-col tw-p-3 -tw-mx-3 tw-gap-4 tw-bg-background tw-text-main tw-rounded-lg first:-tw-mt-3 last-of-type:tw-mb-0",
+  },
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -133,6 +140,13 @@ export class UriOptionComponent implements ControlValueAccessor {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) index: number;
 
+  /**
+   * When true, URIs prefixed with the desktop app scheme will display the "App (URI)" label
+   * instead of "Website (URI)". Should only be true when the WindowsDesktopAutotypeGA feature
+   * flag is enabled.
+   */
+  readonly showAppLabel = input(false);
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
@@ -156,6 +170,16 @@ export class UriOptionComponent implements ControlValueAccessor {
   }
 
   protected get uriLabel() {
+    const isAppUri =
+      this.showAppLabel() &&
+      (this.uriForm.controls.uri.value?.startsWith(DESKTOP_APP_URI_PREFIX) ?? false);
+
+    if (isAppUri) {
+      return this.index === 0
+        ? this.i18nService.t("appUri")
+        : this.i18nService.t("appUriCount", this.index + 1);
+    }
+
     return this.index === 0
       ? this.i18nService.t("websiteUri")
       : this.i18nService.t("websiteUriCount", this.index + 1);

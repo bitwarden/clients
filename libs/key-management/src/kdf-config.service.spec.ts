@@ -1,5 +1,6 @@
 import { firstValueFrom } from "rxjs";
 
+import { KDF_CONFIG } from "@bitwarden/common/key-management/state-definitions";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   FakeAccountService,
@@ -7,9 +8,10 @@ import {
   mockAccountServiceWith,
 } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+// eslint-disable-next-line no-restricted-imports
+import { Argon2KdfConfig, KdfConfig, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 
-import { DefaultKdfConfigService, KDF_CONFIG } from "./kdf-config.service";
-import { Argon2KdfConfig, KdfConfig, PBKDF2KdfConfig } from "./models/kdf-config";
+import { DefaultKdfConfigService } from "./kdf-config.service";
 
 describe("KdfConfigService", () => {
   let sutKdfConfigService: DefaultKdfConfigService;

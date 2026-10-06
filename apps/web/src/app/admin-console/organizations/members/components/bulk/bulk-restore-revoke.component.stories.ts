@@ -73,7 +73,7 @@ const mockOrganizationService = {
 };
 
 export default {
-  title: "Admin Console/Organizations/Members/Bulk Restore Revoke Dialog",
+  title: "Admin Console/Organizations/Members/Bulk Actions/Bulk Restore Revoke Dialog",
   component: BulkRestoreRevokeComponent,
   decorators: [
     moduleMetadata({

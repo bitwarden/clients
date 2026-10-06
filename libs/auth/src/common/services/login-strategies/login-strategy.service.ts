@@ -18,7 +18,6 @@ import { PasswordPreloginService } from "@bitwarden/common/auth/password-prelogi
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -31,34 +30,23 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "../../abstractions";
 import { LoginStrategyCacheService } from "../../abstractions/login-strategy-cache.service";
 import { LoginStrategySessionTimeoutService } from "../../abstractions/login-strategy-session-timeout.service";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
-import {
-  AuthRequestLoginStrategy,
-  AuthRequestLoginStrategyData,
-} from "../../login-strategies/auth-request-login.strategy";
+import { AuthRequestLoginStrategy } from "../../login-strategies/auth-request-login.strategy";
 import { LoginStrategy } from "../../login-strategies/login.strategy";
-import {
-  PasswordLoginStrategy,
-  PasswordLoginStrategyData,
-} from "../../login-strategies/password-login.strategy";
-import { SsoLoginStrategy, SsoLoginStrategyData } from "../../login-strategies/sso-login.strategy";
-import {
-  UserApiLoginStrategy,
-  UserApiLoginStrategyData,
-} from "../../login-strategies/user-api-login.strategy";
-import {
-  WebAuthnLoginStrategy,
-  WebAuthnLoginStrategyData,
-} from "../../login-strategies/webauthn-login.strategy";
+import { PasswordLoginStrategy } from "../../login-strategies/password-login.strategy";
+import { SsoLoginStrategy } from "../../login-strategies/sso-login.strategy";
+import { UserApiLoginStrategy } from "../../login-strategies/user-api-login.strategy";
+import { WebAuthnLoginStrategy } from "../../login-strategies/webauthn-login.strategy";
 import {
   UserApiLoginCredentials,
   PasswordLoginCredentials,
@@ -95,7 +83,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     private logService: LogService,
     private keyConnectorService: KeyConnectorService,
     private environmentService: EnvironmentService,
-    private stateService: StateService,
     private twoFactorService: TwoFactorService,
     private i18nService: I18nService,
     private encryptService: EncryptService,
@@ -114,6 +101,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     private unlockService: UnlockService,
     private loginStrategyCacheService: LoginStrategyCacheService,
     private loginStrategySessionTimeoutService: LoginStrategySessionTimeoutService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
   ) {
     this.authRequestPushNotificationState = this.stateProvider.get(
       AUTH_REQUEST_PUSH_NOTIFICATION_KEY,
@@ -128,49 +116,49 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     );
   }
 
-  async getEmail(): Promise<string | null> {
+  async getEmail(): Promise<string | undefined> {
     const strategy = await firstValueFrom(this.loginStrategy$);
 
     if (strategy && "email$" in strategy) {
       return await firstValueFrom(strategy.email$);
     }
-    return null;
+    return undefined;
   }
 
-  async getMasterPasswordHash(): Promise<string | null> {
+  async getMasterPasswordHash(): Promise<string | undefined> {
     const strategy = await firstValueFrom(this.loginStrategy$);
 
     if (strategy && "serverMasterKeyHash$" in strategy) {
       return await firstValueFrom(strategy.serverMasterKeyHash$);
     }
-    return null;
+    return undefined;
   }
 
-  async getSsoEmail2FaSessionToken(): Promise<string | null> {
+  async getSsoEmail2FaSessionToken(): Promise<string | undefined> {
     const strategy = await firstValueFrom(this.loginStrategy$);
 
     if (strategy && "ssoEmail2FaSessionToken$" in strategy) {
       return await firstValueFrom(strategy.ssoEmail2FaSessionToken$);
     }
-    return null;
+    return undefined;
   }
 
-  async getAccessCode(): Promise<string | null> {
+  async getAccessCode(): Promise<string | undefined> {
     const strategy = await firstValueFrom(this.loginStrategy$);
 
     if (strategy && "accessCode$" in strategy) {
       return await firstValueFrom(strategy.accessCode$);
     }
-    return null;
+    return undefined;
   }
 
-  async getAuthRequestId(): Promise<string | null> {
+  async getAuthRequestId(): Promise<string | undefined> {
     const strategy = await firstValueFrom(this.loginStrategy$);
 
     if (strategy && "authRequestId$" in strategy) {
       return await firstValueFrom(strategy.authRequestId$);
     }
-    return null;
+    return undefined;
   }
 
   async logIn(
@@ -194,7 +182,15 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     // If the popup uses its own instance of this service, this can be removed.
     const ownedCredentials = { ...credentials };
 
-    const result = await strategy?.logIn(ownedCredentials as any);
+    let result: AuthResult | undefined;
+    try {
+      result = await strategy?.logIn(ownedCredentials as any);
+    } catch (e) {
+      // A failed attempt must not leave an auth type behind: the auth guards treat a set auth
+      // type as a login in progress.
+      await this.clearCache();
+      throw e;
+    }
 
     if (result != null && !result.requiresTwoFactor && !result.requiresDeviceVerification) {
       await this.clearCache();
@@ -309,7 +305,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       this.platformUtilsService,
       this.messagingService,
       this.logService,
-      this.stateService,
       this.twoFactorService,
       this.userDecryptionOptionsService,
       this.billingAccountProfileStateService,
@@ -328,16 +323,17 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
         switch (strategy) {
           case AuthenticationType.Password:
             return new PasswordLoginStrategy(
-              data?.password ?? new PasswordLoginStrategyData(),
+              data?.password,
               this.passwordStrengthService,
               this.policyService,
               this.passwordPreloginService,
               this.unlockService,
+              this.legacyCompatKeyService,
               ...sharedDeps,
             );
           case AuthenticationType.Sso:
             return new SsoLoginStrategy(
-              data?.sso ?? new SsoLoginStrategyData(),
+              data?.sso,
               this.keyConnectorService,
               this.unlockService,
               this.deviceTrustService,
@@ -345,23 +341,16 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               ...sharedDeps,
             );
           case AuthenticationType.UserApiKey:
-            return new UserApiLoginStrategy(
-              data?.userApiKey ?? new UserApiLoginStrategyData(),
-              this.keyConnectorService,
-              this.unlockService,
-              ...sharedDeps,
-            );
+            return new UserApiLoginStrategy(data?.userApiKey, this.unlockService, ...sharedDeps);
           case AuthenticationType.AuthRequest:
             return new AuthRequestLoginStrategy(
-              data?.authRequest ?? new AuthRequestLoginStrategyData(),
+              data?.authRequest,
+              this.unlockService,
               this.deviceTrustService,
               ...sharedDeps,
             );
           case AuthenticationType.WebAuthn:
-            return new WebAuthnLoginStrategy(
-              data?.webAuthn ?? new WebAuthnLoginStrategyData(),
-              ...sharedDeps,
-            );
+            return new WebAuthnLoginStrategy(data?.webAuthn, this.unlockService, ...sharedDeps);
         }
       }),
     );

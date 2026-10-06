@@ -7,7 +7,7 @@
   <bit-card>
     <bit-form-field>
       <bit-label>{{ "sshPrivateKey" | i18n }}</bit-label>
-      <input id="privateKey" bitInput formControlName="privateKey" type="password" />
+      <input id="privateKey" bitInput formControlName="privateKey" type="password" readonly />
       <button
         type="button"
         bitIconButton
@@ -29,12 +29,12 @@
 
     <bit-form-field>
       <bit-label>{{ "sshPublicKey" | i18n }}</bit-label>
-      <input id="publicKey" bitInput formControlName="publicKey" />
+      <input id="publicKey" bitInput formControlName="publicKey" readonly />
     </bit-form-field>
 
     <bit-form-field>
       <bit-label>{{ "sshFingerprint" | i18n }}</bit-label>
-      <input id="keyFingerprint" bitInput formControlName="keyFingerprint" />
+      <input id="keyFingerprint" bitInput formControlName="keyFingerprint" readonly />
     </bit-form-field>
   </bit-card>
 </section>

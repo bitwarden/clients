@@ -24,7 +24,7 @@ export type AutofillExtensionMessage = {
   isOpeningFullInlineMenu?: boolean;
   addNewCipherType?: CipherType;
   ignoreFieldFocus?: boolean;
-  iframeTargetedFields?: { selector: string; fieldType: string }[];
+  iframeTargetedFields?: { selector: string; fieldType: string; formCategory?: string }[];
   data?: {
     direction?: "previous" | "next" | "current";
     forceCloseInlineMenu?: boolean;

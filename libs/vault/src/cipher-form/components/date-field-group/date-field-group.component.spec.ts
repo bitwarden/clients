@@ -278,13 +278,22 @@ describe("DateFieldGroupComponent", () => {
       expect(onChangeSpy).toHaveBeenCalledWith("2025-04-05");
     });
 
-    it("returns empty string when all fields are empty", () => {
+    it("returns undefined when all fields are empty", () => {
       const onChangeSpy = jest.fn();
       component.registerOnChange(onChangeSpy);
 
       component.internalForm.patchValue({ month: "", day: "", year: "" });
 
-      expect(onChangeSpy).toHaveBeenCalledWith("");
+      expect(onChangeSpy).toHaveBeenCalledWith(undefined);
+    });
+
+    it("returns undefined for a partial date", () => {
+      const onChangeSpy = jest.fn();
+      component.registerOnChange(onChangeSpy);
+
+      component.internalForm.patchValue({ month: "4", day: "", year: "2025" });
+
+      expect(onChangeSpy).toHaveBeenCalledWith(undefined);
     });
   });
   describe("validate", () => {

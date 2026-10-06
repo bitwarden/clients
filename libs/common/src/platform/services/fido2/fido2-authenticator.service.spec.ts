@@ -3,7 +3,7 @@ import { TextEncoder } from "util";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
 
 import { mockAccountServiceWith, mockAccountInfoWith } from "../../../../spec";
 import { Account } from "../../../auth/abstractions/account.service";
@@ -74,10 +74,12 @@ describe("FidoAuthenticatorService", () => {
     windowReference = Utils.newGuid();
     accountService.activeAccount$ = activeAccountSubject;
 
-    // PureCrypto is backed by WASM and is not initialized in jest. stub the
+    // SdkRandomNumberClient is backed by WASM and is not initialized in jest. stub the
     // GUID generator so createKeyView() can run without loading the module.
     (SdkLoadService as any).Ready = jest.fn().mockResolvedValue(true);
-    jest.spyOn(PureCrypto, "new_guid").mockImplementation(() => Utils.newGuid());
+    jest
+      .spyOn(SdkRandomNumberClient.prototype, "gen_uuid")
+      .mockImplementation(() => Utils.newGuid());
   });
 
   describe("makeCredential", () => {
@@ -190,7 +192,7 @@ describe("FidoAuthenticatorService", () => {
         await expect(result).rejects.toThrow(Fido2AuthenticatorErrorCode.NotAllowed);
       });
 
-      /** Devation: Organization ciphers are not checked against excluded credentials, even if the user has access to them. */
+      /** Deviation: Organization ciphers are not checked against excluded credentials, even if the user has access to them. */
       it("should not inform user of duplication when the excluded credential belongs to an organization", async () => {
         userInterfaceSession.informExcludedCredential.mockResolvedValue();
         excludedCipher.organizationId = "someOrganizationId";
@@ -331,7 +333,7 @@ describe("FidoAuthenticatorService", () => {
       });
 
       /** Spec: If any error occurred while creating the new credential object, return an error code equivalent to "UnknownError" and terminate the operation. */
-      it("should throw unkown error if creation fails", async () => {
+      it("should throw unknown error if creation fails", async () => {
         const encryptedCipher = Symbol();
         userInterfaceSession.confirmNewCredential.mockResolvedValue({
           cipherId: existingCipher.id,
@@ -789,7 +791,7 @@ describe("FidoAuthenticatorService", () => {
       });
 
       /** Spec: If any error occurred while generating the assertion signature, return an error code equivalent to "UnknownError" and terminate the operation. */
-      it("should throw unkown error if creation fails", async () => {
+      it("should throw unknown error if creation fails", async () => {
         cipherService.updateWithServer.mockRejectedValue(new Error("Internal error"));
 
         const result = async () => await authenticator.getAssertion(params, windowReference);

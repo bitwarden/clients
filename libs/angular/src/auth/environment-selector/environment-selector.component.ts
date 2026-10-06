@@ -1,7 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy } from "@angular/core";
-import { Observable, map, Subject } from "rxjs";
+import { Observable, Subject, map } from "rxjs";
 
+import { AvailableRegionsService } from "@bitwarden/common/platform/abstractions/available-regions.service";
 import {
   EnvironmentService,
   Region,
@@ -30,17 +31,20 @@ import { SelfHostedEnvConfigDialogComponent } from "../self-hosted-env-config-di
 })
 export class EnvironmentSelectorComponent implements OnDestroy {
   protected ServerEnvironmentType = Region;
-  protected availableRegions = this.environmentService.availableRegions();
+  protected availableRegions$: Observable<RegionConfig[]> =
+    this.availableRegionsService.availableRegions$;
   protected selectedRegion$: Observable<RegionConfig | undefined> =
     this.environmentService.globalEnvironment$.pipe(
-      map((e) => e.getRegion()),
-      map((r) => this.availableRegions.find((ar) => ar.key === r)),
+      map((env) =>
+        this.environmentService.availableRegions().find((ar) => ar.key === env.getRegion()),
+      ),
     );
 
   private destroy$ = new Subject<void>();
 
   constructor(
     public environmentService: EnvironmentService,
+    private availableRegionsService: AvailableRegionsService,
     private dialogService: DialogService,
     private toastService: ToastService,
     private i18nService: I18nService,

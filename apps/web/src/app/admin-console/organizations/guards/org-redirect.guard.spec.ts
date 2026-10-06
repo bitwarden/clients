@@ -1,6 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { provideRouter } from "@angular/router";
 import { RouterTestingHarness } from "@angular/router/testing";
@@ -17,27 +15,24 @@ import { UserId } from "@bitwarden/common/types/guid";
 
 import { organizationRedirectGuard } from "./org-redirect.guard";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "<h1>This is the home screen!</h1>",
   standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomescreenComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "<h1>This is the admin console!</h1>",
   standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminConsoleComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "<h1> This is a subroute of the admin console!</h1>",
   standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminConsoleSubrouteComponent {}
 
@@ -98,6 +93,11 @@ describe("Organization Redirect Guard", () => {
             component: AdminConsoleComponent,
             canActivate: [organizationRedirectGuard(() => ["exponential", "success"])],
           },
+          {
+            path: "organizations/:organizationId/undefinedCallback",
+            component: AdminConsoleComponent,
+            canActivate: [organizationRedirectGuard(() => undefined)],
+          },
         ]),
       ],
     });
@@ -138,6 +138,15 @@ describe("Organization Redirect Guard", () => {
     await routerHarness.navigateByUrl(`organizations/${org.id}/arrayCallback`);
     expect(routerHarness.routeNativeElement?.querySelector("h1")?.textContent?.trim() ?? "").toBe(
       "This is a subroute of the admin console!",
+    );
+  });
+
+  it("falls back to the admin console redirect when the redirect callback returns undefined", async () => {
+    const org = orgFactory();
+    organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
+    await routerHarness.navigateByUrl(`organizations/${org.id}/undefinedCallback`);
+    expect(routerHarness.routeNativeElement?.querySelector("h1")?.textContent?.trim() ?? "").toBe(
+      "This is the admin console!",
     );
   });
 });

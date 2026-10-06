@@ -84,42 +84,6 @@ async fn test_server_can_restart() {
 
 #[serial]
 #[tokio::test(flavor = "multi_thread")]
-async fn test_stop_clears_keys() {
-    setup();
-    let mut agent = agent_with_keys(vec![test_ed25519_key()]);
-    agent.start().unwrap();
-
-    // Verify a key is visible before stop
-    let mut client = ClientOptions::new().open(PIPE_NAME).unwrap();
-    client
-        .write_all(&framed_request_identities())
-        .await
-        .unwrap();
-    let response = read_framed_response(&mut client).await;
-    assert_eq!(u32::from_be_bytes(response[1..5].try_into().unwrap()), 1);
-
-    // Stop clears keys; restart to re-open the pipe for a new connection
-    agent.stop();
-    agent.start().unwrap();
-
-    // New connection sees an empty keystore
-    let mut client2 = ClientOptions::new().open(PIPE_NAME).unwrap();
-    client2
-        .write_all(&framed_request_identities())
-        .await
-        .unwrap();
-    let response2 = read_framed_response(&mut client2).await;
-    assert_eq!(
-        u32::from_be_bytes(response2[1..5].try_into().unwrap()),
-        0,
-        "stop() must clear the keystore"
-    );
-
-    agent.stop();
-}
-
-#[serial]
-#[tokio::test(flavor = "multi_thread")]
 async fn test_list_keys_returns_empty_when_no_keys_set() {
     setup();
     let mut agent = always_approving_agent();
@@ -518,7 +482,13 @@ async fn test_session_bind_is_forwarding_reaches_approval_layer() {
     requester
         .expect_request_sign_approval()
         .once()
-        .withf(|req| req.sign_request.is_forwarding)
+        .withf(|req| {
+            req.sign_request
+                .connection
+                .session_bind
+                .as_ref()
+                .is_some_and(|s| s.is_forwarding)
+        })
         .returning(|_| Ok(true));
 
     let mut agent = BitwardenSSHAgent::new(InMemoryEncryptedKeyStore::new(), requester);

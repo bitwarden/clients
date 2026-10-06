@@ -4,7 +4,7 @@ use std::{
 };
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
-use windows::core::GUID;
+use windows::{core::GUID, Win32::Foundation::NTE_EXISTS};
 
 use crate::{
     api::{
@@ -13,15 +13,89 @@ use crate::{
             webauthn_plugin_add_authenticator, webauthn_plugin_authenticator_add_credentials,
             webauthn_plugin_authenticator_remove_all_credentials,
             webauthn_plugin_free_add_authenticator_response,
-            WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS, WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS,
-            WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE, WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS,
+            webauthn_plugin_get_authenticator_state, webauthn_plugin_update_authenticator_details,
+            AUTHENTICATOR_STATE, WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS,
+            WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS, WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE,
+            WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS, WEBAUTHN_PLUGIN_UPDATE_AUTHENTICATOR_DETAILS,
         },
         webauthn::{AuthenticatorInfo, UserId},
         WindowsString,
     },
     plugin::Clsid,
-    CredentialId, ErrorKind, WinWebAuthnError,
+    CredentialId,
+    ErrorKind::{self, WindowsInternal},
+    WinWebAuthnError,
 };
+
+/// Specifies whether a plugin authenticator is enabled.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum AuthenticatorState {
+    Disabled,
+    Enabled,
+}
+
+impl TryFrom<AUTHENTICATOR_STATE> for AuthenticatorState {
+    type Error = WinWebAuthnError;
+
+    fn try_from(value: AUTHENTICATOR_STATE) -> Result<Self, Self::Error> {
+        match value.0 {
+            0 => Ok(AuthenticatorState::Disabled),
+            1 => Ok(AuthenticatorState::Enabled),
+            other => Err(WinWebAuthnError::new(
+                ErrorKind::WindowsInternal,
+                &format!("Invalid authenticator state value passed: {other}"),
+            )),
+        }
+    }
+}
+
+pub fn get_authenticator_state(clsid: &Clsid) -> Result<AuthenticatorState, WinWebAuthnError> {
+    // SAFETY: We check the return type before reading the memory that Windows
+    // initializes.
+    let state = unsafe {
+        let mut state_ptr = MaybeUninit::uninit();
+        webauthn_plugin_get_authenticator_state(&clsid.as_guid(), state_ptr.as_mut_ptr())?
+            .ok()
+            .map_err(|err| {
+                WinWebAuthnError::with_cause(
+                    WindowsInternal,
+                    "Failed to lookup plugin authenticator state",
+                    err,
+                )
+            })?;
+        state_ptr.assume_init()
+    };
+    state.try_into()
+}
+
+#[cfg(test)]
+mod authenticator_state_tests {
+    use super::{AuthenticatorState, AUTHENTICATOR_STATE};
+
+    #[test]
+    fn maps_documented_state_values() {
+        assert_eq!(
+            AuthenticatorState::Disabled,
+            AUTHENTICATOR_STATE(0).try_into().unwrap()
+        );
+        assert_eq!(
+            AuthenticatorState::Enabled,
+            AUTHENTICATOR_STATE(1).try_into().unwrap()
+        );
+    }
+
+    /// A future Windows release could report a state this build does not know about.
+    /// It must fail closed rather than being silently treated as enabled.
+    #[test]
+    fn rejects_undocumented_state_values() {
+        for value in [2, 3, -1, i32::MAX, i32::MIN] {
+            assert!(
+                AuthenticatorState::try_from(AUTHENTICATOR_STATE(value)).is_err(),
+                "state {value} should be rejected"
+            );
+        }
+    }
+}
 
 // Plugin Registration types
 pub type WebAuthnCtapCborAuthenticatorOptions = WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS;
@@ -50,6 +124,11 @@ impl WebAuthnCtapCborAuthenticatorOptions {
             _ => None,
         }
     }
+}
+
+fn encode_svg(svg: &str) -> Vec<u16> {
+    let logo_b64: String = STANDARD.encode(svg);
+    logo_b64.to_utf16()
 }
 
 pub struct PluginAddAuthenticatorOptions {
@@ -82,11 +161,6 @@ pub struct PluginAddAuthenticatorOptions {
     ///
     /// Should be [None] if all RPs are supported.
     pub supported_rp_ids: Option<Vec<String>>,
-}
-
-fn encode_svg(svg: &str) -> Vec<u16> {
-    let logo_b64: String = STANDARD.encode(svg);
-    logo_b64.to_utf16()
 }
 
 pub(crate) struct PluginAddAuthenticatorOptionsRaw {
@@ -182,7 +256,7 @@ impl TryFrom<&PluginAddAuthenticatorOptions> for PluginAddAuthenticatorOptionsRa
 
 pub(crate) fn add_authenticator(
     options: &PluginAddAuthenticatorOptionsRaw,
-) -> Result<PluginAddAuthenticatorResponse, WinWebAuthnError> {
+) -> Result<Option<PluginAddAuthenticatorResponse>, WinWebAuthnError> {
     let raw_response = {
         let mut raw_response = MaybeUninit::uninit();
         // SAFETY: We are holding references to all the input data beyond the OS call, so it is
@@ -190,6 +264,10 @@ pub(crate) fn add_authenticator(
         let result = unsafe {
             webauthn_plugin_add_authenticator(&options.inner, raw_response.as_mut_ptr())?
         };
+
+        if result == NTE_EXISTS {
+            return Ok(None);
+        }
 
         result.ok().map_err(|err| {
             WinWebAuthnError::with_cause(
@@ -204,7 +282,7 @@ pub(crate) fn add_authenticator(
     if let Some(response) = NonNull::new(raw_response) {
         // SAFETY: The pointer was allocated by a successful call to
         // webauthn_plugin_add_authenticator, so we trust that it's valid.
-        unsafe { Ok(PluginAddAuthenticatorResponse::try_from_ptr(response)) }
+        unsafe { Ok(Some(PluginAddAuthenticatorResponse::try_from_ptr(response))) }
     } else {
         Err(WinWebAuthnError::new(
             ErrorKind::WindowsInternal,
@@ -254,6 +332,157 @@ impl Drop for PluginAddAuthenticatorResponse {
             let _ = webauthn_plugin_free_add_authenticator_response(self.inner.as_mut());
         }
     }
+}
+
+pub struct PluginUpdateAuthenticatorDetails {
+    /// Authenticator Name
+    pub authenticator_name: String,
+
+    /// Existing plugin COM ClsId
+    pub clsid: Clsid,
+
+    /// New plugin COM ClsId to set.
+    pub clsid_new: Clsid,
+
+    /// Plugin Authenticator Logo for the Light themes.
+    ///
+    /// String should contain a valid SVG 1.1 document.
+    pub light_theme_logo_svg: Option<String>,
+
+    // Plugin Authenticator Logo for the Dark themes.
+    ///
+    /// String should contain a valid SVG 1.1 element.
+    pub dark_theme_logo_svg: Option<String>,
+
+    /// CTAP authenticatorGetInfo values
+    pub authenticator_info: AuthenticatorInfo,
+
+    /// List of supported RP IDs (Relying Party IDs) this authenticator is
+    /// restricted to use.
+    ///
+    /// Should be [None] if all RPs are supported.
+    pub supported_rp_ids: Option<Vec<String>>,
+}
+
+pub(crate) struct PluginUpdateAuthenticatorDetailsRaw {
+    pub(super) inner: WEBAUTHN_PLUGIN_UPDATE_AUTHENTICATOR_DETAILS,
+    _authenticator_name: Vec<u16>,
+    _clsid: Box<GUID>,
+    _clsid_new: Box<GUID>,
+    _light_logo_b64: Option<Vec<u16>>,
+    _dark_logo_b64: Option<Vec<u16>>,
+    _authenticator_info: Vec<u8>,
+    _supported_rp_ids: Option<Vec<Vec<u16>>>,
+    _supported_rp_id_ptrs: Option<Vec<*const u16>>,
+}
+
+impl TryFrom<&PluginUpdateAuthenticatorDetails> for PluginUpdateAuthenticatorDetailsRaw {
+    type Error = WinWebAuthnError;
+
+    fn try_from(value: &PluginUpdateAuthenticatorDetails) -> Result<Self, Self::Error> {
+        let rclsid = Box::new(value.clsid.as_guid());
+        let rclsid_new = Box::new(value.clsid_new.as_guid());
+
+        let authenticator_name = value.authenticator_name.to_utf16();
+
+        let light_logo_b64 = value.light_theme_logo_svg.as_deref().map(encode_svg);
+        let dark_logo_b64 = value.dark_theme_logo_svg.as_deref().map(encode_svg);
+
+        let authenticator_info = value.authenticator_info.as_ctap_bytes()?;
+
+        let supported_rp_ids_len: Option<u32> = value
+            .supported_rp_ids
+            .as_ref()
+            .map(|v| {
+                v.len().try_into().map_err(|err| {
+                    WinWebAuthnError::with_cause(
+                        ErrorKind::InvalidArguments,
+                        "Too many supported RP IDs specified, must be less than 2^32.",
+                        err,
+                    )
+                })
+            })
+            .transpose()?;
+
+        let supported_rp_ids: Option<Vec<Vec<u16>>> = value
+            .supported_rp_ids
+            .as_ref()
+            .map(|ids| ids.iter().map(|id| id.to_utf16()).collect());
+        let supported_rp_id_ptrs: Option<Vec<*const u16>> = supported_rp_ids
+            .as_ref()
+            .map(|ids| ids.iter().map(Vec::as_ptr).collect());
+
+        let inner = WEBAUTHN_PLUGIN_UPDATE_AUTHENTICATOR_DETAILS {
+            pwszAuthenticatorName: authenticator_name.as_ptr(),
+            rclsid: rclsid.as_ref(),
+            rclsidNew: rclsid_new.as_ref(),
+            pwszLightThemeLogoSvg: light_logo_b64
+                .as_ref()
+                .map_or(std::ptr::null(), |v| v.as_ptr()),
+            pwszDarkThemeLogoSvg: dark_logo_b64
+                .as_ref()
+                .map_or(std::ptr::null(), |v| v.as_ptr()),
+            cbAuthenticatorInfo: authenticator_info.len().try_into().map_err(|err| {
+                WinWebAuthnError::with_cause(
+                    ErrorKind::InvalidArguments,
+                    "Authenticator info is too long; must be less than 2^32 bytes.",
+                    err,
+                )
+            })?,
+            pbAuthenticatorInfo: authenticator_info.as_ptr(),
+            // These pointers are self-referential and can cause issues if the
+            // wrapper struct is moved, or if the Vec is modified without also
+            // updating the pointers in inner.pbSupportedRpIds.
+            // Consider removing this wrapper struct and inlining the call to
+            // webauthn_plugin_update_authenticator to avoid this.
+            cSupportedRpIds: supported_rp_ids_len.unwrap_or(0),
+            pbSupportedRpIds: supported_rp_id_ptrs
+                .as_ref()
+                .map_or(std::ptr::null(), |v| v.as_ptr()),
+        };
+        Ok(Self {
+            inner,
+            _clsid: rclsid,
+            _clsid_new: rclsid_new,
+            _authenticator_name: authenticator_name,
+            _light_logo_b64: light_logo_b64,
+            _dark_logo_b64: dark_logo_b64,
+            _authenticator_info: authenticator_info,
+            _supported_rp_ids: supported_rp_ids,
+            _supported_rp_id_ptrs: supported_rp_id_ptrs,
+        })
+    }
+}
+
+impl From<PluginAddAuthenticatorOptions> for PluginUpdateAuthenticatorDetails {
+    fn from(value: PluginAddAuthenticatorOptions) -> Self {
+        Self {
+            authenticator_name: value.authenticator_name,
+            clsid: value.clsid,
+            clsid_new: value.clsid,
+            light_theme_logo_svg: value.light_theme_logo_svg,
+            dark_theme_logo_svg: value.dark_theme_logo_svg,
+            authenticator_info: value.authenticator_info,
+            supported_rp_ids: value.supported_rp_ids,
+        }
+    }
+}
+
+pub(crate) fn update_authenticator(
+    options: &PluginUpdateAuthenticatorDetailsRaw,
+) -> Result<(), WinWebAuthnError> {
+    // SAFETY: We are holding references to all the input data beyond the OS call, so it is
+    // valid during the call.
+    let result = unsafe { webauthn_plugin_update_authenticator_details(&options.inner)? };
+
+    result.ok().map_err(|err| {
+        WinWebAuthnError::with_cause(
+            ErrorKind::WindowsInternal,
+            "Failed to update authenticator",
+            err,
+        )
+    })?;
+    Ok(())
 }
 
 // Credential syncing types

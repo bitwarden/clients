@@ -108,7 +108,7 @@ describe("MoveBrowserSettingsToGlobal", () => {
   });
 
   // No browser client at the time of this writing should ever have multiple authenticatedAccounts
-  // but in the bizzare case, we should interpret any user having the feature turned on as the value for
+  // but in the bizarre case, we should interpret any user having the feature turned on as the value for
   // all the accounts.
   it("should take the false value if there are conflicting choices", async () => {
     const output = await runMigrator(myMigrator, {

@@ -94,13 +94,7 @@
       }
 
       <cdk-virtual-scroll-viewport [itemSize]="itemHeight$ | async" bitScrollLayout>
-        <bit-item
-          *cdkVirtualFor="let cipher of group.ciphers"
-          class="tw-group/vault-item"
-          [ngClass]="{
-            'hover:tw-bg-hover-default hover:tw-cursor-pointer': showFillTextOnHover(),
-          }"
-        >
+        <bit-item *cdkVirtualFor="let cipher of group.ciphers" class="tw-group/vault-item">
           <button
             bit-item-content
             type="button"
@@ -150,19 +144,6 @@
                 </button>
               </bit-item-action>
             }
-            @if (showAutofillBadge()) {
-              <bit-item-action>
-                <button
-                  type="button"
-                  bit-chip-action
-                  variant="primary"
-                  (click)="doAutofill(cipher)"
-                  [title]="autofillShortcutTooltip() ?? ('autofillTitle' | i18n: cipher.name)"
-                  [attr.aria-label]="'autofillTitle' | i18n: cipher.name"
-                  [label]="'fill' | i18n"
-                ></button>
-              </bit-item-action>
-            }
             @if (showLaunchButton() && CipherViewLikeUtils.canLaunch(cipher)) {
               <bit-item-action>
                 <button
@@ -170,7 +151,7 @@
                   bitIconButton="bwi-external-link"
                   size="small"
                   (click)="launchCipher(cipher)"
-                  [label]="'launchWebsiteName' | i18n: cipher.name"
+                  [label]="'launchWebsite' | i18n"
                 ></button>
               </bit-item-action>
             }

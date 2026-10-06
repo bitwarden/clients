@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, OnDestroy, OnInit, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Subject, startWith, takeUntil } from "rxjs";
 
@@ -9,6 +10,8 @@ import { SecretsManagerAlt } from "@bitwarden/assets/svg";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { BillingCustomerDiscount } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 export interface SecretsManagerSubscription {
@@ -37,6 +40,9 @@ export const secretsManagerSubscribeFormFactory = (
   standalone: false,
 })
 export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
+  private i18nService = inject(I18nService);
+  private configService = inject(ConfigService);
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() formGroup: FormGroup<ControlsOf<SecretsManagerSubscription>>;
@@ -58,7 +64,10 @@ export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(private i18nService: I18nService) {}
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   ngOnInit() {
     this.formGroup.controls.enabled.valueChanges
@@ -95,7 +104,9 @@ export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
   get planName() {
     switch (this.product) {
       case ProductTierType.Free:
-        return this.i18nService.t("free2PersonOrganization");
+        return this.vfo1Enabled()
+          ? this.i18nService.t("freePlanWithSharedVault")
+          : this.i18nService.t("free2PersonOrganization");
       case ProductTierType.Teams:
       case ProductTierType.TeamsStarter:
         return this.i18nService.t("planNameTeams");

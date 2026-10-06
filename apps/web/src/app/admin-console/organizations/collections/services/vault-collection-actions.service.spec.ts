@@ -12,10 +12,7 @@ import { BehaviorSubject, of, Subject } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import {
-  CollectionAdminView,
-  CollectionView,
-} from "@bitwarden/common/admin-console/models/collections";
+import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -25,7 +22,7 @@ import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/gu
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
-import { RoutedVaultFilterService } from "@bitwarden/vault";
+import { RoutedVaultFilterService, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import {
   CollectionDialogAction,
@@ -33,10 +30,6 @@ import {
   CollectionDialogTabType,
   openCollectionDialog,
 } from "../../shared/components/collection-dialog";
-import {
-  BulkCollectionsDialogComponent,
-  BulkCollectionsDialogResult,
-} from "../bulk-collections-dialog";
 
 import { VaultCollectionActionsService } from "./vault-collection-actions.service";
 import { VaultCollectionService } from "./vault-collection.service";
@@ -94,6 +87,7 @@ describe("VaultCollectionActionsService", () => {
   let selectedCollection$: BehaviorSubject<TreeNode<CollectionAdminView> | undefined>;
   let messageSubject: Subject<{ command: string; [key: string]: unknown }>;
   let refreshEmitted: boolean;
+  let vfo1Enabled: boolean;
 
   const organization = buildOrg();
 
@@ -110,8 +104,9 @@ describe("VaultCollectionActionsService", () => {
     accountService = mock<AccountService>();
     routedVaultFilterService = mock<RoutedVaultFilterService>();
     vaultCollectionService = mock<VaultCollectionService>();
+    vfo1Enabled = false;
 
-    i18nService.t.mockReturnValue("translated");
+    i18nService.t.mockImplementation((key: string) => key);
     apiService.deleteCollection.mockResolvedValue(undefined);
     collectionService.delete.mockResolvedValue(undefined);
     cipherService.clear.mockResolvedValue(undefined);
@@ -143,6 +138,19 @@ describe("VaultCollectionActionsService", () => {
         { provide: RoutedVaultFilterService, useValue: routedVaultFilterService },
         { provide: VaultCollectionService, useValue: vaultCollectionService },
         { provide: MessageListener, useValue: new MessageListener(messageSubject.asObservable()) },
+        {
+          provide: Vfo1TerminologyService,
+          useValue: {
+            iconClass: (icon: string) => icon,
+            enabled: () => vfo1Enabled,
+            collectionQueryParams: (
+              collectionId: string | null | undefined,
+            ): { collectionId: string | null; sharedFolderId: string | null } =>
+              vfo1Enabled
+                ? { sharedFolderId: collectionId ?? null, collectionId: null }
+                : { collectionId: collectionId ?? null, sharedFolderId: null },
+          },
+        },
       ],
     });
 
@@ -275,7 +283,31 @@ describe("VaultCollectionActionsService", () => {
       expect(router.navigate).toHaveBeenCalledWith(
         [],
         expect.objectContaining({
-          queryParams: { collectionId: "parent-col" },
+          queryParams: { collectionId: "parent-col", sharedFolderId: null },
+        }),
+      );
+    });
+
+    it("navigates using sharedFolderId and nulls collectionId when VFO1 is enabled", async () => {
+      vfo1Enabled = true;
+      const collection = buildCollection({ id: "target-col" as CollectionId });
+      const parentCol = buildCollection({ id: "parent-col" as CollectionId });
+      const parentNode = buildTreeNode(parentCol);
+      selectedCollection$.next(buildTreeNode(collection, parentNode));
+
+      jest.mocked(openCollectionDialog).mockReturnValue(
+        makeDialogRef<CollectionDialogResult>({
+          action: CollectionDialogAction.Deleted,
+          collection: buildCollection(),
+        }),
+      );
+
+      await service.editCollection(collection, CollectionDialogTabType.Info, false);
+
+      expect(router.navigate).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({
+          queryParams: { sharedFolderId: "parent-col", collectionId: null },
         }),
       );
     });
@@ -377,7 +409,33 @@ describe("VaultCollectionActionsService", () => {
       await service.deleteCollection(collection);
 
       expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "success" }),
+        expect.objectContaining({ variant: "success", message: "deletedCollectionId" }),
+      );
+    });
+
+    it("uses the deleteCollectionConfirmation key when the VFO1 flag is off", async () => {
+      const collection = buildCollection();
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      await service.deleteCollection(collection);
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ content: { key: "deleteCollectionConfirmation" } }),
+      );
+    });
+
+    it("uses the shared folder confirmation/deleted keys when the VFO1 flag is on", async () => {
+      vfo1Enabled = true;
+      const collection = buildCollection();
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      await service.deleteCollection(collection);
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ content: { key: "deleteSharedFolderConfirmation" } }),
+      );
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success", message: "deletedSharedFolderId" }),
       );
     });
 
@@ -402,7 +460,25 @@ describe("VaultCollectionActionsService", () => {
       expect(router.navigate).toHaveBeenCalledWith(
         [],
         expect.objectContaining({
-          queryParams: { collectionId: "parent-col" },
+          queryParams: { collectionId: "parent-col", sharedFolderId: null },
+        }),
+      );
+    });
+
+    it("navigates using sharedFolderId and nulls collectionId when VFO1 is enabled", async () => {
+      vfo1Enabled = true;
+      const collection = buildCollection({ id: "target-col" as CollectionId });
+      const parentCol = buildCollection({ id: "parent-col" as CollectionId });
+      const parentNode = buildTreeNode(parentCol);
+      selectedCollection$.next(buildTreeNode(collection, parentNode));
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      await service.deleteCollection(collection);
+
+      expect(router.navigate).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({
+          queryParams: { sharedFolderId: "parent-col", collectionId: null },
         }),
       );
     });
@@ -426,67 +502,6 @@ describe("VaultCollectionActionsService", () => {
       await service.deleteCollection(collection);
 
       expect(logService.error).toHaveBeenCalled();
-      expect(refreshEmitted).toBe(false);
-    });
-  });
-
-  describe("bulkEditCollectionAccess", () => {
-    it("shows error toast and returns early when no collections are provided", async () => {
-      await service.bulkEditCollectionAccess([], organization);
-
-      expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "error" }),
-      );
-    });
-
-    it("shows permissions error when any collection cannot be edited", async () => {
-      const col = { canEdit: jest.fn().mockReturnValue(false) } as unknown as CollectionView;
-
-      await service.bulkEditCollectionAccess([col], organization);
-
-      expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "error" }),
-      );
-    });
-
-    it("opens the bulk collections dialog with the correct params", async () => {
-      const col = { canEdit: jest.fn().mockReturnValue(true) } as unknown as CollectionView;
-      const openSpy = jest
-        .spyOn(BulkCollectionsDialogComponent, "open")
-        .mockReturnValue(makeDialogRef(undefined) as any);
-
-      await service.bulkEditCollectionAccess([col], organization);
-
-      expect(openSpy).toHaveBeenCalledWith(
-        dialogService,
-        expect.objectContaining({
-          data: expect.objectContaining({
-            collections: [col],
-            organizationId: ORG_ID,
-          }),
-        }),
-      );
-    });
-
-    it("emits on refresh$ when dialog result is Saved", async () => {
-      const col = { canEdit: jest.fn().mockReturnValue(true) } as unknown as CollectionView;
-      jest
-        .spyOn(BulkCollectionsDialogComponent, "open")
-        .mockReturnValue(makeDialogRef(BulkCollectionsDialogResult.Saved) as any);
-
-      await service.bulkEditCollectionAccess([col], organization);
-
-      expect(refreshEmitted).toBe(true);
-    });
-
-    it("does not emit on refresh$ when dialog is cancelled", async () => {
-      const col = { canEdit: jest.fn().mockReturnValue(true) } as unknown as CollectionView;
-      jest
-        .spyOn(BulkCollectionsDialogComponent, "open")
-        .mockReturnValue(makeDialogRef(undefined) as any);
-
-      await service.bulkEditCollectionAccess([col], organization);
-
       expect(refreshEmitted).toBe(false);
     });
   });

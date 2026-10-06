@@ -5,7 +5,7 @@ import { mockMigrationHelper } from "../migration-helper.spec";
 
 import { DomainSettingsMigrator } from "./34-move-domain-settings-to-state-providers";
 
-const mockNeverDomains = { "bitwarden.test": null, locahost: null, "www.example.com": null } as {
+const mockNeverDomains = { "bitwarden.test": null, localhost: null, "www.example.com": null } as {
   [key: string]: null;
 };
 

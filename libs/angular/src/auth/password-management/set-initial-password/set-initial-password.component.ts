@@ -39,7 +39,8 @@ import {
   IconModule,
   ToastService,
 } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
@@ -86,7 +87,7 @@ export class SetInitialPasswordComponent implements OnInit {
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private dialogService: DialogService,
     private i18nService: I18nService,
-    private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private logoutService: LogoutService,
     private logService: LogService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -130,25 +131,34 @@ export class SetInitialPasswordComponent implements OnInit {
           return;
         }
 
-        /**
-         * Assuming the KM flag above is off, this JIT_PROVISIONED_MP_ORG_USER case still relies on us making
-         * `newMasterKey` and `newServerMasterKeyHash` here in the component. This is a temporary state. This
-         * flow will be updated to use the new `MasterPasswordAuthenticationData` and `MasterPasswordUnlockData`
-         * as part of https://bitwarden.atlassian.net/browse/PM-32526
-         */
+        // ============================================================
+        // PM-42990 — ROLLBACK NOTE
+        // ============================================================
+        // This code computes a master key and a password hash. It runs here because
+        // the set-password endpoint needs the old request shape for 3 releases
+        // to maintain backwards compatibility with self hosted servers.
+        //
+        // BUILD: Move this computation into DefaultSetInitialPasswordService. Put
+        // it next to the other master password logic there.
+        //
+        // DELETE: Remove this block. Remove the injected LegacyCompatKeyService.
+        // Remove the code that sets newMasterKey and newServerMasterKeyHash on
+        // passwordInputResult. See https://github.com/bitwarden/clients/pull/20643
+        // for initial pass at this refactor.
+        // ============================================================
 
         const ctx = "Could not set initial password.";
         assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
         assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
         assertTruthy(this.email, "email", ctx);
 
-        const newMasterKey = await this.keyService.makeMasterKey(
+        const newMasterKey = await this.legacyCompatKeyService.makeMasterKey(
           passwordInputResult.newPassword,
           this.email.trim().toLowerCase(),
           passwordInputResult.kdfConfig,
         );
 
-        const newServerMasterKeyHash = await this.keyService.hashMasterKey(
+        const newServerMasterKeyHash = await this.legacyCompatKeyService.hashMasterKey(
           passwordInputResult.newPassword,
           newMasterKey,
         );

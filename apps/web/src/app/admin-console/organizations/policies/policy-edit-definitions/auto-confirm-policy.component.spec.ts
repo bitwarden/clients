@@ -28,6 +28,11 @@ describe("AutoConfirmPolicy", () => {
     expect(policy.type).toBe(PolicyType.AutomaticUserConfirmation);
     expect(policy.component).toBe(AutoConfirmPolicyEditComponent);
     expect(policy.showDescription).toBe(false);
+    expect(policy.firstTimeDialog).toBe(false);
+  });
+
+  it("respects an explicit firstTimeDialog value", () => {
+    expect(new AutoConfirmPolicy(true).firstTimeDialog).toBe(true);
   });
 });
 
@@ -229,6 +234,75 @@ describe("AutoConfirmPolicyEditComponent — policySteps[0].sideEffect", () => {
         showSetupDialog: false,
         showBrowserNotification: false,
       });
+    });
+  });
+
+  describe("risk-acceptance gating", () => {
+    it("defaults riskAccepted to unchecked and disables the enable switch when the policy is not yet enabled", () => {
+      fixture.componentRef.setInput("policyResponse", { enabled: false } as any);
+
+      component.ngOnInit();
+
+      expect(component.riskAccepted.value).toBe(false);
+      expect(component.enabled.disabled).toBe(true);
+    });
+
+    it("defaults riskAccepted to checked and keeps the enable switch usable when the policy is already enabled", () => {
+      fixture.componentRef.setInput("policyResponse", { enabled: true } as any);
+
+      component.ngOnInit();
+
+      expect(component.riskAccepted.value).toBe(true);
+      expect(component.enabled.disabled).toBe(false);
+    });
+
+    it("enables the switch once the risk checkbox is checked", () => {
+      fixture.componentRef.setInput("policyResponse", { enabled: false } as any);
+      component.ngOnInit();
+      expect(component.enabled.disabled).toBe(true);
+
+      component.riskAccepted.setValue(true);
+
+      expect(component.enabled.disabled).toBe(false);
+    });
+
+    it("disables the switch again if the risk checkbox is unchecked", () => {
+      fixture.componentRef.setInput("policyResponse", { enabled: true } as any);
+      component.ngOnInit();
+      expect(component.enabled.disabled).toBe(false);
+
+      component.riskAccepted.setValue(false);
+
+      expect(component.enabled.disabled).toBe(true);
+    });
+
+    // Regression test: un-accepting risk after enabling used to only disable() the switch, which
+    // does not clear its value - a disabled FormControl's `.value` (read by buildRequest()) still
+    // returned `true`, so the policy could be saved as enabled despite the switch appearing off.
+    it("resets the switch value to false when risk is unchecked after having been enabled, so it cannot be saved-on", () => {
+      fixture.componentRef.setInput("policyResponse", { enabled: false } as any);
+      component.ngOnInit();
+
+      component.riskAccepted.setValue(true);
+      component.enabled.setValue(true);
+      expect(component.enabled.value).toBe(true);
+
+      component.riskAccepted.setValue(false);
+
+      expect(component.enabled.value).toBe(false);
+      expect(component.enabled.disabled).toBe(true);
+    });
+  });
+
+  describe("policySteps", () => {
+    it("sets a custom title for step 0, so the first-time badge can be shown", () => {
+      expect(component.policySteps[0].titleContent).toBe((component as any).step0Title);
+    });
+
+    it("reuses step 1 (title/content/footer/sideEffect) unchanged", () => {
+      expect(component.policySteps[1].titleContent).toBe((component as any).step1Title);
+      expect(component.policySteps[1].bodyContent).toBe((component as any).step1Content);
+      expect(component.policySteps[1].footerContent).toBe((component as any).step1Footer);
     });
   });
 });

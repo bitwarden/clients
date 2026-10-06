@@ -1,30 +1,35 @@
-import { ipcRenderer } from "electron";
+import { ipcRenderer, IpcRendererEvent } from "electron";
 
 import { DeviceType } from "@bitwarden/common/enums";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ThemeType, LogLevelType } from "@bitwarden/common/platform/enums";
 import { ForwardedIpcMessage, IpcMessage } from "@bitwarden/common/platform/ipc";
+import { Message as PlatformMessage } from "@bitwarden/common/platform/messaging";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 
+import {
+  allowBrowserintegrationOverride,
+  isAppImage,
+  isFlatpak,
+  isMacAppStore,
+  isSnapStore,
+  isWindowsPortable,
+  isWindowsStore,
+  EnvAccessTokenLocation,
+  accessTokenLocation,
+} from "../main/platform-utils.main";
 import {
   EncryptedMessageResponse,
   LegacyMessageWrapper,
   Message,
   UnencryptedMessageResponse,
 } from "../models/native-messaging";
-import {
-  EnvAccessTokenLocation,
-  accessTokenLocation,
-  allowBrowserintegrationOverride,
-  isAppImage,
-  isDev,
-  isFlatpak,
-  isMacAppStore,
-  isSnapStore,
-  isWindowsPortable,
-  isWindowsStore,
-} from "../utils";
+import { isDev } from "../utils";
 
 import { ClipboardWriteMessage } from "./types/clipboard";
+
+type MessagingServiceMessage = PlatformMessage<Record<string, unknown>>;
+type MessagingServiceCallback = (message: MessagingServiceMessage) => void;
 
 const storage = {
   get: <T>(key: string): Promise<T> => ipcRenderer.invoke("storageService", { action: "get", key }),
@@ -149,8 +154,10 @@ export default {
     ipcRenderer.invoke("ipc.log", { level, message, optionalParams }),
 
   getSystemTheme: (): Promise<ThemeType> => ipcRenderer.invoke("systemTheme"),
-  onSystemThemeUpdated: (callback: (theme: ThemeType) => void) => {
-    ipcRenderer.on("systemThemeUpdated", (_event, theme: ThemeType) => callback(theme));
+  onSystemThemeUpdated: (callback: (theme: ThemeType) => void): (() => void) => {
+    const wrapper = (_event: IpcRendererEvent, theme: ThemeType) => callback(theme);
+    ipcRenderer.on("systemThemeUpdated", wrapper);
+    return () => ipcRenderer.removeListener("systemThemeUpdated", wrapper);
   },
 
   isWindowVisible: (): Promise<boolean> => ipcRenderer.invoke("windowVisible"),
@@ -158,22 +165,16 @@ export default {
   getLanguageFile: (formattedLocale: string): Promise<object> =>
     ipcRenderer.invoke("getLanguageFile", formattedLocale),
 
-  sendMessage: (message: { command: string } & any) =>
-    ipcRenderer.send("messagingService", message),
+  sendMessage: (message: MessagingServiceMessage) => ipcRenderer.send("messagingService", message),
   onMessage: {
-    addListener: (callback: (message: { command: string } & any) => void) => {
-      ipcRenderer.addListener("messagingService", (_event, message: any) => {
+    addListener: (callback: MessagingServiceCallback): (() => void) => {
+      const wrapper = (_event: IpcRendererEvent, message: MessagingServiceMessage) => {
         if (message.command) {
           callback(message);
         }
-      });
-    },
-    removeListener: (callback: (message: { command: string } & any) => void) => {
-      ipcRenderer.removeListener("messagingService", (_event, message: any) => {
-        if (message.command) {
-          callback(message);
-        }
-      });
+      };
+      ipcRenderer.addListener("messagingService", wrapper);
+      return () => ipcRenderer.removeListener("messagingService", wrapper);
     },
   },
 

@@ -1,14 +1,11 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
 } from "@bitwarden/common/admin-console/enums";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { SelectItemView } from "@bitwarden/components/src/multi-select/models/select-item-view";
+import { SelectItemView } from "@bitwarden/components";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
 
@@ -19,6 +16,13 @@ import { AccessItemType, CollectionPermission } from "./access-selector.models";
  * Helper class that makes it easier to test the AccessSelectorComponent by
  * exposing some protected methods/properties
  */
+function buildVfo1TerminologyService(enabled = false) {
+  return {
+    iconClass: (icon: string) => icon,
+    enabled: () => enabled,
+  };
+}
+
 class TestableAccessSelectorComponent extends AccessSelectorComponent {
   selectItems(items: SelectItemView[]) {
     super.selectItems(items);
@@ -43,12 +47,12 @@ describe("AccessSelectorComponent", () => {
   let component: TestableAccessSelectorComponent;
   let fixture: ComponentFixture<TestableAccessSelectorComponent>;
 
-  beforeEach(() => {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [PreloadedEnglishI18nModule, TestableAccessSelectorComponent],
-      providers: [],
+      providers: [
+        { provide: Vfo1TerminologyService, useValue: buildVfo1TerminologyService(false) },
+      ],
     }).compileComponents();
   });
 
@@ -118,6 +122,76 @@ describe("AccessSelectorComponent", () => {
       expect(mockChange.mock.calls.length).toEqual(1);
       expect(mockChange.mock.lastCall[0]).toHaveProperty("[0].id", "123");
       expect(mockChange.mock.lastCall[0]).toHaveProperty(
+        "[0].permission",
+        CollectionPermission.Edit,
+      );
+    });
+
+    it("should preserve permission changes when items input re-emits", () => {
+      // Arrange — set up item with an initial writeValue, then change permission in the table
+      const collectionItem = {
+        id: "123",
+        type: AccessItemType.Group,
+        labelName: "Group 1",
+        listName: "Group 1",
+      };
+      component.writeValue([
+        { id: "123", type: AccessItemType.Group, permission: CollectionPermission.View },
+      ]);
+      fixture.componentRef.setInput("permissionMode", PermissionMode.Edit);
+      fixture.detectChanges();
+
+      component.changeSelectedItemPerm(0, CollectionPermission.Edit);
+
+      const mockChange = jest.fn();
+      component.registerOnChange(mockChange);
+
+      // Act — items input re-emits (simulating async stream re-emission)
+      fixture.componentRef.setInput("items", [collectionItem]);
+      fixture.detectChanges();
+
+      // Assert — re-emission must not revert the user's permission change
+      expect(mockChange.mock.lastCall?.[0]).toHaveProperty(
+        "[0].permission",
+        CollectionPermission.Edit,
+      );
+    });
+
+    it("should preserve table permission changes when writeValue is called again before items re-emit", () => {
+      // Arrange — simulate: permission dropdown changes → writeValue called → items re-emit
+      const collectionItem = {
+        id: "123",
+        type: AccessItemType.Group,
+        labelName: "Group 1",
+        listName: "Group 1",
+      };
+      fixture.componentRef.setInput("permissionMode", PermissionMode.Edit);
+      fixture.detectChanges();
+
+      // First writeValue (initial load)
+      component.writeValue([
+        { id: "123", type: AccessItemType.Group, permission: CollectionPermission.View },
+      ]);
+      fixture.detectChanges();
+
+      // User changes permission in the table
+      component.changeSelectedItemPerm(0, CollectionPermission.Manage);
+
+      // writeValue called again (simulating form patchValue from parent re-emission)
+      component.writeValue([
+        { id: "123", type: AccessItemType.Group, permission: CollectionPermission.Edit },
+      ]);
+      fixture.detectChanges();
+
+      const mockChange = jest.fn();
+      component.registerOnChange(mockChange);
+
+      // Act — items re-emit after the second writeValue
+      fixture.componentRef.setInput("items", [collectionItem]);
+      fixture.detectChanges();
+
+      // Assert — second writeValue value applies (Edit), not the stale first one (View)
+      expect(mockChange.mock.lastCall?.[0]).toHaveProperty(
         "[0].permission",
         CollectionPermission.Edit,
       );

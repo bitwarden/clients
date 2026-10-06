@@ -69,7 +69,7 @@ export class FolderAddEditComponent implements OnInit {
 
     try {
       const activeUserId = await firstValueFrom(this.activeUserId$);
-      const userKey = await this.keyService.getUserKey(activeUserId);
+      const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
       const folder = await this.folderService.encrypt(this.folder, userKey);
       this.formPromise = this.folderApiService.save(folder, activeUserId);
       await this.formPromise;

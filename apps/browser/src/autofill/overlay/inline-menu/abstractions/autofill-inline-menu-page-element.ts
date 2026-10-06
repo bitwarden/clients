@@ -2,8 +2,7 @@ import { AutofillInlineMenuButtonWindowMessageHandlers } from "./autofill-inline
 import { AutofillInlineMenuListWindowMessageHandlers } from "./autofill-inline-menu-list";
 
 export type AutofillInlineMenuPageElementWindowMessageHandlers =
-  | AutofillInlineMenuButtonWindowMessageHandlers
-  | AutofillInlineMenuListWindowMessageHandlers;
+  AutofillInlineMenuButtonWindowMessageHandlers | AutofillInlineMenuListWindowMessageHandlers;
 
 export type AutofillInlineMenuPageElementWindowMessage = {
   [key: string]: any;

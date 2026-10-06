@@ -62,15 +62,17 @@ export function NotificationContainer({
         message: headerMessage,
         theme,
       })}
-      ${showBody
-        ? NotificationBody({
-            handleEditOrUpdateAction,
-            ciphers,
-            notificationType: type,
-            theme,
-            i18n,
-          })
-        : nothing}
+      ${
+        showBody
+          ? NotificationBody({
+              handleEditOrUpdateAction,
+              ciphers,
+              notificationType: type,
+              theme,
+              i18n,
+            })
+          : nothing
+      }
       ${NotificationFooter({
         handleSaveAction,
         collections,

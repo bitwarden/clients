@@ -1,7 +1,9 @@
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { View } from "@bitwarden/common/models/view/view";
 import { DeepJsonify } from "@bitwarden/common/types/deep-jsonify";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { AccessReportApi } from "../api/access-report.api";
@@ -353,8 +355,11 @@ export class AccessReportView implements View {
           data.cipherRefs = { ...r.cipherRefs };
           data.memberCount = r.memberCount;
           data.atRiskMemberCount = r.atRiskMemberCount;
-          data.iconUri = r.iconUri;
-          data.iconCipherId = r.iconCipherId;
+
+          if (r.iconCipher) {
+            data.iconUri = CipherViewLikeUtils.uri(r.iconCipher) ?? undefined;
+          }
+
           return data;
         }),
         memberRegistry: Object.fromEntries(

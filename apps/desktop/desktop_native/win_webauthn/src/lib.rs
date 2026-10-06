@@ -15,9 +15,12 @@ pub mod plugin;
 
 use std::{error::Error, fmt::Display};
 
-pub use api::webauthn::{
-    AuthenticatorInfo, CredentialId, CtapTransport, CtapVersion, PublicKeyCredentialParameters,
-    UserId, Uuid,
+pub use api::{
+    webauthn::{
+        AuthenticatorInfo, CredentialId, CtapTransport, CtapVersion, PublicKeyCredentialParameters,
+        UserId, Uuid,
+    },
+    CborError, CborParser, CborValue, CborWriter,
 };
 
 /// Errors that may be returned when interacting with this library.
@@ -25,7 +28,7 @@ pub use api::webauthn::{
 pub struct WinWebAuthnError {
     kind: ErrorKind,
     description: Option<String>,
-    cause: Option<Box<dyn std::error::Error>>,
+    cause: Option<Box<dyn std::error::Error + Send + Sync>>,
 }
 
 impl WinWebAuthnError {
@@ -37,17 +40,24 @@ impl WinWebAuthnError {
         }
     }
 
-    pub(crate) fn with_cause<E: std::error::Error + 'static>(
+    pub(crate) fn with_cause<E: std::error::Error + Send + Sync + 'static>(
         kind: ErrorKind,
         description: &str,
         cause: E,
     ) -> Self {
-        let cause: Box<dyn std::error::Error> = Box::new(cause);
+        let cause: Box<dyn std::error::Error + Send + Sync> = Box::new(cause);
         Self {
             kind,
             description: Some(description.to_string()),
             cause: Some(cause),
         }
+    }
+
+    /// Whether the user dismissed an OS prompt, as opposed to the operation
+    /// failing. Callers generally want to report this as an outcome rather than
+    /// an error.
+    pub fn is_user_cancelled(&self) -> bool {
+        matches!(self.kind, ErrorKind::UserCancelled)
     }
 }
 
@@ -65,6 +75,9 @@ enum ErrorKind {
     /// An unknown error occurred.
     Other,
 
+    /// The user dismissed an OS prompt.
+    UserCancelled,
+
     /// An internal library error occurred.
     WindowsInternal,
 }
@@ -76,6 +89,7 @@ impl Display for WinWebAuthnError {
             ErrorKind::DllLoad => "Failed to load function from DLL",
             ErrorKind::InvalidArguments => "Invalid arguments passed to function",
             ErrorKind::Other => "An error occurred",
+            ErrorKind::UserCancelled => "The user cancelled the operation",
             ErrorKind::WindowsInternal => "A Windows error occurred",
         };
         f.write_str(msg)?;

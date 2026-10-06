@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
 import { RestrictedView } from "@bitwarden/assets/svg";
-import { ButtonModule, NoItemsModule } from "@bitwarden/components";
+import { ButtonModule, StatusLockupComponent } from "@bitwarden/components";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared";
 import { CollectionDialogTabType } from "../shared/components/collection-dialog";
@@ -10,9 +11,12 @@ import { CollectionDialogTabType } from "../shared/components/collection-dialog"
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "collection-access-restricted",
-  imports: [SharedModule, ButtonModule, NoItemsModule],
-  template: `<bit-no-items [icon]="icon" class="tw-mt-2 tw-block">
-    <span slot="title" class="tw-mt-4 tw-block">{{ "youDoNotHavePermissions" | i18n }}</span>
+  imports: [SharedModule, ButtonModule, StatusLockupComponent, Vfo1I18nPipe],
+  template: `<bit-status-lockup class="tw-mt-2 tw-block">
+    <bit-svg slot="graphic" [content]="icon"></bit-svg>
+    <span slot="title" class="tw-block">{{
+      "youDoNotHavePermissions" | vfo1I18n: "youDoNotHavePermissionsSharedFolder"
+    }}</span>
     <button
       *ngIf="canEditCollection"
       slot="button"
@@ -21,7 +25,8 @@ import { CollectionDialogTabType } from "../shared/components/collection-dialog"
       buttonType="secondary"
       type="button"
     >
-      <i aria-hidden="true" class="bwi bwi-pencil-square"></i> {{ "editCollection" | i18n }}
+      <i aria-hidden="true" class="bwi bwi-pencil-square"></i>
+      {{ "editCollection" | vfo1I18n: "editSharedFolder" }}
     </button>
     <button
       *ngIf="!canEditCollection && canViewCollectionInfo"
@@ -33,7 +38,7 @@ import { CollectionDialogTabType } from "../shared/components/collection-dialog"
     >
       <i aria-hidden="true" class="bwi bwi-users"></i> {{ "viewAccess" | i18n }}
     </button>
-  </bit-no-items>`,
+  </bit-status-lockup>`,
 })
 export class CollectionAccessRestrictedComponent {
   protected icon = RestrictedView;

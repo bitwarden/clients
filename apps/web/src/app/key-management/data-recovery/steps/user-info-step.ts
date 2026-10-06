@@ -1,8 +1,9 @@
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptionType } from "@bitwarden/legacy-crypto";
 
 import { LogRecorder } from "../log-recorder";
 

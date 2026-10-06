@@ -1,0 +1,12 @@
+<p bitTypography="body1" class="tw-text-main tw-mb-4">
+  {{ "openOrgInviteLinkNoLongerValid" | i18n }}
+</p>
+<a
+  bitButton
+  block
+  buttonType="primary"
+  [routerLink]="returnRoute()"
+  data-testid="open-org-invite-link-invalid-return-button"
+>
+  {{ returnLabelKey() | i18n }}
+</a>

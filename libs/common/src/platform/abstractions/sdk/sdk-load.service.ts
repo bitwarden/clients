@@ -35,7 +35,7 @@ export abstract class SdkLoadService {
   });
 
   /**
-   * Load WASM and initalize SDK-JS integrations such as logging.
+   * Load WASM and initialize SDK-JS integrations such as logging.
    * This method should be called once at the start of the application.
    * Raw functions and classes from the SDK can be used after this method resolves.
    */

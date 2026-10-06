@@ -118,7 +118,9 @@ const optionsWrapper = ({ isSafari, theme }: { isSafari: boolean; theme: Theme }
     }
   }
 
-  ${isSafari
-    ? scrollbarStyles(theme, { track: "transparent" }).safari
-    : scrollbarStyles(theme, { track: "transparent" }).default}
+  ${
+    isSafari
+      ? scrollbarStyles(theme, { track: "transparent" }).safari
+      : scrollbarStyles(theme, { track: "transparent" }).default
+  }
 `;

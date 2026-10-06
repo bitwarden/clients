@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, computed, DestroyRef, inject, input, OnInit } from "@angular/core";
+import { Component, computed, input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
@@ -45,8 +45,6 @@ import { CipherFormContainer } from "../../cipher-form-container";
 export class SshKeySectionComponent implements OnInit {
   readonly originalCipherView = input<CipherView | null>(null);
 
-  readonly disabled = input(false);
-
   /**
    * All form fields associated with the ssh key
    *
@@ -67,8 +65,6 @@ export class SshKeySectionComponent implements OnInit {
       (this.originalCipherView() == null || this.originalCipherView()!.edit)
     );
   });
-
-  private destroyRef = inject(DestroyRef);
 
   constructor(
     private cipherFormContainer: CipherFormContainer,
@@ -99,18 +95,6 @@ export class SshKeySectionComponent implements OnInit {
     } else {
       await this.generateSshKey();
     }
-
-    this.sshKeyForm.disable();
-
-    // Disable the form if the cipher form container is enabled
-    // to prevent user interaction
-    this.cipherFormContainer.formStatusChange$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((status) => {
-        if (status === "enabled") {
-          this.sshKeyForm.disable();
-        }
-      });
   }
 
   /** Set form initial form values from the current cipher */

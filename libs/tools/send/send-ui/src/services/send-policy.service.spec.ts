@@ -2,12 +2,14 @@ import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { SendPolicyService } from "..";
@@ -24,6 +26,7 @@ function makePolicy(data: Record<string, unknown> | null): Policy {
 describe("SendPolicyService", () => {
   const policyServiceMock = mock<PolicyService>();
   const configServiceMock = mock<ConfigService>();
+  const organizationServiceMock = mock<OrganizationService>();
 
   function setup(flagEnabled: boolean): SendPolicyService {
     configServiceMock.getFeatureFlag$.mockReturnValue(of(flagEnabled));
@@ -32,6 +35,7 @@ describe("SendPolicyService", () => {
         { provide: PolicyService, useValue: policyServiceMock },
         { provide: ConfigService, useValue: configServiceMock },
         { provide: AccountService, useValue: mockAccountServiceWith(userId) },
+        { provide: OrganizationService, useValue: organizationServiceMock },
         SendPolicyService,
       ],
     });
@@ -160,6 +164,49 @@ describe("SendPolicyService", () => {
           .mockReturnValue(of([makePolicy({ disableHideEmail: false })]));
 
         expect(await firstValueFrom(setup(false).disableHideEmail$)).toBe(true);
+      });
+    });
+  });
+
+  describe("allowedSendTypes$", () => {
+    describe("when the SendControls flag is enabled", () => {
+      it("emits the types restricted by policy", async () => {
+        policyServiceMock.policiesByType$
+          .calledWith(PolicyType.SendControls, userId)
+          .mockReturnValue(of([makePolicy({ allowedSendTypes: [SendType.Text] })]));
+
+        expect(await firstValueFrom(setup(true).allowedSendTypes$)).toEqual([SendType.Text]);
+      });
+
+      it("defaults to all Send types when no restrict-type policy applies", async () => {
+        policyServiceMock.policiesByType$
+          .calledWith(PolicyType.SendControls, userId)
+          .mockReturnValue(of([]));
+
+        expect(await firstValueFrom(setup(true).allowedSendTypes$)).toEqual([
+          SendType.Text,
+          SendType.File,
+        ]);
+      });
+
+      it("defaults to all Send types when the policy does not specify allowedSendTypes", async () => {
+        policyServiceMock.policiesByType$
+          .calledWith(PolicyType.SendControls, userId)
+          .mockReturnValue(of([makePolicy({})]));
+
+        expect(await firstValueFrom(setup(true).allowedSendTypes$)).toEqual([
+          SendType.Text,
+          SendType.File,
+        ]);
+      });
+    });
+
+    describe("when the SendControls flag is disabled", () => {
+      it("emits all Send types", async () => {
+        expect(await firstValueFrom(setup(false).allowedSendTypes$)).toEqual([
+          SendType.Text,
+          SendType.File,
+        ]);
       });
     });
   });

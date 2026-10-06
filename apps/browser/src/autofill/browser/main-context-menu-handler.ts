@@ -30,6 +30,9 @@ import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 
+import { devFlagEnabled } from "../../platform/flags";
+import { webmapperContextMenuItems } from "../webmapper/menu";
+
 import { InitContextMenuItems } from "./abstractions/main-context-menu-handler";
 
 function separatorIds() {
@@ -107,14 +110,15 @@ export class MainContextMenuHandler {
         id: nextSeparator(),
         type: "separator",
         parentId: ROOT_ID,
-        requiresFeatureFlag: FeatureFlag.EnableAutofillTriage,
+        requiresDevFlag: "fillAssistDevTools",
       },
       {
         id: AUTOFILL_TRIAGE_ID,
         parentId: ROOT_ID,
         title: "Triage Autofill Issues",
-        requiresFeatureFlag: FeatureFlag.EnableAutofillTriage,
+        requiresDevFlag: "fillAssistDevTools",
       },
+      ...webmapperContextMenuItems(),
     ];
   })();
   private noCardsContextMenuItems: chrome.contextMenus.CreateProperties[] = [
@@ -235,6 +239,9 @@ export class MainContextMenuHandler {
           (i) => !i.requiresFeatureFlag || enabledFlags.has(i.requiresFeatureFlag),
         );
       }
+      // Dev-flag gating is synchronous and build-time; dev-only items are absent
+      // from production builds entirely.
+      items = items.filter((i) => !i.requiresDevFlag || devFlagEnabled(i.requiresDevFlag));
 
       for (const {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -243,6 +250,8 @@ export class MainContextMenuHandler {
         requiresUnblockedUri,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         requiresFeatureFlag,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        requiresDevFlag,
         ...otherOptions
       } of items) {
         await MainContextMenuHandler.create({ ...otherOptions, contexts: ["all"] });

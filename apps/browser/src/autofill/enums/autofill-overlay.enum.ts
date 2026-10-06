@@ -21,10 +21,12 @@ export const RedirectFocusDirection = {
   Next: "next",
 } as const;
 
+// These values must not collide with any `CipherType` (1-8), since `InlineMenuFillType`
+// is a union of these and `CipherType` and the two are compared with `===`.
 export const InlineMenuFillTypes = {
-  AccountCreationUsername: 5,
-  PasswordGeneration: 6,
-  CurrentPasswordUpdate: 7,
+  AccountCreationUsername: 100,
+  PasswordGeneration: 101,
+  CurrentPasswordUpdate: 102,
 } as const;
 
 export type InlineMenuFillTypeValue =

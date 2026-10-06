@@ -24,6 +24,8 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import { MemberDialogManagerService } from "../member-dialog-manager/member-dialog-manager.service";
@@ -78,6 +80,7 @@ describe("MemberActionsService", () => {
         { provide: ApiService, useValue: mock<ApiService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: KeyService, useValue: mock<KeyService>() },
+        { provide: LegacyCompatKeyService, useValue: mock<LegacyCompatKeyService>() },
         { provide: LogService, useValue: mock<LogService>() },
         {
           provide: OrganizationManagementPreferencesService,

@@ -5,10 +5,8 @@ import { PolicyDrawerStoryArgs, policyDrawerMeta } from "../policy-drawer-story.
 import { RemoveUnlockWithPinPolicy } from "./remove-unlock-with-pin.component";
 
 export default {
-  ...policyDrawerMeta(
-    "Admin Console/Organizations/Policies/Remove Unlock With PIN",
-    new RemoveUnlockWithPinPolicy(),
-  ),
+  ...policyDrawerMeta(new RemoveUnlockWithPinPolicy()),
+  title: "Admin Console/Organizations/Policies/Remove Unlock With PIN",
 };
 
 type Story = StoryObj<PolicyDrawerStoryArgs>;

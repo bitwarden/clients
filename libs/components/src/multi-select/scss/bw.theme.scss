@@ -336,15 +336,15 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
         color 250ms;
       font-weight: 500;
 
-      &.ng-option-selected.ng-option-marked {
+      &.ng-option-selected {
         background-color: $ng-select-marked;
-      }
-      &.ng-option-selected,
-      &.ng-option-selected.ng-option-marked {
         color: $ng-select-selected-text;
         .ng-option-label {
           font-weight: 500;
         }
+      }
+      &.ng-option-selected.ng-option-marked {
+        background-color: var(--color-bg-brand-soft);
       }
       &.ng-option-marked {
         background-color: $ng-select-marked;
@@ -369,6 +369,9 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
           padding-right: 0;
         }
       }
+    }
+    .ng-option + .ng-option {
+      margin-top: 4px;
     }
   }
 

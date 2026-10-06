@@ -68,3 +68,20 @@ where
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{approval::MockApprovalRequester, storage::keystore::MockKeyStore};
+
+    #[test]
+    fn stop_clears_the_keystore() {
+        let mut keystore = MockKeyStore::new();
+        keystore.expect_clear().once().return_const(());
+        let approval_handler = MockApprovalRequester::new();
+
+        let mut agent = BitwardenSSHAgent::new(keystore, approval_handler);
+
+        agent.stop();
+    }
+}

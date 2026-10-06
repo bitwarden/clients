@@ -1,4 +1,6 @@
-import { EncString } from "../../key-management/crypto/models/enc-string";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
+
 import { Password } from "../../vault/models/domain/password";
 import { PasswordHistoryView } from "../../vault/models/view/password-history.view";
 

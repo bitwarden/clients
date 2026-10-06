@@ -1,0 +1,126 @@
+<app-header>
+  <bit-breadcrumbs slot="breadcrumbs">
+    <bit-breadcrumb route="../" icon="bwi-sliders">
+      {{ "reports" | i18n }}
+    </bit-breadcrumb>
+    @if (vfo1Enabled()) {
+      <bit-breadcrumb [route]="[]">
+        {{ reportTitleKey | i18n }}
+      </bit-breadcrumb>
+    }
+  </bit-breadcrumbs>
+</app-header>
+
+<bit-container>
+  <p>
+    {{ "passkeyLoginReportDesc" | i18n }}
+    <a
+      bitLink
+      href="https://bitwarden.com/blog/how-do-passkeys-work/"
+      target="_blank"
+      rel="noreferrer"
+    >
+      {{ "passkeyLoginReportHowTheyWork" | i18n }}
+    </a>
+    {{ "passkeyLoginReportAnd" | i18n }}
+    <a bitLink href="https://bitwarden.com/help/storing-passkeys/" target="_blank" rel="noreferrer">
+      {{ "passkeyLoginReportHowToUse" | i18n }}
+    </a>
+  </p>
+  @if (loading()) {
+    <div>
+      <bit-icon
+        name="bwi-spinner"
+        class="bwi-spin tw-text-muted"
+        title="{{ 'loading' | i18n }}"
+        aria-hidden="true"
+      ></bit-icon>
+      <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+    </div>
+  } @else {
+    <div class="tw-mt-4">
+      @if (error()) {
+        <bit-callout type="danger">
+          {{ "reportError" | i18n }}
+        </bit-callout>
+      } @else if (!ciphers().length) {
+        <bit-callout type="success" title="{{ 'goodNews' | i18n }}">
+          {{ "noPasskeyLogin" | i18n }}
+        </bit-callout>
+      } @else {
+        <bit-callout type="info" title="{{ 'passkeyLoginFound' | i18n }}">
+          {{ "passkeyLoginFoundInfoPrefix" | i18n }}
+          <strong class="tw-font-semibold">{{
+            "loginsCount" | i18n: (ciphers().length | number)
+          }}</strong>
+          {{ "passkeyLoginFoundInfoSuffixSingular" | i18n }}
+        </bit-callout>
+        <bit-table-scroll [dataSource]="dataSource" [rowSize]="75" layout="fixed">
+          <ng-container header>
+            <th bitCell class="tw-w-2/3">{{ "name" | i18n }}</th>
+            <th bitCell class="tw-w-1/6">{{ "type" | i18n }}</th>
+            <th bitCell class="tw-w-1/6 tw-text-right">{{ "options" | i18n }}</th>
+          </ng-container>
+          <ng-template bitRowDef let-row>
+            <td bitCell>
+              <div class="tw-flex tw-items-center tw-gap-4">
+                <app-vault-icon [cipher]="row.cipher"></app-vault-icon>
+                <span class="tw-truncate tw-min-w-0">
+                  @if (canManageCipher(row.cipher)) {
+                    <a
+                      bitLink
+                      href="#"
+                      appStopClick
+                      (click)="selectCipher(row.cipher)"
+                      title="{{ 'editItemWithName' | i18n: row.cipher.name }}"
+                      >{{ row.cipher.name }}</a
+                    >
+                  } @else {
+                    <span title="{{ row.cipher.name }}">{{ row.cipher.name }}</span>
+                  }
+                  @if (row.cipher.hasAttachments) {
+                    <bit-icon
+                      name="bwi-paperclip"
+                      class="tw-ml-1"
+                      appStopProp
+                      title="{{ 'attachments' | i18n }}"
+                      aria-hidden="true"
+                    ></bit-icon>
+                    <span class="tw-sr-only">{{ "attachments" | i18n }}</span>
+                  }
+                  <br />
+                  <small>{{ row.cipher.subTitle }}</small>
+                </span>
+              </div>
+            </td>
+            <td bitCell>
+              <div class="tw-flex tw-gap-2 tw-items-center">
+                @if (row.supportsPasskeyLogin) {
+                  <span bitBadge size="small" variant="subtle">
+                    {{ "login" | i18n }}
+                  </span>
+                }
+                @if (row.supportsPasskeyMfa) {
+                  <span bitBadge size="small" variant="subtle">2FA</span>
+                }
+              </div>
+            </td>
+            <td bitCell>
+              @if (row.instructions) {
+                <a
+                  bitButton
+                  endIcon="bwi-external-link"
+                  [href]="row.instructions"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {{ "instructions" | i18n }}
+                </a>
+              }
+            </td>
+          </ng-template>
+        </bit-table-scroll>
+      }
+    </div>
+  }
+</bit-container>

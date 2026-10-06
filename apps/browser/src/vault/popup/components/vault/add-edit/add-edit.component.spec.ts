@@ -91,7 +91,12 @@ describe("AddEditComponent", () => {
       providers: [
         provideNoopAnimations(),
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
-        { provide: ConfigService, useValue: mock<ConfigService>() },
+        {
+          provide: ConfigService,
+          useValue: mock<ConfigService>({
+            getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
+          }),
+        },
         { provide: PopupRouterCacheService, useValue: { back, setHistory } },
         { provide: PopupCloseWarningService, useValue: { disable } },
         { provide: Router, useValue: { navigate } },
@@ -208,7 +213,7 @@ describe("AddEditComponent", () => {
       expect(collect).not.toHaveBeenCalled();
     }));
 
-    it("does not log viewed event whe mode is clone", fakeAsync(() => {
+    it("does not log viewed event when mode is clone", fakeAsync(() => {
       queryParams$.next({ cipherId: "222-333-444-5555", clone: "true" });
       buildConfigResponse.originalCipher = {} as Cipher;
 
@@ -235,7 +240,7 @@ describe("AddEditComponent", () => {
       );
     }));
 
-    it("logs viewed event whe mode is partial-edit", fakeAsync(() => {
+    it("logs viewed event when mode is partial-edit", fakeAsync(() => {
       buildConfigResponse.originalCipher = { edit: false } as Cipher;
       queryParams$.next({ cipherId: "222-333-444-5555", orgId: "444-555-666" });
 

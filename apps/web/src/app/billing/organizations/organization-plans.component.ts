@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  inject,
   input,
   OnDestroy,
   OnInit,
@@ -33,25 +34,36 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { PlanSponsorshipType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import {
+  InitiationPath,
+  PlanSponsorshipType,
+  PlanType,
+  ProductTierType,
+} from "@bitwarden/common/billing/enums";
 import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-type.enum";
 import { BillingResponse } from "@bitwarden/common/billing/models/response/billing.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { IconComponent, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { Cart, CartSummaryComponent, Discount, DiscountTypes } from "@bitwarden/pricing";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import {
   OrganizationSubscriptionPlan,
   OrganizationSubscriptionPurchase,
@@ -66,7 +78,7 @@ import {
 } from "@bitwarden/web-vault/app/billing/payment/components";
 import { tokenizablePaymentMethodToLegacyEnum } from "@bitwarden/web-vault/app/billing/payment/types";
 
-import { OrganizationCreateModule } from "../../admin-console/organizations/create/organization-create.module";
+import { OrganizationInformationComponent } from "../../admin-console/organizations/create/organization-information.component";
 import { PremiumOrgUpgradeService } from "../individual/upgrade/premium-org-upgrade-payment/services/premium-org-upgrade.service";
 import { SubscriptionDiscountService } from "../services/subscription-discount.service";
 import { BillingSharedModule, secretsManagerSubscribeFormFactory } from "../shared";
@@ -93,11 +105,12 @@ const Allowed2020PlansForLegacyProviders = [
   templateUrl: "organization-plans.component.html",
   imports: [
     BillingSharedModule,
-    OrganizationCreateModule,
+    OrganizationInformationComponent,
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
     IconComponent,
     CartSummaryComponent,
+    Vfo1I18nPipe,
   ],
 })
 export class OrganizationPlansComponent implements OnInit, OnDestroy {
@@ -130,6 +143,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   /** Custom trial length from the URL, overrides the plan's default trialPeriodDays for display and API calls. */
   readonly trialLength = input<number | undefined>(undefined);
 
+  /** Marketing-vs-product origin recorded on the create request; drives Stripe's trialInitiationPath metadata. */
+  readonly initiationPath = input<InitiationPath>(InitiationPath.NewOrganizationCreationInProduct);
+
   // Derived signals
   readonly hasPremiumPersonally = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -149,6 +165,16 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   readonly createOrganization = computed(() => this.organizationId() == null);
   readonly hasProvider = computed(() => this.providerId() != null);
 
+  private readonly vfo1Enabled = inject(Vfo1TerminologyService).enabled;
+
+  /**
+   * Tightens the spacing between sections to 24px, replacing the default `bit-section` margin.
+   * Only applies when the component is hosted in the sponsorship flow with VFO1 on.
+   */
+  protected readonly sponsoredPlanLayout = computed(
+    () => this.acceptingSponsorship() && this.vfo1Enabled(),
+  );
+
   /**
    * Determines whether the user can upgrade from Premium to an organization plan.
    * This is true if the user has a Premium subscription personally and is creating a new organization (as opposed to being invited to an existing one) or upgrading.
@@ -162,7 +188,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     return (
       hasPremiumPersonally &&
       isCreatingOrganization &&
-      premiumToOrganizationUpgradeFeatureFlagEnabled
+      premiumToOrganizationUpgradeFeatureFlagEnabled &&
+      !this.acceptingSponsorship()
     );
   });
 
@@ -511,6 +538,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private encryptService: EncryptService,
     private router: Router,
     private syncService: SyncService,
@@ -663,7 +691,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
   get paymentDesc() {
     if (this.acceptingSponsorship()) {
-      return this.i18nService.t("paymentSponsored");
+      return this.i18nService.t(
+        this.vfo1Enabled() ? "paymentSponsoredFamilyVault" : "paymentSponsored",
+      );
     } else if (this.freeTrial() && this.createOrganization() && !this.canUpgradeFromPremium()) {
       return this.i18nService.t(
         "paymentChargedWithTrialSpecificLength",
@@ -746,8 +776,12 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     if (this.secretsManagerForm.controls.enabled.value) {
       this.secretsManagerForm.controls.userSeats.setValue(this.sub?.smSeats || 1);
       this.secretsManagerForm.controls.additionalServiceAccounts.setValue(
-        (this.sub?.smServiceAccounts ?? 0) -
-          (this.currentPlan()?.SecretsManager?.baseServiceAccount ?? 0),
+        Math.max(
+          0,
+          (this.sub?.smServiceAccounts ?? 0) -
+            (this.currentPlan()?.SecretsManager?.baseServiceAccount ?? 0) -
+            (this.sub?.smServiceAccountsGrace ?? 0),
+        ),
       );
     }
 
@@ -842,6 +876,13 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       this.messagingService.send("organizationCreated", { organizationId });
     } catch (error: unknown) {
       if (error instanceof Error && error.message === "Payment method validation failed") {
+        return;
+      }
+      if (error instanceof ErrorResponse && error.message === "billingTaxIdTypeInferenceError") {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("billingTaxIdTypeInferenceError"),
+        });
         return;
       }
       if (this.premiumOrgUpgradeService.isBankAccountNotSupportedError(error)) {
@@ -1015,7 +1056,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
           .orgKeys$(userId!)
           .pipe(map((orgKeys) => orgKeys?.[this.organizationId() as OrganizationId] ?? null)),
       );
-      const orgKeys = await this.keyService.makeKeyPair(orgShareKey!);
+      const orgKeys = await this.legacyCompatKeyService.makeKeyPair(orgShareKey!);
       request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString as string);
     }
 
@@ -1040,7 +1081,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     );
     request.name = this.formGroup.controls.name.value ?? "";
     request.billingEmail = this.formGroup.controls.billingEmail.value ?? "";
-    request.initiationPath = "New organization creation in-product";
+    request.initiationPath = this.initiationPath();
 
     if (this.selectedPlan()!.type === PlanType.Free) {
       request.planType = PlanType.Free;

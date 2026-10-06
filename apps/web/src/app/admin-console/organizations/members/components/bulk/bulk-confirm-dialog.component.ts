@@ -15,7 +15,6 @@ import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrgKey } from "@bitwarden/common/types/key";
 import {
   AsyncActionsModule,
@@ -29,7 +28,11 @@ import {
   LinkModule,
   TableModule,
 } from "@bitwarden/components";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { AvatarIdPipe } from "../../pipes/avatar-id.pipe";
 
 import { BaseBulkConfirmComponent } from "./base-bulk-confirm.component";
 import { BulkUserDetails } from "./bulk-status.component";
@@ -46,6 +49,7 @@ type BulkConfirmDialogParams = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AsyncActionsModule,
+    AvatarIdPipe,
     AvatarModule,
     ButtonModule,
     CalloutModule,
@@ -89,11 +93,14 @@ export class BulkConfirmDialogComponent extends BaseBulkConfirmComponent {
 
   protected readonly getPublicKeys = async (): Promise<
     ListResponse<OrganizationUserBulkPublicKeyResponse | ProviderUserBulkPublicKeyResponse>
-  > =>
-    await this.organizationUserApiService.postOrganizationUsersPublicKey(
+  > => {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    return await this.organizationUserApiService.postOrganizationUsersPublicKey(
       this.organization.id,
       this.filteredUsers().map((user) => user.id),
+      userId,
     );
+  };
 
   protected readonly isAccepted = (user: BulkUserDetails) =>
     user.status === OrganizationUserStatusType.Accepted;

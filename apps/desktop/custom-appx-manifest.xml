@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--suppress XmlUnusedNamespaceDeclaration -->
+<!--
+    Appx manifest template for scripts/appx-cross-build.ps1, which packages the Appx
+    without electron-builder (electron-builder can't cross-build one from macOS).
+
+    It mirrors electron-builder's own template so both paths produce the same package;
+    keep the two in sync when either changes. The customExtensions macro is filled from
+    the channel's appx.customExtensionsPath, so the COM server is declared in one place.
+-->
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
     xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
     xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
@@ -80,23 +88,21 @@
         <Resource Language="zh-tw" />
     </Resources>
     <Dependencies>
-        <!-- MinVersion 10.0.14316.0 = Windows 10 2016 Anniversary Update (April 2016) -->
         <TargetDeviceFamily Name="Windows.Desktop"
-          MinVersion="10.0.14316.0" MaxVersionTested="10.0.14316.0" />
+          MinVersion="${minVersion}" MaxVersionTested="${maxVersionTested}" />
     </Dependencies>
     <Capabilities>
         <rescap:Capability Name="runFullTrust" />
     </Capabilities>
     <Applications>
-        <Application Id="bitwardendesktop" Executable="${executable}"
+        <Application Id="${applicationId}" Executable="${executable}"
             EntryPoint="Windows.FullTrustApplication">
             <uap:VisualElements
-                BackgroundColor="#175DDC"
+                BackgroundColor="${backgroundColor}"
                 DisplayName="${displayName}"
                 Square150x150Logo="assets\Square150x150Logo.png"
                 Square44x44Logo="assets\Square44x44Logo.png"
                 Description="A secure and free password manager for all of your devices.">
-                <uap:LockScreen Notification="badgeAndTileText" BadgeLogo="assets\BadgeLogo.png" />
                 <uap:DefaultTile Wide310x150Logo="assets\Wide310x150Logo.png" />
                 <uap:SplashScreen Image="assets\SplashScreen.png" />
             </uap:VisualElements>
@@ -106,6 +112,7 @@
                         <uap:DisplayName>Bitwarden</uap:DisplayName>
                     </uap:Protocol>
                 </uap:Extension>
+${customExtensions}
             </Extensions>
         </Application>
     </Applications>

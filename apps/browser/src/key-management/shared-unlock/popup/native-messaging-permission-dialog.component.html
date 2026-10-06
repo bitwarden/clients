@@ -1,0 +1,28 @@
+<bit-dialog [title]="'newPermissionNeeded' | i18n">
+  <div bitDialogContent>
+    <p bitTypography="body1">{{ descriptionKey | i18n }}</p>
+    <bit-callout type="warning">{{ "sharedUnlockDesktopPermissionWarning" | i18n }}</bit-callout>
+  </div>
+  <ng-container bitDialogFooter>
+    <button
+      type="button"
+      class="tw-flex-1"
+      bitButton
+      buttonType="secondary"
+      bitDialogClose
+      id="native-messaging-permission_button_close"
+    >
+      {{ "close" | i18n }}
+    </button>
+    <button
+      type="button"
+      class="tw-flex-1"
+      bitButton
+      buttonType="primary"
+      (click)="continue()"
+      id="native-messaging-permission_button_continue"
+    >
+      {{ "continue" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

@@ -46,14 +46,6 @@ const ALWAYS_ON_TOP_KEY = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "alw
   deserializer: (b) => b,
 });
 
-const BROWSER_INTEGRATION_ENABLED = new KeyDefinition<boolean>(
-  DESKTOP_SETTINGS_DISK,
-  "browserIntegrationEnabled",
-  {
-    deserializer: (b) => b,
-  },
-);
-
 const SSH_AGENT_ENABLED = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "sshAgentEnabled", {
   deserializer: (b) => b,
 });
@@ -113,15 +105,6 @@ export class DesktopSettingsService {
   private readonly alwaysOnTopState = this.stateProvider.getGlobal(ALWAYS_ON_TOP_KEY);
 
   alwaysOnTop$ = this.alwaysOnTopState.state$.pipe(map(Boolean));
-
-  private readonly browserIntegrationEnabledState = this.stateProvider.getGlobal(
-    BROWSER_INTEGRATION_ENABLED,
-  );
-
-  /**
-   * The application setting for whether or not the browser integration is enabled.
-   */
-  browserIntegrationEnabled$ = this.browserIntegrationEnabledState.state$.pipe(map(Boolean));
 
   private readonly sshAgentEnabledState = this.stateProvider.getGlobal(SSH_AGENT_ENABLED);
 
@@ -207,15 +190,6 @@ export class DesktopSettingsService {
    */
   async setAlwaysOnTop(value: boolean) {
     await this.alwaysOnTopState.update(() => value);
-  }
-
-  /**
-   * Sets a setting for whether or not the browser integration has been enabled.
-   * @param value `true` if the integration with the browser extension is enabled,
-   * `false` if it is not.
-   */
-  async setBrowserIntegrationEnabled(value: boolean) {
-    await this.browserIntegrationEnabledState.update(() => value);
   }
 
   /**

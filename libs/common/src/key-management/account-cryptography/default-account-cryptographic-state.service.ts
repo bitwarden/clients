@@ -1,25 +1,21 @@
-import { Observable } from "rxjs";
+import { distinctUntilChanged, Observable } from "rxjs";
 
 import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
-import { CRYPTO_DISK, StateProvider, UserKeyDefinition } from "@bitwarden/state";
+import { StateProvider } from "@bitwarden/state";
 import { UserId } from "@bitwarden/user-core";
 
-import { AccountCryptographicStateService } from "./account-cryptographic-state.service";
+import { ACCOUNT_CRYPTOGRAPHIC_STATE } from "../state-definitions";
 
-export const ACCOUNT_CRYPTOGRAPHIC_STATE = new UserKeyDefinition<WrappedAccountCryptographicState>(
-  CRYPTO_DISK,
-  "accountCryptographicState",
-  {
-    deserializer: (obj) => obj as WrappedAccountCryptographicState,
-    clearOn: ["logout"],
-  },
-);
+import { AccountCryptographicStateService } from "./account-cryptographic-state.service";
 
 export class DefaultAccountCryptographicStateService implements AccountCryptographicStateService {
   constructor(protected stateProvider: StateProvider) {}
 
   accountCryptographicState$(userId: UserId): Observable<WrappedAccountCryptographicState | null> {
-    return this.stateProvider.getUserState$(ACCOUNT_CRYPTOGRAPHIC_STATE, userId);
+    return this.stateProvider.getUserState$(ACCOUNT_CRYPTOGRAPHIC_STATE, userId).pipe(
+      // Sync rewrites unchanged state; each emission makes consumers decrypt the whole vault.
+      distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+    );
   }
 
   async setAccountCryptographicState(

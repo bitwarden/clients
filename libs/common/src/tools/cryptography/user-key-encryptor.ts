@@ -3,7 +3,9 @@
 import { firstValueFrom, map } from "rxjs";
 import { Jsonify } from "type-fest";
 
-import { EncString } from "../../key-management/crypto/models/enc-string";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
+
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId } from "../../types/guid";
 import { DataPacker } from "../state/data-packer.abstraction";

@@ -3,6 +3,7 @@
 import { OrganizationResponse } from "../../../admin-console/models/response/organization.response";
 import { BaseResponse } from "../../../models/response/base.response";
 
+import { PendingAnnualUpgradeResponse } from "./pending-annual-upgrade.response";
 import {
   BillingSubscriptionResponse,
   BillingSubscriptionUpcomingInvoiceResponse,
@@ -17,6 +18,7 @@ export class OrganizationSubscriptionResponse extends OrganizationResponse {
   expiration: string;
   expirationWithoutGracePeriod: string;
   exemptFromBillingAutomation: boolean;
+  pendingAnnualUpgrade?: PendingAnnualUpgradeResponse;
 
   constructor(response: any) {
     super(response);
@@ -35,6 +37,10 @@ export class OrganizationSubscriptionResponse extends OrganizationResponse {
     this.expiration = this.getResponseProperty("Expiration");
     this.expirationWithoutGracePeriod = this.getResponseProperty("ExpirationWithoutGracePeriod");
     this.exemptFromBillingAutomation = this.getResponseProperty("ExemptFromBillingAutomation");
+    const pendingAnnualUpgrade = this.getResponseProperty("PendingAnnualUpgrade");
+    if (pendingAnnualUpgrade) {
+      this.pendingAnnualUpgrade = new PendingAnnualUpgradeResponse(pendingAnnualUpgrade);
+    }
   }
 }
 
@@ -46,6 +52,7 @@ export class BillingCustomerDiscount extends BaseResponse {
   end?: string;
   durationInMonths?: number;
   appliesTo: string[];
+  isFromSchedule: boolean;
 
   constructor(response: any) {
     super(response);
@@ -56,5 +63,6 @@ export class BillingCustomerDiscount extends BaseResponse {
     this.end = this.getResponseProperty("End");
     this.durationInMonths = this.getResponseProperty("DurationInMonths");
     this.appliesTo = this.getResponseProperty("AppliesTo") || [];
+    this.isFromSchedule = this.getResponseProperty("IsFromSchedule") ?? false;
   }
 }

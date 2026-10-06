@@ -1149,6 +1149,98 @@ describe("InlineMenuFieldQualificationService", () => {
     });
   });
 
+  describe("isFieldForSshKeyForm", () => {
+    it("qualifies a GitHub-shaped public key textarea via algorithm placeholder", () => {
+      const field = mock<AutofillField>({
+        tagName: "textarea",
+        htmlName: "ssh_key[key]",
+        htmlID: "ssh_key_key",
+        placeholder: "Begins with 'ssh-rsa', 'ssh-ed25519'",
+      });
+      pageDetails.fields = [field];
+
+      expect(inlineMenuFieldQualificationService.isFieldForSshKeyForm(field, pageDetails)).toBe(
+        true,
+      );
+    });
+
+    it("qualifies a GitLab-shaped public key textarea via data-supported-algorithms", () => {
+      const field = mock<AutofillField>({
+        tagName: "textarea",
+        htmlName: "key[key]",
+        htmlID: "key_key",
+        dataSetValues: 'supportedAlgorithms: ["ssh-rsa","ssh-ed25519"]',
+      });
+      pageDetails.fields = [field];
+
+      expect(inlineMenuFieldQualificationService.isFieldForSshKeyForm(field, pageDetails)).toBe(
+        true,
+      );
+    });
+
+    it("qualifies a title input when a public key field is present on the page", () => {
+      const publicKeyField = mock<AutofillField>({
+        tagName: "textarea",
+        htmlName: "ssh_key[key]",
+        placeholder: "Begins with 'ssh-rsa'",
+        form: "validFormId",
+      });
+      const titleField = mock<AutofillField>({
+        tagName: "input",
+        type: "text",
+        htmlName: "ssh_key[title]",
+        form: "validFormId",
+      });
+      pageDetails.fields = [publicKeyField, titleField];
+
+      expect(
+        inlineMenuFieldQualificationService.isFieldForSshKeyForm(titleField, pageDetails),
+      ).toBe(true);
+    });
+
+    it("does not qualify a title input when no public key field is present", () => {
+      const titleField = mock<AutofillField>({
+        tagName: "input",
+        type: "text",
+        htmlName: "ssh_key[title]",
+        form: "validFormId",
+      });
+      pageDetails.fields = [titleField];
+
+      expect(
+        inlineMenuFieldQualificationService.isFieldForSshKeyForm(titleField, pageDetails),
+      ).toBe(false);
+    });
+
+    it("does not qualify a single-line api_key input", () => {
+      const field = mock<AutofillField>({
+        tagName: "input",
+        type: "text",
+        htmlName: "api_key",
+        htmlID: "api_key",
+      });
+      pageDetails.fields = [field];
+
+      expect(inlineMenuFieldQualificationService.isFieldForSshKeyForm(field, pageDetails)).toBe(
+        false,
+      );
+    });
+
+    it("does not qualify a generic comment textarea", () => {
+      const field = mock<AutofillField>({
+        tagName: "textarea",
+        htmlName: "comment",
+        htmlID: "comment",
+        placeholder: "Leave a comment",
+      });
+      pageDetails.fields = [field];
+
+      expect(inlineMenuFieldQualificationService.isFieldForSshKeyForm(field, pageDetails)).toBe(
+        false,
+      );
+    });
+  });
+
   describe("isFieldForAccountCreationForm", () => {
     it("validates a field for an account creation if the field is formless but at least one new password field exists in the page details", () => {
       const field = mock<AutofillField>({

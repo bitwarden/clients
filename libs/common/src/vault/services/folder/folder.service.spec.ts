@@ -4,16 +4,15 @@ import { BehaviorSubject, firstValueFrom } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { makeEncString } from "../../../../spec";
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";
 import { FakeSingleUserState } from "../../../../spec/fake-state";
 import { FakeStateProvider } from "../../../../spec/fake-state-provider";
-import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { CipherService } from "../../abstractions/cipher.service";
@@ -177,6 +176,20 @@ describe("Folder Service", () => {
     await folderService.delete("1", mockUserId);
 
     expect((await firstValueFrom(folderService.folders$(mockUserId))).length).toBe(0);
+  });
+
+  it("re-assigns ciphers in every deleted folder to no folder", async () => {
+    const inFolder1 = { folderId: "1", toCipherData: () => ({ id: "c1" }) };
+    const inFolder2 = { folderId: "2", toCipherData: () => ({ id: "c2" }) };
+    const elsewhere = { folderId: "3", toCipherData: () => ({ id: "c3" }) };
+    cipherService.getAll.mockResolvedValue({ c1: inFolder1, c2: inFolder2, c3: elsewhere } as any);
+
+    await folderService.delete(["1", "2"], mockUserId);
+
+    expect(inFolder1.folderId).toBeNull();
+    expect(inFolder2.folderId).toBeNull();
+    expect(elsewhere.folderId).toBe("3");
+    expect(cipherService.upsert).toHaveBeenCalledWith([{ id: "c1" }, { id: "c2" }]);
   });
 
   describe("clearDecryptedFolderState", () => {

@@ -5,7 +5,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 @Pipe({
   name: "userStatus",
-  standalone: false,
 })
 export class UserStatusPipe implements PipeTransform {
   constructor(private i18nService: I18nService) {}
@@ -21,6 +20,8 @@ export class UserStatusPipe implements PipeTransform {
         return this.i18nService.t("accepted");
       case OrganizationUserStatusType.Confirmed:
         return this.i18nService.t("confirmed");
+      case OrganizationUserStatusType.Staged:
+        return this.i18nService.t("staged");
       case OrganizationUserStatusType.Revoked:
         return this.i18nService.t("revoked");
       default:

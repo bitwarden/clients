@@ -1,12 +1,17 @@
 import { Component, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { RouterModule } from "@angular/router";
+import { Router, RouterModule } from "@angular/router";
 import { map } from "rxjs";
 
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
+import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, LayoutComponent, NavigationModule } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { VaultManageNavComponent, VaultNavSectionComponent } from "@bitwarden/vault";
 
 import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
 import { ExportDesktopComponent } from "../tools/export/export-desktop.component";
@@ -28,12 +33,17 @@ import { DesktopSideNavComponent } from "./desktop-side-nav.component";
     DesktopSideNavComponent,
     VaultFilterComponent,
     SendFiltersNavComponent,
+    VaultNavSectionComponent,
+    VaultManageNavComponent,
   ],
   templateUrl: "./desktop-layout.component.html",
 })
 export class DesktopLayoutComponent {
   private dialogService = inject(DialogService);
   private sendPolicyService = inject(SendPolicyService);
+  private configService = inject(ConfigService);
+  private platformUtilsService = inject(PlatformUtilsService);
+  private router = inject(Router);
 
   protected readonly logo = PasswordManagerLogo;
 
@@ -42,11 +52,22 @@ export class DesktopLayoutComponent {
     { initialValue: true },
   );
 
+  protected readonly vfo1Foundation = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
+
+  protected readonly isMacOs = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
+
   protected openGenerator() {
     this.dialogService.open(CredentialGeneratorComponent);
   }
 
-  protected openImport() {
+  protected async openImport() {
+    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+      await this.router.navigate(["/import"]);
+      return;
+    }
     this.dialogService.open(ImportDesktopComponent);
   }
 

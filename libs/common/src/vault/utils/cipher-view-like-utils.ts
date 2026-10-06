@@ -1,4 +1,5 @@
 import {
+  BankAccountListView,
   BankAccountView as SdkBankAccountView,
   CardListView,
   CipherListView,
@@ -10,6 +11,7 @@ import {
 import { UriMatchStrategy, UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { Utils } from "../../platform/misc/utils";
+import { CipherId } from "../../types/guid";
 import { BankAccountType, BankAccountTypeI18nKeys, CipherType } from "../enums";
 import { Cipher } from "../models/domain/cipher";
 import { BankAccountView } from "../models/view/bank-account.view";
@@ -116,6 +118,16 @@ export class CipherViewLikeUtils {
   };
 
   /**
+   * `CipherListView.id` is the SDK's `CipherId` and `CipherView.id` is a plain string, so this
+   * returns `libs/common`'s {@link CipherId} for either.
+   */
+  static getId = (cipher: CipherViewLike | Cipher): CipherId | undefined => {
+    const id = cipher.id as unknown as string | undefined;
+
+    return id ? (id as CipherId) : undefined;
+  };
+
+  /**
    * Returns the type of the cipher.
    * For consistency, when the given cipher is a {@link CipherListView} the {@link CipherType} equivalent will be returned.
    */
@@ -130,7 +142,7 @@ export class CipherViewLikeUtils {
         return CipherType.SecureNote;
       case cipher.type === "sshKey":
         return CipherType.SshKey;
-      case cipher.type === "bankAccount":
+      case typeof cipher.type === "object" && "bankAccount" in cipher.type:
         return CipherType.BankAccount;
       case cipher.type === "passport":
         return CipherType.Passport;
@@ -173,13 +185,16 @@ export class CipherViewLikeUtils {
     }
   };
 
-  private static getBankAccount = (
+  /** @returns The bank account object from the input cipher. If the cipher is not of type BankAccount, returns null. */
+  static getBankAccount = (
     cipher: CipherViewLike,
-  ): BankAccountView | SdkBankAccountView | null => {
-    // CipherListViewType only inlines `card` and `login` data — bank account is a plain
-    // string discriminator without nested view data, so there is nothing to read here.
+  ): BankAccountView | SdkBankAccountView | BankAccountListView | null => {
     if (this.isCipherListView(cipher)) {
-      return null;
+      if (typeof cipher.type !== "object") {
+        return null;
+      }
+
+      return "bankAccount" in cipher.type ? cipher.type.bankAccount : null;
     }
 
     return cipher.type === CipherType.BankAccount ? (cipher.bankAccount ?? null) : null;
@@ -460,7 +475,7 @@ export class CipherViewLikeUtils {
 
     if (uri.match !== UriMatchStrategy.RegularExpression && uri.uri) {
       const hostname = Utils.getHostname(uri.uri);
-      return hostname === "" ? undefined : hostname;
+      return !hostname ? undefined : hostname;
     }
 
     return undefined;

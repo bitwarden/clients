@@ -12,7 +12,7 @@ import { LegacyPasswordGenerationService } from "./legacy-password-generation.se
 import { PasswordGenerationServiceAbstraction } from "./password-generation.service.abstraction";
 
 const { PassphraseGeneratorStrategy, PasswordGeneratorStrategy } = strategies;
-const { PureCryptoRandomizer, PasswordRandomizer } = engine;
+const { SdkRandomizer, PasswordRandomizer } = engine;
 
 const DefaultGeneratorService = services.DefaultGeneratorService;
 
@@ -22,7 +22,7 @@ export function legacyPasswordGenerationServiceFactory(
   stateProvider: StateProvider,
   sdkService: SdkService,
 ): PasswordGenerationServiceAbstraction {
-  const randomizer = new PureCryptoRandomizer();
+  const randomizer = new SdkRandomizer();
   const passwordRandomizer = new PasswordRandomizer(randomizer, Date.now);
 
   const passwords = new DefaultGeneratorService(

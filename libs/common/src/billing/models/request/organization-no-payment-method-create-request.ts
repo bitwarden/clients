@@ -1,6 +1,5 @@
 import { OrganizationKeysRequest } from "../../../admin-console/models/request/organization-keys.request";
-import { InitiationPath } from "../../../models/request/reference-event.request";
-import { PlanType } from "../../enums";
+import { InitiationPath, PlanType } from "../../enums";
 
 export class OrganizationNoPaymentMethodCreateRequest {
   name: string = "";

@@ -13,7 +13,6 @@ import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service
 import { OrganizationConnectionType } from "../admin-console/enums";
 import {
   CollectionAccessDetailsResponse,
-  CollectionDetailsResponse,
   CollectionResponse,
 } from "../admin-console/models/collections";
 import { CollectionBulkDeleteRequest } from "../admin-console/models/request/collection-bulk-delete.request";
@@ -63,7 +62,6 @@ import { IdentityDeviceVerificationResponse } from "../auth/models/response/iden
 import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
-import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
 import { RefreshTokenResponse } from "../auth/models/response/refresh-token.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
@@ -72,13 +70,13 @@ import { PaymentResponse } from "../billing/models/response/payment.response";
 import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
 import { EventRequest, EventResponse } from "../dirt/event-logs";
+import { addEventParameters } from "../dirt/event-logs/services/event-query-params.util";
 import { ClientType, DeviceType, HttpStatusCode } from "../enums";
 import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
 import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
 import { VaultTimeoutAction } from "../key-management/vault-timeout/enums/vault-timeout-action.enum";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
-import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
@@ -87,6 +85,7 @@ import { VerifyEmailRequest } from "../models/request/verify-email.request";
 import { DomainsResponse } from "../models/response/domains.response";
 import { ErrorResponse } from "../models/response/error.response";
 import { ListResponse } from "../models/response/list.response";
+import { ProblemDetailsErrorResponse } from "../models/response/problem-details-error.response";
 import { ProfileResponse } from "../models/response/profile.response";
 import { UserKeyResponse } from "../models/response/user-key.response";
 import { AppIdService } from "../platform/abstractions/app-id.service";
@@ -101,25 +100,22 @@ import { SyncResponse } from "../platform/sync";
 import { UserId } from "../types/guid";
 import { AttachmentRequest } from "../vault/models/request/attachment.request";
 import { CipherBulkDeleteRequest } from "../vault/models/request/cipher-bulk-delete.request";
-import { CipherBulkMoveRequest } from "../vault/models/request/cipher-bulk-move.request";
 import { CipherBulkRestoreRequest } from "../vault/models/request/cipher-bulk-restore.request";
-import { CipherBulkShareRequest } from "../vault/models/request/cipher-bulk-share.request";
-import { CipherCollectionsRequest } from "../vault/models/request/cipher-collections.request";
 import { CipherCreateRequest } from "../vault/models/request/cipher-create.request";
 import { CipherPartialRequest } from "../vault/models/request/cipher-partial.request";
-import { CipherShareRequest } from "../vault/models/request/cipher-share.request";
 import { CipherRequest } from "../vault/models/request/cipher.request";
 import { AttachmentUploadDataResponse } from "../vault/models/response/attachment-upload-data.response";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
 import { CipherResponse } from "../vault/models/response/cipher.response";
 import { DeleteAttachmentResponse } from "../vault/models/response/delete-attachment.response";
-import { OptionalCipherResponse } from "../vault/models/response/optional-cipher.response";
 
 import { InsecureUrlNotAllowedError } from "./api-errors";
 
 export type HttpOperations = {
   createRequest: (url: string, request: RequestInit) => Request;
 };
+
+export const EventUploadBatchSize = 100;
 
 /**
  * @deprecated The `ApiService` class is deprecated and calls should be extracted into individual
@@ -164,10 +160,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   async postIdentityToken(
     request:
-      | UserApiTokenRequest
-      | PasswordTokenRequest
-      | SsoTokenRequest
-      | WebAuthnLoginTokenRequest,
+      UserApiTokenRequest | PasswordTokenRequest | SsoTokenRequest | WebAuthnLoginTokenRequest,
   ): Promise<
     | IdentityTokenResponse
     | IdentityTwoFactorResponse
@@ -336,10 +329,6 @@ export class ApiService implements ApiServiceAbstraction {
     return this.send("POST", "/accounts/delete-recover-token", request, false, false);
   }
 
-  postAccountKdf(request: KdfRequest): Promise<any> {
-    return this.send("POST", "/accounts/kdf", request, true, false);
-  }
-
   async deleteSsoUser(organizationId: string): Promise<void> {
     return this.send("DELETE", "/accounts/sso/" + organizationId, null, true, false);
   }
@@ -359,10 +348,6 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ApiKeyResponse> {
     const r = await this.send("POST", "/accounts/rotate-api-key", request, true, true);
     return new ApiKeyResponse(r);
-  }
-
-  postConvertToKeyConnector(): Promise<void> {
-    return this.send("POST", "/accounts/convert-to-key-connector", null, true, false);
   }
 
   // Account Billing APIs
@@ -445,38 +430,6 @@ export class ApiService implements ApiServiceAbstraction {
 
   deleteManyCiphersAdmin(request: CipherBulkDeleteRequest): Promise<any> {
     return this.send("DELETE", "/ciphers/admin", request, true, false);
-  }
-
-  putMoveCiphers(request: CipherBulkMoveRequest): Promise<any> {
-    return this.send("PUT", "/ciphers/move", request, true, false);
-  }
-
-  async putShareCipher(id: string, request: CipherShareRequest): Promise<CipherResponse> {
-    const r = await this.send("PUT", "/ciphers/" + id + "/share", request, true, true);
-    return new CipherResponse(r);
-  }
-
-  async putShareCiphers(request: CipherBulkShareRequest): Promise<ListResponse<CipherResponse>> {
-    const r = await this.send("PUT", "/ciphers/share", request, true, true);
-    return new ListResponse<CipherResponse>(r, CipherResponse);
-  }
-
-  async putCipherCollections(
-    id: string,
-    request: CipherCollectionsRequest,
-  ): Promise<OptionalCipherResponse> {
-    const response = await this.send(
-      "PUT",
-      "/ciphers/" + id + "/collections_v2",
-      request,
-      true,
-      true,
-    );
-    return new OptionalCipherResponse(response);
-  }
-
-  putCipherCollectionsAdmin(id: string, request: CipherCollectionsRequest): Promise<any> {
-    return this.send("PUT", "/ciphers/" + id + "/collections-admin", request, true, true);
   }
 
   postPurgeCiphers(
@@ -687,6 +640,19 @@ export class ApiService implements ApiServiceAbstraction {
     return new ListResponse(r, CollectionAccessDetailsResponse);
   }
 
+  async getManyCollectionsWithOrganizationDetails(
+    organizationId: string,
+  ): Promise<ListResponse<CollectionAccessDetailsResponse>> {
+    const r = await this.send(
+      "GET",
+      "/organizations/" + organizationId + "/collections/access",
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, CollectionAccessDetailsResponse);
+  }
+
   async getCollectionUsers(
     organizationId: string,
     id: string,
@@ -704,7 +670,7 @@ export class ApiService implements ApiServiceAbstraction {
   async postCollection(
     organizationId: string,
     request: CreateCollectionRequest,
-  ): Promise<CollectionDetailsResponse> {
+  ): Promise<CollectionAccessDetailsResponse> {
     const r = await this.send(
       "POST",
       "/organizations/" + organizationId + "/collections",
@@ -719,7 +685,7 @@ export class ApiService implements ApiServiceAbstraction {
     organizationId: string,
     id: string,
     request: UpdateCollectionRequest,
-  ): Promise<CollectionDetailsResponse> {
+  ): Promise<CollectionAccessDetailsResponse> {
     const r = await this.send(
       "PUT",
       "/organizations/" + organizationId + "/collections/" + id,
@@ -1020,7 +986,7 @@ export class ApiService implements ApiServiceAbstraction {
   async getEvents(start: string, end: string, token: string): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters("/events", start, end, token),
+      addEventParameters("/events", start, end, token),
       null,
       true,
       true,
@@ -1036,7 +1002,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters("/ciphers/" + id + "/events", start, end, token),
+      addEventParameters("/ciphers/" + id + "/events", start, end, token),
       null,
       true,
       true,
@@ -1053,7 +1019,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters(
+      addEventParameters(
         "/organization/" + orgId + "/secrets/" + id + "/events",
         start,
         end,
@@ -1075,7 +1041,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters(
+      addEventParameters(
         "/organization/" + orgId + "/service-account/" + id + "/events",
         start,
         end,
@@ -1097,7 +1063,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters(
+      addEventParameters(
         "/organization/" + orgId + "/projects/" + id + "/events",
         start,
         end,
@@ -1118,7 +1084,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters("/organizations/" + id + "/events", start, end, token),
+      addEventParameters("/organizations/" + id + "/events", start, end, token),
       null,
       true,
       true,
@@ -1135,7 +1101,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters(
+      addEventParameters(
         "/organizations/" + organizationId + "/users/" + id + "/events",
         start,
         end,
@@ -1156,7 +1122,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters("/providers/" + id + "/events", start, end, token),
+      addEventParameters("/providers/" + id + "/events", start, end, token),
       null,
       true,
       true,
@@ -1173,7 +1139,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters(
+      addEventParameters(
         "/providers/" + providerId + "/users/" + id + "/events",
         start,
         end,
@@ -1186,7 +1152,7 @@ export class ApiService implements ApiServiceAbstraction {
     return new ListResponse(r, EventResponse);
   }
 
-  async postEventsCollect(request: EventRequest[], userId?: UserId): Promise<any> {
+  async postEventsCollect(requests: EventRequest[], userId?: UserId): Promise<EventRequest[]> {
     const authHeader = await this.tokenService.getAccessToken(userId);
     const headers = new Headers({
       "Device-Type": this.deviceType,
@@ -1196,24 +1162,41 @@ export class ApiService implements ApiServiceAbstraction {
     if (this.customUserAgent != null) {
       headers.set("User-Agent", this.customUserAgent);
     }
-
     const env = await firstValueFrom(
       userId == null
         ? this.environmentService.environment$
         : this.environmentService.getEnvironment$(userId),
     );
-    const response = await this.fetch(
-      this.httpOperations.createRequest(env.getEventsUrl() + "/collect", {
-        cache: "no-store",
-        credentials: await this.getCredentials(env),
-        method: "POST",
-        body: JSON.stringify(request),
-        headers: headers,
-      }),
-    );
-    if (response.status !== 200) {
-      return Promise.reject("Event post failed.");
+
+    // Break uploads into chunks of {EventUploadBatchSize} events
+    let bail = false;
+    const failedRequests: EventRequest[] = [];
+    for (const eventRequests of Utils.chunkArray(requests, EventUploadBatchSize)) {
+      // We only fail once per set of uploads
+      if (bail) {
+        failedRequests.push(...eventRequests);
+        continue;
+      }
+
+      try {
+        const response = await this.fetch(
+          this.httpOperations.createRequest(env.getEventsUrl() + "/collect", {
+            cache: "no-store",
+            credentials: await this.getCredentials(env),
+            method: "POST",
+            body: JSON.stringify(eventRequests),
+            headers: headers,
+          }),
+        );
+        if (response.status !== 200) {
+          throw new Error("Event post failed.");
+        }
+      } catch {
+        bail = true;
+        failedRequests.push(...eventRequests);
+      }
     }
+    return failedRequests;
   }
 
   // User APIs
@@ -1236,34 +1219,6 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   // Key Connector
-
-  async getMasterKeyFromKeyConnector(
-    keyConnectorUrl: string,
-  ): Promise<KeyConnectorUserKeyResponse> {
-    const activeUser = await this.getActiveUser();
-    if (activeUser == null) {
-      throw new Error("No active user, cannot get master key from key connector.");
-    }
-    const authHeader = await this.getActiveBearerToken(activeUser);
-
-    const response = await this.fetch(
-      this.httpOperations.createRequest(keyConnectorUrl + "/user-keys", {
-        cache: "no-store",
-        method: "GET",
-        headers: new Headers({
-          Accept: "application/json",
-          Authorization: "Bearer " + authHeader,
-        }),
-      }),
-    );
-
-    if (response.status !== HttpStatusCode.Ok) {
-      const error = await this.handleApiRequestError(response, true);
-      return Promise.reject(error);
-    }
-
-    return new KeyConnectorUserKeyResponse(await response.json());
-  }
 
   async postUserKeyToKeyConnector(
     keyConnectorUrl: string,
@@ -1833,6 +1788,10 @@ export class ApiService implements ApiServiceAbstraction {
     }
 
     const responseJson = await this.getJsonResponse(response);
+    const contentType = response.headers.get("content-type") ?? "";
+    if (contentType.indexOf("application/problem+json") > -1) {
+      return new ProblemDetailsErrorResponse(responseJson, response.status);
+    }
     return new ErrorResponse(responseJson, response.status);
   }
 
@@ -1884,24 +1843,13 @@ export class ApiService implements ApiServiceAbstraction {
     return undefined;
   }
 
-  private addEventParameters(base: string, start: string, end: string, token: string) {
-    if (start != null) {
-      base += "?start=" + start;
-    }
-    if (end != null) {
-      base += base.indexOf("?") > -1 ? "&" : "?";
-      base += "end=" + end;
-    }
-    if (token != null) {
-      base += base.indexOf("?") > -1 ? "&" : "?";
-      base += "continuationToken=" + token;
-    }
-    return base;
-  }
-
   private isJsonResponse(response: Response): boolean {
     const typeHeader = response.headers.get("content-type");
-    return typeHeader != null && typeHeader.indexOf("application/json") > -1;
+    return (
+      typeHeader != null &&
+      (typeHeader.indexOf("application/json") > -1 ||
+        typeHeader.indexOf("application/problem+json") > -1)
+    );
   }
 
   private isTextPlainResponse(response: Response): boolean {

@@ -137,27 +137,26 @@ div:not(.modal)::-webkit-scrollbar-thumb,
   }
 }
 
-#bit-side-nav::-webkit-scrollbar-thumb {
+#bit-side-nav--scroll::-webkit-scrollbar-thumb {
+  border-inline-end: 2px solid transparent;
+  border-inline-start: 2px solid transparent;
+  border-radius: 4px;
+  background-clip: padding-box;
   @include themify($themes) {
     background-color: themed("scrollbarColorNav");
   }
-
-  &:hover {
-    @include themify($themes) {
-      background-color: themed("scrollbarHoverColorNav");
-    }
-  }
 }
 
-// cdk-virtual-scroll
-.cdk-virtual-scroll-viewport {
+// cdk-virtual-scroll. `bit-table-v2` is excluded: it sizes its own viewport and
+// needs horizontal overflow for column scrolling.
+.cdk-virtual-scroll-viewport:not(bit-table-v2 *) {
   width: 100%;
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
-.cdk-virtual-scroll-content-wrapper {
+.cdk-virtual-scroll-content-wrapper:not(bit-table-v2 *) {
   width: 100%;
 }
 

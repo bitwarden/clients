@@ -6,7 +6,7 @@
   <div class="tw-mb-1">
     <bit-menu #environmentOptions>
       <button
-        *ngFor="let region of availableRegions; let i = index"
+        *ngFor="let region of availableRegions$ | async; let i = index"
         bitMenuItem
         type="button"
         [attr.aria-pressed]="data.selectedRegion === region ? 'true' : 'false'"

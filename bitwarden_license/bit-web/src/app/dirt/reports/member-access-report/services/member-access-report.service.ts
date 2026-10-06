@@ -13,18 +13,20 @@ import {
 } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Guid, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 import { GroupApiService } from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import {
   getPermissionList,
   convertToPermission,
+  permissionLabelId,
 } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/access-selector";
 
 import { MemberAccessResponse } from "../response/member-access-report.response";
@@ -80,6 +82,7 @@ export class MemberAccessReportService {
     private cipherService: CipherService,
     private logService: LogService,
     private groupApiService: GroupApiService,
+    private vfo1TerminologyService: Vfo1TerminologyService,
   ) {}
   /**
    * Transforms user data into a MemberAccessReportView.
@@ -212,9 +215,10 @@ export class MemberAccessReportService {
       hidePasswords: access.hidePasswords,
       manage: access.manage,
     });
-    return this.i18nService.t(
-      permissionList.find((p) => p.perm === convertToPermission(collectionSelectionView))?.labelId,
+    const permission = permissionList.find(
+      (p) => p.perm === convertToPermission(collectionSelectionView),
     );
+    return this.i18nService.t(permissionLabelId(permission, this.vfo1TerminologyService.enabled()));
   }
 
   /**
@@ -654,9 +658,10 @@ export class MemberAccessReportService {
 
     // Build permission lookup map once instead of calling getPermissionList() for each item
     const permissionList = getPermissionList();
+    const vfo1Enabled = this.vfo1TerminologyService.enabled();
     const permissionLookup = new Map<string, string>();
     permissionList.forEach((p) => {
-      permissionLookup.set(p.perm, p.labelId);
+      permissionLookup.set(p.perm, permissionLabelId(p, vfo1Enabled));
     });
 
     const exportItems: MemberAccessExportItem[] = [];

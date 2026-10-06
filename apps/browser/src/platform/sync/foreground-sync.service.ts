@@ -5,7 +5,9 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import {
   CommandDefinition,
   MessageListener,
@@ -45,6 +47,8 @@ export class ForegroundSyncService extends CoreSyncService {
     sendApiService: SendApiService,
     private readonly messageListener: MessageListener,
     stateProvider: StateProvider,
+    configService: ConfigService,
+    sdkService: SdkService,
   ) {
     super(
       tokenService,
@@ -60,6 +64,8 @@ export class ForegroundSyncService extends CoreSyncService {
       sendService,
       sendApiService,
       stateProvider,
+      configService,
+      sdkService,
     );
   }
 
@@ -83,7 +89,7 @@ export class ForegroundSyncService extends CoreSyncService {
           filter((m) => m.requestId === requestId),
           timeout({
             first: 30_000,
-            // If we haven't heard back in 30 seconds, just pretend we heard back about an unsuccesful sync.
+            // If we haven't heard back in 30 seconds, just pretend we heard back about an unsuccessful sync.
             with: () => {
               this.logService.warning(
                 "ForegroundSyncService did not receive a message back in a reasonable time.",

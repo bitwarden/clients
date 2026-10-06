@@ -6,6 +6,7 @@ import {
   Component,
   DestroyRef,
   EventEmitter,
+  inject,
   Inject,
   input,
   Input,
@@ -15,8 +16,8 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { FormBuilder, ReactiveFormsModule, ValidatorFn, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import * as JSZip from "jszip";
 import {
@@ -32,7 +33,7 @@ import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/opera
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { InputVerbatimDirective } from "@bitwarden/angular/directives/input-verbatim.directive";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -44,6 +45,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -61,6 +64,7 @@ import {
   CalloutModule,
   CardComponent,
   DialogService,
+  FileUploadComponent,
   FormFieldModule,
   IconButtonModule,
   RadioButtonModule,
@@ -69,11 +73,24 @@ import {
   SelectModule,
   ToastService,
   LinkModule,
+  BitwardenIcon,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-import { ImporterMetadata, DataLoader, Loader, Instructions } from "../metadata";
-import { ImportOption, ImportType } from "../models";
+import { Importer } from "../importers/importer";
+import { KeeperCsvImporter } from "../importers/keeper/keeper-csv-importer";
+import { KeeperJsonImporter } from "../importers/keeper/keeper-json-importer";
+import { DataLoader, Loader } from "../metadata";
 import {
+  CredentialKind,
+  HIDDEN_IMPORT_TYPE_IDS,
+  ImportOption,
+  ImportResult,
+  ImportType,
+  SdkImportCredentials,
+} from "../models";
+import {
+  ImporterCapabilities,
   ImportCollectionServiceAbstraction,
   ImportMetadataServiceAbstraction,
   ImportServiceAbstraction,
@@ -83,11 +100,27 @@ import { ImportChromeComponent } from "./chrome";
 import {
   FilePasswordPromptComponent,
   ImportErrorDialogComponent,
+  ImportSkippedItemsDialogComponent,
+  ImportSkippedItemsDialogData,
   ImportSuccessDialogComponent,
   ImportSuccessDialogData,
 } from "./dialog";
+import {
+  ImportSourceGroup,
+  ImportSourceGroupId,
+  importSourceGroup,
+  importSourceGroupForFormat,
+  isImportSourceGroupId,
+} from "./import-source-groups";
 import { ImporterProviders } from "./importer-providers";
+import { ImportKeeperComponent, defaultKeeperImportMethod } from "./keeper";
 import { ImportLastPassComponent } from "./lastpass";
+
+/** An entry in the source dropdown. */
+interface ImportSource {
+  id: string;
+  name: string;
+}
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -96,31 +129,53 @@ import { ImportLastPassComponent } from "./lastpass";
   templateUrl: "import.component.html",
   imports: [
     CommonModule,
-    JslibModule,
+    I18nPipe,
     FormFieldModule,
     AsyncActionsModule,
     ButtonModule,
     IconButtonModule,
     SelectModule,
     CalloutModule,
+    FileUploadComponent,
     ReactiveFormsModule,
     ImportChromeComponent,
     ImportLastPassComponent,
+    ImportKeeperComponent,
     RadioButtonModule,
     CardComponent,
     SectionHeaderComponent,
     SectionComponent,
     LinkModule,
+    InputVerbatimDirective,
   ],
   providers: ImporterProviders,
 })
 export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   DefaultCollectionType = CollectionTypes.DefaultUserCollection;
 
-  featuredImportOptions: ImportOption[];
-  importOptions: ImportOption[];
+  // `Vfo1TerminologyService` and `Vfo1IconPipe` cannot be imported here because
+  // `@bitwarden/vault` depends on `@bitwarden/importer`, creating a circular
+  // module dependency at the webpack level. ConfigService is used directly instead.
+  private readonly configService = inject(ConfigService);
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
+
+  protected collectionIcon(type: number): BitwardenIcon {
+    if (type === CollectionTypes.DefaultUserCollection) {
+      return "bwi-user";
+    }
+    return this.vfo1Enabled() ? "bwi-shared-folder" : "bwi-collection-shared";
+  }
+
+  /** The sources the dropdown lists: a format, or a group of formats with a Method dropdown. */
+  featuredImportSources: ImportSource[];
+  importSources: ImportSource[];
   format: ImportType = null;
-  fileSelected: File;
+  /** The selected source when it is a group. */
+  protected selectedSourceGroup: ImportSourceGroup | undefined;
+  showKeyFile = false;
 
   folders$: Observable<FolderView[]>;
   collections$: Observable<CollectionView[]>;
@@ -164,6 +219,21 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
+  /**
+   * Pre-selects an organization in the vault selector without locking it, allowing the user to
+   * change the destination.
+   *
+   * Contrast with {@link organizationId}, which locks the selector to a single org.
+   */
+  readonly defaultOrganizationId = input<string | undefined>(undefined);
+
+  /**
+   * Pre-selects a collection in the target selector when {@link defaultOrganizationId} is also
+   * provided. The collection is only applied if it belongs to the default organization and the
+   * active user has `manage` permission on it. The user may change the selection freely afterward.
+   */
+  readonly defaultCollectionId = input<string | undefined>(undefined);
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
@@ -196,9 +266,13 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       },
     ],
     targetSelector: [null],
+    source: [null as ImportType | ImportSourceGroupId | null, [Validators.required]],
+    method: [null as ImportType | null],
     format: [null as ImportType | null, [Validators.required]],
     fileContents: [],
-    file: [],
+    file: [null as File | null],
+    keyFile: [null as File | null],
+    kdbxPassword: [""],
     lastPassType: ["direct" as "csv" | "direct"],
     // FIXME: once the flag is disabled this should initialize to `Strategy.browser`
     chromiumLoader: [Loader.file as DataLoader],
@@ -208,6 +282,11 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(BitSubmitDirective)
   private bitSubmit: BitSubmitDirective;
+
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @ViewChild(ImportKeeperComponent)
+  private importKeeper?: ImportKeeperComponent;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
@@ -234,12 +313,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  private importer$ = new BehaviorSubject<ImporterMetadata | undefined>(undefined);
-
-  /** emits `true` when the chromium instruction block should be visible. */
-  protected readonly showChromiumInstructions$ = this.importer$.pipe(
-    map((importer) => importer?.instructions === Instructions.chromium),
-  );
+  /** loaders available for the selected `format` on this client/machine. Everything else about
+   *  an importer (name, instructions, accepted file types, ...) is static — see
+   *  `selectedImportOption`, which reads directly from `importOptions`. */
+  protected readonly importer$ = new BehaviorSubject<ImporterCapabilities | undefined>(undefined);
 
   /** emits `true` when direct browser import is available. */
   // FIXME: use the capabilities list to populate `chromiumLoader` and replace the explicit
@@ -292,6 +369,33 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.showLastPassToggle && this.formGroup.controls.lastPassType.value === "direct";
   }
 
+  protected get isKeeperFormat(): boolean {
+    return this.format === "keeper";
+  }
+
+  protected get keeperMethod(): "direct" | "csv" | "json" | undefined {
+    const subgroup = this.formGroup.get("keeperOptions");
+    // Default before import-keeper registers keeperOptions, or the @if below throws NG0100.
+    return subgroup?.get("method")?.value ?? defaultKeeperImportMethod(this.platformUtilsService);
+  }
+
+  // Factory only exposes "keeper"; csv/json variants are picked from the Method dropdown.
+  private resolveKeeperFileImporter(): Importer {
+    let importer: Importer;
+    switch (this.keeperMethod) {
+      case "csv":
+        importer = new KeeperCsvImporter(this.configService);
+        break;
+      case "json":
+        importer = new KeeperJsonImporter(this.configService);
+        break;
+      default:
+        throw new Error(`Unsupported Keeper method for file import: ${this.keeperMethod}`);
+    }
+    importer.organizationId = this.organizationId;
+    return importer;
+  }
+
   async ngOnInit() {
     await this.importMetadataService.init();
 
@@ -324,6 +428,31 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
         this.format = value;
+        this.updateKdbxControls(value);
+      });
+
+    // The format follows the source dropdown, or its Method dropdown when the source is a group.
+    this.formGroup.controls.source.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((source) => {
+        if (isImportSourceGroupId(source)) {
+          this.selectedSourceGroup = importSourceGroup(source);
+          const method = this.selectedSourceGroup.methods[0].format;
+          this.formGroup.controls.method.setValue(method, { emitEvent: false });
+          this.formGroup.controls.format.setValue(method);
+        } else {
+          this.selectedSourceGroup = undefined;
+          this.formGroup.controls.method.setValue(null, { emitEvent: false });
+          this.formGroup.controls.format.setValue(source);
+        }
+      });
+
+    this.formGroup.controls.method.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((method) => {
+        if (this.selectedSourceGroup && method) {
+          this.formGroup.controls.format.setValue(method);
+        }
       });
 
     await this.handlePolicies();
@@ -382,6 +511,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       ),
     );
 
+    const defaultCollectionId = this.defaultCollectionId();
+    const defaultOrgId = this.defaultOrganizationId();
+    let defaultCollectionApplied = false;
+
     // React to vault destination changes (personal vault vs organization selection)
     combineLatest([this.formGroup.controls.vaultSelector.valueChanges, this.organizations$])
       .pipe(takeUntil(this.destroy$))
@@ -408,11 +541,33 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
                   .sort(Utils.getSortFunction(this.i18nService, "name")),
               ),
             );
+
+          // Pre-fill the default collection once when the default org is first selected.
+          // Reads from this.collections$ directly to avoid a second decryptedCollections$ call.
+          // firstValueFrom is used instead of a nested subscribe to satisfy rxjs/no-nested-subscribe.
+          // It resolves asynchronously even for synchronous observables, so setValue(null) above is
+          // guaranteed to have already run before the collection value is applied.
+          if (!defaultCollectionApplied && defaultCollectionId && value === defaultOrgId) {
+            defaultCollectionApplied = true;
+            firstValueFrom(
+              this.collections$.pipe(
+                map((collections) => collections.find((c) => c.id === defaultCollectionId)),
+              ),
+            )
+              .then((collection) => {
+                if (collection) {
+                  this.formGroup.controls.targetSelector.setValue(collection);
+                }
+              })
+              .catch(() => {
+                // Collection not found or not manageable; leave targetSelector at its default.
+              });
+          }
         }
       });
 
-    // Set initial vault selector to personal vault
-    this.formGroup.controls.vaultSelector.setValue("myVault");
+    // Pre-select defaultOrganizationId when provided; otherwise default to personal vault
+    this.formGroup.controls.vaultSelector.setValue(defaultOrgId ?? "myVault");
   }
 
   /**
@@ -480,6 +635,14 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
+    // Keeper direct method runs its own login/import flow and emits the result
+    // via importCompleted. Csv/Json fall through to performImport() with an
+    // effective format of keepercsv/keeperjson.
+    if (this.isKeeperFormat && this.keeperMethod === "direct") {
+      await this.importKeeper?.submitDirect(this.organizationId);
+      return;
+    }
+
     await this.performImport();
   };
 
@@ -492,6 +655,11 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   protected async performImport() {
+    if (this.selectedImportOption?.sdk != null) {
+      await this.performSdkImport();
+      return;
+    }
+
     if (!(await this.validateImport())) {
       return;
     }
@@ -500,11 +668,13 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       return await this.getFilePassword();
     };
 
-    const importer = this.importService.getImporter(
-      this.format,
-      promptForPassword_callback,
-      this.organizationId,
-    );
+    const importer = this.isKeeperFormat
+      ? this.resolveKeeperFileImporter()
+      : this.importService.getImporter(
+          this.format,
+          promptForPassword_callback,
+          this.organizationId,
+        );
 
     if (importer === null) {
       this.toastService.showToast({
@@ -526,25 +696,54 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    try {
-      const result = await this.importService.import(
+    await this.doImport(async () =>
+      this.importService.import(
         importer,
         importContents,
         this.organizationId,
         this.formGroup.controls.targetSelector.value,
         this.organization?.canAccessImport && this.isFromAC,
-      );
+      ),
+    );
+  }
 
-      //No errors, display success message
+  protected async performDirectImport(result: ImportResult) {
+    if (!(await this.validateImport())) {
+      return;
+    }
+
+    await this.doImport(async () =>
+      this.importService.importImportResult(
+        result,
+        this.organizationId,
+        this.formGroup.controls.targetSelector.value,
+        this.organization?.canAccessImport && this.isFromAC,
+      ),
+    );
+  }
+
+  private async doImport(importFunc: () => Promise<ImportResult>): Promise<void> {
+    try {
+      const result = await importFunc();
+
       const returnDestination = this.returnTo()
         ? this.resolveReturnDestination(this.returnTo())
         : undefined;
-      this.dialogService.open<unknown, ImportSuccessDialogData>(ImportSuccessDialogComponent, {
-        data: {
-          importResult: result,
-          ...returnDestination,
-        },
-      });
+
+      if (result.errors != null && result.errors.length > 0) {
+        // Partial success: the valid items were imported; list the items that were skipped.
+        this.dialogService.open<boolean, ImportSkippedItemsDialogData>(
+          ImportSkippedItemsDialogComponent,
+          { data: { errors: result.errors, ...returnDestination } },
+        );
+      } else {
+        this.dialogService.open<unknown, ImportSuccessDialogData>(ImportSuccessDialogComponent, {
+          data: {
+            importResult: result,
+            ...returnDestination,
+          },
+        });
+      }
 
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -558,18 +757,117 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  getFormatInstructionTitle() {
-    if (this.format == null) {
-      return null;
+  /** Generic flow for any SDK-backed importer: read bytes, collect declared credentials, submit. */
+  private async performSdkImport() {
+    if (!(await this.validateImport())) {
+      return;
     }
 
-    const results = this.featuredImportOptions
-      .concat(this.importOptions)
-      .filter((o) => o.id === this.format);
-    if (results.length > 0) {
-      return this.i18nService.t("instructionsFor", results[0].name);
+    const fileBytes = await this.getSelectedFileBytes();
+    if (fileBytes == null || fileBytes.length === 0) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("selectFile"),
+      });
+      return;
     }
-    return null;
+
+    const credentials = await this.collectSdkCredentials(
+      this.selectedImportOption?.sdk?.credentialKind,
+    );
+    if (credentials == null) {
+      // Credentials dialog dismissed.
+      return;
+    }
+
+    try {
+      const summary = await this.importService.importWithSdk(
+        this.format,
+        fileBytes,
+        credentials,
+        this.organizationId,
+        this.formGroup.controls.targetSelector.value,
+        this.organization?.canAccessImport && this.isFromAC,
+      );
+
+      const returnDestination = this.returnTo()
+        ? this.resolveReturnDestination(this.returnTo())
+        : undefined;
+      this.dialogService.open<unknown, ImportSuccessDialogData>(ImportSuccessDialogComponent, {
+        data: {
+          sdkSummary: summary,
+          ...returnDestination,
+        },
+      });
+
+      await this.syncService.fullSync(true);
+      this.onSuccessfulImport.emit(this._organizationId);
+    } catch (e) {
+      const messageKey = this.importService.sdkErrorMessageKey(this.format, e);
+      this.dialogService.open<unknown, Error>(ImportErrorDialogComponent, {
+        data: messageKey != null ? new Error(this.i18nService.t(messageKey)) : (e as Error),
+      });
+      this.logService.error(e);
+    }
+  }
+
+  /** Collects the credentials an SDK importer declared, via the matching dialog. */
+  private async collectSdkCredentials(
+    kind: CredentialKind | undefined,
+  ): Promise<SdkImportCredentials | null> {
+    switch (kind) {
+      case CredentialKind.none:
+        return { kind: "none" };
+      case CredentialKind.password: {
+        const password = await this.getFilePassword();
+        return password == null ? null : { kind: "password", password };
+      }
+      case CredentialKind.passwordWithKeyFile: {
+        // KDBX collects the master password and optional key file inline in the main dialog.
+        const selectedKeyFile = this.formGroup.controls.keyFile.value;
+        const keyFile = selectedKeyFile
+          ? new Uint8Array(await selectedKeyFile.arrayBuffer())
+          : null;
+        return {
+          kind: "passwordWithKeyFile",
+          password: this.formGroup.controls.kdbxPassword.value,
+          keyFile,
+        };
+      }
+      default:
+        return null;
+    }
+  }
+
+  private async getSelectedFileBytes(): Promise<Uint8Array | null> {
+    const file = this.formGroup.controls.file.value;
+    if (file == null) {
+      return null;
+    }
+    return new Uint8Array(await file.arrayBuffer());
+  }
+
+  /** File-picker `accept` hint for the selected SDK importer, if any. Distinct from
+   *  `ImportOption.acceptedFileTypes` (the full per-vendor list); this is only the narrower
+   *  SDK-specific hint the native file input currently restricts on. */
+  protected get fileInputAcceptHint(): string | null {
+    const fileTypes = this.selectedImportOption?.sdk?.fileTypes;
+    return fileTypes ? fileTypes.map((type) => `.${type}`).join(",") : null;
+  }
+
+  /** The full metadata record for the selected `format`, or `undefined` before one is chosen. */
+  protected get selectedImportOption(): ImportOption | undefined {
+    return this.format == null ? undefined : this.importService.getImportOption(this.format);
+  }
+
+  /** Named after the vendor for a grouped source, since its instructions cover every method. */
+  getFormatInstructionTitle() {
+    const option = this.selectedImportOption;
+    const name = this.selectedSourceGroup
+      ? (option?.sourceName ?? this.selectedSourceGroup.name)
+      : option?.name;
+    return name ? this.i18nService.t("instructionsFor", name) : null;
   }
 
   protected handleChromeImportError(error: string) {
@@ -581,9 +879,26 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   protected setImportOptions() {
-    this.featuredImportOptions = [...this.importService.featuredImportOptions];
+    const sources: (ImportSource & { featured: boolean })[] = [];
+    const addedGroups = new Set<ImportSourceGroupId>();
+    for (const option of this.importService.importOptions) {
+      const group = importSourceGroupForFormat(option.id);
+      if (group == null) {
+        sources.push({ id: option.id, name: option.name, featured: option.featuredImporter });
+      } else if (!addedGroups.has(group.id)) {
+        // A group takes the place of its first member.
+        addedGroups.add(group.id);
+        sources.push({ id: group.id, name: group.name, featured: group.featuredImporter });
+      }
+    }
 
-    this.importOptions = [...this.importService.regularImportOptions].sort((a, b) => {
+    this.featuredImportSources = sources.filter((s) => s.featured);
+
+    const visibleRegularSources = sources.filter(
+      (s) => !s.featured && !HIDDEN_IMPORT_TYPE_IDS.has(s.id),
+    );
+
+    this.importSources = visibleRegularSources.sort((a, b) => {
       if (a.name == null && b.name != null) {
         return -1;
       }
@@ -600,9 +915,34 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  setSelectedFile(event: Event) {
-    const fileInputEl = <HTMLInputElement>event.target;
-    this.fileSelected = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
+  addKeyFile() {
+    this.showKeyFile = true;
+  }
+
+  /**
+   * Surfaces the existing `invalidMasterPassword` copy as the inline required-field error rather
+   * than the generic "input required" message (`bit-error` renders `message` for custom errors).
+   */
+  private readonly masterPasswordRequiredValidator: ValidatorFn = (control) =>
+    (control.value ?? "").length > 0
+      ? null
+      : { invalidMasterPassword: { message: this.i18nService.t("invalidMasterPassword") } };
+
+  /**
+   * KDBX collects its master password inline and requires it; switching away from KDBX clears the
+   * control and any selected key file so they don't leak into another format's import.
+   */
+  private updateKdbxControls(format: ImportType | null) {
+    const passwordControl = this.formGroup.controls.kdbxPassword;
+    if (format === "keepasskdbx") {
+      passwordControl.setValidators(this.masterPasswordRequiredValidator);
+    } else {
+      passwordControl.clearValidators();
+      passwordControl.setValue("");
+      this.formGroup.controls.keyFile.setValue(null);
+      this.showKeyFile = false;
+    }
+    passwordControl.updateValueAndValidity();
   }
 
   private getFileContents(file: File): Promise<string> {
@@ -696,13 +1036,12 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private async setImportContents(): Promise<string> {
-    const fileEl = document.getElementById("import_input_file") as HTMLInputElement;
-    const files = fileEl?.files;
+    const selectedFile = this.formGroup.controls.file.value;
     let fileContents = this.formGroup.controls.fileContents.value;
 
-    if (files != null && files.length > 0) {
+    if (selectedFile != null) {
       try {
-        const content = await this.getFileContents(files[0]);
+        const content = await this.getFileContents(selectedFile);
         if (content != null) {
           fileContents = content;
         }

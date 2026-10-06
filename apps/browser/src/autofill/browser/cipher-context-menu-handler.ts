@@ -70,6 +70,9 @@ export class CipherContextMenuHandler {
         [CipherType.Login]: [],
         [CipherType.Card]: [],
         [CipherType.Identity]: [],
+        // SSH keys are not surfaced in the right-click context menu yet, but the grouping
+        // record must cover every AutofillCipherTypeId.
+        [CipherType.SshKey]: [],
       },
     );
 

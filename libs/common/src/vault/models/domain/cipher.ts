@@ -1,14 +1,13 @@
 import { Jsonify } from "type-fest";
 
+// eslint-disable-next-line no-restricted-imports
+import { Decryptable, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { Cipher as SdkCipher } from "@bitwarden/sdk-internal";
 
 import { assertNonNullish } from "../../../auth/utils";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
-import { Decryptable } from "../../../platform/interfaces/decryptable.interface";
 import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import {
   CipherRepromptType,
@@ -36,13 +35,27 @@ import { Password } from "./password";
 import { SecureNote } from "./secure-note";
 import { SshKey } from "./ssh-key";
 
+/**
+ * Encrypted cipher, as stored and synced.
+ *
+ * Only metadata fields (ids, `key`, `type`, flags, permissions, dates, `attachments`,
+ * `localData`) are stable to read. Fields marked deprecated depend on the encryption format and
+ * must not be read or filtered on outside the encryption layer:
+ * - Legacy field-level format: each field is individually encrypted.
+ * - Blob format: these fields are `undefined`; all sensitive data is sealed in `data`.
+ *
+ * Decrypt to a `CipherView` / `CipherListView` to inspect item contents (e.g. whether a login has
+ * a TOTP or passkey). See bitwarden/sdk-internal#1535.
+ */
 export class Cipher extends Domain implements Decryptable<CipherView> {
   readonly initializerKey = InitializerKey.Cipher;
 
   id: string = "";
   organizationId?: string;
   folderId?: string;
+  /** @deprecated Encryption-format internal, not public API. `undefined` for blob-encrypted ciphers. See {@link Cipher}. */
   name?: EncString;
+  /** @deprecated Encryption-format internal, not public API. `undefined` for blob-encrypted ciphers. See {@link Cipher}. */
   notes?: EncString;
   type: CipherType = CipherType.Login;
   favorite: boolean = false;
@@ -52,16 +65,26 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   permissions?: CipherPermissionsApi;
   revisionDate: Date;
   localData?: LocalData;
+  /** @deprecated Encryption-format internal, not public API. `undefined` for blob-encrypted ciphers. See {@link Cipher}. */
   login?: Login;
+  /** @deprecated Encryption-format internal, not public API. `undefined` for blob-encrypted ciphers. See {@link Cipher}. */
   identity?: Identity;
+  /** @deprecated Encryption-format internal, not public API. `undefined` for blob-encrypted ciphers. See {@link Cipher}. */
   card?: Card;
+  /** @deprecated Encryption-format internal, not public API. `undefined` for blob-encrypted ciphers. See {@link Cipher}. */
   secureNote?: SecureNote;
+  /** @deprecated Encryption-format internal, not public API. `undefined` for blob-encrypted ciphers. See {@link Cipher}. */
   sshKey?: SshKey;
+  /** @deprecated Encryption-format internal, not public API. `undefined` for blob-encrypted ciphers. See {@link Cipher}. */
   bankAccount?: BankAccount;
+  /** @deprecated Encryption-format internal, not public API. `undefined` for blob-encrypted ciphers. See {@link Cipher}. */
   driversLicense?: DriversLicense;
+  /** @deprecated Encryption-format internal, not public API. `undefined` for blob-encrypted ciphers. See {@link Cipher}. */
   passport?: Passport;
   attachments?: Attachment[];
+  /** @deprecated Encryption-format internal, not public API. `undefined` for blob-encrypted ciphers. See {@link Cipher}. */
   fields?: Field[];
+  /** @deprecated Encryption-format internal, not public API. `undefined` for blob-encrypted ciphers. See {@link Cipher}. */
   passwordHistory?: Password[];
   collectionIds: string[] = [];
   creationDate: Date;
@@ -69,6 +92,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   archivedDate?: Date;
   reprompt: CipherRepromptType = CipherRepromptType.None;
   key?: EncString;
+  /** @deprecated Opaque sealed blob (blob format only), not public API. Never parse or construct it. See {@link Cipher}. */
   data?: string;
 
   constructor(obj?: CipherData, localData?: LocalData) {
@@ -141,6 +165,11 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     }
   }
 
+  /**
+   * @deprecated WARNING: This API may fail to decrypt ciphers if they are using blob encryption.
+   * If you are using this, please migrate off of it immediately! This function will be removed
+   * in a near release.
+   */
   async decrypt(userKeyOrOrgKey: SymmetricCryptoKey): Promise<CipherView> {
     assertNonNullish(userKeyOrOrgKey, "userKeyOrOrgKey", "Cipher decryption");
 
@@ -157,6 +186,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       try {
         const cipherKey = await encryptService.unwrapSymmetricKey(this.key, userKeyOrOrgKey);
         cipherDecryptionKey = cipherKey;
+        model.key = cipherKey;
         bypassValidation = false;
       } catch {
         model.name = "[error: cannot decrypt]";

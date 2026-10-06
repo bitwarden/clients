@@ -8,6 +8,7 @@ import {
   input,
 } from "@angular/core";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
@@ -23,13 +24,25 @@ type CharacterType = "letter" | "emoji" | "special" | "number";
 @Component({
   selector: "bit-color-password",
   template: `@for (character of passwordCharArray(); track $index; let i = $index) {
-    <span [class]="getCharacterClass(character)" class="tw-font-mono" data-password-character>
-      <span>{{ character }}</span>
-      @if (showCount()) {
-        <span class="tw-whitespace-nowrap tw-text-xs tw-leading-5 tw-text-main">{{ i + 1 }}</span>
-      }
-    </span>
-  }`,
+      <span
+        [class]="getCharacterClass(character)"
+        class="tw-font-mono"
+        data-password-character
+        [attr.aria-hidden]="showCount() ? null : 'true'"
+      >
+        <span>{{ character }}</span>
+        @if (showCount()) {
+          <span class="tw-whitespace-nowrap tw-text-xs tw-leading-5 tw-text-main">{{ i + 1 }}</span>
+        }
+      </span>
+    }
+    @if (!showCount()) {
+      <span class="tw-sr-only" data-password-accessible>
+        @for (char of accessiblePassword(); track $index) {
+          <code>{{ char }}</code>
+        }
+      </span>
+    }`,
 })
 export class ColorPasswordComponent {
   readonly password = input<string>("");
@@ -40,8 +53,19 @@ export class ColorPasswordComponent {
     return Array.from(this.password() ?? "");
   });
 
+  // Comma-separate the characters so screen readers announce each one individually
+  // instead of grouping adjacent letters into words. Literal spaces are swapped for
+  // a localized "space" token because screen readers collapse bare whitespace and
+  // would otherwise drop the character entirely from the announcement.
+  readonly accessiblePassword = computed(() =>
+    this.passwordCharArray().map((char) =>
+      char === " " ? this.i18nService.t("passwordAnnounceSpace") : char,
+    ),
+  );
+
   private platformUtilsService = inject(PlatformUtilsService);
   private elementRef = inject(ElementRef);
+  private i18nService = inject(I18nService);
 
   characterStyles: Record<CharacterType, string[]> = {
     emoji: [],

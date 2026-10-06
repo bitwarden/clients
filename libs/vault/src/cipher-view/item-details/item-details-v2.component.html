@@ -20,6 +20,21 @@
     </div>
     <ng-container>
       <div class="tw-flex tw-flex-col tw-mt-2 md:tw-flex-row md:tw-flex-wrap">
+        @if (!cipher().organizationId && !hideOwner() && vfo1Enabled()) {
+          <span
+            class="tw-flex tw-items-center tw-mt-2 tw-mr-4"
+            bitTypography="body2"
+            [attr.aria-label]="'myVault' | i18n"
+            data-testid="item-details-list"
+          >
+            <i
+              class="bwi bwi-user bwi-lg"
+              aria-hidden="true"
+              [title]="'owner' | vfo1I18n: 'vault'"
+            ></i>
+            <span aria-hidden="true" class="tw-pl-1.5">{{ "myVault" | i18n }}</span>
+          </span>
+        }
         @for (item of showItems(); track item.id; let last = $last) {
           <span
             class="tw-flex tw-items-center tw-mt-2 tw-mr-4"
@@ -33,7 +48,7 @@
                 appOrgIcon
                 [tierType]="organization().productTierType"
                 [size]="'large'"
-                [title]="'owner' | i18n"
+                [title]="'owner' | vfo1I18n: 'vault'"
               ></i>
             } @else {
               <i

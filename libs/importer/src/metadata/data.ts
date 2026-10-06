@@ -9,19 +9,14 @@ export const Loader = Object.freeze({
   /** Data provided through an importer ipc channel (e.g. Bitwarden bridge) */
   ipc: "ipc",
 
-  /** Data provided through direct file download (e.g. a LastPass export) */
+  /** Data provided by a literal file download, saved to disk and then read back.
+   *  @remarks Not what LastPass/Keeper's "direct" import modes do today — those authenticate
+   *  to the vendor's own API and decrypt the result client-side, in memory, without ever
+   *  saving a file. That mechanism isn't represented by any `Loader` value yet; see the
+   *  `lastpasscsv`/`keeper` entries in `models/import-options.ts`.
+   */
   download: "download",
 });
 
-/** Re-branded products often leave their exporters unaltered; when that occurs,
- *  `Instructions` lets us group them together.
- *
- *  @remarks Instructions values must be mutually exclusive from Loader's values.
- */
-export const Instructions = Object.freeze({
-  /** the instructions are unique to the import type */
-  unique: "unique",
-
-  /** shared chromium instructions */
-  chromium: "chromium",
-});
+/** Mechanisms that load data into the importer. */
+export type DataLoader = (typeof Loader)[keyof typeof Loader];

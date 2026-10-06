@@ -8,4 +8,5 @@ export class SecretRequest {
   note: string;
   projectIds?: string[];
   accessPoliciesRequests: SecretAccessPoliciesRequest;
+  valueChanged?: boolean;
 }

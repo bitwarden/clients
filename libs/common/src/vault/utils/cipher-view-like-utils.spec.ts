@@ -1,7 +1,8 @@
 import { mock } from "jest-mock-extended";
 
-import { CipherListView } from "@bitwarden/sdk-internal";
+import { CipherListView, LoginUriView as LoginListUriView } from "@bitwarden/sdk-internal";
 
+import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { BankAccountType, CipherType } from "../enums";
 import { Attachment } from "../models/domain/attachment";
@@ -23,6 +24,30 @@ describe("CipherViewLikeUtils", () => {
 
     return cipherView;
   };
+
+  describe("getId", () => {
+    const id = "cccc1111-dddd-4eee-8fff-000011112222";
+
+    it("returns the id of a CipherView", () => {
+      const cipherView = createCipherView();
+      cipherView.id = id;
+
+      expect(CipherViewLikeUtils.getId(cipherView)).toBe(id);
+    });
+
+    it("returns the id of a CipherListView", () => {
+      const cipherListView = { id, type: "identity" } as unknown as CipherListView;
+
+      expect(CipherViewLikeUtils.getId(cipherListView)).toBe(id);
+    });
+
+    it("returns undefined when the cipher has no id", () => {
+      const cipherListView = { id: undefined, type: "identity" } as CipherListView;
+
+      expect(CipherViewLikeUtils.getId(createCipherView())).toBeUndefined();
+      expect(CipherViewLikeUtils.getId(cipherListView)).toBeUndefined();
+    });
+  });
 
   describe("isCipherListView", () => {
     it("returns true when the cipher is a CipherListView", () => {
@@ -262,7 +287,7 @@ describe("CipherViewLikeUtils", () => {
         cipherListView.type = "secureNote";
         expect(CipherViewLikeUtils.getType(cipherListView)).toBe(CipherType.SecureNote);
 
-        cipherListView.type = "bankAccount";
+        cipherListView.type = { bankAccount: { accountNumber: "1234", accountType: "checking" } };
         expect(CipherViewLikeUtils.getType(cipherListView)).toBe(CipherType.BankAccount);
 
         cipherListView.type = "driversLicense";
@@ -362,18 +387,29 @@ describe("CipherViewLikeUtils", () => {
         expect(i18nService.t).not.toHaveBeenCalled();
       });
 
-      it("falls back to the SDK-provided subtitle for a CipherListView bank account", () => {
-        // CipherListViewType encodes bank account as a plain string discriminator and does
-        // not carry accountType/accountNumber inline. The SDK's pre-computed `subtitle` is
-        // the only signal we have.
+      it("falls back to the SDK-provided subtitle for a CipherListView bank account without inline data", () => {
         const cipherListView = {
-          type: "bankAccount",
+          type: { bankAccount: { accountNumber: undefined, accountType: undefined } },
           subtitle: "SDK-provided fallback",
         } as CipherListView;
 
         expect(CipherViewLikeUtils.subtitle(cipherListView, i18nService)).toBe(
           "SDK-provided fallback",
         );
+      });
+
+      it("computes a translated subtitle from the inline data of a CipherListView bank account", () => {
+        const cipherListView = {
+          type: {
+            bankAccount: { accountNumber: "987651234", accountType: BankAccountType.Checking },
+          },
+          subtitle: "SDK-provided fallback",
+        } as CipherListView;
+
+        expect(CipherViewLikeUtils.subtitle(cipherListView, i18nService)).toBe(
+          "translated:bankAccountTypeChecking, *1234",
+        );
+        expect(i18nService.t).toHaveBeenCalledWith("bankAccountTypeChecking");
       });
 
       it("returns the base subtitle for non-bank-account ciphers even when i18nService is provided", () => {
@@ -767,7 +803,6 @@ describe("CipherViewLikeUtils", () => {
 
       it("returns true for copyable fields in a bank account cipher", () => {
         const cipherListView = {
-          type: "bankAccount",
           copyableFields: [
             "BankAccountNameOnAccount",
             "BankAccountAccountNumber",
@@ -777,6 +812,7 @@ describe("CipherViewLikeUtils", () => {
             "BankAccountIban",
             "BankAccountSwift",
           ],
+          type: { bankAccount: { accountNumber: undefined, accountType: undefined } },
         } as CipherListView;
 
         expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "nameOnAccount")).toBe(true);
@@ -1107,6 +1143,67 @@ describe("CipherViewLikeUtils", () => {
         } as CipherListView;
 
         expect(CipherViewLikeUtils.getAttachmentNames(cipherListView)).toBeUndefined();
+      });
+    });
+  });
+
+  describe("getUriHostname", () => {
+    describe("CipherView (LoginUriView)", () => {
+      it("returns the hostname for a valid URI", () => {
+        const uri = new LoginUriView();
+        uri.uri = "https://example.com/path";
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBe("example.com");
+      });
+
+      it("returns undefined, not null, when the URI has no parseable hostname", () => {
+        const uri = new LoginUriView();
+        uri.uri = "data:text/plain,hello";
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBeUndefined();
+      });
+
+      it("returns undefined for RegularExpression match strategy", () => {
+        const uri = new LoginUriView();
+        uri.uri = "https://example.com";
+        uri.match = UriMatchStrategy.RegularExpression;
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBeUndefined();
+      });
+
+      it("returns undefined when there is no URI", () => {
+        const uri = new LoginUriView();
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBeUndefined();
+      });
+    });
+
+    describe("CipherListView (LoginListUriView)", () => {
+      it("returns the hostname for a valid URI", () => {
+        const uri = { uri: "https://example.com/path" } as LoginListUriView;
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBe("example.com");
+      });
+
+      it("returns undefined, not null, when the URI has no parseable hostname", () => {
+        const uri = { uri: "data:text/plain,hello" } as LoginListUriView;
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBeUndefined();
+      });
+
+      it("returns undefined for RegularExpression match strategy", () => {
+        const uri = {
+          uri: "https://example.com",
+          match: UriMatchStrategy.RegularExpression,
+        } as LoginListUriView;
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBeUndefined();
+      });
+
+      it("returns undefined when the URI is empty", () => {
+        const uri = { uri: "" } as LoginListUriView;
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBeUndefined();
       });
     });
   });

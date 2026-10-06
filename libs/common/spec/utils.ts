@@ -2,14 +2,17 @@
 // @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { KeyService } from "@bitwarden/key-management";
+import {
+  EncryptionType,
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
-import { EncryptionType } from "../src/platform/enums";
 import { Utils } from "../src/platform/misc/utils";
-import { SymmetricCryptoKey } from "../src/platform/models/domain/symmetric-crypto-key";
 
 function newGuid() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
@@ -83,10 +86,15 @@ export const mockFromSdk = (stub: any) => {
 export const mockContainerService = () => {
   const keyService = mock<KeyService>();
   const encryptService = mock<EncryptService>();
+  const legacyCompatKeyService = mock<LegacyCompatKeyService>();
   encryptService.decryptString.mockImplementation(async (encStr, _key) => {
     return encStr.decryptedValue;
   });
-  (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+  (window as any).bitwardenContainerService = new ContainerService(
+    keyService,
+    encryptService,
+    legacyCompatKeyService,
+  );
   return (window as any).bitwardenContainerService;
 };
 

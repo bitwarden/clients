@@ -13,7 +13,7 @@ import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { UserStateSubjectDependencyProvider } from "@bitwarden/common/tools/state/user-state-subject-dependency-provider";
 
 import { CredentialGeneratorService, Randomizer } from "./abstractions";
-import { PureCryptoRandomizer } from "./engine/purecrypto-randomizer";
+import { SdkRandomizer } from "./engine/sdk-randomizer";
 import { BuiltIn } from "./metadata";
 import {
   CredentialGeneratorProviders,
@@ -24,7 +24,7 @@ import {
 import { DefaultCredentialGeneratorService } from "./services";
 
 export function createRandomizer(): Randomizer {
-  return new PureCryptoRandomizer();
+  return new SdkRandomizer();
 }
 
 /** Instantiates a `CredentialGeneratorService` without Angular DI.

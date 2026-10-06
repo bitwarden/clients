@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnInit, OnDestroy, viewChild } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { firstValueFrom, map, Observable, switchMap } from "rxjs";
@@ -88,7 +88,7 @@ class QueryParams {
     this.clone = params.clone === "true";
     this.folderId = params.folderId;
     this.organizationId = params.organizationId;
-    this.collectionId = params.collectionId;
+    this.collectionIds = params.collectionIds;
     this.uri = params.uri;
     this.username = params.username;
     this.name = params.name;
@@ -123,9 +123,10 @@ class QueryParams {
   organizationId?: OrganizationId;
 
   /**
-   * Optional collectionId to pre-select.
+   * Optional collectionId(s) to pre-select.
+   * Can be a single collectionId or comma-separated list of collectionIds.
    */
-  collectionId?: CollectionId;
+  collectionIds?: string;
 
   /**
    * Optional URI to pre-fill for login ciphers.
@@ -228,6 +229,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
   private get inSingleActionPopout() {
     return BrowserPopupUtils.inSingleActionPopout(window, VaultPopoutType.addEditVaultItem);
   }
+
+  private readonly pm32009NewItemTypesEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+    { initialValue: false },
+  );
 
   constructor(
     private route: ActivatedRoute,
@@ -416,11 +422,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
             mode = params.clone ? "clone" : "edit";
           }
 
-          if (params.fillAfterSave) {
-            this.saveAndFillEnabled = await this.configService.getFeatureFlag(
-              FeatureFlag.PM29968_FillAfterSave,
-            );
-          }
+          this.saveAndFillEnabled = params.fillAfterSave;
+
           const config = await this.addEditFormConfigService.buildConfig(
             mode,
             params.cipherId,
@@ -487,8 +490,9 @@ export class AddEditComponent implements OnInit, OnDestroy {
     if (params.organizationId) {
       initialValues.organizationId = params.organizationId;
     }
-    if (params.collectionId) {
-      initialValues.collectionIds = [params.collectionId];
+    if (params.collectionIds) {
+      const collectionIds = (params.collectionIds ?? "")?.split(",");
+      initialValues.collectionIds = collectionIds as CollectionId[];
     }
     if (params.uri) {
       initialValues.loginUri = params.uri;
@@ -512,19 +516,28 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
   setHeader(mode: CipherFormMode, type: CipherType) {
     const isEditMode = mode === "edit" || mode === "partial-edit";
+    const newItemTypesEnabled = this.pm32009NewItemTypesEnabled();
     const translation = {
-      [CipherType.Login]: isEditMode ? "editItemHeaderLogin" : "newItemHeaderLogin",
-      [CipherType.Card]: isEditMode ? "editItemHeaderCard" : "newItemHeaderCard",
-      [CipherType.Identity]: isEditMode ? "editItemHeaderIdentity" : "newItemHeaderIdentity",
-      [CipherType.SecureNote]: isEditMode ? "editItemHeaderNote" : "newItemHeaderNote",
-      [CipherType.SshKey]: isEditMode ? "editItemHeaderSshKey" : "newItemHeaderSshKey",
+      [CipherType.Login]: isEditMode ? "editItemHeaderLoginSentenceCase" : "addItemHeaderLogin",
+      [CipherType.Card]: isEditMode ? "editItemHeaderCardSentenceCase" : "addItemHeaderCard",
+      [CipherType.Identity]: isEditMode
+        ? "editItemHeaderIdentitySentenceCase"
+        : "addItemHeaderIdentity",
+      [CipherType.SecureNote]: newItemTypesEnabled
+        ? isEditMode
+          ? "editItemHeaderSecureNote"
+          : "addItemHeaderSecureNote"
+        : isEditMode
+          ? "editItemHeaderNoteSentenceCase"
+          : "addItemHeaderNote",
+      [CipherType.SshKey]: isEditMode ? "editItemHeaderSshKey" : "addItemHeaderSshKey",
       [CipherType.BankAccount]: isEditMode
         ? "editItemHeaderBankAccount"
-        : "newItemHeaderBankAccount",
+        : "addItemHeaderBankAccount",
       [CipherType.DriversLicense]: isEditMode
         ? "editItemHeaderLicense"
-        : "newItemHeaderDriversLicense",
-      [CipherType.Passport]: isEditMode ? "editItemHeaderPassport" : "newItemHeaderPassport",
+        : "addItemHeaderDriversLicense",
+      [CipherType.Passport]: isEditMode ? "editItemHeaderPassport" : "addItemHeaderPassport",
     };
     return this.i18nService.t(translation[type]);
   }

@@ -12,27 +12,47 @@ export abstract class OrganizationInviteLinkService {
   ): Observable<OrganizationInviteLink | undefined>;
 
   /**
-   * Create a new invite link for the organization.
+   * Create a new invite link for the organization. Resolves once the SDK key generation,
+   * API call, and local state update have all succeeded.
    */
   abstract createInviteLink(
     userId: UserId,
     orgId: OrganizationId,
     allowedDomains: string[],
+    supportsConfirmation: boolean,
   ): Promise<void>;
 
   /**
    * Update the allowed domains on an existing invite link.
    */
-  abstract updateInviteLink(
+  abstract updateAllowedDomains(
     userId: UserId,
     orgId: OrganizationId,
     allowedDomain: string[],
   ): Promise<void>;
 
   /**
-   * Refresh the invite link via the server endpoint.
+   * Change whether the existing invite link supports confirmation, i.e. whether invitees
+   * self-confirm (`true`) or an admin must confirm them out of band (`false`).
+   *
+   * Only the confirmation setting changes — the link's code and secret are preserved, so
+   * already-distributed links keep working. Rejects when the organization has no invite link.
    */
-  abstract refreshInviteLink(userId: UserId, orgId: OrganizationId): Promise<void>;
+  abstract setInviteConfirmation(
+    userId: UserId,
+    orgId: OrganizationId,
+    supportsConfirmation: boolean,
+  ): Promise<void>;
+
+  /**
+   * Refresh the invite link via the server endpoint. Resolves once the SDK key generation,
+   * API call, and local state update have all succeeded.
+   */
+  abstract refreshInviteLink(
+    userId: UserId,
+    orgId: OrganizationId,
+    supportsConfirmation: boolean,
+  ): Promise<void>;
 
   /**
    * Reconstruct and returns an Observable containing the shareable URL for the provided

@@ -2,12 +2,12 @@ import { Jsonify, Opaque } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
 import {
-  fromSdkKdfConfig,
   Argon2KdfConfig,
+  fromSdkKdfConfig,
   KdfConfig,
   KdfType,
   PBKDF2KdfConfig,
-} from "@bitwarden/key-management";
+} from "@bitwarden/legacy-crypto";
 import {
   EncString,
   MasterPasswordUnlockData as SdkMasterPasswordUnlockData,

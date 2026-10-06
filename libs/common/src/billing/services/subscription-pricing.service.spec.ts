@@ -3,6 +3,7 @@ import { of } from "rxjs";
 
 import { LogService } from "@bitwarden/logging";
 
+import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { EnvironmentService, Region } from "../../platform/abstractions/environment.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
@@ -287,12 +288,16 @@ describe("DefaultSubscriptionPricingService", () => {
           return "Unlimited sharing for families";
         case "familiesUnlimitedCollections":
           return "Unlimited collections for families";
+        case "familiesUnlimitedSharedFolders":
+          return "Unlimited shared folders for families";
         case "familiesSharedStorage":
           return "Shared storage for families";
         case "limitedUsersV2":
           return `Limited to ${args[0]} users`;
         case "limitedCollectionsV2":
           return `Limited to ${args[0]} collections`;
+        case "limitedSharedFoldersV2":
+          return `Limited to ${args[0]} shared folders`;
         case "alwaysFree":
           return "Always free";
         case "twoSecretsIncluded":
@@ -429,6 +434,37 @@ describe("DefaultSubscriptionPricingService", () => {
         expect(i18nService.t).toHaveBeenCalledWith("familiesUnlimitedSharing");
         expect(i18nService.t).toHaveBeenCalledWith("familiesUnlimitedCollections");
         expect(i18nService.t).toHaveBeenCalledWith("familiesSharedStorage");
+
+        done();
+      });
+    });
+
+    it("should render shared folder terminology for the Families tier when the VFO1 flag is on", (done) => {
+      const vfo1ConfigService = mock<ConfigService>();
+      vfo1ConfigService.getFeatureFlag$.mockImplementation((flag) =>
+        of(flag === FeatureFlag.VFO1Foundation),
+      );
+
+      const vfo1Service = new DefaultSubscriptionPricingService(
+        billingApiService,
+        vfo1ConfigService,
+        i18nService,
+        logService,
+        environmentService,
+      );
+
+      vfo1Service.getPersonalSubscriptionPricingTiers$().subscribe((tiers) => {
+        const familiesTier = tiers.find(
+          (tier) => tier.id === PersonalSubscriptionPricingTierIds.Families,
+        );
+
+        expect(familiesTier?.passwordManager.features).toContainEqual({
+          key: "familiesUnlimitedSharedFolders",
+          value: "Unlimited shared folders for families",
+        });
+        expect(familiesTier?.passwordManager.features).not.toContainEqual(
+          expect.objectContaining({ key: "familiesUnlimitedCollections" }),
+        );
 
         done();
       });
@@ -864,6 +900,35 @@ describe("DefaultSubscriptionPricingService", () => {
         expect(i18nService.t).toHaveBeenCalledWith("complimentaryFamiliesPlan");
         expect(i18nService.t).toHaveBeenCalledWith("unlimitedUsers");
         expect(i18nService.t).toHaveBeenCalledWith("includedMachineAccountsV2", 50);
+
+        done();
+      });
+    });
+
+    it("should render shared folder terminology for the Free tier when the VFO1 flag is on", (done) => {
+      const vfo1ConfigService = mock<ConfigService>();
+      vfo1ConfigService.getFeatureFlag$.mockImplementation((flag) =>
+        of(flag === FeatureFlag.VFO1Foundation),
+      );
+
+      const vfo1Service = new DefaultSubscriptionPricingService(
+        billingApiService,
+        vfo1ConfigService,
+        i18nService,
+        logService,
+        environmentService,
+      );
+
+      vfo1Service.getDeveloperSubscriptionPricingTiers$().subscribe((tiers) => {
+        const freeTier = tiers.find((tier) => tier.id === BusinessSubscriptionPricingTierIds.Free);
+
+        expect(freeTier?.passwordManager.features).toContainEqual({
+          key: "limitedSharedFoldersV2",
+          value: `Limited to ${mockFreePlan.PasswordManager.maxCollections} shared folders`,
+        });
+        expect(freeTier?.passwordManager.features).not.toContainEqual(
+          expect.objectContaining({ key: "limitedCollectionsV2" }),
+        );
 
         done();
       });

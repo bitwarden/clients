@@ -1,6 +1,6 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfig, KdfType } from "@bitwarden/key-management";
+import { KdfConfig, KdfType } from "@bitwarden/legacy-crypto";
 
 import {
   MasterPasswordAuthenticationData,
@@ -8,6 +8,24 @@ import {
 } from "../../../key-management/master-password/types/master-password.types";
 import { KeysRequest } from "../../../models/request/keys.request";
 
+// ============================================================
+// PM-42990 — ROLLBACK NOTE
+// ============================================================
+// This class sends the old request shape to the set-password endpoint.
+// It sends a master password hash, an encrypted user key, and raw KDF values.
+//
+// Every caller must use this class for 3 releases after the server accepts
+// the new shape, to stay compatible with self hosted servers.
+//
+// The method newConstructor() converts new authentication data and unlock
+// data into this old shape. Some callers already use newConstructor().
+//
+// DELETE: Search the repo for the text SetPasswordRequest. Update every
+// file that imports it, including api service files and test files. Once
+// no file imports this class, delete this file. Delete newConstructor() at
+// the same time. See https://github.com/bitwarden/clients/pull/20643 for
+// initial pass at this refactor.
+// ============================================================
 export class SetPasswordRequest {
   masterPasswordHash: string;
   key: string;

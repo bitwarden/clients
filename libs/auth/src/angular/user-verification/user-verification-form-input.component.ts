@@ -341,9 +341,7 @@ export class UserVerificationFormInputComponent implements ControlValueAccessor,
   }
 
   private determineVerificationWithSecretType():
-    | VerificationType.MasterPassword
-    | VerificationType.OTP
-    | VerificationType.PIN {
+    VerificationType.MasterPassword | VerificationType.OTP | VerificationType.PIN {
     if (this.verificationType === "server") {
       return this.userVerificationOptions.server.masterPassword
         ? VerificationType.MasterPassword

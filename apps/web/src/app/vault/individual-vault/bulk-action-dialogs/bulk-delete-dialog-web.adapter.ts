@@ -1,9 +1,6 @@
 import { Injectable, inject } from "@angular/core";
 import { lastValueFrom } from "rxjs";
-import { map } from "rxjs/operators";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService, Translation } from "@bitwarden/components";
 import {
@@ -11,37 +8,29 @@ import {
   BulkDeleteDialogRef,
   BulkDeleteDialogResult,
   BulkDeleteService,
+  openDeleteSharedFolderDialog,
+  Vfo1TerminologyService,
 } from "@bitwarden/vault";
-
-import { openBulkDeleteDialog } from "./bulk-delete-dialog/bulk-delete-dialog.component";
 
 @Injectable()
 export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
   private readonly dialogService = inject(DialogService);
-  private readonly configService = inject(ConfigService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly bulkDelete = inject(BulkDeleteService);
+  private readonly vfo1Terminology = inject(Vfo1TerminologyService);
 
   async open(params: BulkDeleteDialogParams): Promise<BulkDeleteDialogResult> {
-    const batchBarEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM37785_VaultBatchBar,
-    );
-
-    if (batchBarEnabled) {
-      if (this.hasItems(params) && this.hasCollections(params)) {
-        return this.confirmAndDeleteMixed(params);
-      }
-      if (this.hasCollections(params)) {
-        return this.confirmAndDeleteCollections(params);
-      }
-      if (this.hasItems(params)) {
-        return this.confirmAndDeleteItems(params);
-      }
+    if (this.hasItems(params) && this.hasCollections(params)) {
+      return this.confirmAndDeleteMixed(params);
     }
-
-    const dialog = openBulkDeleteDialog(this.dialogService, { data: params });
-    return lastValueFrom(dialog.closed.pipe(map((r) => r ?? BulkDeleteDialogResult.Canceled)));
+    if (this.hasCollections(params)) {
+      return this.confirmAndDeleteCollections(params);
+    }
+    if (this.hasItems(params)) {
+      return this.confirmAndDeleteItems(params);
+    }
+    return BulkDeleteDialogResult.Canceled;
   }
 
   private hasItems(params: BulkDeleteDialogParams): boolean {
@@ -85,7 +74,15 @@ export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
 
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t(permanent ? "permanentlyDeletedItems" : "deletedItems"),
+      message: this.i18nService.t(
+        permanent
+          ? count === 1
+            ? "permanentlyDeletedItem"
+            : "permanentlyDeletedItems"
+          : count === 1
+            ? "deletedItem"
+            : "deletedItems",
+      ),
     });
 
     return BulkDeleteDialogResult.Deleted;
@@ -100,17 +97,35 @@ export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
   ): Promise<BulkDeleteDialogResult> {
     const collections = params.collections ?? [];
     const count = collections.length;
+    const sharedFolderTerminology = this.vfo1Terminology.enabled();
 
-    const confirmed = await this.dialogService.openSimpleDialog({
-      type: "danger",
-      title:
-        count === 1
-          ? { key: "deleteCollection" }
-          : { key: "deleteCollectionsCount", placeholders: [count] },
-      content: { key: count === 1 ? "deleteCollectionDesc" : "deleteCollectionsDesc" },
-      acceptButtonText: { key: "delete" },
-      cancelButtonText: { key: "cancel" },
-    });
+    // A single shared folder uses a dedicated dialog so its name can be shown, italicized, in the body.
+    const confirmed =
+      sharedFolderTerminology && count === 1
+        ? ((await lastValueFrom(
+            openDeleteSharedFolderDialog(this.dialogService, collections[0].name).closed,
+          )) ?? false)
+        : await this.dialogService.openSimpleDialog({
+            type: "danger",
+            title:
+              count === 1
+                ? { key: "deleteCollection" }
+                : {
+                    key: sharedFolderTerminology
+                      ? "deleteSharedFoldersCount"
+                      : "deleteCollectionsCount",
+                    placeholders: [count],
+                  },
+            content: {
+              key: sharedFolderTerminology
+                ? "deleteSharedFoldersKeepItemsDesc"
+                : count === 1
+                  ? "deleteCollectionDesc"
+                  : "deleteCollectionsDesc",
+            },
+            acceptButtonText: { key: "delete" },
+            cancelButtonText: { key: "cancel" },
+          });
 
     if (!confirmed) {
       return BulkDeleteDialogResult.Canceled;
@@ -120,7 +135,15 @@ export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
 
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t(count === 1 ? "collectionDeleted" : "collectionsDeleted"),
+      message: this.i18nService.t(
+        sharedFolderTerminology
+          ? count === 1
+            ? "sharedFolderDeleted"
+            : "sharedFoldersDeleted"
+          : count === 1
+            ? "collectionDeleted"
+            : "collectionsDeleted",
+      ),
     });
 
     return BulkDeleteDialogResult.Deleted;
@@ -138,10 +161,16 @@ export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
     const unassignedCiphers = params.unassignedCiphers ?? [];
     const collections = params.collections ?? [];
 
+    const sharedFolderTerminology = this.vfo1Terminology.enabled();
+
     const confirmed = await this.dialogService.openSimpleDialog({
       type: "danger",
       title: { key: "deleteSelection" },
-      content: { key: "deleteItemsAndCollectionsDesc" },
+      content: {
+        key: sharedFolderTerminology
+          ? "deleteItemsAndSharedFoldersDesc"
+          : "deleteItemsAndCollectionsDesc",
+      },
       acceptButtonText: { key: "delete" },
       cancelButtonText: { key: "cancel" },
     });
@@ -149,6 +178,8 @@ export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
     if (!confirmed) {
       return BulkDeleteDialogResult.Canceled;
     }
+
+    const cipherCount = cipherIds.length + unassignedCiphers.length;
 
     await Promise.all([
       this.bulkDelete.deleteCiphers({
@@ -162,12 +193,18 @@ export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
 
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("deletedItems"),
+      message: this.i18nService.t(cipherCount === 1 ? "deletedItem" : "deletedItems"),
     });
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t(
-        collections.length === 1 ? "collectionDeleted" : "collectionsDeleted",
+        sharedFolderTerminology
+          ? collections.length === 1
+            ? "sharedFolderDeleted"
+            : "sharedFoldersDeleted"
+          : collections.length === 1
+            ? "collectionDeleted"
+            : "collectionsDeleted",
       ),
     });
 

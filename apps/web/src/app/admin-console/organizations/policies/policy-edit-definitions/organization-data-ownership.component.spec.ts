@@ -10,11 +10,13 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import {
   OrganizationDataOwnershipPolicy,
@@ -22,6 +24,7 @@ import {
 } from "./organization-data-ownership.component";
 
 const ORG_ID = "org1" as OrganizationId;
+const USER_ID = "user1" as UserId;
 
 function makePolicyResponse(enabled: boolean, data: object | null = null) {
   return new PolicyStatusResponse({
@@ -41,6 +44,10 @@ describe("OrganizationDataOwnershipPolicy", () => {
     expect(policy.type).toEqual(PolicyType.OrganizationDataOwnership);
     expect(policy.component).toEqual(OrganizationDataOwnershipPolicyComponent);
   });
+
+  it("hides the dialog's description (the component renders its own)", () => {
+    expect(policy.showDescription).toBe(false);
+  });
 });
 
 describe("OrganizationDataOwnershipPolicyComponent", () => {
@@ -57,7 +64,7 @@ describe("OrganizationDataOwnershipPolicyComponent", () => {
 
   beforeEach(async () => {
     mockOrganizationService = mock<OrganizationService>();
-    accountService = mockAccountServiceWith("user1" as UserId);
+    accountService = mockAccountServiceWith(USER_ID);
 
     mockOrganizationService.organizations$.mockReturnValue(of([]));
 
@@ -70,6 +77,7 @@ describe("OrganizationDataOwnershipPolicyComponent", () => {
         { provide: AccountService, useValue: accountService },
         { provide: KeyService, useValue: mock<KeyService>() },
         { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
+        { provide: Vfo1TerminologyService, useValue: { enabled: () => false } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -125,6 +133,18 @@ describe("OrganizationDataOwnershipPolicyComponent", () => {
       await component.ngOnInit();
 
       expect(component.data.controls.enableIndividualItemsTransfer.disabled).toBe(true);
+    });
+
+    it("should resolve the organization from the organizationId input when the policy has never been saved (404 response has no organizationId)", async () => {
+      setupOrg(true);
+      // Simulates PolicyEditDrawerComponent/MultiStepPolicyEditDialogComponent's 404 fallback:
+      // `new PolicyResponse({ Enabled: false })` has no OrganizationId.
+      fixture.componentRef.setInput("policyResponse", new PolicyStatusResponse({ Enabled: true }));
+      fixture.componentRef.setInput("organizationId", ORG_ID);
+
+      await component.ngOnInit();
+
+      expect(component.data.controls.enableIndividualItemsTransfer.enabled).toBe(true);
     });
 
     it("should enable enableIndividualItemsTransfer control when enabled changes to true and useMyItems is true", async () => {

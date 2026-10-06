@@ -10,7 +10,6 @@ import {
 } from "@bitwarden/bit-common/dirt/access-intelligence";
 import { AccessReportView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import { TaskMetrics } from "@bitwarden/bit-common/dirt/reports/risk-insights/services";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
@@ -345,7 +344,6 @@ export function themeToolbarDecorator(theme$: BehaviorSubject<Theme>) {
 }
 
 export type TrendMockOptions = {
-  flagEnabled?: boolean;
   data?: TrendWidgetData;
   loading?: boolean;
   error?: string | null;
@@ -353,23 +351,16 @@ export type TrendMockOptions = {
 
 /**
  * Builds the providers that drive the activity-tab trend chart in Storybook
- * stories: the ConfigService feature flag, the RiskOverTimeService data source,
- * and the theming + chart dependencies the rendered {@link TrendWidgetComponent}
- * needs (via {@link buildChartThemeProviders}).
+ * stories: the RiskOverTimeService data source and the theming + chart
+ * dependencies the rendered {@link TrendWidgetComponent} needs (via
+ * {@link buildChartThemeProviders}).
  */
 export function buildTrendChartProviders({
-  flagEnabled = false,
   data = emptyTrendData,
   loading = false,
   error = null,
 }: TrendMockOptions = {}) {
   return [
-    {
-      provide: ConfigService,
-      useValue: {
-        getFeatureFlag$: () => of(flagEnabled),
-      },
-    },
     {
       provide: RiskOverTimeService,
       useValue: {

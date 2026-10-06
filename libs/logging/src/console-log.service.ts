@@ -1,4 +1,5 @@
 import { LogLevel } from "./log-level";
+import { LogRecorder } from "./log-recorder";
 import { LogService } from "./log.service";
 
 export class ConsoleLogService implements LogService {
@@ -7,7 +8,12 @@ export class ConsoleLogService implements LogService {
   constructor(
     protected isDev: boolean,
     protected filter: ((level: LogLevel) => boolean) | null = null,
+    protected recorder: LogRecorder | null = null,
   ) {}
+
+  enableRecorder(enabled: boolean) {
+    this.recorder?.setEnabled(enabled);
+  }
 
   debug(message?: any, ...optionalParams: any[]) {
     if (!this.isDev) {
@@ -29,6 +35,8 @@ export class ConsoleLogService implements LogService {
   }
 
   write(level: LogLevel, message?: any, ...optionalParams: any[]) {
+    this.tee(level, message, ...optionalParams);
+
     if (this.filter != null && this.filter(level)) {
       return;
     }
@@ -55,6 +63,19 @@ export class ConsoleLogService implements LogService {
     }
   }
 
+  /**
+   * Sends an event to the recorder, if one is wired up. Subclasses that override
+   * {@link write} without calling `super.write` must call this themselves, before
+   * any filtering: the filter gates output only, never what gets recorded.
+   */
+  protected tee(level: LogLevel, message?: any, ...optionalParams: any[]) {
+    try {
+      this.recorder?.record(level, message, ...optionalParams);
+    } catch {
+      // Ignore error
+    }
+  }
+
   measure(
     start: DOMHighResTimeStamp,
     trackGroup: string,
@@ -76,7 +97,7 @@ export class ConsoleLogService implements LogService {
       },
     });
 
-    this.info(`${measureName} took ${measure.duration}`, properties);
+    this.debug(`${measureName} took ${measure.duration}`, properties);
     return measure;
   }
 
@@ -89,7 +110,7 @@ export class ConsoleLogService implements LogService {
       },
     });
 
-    this.info(mark.name, new Date().toISOString());
+    this.debug(mark.name, new Date().toISOString());
 
     return mark;
   }

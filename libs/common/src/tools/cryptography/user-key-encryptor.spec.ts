@@ -1,8 +1,10 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
+
 import { makeEncString } from "../../../spec";
-import { EncString } from "../../key-management/crypto/models/enc-string";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId } from "../../types/guid";
 import { DataPacker } from "../state/data-packer.abstraction";

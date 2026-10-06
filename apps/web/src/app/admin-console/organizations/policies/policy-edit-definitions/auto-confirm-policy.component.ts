@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, Signal, TemplateRef, viewChild } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  Signal,
+  TemplateRef,
+  viewChild,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { FormControl } from "@angular/forms";
 import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, Observable, of, startWith, switchMap } from "rxjs";
 
@@ -8,6 +18,8 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { SwitchComponent } from "@bitwarden/components";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
@@ -21,6 +33,7 @@ import {
 export class AutoConfirmPolicy extends BasePolicyEditDefinition {
   name = "automaticUserConfirmation";
   description = "autoConfirmDescription";
+  descriptionVfo1 = "autoConfirmDescriptionVfo1";
   type = PolicyType.AutomaticUserConfirmation;
   category = PolicyCategory.VaultManagement;
   priority = 90;
@@ -40,10 +53,12 @@ export class AutoConfirmPolicy extends BasePolicyEditDefinition {
 @Component({
   selector: "auto-confirm-policy-edit",
   templateUrl: "auto-confirm-policy.component.html",
-  imports: [SharedModule],
+  imports: [SharedModule, SwitchComponent, Vfo1I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
+  private readonly destroyRef = inject(DestroyRef);
+
   constructor(
     private readonly policyService: PolicyService,
     private readonly autoConfirmService: AutomaticUserConfirmationService,
@@ -58,13 +73,21 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
     return this.policy() as AutoConfirmPolicy | undefined;
   }
 
+  /**
+   * Gates the enable switch: an admin must accept the security risk before they can turn the
+   * policy on. Defaults to accepted when editing an already-enabled policy, since the risk was
+   * necessarily accepted the first time it was turned on.
+   */
+  readonly riskAccepted = new FormControl(false, { nonNullable: true });
+
   private readonly step0Title: Signal<TemplateRef<unknown>> = viewChild.required("step0Title");
   private readonly step0Content: Signal<TemplateRef<unknown>> = viewChild.required("step0Content");
   private readonly step0Footer: Signal<TemplateRef<unknown>> = viewChild.required("step0Footer");
 
-  private readonly step1Title: Signal<TemplateRef<unknown>> = viewChild.required("step1Title");
-  private readonly step1Content: Signal<TemplateRef<unknown>> = viewChild.required("step1Content");
-  private readonly step1Footer: Signal<TemplateRef<unknown>> = viewChild.required("step1Footer");
+  protected readonly step1Title: Signal<TemplateRef<unknown>> = viewChild.required("step1Title");
+  protected readonly step1Content: Signal<TemplateRef<unknown>> =
+    viewChild.required("step1Content");
+  protected readonly step1Footer: Signal<TemplateRef<unknown>> = viewChild.required("step1Footer");
 
   protected readonly autoConfirmEnabled$: Observable<boolean> =
     this.accountService.activeAccount$.pipe(
@@ -107,6 +130,23 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
       sideEffect: () => this.navigateToExtensionPromptStep(),
     },
   ];
+
+  override ngOnInit(): void {
+    super.ngOnInit();
+
+    this.riskAccepted.setValue(this.enabled.value ?? false);
+
+    this.riskAccepted.valueChanges
+      .pipe(startWith(this.riskAccepted.value), takeUntilDestroyed(this.destroyRef))
+      .subscribe((accepted) => {
+        if (accepted) {
+          this.enabled.enable({ emitEvent: false });
+        } else {
+          this.enabled.disable({ emitEvent: false });
+          this.enabled.setValue(false);
+        }
+      });
+  }
 
   protected override async savePolicy(): Promise<PolicyStepResult | void> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -156,7 +196,7 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
     }
   }
 
-  private async navigateToExtensionPromptStep(): Promise<void> {
+  protected async navigateToExtensionPromptStep(): Promise<void> {
     await this.router.navigate(["/browser-extension-prompt"], {
       queryParams: { url: "AutoConfirm" },
     });

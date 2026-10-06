@@ -10,8 +10,10 @@ import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
-import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
+import {
+  OrganizationInvite,
+  OrganizationInviteService,
+} from "@bitwarden/common/auth/organization-invite";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
@@ -24,7 +26,9 @@ import {
 import { makeSymmetricCryptoKey, mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { DEFAULT_KDF_CONFIG } from "@bitwarden/legacy-crypto";
 
 import {
   ChangePasswordService,
@@ -150,7 +154,7 @@ describe("DefaultChangePasswordService", () => {
             "currentMasterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
         };
 
-        request = PasswordRequest.newConstructor(
+        request = new PasswordRequest(
           currentAuthenticationData.masterPasswordAuthenticationHash,
           newAuthenticationData,
           newUnlockData,
@@ -266,7 +270,7 @@ describe("DefaultChangePasswordService", () => {
       let request: UpdateTempPasswordRequest;
 
       beforeEach(() => {
-        request = UpdateTempPasswordRequest.newConstructorWithHint(
+        request = new UpdateTempPasswordRequest(
           newAuthenticationData,
           newUnlockData,
           passwordInputResult.newPasswordHint!,

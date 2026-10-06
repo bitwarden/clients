@@ -16,19 +16,25 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  DEFAULT_KDF_CONFIG,
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
+import { UnlockService } from "@bitwarden/unlock";
 import { RouterService } from "@bitwarden/web-vault/app/core";
 
 import { WebSetInitialPasswordService } from "./web-set-initial-password.service";
@@ -41,6 +47,7 @@ describe("WebSetInitialPasswordService", () => {
   let i18nService: MockProxy<I18nService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
@@ -50,6 +57,7 @@ describe("WebSetInitialPasswordService", () => {
   let routerService: MockProxy<RouterService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
   let registerSdkService: MockProxy<RegisterSdkService>;
+  let unlockService: MockProxy<UnlockService>;
 
   beforeEach(() => {
     apiService = mock<ApiService>();
@@ -57,6 +65,7 @@ describe("WebSetInitialPasswordService", () => {
     i18nService = mock<I18nService>();
     kdfConfigService = mock<KdfConfigService>();
     keyService = mock<KeyService>();
+    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
@@ -66,6 +75,7 @@ describe("WebSetInitialPasswordService", () => {
     routerService = mock<RouterService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
     registerSdkService = mock<RegisterSdkService>();
+    unlockService = mock<UnlockService>();
 
     sut = new WebSetInitialPasswordService(
       apiService,
@@ -73,6 +83,7 @@ describe("WebSetInitialPasswordService", () => {
       i18nService,
       kdfConfigService,
       keyService,
+      legacyCompatKeyService,
       masterPasswordApiService,
       masterPasswordService,
       organizationApiService,
@@ -82,6 +93,7 @@ describe("WebSetInitialPasswordService", () => {
       routerService,
       accountCryptographicStateService,
       registerSdkService,
+      unlockService,
     );
   });
 
@@ -156,12 +168,14 @@ describe("WebSetInitialPasswordService", () => {
     function setupMocks() {
       // Mock makeMasterKeyEncryptedUserKey() values
       keyService.userKey$.mockReturnValue(of(userKey));
-      keyService.encryptUserKeyWithMasterKey.mockResolvedValue(masterKeyEncryptedUserKey);
+      legacyCompatKeyService.encryptUserKeyWithMasterKey.mockResolvedValue(
+        masterKeyEncryptedUserKey,
+      );
 
       // Mock keyPair values
       keyService.userPrivateKey$.mockReturnValue(of(null));
       keyService.userPublicKey$.mockReturnValue(of(null));
-      keyService.makeKeyPair.mockResolvedValue(keyPair);
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue(keyPair);
     }
 
     describe("given the initial password was successfully set", () => {

@@ -23,10 +23,10 @@
       ></vault-cipher-form-generator>
     }
     <div [hidden]="showGenerator()">
-      @if (disableForm) {
-        <bit-callout type="info" [title]="'sendNotCompliantWithYourOrgsPolicy' | i18n">
-          @if (showCopyButton()) {
-            <div>{{ "sendDisabledNonCompliantBannerMessage" | i18n }}</div>
+      @if (disabledSendConfig()) {
+        <bit-callout type="info" [title]="disabledSendConfig().title | i18n">
+          <div>{{ disabledSendConfig().message | i18n }}</div>
+          @if (disabledSendConfig().showMakeCopyButton) {
             <button
               class="tw-mt-4"
               type="button"
@@ -36,21 +36,21 @@
             >
               {{ "makeACopy" | i18n }}
             </button>
-          } @else {
-            <div>{{ "sendWillExpireOnDeletionDate" | i18n }}</div>
           }
         </bit-callout>
       }
-      <tools-send-form
-        formId="sendForm"
-        [config]="config"
-        (onSendCreated)="onSendCreated($event)"
-        (onSendUpdated)="onSendUpdated($event)"
-        (openPasswordGenerator)="openGenerator()"
-        [editing]="editing()"
-        [submitBtn]="submitBtn()"
-      >
-      </tools-send-form>
+      @if (config) {
+        <tools-send-form
+          formId="sendForm"
+          [config]="config"
+          (onSendCreated)="onSendCreated($event)"
+          (onSendUpdated)="onSendUpdated($event)"
+          (openPasswordGenerator)="openGenerator()"
+          [editing]="editing()"
+          [submitBtn]="submitBtn()"
+        >
+        </tools-send-form>
+      }
     </div>
   </span>
 
@@ -69,17 +69,30 @@
         {{ "cancel" | i18n }}
       </button>
     } @else {
-      @if (disableForm) {
-        @if (showCopyButton()) {
+      <!-- Send is disabled -->
+      @if (disabledSendConfig()) {
+        <!-- The user is allowed to make a copy of this Send -->
+        @if (disabledSendConfig().showMakeCopyButton) {
           <button type="button" bitButton buttonType="primary" (click)="makeCopy()">
             {{ "makeACopy" | i18n }}
           </button>
+          <div class="tw-ml-auto">
+            <button
+              type="button"
+              buttonType="dangerGhost"
+              bitIconButton="bwi-trash"
+              [bitAction]="deleteSend"
+              label="{{ 'delete' | i18n }}"
+            ></button>
+          </div>
         } @else {
-          <button bitButton type="button" buttonType="danger" (click)="deleteSend()">
+          <button type="button" bitButton buttonType="danger" [bitAction]="deleteSend">
             {{ "delete" | i18n }}
           </button>
         }
+        <!-- Send is enabled -->
       } @else {
+        <!-- Send is actively being edited -->
         @if (editing()) {
           <button bitButton type="submit" form="sendForm" buttonType="primary" #submitBtn>
             {{ "save" | i18n }}
@@ -92,17 +105,18 @@
             {{ "edit" | i18n }}
           </button>
         }
-      }
-      @if (showTrashIconButton()) {
-        <div class="tw-ml-auto">
-          <button
-            type="button"
-            buttonType="dangerGhost"
-            bitIconButton="bwi-trash"
-            [bitAction]="deleteSend"
-            label="{{ 'delete' | i18n }}"
-          ></button>
-        </div>
+        @if (config?.mode !== "add") {
+          <div class="tw-ml-auto">
+            <button
+              type="button"
+              buttonType="dangerGhost"
+              slot="end"
+              bitIconButton="bwi-trash"
+              [bitAction]="deleteSend"
+              label="{{ 'delete' | i18n }}"
+            ></button>
+          </div>
+        }
       }
     }
   </ng-container>

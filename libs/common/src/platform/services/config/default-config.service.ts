@@ -159,6 +159,7 @@ export class DefaultConfigService implements ConfigService {
         }
         return of(existingConfig);
       }),
+      tap((config) => void this.gateLogRecorder(config)),
       // If fetch fails, we'll emit on this subject to fallback to the existing config
       mergeWith(this.failedFetchFallbackSubject),
       share({ connector: () => new ReplaySubject(1), resetOnRefCountZero: () => timer(1000) }),
@@ -178,6 +179,8 @@ export class DefaultConfigService implements ConfigService {
   getFeatureFlag$<Flag extends FeatureFlag>(key: Flag) {
     return combineLatest([this.serverConfig$, this.featureFlagOverrides$]).pipe(
       map(([serverConfig, overrides]) => this.resolveFlag(serverConfig, overrides, key)),
+      // Config refreshes re-emit unchanged flags; consumers would restart their work each time.
+      distinctUntilChanged(),
     );
   }
 
@@ -224,6 +227,22 @@ export class DefaultConfigService implements ConfigService {
     return new Date().getTime() - date.getTime() > RETRIEVAL_INTERVAL;
   }
 
+  /**
+   * Pushes the flight recorder flag to `LogService`. `LogService` can't depend on this
+   * service without a cycle, since this service depends on it.
+   * Remove with `PM30935_FlightRecorderTsLogging`.
+   */
+  private async gateLogRecorder(serverConfig: ServerConfig | null): Promise<void> {
+    try {
+      const overrides = await firstValueFrom(this.featureFlagOverrides$);
+      this.logService.enableRecorder(
+        this.resolveFlag(serverConfig, overrides, FeatureFlag.PM30935_FlightRecorderTsLogging),
+      );
+    } catch {
+      // Never let log plumbing break the config pipeline.
+    }
+  }
+
   // Updates the on-disk configuration with a newly retrieved configuration
   private async renewConfig(
     existingConfig: ServerConfig | null,
@@ -243,7 +262,7 @@ export class DefaultConfigService implements ConfigService {
       clearTimeout(handle);
       const newConfig = new ServerConfig(new ServerConfigData(response));
 
-      this.parseBoostrapConfig(response);
+      this.parseBootstrapConfig(response);
 
       // Update the environment region
       if (
@@ -281,7 +300,7 @@ export class DefaultConfigService implements ConfigService {
     return this.stateProvider.getUser(userId, USER_SERVER_CONFIG).state$;
   }
 
-  private parseBoostrapConfig(response: ServerConfigResponse) {
+  private parseBootstrapConfig(response: ServerConfigResponse) {
     const bootstrap = response.communication?.bootstrap ?? null;
     const vaultUrl = response.environment?.vault;
 

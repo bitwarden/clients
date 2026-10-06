@@ -59,6 +59,23 @@ describe("FormControlGroupComponent", () => {
     });
   });
 
+  describe("containerClass", () => {
+    it("uses a responsive grid when grid is set", () => {
+      const gridFixture = TestBed.createComponent(FormControlGroupComponent);
+      gridFixture.componentRef.setInput("grid", true);
+
+      expect(gridFixture.componentInstance.containerClass()).toContain("tw-grid");
+      expect(gridFixture.componentInstance.containerClass()).toMatch(
+        /tw-grid-cols-\[repeat\(auto-fit,/,
+      );
+    });
+
+    it("falls back to flex column layout when grid is not set", () => {
+      expect(group.containerClass()).toContain("tw-flex-col");
+      expect(group.containerClass()).not.toContain("tw-grid");
+    });
+  });
+
   describe("multi mode value management", () => {
     it("adds a value when it is not already selected", () => {
       group.onItemChange("a");

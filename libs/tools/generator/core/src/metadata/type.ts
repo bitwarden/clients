@@ -24,5 +24,4 @@ export type ForwarderExtensionId = { forwarder: VendorId };
 // this is defined in terms of `AlgorithmsByType` to typecheck the keys of
 // `AlgorithmsByType` against the keys of `CredentialType`.
 export type CredentialAlgorithm =
-  | (typeof AlgorithmsByType)[CredentialType][number]
-  | ForwarderExtensionId;
+  (typeof AlgorithmsByType)[CredentialType][number] | ForwarderExtensionId;

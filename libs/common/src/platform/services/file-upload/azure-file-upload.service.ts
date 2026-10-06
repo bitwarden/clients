@@ -1,12 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
+
 import { ApiService } from "../../../abstractions/api.service";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { UploadOptions } from "../../abstractions/file-upload/file-upload.service";
 import { LogService } from "../../abstractions/log.service";
 import { Utils } from "../../misc/utils";
-import { EncArrayBuffer } from "../../models/domain/enc-array-buffer";
 
 const MAX_SINGLE_BLOB_UPLOAD_SIZE = 256 * 1024 * 1024; // 256 MiB
 const MAX_BLOCKS_PER_BLOB = 50000;

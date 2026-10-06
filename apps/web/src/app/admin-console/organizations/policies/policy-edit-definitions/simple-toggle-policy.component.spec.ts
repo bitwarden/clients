@@ -46,6 +46,7 @@ describe("SimpleTogglePolicyComponent", () => {
       providers: [
         { provide: I18nService, useValue: i18nService },
         { provide: AccountService, useValue: mock<AccountService>() },
+        { provide: OrganizationService, useValue: mock<OrganizationService>() },
         { provide: KeyService, useValue: mock<KeyService>() },
         { provide: OrganizationService, useValue: mock<OrganizationService>() },
         { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },

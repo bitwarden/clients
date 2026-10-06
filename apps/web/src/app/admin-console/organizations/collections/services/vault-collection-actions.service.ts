@@ -7,10 +7,7 @@ import { distinctUntilChanged, filter, map, shareReplay, switchMap } from "rxjs/
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import {
-  CollectionAdminView,
-  CollectionView,
-} from "@bitwarden/common/admin-console/models/collections";
+import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -21,7 +18,7 @@ import { getById } from "@bitwarden/common/platform/misc";
 import { CollectionId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { RoutedVaultFilterService } from "@bitwarden/vault";
+import { RoutedVaultFilterService, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { CollectionPermission } from "../../shared/components/access-selector";
 import {
@@ -29,10 +26,6 @@ import {
   CollectionDialogTabType,
   openCollectionDialog,
 } from "../../shared/components/collection-dialog";
-import {
-  BulkCollectionsDialogComponent,
-  BulkCollectionsDialogResult,
-} from "../bulk-collections-dialog";
 import { ACRoutedVaultFilterModel, toACFilter } from "../models/ac-routed-vault-filter.model";
 
 import { VaultCollectionService } from "./vault-collection.service";
@@ -51,6 +44,7 @@ export class VaultCollectionActionsService {
   private readonly organizationService = inject(OrganizationService);
   private readonly routedVaultFilterService = inject(RoutedVaultFilterService);
   private readonly vaultCollectionService = inject(VaultCollectionService);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -149,7 +143,9 @@ export class VaultCollectionActionsService {
         selectedCollection?.node.id === c.id
       ) {
         void this.router.navigate([], {
-          queryParams: { collectionId: selectedCollection.parent?.node.id ?? null },
+          queryParams: this.vfo1TerminologyService.collectionQueryParams(
+            selectedCollection.parent?.node.id,
+          ),
           queryParamsHandling: "merge",
           replaceUrl: true,
         });
@@ -164,9 +160,12 @@ export class VaultCollectionActionsService {
       this.showMissingPermissionsError();
       return;
     }
+    const vfo1Enabled = this.vfo1TerminologyService.enabled();
     const confirmed = await this.dialogService.openSimpleDialog({
       title: collection.name,
-      content: { key: "deleteCollectionConfirmation" },
+      content: {
+        key: vfo1Enabled ? "deleteSharedFolderConfirmation" : "deleteCollectionConfirmation",
+      },
       type: "warning",
     });
 
@@ -178,7 +177,10 @@ export class VaultCollectionActionsService {
       await this.collectionService.delete([collection.id] as CollectionId[], userId);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("deletedCollectionId", collection.name),
+        message: this.i18nService.t(
+          vfo1Enabled ? "deletedSharedFolderId" : "deletedCollectionId",
+          collection.name,
+        ),
       });
 
       // Clear the cipher cache to clear the deleted collection from the cipher state
@@ -188,7 +190,9 @@ export class VaultCollectionActionsService {
       const selectedCollection = await firstValueFrom(this.selectedCollection$);
       if (selectedCollection?.node.id === collection.id) {
         void this.router.navigate([], {
-          queryParams: { collectionId: selectedCollection?.parent?.node.id ?? null },
+          queryParams: this.vfo1TerminologyService.collectionQueryParams(
+            selectedCollection?.parent?.node.id,
+          ),
           queryParamsHandling: "merge",
           replaceUrl: true,
         });
@@ -197,37 +201,6 @@ export class VaultCollectionActionsService {
       this.refresh();
     } catch (e) {
       this.logService.error(e);
-    }
-  }
-
-  async bulkEditCollectionAccess(
-    collections: CollectionView[],
-    organization: Organization,
-  ): Promise<void> {
-    if (collections.length === 0) {
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("noCollectionsSelected"),
-      });
-      return;
-    }
-
-    if (collections.some((c) => !c.canEdit(organization))) {
-      this.showMissingPermissionsError();
-      return;
-    }
-
-    const org = await firstValueFrom(this.organization$);
-    const dialog = BulkCollectionsDialogComponent.open(this.dialogService, {
-      data: {
-        collections,
-        organizationId: org.id,
-      },
-    });
-
-    const result = await lastValueFrom(dialog.closed);
-    if (result === BulkCollectionsDialogResult.Saved) {
-      this.refresh();
     }
   }
 

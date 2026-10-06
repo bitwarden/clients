@@ -5,8 +5,8 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { action } from "storybook/actions";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
-import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { ButtonModule } from "../button";
 import { I18nMockService } from "../utils/i18n-mock.service";
 

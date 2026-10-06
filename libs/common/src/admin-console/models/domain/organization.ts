@@ -79,13 +79,13 @@ export class Organization {
   limitCollectionDeletion: boolean;
 
   /**
-   * Refers to the ability for an owner/admin to access all collection items, regardless of assigned collections
-   */
-  limitItemDeletion: boolean;
-  /**
    * Refers to the ability to limit delete permission of collection items.
    * If set to true, members can only delete items when they have a Can Manage permission over the collection.
    * If set to false, members can delete items when they have a Can Manage OR Can Edit permission over the collection.
+   */
+  limitItemDeletion: boolean;
+  /**
+   * Refers to the ability for an owner/admin to access all collection items, regardless of assigned collections
    */
   allowAdminAccessToAllCollectionItems: boolean;
   /**
@@ -240,6 +240,19 @@ export class Organization {
     );
   }
 
+  /**
+   * Whether the user can assign collection access to a group. Members with the Manage Groups
+   * custom permission can only do so when collection management settings permit admin access to
+   * all collection items; users who can edit any collection outright are unaffected by that
+   * setting.
+   */
+  get canAssignAccessToAnyCollection() {
+    return (
+      this.canEditAnyCollection ||
+      (this.permissions.manageGroups && this.allowAdminAccessToAllCollectionItems)
+    );
+  }
+
   get canEditUnmanagedCollections() {
     // Any admin or custom user with editAnyCollection permission can edit unmanaged collections
     return this.isAdmin || this.permissions.editAnyCollection;
@@ -310,6 +323,10 @@ export class Organization {
 
   get canManagePolicies() {
     return (this.isAdmin || this.permissions.managePolicies) && this.usePolicies;
+  }
+
+  get canManageAccessRules() {
+    return this.isAdmin && this.usePam;
   }
 
   get canManageUsers() {
@@ -419,6 +436,6 @@ export class Organization {
   }
 
   get canUseAccessIntelligence() {
-    return this.productTierType === ProductTierType.Enterprise;
+    return this.useAccessIntelligence;
   }
 }

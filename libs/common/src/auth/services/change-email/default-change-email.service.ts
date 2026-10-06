@@ -4,12 +4,13 @@ import { firstValueFrom } from "rxjs";
 // Marked for removal when PM-30811 feature flag is unwound.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { MasterPasswordServiceAbstraction } from "../../../key-management/master-password/abstractions/master-password.service.abstraction";
-import { MasterPasswordUnlockData } from "../../../key-management/master-password/types/master-password.types";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { EmailTokenRequest } from "../../models/request/email-token.request";
 import { EmailRequest } from "../../models/request/email.request";
@@ -24,6 +25,7 @@ export class DefaultChangeEmailService implements ChangeEmailService {
     private kdfConfigService: KdfConfigService,
     private apiService: ApiService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
   ) {}
 
   async requestEmailToken(masterPassword: string, newEmail: string, userId: UserId): Promise<void> {
@@ -52,9 +54,9 @@ export class DefaultChangeEmailService implements ChangeEmailService {
 
       request = new EmailTokenRequest();
       request.newEmail = newEmail;
-      request.masterPasswordHash = await this.keyService.hashMasterKey(
+      request.masterPasswordHash = await this.legacyCompatKeyService.hashMasterKey(
         masterPassword,
-        await this.keyService.getOrDeriveMasterKey(masterPassword, userId),
+        await this.legacyCompatKeyService.deriveMasterKeyForUser(masterPassword, userId),
       );
     }
 
@@ -68,7 +70,6 @@ export class DefaultChangeEmailService implements ChangeEmailService {
     userId: UserId,
   ): Promise<void> {
     let request: EmailRequest;
-    let unlockDataForLegacyUpdate: MasterPasswordUnlockData | null = null;
 
     if (
       await this.configService.getFeatureFlag(FeatureFlag.PM30811_ChangeEmailNewAuthenticationApis)
@@ -111,9 +112,6 @@ export class DefaultChangeEmailService implements ChangeEmailService {
       request.newEmail = newEmail;
       request.token = token;
       request.authenticateWith(existingAuthData);
-
-      // Track unlock data for legacy update after successful API call
-      unlockDataForLegacyUpdate = newUnlockData;
     } else {
       // Legacy path: marked for removal when PM-30811 flag is unwound.
       // See: https://bitwarden.atlassian.net/browse/PM-30811
@@ -121,17 +119,21 @@ export class DefaultChangeEmailService implements ChangeEmailService {
       request = new EmailRequest();
       request.token = token;
       request.newEmail = newEmail;
-      request.masterPasswordHash = await this.keyService.hashMasterKey(
+      request.masterPasswordHash = await this.legacyCompatKeyService.hashMasterKey(
         masterPassword,
-        await this.keyService.getOrDeriveMasterKey(masterPassword, userId),
+        await this.legacyCompatKeyService.deriveMasterKeyForUser(masterPassword, userId),
       );
 
       const kdfConfig = await firstValueFrom(this.kdfConfigService.getKdfConfig$(userId));
       if (kdfConfig == null) {
         throw new Error("Missing kdf config");
       }
-      const newMasterKey = await this.keyService.makeMasterKey(masterPassword, newEmail, kdfConfig);
-      request.newMasterPasswordHash = await this.keyService.hashMasterKey(
+      const newMasterKey = await this.legacyCompatKeyService.makeMasterKey(
+        masterPassword,
+        newEmail,
+        kdfConfig,
+      );
+      request.newMasterPasswordHash = await this.legacyCompatKeyService.hashMasterKey(
         masterPassword,
         newMasterKey,
       );
@@ -139,7 +141,10 @@ export class DefaultChangeEmailService implements ChangeEmailService {
       if (userKey == null) {
         throw new Error("Can't find UserKey");
       }
-      const newUserKey = await this.keyService.encryptUserKeyWithMasterKey(newMasterKey, userKey);
+      const newUserKey = await this.legacyCompatKeyService.encryptUserKeyWithMasterKey(
+        newMasterKey,
+        userKey,
+      );
       const encryptedUserKey = newUserKey[1]?.encryptedString;
       if (encryptedUserKey == null) {
         throw new Error("Missing Encrypted User Key");
@@ -148,16 +153,5 @@ export class DefaultChangeEmailService implements ChangeEmailService {
     }
 
     await this.apiService.send("POST", "/accounts/email", request, userId, false);
-
-    // Set legacy master key only AFTER successful API call to prevent inconsistent state on failure.
-    // This ensures the operation is retry-able if the server request fails.
-    // Remove in PM-30676.
-    if (unlockDataForLegacyUpdate != null) {
-      await this.masterPasswordService.setLegacyMasterKeyFromUnlockData(
-        masterPassword,
-        unlockDataForLegacyUpdate,
-        userId,
-      );
-    }
   }
 }

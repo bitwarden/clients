@@ -1,5 +1,7 @@
 import { CipherType } from "../../vault/enums";
+import { Cipher } from "../../vault/models/domain/cipher";
 import { CipherView } from "../../vault/models/view/cipher.view";
+import { conditionalEncString } from "../../vault/utils/domain-utils";
 
 import { CipherExport } from "./cipher.export";
 import { SecureNoteExport } from "./secure-note.export";
@@ -41,6 +43,61 @@ describe("Cipher Export", () => {
     });
   });
 
+  // Blob ciphers seal all content in `data`; the legacy per-field properties are undefined.
+  describe("blob ciphers", () => {
+    const sealedData = "SEALED_BLOB";
+    const cipherKey = "CIPHER_KEY";
+
+    function blobCipher(): Cipher {
+      const cipher = new Cipher();
+      cipher.id = "25c8c414-b446-48e9-a1bd-b10700bbd740";
+      cipher.type = CipherType.Login;
+      cipher.key = conditionalEncString(cipherKey);
+      cipher.data = sealedData;
+      return cipher;
+    }
+
+    it("build exports the sealed data", () => {
+      const exported = new CipherExport();
+      exported.build(blobCipher());
+
+      expect(exported.data).toBe(sealedData);
+    });
+
+    it("build exports the cipher key", () => {
+      const exported = new CipherExport();
+      exported.build(blobCipher());
+
+      expect(exported.key).toBe(cipherKey);
+    });
+
+    it("build does not export empty legacy content", () => {
+      const exported = new CipherExport();
+      exported.build(blobCipher());
+
+      expect(exported.login).toBeUndefined();
+    });
+
+    it("toDomain restores the sealed data", () => {
+      const exported = new CipherExport();
+      exported.build(blobCipher());
+
+      const domain = CipherExport.toDomain(exported);
+
+      expect(domain.data).toBe(sealedData);
+    });
+
+    it("toDomain leaves legacy content undefined", () => {
+      const exported = new CipherExport();
+      exported.build(blobCipher());
+
+      const domain = CipherExport.toDomain(exported);
+
+      expect(domain.name).toBeUndefined();
+      expect(domain.login).toBeUndefined();
+    });
+  });
+
   describe("SshKeyExport.toView", () => {
     const validSshKey = {
       privateKey: "PRIVATE_KEY",
@@ -62,6 +119,22 @@ describe("Cipher Export", () => {
       const sshKey = { ...validSshKey, keyFingerprint: value } as any;
       expect(() => SshKeyExport.toView(sshKey)).toThrow("SSH key fingerprint is required.");
     });
+
+    it.each([null, undefined, ""])(
+      "should not throw for a missing publicKey when derived keys are allowed (value %p)",
+      (value) => {
+        const sshKey = { ...validSshKey, publicKey: value } as any;
+        expect(() => SshKeyExport.toView(sshKey, undefined, true)).not.toThrow();
+      },
+    );
+
+    it.each([null, undefined, ""])(
+      "should not throw for a missing keyFingerprint when derived keys are allowed (value %p)",
+      (value) => {
+        const sshKey = { ...validSshKey, keyFingerprint: value } as any;
+        expect(() => SshKeyExport.toView(sshKey, undefined, true)).not.toThrow();
+      },
+    );
 
     it("should succeed with valid inputs", () => {
       const sshKey = { ...validSshKey };

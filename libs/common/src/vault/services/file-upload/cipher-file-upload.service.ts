@@ -1,9 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+
 import { ApiService } from "../../../abstractions/api.service";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { ErrorResponse } from "../../../models/response/error.response";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import {
@@ -12,8 +14,6 @@ import {
   UploadOptions,
 } from "../../../platform/abstractions/file-upload/file-upload.service";
 import { FileUploadType } from "../../../platform/enums";
-import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { CipherId, UserId } from "../../../types/guid";
 import { CipherSdkService } from "../../abstractions/cipher-sdk.service";
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "../../abstractions/file-upload/cipher-file-upload.service";

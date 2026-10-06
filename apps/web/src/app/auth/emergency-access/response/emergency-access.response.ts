@@ -1,6 +1,6 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
-import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
-import { KdfType } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { KdfType } from "@bitwarden/legacy-crypto";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../enums/emergency-access-type";
@@ -72,21 +72,5 @@ export class EmergencyAccessTakeoverResponse extends BaseResponse {
     this.kdfMemory = this.getResponseProperty("KdfMemory");
     this.kdfParallelism = this.getResponseProperty("KdfParallelism");
     this.salt = this.getResponseProperty("Salt");
-  }
-}
-
-export class EmergencyAccessViewResponse extends BaseResponse {
-  keyEncrypted: string;
-  ciphers: CipherResponse[] = [];
-
-  constructor(response: any) {
-    super(response);
-
-    this.keyEncrypted = this.getResponseProperty("KeyEncrypted");
-
-    const ciphers = this.getResponseProperty("Ciphers");
-    if (ciphers != null) {
-      this.ciphers = ciphers.map((c: any) => new CipherResponse(c));
-    }
   }
 }

@@ -17,6 +17,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   BerryComponent,
+  BreadcrumbsModule,
   ChipActionComponent,
   ChipFilterComponent,
   DialogService,
@@ -26,6 +27,7 @@ import {
   PasswordRepromptService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
@@ -56,6 +58,8 @@ import { InactiveTwoFactorReportComponent as BaseInactiveTwoFactorReportComponen
     ChipFilterComponent,
     ChipActionComponent,
     BerryComponent,
+    Vfo1IconPipe,
+    BreadcrumbsModule,
   ],
 })
 export class InactiveTwoFactorReportComponent

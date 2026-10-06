@@ -32,11 +32,15 @@ import {
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
-  LockService,
   LoginEmailService,
   SsoUrlService,
-  UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+import {
+  AutomationCapability,
+  BiometricsCapability,
+  DesktopNavigationCapability,
+  ProcessReloadCapability,
+} from "@bitwarden/automation-driver";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -59,27 +63,26 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { ClientType } from "@bitwarden/common/enums";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
 import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
-import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
+import {
+  DefaultProcessReloadService,
+  ProcessReloadServiceAbstraction,
+} from "@bitwarden/common/key-management/process-reload";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
-  SharedUnlockLeaderService,
+  SharedUnlockPeerService,
   SharedUnlockSettingsService,
   DefaultSharedUnlockSettingsService,
 } from "@bitwarden/common/key-management/shared-unlock";
-import { DefaultSharedUnlockLeaderService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-leader.service";
+import { DefaultSharedUnlockPeerService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-peer.service";
 import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
@@ -128,6 +131,7 @@ import {
   KdfConfigService,
   KeyService,
   KeyService as KeyServiceAbstraction,
+  DefaultKeyService,
   BiometricStateService,
   BiometricsService,
 } from "@bitwarden/key-management";
@@ -138,17 +142,35 @@ import {
   DefaultWebAuthnPrfUnlockService,
   KeyManagementUiModule,
 } from "@bitwarden/key-management-ui";
+// eslint-disable-next-line no-restricted-imports
+import {
+  CryptoFunctionService as CryptoFunctionServiceAbstraction,
+  EncryptService,
+  LegacyCompatKeyService,
+  WebCryptoFunctionService,
+} from "@bitwarden/legacy-crypto";
+import { FlightRecorderLogRecorderService } from "@bitwarden/logging-angular";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
-import { UnlockService } from "@bitwarden/unlock";
+import {
+  SHARE_ITEM_PRESENTER,
+  SHARE_PASSWORD_REPROMPT,
+  ShareButtonComponent,
+} from "@bitwarden/tools-share";
+import { LockService, UnlockService } from "@bitwarden/unlock";
 import {
   CipherFormGenerationService,
   DefaultSshImportPromptService,
+  DefaultVaultNavService,
   SshImportPromptService,
+  VaultNavService,
   VaultFilterServiceAbstraction,
   VaultFilterService,
   RoutedVaultFilterService,
   RoutedVaultFilterBridgeService,
   VAULT_FILTER_BASE_ROUTE,
+  Vfo1TerminologyService,
+  PasswordRepromptService,
+  SHARE_ITEM_ENTRY_POINT,
 } from "@bitwarden/vault";
 
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
@@ -156,12 +178,16 @@ import { DesktopAuthRequestAnsweringService } from "../../auth/services/auth-req
 import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
+import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopAutotypeDefaultSettingPolicy } from "../../autofill/services/desktop-autotype-policy.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
+import { DesktopFido2MacOsUserVerificationService } from "../../autofill/services/desktop-fido2-macos-user-verification.service";
+import { DesktopFido2UnsupportedUserVerificationService } from "../../autofill/services/desktop-fido2-unsupported-user-verification.service";
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
+import { DesktopFido2UserVerificationService } from "../../autofill/services/desktop-fido2-user-verification.service.abstraction";
+import { DesktopFido2WindowsUserVerificationService } from "../../autofill/services/desktop-fido2-windows-user-verification.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
-import { ElectronKeyService } from "../../key-management/electron-key.service";
 import { DesktopLockComponentService } from "../../key-management/lock/services/desktop-lock-component.service";
 import { DesktopSessionTimeoutTypeService } from "../../key-management/session-timeout/services/desktop-session-timeout-type.service";
 import { flagEnabled } from "../../platform/flags";
@@ -191,13 +217,12 @@ import { DesktopDeviceManagementComponentService } from "../../services/desktop-
 import { DuckDuckGoMessageHandlerService } from "../../services/duckduckgo-message-handler.service";
 import { EncryptedMessageHandlerService } from "../../services/encrypted-message-handler.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
+import { DesktopShareItemPresenter } from "../tools/share-item/desktop-share-item.presenter";
 
 import { DesktopFileDownloadService } from "./desktop-file-download.service";
 import { InitService } from "./init.service";
 import { NativeMessagingManifestService } from "./native-messaging-manifest.service";
 import { DesktopSetInitialPasswordService } from "./set-initial-password/desktop-set-initial-password.service";
-
-const RELOAD_CALLBACK = new SafeInjectionToken<() => any>("RELOAD_CALLBACK");
 
 /**
  * Provider definitions used in the ngModule.
@@ -226,6 +251,36 @@ const safeProviders: SafeProvider[] = [
     useClass: DesktopDeviceManagementComponentService,
     deps: [],
   }),
+  // Desktop-only automation capabilities.
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: () => new ProcessReloadCapability(() => ipc.platform.reloadProcess()),
+    deps: [],
+    multi: true,
+  }),
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: (toastService: ToastService) =>
+      new BiometricsCapability(
+        {
+          setStatus: (status) => ipc.keyManagement.automation.biometrics.setStatus(status),
+          listPending: () => ipc.keyManagement.automation.biometrics.listPending(),
+          approve: (id) => ipc.keyManagement.automation.biometrics.approve(id),
+          deny: (id) => ipc.keyManagement.automation.biometrics.deny(id),
+          onRequest: (callback) => ipc.keyManagement.automation.biometrics.onRequest(callback),
+        },
+        toastService,
+      ),
+    deps: [ToastService],
+    multi: true,
+  }),
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: (messagingService: MessagingServiceAbstraction) =>
+      new DesktopNavigationCapability(messagingService),
+    deps: [MessagingServiceAbstraction],
+    multi: true,
+  }),
   safeProvider(NativeMessagingService),
   safeProvider(BiometricMessageHandlerService),
   safeProvider(DialogService),
@@ -236,13 +291,10 @@ const safeProviders: SafeProvider[] = [
     multi: true,
   }),
   safeProvider({
-    provide: RELOAD_CALLBACK,
-    useValue: null,
-  }),
-  safeProvider({
     provide: LogServiceAbstraction,
-    useClass: ElectronLogRendererService,
-    deps: [],
+    useFactory: (recorder: FlightRecorderLogRecorderService) =>
+      new ElectronLogRendererService(null, recorder),
+    deps: [FlightRecorderLogRecorderService],
   }),
   safeProvider({
     provide: PlatformUtilsServiceAbstraction,
@@ -264,7 +316,7 @@ const safeProviders: SafeProvider[] = [
     //
     // Setting the ACCESS_TOKEN_LOCATION=DISK environment variable forces the same disk-backed
     // behavior on any platform, for environments where the OS keyring is unavailable or
-    // undesirable (see `accessTokenLocation` in apps/desktop/src/utils.ts).
+    // undesirable (see `accessTokenLocation` in apps/desktop/src/main/platform-utils.main.ts).
     provide: SUPPORTS_SECURE_STORAGE,
     useValue:
       ELECTRON_SUPPORTS_SECURE_STORAGE &&
@@ -332,9 +384,7 @@ const safeProviders: SafeProvider[] = [
     deps: [
       PinServiceAbstraction,
       MessagingServiceAbstraction,
-      RELOAD_CALLBACK,
       VaultTimeoutSettingsService,
-      BiometricStateService,
       AccountServiceAbstraction,
       LogService,
       AuthServiceAbstraction,
@@ -380,21 +430,16 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: KeyServiceAbstraction,
-    useClass: ElectronKeyService,
+    useClass: DefaultKeyService,
     deps: [
-      InternalMasterPasswordServiceAbstraction,
-      KeyGenerationService,
       CryptoFunctionServiceAbstraction,
       EncryptService,
       PlatformUtilsServiceAbstraction,
       LogService,
       StateServiceAbstraction,
-      AccountServiceAbstraction,
       StateProvider,
-      BiometricStateService,
-      KdfConfigService,
-      DesktopBiometricsService,
       AccountCryptographicStateService,
+      BiometricsService,
     ],
   }),
   safeProvider({
@@ -407,18 +452,18 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
-    provide: SharedUnlockLeaderService,
-    useClass: DefaultSharedUnlockLeaderService,
+    provide: SharedUnlockPeerService,
+    useClass: DefaultSharedUnlockPeerService,
     deps: [
       IpcService,
       AccountService,
       LockService,
-      KeyServiceAbstraction,
       PlatformUtilsServiceAbstraction,
       VaultTimeoutSettingsService,
       EnvironmentService,
       SharedUnlockSettingsService,
       UnlockService,
+      ConfigService,
     ],
   }),
   safeProvider({
@@ -438,6 +483,24 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
+    provide: DesktopFido2UserVerificationService,
+    useFactory: (
+      platformUtilsService: PlatformUtilsServiceAbstraction,
+      i18nService: I18nServiceAbstraction,
+      logService: LogServiceAbstraction,
+    ): DesktopFido2UserVerificationService => {
+      switch (platformUtilsService.getDevice()) {
+        case DeviceType.MacOsDesktop:
+          return new DesktopFido2MacOsUserVerificationService(i18nService, logService);
+        case DeviceType.WindowsDesktop:
+          return new DesktopFido2WindowsUserVerificationService(i18nService, logService);
+        default:
+          return new DesktopFido2UnsupportedUserVerificationService(logService);
+      }
+    },
+    deps: [PlatformUtilsServiceAbstraction, I18nServiceAbstraction, LogServiceAbstraction],
+  }),
+  safeProvider({
     provide: DesktopFido2UserInterfaceService,
     useClass: DesktopFido2UserInterfaceService,
     deps: [
@@ -448,6 +511,9 @@ const safeProviders: SafeProvider[] = [
       MessagingServiceAbstraction,
       Router,
       DesktopSettingsService,
+      DesktopFido2UserVerificationService,
+      PasswordRepromptService,
+      DomainSettingsService,
     ],
   }),
   safeProvider({
@@ -480,7 +546,7 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultWebAuthnPrfUnlockService,
     deps: [
       WebAuthnLoginPrfKeyServiceAbstraction,
-      UserDecryptionOptionsServiceAbstraction,
+      StateProvider,
       EncryptService,
       EnvironmentService,
       PlatformUtilsServiceAbstraction,
@@ -501,6 +567,7 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       KdfConfigService,
       KeyService,
+      LegacyCompatKeyService,
       MasterPasswordApiService,
       InternalMasterPasswordServiceAbstraction,
       OrganizationApiServiceAbstraction,
@@ -509,6 +576,7 @@ const safeProviders: SafeProvider[] = [
       MessagingServiceAbstraction,
       AccountCryptographicStateService,
       RegisterSdkService,
+      UnlockService,
     ],
   }),
   safeProvider({
@@ -561,6 +629,11 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: VaultNavService,
+    useClass: DefaultVaultNavService,
+    deps: [],
+  }),
+  safeProvider({
     provide: SshImportPromptService,
     useClass: DefaultSshImportPromptService,
     deps: [
@@ -569,6 +642,21 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsServiceAbstraction,
       I18nServiceAbstraction,
       ConfigService,
+      LogService,
+    ],
+  }),
+  safeProvider({
+    provide: DesktopAutotypeMvpService,
+    useClass: DesktopAutotypeMvpService,
+    deps: [
+      AccountService,
+      AuthService,
+      CipherServiceAbstraction,
+      ConfigService,
+      GlobalStateProvider,
+      PlatformUtilsServiceAbstraction,
+      BillingAccountProfileStateService,
+      DesktopAutotypeDefaultSettingPolicy,
       LogService,
     ],
   }),
@@ -615,6 +703,7 @@ const safeProviders: SafeProvider[] = [
       CollectionService,
       AccountServiceAbstraction,
       ConfigService,
+      Vfo1TerminologyService,
     ],
   }),
   safeProvider({
@@ -685,6 +774,25 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: IpcService,
     useClass: IpcRendererService,
+    deps: [],
+  }),
+  // Sharing and the Vault layer reach each other through tokens rather than imports, because
+  // `@bitwarden/tools-share` already depends on `@bitwarden/vault` through `@bitwarden/send-ui`
+  // and importing it back would close a package cycle. The app sits above both, so it is the one
+  // place the two can be introduced.
+  safeProvider({
+    provide: SHARE_ITEM_ENTRY_POINT,
+    useValue: ShareButtonComponent,
+  }),
+  safeProvider({
+    provide: SHARE_PASSWORD_REPROMPT,
+    useExisting: PasswordRepromptService,
+    deps: [],
+  }),
+  safeProvider(DesktopShareItemPresenter),
+  safeProvider({
+    provide: SHARE_ITEM_PRESENTER,
+    useExisting: DesktopShareItemPresenter,
     deps: [],
   }),
 ];

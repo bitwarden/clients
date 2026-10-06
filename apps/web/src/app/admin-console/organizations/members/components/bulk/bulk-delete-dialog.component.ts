@@ -16,7 +16,9 @@ import {
   TableModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
+import { AvatarIdPipe } from "../../pipes/avatar-id.pipe";
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 
 import { BulkUserDetails } from "./bulk-status.component";
@@ -32,6 +34,7 @@ type BulkDeleteDialogParams = {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    AvatarIdPipe,
     AvatarModule,
     BadgeModule,
     ButtonModule,
@@ -40,6 +43,7 @@ type BulkDeleteDialogParams = {
     I18nPipe,
     TableModule,
     UserNamePipe,
+    Vfo1I18nPipe,
   ],
 })
 export class BulkDeleteDialogComponent {
@@ -79,7 +83,7 @@ export class BulkDeleteDialogComponent {
 
       this.done.set(true);
     } catch (e) {
-      this.error.set(e instanceof Error ? e.message : String(e));
+      this.error.set((e as any)?.message ?? String(e));
     } finally {
       this.loading.set(false);
     }

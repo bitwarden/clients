@@ -3,7 +3,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit, signal } from "@angular/core";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { Router, RouterModule } from "@angular/router";
+import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import {
   BehaviorSubject,
   concatMap,
@@ -15,13 +15,11 @@ import {
   Subject,
   switchMap,
   takeUntil,
-  timer,
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
-import { LockService } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
@@ -39,9 +37,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import {
-  DialogRef,
   CardComponent,
   CheckboxModule,
   DialogService,
@@ -59,23 +55,23 @@ import {
   CalloutModule,
   SpinnerComponent,
 } from "@bitwarden/components";
-import {
-  KeyService,
-  BiometricsService,
-  BiometricStateService,
-  BiometricsStatus,
-} from "@bitwarden/key-management";
+import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { LockService, LockSource } from "@bitwarden/unlock";
 
-import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
+import {
+  NativeMessagingPermissionDialogComponent,
+  NativeMessagingPermissionDialogType,
+} from "../../../key-management/shared-unlock/popup/native-messaging-permission-dialog.component";
 import { BrowserApi } from "../../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { SetPinComponent } from "../components/set-pin.component";
 import { AuthExtensionRoute } from "../constants/auth-extension-route.constant";
-
-import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -109,7 +105,6 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
 })
 export class AccountSecurityComponent implements OnInit, OnDestroy {
   showMasterPasswordOnClientRestartOption = true;
-  biometricUnavailabilityReason: string;
   showChangeMasterPass = true;
   pinEnabled$: Observable<boolean> = of(true);
   protected readonly loading = signal(true);
@@ -120,7 +115,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     biometric: false,
     enableAutoBiometricsPrompt: true,
     enablePhishingDetection: true,
-    allowSharingUnlockState: true,
+    allowSharingUnlockStateWithDesktop: false,
+    allowSharingUnlockStateWithWeb: false,
   });
 
   protected showAccountSecurityNudge$: Observable<boolean> =
@@ -135,15 +131,23 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   protected readonly sharedUnlockFeatureEnabled$: Observable<boolean>;
   protected readonly multiClientPasswordManagement$: Observable<boolean>;
 
+  // Native messaging with the desktop app is unavailable on Safari.
+  protected readonly showSharedUnlockWithDesktop: boolean;
+  // Firefox does not support sharing unlock state with the web vault.
+  protected readonly showSharedUnlockWithWeb: boolean;
+  // True when the user declined to trust this TDE device, disabling shared unlock. The value cannot
+  // change while this page is open, so it is read once during init.
+  protected readonly unlockSharingDisabled = signal(false);
+
   protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
   private destroy$ = new Subject<void>();
-  private readonly BIOMETRICS_POLLING_INTERVAL = 2000;
 
   constructor(
     private accountService: AccountService,
     private pinService: PinServiceAbstraction,
     private configService: ConfigService,
     private router: Router,
+    private route: ActivatedRoute,
     private policyService: PolicyService,
     private formBuilder: FormBuilder,
     private platformUtilsService: PlatformUtilsService,
@@ -153,13 +157,12 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     public messagingService: MessagingService,
     private environmentService: EnvironmentService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private userVerificationService: UserVerificationService,
     private dialogService: DialogService,
     private biometricStateService: BiometricStateService,
     private toastService: ToastService,
-    private biometricsService: BiometricsService,
     private vaultNudgesService: NudgesService,
-    private validationService: ValidationService,
     private logService: LogService,
     private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
     private sharedUnlockSettingsService: SharedUnlockSettingsService,
@@ -173,18 +176,9 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     this.sharedUnlockFeatureEnabled$ = this.configService.getFeatureFlag$(
       FeatureFlag.SharedUnlockPart2,
     );
-  }
 
-  get sharedUnlockDescriptionKey(): string {
-    if (this.platformUtilsService.isSafari()) {
-      return "sharedUnlockDescriptionSafari";
-    }
-
-    if (this.platformUtilsService.isFirefox()) {
-      return "sharedUnlockDescriptionFirefox";
-    }
-
-    return "sharedUnlockDescription";
+    this.showSharedUnlockWithDesktop = !this.platformUtilsService.isSafari();
+    this.showSharedUnlockWithWeb = !this.platformUtilsService.isFirefox();
   }
 
   async ngOnInit() {
@@ -213,50 +207,25 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         this.biometricStateService.promptAutomatically$(activeAccount.id),
       ),
       enablePhishingDetection: await firstValueFrom(this.phishingDetectionSettingsService.enabled$),
-      allowSharingUnlockState: await firstValueFrom(
-        this.sharedUnlockSettingsService.allowSharingUnlockState$(activeAccount.id),
+      allowSharingUnlockStateWithDesktop: await firstValueFrom(
+        this.sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$(activeAccount.id),
+      ),
+      allowSharingUnlockStateWithWeb: await firstValueFrom(
+        this.sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$(activeAccount.id),
       ),
     };
     this.form.patchValue(initialValues, { emitEvent: false });
+
+    const unlockSharingDisabled = await firstValueFrom(
+      this.sharedUnlockSettingsService.unlockSharingDisabled$(activeAccount.id),
+    );
+    this.unlockSharingDisabled.set(unlockSharingDisabled);
+    if (unlockSharingDisabled) {
+      this.form.controls.allowSharingUnlockStateWithDesktop.disable({ emitEvent: false });
+      this.form.controls.allowSharingUnlockStateWithWeb.disable({ emitEvent: false });
+    }
+
     this.loading.set(false);
-
-    timer(0, this.BIOMETRICS_POLLING_INTERVAL)
-      .pipe(
-        switchMap(async () => {
-          const biometricSettingAvailable = await this.biometricsService.canEnableBiometricUnlock();
-          if (!biometricSettingAvailable) {
-            this.form.controls.biometric.disable({ emitEvent: false });
-          } else {
-            this.form.controls.biometric.enable({ emitEvent: false });
-          }
-
-          const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
-          if (status === BiometricsStatus.DesktopDisconnected && !biometricSettingAvailable) {
-            this.biometricUnavailabilityReason = this.i18nService.t(
-              "biometricsStatusHelptextDesktopDisconnected",
-            );
-          } else if (
-            status === BiometricsStatus.NotEnabledInConnectedDesktopApp &&
-            !biometricSettingAvailable
-          ) {
-            this.biometricUnavailabilityReason = this.i18nService.t(
-              "biometricsStatusHelptextNotEnabledInDesktop",
-              activeAccount.email,
-            );
-          } else if (
-            status === BiometricsStatus.HardwareUnavailable &&
-            !biometricSettingAvailable
-          ) {
-            this.biometricUnavailabilityReason = this.i18nService.t(
-              "biometricsStatusHelptextHardwareUnavailable",
-            );
-          } else {
-            this.biometricUnavailabilityReason = "";
-          }
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
 
     this.showChangeMasterPass = await this.userVerificationService.hasMasterPassword();
 
@@ -321,14 +290,65 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
-    this.form.controls.allowSharingUnlockState.valueChanges
+    this.form.controls.allowSharingUnlockStateWithDesktop.valueChanges
       .pipe(
         concatMap(async (enabled) => {
-          await this.updateAllowSharingUnlockState(enabled);
+          await this.updateAllowSharingUnlockStateWithDesktop(enabled);
         }),
         takeUntil(this.destroy$),
       )
       .subscribe();
+
+    this.form.controls.allowSharingUnlockStateWithWeb.valueChanges
+      .pipe(
+        concatMap(async (enabled) => {
+          await this.updateAllowSharingUnlockStateWithWeb(enabled);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    await this.promptForDesktopSharingPermissionIfNeeded();
+    // Note: This will be removed after shared unlock is rolled out
+    await this.promptForBiometricPermissionIfNeeded();
+  }
+
+  /**
+   * When the Account Security page was popped out specifically to enable desktop unlock sharing
+   * (signalled by the `autoRequestDesktopSharing` query param), continue the flow that was started
+   * in the popup. Enabling the form control triggers `updateAllowSharingUnlockStateWithDesktop`,
+   * which — now running in the popout — presents the permission dialog and requests the
+   * `nativeMessaging` permission.
+   */
+  private async promptForDesktopSharingPermissionIfNeeded() {
+    if (
+      !BrowserPopupUtils.inPopout(window) ||
+      this.route.snapshot.queryParamMap.get("autoRequestDesktopSharing") !== "true" ||
+      (await BrowserApi.permissionsGranted(["nativeMessaging"]))
+    ) {
+      return;
+    }
+
+    this.form.controls.allowSharingUnlockStateWithDesktop.setValue(true);
+  }
+
+  /**
+   * When the Account Security page was popped out specifically to enable biometric unlock
+   * (signalled by the `autoRequestBiometrics` query param), continue the flow that was started
+   * in the popup. Enabling the form control triggers `updateBiometric`, which — now running in
+   * the popout — presents the permission dialog and requests the `nativeMessaging` permission.
+   * @deprecated This will be removed after shared unlock is rolled out
+   */
+  private async promptForBiometricPermissionIfNeeded() {
+    if (
+      !BrowserPopupUtils.inPopout(window) ||
+      this.route.snapshot.queryParamMap.get("autoRequestBiometrics") !== "true" ||
+      (await BrowserApi.permissionsGranted(["nativeMessaging"]))
+    ) {
+      return;
+    }
+
+    this.form.controls.biometric.setValue(true);
   }
 
   protected async dismissAccountSecurityNudge() {
@@ -369,127 +389,100 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * @deprecated This will be removed after shared unlock is rolled out
+   */
   async updateBiometric(enabled: boolean) {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (enabled) {
-      try {
-        await this.keyService.refreshAdditionalKeys(userId);
-
-        const successful = await this.trySetupBiometrics();
-        this.form.controls.biometric.setValue(successful);
-        await this.biometricStateService.setBiometricUnlockEnabled(successful, userId);
-        if (!successful) {
-          await this.biometricStateService.setFingerprintValidated(false);
+      const hadPermission = await BrowserApi.permissionsGranted(["nativeMessaging"]);
+      if (!hadPermission) {
+        if (!BrowserPopupUtils.inPopout(window)) {
+          // Requesting the permission outside a popout would close the window (granting reloads
+          // the extension), so pop out to a stable window. The popped-out window presents the
+          // dialog and requests the permission. With hash routing, Angular reads query params
+          // from after the hash route.
+          const url = new URL(window.location.href);
+          url.hash += (url.hash.includes("?") ? "&" : "?") + "autoRequestBiometrics=true";
+          await BrowserPopupUtils.openCurrentPagePopout(window, url.href);
           return;
         }
-        this.toastService.showToast({
-          variant: "success",
-          title: null,
-          message: this.i18nService.t("unlockWithBiometricSet"),
-        });
-      } catch (error) {
-        this.form.controls.biometric.setValue(false);
-        this.validationService.showError(error);
+
+        // In the popout, the dialog explains what enabling biometric unlock entails and requests
+        // the nativeMessaging permission. It closes with `true` when the permission was granted.
+        const granted = await firstValueFrom(
+          NativeMessagingPermissionDialogComponent.open(this.dialogService, {
+            type: NativeMessagingPermissionDialogType.Biometrics,
+          }).closed,
+        );
+        if (!granted) {
+          this.form.controls.biometric.setValue(false, { emitEvent: false });
+          return;
+        }
+      }
+
+      await this.biometricStateService.setBiometricUnlockEnabled(true, userId);
+
+      if (!hadPermission) {
+        // The nativeMessaging permission was just granted. The extension must reload to register
+        // the native messaging host. State is saved above so it survives the reload. The
+        // background performs the reload once all popups/popouts have closed; this popout won't
+        // receive its own broadcast, so close it explicitly to unblock that reload.
+        this.messagingService.send("reloadExtension");
+        await BrowserPopupUtils.closeCurrentPopupOrPopout(window);
       }
     } else {
       await this.biometricStateService.setBiometricUnlockEnabled(false, userId);
-      await this.biometricStateService.setFingerprintValidated(false);
     }
   }
 
-  async trySetupBiometrics(): Promise<boolean> {
-    let awaitDesktopDialogRef: DialogRef<boolean, unknown> | undefined;
-    let biometricsResponseReceived = false;
-    let setupResult = false;
-
-    const waitForUserDialogPromise = async () => {
-      // only show waiting dialog if we have waited for 500 msec to prevent double dialog
-      // the os will respond instantly if the dialog shows successfully, and the desktop app will respond instantly if something is wrong
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      if (biometricsResponseReceived) {
+  async updateAllowSharingUnlockStateWithDesktop(enabled: boolean) {
+    const hadPermission = await BrowserApi.permissionsGranted(["nativeMessaging"]);
+    if (enabled && !hadPermission) {
+      if (!BrowserPopupUtils.inPopout(window)) {
+        // Requesting the permission outside a popout would close the window (granting reloads the
+        // extension), so pop out to a stable window. The popped-out window presents the dialog and
+        // requests the permission. With hash routing, Angular reads query params from after the
+        // hash route.
+        const url = new URL(window.location.href);
+        url.hash += (url.hash.includes("?") ? "&" : "?") + "autoRequestDesktopSharing=true";
+        await BrowserPopupUtils.openCurrentPagePopout(window, url.href);
         return;
       }
 
-      awaitDesktopDialogRef = AwaitDesktopDialogComponent.open(this.dialogService);
-      await firstValueFrom(awaitDesktopDialogRef.closed);
-      if (!biometricsResponseReceived) {
-        setupResult = false;
+      // In the popout, the dialog explains what enabling desktop sharing entails and requests the
+      // nativeMessaging permission. It closes with `true` when the permission was granted.
+      const granted = await firstValueFrom(
+        NativeMessagingPermissionDialogComponent.open(this.dialogService, {
+          type: NativeMessagingPermissionDialogType.SharedUnlock,
+        }).closed,
+      );
+      if (!granted) {
+        this.form.controls.allowSharingUnlockStateWithDesktop.setValue(false, { emitEvent: false });
+        return;
       }
-      return;
-    };
+    }
 
-    const biometricsPromise = async () => {
-      try {
-        const userId = await firstValueFrom(
-          this.accountService.activeAccount$.pipe(map((a) => a.id)),
-        );
-        let result = false;
-        try {
-          const userKey = await this.biometricsService.unlockWithBiometricsForUser(userId);
-          result = await this.keyService.validateUserKey(userKey, userId);
-          // FIXME: Remove when updating file. Eslint update
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (e) {
-          result = false;
-        }
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop(enabled, userId);
+    if (!enabled && !this.form.controls.allowSharingUnlockStateWithWeb.value) {
+      await this.vaultTimeoutSettingsService.clearVaultTimeoutSuppression(userId);
+    }
 
-        // prevent duplicate dialog
-        biometricsResponseReceived = true;
-        if (awaitDesktopDialogRef) {
-          await awaitDesktopDialogRef.close(result);
-        }
-
-        if (!result) {
-          this.platformUtilsService.showToast(
-            "error",
-            this.i18nService.t("errorEnableBiometricTitle"),
-            this.i18nService.t("errorEnableBiometricDesc"),
-          );
-          setupResult = false;
-          return;
-        }
-        setupResult = true;
-      } catch (e) {
-        // prevent duplicate dialog
-        biometricsResponseReceived = true;
-        if (awaitDesktopDialogRef) {
-          await awaitDesktopDialogRef.close(true);
-        }
-
-        if (e.message == "canceled") {
-          setupResult = false;
-          return;
-        }
-
-        const error = BiometricErrors[e.message as BiometricErrorTypes];
-        const shouldRetry = await this.dialogService.openSimpleDialog({
-          title: { key: error.title },
-          content: { key: error.description },
-          acceptButtonText: { key: "retry" },
-          cancelButtonText: null,
-          type: "danger",
-        });
-        if (shouldRetry) {
-          setupResult = await this.trySetupBiometrics();
-        } else {
-          setupResult = false;
-          return;
-        }
-      } finally {
-        if (awaitDesktopDialogRef) {
-          await awaitDesktopDialogRef.close(true);
-        }
-      }
-    };
-
-    await Promise.all([waitForUserDialogPromise(), biometricsPromise()]);
-    return setupResult;
+    if (enabled && !hadPermission) {
+      // The nativeMessaging permission was just granted. The extension must reload to register
+      // the native messaging host. State is saved above so it survives the reload. The background
+      // performs the reload once all popups/popouts have closed; this popout won't receive its own
+      // broadcast, so close it explicitly to unblock that reload.
+      this.messagingService.send("reloadExtension");
+      await BrowserPopupUtils.closeCurrentPopupOrPopout(window);
+    }
   }
 
-  async updateAllowSharingUnlockState(enabled: boolean) {
+  async updateAllowSharingUnlockStateWithWeb(enabled: boolean) {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    await this.sharedUnlockSettingsService.setAllowSharingUnlockState(enabled, userId);
-    if (!enabled) {
+    await this.sharedUnlockSettingsService.setAllowSharingUnlockStateWithWeb(enabled, userId);
+    if (!enabled && !this.form.controls.allowSharingUnlockStateWithDesktop.value) {
       await this.vaultTimeoutSettingsService.clearVaultTimeoutSuppression(userId);
     }
   }
@@ -551,7 +544,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       );
       return;
     }
-    const fingerprint = await this.keyService.getFingerprint(activeUserId, publicKey);
+    const fingerprint = await this.legacyCompatKeyService.getFingerprint(activeUserId, publicKey);
 
     const dialogRef = FingerprintDialogComponent.open(this.dialogService, {
       fingerprint,
@@ -562,7 +555,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
   async lock() {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    await this.lockService.lock(activeUserId);
+    await this.lockService.lock(activeUserId, LockSource.Manual);
   }
 
   async logOut() {

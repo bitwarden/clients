@@ -1,6 +1,6 @@
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
-import { VaultItem } from "..";
+import { VaultItem } from "./vault-item";
 
 export type VaultItemEvent<C extends CipherViewLike> =
   | { type: "viewAttachments"; item: C }
@@ -8,7 +8,6 @@ export type VaultItemEvent<C extends CipherViewLike> =
   | { type: "clone"; item: C }
   | { type: "restore"; items: C[] }
   | { type: "delete"; items: VaultItem<C>[] }
-  | { type: "moveToFolder"; items: C[] }
   | { type: "assignToCollections"; items: C[] }
   | { type: "archive"; items: C[] }
   | { type: "unarchive"; items: C[] }

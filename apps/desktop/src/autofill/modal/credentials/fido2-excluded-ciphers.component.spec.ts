@@ -46,18 +46,20 @@ describe("Fido2ExcludedCiphersComponent", () => {
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
+    createComponent();
+  });
+
+  function createComponent(): void {
     fixture = TestBed.createComponent(Fido2ExcludedCiphersComponent);
     component = fixture.componentInstance;
-  });
+  }
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  describe("ngOnInit", () => {
-    it("should initialize session", async () => {
-      await component.ngOnInit();
-
+  describe("session", () => {
+    it("uses the current session", () => {
       expect(mockFido2UserInterfaceService.getCurrentSession).toHaveBeenCalled();
       expect(component.session).toBe(mockSession);
     });
@@ -65,13 +67,26 @@ describe("Fido2ExcludedCiphersComponent", () => {
 
   describe("closeModal", () => {
     it("should close modal and notify session when session exists", async () => {
-      component.session = mockSession;
+      await component.closeModal();
+
+      expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
+      expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(undefined);
+      expect(mockSession.hideUi).toHaveBeenCalled();
+
+      // The session owns this teardown; the component must not duplicate it.
+      expect(mockDesktopSettingsService.setModalMode).not.toHaveBeenCalled();
+      expect(mockAccountService.setShowHeader).not.toHaveBeenCalled();
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
+    });
+
+    it("should reset the window itself when there is no session to hand off to", async () => {
+      mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(undefined);
+      createComponent();
 
       await component.closeModal();
 
       expect(mockDesktopSettingsService.setModalMode).toHaveBeenCalledWith(false);
       expect(mockAccountService.setShowHeader).toHaveBeenCalledWith(true);
-      expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
       expect(mockRouter.navigate).toHaveBeenCalledWith(["/"]);
     });
   });

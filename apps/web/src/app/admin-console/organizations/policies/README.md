@@ -234,29 +234,9 @@ export const ossPolicyEditRegister: BasePolicyEditDefinition[] = [
 
 **Note**: Use `ossPolicyEditRegister` for open-source policies and `bitPolicyEditRegister` for Bitwarden Licensed policies.
 
-#### Policy with the Badge/Drawer UI Pattern
-
-Policies using the `PolicyDrawers` feature flag can opt into an enhanced dialog appearance:
-
-- The dialog title becomes the policy name (instead of "Edit policy")
-- An **On/Off** badge appears in the header reflecting the saved policy state
-- The **Cancel** button is hidden
-- The description is not repeated inside the dialog body
-
-Set these three properties on the definition class:
-
-```typescript
-import { MultiStepPolicyEditDialogComponent } from "../policy-edit-dialogs";
-
-export class YourNewPolicyV2 extends BasePolicyEditDefinition {
-  // ...
-  showDescription = false;
-  showEnabledBadge = true;
-  editDialogComponent = MultiStepPolicyEditDialogComponent;
-}
-```
-
-The `policySteps` property on `BasePolicyEditComponent` defaults to a single step that saves the policy, so no override is needed for simple policies.
+The drawer header always shows an **On/Off** badge reflecting the saved policy state alongside
+the policy name as the title. The `policySteps` property on `BasePolicyEditComponent` defaults to
+a single step that saves the policy, so no override is needed for simple policies.
 
 #### Multi-Step Policy Workflow
 

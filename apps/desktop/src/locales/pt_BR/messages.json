@@ -2,14 +2,36 @@
   "bitwarden": {
     "message": "Bitwarden"
   },
+  "bitwardenBeta": {
+    "message": "Bitwarden Beta",
+    "description": "Product name for the beta channel; shown in the tray tooltip and About dialog"
+  },
   "filters": {
     "message": "Filtros"
   },
   "allItems": {
     "message": "Todos os itens"
   },
+  "allVaultItems": {
+    "message": "Todos os itens do cofre"
+  },
+  "myItemsV2": {
+    "message": "Meus itens"
+  },
+  "vaults": {
+    "message": "Cofres"
+  },
+  "tools": {
+    "message": "Ferramentas"
+  },
+  "manage": {
+    "message": "Gerenciar"
+  },
   "favorites": {
     "message": "Favoritos"
+  },
+  "favoritesFilterTooltip": {
+    "message": "Marque itens como favorito para filtrá-lo aqui."
   },
   "unfavorite": {
     "message": "Desfavoritar"
@@ -78,7 +100,7 @@
     "message": "Carteira de habilitação"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Carteira de motorista ou identidade"
+    "message": "Carteira de habilitação ou identidade"
   },
   "chooseItemToAdd": {
     "message": "Escolha o item a adicionar"
@@ -103,6 +125,103 @@
   },
   "shared": {
     "message": "Compartilhado"
+  },
+  "sharedFolder": {
+    "message": "Pasta compartilhada"
+  },
+  "sharedFolders": {
+    "message": "Pastas compartilhadas"
+  },
+  "sharedFoldersInParent": {
+    "message": "Pastas compartilhadas em $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ pastas compartilhadas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ pasta compartilhada",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "myFolder": {
+    "message": "Minha pasta"
+  },
+  "myFolders": {
+    "message": "Minhas pastas"
+  },
+  "foldersFilterTooltip": {
+    "message": "Adicione pastas aos itens para filtrá-los aqui."
+  },
+  "myItemsFilterTooltip": {
+    "message": "Adicione itens a Meus itens para filtrá-los aqui."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Adicione itens a uma pasta compartilhada para filtrar aqui."
+  },
+  "addSharedFolder": {
+    "message": "Adicione pasta compartilhada"
+  },
+  "newSharedFolder": {
+    "message": "Nova pasta compartilhada"
+  },
+  "searchSharedFolder": {
+    "message": "Buscar pasta compartilhada"
+  },
+  "searchMyFolder": {
+    "message": "Buscar Minhas pastas"
+  },
+  "viewSharedFolderWithName": {
+    "message": "Visualizar pasta compartilhada $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Excluir pasta compartilhada"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Excluir $COUNT$ pasta compartilhada",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "Esta pasta compartilhada será excluída permanentemente. Os itens da pasta não serão excluídos."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "Esta pasta compartilhada será excluída permanentemente. Os itens da pasta não serão excluídos."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "Os itens e pastas compartilhadas selecionados serão apagados permanentemente."
+  },
+  "sharedFolderDeleted": {
+    "message": "Pasta compartilhada excluída"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Pasta compartilhada excluída"
   },
   "share": {
     "message": "Compartilhar"
@@ -135,8 +254,20 @@
   "attachments": {
     "message": "Anexos"
   },
+  "attachmentsNeedFix": {
+    "message": "Este item tem anexos de arquivos antigos que precisam ser corrigidos."
+  },
   "viewItem": {
     "message": "Ver item"
+  },
+  "viewCollectionWithName": {
+    "message": "Ver conjunto - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Collection1"
+      }
+    }
   },
   "viewItemHeaderLogin": {
     "message": "Ver credencial",
@@ -173,6 +304,42 @@
   "viewItemHeaderPassport": {
     "message": "Ver passaporte",
     "description": "Header for view passport item type"
+  },
+  "addItemHeaderLogin": {
+    "message": "Adicionar credencial",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Adicionar cartão",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Adicionar identidade",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Adicionar anotação",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Adicionar anotação segura",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "Adicionar chave SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Adicionar conta bancária",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Adicionar habilitação",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Adicionar passaporte",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
     "message": "Nova credencial",
@@ -229,6 +396,22 @@
   "editItemHeaderSecureNote": {
     "message": "Editar anotação segura",
     "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Editar credencial",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Editar cartão",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Editar identidade",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "Editar anotação",
+    "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
     "message": "Editar chave SSH",
@@ -322,6 +505,29 @@
     "message": "Tem certeza de que deseja apagar este Send permanentemente?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "Ver credencial",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "Ver cartão",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "Ver identidade",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "Ver anotação",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Criar",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "Adicionar conjunto"
+  },
   "new": {
     "message": "Criar",
     "description": "for adding new items"
@@ -338,8 +544,21 @@
   "passphrase": {
     "message": "Frase secreta"
   },
+  "passwordAnnounceSpace": {
+    "message": "espaço",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "editItem": {
     "message": "Editar item"
+  },
+  "editItemWithName": {
+    "message": "Editar item - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
   },
   "emailAddress": {
     "message": "Endereço de e-mail"
@@ -359,9 +578,24 @@
   "launch": {
     "message": "Abrir"
   },
+  "launchWebsite": {
+    "message": "Abrir Site"
+  },
   "copyValue": {
     "message": "Copiar valor",
     "description": "Copy value to clipboard"
+  },
+  "copyWebsite": {
+    "message": "Copiar site"
+  },
+  "copyCustomField": {
+    "message": "Copiar $FIELD$",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Custom field label"
+      }
+    }
   },
   "minimizeOnCopyToClipboard": {
     "message": "Minimizar ao copiar para a área de transferência"
@@ -557,16 +791,25 @@
   "decryptionError": {
     "message": "Erro ao descriptografar"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "O Bitwarden não pôde descriptografar o(s) item(ns) do cofre listados abaixo."
+  "couldNotDecryptVaultItem": {
+    "message": "O Bitwarden não conseguiu descriptografar o item do cofre listado abaixo. Entre em contato com o Suporte ao Cliente do Bitwarden e forneça o ID do item abaixo para ver se ele pode ser recuperado."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Entre em contato com o suporte",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "O Bitwarden não conseguiu descriptografar os itens do cofre listados abaixo. Entre em contato com o Suporte ao Cliente do Bitwarden e forneça os IDs dos itens abaixo para ver se eles podem ser recuperados."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "para evitar a perda de dados adicionais.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "ID do item",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "IDs dos itens",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Copiar ID"
+  },
+  "copyAllIds": {
+    "message": "Copiar todos os IDs"
   },
   "january": {
     "message": "Janeiro"
@@ -641,6 +884,9 @@
   "type": {
     "message": "Tipo"
   },
+  "items": {
+    "message": "Itens"
+  },
   "firstName": {
     "message": "Primeiro nome"
   },
@@ -711,23 +957,114 @@
       }
     }
   },
+  "appUri": {
+    "message": "App (URI)"
+  },
+  "appUriCount": {
+    "message": "App (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "Site adicionado"
   },
   "addWebsite": {
     "message": "Adicionar site"
   },
+  "addWebsiteOrApp": {
+    "message": "Adicionar site ou app"
+  },
+  "app": {
+    "message": "App"
+  },
   "deleteWebsite": {
     "message": "Apagar site"
   },
+  "deleteCustomField": {
+    "message": "Apagar $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "owner": {
     "message": "Proprietário"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Pasta compartilhada $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Coleção $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Minha pasta $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Pasta $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Proprietário $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Cofre $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "addField": {
     "message": "Adicionar campo"
   },
   "editField": {
     "message": "Editar campo"
+  },
+  "editFieldLabel": {
+    "message": "Editar $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Tem certeza de que deseja apagar este anexo permanentemente?"
@@ -753,7 +1090,7 @@
   "linkedHelpText": {
     "message": "Use um campo vinculado quando você estiver enfrentando problemas com o preenchimento automático em um site específico."
   },
-  "linkedLabelHelpText": {
+  "linkedFieldLabelHelpText": {
     "message": "Digite o ID html, nome, aria-label, ou placeholder do campo."
   },
   "folder": {
@@ -809,6 +1146,45 @@
   "deleteItem": {
     "message": "Apagar item"
   },
+  "deleteItemsCount": {
+    "message": "Apagar $COUNT$ itens",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "Este item será enviado para a lixeira. Depois de 30 dias lá, ele será apagado permanentemente."
+  },
+  "deleteItemsDesc": {
+    "message": "Estes itens serão enviados para a lixeira. Depois de 30 dias lá, eles serão apagados permanentemente."
+  },
+  "deleteItemPermanently": {
+    "message": "Apagar item permanentemente"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "Apagar $COUNT$ itens permanentemente",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "Você não poderá recuperar este item."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "Você não poderá recuperar estes itens."
+  },
+  "deleteSelection": {
+    "message": "Apagar seleção"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "Os itens e conjuntos selecionados serão apagados permanentemente."
+  },
   "deleteFolder": {
     "message": "Apagar pasta"
   },
@@ -858,6 +1234,24 @@
   "editFolder": {
     "message": "Editar pasta"
   },
+  "editFolderNamed": {
+    "message": "Editar $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
+  "deleteFolderNamed": {
+    "message": "Excluir $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "regeneratePassword": {
     "message": "Regerar senha"
   },
@@ -879,20 +1273,6 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Copiar código de verificação (TOTP)"
-  },
-  "copyFieldCipherName": {
-    "message": "Copiar $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
   },
   "copyPrivateKey": {
     "message": "Copiar chave privada"
@@ -1037,6 +1417,9 @@
   "file": {
     "message": "Arquivo"
   },
+  "photo": {
+    "message": "Foto"
+  },
   "selectFile": {
     "message": "Selecione um arquivo"
   },
@@ -1052,11 +1435,41 @@
   "addedFolder": {
     "message": "Pasta adicionada"
   },
+  "folderEdited": {
+    "message": "Pasta editada"
+  },
+  "enterAName": {
+    "message": "Insira um nome."
+  },
   "deleteFolderConfirmation": {
     "message": "Tem certeza de que deseja apagar esta pasta?"
   },
   "deletedFolder": {
     "message": "Pasta apagada"
+  },
+  "foldersDeleted": {
+    "message": "Pastas excluídas"
+  },
+  "deleteFoldersCount": {
+    "message": "Excluir $COUNT$ pastas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteFolderDescription": {
+    "message": "Ao excluir a pasta $NAME$, ela será removida de todos os itens aos quais foi aplicada. Os itens em si não serão excluídos.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "deleteFoldersDescription": {
+    "message": "Ao excluir estas pastas, elas serão removidas de todos os itens aos quais foram aplicadas. Os itens em si não serão excluídos."
   },
   "loginOrCreateNewAccount": {
     "message": "Conecte-se ou crie uma nova conta para acessar seu cofre seguro."
@@ -1698,6 +2111,12 @@
   "showIconsChangePasswordUrls": {
     "message": "Mostrar ícones de sites e obter URLs de alteração de senha"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "Mostrar opções de cópia rápida no Cofre"
+  },
+  "noDetailsToCopy": {
+    "message": "Nenhum detalhe para copiar"
+  },
   "runInBackground": {
     "message": "Manter o Bitwarden em execução em segundo plano"
   },
@@ -1794,6 +2213,21 @@
   "copyVerificationCode": {
     "message": "Copiar código de verificação"
   },
+  "noUsername": {
+    "message": "Nenhum nome de usuário"
+  },
+  "noPassword": {
+    "message": "Nenhuma senha"
+  },
+  "noVerificationCode": {
+    "message": "Nenhum código de verificação"
+  },
+  "noNumber": {
+    "message": "Nenhum número"
+  },
+  "noSecurityCode": {
+    "message": "Nenhum código de segurança"
+  },
   "copyUsername": {
     "message": "Copiar nome de usuário"
   },
@@ -1812,9 +2246,6 @@
     "message": "Copiar código de segurança",
     "description": "Copy credit card security code (CVV)"
   },
-  "cardNumber": {
-    "message": "número do cartão"
-  },
   "premiumMembership": {
     "message": "Plano Premium"
   },
@@ -1824,62 +2255,14 @@
   "premiumManageAlert": {
     "message": "Você pode gerenciar o seu plano no cofre web do bitwarden.com. Deseja visitar o site agora?"
   },
-  "premiumRefresh": {
-    "message": "Recarregar plano"
-  },
-  "premiumNotCurrentMember": {
-    "message": "Você não é um membro Premium atualmente."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Inscreva-se em um plano Premium e receba:"
-  },
   "premiumSignUpStorage": {
     "message": "1 GB de armazenamento criptografado para anexos de arquivos."
-  },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ de armazenamento criptografado para anexos de arquivo.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Opções proprietárias de autenticação em duas etapas como YubiKey e Duo."
-  },
-  "premiumSignUpReports": {
-    "message": "Relatórios de higiene de senhas, saúde da conta e vazamentos de dados para manter o seu cofre seguro."
-  },
-  "premiumSignUpTotp": {
-    "message": "Gerador de códigos de verificação TOTP (2FA) para credenciais no seu cofre."
-  },
-  "premiumSignUpSupport": {
-    "message": "Prioridade no suporte ao cliente."
-  },
-  "premiumSignUpFuture": {
-    "message": "Todos os recursos Premium no futuro. Mais em breve!"
   },
   "premiumPurchase": {
     "message": "Comprar Premium"
   },
   "premiumPurchaseAlertV2": {
     "message": "Você pode comprar o Premium nas configurações da sua conta no aplicativo web do Bitwarden."
-  },
-  "premiumCurrentMember": {
-    "message": "Você é um membro Premium!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Obrigado por apoiar o Bitwarden."
-  },
-  "premiumPrice": {
-    "message": "Tudo por apenas $PRICE$ por ano!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "month": {
     "message": "mês"
@@ -1908,7 +2291,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Limpar histórico do gerador"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Se continuar, todos os itens serão apagados permanentemente do histórico do gerador. Tem certeza de que deseja continuar?"
   },
   "clear": {
@@ -1944,11 +2327,133 @@
   "selectAll": {
     "message": "Selecionar tudo"
   },
+  "selectAllRows": {
+    "message": "Selecionar todas as linhas"
+  },
+  "selectRow": {
+    "message": "Selecionar linha"
+  },
+  "showingItemRange": {
+    "message": "Mostrando $START$ - $END$ de $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Linhas por página"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ linhas por página",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "Itens de $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Tudo"
+  },
+  "clearAll": {
+    "message": "Limpar tudo"
+  },
+  "done": {
+    "message": "Pronto"
+  },
+  "filter": {
+    "message": "Filtrar"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ selecionado",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Página anterior"
+  },
+  "nextPage": {
+    "message": "Próxima página"
+  },
+  "goToPage": {
+    "message": "Ir para a página"
+  },
+  "ofPageCount": {
+    "message": "de $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Nenhum item correspondente"
+  },
+  "noFiltersMatch": {
+    "message": "Nenhum filtro corresponde a \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "oneFilterResult": {
+    "message": "1 resultado",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ resultados",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Nenhum filtro corresponde a “$SEARCH$”",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
+  "clearSearch": {
+    "message": "Limpar pesquisa"
+  },
   "selected": {
     "message": "Selecionado"
   },
   "selectedLowercase": {
-    "message": "selected",
+    "message": "selecionado",
     "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
@@ -2184,11 +2689,8 @@
   "restrictCardTypeImportDesc": {
     "message": "Uma política configurada por uma ou mais organizações impede que você importe cartões em seus cofres."
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "\"Senha do arquivo\" e \"Confirmar senha do arquivo\" não correspondem."
-  },
-  "done": {
-    "message": "Pronto"
+  "filePasswordConfirmationMismatch": {
+    "message": "“Senha do arquivo” e “Confirmar senha do arquivo” não coincidem."
   },
   "warning": {
     "message": "AVISO",
@@ -2197,8 +2699,8 @@
   "confirmVaultExport": {
     "message": "Confirmar exportação do cofre"
   },
-  "exportWarningDesc": {
-    "message": "Esta exportação contém os dados do seu cofre em um formato sem criptografia. Você não deve armazenar ou enviar o arquivo exportado por canais inseguros (como e-mail). Apague o arquivo imediatamente após terminar de usá-lo."
+  "exportUnencryptedWarningDesc": {
+    "message": "Esta exportação contém os dados do seu cofre em formato não criptografado. Você não deve armazenar ou enviar o arquivo exportado por canais inseguros (como e-mail). Exclua-o imediatamente após terminar de usá-lo."
   },
   "encExportKeyWarningDesc": {
     "message": "Esta exportação criptografa seus dados usando a chave de criptografia da sua conta. Se você rotacionar a chave de criptografia da sua conta, você deve exportar novamente, já que não será capaz de descriptografar este arquivo de exportação anterior."
@@ -2411,11 +2913,38 @@
   "archivedItemRestored": {
     "message": "Item arquivado restaurado"
   },
+  "archivedItemsRestored": {
+    "message": "Itens arquivados restaurados"
+  },
   "restoredItem": {
     "message": "Item restaurado"
   },
+  "restoredItems": {
+    "message": "Itens restaurados"
+  },
   "permanentlyDelete": {
     "message": "Excluir permanentemente"
+  },
+  "permanentlyDeletedItems": {
+    "message": "Itens apagados permanentemente"
+  },
+  "deletedItems": {
+    "message": "Itens enviados para a lixeira"
+  },
+  "deletedCollections": {
+    "message": "Conjuntos apagados"
+  },
+  "collectionDeleted": {
+    "message": "Conjunto apagado"
+  },
+  "collectionsDeleted": {
+    "message": "Conjuntos apagados"
+  },
+  "movedItem": {
+    "message": "Item movido"
+  },
+  "movedItems": {
+    "message": "Itens movidos"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "Ao desconectar-se, todo o seu acesso ao cofre será removido e será necessária a autenticação on-line após o período do limite de tempo. Tem certeza de que deseja usar esta configuração?"
@@ -2580,29 +3109,11 @@
   "acceptPoliciesRequired": {
     "message": "Os Termos de Serviço e a Política de Privacidade não foram aceitos."
   },
-  "enableBrowserIntegration": {
-    "message": "Permitir integração com o navegador"
-  },
-  "enableBrowserIntegrationDesc1": {
-    "message": "Usado para permitir o desbloqueio biométrico em navegadores que não sejam o Safari."
-  },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "Permitir integração com o navegador DuckDuckGo"
   },
   "enableDuckDuckGoBrowserIntegrationDesc": {
     "message": "Use o seu cofre do Bitwarden ao navegar com o DuckDuckGo."
-  },
-  "browserIntegrationUnsupportedTitle": {
-    "message": "Integração com o navegador não suportada"
-  },
-  "browserIntegrationErrorTitle": {
-    "message": "Erro ao ativar a integração com o navegador"
-  },
-  "browserIntegrationErrorDesc": {
-    "message": "Ocorreu um erro ao ativar a integração com o navegador."
-  },
-  "browserIntegrationWindowsStoreDesc": {
-    "message": "Infelizmente, a integração com o navegador não é suportada na versão da Microsoft Store no momento."
   },
   "enableHardwareAcceleration": {
     "message": "Usar aceleração de hardware"
@@ -2768,6 +3279,10 @@
   },
   "createSend": {
     "message": "Novo Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "Criar Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
@@ -3086,6 +3601,30 @@
   "options": {
     "message": "Opções"
   },
+  "moreOptions": {
+    "message": "Mais opções"
+  },
+  "optionsForItem": {
+    "message": "Opções para $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "Nenhuma pasta compartilhada"
+  },
+  "filterByName": {
+    "message": "Filtrar por $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
   "sessionTimeout": {
     "message": "Sua sessão expirou. Volte e tente se conectar novamente."
   },
@@ -3299,7 +3838,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Token de API do $SERVICENAME$ inválido",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -3309,7 +3848,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Token de API do $SERVICENAME$ inválido: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3323,8 +3862,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "O $SERVICENAME$ recusou sua solicitação. Contate seu provedor de serviços para receber assistência.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ recusou sua solicitação. Entre em contato com o provedor de serviços para obter assistência.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3333,8 +3872,8 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
-    "message": "O $SERVICENAME$ recusou sua solicitação: $ERRORMESSAGE$",
+  "forwarderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ recusou sua solicitação: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3397,6 +3936,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Adicionar prefixo do site",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Quando ativado, o domínio do site atual será usado como prefixo para o endereço de e-mail gerado",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Nome do servidor",
     "description": "Part of a URL."
@@ -3407,7 +3954,7 @@
   "apiKey": {
     "message": "Chave da API"
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Assinatura Premium necessária"
   },
   "organizationIsDisabled": {
@@ -3992,6 +4539,75 @@
   "importNothingError": {
     "message": "Nada foi importado."
   },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ itens serão pulados",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item será ignorado",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "Os seguintes itens não puderam ser lidos e não serão inclusos na sua importação:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Esta chave SSH não pôde ser importada"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Tipo de item não suportado"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Este item não pôde ser importado"
+  },
+  "identifier": {
+    "message": "Identificador"
+  },
+  "contact": {
+    "message": "Contato"
+  },
+  "membership": {
+    "message": "Assinatura"
+  },
+  "passport": {
+    "message": "Passaporte"
+  },
+  "driverLicense": {
+    "message": "Carteira de habilitação"
+  },
+  "ssnCard": {
+    "message": "Carteira de identidade"
+  },
+  "birthCertificate": {
+    "message": "Certidão de nascimento"
+  },
+  "databaseCredentials": {
+    "message": "Credenciais de banco de dados"
+  },
+  "serverCredentials": {
+    "message": "Credenciais de servidor"
+  },
+  "softwareLicense": {
+    "message": "Licença de software"
+  },
+  "healthInsurance": {
+    "message": "Plano de saúde"
+  },
+  "wifiCredentials": {
+    "message": "Credenciais de Wi-Fi"
+  },
+  "general": {
+    "message": "Geral"
+  },
   "importEncKeyError": {
     "message": "Erro ao descriptografar o arquivo exportado. Sua chave de criptografia não corresponde à chave de criptografia usada para exportar os dados."
   },
@@ -4010,11 +4626,21 @@
   "selectImportCollection": {
     "message": "Selecione um conjunto"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Selecione esta opção caso queira importar os conteúdos do arquivo para um conjunto"
   },
   "importTargetHintFolder": {
     "message": "Selecione esta opção caso queira importar os conteúdos do arquivo para uma pasta"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "O arquivo contém itens não atribuídos."
@@ -4025,6 +4651,40 @@
   "selectImportFile": {
     "message": "Selecione o arquivo de importação"
   },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "chooseFile": {
     "message": "Selecionar arquivo"
   },
@@ -4033,6 +4693,79 @@
   },
   "noFileChosen": {
     "message": "Nenhum arquivo escolhido"
+  },
+  "noFileSelected": {
+    "message": "Nenhum arquivo selecionado"
+  },
+  "fileChosen": {
+    "message": "Arquivo escolhido: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Arquivo adicionado: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ arquivos adicionados: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Arquivo removido: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 arquivo enviado"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ arquivos enviados",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Arquivos enviados"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Clique para enviar ou arraste e solte"
+  },
+  "chooseFiles": {
+    "message": "Escolher arquivos"
+  },
+  "maxFileSizeParam": {
+    "message": "Tamanho máx. do arquivo: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
   },
   "orCopyPasteFileContents": {
     "message": "ou copie/cole o conteúdo do arquivo de importação"
@@ -4047,6 +4780,207 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "Veja instruções detalhadas do $NAME$ na nossa",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Central de Ajuda"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "O processo é exatamente o mesmo que importar do Google Chrome.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "Usando o aplicativo de desktop KeePassX, navegue até \"Banco de dados\" → \"Exportar para arquivo CSV\" e salve o arquivo CSV."
+  },
+  "importAviraInstructions": {
+    "message": "No cofre web da Avira, vá para \"Configurações\" → \"Meus dados\" → \"Exportar dados\" e salve o arquivo CSV."
+  },
+  "importBlurInstructions": {
+    "message": "No cofre web do Blur, clique no seu nome de usuário na parte superior e vá para \"Configurações\" → \"Exportar dados\", depois clique em \"Exportar CSV\" para suas \"Contas\"."
+  },
+  "importSafeincloudInstructions": {
+    "message": "Usando o aplicativo de desktop SafeInCloud, navegue até \"Arquivo\" → \"Exportar\" → \"Como XML\" e salve o arquivo XML."
+  },
+  "importPadlockInstructions": {
+    "message": "Usando o aplicativo de desktop Padlock, clique no ícone de hambúrguer no canto superior esquerdo e navegue até \"Configurações\" → botão \"Exportar\" e salve o arquivo \"Como CSV\"."
+  },
+  "importKeepass2Instructions": {
+    "message": "Usando o aplicativo de desktop KeePass 2, navegue até \"Arquivo\" → \"Exportar\" e selecione a opção \"KeePass XML (2.x)\"."
+  },
+  "importUpmInstructions": {
+    "message": "Usando o aplicativo de desktop Universal Password Manager, navegue até \"Banco de dados\" → \"Exportar\" e salve o arquivo CSV."
+  },
+  "importSaferpassInstructions": {
+    "message": "Usando a extensão de navegador SaferPass, clique no ícone de hambúrguer no canto superior esquerdo e navegue até \"Configurações\". Clique no botão \"Exportar contas\" para salvar o arquivo CSV."
+  },
+  "importMeldiumInstructions": {
+    "message": "Usando o cofre web do Meldium, navegue até \"Configurações\". Localize a função \"Exportar dados\" e clique em \"Mostre-me meus dados\" para salvar o arquivo CSV."
+  },
+  "importPassworddragonInstructions": {
+    "message": "Usando o aplicativo de desktop Password Dragon, navegue até \"Arquivo\" → \"Exportar\" → \"Para XML\". Na caixa de diálogo que aparecer, selecione \"Todas as linhas\" e marque todos os campos. Clique no botão \"Exportar\" e salve o arquivo XML."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "Usando o aplicativo de desktop Enpass, navegue até \"Arquivo\" → \"Exportar\" → \"Como CSV\". Selecione \"OK\" no alerta de aviso e salve o arquivo CSV. Observe que o importador só suporta arquivos exportados enquanto o Enpass está definido para o idioma inglês, então ajuste suas configurações de acordo."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "Usando o aplicativo de desktop Enpass 6, clique no botão de menu e navegue até \"Arquivo\" → \"Exportar\". Selecione a opção de formato de arquivo \".json\" e salve o arquivo JSON."
+  },
+  "importPwsafeInstructions": {
+    "message": "Usando o aplicativo de desktop Password Safe, navegue até \"Arquivo\" → \"Exportar para\" → \"Formato XML...\" e salve o arquivo XML."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Faça login no Dashlane, clique em \"Minha conta\" → \"Configurações\" → \"Exportar arquivo\" e selecione \"Exportar como arquivo CSV\". Isso baixará um arquivo zip contendo vários arquivos CSV. Descompacte o arquivo e importe cada arquivo CSV individualmente."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "O Dashlane não oferece mais suporte ao formato JSON. Use isto apenas se você tiver um JSON existente para importar. Use o importador CSV ao criar novas exportações."
+  },
+  "importMsecureInstructions": {
+    "message": "Usando o aplicativo de desktop mSecure, navegue até \"Arquivo\" → \"Exportar\" → \"Arquivo CSV...\" e salve o arquivo CSV."
+  },
+  "importStickypasswordInstructions": {
+    "message": "Usando o aplicativo de desktop Sticky Password, navegue até \"Menu\" (canto superior direito) → \"Exportar\" → \"Exportar tudo\". Selecione a opção de formato XML não criptografado e salve o arquivo XML."
+  },
+  "importTruekeyInstructions": {
+    "message": "Usando o aplicativo de desktop True Key, clique no ícone de engrenagem (canto superior direito) e depois navegue até \"Configurações do aplicativo\". Clique no botão \"Exportar\", insira sua senha e salve o arquivo CSV."
+  },
+  "importClipperzInstructions": {
+    "message": "Faça login no aplicativo web Clipperz (clipperz.is/app). Clique no ícone de menu hambúrguer no canto superior direito para expandir a barra de navegação. Navegue até \"Dados\" → \"Exportar\". Clique no botão \"baixar HTML+JSON\" para salvar o arquivo HTML."
+  },
+  "importRoboformInstructions": {
+    "message": "Usando o aplicativo de desktop RoboForm Editor, navegue até \"RoboForm\" (canto superior esquerdo) → \"Opções\" → \"Conta e dados\" e clique no botão \"Exportar\". Selecione todos os seus dados, altere o \"Formato\" para \"Arquivo CSV\" e clique no botão \"Exportar\" para salvar o arquivo CSV. Observação: o RoboForm permite exportar apenas Logins. Outros itens não serão exportados."
+  },
+  "importPassboltInstructions": {
+    "message": "Faça login no cofre web do Passbolt e navegue até a listagem \"Senhas\". Selecione todas as senhas que deseja exportar e clique no botão \"Exportar\" na parte superior da listagem. Escolha o formato de exportação \"csv (lastpass)\" e clique no botão \"Exportar\"."
+  },
+  "importAscendoInstructions": {
+    "message": "Usando o aplicativo de desktop Ascendo DataVault, navegue até \"Ferramentas\" → \"Exportar\". Na caixa de diálogo que aparecer, selecione a opção \"Todos os itens (DVX, CSV)\". Clique no botão \"Ok\" para salvar o arquivo CSV."
+  },
+  "importPasswordbossInstructions": {
+    "message": "Usando o aplicativo de desktop Password Boss, navegue até \"Arquivo\" → \"Exportar dados\" → \"Password Boss JSON - não criptografado\" e salve o arquivo JSON."
+  },
+  "importZohoInstructions": {
+    "message": "Faça login no cofre web do Zoho (vault.zoho.com). Navegue até \"Ferramentas\" → \"Exportar segredos\". Selecione \"Todos os segredos\" e clique no botão \"Zoho Vault Format CSV\". Destaque e copie os dados da área de texto. Abra um editor de texto como o Notepad e cole os dados. Salve os dados do editor de texto como",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "Usando o aplicativo de desktop SplashID Safe, clique no logotipo de cadeado azul do SplashID no canto superior direito. Navegue até \"Exportar\" → \"Exportar como CSV\" e salve o arquivo CSV."
+  },
+  "importPasskeepInstructions": {
+    "message": "Usando o aplicativo móvel PassKeep, navegue até \"Backup/Restore\". Localize a seção \"CSV Backup/Restore\" e clique em \"Backup to CSV\" para salvar o arquivo CSV."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Certifique-se de ter python-keyring e python-gnomekeyring instalados. Salve o",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "Importação/Exportação do GNOME Keyring"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "script python na sua área de trabalho como",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Abra o terminal e execute",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "e depois",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". Em seguida, envie o",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "arquivo resultante aqui para o Bitwarden.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "Usando o aplicativo de desktop Password Agent, navegue até \"Arquivo\" → \"Exportar\", selecione o botão \"Campos a exportar\" e marque todos os campos, altere o \"Formato de saída\" para \"CSV\" e clique no botão \"Iniciar\" para salvar o arquivo CSV."
+  },
+  "importPasspackInstructions": {
+    "message": "Faça login no cofre do site Passpack e navegue até \"Configurações\" → \"Exportar\", depois clique no botão \"Baixar\" para salvar o arquivo CSV."
+  },
+  "importPassmanInstructions": {
+    "message": "Abra seu cofre Passman e clique em \"Configurações\" no canto inferior esquerdo. Na janela \"Configurações\", mude para a aba \"Exportar credenciais\" e escolha \"JSON\" como tipo de exportação. Insira a frase secreta do seu cofre e clique no botão \"Exportar\" para salvar o arquivo JSON."
+  },
+  "importAvastCsvInstructions": {
+    "message": "Abra o aplicativo de desktop Avast Passwords e navegue até \"Configurações\" → \"Importar/exportar dados\". Selecione o botão \"Exportar\" para a opção \"Exportar para arquivo CSV\" para salvar o arquivo CSV."
+  },
+  "importAvastJsonInstructions": {
+    "message": "Abra o aplicativo de desktop Avast Passwords e navegue até \"Configurações\" → \"Importar/exportar dados\". Selecione o botão \"Exportar\" para a opção \"Exportar para arquivo JSON\" para salvar o arquivo JSON."
+  },
+  "importFsecureInstructions": {
+    "message": "Abra o aplicativo de desktop F-Secure KEY e navegue até \"Configurações\" → \"Exportar senhas\". Selecione o botão \"Exportar\", insira sua senha mestra e salve o arquivo FSK."
+  },
+  "importKasperskyInstructions": {
+    "message": "Abra o aplicativo de desktop Kaspersky Password Manager e navegue até \"Configurações\" → \"Importar/Exportar\". Localize a seção \"Exportar para arquivo de texto\" e selecione o botão \"Exportar\" para salvar o arquivo TXT."
+  },
+  "importRemembearInstructions": {
+    "message": "Abra o aplicativo de desktop RememBear e navegue até \"Configurações\" → \"Conta\" → \"Exportar\". Insira sua senha mestra e selecione o botão \"Exportar mesmo assim\" para salvar o arquivo CSV."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "Abra o aplicativo de desktop PasswordWallet e navegue até \"Arquivo\" → \"Exportar\" → \"Entradas visíveis para arquivo de texto\". Insira sua senha e selecione o botão \"Ok\" para salvar o arquivo TXT."
+  },
+  "importMykiInstructions": {
+    "message": "Abra a extensão de navegador Myki para desktop e navegue até \"Avançado\" → \"Exportar contas\" e, em seguida, escaneie o código QR com seu dispositivo móvel. Vários arquivos CSV serão salvos na pasta de downloads do seu computador."
+  },
+  "importSecuresafeInstructions": {
+    "message": "Exporte seu cofre de senhas SecureSafe para um arquivo CSV com delimitador de vírgula."
+  },
+  "importLogmeonceInstructions": {
+    "message": "Abra a extensão de navegador LogMeOnce, depois navegue até \"Abrir menu\" → \"Exportar para\" e selecione \"Arquivo CSV\" para salvar o arquivo CSV."
+  },
+  "importBlackberryInstructions": {
+    "message": "Abra o aplicativo BlackBerry Password Keeper, depois navegue até \"Configurações\" → \"Importar/Exportar\". Selecione \"Exportar senhas\" e siga as instruções na tela para salvar o arquivo CSV não criptografado."
+  },
+  "importButtercupInstructions": {
+    "message": "Abra o aplicativo de desktop Buttercup e desbloqueie seu cofre. Clique com o botão direito no ícone do seu cofre e selecione \"Exportar\" para salvar o arquivo CSV."
+  },
+  "importCodebookInstructions": {
+    "message": "Abra o aplicativo de desktop Codebook e faça login. Navegue até \"Arquivo\" → \"Exportar tudo\", depois clique em \"Sim\" na caixa de diálogo e salve o arquivo CSV."
+  },
+  "importEncryptrInstructions": {
+    "message": "Abra a versão mais recente do aplicativo de desktop Encryptr e permita que todos os seus dados sejam sincronizados. Quando a sincronização dos seus dados estiver concluída, o ícone de download no canto superior direito ficará rosa. Clique no ícone de download e salve o arquivo CSV."
+  },
+  "importYotiInstructions": {
+    "message": "Na extensão de navegador Yoti, clique em \"Configurações\", depois em \"Exportar logins salvos\" e salve o arquivo CSV."
+  },
+  "importPsonoInstructions": {
+    "message": "Faça login no cofre web do Psono, clique no menu suspenso \"Conectado como\", selecione \"Outros\". Vá para a aba \"Exportar\" e selecione a exportação do tipo json e depois clique em Exportar."
+  },
+  "importPasskyInstructions": {
+    "message": "Faça login em \"https://vault.passky.org\" → \"Importar e exportar\" → \"Exportar\" na seção Passky. (\"Backup\" não é suportado, pois é criptografado)."
+  },
+  "importProtonpassInstructions": {
+    "message": "Na extensão de navegador ProtonPass, vá para Configurações > Exportar. Exporte sem criptografia PGP e salve o arquivo zip."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Selecione Banco de dados → Exportar para arquivo... menu. → Nas opções de exportação, certifique-se de que Nomes de pastas e Títulos de colunas estejam marcados. → Pressione o botão Procurar... e escolha o arquivo de destino e defina seu tipo como arquivo CSV."
+  },
+  "importNetwrixInstructions": {
+    "message": "Abra o FullClient, vá para o Menu Principal e selecione Exportar. Inicie o assistente de exportação de senhas e siga as instruções para exportar um arquivo CSV."
+  },
+  "importNordpassInstructions": {
+    "message": "Faça login no NordPass e abra Configurações → Role para baixo até a seção Importar e Exportar e selecione Exportar itens → Insira sua Senha Mestra e selecione Continuar. → Salve o arquivo CSV no seu dispositivo."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "No aplicativo de desktop, vá para Ferramentas → Exportar → Insira sua senha mestra → Selecione Formato XML (*.xml) como formato de exportação → Clique em avançar → Escolha quais entradas devem ser incluídas na exportação → Clique em avançar para exportar para o local escolhido anteriormente."
+  },
+  "importDelineaInstructions": {
+    "message": "Faça login no Delinea, pesquise por “Importar/Exportar” -> selecione “Exportar” -> Selecione “XML” como formato de exportação -> Selecione “QuantumLock” como tipo de autenticador -> insira sua senha e selecione “Exportar” para salvar o arquivo XML."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Faça login no Delinea, pesquise por “Importar/Exportar” -> selecione “Exportar” -> Selecione “CSV” como formato de exportação -> Selecione “QuantumLock” como tipo de autenticador -> insira sua senha e selecione “Exportar” para salvar o arquivo CSV."
+  },
   "confirmVaultImport": {
     "message": "Confirmar importação do cofre"
   },
@@ -4055,6 +4989,30 @@
   },
   "confirmFilePassword": {
     "message": "Confirmar senha do arquivo"
+  },
+  "keePassMasterPassword": {
+    "message": "Senha principal do KeePass"
+  },
+  "addKeyFile": {
+    "message": "Adicionar arquivo de chave"
+  },
+  "keyFileUpload": {
+    "message": "Envio de arquivo de chave"
+  },
+  "kdbxFileUpload": {
+    "message": "Envio de arquivo KDBX"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Formatos aceitos: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Os dados não estão formatados corretamente. Verifique seu arquivo de importação e tente novamente."
+  },
+  "kdbxWrongFileType": {
+    "message": "Este arquivo não é um banco de dados KeePass válido (.kdbx). Selecione um arquivo .kdbx e tente novamente."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Este banco de dados KeePass é grande demais para importar."
   },
   "exportSuccess": {
     "message": "Dados do cofre exportados"
@@ -4095,6 +5053,9 @@
   "multifactorAuthenticationFailed": {
     "message": "Falha na autenticação de múltiplos fatores"
   },
+  "keeperConnectionError": {
+    "message": "Houve um problema de comunicação com o Keeper. Tente importar novamente."
+  },
   "includeSharedFolders": {
     "message": "Incluir pastas compartilhadas"
   },
@@ -4134,10 +5095,6 @@
   "browserProfile": {
     "message": "Perfil do navegador"
   },
-  "seeDetailedInstructions": {
-    "message": "Veja instruções detalhadas no nosso site de ajuda em",
-    "description": "This is followed a by a hyperlink to the help website."
-  },
   "importDirectlyFromLastPass": {
     "message": "Importar diretamente do LastPass"
   },
@@ -4152,6 +5109,204 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Insira a YubiKey associada com a sua conta do LastPass na porta USB do seu computador, e depois toque no botão dela."
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
+  "keeperEmail": {
+    "message": "E-mail do Keeper"
+  },
+  "keeperEmailHint": {
+    "message": "Insira o e-mail que você usa para fazer login no Keeper"
+  },
+  "dataCenterLocation": {
+    "message": "Localização do data center"
+  },
+  "keeperMasterPassword": {
+    "message": "Senha mestra do Keeper"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "Insira sua senha mestra do Keeper"
+  },
+  "twoFactorCodePrompt": {
+    "message": "Insira o código do seu método de dois fatores"
+  },
+  "totpCodePrompt": {
+    "message": "Insira o código do seu aplicativo autenticador"
+  },
+  "smsCodePrompt": {
+    "message": "Insira o código enviado por mensagem de texto"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "Insira o código do seu aplicativo Keeper DNA"
+  },
+  "adminApproval": {
+    "message": "Aprovação do administrador"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "Enviamos uma solicitação de aprovação do administrador para o seu administrador"
+  },
+  "method": {
+    "message": "Método"
+  },
+  "directImporter": {
+    "message": "Importador direto"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "Assinar solicitações de autenticação"
+  },
+  "keeperSsoDesc": {
+    "message": "Sua conta Keeper exige autenticação SSO. Conclua o login na janela do navegador que foi aberta e cole o token mostrado na página."
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "Conclua o login na aba do navegador que foi aberta. O token será capturado automaticamente."
+  },
+  "ssoToken": {
+    "message": "Token SSO"
+  },
+  "keeperAuthRequired": {
+    "message": "Autenticação do Keeper necessária"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Aprovação do dispositivo Keeper necessária"
+  },
+  "selectApprovalMethod": {
+    "message": "Métodos de aprovação"
+  },
+  "deviceApprovalNeeded": {
+    "message": "Aprovação do dispositivo necessária"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "Aprove este dispositivo selecionando um método abaixo"
+  },
+  "keeperPush": {
+    "message": "Keeper Push"
+  },
+  "twoFactorMethod": {
+    "message": "Método de dois fatores"
+  },
+  "emailVerification": {
+    "message": "Verificação por e-mail"
+  },
+  "approvalEmailDesc": {
+    "message": "Verifique seu e-mail e insira o código de verificação abaixo"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Notificação Keeper Push enviada para dispositivo aprovado"
+  },
+  "keeperPushSent": {
+    "message": "Keeper Push enviado"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "A solicitação de aprovação será cancelada"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "Tem certeza de que deseja sair? Sua solicitação de aprovação do administrador será cancelada."
+  },
+  "cancelRequest": {
+    "message": "Cancelar solicitação"
+  },
+  "keeperMFARequired": {
+    "message": "Autenticação de dois fatores do Keeper necessária"
+  },
+  "mfaPushDesc": {
+    "message": "Aprove a solicitação de login no seu aplicativo de autenticação. Esta caixa de diálogo será fechada automaticamente."
+  },
+  "selectTwoFactorMethod": {
+    "message": "Selecionar método de dois fatores"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "Escolha como deseja verificar sua identidade."
+  },
+  "authenticatorAppTotp": {
+    "message": "Aplicativo autenticador (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "Mensagem de texto (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "Códigos de backup"
+  },
+  "securityKeyU2f": {
+    "message": "Chave de segurança (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "Chave de segurança (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Verificação do Keeper DNA"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "Aprove a notificação do Keeper DNA no seu dispositivo"
+  },
+  "selectKeeperDnaMethod": {
+    "message": "Selecionar método do Keeper DNA"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Escolha como deseja verificar com o Keeper DNA."
+  },
+  "pushNotification": {
+    "message": "Notificação push"
+  },
+  "enterCodeManually": {
+    "message": "Inserir código manualmente"
+  },
+  "twoFactorAuthentication": {
+    "message": "Autenticação de dois fatores"
+  },
+  "unknownMethod": {
+    "message": "Método desconhecido"
+  },
+  "selectDuoMethod": {
+    "message": "Selecionar método Duo"
+  },
+  "selectDuoMethodDesc": {
+    "message": "Escolha como deseja verificar com o Duo Security."
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "Chamada telefônica"
+  },
+  "duoVerification": {
+    "message": "Verificação Duo"
+  },
+  "duoPushWaiting": {
+    "message": "Aprove a notificação push do Duo no seu dispositivo."
+  },
+  "duoSmsWaiting": {
+    "message": "Uma mensagem de texto foi enviada para seu telefone. Insira o código no aplicativo Duo para continuar."
+  },
+  "duoVoiceWaiting": {
+    "message": "Atenda a chamada telefônica do Duo e siga as instruções."
+  },
+  "tryAnotherMethod": {
+    "message": "Tentar outro método"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "Sua conta Keeper exige um método de autenticação de dois fatores que não é atualmente suportado pelo importador direto."
   },
   "commonImportFormats": {
     "message": "Formatos comuns",
@@ -4211,6 +5366,12 @@
   },
   "removePasskey": {
     "message": "Remover chave de acesso"
+  },
+  "deletePasskey": {
+    "message": "Excluir passkey"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Esta passkey será permanentemente excluída do seu item de login. Isso não pode ser desfeito."
   },
   "passkeyRemoved": {
     "message": "Chave de acesso removida"
@@ -4408,10 +5569,17 @@
     "message": "Alterar e-mail da conta"
   },
   "passkeyLogin": {
-    "message": "Conectar-se com chave de acesso?"
+    "message": "Conectar-se com chave de acesso?",
+    "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
+  },
+  "passkeyLogin2": {
+    "message": "Fazer login com passkey"
   },
   "savePasskeyQuestion": {
     "message": "Salvar chave de acesso?"
+  },
+  "savePasskey": {
+    "message": "Salvar passkey"
   },
   "saveNewPasskey": {
     "message": "Salvar como nova credencial"
@@ -4423,7 +5591,11 @@
     "message": "Nenhuma credencial correspondente para este site"
   },
   "overwritePasskey": {
-    "message": "Substituir chave de acesso?"
+    "message": "Substituir chave de acesso?",
+    "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
+  },
+  "overwritePasskey2": {
+    "message": "Substituir passkey"
   },
   "unableToSavePasskey": {
     "message": "Não é possível salvar a chave de acesso"
@@ -4458,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "A extensão de navegador que você está usando está desatualizada. Atualize-a ou desative a validação da frase biométrica da integração do navegador nas configurações do aplicativo de computador."
   },
-  "changeAtRiskPassword": {
-    "message": "Alterar senhas em risco"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Esta credencial está em risco e está sem um site. Adicione um site e altere a senha para maior segurança."
-  },
   "vulnerablePassword": {
     "message": "Senha vulnerável."
   },
   "changeNow": {
     "message": "Alterar agora"
-  },
-  "missingWebsite": {
-    "message": "Site ausente"
   },
   "missingPermissions": {
     "message": "Você não tem a permissão necessária para executar esta ação."
@@ -4480,6 +5643,15 @@
     "message": "Você não pode remover conjuntos com permissões de Apenas ver: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Você não pode remover pastas compartilhadas com permissões Somente visualização: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -4583,8 +5755,23 @@
   "permitCipherDetailsDescription": {
     "message": "O Bitwarden usará URIs de credenciais salvas para identificar qual ícone ou URL de mudança de senha deverá ser usado para melhorar sua experiência. Nenhuma informação é coletada ou salva quando você utiliza este serviço."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Adicione 3 botões de cópia rápida ao lado dos itens para copiar seu nome de usuário, senha ou código de verificação para a área de transferência."
+  },
   "assignToCollections": {
     "message": "Atribuir a conjuntos"
+  },
+  "addToSharedFolder": {
+    "message": "Adicionar à pasta compartilhada"
+  },
+  "transferAndAdd": {
+    "message": "Transferir e adicionar"
+  },
+  "itemLower": {
+    "message": "item"
+  },
+  "itemsLower": {
+    "message": "itens"
   },
   "assignToTheseCollections": {
     "message": "Atribuir a estes conjuntos"
@@ -4592,8 +5779,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Apenas membros da organização com acesso a estes conjuntos poderão ver o item."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Apenas membros do cofre com acesso a estas pastas compartilhadas poderão ver o item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Apenas membros da organização com acesso a estes conjuntos poderão ver os itens."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Apenas membros do cofre com acesso a estas pastas compartilhadas poderão ver os itens."
   },
   "noCollectionsAssigned": {
     "message": "Nenhum conjunto foi atribuído"
@@ -4641,9 +5834,6 @@
       }
     }
   },
-  "personalItemTransferWarningSingular": {
-    "message": "Um item será permanentemente transferido para a organização selecionada. Você deixará de ser o proprietário desse item."
-  },
   "personalItemWithOrgTransferWarningSingular": {
     "message": "Um item será permanentemente transferido para $ORG$. Você deixará de ser o proprietário desse item.",
     "placeholders": {
@@ -4653,14 +5843,78 @@
       }
     }
   },
+  "personalItemTransferWarningSingular": {
+    "message": "Um item será permanentemente transferido para a organização selecionada. Você deixará de ser o proprietário desse item."
+  },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item será permanentemente transferido para o cofre selecionado. Você não será mais o proprietário deste item."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ itens serão transferidos permanentemente para a organização selecionada. Você não será mais o proprietário desses itens.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ itens serão permanentemente transferidos para o cofre selecionado. Você não será mais o proprietário destes itens.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ itens serão transferidos permanentemente para $ORG$. Você não será mais o proprietário desses itens.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
   "successfullyAssignedCollections": {
     "message": "Conjuntos atribuídos com sucesso"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Pastas compartilhadas adicionadas com sucesso"
+  },
+  "itemMovedToCollection": {
+    "message": "Item movido para a coleção"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item adicionado à pasta compartilhada"
+  },
+  "itemMovedToCollections": {
+    "message": "Item movido para as coleções"
+  },
+  "itemAddedToSharedFolders": {
+    "message": "Item adicionado às pastas compartilhadas"
+  },
+  "itemsMovedToCollection": {
+    "message": "Itens movidos para a coleção"
+  },
+  "itemsAddedToSharedFolder": {
+    "message": "Itens adicionados à pasta compartilhada"
+  },
+  "itemsMovedToCollections": {
+    "message": "Itens movidos para as coleções"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Itens adicionados às pastas compartilhadas"
+  },
   "itemAssignedToCollections": {
-    "message": "Item assigned to collections"
+    "message": "Item atribuído às coleções"
   },
   "itemsAssignedToCollections": {
-    "message": "Items assigned to collections"
+    "message": "Itens atribuídos às coleções"
   },
   "nothingSelected": {
     "message": "Você não selecionou nada."
@@ -4726,6 +5980,15 @@
   "showMore": {
     "message": "Mostrar mais"
   },
+  "showMoreCount": {
+    "message": "Mostrar mais $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "showLess": {
     "message": "Mostrar menos"
   },
@@ -4760,6 +6023,9 @@
   },
   "enableAutotypeShortcutPreview": {
     "message": "Ativar atalho de digitação automática (Feature Preview)"
+  },
+  "enableAutotypeGaShortcut": {
+    "message": "Ativar atalho de autotipo"
   },
   "enableAutotypeShortcutDescription": {
     "message": "Certifique-se de que está no campo correto antes de usar o atalho para evitar preencher dados no lugar errado."
@@ -4804,6 +6070,41 @@
   },
   "unArchiveAndSave": {
     "message": "Desarquivar e salvar"
+  },
+  "archiveItemsPlural": {
+    "message": "Arquivar $NUM$ itens",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemTitle": {
+    "message": "Arquivar item",
+    "description": "Title of the archive items dialog when a single item is selected"
+  },
+  "archiveItemsPluralDescription": {
+    "message": "Ao arquivar, esses itens serão excluídos dos resultados de busca e das sugestões de preenchimento automático."
+  },
+  "bulkArchiveItems": {
+    "message": "Itens arquivados"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Itens desarquivados"
+  },
+  "moveSelectedItemsDesc": {
+    "message": "Escolha a pasta para a qual você deseja adicionar o(s) $COUNT$ item(ns) selecionado(s).",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "selectFolder": {
+    "message": "Selecionar pasta"
   },
   "restartPremium": {
     "message": "Retomar Premium"
@@ -5044,11 +6345,80 @@
   "noItemsInTrashDesc": {
     "message": "Os itens que você apagar aparecerão aqui, e serão apagados permanentemente depois de 30 dias."
   },
+  "noItemsInTrashDescription": {
+    "message": "Os itens que você excluir aparecerão aqui e serão permanentemente excluídos após 30 dias."
+  },
   "noItemsInVault": {
     "message": "Nenhum item no cofre"
   },
+  "noItemsInMyVault": {
+    "message": "Nenhum item no Meu cofre"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Nenhum item em $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Nenhum item em $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "emptyMyItems": {
+    "message": "Nenhum item em Meus itens"
+  },
+  "noItemsInVaults": {
+    "message": "Seus cofres estão vazios"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Nenhum item corresponde aos filtros selecionados"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Nenhum item corresponde a \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyVaultDescription": {
     "message": "O cofre protege mais do que só suas senhas. Armazene credenciais, identidades, cartões e anotações com segurança aqui."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Adicione itens a esta pasta compartilhada e depois conceda acesso a outros membros de $VAULT_NAME$.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "Meus itens é seu espaço privado para armazenar itens que permanecem pertencendo a $VAULT_NAME$, mas não são visíveis para outros membros.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
+  },
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
+  },
+  "emptyVaultsDescription": {
+    "message": "Adicione logins, IDs, cartões e outros itens para começar."
   },
   "emptyFavorites": {
     "message": "Você não favoritou nenhum item"
@@ -5061,6 +6431,12 @@
   },
   "clearFiltersOrTryAnother": {
     "message": "Limpe os filtros ou tente outro termo de busca"
+  },
+  "noSharedFoldersAdded": {
+    "message": "Nenhuma pasta compartilhada adicionada"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Adicione uma pasta compartilhada para compartilhar itens do cofre com segurança com outros membros."
   },
   "sendPasswordHelperText": {
     "message": "Os destinatários precisarão digitar a senha para ver este Send",
@@ -5128,6 +6504,13 @@
   "enterYear": {
     "message": "Digite o ano."
   },
+  "sendTypes": {
+    "message": "Tipos de Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "any": {
+    "message": "Qualquer"
+  },
   "invalidDay": {
     "message": "Digite um dia válido."
   },
@@ -5156,7 +6539,7 @@
     "message": "Empresa"
   },
   "bankAccountTypeIndividual": {
-    "message": "Individual"
+    "message": "Indivíduo"
   },
   "accountNumber": {
     "message": "Número da conta"
@@ -5246,6 +6629,9 @@
   "newBankAccountNudgeBody": {
     "message": "Salve as informações da sua conta bancária para acessá-la de forma fácil e segura em seus dispositivos."
   },
+  "sendDeletionDate": {
+    "message": "Data de exclusão"
+  },
   "discardEditsTitle": {
     "message": "Descartar edições"
   },
@@ -5279,7 +6665,7 @@
     "message": "A entrada deve ser um número inteiro"
   },
   "hideEmailPolicyInEffect": {
-    "message": "Sua organização requer visibilidade de email. Desmarque a opção \"Ocultar e-mail dos visualizadores\" para salvar."
+    "message": "Sua organização requer visibilidade do e-mail. Desmarque a opção \"Ocultar e-mail dos visualizadores\" para salvar."
   },
   "sideNavigation": {
     "message": "Navegação lateral"
@@ -5303,8 +6689,16 @@
     "message": "Para editar este Send, crie uma cópia. Se este Send pode expirar na data de apagamento, nenhuma ação é necessária",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendWillExpireOnDeletionDate": {
-    "message": "Este Send expirará automaticamente na data de apagamento configurada",
+  "orgDoesNotAllowTextSends": {
+    "message": "Sends de texto não são permitidos para sua organização",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "orgDoesNotAllowFileSends": {
+    "message": "Sends de arquivo não são permitidos para sua organização",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
+    "message": "Este Send expirará automaticamente na data de exclusão definida",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "makeACopy": {
@@ -5357,5 +6751,222 @@
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Não é possível salvar o item. Você deve ser confirmado na organização para salvar os itens."
+  },
+  "sendDeletionDateSetByOrg": {
+    "message": "$ORGNAME$ definiu esta data de exclusão",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
+  },
+  "addToFolder": {
+    "message": "Adicionar à pasta"
+  },
+  "deleteCollection": {
+    "message": "Apagar conjunto"
+  },
+  "deleteCollectionsCount": {
+    "message": "Apagar $COUNT$ conjuntos",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "Este conjunto será apagado permanentemente."
+  },
+  "deleteCollectionsDesc": {
+    "message": "Estes conjuntos serão apagados permanentemente."
+  },
+  "duplicateAttachmentNameError": {
+    "message": "Itens não podem ter vários anexos com o mesmo nome de arquivo"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: Nova notificação",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "criar uma nova passkey $RPID$ para $USERNAME$",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "substituir uma passkey $RPID$ para $USERNAME$",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "fazer login como $USERNAME$ com sua passkey $RPID$",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationWindows": {
+    "message": "Verifique se é você para criar uma nova passkey $RPID$ para $USERNAME$.",
+    "description": "Prompt in Windows Hello to register a new passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteWindows": {
+    "message": "Verifique se é você para substituir uma passkey $RPID$ para $USERNAME$.",
+    "description": "Prompt in Windows Hello to overwrite an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionWindows": {
+    "message": "Verifique se é você para fazer login como $USERNAME$ com sua passkey $RPID$.",
+    "description": "Prompt in Windows Hello to use an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "permissions": {
+    "message": "Permissões"
+  },
+  "viewItems": {
+    "message": "Ver itens"
+  },
+  "viewItemsHidePass": {
+    "message": "Ver itens, senhas ocultas"
+  },
+  "editItems": {
+    "message": "Editar itens"
+  },
+  "editItemsHidePass": {
+    "message": "Editar itens, senhas ocultas"
+  },
+  "shareVerb": {
+    "message": "Compartilhar"
+  },
+  "peopleWhoCanView": {
+    "message": "Pessoas que podem visualizar",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Depois de compartilhar este link, os destinatários precisarão verificar o e-mail com um código para visualizar o item.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Este link expira após esta data, mas os destinatários podem reter informações compartilhadas anteriormente. Regenere a credencial para revogar o acesso.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "O link expira após",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Compartilhamento único",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Links ativos",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Link copiado para a área de transferência",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Não foi possível criar o link de compartilhamento",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Link salvo e copiado para a área de transferência",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Falha ao copiar o link de compartilhamento para a área de transferência",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Link de compartilhamento excluído",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Falha ao excluir o link de compartilhamento",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Compartilhar via link",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Compartilhamento para o item do cofre $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareLinkExpires": {
+    "message": "Expira",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Expira",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Item desconhecido; talvez seja necessário solicitar permissão para acessar este item."
   }
 }

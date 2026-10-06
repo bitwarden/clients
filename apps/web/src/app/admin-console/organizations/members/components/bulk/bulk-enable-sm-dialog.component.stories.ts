@@ -54,7 +54,7 @@ const mockDialogRef = {
 };
 
 export default {
-  title: "Admin Console/Organizations/Members/Bulk Enable Secrets Manager Dialog",
+  title: "Admin Console/Organizations/Members/Bulk Actions/Bulk Enable Secrets Manager Dialog",
   component: BulkEnableSecretsManagerDialogComponent,
   decorators: [
     moduleMetadata({

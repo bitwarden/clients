@@ -11,6 +11,7 @@
     >
       <a
         *ngFor="let product of products.bento"
+        bitMenuClose
         [routerLink]="product.appRoute"
         [ngClass]="
           product.isActive
@@ -42,6 +43,7 @@
         <a
           *ngIf="!product.marketingRoute.external"
           bitLink
+          bitMenuClose
           [routerLink]="product.marketingRoute.route"
           [startIcon]="product.icon"
         >
@@ -51,6 +53,7 @@
         <a
           *ngIf="product.marketingRoute.external"
           bitLink
+          bitMenuClose
           [href]="product.marketingRoute.route"
           target="_blank"
           rel="noreferrer"

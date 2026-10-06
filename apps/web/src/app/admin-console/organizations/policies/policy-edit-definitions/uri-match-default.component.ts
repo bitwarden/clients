@@ -9,6 +9,7 @@ import {
 } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrgKey } from "@bitwarden/common/types/key";
+import { SwitchComponent } from "@bitwarden/components";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
@@ -16,17 +17,21 @@ import { PolicyCategory } from "../pipes/policy-category";
 
 export class UriMatchDefaultPolicy extends BasePolicyEditDefinition {
   name = "uriMatchDetectionPolicy";
-  description = "uriMatchDetectionPolicyDesc";
+  description = "uriMatchDetectionPolicyDescV2";
+  descriptionVfo1 = "uriMatchDetectionPolicyDescVfo1";
+  drawerDescriptionVfo1 = "uriMatchDetectionPolicyDescV2";
   type = PolicyType.UriMatchDefaults;
   category = PolicyCategory.VaultManagement;
   priority = 20;
   component = UriMatchDefaultPolicyComponent;
+  prerequisiteKey = "requireSsoPolicyReqV2";
+  prerequisiteKeyVfo1 = "requireSsoPolicyReqV2Vfo1";
 }
 @Component({
   selector: "uri-match-default-policy-edit",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "uri-match-default.component.html",
-  imports: [SharedModule],
+  imports: [SharedModule, SwitchComponent],
 })
 export class UriMatchDefaultPolicyComponent extends BasePolicyEditComponent {
   readonly uriMatchOptions: {

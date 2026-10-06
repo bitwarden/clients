@@ -1,14 +1,26 @@
 import { Jsonify } from "type-fest";
 
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import {
+  Invite,
+  OrganizationInviteLink as SdkOrganizationInviteLink,
+} from "@bitwarden/sdk-internal";
 
 export class OrganizationInviteLinkResponseModel extends BaseResponse {
+  /** The unique identifier of the invite link. */
   id: string;
+  /** The public code used to reference and access the invite link. */
   code: string;
+  /** The identifier of the organization that owns the invite link. */
   organizationId: string;
+  /** The email domains permitted to use the invite link. */
   allowedDomains: string[];
-  encryptedInviteKey: string;
-  encryptedOrgKey: string | undefined;
+  /** The invite cryptographic material for the invite link. */
+  invite: Invite;
+  /** Whether this invite link can be used to confirm a user. */
+  supportsConfirmation: boolean;
+  /** The ISO-8601 date the invite link was created. */
   creationDate: string;
 
   constructor(response: any) {
@@ -17,32 +29,51 @@ export class OrganizationInviteLinkResponseModel extends BaseResponse {
     this.code = this.getResponseProperty("Code");
     this.organizationId = this.getResponseProperty("OrganizationId");
     this.allowedDomains = this.getResponseProperty("AllowedDomains");
-    this.encryptedInviteKey = this.getResponseProperty("EncryptedInviteKey");
-    this.encryptedOrgKey = this.getResponseProperty("EncryptedOrgKey");
+    this.invite = this.getResponseProperty("Invite") as Invite;
+    this.supportsConfirmation = this.getResponseProperty("SupportsConfirmation");
     this.creationDate = this.getResponseProperty("CreationDate");
   }
 }
 
 export class OrganizationInviteLink {
+  /** The unique identifier of the invite link. */
   id: string;
+  /** The public code used to reference and access the invite link. */
   code: string;
+  /** The identifier of the organization that owns the invite link. */
   organizationId: string;
+  /** The email domains permitted to use the invite link. */
   allowedDomains: string[];
-  encryptedInviteKey: string;
-  encryptedOrgKey: string | undefined;
+  /** The invite cryptographic material for the invite link. */
+  invite: Invite;
+  /** Whether this invite link can be used to confirm a user. */
+  supportsConfirmation: boolean;
+  /** The ISO-8601 date the invite link was created. */
   creationDate: string;
 
-  constructor(response: OrganizationInviteLinkResponseModel) {
+  constructor(response: Jsonify<OrganizationInviteLinkResponseModel>) {
     this.id = response.id;
     this.code = response.code;
     this.organizationId = response.organizationId;
     this.allowedDomains = response.allowedDomains;
-    this.encryptedInviteKey = response.encryptedInviteKey;
-    this.encryptedOrgKey = response.encryptedOrgKey;
+    this.invite = response.invite;
+    this.supportsConfirmation = response.supportsConfirmation;
     this.creationDate = response.creationDate;
   }
 
   static fromJSON(obj: Jsonify<OrganizationInviteLink>): OrganizationInviteLink {
     return Object.assign(new OrganizationInviteLink(obj as any), obj);
+  }
+
+  static fromSdk(obj: SdkOrganizationInviteLink): OrganizationInviteLink {
+    return new OrganizationInviteLink({
+      id: uuidAsString(obj.id),
+      code: uuidAsString(obj.code),
+      organizationId: uuidAsString(obj.organizationId),
+      allowedDomains: obj.allowedDomains,
+      invite: obj.invite,
+      supportsConfirmation: obj.supportsConfirmation,
+      creationDate: obj.creationDate,
+    });
   }
 }

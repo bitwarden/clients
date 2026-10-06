@@ -1,14 +1,8 @@
-import { ipcMain, globalShortcut } from "electron";
+import { globalShortcut } from "electron";
 
-import { autotype } from "@bitwarden/desktop-napi";
 import { LogService } from "@bitwarden/logging";
 
 import { WindowMain } from "../../main/window.main";
-import { stringIsNotUndefinedNullAndEmpty } from "../../utils";
-import { AutotypeConfig } from "../models/autotype-config";
-import { AutotypeMatchError } from "../models/autotype-errors";
-import { AutotypeVaultData } from "../models/autotype-vault-data";
-import { AUTOTYPE_IPC_CHANNELS } from "../models/ipc-channels";
 import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
 
 export class MainDesktopAutotypeService {
@@ -19,71 +13,12 @@ export class MainDesktopAutotypeService {
     private windowMain: WindowMain,
   ) {
     this.autotypeKeyboardShortcut = new AutotypeKeyboardShortcut();
-
-    this.registerIpcListeners();
   }
 
-  registerIpcListeners() {
-    ipcMain.on(AUTOTYPE_IPC_CHANNELS.TOGGLE, (_event, enable: boolean) => {
-      if (enable) {
-        this.enableAutotype();
-      } else {
-        this.disableAutotype();
-      }
-    });
-
-    ipcMain.on(AUTOTYPE_IPC_CHANNELS.CONFIGURE, (_event, config: AutotypeConfig) => {
-      const newKeyboardShortcut = new AutotypeKeyboardShortcut();
-      const newKeyboardShortcutIsValid = newKeyboardShortcut.set(config.keyboardShortcut);
-
-      if (!newKeyboardShortcutIsValid) {
-        this.logService.error("Configure autotype failed: the keyboard shortcut is invalid.");
-        return;
-      }
-
-      this.setKeyboardShortcut(newKeyboardShortcut);
-    });
-
-    ipcMain.on(AUTOTYPE_IPC_CHANNELS.EXECUTE, (_event, vaultData: AutotypeVaultData) => {
-      if (
-        stringIsNotUndefinedNullAndEmpty(vaultData.username) &&
-        stringIsNotUndefinedNullAndEmpty(vaultData.password)
-      ) {
-        this.doAutotype(vaultData, this.autotypeKeyboardShortcut.getArrayFormat());
-      }
-    });
-
-    ipcMain.on("autofill.completeAutotypeError", (_event, matchError: AutotypeMatchError) => {
-      this.logService.debug(
-        "autofill.completeAutotypeError",
-        "No match for window: " + matchError.windowTitle,
-      );
-      this.logService.error("autofill.completeAutotypeError", matchError.errorMessage);
-    });
-  }
-
-  // Deregister the keyboard shortcut if registered.
-  disableAutotype() {
-    const formattedKeyboardShortcut = this.autotypeKeyboardShortcut.getElectronFormat();
-
-    if (globalShortcut.isRegistered(formattedKeyboardShortcut)) {
-      globalShortcut.unregister(formattedKeyboardShortcut);
-      this.logService.debug("Autotype disabled.");
-    } else {
-      this.logService.debug("Autotype is not registered, implicitly disabled.");
-    }
-  }
-
-  dispose() {
-    ipcMain.removeAllListeners(AUTOTYPE_IPC_CHANNELS.TOGGLE);
-    ipcMain.removeAllListeners(AUTOTYPE_IPC_CHANNELS.CONFIGURE);
-    ipcMain.removeAllListeners(AUTOTYPE_IPC_CHANNELS.EXECUTE);
-
-    // Also unregister the global shortcut
-    this.disableAutotype();
-  }
-
-  // Register the current keyboard shortcut if not already registered.
+  // Enabling Autotype will:
+  //   - Register the keyboard shortcut, if it's not registered
+  //   - Define the function that executes the Autotype when the
+  //     keyboard shortcut is pressed (if the keyboard shortcut isn't registered already)
   private enableAutotype() {
     const formattedKeyboardShortcut = this.autotypeKeyboardShortcut.getElectronFormat();
     if (globalShortcut.isRegistered(formattedKeyboardShortcut)) {
@@ -96,17 +31,46 @@ export class MainDesktopAutotypeService {
     const result = globalShortcut.register(
       this.autotypeKeyboardShortcut.getElectronFormat(),
       () => {
-        const windowTitle = autotype.getForegroundWindowTitle();
-
-        this.windowMain.win.webContents.send(AUTOTYPE_IPC_CHANNELS.LISTEN, {
-          windowTitle,
-        });
+        if (this.windowMain.win != null && !this.windowMain.win.isDestroyed()) {
+          // TODO: For Autotype GA, from this location, we need to...
+          //   - Get the autotype app data for the currently focused application
+          //     (multiple tickets, culminates in PM-38921)
+          //   - Send this app data to the render process via encrypted IPC for
+          //     the Autotype Verification Flow (PM-38967)
+          //   - If the Verification Flow passes, we need to execute Autotype
+          //     (multiple tickets, culminates in PM-38921), with the following
+          //     caveats:
+          //     - Show the confirmation dialog, if it should be shown (PM-38917)
+          //     - Verify the window is the same (PM-38968)
+        } else {
+          this.logService.debug(
+            "Autotype keyboard shortcut activated, but the main window does not exist.",
+          );
+        }
       },
     );
 
     result
       ? this.logService.debug("Autotype enabled.")
       : this.logService.error("Failed to enable Autotype.");
+  }
+
+  // Disabling Autotype will:
+  //   - Deregister the keyboard shortcut, if it's registered
+  disableAutotype() {
+    const formattedKeyboardShortcut = this.autotypeKeyboardShortcut.getElectronFormat();
+
+    if (globalShortcut.isRegistered(formattedKeyboardShortcut)) {
+      globalShortcut.unregister(formattedKeyboardShortcut);
+      this.logService.debug("Autotype disabled.");
+    } else {
+      this.logService.debug("Autotype is not registered, implicitly disabled.");
+    }
+  }
+
+  dispose() {
+    // Disable Autotype
+    this.disableAutotype();
   }
 
   // Set the keyboard shortcut if it differs from the present one. If
@@ -130,17 +94,5 @@ export class MainDesktopAutotypeService {
         "setKeyboardShortcut() called but shortcut is not different from current.",
       );
     }
-  }
-
-  private doAutotype(vaultData: AutotypeVaultData, keyboardShortcut: string[]) {
-    const TAB = "\t";
-    const inputPattern = vaultData.username + TAB + vaultData.password;
-    const inputArray = new Array<number>(inputPattern.length);
-
-    for (let i = 0; i < inputPattern.length; i++) {
-      inputArray[i] = inputPattern.charCodeAt(i);
-    }
-
-    autotype.typeInput(inputArray, keyboardShortcut);
   }
 }

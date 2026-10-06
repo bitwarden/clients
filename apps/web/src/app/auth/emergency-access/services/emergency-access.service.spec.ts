@@ -5,8 +5,6 @@ import mock from "jest-mock-extended/lib/Mock";
 import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   MasterKeyWrappedUserKey,
@@ -18,19 +16,31 @@ import {
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { UserKeyResponse } from "@bitwarden/common/models/response/user-key.response";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey, UserPrivateKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { newGuid } from "@bitwarden/guid";
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
   DEFAULT_KDF_CONFIG,
+  EncryptionType,
+  EncryptService,
+  EncString,
   KdfType,
-  KeyService,
-} from "@bitwarden/key-management";
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
+import {
+  Cipher as SdkCipher,
+  CipherView as SdkCipherView,
+  DecryptCipherResult,
+} from "@bitwarden/sdk-internal";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../enums/emergency-access-type";
@@ -40,7 +50,6 @@ import {
   EmergencyAccessGranteeDetailsResponse,
   EmergencyAccessGrantorDetailsResponse,
   EmergencyAccessTakeoverResponse,
-  EmergencyAccessViewResponse,
 } from "../response/emergency-access.response";
 
 import { EmergencyAccessApiService } from "./emergency-access-api.service";
@@ -50,11 +59,13 @@ describe("EmergencyAccessService", () => {
   let emergencyAccessApiService: MockProxy<EmergencyAccessApiService>;
   let apiService: MockProxy<ApiService>;
   let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let encryptService: MockProxy<EncryptService>;
   let cipherService: MockProxy<CipherService>;
   let logService: MockProxy<LogService>;
   let emergencyAccessService: EmergencyAccessService;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
+  let sdkService: MockSdkService;
 
   const mockNewUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
   const mockTrustedPublicKeys = [Utils.fromUtf8ToArray("trustedPublicKey")];
@@ -64,19 +75,23 @@ describe("EmergencyAccessService", () => {
     emergencyAccessApiService = mock<EmergencyAccessApiService>();
     apiService = mock<ApiService>();
     keyService = mock<KeyService>();
+    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     encryptService = mock<EncryptService>();
     cipherService = mock<CipherService>();
     logService = mock<LogService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
+    sdkService = new MockSdkService();
 
     emergencyAccessService = new EmergencyAccessService(
       emergencyAccessApiService,
       apiService,
       keyService,
+      legacyCompatKeyService,
       encryptService,
       cipherService,
       logService,
       masterPasswordService,
+      sdkService,
     );
   });
 
@@ -163,9 +178,13 @@ describe("EmergencyAccessService", () => {
 
   describe("getViewOnlyCiphers", () => {
     const params = {
-      id: "emergency-access-id",
+      id: Utils.newGuid(),
       activeUserId: Utils.newGuid() as UserId,
     };
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
 
     it("throws an error is the active user's private key isn't available", async () => {
       keyService.userPrivateKey$.mockReturnValue(of(null));
@@ -175,59 +194,63 @@ describe("EmergencyAccessService", () => {
       ).rejects.toThrow("Active user does not have a private key, cannot get view only ciphers.");
     });
 
-    it("should return decrypted and sorted ciphers", async () => {
-      const emergencyAccessViewResponse = {
-        keyEncrypted: "mockKeyEncrypted",
-        ciphers: [
-          { id: "cipher1", name: "encryptedName1" },
-          { id: "cipher2", name: "encryptedName2" },
+    it("should return ciphers fetched and decrypted by the SDK, sorted", async () => {
+      keyService.userPrivateKey$.mockReturnValue(of(new Uint8Array(64) as UserPrivateKey));
+      const viewCiphers = mockSdkViewCiphers(params.activeUserId, {
+        successes: [
+          { id: "cipher2" } as unknown as SdkCipherView,
+          { id: "cipher1" } as unknown as SdkCipherView,
         ],
-      } as EmergencyAccessViewResponse;
-
-      const mockEncryptedCipher1 = {
-        id: "cipher1",
-        decrypt: jest.fn().mockResolvedValue({ id: "cipher1", decrypted: true }),
-      };
-      const mockEncryptedCipher2 = {
-        id: "cipher2",
-        decrypt: jest.fn().mockResolvedValue({ id: "cipher2", decrypted: true }),
-      };
-      emergencyAccessViewResponse.ciphers.map = jest.fn().mockImplementation(() => {
-        return [mockEncryptedCipher1, mockEncryptedCipher2];
+        failures: [],
       });
+      jest
+        .spyOn(CipherView, "fromSdkCipherView")
+        .mockImplementation((view) => ({ id: view.id }) as unknown as CipherView);
       cipherService.getLocaleSortingFunction.mockReturnValue((a: any, b: any) =>
         a.id.localeCompare(b.id),
       );
-      emergencyAccessApiService.postEmergencyAccessView.mockResolvedValue(
-        emergencyAccessViewResponse,
-      );
-
-      const mockPrivateKey = new Uint8Array(64) as UserPrivateKey;
-      keyService.userPrivateKey$.mockReturnValue(of(mockPrivateKey));
-
-      const mockDecryptedGrantorUserKey = new SymmetricCryptoKey(new Uint8Array(64));
-      encryptService.decapsulateKeyUnsigned.mockResolvedValueOnce(mockDecryptedGrantorUserKey);
-      const mockGrantorUserKey = mockDecryptedGrantorUserKey as UserKey;
 
       const result = await emergencyAccessService.getViewOnlyCiphers(
         params.id,
         params.activeUserId,
       );
 
-      expect(result).toEqual([
-        { id: "cipher1", decrypted: true },
-        { id: "cipher2", decrypted: true },
-      ]);
-      expect(mockEncryptedCipher1.decrypt).toHaveBeenCalledWith(mockGrantorUserKey);
-      expect(mockEncryptedCipher2.decrypt).toHaveBeenCalledWith(mockGrantorUserKey);
-      expect(emergencyAccessApiService.postEmergencyAccessView).toHaveBeenCalledWith(params.id);
-      expect(keyService.userPrivateKey$).toHaveBeenCalledWith(params.activeUserId);
-      expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
-        new EncString(emergencyAccessViewResponse.keyEncrypted),
-        mockPrivateKey,
-      );
-      expect(cipherService.getLocaleSortingFunction).toHaveBeenCalled();
+      expect(result).toEqual([{ id: "cipher1" }, { id: "cipher2" }]);
+      expect(viewCiphers).toHaveBeenCalledWith(params.id);
+      expect(encryptService.decapsulateKeyUnsigned).not.toHaveBeenCalled();
     });
+
+    it("should mark ciphers that failed to decrypt", async () => {
+      keyService.userPrivateKey$.mockReturnValue(of(new Uint8Array(64) as UserPrivateKey));
+      mockSdkViewCiphers(params.activeUserId, {
+        successes: [],
+        failures: [{} as SdkCipher],
+      });
+      const failedCipher = new Cipher();
+      failedCipher.id = "cipher1";
+      jest.spyOn(Cipher, "fromSdkCipher").mockReturnValue(failedCipher);
+      cipherService.getLocaleSortingFunction.mockReturnValue(() => 0);
+
+      const result = await emergencyAccessService.getViewOnlyCiphers(
+        params.id,
+        params.activeUserId,
+      );
+
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toEqual("cipher1");
+      expect(result[0].name).toEqual("[error: cannot decrypt]");
+      expect(result[0].decryptionFailure).toBe(true);
+    });
+
+    /** Makes the user's SDK client return `result` from `emergency_access().view_vault_items`. */
+    function mockSdkViewCiphers(userId: UserId, result: DecryptCipherResult): jest.Mock {
+      const viewCiphers = jest.fn().mockResolvedValue(result);
+      const sdkClient = sdkService.simulate.userLogin(userId);
+      (sdkClient as any).emergency_access = jest
+        .fn()
+        .mockReturnValue({ view_vault_items: viewCiphers });
+      return viewCiphers;
+    }
   });
 
   describe("takeover", () => {
@@ -361,7 +384,7 @@ describe("EmergencyAccessService", () => {
       await emergencyAccessService.takeover(id, masterPassword, email, activeUserId);
 
       // Assert
-      const request = EmergencyAccessPasswordRequest.newConstructor(authenticationData, unlockData);
+      const request = new EmergencyAccessPasswordRequest(authenticationData, unlockData);
 
       expect(masterPasswordService.makeMasterPasswordAuthenticationData).toHaveBeenCalledWith(
         masterPassword,
@@ -387,7 +410,7 @@ describe("EmergencyAccessService", () => {
       await emergencyAccessService.takeover(id, masterPassword, email, activeUserId);
 
       // Assert
-      const request = EmergencyAccessPasswordRequest.newConstructor(authenticationData, unlockData);
+      const request = new EmergencyAccessPasswordRequest(authenticationData, unlockData);
 
       expect(emergencyAccessApiService.postEmergencyAccessPassword).toHaveBeenCalledTimes(1);
       expect(emergencyAccessApiService.postEmergencyAccessPassword).toHaveBeenCalledWith(

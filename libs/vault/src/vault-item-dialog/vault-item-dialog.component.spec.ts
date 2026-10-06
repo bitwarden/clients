@@ -27,11 +27,13 @@ import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/ciphe
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
 import { CipherFormConfig } from "../cipher-form";
+import { AttachmentDialogResult } from "../cipher-view/attachments/attachments-v2.component";
 
 import {
   VaultItemDialogComponent,
@@ -170,7 +172,7 @@ describe("VaultItemDialogComponent", () => {
       component.setTestFormConfig({ cipherType: CipherType.Login });
       component["updateTitle"]();
 
-      expect(component["title"]).toBe("viewItemHeaderLogin");
+      expect(component["title"]).toBe("viewItemHeaderLoginSentenceCase");
     });
 
     it("sets title for form mode (edit) and Card type", () => {
@@ -178,7 +180,7 @@ describe("VaultItemDialogComponent", () => {
       component.setTestFormConfig({ mode: "edit", cipherType: CipherType.Card });
       component["updateTitle"]();
 
-      expect(component["title"]).toBe("editItemHeaderCard");
+      expect(component["title"]).toBe("editItemHeaderCardSentenceCase");
     });
 
     it("sets title for form mode (add) and Identity type", () => {
@@ -186,7 +188,7 @@ describe("VaultItemDialogComponent", () => {
       component.setTestFormConfig({ mode: "add", cipherType: CipherType.Identity });
       component["updateTitle"]();
 
-      expect(component["title"]).toBe("newItemHeaderIdentity");
+      expect(component["title"]).toBe("addItemHeaderIdentity");
     });
 
     it("sets title for form mode (clone) and Card type", () => {
@@ -194,7 +196,7 @@ describe("VaultItemDialogComponent", () => {
       component.setTestFormConfig({ mode: "clone", cipherType: CipherType.Card });
       component["updateTitle"]();
 
-      expect(component["title"]).toBe("newItemHeaderCard");
+      expect(component["title"]).toBe("addItemHeaderCard");
     });
   });
 
@@ -464,26 +466,22 @@ describe("VaultItemDialogComponent", () => {
       });
 
       it("refreshes the cipher from local state and switches to view mode", async () => {
-        const latestCipher = { id: "cipher-id" } as any;
         const refreshedCipherView = { id: "cipher-id", attachments: [] } as any;
-        cipherServiceMock.get.mockResolvedValue(latestCipher);
-        cipherServiceMock.decrypt.mockResolvedValue(refreshedCipherView);
+        cipherServiceMock.cipherView$.mockReturnValue(of(refreshedCipherView));
 
         await component.cancel();
 
-        expect(cipherServiceMock.get).toHaveBeenCalledWith("cipher-id", "test-user-id");
-        expect(cipherServiceMock.decrypt).toHaveBeenCalledWith(latestCipher, "test-user-id");
+        expect(cipherServiceMock.cipherView$).toHaveBeenCalledWith("test-user-id", "cipher-id");
         expect(component["cipher"]).toBe(refreshedCipherView);
         expect((component as any).changeMode).toHaveBeenCalledWith("view");
       });
 
       it("leaves the existing cipher in place when local state has no cipher", async () => {
         const originalCipher = component["cipher"];
-        cipherServiceMock.get.mockResolvedValue(null as any);
+        cipherServiceMock.cipherView$.mockReturnValue(of(undefined));
 
         await component.cancel();
 
-        expect(cipherServiceMock.decrypt).not.toHaveBeenCalled();
         expect(component["cipher"]).toBe(originalCipher);
         expect((component as any).changeMode).toHaveBeenCalledWith("view");
       });
@@ -570,6 +568,28 @@ describe("VaultItemDialogComponent", () => {
         savedCipherView,
         component["params"].isAdminConsoleAction,
       );
+    });
+  });
+
+  describe("openAttachmentsDialog", () => {
+    it("decrypts the admin cipher through the cipher service after an upload", async () => {
+      const billingService = TestBed.inject(BillingAccountProfileStateService);
+      jest.mocked(billingService.hasPremiumFromAnySource$).mockReturnValue(of(true));
+      mockDialogService.open.mockReturnValue({
+        closed: of({ action: AttachmentDialogResult.Uploaded }),
+      });
+      const apiService = TestBed.inject(ApiService) as MockProxy<ApiService>;
+      apiService.getCipherAdmin.mockResolvedValue({ id: "cipher-id" } as any);
+      cipherServiceMock.decrypt.mockResolvedValue(new CipherView());
+      Object.defineProperty(component, "cipherFormComponent", {
+        value: () => ({ patchCipher: jest.fn() }),
+        configurable: true,
+      });
+      component.setTestFormConfig({ admin: true, originalCipher: { id: "cipher-id" } as any });
+
+      await component.openAttachmentsDialog();
+
+      expect(cipherServiceMock.decrypt).toHaveBeenCalledWith(expect.any(Cipher), "test-user-id");
     });
   });
 });

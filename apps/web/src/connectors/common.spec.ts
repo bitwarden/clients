@@ -90,6 +90,16 @@ describe("common connector utilities", () => {
         );
       });
 
+      it("returns https://bitwarden-gov.com for bitwarden-gov vaults", () => {
+        setLocation(
+          "https://vault.bitwarden-gov.com/connector?deeplinkScheme=https",
+          "vault.bitwarden-gov.com",
+        );
+        expect(buildMobileDeeplinkUriFromParam("webauthn")).toBe(
+          "https://bitwarden-gov.com/webauthn-callback",
+        );
+      });
+
       it("defaults to bitwarden.com for unknown hostnames", () => {
         setLocation(
           "https://self-hosted.example.com/connector?deeplinkScheme=https",
@@ -141,6 +151,7 @@ describe("common connector utilities", () => {
         ["vault.bitwarden.com", "production .com subdomain"],
         ["vault.bitwarden.eu", "production .eu subdomain"],
         ["vault.qa.bitwarden.pw", "multi-level .pw subdomain"],
+        ["vault.bitwarden-gov.com", "production -gov subdomain"],
       ])("returns true for %s (%s)", (hostname) => {
         setLocation(`https://${hostname}/connector`, hostname);
         expect(isKnownCloudOrigin()).toBe(true);
@@ -160,6 +171,11 @@ describe("common connector utilities", () => {
 
       it("returns false for a domain that contains but does not end with a managed TLD", () => {
         setLocation("https://not-bitwarden.com/connector", "not-bitwarden.com");
+        expect(isKnownCloudOrigin()).toBe(false);
+      });
+
+      it("returns false for a domain that contains but does not end with the managed gov suffix", () => {
+        setLocation("https://not-bitwarden-gov.com/connector", "not-bitwarden-gov.com");
         expect(isKnownCloudOrigin()).toBe(false);
       });
 

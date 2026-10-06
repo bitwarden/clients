@@ -1,8 +1,8 @@
 <bit-dialog dialogSize="large">
   <span bitDialogTitle>
-    {{ "assignToCollections" | i18n }}
+    {{ "assignToCollections" | vfo1I18n: "addToSharedFolder" }}
     <span class="tw-text-sm tw-normal-case tw-text-muted">
-      {{ editableItemCount | pluralize: ("item" | i18n) : ("items" | i18n) }}
+      {{ editableItemCount | pluralize: ("itemLower" | i18n) : ("itemsLower" | i18n) }}
     </span>
   </span>
 
@@ -12,6 +12,7 @@
       [submitBtn]="assignSubmitButton"
       (onCollectionAssign)="onCollectionAssign($event)"
       (editableItemCountChange)="editableItemCount = $event"
+      (submitButtonTextChange)="submitButtonText = $event"
     ></assign-collections>
   </div>
 
@@ -24,7 +25,7 @@
       bitFormButton
       buttonType="primary"
     >
-      {{ "assign" | i18n }}
+      {{ submitButtonText ?? ("assign" | vfo1I18n: "transferAndAdd") }}
     </button>
     <button type="button" bitButton buttonType="secondary" bitDialogClose>
       {{ "cancel" | i18n }}

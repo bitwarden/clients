@@ -4,6 +4,7 @@
   </span>
   <div bitDialogContent>
     <vault-add-item-grid
+      [canCreateCipher]="data.canCreateCipher ?? true"
       [canCreateFolder]="data.canCreateFolder"
       [canCreateCollection]="data.canCreateCollection"
       [canCreateSshKey]="data.canCreateSshKey"

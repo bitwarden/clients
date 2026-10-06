@@ -1,73 +1,90 @@
 import { TestBed } from "@angular/core/testing";
-import { BehaviorSubject } from "rxjs";
+import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject, firstValueFrom, Observable, of } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { GlobalStateProvider } from "@bitwarden/common/platform/state";
+import { GlobalStateProvider, KeyDefinition } from "@bitwarden/common/platform/state";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LogService } from "@bitwarden/logging";
 
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
-import { DesktopAutotypeService, getAutotypeVaultData } from "./desktop-autotype.service";
+import { DesktopAutotypeService } from "./desktop-autotype.service";
+
+type FakeGlobalState<T> = {
+  state$: Observable<T | null>;
+  update: jest.Mock;
+};
 
 describe("DesktopAutotypeService", () => {
   let service: DesktopAutotypeService;
 
-  // Mock dependencies
-  let mockAccountService: jest.Mocked<AccountService>;
-  let mockAuthService: jest.Mocked<AuthService>;
-  let mockCipherService: jest.Mocked<CipherService>;
-  let mockConfigService: jest.Mocked<ConfigService>;
+  let mockAccountService: MockProxy<AccountService>;
+  let mockAuthService: MockProxy<AuthService>;
+  let mockCipherService: MockProxy<CipherService>;
+  let mockConfigService: MockProxy<ConfigService>;
   let mockGlobalStateProvider: jest.Mocked<GlobalStateProvider>;
-  let mockPlatformUtilsService: jest.Mocked<PlatformUtilsService>;
-  let mockBillingAccountProfileStateService: jest.Mocked<BillingAccountProfileStateService>;
+  let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
+  let mockBillingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let mockDesktopAutotypePolicy: jest.Mocked<DesktopAutotypeDefaultSettingPolicy>;
-  let mockLogService: jest.Mocked<LogService>;
+  let mockLogService: MockProxy<LogService>;
 
-  // Mock GlobalState objects
-  let mockAutotypeEnabledState: any;
-  let mockAutotypeKeyboardShortcutState: any;
+  let mockAutotypeEnabledState: FakeGlobalState<boolean>;
+  let mockAutotypeKeyboardShortcutState: FakeGlobalState<string[]>;
 
-  // BehaviorSubjects for reactive state
   let autotypeEnabledSubject: BehaviorSubject<boolean | null>;
   let autotypeKeyboardShortcutSubject: BehaviorSubject<string[]>;
-  let activeAccountSubject: BehaviorSubject<any>;
+  let activeAccountSubject: BehaviorSubject<Account | null>;
   let activeAccountStatusSubject: BehaviorSubject<AuthenticationStatus>;
   let hasPremiumSubject: BehaviorSubject<boolean>;
-  let featureFlagSubject: BehaviorSubject<boolean>;
-  let autotypeDefaultPolicySubject: BehaviorSubject<boolean>;
-  let cipherViewsSubject: BehaviorSubject<any[]>;
+  let autotypeDefaultPolicySubject: BehaviorSubject<boolean | null>;
+
+  // The Autotype feature flags must be mocked independently of one another: the service
+  // resolves its gate through `autotypeFeatureFlagState$`, which reads both the MVP and the
+  // GA flag and defaults to `Off` when both are on. A single shared mock value would make
+  // the `Ga` state unreachable.
+  function mockAutotypeFlags(mvpEnabled: boolean, gaEnabled: boolean) {
+    mockConfigService.getFeatureFlag$.mockImplementation((flag) => {
+      if (flag === FeatureFlag.WindowsDesktopAutotypeGA) {
+        return of(gaEnabled);
+      }
+      if (flag === FeatureFlag.WindowsDesktopAutotype) {
+        return of(mvpEnabled);
+      }
+      throw new Error(`Unexpected feature flag requested in test: ${flag}`);
+    });
+  }
 
   beforeEach(() => {
-    // Initialize BehaviorSubjects
     autotypeEnabledSubject = new BehaviorSubject<boolean | null>(null);
-    autotypeKeyboardShortcutSubject = new BehaviorSubject<string[]>(["Control", "Shift", "B"]);
-    activeAccountSubject = new BehaviorSubject<any>({ id: "user-123" });
+    autotypeKeyboardShortcutSubject = new BehaviorSubject<string[]>(["Control", "Alt", "B"]);
+    activeAccountSubject = new BehaviorSubject<Account | null>({
+      id: "user-123" as UserId,
+      email: "user@bitwarden.com",
+      emailVerified: true,
+      name: "Test User",
+      creationDate: undefined,
+    });
     activeAccountStatusSubject = new BehaviorSubject<AuthenticationStatus>(
       AuthenticationStatus.Unlocked,
     );
     hasPremiumSubject = new BehaviorSubject<boolean>(true);
-    featureFlagSubject = new BehaviorSubject<boolean>(true);
-    autotypeDefaultPolicySubject = new BehaviorSubject<boolean>(false);
-    cipherViewsSubject = new BehaviorSubject<any[]>([]);
+    autotypeDefaultPolicySubject = new BehaviorSubject<boolean | null>(null);
 
-    // Mock GlobalState objects
     mockAutotypeEnabledState = {
       state$: autotypeEnabledSubject.asObservable(),
       update: jest.fn().mockImplementation(async (configureState, options) => {
         const newState = configureState(autotypeEnabledSubject.value, null);
-
-        // Handle shouldUpdate option
         if (options?.shouldUpdate && !options.shouldUpdate(autotypeEnabledSubject.value)) {
           return autotypeEnabledSubject.value;
         }
-
         autotypeEnabledSubject.next(newState);
         return newState;
       }),
@@ -82,68 +99,42 @@ describe("DesktopAutotypeService", () => {
       }),
     };
 
-    // Mock GlobalStateProvider
     mockGlobalStateProvider = {
-      get: jest.fn().mockImplementation((keyDef) => {
-        if (keyDef.key === "autotypeEnabled") {
+      get: jest.fn().mockImplementation((keyDefinition: KeyDefinition<unknown>) => {
+        if (keyDefinition.key === "autotypeGaEnabled") {
           return mockAutotypeEnabledState;
         }
-        if (keyDef.key === "autotypeKeyboardShortcut") {
+        if (keyDefinition.key === "autotypeGaKeyboardShortcut") {
           return mockAutotypeKeyboardShortcutState;
         }
+        return undefined;
       }),
-    } as any;
+    } as unknown as jest.Mocked<GlobalStateProvider>;
 
-    // Mock AccountService
-    mockAccountService = {
-      activeAccount$: activeAccountSubject.asObservable(),
-    } as any;
+    mockAccountService = mock<AccountService>();
+    mockAccountService.activeAccount$ = activeAccountSubject.asObservable();
 
-    // Mock AuthService
-    mockAuthService = {
-      activeAccountStatus$: activeAccountStatusSubject.asObservable(),
-    } as any;
+    mockAuthService = mock<AuthService>();
+    mockAuthService.activeAccountStatus$ = activeAccountStatusSubject.asObservable();
 
-    // Mock CipherService
-    mockCipherService = {
-      cipherViews$: jest.fn().mockReturnValue(cipherViewsSubject.asObservable()),
-    } as any;
+    mockCipherService = mock<CipherService>();
 
-    // Mock ConfigService
-    mockConfigService = {
-      getFeatureFlag$: jest.fn().mockReturnValue(featureFlagSubject.asObservable()),
-    } as any;
+    mockConfigService = mock<ConfigService>();
+    mockAutotypeFlags(false, false);
 
-    // Mock PlatformUtilsService
-    mockPlatformUtilsService = {
-      getDevice: jest.fn().mockReturnValue(DeviceType.WindowsDesktop),
-    } as any;
+    mockPlatformUtilsService = mock<PlatformUtilsService>();
+    mockPlatformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
 
-    // Mock BillingAccountProfileStateService
-    mockBillingAccountProfileStateService = {
-      hasPremiumFromAnySource$: jest.fn().mockReturnValue(hasPremiumSubject.asObservable()),
-    } as any;
+    mockBillingAccountProfileStateService = mock<BillingAccountProfileStateService>();
+    mockBillingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(
+      hasPremiumSubject.asObservable(),
+    );
 
-    // Mock DesktopAutotypeDefaultSettingPolicy
     mockDesktopAutotypePolicy = {
       autotypeDefaultSetting$: autotypeDefaultPolicySubject.asObservable(),
-    } as any;
+    } as unknown as jest.Mocked<DesktopAutotypeDefaultSettingPolicy>;
 
-    // Mock LogService
-    mockLogService = {
-      error: jest.fn(),
-      info: jest.fn(),
-      debug: jest.fn(),
-    } as any;
-
-    // Mock ipc (global)
-    global.ipc = {
-      autofill: {
-        listenAutotypeRequest: jest.fn(),
-        configureAutotype: jest.fn(),
-        toggleAutotype: jest.fn(),
-      },
-    } as any;
+    mockLogService = mock<LogService>();
 
     TestBed.configureTestingModule({
       providers: [
@@ -167,12 +158,12 @@ describe("DesktopAutotypeService", () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
     service.ngOnDestroy();
+    jest.clearAllMocks();
   });
 
   describe("constructor", () => {
-    it("should create service", () => {
+    it("should create the service", () => {
       expect(service).toBeTruthy();
     });
 
@@ -182,39 +173,55 @@ describe("DesktopAutotypeService", () => {
     });
   });
 
-  describe("init", () => {
-    it("should register autotype request listener on Windows", async () => {
-      await service.init();
-
-      expect(global.ipc.autofill.listenAutotypeRequest).toHaveBeenCalled();
-    });
-
-    it("should not initialize on non-Windows platforms", async () => {
-      mockPlatformUtilsService.getDevice.mockReturnValue(DeviceType.MacOsDesktop);
-
-      await service.init();
-
-      expect(global.ipc.autofill.listenAutotypeRequest).not.toHaveBeenCalled();
-    });
-
-    it("should configure autotype when keyboard shortcut changes", async () => {
-      await service.init();
-
-      // Allow observables to emit
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      expect(global.ipc.autofill.configureAutotype).toHaveBeenCalled();
-    });
-
-    it("should toggle autotype when feature enabled state changes", async () => {
+  describe("autotypeFeatureEnabled$", () => {
+    it("should emit false when both flags are off", async () => {
+      mockAutotypeFlags(false, false);
       autotypeEnabledSubject.next(true);
 
-      await service.init();
+      const enabled = await firstValueFrom(service["autotypeFeatureEnabled$"]);
 
-      // Allow observables to emit
+      expect(enabled).toBe(false);
+    });
+
+    it("should emit true when the GA flag alone is enabled", async () => {
+      mockAutotypeFlags(false, true);
+      autotypeEnabledSubject.next(true);
+
+      const enabled = await firstValueFrom(service["autotypeFeatureEnabled$"]);
+
+      expect(enabled).toBe(true);
+    });
+
+    it("should emit false when both the MVP and GA flags are enabled", async () => {
+      mockAutotypeFlags(true, true); // dual-flag-on resolves to `Off`
+      autotypeEnabledSubject.next(true);
+
+      const enabled = await firstValueFrom(service["autotypeFeatureEnabled$"]);
+
+      expect(enabled).toBe(false);
+    });
+
+    it("should emit false when only the MVP flag is enabled", async () => {
+      mockAutotypeFlags(true, false);
+      autotypeEnabledSubject.next(true);
+
+      const enabled = await firstValueFrom(service["autotypeFeatureEnabled$"]);
+
+      expect(enabled).toBe(false);
+    });
+  });
+
+  describe("init", () => {
+    it("should not apply the organization default policy on non-Windows platforms", async () => {
+      mockPlatformUtilsService.getDevice.mockReturnValue(DeviceType.MacOsDesktop);
+      autotypeEnabledSubject.next(null);
+      autotypeDefaultPolicySubject.next(true);
+
+      await service.init();
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(global.ipc.autofill.toggleAutotype).toHaveBeenCalled();
+      expect(mockAutotypeEnabledState.update).not.toHaveBeenCalled();
+      expect(autotypeEnabledSubject.value).toBeNull();
     });
 
     it("should enable autotype when policy is true and user setting is null", async () => {
@@ -222,8 +229,6 @@ describe("DesktopAutotypeService", () => {
       autotypeDefaultPolicySubject.next(true);
 
       await service.init();
-
-      // Allow observables to emit
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(mockAutotypeEnabledState.update).toHaveBeenCalled();
@@ -244,7 +249,6 @@ describe("DesktopAutotypeService", () => {
 
       await service.setAutotypeEnabledState(true);
 
-      // Update was called but shouldUpdate prevented the change
       expect(mockAutotypeEnabledState.update).toHaveBeenCalled();
       expect(autotypeEnabledSubject.value).toBe(true);
     });
@@ -252,99 +256,12 @@ describe("DesktopAutotypeService", () => {
 
   describe("setAutotypeKeyboardShortcutState", () => {
     it("should update keyboard shortcut state", async () => {
-      const newShortcut = ["Control", "Alt", "A"];
+      const newKeyboardShortcut = ["Control", "Alt", "A"];
 
-      await service.setAutotypeKeyboardShortcutState(newShortcut);
+      await service.setAutotypeKeyboardShortcutState(newKeyboardShortcut);
 
       expect(mockAutotypeKeyboardShortcutState.update).toHaveBeenCalled();
-      expect(autotypeKeyboardShortcutSubject.value).toEqual(newShortcut);
-    });
-  });
-
-  describe("matchCiphersToWindowTitle", () => {
-    it("should match ciphers with matching apptitle URIs", async () => {
-      const mockCiphers = [
-        {
-          login: {
-            username: "user1",
-            password: "pass1",
-            uris: [{ uri: "apptitle://notepad" }],
-          },
-          deletedDate: null,
-        },
-        {
-          login: {
-            username: "user2",
-            password: "pass2",
-            uris: [{ uri: "apptitle://chrome" }],
-          },
-          deletedDate: null,
-        },
-      ];
-
-      cipherViewsSubject.next(mockCiphers);
-
-      const result = await service.matchCiphersToWindowTitle("Notepad - Document.txt");
-
-      expect(result).toHaveLength(1);
-      expect(result[0].login.username).toBe("user1");
-    });
-
-    it("should filter out deleted ciphers", async () => {
-      const mockCiphers = [
-        {
-          login: {
-            username: "user1",
-            password: "pass1",
-            uris: [{ uri: "apptitle://notepad" }],
-          },
-          deletedDate: new Date(),
-        },
-      ];
-
-      cipherViewsSubject.next(mockCiphers);
-
-      const result = await service.matchCiphersToWindowTitle("Notepad");
-
-      expect(result).toHaveLength(0);
-    });
-
-    it("should filter out ciphers without username or password", async () => {
-      const mockCiphers = [
-        {
-          login: {
-            username: null,
-            password: "pass1",
-            uris: [{ uri: "apptitle://notepad" }],
-          },
-          deletedDate: null,
-        },
-      ];
-
-      cipherViewsSubject.next(mockCiphers);
-
-      const result = await service.matchCiphersToWindowTitle("Notepad");
-
-      expect(result).toHaveLength(0);
-    });
-
-    it("should perform case-insensitive matching", async () => {
-      const mockCiphers = [
-        {
-          login: {
-            username: "user1",
-            password: "pass1",
-            uris: [{ uri: "apptitle://NOTEPAD" }],
-          },
-          deletedDate: null,
-        },
-      ];
-
-      cipherViewsSubject.next(mockCiphers);
-
-      const result = await service.matchCiphersToWindowTitle("notepad - document.txt");
-
-      expect(result).toHaveLength(1);
+      expect(autotypeKeyboardShortcutSubject.value).toEqual(newKeyboardShortcut);
     });
   });
 
@@ -356,52 +273,5 @@ describe("DesktopAutotypeService", () => {
 
       expect(destroySpy).toHaveBeenCalled();
     });
-  });
-});
-
-describe("getAutotypeVaultData", () => {
-  it("should return vault data when cipher has username and password", () => {
-    const cipherView = new CipherView();
-    cipherView.login.username = "foo";
-    cipherView.login.password = "bar";
-
-    const [error, vaultData] = getAutotypeVaultData(cipherView);
-
-    expect(error).toBeNull();
-    expect(vaultData?.username).toEqual("foo");
-    expect(vaultData?.password).toEqual("bar");
-  });
-
-  it("should return error when firstCipher is undefined", () => {
-    const cipherView = undefined;
-    const [error, vaultData] = getAutotypeVaultData(cipherView);
-
-    expect(vaultData).toBeNull();
-    expect(error).toBeDefined();
-    expect(error?.message).toEqual("No matching vault item.");
-  });
-
-  it("should return error when username is undefined", () => {
-    const cipherView = new CipherView();
-    cipherView.login.username = undefined;
-    cipherView.login.password = "bar";
-
-    const [error, vaultData] = getAutotypeVaultData(cipherView);
-
-    expect(vaultData).toBeNull();
-    expect(error).toBeDefined();
-    expect(error?.message).toEqual("Vault item is undefined.");
-  });
-
-  it("should return error when password is undefined", () => {
-    const cipherView = new CipherView();
-    cipherView.login.username = "foo";
-    cipherView.login.password = undefined;
-
-    const [error, vaultData] = getAutotypeVaultData(cipherView);
-
-    expect(vaultData).toBeNull();
-    expect(error).toBeDefined();
-    expect(error?.message).toEqual("Vault item is undefined.");
   });
 });

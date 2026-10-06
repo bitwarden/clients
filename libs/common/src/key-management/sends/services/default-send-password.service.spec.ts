@@ -1,7 +1,9 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
+
 import { SEND_KDF_ITERATIONS } from "../../../tools/send/send-kdf";
-import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
 import { SendPasswordKeyMaterial } from "../types";
 
 import { DefaultSendPasswordService } from "./default-send-password.service";

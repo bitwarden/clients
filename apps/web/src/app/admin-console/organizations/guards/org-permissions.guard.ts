@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { EnvironmentInjector, inject, runInInjectionContext } from "@angular/core";
 import {
   ActivatedRouteSnapshot,
@@ -75,7 +73,6 @@ export function organizationPermissionsGuard(
     if (!org.isOwner && !org.enabled) {
       toastService.showToast({
         variant: "error",
-        title: null,
         message: i18nService.t("organizationIsDisabled"),
       });
       return router.createUrlTree(["/"]);
@@ -113,7 +110,6 @@ export function organizationPermissionsGuard(
 
       toastService.showToast({
         variant: "error",
-        title: null,
         message: i18nService.t("accessDenied"),
       });
       return canAccessOrgAdmin(org)

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable, map, BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
@@ -9,6 +7,7 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { AuthRequestLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
@@ -16,49 +15,56 @@ import { CacheData } from "../services/login-strategies/login-strategy.state";
 import { LoginStrategy, LoginStrategyData } from "./login.strategy";
 
 export class AuthRequestLoginStrategyData implements LoginStrategyData {
-  tokenRequest: PasswordTokenRequest;
-  authRequestCredentials: AuthRequestLoginCredentials;
+  readonly tokenRequest: PasswordTokenRequest;
+  readonly authRequestCredentials: AuthRequestLoginCredentials;
+
+  constructor(fields: AuthRequestLoginStrategyData) {
+    this.tokenRequest = fields.tokenRequest;
+    this.authRequestCredentials = fields.authRequestCredentials;
+  }
 
   static fromJSON(obj: Jsonify<AuthRequestLoginStrategyData>): AuthRequestLoginStrategyData {
-    const data = Object.assign(new AuthRequestLoginStrategyData(), obj, {
+    return new AuthRequestLoginStrategyData({
       tokenRequest: PasswordTokenRequest.fromJSON(obj.tokenRequest),
       authRequestCredentials: AuthRequestLoginCredentials.fromJSON(obj.authRequestCredentials),
     });
-    return data;
   }
 }
 
-export class AuthRequestLoginStrategy extends LoginStrategy {
-  email$: Observable<string>;
-  accessCode$: Observable<string>;
-  authRequestId$: Observable<string>;
+export class AuthRequestLoginStrategy extends LoginStrategy<AuthRequestLoginStrategyData> {
+  email$: Observable<string | undefined>;
+  accessCode$: Observable<string | undefined>;
+  authRequestId$: Observable<string | undefined>;
 
-  protected cache: BehaviorSubject<AuthRequestLoginStrategyData>;
+  protected cache: BehaviorSubject<AuthRequestLoginStrategyData | undefined>;
 
   constructor(
-    data: AuthRequestLoginStrategyData,
+    data: AuthRequestLoginStrategyData | undefined,
+    private unlockService: UnlockService,
     private deviceTrustService: DeviceTrustServiceAbstraction,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
     super(...sharedDeps);
 
     this.cache = new BehaviorSubject(data);
-    this.email$ = this.cache.pipe(map((data) => data.tokenRequest.email));
-    this.accessCode$ = this.cache.pipe(map((data) => data.authRequestCredentials.accessCode));
-    this.authRequestId$ = this.cache.pipe(map((data) => data.authRequestCredentials.authRequestId));
+    this.email$ = this.cache.pipe(map((data) => data?.tokenRequest.email));
+    this.accessCode$ = this.cache.pipe(map((data) => data?.authRequestCredentials.accessCode));
+    this.authRequestId$ = this.cache.pipe(
+      map((data) => data?.authRequestCredentials.authRequestId),
+    );
   }
 
   override async logIn(credentials: AuthRequestLoginCredentials) {
-    const data = new AuthRequestLoginStrategyData();
-    data.tokenRequest = new PasswordTokenRequest(
+    const tokenRequest = new PasswordTokenRequest(
       credentials.email,
       credentials.accessCode,
       await this.buildTwoFactor(credentials.twoFactor, credentials.email),
       await this.buildDeviceRequest(),
     );
-    data.tokenRequest.setAuthRequestAccessCode(credentials.authRequestId);
-    data.authRequestCredentials = credentials;
-    this.cache.next(data);
+    tokenRequest.setAuthRequestAccessCode(credentials.authRequestId);
+    this.cache.next(
+      new AuthRequestLoginStrategyData({ tokenRequest, authRequestCredentials: credentials }),
+    );
 
     const [authResult] = await this.startLogIn();
     return authResult;
@@ -71,29 +77,15 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
     return super.logInTwoFactor(twoFactor);
   }
 
-  protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {
-    // This login strategy does not use a master key
-  }
-
-  protected override async setUserKey(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
-    const authRequestCredentials = this.cache.value.authRequestCredentials;
-    await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
-    await this.keyService.setUserKey(authRequestCredentials.decryptedUserKey, userId);
+  protected override async unlock(response: IdentityTokenResponse, userId: UserId): Promise<void> {
+    // Login with device: the approving device supplies an already-decrypted user key.
+    const { decryptedUserKey } = this.getLoginStrategyDataOrThrow().authRequestCredentials;
+    if (decryptedUserKey == null) {
+      throw new Error("Cannot unlock: the approving device did not supply a decrypted user key.");
+    }
+    await this.unlockService.unlockWithDecryptedUserKey(userId, decryptedUserKey);
     // Establish trust if required after setting user key
     await this.deviceTrustService.trustDeviceIfRequired(userId);
-  }
-
-  protected override async setAccountCryptographicState(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
-    await this.accountCryptographicStateService.setAccountCryptographicState(
-      response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
-      userId,
-    );
   }
 
   exportCache(): CacheData {

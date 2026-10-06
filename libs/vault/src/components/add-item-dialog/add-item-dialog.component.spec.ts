@@ -1,3 +1,4 @@
+import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -11,6 +12,7 @@ import {
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 
+import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 import { AddItemGridComponent } from "../add-item-grid/add-item-grid.component";
 
 import {
@@ -40,6 +42,10 @@ describe("AddItemDialogComponent", () => {
         {
           provide: RestrictedItemTypesService,
           useValue: { restricted$ },
+        },
+        {
+          provide: Vfo1TerminologyService,
+          useValue: { iconClass: (icon: string) => icon, enabled: signal(false) },
         },
       ],
     }).compileComponents();

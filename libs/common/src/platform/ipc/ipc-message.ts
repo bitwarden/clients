@@ -22,6 +22,72 @@ export function isIpcMessage(message: any): message is IpcMessage {
   return message != null && message.type === "bitwarden-ipc-message";
 }
 
+/**
+ * Rebuilds an {@link IpcMessage} from an untrusted object, copying only the fields the IPC
+ * channel defines and discarding everything else.
+ *
+ * The content-script bridge relays page-originated messages to the background over
+ * `chrome.runtime.sendMessage`, which delivers to every `onMessage` listener in the extension,
+ * not just the IPC transport. Relaying the received object as-is would let a page smuggle
+ * arbitrary extra properties (for example a `command`) onto that shared bus and reach the
+ * legacy command handlers. Copying an explicit allowlist confines a page to the IPC transport,
+ * which reads only `destination`, `payload`, and `topic`.
+ */
+export function reconstructIpcMessage(message: IpcMessage): IpcMessage {
+  const { destination, payload, topic } = message.message ?? ({} as SerializedOutgoingMessage);
+  return {
+    type: "bitwarden-ipc-message",
+    message: { destination, payload, topic },
+  };
+}
+
+/**
+ * Clients that can connect to the desktop app
+ */
+export const DesktopIpcPeerClientType = Object.freeze({
+  Cli: "cli",
+  Chrome: "chrome",
+  Firefox: "firefox",
+  Autofill: "autofill",
+  Unknown: "unknown",
+} as const);
+export type DesktopIpcPeerClientType =
+  (typeof DesktopIpcPeerClientType)[keyof typeof DesktopIpcPeerClientType];
+
+export function isIpcPeerClientType(value: unknown): value is DesktopIpcPeerClientType {
+  return Object.values(DesktopIpcPeerClientType).includes(value as DesktopIpcPeerClientType);
+}
+
+/**
+ * Announces which client is connecting to the desktop
+ */
+export interface IpcClientTypeMessage {
+  clientType: DesktopIpcPeerClientType;
+  /** `Chrome`, `Firefox`: the extension that spawned the proxy. */
+  extensionId?: string;
+}
+
+/** Chrome ids are 32 chars, Firefox ids a braced UUID; anything longer is not an extension id. */
+const MAX_EXTENSION_ID_LENGTH = 128;
+
+export function isIpcClientTypeMessage(message: any): message is IpcClientTypeMessage {
+  return (
+    message != null &&
+    isIpcPeerClientType(message.clientType) &&
+    (message.extensionId === undefined ||
+      (typeof message.extensionId === "string" &&
+        message.extensionId.length <= MAX_EXTENSION_ID_LENGTH))
+  );
+}
+
 export function isForwardedIpcMessage(message: any): message is ForwardedIpcMessage {
   return message != null && message.type === "forwarded-bitwarden-ipc-message";
+}
+
+/**
+ * Detects the `{ command: "connected" }` message emitted by the `desktop_proxy` native-messaging
+ * binary after connecting to the desktop app.
+ */
+export function isProxyConnectedMessage(message: any): boolean {
+  return message != null && message.command === "connected";
 }

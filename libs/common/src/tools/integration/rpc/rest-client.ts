@@ -48,11 +48,11 @@ export class RestClient {
   private async detectCommonErrors(response: Response): Promise<[string, string] | undefined> {
     if (response.status === 401) {
       const message = await this.tryGetErrorMessage(response);
-      const key = message ? "forwaderInvalidTokenWithMessage" : "forwaderInvalidToken";
+      const key = message ? "forwarderInvalidTokenWithMessage" : "forwarderInvalidToken";
       return [key, message];
     } else if (response.status === 403) {
       const message = await this.tryGetErrorMessage(response);
-      const key = message ? "forwaderInvalidOperationWithMessage" : "forwaderInvalidOperation";
+      const key = message ? "forwarderInvalidOperationWithMessage" : "forwarderInvalidOperation";
       return [key, message];
     } else if (response.status >= 400) {
       const message = await this.tryGetErrorMessage(response);

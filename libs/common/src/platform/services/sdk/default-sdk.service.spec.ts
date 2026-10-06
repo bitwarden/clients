@@ -3,7 +3,9 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptedString, PBKDF2KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { PasswordManagerClient } from "@bitwarden/sdk-internal";
 
 import {
@@ -12,13 +14,14 @@ import {
   FakeStateProvider,
   mockAccountServiceWith,
   mockAccountInfoWith,
+  mockManagedSettingsService,
 } from "../../../../spec";
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountCryptographicStateService } from "../../../key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptedString } from "../../../key-management/crypto/models/enc-string";
 import { V2UpgradeTokenStateService } from "../../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
+import { AppIdService } from "../../abstractions/app-id.service";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
@@ -27,68 +30,87 @@ import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
 import { Rc } from "../../misc/reference-counting/rc";
 import { Utils } from "../../misc/utils";
-import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
 
 import { DefaultSdkService } from "./default-sdk.service";
 
 class TestSdkLoadService extends SdkLoadService {
   protected override load(): Promise<void> {
-    // Simulate successfull WASM load
+    // Simulate successful WASM load
     return Promise.resolve();
   }
 }
 
 describe("DefaultSdkService", () => {
-  describe("userClient$", () => {
-    let sdkClientFactory!: MockProxy<SdkClientFactory>;
-    let environmentService!: MockProxy<EnvironmentService>;
-    let platformUtilsService!: MockProxy<PlatformUtilsService>;
-    let kdfConfigService!: MockProxy<KdfConfigService>;
-    let keyService!: MockProxy<KeyService>;
-    let accountCryptographicStateService!: MockProxy<AccountCryptographicStateService>;
-    let configService!: MockProxy<ConfigService>;
-    let service!: DefaultSdkService;
-    let accountService!: FakeAccountService;
-    let fakeStateProvider!: FakeStateProvider;
-    let apiService!: MockProxy<ApiService>;
-    let upgradeTokenStateService!: MockProxy<V2UpgradeTokenStateService>;
+  const appId = "app-id";
 
-    beforeEach(async () => {
-      await new TestSdkLoadService().loadAndInit();
+  let sdkClientFactory!: MockProxy<SdkClientFactory>;
+  let environmentService!: MockProxy<EnvironmentService>;
+  let platformUtilsService!: MockProxy<PlatformUtilsService>;
+  let kdfConfigService!: MockProxy<KdfConfigService>;
+  let keyService!: MockProxy<KeyService>;
+  let accountCryptographicStateService!: MockProxy<AccountCryptographicStateService>;
+  let configService!: MockProxy<ConfigService>;
+  let service!: DefaultSdkService;
+  let accountService!: FakeAccountService;
+  let fakeStateProvider!: FakeStateProvider;
+  let apiService!: MockProxy<ApiService>;
+  let upgradeTokenStateService!: MockProxy<V2UpgradeTokenStateService>;
+  let appIdService!: MockProxy<AppIdService>;
 
-      sdkClientFactory = mock<SdkClientFactory>();
-      environmentService = mock<EnvironmentService>();
-      platformUtilsService = mock<PlatformUtilsService>();
-      kdfConfigService = mock<KdfConfigService>();
-      keyService = mock<KeyService>();
-      accountCryptographicStateService = mock<AccountCryptographicStateService>();
-      apiService = mock<ApiService>();
-      const mockUserId = Utils.newGuid() as UserId;
-      accountService = mockAccountServiceWith(mockUserId);
-      fakeStateProvider = new FakeStateProvider(accountService);
-      configService = mock<ConfigService>();
-      upgradeTokenStateService = mock<V2UpgradeTokenStateService>();
+  beforeEach(async () => {
+    await new TestSdkLoadService().loadAndInit();
 
-      configService.serverConfig$ = new BehaviorSubject(null);
+    sdkClientFactory = mock<SdkClientFactory>();
+    environmentService = mock<EnvironmentService>();
+    platformUtilsService = mock<PlatformUtilsService>();
+    kdfConfigService = mock<KdfConfigService>();
+    keyService = mock<KeyService>();
+    accountCryptographicStateService = mock<AccountCryptographicStateService>();
+    apiService = mock<ApiService>();
+    const mockUserId = Utils.newGuid() as UserId;
+    accountService = mockAccountServiceWith(mockUserId);
+    fakeStateProvider = new FakeStateProvider(accountService);
+    configService = mock<ConfigService>();
+    upgradeTokenStateService = mock<V2UpgradeTokenStateService>();
+    appIdService = mock<AppIdService>();
+    appIdService.getAppId.mockResolvedValue(appId);
 
-      // Can't use `of(mock<Environment>())` for some reason
-      environmentService.environment$ = new BehaviorSubject(mock<Environment>());
+    configService.serverConfig$ = new BehaviorSubject(null);
 
-      service = new DefaultSdkService(
-        sdkClientFactory,
-        environmentService,
-        platformUtilsService,
-        accountService,
-        kdfConfigService,
-        keyService,
-        accountCryptographicStateService,
-        apiService,
-        fakeStateProvider,
-        configService,
-        upgradeTokenStateService,
-      );
+    // Can't use `of(mock<Environment>())` for some reason
+    environmentService.environment$ = new BehaviorSubject(mock<Environment>());
+
+    service = new DefaultSdkService(
+      sdkClientFactory,
+      environmentService,
+      platformUtilsService,
+      accountService,
+      kdfConfigService,
+      keyService,
+      accountCryptographicStateService,
+      apiService,
+      fakeStateProvider,
+      configService,
+      upgradeTokenStateService,
+      mockManagedSettingsService(),
+      appIdService,
+    );
+  });
+
+  describe("client$ without BW user", () => {
+    beforeEach(() => {
+      sdkClientFactory.createSdkClient.mockResolvedValue(createMockClient());
     });
 
+    it("creates the SDK client with the app ID as the device identifier", async () => {
+      await firstValueFrom(service.client$);
+
+      const [, settings] = sdkClientFactory.createSdkClient.mock.calls[0];
+      expect(settings?.deviceIdentifier).toBe(appId);
+    });
+  });
+
+  describe("userClient$", () => {
     describe("given the user is logged in", () => {
       const userId = "0da62ebd-98bb-4f42-a846-64e8555087d7" as UserId;
       beforeEach(() => {
@@ -134,6 +156,13 @@ describe("DefaultSdkService", () => {
           expect(sdkClientFactory.createSdkClient).toHaveBeenCalled();
         });
 
+        it("creates the SDK client with the app ID as the device identifier", async () => {
+          await firstValueFrom(service.userClient$(userId));
+
+          const [, settings] = sdkClientFactory.createSdkClient.mock.calls[0];
+          expect(settings?.deviceIdentifier).toBe(appId);
+        });
+
         it("does not create an SDK client when called the second time with same userId", async () => {
           const subject_1 = new BehaviorSubject<Rc<PasswordManagerClient> | undefined>(undefined);
           const subject_2 = new BehaviorSubject<Rc<PasswordManagerClient> | undefined>(undefined);
@@ -142,8 +171,8 @@ describe("DefaultSdkService", () => {
           service.userClient$(userId).subscribe(subject_1);
           service.userClient$(userId).subscribe(subject_2);
 
-          // Wait for debounceTime(100) in internalClient$ plus async client initialization
-          await new Promise((resolve) => setTimeout(resolve, 150));
+          // Let the async client initialization in internalClient$ settle.
+          await new Promise((resolve) => setTimeout(resolve, 0));
 
           expect(subject_1.value.take().value).toBe(mockClient);
           expect(subject_2.value.take().value).toBe(mockClient);
@@ -277,8 +306,8 @@ describe("DefaultSdkService", () => {
           const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
 
           const firstEmission = userClientTracker.pauseUntilReceived(1, 200);
-          // Advance past the debounceTime(100) in internalClient$ so the first emission fires
-          await jest.advanceTimersByTimeAsync(100);
+          // Drain the microtask queue so the async client initialization completes and emits.
+          await jest.advanceTimersByTimeAsync(0);
           await firstEmission;
 
           service.setClient(userId, mockOverrideClient);

@@ -5,12 +5,16 @@ import {
   OrganizationUserApiService,
   OrganizationUserResetPasswordDetailsResponse,
 } from "@bitwarden/admin-console/common";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
 import { OrganizationAuthRequestApiService } from "./organization-auth-request-api.service";
@@ -26,6 +30,7 @@ import {
 describe("OrganizationAuthRequestService", () => {
   let organizationAuthRequestApiService: MockProxy<OrganizationAuthRequestApiService>;
   let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let encryptService: MockProxy<EncryptService>;
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let organizationAuthRequestService: OrganizationAuthRequestService;
@@ -35,6 +40,7 @@ describe("OrganizationAuthRequestService", () => {
   beforeEach(() => {
     organizationAuthRequestApiService = mock<OrganizationAuthRequestApiService>();
     keyService = mock<KeyService>();
+    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     encryptService = mock<EncryptService>();
     organizationUserApiService = mock<OrganizationUserApiService>();
     accountService = mockAccountServiceWith(mockUserId);
@@ -42,6 +48,7 @@ describe("OrganizationAuthRequestService", () => {
     organizationAuthRequestService = new OrganizationAuthRequestService(
       organizationAuthRequestApiService,
       keyService,
+      legacyCompatKeyService,
       encryptService,
       organizationUserApiService,
       accountService,
@@ -118,7 +125,7 @@ describe("OrganizationAuthRequestService", () => {
         .mockResolvedValue(mockPendingAuthRequests);
 
       const fingerprintPhrase = ["fingerprint", "phrase"];
-      keyService.getFingerprint
+      legacyCompatKeyService.getFingerprint
         .calledWith(pendingAuthRequest.email, expect.any(Uint8Array))
         .mockResolvedValue(fingerprintPhrase);
 
@@ -147,7 +154,7 @@ describe("OrganizationAuthRequestService", () => {
         await organizationAuthRequestService.listPendingRequestsWithFingerprint(organizationId);
 
       expect(result).toHaveLength(0);
-      expect(keyService.getFingerprint).not.toHaveBeenCalled();
+      expect(legacyCompatKeyService.getFingerprint).not.toHaveBeenCalled();
       expect(organizationAuthRequestApiService.listPendingRequests).toHaveBeenCalledWith(
         organizationId,
       );

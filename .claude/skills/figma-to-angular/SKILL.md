@@ -131,9 +131,7 @@ export default {
   component: ComponentNameComponent,
   decorators: [
     moduleMetadata({
-      imports: [
-        /* component + dependencies */
-      ],
+      imports: [/* component + dependencies */],
       providers: [
         {
           provide: I18nService,

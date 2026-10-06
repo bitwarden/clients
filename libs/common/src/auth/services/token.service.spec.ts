@@ -6,21 +6,21 @@ import { firstValueFrom } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+// eslint-disable-next-line no-restricted-imports
+import { CsprngArray, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { FakeSingleUserStateProvider, FakeGlobalStateProvider } from "../../../spec";
-import { KeyGenerationService } from "../../key-management/crypto";
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import {
   VaultTimeout,
   VaultTimeoutAction,
   VaultTimeoutStringType,
 } from "../../key-management/vault-timeout";
 import { LogService } from "../../platform/abstractions/log.service";
+import { SdkLoadService } from "../../platform/abstractions/sdk/sdk-load.service";
 import { AbstractStorageService } from "../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../platform/enums";
 import { StorageOptions } from "../../platform/models/domain/storage-options";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "../../types/csprng";
 import { UserId } from "../../types/guid";
 import { SetTokensResult } from "../models/domain/set-tokens-result";
 
@@ -50,7 +50,6 @@ describe("TokenService", () => {
   let globalStateProvider: FakeGlobalStateProvider;
 
   let secureStorageService: MockProxy<AbstractStorageService>;
-  let keyGenerationService: MockProxy<KeyGenerationService>;
   let encryptService: MockProxy<EncryptService>;
   let logService: MockProxy<LogService>;
   let logoutCallback: jest.Mock<Promise<void>, [logoutReason: LogoutReason, userId?: string]>;
@@ -111,10 +110,15 @@ describe("TokenService", () => {
     globalStateProvider = new FakeGlobalStateProvider();
 
     secureStorageService = mock<AbstractStorageService>();
-    keyGenerationService = mock<KeyGenerationService>();
     encryptService = mock<EncryptService>();
     logService = mock<LogService>();
     logoutCallback = jest.fn();
+
+    Object.defineProperty(SdkLoadService, "Ready", {
+      value: Promise.resolve(),
+      configurable: true,
+    });
+    jest.spyOn(PureCrypto, "make_aes256_cbc_hmac_key").mockReturnValue({} as any);
 
     const supportsSecureStorage = false; // default to false; tests will override as needed
     tokenService = createTokenService(supportsSecureStorage);
@@ -291,7 +295,7 @@ describe("TokenService", () => {
             .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
             .nextState(accessTokenJwt);
 
-          keyGenerationService.createKey.mockResolvedValue(accessTokenKey);
+          jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(accessTokenKey);
 
           const mockEncryptedAccessToken = "encryptedAccessToken";
 
@@ -337,7 +341,7 @@ describe("TokenService", () => {
           // This tests the scenario where the access token key silently fails to be set in secure storage
 
           // Arrange:
-          keyGenerationService.createKey.mockResolvedValue(accessTokenKey);
+          jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(accessTokenKey);
 
           // First call resolves to null to simulate no key in secure storage
           // and then resolves to no key after it should have been set
@@ -377,7 +381,7 @@ describe("TokenService", () => {
           // This tests the scenario for linux users who don't have secure storage configured.
 
           // Arrange:
-          keyGenerationService.createKey.mockResolvedValue(accessTokenKey);
+          jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(accessTokenKey);
 
           // Mock linux secure storage error
           const secureStorageError = "Secure storage error";
@@ -466,7 +470,7 @@ describe("TokenService", () => {
               .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
               .nextState(accessTokenJwt);
 
-            keyGenerationService.createKey.mockResolvedValue(accessTokenKey);
+            jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(accessTokenKey);
             encryptService.encryptString.mockResolvedValue({
               encryptedString: "encryptedAccessToken",
             } as any);
@@ -493,7 +497,7 @@ describe("TokenService", () => {
               .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
               .nextState(accessTokenJwt);
 
-            keyGenerationService.createKey.mockResolvedValue(accessTokenKey);
+            jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(accessTokenKey);
             // Both get calls return null: first (before save) → null key, second (after save) → null
             // key, which causes the "key unable to be retrieved" error and falls into the catch block.
             secureStorageService.get.mockResolvedValue(null);
@@ -517,7 +521,7 @@ describe("TokenService", () => {
               .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
               .nextState(accessTokenJwt);
 
-            keyGenerationService.createKey.mockResolvedValue(accessTokenKey);
+            jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(accessTokenKey);
             secureStorageService.get.mockRejectedValue(new Error("Secure storage error"));
 
             // Act
@@ -3218,7 +3222,6 @@ describe("TokenService", () => {
       globalStateProvider,
       supportsSecureStorage,
       secureStorageService,
-      keyGenerationService,
       encryptService,
       logService,
       logoutCallback,

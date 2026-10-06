@@ -25,10 +25,9 @@ import {
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
-import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { TwoFactorService, TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorEmailLoginRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-email-login.request";
 import { ClientType } from "@bitwarden/common/enums";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -36,11 +35,15 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { NodeUtils } from "@bitwarden/node/node-utils";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { ConfirmKeyConnectorDomainCommand } from "../../key-management/confirm-key-connector-domain.command";
 import { Response } from "../../models/response";
@@ -300,7 +303,7 @@ export class LoginCommand {
         }
 
         if (twoFactorToken == null && selectedProvider.type === TwoFactorProviderType.Email) {
-          const emailReq = new TwoFactorEmailRequest();
+          const emailReq = new TwoFactorEmailLoginRequest();
           emailReq.email = await this.loginStrategyService.getEmail();
           // if the user was logging in with SSO, we need to include the SSO session token
           if (response.ssoEmail2FaSessionToken != null) {
@@ -357,12 +360,12 @@ export class LoginCommand {
       }
 
       // If we are in the SSO flow and we got a successful login response (we are past rejection scenarios
-      // and should always have a userId here), validate that SSO user in MP encryption org has MP set
+      // and should always have a userId here), validate the SSO account has a decryption path the CLI supports.
       // This must be done here b/c we have 2 places we try to login with SSO above and neither has a
       // common handleSsoAuthnResult method to consoldiate this logic into (1. the normal SSO flow and
       // 2. the requiresSso automatic authentication flow)
       if (ssoCode != null && ssoCodeVerifier != null && response.userId) {
-        await this.validateSsoUserInMpEncryptionOrgHasMp(response.userId);
+        await this.validateSsoUserHasCliSupportedDecryptionPath(response.userId);
       }
 
       // Check if Key Connector domain confirmation is required
@@ -436,8 +439,9 @@ export class LoginCommand {
   }
 
   private async validatedParams() {
-    const key = await this.cryptoFunctionService.randomBytes(64);
-    process.env.BW_SESSION = Utils.fromBufferToB64(key);
+    await SdkLoadService.Ready;
+    const key = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
+    process.env.BW_SESSION = key.toBase64();
   }
 
   private async handleSuccessResponse(response: AuthResult): Promise<Response> {
@@ -643,33 +647,49 @@ export class LoginCommand {
   }
 
   /**
-   * Validate that a user logging in with SSO that is in an org using MP encryption
-   * has a MP set. If not, they cannot set a MP in the CLI and must use another client.
+   * Validate that an SSO user has a decryption path the CLI supports.
+   *
+   * The CLI can decrypt via master password or Key Connector. If neither is available,
+   * throw with the most specific remediation for the user's state:
+   *  - Trusted Device Encryption configured — not supported (CLI lacks persistent device key storage).
+   *  - WebAuthn PRF passkey configured — not supported (CLI has no WebAuthn platform).
+   *  - MP-encryption org with no MP set — user JIT provisioned but never completed setup.
    * @param userId
    * @returns void
    */
-  private async validateSsoUserInMpEncryptionOrgHasMp(userId: UserId): Promise<void> {
+  private async validateSsoUserHasCliSupportedDecryptionPath(userId: UserId): Promise<void> {
     const userDecryptionOptions = await firstValueFrom(
       this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
     );
 
-    // device trust isn't supported in the CLI as we don't have persistent device key storage.
-    const notUsingTrustedDeviceEncryption = !userDecryptionOptions.trustedDeviceOption;
-    const notUsingKeyConnector = !userDecryptionOptions.keyConnectorOption;
+    if (userDecryptionOptions.hasMasterPassword || userDecryptionOptions.keyConnectorOption) {
+      return;
+    }
 
-    if (
-      notUsingTrustedDeviceEncryption &&
-      notUsingKeyConnector &&
-      !userDecryptionOptions.hasMasterPassword
-    ) {
-      // If user is in an org that is using MP encryption and they JIT provisioned but
-      // have not yet set a MP and come to the CLI to login, they won't be able to unlock
-      // or set a MP in the CLI as it isn't supported.
-      await this.logoutCallback();
+    await this.logoutCallback();
+
+    if (userDecryptionOptions.trustedDeviceOption) {
       throw Response.error(
-        "In order to log in with SSO from the CLI, you must first log in" +
-          " through the web vault, the desktop, or the extension to set your master password.",
+        "The CLI does not support SSO login for accounts using trusted device encryption." +
+          " Log in through the web vault, desktop app, or browser extension.",
       );
     }
+
+    // Currently unreachable via SSO — the server only populates PRF options through
+    // the WebAuthn-grant login — but kept as defense-in-depth in case that changes.
+    if (userDecryptionOptions.webAuthnPrfOptions) {
+      throw Response.error(
+        "The CLI does not support SSO login for accounts using PRF passkey decryption." +
+          " Log in through the web vault or browser extension.",
+      );
+    }
+
+    // Invariant: no MP, no KC, no TDE, no PRF. MP is the intended decryption method
+    // for the user's org but they haven't set an MP yet — JIT'd into an
+    // MP-encryption org without completing setup.
+    throw Response.error(
+      "In order to log in with SSO from the CLI, you must first log in" +
+        " through the web vault, the desktop, or the extension to set your master password.",
+    );
   }
 }

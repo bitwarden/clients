@@ -1,0 +1,4 @@
+{
+  "$comment": "Read by the chrome-beta matrix entry in build-browser.yml. betaNumber is the ordinal appended to each beta build.",
+  "betaNumber": 1
+}

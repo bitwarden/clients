@@ -12,9 +12,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BadgeSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/badge-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -27,7 +25,11 @@ import {
   Option,
   SelectModule,
 } from "@bitwarden/components";
-import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
+import {
+  PermitCipherDetailsPopoverComponent,
+  VaultCopyButtonsService,
+  ShowQuickCopyActionsDetailsPopoverComponent,
+} from "@bitwarden/vault";
 
 import { PopupWidthOption } from "../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
@@ -35,7 +37,6 @@ import { PopupCompactModeService } from "../../../platform/popup/layout/popup-co
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { PopupSizeService } from "../../../platform/popup/layout/popup-size.service";
-import { VaultPopupCopyButtonsService } from "../services/vault-popup-copy-buttons.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -53,22 +54,16 @@ import { VaultPopupCopyButtonsService } from "../services/vault-popup-copy-butto
     ReactiveFormsModule,
     CheckboxModule,
     PermitCipherDetailsPopoverComponent,
+    ShowQuickCopyActionsDetailsPopoverComponent,
   ],
 })
 export class AppearanceComponent implements OnInit {
   private compactModeService = inject(PopupCompactModeService);
-  private copyButtonsService = inject(VaultPopupCopyButtonsService);
+  private copyButtonsService = inject(VaultCopyButtonsService);
   private popupSizeService = inject(PopupSizeService);
   private i18nService = inject(I18nService);
-  private configService = inject(ConfigService);
   private accountService = inject(AccountService);
   private billingAccountProfileService = inject(BillingAccountProfileStateService);
-
-  /** Signal for the feature flag that controls simplified item action behavior */
-  protected readonly simplifiedItemActionEnabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM31039ItemActionInExtension),
-    { initialValue: false },
-  );
 
   protected readonly isPremiumUser = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -85,7 +80,6 @@ export class AppearanceComponent implements OnInit {
     enableCompactMode: false,
     showQuickCopyActions: false,
     width: "default" as PopupWidthOption,
-    clickItemsToAutofillVaultView: false,
     showAtRiskNotifications: true,
   });
 
@@ -132,9 +126,6 @@ export class AppearanceComponent implements OnInit {
       this.copyButtonsService.showQuickCopyActions$,
     );
     const width = await firstValueFrom(this.popupSizeService.width$);
-    const clickItemsToAutofillVaultView = await firstValueFrom(
-      this.vaultSettingsService.clickItemsToAutofillVaultView$,
-    );
     const showAtRiskNotifications = await firstValueFrom(
       this.vaultSettingsService.showAtRiskPasswordNotifications$,
     );
@@ -148,7 +139,6 @@ export class AppearanceComponent implements OnInit {
       enableCompactMode,
       showQuickCopyActions,
       width,
-      clickItemsToAutofillVaultView,
       showAtRiskNotifications,
     });
 
@@ -196,21 +186,11 @@ export class AppearanceComponent implements OnInit {
         void this.updateWidth(width);
       });
 
-    this.appearanceForm.controls.clickItemsToAutofillVaultView.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((clickItemsToAutofillVaultView) => {
-        void this.updateClickItemsToAutofillVaultView(clickItemsToAutofillVaultView);
-      });
-
     this.appearanceForm.controls.showAtRiskNotifications.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((showAtRiskNotifications) => {
         void this.updateShowAtRiskNotifications(showAtRiskNotifications);
       });
-  }
-
-  async updateClickItemsToAutofillVaultView(clickItemsToAutofillVaultView: boolean) {
-    await this.vaultSettingsService.setClickItemsToAutofillVaultView(clickItemsToAutofillVaultView);
   }
 
   async updateShowAtRiskNotifications(showAtRiskNotifications: boolean) {

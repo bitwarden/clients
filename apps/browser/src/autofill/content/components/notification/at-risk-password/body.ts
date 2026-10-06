@@ -21,12 +21,14 @@ export type AtRiskNotificationBodyProps = {
 export function AtRiskNotificationBody({ riskMessage, theme }: AtRiskNotificationBodyProps) {
   return html`
     <div class=${atRiskNotificationBodyStyles({ theme })}>
-      ${riskMessage
-        ? AtRiskNotificationMessage({
-            message: riskMessage,
-            theme,
-          })
-        : nothing}
+      ${
+        riskMessage
+          ? AtRiskNotificationMessage({
+              message: riskMessage,
+              theme,
+            })
+          : nothing
+      }
     </div>
   `;
 }

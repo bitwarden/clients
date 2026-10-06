@@ -6,6 +6,7 @@ import { FormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SendDisabledReason } from "@bitwarden/common/tools/models/send-disabled-reason";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -36,11 +37,6 @@ export interface SendItemDialogParams {
    * The configuration object for the dialog and form.
    */
   formConfig: SendFormConfig;
-
-  /**
-   * If true, the "edit" button will be disabled in the dialog.
-   */
-  disableForm?: boolean;
 
   /**
    * A function that is called to determine whether the dialog is allowed
@@ -86,6 +82,14 @@ export type SendItemDialogResult = {
   ],
 })
 export class SendAddEditDialogComponent {
+  SendDisabledReason = SendDisabledReason;
+
+  protected readonly disabledSendConfig = signal<{
+    title: string;
+    message: string;
+    showMakeCopyButton: boolean;
+  } | null>(null);
+
   readonly sendFormComponent = viewChild(SendFormComponent);
   readonly submitBtn = viewChild<ButtonComponent>("submitBtn");
   /**
@@ -111,6 +115,11 @@ export class SendAddEditDialogComponent {
         view: "viewFileSendHeader",
         edit: "editItemHeaderFileSendV2",
         add: "newItemHeaderFileSendV2",
+      },
+      [SendType.Item]: {
+        view: "viewItem",
+        edit: "editItem",
+        add: "addItem",
       },
     };
     return translation[this.config.sendType][sendAction];
@@ -165,12 +174,61 @@ export class SendAddEditDialogComponent {
     private sendFormService: SendFormService,
     private sendPolicyService: SendPolicyService,
   ) {
-    this.config = params.formConfig;
-    this.init();
+    // We only want to load from the input params the first time the component initializes,
+    // since the makeCopy function works by replacing the config object and re-initializing
+    this.config = this.params.formConfig;
+    void this.init();
+
+    // Wrap whatever closePredicate the caller wired at open-time (e.g. promptForUnsavedEdits) so
+    // that every way of closing this dialog — the header X, Escape, and Cancel, not just the
+    // Cancel button — aborts an in-flight file send submission. Runs after the original predicate
+    // resolves `true` so a vetoed close (user chooses to keep editing) never aborts a submission
+    // the dialog is staying open for.
+    const originalClosePredicate = this.dialogRef.closePredicate;
+    this.dialogRef.closePredicate = async (result) => {
+      const canClose = originalClosePredicate ? await originalClosePredicate(result) : true;
+      if (canClose) {
+        this.sendFormService.abortPendingSubmission();
+      }
+      return canClose;
+    };
   }
 
-  init() {
-    this.disableForm = this.params.disableForm ?? this.config.originalSend?.disabled ?? false;
+  async init() {
+    if (this.config.originalSend) {
+      const sendDisabledReason = await this.sendPolicyService.sendDisabledReason(
+        this.config.originalSend,
+      );
+      // We can make a copy of a disabled Send only if two conditions are met
+      // 1. The Send doesn't violate the SendType restriction of the policy (if
+      // Text Sends are disallowed we cannot make a new one for the copy)
+      // 2. The Send is a Text Send (we can't attach existing files to new Sends)
+      if (sendDisabledReason === SendDisabledReason.RestrictedType) {
+        this.disabledSendConfig.set({
+          title:
+            this.config.originalSend.type === SendType.Text
+              ? "orgDoesNotAllowTextSends"
+              : "orgDoesNotAllowFileSends",
+          message: "sendWillAutomaticallyExpire",
+          // This branch violates condition 1 so we never allow copying
+          showMakeCopyButton: false,
+        });
+      } else if (sendDisabledReason === SendDisabledReason.Other) {
+        // This branch meets condition 1, so all we need to check is condition 2
+        const showMakeCopyButton = this.config.originalSend?.type === SendType.Text;
+        this.disabledSendConfig.set({
+          title: "sendNotCompliantWithYourOrgsPolicy",
+          message: showMakeCopyButton
+            ? "sendDisabledNonCompliantBannerMessage"
+            : "sendWillAutomaticallyExpire",
+          showMakeCopyButton,
+        });
+      } else {
+        this.disabledSendConfig.set(null);
+      }
+    } else {
+      this.disabledSendConfig.set(null);
+    }
     this.editing.set(this.config.mode === "add");
     this.showCopyButton.set(
       this.config.originalSend?.disabled && this.config.originalSend?.type === SendType.Text,
@@ -292,9 +350,10 @@ export class SendAddEditDialogComponent {
   protected async cancelEditSend() {
     if (this.config.mode === "add") {
       // For "add" mode, just call close() — the closePredicate wired at open-time
-      // (promptForUnsavedEdits) will handle showing the discard dialog exactly once.
-      // Calling promptForUnsavedEdits manually here AND then close() would cause the
-      // discard dialog to appear twice (once here, once from the closePredicate).
+      // (promptForUnsavedEdits, wrapped in the constructor to also abort an in-flight
+      // submission) will handle showing the discard dialog exactly once. Calling
+      // promptForUnsavedEdits manually here AND then close() would cause the discard dialog
+      // to appear twice (once here, once from the closePredicate).
       void this.dialogRef.close();
     } else {
       // For "edit" mode we are not closing the dialog, just toggling back to view mode,
@@ -367,6 +426,6 @@ export class SendAddEditDialogComponent {
               : AuthType.None,
       },
     };
-    this.init();
+    await this.init();
   }
 }

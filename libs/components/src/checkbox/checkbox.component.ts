@@ -54,7 +54,11 @@ export class CheckboxComponent implements BitFormControlAbstraction {
 
   protected readonly inputClasses = [
     "tw-appearance-none",
-    "tw-outline-none",
+    /**
+     * tailwind's outline-none does not fully remove it because it supports forced colors mode, so
+     * we need to do it manually
+     */
+    "focus-visible:[outline:none]",
     "tw-box-border",
     "tw-relative",
     "tw-transition",
@@ -98,6 +102,8 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "[&:not(bit-form-control_*,bit-form-control-card_*)]:focus-visible:before:tw-ring-2",
     "[&:not(bit-form-control_*,bit-form-control-card_*)]:focus-visible:before:tw-ring-offset-2",
     "[&:not(bit-form-control_*,bit-form-control-card_*)]:focus-visible:before:tw-ring-border-focus",
+    // use outline instead of unsupported ring for forced colors mode
+    "[&:not(bit-form-control_*,bit-form-control-card_*)]:focus-visible:forced-colors:tw-outline-none",
 
     "disabled:hover:tw-bg-transparent",
     "disabled:before:tw-cursor-default",
@@ -113,6 +119,8 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "[&>label:hover]:checked:before:tw-bg-bg-brand",
     "[&>label:hover]:checked:before:tw-border-border-brand",
     "checked:after:tw-bg-fg-contrast",
+    // forced-colors strips the masked background; use CanvasText so the svg stays visible
+    "forced-colors:checked:after:tw-bg-[CanvasText]",
     "checked:after:tw-mask-position-[center]",
     "checked:after:tw-mask-repeat-[no-repeat]",
 
@@ -131,6 +139,8 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "[&>label:hover]:indeterminate:before:tw-bg-bg-brand",
     "[&>label:hover]:indeterminate:before:tw-border-border-brand",
     "indeterminate:after:tw-bg-fg-contrast",
+    // forced-colors strips the masked background; use CanvasText so the svg stays visible
+    "forced-colors:indeterminate:after:tw-bg-[CanvasText]",
     "indeterminate:after:tw-mask-position-[center]",
     "indeterminate:after:tw-mask-repeat-[no-repeat]",
     "indeterminate:after:tw-mask-image-[var(--indeterminate-mask-image)]",

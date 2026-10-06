@@ -1,21 +1,46 @@
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
 
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { IpcService } from "@bitwarden/common/platform/ipc";
+import { makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
+import { UserKey } from "@bitwarden/common/types/key";
+import {
+  KeyService,
+  BiometricStateService,
+  BiometricsCommands,
+  BiometricsStatus,
+} from "@bitwarden/key-management";
+import {
+  BiometricsStatus as SdkBiometricsStatus,
+  ipcRequestAuthenticateBiometrics,
+  ipcRequestGetBiometricsStatus,
+  ipcRequestUnlockBiometrics,
+} from "@bitwarden/sdk-internal";
+import { UnlockMethod, UnlockService } from "@bitwarden/unlock";
 
 import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
+import { BrowserApi } from "../../platform/browser/browser-api";
 
 import { BackgroundBrowserBiometricsService } from "./background-browser-biometrics.service";
+
+jest.mock("@bitwarden/sdk-internal", () => ({
+  ...jest.requireActual("@bitwarden/sdk-internal"),
+  ipcRequestAuthenticateBiometrics: jest.fn(),
+  ipcRequestGetBiometricsStatus: jest.fn(),
+  ipcRequestUnlockBiometrics: jest.fn(),
+}));
+
+const userId = "bc205928-7552-491a-b4c4-b4a9015cf4e0" as UserId;
+const userKey = makeSymmetricCryptoKey<UserKey>();
 
 describe("background browser biometrics service tests", function () {
   let service: BackgroundBrowserBiometricsService;
 
-  const userId = "userId" as UserId;
   const nativeMessagingBackground = mock<NativeMessagingBackground>();
   const logService = mock<LogService>();
   const keyService = mock<KeyService>();
@@ -23,81 +48,196 @@ describe("background browser biometrics service tests", function () {
   const messagingService = mock<MessagingService>();
   const vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
   const mockConfigService = mock<ConfigService>();
-  mockConfigService.getFeatureFlag.mockResolvedValue(false);
+  const ipcService = mock<IpcService>();
+  const platformUtilsService = mock<PlatformUtilsService>();
+  const unlockService = mock<UnlockService>();
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.resetAllMocks();
     jest.useFakeTimers();
+    // jsdom has no `AbortSignal.timeout`, which the SDK IPC path uses.
+    AbortSignal.timeout = jest.fn(() => new AbortController().signal);
+    nativeMessagingBackground.connected = true;
     service = new BackgroundBrowserBiometricsService(
       () => nativeMessagingBackground,
       () => mockConfigService,
       logService,
-      keyService,
+      () => keyService,
       biometricStateService,
       messagingService,
-      vaultTimeoutSettingsService,
-      () => null as any,
+      () => vaultTimeoutSettingsService,
+      () => ipcService,
+      platformUtilsService,
     );
+    await service.setUnlockService(unlockService);
   });
 
   afterEach(() => {
-    service.stopPolling();
     jest.useRealTimers();
+    jest.restoreAllMocks();
   });
 
-  describe("startPolling", () => {
-    it("connects to native messaging when biometrics are enabled", () => {
-      const biometricEnabled$ = new BehaviorSubject<boolean>(true);
-      biometricStateService.biometricUnlockEnabled$.mockReturnValue(biometricEnabled$);
-      nativeMessagingBackground.connected = false;
-      nativeMessagingBackground.connect.mockResolvedValue();
+  describe("authenticateWithBiometrics", () => {
+    it.each([
+      [true, true],
+      [true, false],
+      [false, false],
+    ])(
+      "returns the native messaging result when isSafari is %s and the SDK IPC flag is %s",
+      async (isSafari, biometricsSdkIpcFlag) => {
+        platformUtilsService.isSafari.mockReturnValue(isSafari);
+        mockConfigService.getFeatureFlag.mockResolvedValue(biometricsSdkIpcFlag);
+        nativeMessagingBackground.callCommand.mockResolvedValue({ response: true });
 
-      service.startPolling(userId);
-      jest.advanceTimersByTime(0);
+        const result = await service.authenticateWithBiometrics();
 
-      expect(biometricStateService.biometricUnlockEnabled$).toHaveBeenCalledWith(userId);
-      expect(nativeMessagingBackground.connect).toHaveBeenCalled();
-    });
+        expect(result).toBe(true);
+        expect(nativeMessagingBackground.callCommand).toHaveBeenCalledWith({
+          command: BiometricsCommands.AuthenticateWithBiometrics,
+        });
+        expect(ipcRequestAuthenticateBiometrics).not.toHaveBeenCalled();
+      },
+    );
 
-    it("does not connect when biometrics are disabled", () => {
-      const biometricEnabled$ = new BehaviorSubject<boolean>(false);
-      biometricStateService.biometricUnlockEnabled$.mockReturnValue(biometricEnabled$);
-      nativeMessagingBackground.connected = false;
+    it("returns the SDK IPC result when not on Safari and the SDK IPC flag is on", async () => {
+      platformUtilsService.isSafari.mockReturnValue(false);
+      mockConfigService.getFeatureFlag.mockResolvedValue(true);
+      jest.mocked(ipcRequestAuthenticateBiometrics).mockResolvedValue(true);
 
-      service.startPolling(userId);
-      jest.advanceTimersByTime(0);
+      const result = await service.authenticateWithBiometrics();
 
-      expect(nativeMessagingBackground.connect).not.toHaveBeenCalled();
-    });
-
-    it("does not connect when already connected", () => {
-      const biometricEnabled$ = new BehaviorSubject<boolean>(true);
-      biometricStateService.biometricUnlockEnabled$.mockReturnValue(biometricEnabled$);
-      nativeMessagingBackground.connected = true;
-
-      service.startPolling(userId);
-      jest.advanceTimersByTime(0);
-
-      expect(nativeMessagingBackground.connect).not.toHaveBeenCalled();
+      expect(result).toBe(true);
+      expect(ipcRequestAuthenticateBiometrics).toHaveBeenCalled();
+      expect(nativeMessagingBackground.callCommand).not.toHaveBeenCalled();
     });
   });
 
-  describe("stopPolling", () => {
-    it("stops connecting after stopPolling is called", () => {
-      const biometricEnabled$ = new BehaviorSubject<boolean>(true);
-      biometricStateService.biometricUnlockEnabled$.mockReturnValue(biometricEnabled$);
-      nativeMessagingBackground.connected = false;
-      nativeMessagingBackground.connect.mockResolvedValue();
+  describe("getBiometricsStatus", () => {
+    beforeEach(() => {
+      jest.spyOn(BrowserApi, "permissionsGranted").mockResolvedValue(true);
+    });
 
-      service.startPolling(userId);
-      jest.advanceTimersByTime(0);
-      expect(nativeMessagingBackground.connect).toHaveBeenCalledTimes(1);
+    it.each([
+      [true, true],
+      [true, false],
+      [false, false],
+    ])(
+      "returns the native messaging status when isSafari is %s and the SDK IPC flag is %s",
+      async (isSafari, biometricsSdkIpcFlag) => {
+        platformUtilsService.isSafari.mockReturnValue(isSafari);
+        mockConfigService.getFeatureFlag.mockResolvedValue(biometricsSdkIpcFlag);
+        nativeMessagingBackground.callCommand.mockResolvedValue({
+          response: BiometricsStatus.HardwareUnavailable,
+        });
 
-      nativeMessagingBackground.connect.mockClear();
-      service.stopPolling();
-      jest.advanceTimersByTime(service.BACKGROUND_POLLING_INTERVAL);
+        const result = await service.getBiometricsStatus();
 
-      expect(nativeMessagingBackground.connect).not.toHaveBeenCalled();
+        expect(result).toBe(BiometricsStatus.HardwareUnavailable);
+        expect(nativeMessagingBackground.callCommand).toHaveBeenCalledWith({
+          command: BiometricsCommands.GetBiometricsStatus,
+        });
+      },
+    );
+
+    it("returns Available without native messaging when not on Safari and the SDK IPC flag is on", async () => {
+      platformUtilsService.isSafari.mockReturnValue(false);
+      mockConfigService.getFeatureFlag.mockResolvedValue(true);
+
+      const result = await service.getBiometricsStatus();
+
+      expect(result).toBe(BiometricsStatus.Available);
+      expect(nativeMessagingBackground.callCommand).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("unlockWithBiometricsForUser", () => {
+    it.each([
+      [true, true],
+      [true, false],
+      [false, false],
+    ])(
+      "unlocks with the native messaging user key when isSafari is %s and the SDK IPC flag is %s",
+      async (isSafari, biometricsSdkIpcFlag) => {
+        platformUtilsService.isSafari.mockReturnValue(isSafari);
+        mockConfigService.getFeatureFlag.mockResolvedValue(biometricsSdkIpcFlag);
+        nativeMessagingBackground.callCommand.mockResolvedValue({
+          response: true,
+          userKeyB64: userKey.keyB64,
+        });
+
+        const result = await service.unlockWithBiometricsForUser(userId);
+
+        expect(result).toEqual(userKey);
+        expect(nativeMessagingBackground.callCommand).toHaveBeenCalledWith({
+          command: BiometricsCommands.UnlockWithBiometricsForUser,
+          userId,
+        });
+        expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
+          userId,
+          userKey,
+          UnlockMethod.Biometrics,
+        );
+        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true, userId);
+        expect(ipcRequestUnlockBiometrics).not.toHaveBeenCalled();
+      },
+    );
+
+    it("unlocks with the SDK IPC user key when not on Safari and the SDK IPC flag is on", async () => {
+      platformUtilsService.isSafari.mockReturnValue(false);
+      mockConfigService.getFeatureFlag.mockResolvedValue(true);
+      jest.mocked(ipcRequestUnlockBiometrics).mockResolvedValue({ user_key: userKey.toSdk() });
+      keyService.validateUserKey.mockResolvedValue(true);
+
+      const result = await service.unlockWithBiometricsForUser(userId);
+
+      expect(result).toEqual(userKey);
+      expect(ipcRequestUnlockBiometrics).toHaveBeenCalled();
+      expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
+        userId,
+        userKey,
+        UnlockMethod.Biometrics,
+      );
+      expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true, userId);
+      expect(nativeMessagingBackground.callCommand).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("getBiometricsStatusForUser", () => {
+    it.each([
+      [true, true],
+      [true, false],
+      [false, false],
+    ])(
+      "returns the native messaging status when isSafari is %s and the SDK IPC flag is %s",
+      async (isSafari, biometricsSdkIpcFlag) => {
+        platformUtilsService.isSafari.mockReturnValue(isSafari);
+        mockConfigService.getFeatureFlag.mockResolvedValue(biometricsSdkIpcFlag);
+        nativeMessagingBackground.callCommand.mockResolvedValue({
+          response: BiometricsStatus.NotEnabledInConnectedDesktopApp,
+        });
+
+        const result = await service.getBiometricsStatusForUser(userId);
+
+        expect(result).toBe(BiometricsStatus.NotEnabledInConnectedDesktopApp);
+        expect(nativeMessagingBackground.callCommand).toHaveBeenCalledWith({
+          command: BiometricsCommands.GetBiometricsStatusForUser,
+          userId,
+        });
+        expect(ipcRequestGetBiometricsStatus).not.toHaveBeenCalled();
+      },
+    );
+
+    it("returns the SDK IPC status when not on Safari and the SDK IPC flag is on", async () => {
+      platformUtilsService.isSafari.mockReturnValue(false);
+      mockConfigService.getFeatureFlag.mockResolvedValue(true);
+      jest
+        .mocked(ipcRequestGetBiometricsStatus)
+        .mockResolvedValue(SdkBiometricsStatus.UnlockNeeded);
+
+      const result = await service.getBiometricsStatusForUser(userId);
+
+      expect(result).toBe(BiometricsStatus.UnlockNeeded);
+      expect(nativeMessagingBackground.callCommand).not.toHaveBeenCalled();
     });
   });
 

@@ -5,19 +5,19 @@ import { OrganizationBadgeModule } from "../../../vault/individual-vault/organiz
 import { CollectionDialogComponent } from "../shared/components/collection-dialog";
 
 import { CollectionNameBadgeComponent } from "./collection-badge";
-import { GroupBadgeModule } from "./group-badge/group-badge.module";
+import { GroupNameBadgeComponent } from "./group-badge/group-name-badge.component";
 import { VaultRoutingModule } from "./vault-routing.module";
-import { VaultV2Component } from "./vault-v2.component";
+import { VaultComponent } from "./vault.component";
 
 @NgModule({
   imports: [
     VaultRoutingModule,
     SharedModule,
-    GroupBadgeModule,
+    GroupNameBadgeComponent,
     CollectionNameBadgeComponent,
     OrganizationBadgeModule,
     CollectionDialogComponent,
-    VaultV2Component,
+    VaultComponent,
   ],
 })
 export class VaultModule {}

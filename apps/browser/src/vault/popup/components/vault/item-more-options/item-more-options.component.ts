@@ -32,7 +32,8 @@ import {
   ToastService,
   IconModule,
 } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { ShareLinkMenuItemDirective } from "@bitwarden/tools-share";
+import { PasswordRepromptService, Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { AddEditQueryParams } from "../add-edit/add-edit.component";
@@ -55,6 +56,8 @@ import {
     RouterModule,
     PremiumBadgeComponent,
     IconModule,
+    Vfo1I18nPipe,
+    ShareLinkMenuItemDirective,
   ],
   providers: [
     { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
@@ -170,9 +173,9 @@ export class ItemMoreOptionsComponent {
    * Determines if the cipher can be autofilled.
    */
   get canAutofill() {
-    return ([CipherType.Login, CipherType.Card, CipherType.Identity] as CipherType[]).includes(
-      CipherViewLikeUtils.getType(this.cipher),
-    );
+    return (
+      [CipherType.Login, CipherType.Card, CipherType.Identity, CipherType.SshKey] as CipherType[]
+    ).includes(CipherViewLikeUtils.getType(this.cipher));
   }
 
   get isLogin() {
