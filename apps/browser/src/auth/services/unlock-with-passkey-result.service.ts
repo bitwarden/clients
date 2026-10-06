@@ -5,20 +5,19 @@ import { firstValueFrom } from "rxjs";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
 
 import { PasskeyRelayService, PasskeyUnlockRelayResult } from "./passkey-relay.service";
 
 /** Outcome of completing a passkey unlock via the relay result popout. */
 export type PasskeyUnlockOutcome =
-  | { success: true }
-  | { success: false; errorMessage: string; canceled: boolean };
+  { success: true } | { success: false; errorMessage: string; canceled: boolean };
 
 /**
  * Completes a passkey vault unlock that was relayed from the web-vault connector page.

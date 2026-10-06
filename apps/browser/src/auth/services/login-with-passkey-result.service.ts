@@ -16,8 +16,7 @@ import { PasskeyRelayService, PasskeyLoginRelayResult } from "./passkey-relay.se
 
 /** Outcome of completing a passkey login via the relay result popout. */
 export type PasskeyLoginOutcome =
-  | { success: true; userId: UserId }
-  | { success: false; errorMessage: string };
+  { success: true; userId: UserId } | { success: false; errorMessage: string };
 
 /**
  * Completes a passkey login that was relayed from the web-vault connector page.
