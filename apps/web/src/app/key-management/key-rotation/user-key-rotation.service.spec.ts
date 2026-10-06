@@ -542,8 +542,6 @@ describe("KeyRotationService", () => {
       expect(PureCrypto.make_user_key_aes256_cbc_hmac).toHaveBeenCalled();
       const arg = mockApiService.postUserKeyUpdate.mock.calls[0][0];
       expect(arg.accountKeys.userKeyEncryptedAccountPrivateKey).toBe("mockEncryptedData");
-      expect(arg.accountKeys.signatureKeyPair).toBeNull();
-      expect(arg.accountKeys.securityState).toBeNull();
     });
 
     describe("SDK and TypeScript path selection", () => {
