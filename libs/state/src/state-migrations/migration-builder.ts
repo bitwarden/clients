@@ -1,5 +1,3 @@
-import { PerfTrackGroup } from "@bitwarden/logging";
-
 import { MigrationHelper } from "./migration-helper";
 import { Direction, Migrator, VersionFrom, VersionTo } from "./migrator";
 
@@ -96,7 +94,7 @@ export class MigrationBuilder<TCurrent extends number = 0> {
     if (shouldMigrate) {
       // Version in the name keeps entries identifiable when class names are minified
       const measurement = helper.logService.startMeasurement(
-        PerfTrackGroup.Migrations,
+        "Migrations",
         "Migrator",
         `${migrator.constructor.name} (to version ${migrator.toVersion}) - ${direction}`,
       );
