@@ -39,6 +39,7 @@ import {
   FilterSectionComponent,
   SelectionConfig,
 } from "@bitwarden/components";
+import { Measurement } from "@bitwarden/logging";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { VaultScopeType } from "../../models/vault-scope";
@@ -185,9 +186,12 @@ describe("VaultItemsTableComponent", () => {
     const configService = mock<ConfigService>();
     configService.getFeatureFlag$.mockReturnValue(of(false));
 
-    searchService = new DefaultSearchService(mock<LogService>(), {
-      locale$: of("en"),
-    } as I18nService);
+    searchService = new DefaultSearchService(
+      mock<LogService>({ startMeasurement: () => mock<Measurement>() }),
+      {
+        locale$: of("en"),
+      } as I18nService,
+    );
 
     await TestBed.configureTestingModule({
       imports: [VaultItemsTableComponent],
