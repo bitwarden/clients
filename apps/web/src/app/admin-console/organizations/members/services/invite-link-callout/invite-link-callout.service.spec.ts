@@ -77,6 +77,8 @@ describe("InviteLinkCalloutService", () => {
     dialogService = mock<DialogService>();
     router = mock<Router>();
     router.navigate.mockResolvedValue(true);
+    router.navigateByUrl.mockResolvedValue(true);
+    (router as { url: string }).url = "/organizations/org-1/vault";
 
     TestBed.configureTestingModule({
       providers: [
@@ -207,5 +209,15 @@ describe("InviteLinkCalloutService", () => {
       [],
       true,
     );
+  });
+
+  it("showIfEligible() returns the admin to the page they started on once the tour dialog closes", async () => {
+    const organization = createOrganization();
+    stubDialogClosed("showMeHow");
+    (router as { url: string }).url = "/organizations/org-1/vault";
+
+    await service.showIfEligible(organization);
+
+    expect(router.navigateByUrl).toHaveBeenCalledWith("/organizations/org-1/vault");
   });
 });
