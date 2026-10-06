@@ -37,8 +37,11 @@ import {
   ButtonModule,
   CalloutModule,
   DialogService,
+  IconButtonModule,
+  IconModule,
   IconTileComponent,
   LinkModule,
+  MenuModule,
   PopoverModule,
 } from "@bitwarden/components";
 import { isGuid } from "@bitwarden/guid";
@@ -50,8 +53,12 @@ import {
   AddItemDialogResult,
   ASSIGN_COLLECTIONS_DIALOG,
   BULK_DELETE_DIALOG,
+  BulkDeleteDialogRef,
   CipherRowMenuHandlers,
   CipherRowMenuService,
+  COLLECTION_DIALOG,
+  CollectionDialogRef,
+  CollectionDialogTab,
   copyPresentation$,
   DecryptionFailureDialogComponent,
   DEFAULT_COPY_PRESENTATION,
@@ -102,6 +109,7 @@ import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 import { ItemDeepLink, ItemDeepLinkAction, itemDeepLinkFrom } from "../utils/item-deep-link";
 
 import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
+import { CollectionWebDialogAdapter } from "./shared-folders/collection-web-dialog.adapter";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
 
@@ -132,7 +140,10 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     VaultBannersComponent,
     VaultBatchActionComponent,
     VaultBreadcrumbsComponent,
+    IconButtonModule,
+    IconModule,
     IconTileComponent,
+    MenuModule,
     VaultItemsTableComponent,
     VaultOnboardingComponent,
     VaultOrganizationUserNotificationsComponent,
@@ -151,6 +162,7 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     VaultBatchBarService,
     { provide: ASSIGN_COLLECTIONS_DIALOG, useClass: AssignCollectionsWebDialogAdapter },
     { provide: BULK_DELETE_DIALOG, useClass: BulkDeleteDialogWebAdapter },
+    { provide: COLLECTION_DIALOG, useClass: CollectionWebDialogAdapter },
   ],
 })
 export class VaultNextComponent implements OnInit {
@@ -163,6 +175,12 @@ export class VaultNextComponent implements OnInit {
   private readonly folderService = inject(FolderService);
   private readonly itemActions = inject(WebVaultItemActionsService);
   private readonly organizationService = inject(OrganizationService);
+  private readonly collectionDialog = inject<CollectionDialogRef>(COLLECTION_DIALOG, {
+    optional: true,
+  });
+  private readonly bulkDeleteDialog = inject<BulkDeleteDialogRef>(BULK_DELETE_DIALOG, {
+    optional: true,
+  });
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly vaultNavService = inject(VaultNavService);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -397,6 +415,37 @@ export class VaultNextComponent implements OnInit {
       ? (collectionId as CollectionId)
       : undefined;
   });
+
+  /** The shared folder in view, for the three-dot menu next to the header title. */
+  protected readonly currentCollection = computed(() => {
+    const id = this.scopedCollectionId();
+    return id == null ? undefined : this.scopedCollections().find((c) => c.id === id);
+  });
+
+  private readonly currentOrganization = computed(() => {
+    const orgId = this.scopedOrganizationId();
+    return orgId == null ? undefined : this.organizations().find((o) => o.id === orgId);
+  });
+
+  /**
+   * `canEdit`/`canDelete` already require `.manage` and already exclude the organization's "My
+   * items" collection, so no extra page-type check is needed here.
+   */
+  protected readonly showEditActions = computed(
+    () =>
+      this.collectionDialog != null &&
+      (this.currentCollection()?.canEdit(this.currentOrganization()) ?? false),
+  );
+
+  protected readonly showDeleteAction = computed(
+    () =>
+      this.bulkDeleteDialog != null &&
+      (this.currentCollection()?.canDelete(this.currentOrganization()) ?? false),
+  );
+
+  protected readonly showCollectionMenu = computed(
+    () => this.showEditActions() || this.showDeleteAction(),
+  );
 
   /**
    * The vault-scope display-name facts {@link EmptyVaultComponent} needs for its copy, relayed
@@ -679,6 +728,32 @@ export class VaultNextComponent implements OnInit {
         userId,
       );
     }
+  }
+
+  protected async editCollectionInfo(): Promise<void> {
+    await this.openCollectionDialog(CollectionDialogTab.Info);
+  }
+
+  protected async editCollectionAccess(): Promise<void> {
+    await this.openCollectionDialog(CollectionDialogTab.Access);
+  }
+
+  private async openCollectionDialog(initialTab: CollectionDialogTab): Promise<void> {
+    const organizationId = this.scopedOrganizationId();
+    const collectionId = this.currentCollection()?.id;
+    if (organizationId == null || collectionId == null) {
+      return;
+    }
+    await this.collectionDialog?.open({ organizationId, collectionId, initialTab });
+  }
+
+  protected async deleteCurrentCollection(): Promise<void> {
+    const organization = this.currentOrganization();
+    const collection = this.currentCollection();
+    if (organization == null || collection == null) {
+      return;
+    }
+    await this.bulkDeleteDialog?.open({ organization, collections: [collection] });
   }
 
   protected async openImport(): Promise<void> {
