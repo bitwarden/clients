@@ -9,7 +9,7 @@ import {
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import { FormControl, FormRecord, ReactiveFormsModule } from "@angular/forms";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -60,10 +60,13 @@ export class CustomizeColumnsDialogComponent {
 
   protected readonly columns = this.params.columns;
 
-  /** One control per column, `true` when the column is shown. */
-  protected readonly form = new FormGroup(
+  /** One control per column name, `true` when the column is shown. */
+  protected readonly form = new FormRecord(
     Object.fromEntries(
-      this.columns.map((col) => [col.name, new FormControl(!this.params.hidden().has(col.name))]),
+      this.columns.map((col) => [
+        col.name,
+        new FormControl(!this.params.hidden().has(col.name), { nonNullable: true }),
+      ]),
     ),
   );
 
