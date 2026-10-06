@@ -53,7 +53,6 @@ describe("HealthAdditionalRisksComponent", () => {
     return text().includes("passwordHasAdditionalRisks") && riskCard() != null;
   }
 
-  /** Matched inside the card, since surrounding copy may also contain "weak" or "reused". */
   function showsWeakRisk(): boolean {
     return riskCard()?.textContent?.includes("weak") ?? false;
   }
