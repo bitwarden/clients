@@ -1014,7 +1014,14 @@ export class CipherService implements CipherServiceAbstraction {
     const useSdk = await firstValueFrom(this.sdkCipherAttachmentOpsEnabled$);
 
     // The organization's symmetric key or the user's user key
-    const vaultKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
+    const vaultKey: UserKey | OrgKey =
+      cipher.organizationId == null
+        ? await firstValueFrom(this.keyService.userKey$(userId))
+        : await firstValueFrom(
+            this.keyService
+              .orgKeys$(userId)
+              .pipe(map((orgKeys) => orgKeys[cipher.organizationId as OrganizationId] as OrgKey)),
+          );
 
     const cipherKeyOrVaultKey =
       cipher.key != null
@@ -1550,18 +1557,6 @@ export class CipherService implements CipherServiceAbstraction {
       restores.push({ id: cipher.id, revisionDate: cipher.revisionDate });
     }
     await this.restore(restores, userId);
-  }
-
-  async getKeyForCipherKeyDecryption(cipher: Cipher, userId: UserId): Promise<UserKey | OrgKey> {
-    if (cipher.organizationId == null) {
-      return await firstValueFrom(this.keyService.userKey$(userId));
-    } else {
-      return await firstValueFrom(
-        this.keyService
-          .orgKeys$(userId)
-          .pipe(map((orgKeys) => orgKeys[cipher.organizationId as OrganizationId] as OrgKey)),
-      );
-    }
   }
 
   async setAddEditCipherInfo(value: AddEditCipherInfo, userId: UserId) {
