@@ -149,7 +149,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
     });
   });
 
-  describe("createInviteLink", () => {
+  describe("create", () => {
     it("generates the invite link via the SDK and caches the result with the full url", async () => {
       inviteLinkClient.create.mockResolvedValue(makeSdkView({ allowedDomains: ["bitwarden.com"] }));
 
@@ -251,7 +251,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
     });
   });
 
-  describe("refreshInviteLink", () => {
+  describe("refresh", () => {
     it("generates a new invite link via the SDK and caches state", async () => {
       inviteLinkClient.refresh.mockResolvedValue(makeSdkView({ supportsConfirmation: false }));
 

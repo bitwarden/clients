@@ -322,7 +322,7 @@ describe("ByLinkTabComponent", () => {
       component.form.controls.domains.setValue("");
       await component.save();
 
-      expect(inviteLinkService.createInviteLink).not.toHaveBeenCalled();
+      expect(inviteLinkService.create).not.toHaveBeenCalled();
       expect(focus).toHaveBeenCalled();
     });
 
@@ -336,7 +336,7 @@ describe("ByLinkTabComponent", () => {
       component.form.controls.domains.setValue("");
       await component.saveAndAdvanceToStep2();
 
-      expect(inviteLinkService.createInviteLink).not.toHaveBeenCalled();
+      expect(inviteLinkService.create).not.toHaveBeenCalled();
       expect(component.tourStep()).not.toBe(2);
       expect(focus).toHaveBeenCalled();
     });
@@ -359,7 +359,7 @@ describe("ByLinkTabComponent", () => {
 
       await component.save();
 
-      expect(inviteLinkService.createInviteLink).not.toHaveBeenCalled();
+      expect(inviteLinkService.create).not.toHaveBeenCalled();
       expect(inviteLinkService.updateAllowedDomains).not.toHaveBeenCalled();
       expect(focus).toHaveBeenCalled();
     });
@@ -374,7 +374,7 @@ describe("ByLinkTabComponent", () => {
       );
       const focus = jest.spyOn(domainsInput, "focus");
       const failure = new Error("At least one allowed domain is required.");
-      inviteLinkService.createInviteLink.mockRejectedValue(failure);
+      inviteLinkService.create.mockRejectedValue(failure);
 
       component.form.controls.domains.setValue("example.com");
 
