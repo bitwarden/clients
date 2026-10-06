@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { isActive, IsActiveMatchOptions, QueryParamsHandling, Router } from "@angular/router";
 import { switchMap } from "rxjs";
@@ -176,6 +176,29 @@ export class VaultNavSectionComponent {
    */
   protected queryParamsHandling(route: string[] | undefined): QueryParamsHandling | undefined {
     return route != null && route === this.currentPageRoute() ? "preserve" : undefined;
+  }
+
+  /** The ids of the organizations whose Pinned section holds the folder in view. */
+  private readonly pinnedFolderInViewIds = signal<ReadonlySet<string>>(new Set());
+
+  protected setPinnedFolderInView(vault: VaultNavItemViewModel, inView: boolean): void {
+    this.pinnedFolderInViewIds.update((ids) => {
+      const next = new Set(ids);
+      if (inView) {
+        next.add(vault.id);
+      } else {
+        next.delete(vault.id);
+      }
+      return next;
+    });
+  }
+
+  /**
+   * Whether a folder in this vault's Pinned section is in view. Shared folders then stays unlit, so
+   * the folder is the only entry highlighted rather than one of two.
+   */
+  protected pinnedFolderInView(vault: VaultNavItemViewModel): boolean {
+    return this.pinnedFolderInViewIds().has(vault.id);
   }
 
   /** Whether to render one unscoped entry rather than All items and a list. */

@@ -5,6 +5,7 @@
     [text]="node().name"
     [route]="route()"
     [disableToggleOnClick]="true"
+    [showActiveStylesWhenOpen]="true"
   >
     @for (child of node().children; track child.id) {
       <vault-pinned-nav-node [node]="child" [routes]="routes()" />

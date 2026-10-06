@@ -7,6 +7,7 @@ import { BehaviorSubject, of } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
@@ -107,6 +108,8 @@ describe("VaultNavSectionComponent", () => {
   let fixture: ComponentFixture<VaultNavSectionComponent>;
 
   const viewModel$ = new BehaviorSubject<VaultsNavViewModel>(personalOnly);
+  const pinnedIds$ = new BehaviorSubject<CollectionId[]>([]);
+  const collections$ = new BehaviorSubject<CollectionView[]>([]);
   const vaultNavService = mock<VaultNavService>();
   const i18nService = mock<I18nService>();
   const accountService = mock<AccountService>();
@@ -166,6 +169,8 @@ describe("VaultNavSectionComponent", () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     viewModel$.next(personalOnly);
+    pinnedIds$.next([]);
+    collections$.next([]);
 
     i18nService.t.mockImplementation((key: string) => key);
     vaultNavService.viewModel$.mockReturnValue(viewModel$);
@@ -179,13 +184,14 @@ describe("VaultNavSectionComponent", () => {
         { provide: I18nService, useValue: i18nService },
         {
           provide: CollectionService,
-          useValue: mock<CollectionService>({ decryptedCollections$: () => of([]) }),
+          useValue: mock<CollectionService>({ decryptedCollections$: () => collections$ }),
         },
         {
-          // Nothing pinned and the hint dismissed, so the Pinned section stays out of these tests.
+          // Nothing pinned by default and the hint dismissed, so the Pinned section stays out of
+          // the tests that do not pin a folder.
           provide: PinnedSharedFoldersService,
           useValue: mock<PinnedSharedFoldersService>({
-            pinnedIds$: () => of([]),
+            pinnedIds$: () => pinnedIds$,
             emptyStateDismissed$: () => of(true),
           }),
         },
@@ -329,6 +335,65 @@ describe("VaultNavSectionComponent", () => {
 
       expect(navItemIsLit(family, "sharedFolders")).toBe(false);
       expect(navItemIsLit(family, "allVaultItems")).toBe(false);
+    });
+  });
+
+  describe("a pinned shared folder", () => {
+    const pinnedId = "22222222-2222-4222-8222-222222222222" as CollectionId;
+    const otherId = "33333333-3333-4333-8333-333333333333" as CollectionId;
+
+    beforeEach(() => {
+      viewModel$.next(withOrgs);
+      pinnedIds$.next([pinnedId]);
+      collections$.next([
+        new CollectionView({ id: pinnedId, organizationId: "org-a" as any, name: "Pinned one" }),
+        new CollectionView({ id: otherId, organizationId: "org-a" as any, name: "Other" }),
+      ]);
+      fixture.detectChanges();
+    });
+
+    it("lights the pinned folder and leaves Shared folders unlit while it is in view", async () => {
+      await navigateTo(`/vault/org-a/shared-folders/${pinnedId}`);
+      const group = expandGroup("Acme corporation");
+
+      expect(navItemIsLit(group, "Pinned one")).toBe(true);
+      expect(navItemIsLit(group, "sharedFolders")).toBe(false);
+    });
+
+    it("keeps a pinned folder with nested folders lit while its group is open", async () => {
+      const childId = "44444444-4444-4444-8444-444444444444" as CollectionId;
+      collections$.next([
+        new CollectionView({ id: pinnedId, organizationId: "org-a" as any, name: "Pinned one" }),
+        new CollectionView({
+          id: childId,
+          organizationId: "org-a" as any,
+          name: "Pinned one/Child",
+        }),
+      ]);
+      await navigateTo(`/vault/org-a/shared-folders/${pinnedId}`);
+      const group = expandGroup("Acme corporation");
+      const folder = fixture.debugElement
+        .queryAll(By.css("bit-nav-group"))
+        .find((el) => el.componentInstance.text() === "Pinned one");
+      folder.componentInstance.open.set(true);
+      fixture.detectChanges();
+
+      expect(navItemIsLit(group, "Pinned one")).toBe(true);
+      expect(navItemIsLit(group, "sharedFolders")).toBe(false);
+    });
+
+    it("still lights Shared folders on a folder that is not pinned", async () => {
+      await navigateTo(`/vault/org-a/shared-folders/${otherId}`);
+      const group = expandGroup("Acme corporation");
+
+      expect(navItemIsLit(group, "sharedFolders")).toBe(true);
+    });
+
+    it("lights Shared folders on its own page", async () => {
+      await navigateTo("/vault/org-a/shared-folders");
+      const group = expandGroup("Acme corporation");
+
+      expect(navItemIsLit(group, "sharedFolders")).toBe(true);
     });
   });
 

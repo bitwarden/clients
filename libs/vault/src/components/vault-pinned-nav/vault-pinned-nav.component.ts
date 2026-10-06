@@ -1,5 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
+import { isActive, Router } from "@angular/router";
 import { switchMap } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
@@ -11,6 +20,7 @@ import { NavigationModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { vaultScopeCommands, VaultScopeType } from "../../models/vault-scope";
+import { EXACT_PATH } from "../../routing/exact-path";
 import { PinnedSharedFoldersService } from "../../services/pinned-shared-folders.service";
 
 import { PinnedFolderNode, resolvePinnedFolderNodes } from "./pinned-shared-folder-nodes";
@@ -35,6 +45,7 @@ export class VaultPinnedNavComponent {
   private readonly accountService = inject(AccountService);
   private readonly collectionService = inject(CollectionService);
   private readonly pinnedSharedFolders = inject(PinnedSharedFoldersService);
+  private readonly router = inject(Router);
 
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -87,6 +98,25 @@ export class VaultPinnedNavComponent {
     add(this.nodes());
     return routes;
   });
+
+  /** Each folder's `isActive` signal. Rebuilt only when the pinned folders change. */
+  private readonly folderActive = computed(() =>
+    [...this.routes().values()].map((route) =>
+      isActive(this.router.createUrlTree(route), this.router, EXACT_PATH),
+    ),
+  );
+
+  private readonly folderInView = computed(() => this.folderActive().some((active) => active()));
+
+  /**
+   * Whether the page in view is one of this section's folders, at any depth. The Shared folders
+   * entry listens to this to give way to the folder, which has an entry of its own here.
+   */
+  readonly folderInViewChange = output<boolean>();
+
+  constructor() {
+    effect(() => this.folderInViewChange.emit(this.folderInView()));
+  }
 
   protected async dismissEmptyState(): Promise<void> {
     const userId = this.userId();
