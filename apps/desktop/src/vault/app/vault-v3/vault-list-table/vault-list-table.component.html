@@ -25,8 +25,7 @@
     [sharedFolderName]="sharedFolderName()"
     [defaultCollectionId]="defaultCollectionId()"
     [hasMultipleVaults]="hasMultipleVaults()"
-    [myVaultItemsOutsideScope]="myVaultItemsOutsideScope()"
-    (myVaultSelected)="myVaultSelected.emit()"
+    [myVaultItemCount]="myVaultItemCount()"
   >
     @if (showAddCipherBtn()) {
       <vault-new-cipher-menu

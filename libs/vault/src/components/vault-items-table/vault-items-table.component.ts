@@ -13,6 +13,7 @@ import {
   viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
+import { Router } from "@angular/router";
 import { map, of, switchMap } from "rxjs";
 
 import { IconComponent as VaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
@@ -63,7 +64,13 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { orgIconTile, personalIconTile } from "../../models/vault-icon-tile";
-import { VaultScope, VaultScopeType } from "../../models/vault-scope";
+import {
+  ALL_ITEMS_SCOPE,
+  VaultScope,
+  VaultScopeType,
+  vaultScopeCommands,
+} from "../../models/vault-scope";
+import { VAULT_BASE_ROUTE } from "../../routing/vault-base-route";
 import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
 import {
   idString,
@@ -252,6 +259,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   private readonly i18nService = inject(I18nService);
   private readonly accountService = inject(AccountService);
   private readonly avatarService = inject(AvatarService);
+  private readonly router = inject(Router);
+  private readonly vaultBaseRoute = inject(VAULT_BASE_ROUTE);
 
   /**
    * The active user's avatar color, so the "My vault" tile matches their avatar and the side nav.
@@ -359,17 +368,11 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   /** The shared folder the current vault scope has drilled into — relayed to the empty state untouched. */
   readonly sharedFolderName = input<string>();
 
-  /**
-   * How many My vault items this page leaves out with no nav entry back to them. When nonzero, the
-   * Vault chip keeps "My vault" with this count, and picking it emits {@link myVaultSelected}.
-   */
-  readonly myVaultItemsOutsideScope = input(0);
+  /** The account's active My vault items, which an org page's rows leave out. */
+  readonly myVaultItemCount = input(0);
 
   /** Emits the selected rows whenever the selection changes. */
   readonly selectedChange = output<readonly C[]>();
-
-  /** Emits when "My vault" is picked while {@link myVaultItemsOutsideScope}; the host navigates there. */
-  readonly myVaultSelected = output<void>();
 
   /**
    * Elements that own their own click behaviour. A click originating inside one of these must not
@@ -590,7 +593,16 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     return this.hasPersonalCiphers() || canHaveEmptyPersonalVault;
   });
 
-  private readonly myVaultOutsideScope = computed(() => this.myVaultItemsOutsideScope() > 0);
+  /**
+   * Under data ownership the nav drops My vault, so on an org page the Vault chip is the only way
+   * back to its items.
+   */
+  private readonly myVaultOutsideScope = computed(
+    () =>
+      this.scope()?.type === VaultScopeType.Organization &&
+      this.orgRequiresDataOwnership() &&
+      this.myVaultItemCount() > 0,
+  );
 
   /**
    * Whether the Vault chip offers "My vault".
@@ -601,7 +613,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   /** Overrides the chip's row count, which can't see My vault items outside the rows. */
   protected readonly myVaultOptionCount = computed(() =>
-    this.myVaultOutsideScope() ? this.myVaultItemsOutsideScope() : undefined,
+    this.myVaultOutsideScope() ? this.myVaultItemCount() : undefined,
   );
 
   /**
@@ -625,7 +637,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * Whether the Vault column should be shown. Driven by the unfiltered `organizations` input
    * rather than {@link sortedOrganizations}: a disabled organization still owns rows in the table,
    * so the column has to label them even though the chip doesn't offer the organization.
-   * Ignores {@link myVaultItemsOutsideScope}, which never appear as rows here.
+   * Ignores {@link myVaultOutsideScope}, whose items never appear as rows here.
    */
   protected readonly showVaultColumn = computed(() =>
     this.spansMultipleVaults(this.organizations(), this.myVaultInRows()),
@@ -846,7 +858,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   });
 
   /**
-   * Hands a "My vault" pick to the host when this page can't show it. Cleared from the chip before
+   * Sends a "My vault" pick to All items when this page can't show it. Cleared from the chip before
    * the table mirrors it to the URL, so the page never records it in its filter memory.
    */
   private readonly redirectMyVaultPick = effect(() => {
@@ -866,7 +878,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     untracked(() => {
       const rest = value.filter((vault) => vault !== MY_VAULT);
       control.setValue(rest.length > 0 ? rest : undefined);
-      this.myVaultSelected.emit();
+      void this.router.navigate(vaultScopeCommands(ALL_ITEMS_SCOPE, this.vaultBaseRoute), {
+        queryParams: { [`${VAULT_FILTER_NAMESPACE}.${VAULT_FILTER_KEYS.vault}`]: MY_VAULT },
+      });
     });
   });
 

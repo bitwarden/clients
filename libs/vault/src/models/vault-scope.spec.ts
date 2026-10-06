@@ -19,7 +19,6 @@ import {
   isPersonalOnly,
   MY_ITEMS_ROUTE,
   MY_VAULT_ROUTE,
-  myVaultItemsOutsideScope,
   organizationInScope,
   organizationNameForScope,
   organizationVaultPage,
@@ -533,34 +532,6 @@ describe("collectionInScope", () => {
   it("keeps every collection for trash and archive, which span every vault", () => {
     expect(collectionInScope(buildCollection(organizationId), trashScope)).toBe(true);
     expect(collectionInScope(buildCollection(otherOrganizationId), archiveScope)).toBe(true);
-  });
-});
-
-describe("myVaultItemsOutsideScope", () => {
-  const ownershipNav = buildNav(
-    [buildNavItem(organizationId, VaultNavItemType.Organization)],
-    true,
-  );
-  const sharedFolderScope: VaultScope = { ...organizationScope, collectionId };
-
-  it("counts My vault items on any org page under data ownership", () => {
-    expect(myVaultItemsOutsideScope(organizationScope, ownershipNav, 3)).toBe(3);
-    expect(myVaultItemsOutsideScope(sharedFolderScope, ownershipNav, 3)).toBe(3);
-  });
-
-  it("is zero off an org page, which already shows My vault items or leads back to them", () => {
-    expect(myVaultItemsOutsideScope(ALL_ITEMS_SCOPE, ownershipNav, 3)).toBe(0);
-    expect(myVaultItemsOutsideScope(trashScope, ownershipNav, 3)).toBe(0);
-  });
-
-  it("is zero without data ownership, whose nav keeps My vault", () => {
-    const nav = buildNav([
-      buildNavItem("user-1", VaultNavItemType.Personal),
-      buildNavItem(organizationId, VaultNavItemType.Organization),
-    ]);
-
-    expect(myVaultItemsOutsideScope(organizationScope, nav, 3)).toBe(0);
-    expect(myVaultItemsOutsideScope(organizationScope, undefined, 3)).toBe(0);
   });
 });
 

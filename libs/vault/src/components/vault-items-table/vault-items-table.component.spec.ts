@@ -2,6 +2,7 @@ import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
 import { ChangeDetectionStrategy, Component, computed, signal } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { provideRouter, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -208,6 +209,7 @@ describe("VaultItemsTableComponent", () => {
         { provide: LogService, useValue: mock<LogService>() },
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         { provide: VaultBatchBarService, useValue: batchBar },
+        provideRouter([]),
       ],
     }).compileComponents();
 
@@ -977,57 +979,75 @@ describe("VaultItemsTableComponent", () => {
           cipherView({ id: "a", organizationId: "org-1" as never }),
         ]);
         fixture.componentRef.setInput("scopedOrganizationId", "org-1" as never);
+        fixture.componentRef.setInput("scope", {
+          type: VaultScopeType.Organization,
+          organizationId: "org-1",
+        });
         fixture.componentRef.setInput("orgRequiresDataOwnership", true);
       });
 
-      it("hides the Vault chip on an org page when My vault has nothing outside it", () => {
+      it("hides the Vault chip on an org page when My vault is empty", () => {
         expect(component["showMyVaultOption"]()).toBe(false);
         expect(component["showVaults"]()).toBe(false);
       });
 
+      it("hides the Vault chip on an org page without data ownership, whose nav keeps My vault", () => {
+        fixture.componentRef.setInput("orgRequiresDataOwnership", false);
+        fixture.componentRef.setInput("myVaultItemCount", 3);
+
+        expect(component["showVaults"]()).toBe(false);
+      });
+
       it("keeps the Vault chip and its My vault option, without adding the Vault column", () => {
-        fixture.componentRef.setInput("myVaultItemsOutsideScope", 3);
+        fixture.componentRef.setInput("myVaultItemCount", 3);
 
         expect(component["showMyVaultOption"]()).toBe(true);
         expect(component["showVaults"]()).toBe(true);
         expect(component["showVaultColumn"]()).toBe(false);
       });
 
-      it("counts My vault from the items outside the scope, not the rows", () => {
+      it("counts My vault from the account's items, not the rows", () => {
         expect(component["myVaultOptionCount"]()).toBeUndefined();
 
-        fixture.componentRef.setInput("myVaultItemsOutsideScope", 3);
+        fixture.componentRef.setInput("myVaultItemCount", 3);
 
         expect(component["myVaultOptionCount"]()).toBe(3);
       });
 
-      it("hands a My vault pick to the host and clears it from the chip", () => {
-        fixture.componentRef.setInput("myVaultItemsOutsideScope", 3);
-        const selected = jest.fn();
-        component.myVaultSelected.subscribe(selected);
+      it("sends a My vault pick to All items and clears it from the chip", () => {
+        fixture.componentRef.setInput("myVaultItemCount", 3);
+        const navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
         fixture.detectChanges();
 
         filterMenu("vault").setValue([MY_VAULT, "org-1"]);
         fixture.detectChanges();
 
-        expect(selected).toHaveBeenCalledTimes(1);
+        expect(navigate).toHaveBeenCalledWith(["/vault"], {
+          queryParams: { "vault.vault": MY_VAULT },
+        });
+        // The table's own URL sync never writes the pick onto this page.
+        const urlSyncs = navigate.mock.calls.filter(([commands]) => commands.length === 0);
+        expect(
+          urlSyncs.map(([, extras]) => extras?.queryParams?.["vault.vault"]),
+        ).not.toContainEqual(expect.arrayContaining([MY_VAULT]));
         expect(filterControl("vault").value()).toEqual(["org-1"]);
       });
 
       it("leaves a My vault pick alone when the page can show it", () => {
         fixture.componentRef.setInput("scopedOrganizationId", undefined);
+        fixture.componentRef.setInput("scope", { type: VaultScopeType.AllItems });
+        fixture.componentRef.setInput("myVaultItemCount", 1);
         fixture.componentRef.setInput("ciphers", [
           cipherView({ id: "a", organizationId: undefined }),
           cipherView({ id: "b", organizationId: "org-1" as never }),
         ]);
-        const selected = jest.fn();
-        component.myVaultSelected.subscribe(selected);
+        const navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
         fixture.detectChanges();
 
         filterMenu("vault").setValue([MY_VAULT]);
         fixture.detectChanges();
 
-        expect(selected).not.toHaveBeenCalled();
+        expect(navigate).not.toHaveBeenCalledWith(["/vault"], expect.anything());
         expect(filterControl("vault").value()).toEqual([MY_VAULT]);
       });
     });

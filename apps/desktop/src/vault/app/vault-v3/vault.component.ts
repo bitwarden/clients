@@ -123,8 +123,6 @@ import {
   Vfo1TerminologyService,
   ALL_ITEMS_SCOPE,
   cipherInScope,
-  MY_VAULT_FILTER_PARAMS,
-  myVaultItemsOutsideScope,
   collectionInScope,
   FilterFunction,
   hasMultipleVaults,
@@ -338,21 +336,19 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     { initialValue: scopeKey(ALL_ITEMS_SCOPE) },
   );
 
-  /** How many My vault items the Vault chip offers that this page leaves out. */
-  protected readonly myVaultItemsOutsideScope = toSignal(
+  /** The account's active My vault items, for the Vault chip's My vault count on an org page. */
+  protected readonly myVaultItemCount = toSignal(
     combineLatest([
-      this.vaultScope$,
-      this.vaultNav$,
       this.userId$.pipe(switchMap((userId) => this.cipherService.cipherListViews$(userId))),
+      this.restrictedItemTypesService.restricted$,
     ]).pipe(
-      map(([scope, nav, ciphers]) =>
-        myVaultItemsOutsideScope(
-          scope,
-          nav,
-          (ciphers ?? []).filter((cipher) =>
-            cipherInScope(cipher, { type: VaultScopeType.MyVault }),
+      map(
+        ([ciphers, restrictedTypes]) =>
+          (ciphers ?? []).filter(
+            (cipher) =>
+              cipherInScope(cipher, { type: VaultScopeType.MyVault }) &&
+              !this.restrictedItemTypesService.isCipherRestricted(cipher, restrictedTypes),
           ).length,
-        ),
       ),
     ),
     { initialValue: 0 },
@@ -1161,13 +1157,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     } else if (result.result === AddItemDialogResult.Folder) {
       await this.addFolder();
     }
-  }
-
-  /** Sends a "My vault" pick from an org page to All items, filtered to My vault. */
-  protected async showMyVault(): Promise<void> {
-    await this.router.navigate(vaultScopeCommands(ALL_ITEMS_SCOPE), {
-      queryParams: MY_VAULT_FILTER_PARAMS,
-    });
   }
 
   protected async openImport(): Promise<void> {
