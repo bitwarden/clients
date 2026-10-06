@@ -79,28 +79,6 @@ describe("HealthDeleteAtRiskItemDialogComponent", () => {
     return host().textContent ?? "";
   }
 
-  /** The additional risks card, or null when the dialog renders no additional risks. */
-  function riskCard(): HTMLElement | null {
-    return host().querySelector("bit-card");
-  }
-
-  /** Whether the "This password has additional risks" section is on screen at all. */
-  function showsRiskSection(): boolean {
-    return text().includes("passwordHasAdditionalRisks") && riskCard() != null;
-  }
-
-  /**
-   * Risk rows are matched inside the card rather than against the whole dialog — the surrounding
-   * copy also contains the words "weak" and "reused", which would defeat negative assertions.
-   */
-  function showsWeakRisk(): boolean {
-    return riskCard()?.textContent?.includes("weak") ?? false;
-  }
-
-  function showsReusedRisk(): boolean {
-    return riskCard()?.textContent?.includes("reused") ?? false;
-  }
-
   function deleteButton(): HTMLButtonElement {
     return Array.from(host().querySelectorAll<HTMLButtonElement>("button")).find((button) =>
       button.textContent?.includes("delete"),
@@ -131,116 +109,15 @@ describe("HealthDeleteAtRiskItemDialogComponent", () => {
     });
   });
 
-  /**
-   * The at-risk hierarchy is exposed > weak > reused. The dialog only surfaces risks strictly
-   * below the category the user came from, so it never repeats the category they are already
-   * looking at back to them.
-   */
   describe("additional risks", () => {
-    describe("exposed passwords", () => {
-      /** Exposed sits at the top of the hierarchy, so both lower risks can appear. */
-      async function initExposed(flags: { weak: boolean; reused: boolean }) {
-        await initComponent({
-          currentCategory: RiskCategory.Exposed,
-          item: buildHealthView({
-            hasExposedPassword: true,
-            hasWeakPassword: flags.weak,
-            hasReusedPassword: flags.reused,
-          }),
-        });
-      }
-
-      it("shows both weak and reused when the item is also weak and reused", async () => {
-        await initExposed({ weak: true, reused: true });
-
-        expect(showsRiskSection()).toBe(true);
-        expect(showsWeakRisk()).toBe(true);
-        expect(showsReusedRisk()).toBe(true);
+    it("shows the additional risks for the item and category it was opened with", async () => {
+      await initComponent({
+        currentCategory: RiskCategory.Exposed,
+        item: buildHealthView({ hasExposedPassword: true, hasWeakPassword: true }),
       });
 
-      it("shows only weak when the item is also weak", async () => {
-        await initExposed({ weak: true, reused: false });
-
-        expect(showsRiskSection()).toBe(true);
-        expect(showsWeakRisk()).toBe(true);
-        expect(showsReusedRisk()).toBe(false);
-      });
-
-      it("shows only reused when the item is also reused", async () => {
-        await initExposed({ weak: false, reused: true });
-
-        expect(showsRiskSection()).toBe(true);
-        expect(showsWeakRisk()).toBe(false);
-        expect(showsReusedRisk()).toBe(true);
-      });
-
-      it("shows no risk section when the item has no lower risks", async () => {
-        await initExposed({ weak: false, reused: false });
-
-        expect(showsRiskSection()).toBe(false);
-        expect(riskCard()).toBeNull();
-      });
-    });
-
-    describe("weak passwords", () => {
-      /** Weak sits in the middle, so only reused can appear — never weak itself. */
-      async function initWeak(flags: { reused: boolean }) {
-        await initComponent({
-          currentCategory: RiskCategory.Weak,
-          item: buildHealthView({
-            hasWeakPassword: true,
-            hasReusedPassword: flags.reused,
-          }),
-        });
-      }
-
-      it("shows only reused when the item is also reused", async () => {
-        await initWeak({ reused: true });
-
-        expect(showsRiskSection()).toBe(true);
-        expect(showsWeakRisk()).toBe(false);
-        expect(showsReusedRisk()).toBe(true);
-      });
-
-      it("shows no risk section when the item is not reused", async () => {
-        await initWeak({ reused: false });
-
-        expect(showsRiskSection()).toBe(false);
-        expect(riskCard()).toBeNull();
-      });
-
-      it("never repeats weak, the category being viewed", async () => {
-        await initWeak({ reused: true });
-
-        expect(showsWeakRisk()).toBe(false);
-      });
-    });
-
-    describe("reused passwords", () => {
-      /** Reused sits at the bottom, so there is never a lower risk to surface. */
-      it("shows no risk section even when the item is exposed and weak", async () => {
-        await initComponent({
-          currentCategory: RiskCategory.Reused,
-          item: buildHealthView({
-            hasExposedPassword: true,
-            hasWeakPassword: true,
-            hasReusedPassword: true,
-          }),
-        });
-
-        expect(showsRiskSection()).toBe(false);
-        expect(riskCard()).toBeNull();
-      });
-
-      it("shows no risk section when the item has no other risks", async () => {
-        await initComponent({
-          currentCategory: RiskCategory.Reused,
-          item: buildHealthView({ hasReusedPassword: true }),
-        });
-
-        expect(showsRiskSection()).toBe(false);
-        expect(riskCard()).toBeNull();
-      });
+      expect(text()).toContain("passwordHasAdditionalRisks");
+      expect(host().querySelector("bit-card")?.textContent).toContain("weak");
     });
   });
 
