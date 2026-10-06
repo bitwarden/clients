@@ -82,6 +82,9 @@ type SharedFolderCard = {
   id: string;
   name: string;
   commands: unknown[];
+
+  /** How many shared folders sit directly inside this one. */
+  nestedSharedFolders: number;
 };
 
 /**
@@ -257,10 +260,11 @@ export class SharedFolderCardGridComponent {
    * by its own name rather than its path — see {@link parentName}.
    */
   private readonly cards = computed<SharedFolderCard[]>(() =>
-    this.folders().map(({ node }) => ({
+    this.folders().map(({ node, children }) => ({
       id: node.id,
       name: sharedFolderName(node),
       commands: this.folderRoute(node),
+      nestedSharedFolders: children.length,
     })),
   );
 
