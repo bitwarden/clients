@@ -266,6 +266,11 @@ export const VAULT_ORG_USER_NOTIFICATION_DISK_LOCAL = new StateDefinition(
   "disk",
   { web: "disk-local" },
 );
+export const VAULT_PINNED_SHARED_FOLDERS_DISK = new StateDefinition(
+  "vaultPinnedSharedFolders",
+  "disk",
+  { web: "disk-local" },
+);
 export const WELCOME_EXTENSION_DIALOG_DISK = new StateDefinition(
   "vaultWelcomeExtensionDialogDismissed",
   "disk",
