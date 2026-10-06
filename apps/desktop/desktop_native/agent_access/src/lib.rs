@@ -35,7 +35,9 @@ pub use callbacks::{
     AgentAccessEvent, CallbackError, CredentialDenialReason, CredentialQueryKind,
     CredentialRequestData, CredentialRequestHandler, CredentialRequestOrigin,
     CredentialResponseData, DeliveryMode, EventSink, FingerprintVerificationData,
-    FingerprintVerificationResponse, FingerprintVerifier, KvStorage, ProjectEntry,
+    FingerprintVerificationResponse, FingerprintVerifier, KvStorage, OpenShellContext,
+    OpenShellEndpoint, OpenShellEndpointSource, OpenShellLifetime, OpenShellLifetimeMode,
+    OpenShellResolution, ProjectEntry, ProviderField, ProviderTarget, ProviderValue,
     RequestOperation, ResourceKind, SecretEntry,
 };
 pub use client::{AgentAccessConfig, DesktopAgentAccess};

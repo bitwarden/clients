@@ -1,0 +1,331 @@
+@if (visible()) {
+  <bit-section [disableMargin]="true" data-testid="agent-access-openshell-section">
+    <p bitTypography="body2" class="tw-text-muted tw-mb-4">
+      {{ "agentAccessOpenShellDesc" | i18n }}
+    </p>
+
+    @if (unsupportedReasonKey(); as reasonKey) {
+      <bit-callout type="info" [title]="null" data-testid="agent-access-openshell-unsupported">
+        {{ reasonKey | i18n }}
+      </bit-callout>
+    } @else {
+      <bit-form-control>
+        <bit-switch
+          id="agent-access-openshell_switch_enabled"
+          [formControl]="enabledControl"
+        ></bit-switch>
+        <bit-label>{{ "agentAccessOpenShellEnable" | i18n }}</bit-label>
+      </bit-form-control>
+
+      @if (openShellEnabled()) {
+        <div class="tw-flex tw-flex-col tw-gap-6" data-testid="agent-access-openshell-details">
+          <!-- The whole setup, as one panel: one state at a time, one button. Everything below it
+               is the fallback or an option most people never open. -->
+          <div
+            class="tw-flex tw-flex-col tw-gap-3 tw-rounded-xl tw-border tw-border-solid tw-border-border-base tw-p-4"
+            data-testid="agent-access-openshell-setup"
+          >
+            @switch (phase()) {
+              @case ("running") {
+                <div class="tw-flex tw-items-center tw-gap-3">
+                  <bit-spinner size="sm"></bit-spinner>
+                  <span bitTypography="body1">{{ "agentAccessOpenShellSetupRunning" | i18n }}</span>
+                </div>
+              }
+              @case ("waiting") {
+                <div class="tw-flex tw-items-center tw-gap-3">
+                  <bit-spinner size="sm"></bit-spinner>
+                  <span bitTypography="body1">{{ "agentAccessOpenShellSetupWaiting" | i18n }}</span>
+                </div>
+              }
+              @case ("connected") {
+                <div
+                  class="tw-flex tw-items-center tw-gap-3"
+                  data-testid="agent-access-openshell-connected"
+                >
+                  <bit-icon
+                    name="bwi-check-circle"
+                    class="tw-text-xl tw-text-fg-success"
+                  ></bit-icon>
+                  <span bitTypography="body1">{{
+                    "agentAccessOpenShellSetupConnected" | i18n
+                  }}</span>
+                </div>
+                <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+                  <button
+                    id="agent-access-openshell_button_setup-again"
+                    type="button"
+                    bitButton
+                    buttonType="secondary"
+                    size="small"
+                    (click)="runSetup()"
+                  >
+                    {{ "agentAccessOpenShellSetupAgain" | i18n }}
+                  </button>
+                  <button
+                    id="agent-access-openshell_button_remove"
+                    type="button"
+                    bitButton
+                    buttonType="dangerGhost"
+                    size="small"
+                    (click)="removeSetup()"
+                  >
+                    {{ "agentAccessOpenShellSetupRemove" | i18n }}
+                  </button>
+                </div>
+              }
+              @case ("timedOut") {
+                <bit-callout
+                  type="warning"
+                  [title]="null"
+                  data-testid="agent-access-openshell-timeout"
+                >
+                  {{ "agentAccessOpenShellSetupTimedOut" | i18n }}
+                </bit-callout>
+                <div>
+                  <button
+                    id="agent-access-openshell_button_retry"
+                    type="button"
+                    bitButton
+                    buttonType="secondary"
+                    (click)="runSetup()"
+                  >
+                    {{ "agentAccessOpenShellSetupRetry" | i18n }}
+                  </button>
+                </div>
+              }
+              @case ("failed") {
+                <bit-callout
+                  type="warning"
+                  [title]="null"
+                  data-testid="agent-access-openshell-failure"
+                >
+                  {{ failureKey() | i18n }}
+                </bit-callout>
+                @if (setupResult()?.failure === "restartFailed") {
+                  <p bitTypography="helper" class="tw-m-0 tw-text-muted">
+                    {{ "agentAccessOpenShellSetupWatching" | i18n }}
+                  </p>
+                } @else if (setupStatus()?.canSetUp) {
+                  <div>
+                    <button
+                      id="agent-access-openshell_button_retry-failed"
+                      type="button"
+                      bitButton
+                      buttonType="secondary"
+                      (click)="runSetup()"
+                    >
+                      {{ "agentAccessOpenShellSetupRetry" | i18n }}
+                    </button>
+                  </div>
+                }
+              }
+              @default {
+                <p bitTypography="body2" class="tw-m-0 tw-text-muted">
+                  @if (setupStatus()?.configured) {
+                    {{ "agentAccessOpenShellSetupConfiguredNotSeen" | i18n }}
+                  } @else {
+                    {{ "agentAccessOpenShellSetupDescription" | i18n }}
+                  }
+                </p>
+                <div>
+                  <button
+                    id="agent-access-openshell_button_setup"
+                    type="button"
+                    bitButton
+                    buttonType="primary"
+                    [disabled]="!setupStatus()?.canSetUp"
+                    (click)="runSetup()"
+                  >
+                    {{
+                      (setupStatus()?.configured
+                        ? "agentAccessOpenShellSetupAgain"
+                        : "agentAccessOpenShellSetupButton"
+                      ) | i18n
+                    }}
+                  </button>
+                </div>
+                @if (setupStatus()?.blockedReason === "unmergeable") {
+                  <bit-callout
+                    type="warning"
+                    [title]="null"
+                    data-testid="agent-access-openshell-unmergeable"
+                  >
+                    {{ "agentAccessOpenShellSetupFailUnmergeable" | i18n }}
+                  </bit-callout>
+                } @else if (setupStatus()?.blockedReason === "noBundledCli") {
+                  <bit-callout type="warning" [title]="null">
+                    {{ "agentAccessOpenShellSetupFailNoCli" | i18n }}
+                  </bit-callout>
+                }
+              }
+            }
+
+            @if (setupResult()?.backupPath; as backupPath) {
+              <p bitTypography="helper" class="tw-m-0 tw-break-all tw-text-muted">
+                {{ "agentAccessOpenShellSetupBackup" | i18n: backupPath }}
+              </p>
+            }
+          </div>
+
+          <bit-callout type="warning" [title]="null" data-testid="agent-access-openshell-takeover">
+            {{ "agentAccessOpenShellTakeoverWarning" | i18n }}
+          </bit-callout>
+
+          @for (gateway of unsupportedAuthGateways(); track gateway.name) {
+            <bit-callout type="warning" [title]="null" data-testid="agent-access-openshell-auth">
+              {{ "agentAccessOpenShellAuthUnsupported" | i18n: gateway.name }}
+            </bit-callout>
+          }
+
+          <!-- Approval lifetime: a sensible default is already chosen, so the choice stays out of
+               the way until someone wants it (§M8.6). -->
+          <div>
+            <button
+              id="agent-access-openshell_button_toggle-lifetime"
+              type="button"
+              class="tw-flex tw-items-center tw-gap-2 tw-border-0 tw-bg-transparent tw-p-0 tw-text-muted"
+              bitTypography="body1"
+              [bitDisclosureTriggerFor]="lifetimeDisclosure"
+            >
+              <bit-icon [name]="lifetimeOpen() ? 'bwi-angle-down' : 'bwi-angle-right'"></bit-icon>
+              {{ "agentAccessOpenShellLifetimeTitle" | i18n }}
+            </button>
+            <bit-disclosure
+              #lifetimeDisclosure
+              [(open)]="lifetimeOpen"
+              class="tw-flex tw-flex-col tw-gap-4 tw-pt-3"
+            >
+              <bit-radio-group [formControl]="modeControl" [block]="true">
+                <bit-radio-button id="agent-access-openshell_radio_per-request" value="perRequest">
+                  <bit-label>{{ "agentAccessOpenShellLifetimePerRequest" | i18n }}</bit-label>
+                  <bit-hint>{{ "agentAccessOpenShellLifetimePerRequestHint" | i18n }}</bit-hint>
+                </bit-radio-button>
+                <bit-radio-button id="agent-access-openshell_radio_ttl" value="ttl">
+                  <bit-label>{{ "agentAccessOpenShellLifetimeTtl" | i18n }}</bit-label>
+                </bit-radio-button>
+                <bit-radio-button
+                  id="agent-access-openshell_radio_sandbox-lifetime"
+                  value="sandboxLifetime"
+                >
+                  <bit-label>{{ "agentAccessOpenShellLifetimeSandbox" | i18n }}</bit-label>
+                </bit-radio-button>
+              </bit-radio-group>
+
+              @if (mode() === "ttl") {
+                <bit-form-field disableMargin>
+                  <bit-label>{{ "agentAccessOpenShellLifetimeTtl" | i18n }}</bit-label>
+                  <bit-select id="agent-access-openshell_select_ttl" [formControl]="ttlControl">
+                    @for (option of ttlOptions; track option.value) {
+                      <bit-option [value]="option.value" [label]="option.label"></bit-option>
+                    }
+                  </bit-select>
+                </bit-form-field>
+              }
+            </bit-disclosure>
+          </div>
+
+          <!-- The manual route: the same edit the button makes, as text, for a gateway.toml the
+               button can't safely change or a gateway it can't restart. -->
+          <div>
+            <button
+              id="agent-access-openshell_button_toggle-manual"
+              type="button"
+              class="tw-flex tw-items-center tw-gap-2 tw-border-0 tw-bg-transparent tw-p-0 tw-text-muted"
+              bitTypography="body1"
+              [bitDisclosureTriggerFor]="manualDisclosure"
+            >
+              <bit-icon [name]="manualOpen() ? 'bwi-angle-down' : 'bwi-angle-right'"></bit-icon>
+              {{ "agentAccessOpenShellSetupManual" | i18n }}
+            </button>
+            <bit-disclosure
+              #manualDisclosure
+              [(open)]="manualOpen"
+              class="tw-flex tw-flex-col tw-gap-6 tw-pt-3"
+            >
+              <!-- The gateway.toml snippet. -->
+              <div class="tw-flex tw-flex-col tw-gap-2">
+                <h3 bitTypography="h6" class="tw-m-0">
+                  {{ "agentAccessOpenShellConfigStep" | i18n }}
+                </h3>
+                @if (detection(); as detected) {
+                  <p bitTypography="helper" class="tw-m-0 tw-break-all tw-text-muted">
+                    {{
+                      "agentAccessOpenShellConfigPathHint" | i18n: detected.gatewayConfigPathHint
+                    }}
+                  </p>
+                }
+                @if (snippet(); as snip) {
+                  <pre
+                    class="tw-m-0 tw-overflow-x-auto tw-rounded-lg tw-bg-bg-secondary tw-p-3 tw-font-mono tw-text-sm tw-text-main"
+                    data-testid="agent-access-openshell-gateway-toml"
+                    >{{ snip.gatewayToml }}</pre>
+                  <div>
+                    <button
+                      id="agent-access-openshell_button_copy-config"
+                      type="button"
+                      bitButton
+                      buttonType="secondary"
+                      [appCopyClick]="snip.gatewayToml"
+                      showToast
+                      [valueLabel]="'agentAccessOpenShellConfigStep' | i18n"
+                    >
+                      {{ "agentAccessConnectCopyConfig" | i18n }}
+                    </button>
+                  </div>
+                }
+                <p bitTypography="helper" class="tw-m-0 tw-text-muted">
+                  {{ "agentAccessOpenShellMergeNote" | i18n }}
+                </p>
+              </div>
+            </bit-disclosure>
+          </div>
+
+          <!-- Provider and attach examples. -->
+          @if (snippet(); as snip) {
+            <div class="tw-flex tw-flex-col tw-gap-2">
+              <h3 bitTypography="h6" class="tw-m-0">
+                {{ "agentAccessOpenShellProviderStep" | i18n }}
+              </h3>
+              @for (command of [snip.providerExample, snip.attachExample]; track $index) {
+                <pre
+                  class="tw-m-0 tw-whitespace-pre-wrap tw-break-all tw-rounded-lg tw-bg-bg-secondary tw-p-3 tw-font-mono tw-text-sm tw-text-main"
+                  data-testid="agent-access-openshell-example"
+                  >{{ command }}</pre>
+                <div>
+                  <button
+                    [id]="'agent-access-openshell_button_copy-example-' + $index"
+                    type="button"
+                    bitButton
+                    buttonType="secondary"
+                    size="small"
+                    [appCopyClick]="command"
+                    showToast
+                    [valueLabel]="'agentAccessOpenShellProviderStep' | i18n"
+                  >
+                    {{ "agentAccessConnectCopyCommand" | i18n }}
+                  </button>
+                </div>
+              }
+              <p bitTypography="helper" class="tw-m-0 tw-text-muted">
+                {{ "agentAccessOpenShellOneSandboxRule" | i18n }}
+              </p>
+            </div>
+          }
+
+          <p
+            bitTypography="helper"
+            class="tw-m-0 tw-text-muted"
+            data-testid="agent-access-openshell-driver"
+          >
+            @if (driverLastSeenMs(); as seen) {
+              {{ "agentAccessOpenShellDriverLastSeen" | i18n: (seen | date: "medium") }}
+            } @else {
+              {{ "agentAccessOpenShellDriverNotSeen" | i18n }}
+            }
+          </p>
+        </div>
+      }
+    }
+  </bit-section>
+}

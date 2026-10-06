@@ -83,6 +83,9 @@ export class AgentAccessGrantStoreService {
         displayName: input.displayName,
         exePath: input.exePath,
         lastUsedAt: now,
+        // An OpenShell grant's details (digest, lifetime mode, ttl window) are refreshed on every
+        // approval; the key fields are unchanged by construction (`matchesKey`).
+        ...(input.openshell != null ? { openshell: { ...input.openshell } } : {}),
       };
       store.grants[existingIndex] = grant;
     } else {
@@ -95,6 +98,7 @@ export class AgentAccessGrantStoreService {
         scope: input.scope,
         createdAt: now,
         lastUsedAt: now,
+        ...(input.openshell != null ? { openshell: { ...input.openshell } } : {}),
       };
       store.grants.push(grant);
     }
@@ -114,9 +118,28 @@ export class AgentAccessGrantStoreService {
     await this.save({ grants: remaining });
   }
 
+  /**
+   * Exact-identity match. §M8.5: `openshell` must be present on both sides or absent on both, and
+   * all three OpenShell fields must be equal — so a plain-local grant never satisfies an
+   * OpenShell request, and an OpenShell grant never satisfies a plain-local one (or a different
+   * sandbox, provider or gateway).
+   */
   private matchesKey(grant: AgentAccessGrantKey, key: AgentAccessGrantKey): boolean {
+    if (
+      grant.signatureKind !== key.signatureKind ||
+      grant.signatureIdentity !== key.signatureIdentity
+    ) {
+      return false;
+    }
+    const grantOpenShell = grant.openshell;
+    const keyOpenShell = key.openshell;
+    if (grantOpenShell == null || keyOpenShell == null) {
+      return grantOpenShell == null && keyOpenShell == null;
+    }
     return (
-      grant.signatureKind === key.signatureKind && grant.signatureIdentity === key.signatureIdentity
+      grantOpenShell.gatewayEndpoint === keyOpenShell.gatewayEndpoint &&
+      grantOpenShell.sandboxId === keyOpenShell.sandboxId &&
+      grantOpenShell.providerId === keyOpenShell.providerId
     );
   }
 

@@ -1,0 +1,1 @@
+{"version":1,"op":"openshellHello","openshell":{"gateway":{"name":"openshell","endpoint":"https://127.0.0.1:17670"}},"client":{"name":"aac-openshell-driver","version":"0.0.0-fixture"}}

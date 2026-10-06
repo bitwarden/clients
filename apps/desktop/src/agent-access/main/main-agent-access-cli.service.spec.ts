@@ -15,6 +15,7 @@ import { AgentAccessRegistrationStatusService } from "./agent-access-registratio
 import { AgentAccessRegistrationService } from "./agent-access-registration.service";
 import { AgentDetectionService } from "./agent-detection.service";
 import { MainAgentAccessCliService } from "./main-agent-access-cli.service";
+import { OpenShellDetectionService } from "./openshell-detection.service";
 
 jest.mock("electron", () => ({
   ipcMain: {
@@ -345,6 +346,102 @@ describe("MainAgentAccessCliService", () => {
 
       expect(agentRegistrationStatusService.getAgentRegistrationStatuses).toHaveBeenCalled();
       expect(result).toEqual(statuses);
+    });
+  });
+
+  describe("OpenShell IPC (§M8.8)", () => {
+    const detected = {
+      present: true,
+      platformSupported: true,
+      gateways: [
+        {
+          name: "home",
+          endpoint: "https://127.0.0.1:1",
+          authMode: "mtls",
+          active: false,
+          authSupported: true,
+        },
+        {
+          name: "work",
+          endpoint: "https://127.0.0.1:2",
+          authMode: "mtls",
+          active: true,
+          authSupported: true,
+        },
+      ],
+      gatewayConfigPathHint: "/opt/homebrew/var/openshell/gateway.toml",
+    };
+
+    function create(detection: Partial<typeof detected> & Record<string, unknown> = detected) {
+      const openShellDetection = mock<OpenShellDetectionService>();
+      openShellDetection.detect.mockResolvedValue({ ...detected, ...detection } as any);
+      const service = new MainAgentAccessCliService(
+        mockLogService,
+        userDataPath,
+        exePath,
+        appPath,
+        mock<AgentDetectionService>(),
+        mock<AgentAccessRegistrationService>(),
+        mock<AgentAccessRegistrationStatusService>(),
+        openShellDetection,
+        "/Users/test",
+      );
+      return { service, openShellDetection };
+    }
+
+    it("registers DETECT_OPENSHELL and returns the detection result", async () => {
+      const { openShellDetection } = create();
+      const result = await ipcHandlers.get("agentaccess.detectopenshell")!({});
+      expect(openShellDetection.detect).toHaveBeenCalled();
+      expect(result.present).toBe(true);
+    });
+
+    it("builds the snippet from main-owned inputs only, using the active gateway", async () => {
+      (existsSync as jest.Mock).mockReturnValue(true);
+      create();
+      const snippet = await ipcHandlers.get("agentaccess.getopenshellsnippet")!(
+        {},
+        { aacPath: "/tmp/evil", driverSocketPath: "/tmp/evil.sock" },
+      );
+      expect(snippet.gatewayName).toBe("work");
+      expect(snippet.gatewayToml).toContain(
+        'command = "/Applications/Bitwarden.app/Contents/MacOS/aac"',
+      );
+      expect(snippet.gatewayToml).toContain(
+        'socket_path = "/Users/test/.bitwarden-openshell-driver.sock"',
+      );
+      expect(snippet.gatewayToml).toContain('"--gateway", "work"]');
+      expect(snippet.gatewayToml).not.toContain("evil");
+    });
+
+    it("falls back to the default gateway name when none is configured", async () => {
+      (existsSync as jest.Mock).mockReturnValue(true);
+      create({ gateways: [] });
+      const snippet = await ipcHandlers.get("agentaccess.getopenshellsnippet")!({});
+      expect(snippet.gatewayName).toBe("openshell");
+    });
+
+    it("returns no snippet when OpenShell is absent, unsupported, or there is no bundled aac", async () => {
+      (existsSync as jest.Mock).mockReturnValue(true);
+      create({ present: false });
+      expect(await ipcHandlers.get("agentaccess.getopenshellsnippet")!({})).toBeNull();
+
+      create({ platformSupported: false, unsupportedReason: "snap" });
+      expect(await ipcHandlers.get("agentaccess.getopenshellsnippet")!({})).toBeNull();
+
+      (existsSync as jest.Mock).mockReturnValue(false);
+      create();
+      expect(await ipcHandlers.get("agentaccess.getopenshellsnippet")!({})).toBeNull();
+    });
+
+    it("never writes anything for detection or the snippet on macOS", async () => {
+      (existsSync as jest.Mock).mockReturnValue(true);
+      create();
+      await ipcHandlers.get("agentaccess.detectopenshell")!({});
+      await ipcHandlers.get("agentaccess.getopenshellsnippet")!({});
+      for (const write of [fs.mkdir, fs.link, fs.copyFile, fs.unlink]) {
+        expect(write).not.toHaveBeenCalled();
+      }
     });
   });
 });

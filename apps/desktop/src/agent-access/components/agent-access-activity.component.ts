@@ -409,6 +409,11 @@ export class AgentAccessActivityComponent implements OnInit {
    * anything new just to render a log row.
    */
   protected requestResultLabel(entry: CredentialRequestActivity): string | undefined {
+    // OpenShell rows (§M8.8) record no field names or item ids to describe; the status badge is
+    // the whole story for a release.
+    if (entry.origin === "openshell" && entry.status === AgentAccessRequestStatus.Shared) {
+      return undefined;
+    }
     switch (entry.status) {
       case AgentAccessRequestStatus.Shared: {
         // M7 (`projectSecretsRequest`): the sole bulk-value release. Distinguished by

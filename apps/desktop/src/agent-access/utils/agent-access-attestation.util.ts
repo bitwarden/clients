@@ -1,6 +1,6 @@
 import type { agent_access } from "@bitwarden/desktop-napi";
 
-import { AgentAccessGrantKey } from "../models/agent-access-grant";
+import { AgentAccessGrantKey, AgentAccessOpenShellGrantKey } from "../models/agent-access-grant";
 
 /**
  * Grant-key `signatureKind` used for peers with no valid code signature — unsigned binaries,
@@ -29,10 +29,29 @@ export function attestedExePath(localPeer: agent_access.LocalPeerInfoData): stri
  */
 export function deriveAgentAccessAttestationKey(
   localPeer: agent_access.LocalPeerInfoData,
+  openshell?: AgentAccessOpenShellGrantKey,
 ): AgentAccessGrantKey {
   const { signature } = localPeer;
+  // For an OpenShell request (§M8.5) the attested process is aac's parent, the
+  // `openshell-gateway` — the same parent-first rule as a plain local request, so this is the
+  // attested gateway identity. The gateway-reported sandbox/provider ids are added on top, never
+  // in place of it.
+  const openshellPart =
+    openshell == null
+      ? {}
+      : {
+          openshell: {
+            gatewayEndpoint: openshell.gatewayEndpoint,
+            sandboxId: openshell.sandboxId,
+            providerId: openshell.providerId,
+          },
+        };
   if (signature != null && signature.valid) {
-    return { signatureKind: signature.kind, signatureIdentity: signature.identity };
+    return {
+      signatureKind: signature.kind,
+      signatureIdentity: signature.identity,
+      ...openshellPart,
+    };
   }
 
   // `signature.identity` already falls back to the executable path for unsigned/invalid peers
@@ -41,6 +60,7 @@ export function deriveAgentAccessAttestationKey(
   return {
     signatureKind: PATH_SIGNATURE_KIND,
     signatureIdentity: signature?.identity ?? attestedExePath(localPeer) ?? "",
+    ...openshellPart,
   };
 }
 

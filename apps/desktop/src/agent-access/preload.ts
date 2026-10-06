@@ -13,6 +13,13 @@ import { AgentId } from "./models/agent-id";
 import { RegisterWithAgentResult } from "./models/agent-registration";
 import { AgentRegistrationStatusResult } from "./models/agent-registration-status";
 import { AGENT_ACCESS_IPC_CHANNELS } from "./models/ipc-channels";
+import {
+  OpenShellDetectionResult,
+  OpenShellSetupResult,
+  OpenShellSetupStatus,
+  OpenShellSnippet,
+  SetOpenShellListenerResult,
+} from "./models/openshell";
 
 const agentAccess = {
   init: async (options: { relayUrl: string }): Promise<void> => {
@@ -51,12 +58,14 @@ const agentAccess = {
     // Activity-log annotation for the request's row. Kept separate from `response` so the payload
     // that may carry a live credential is never the thing the activity log reads from.
     outcome?: CredentialRequestOutcome,
-  ): Promise<void> => {
-    await ipcRenderer.invoke(AGENT_ACCESS_IPC_CHANNELS.CREDENTIAL_REQUEST_RESPONSE, {
-      requestId,
-      response,
-      outcome,
-    });
+  ): Promise<boolean> => {
+    // `true` when the answer reached a request that was still waiting (see main's
+    // `settlePendingRequest`).
+    const delivered: unknown = await ipcRenderer.invoke(
+      AGENT_ACCESS_IPC_CHANNELS.CREDENTIAL_REQUEST_RESPONSE,
+      { requestId, response, outcome },
+    );
+    return delivered === true;
   },
   fingerprintResponse: async (
     requestId: number,
@@ -94,6 +103,30 @@ const agentAccess = {
   },
   removeGrant(id: string): Promise<void> {
     return ipcRenderer.invoke(AGENT_ACCESS_IPC_CHANNELS.REMOVE_GRANT, { id });
+  },
+  // Optional OpenShell integration (agent-access-architecture.md, §M8.8). None of these write a
+  // file or run an OpenShell binary; the socket path is computed in main.
+  detectOpenShell(): Promise<OpenShellDetectionResult> {
+    return ipcRenderer.invoke(AGENT_ACCESS_IPC_CHANNELS.DETECT_OPENSHELL);
+  },
+  getOpenShellSnippet(): Promise<OpenShellSnippet | null> {
+    return ipcRenderer.invoke(AGENT_ACCESS_IPC_CHANNELS.GET_OPENSHELL_SNIPPET);
+  },
+  setOpenShellListener(enabled: boolean): Promise<SetOpenShellListenerResult> {
+    return ipcRenderer.invoke(AGENT_ACCESS_IPC_CHANNELS.SET_OPENSHELL_LISTENER, enabled);
+  },
+  getOpenShellDriverLastSeen(): Promise<number | null> {
+    return ipcRenderer.invoke(AGENT_ACCESS_IPC_CHANNELS.GET_OPENSHELL_DRIVER_LAST_SEEN);
+  },
+  // One-button setup (§M8.19). No arguments: main picks every path and command itself.
+  getOpenShellSetupStatus(): Promise<OpenShellSetupStatus> {
+    return ipcRenderer.invoke(AGENT_ACCESS_IPC_CHANNELS.GET_OPENSHELL_SETUP_STATUS);
+  },
+  runOpenShellSetup(): Promise<OpenShellSetupResult> {
+    return ipcRenderer.invoke(AGENT_ACCESS_IPC_CHANNELS.RUN_OPENSHELL_SETUP);
+  },
+  removeOpenShellSetup(): Promise<OpenShellSetupResult> {
+    return ipcRenderer.invoke(AGENT_ACCESS_IPC_CHANNELS.REMOVE_OPENSHELL_SETUP);
   },
 };
 

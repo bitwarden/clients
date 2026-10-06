@@ -1,4 +1,4 @@
-import { Injectable, signal } from "@angular/core";
+import { computed, Injectable, signal } from "@angular/core";
 
 import { AgentAccessGrant } from "../models/agent-access-grant";
 import { AgentRegistrationStatusResult } from "../models/agent-registration-status";
@@ -30,6 +30,13 @@ export class AgentAccessPageStateService {
 
   readonly grants = signal<AgentAccessGrant[]>([]);
   readonly grantsLoading = signal(true);
+
+  /** Grants for local agents (everything but OpenShell sandbox grants). */
+  readonly localGrants = computed(() => this.grants().filter((grant) => grant.openshell == null));
+  /** OpenShell sandbox grants (§M8.9), listed in their own section on the Agents tab. */
+  readonly openShellGrants = computed(() =>
+    this.grants().filter((grant) => grant.openshell != null),
+  );
 
   readonly registrationStatuses = signal<AgentRegistrationStatusResult[]>([]);
 

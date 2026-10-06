@@ -50,4 +50,18 @@ export const AGENT_ACCESS_IPC_CHANNELS = {
   // per-route `AgentAccessPageStateService` has already fetched. renderer -> renderer
   // (MessageSender/MessageListener)
   GRANTS_CHANGED: "agentaccess.grantschanged",
+  // Optional OpenShell integration (agent-access-architecture.md, §M8.8). Detection never runs a
+  // process or opens a connection; the snippet is text only and is the fallback for the setup
+  // channels below. renderer -> main (ipcMain.handle)
+  DETECT_OPENSHELL: "agentaccess.detectopenshell",
+  GET_OPENSHELL_SNIPPET: "agentaccess.getopenshellsnippet",
+  // Starts/stops the toggle-gated OpenShell socket. Main re-runs detection itself and computes
+  // the socket path; the renderer only says on/off. renderer -> main (ipcMain.handle)
+  SET_OPENSHELL_LISTENER: "agentaccess.setopenshelllistener",
+  GET_OPENSHELL_DRIVER_LAST_SEEN: "agentaccess.getopenshelldriverlastseen",
+  // One-button setup (§M8.19): edits gateway.toml and restarts the gateway. Takes no arguments —
+  // every path and command is chosen in main.
+  GET_OPENSHELL_SETUP_STATUS: "agentaccess.getopenshellsetupstatus",
+  RUN_OPENSHELL_SETUP: "agentaccess.runopenshellsetup",
+  REMOVE_OPENSHELL_SETUP: "agentaccess.removeopenshellsetup",
 } as const;

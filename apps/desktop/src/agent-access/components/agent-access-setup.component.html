@@ -6,117 +6,124 @@
     {{ "agentAccessSetupIntro" | i18n }}
   </p>
 
-  <!-- Primary: agents on this machine. Owns its own loading state, so the grid is never held
-       behind the remote-connection fetch that only feeds the section below it. -->
-  <app-agent-access-connect></app-agent-access-connect>
+  <!-- One pane at a time. The page's one decision is where the agent runs; showing all three
+       answers stacked made every section the same weight and the whole tab a scroll. The panes
+       stay in the DOM and are hidden rather than swapped out, so the connect list keeps its
+       status/loading state and the OpenShell section can report whether it applies at all. -->
+  <bit-toggle-group [(selected)]="selectedPane" [label]="'agentAccessSetupPaneLabel' | i18n">
+    <bit-toggle [value]="Pane.Local">{{ "agentAccessConnectTitle" | i18n }}</bit-toggle>
+    @if (openShellVisible()) {
+      <bit-toggle [value]="Pane.OpenShell">{{ "agentAccessOpenShellTitle" | i18n }}</bit-toggle>
+    }
+    <bit-toggle [value]="Pane.Remote">{{ "agentAccessRemoteAgentsTitle" | i18n }}</bit-toggle>
+  </bit-toggle-group>
 
-  <!-- Secondary, but still a section with a heading and a labelled action rather than a collapsed
-       muted chevron. "Demoted" (agent-access-architecture.md, "M2 — onboarding" — "Pairing is
-       demoted to a secondary... action, not the front door") means below the primary path and
-       visually quieter, not undiscoverable: a user who came here specifically to pair a remote
-       agent had no way to see that this page could do it without opening a disclosure whose label
-       was the only clue. -->
-  <bit-section [disableMargin]="true">
-    <bit-section-header>
-      <h2 bitTypography="h5">{{ "agentAccessRemoteAgentsTitle" | i18n }}</h2>
+  <div [hidden]="activePane() !== Pane.Local">
+    <app-agent-access-connect></app-agent-access-connect>
+  </div>
 
-      <!-- Only in the header once there's a list to add to; the empty state below carries the
-           same action as its own call to action, and showing both at once gives the user two
-           identical buttons a few hundred pixels apart. -->
-      @if (!loading() && connections().length > 0) {
-        <button
-          slot="end"
-          id="agent-access-setup_button_pair-agent"
-          type="button"
-          bitButton
-          buttonType="secondary"
-          size="small"
-          startIcon="bwi-plus"
-          (click)="openPairAgentDialog()"
-        >
-          {{ "agentAccessPairAgentAction" | i18n }}
-        </button>
-      }
-    </bit-section-header>
+  <!-- Optional OpenShell integration (agent-access-architecture.md, §M8.9). Renders nothing unless
+       Agent Access is on and OpenShell is detected, and never on Windows. -->
+  <div [hidden]="activePane() !== Pane.OpenShell">
+    <app-agent-access-openshell-section></app-agent-access-openshell-section>
+  </div>
 
-    <p bitTypography="body2" class="tw-text-muted tw-mb-4">
-      {{ "agentAccessRemoteAgentsDescription" | i18n }}
-    </p>
-
-    @if (loading()) {
-      <div class="tw-flex tw-flex-col tw-gap-3">
-        @for (i of skeletonRows; track i) {
-          <bit-skeleton-group>
-            <bit-skeleton class="tw-size-8" slot="start"></bit-skeleton>
-            <bit-skeleton-text [lines]="2" class="tw-w-1/2"></bit-skeleton-text>
-          </bit-skeleton-group>
+  <div [hidden]="activePane() !== Pane.Remote">
+    <bit-section [disableMargin]="true">
+      <div class="tw-mb-4 tw-flex tw-items-start tw-justify-between tw-gap-4">
+        <p bitTypography="body2" class="tw-m-0 tw-text-muted">
+          {{ "agentAccessRemoteAgentsDescription" | i18n }}
+        </p>
+        @if (!loading() && connections().length > 0) {
+          <button
+            id="agent-access-setup_button_pair-agent"
+            type="button"
+            bitButton
+            buttonType="secondary"
+            size="small"
+            startIcon="bwi-plus"
+            (click)="openPairAgentDialog()"
+          >
+            {{ "agentAccessPairAgentAction" | i18n }}
+          </button>
         }
       </div>
-    } @else if (connections().length === 0) {
-      <!-- The same `bit-no-items` treatment the Agents tab's connected-agents list uses for its
+
+      @if (loading()) {
+        <div class="tw-flex tw-flex-col tw-gap-3">
+          @for (i of skeletonRows; track i) {
+            <bit-skeleton-group>
+              <bit-skeleton class="tw-size-8" slot="start"></bit-skeleton>
+              <bit-skeleton-text [lines]="2" class="tw-w-1/2"></bit-skeleton-text>
+            </bit-skeleton-group>
+          }
+        </div>
+      } @else if (connections().length === 0) {
+        <!-- The same `bit-no-items` treatment the Agents tab's connected-agents list uses for its
            own empty state, rather than this section's old pair of stacked muted paragraphs. -->
-      <bit-no-items [icon]="DevicesIcon" data-testid="agent-access-no-paired-agents">
-        <ng-container slot="title">{{ "agentAccessNoPairedAgents" | i18n }}</ng-container>
-        <ng-container slot="description">{{
-          "agentAccessNoPairedAgentsDescription" | i18n
-        }}</ng-container>
-        <button
-          slot="button"
-          id="agent-access-setup_button_pair-agent-empty"
-          type="button"
-          bitButton
-          buttonType="secondary"
-          (click)="openPairAgentDialog()"
-        >
-          {{ "agentAccessPairAgentAction" | i18n }}
-        </button>
-      </bit-no-items>
-    } @else {
-      <bit-table>
-        <ng-container header>
-          <tr>
-            <th bitCell>{{ "name" | i18n }}</th>
-            <th bitCell>{{ "agentAccessColumnLastConnected" | i18n }}</th>
-            <th bitCell class="tw-text-right">{{ "options" | i18n }}</th>
-          </tr>
-        </ng-container>
-        <ng-template body>
-          @for (connection of connections(); track connection.fingerprint) {
-            <tr bitRow>
-              <!-- Name over fingerprint in one cell, matching the connected-agents table on the
+        <bit-no-items [icon]="DevicesIcon" data-testid="agent-access-no-paired-agents">
+          <ng-container slot="title">{{ "agentAccessNoPairedAgents" | i18n }}</ng-container>
+          <ng-container slot="description">{{
+            "agentAccessNoPairedAgentsDescription" | i18n
+          }}</ng-container>
+          <button
+            slot="button"
+            id="agent-access-setup_button_pair-agent-empty"
+            type="button"
+            bitButton
+            buttonType="secondary"
+            (click)="openPairAgentDialog()"
+          >
+            {{ "agentAccessPairAgentAction" | i18n }}
+          </button>
+        </bit-no-items>
+      } @else {
+        <bit-table>
+          <ng-container header>
+            <tr>
+              <th bitCell>{{ "name" | i18n }}</th>
+              <th bitCell>{{ "agentAccessColumnLastConnected" | i18n }}</th>
+              <th bitCell class="tw-text-right">{{ "options" | i18n }}</th>
+            </tr>
+          </ng-container>
+          <ng-template body>
+            @for (connection of connections(); track connection.fingerprint) {
+              <tr bitRow>
+                <!-- Name over fingerprint in one cell, matching the connected-agents table on the
                    Agents tab. As two columns they printed the same shortened fingerprint twice
                    whenever a connection had no name, since the name column fell back to it. -->
-              <td bitCell>
-                <div class="tw-flex tw-min-w-0 tw-flex-col" [title]="connection.fingerprint">
-                  <span class="tw-truncate">{{
-                    connection.name || ("agentAccessUnnamedAgent" | i18n)
-                  }}</span>
-                  <span class="tw-truncate tw-font-mono tw-text-muted" bitTypography="helper">{{
-                    shortenFingerprint(connection.fingerprint)
-                  }}</span>
-                </div>
-              </td>
-              <td bitCell>
-                @if (connection.lastConnectedAt) {
-                  {{ toDate(connection.lastConnectedAt) | date: "medium" }}
-                } @else {
-                  {{ "never" | i18n }}
-                }
-              </td>
-              <td bitCell class="tw-text-right">
-                <button
-                  [id]="'agent-access-setup_button_remove-agent-' + connection.fingerprint"
-                  type="button"
-                  bitIconButton="bwi-trash"
-                  buttonType="dangerGhost"
-                  [bitAction]="removeConnectionAction(connection)"
-                  [label]="'agentAccessRemoveAgent' | i18n"
-                ></button>
-              </td>
-            </tr>
-          }
-        </ng-template>
-      </bit-table>
-    }
-  </bit-section>
+                <td bitCell>
+                  <div class="tw-flex tw-min-w-0 tw-flex-col" [title]="connection.fingerprint">
+                    <span class="tw-truncate">{{
+                      connection.name || ("agentAccessUnnamedAgent" | i18n)
+                    }}</span>
+                    <span class="tw-truncate tw-font-mono tw-text-muted" bitTypography="helper">{{
+                      shortenFingerprint(connection.fingerprint)
+                    }}</span>
+                  </div>
+                </td>
+                <td bitCell>
+                  @if (connection.lastConnectedAt) {
+                    {{ toDate(connection.lastConnectedAt) | date: "medium" }}
+                  } @else {
+                    {{ "never" | i18n }}
+                  }
+                </td>
+                <td bitCell class="tw-text-right">
+                  <button
+                    [id]="'agent-access-setup_button_remove-agent-' + connection.fingerprint"
+                    type="button"
+                    bitIconButton="bwi-trash"
+                    buttonType="dangerGhost"
+                    [bitAction]="removeConnectionAction(connection)"
+                    [label]="'agentAccessRemoveAgent' | i18n"
+                  ></button>
+                </td>
+              </tr>
+            }
+          </ng-template>
+        </bit-table>
+      }
+    </bit-section>
+  </div>
 </div>

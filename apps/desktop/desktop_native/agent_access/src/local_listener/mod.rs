@@ -13,6 +13,7 @@
 //! callback, building the reply — is platform-independent and lives in this module.
 
 mod local_protocol;
+mod openshell;
 #[cfg(unix)]
 mod unix;
 #[cfg(windows)]
@@ -35,6 +36,7 @@ use crate::client::CALLBACK_TIMEOUT;
 use crate::error::AgentAccessError;
 use crate::peer_info::LocalPeerInfo;
 use local_protocol::{ValidatedRequest, WireRequest, WireResponse, WireStatus};
+use openshell::{LimitRefusal, OpenShellLimiter, OpenShellReply, ValidatedHello, ValidatedResolve};
 
 /// Read timeout for the single request line. The response can legitimately take up to
 /// [`CALLBACK_TIMEOUT`] (60s — user approval); this only bounds how long the server waits for
@@ -51,6 +53,18 @@ const READ_TIMEOUT: Duration = Duration::from_secs(10);
 /// invocation (the wire protocol is one-request-per-connection), so double-digit concurrent
 /// requests already indicates something unusual, not normal multi-tool usage.
 const MAX_CONCURRENT_CONNECTIONS: usize = 8;
+
+/// Which socket a listener serves (agent-access-architecture.md, §M8.4). The kind — never
+/// anything on the wire — decides which ops are accepted and which [`CredentialRequestOrigin`]
+/// a dispatched request carries.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ListenerKind {
+    /// The existing `aac` agent socket: every op except the OpenShell ones; origin `Local`.
+    Agent,
+    /// The toggle-gated OpenShell socket: `openshellResolve`/`openshellHello` only; origin
+    /// `OpenShell`. macOS and Linux only.
+    OpenShell,
+}
 
 /// Implemented per-platform ([`unix::UnixLocalListener`], [`windows::WindowsLocalListener`]).
 /// Deliberately not the `ssh_agent` crate's `Listener` trait — this crate must not depend on
@@ -76,6 +90,7 @@ pub(crate) trait LocalListener: Send {
 /// `client::Running` and aborted in `DesktopAgentAccess::stop`.
 pub(crate) fn spawn(
     socket_path: String,
+    kind: ListenerKind,
     credential_handler: Arc<dyn CredentialRequestHandler>,
     event_sink: Arc<dyn EventSink>,
 ) -> Result<JoinHandle<()>, AgentAccessError> {
@@ -85,17 +100,26 @@ pub(crate) fn spawn(
             .map_err(|e| AgentAccessError::LocalListener(format!("failed to bind: {e}")))?;
         Ok(tokio::spawn(accept_loop(
             listener,
+            kind,
             credential_handler,
             event_sink,
         )))
     }
     #[cfg(windows)]
     {
+        // §M8: the OpenShell integration is macOS/Linux only. Refuse here too, so no caller can
+        // stand up a Windows named pipe that accepts the OpenShell ops.
+        if kind == ListenerKind::OpenShell {
+            return Err(AgentAccessError::LocalListener(
+                "the OpenShell listener is only supported on macOS and Linux".to_string(),
+            ));
+        }
         let listener = windows::WindowsLocalListener::bind(&socket_path).map_err(|e| {
             AgentAccessError::LocalListener(format!("failed to create named pipe: {e}"))
         })?;
         Ok(tokio::spawn(accept_loop(
             listener,
+            kind,
             credential_handler,
             event_sink,
         )))
@@ -116,10 +140,14 @@ pub(crate) fn spawn(
 /// credential after the user believed the feature was off.
 async fn accept_loop<L: LocalListener + 'static>(
     mut listener: L,
+    kind: ListenerKind,
     credential_handler: Arc<dyn CredentialRequestHandler>,
     event_sink: Arc<dyn EventSink>,
 ) {
     let semaphore = Arc::new(Semaphore::new(MAX_CONCURRENT_CONNECTIONS));
+    // Per-listener (§M8.5): the OpenShell rate-limit state lives and dies with this accept loop,
+    // so a stop/start of the OpenShell listener starts from a clean slate.
+    let limiter = Arc::new(OpenShellLimiter::default());
     let mut connections: JoinSet<()> = JoinSet::new();
 
     loop {
@@ -131,8 +159,12 @@ async fn accept_loop<L: LocalListener + 'static>(
                             Ok(permit) => {
                                 let handler = Arc::clone(&credential_handler);
                                 let sink = Arc::clone(&event_sink);
+                                let limiter = Arc::clone(&limiter);
                                 connections.spawn(async move {
-                                    handle_connection(stream, peer_pid, handler, sink).await;
+                                    handle_connection(
+                                        stream, peer_pid, kind, handler, sink, limiter,
+                                    )
+                                    .await;
                                     drop(permit);
                                 });
                             }
@@ -191,8 +223,10 @@ async fn reject_rate_limited<S: AsyncWrite + Unpin>(mut stream: S) {
 async fn handle_connection<S: AsyncRead + AsyncWrite + Unpin>(
     mut stream: S,
     peer_pid: Option<u32>,
+    kind: ListenerKind,
     credential_handler: Arc<dyn CredentialRequestHandler>,
     event_sink: Arc<dyn EventSink>,
+    limiter: Arc<OpenShellLimiter>,
 ) {
     let line = match tokio::time::timeout(READ_TIMEOUT, read_request_line(&mut stream)).await {
         Ok(Ok(ReadOutcome::Line(line))) => line,
@@ -220,7 +254,27 @@ async fn handle_connection<S: AsyncRead + AsyncWrite + Unpin>(
         }
     };
 
-    let validated = match local_protocol::validate(request) {
+    if kind == ListenerKind::OpenShell {
+        // §M8.18: aac never half-closes, so EOF (or an error) on our read side while the request
+        // is being dispatched means aac dropped the request (the gateway or supervisor cancelled
+        // it). Nothing is written then; see `serve_openshell`.
+        let hangup = peer_hung_up(&mut stream);
+        let reply_line = handle_openshell_request(
+            request,
+            peer_pid,
+            credential_handler,
+            event_sink,
+            limiter,
+            hangup,
+        )
+        .await;
+        if let Some(reply_line) = reply_line {
+            let _ = stream.write_all(&reply_line.bytes).await;
+        }
+        return;
+    }
+
+    let validated = match validate_agent_request(request) {
         Ok(validated) => validated,
         Err(message) => {
             reply(&mut stream, &WireResponse::error(message)).await;
@@ -295,6 +349,8 @@ async fn handle_connection<S: AsyncRead + AsyncWrite + Unpin>(
                 // `fill` is `None` for every other delivery mode.
                 fill_fields: fill.as_ref().and_then(|f| f.fields.clone()),
                 fill_target_token: fill.as_ref().and_then(|f| f.target_token.clone()),
+                openshell: None,
+                provider_targets: Vec::new(),
             };
             (
                 resource,
@@ -351,6 +407,8 @@ async fn handle_connection<S: AsyncRead + AsyncWrite + Unpin>(
                 generate_symbols: generate.and_then(|g| g.symbols),
                 fill_fields: None,
                 fill_target_token: None,
+                openshell: None,
+                provider_targets: Vec::new(),
             };
             (resource, RequestOperation::Create, None, request_data)
         }
@@ -400,6 +458,8 @@ async fn handle_connection<S: AsyncRead + AsyncWrite + Unpin>(
                 generate_symbols: generate.and_then(|g| g.symbols),
                 fill_fields: None,
                 fill_target_token: None,
+                openshell: None,
+                provider_targets: Vec::new(),
             };
             (resource, RequestOperation::Update, None, request_data)
         }
@@ -436,6 +496,8 @@ async fn handle_connection<S: AsyncRead + AsyncWrite + Unpin>(
                 generate_symbols: None,
                 fill_fields: None,
                 fill_target_token: None,
+                openshell: None,
+                provider_targets: Vec::new(),
             };
             (resource, RequestOperation::Delete, None, request_data)
         }
@@ -470,6 +532,8 @@ async fn handle_connection<S: AsyncRead + AsyncWrite + Unpin>(
                 generate_symbols: None,
                 fill_fields: None,
                 fill_target_token: None,
+                openshell: None,
+                provider_targets: Vec::new(),
             };
             (resource, RequestOperation::List, None, request_data)
         }
@@ -505,6 +569,8 @@ async fn handle_connection<S: AsyncRead + AsyncWrite + Unpin>(
                 generate_symbols: None,
                 fill_fields: None,
                 fill_target_token: None,
+                openshell: None,
+                provider_targets: Vec::new(),
             };
             (
                 ResourceKind::Credential,
@@ -559,6 +625,8 @@ async fn handle_connection<S: AsyncRead + AsyncWrite + Unpin>(
                 generate_symbols: None,
                 fill_fields: None,
                 fill_target_token: None,
+                openshell: None,
+                provider_targets: Vec::new(),
             };
             (
                 ResourceKind::Secret,
@@ -585,6 +653,253 @@ async fn handle_connection<S: AsyncRead + AsyncWrite + Unpin>(
     );
 
     reply(&mut stream, &dispatch.response).await;
+}
+
+/// §M8.4 per-socket op gating for the agent socket: the OpenShell ops are refused with a
+/// dedicated message (rather than `unknown operation`), and everything else goes through the
+/// existing validator — which itself rejects an `openshell` object as foreign.
+fn validate_agent_request(request: WireRequest) -> Result<ValidatedRequest, &'static str> {
+    if openshell::is_openshell_op(&request.op) {
+        return Err(openshell::MSG_OP_NOT_AVAILABLE);
+    }
+    local_protocol::validate(request)
+}
+
+/// A validated request on the OpenShell socket.
+enum OpenShellRequest {
+    // Boxed: the resolve carries the whole gateway context, the hello almost nothing.
+    Resolve(Box<ValidatedResolve>),
+    Hello(ValidatedHello),
+}
+
+/// §M8.4 per-socket op gating for the OpenShell socket: only `openshellResolve` and
+/// `openshellHello`; every other op gets `operation not available on this socket`.
+fn validate_openshell_request(request: WireRequest) -> Result<OpenShellRequest, &'static str> {
+    match request.op.as_str() {
+        openshell::OP_RESOLVE => openshell::validate_resolve(request)
+            .map(|resolve| OpenShellRequest::Resolve(Box::new(resolve))),
+        openshell::OP_HELLO => openshell::validate_hello(request).map(OpenShellRequest::Hello),
+        _ => Err(openshell::MSG_OP_NOT_AVAILABLE),
+    }
+}
+
+/// Most bytes a peer may send after its request line before it is treated as gone. aac sends
+/// nothing more; this only bounds a misbehaving peer.
+const MAX_TRAILING_BYTES: usize = 64 * 1024;
+
+/// Resolves once the peer has closed (EOF), errored, or sent more than [`MAX_TRAILING_BYTES`]
+/// after its request line. Pending for as long as the peer keeps the connection open quietly.
+async fn peer_hung_up<S: AsyncRead + Unpin>(stream: &mut S) {
+    let mut buf = [0u8; 256];
+    let mut trailing = 0usize;
+    loop {
+        match stream.read(&mut buf).await {
+            Ok(0) | Err(_) => return,
+            Ok(n) => {
+                trailing += n;
+                if trailing > MAX_TRAILING_BYTES {
+                    return;
+                }
+            }
+        }
+    }
+}
+
+/// §M8.18: a per-process dispatch token, carried in `query_value` of an OpenShell
+/// `ProviderResolve` (which has no other use for it) and in the `detail` of an
+/// `openshellRequestAbandoned` event, so main can settle exactly the request aac abandoned.
+fn next_dispatch_token() -> String {
+    static NEXT: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
+    format!(
+        "{}{}",
+        OPENSHELL_DISPATCH_TOKEN_PREFIX,
+        NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+    )
+}
+
+/// Prefix of every OpenShell dispatch token (`openshell-dispatch:<n>`).
+pub(crate) const OPENSHELL_DISPATCH_TOKEN_PREFIX: &str = "openshell-dispatch:";
+/// §M8.18: emitted (with the dispatch token as `detail`, nothing else) when aac hangs up while
+/// its request is still being dispatched.
+pub(crate) const OPENSHELL_ABANDONED_EVENT_KIND: &str = "openshellRequestAbandoned";
+
+/// Validate → attest → serve, for one OpenShell-socket request. Validation runs before the
+/// (blocking, pool-offloaded) attestation so a malformed request costs no process lookups.
+/// `None` means the peer hung up mid-dispatch and nothing is to be written.
+async fn handle_openshell_request(
+    request: WireRequest,
+    peer_pid: Option<u32>,
+    credential_handler: Arc<dyn CredentialRequestHandler>,
+    event_sink: Arc<dyn EventSink>,
+    limiter: Arc<OpenShellLimiter>,
+    hangup: impl std::future::Future<Output = ()>,
+) -> Option<OpenShellReply> {
+    let validated = match validate_openshell_request(request) {
+        Ok(validated) => validated,
+        Err(message) => return Some(openshell::error_reply(message)),
+    };
+    let peer = attest_peer(peer_pid).await;
+    serve_openshell(
+        validated,
+        peer,
+        credential_handler,
+        event_sink,
+        limiter,
+        AgentAccessEvent::now_ms_u64,
+        hangup,
+    )
+    .await
+}
+
+/// Serves one validated OpenShell request for an already-attested `peer`. Split out (and
+/// clock-injected) so tests can drive it with a synthetic peer and a pinned clock.
+///
+/// Order (§M8.5): attestation precheck → rate limit → dispatch under
+/// `min(CALLBACK_TIMEOUT, deadlineMs)` → checked reply → cooldown bookkeeping. A hello stops
+/// after the precheck: it is never dispatched, touches no vault data and opens no dialog.
+///
+/// §M8.18: if `hangup` resolves while the dispatch is still running, the dispatch is dropped,
+/// an `openshellRequestAbandoned` event carries its token to main (which settles that request
+/// as an undelivered, value-free timeout), and `None` is returned: nothing is written, no
+/// cooldown starts, and the in-flight slot is released for the supervisor's retry.
+async fn serve_openshell(
+    validated: OpenShellRequest,
+    peer: Option<LocalPeerInfo>,
+    credential_handler: Arc<dyn CredentialRequestHandler>,
+    event_sink: Arc<dyn EventSink>,
+    limiter: Arc<OpenShellLimiter>,
+    now_ms: fn() -> u64,
+    hangup: impl std::future::Future<Output = ()>,
+) -> Option<OpenShellReply> {
+    if !openshell::precheck_attestation(peer.as_ref()) {
+        debug!("agent_access: OpenShell request failed the attestation precheck");
+        return Some(openshell::error_reply(openshell::MSG_NOT_VERIFIED));
+    }
+
+    let resolve = match validated {
+        OpenShellRequest::Hello(hello) => {
+            if let Some(client) = &hello.client {
+                debug!(
+                    client_name = %client.name,
+                    client_version = %client.version,
+                    "agent_access: OpenShell driver hello"
+                );
+            }
+            // Timestamp only (§M8.4): no peer fields, no detail.
+            emit_event(&event_sink, "openshellDriverSeen", &None, None, None);
+            return Some(openshell::hello_reply());
+        }
+        OpenShellRequest::Resolve(resolve) => resolve,
+    };
+
+    let ValidatedResolve {
+        context,
+        targets,
+        client,
+    } = *resolve;
+    let sandbox_id = context.sandbox_id.clone();
+    let provider_id = context.provider_id.clone();
+    let key = openshell::coalescing_key(&context, &targets);
+
+    let in_flight = match limiter.try_begin(&sandbox_id, &provider_id, &key) {
+        Ok(guard) => guard,
+        Err(LimitRefusal::InFlight) => {
+            return Some(openshell::reply_with(
+                WireStatus::RateLimited,
+                "Another request for this provider is already waiting for approval",
+            ));
+        }
+        Err(LimitRefusal::CoolingDown) => {
+            return Some(openshell::reply_with(
+                WireStatus::RateLimited,
+                "This provider was recently denied; try again later",
+            ));
+        }
+    };
+    let dispatch_token = next_dispatch_token();
+
+    // Ids only (§M8.12 logging rule, mirrored here): never names, endpoints or values.
+    debug!(
+        provider_id = %provider_id,
+        sandbox_id = %sandbox_id,
+        client_name = client.as_ref().map(|c| c.name.as_str()),
+        peer_pid = peer.as_ref().map(|p| p.pid),
+        "agent_access: OpenShell resolve request"
+    );
+    emit_event(
+        &event_sink,
+        "credential_requested",
+        &peer,
+        Some("providerResolve".to_string()),
+        None,
+    );
+
+    let dispatch_timeout = CALLBACK_TIMEOUT.min(context.deadline);
+    let request_data = CredentialRequestData {
+        // §M8.7 / §M8.18: no query rides a provider resolve; `query_value` carries only the
+        // value-free dispatch token main uses to correlate an `openshellRequestAbandoned` event.
+        query_type: CredentialQueryKind::Id,
+        query_value: dispatch_token.clone(),
+        requester_fingerprint: None,
+        requester_name: None,
+        // From the listener kind, never from the wire (§M8.5).
+        origin: CredentialRequestOrigin::OpenShell,
+        local_peer: peer.clone(),
+        delivery_mode: None,
+        resource: ResourceKind::Credential,
+        operation: RequestOperation::ProviderResolve,
+        new_secret_name: None,
+        new_secret_value: None,
+        new_secret_note: None,
+        project_hint: None,
+        target_id: None,
+        generate_value: false,
+        generate_length: None,
+        generate_symbols: None,
+        fill_fields: None,
+        fill_target_token: None,
+        openshell: Some(context),
+        provider_targets: targets.clone(),
+    };
+
+    let dispatch = tokio::time::timeout(
+        dispatch_timeout,
+        credential_handler.handle_credential_request(request_data),
+    );
+    let outcome = tokio::select! {
+        outcome = dispatch => outcome,
+        () = hangup => {
+            drop(in_flight);
+            debug!(
+                provider_id = %provider_id,
+                sandbox_id = %sandbox_id,
+                "agent_access: OpenShell driver hung up before the reply; dispatch abandoned"
+            );
+            emit_event(
+                &event_sink,
+                OPENSHELL_ABANDONED_EVENT_KIND,
+                &None,
+                Some(dispatch_token),
+                None,
+            );
+            return None;
+        }
+    };
+
+    let reply = openshell::build_reply(outcome, &targets, now_ms());
+    if reply.starts_cooldown() {
+        limiter.start_cooldown(&sandbox_id, &provider_id);
+    }
+    drop(in_flight);
+    // Ids and the status only (§M8.12 logging rule).
+    debug!(
+        provider_id = %provider_id,
+        sandbox_id = %sandbox_id,
+        status = ?reply.status,
+        "agent_access: OpenShell resolve answered"
+    );
+    emit_event(&event_sink, reply.event_kind, &peer, None, None);
+    Some(reply)
 }
 
 /// Resolves `pid` into a full [`LocalPeerInfo`] (`LocalPeerInfo::from_pid`) and runs W2a
@@ -1078,7 +1393,14 @@ mod tests {
         event_sink: Arc<dyn EventSink>,
     ) -> String {
         let (mut client, server) = tokio::io::duplex(4096);
-        let task = tokio::spawn(handle_connection(server, None, handler, event_sink));
+        let task = tokio::spawn(handle_connection(
+            server,
+            None,
+            ListenerKind::Agent,
+            handler,
+            event_sink,
+            Arc::new(OpenShellLimiter::default()),
+        ));
 
         client.write_all(request_line.as_bytes()).await.unwrap();
 
@@ -1788,8 +2110,10 @@ mod tests {
         let task = tokio::spawn(handle_connection(
             server,
             None,
+            ListenerKind::Agent,
             Arc::new(ApprovingHandler),
             Arc::new(NoopEventSink),
+            Arc::new(OpenShellLimiter::default()),
         ));
         client.write_all(b"not json at all\n").await.unwrap();
 
@@ -1807,8 +2131,10 @@ mod tests {
         let task = tokio::spawn(handle_connection(
             server,
             None,
+            ListenerKind::Agent,
             Arc::new(ApprovingHandler),
             Arc::new(NoopEventSink),
+            Arc::new(OpenShellLimiter::default()),
         ));
 
         let oversized = vec![b'a'; local_protocol::MAX_LINE_LEN + 1];
@@ -1941,6 +2267,7 @@ mod tests {
 
         let loop_task = tokio::spawn(accept_loop(
             listener,
+            ListenerKind::Agent,
             handler,
             Arc::new(NoopEventSink) as Arc<dyn EventSink>,
         ));
@@ -1993,6 +2320,7 @@ mod tests {
 
         let loop_task = tokio::spawn(accept_loop(
             listener,
+            ListenerKind::Agent,
             handler,
             Arc::new(NoopEventSink) as Arc<dyn EventSink>,
         ));
@@ -2026,5 +2354,745 @@ mod tests {
         // Not required for the assertions above, but avoids leaving a dangling waiter if the
         // abort somehow didn't take effect immediately.
         let _ = gate_tx.send(true);
+    }
+}
+
+/// §M8.14 "Desktop Rust" seam tests for the OpenShell socket: per-socket op gating, origin from
+/// the listener kind, the attestation precheck, the timeout clamp, rate limiting and the hello.
+#[cfg(test)]
+mod openshell_serve_tests {
+    use std::sync::atomic::{AtomicUsize, Ordering};
+
+    use async_trait::async_trait;
+    use tokio::io::{AsyncBufReadExt, BufReader};
+    use tokio::sync::watch;
+    use zeroize::Zeroizing;
+
+    use super::*;
+    use crate::attestation::{ParentProcessInfo, SignatureInfo, SignatureKind};
+    use crate::callbacks::{
+        CallbackError, CredentialDenialReason, CredentialResponseData, OpenShellLifetime,
+        OpenShellLifetimeMode, OpenShellResolution, ProviderValue,
+    };
+
+    const REQUEST_FIXTURE: &str =
+        include_str!("../../tests/fixtures/openshell/openshell-resolve.request.json");
+    const HELLO_FIXTURE: &str =
+        include_str!("../../tests/fixtures/openshell/openshell-hello.request.json");
+
+    fn good_peer() -> LocalPeerInfo {
+        LocalPeerInfo {
+            pid: 4242,
+            process_name: Some("aac".to_string()),
+            exe_path: Some("/nonexistent/bin/aac".to_string()),
+            parent: Some(ParentProcessInfo {
+                pid: 4241,
+                process_name: Some("openshell-gateway".to_string()),
+                exe_path: Some("/nonexistent/bin/openshell-gateway".to_string()),
+            }),
+            signature: Some(SignatureInfo {
+                kind: SignatureKind::LinuxPathOnly,
+                identity: "/nonexistent/bin/openshell-gateway".to_string(),
+                valid: false,
+            }),
+        }
+    }
+
+    fn fixed_now() -> u64 {
+        1_791_230_967_890
+    }
+
+    fn request_with(mutate: impl FnOnce(&mut serde_json::Value)) -> WireRequest {
+        let mut value: serde_json::Value = serde_json::from_str(REQUEST_FIXTURE).unwrap();
+        mutate(&mut value);
+        serde_json::from_value(value).unwrap()
+    }
+
+    fn resolve_request() -> OpenShellRequest {
+        validate_openshell_request(request_with(|_| {})).unwrap()
+    }
+
+    /// Counts dispatches and approves with a fixed ttl window, asserting the request shape.
+    struct CountingApprover {
+        calls: AtomicUsize,
+    }
+
+    #[async_trait]
+    impl CredentialRequestHandler for CountingApprover {
+        async fn handle_credential_request(
+            &self,
+            request: CredentialRequestData,
+        ) -> Result<CredentialResponseData, CallbackError> {
+            self.calls.fetch_add(1, Ordering::SeqCst);
+            assert_eq!(request.origin, CredentialRequestOrigin::OpenShell);
+            assert_eq!(request.operation, RequestOperation::ProviderResolve);
+            assert_eq!(request.query_type, CredentialQueryKind::Id);
+            assert!(request
+                .query_value
+                .starts_with(OPENSHELL_DISPATCH_TOKEN_PREFIX));
+            assert!(request.delivery_mode.is_none());
+            let context = request.openshell.expect("openshell context");
+            assert_eq!(context.sandbox_id, "sbx-01J9Z6");
+            assert_eq!(request.provider_targets.len(), 2);
+            assert!(request.local_peer.is_some());
+            Ok(CredentialResponseData {
+                approved: true,
+                openshell: Some(OpenShellResolution {
+                    lifetime: OpenShellLifetime {
+                        mode: OpenShellLifetimeMode::Ttl,
+                        expires_at_ms: Some(fixed_now() + 3_600_000),
+                    },
+                    values: request
+                        .provider_targets
+                        .iter()
+                        .map(|target| ProviderValue {
+                            credential_key: target.credential_key.clone(),
+                            value: Zeroizing::new(format!("value-of-{}", target.credential_key)),
+                        })
+                        .collect(),
+                }),
+                ..Default::default()
+            })
+        }
+    }
+
+    fn counting() -> Arc<CountingApprover> {
+        Arc::new(CountingApprover {
+            calls: AtomicUsize::new(0),
+        })
+    }
+
+    /// Panics if dispatched — proves a refusal happened before the handler.
+    struct MustNotDispatch;
+
+    #[async_trait]
+    impl CredentialRequestHandler for MustNotDispatch {
+        async fn handle_credential_request(
+            &self,
+            _request: CredentialRequestData,
+        ) -> Result<CredentialResponseData, CallbackError> {
+            panic!("this request must never be dispatched");
+        }
+    }
+
+    struct CountingDenier {
+        calls: AtomicUsize,
+    }
+
+    #[async_trait]
+    impl CredentialRequestHandler for CountingDenier {
+        async fn handle_credential_request(
+            &self,
+            _request: CredentialRequestData,
+        ) -> Result<CredentialResponseData, CallbackError> {
+            self.calls.fetch_add(1, Ordering::SeqCst);
+            Ok(CredentialResponseData {
+                approved: false,
+                reason: Some(CredentialDenialReason::Denied),
+                ..Default::default()
+            })
+        }
+    }
+
+    struct Hanging;
+
+    #[async_trait]
+    impl CredentialRequestHandler for Hanging {
+        async fn handle_credential_request(
+            &self,
+            _request: CredentialRequestData,
+        ) -> Result<CredentialResponseData, CallbackError> {
+            std::future::pending().await
+        }
+    }
+
+    /// Blocks until `gate` flips, then denies.
+    struct Gated {
+        gate: watch::Receiver<bool>,
+        active: Arc<AtomicUsize>,
+    }
+
+    #[async_trait]
+    impl CredentialRequestHandler for Gated {
+        async fn handle_credential_request(
+            &self,
+            _request: CredentialRequestData,
+        ) -> Result<CredentialResponseData, CallbackError> {
+            self.active.fetch_add(1, Ordering::SeqCst);
+            let mut gate = self.gate.clone();
+            let _ = gate.wait_for(|open| *open).await;
+            Ok(CredentialResponseData {
+                approved: false,
+                reason: Some(CredentialDenialReason::NotFound),
+                ..Default::default()
+            })
+        }
+    }
+
+    struct NoopSink;
+
+    #[async_trait]
+    impl EventSink for NoopSink {
+        async fn on_event(&self, _event: AgentAccessEvent) {}
+    }
+
+    struct ChannelSink(tokio::sync::mpsc::UnboundedSender<AgentAccessEvent>);
+
+    #[async_trait]
+    impl EventSink for ChannelSink {
+        async fn on_event(&self, event: AgentAccessEvent) {
+            let _ = self.0.send(event);
+        }
+    }
+
+    async fn serve(
+        request: OpenShellRequest,
+        peer: Option<LocalPeerInfo>,
+        handler: Arc<dyn CredentialRequestHandler>,
+        limiter: &Arc<OpenShellLimiter>,
+    ) -> (WireStatus, String) {
+        let reply = serve_openshell(
+            request,
+            peer,
+            handler,
+            Arc::new(NoopSink),
+            Arc::clone(limiter),
+            fixed_now,
+            std::future::pending(),
+        )
+        .await
+        .expect("a reply when the peer stays connected");
+        (
+            reply.status,
+            String::from_utf8(reply.bytes.to_vec()).unwrap(),
+        )
+    }
+
+    async fn round_trip(line: &str, kind: ListenerKind) -> String {
+        let (mut client, server) = tokio::io::duplex(8192);
+        let task = tokio::spawn(handle_connection(
+            server,
+            None,
+            kind,
+            Arc::new(MustNotDispatch),
+            Arc::new(NoopSink),
+            Arc::new(OpenShellLimiter::default()),
+        ));
+        client.write_all(line.as_bytes()).await.unwrap();
+        let mut reader = BufReader::new(&mut client);
+        let mut reply_line = String::new();
+        reader.read_line(&mut reply_line).await.unwrap();
+        task.await.unwrap();
+        reply_line
+    }
+
+    // --- per-socket op gating -------------------------------------------------------------------
+
+    #[tokio::test]
+    async fn the_agent_socket_refuses_both_openshell_ops() {
+        for line in [REQUEST_FIXTURE, HELLO_FIXTURE] {
+            let reply = round_trip(line, ListenerKind::Agent).await;
+            assert_eq!(
+                reply,
+                "{\"version\":1,\"status\":\"error\",\"message\":\"operation not available on this socket\"}\n"
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn the_openshell_socket_refuses_every_other_op() {
+        for op in [
+            "credentialRequest",
+            "secretRequest",
+            "secretCreate",
+            "projectList",
+            "describeFillTarget",
+            "projectSecretsRequest",
+            "somethingElse",
+        ] {
+            let line = format!(
+                "{{\"version\":1,\"op\":\"{op}\",\"query\":{{\"type\":\"id\",\"value\":\"x\"}},\"delivery\":\"inject\"}}\n"
+            );
+            let reply = round_trip(&line, ListenerKind::OpenShell).await;
+            assert_eq!(
+                reply,
+                "{\"version\":1,\"status\":\"error\",\"message\":\"operation not available on this socket\"}\n",
+                "{op}"
+            );
+        }
+    }
+
+    #[test]
+    fn the_agent_validator_rejects_an_openshell_object_as_foreign() {
+        let line = "{\"version\":1,\"op\":\"credentialRequest\",\
+            \"query\":{\"type\":\"id\",\"value\":\"x\"},\"delivery\":\"inject\",\
+            \"openshell\":{\"deadlineMs\":25000}}";
+        let request: WireRequest = serde_json::from_str(line).unwrap();
+        match validate_agent_request(request) {
+            Err(message) => assert_eq!(message, "openshell object is not valid for this operation"),
+            Ok(_) => panic!("an openshell object must be rejected on the agent socket"),
+        }
+    }
+
+    /// M7 × §M8.4: the bulk project read is an agent-socket op. A well-formed
+    /// `projectSecretsRequest` (with its `project` selector, no stray query) is still refused on
+    /// the OpenShell socket before any validation or dispatch.
+    #[tokio::test]
+    async fn the_openshell_socket_refuses_a_well_formed_project_secrets_request() {
+        for project in ["{\"id\":\"project-1\"}", "{\"name\":\"my-app\"}"] {
+            let line = format!(
+                "{{\"version\":1,\"op\":\"projectSecretsRequest\",\"project\":{project}}}\n"
+            );
+            let reply = round_trip(&line, ListenerKind::OpenShell).await;
+            assert_eq!(
+                reply,
+                "{\"version\":1,\"status\":\"error\",\"message\":\"operation not available on this socket\"}\n",
+                "{project}"
+            );
+        }
+    }
+
+    #[test]
+    fn the_agent_socket_accepts_project_secrets_request() {
+        for line in [
+            "{\"version\":1,\"op\":\"projectSecretsRequest\",\"project\":{\"id\":\"project-1\"}}",
+            "{\"version\":1,\"op\":\"projectSecretsRequest\",\"project\":{\"name\":\"my-app\"}}",
+        ] {
+            let request: WireRequest = serde_json::from_str(line).unwrap();
+            assert!(
+                matches!(
+                    validate_agent_request(request),
+                    Ok(ValidatedRequest::BulkRequest { .. })
+                ),
+                "{line}"
+            );
+        }
+    }
+
+    #[test]
+    fn the_agent_validator_rejects_an_openshell_object_on_project_secrets_request() {
+        let line = "{\"version\":1,\"op\":\"projectSecretsRequest\",\
+            \"project\":{\"id\":\"project-1\"},\"openshell\":{\"deadlineMs\":25000}}";
+        let request: WireRequest = serde_json::from_str(line).unwrap();
+        match validate_agent_request(request) {
+            Err(message) => assert_eq!(message, "openshell object is not valid for this operation"),
+            Ok(_) => panic!("an openshell object must be rejected on projectSecretsRequest"),
+        }
+    }
+
+    #[test]
+    fn the_openshell_validator_rejects_a_project_object_as_foreign() {
+        let mut value: serde_json::Value = serde_json::from_str(REQUEST_FIXTURE).unwrap();
+        value["project"] = serde_json::json!({"id": "project-1"});
+        match validate_openshell_request(serde_json::from_value(value).unwrap()) {
+            Err(message) => assert_eq!(message, "project object is not valid for this operation"),
+            Ok(_) => panic!("a project object must be rejected on openshellResolve"),
+        }
+    }
+
+    #[tokio::test]
+    async fn a_real_connection_without_attestation_is_refused_without_dispatch() {
+        // `peer_pid: None` (as for an unresolvable peer) means no attestation → precheck fails.
+        let reply = round_trip(REQUEST_FIXTURE, ListenerKind::OpenShell).await;
+        assert_eq!(
+            reply,
+            "{\"version\":1,\"status\":\"error\",\"message\":\"OpenShell gateway could not be verified\"}\n"
+        );
+    }
+
+    // --- origin and dispatch ---------------------------------------------------------------------
+
+    #[tokio::test]
+    async fn origin_is_openshell_from_the_listener_kind_and_wire_fields_cannot_change_it() {
+        let handler = counting();
+        let limiter = Arc::new(OpenShellLimiter::default());
+        // A forged `origin` key on the wire is simply an unknown field: ignored, and the handler
+        // (which asserts `origin == OpenShell`) still sees the listener-derived origin.
+        let request = validate_openshell_request(request_with(|v| {
+            v["origin"] = serde_json::json!("local");
+            v["openshell"]["origin"] = serde_json::json!("local");
+        }))
+        .unwrap();
+        let (status, text) = serve(request, Some(good_peer()), handler.clone(), &limiter).await;
+        assert_eq!(status, WireStatus::Approved);
+        assert_eq!(handler.calls.load(Ordering::SeqCst), 1);
+        assert!(
+            text.contains("\"credentialKey\":\"GITHUB_TOKEN\",\"value\":\"value-of-GITHUB_TOKEN\"")
+        );
+    }
+
+    #[tokio::test]
+    async fn attestation_failures_are_refused_without_dispatch() {
+        let limiter = Arc::new(OpenShellLimiter::default());
+        let mut no_parent = good_peer();
+        no_parent.parent = None;
+        let mut wrong_parent = good_peer();
+        wrong_parent.parent.as_mut().unwrap().exe_path = Some("/bin/zsh".to_string());
+        let mut not_aac = good_peer();
+        not_aac.exe_path = Some("/usr/bin/curl".to_string());
+        let mut unsigned = good_peer();
+        unsigned.signature = None;
+
+        for peer in [
+            None,
+            Some(no_parent),
+            Some(wrong_parent),
+            Some(not_aac),
+            Some(unsigned),
+        ] {
+            let (status, text) =
+                serve(resolve_request(), peer, Arc::new(MustNotDispatch), &limiter).await;
+            assert_eq!(status, WireStatus::Error);
+            assert!(text.contains("OpenShell gateway could not be verified"));
+        }
+    }
+
+    #[tokio::test(start_paused = true)]
+    async fn the_dispatch_timeout_is_clamped_to_the_request_deadline() {
+        let limiter = Arc::new(OpenShellLimiter::default());
+        let request = validate_openshell_request(request_with(|v| {
+            v["openshell"]["deadlineMs"] = serde_json::json!(5000);
+        }))
+        .unwrap();
+        let started = tokio::time::Instant::now();
+        let (status, _) = serve(request, Some(good_peer()), Arc::new(Hanging), &limiter).await;
+        assert_eq!(status, WireStatus::Timeout);
+        let waited = started.elapsed();
+        assert!(
+            waited >= Duration::from_millis(5000) && waited < Duration::from_millis(5100),
+            "waited {waited:?}"
+        );
+    }
+
+    #[test]
+    fn the_timeout_clamp_never_exceeds_the_callback_timeout() {
+        assert_eq!(
+            CALLBACK_TIMEOUT.min(Duration::from_millis(28_000)),
+            Duration::from_millis(28_000)
+        );
+        assert_eq!(
+            CALLBACK_TIMEOUT.min(Duration::from_secs(120)),
+            CALLBACK_TIMEOUT
+        );
+    }
+
+    // --- rate limiting ---------------------------------------------------------------------------
+
+    #[tokio::test(start_paused = true)]
+    async fn a_denial_starts_a_sixty_second_cooldown_for_the_pair() {
+        let limiter = Arc::new(OpenShellLimiter::default());
+        let denier = Arc::new(CountingDenier {
+            calls: AtomicUsize::new(0),
+        });
+
+        let (status, _) = serve(
+            resolve_request(),
+            Some(good_peer()),
+            denier.clone(),
+            &limiter,
+        )
+        .await;
+        assert_eq!(status, WireStatus::Denied);
+
+        let (status, text) = serve(
+            resolve_request(),
+            Some(good_peer()),
+            denier.clone(),
+            &limiter,
+        )
+        .await;
+        assert_eq!(status, WireStatus::RateLimited);
+        assert!(text.contains("\"status\":\"rateLimited\""));
+        assert_eq!(
+            denier.calls.load(Ordering::SeqCst),
+            1,
+            "no dispatch while cooling down"
+        );
+
+        tokio::time::advance(Duration::from_secs(61)).await;
+        let (status, _) = serve(
+            resolve_request(),
+            Some(good_peer()),
+            denier.clone(),
+            &limiter,
+        )
+        .await;
+        assert_eq!(status, WireStatus::Denied);
+        assert_eq!(denier.calls.load(Ordering::SeqCst), 2);
+    }
+
+    /// Replies like the renderer does when a request's own deadline passes while the coalesced
+    /// dialog is still open (§M8.18).
+    struct RendererTimeout {
+        calls: AtomicUsize,
+    }
+
+    #[async_trait]
+    impl CredentialRequestHandler for RendererTimeout {
+        async fn handle_credential_request(
+            &self,
+            _request: CredentialRequestData,
+        ) -> Result<CredentialResponseData, CallbackError> {
+            self.calls.fetch_add(1, Ordering::SeqCst);
+            Ok(CredentialResponseData {
+                approved: false,
+                reason: Some(CredentialDenialReason::Timeout),
+                ..Default::default()
+            })
+        }
+    }
+
+    #[tokio::test]
+    async fn a_renderer_reported_timeout_does_not_start_the_cooldown() {
+        let limiter = Arc::new(OpenShellLimiter::default());
+        let handler = Arc::new(RendererTimeout {
+            calls: AtomicUsize::new(0),
+        });
+        for _ in 0..2 {
+            let (status, _) = serve(
+                resolve_request(),
+                Some(good_peer()),
+                handler.clone(),
+                &limiter,
+            )
+            .await;
+            assert_eq!(status, WireStatus::Timeout);
+        }
+        assert_eq!(
+            handler.calls.load(Ordering::SeqCst),
+            2,
+            "the retry reaches the renderer"
+        );
+    }
+
+    #[tokio::test]
+    async fn a_hang_up_abandons_the_dispatch_writes_nothing_and_reports_the_token() {
+        let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
+        let limiter = Arc::new(OpenShellLimiter::default());
+        let (hangup_tx, hangup_rx) = tokio::sync::oneshot::channel::<()>();
+        let task = {
+            let limiter = Arc::clone(&limiter);
+            tokio::spawn(async move {
+                serve_openshell(
+                    resolve_request(),
+                    Some(good_peer()),
+                    Arc::new(Hanging),
+                    Arc::new(ChannelSink(tx)),
+                    limiter,
+                    fixed_now,
+                    async {
+                        let _ = hangup_rx.await;
+                    },
+                )
+                .await
+            })
+        };
+        // The request is dispatched (credential_requested) before aac goes away.
+        let first = tokio::time::timeout(Duration::from_secs(5), rx.recv())
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(first.kind, "credential_requested");
+        hangup_tx.send(()).unwrap();
+        assert!(task.await.unwrap().is_none(), "nothing is written");
+
+        let event = tokio::time::timeout(Duration::from_secs(5), rx.recv())
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(event.kind, OPENSHELL_ABANDONED_EVENT_KIND);
+        let token = event.detail.expect("dispatch token");
+        assert!(token.starts_with(OPENSHELL_DISPATCH_TOKEN_PREFIX));
+        assert!(event.peer_name.is_none());
+        assert!(event.fields_shared.is_none());
+
+        // No cooldown and the slot is free: the supervisor's retry is dispatched.
+        let (status, _) = serve(resolve_request(), Some(good_peer()), counting(), &limiter).await;
+        assert_eq!(status, WireStatus::Approved);
+    }
+
+    #[tokio::test]
+    async fn peer_hung_up_resolves_when_the_peer_closes() {
+        let (client, server) = tokio::io::duplex(8192);
+        let (hangup_seen_tx, hangup_seen_rx) = tokio::sync::oneshot::channel::<()>();
+        let mut stream = server;
+        let task = tokio::spawn(async move {
+            let hangup = async {
+                peer_hung_up(&mut stream).await;
+                let _ = hangup_seen_tx.send(());
+            };
+            hangup.await;
+        });
+        drop(client);
+        tokio::time::timeout(Duration::from_secs(5), hangup_seen_rx)
+            .await
+            .unwrap()
+            .unwrap();
+        task.await.unwrap();
+    }
+
+    #[test]
+    fn dispatch_tokens_are_unique() {
+        let a = next_dispatch_token();
+        let b = next_dispatch_token();
+        assert_ne!(a, b);
+        assert!(a.starts_with(OPENSHELL_DISPATCH_TOKEN_PREFIX));
+    }
+
+    #[tokio::test(start_paused = true)]
+    async fn a_dispatch_the_renderer_never_answers_starts_the_cooldown() {
+        let limiter = Arc::new(OpenShellLimiter::default());
+        let (status, _) = serve(
+            resolve_request(),
+            Some(good_peer()),
+            Arc::new(Hanging),
+            &limiter,
+        )
+        .await;
+        assert_eq!(status, WireStatus::Timeout);
+        let (status, _) = serve(
+            resolve_request(),
+            Some(good_peer()),
+            Arc::new(MustNotDispatch),
+            &limiter,
+        )
+        .await;
+        assert_eq!(status, WireStatus::RateLimited);
+    }
+
+    #[tokio::test]
+    async fn only_one_request_per_provider_waits_for_approval() {
+        let limiter = Arc::new(OpenShellLimiter::default());
+        let (gate_tx, gate_rx) = watch::channel(false);
+        let active = Arc::new(AtomicUsize::new(0));
+        let gated = Arc::new(Gated {
+            gate: gate_rx,
+            active: Arc::clone(&active),
+        });
+
+        let first = {
+            let limiter = Arc::clone(&limiter);
+            let gated = Arc::clone(&gated);
+            tokio::spawn(async move {
+                serve(resolve_request(), Some(good_peer()), gated, &limiter).await
+            })
+        };
+        while active.load(Ordering::SeqCst) == 0 {
+            tokio::task::yield_now().await;
+        }
+
+        // An identical request (a supervisor retry) may coalesce onto the same approval.
+        let identical = {
+            let limiter = Arc::clone(&limiter);
+            let gated = Arc::clone(&gated);
+            tokio::spawn(async move {
+                serve(resolve_request(), Some(good_peer()), gated, &limiter).await
+            })
+        };
+        while active.load(Ordering::SeqCst) < 2 {
+            tokio::task::yield_now().await;
+        }
+
+        // Same provider, even from another sandbox: refused immediately.
+        let other_sandbox = validate_openshell_request(request_with(|v| {
+            v["openshell"]["sandbox"]["id"] = serde_json::json!("sbx-other");
+        }))
+        .unwrap();
+        let (status, _) = serve(
+            other_sandbox,
+            Some(good_peer()),
+            Arc::new(MustNotDispatch),
+            &limiter,
+        )
+        .await;
+        assert_eq!(status, WireStatus::RateLimited);
+
+        // A different provider is not blocked.
+        let other_provider = validate_openshell_request(request_with(|v| {
+            v["openshell"]["provider"]["id"] = serde_json::json!("prov-other");
+        }))
+        .unwrap();
+        let (status, _) = serve(other_provider, Some(good_peer()), counting(), &limiter).await;
+        assert_eq!(status, WireStatus::Approved);
+
+        // Same provider and sandbox, but a different target set: refused too.
+        let other_targets = validate_openshell_request(request_with(|v| {
+            v["openshell"]["targets"]
+                .as_array_mut()
+                .unwrap()
+                .truncate(1);
+        }))
+        .unwrap();
+        let (status, _) = serve(
+            other_targets,
+            Some(good_peer()),
+            Arc::new(MustNotDispatch),
+            &limiter,
+        )
+        .await;
+        assert_eq!(status, WireStatus::RateLimited);
+
+        gate_tx.send(true).unwrap();
+        let (status, _) = first.await.unwrap();
+        assert_eq!(status, WireStatus::NotFound);
+        let (status, _) = identical.await.unwrap();
+        assert_eq!(status, WireStatus::NotFound);
+
+        // The slot was released: the provider can ask again.
+        let (status, _) = serve(resolve_request(), Some(good_peer()), counting(), &limiter).await;
+        assert_eq!(status, WireStatus::Approved);
+    }
+
+    // --- hello ----------------------------------------------------------------------------------
+
+    #[tokio::test]
+    async fn hello_emits_driver_seen_with_no_peer_fields_and_never_dispatches() {
+        let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
+        let hello: WireRequest = serde_json::from_str(HELLO_FIXTURE).unwrap();
+        let reply = serve_openshell(
+            validate_openshell_request(hello).unwrap(),
+            Some(good_peer()),
+            Arc::new(MustNotDispatch),
+            Arc::new(ChannelSink(tx)),
+            Arc::new(OpenShellLimiter::default()),
+            fixed_now,
+            std::future::pending(),
+        )
+        .await
+        .unwrap();
+        assert_eq!(
+            String::from_utf8(reply.bytes.to_vec()).unwrap(),
+            "{\"version\":1,\"status\":\"approved\"}\n"
+        );
+        let event = tokio::time::timeout(Duration::from_secs(5), rx.recv())
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(event.kind, "openshellDriverSeen");
+        assert!(event.peer_name.is_none());
+        assert!(event.peer_fingerprint.is_none());
+        assert!(event.detail.is_none());
+        assert!(event.fields_shared.is_none());
+        assert!(!event.timestamp_ms.is_empty());
+    }
+
+    #[tokio::test]
+    async fn hello_that_fails_the_precheck_emits_nothing() {
+        let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
+        let hello: WireRequest = serde_json::from_str(HELLO_FIXTURE).unwrap();
+        let reply = serve_openshell(
+            validate_openshell_request(hello).unwrap(),
+            None,
+            Arc::new(MustNotDispatch),
+            Arc::new(ChannelSink(tx)),
+            Arc::new(OpenShellLimiter::default()),
+            fixed_now,
+            std::future::pending(),
+        )
+        .await
+        .unwrap();
+        assert_eq!(reply.status, WireStatus::Error);
+        tokio::task::yield_now().await;
+        assert!(rx.try_recv().is_err());
     }
 }

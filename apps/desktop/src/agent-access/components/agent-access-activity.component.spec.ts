@@ -525,6 +525,41 @@ describe("AgentAccessActivityComponent", () => {
     });
   });
 
+  describe("OpenShell result labels (§M8.8)", () => {
+    let component: AgentAccessActivityComponent;
+    const resultLabel = (entry: CredentialRequestActivity) =>
+      (component as any).requestResultLabel(entry) as string | undefined;
+
+    const openShellRow = (
+      status: CredentialRequestActivity["status"],
+    ): CredentialRequestActivity => ({
+      type: "credential_request",
+      id: "request-9",
+      timestampMs: "1700000000000",
+      agentName: "openshell-gateway",
+      origin: "openshell",
+      operation: "providerResolve",
+      sandboxId: "sbx-01J9Z6",
+      providerId: "prov-7f3a",
+      policyDigest: "sha256:998f40a71463c9250c9eaf7bcb560234fc838a2bf7592b260165f9b4af110020",
+      targetIds: ["3f1c2b9e-8a4d-4c7e-9b21-5d6f7a8b9c0d"],
+      status,
+    });
+
+    beforeEach(async () => {
+      component = createComponent();
+      await component.ngOnInit();
+    });
+
+    it("adds no field/item label to a released OpenShell row (it stores ids only)", () => {
+      expect(resultLabel(openShellRow("shared"))).toBeUndefined();
+    });
+
+    it("still explains a denial", () => {
+      expect(resultLabel(openShellRow("denied"))).toBe("agentAccessResultDenied");
+    });
+  });
+
   describe("status badge metadata", () => {
     let component: AgentAccessActivityComponent;
 

@@ -1,4 +1,5 @@
 import { existsSync, promises as fs } from "fs";
+import * as os from "os";
 import * as path from "path";
 
 import { ipcMain } from "electron";
@@ -11,10 +12,21 @@ import { AgentId } from "../models/agent-id";
 import { RegisterWithAgentResult } from "../models/agent-registration";
 import { AgentRegistrationStatusResult } from "../models/agent-registration-status";
 import { AGENT_ACCESS_IPC_CHANNELS } from "../models/ipc-channels";
+import {
+  OPENSHELL_DEFAULT_GATEWAY_NAME,
+  OPENSHELL_DRIVER_SOCKET_FILENAME,
+  OpenShellDetectionResult,
+  OpenShellSetupResult,
+  OpenShellSetupStatus,
+  OpenShellSnippet,
+} from "../models/openshell";
+import { buildOpenShellSnippet } from "../utils/openshell-config-snippet.util";
 
 import { AgentAccessRegistrationStatusService } from "./agent-access-registration-status.service";
 import { AgentAccessRegistrationService } from "./agent-access-registration.service";
 import { AgentDetectionService } from "./agent-detection.service";
+import { OpenShellDetectionService } from "./openshell-detection.service";
+import { OpenShellSetupService } from "./openshell-setup.service";
 
 // Name of the bundled Agent Access CLI binary. Packaging places it at:
 //   macOS:   <app>/Contents/MacOS/aac
@@ -29,6 +41,8 @@ export class MainAgentAccessCliService {
   private readonly agentDetectionService: AgentDetectionService;
   private readonly agentRegistrationService: AgentAccessRegistrationService;
   private readonly agentRegistrationStatusService: AgentAccessRegistrationStatusService;
+  private readonly openShellDetectionService: OpenShellDetectionService;
+  private readonly openShellSetupService: OpenShellSetupService;
 
   constructor(
     private logService: LogService,
@@ -42,10 +56,24 @@ export class MainAgentAccessCliService {
     agentRegistrationStatusService: AgentAccessRegistrationStatusService = new AgentAccessRegistrationStatusService(
       logService,
     ),
+    openShellDetectionService: OpenShellDetectionService = new OpenShellDetectionService(
+      logService,
+    ),
+    private homedir: string = os.homedir(),
+    openShellSetupService?: OpenShellSetupService,
   ) {
     this.agentDetectionService = agentDetectionService;
     this.agentRegistrationService = agentRegistrationService;
     this.agentRegistrationStatusService = agentRegistrationStatusService;
+    this.openShellDetectionService = openShellDetectionService;
+    this.openShellSetupService =
+      openShellSetupService ??
+      new OpenShellSetupService(
+        logService,
+        () => this.openShellDetectionService.detect(),
+        () => this.getBundledCliPath(),
+        homedir,
+      );
 
     ipcMain.handle(AGENT_ACCESS_IPC_CHANNELS.GET_BUNDLED_CLI_PATH, async () => {
       return this.getBundledCliPath();
@@ -79,6 +107,56 @@ export class MainAgentAccessCliService {
         return this.agentRegistrationStatusService.getAgentRegistrationStatuses();
       },
     );
+
+    // Optional OpenShell integration (agent-access-architecture.md, §M8.8). Detection is
+    // read-only and never spawns or connects; the snippet is the manual fallback. The setup
+    // channels (§M8.19) are the only ones that write an OpenShell file or run a process, and take
+    // no arguments: main chooses every path and command.
+    ipcMain.handle(
+      AGENT_ACCESS_IPC_CHANNELS.DETECT_OPENSHELL,
+      async (): Promise<OpenShellDetectionResult> => this.openShellDetectionService.detect(),
+    );
+    ipcMain.handle(
+      AGENT_ACCESS_IPC_CHANNELS.GET_OPENSHELL_SNIPPET,
+      async (): Promise<OpenShellSnippet | null> => this.getOpenShellSnippet(),
+    );
+    ipcMain.handle(
+      AGENT_ACCESS_IPC_CHANNELS.GET_OPENSHELL_SETUP_STATUS,
+      async (): Promise<OpenShellSetupStatus> => this.openShellSetupService.getStatus(),
+    );
+    ipcMain.handle(
+      AGENT_ACCESS_IPC_CHANNELS.RUN_OPENSHELL_SETUP,
+      async (): Promise<OpenShellSetupResult> => this.openShellSetupService.setUp(),
+    );
+    ipcMain.handle(
+      AGENT_ACCESS_IPC_CHANNELS.REMOVE_OPENSHELL_SETUP,
+      async (): Promise<OpenShellSetupResult> => this.openShellSetupService.remove(),
+    );
+  }
+
+  /**
+   * The copyable `gateway.toml` snippet (§M8.8). Every input is main-owned: the bundled aac path,
+   * the detected gateway name, and the fixed driver socket path — nothing comes from the renderer.
+   * `null` when the integration can't be offered here or there is no bundled aac to point at.
+   */
+  async getOpenShellSnippet(): Promise<OpenShellSnippet | null> {
+    const detection = await this.openShellDetectionService.detect();
+    if (!detection.present || !detection.platformSupported) {
+      return null;
+    }
+    const aacPath = await this.getBundledCliPath();
+    if (aacPath == null) {
+      return null;
+    }
+    const gatewayName =
+      detection.gateways.find((gateway) => gateway.active)?.name ??
+      detection.gateways[0]?.name ??
+      OPENSHELL_DEFAULT_GATEWAY_NAME;
+    return buildOpenShellSnippet({
+      aacPath,
+      gatewayName,
+      driverSocketPath: path.join(this.homedir, OPENSHELL_DRIVER_SOCKET_FILENAME),
+    });
   }
 
   // Resolves the path to the bundled `aac` CLI binary for the renderer to hand to a user who

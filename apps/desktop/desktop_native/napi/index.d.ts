@@ -215,6 +215,12 @@ export declare namespace agent_access {
      */
     static serve(config: AgentAccessConfig, credentialCallback: ((err: Error | null, arg: CredentialRequestData) => Promise<CredentialResponseData>), fingerprintCallback: ((err: Error | null, arg: FingerprintVerificationData) => Promise<FingerprintVerificationResponse>), storageGetCallback: ((err: Error | null, arg: string) => Promise<string | undefined | null>), storageSetCallback: ((err: Error | null, arg: StorageEntry) => Promise<undefined>), eventCallback: ((err: Error | null, arg: AgentAccessEvent) => Promise<undefined>)): Promise<AgentAccessState>
     stop(): void
+    /**
+     * Starts (path) or stops (null/undefined) the OpenShell listener. Idempotent.
+     *
+     * The path is computed by the main process, never taken from the renderer (§M8.8).
+     */
+    setOpenShellListener(socketPath?: string | undefined | null): Promise<void>
     isRunning(): boolean
     getFingerprint(): Promise<string>
     generatePskToken(name: string | undefined | null, reusable: boolean): Promise<string>
@@ -393,11 +399,23 @@ export declare namespace agent_access {
      * to a specific extension-produced field plan. Value-free — an opaque token.
      */
     fillTargetToken?: string
+    /**
+     * Gateway-reported context for `operation: "providerResolve"` (§M8). Only set for
+     * `origin: "openshell"`.
+     */
+    openshell?: OpenShellContextData
+    /**
+     * The `bw://` targets of `operation: "providerResolve"`, in wire order. Only set for
+     * `origin: "openshell"`.
+     */
+    providerTargets?: Array<ProviderTargetData>
   }
   /** Which ingress a [`CredentialRequestData`] arrived through. */
   export const enum CredentialRequestOrigin {
     Relay = 'relay',
-    Local = 'local'
+    Local = 'local',
+    /** The toggle-gated OpenShell socket (§M8). Set by the listener kind, never the wire. */
+    OpenShell = 'openshell'
   }
   /**
    * Electron's answer to a [`CredentialRequestData`]. Not `Debug`/`Clone` — it may carry a
@@ -491,6 +509,13 @@ export declare namespace agent_access {
      * directly by the renderer rather than derived by parsing `fill_result`.
      */
     fillFieldsShared?: Array<string>
+    /**
+     * The released values for an approved `operation: "providerResolve"` request (§M8), in
+     * target order. The Rust reply builder re-checks the key set before writing anything.
+     */
+    openshellValues?: Array<ProviderValueData>
+    /** The approval lifetime for an approved `operation: "providerResolve"` request (§M8). */
+    openshellLifetime?: OpenShellLifetimeData
   }
   /**
    * How the requester wants an approved credential delivered. Only present for
@@ -530,6 +555,55 @@ export declare namespace agent_access {
     signature?: SignatureInfoData
   }
   /**
+   * Gateway-reported context for an `operation: "providerResolve"` request (§M8.7). Every
+   * field is reported by the OpenShell gateway, not verified by Bitwarden.
+   */
+  export interface OpenShellContextData {
+    deadlineMs: number
+    gatewayName: string
+    gatewayEndpoint: string
+    providerId: string
+    providerName: string
+    providerProfile: string
+    workspace: string
+    sandboxId: string
+    sandboxName: string
+    sandboxImage?: string
+    endpoints: Array<OpenShellEndpointData>
+    policyDigest: string
+    advisorEnabled?: boolean
+  }
+  /**
+   * One endpoint an OpenShell provider credential can be sent to — reported by the gateway,
+   * not verified by Bitwarden.
+   */
+  export interface OpenShellEndpointData {
+    host: string
+    port: number
+    path?: string
+    source: OpenShellEndpointSource
+  }
+  /** Which source an [`OpenShellEndpointData`] came from (§M8.5). */
+  export const enum OpenShellEndpointSource {
+    Profile = 'profile',
+    PolicyBinding = 'policyBinding'
+  }
+  /**
+   * The approval lifetime the renderer chose. `expiresAtMs` is a stringified u64 (Unix epoch
+   * milliseconds), like `timestampMs`: required for `perRequest`/`ttl`, absent for
+   * `sandboxLifetime` — enforced again by the Rust reply builder.
+   */
+  export interface OpenShellLifetimeData {
+    mode: OpenShellLifetimeMode
+    expiresAtMs?: string
+  }
+  /** How long one OpenShell approval lasts (§M8.6). */
+  export const enum OpenShellLifetimeMode {
+    PerRequest = 'perRequest',
+    Ttl = 'ttl',
+    SandboxLifetime = 'sandboxLifetime'
+  }
+  /**
    * Whether a [`CredentialRequestData`] is asking to look up existing vault data, to
    * create a new Secrets Manager secret (M4b, `secretCreate`), or to describe the active
    * browser tab's fillable fields (M5, `describeFillTarget`). Always `"request"` on the
@@ -552,7 +626,12 @@ export declare namespace agent_access {
      * dialog, capped at 200, local-transport-only like every non-`request` operation.
      */
     BulkRequest = 'bulkRequest',
-    DescribeFillTarget = 'describeFillTarget'
+    DescribeFillTarget = 'describeFillTarget',
+    /**
+     * An OpenShell gateway resolving one provider's `bw://` references (§M8,
+     * `openshellResolve`). Only ever paired with `origin: "openshell"`.
+     */
+    ProviderResolve = 'providerResolve'
   }
   /**
    * Best-effort one-level parent-chain walk from the local peer (W2a, `crate::attestation`
@@ -565,6 +644,27 @@ export declare namespace agent_access {
     pid: number
     processName?: string
     exePath?: string
+  }
+  /** Which field of an item or secret a [`ProviderTargetData`] names (§M8.3). */
+  export const enum ProviderField {
+    Username = 'username',
+    Password = 'password',
+    Value = 'value'
+  }
+  /**
+   * One `bw://` target of a provider resolve: an env-var name plus the item or secret id.
+   * Value-free.
+   */
+  export interface ProviderTargetData {
+    credentialKey: string
+    resourceType: ResourceType
+    id: string
+    field: ProviderField
+  }
+  /** One released provider credential value. Not `Debug`: it carries a live value. */
+  export interface ProviderValueData {
+    credentialKey: string
+    value: string
   }
   /**
    * Which kind of vault data a [`CredentialRequestData`] is asking for. Always `"credential"`

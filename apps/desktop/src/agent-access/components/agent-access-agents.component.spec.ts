@@ -8,13 +8,17 @@ import { Subject } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import {
+  AsyncActionsModule,
   ButtonModule,
   CardComponent,
+  DialogService,
+  IconButtonModule,
   SectionComponent,
   SectionHeaderComponent,
   SkeletonComponent,
   SkeletonGroupComponent,
   SkeletonTextComponent,
+  TableModule,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -55,6 +59,7 @@ describe("AgentAccessAgentsComponent", () => {
   // after every grant-store write.
   let grantsChangedSubject: Subject<Record<string, never>>;
   let messageListener: { messages$: jest.Mock };
+  let dialogServiceMock: { openSimpleDialog: jest.Mock };
 
   function createComponent(): AgentAccessAgentsComponent {
     pageState = new AgentAccessPageStateService();
@@ -62,10 +67,15 @@ describe("AgentAccessAgentsComponent", () => {
       providers: [
         { provide: AgentAccessPageStateService, useValue: pageState },
         { provide: MessageListener, useValue: messageListener },
+        { provide: DialogService, useValue: mock<DialogService>() },
       ],
     });
     return TestBed.runInInjectionContext(() => new AgentAccessAgentsComponent());
   }
+
+  beforeEach(() => {
+    dialogServiceMock = { openSimpleDialog: jest.fn().mockResolvedValue(true) };
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -140,7 +150,10 @@ describe("AgentAccessAgentsComponent", () => {
       // The CTA's label goes through `I18nPipe`, so `I18nService.t` has to echo the key back rather
       // than return `undefined` for the link to render with content.
       const i18nServiceMock = mock<I18nService>();
-      i18nServiceMock.t.mockImplementation((key: string) => key);
+      i18nServiceMock.t.mockImplementation((key: string, ...args: unknown[]) => {
+        const defined = args.filter((arg) => arg != null);
+        return defined.length > 0 ? `${key}(${defined.join(",")})` : key;
+      });
 
       TestBed.configureTestingModule({
         providers: [
@@ -156,6 +169,7 @@ describe("AgentAccessAgentsComponent", () => {
           { provide: AgentAccessPageStateService, useValue: pageState },
           { provide: I18nService, useValue: i18nServiceMock },
           { provide: MessageListener, useValue: messageListener },
+          { provide: DialogService, useValue: dialogServiceMock },
         ],
       });
 
@@ -165,7 +179,10 @@ describe("AgentAccessAgentsComponent", () => {
             I18nPipe,
             RouterLink,
             StubAgentAccessConnectedAgentsComponent,
+            AsyncActionsModule,
             ButtonModule,
+            IconButtonModule,
+            TableModule,
             CardComponent,
             SectionComponent,
             SectionHeaderComponent,
@@ -193,6 +210,40 @@ describe("AgentAccessAgentsComponent", () => {
       expect(compiled.querySelector("app-agent-access-connect")).toBeFalsy();
     });
 
+    it("lists OpenShell grants in their own section with sandbox, gateway, provider, digest and lifetime", async () => {
+      const harness = await renderAt([
+        {
+          id: "os-1",
+          signatureKind: "linuxPathOnly",
+          signatureIdentity: "/usr/bin/openshell-gateway",
+          displayName: "openshell-gateway",
+          scope: "openshellSandbox",
+          createdAt: 1,
+          lastUsedAt: 1,
+          openshell: {
+            gatewayEndpoint: "https://127.0.0.1:17670",
+            sandboxId: "sbx-01J9Z6",
+            providerId: "prov-7f3a",
+            gatewayName: "openshell",
+            sandboxName: "agent-1",
+            providerName: "gh-agent-1",
+            policyDigest: "sha256:998f40a71463c9250c9eaf7bcb560234fc838a2bf7592b260165f9b4af110020",
+            lifetimeMode: "ttl",
+            windowExpiresAtMs: 1791234567890,
+          },
+        },
+      ]);
+      const root = harness.routeNativeElement as HTMLElement;
+      const row = root.querySelector('[data-testid="agent-access-openshell-grant-row"]');
+      expect(row?.textContent).toContain("agentAccessOpenShellGrantRow(agent-1,openshell)");
+      expect(row?.textContent).toContain("gh-agent-1");
+      expect(row?.textContent).toContain("998f40a71463");
+      expect(row?.textContent).toContain("agentAccessOpenShellLifetimeTtl");
+      expect(row?.querySelector("button[bitIconButton]")).toBeTruthy();
+      // Not counted as a local agent: the header CTA stays hidden with no local grants.
+      expect(root.querySelector("a[bitButton]")).toBeFalsy();
+    });
+
     it("hides the header CTA while the list is empty, leaving the empty state's own CTA as the only one", async () => {
       const harness = await renderAt([]);
 
@@ -214,6 +265,45 @@ describe("AgentAccessAgentsComponent", () => {
 
       expect(TestBed.inject(Router).url).toBe("/agent-access/setup");
       expect(harness.routeNativeElement?.textContent).toContain("setup-tab-stub");
+    });
+  });
+
+  describe("OpenShell grant rows (§M8.9)", () => {
+    const localGrant = {
+      id: "local-1",
+      signatureKind: "macosTeamId",
+      signatureIdentity: "TEAM:com.cursor",
+      displayName: "Cursor",
+      scope: "allLogins",
+      createdAt: 1,
+      lastUsedAt: 1,
+    };
+    const openShellGrant = {
+      id: "os-1",
+      signatureKind: "linuxPathOnly",
+      signatureIdentity: "/usr/bin/openshell-gateway",
+      displayName: "openshell-gateway",
+      scope: "openshellSandbox",
+      createdAt: 1,
+      lastUsedAt: 1,
+      openshell: {
+        gatewayEndpoint: "https://127.0.0.1:17670",
+        sandboxId: "sbx-01J9Z6",
+        providerId: "prov-7f3a",
+        gatewayName: "openshell",
+        sandboxName: "agent-1",
+        providerName: "gh-agent-1",
+        policyDigest: "sha256:998f40a71463c9250c9eaf7bcb560234fc838a2bf7592b260165f9b4af110020",
+        lifetimeMode: "ttl",
+        windowExpiresAtMs: 1791234567890,
+      },
+    };
+
+    it("separates OpenShell grants from local agents in the page state", () => {
+      const state = new AgentAccessPageStateService();
+      state.grants.set([localGrant, openShellGrant] as never);
+      expect(state.localGrants().map((g) => g.id)).toEqual(["local-1"]);
+      expect(state.openShellGrants().map((g) => g.id)).toEqual(["os-1"]);
     });
   });
 });

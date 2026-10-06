@@ -33,6 +33,10 @@ export const CredentialDenialReason = Object.freeze({
    * (e.g. `looks-like-registration`).
    */
   NoSafeTarget: "noSafeTarget",
+  /** The vault is locked; the user was never asked (mapped to the wire's `locked`). */
+  Locked: "locked",
+  /** The approval dialog's own countdown ran out (§M8.4, OpenShell). Never a user decision. */
+  Timeout: "timeout",
 } as const);
 export type CredentialDenialReason =
   (typeof CredentialDenialReason)[keyof typeof CredentialDenialReason];

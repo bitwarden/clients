@@ -1113,6 +1113,9 @@
   "agentAccessConnectAgentAction": {
     "message": "Connect an agent"
   },
+  "agentAccessSetupPaneLabel": {
+    "message": "Where does your agent run?"
+  },
   "agentAccessSetupIntro": {
     "message": "Connect the AI assistants you want to use with your vault. Nothing is released without your explicit approval, and every agent is prompted for the first time it asks."
   },
@@ -7147,6 +7150,280 @@
       "TOTAL": {
         "content": "$2",
         "example": "4"
+      }
+    }
+  },
+  "agentAccessOpenShellTitle": {
+    "message": "OpenShell"
+  },
+  "agentAccessOpenShellDesc": {
+    "message": "Let OpenShell sandboxes use your Bitwarden logins and secrets. The agent inside the sandbox only sees placeholders."
+  },
+  "agentAccessOpenShellEnable": {
+    "message": "Use Bitwarden as the OpenShell credential provider"
+  },
+  "agentAccessOpenShellUnsupportedSnap": {
+    "message": "OpenShell integration isn't available for Snap installs."
+  },
+  "agentAccessOpenShellUnsupportedAppImage": {
+    "message": "OpenShell integration isn't available when Bitwarden runs as an AppImage."
+  },
+  "agentAccessOpenShellLifetimeTitle": {
+    "message": "How long an approval lasts"
+  },
+  "agentAccessOpenShellLifetimePerRequest": {
+    "message": "Each time the sandbox loads it: usable for 2 minutes after you approve"
+  },
+  "agentAccessOpenShellLifetimePerRequestHint": {
+    "message": "OpenShell can't ask per web request. Bitwarden asks every time the sandbox loads credentials. OpenShell asks twice for each load, so a repeat of the same request within 10 seconds of your approval uses that approval."
+  },
+  "agentAccessOpenShellLifetimeTtl": {
+    "message": "For a set time after you approve"
+  },
+  "agentAccessOpenShellLifetimeTtlContinues": {
+    "message": "Continues your current approval for this sandbox. It is not extended."
+  },
+  "agentAccessOpenShellLifetimeSandbox": {
+    "message": "Until the sandbox stops or its provider settings change"
+  },
+  "agentAccessOpenShellTtlMinutes": {
+    "message": "$MINUTES$ minutes",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "agentAccessOpenShellTtlHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "agentAccessOpenShellConfigStep": {
+    "message": "Merge this into your gateway.toml, then restart the gateway"
+  },
+  "agentAccessOpenShellConfigPathHint": {
+    "message": "Gateway configuration: $PATH$",
+    "placeholders": {
+      "path": {
+        "content": "$1",
+        "example": "~/.config/openshell/gateway.toml"
+      }
+    }
+  },
+  "agentAccessOpenShellMergeNote": {
+    "message": "If your file already has an [openshell.gateway] section, add the credential_drivers line to it instead of adding a second section."
+  },
+  "agentAccessOpenShellTakeoverWarning": {
+    "message": "Bitwarden will handle every provider credential on this gateway. Credentials that aren't bw:// references will be rejected."
+  },
+  "agentAccessOpenShellProviderStep": {
+    "message": "Create a provider that points at a Bitwarden item or secret, then attach it to one sandbox"
+  },
+  "agentAccessOpenShellOneSandboxRule": {
+    "message": "Attach each Bitwarden provider to exactly one sandbox. Requests from a provider attached to more than one sandbox are refused."
+  },
+  "agentAccessOpenShellSetupButton": {
+    "message": "Set up OpenShell"
+  },
+  "agentAccessOpenShellSetupAgain": {
+    "message": "Run setup again"
+  },
+  "agentAccessOpenShellSetupDescription": {
+    "message": "Adds Bitwarden to your OpenShell gateway's config and restarts the gateway. Your current config is backed up first."
+  },
+  "agentAccessOpenShellSetupConfiguredNotSeen": {
+    "message": "The gateway's config already includes Bitwarden, but the gateway hasn't connected to it yet. Restarting the gateway usually fixes this."
+  },
+  "agentAccessOpenShellSetupRunning": {
+    "message": "Updating the config and restarting the gateway…"
+  },
+  "agentAccessOpenShellSetupWaiting": {
+    "message": "Waiting for the gateway to connect…"
+  },
+  "agentAccessOpenShellSetupConnected": {
+    "message": "Bitwarden is connected to your OpenShell gateway."
+  },
+  "agentAccessOpenShellSetupRemove": {
+    "message": "Remove"
+  },
+  "agentAccessOpenShellSetupRetry": {
+    "message": "Try again"
+  },
+  "agentAccessOpenShellSetupTimedOut": {
+    "message": "The gateway restarted but hasn't connected to Bitwarden yet. Check that the gateway is running, then try again."
+  },
+  "agentAccessOpenShellSetupWatching": {
+    "message": "This will update once the gateway connects."
+  },
+  "agentAccessOpenShellSetupFailUnmergeable": {
+    "message": "Your gateway config has a setting this button can't safely change, so it was left as it is. Use the manual steps below instead."
+  },
+  "agentAccessOpenShellSetupFailNotWritable": {
+    "message": "Bitwarden couldn't write to the gateway config. Use the manual steps below instead."
+  },
+  "agentAccessOpenShellSetupFailRestart": {
+    "message": "The config was updated, but the gateway couldn't be restarted automatically. Restart it yourself."
+  },
+  "agentAccessOpenShellSetupFailRestartManual": {
+    "message": "The config was updated. Restart your OpenShell gateway yourself so it picks up the change."
+  },
+  "agentAccessOpenShellSetupFailNoCli": {
+    "message": "This build of Bitwarden doesn't include the Agent Access CLI, so it can't be set up automatically."
+  },
+  "agentAccessOpenShellSetupFailGeneric": {
+    "message": "Setup couldn't be completed. Use the manual steps below instead."
+  },
+  "agentAccessOpenShellSetupManual": {
+    "message": "Set up manually"
+  },
+  "agentAccessOpenShellSetupBackup": {
+    "message": "Previous config saved to $PATH$",
+    "placeholders": {
+      "path": {
+        "content": "$1",
+        "example": "/opt/homebrew/var/openshell/gateway.toml.bak-bitwarden-20261007080503"
+      }
+    }
+  },
+  "agentAccessOpenShellAuthUnsupported": {
+    "message": "Gateway $NAME$ uses an authentication method Bitwarden doesn't support. Use mTLS, or a local plaintext gateway.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "openshell"
+      }
+    }
+  },
+  "agentAccessOpenShellDriverLastSeen": {
+    "message": "Driver last connected $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "Oct 6, 2026, 6:30:00 PM"
+      }
+    }
+  },
+  "agentAccessOpenShellDriverNotSeen": {
+    "message": "Driver hasn't connected yet"
+  },
+  "agentAccessOpenShellRequestTitle": {
+    "message": "OpenShell sandbox is requesting credentials"
+  },
+  "agentAccessOpenShellGatewayVerified": {
+    "message": "Requested through the OpenShell gateway on this computer"
+  },
+  "agentAccessOpenShellReportedByGateway": {
+    "message": "The details below are reported by the OpenShell gateway, not verified by Bitwarden."
+  },
+  "agentAccessOpenShellSandbox": {
+    "message": "Sandbox"
+  },
+  "agentAccessOpenShellImage": {
+    "message": "Image"
+  },
+  "agentAccessOpenShellWorkspace": {
+    "message": "Workspace"
+  },
+  "agentAccessOpenShellGateway": {
+    "message": "Gateway"
+  },
+  "agentAccessOpenShellProvider": {
+    "message": "Provider"
+  },
+  "agentAccessOpenShellCredentials": {
+    "message": "Credentials"
+  },
+  "agentAccessOpenShellAllowedEndpoints": {
+    "message": "Can only be sent to"
+  },
+  "agentAccessOpenShellSourceProfile": {
+    "message": "Profile"
+  },
+  "agentAccessOpenShellSourcePolicy": {
+    "message": "Policy"
+  },
+  "agentAccessOpenShellPolicyFingerprint": {
+    "message": "Policy fingerprint"
+  },
+  "agentAccessOpenShellPolicyNew": {
+    "message": "New"
+  },
+  "agentAccessOpenShellPolicyChanged": {
+    "message": "Changed since you last approved (was $PREFIX$)",
+    "placeholders": {
+      "prefix": {
+        "content": "$1",
+        "example": "998f40a71463"
+      }
+    }
+  },
+  "agentAccessOpenShellPolicyUnchanged": {
+    "message": "Unchanged"
+  },
+  "agentAccessOpenShellAdvisorWarning": {
+    "message": "This sandbox's policy may gain new destinations after you approve. Keep OpenShell Advisor auto-approve off."
+  },
+  "agentAccessOpenShellRetention": {
+    "message": "The sandbox keeps these values in memory and may keep them after they stop working. The agent sees only placeholders."
+  },
+  "agentAccessOpenShellRetryNote": {
+    "message": "If the sandbox stops waiting before you answer, Bitwarden gives your answer to its next identical retry within 1 minute. Nothing is sent unless it asks again."
+  },
+  "agentAccessOpenShellExpiresAt": {
+    "message": "Stops working at $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "Oct 6, 2026, 7:30:00 PM"
+      }
+    }
+  },
+  "agentAccessOpenShellExpiryReload": {
+    "message": "After that, the sandbox must reload credentials to ask again."
+  },
+  "agentAccessOpenShellWindowExpired": {
+    "message": "Your previous approval for this sandbox has expired."
+  },
+  "agentAccessOpenShellFirstUseAck": {
+    "message": "Allow this sandbox to request credentials from Bitwarden"
+  },
+  "agentAccessOpenShellDeadline": {
+    "message": "Closes in $SECONDS$ seconds",
+    "placeholders": {
+      "seconds": {
+        "content": "$1",
+        "example": "24"
+      }
+    }
+  },
+  "agentAccessOpenShellFieldUsername": {
+    "message": "Username"
+  },
+  "agentAccessOpenShellFieldPassword": {
+    "message": "Password"
+  },
+  "agentAccessOpenShellFieldSecret": {
+    "message": "Secret value"
+  },
+  "agentAccessOpenShellReprompt": {
+    "message": "This item requires master password re-prompt and can't be used by OpenShell."
+  },
+  "agentAccessOpenShellGrantRow": {
+    "message": "$SANDBOX$ on $GATEWAY$",
+    "placeholders": {
+      "sandbox": {
+        "content": "$1",
+        "example": "agent-1"
+      },
+      "gateway": {
+        "content": "$2",
+        "example": "openshell"
       }
     }
   }

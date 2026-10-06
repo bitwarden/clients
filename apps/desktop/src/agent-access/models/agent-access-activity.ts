@@ -77,6 +77,8 @@ export type AgentAccessActivityType =
 export const AgentAccessActivityOrigin = Object.freeze({
   Relay: "relay",
   Local: "local",
+  /** The toggle-gated OpenShell socket (§M8). */
+  OpenShell: "openshell",
 } as const);
 export type AgentAccessActivityOrigin =
   (typeof AgentAccessActivityOrigin)[keyof typeof AgentAccessActivityOrigin];
@@ -171,6 +173,16 @@ export interface CredentialRequestActivity extends AgentAccessActivityBase {
   fillOrigin?: string;
   /** When the request was resolved; unset while `Pending`. */
   resolvedAtMs?: string;
+  /**
+   * OpenShell rows only (§M8.8): the gateway-reported sandbox and provider *ids*, the policy
+   * digest, and the requested item/secret *ids*. Never names, images, endpoints or values — an
+   * OpenShell row carries exactly `origin`, `operation`, these four, and the shared
+   * id/timestamp/status/agentName fields.
+   */
+  sandboxId?: string;
+  providerId?: string;
+  policyDigest?: string;
+  targetIds?: string[];
 }
 
 /** A connection/transport event forwarded verbatim from the Rust agent's audit stream. */

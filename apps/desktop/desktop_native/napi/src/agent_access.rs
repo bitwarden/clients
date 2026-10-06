@@ -132,6 +132,9 @@ pub mod agent_access {
         /// dialog, capped at 200, local-transport-only like every non-`request` operation.
         BulkRequest,
         DescribeFillTarget,
+        /// An OpenShell gateway resolving one provider's `bw://` references (§M8,
+        /// `openshellResolve`). Only ever paired with `origin: "openshell"`.
+        ProviderResolve,
     }
 
     impl From<agent_access_core::RequestOperation> for OperationType {
@@ -144,6 +147,7 @@ pub mod agent_access {
                 agent_access_core::RequestOperation::List => Self::List,
                 agent_access_core::RequestOperation::BulkRequest => Self::BulkRequest,
                 agent_access_core::RequestOperation::DescribeFillTarget => Self::DescribeFillTarget,
+                agent_access_core::RequestOperation::ProviderResolve => Self::ProviderResolve,
             }
         }
     }
@@ -154,6 +158,9 @@ pub mod agent_access {
     pub enum CredentialRequestOrigin {
         Relay,
         Local,
+        /// The toggle-gated OpenShell socket (§M8). Set by the listener kind, never the wire.
+        #[napi(value = "openshell")]
+        OpenShell,
     }
 
     impl From<agent_access_core::CredentialRequestOrigin> for CredentialRequestOrigin {
@@ -161,8 +168,170 @@ pub mod agent_access {
             match origin {
                 agent_access_core::CredentialRequestOrigin::Relay => Self::Relay,
                 agent_access_core::CredentialRequestOrigin::Local => Self::Local,
+                agent_access_core::CredentialRequestOrigin::OpenShell => Self::OpenShell,
             }
         }
+    }
+
+    /// Which source an [`OpenShellEndpointData`] came from (§M8.5).
+    #[napi(string_enum = "camelCase")]
+    #[derive(Debug, Clone, Copy)]
+    pub enum OpenShellEndpointSource {
+        Profile,
+        PolicyBinding,
+    }
+
+    impl From<agent_access_core::OpenShellEndpointSource> for OpenShellEndpointSource {
+        fn from(source: agent_access_core::OpenShellEndpointSource) -> Self {
+            match source {
+                agent_access_core::OpenShellEndpointSource::Profile => Self::Profile,
+                agent_access_core::OpenShellEndpointSource::PolicyBinding => Self::PolicyBinding,
+            }
+        }
+    }
+
+    /// Which field of an item or secret a [`ProviderTargetData`] names (§M8.3).
+    #[napi(string_enum = "camelCase")]
+    #[derive(Debug, Clone, Copy)]
+    pub enum ProviderField {
+        Username,
+        Password,
+        Value,
+    }
+
+    impl From<agent_access_core::ProviderField> for ProviderField {
+        fn from(field: agent_access_core::ProviderField) -> Self {
+            match field {
+                agent_access_core::ProviderField::Username => Self::Username,
+                agent_access_core::ProviderField::Password => Self::Password,
+                agent_access_core::ProviderField::Value => Self::Value,
+            }
+        }
+    }
+
+    /// How long one OpenShell approval lasts (§M8.6).
+    #[napi(string_enum = "camelCase")]
+    #[derive(Debug, Clone, Copy)]
+    pub enum OpenShellLifetimeMode {
+        PerRequest,
+        Ttl,
+        SandboxLifetime,
+    }
+
+    impl From<OpenShellLifetimeMode> for agent_access_core::OpenShellLifetimeMode {
+        fn from(mode: OpenShellLifetimeMode) -> Self {
+            match mode {
+                OpenShellLifetimeMode::PerRequest => Self::PerRequest,
+                OpenShellLifetimeMode::Ttl => Self::Ttl,
+                OpenShellLifetimeMode::SandboxLifetime => Self::SandboxLifetime,
+            }
+        }
+    }
+
+    /// One endpoint an OpenShell provider credential can be sent to — reported by the gateway,
+    /// not verified by Bitwarden.
+    #[napi(object)]
+    #[derive(Debug, Clone)]
+    pub struct OpenShellEndpointData {
+        pub host: String,
+        pub port: u32,
+        pub path: Option<String>,
+        pub source: OpenShellEndpointSource,
+    }
+
+    impl From<agent_access_core::OpenShellEndpoint> for OpenShellEndpointData {
+        fn from(endpoint: agent_access_core::OpenShellEndpoint) -> Self {
+            Self {
+                host: endpoint.host,
+                port: u32::from(endpoint.port),
+                path: endpoint.path,
+                source: endpoint.source.into(),
+            }
+        }
+    }
+
+    /// Gateway-reported context for an `operation: "providerResolve"` request (§M8.7). Every
+    /// field is reported by the OpenShell gateway, not verified by Bitwarden.
+    #[napi(object)]
+    #[derive(Debug, Clone)]
+    pub struct OpenShellContextData {
+        pub deadline_ms: u32,
+        pub gateway_name: String,
+        pub gateway_endpoint: String,
+        pub provider_id: String,
+        pub provider_name: String,
+        pub provider_profile: String,
+        pub workspace: String,
+        pub sandbox_id: String,
+        pub sandbox_name: String,
+        pub sandbox_image: Option<String>,
+        pub endpoints: Vec<OpenShellEndpointData>,
+        pub policy_digest: String,
+        pub advisor_enabled: Option<bool>,
+    }
+
+    impl From<agent_access_core::OpenShellContext> for OpenShellContextData {
+        fn from(context: agent_access_core::OpenShellContext) -> Self {
+            Self {
+                // Validated to 5000..=28000 ms on the wire, so this never saturates.
+                deadline_ms: u32::try_from(context.deadline.as_millis()).unwrap_or(u32::MAX),
+                gateway_name: context.gateway_name,
+                gateway_endpoint: context.gateway_endpoint,
+                provider_id: context.provider_id,
+                provider_name: context.provider_name,
+                provider_profile: context.provider_profile,
+                workspace: context.workspace,
+                sandbox_id: context.sandbox_id,
+                sandbox_name: context.sandbox_name,
+                sandbox_image: context.sandbox_image,
+                endpoints: context
+                    .endpoints
+                    .into_iter()
+                    .map(OpenShellEndpointData::from)
+                    .collect(),
+                policy_digest: context.policy_digest,
+                advisor_enabled: context.advisor_enabled,
+            }
+        }
+    }
+
+    /// One `bw://` target of a provider resolve: an env-var name plus the item or secret id.
+    /// Value-free.
+    #[napi(object)]
+    #[derive(Debug, Clone)]
+    pub struct ProviderTargetData {
+        pub credential_key: String,
+        pub resource_type: ResourceType,
+        pub id: String,
+        pub field: ProviderField,
+    }
+
+    impl From<agent_access_core::ProviderTarget> for ProviderTargetData {
+        fn from(target: agent_access_core::ProviderTarget) -> Self {
+            Self {
+                credential_key: target.credential_key,
+                resource_type: target.resource.into(),
+                id: target.id,
+                field: target.field.into(),
+            }
+        }
+    }
+
+    /// One released provider credential value. Not `Debug`: it carries a live value.
+    #[napi(object)]
+    pub struct ProviderValueData {
+        pub credential_key: String,
+        pub value: String,
+    }
+
+    /// The approval lifetime the renderer chose. `expiresAtMs` is a stringified u64 (Unix epoch
+    /// milliseconds), like `timestampMs`: required for `perRequest`/`ttl`, absent for
+    /// `sandboxLifetime` — enforced again by the Rust reply builder.
+    #[napi(object)]
+    #[derive(Debug, Clone)]
+    pub struct OpenShellLifetimeData {
+        pub mode: OpenShellLifetimeMode,
+        pub expires_at_ms: Option<String>,
     }
 
     /// How the requester wants an approved credential delivered. Only present for
@@ -355,6 +524,12 @@ pub mod agent_access {
         /// Optional `targetToken` from a prior `describeFillTarget` call (M5), binding this fill
         /// to a specific extension-produced field plan. Value-free — an opaque token.
         pub fill_target_token: Option<String>,
+        /// Gateway-reported context for `operation: "providerResolve"` (§M8). Only set for
+        /// `origin: "openshell"`.
+        pub openshell: Option<OpenShellContextData>,
+        /// The `bw://` targets of `operation: "providerResolve"`, in wire order. Only set for
+        /// `origin: "openshell"`.
+        pub provider_targets: Option<Vec<ProviderTargetData>>,
     }
 
     impl From<agent_access_core::CredentialRequestData> for CredentialRequestData {
@@ -397,6 +572,13 @@ pub mod agent_access {
                 generate_symbols: data.generate_symbols,
                 fill_fields: data.fill_fields,
                 fill_target_token: data.fill_target_token,
+                openshell: data.openshell.map(OpenShellContextData::from),
+                provider_targets: (!data.provider_targets.is_empty()).then(|| {
+                    data.provider_targets
+                        .into_iter()
+                        .map(ProviderTargetData::from)
+                        .collect()
+                }),
             }
         }
     }
@@ -424,6 +606,15 @@ pub mod agent_access {
                 .field("generate_symbols", &self.generate_symbols)
                 .field("fill_fields", &self.fill_fields)
                 .field("fill_target_token", &self.fill_target_token)
+                .field(
+                    "openshell_provider_id",
+                    &self.openshell.as_ref().map(|c| c.provider_id.as_str()),
+                )
+                .field(
+                    "openshell_sandbox_id",
+                    &self.openshell.as_ref().map(|c| c.sandbox_id.as_str()),
+                )
+                .field("provider_targets", &self.provider_targets)
                 .finish()
         }
     }
@@ -557,6 +748,69 @@ pub mod agent_access {
         /// `deliveryMode: "fill"` request, for the activity log's `fieldsShared` (M5). Supplied
         /// directly by the renderer rather than derived by parsing `fill_result`.
         pub fill_fields_shared: Option<Vec<String>>,
+        /// The released values for an approved `operation: "providerResolve"` request (§M8), in
+        /// target order. The Rust reply builder re-checks the key set before writing anything.
+        pub openshell_values: Option<Vec<ProviderValueData>>,
+        /// The approval lifetime for an approved `operation: "providerResolve"` request (§M8).
+        pub openshell_lifetime: Option<OpenShellLifetimeData>,
+    }
+
+    /// Redacts every value: secret-bearing fields print as presence flags, and
+    /// `openshell_values` prints its env-var names only.
+    impl std::fmt::Debug for CredentialResponseData {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            f.debug_struct("CredentialResponseData")
+                .field("approved", &self.approved)
+                .field("has_username", &self.username.is_some())
+                .field("has_password", &self.password.is_some())
+                .field("has_totp", &self.totp.is_some())
+                .field("has_secret_value", &self.secret_value.is_some())
+                .field("credential_id", &self.credential_id)
+                .field("secret_id", &self.secret_id)
+                .field("reason", &self.reason)
+                .field(
+                    "openshell_value_keys",
+                    &self.openshell_values.as_ref().map(|values| {
+                        values
+                            .iter()
+                            .map(|value| value.credential_key.as_str())
+                            .collect::<Vec<_>>()
+                    }),
+                )
+                .field("openshell_lifetime", &self.openshell_lifetime)
+                .finish()
+        }
+    }
+
+    /// Converts the renderer's OpenShell answer into the core resolution. `None` (which the
+    /// reply builder turns into `invalid approval payload`) when the lifetime is missing or its
+    /// `expiresAtMs` isn't a plain decimal u64 — never a guessed default.
+    fn openshell_resolution(
+        values: Option<Vec<ProviderValueData>>,
+        lifetime: Option<OpenShellLifetimeData>,
+    ) -> Option<agent_access_core::OpenShellResolution> {
+        let lifetime = lifetime?;
+        let expires_at_ms = match lifetime.expires_at_ms.as_deref() {
+            None => None,
+            Some(raw) if !raw.is_empty() && raw.bytes().all(|b| b.is_ascii_digit()) => {
+                Some(raw.parse::<u64>().ok()?)
+            }
+            Some(_) => return None,
+        };
+        Some(agent_access_core::OpenShellResolution {
+            lifetime: agent_access_core::OpenShellLifetime {
+                mode: lifetime.mode.into(),
+                expires_at_ms,
+            },
+            values: values
+                .unwrap_or_default()
+                .into_iter()
+                .map(|value| agent_access_core::ProviderValue {
+                    credential_key: value.credential_key,
+                    value: zeroize::Zeroizing::new(value.value),
+                })
+                .collect(),
+        })
     }
 
     impl From<CredentialResponseData> for agent_access_core::CredentialResponseData {
@@ -590,6 +844,7 @@ pub mod agent_access {
                 fill_target: data.fill_target,
                 denial_detail: data.denial_detail,
                 fill_fields_shared: data.fill_fields_shared,
+                openshell: openshell_resolution(data.openshell_values, data.openshell_lifetime),
             }
         }
     }
@@ -615,6 +870,7 @@ pub mod agent_access {
             "noSafeTarget" | "no_safe_target" => {
                 Some(agent_access_core::CredentialDenialReason::NoSafeTarget)
             }
+            "timeout" => Some(agent_access_core::CredentialDenialReason::Timeout),
             _ => None,
         }
     }
@@ -717,6 +973,8 @@ pub mod agent_access {
                 generate_symbols: None,
                 fill_fields: None,
                 fill_target_token: None,
+                openshell: None,
+                provider_targets: Vec::new(),
             }
         }
 
@@ -829,6 +1087,8 @@ pub mod agent_access {
                 fill_target: None,
                 denial_detail: None,
                 fill_fields_shared: None,
+                openshell_values: None,
+                openshell_lifetime: None,
             };
             let core_response: agent_access_core::CredentialResponseData = response.into();
             assert_eq!(core_response.project_id.as_deref(), Some("project-1"));
@@ -873,6 +1133,8 @@ pub mod agent_access {
                 generate_symbols: None,
                 fill_fields: None,
                 fill_target_token: None,
+                openshell: None,
+                provider_targets: Vec::new(),
             }
         }
 
@@ -978,6 +1240,8 @@ pub mod agent_access {
                 fill_target: None,
                 denial_detail: None,
                 fill_fields_shared: None,
+                openshell_values: None,
+                openshell_lifetime: None,
             };
             let core_response: agent_access_core::CredentialResponseData = response.into();
             let secrets = core_response.secrets.expect("secrets expected");
@@ -1011,6 +1275,8 @@ pub mod agent_access {
                 fill_target: None,
                 denial_detail: None,
                 fill_fields_shared: None,
+                openshell_values: None,
+                openshell_lifetime: None,
             };
             let core_response: agent_access_core::CredentialResponseData = response.into();
             assert!(core_response.secrets.is_none());
@@ -1034,6 +1300,220 @@ pub mod agent_access {
             );
             assert!(!debugged.contains("DB_PASSWORD"));
             assert!(!debugged.contains("hunter2"));
+        }
+    }
+
+    /// §M8.14 "napi" conversion tests: origin, operation, field, lifetime and context types,
+    /// plus the response-side value/lifetime conversion and its Debug redaction.
+    #[cfg(test)]
+    mod openshell_conversion_tests {
+        use super::*;
+
+        fn core_context() -> agent_access_core::OpenShellContext {
+            agent_access_core::OpenShellContext {
+                deadline: std::time::Duration::from_millis(25_000),
+                gateway_name: "openshell".to_string(),
+                gateway_endpoint: "https://127.0.0.1:17670".to_string(),
+                provider_id: "prov-7f3a".to_string(),
+                provider_name: "gh-agent-1".to_string(),
+                provider_profile: "github".to_string(),
+                workspace: "default".to_string(),
+                sandbox_id: "sbx-01J9Z6".to_string(),
+                sandbox_name: "agent-1".to_string(),
+                sandbox_image: None,
+                endpoints: vec![agent_access_core::OpenShellEndpoint {
+                    host: "api.github.com".to_string(),
+                    port: 443,
+                    path: Some("/**".to_string()),
+                    source: agent_access_core::OpenShellEndpointSource::PolicyBinding,
+                }],
+                policy_digest:
+                    "sha256:998f40a71463c9250c9eaf7bcb560234fc838a2bf7592b260165f9b4af110020"
+                        .to_string(),
+                advisor_enabled: None,
+            }
+        }
+
+        fn response(
+            values: Option<Vec<ProviderValueData>>,
+            lifetime: Option<OpenShellLifetimeData>,
+        ) -> CredentialResponseData {
+            CredentialResponseData {
+                approved: true,
+                username: None,
+                password: None,
+                totp: None,
+                uri: None,
+                notes: None,
+                credential_id: None,
+                reason: None,
+                item_name: None,
+                secret_value: None,
+                secret_id: None,
+                project_id: None,
+                projects: None,
+                secrets: None,
+                fill_result: None,
+                fill_target: None,
+                denial_detail: None,
+                fill_fields_shared: None,
+                openshell_values: values,
+                openshell_lifetime: lifetime,
+            }
+        }
+
+        fn value(key: &str, value: &str) -> ProviderValueData {
+            ProviderValueData {
+                credential_key: key.to_string(),
+                value: value.to_string(),
+            }
+        }
+
+        #[test]
+        fn origin_operation_and_enums_convert() {
+            assert!(matches!(
+                CredentialRequestOrigin::from(
+                    agent_access_core::CredentialRequestOrigin::OpenShell
+                ),
+                CredentialRequestOrigin::OpenShell
+            ));
+            assert!(matches!(
+                OperationType::from(agent_access_core::RequestOperation::ProviderResolve),
+                OperationType::ProviderResolve
+            ));
+            assert!(matches!(
+                ProviderField::from(agent_access_core::ProviderField::Value),
+                ProviderField::Value
+            ));
+            assert_eq!(
+                agent_access_core::OpenShellLifetimeMode::from(
+                    OpenShellLifetimeMode::SandboxLifetime
+                ),
+                agent_access_core::OpenShellLifetimeMode::SandboxLifetime
+            );
+        }
+
+        #[test]
+        fn context_and_targets_convert_verbatim() {
+            let context = OpenShellContextData::from(core_context());
+            assert_eq!(context.deadline_ms, 25_000);
+            assert_eq!(context.provider_id, "prov-7f3a");
+            assert_eq!(context.sandbox_name, "agent-1");
+            assert_eq!(context.endpoints[0].port, 443);
+            assert!(matches!(
+                context.endpoints[0].source,
+                OpenShellEndpointSource::PolicyBinding
+            ));
+            let target = ProviderTargetData::from(agent_access_core::ProviderTarget {
+                credential_key: "DB_PASSWORD".to_string(),
+                resource: agent_access_core::ResourceKind::Secret,
+                id: "a7e2d4c1-6b3f-4e8a-9d10-2c5b6a7f8e9d".to_string(),
+                field: agent_access_core::ProviderField::Value,
+            });
+            assert!(matches!(target.resource_type, ResourceType::Secret));
+            assert!(matches!(target.field, ProviderField::Value));
+        }
+
+        #[test]
+        fn a_ttl_answer_converts_into_a_resolution() {
+            let core: agent_access_core::CredentialResponseData = response(
+                Some(vec![value("GITHUB_TOKEN", "pw")]),
+                Some(OpenShellLifetimeData {
+                    mode: OpenShellLifetimeMode::Ttl,
+                    expires_at_ms: Some("1791234567890".to_string()),
+                }),
+            )
+            .into();
+            let resolution = core.openshell.expect("resolution");
+            assert_eq!(resolution.lifetime.expires_at_ms, Some(1_791_234_567_890));
+            assert_eq!(resolution.values[0].credential_key, "GITHUB_TOKEN");
+            assert_eq!(resolution.values[0].value.as_str(), "pw");
+        }
+
+        #[test]
+        fn a_malformed_or_missing_lifetime_yields_no_resolution() {
+            for expires in ["", "-1", "1e3", "12.5", " 1", "99999999999999999999999"] {
+                let core: agent_access_core::CredentialResponseData = response(
+                    Some(vec![value("GITHUB_TOKEN", "pw")]),
+                    Some(OpenShellLifetimeData {
+                        mode: OpenShellLifetimeMode::Ttl,
+                        expires_at_ms: Some(expires.to_string()),
+                    }),
+                )
+                .into();
+                assert!(core.openshell.is_none(), "{expires:?}");
+            }
+            let core: agent_access_core::CredentialResponseData =
+                response(Some(vec![value("GITHUB_TOKEN", "pw")]), None).into();
+            assert!(core.openshell.is_none());
+        }
+
+        #[test]
+        fn timeout_reason_maps_to_timeout() {
+            assert_eq!(
+                map_denial_reason("timeout"),
+                Some(agent_access_core::CredentialDenialReason::Timeout)
+            );
+        }
+
+        #[test]
+        fn response_debug_redacts_openshell_values() {
+            let data = response(
+                Some(vec![value("GITHUB_TOKEN", "super-secret-value")]),
+                Some(OpenShellLifetimeData {
+                    mode: OpenShellLifetimeMode::SandboxLifetime,
+                    expires_at_ms: None,
+                }),
+            );
+            let rendered = format!("{data:?}");
+            assert!(!rendered.contains("super-secret-value"));
+            assert!(rendered.contains("GITHUB_TOKEN"));
+        }
+
+        #[test]
+        fn request_debug_prints_ids_not_names() {
+            let mut request = agent_access_core::CredentialRequestData {
+                query_type: agent_access_core::CredentialQueryKind::Id,
+                query_value: String::new(),
+                requester_fingerprint: None,
+                requester_name: None,
+                origin: agent_access_core::CredentialRequestOrigin::OpenShell,
+                local_peer: None,
+                delivery_mode: None,
+                resource: agent_access_core::ResourceKind::Credential,
+                operation: agent_access_core::RequestOperation::ProviderResolve,
+                new_secret_name: None,
+                new_secret_value: None,
+                new_secret_note: None,
+                project_hint: None,
+                target_id: None,
+                generate_value: false,
+                generate_length: None,
+                generate_symbols: None,
+                fill_fields: None,
+                fill_target_token: None,
+                openshell: Some(core_context()),
+                provider_targets: Vec::new(),
+            };
+            let napi_request = CredentialRequestData::from(request.clone());
+            assert!(napi_request.provider_targets.is_none());
+            let rendered = format!("{napi_request:?}");
+            assert!(rendered.contains("prov-7f3a"));
+            assert!(!rendered.contains("gh-agent-1"));
+            request
+                .provider_targets
+                .push(agent_access_core::ProviderTarget {
+                    credential_key: "GITHUB_TOKEN".to_string(),
+                    resource: agent_access_core::ResourceKind::Credential,
+                    id: "3f1c2b9e-8a4d-4c7e-9b21-5d6f7a8b9c0d".to_string(),
+                    field: agent_access_core::ProviderField::Password,
+                });
+            assert_eq!(
+                CredentialRequestData::from(request)
+                    .provider_targets
+                    .map(|targets| targets.len()),
+                Some(1)
+            );
         }
     }
 
@@ -1342,6 +1822,27 @@ pub mod agent_access {
         #[napi]
         pub fn stop(&self) {
             self.inner.stop();
+        }
+
+        /// Starts (path) or stops (null/undefined) the OpenShell listener. Idempotent.
+        ///
+        /// The path is computed by the main process, never taken from the renderer (§M8.8).
+        #[napi]
+        #[allow(clippy::unused_async)]
+        pub async fn set_open_shell_listener(
+            &self,
+            socket_path: Option<String>,
+        ) -> napi::Result<()> {
+            match socket_path {
+                Some(path) => self
+                    .inner
+                    .start_openshell_listener(path)
+                    .map_err(|e| napi::Error::from_reason(e.to_string())),
+                None => {
+                    self.inner.stop_openshell_listener();
+                    Ok(())
+                }
+            }
         }
 
         #[napi]

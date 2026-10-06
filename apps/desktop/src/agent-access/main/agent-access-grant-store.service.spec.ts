@@ -296,4 +296,97 @@ describe("AgentAccessGrantStoreService", () => {
       expect(passwords.getPassword).not.toHaveBeenCalled();
     });
   });
+
+  describe("OpenShell grant keys (§M8.5)", () => {
+    const gateway = {
+      signatureKind: "linuxPathOnly",
+      signatureIdentity: "/usr/bin/openshell-gateway",
+    };
+    const openshellKey = {
+      gatewayEndpoint: "https://127.0.0.1:17670",
+      sandboxId: "sbx-01J9Z6",
+      providerId: "prov-7f3a",
+    };
+    const details = {
+      ...openshellKey,
+      gatewayName: "openshell",
+      sandboxName: "agent-1",
+      providerName: "gh-agent-1",
+      policyDigest: "sha256:998f40a71463c9250c9eaf7bcb560234fc838a2bf7592b260165f9b4af110020",
+      lifetimeMode: "ttl" as const,
+      windowExpiresAtMs: 1_791_234_567_890,
+    };
+
+    async function seedOpenShellGrant() {
+      return store.upsert({
+        ...gateway,
+        openshell: details,
+        displayName: "openshell-gateway",
+        scope: AgentAccessGrantScope.OpenShellSandbox,
+      });
+    }
+
+    it("stores and finds an OpenShell grant by its full key", async () => {
+      const grant = await seedOpenShellGrant();
+      expect(grant?.openshell).toEqual(details);
+      const found = await store.find({ ...gateway, openshell: openshellKey });
+      expect(found?.id).toBe(grant?.id);
+    });
+
+    it("never satisfies a plain-local request with an OpenShell grant", async () => {
+      await seedOpenShellGrant();
+      expect(await store.find(gateway)).toBeNull();
+    });
+
+    it("never satisfies an OpenShell request with a plain-local grant", async () => {
+      await store.upsert({
+        ...gateway,
+        displayName: "openshell-gateway",
+        scope: AgentAccessGrantScope.AllLogins,
+      });
+      expect(await store.find({ ...gateway, openshell: openshellKey })).toBeNull();
+    });
+
+    it.each([
+      ["gatewayEndpoint", { gatewayEndpoint: "https://127.0.0.1:17671" }],
+      ["sandboxId", { sandboxId: "sbx-other" }],
+      ["providerId", { providerId: "prov-other" }],
+    ])("misses when %s differs", async (_field, change) => {
+      await seedOpenShellGrant();
+      expect(
+        await store.find({ ...gateway, openshell: { ...openshellKey, ...change } }),
+      ).toBeNull();
+    });
+
+    it("misses when the attested gateway identity differs", async () => {
+      await seedOpenShellGrant();
+      expect(
+        await store.find({
+          signatureKind: gateway.signatureKind,
+          signatureIdentity: "/tmp/fake/openshell-gateway",
+          openshell: openshellKey,
+        }),
+      ).toBeNull();
+    });
+
+    it("refreshes digest and lifetime details on re-approval without a second grant", async () => {
+      const first = await seedOpenShellGrant();
+      const changed = {
+        ...details,
+        policyDigest: "sha256:f098164656d916d933b9ad3ea24ce0c43cc84aa04300528a4e2e6ec2844e582d",
+        lifetimeMode: "sandboxLifetime" as const,
+        windowExpiresAtMs: undefined,
+      };
+      const second = await store.upsert({
+        ...gateway,
+        openshell: changed,
+        displayName: "openshell-gateway",
+        scope: AgentAccessGrantScope.OpenShellSandbox,
+      });
+      expect(second?.id).toBe(first?.id);
+      expect(second?.openshell?.policyDigest).toBe(changed.policyDigest);
+      expect(second?.openshell?.lifetimeMode).toBe("sandboxLifetime");
+      expect(await store.list()).toHaveLength(1);
+    });
+  });
 });

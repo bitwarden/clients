@@ -58,6 +58,77 @@ struct Running {
     notification_task: JoinHandle<()>,
     /// `None` when `AgentAccessConfig::socket_path` was `None` at `start()` time.
     local_listener_task: Option<JoinHandle<()>>,
+    /// The same single enforcement point the agent socket uses — kept so the OpenShell listener
+    /// (§M8) can be started later, on the toggle, without a second handler ever existing.
+    credential_handler: Arc<dyn CredentialRequestHandler>,
+    event_sink: Arc<dyn EventSink>,
+    /// The toggle-gated OpenShell listener (§M8.7).
+    openshell_listener: OpenShellListenerSlot,
+}
+
+/// Holds at most one running OpenShell listener. Separate from [`Running`] so its start/stop
+/// idempotency can be unit-tested without a relay connection.
+#[derive(Default)]
+struct OpenShellListenerSlot {
+    current: Option<OpenShellListener>,
+}
+
+impl OpenShellListenerSlot {
+    /// Starts the listener on `socket_path`. Idempotent for the same path; a different path
+    /// replaces the running listener.
+    fn start(
+        &mut self,
+        socket_path: String,
+        credential_handler: &Arc<dyn CredentialRequestHandler>,
+        event_sink: &Arc<dyn EventSink>,
+    ) -> Result<(), AgentAccessError> {
+        if let Some(existing) = &self.current {
+            if existing.socket_path == socket_path && !existing.task.is_finished() {
+                return Ok(());
+            }
+        }
+        self.stop();
+        let task = local_listener::spawn(
+            socket_path.clone(),
+            local_listener::ListenerKind::OpenShell,
+            Arc::clone(credential_handler),
+            Arc::clone(event_sink),
+        )?;
+        self.current = Some(OpenShellListener { task, socket_path });
+        Ok(())
+    }
+
+    /// Stops the listener, if any. Idempotent.
+    fn stop(&mut self) {
+        if let Some(listener) = self.current.take() {
+            listener.shutdown();
+        }
+    }
+
+    fn is_listening(&self) -> bool {
+        self.current
+            .as_ref()
+            .is_some_and(|listener| !listener.task.is_finished())
+    }
+}
+
+/// A running OpenShell listener: its accept-loop task and the socket path it bound.
+struct OpenShellListener {
+    task: JoinHandle<()>,
+    socket_path: String,
+}
+
+impl OpenShellListener {
+    /// Aborts the accept loop (which aborts every in-flight OpenShell connection with it — see
+    /// `local_listener::accept_loop`) and unlinks the socket file, so the socket exists only
+    /// while the toggle is on (§M8 invariant 20).
+    fn shutdown(self) {
+        self.task.abort();
+        #[cfg(unix)]
+        {
+            let _ = std::fs::remove_file(&self.socket_path);
+        }
+    }
 }
 
 /// Desktop-side "UserClient" (listener) role of the Agent Access protocol.
@@ -156,8 +227,9 @@ impl DesktopAgentAccess {
             Some(socket_path) => {
                 match local_listener::spawn(
                     socket_path.clone(),
+                    local_listener::ListenerKind::Agent,
                     Arc::clone(&credential_handler),
-                    local_listener_event_sink,
+                    Arc::clone(&local_listener_event_sink),
                 ) {
                     Ok(task) => Some(task),
                     Err(error) => {
@@ -180,6 +252,9 @@ impl DesktopAgentAccess {
             dispatch_task,
             notification_task,
             local_listener_task,
+            credential_handler,
+            event_sink: local_listener_event_sink,
+            openshell_listener: OpenShellListenerSlot::default(),
         };
 
         let mut guard = self.inner.lock().expect("agent access state lock poisoned");
@@ -216,8 +291,44 @@ impl DesktopAgentAccess {
             if let Some(task) = &running.local_listener_task {
                 task.abort();
             }
+            let mut openshell_listener = running.openshell_listener;
+            openshell_listener.stop();
             // `running.client` drops here, closing the last UserClientCommand sender.
         }
+    }
+
+    /// Starts the OpenShell listener on `socket_path` (§M8.7). Idempotent: a listener that is
+    /// already running on the same path is left alone; one on a different path is replaced.
+    /// Fails with [`AgentAccessError::NotRunning`] when the agent itself isn't running — the
+    /// OpenShell socket never outlives (or precedes) Agent Access.
+    ///
+    /// Must be called from within a tokio runtime (the napi async surface always is).
+    pub fn start_openshell_listener(&self, socket_path: String) -> Result<(), AgentAccessError> {
+        let mut guard = self.inner.lock().expect("agent access state lock poisoned");
+        let Some(running) = guard.as_mut() else {
+            return Err(AgentAccessError::NotRunning);
+        };
+        let handler = Arc::clone(&running.credential_handler);
+        let sink = Arc::clone(&running.event_sink);
+        running
+            .openshell_listener
+            .start(socket_path, &handler, &sink)
+    }
+
+    /// Stops the OpenShell listener, if any. Idempotent, and a no-op when not running.
+    pub fn stop_openshell_listener(&self) {
+        let mut guard = self.inner.lock().expect("agent access state lock poisoned");
+        if let Some(running) = guard.as_mut() {
+            running.openshell_listener.stop();
+        }
+    }
+
+    /// Whether the OpenShell listener is currently running. Diagnostic / test helper.
+    pub fn is_openshell_listening(&self) -> bool {
+        let guard = self.inner.lock().expect("agent access state lock poisoned");
+        guard
+            .as_ref()
+            .is_some_and(|running| running.openshell_listener.is_listening())
     }
 
     /// Synchronous check — matches the napi surface's `isRunning(): boolean`.
@@ -375,6 +486,9 @@ fn spawn_dispatch(
                         // .md, "M5 — Browser fill delivery") — the relay never constructs one.
                         fill_fields: None,
                         fill_target_token: None,
+                        // OpenShell (§M8) is local-transport-only too.
+                        openshell: None,
+                        provider_targets: Vec::new(),
                     };
 
                     let handler = Arc::clone(&credential_handler);
@@ -990,5 +1104,85 @@ mod tests {
 
         drop(notification_tx);
         drain.await.unwrap();
+    }
+
+    // --- OpenShell listener slot (§M8.7, §M8.14) -------------------------------------------------
+
+    #[cfg(unix)]
+    fn temp_socket_path(tag: &str) -> String {
+        let nanos = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        std::env::temp_dir()
+            .join(format!(
+                "bw-aa-os-{tag}-{}-{nanos}.sock",
+                std::process::id()
+            ))
+            .to_string_lossy()
+            .into_owned()
+    }
+
+    struct NoopEventSink;
+
+    #[async_trait::async_trait]
+    impl EventSink for NoopEventSink {
+        async fn on_event(&self, _event: AgentAccessEvent) {}
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn openshell_listener_start_and_stop_are_idempotent_and_stop_closes_the_socket() {
+        let path = temp_socket_path("slot");
+        let handler: Arc<dyn CredentialRequestHandler> = Arc::new(FailingCredentialHandler);
+        let sink: Arc<dyn EventSink> = Arc::new(NoopEventSink);
+        let mut slot = OpenShellListenerSlot::default();
+
+        slot.start(path.clone(), &handler, &sink).unwrap();
+        assert!(slot.is_listening());
+        // A second start on the same path keeps the running listener (it would otherwise fail:
+        // the socket is live, and `bind` refuses to steal a live socket).
+        slot.start(path.clone(), &handler, &sink).unwrap();
+        assert!(slot.is_listening());
+        assert!(tokio::net::UnixStream::connect(&path).await.is_ok());
+
+        slot.stop();
+        assert!(!slot.is_listening());
+        assert!(
+            !std::path::Path::new(&path).exists(),
+            "the socket file must not outlive the listener"
+        );
+        assert!(tokio::net::UnixStream::connect(&path).await.is_err());
+        // Stopping again is a no-op.
+        slot.stop();
+        assert!(!slot.is_listening());
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn openshell_listener_restart_on_a_new_path_replaces_the_old_one() {
+        let first = temp_socket_path("first");
+        let second = temp_socket_path("second");
+        let handler: Arc<dyn CredentialRequestHandler> = Arc::new(FailingCredentialHandler);
+        let sink: Arc<dyn EventSink> = Arc::new(NoopEventSink);
+        let mut slot = OpenShellListenerSlot::default();
+
+        slot.start(first.clone(), &handler, &sink).unwrap();
+        slot.start(second.clone(), &handler, &sink).unwrap();
+        assert!(!std::path::Path::new(&first).exists());
+        assert!(tokio::net::UnixStream::connect(&second).await.is_ok());
+        slot.stop();
+    }
+
+    #[test]
+    fn openshell_listener_needs_a_running_agent() {
+        let access = DesktopAgentAccess::new();
+        assert!(matches!(
+            access.start_openshell_listener("/tmp/never-bound.sock".to_string()),
+            Err(AgentAccessError::NotRunning)
+        ));
+        // Stopping when nothing runs is a no-op, never a panic.
+        access.stop_openshell_listener();
+        assert!(!access.is_openshell_listening());
     }
 }
