@@ -3206,7 +3206,7 @@ describe("AutofillService", () => {
           );
         });
 
-        it("classifies a field as TOTP when an ambiguous TOTP keyword matches a whole token and a username keyword only appears within a token", async () => {
+        it("classifies a field as TOTP when a TOTP abbreviation is a whole token and the only username signal is ambiguous", async () => {
           const totpCode = "123456";
           options.allowTotpAutofill = true;
           totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
@@ -3256,15 +3256,58 @@ describe("AutofillService", () => {
           );
         });
 
-        it("classifies a field as username when ambiguous TOTP and username keywords both only appear within tokens", async () => {
+        it("classifies a field as TOTP when an ambiguous username keyword is a whole token and a TOTP abbreviation is a whole token", async () => {
+          const totpCode = "123456";
           options.allowTotpAutofill = true;
+          totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
           const field = createAutofillFieldMock({
-            opid: "login-code-substring",
+            opid: "login-name-2fa-label",
             type: "text",
             form: "validFormId",
-            htmlID: "logincodeinput",
-            htmlName: "logincodeinput",
+            htmlID: "login",
+            htmlName: "login",
+            "label-left": "2FA",
             elementNumber: 5,
+          });
+          pageDetails.fields = [field];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledTimes(1);
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(fillScript, field, totpCode);
+        });
+
+        it.each([
+          {
+            scenario: "an unambiguous username keyword outranks a whole-token TOTP abbreviation",
+            attributes: { htmlID: "username", htmlName: "username", "label-left": "2fa" },
+          },
+          {
+            scenario: "an ambiguous username keyword outranks ambiguous TOTP substrings",
+            attributes: { htmlID: "logincodeinput", htmlName: "logincodeinput" },
+          },
+          {
+            scenario:
+              "a whole-token `code` stays ambiguous and loses to an ambiguous username keyword",
+            attributes: { htmlID: "login-code", htmlName: "code" },
+          },
+          {
+            scenario: "a TOTP abbreviation within a larger token stays ambiguous",
+            attributes: { htmlID: "loginotpinput", htmlName: "loginotpinput" },
+          },
+        ])("classifies a field as username when $scenario", async ({ attributes }) => {
+          options.allowTotpAutofill = true;
+          const field = createAutofillFieldMock({
+            opid: "username-classified-field",
+            type: "text",
+            form: "validFormId",
+            elementNumber: 5,
+            ...attributes,
           });
           pageDetails.fields = [field];
 

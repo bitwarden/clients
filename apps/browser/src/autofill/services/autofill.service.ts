@@ -1363,6 +1363,14 @@ export default class AutofillService implements AutofillServiceInterface {
           (fieldContainsKeyword(field, AutoFillConstants.TotpFieldNames) ||
             field.autoCompleteType === "one-time-code");
 
+        const isAbbreviatedTotpField =
+          isTotpCandidate &&
+          fieldContainsKeyword(
+            field,
+            AutoFillConstants.AbbreviatedTotpFieldNames,
+            KeywordMatchMode.MatchesToken,
+          );
+
         const maybeTotpField =
           isTotpCandidate && fieldContainsKeyword(field, AutoFillConstants.AmbiguousTotpFieldNames);
 
@@ -1372,27 +1380,21 @@ export default class AutofillService implements AutofillServiceInterface {
           fieldContainsKeyword(field, AutoFillConstants.UsernameFieldNames) &&
           !isNonLoginUsernameField(field, pageDetails);
 
-        // An ambiguous TOTP keyword matching a whole token (e.g. name="2fa") outranks a username
-        // keyword that only appears within a larger token (e.g. "login" in id="login-2fa-input").
-        const ambiguousTotpOutranksUsername =
-          maybeTotpField &&
+        const isUnambiguousUsernameField =
           isUsernameField &&
-          fieldContainsKeyword(
-            field,
-            AutoFillConstants.AmbiguousTotpFieldNames,
-            KeywordMatchMode.MatchesToken,
-          ) &&
-          !fieldContainsKeyword(
-            field,
-            AutoFillConstants.UsernameFieldNames,
-            KeywordMatchMode.MatchesToken,
-          );
+          fieldContainsKeyword(field, AutoFillConstants.UnambiguousUsernameFieldNames);
 
-        // Reliable TOTP signals win unconditionally; username wins over ambiguous TOTP signals
-        // unless the ambiguous TOTP signal is the stronger (whole-token) match.
+        // Classify by signal strength: reliable TOTP, then unambiguous username, then a whole-token
+        // TOTP abbreviation (e.g. name="2fa"), then ambiguous username (e.g. "login"), then
+        // ambiguous TOTP.
         switch (true) {
           case isTotpField:
-          case ambiguousTotpOutranksUsername:
+            totps.push(field);
+            return;
+          case isUnambiguousUsernameField:
+            usernames.set(field.opid, field);
+            return;
+          case isAbbreviatedTotpField:
             totps.push(field);
             return;
           case isUsernameField:
