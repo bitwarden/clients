@@ -1,22 +1,27 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   Injector,
   computed,
   contentChildren,
   effect,
   inject,
+  model,
+  signal,
+  untracked,
   viewChild,
   viewChildren,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BerryComponent } from "../../berry/berry.component";
 import { ButtonModule } from "../../button";
 import { ChipComponent } from "../../chips";
-import { DialogService } from "../../dialog";
+import { DialogRef, DialogService } from "../../dialog";
 import {
   FilterDialogComponent,
   FilterDialogParams,
@@ -66,6 +71,14 @@ import { BitTableV2Component } from "./table-v2.component";
 })
 export class BitTableToolbarComponent {
   private readonly dialogService = inject(DialogService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  /** Whether the collapsed filter dialog is open. Two-way so a consumer can persist it. */
+  readonly filterDialogOpen = model(false);
+
+  private readonly dialogRef = signal<DialogRef<unknown, FilterDialogComponent> | undefined>(
+    undefined,
+  );
 
   /** The table this toolbar is projected into; the source of the item count. */
   protected readonly table = inject(BitTableV2Component, { optional: true });
@@ -116,6 +129,14 @@ export class BitTableToolbarComponent {
     const list = this.overflowList();
     return (list?.ready() && list.overflow().length > 0) ?? false;
   });
+
+  /** Whether the collapsed trigger renders: the single button that stands in for the chip row. */
+  protected readonly showFilterTrigger = computed(() => this.collapsed() && this.hasFilters());
+
+  /** Above `md` the collapse decision isn't known until the chip row has been measured. */
+  private readonly collapseSettled = computed(
+    () => !this.isLargeScreen() || (this.overflowList()?.ready() ?? false),
+  );
 
   /** Whether a filter row renders below the search row; gates the divider between the two. */
   protected readonly hasFilterRow = computed(() =>
@@ -220,6 +241,27 @@ export class BitTableToolbarComponent {
       this.countDigits();
       this.overflowList()?.remeasure();
     });
+
+    // Reconcile the model against the dialog. The trigger gates opening only: a dialog already up
+    // stays up when the chip row goes inline, so a resize can't drop a drill-in page or its focus.
+    effect(() => {
+      const open = this.filterDialogOpen();
+      const canOpen = this.showFilterTrigger();
+      const settled = this.collapseSettled();
+      untracked(() => {
+        const ref = this.dialogRef();
+        if (open && !ref) {
+          if (canOpen) {
+            this.showFilterDialog();
+          } else if (settled) {
+            // No trigger could have opened it, so drop the state rather than let it open later.
+            this.filterDialogOpen.set(false);
+          }
+        } else if (!open && ref) {
+          void ref.close();
+        }
+      });
+    });
   }
 
   /** An active filter's chip label: `label`, or `label: summary` when it has a summary. */
@@ -242,11 +284,33 @@ export class BitTableToolbarComponent {
   /** The count's width tracks its digits, not its value — see the remeasure effect. */
   private readonly countDigits = computed(() => String(this.itemCount()).length);
 
-  /** Opens the projected filters in a dialog (a bottom sheet on small screens). */
+  /** The collapsed trigger's click. */
   protected openFilterDialog(): void {
-    this.dialogService.open<unknown, FilterDialogParams>(FilterDialogComponent, {
-      data: { filters: this.filters() },
+    this.filterDialogOpen.set(true);
+  }
+
+  private showFilterDialog(): void {
+    const ref = this.dialogService.open<unknown, FilterDialogParams, FilterDialogComponent>(
+      FilterDialogComponent,
+      { data: { filters: this.filters } },
+    );
+    this.dialogRef.set(ref);
+
+    // `takeUntilDestroyed` matters for the persisting consumer: views are destroyed before root
+    // providers, so `CdkDialog`'s own teardown can't write a spurious `false` back out.
+    ref.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.dialogRef.set(undefined);
+      this.filterDialogOpen.set(false);
     });
+  }
+
+  /** Whether to offer column customization. */
+  protected readonly canCustomizeColumns = computed(
+    () => this.table?.canCustomizeColumns() ?? false,
+  );
+
+  protected openCustomizeColumns(): void {
+    this.table?.openCustomizeColumns();
   }
 
   /** Reset every projected filter's selection. Excludes search. */

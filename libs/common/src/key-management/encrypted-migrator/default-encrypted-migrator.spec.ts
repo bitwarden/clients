@@ -7,7 +7,7 @@ import {
   KdfConfigService,
   KeyService,
 } from "@bitwarden/key-management";
-import { LogService } from "@bitwarden/logging";
+import { LogService, Measurement } from "@bitwarden/logging";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { ClientType } from "../../enums";
@@ -35,7 +35,7 @@ jest.mock("./migrations/user-key-id-backfill-migration");
 describe("EncryptedMigrator", () => {
   const mockKdfConfigService = mock<KdfConfigService>();
   const mockStateProvider = mock<StateProvider>();
-  const mockLogService = mock<LogService>();
+  const mockLogService = mock<LogService>({ startMeasurement: () => mock<Measurement>() });
   const configService = mock<ConfigService>();
   const masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
   const syncService = mock<SyncService>();
