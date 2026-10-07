@@ -334,15 +334,14 @@ describe("EmergencyAccessService", () => {
 
     it("should throw if the grantor user key cannot be decrypted via the active user private key", async () => {
       // Arrange
-      encryptService.decapsulateKeyUnsigned.mockResolvedValue(
-        null as unknown as SymmetricCryptoKey,
-      );
+      const decapsulationError = new Error("Decapsulation failed");
+      encryptService.decapsulateKeyUnsigned.mockRejectedValue(decapsulationError);
 
       // Act
       const promise = emergencyAccessService.takeover(id, masterPassword, email, activeUserId);
 
       // Assert
-      await expect(promise).rejects.toThrow("Failed to decrypt grantor key");
+      await expect(promise).rejects.toThrow(decapsulationError);
       expect(emergencyAccessApiService.postEmergencyAccessPassword).not.toHaveBeenCalled();
     });
 
