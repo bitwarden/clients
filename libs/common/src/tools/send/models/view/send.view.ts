@@ -136,6 +136,14 @@ export class SendView implements View {
         this.type === SendType.Item
           ? {
               data: this.data?.data?.toSdkCipherView() ?? undefined,
+              metadata: {
+                itemId: asUuid(this.data.metadata.itemId),
+                folderName: this.data.metadata.folderName,
+                collectionNames: this.data.metadata.collectionNames,
+                organizationName: this.data.metadata.organizationName,
+                creationDate: this.data.metadata.creationDate,
+                revisionDate: this.data.metadata.revisionDate,
+              },
             }
           : undefined,
       maxAccessCount: this.maxAccessCount ?? undefined,
