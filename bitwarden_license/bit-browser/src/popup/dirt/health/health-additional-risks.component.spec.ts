@@ -26,7 +26,12 @@ describe("HealthAdditionalRisksComponent", () => {
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
       imports: [HealthAdditionalRisksComponent],
-      providers: [{ provide: I18nService, useValue: { t: (key: string) => key } }],
+      providers: [
+        {
+          provide: I18nService,
+          useValue: { t: (key: string, ...args: unknown[]) => [key, ...args].join(" ") },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HealthAdditionalRisksComponent);
@@ -173,6 +178,6 @@ describe("HealthAdditionalRisksComponent", () => {
       item: buildHealthView({ hasExposedPassword: true, hasReusedPassword: true, reuseCount: 3 }),
     });
 
-    expect(riskCard()?.textContent).toContain("xTimes");
+    expect(riskCard()?.textContent).toContain("xTimes 3");
   });
 });

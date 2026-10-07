@@ -895,7 +895,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
     });
 
     // The risk flags on the passed view are placeholders today, so only the item's identity and
-    // the category are asserted — the hierarchy they drive is covered in the dialog's own spec.
+    // the category are asserted — the hierarchy they drive is covered in the additional risks spec.
     it("passes the clicked item and the current category to the dialog", async () => {
       params$.next({ category: RiskCategory.Exposed });
       setReport(RiskCategory.Exposed, [
