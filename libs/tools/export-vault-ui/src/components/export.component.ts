@@ -358,7 +358,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
         // Admin Console: organizationId is already set via @Input, no update needed
       });
 
-    // Recomputes on vault change, so the warning is on screen before export, not after.
+    // Recomputed on vault change so the warning shows before export.
     combineLatest([
       this.accountService.activeAccount$.pipe(getUserId),
       this._organizationId$.pipe(distinctUntilChanged()),

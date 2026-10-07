@@ -1360,8 +1360,8 @@ describe("Cipher Service", () => {
       expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId, false);
     });
 
-    // PAM gated rows are handled on the legacy (non-SDK) branch of this method, which is the
-    // path that still runs `decryptOrganizationCiphersResponse`.
+    // The gated-row routing lives in `decryptOrganizationCiphersResponse`, which only the
+    // non-SDK branch runs.
     it("routes PAM-gated (partial) rows through the SDK decryption, so they keep their name", async () => {
       configService.getFeatureFlag
         .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
@@ -1373,8 +1373,7 @@ describe("Cipher Service", () => {
         } as CipherDecryptionKeys),
       );
 
-      // A gated row as the server sends it: secrets suppressed, a `PartialData` envelope in
-      // their place.
+      // A gated row as the server sends it, with `partialData` in place of the suppressed secrets.
       jest.spyOn(apiService, "getCiphersOrganization").mockResolvedValue({
         data: [
           {

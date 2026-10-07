@@ -407,8 +407,8 @@ export class VaultCipherActionsService {
       return true;
     } catch (e) {
       this.logService.error(e);
-      // Failing soft: an empty list costs the gating reason, never the error itself. try/catch
-      // rather than .catch() because an absent stream throws synchronously.
+      // A failed lookup only drops the gating reason from the toast. try/catch rather than
+      // .catch(), since an absent stream throws synchronously.
       let collections: CollectionView[] = [];
       try {
         collections = await firstValueFrom(this.vaultCollectionService.allCollections$);

@@ -1,18 +1,11 @@
 import type { AccessRuleView } from "../abstractions/access-rule";
 import { approvalMethodLabelKeys } from "../helpers/approval-method";
 
-/** The rule fields the summary reads. */
 type SummarizableRule = Pick<AccessRuleView, "conditions" | "singleActiveLease">;
 
 /**
- * The i18n keys summarising what a rule enforces, in a fixed order: how the rule grants access
- * first, then optional restrictions.
- *
- * Delegates the approval/IP keys to `approvalMethodLabelKeys` to stay in agreement with the
- * access-rules table; only the single-active-user addition is specific to this summary.
- *
- * Returns keys, not translated text, to stay free of `I18nService`; the template joins and
- * translates them.
+ * Lists how the rule grants access first, then optional restrictions. Returns i18n keys rather than
+ * text, to stay free of `I18nService`.
  */
 export function accessRuleSummaryKeys(rule: SummarizableRule): string[] {
   const keys = approvalMethodLabelKeys(rule.conditions);
@@ -22,13 +15,7 @@ export function accessRuleSummaryKeys(rule: SummarizableRule): string[] {
   return keys;
 }
 
-/**
- * The enabled rules governing `collectionId`, in the order the server returned them.
- *
- * Disabled rules are excluded, since naming one would tell an administrator their collection is
- * governed when it's not. Filtered client-side to reuse the `list` call the access-rules page
- * already makes.
- */
+/** Skips disabled rules, since naming one would claim a gate that isn't enforced. */
 export function rulesGoverningCollection(
   rules: readonly AccessRuleView[],
   collectionId: string,

@@ -64,7 +64,6 @@ describe("CustomRangeDialogComponent", () => {
     TestBed.resetTestingModule();
   });
 
-  // Reopening on blank fields would ask the auditor to retype bounds the table is already filtered to.
   it("opens on the range in force", async () => {
     await create({ from: "2026-08-18T09:00", to: "2026-08-18T17:00" });
 
@@ -85,7 +84,6 @@ describe("CustomRangeDialogComponent", () => {
     });
   });
 
-  // A blank bound is unbounded on that side, not an error — one-sided ranges are ordinary.
   it("confirms a range bounded on one side only", async () => {
     await create();
     component["formGroup"].patchValue({ from: "2026-08-18T09:00", to: "" });
@@ -95,7 +93,6 @@ describe("CustomRangeDialogComponent", () => {
     expect(close).toHaveBeenCalledWith({ action: "apply", from: "2026-08-18T09:00", to: "" });
   });
 
-  // An inverted range matches nothing; the emptied table would read as no events.
   it("reports an inverted range on the To field and blocks confirmation", async () => {
     await create();
     component["formGroup"].patchValue({ from: "2026-08-18T18:00", to: "2026-08-18T09:00" });
@@ -125,7 +122,6 @@ describe("CustomRangeDialogComponent", () => {
     expect(confirmButton().getAttribute("aria-disabled")).toBeNull();
   });
 
-  // A Save that applies nothing would read as confirming a range while changing nothing.
   it("holds Save disabled until at least one end is set", async () => {
     await create();
 
@@ -145,7 +141,6 @@ describe("CustomRangeDialogComponent", () => {
     expect(close).not.toHaveBeenCalled();
   });
 
-  // The way out of a custom range from inside the dialog.
   it("closes asking for the range to be dropped when cleared", async () => {
     await create({ from: "2026-08-18T09:00", to: "2026-08-18T17:00" });
 
@@ -169,7 +164,6 @@ describe("CustomRangeDialogComponent", () => {
     expect(row.querySelectorAll("bit-form-field")).toHaveLength(2);
   });
 
-  // Cancel closes without a result, so the caller keeps whatever range it already had in force.
   it("closes without a result when canceled, even over an edited range", async () => {
     await create({ from: "2026-08-18T09:00", to: "2026-08-18T17:00" });
     component["formGroup"].patchValue({ from: "2026-01-01T00:00" });

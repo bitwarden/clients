@@ -16,10 +16,7 @@ import { GovernedCollectionsService } from "../../services/governed-collections.
 import { AccessRuleEditComponent } from "./access-rule-edit.component";
 import { CidrValidationService } from "./ip-allowlist/cidr-validation.service";
 
-/**
- * Echoes the key as its translation so the form-field components don't crash on missing keys,
- * with any placeholder appended so assertions can see what was interpolated.
- */
+/** Echoes the key, plus any placeholder, so assertions can see what was interpolated. */
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
   t: (id: string, p1?: string | number) => (p1 == null ? id : `${id} ${p1}`),
   translate: (id: string) => id,
@@ -31,12 +28,10 @@ const cidrValidationStub: CidrValidationService = { isValid: () => true };
 
 const declinedDialogStub = { openSimpleDialog: () => Promise.resolve(false) };
 
-/** The SDK's flat access-rule error: a `name`-tagged Error carrying a `variant`. */
 const accessRuleError = (variant: string, message: string) =>
   Object.assign(new Error(message), { name: "AccessRuleError", variant });
 
-// A real rejected save, verbatim — stack trace and filesystem paths included, none of which may
-// reach the page.
+// A real rejected save, verbatim. Its stack trace and file paths must not reach the page.
 const RAW_SERVER_PAYLOAD =
   'error in response: status code 400 Bad Request: {"object":"error","message":"One or more ' +
   'collections are already governed by another access rule.","validationErrors":null,' +
@@ -66,10 +61,7 @@ function routeStub(state: RouteState): Partial<ActivatedRoute> {
   } as unknown as ActivatedRoute;
 }
 
-/**
- * The providers every block needs, with `overrides` appended so a block's own stub
- * wins (Angular resolves the last provider for a token).
- */
+/** `overrides` go last, since Angular resolves the last provider for a token. */
 const providersWith = (...overrides: Provider[]): (Provider | EnvironmentProviders)[] => [
   provideRouter([]),
   { provide: ActivatedRoute, useValue: routeStub({}) },
@@ -257,7 +249,6 @@ describe("AccessRuleEditComponent — page furniture", () => {
     expect(section.querySelector("bit-section-header")?.textContent?.trim()).toBe(
       "pamAccessRuleStatusHeading",
     );
-    // General info carried nothing further along.
     expect(section.querySelectorAll("input")).toHaveLength(1);
   });
 
@@ -267,7 +258,6 @@ describe("AccessRuleEditComponent — page furniture", () => {
       "#access-rule-edit_checkbox_human-approval",
     ) as HTMLInputElement;
 
-    // The hint sits behind an `@if`, so it's asserted through the rendered control, not the template.
     const control = checkbox.closest("bit-form-control") as HTMLElement;
     expect(control.querySelector("bit-hint")).toBeNull();
 
@@ -532,9 +522,9 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
       collections: [],
       conditions: [],
       defaultLeaseDurationSeconds: ONE_HOUR,
-      maxLeaseDurationSeconds: 50 * 60, // 50m — not a picker option; nearest is 1h
+      maxLeaseDurationSeconds: 50 * 60, // 50m, not a picker option; nearest is 1h
       allowsExtensions: true,
-      maxExtensionDurationSeconds: 50 * 60, // 50m — nearest extension option is 1h
+      maxExtensionDurationSeconds: 50 * 60, // 50m; nearest extension option is 1h
     } as unknown as AccessRuleView);
 
     expect(controls().maxLeaseDurationSeconds.value).toBe(ONE_HOUR);
@@ -763,8 +753,8 @@ describe("AccessRuleEditComponent — governed collections filter", () => {
   });
 
   it("excludes a collection governed by a disabled different rule too", async () => {
-    // AccessRuleWriteValidator.ValidateCollectionsAsync keys off Collection.AccessRuleId, not
-    // the owning rule's `enabled` flag — a disabled rule still blocks the collection server-side.
+    // The server's exclusivity check keys off `Collection.AccessRuleId`, so a disabled rule still
+    // blocks the collection.
     await setup({}, undefined, of([otherRule(["col-1"], { enabled: false })]));
 
     expect(options()).toEqual(["col-2", "col-3"]);
@@ -801,8 +791,7 @@ describe("AccessRuleEditComponent — governed collections filter", () => {
       conditions: [],
     } as unknown as AccessRuleView;
 
-    // Legacy data (or a lost race on the server's exclusivity validator): a different rule
-    // record also lists col-2.
+    // A stale governed-rules read can still list col-2 under another rule.
     await setup(
       { params: { accessRuleId: ruleId } },
       existingRule,
