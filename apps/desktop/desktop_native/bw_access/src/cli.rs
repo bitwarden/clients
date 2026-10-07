@@ -11,6 +11,7 @@ Usage:
   bw-access run <query> --env VAR=field [--env ...] -- <command> [args...]
   bw-access git-credential get|store|erase
   bw-access ask <title> [--body <text>]
+  bw-access mcp
 
 Asks the running Bitwarden desktop app for a login, or for a yes/no decision. Each request waits
 for you to approve it there.
@@ -19,6 +20,8 @@ for you to approve it there.
   run      sets each VAR to a field (username, password, totp) and redacts secrets from the
            command's output
   ask      prints yes or no
+  mcp      serves run and ask as MCP tools over stdio, e.g.
+           claude mcp add bitwarden -- /path/to/bw-access mcp
 
 Exit codes: 0 approved, 2 denied, 3 not found, 4 error";
 
@@ -38,6 +41,7 @@ pub enum Command {
         get: bool,
     },
     Ask(ApprovalPrompt),
+    Mcp,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -49,7 +53,7 @@ pub enum Field {
 }
 
 impl Field {
-    fn parse(name: &str) -> Result<Self> {
+    pub fn parse(name: &str) -> Result<Self> {
         Ok(match name {
             "json" => Self::Json,
             "username" => Self::Username,
@@ -152,6 +156,7 @@ pub fn parse(args: impl IntoIterator<Item = String>) -> Result<Command> {
             title: positional.context("ask needs a title")?,
             body,
         }),
+        "mcp" => Command::Mcp,
         other => bail!("unknown command '{other}'"),
     })
 }
@@ -221,7 +226,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parses_git_credential_and_ask() {
+    fn test_parses_git_credential_ask_and_mcp() {
         assert_eq!(
             parse_str("git-credential get").unwrap(),
             Command::GitCredential { get: true }
@@ -237,6 +242,7 @@ mod tests {
                 body: Some("3 to add".into()),
             })
         );
+        assert_eq!(parse_str("mcp").unwrap(), Command::Mcp);
     }
 
     #[test]
@@ -262,6 +268,7 @@ mod tests {
             "git-credential fill",
             "ask",
             "ask a b",
+            "mcp --stdio",
             "nope",
         ] {
             assert!(parse_str(args).is_err(), "accepted {args}");

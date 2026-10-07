@@ -4,12 +4,13 @@
 mod cli;
 mod client;
 mod git;
+mod mcp;
 mod redact;
 mod run;
 
 use std::io::Write as _;
 
-use agent_access::protocol::{Purpose, Status};
+use agent_access::protocol::Status;
 use anyhow::Result;
 use cli::Command;
 use client::Refused;
@@ -52,24 +53,9 @@ async fn execute(command: Command) -> Result<i32> {
             env,
             command,
         } => {
-            let purpose = Purpose {
-                command: Some(cli::shell_join(&command)),
-                env: env
-                    .iter()
-                    .map(|(var, field)| (var.clone(), field.name().to_owned()))
-                    .collect(),
-            };
-            let credential = client::credential(query, Some(purpose)).await?;
-            let env = env
-                .into_iter()
-                .map(|(var, field)| Ok((var, field.value(&credential)?)))
-                .collect::<Result<Vec<_>>>()?;
-            let secrets: Vec<String> = [credential.password, credential.totp]
-                .into_iter()
-                .flatten()
-                .chain(env.iter().map(|(_, value)| value.clone()))
-                .collect();
-            return run::run(&command, env, &secrets).await;
+            let credential = client::credential(query, Some(run::purpose(&command, &env))).await?;
+            let (env, secrets) = run::inject(env, credential)?;
+            return run::stream(&command, env, &secrets).await;
         }
         Command::GitCredential { get } => {
             let attributes = git::read(std::io::stdin().lock())?;
@@ -86,6 +72,7 @@ async fn execute(command: Command) -> Result<i32> {
                 return Ok(EXIT_DENIED);
             }
         }
+        Command::Mcp => mcp::serve(tokio::io::stdin(), tokio::io::stdout()).await?,
     }
     Ok(0)
 }

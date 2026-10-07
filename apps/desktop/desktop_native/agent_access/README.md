@@ -46,8 +46,13 @@ $ bw-access get --domain github.com --field password
 $ bw-access run --domain github.com --env GH_TOKEN=password -- gh pr create --fill
 $ git config --global credential.helper '!bw-access git-credential'
 $ bw-access ask "Run terraform apply on prod?" --body "3 to add" && terraform apply
+$ claude mcp add bitwarden -- /path/to/bw-access mcp
 $ printf '%s\n' '{"v":1,"type":"credential-request","requestId":"1","query":{"domain":"github.com"}}' \
     | nc -U ~/.bitwarden-access.sock
 ```
 
 `run` redacts the released secrets from the command's output.
+
+`mcp` is a stdio MCP server (newline-delimited JSON-RPC, protocol 2024-11-05 to 2025-11-25) with
+two tools: `run_with_credential` (`run`, output captured, 1 MiB per stream) and `ask_human`. No tool
+result carries a secret value. Closing stdin exits and kills commands still running.
