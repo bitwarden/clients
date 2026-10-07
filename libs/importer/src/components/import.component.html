@@ -24,7 +24,7 @@
         <bit-label>{{
           organizationId
             ? ((vfo1Enabled() ? "sharedFolder" : "collection") | i18n)
-            : ((vfo1Enabled() ? "importTargetMyFolder" : "folder") | i18n)
+            : ((vfo1Enabled() ? "myFolders" : "folder") | i18n)
         }}</bit-label>
         <!-- No destination is an option, so it can be picked again, but it reads as a placeholder. -->
         <bit-select

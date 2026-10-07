@@ -86,6 +86,16 @@ export class VaultPopupListTableFiltersService {
 
   readonly cachedFilters = this._cachedFilters.asReadonly();
 
+  /**
+   * Whether the toolbar's filter dialog is open. Root-scoped because the view cache seeds from its
+   * popup-open snapshot, so a recreated owner would reopen a closed dialog.
+   */
+  readonly filterDialogOpen = this.viewCacheService.signal<boolean>({
+    key: "vault-filter-dialog-open",
+    initialValue: false,
+    persistNavigation: true,
+  });
+
   /** Whether any chip filter is currently selected. */
   readonly hasFilterApplied = computed(() => {
     const filters = this._cachedFilters();

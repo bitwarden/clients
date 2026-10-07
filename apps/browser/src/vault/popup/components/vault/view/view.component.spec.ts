@@ -114,7 +114,6 @@ describe("ViewComponent", () => {
 
   const mockCipherService = {
     cipherViews$: jest.fn().mockImplementation((userId) => of([mockCipher])),
-    getKeyForCipherKeyDecryption: jest.fn().mockResolvedValue({}),
     deleteWithServer: jest.fn().mockResolvedValue(undefined),
     softDeleteWithServer: jest.fn().mockResolvedValue(undefined),
   };
@@ -293,28 +292,28 @@ describe("ViewComponent", () => {
       params$.next({ cipherId: mockCipher.id });
       flush(); // Resolve all promises
 
-      expect(component.headerText).toEqual("viewItemHeaderLogin");
+      expect(component.headerText).toEqual("viewItemHeaderLoginSentenceCase");
 
       // Set header text for a card
       mockCipher.type = CipherType.Card;
       params$.next({ cipherId: mockCipher.id });
       flush(); // Resolve all promises
 
-      expect(component.headerText).toEqual("viewItemHeaderCard");
+      expect(component.headerText).toEqual("viewItemHeaderCardSentenceCase");
 
       // Set header text for an identity
       mockCipher.type = CipherType.Identity;
       params$.next({ cipherId: mockCipher.id });
       flush(); // Resolve all promises
 
-      expect(component.headerText).toEqual("viewItemHeaderIdentity");
+      expect(component.headerText).toEqual("viewItemHeaderIdentitySentenceCase");
 
       // Set header text for a secure note
       mockCipher.type = CipherType.SecureNote;
       params$.next({ cipherId: mockCipher.id });
       flush(); // Resolve all promises
 
-      expect(component.headerText).toEqual("viewItemHeaderNote");
+      expect(component.headerText).toEqual("viewItemHeaderNoteSentenceCase");
 
       // Set header text for a passport
       mockCipher.type = CipherType.Passport;

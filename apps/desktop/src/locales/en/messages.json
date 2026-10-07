@@ -160,6 +160,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ nested shared folders",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 nested shared folder",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "My folder"
   },
@@ -177,9 +191,6 @@
   },
   "addSharedFolder": {
     "message": "Add shared folder"
-  },
-  "newSharedFolder": {
-    "message": "New shared folder"
   },
   "searchSharedFolder": {
     "message": "Search shared folder"
@@ -340,58 +351,6 @@
   "addItemHeaderPassport": {
     "message": "Add passport",
     "description": "Header for new passport item type"
-  },
-  "newItemHeaderLogin": {
-    "message": "New Login",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "New Card",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "New Identity",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "New Note",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "New secure note",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "New SSH key",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "New bank account",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "New license",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "New passport",
-    "description": "Header for new passport item type"
-  },
-  "editItemHeaderLogin": {
-    "message": "Edit Login",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Edit Card",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Edit Identity",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Edit Note",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Edit secure note",
@@ -2793,6 +2752,12 @@
   "requireMasterPasswordOnAppRestart": {
     "message": "Require master password on app restart"
   },
+  "requireMasterPasswordOnAppRestartDesc": {
+    "message": "This setting provides an additional layer of protection by helping prevent other applications on your computer from unlocking Bitwarden."
+  },
+  "requireMasterPasswordOnAppRestartWarning": {
+    "message": "Unchecking this means any application on your computer may unlock Bitwarden, and access all your saved passwords."
+  },
   "deleteAccount": {
     "message": "Delete account"
   },
@@ -4625,10 +4590,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Learn about your import options"
-  },
-  "importTargetMyFolder": {
-    "message": "My Folder",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
     "importTargetHintCollection": {
     "message": "Select this option if you want the imported file contents moved to a collection"
@@ -7025,5 +6986,17 @@
   },
   "unknownCipher": {
     "message": "Unknown item, you may need to request permission to access this item."
+  },
+  "customize": {
+    "message": "Customize"
+  },
+  "customizeYourView": {
+    "message": "Customize your view"
+  },
+  "showColumns": {
+    "message": "Show columns"
+  },
+  "resetToDefault": {
+    "message": "Reset to default"
   }
 }
