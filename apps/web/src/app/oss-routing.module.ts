@@ -686,14 +686,12 @@ const routes: Routes = [
         loadChildren: () => VaultModule,
       },
       {
-        // A child of the shared user shell, not a top-level route: the side nav's relative
-        // routerLinks would re-base beneath a second layout instance. Reached only through the
-        // optional PAM_ROUTES seam.
+        // A child of the shared user shell, since a second layout instance would re-base the side
+        // nav's relative routerLinks.
         path: "pam",
         canMatch: [() => inject(PAM_ROUTES, { optional: true }) != null],
         canActivate: [canAccessFeature(FeatureFlag.Pam)],
-        // The type argument is load-bearing: SafeInjectionToken carries its generic on a private
-        // property, so inject() widens it to unknown without one.
+        // inject() infers `unknown` from a SafeInjectionToken, hence the explicit type argument.
         loadChildren: () => inject<LoadChildrenCallback>(PAM_ROUTES)(),
       },
       {

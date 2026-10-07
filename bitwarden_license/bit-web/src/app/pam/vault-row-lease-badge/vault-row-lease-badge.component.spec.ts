@@ -255,8 +255,7 @@ describe("VaultRowLeaseBadgeComponent", () => {
       );
     });
 
-    // `hasEnabledAccessRule` defaults false and reads as `|| false`, so an old server looks
-    // like one reporting no rule. Blank, not a dash.
+    // `hasEnabledAccessRule` defaults false, so an older server looks like one reporting no rule.
     it("draws no em dash for an ungoverned collection, whose flag cannot say it was checked", () => {
       createForCollection({ hasEnabledAccessRule: false });
 

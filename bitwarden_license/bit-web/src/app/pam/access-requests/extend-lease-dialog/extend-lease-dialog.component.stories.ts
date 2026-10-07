@@ -29,10 +29,10 @@ export default {
 
 type Story = StoryObj<ExtendLeaseDialogComponent>;
 
-/** As opened: the duration picker seeds the first `EXTENSION_DURATION_OPTIONS` entry (30m); Extend is disabled since `reason` starts empty. */
+/** As opened, with Extend disabled until a reason is entered. */
 export const Default: Story = {};
 
-/** A justification typed in — the only thing standing between the pristine form and a valid one. */
+/** A reason typed in, which is all a valid form needs. */
 export const Completed: Story = {
   play: async ({ canvasElement }) => {
     const reason = canvasElement.querySelector<HTMLTextAreaElement>(REASON_INPUT)!;
@@ -40,7 +40,7 @@ export const Completed: Story = {
   },
 };
 
-/** The reason left empty and blurred: Extend stays disabled, and the required error surfaces on touch. */
+/** The reason left empty and blurred, which surfaces the required error. */
 export const ReasonRequired: Story = {
   play: async ({ canvasElement }) => {
     const reason = canvasElement.querySelector<HTMLTextAreaElement>(REASON_INPUT)!;

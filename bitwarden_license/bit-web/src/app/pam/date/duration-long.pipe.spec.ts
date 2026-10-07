@@ -10,8 +10,7 @@ describe("DurationLongPipe", () => {
     pipe = TestBed.runInInjectionContext(() => new DurationLongPipe());
   });
 
-  // Unit selection is shared with the short pipe, covered by its spec; unique here is the
-  // spelled-out rendering, asserted on wording rather than re-deriving Intl.NumberFormat.
+  // Unit selection is covered by the short pipe's spec; this asserts the spelled-out wording.
   it("spells the unit out rather than abbreviating it", () => {
     expect(pipe.transform(60 * 60)).toBe("1 hour");
     expect(pipe.transform(24 * 60 * 60)).toBe("1 day");

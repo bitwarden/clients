@@ -7,12 +7,8 @@ import {
   noDuplicateCidrsValidator,
 } from "./cidr.validator";
 
-// The real CIDR check delegates to the Rust SDK's `is_valid_cidr` (backed by the `ipnet` crate),
-// which the app injects via `CidrValidationService`. The SDK owns CIDR parsing and is covered by
-// the crate's own Rust tests; re-implementing `ipnet` here would only test the stub against
-// itself. These specs cover the repo's validator logic — trimming, empty-row handling, duplicate
-// detection, and the at-least-one rule — so they pass a stand-in predicate that reports
-// valid/invalid for a fixed set of inputs.
+// CIDR parsing is the SDK's `is_valid_cidr`, tested in Rust; these specs cover the validators
+// around it with a stand-in predicate.
 const isValidCidr = (value: string): boolean => value === "10.0.0.0/8" || value === "2001:db8::/32";
 
 describe("cidrValidator", () => {

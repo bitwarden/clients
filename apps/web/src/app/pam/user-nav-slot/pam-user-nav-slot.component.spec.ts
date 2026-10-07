@@ -50,8 +50,7 @@ describe("PamUserNavSlotComponent", () => {
         },
       ],
     })
-      // Stub the nav child components so the test exercises this component's own gating
-      // logic, not their rendering.
+      // Stub the nav components so the test covers this component's gating, not their rendering.
       .overrideComponent(PamUserNavSlotComponent, {
         remove: { imports: [NavigationModule] },
         add: { schemas: [NO_ERRORS_SCHEMA] },
@@ -122,8 +121,8 @@ describe("PamUserNavSlotComponent", () => {
     });
 
     it("falls back to no badge when the commercial seam is unprovided", async () => {
-      // `inject(..., { optional: true })` yields null both when unprovided and when provided as
-      // null, so this exercises the OSS-only build's exact code path.
+      // An optional `inject` yields null whether unprovided or provided as null, so this is the
+      // OSS-only build's code path.
       TestBed.resetTestingModule();
       await TestBed.configureTestingModule({
         imports: [PamUserNavSlotComponent],

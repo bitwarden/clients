@@ -17,7 +17,6 @@ describe("ACCESS_RULE_DURATION_PRESETS", () => {
   });
 
   it("labels every multi-day preset in the unit the list promotes it to", () => {
-    // Same hazard as the 24h case, for the presets the list renders in days.
     const dayPresets = ACCESS_RULE_DURATION_PRESETS.filter(
       (p) => pickDurationUnit(p.seconds).unit === "day",
     );
@@ -65,9 +64,7 @@ describe("snapToNearestDuration", () => {
   });
 
   it("snaps an off-option value to the nearest option", () => {
-    // 50m is closer to 1h than to 30m.
     expect(snapToNearestDuration(50 * 60, options)).toBe(60 * 60);
-    // 100m is closer to 2h than to 1h.
     expect(snapToNearestDuration(100 * 60, options)).toBe(2 * 60 * 60);
   });
 });
@@ -83,9 +80,7 @@ describe("snapToNearestAccessRuleDuration", () => {
   });
 
   it("snaps an off-preset value to the nearest preset", () => {
-    // 50m is closer to 1h (60m) than to 30m.
     expect(snapToNearestAccessRuleDuration(50 * 60)).toBe(60 * 60);
-    // 20m is closer to 15m than to 30m.
     expect(snapToNearestAccessRuleDuration(20 * 60)).toBe(15 * 60);
   });
 });
@@ -94,7 +89,6 @@ describe("requestDurationOptions", () => {
   const seconds = (options: { seconds: number }[]) => options.map((o) => o.seconds);
 
   it("drops presets above the rule's cap", () => {
-    // A rule capped at 30m must not offer the 1h preset.
     expect(seconds(requestDurationOptions(30 * 60, 15 * 60))).toEqual([15 * 60, 30 * 60]);
   });
 
@@ -118,7 +112,6 @@ describe("requestDurationOptions", () => {
   });
 
   it("stays non-empty for a cap below the smallest preset", () => {
-    // Filtering alone would leave nothing to pick, making the form unsubmittable.
     expect(seconds(requestDurationOptions(5 * 60, 5 * 60))).toEqual([5 * 60]);
   });
 

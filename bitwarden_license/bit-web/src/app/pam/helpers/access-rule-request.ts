@@ -18,22 +18,15 @@ import {
 /** The "no maximum" option in the max-duration picker; encodes to an absent cap. */
 export const NO_DURATION_CAP = 0;
 
-/**
- * The longest name the server will store. `dbo.AccessRule.Name` is `NVARCHAR(256)`, and SQL
- * Server silently truncates anything longer rather than rejecting it, so a name must be kept
- * within this before it's sent, not after.
- */
+/** The longest name the SDK and the server accept, matching `dbo.AccessRule.Name`. */
 export const ACCESS_RULE_NAME_MAX_LENGTH = 256;
 
 /** The longest description the edit form accepts. */
 export const ACCESS_RULE_DESCRIPTION_MAX_LENGTH = 512;
 
 /**
- * The flattened value of the access-rule edit form (`formGroup.getRawValue()`), as
- * consumed by {@link formValueToRequest}. Declared structurally here — rather than
- * derived from the component's `FormGroup` — so this helper stays framework-agnostic
- * and unit-testable without a TestBed. `collections` is narrowed to just the `id`
- * the request needs, decoupling it from the multi-select's richer `SelectItemView`.
+ * The edit form's `getRawValue()`, declared structurally so this helper stays testable without a
+ * TestBed. `collections` carries only the `id` the request needs.
  */
 export interface AccessRuleFormValue {
   name: string;
@@ -51,23 +44,14 @@ export interface AccessRuleFormValue {
 }
 
 /**
- * The subset of {@link AccessRuleFormValue} that {@link accessRuleToFormValue} produces
- * and the edit page feeds to `patchValue`. Excludes `collections` (populated separately
- * once the collection list loads, to map stored ids onto the multi-select's options) and
- * `ipAllowlistCidrs` (a FormArray seeded row-by-row, since `patchValue` can't resize one).
+ * Omits `collections`, mapped onto the multi-select's options once they load, and
+ * `ipAllowlistCidrs`, a `FormArray` that `patchValue` can't resize.
  */
 export type AccessRuleFormPatch = Omit<AccessRuleFormValue, "collections" | "ipAllowlistCidrs">;
 
 /**
- * Map a loaded rule onto the edit form's values — the inbound counterpart to
- * {@link formValueToRequest}, for the fields a single `patchValue` can set.
- *
- * Durations are snapped to their pickers' option sets so a value persisted outside a set
- * still renders against an option rather than blanking the select. An absent max lease
- * encodes to {@link NO_DURATION_CAP} ("no cap") and an absent max extension to
- * {@link DEFAULT_MAX_EXTENSION_DURATION_SECONDS}; the two known conditions drive their
- * checkboxes. Collections and the CIDR rows are applied separately by the caller — see
- * {@link AccessRuleFormPatch}.
+ * Snaps durations to their pickers' options, so a value persisted outside a set still renders
+ * instead of blanking the select.
  */
 export function accessRuleToFormValue(rule: AccessRuleView): AccessRuleFormPatch {
   return {
@@ -91,19 +75,8 @@ export function accessRuleToFormValue(rule: AccessRuleView): AccessRuleFormPatch
 }
 
 /**
- * Build the create/update payload from the edit form's value.
- *
- * Encodes the form's UI conventions into the request shape: the two checkbox-driven
- * known conditions (`human_approval` / `ip_allowlist`) are rebuilt from their toggles,
- * then `unknownConditions` — kinds this client doesn't model (e.g. the server's
- * `time_of_day`) that were stashed off the loaded rule — are appended unchanged so
- * editing an unrelated field never silently drops them. An empty description and a
- * {@link NO_DURATION_CAP} max both encode to `undefined`, and the max extension length
- * is only carried when extensions are enabled.
- *
- * No runtime UUID validation on `collections` (unlike the SDK-boundary code in
- * `AccessRulesSdkService`) — this is just a type-level bridge from the multi-select's
- * plain string ids to the SDK's branded `CollectionId`.
+ * `unknownConditions`, kinds this client doesn't model, are appended unchanged so editing an
+ * unrelated field never drops them.
  */
 export function formValueToRequest(
   value: AccessRuleFormValue,
@@ -142,16 +115,8 @@ export function formValueToRequest(
 }
 
 /**
- * Build the create/update payload for a rule from its loaded view, overriding only
- * `enabled`. Used by the enable/disable toggles (single and bulk), which otherwise
- * round-trip the rule unchanged.
- *
- * Maps the request fields explicitly rather than spreading the view: the view carries
- * server-managed fields (`id`, `organizationId`, `creationDate`, `revisionDate`) that
- * aren't part of the request, and spreading would leak them into the payload. Every
- * editable field is copied — including `allowsExtensions` / `maxExtensionDurationSeconds`,
- * which an earlier version dropped, silently wiping a rule's extension settings whenever
- * its enabled state was toggled.
+ * Maps fields explicitly rather than spreading the view, which carries server-managed fields that
+ * aren't part of the request. A field missed here is wiped whenever the rule is toggled.
  */
 export function accessRuleToRequest(
   rule: AccessRuleView,

@@ -29,24 +29,19 @@ const recordChanged =
     from.params[param] !== to.params[param];
 
 /**
- * Rotation feature routes, lazy-loaded by {@link PamRoutingModule} under `rotation/`.
- *
- * Form pages are siblings of the shell (own header/breadcrumbs, no tab bar) —
- * matching the access-rules precedent. The shell provides its page-scoped services
- * so the shell and every tab share one loaded instance.
+ * Form and detail pages are siblings of the shell, with their own header and no tab bar. The
+ * shell route provides the page-scoped services, so the shell and its tabs share one load.
  */
 export const rotationRoutes: Routes = [
-  // Form pages: siblings of the shell, declared first so literal paths win over
-  // the shell catch-all ("")
+  // Declared before the shell so literal paths win over its catch-all ("").
   {
     path: `${ROTATION_TABS.managedCredentials}/new`,
     component: RotationConfigEditComponent,
     canDeactivate: [rotationConfigEditDiscardGuard],
     data: { titleId: "pamRotationConfigCreateTitle" },
   },
-  // The edit page's two tabs are routed, so each is deep-linkable and survives a refresh. Both
-  // land on the same component, which reads `:tab` and renders that half; Angular reuses the
-  // instance across the param change, so a tab switch costs no reload and keeps unsaved input.
+  // The edit page's tabs are routed, so each is deep-linkable. Angular reuses the component
+  // across a `:tab` change, so a tab switch keeps unsaved input without a reload.
   {
     path: `${ROTATION_TABS.managedCredentials}/:configId`,
     pathMatch: "full",

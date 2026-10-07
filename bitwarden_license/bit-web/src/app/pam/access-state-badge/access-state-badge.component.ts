@@ -10,7 +10,6 @@ import { formatRemaining } from "../date/format-remaining";
 import { AccessBadgeState, ENDING_SOON_THRESHOLD_MS } from "./access-badge-state";
 import { AccessBadgeTickerService } from "./access-badge-ticker.service";
 
-/** One of the six glyphs the spec pairs with the access-state badges. */
 type BadgeIcon =
   "bwi-key" | "bwi-clock" | "bwi-lock" | "bwi-unlock" | "bwi-check" | "bwi-exclamation-triangle";
 
@@ -22,12 +21,8 @@ type BadgeRecipe = {
 };
 
 /**
- * Renders the unified access-state badge for a gated item — the one pill recipe used across the
- * vault row, the cipher-view modal, and the Requests page (Figma node 88-1699).
- *
- * Callers resolve an {@link AccessBadgeState} (e.g. via `cipherAccessBadgeState`) and pass it
- * in; this component owns the colour/icon/copy mapping, the 5-minute danger escalation, and the
- * live countdown. Renders nothing when `state` is null.
+ * The access-state pill for a gated item. Callers resolve the state (e.g. via
+ * `cipherAccessBadgeState`); this owns the recipe, the ending-soon escalation and the countdown.
  */
 @Component({
   selector: "app-pam-access-state-badge",
@@ -41,10 +36,7 @@ export class AccessStateBadgeComponent {
   private readonly i18nService = inject(I18nService);
   private readonly ticker = inject(AccessBadgeTickerService);
 
-  /**
-   * Ticks once a second while an active-lease countdown is showing, so the label stays live.
-   * Only an active badge observes the shared ticker, so resting badges leave the timer torn down.
-   */
+  /** Only an active badge subscribes to the ticker, so resting badges let the shared timer stop. */
   private readonly now = toSignal(
     toObservable(computed(() => this.state()?.kind === "active")).pipe(
       switchMap((active) => (active ? this.ticker.ticks$ : EMPTY)),
@@ -61,7 +53,7 @@ export class AccessStateBadgeComponent {
     if (state.kind === "active") {
       const remainingMs = state.expiresAt.getTime() - this.now();
       if (remainingMs <= 0) {
-        // The lease lapsed locally before a refetch — show the resting "Access ended" badge.
+        // The lease lapsed locally before a refetch.
         return this.staticRecipe("expired");
       }
       const remaining = formatRemaining(remainingMs);

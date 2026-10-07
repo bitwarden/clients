@@ -135,14 +135,12 @@ export class AccessRulesComponent {
     initialValue: [] as AccessRuleView[],
   });
 
-  /** Starter templates offered by the header's create menu, next to the blank "Custom" option. */
   protected readonly templates = ACCESS_RULE_TEMPLATES;
 
   protected readonly dataSource = new TableDataSource<AccessRuleView>();
   /**
-   * The filtered + sorted rules straight from the data source — the basis for both the
-   * rendered table body and select-all (which spans the whole filtered set). `connect()`
-   * is idempotent, so sharing it with `bit-table` (which connects too) is safe.
+   * The filtered and sorted rows, which select-all spans. Sharing `connect()` with `bit-table` is
+   * safe, since it is idempotent.
    */
   protected readonly processedRows = toSignal(this.dataSource.connect(), {
     initialValue: [] as AccessRuleView[],
@@ -150,12 +148,8 @@ export class AccessRulesComponent {
 
   protected readonly table = defineTable<AccessRuleView, "select" | "actions">(this.rules);
 
-  // --- Toolbar filters ---
-  // `bit-filter-menu` isn't a `ControlValueAccessor`, so only `search` is a form control; the
-  // status/collection chips own their selection and are read through the `FilterControl` contract.
-  // In the v2 toolbar the table adopts the same `bit-search` under its own `search` key, so
-  // `rowMatchesFilter` must take the term from the table's values and never from `searchTerm`,
-  // which would narrow the rows a second time.
+  // Only `search` is a form control, since `bit-filter-menu` isn't a `ControlValueAccessor`. The v2
+  // table adopts the same `bit-search`, so `rowMatchesFilter` must not apply `searchTerm` again.
   protected readonly filterForm = new FormGroup({
     search: new FormControl("", { nonNullable: true }),
   });
@@ -182,9 +176,8 @@ export class AccessRulesComponent {
   });
 
   /**
-   * The v2 table's row test. The toolbar chips and the projected `bit-search` register
-   * with the table, so their values arrive as `values` rather than through
-   * {@link filterInputs} — the table needs the keyed shape to count each chip's options.
+   * The v2 table's row test. Chip and search values arrive keyed, which the table needs to count
+   * each chip's options.
    */
   protected readonly rowMatchesFilter = (
     rule: AccessRuleView,
@@ -215,7 +208,6 @@ export class AccessRulesComponent {
       .sort((a, b) => a.label.localeCompare(b.label)),
   );
 
-  // --- Selection ---
   protected readonly selection = new SelectionModel<AccessRuleId>(true, []);
 
   protected selectedCount(): number {
@@ -237,49 +229,39 @@ export class AccessRulesComponent {
   );
 
   constructor() {
-    // Reload whenever the active organization changes. This also refreshes the list
-    // when returning from the create/edit page, since the component remounts.
+    // Also reloads on return from the create or edit page, since the component remounts.
     effect(() => {
       void this.accessRules.load(this.organizationId());
     });
 
-    // Mirror the loaded rules into the table data source.
     effect(() => {
       this.dataSource.data = this.rules();
     });
 
-    // Recompute the combined filter whenever any toolbar control changes.
     effect(() => {
       this.dataSource.filter = this.ruleFilter();
     });
   }
 
-  /** Column sort for "status": disabled rules before enabled ones (ascending). */
+  /** Ascending puts disabled rules first. */
   protected readonly sortByStatus: SortFn = (a: AccessRuleView, b: AccessRuleView) =>
     Number(a.enabled) - Number(b.enabled);
 
-  /** Column sort for "last modified": chronological by revision date (ascending). */
   protected readonly sortByRevisionDate: SortFn = (a: AccessRuleView, b: AccessRuleView) =>
     revisionDateMs(a) - revisionDateMs(b);
 
-  /** Navigate to the create page. */
   protected readonly openCreate = (): Promise<boolean> =>
     this.router.navigate(["new"], { relativeTo: this.route });
 
-  /** Navigate to the create page, seeding it from a starter template. */
   protected readonly openFromTemplate = (key: AccessRuleTemplateKey): Promise<boolean> =>
     this.router.navigate(["new"], { relativeTo: this.route, queryParams: { template: key } });
 
-  /** Navigate to the edit page for a rule (a shareable, deep-linkable URL). */
   protected readonly openEdit = (rule: AccessRuleView): Promise<boolean> =>
     this.router.navigate([rule.id], { relativeTo: this.route });
 
   /**
-   * Copy a rule and open the copy for editing.
-   *
-   * Created straight away, without confirmation: it carries no collections, so there's nothing
-   * yet to govern or undo. That's also why the edit page is where the admin lands — the copy is
-   * unfinished, and backing out leaves it in the table rather than discarding it.
+   * Created without confirmation, since the copy carries no collections and governs nothing yet.
+   * Backing out of the edit page leaves it in the table.
    */
   protected readonly makeCopy = async (rule: AccessRuleView): Promise<void> => {
     let created: AccessRuleView;
@@ -290,14 +272,12 @@ export class AccessRulesComponent {
       return;
     }
 
-    // Announced only once the copy is persisted, and outside the try, so a failed navigation
-    // can't follow with an error toast.
+    // Outside the try, so a failed navigation can't follow the success toast with an error.
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t("pamAccessRuleCopyCreated"),
     });
-    // `renaming` tells the edit page to put the cursor in the name field with the suffixed
-    // name selected, so the admin can type over it.
+    // `renaming` opens the edit page with the suffixed name selected, ready to type over.
     await this.router.navigate([created.id], {
       relativeTo: this.route,
       queryParams: { renaming: true },
@@ -305,11 +285,8 @@ export class AccessRulesComponent {
   };
 
   /**
-   * Create the copy, retrying once against a refreshed list if the name turned out to be taken.
-   *
-   * {@link copyRuleName} picks a free name from the rules this page loaded, which another admin
-   * can have moved on from since; without the refresh, clicking again just recomputes the same
-   * stale name and fails identically.
+   * Retries once against a refreshed list if the name is taken, since {@link copyRuleName} picks a
+   * free name from the rules this page loaded.
    */
   private async createCopy(rule: AccessRuleView): Promise<AccessRuleView> {
     try {
@@ -334,8 +311,7 @@ export class AccessRulesComponent {
 
   protected readonly toggleEnabled = async (rule: AccessRuleView): Promise<void> => {
     const nextEnabled = !rule.enabled;
-    // Deactivating is the direction that changes who can get in, so it asks first. Activating
-    // stays one click: it only ever adds gating back.
+    // Only deactivating asks first, since it changes who can get in; activating only adds gating.
     if (!nextEnabled) {
       const confirmed = await this.dialogService.openSimpleDialog(
         accessRuleDeactivateConfirmOptions(),
@@ -375,8 +351,6 @@ export class AccessRulesComponent {
     }
   };
 
-  // --- Selection ---
-
   protected toggleAll(): void {
     if (this.allSelected()) {
       this.selection.clear();
@@ -388,8 +362,6 @@ export class AccessRulesComponent {
   protected readonly clearSelection = (): void => {
     this.selection.clear();
   };
-
-  // --- Bulk actions ---
 
   protected readonly bulkActivate = (): void => {
     void this.bulkSetEnabled(true);
@@ -403,7 +375,7 @@ export class AccessRulesComponent {
 
   private async bulkSetEnabled(enabled: boolean): Promise<void> {
     const selected = this.selectedRules();
-    // Same speedbump as the row menu, over only the rules that will actually move.
+    // Confirms as the row menu does, counting only the rules that will change.
     const deactivating = enabled ? [] : rulesChangingEnabled(selected, false);
     if (deactivating.length > 0) {
       const confirmed = await this.dialogService.openSimpleDialog(
@@ -457,15 +429,13 @@ export class AccessRulesComponent {
     }
   }
 
-  // --- Helpers ---
-
   private selectedRules(): AccessRuleView[] {
     return this.selectableRows().filter((r) => this.selection.isSelected(r.id));
   }
 
   /**
-   * Toast a rejected mutation. Routed through the classifier so the SDK's own message — the
-   * server's serialized response, filesystem paths and all — never reaches the toast.
+   * Goes through the classifier, so the SDK's raw message (the server's serialized response) never
+   * reaches the toast.
    */
   private showError(e: unknown): void {
     this.toastService.showToast({
@@ -475,11 +445,7 @@ export class AccessRulesComponent {
   }
 }
 
-/**
- * The toolbar's raw values, keyed by each control's filter key. Untyped per key because
- * that is what both hosts hand over: `bit-table-v2` collects whatever each chip reports,
- * and off the flag the chips are read one by one through `FilterControl`.
- */
+/** Untyped per key, since both hosts hand over whatever each chip reports. */
 type AccessRuleFilterValues = {
   search?: string;
   status?: unknown;
@@ -496,7 +462,6 @@ function toAccessRuleFilter(values: AccessRuleFilterValues): AccessRuleFilter {
   };
 }
 
-/** A rule's revision date as epoch milliseconds for sorting; 0 when the date is invalid. */
 function revisionDateMs(rule: AccessRuleView): number {
   const ms = Date.parse(rule.revisionDate);
   return Number.isNaN(ms) ? 0 : ms;

@@ -15,18 +15,11 @@ import {
 } from "../helpers/approval-window";
 
 /**
- * A row in the approver's inbox.
- *
- * Every display value is precomputed here, not in the template: `bit-table`'s `bitSortable`
- * sorts on literal row fields, and the free-text filter needs one lowercase haystack per row.
- *
- * Window and reason labels come from the shared `helpers/approval-window` functions the
- * requester-facing pages already use, so approver and requester never read the same window
- * differently.
+ * A row in the approver's inbox. Display values are precomputed because `bitSortable` sorts on
+ * literal row fields and the free-text filter needs one lowercase haystack per row.
  */
 export type ApprovalRow = {
   id: AccessRequestId;
-  /** Kept whole so the decide dialog can render the request without a second lookup. */
   request: AccessRequestView;
   cipherId: string;
   collectionId: string;
@@ -47,18 +40,15 @@ export type ApprovalRow = {
   relativeStart: LabelValue;
   exactWindow: string;
   /**
-   * False when the viewer raised this request themselves. No self-approval: the button is
-   * disabled, not hidden, so a tooltip can explain why.
+   * False when the viewer raised this request. The button is disabled, not hidden, so a tooltip
+   * can explain why.
    */
   canDecide: boolean;
   /** Lowercased haystack for the free-text filter. */
   searchText: string;
 };
 
-/**
- * Build one inbox row. `canDecide` is passed in rather than derived here so the row model stays free
- * of any notion of "the current user"; the service that knows the active user decides it.
- */
+/** `canDecide` comes from the caller, so the row model stays free of the current user. */
 export function toApprovalRow(
   request: AccessRequestView,
   names: ResolvedNames,
@@ -96,10 +86,7 @@ export function toApprovalRow(
   };
 }
 
-/**
- * Oldest-waiting first, so the request most at risk of timing out is at the top; ties broken by
- * collection name to keep the order stable rather than dependent on the server's.
- */
+/** Longest-waiting first, ties broken by collection name rather than the server's order. */
 export function sortApprovalRows(rows: readonly ApprovalRow[]): ApprovalRow[] {
   return rows.slice().sort((a, b) => {
     const bySubmitted = a.submittedAtMs - b.submittedAtMs;

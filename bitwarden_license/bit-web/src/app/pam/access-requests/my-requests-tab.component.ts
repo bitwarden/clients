@@ -62,28 +62,25 @@ import {
 } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
 
-/** An option offered by a `bit-filter-menu` chip. */
 type FilterOption = { label: string; value: string };
 
-/** A row carrying the id + collection fields the toolbar filters against. */
 type FilterableRow = {
   collectionId: string;
   cipherName: string | null;
   collectionName: string | null;
 };
 
-/** The toolbar's selections, resolved to the shape {@link matchesFilter} tests a row against. */
 type MyRequestsFilter = { term: string; collection: string | null };
 
 /**
- * The toolbar's raw values, keyed by each control's filter key — `search` is the key the table
- * adopts a projected `bit-search` under. Untyped per key because a chip's value is `unknown`.
+ * The toolbar's raw values by filter key, where `search` is the key the table gives a projected
+ * `bit-search`. Untyped, since a chip's value is `unknown`.
  */
 type MyRequestsFilterValues = { search?: unknown; collection?: unknown };
 
 /**
- * A row of the active-access table. Exactly one of `lease` / `request` is set. `cipherName` /
- * `notAfter` are flattened onto the row, since `bit-table` sorts on top-level properties.
+ * A row of the active-access table; exactly one of `lease` and `request` is set. `cipherName` and
+ * `notAfter` are flattened because `bit-table` sorts on top-level properties.
  */
 type ActiveAccessRow = {
   readonly testId: string;
@@ -102,11 +99,8 @@ const byWindowEnd = (a: ActiveAccessRow, b: ActiveAccessRow): number =>
   Date.parse(a.notAfter) - Date.parse(b.notAfter);
 
 /**
- * "My requests" tab: the caller's own PAM access, in three sections — Pending, Extension
- * requests, and Active access (leases held plus approved-but-unactivated grants).
- *
- * Data, name resolution, and optimistic cancel/end live in {@link MyAccessService} (shared
- * across tabs); this component owns the view: the live countdown, the filter, and action gating.
+ * The caller's own access in three sections: Pending, Extension requests, and Active access, which
+ * holds leases and unactivated grants.
  */
 @Component({
   selector: "pam-my-requests-tab",
@@ -154,12 +148,10 @@ export class MyRequestsTabComponent {
   );
 
   protected readonly cancelling = signal<Set<AccessRequestId>>(new Set());
-  /** Ids of approved requests currently being activated (prevents double-click). */
   protected readonly starting = signal<Set<AccessRequestId>>(new Set());
-  /** Ids of active leases currently being ended (prevents double-click). */
   protected readonly ending = signal<Set<AccessLeaseId>>(new Set());
 
-  /** Free-text search across item + collection names; the Collection filter selects one collection. */
+  /** Free-text search across item and collection names. */
   protected readonly searchControl = new FormControl<string>("", { nonNullable: true });
 
   private readonly searchTerm = toSignal(this.searchControl.valueChanges, { initialValue: "" });
@@ -171,7 +163,6 @@ export class MyRequestsTabComponent {
   private readonly collectionFilter = viewChild("collectionFilter", { read: FILTER_CONTROL });
   private readonly selectedCollection = computed(() => this.selectedValue(this.collectionFilter()));
 
-  /** A single-select chip's selection, or undefined for no selection. */
   private selectedValue(chip: FilterControl | undefined): string | undefined {
     const value = chip?.value();
     return typeof value === "string" ? value : undefined;
@@ -188,10 +179,9 @@ export class MyRequestsTabComponent {
   });
 
   /**
-   * Ticks once a second so the countdowns stay live, sharing the clock the badges use; torn down
-   * while no request is listed, since leases carry their own countdowns.
-   *
-   * Gated on the unfiltered requests, not on anything downstream of the clock, to avoid feedback.
+   * Shares the badges' clock, idle while no request is listed since lease badges run their own
+   * countdown. Gated on the unfiltered requests, not anything downstream of the clock, to avoid
+   * feedback.
    */
   protected readonly nowMs = toSignal(
     toObservable(computed(() => this.allPending().length > 0)).pipe(
@@ -200,7 +190,6 @@ export class MyRequestsTabComponent {
     { initialValue: Date.now() },
   );
 
-  /** Decrypted gated ciphers keyed by id; the template reads these to render an item's favicon. */
   private readonly cipherById = toSignal(this.myAccess.cipherById$, {
     initialValue: new Map<string, CipherView>(),
   });
@@ -219,13 +208,8 @@ export class MyRequestsTabComponent {
   });
 
   /**
-   * Bound onto each Collection option so the chip does not fall back to the count its host table
-   * computes: the chip narrows all three sections, but it is projected into the Pending table,
-   * whose data is the pending rows alone — an option whose collection holds only a lease would
-   * otherwise read "0" and still reveal rows when picked.
-   *
-   * Counted over the same rows {@link collectionOptions} is built from, and against no search
-   * term, matching the absolute (non-faceted) counts the host produces.
+   * Overrides the host Pending table's option counts, which see only pending rows, since the chip
+   * narrows all three sections. Counted without the search term, like the host's absolute counts.
    */
   protected readonly collectionCounts = computed<ReadonlyMap<string, number>>(() => {
     const counts = new Map<string, number>();
@@ -241,15 +225,14 @@ export class MyRequestsTabComponent {
     this.allPending().filter((row) => row.status === "pending"),
   );
 
-  /** Rows still awaiting an approver's decision — the only thing "Pending" holds. */
+  /** Only rows still awaiting a decision; approved grants go to Active access. */
   protected readonly pendingRows = computed(() =>
     this.filteredPending().filter((row) => row.status === "pending"),
   );
 
   /**
-   * Approved and awaiting activation. The exact complement of {@link pendingRows}, split on
-   * `status` alone: a clock-dependent split (`canStart`) would drop a grant whose activation
-   * window has lapsed out of both sections.
+   * Approved and awaiting activation. Split from {@link pendingRows} on `status` alone, since a
+   * clock-dependent split would drop a lapsed grant from both sections.
    */
   private readonly approvedRows = computed(() =>
     this.filteredPending().filter((row) => row.status !== "pending"),
@@ -259,11 +242,9 @@ export class MyRequestsTabComponent {
   private readonly leases = computed(() => this.applyFilters(this.allLeases()));
 
   /**
-   * Depends only on `approvedRows` and `leases`, never `nowMs()`, since a per-tick rebuild would
-   * hand every badge a fresh input and restart its countdown ({@link leaseBadgeStates}).
-   *
-   * Held leases come first; the Window column isn't sortable, since `notAfter` means "ends" on a
-   * lease but "activation deadline" on a grant. The Item column sorts but keeps the same grouping.
+   * Never reads `nowMs()`, since a per-tick rebuild would restart every badge's countdown. Leases
+   * come first, and Window isn't sortable because `notAfter` is a lease's end but a grant's
+   * activation deadline.
    */
   protected readonly activeAccessRows = computed<ActiveAccessRow[]>(() => {
     const held: ActiveAccessRow[] = this.leases().map((lease): ActiveAccessRow => ({
@@ -292,9 +273,8 @@ export class MyRequestsTabComponent {
   });
 
   /**
-   * Badge state is memoised per lease so the shared badge component sees a stable input across
-   * the per-second tick; a fresh object each tick would restart its countdown interval. Keyed off
-   * the unfiltered rows so search does not churn surviving badges.
+   * Memoised per lease, since a fresh state object each tick would restart the badge's countdown.
+   * Keyed off the unfiltered rows so a search doesn't churn the remaining badges.
    */
   private readonly leaseBadgeStates = computed(
     () =>
@@ -306,13 +286,12 @@ export class MyRequestsTabComponent {
       ),
   );
 
-  /** A stable identity so the badge input does not churn; the `ready` state carries no payload. */
+  /** One shared instance so the badge input stays stable. */
   protected readonly readyBadge: AccessBadgeState = { kind: "ready" };
 
   /**
-   * The Item column's sort. `bit-table` multiplies a custom comparator's result by its own
-   * direction modifier, so the "held access first" term is pre-multiplied to cancel that out and
-   * hold in both directions; the item name only decides within a group.
+   * `bit-table` multiplies a custom comparator by its direction, so the held-first term is
+   * pre-multiplied to hold in both directions; the item name decides within a group.
    */
   protected readonly byItemName: SortFn = (
     a: ActiveAccessRow,
@@ -334,10 +313,9 @@ export class MyRequestsTabComponent {
   protected readonly activeAccessDataSource = new TableDataSource<ActiveAccessRow>();
 
   /**
-   * Fed the unfiltered pending rows: the toolbar is projected into this table, so the chip and the
-   * search register with it and it narrows itself through {@link rowMatchesFilter}. Handing it
-   * {@link pendingRows} as well would filter the same set twice and leave the chip's option counts
-   * measured against rows the search had already removed.
+   * Fed the unfiltered pending rows, since the projected toolbar registers with this table and it
+   * filters through {@link rowMatchesFilter}. Pre-filtered rows would filter twice and skew the
+   * chip's counts.
    */
   protected readonly pendingTable = defineTable<MyAccessRequestRow, "window" | "actions">(
     this.allPendingRows,
@@ -368,25 +346,21 @@ export class MyRequestsTabComponent {
   }));
 
   /**
-   * The Pending table's row test. The chip and the projected `bit-search` register with that
-   * table, so their values arrive as `values` rather than through {@link filterInputs} — the
-   * keyed shape is what lets the table count the chip's options.
+   * The Pending table's row test. Its toolbar's values arrive as `values` rather than through
+   * {@link filterInputs}, since that keyed shape lets the table count the chip's options.
    */
   protected readonly rowMatchesFilter = (
     row: MyAccessRequestRow,
     values: MyRequestsFilterValues,
   ): boolean => matchesFilter(row, toMyRequestsFilter(values));
 
-  /**
-   * Filter a row set by the free-text search term and the selected collection. Every section but
-   * Pending reaches the toolbar this way; Pending is narrowed by the table it hosts the toolbar in.
-   */
+  /** Filters every section but Pending, which the table hosting the toolbar narrows. */
   private applyFilters<T extends FilterableRow>(rows: T[]): T[] {
     const filter = this.filterInputs();
     return rows.filter((row) => matchesFilter(row, filter));
   }
 
-  /** The decrypted cipher for a row, undefined when absent from the caller's vault; the template renders `app-vault-icon` only then. */
+  /** Undefined when absent from the caller's vault, in which case no favicon renders. */
   protected cipherFor(cipherId: string): CipherView | undefined {
     return this.cipherById().get(cipherId);
   }
@@ -407,19 +381,12 @@ export class MyRequestsTabComponent {
     return this.ending().has(id);
   }
 
-  /**
-   * A pending/approved request's window has already opened — shown as "until X" instead of
-   * "from – to". This backend's `leaseNotBefore` is never absent, unlike the poc's mocked one.
-   */
+  /** An opened window renders as "until X" instead of a from-to range. */
   protected startsNow(row: Pick<MyAccessRequestRow, "leaseNotBefore">): boolean {
     return Date.parse(row.leaseNotBefore) <= this.nowMs();
   }
 
-  /**
-   * A request the requester can withdraw: still pending, or an approved-but-not-activated request
-   * whose window can still produce access. Past that it can no longer be started, so Cancel is
-   * withheld like Start, awaiting server-side expiry.
-   */
+  /** A lapsed grant can no longer be started, so Cancel is withheld like Start until it expires. */
   protected canCancel(row: MyAccessRequestRow): boolean {
     if (row.status === "pending") {
       return true;
@@ -427,25 +394,19 @@ export class MyRequestsTabComponent {
     return isRedeemableGrant(row, this.nowMs());
   }
 
-  /**
-   * An approved request is startable only while its window can still produce access; past that
-   * the server rejects activation, so Start is not offered.
-   */
+  /** Past the window the server rejects activation, so Start is not offered. */
   protected canStart(row: MyAccessRequestRow): boolean {
     return isRedeemableGrant(row, this.nowMs());
   }
 
-  /**
-   * The grant can be started right now: approved, unactivated, and inside its window. Only then is
-   * "Ready to use" a true statement about the access the viewer holds.
-   */
+  /** Startable and inside its window, the only time "Ready to use" is true. */
   protected isReadyNow(row: MyAccessRequestRow): boolean {
     return this.canStart(row) && this.startsNow(row);
   }
 
   /**
-   * The Status badge for a grant awaiting activation. A lapsed grant sits in the same section as the
-   * access the caller holds, so it must not keep the model's green "Approved".
+   * A lapsed grant shares a section with the access the caller holds, so it must not keep the green
+   * "Approved".
    */
   protected grantBadge(row: MyAccessRequestRow): TerminalStatusBadge | null {
     return this.canStart(row) ? row.statusBadge : lapsedGrantBadge;
@@ -477,7 +438,6 @@ export class MyRequestsTabComponent {
     }
   }
 
-  /** Activates an approved request (mints the lease). */
   protected async activate(row: MyAccessRequestRow): Promise<void> {
     if (!this.canStart(row) || this.isStarting(row.id)) {
       return;
@@ -491,8 +451,8 @@ export class MyRequestsTabComponent {
       });
     } catch (e) {
       this.logService.error(e);
-      // A taken slot, an org freeze, or any other server-side activation refusal surfaces here;
-      // the approved request stays activatable for a manual retry.
+      // A refusal (e.g. another active lease on the item) leaves the request activatable for a
+      // retry.
       this.toastService.showToast({
         variant: "error",
         message: this.i18nService.t(activateAccessErrorMessageKey(e)),
@@ -506,10 +466,7 @@ export class MyRequestsTabComponent {
     }
   }
 
-  /**
-   * End (revoke) an active lease early. Confirms first, then hands off to the service, which removes
-   * the lease optimistically and rolls back on failure.
-   */
+  /** Ends the caller's own lease early, which records it as canceled, not revoked. */
   protected async endLease(lease: MyAccessLeaseRow): Promise<void> {
     if (this.isEnding(lease.id)) {
       return;

@@ -14,15 +14,6 @@ import type {
 
 import { AccessLeaseSdkService } from "..";
 
-/**
- * SDK-backed implementation of {@link AccessLeaseSdkService}. Lease lifecycle goes through the
- * Rust SDK's `commercial().pam().leases()` client, not hand-rolled HTTP/DTOs; these calls are
- * user-scoped, so no `organizationId` is threaded through.
- *
- * Follows the canonical per-call SDK-consumption pattern: resolve the active user, take a
- * client `Ref` from `SdkService.userClient$`, and dispose it (`using`) once the call settles.
- * Errors surface as-is, for callers to interpret via `isLeasingError`.
- */
 export class AccessLeasesSdkService implements AccessLeaseSdkService {
   constructor(
     private sdkService: SdkService,

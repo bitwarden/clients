@@ -26,11 +26,7 @@ export type {
 } from "@bitwarden/sdk-internal";
 
 /**
- * Any error the PAM leasing surface can throw.
- *
- * The SDK splits its failures per client — `AccessRequestError`, `ApprovalError`,
- * `AccessLeaseError` — so each caller only sees the variants its own call can produce. The UI
- * treats all three alike, reading `variant` (`"Api"` carries the server's message) through
- * `LeasingErrorService`.
+ * Any error the PAM leasing clients throw. The UI reads all three alike through
+ * `LeasingErrorService`, where an `"Api"` variant carries the server's message.
  */
 export type LeasingError = AccessRequestError | ApprovalError | AccessLeaseError;

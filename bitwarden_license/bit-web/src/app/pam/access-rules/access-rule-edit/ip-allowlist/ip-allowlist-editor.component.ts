@@ -15,18 +15,11 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { CidrValidationService } from "./cidr-validation.service";
 import { CidrPredicate, cidrValidator, duplicateCidrValues } from "./cidr.validator";
 
-/** A single CIDR row control, carrying the per-row {@link cidrValidator}. */
 export type CidrRowControl = FormControl<string>;
 
-/** The host-owned CIDR array this editor renders. Its array-level validators (duplicate /
- *  at-least-one) live on the host so validity flows through the parent form. */
+/** Owned by the host, whose array-level validators keep validity in the parent form. */
 export type IpAllowlistCidrsArray = FormArray<CidrRowControl>;
 
-/**
- * Builds a CIDR row control with the per-row {@link cidrValidator} attached. `isValid` supplies
- * the CIDR check (see {@link CidrPredicate}) so callers can route it through
- * {@link CidrValidationService} rather than importing the WASM-backed check directly.
- */
 export function cidrRowControl(
   value: string,
   invalidCidrMessage: string,
@@ -39,12 +32,8 @@ export function cidrRowControl(
 }
 
 /**
- * Editor for the `ip_allowlist` access rule.
- *
- * Renders a repeatable list of CIDR inputs over a {@link FormArray} owned by the host form and
- * passed in via {@link cidrArray}; the host keeps value and validity, this component manages the
- * row UI and marks rows that repeat another's range. Empty rows stay in the value — the host
- * trims them when serializing.
+ * Row UI for the `ip_allowlist` condition over the host's array. Empty rows stay in the value; the
+ * host drops them when serializing.
  */
 @Component({
   selector: "app-pam-ip-allowlist-editor",
@@ -62,26 +51,22 @@ export function cidrRowControl(
   ],
 })
 export class IpAllowlistEditorComponent implements OnInit, DoCheck {
-  /** The host-owned CIDR array this editor renders and mutates. */
   readonly cidrArray = input.required<IpAllowlistCidrsArray>();
 
-  /** Whether the form fields should be read-only. */
   readonly readonly = input<boolean>(false);
 
   private readonly i18n = inject(I18nService);
   private readonly cidrValidation = inject(CidrValidationService);
 
   ngOnInit(): void {
-    // Start with a single blank row to type into when the host seeds no value.
     if (this.cidrArray().length === 0) {
       this.appendRow();
     }
   }
 
   /**
-   * The row marks must track the array's own duplicate validator, which the host can re-run
-   * with `emitEvent: false` — no `valueChanges`/`statusChanges` fires. Checking each cycle keeps
-   * the two in step; {@link syncDuplicateErrors} writes nothing once they agree.
+   * The host can re-run the array's validators with `emitEvent: false`, so no change event fires.
+   * {@link syncDuplicateErrors} writes nothing once the row marks are in step.
    */
   ngDoCheck(): void {
     this.syncDuplicateErrors();
@@ -108,13 +93,8 @@ export class IpAllowlistEditorComponent implements OnInit, DoCheck {
   }
 
   /**
-   * Marks every row {@link duplicateCidrValues} reports as repeated, so `bit-form-field` renders
-   * `accessRuleIpAllowlistDuplicateCidr` under each offending row, same as {@link cidrValidator}
-   * does for `invalidCidr`. `invalidCidr` stays first, so a malformed-and-repeated row shows the
-   * format error.
-   *
-   * Row marks and the array's `duplicateCidrs` error come from the same function, so the array
-   * is never rejected with no row saying why.
+   * Marks each repeated row so `bit-form-field` shows the error under it. `invalidCidr` stays
+   * first, so a malformed repeated row shows the format error.
    */
   private syncDuplicateErrors(): void {
     const controls = this.cidrArray().controls;

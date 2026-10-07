@@ -11,11 +11,8 @@ import { TargetSystemsService } from "../target-systems/target-systems.service";
 import { RotationConfigRow, buildRotationConfigRow } from "./rotation-config-row";
 
 /**
- * Page-scoped data service for the managed-credentials tab.
- *
- * Provided at the rotation shell route so all rotation tabs share one loaded instance.
- * Owns the rotation config list, joins target systems and cipher names, and performs
- * mutations with optimistic local patching (rollback + rethrow on error).
+ * Data service for the managed credentials tab, provided at the rotation shell route so the tabs
+ * share one load. Pause, resume and record-manual patch local state first and roll back on failure.
  */
 @Injectable()
 export class RotationConfigsService {
@@ -36,18 +33,16 @@ export class RotationConfigsService {
   readonly configs$: Observable<RotationConfig[]> = this._configs$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
 
-  /** The error from the last {@link load}, or null when it succeeded. */
+  /** This list's load error, else the target-system read's; null when both succeeded. */
   readonly loadError$: Observable<unknown | null> = combineLatest([
     this._loadError$,
     this.targetSystems.loadError$,
   ]).pipe(map(([own, targetSystemsError]) => own ?? targetSystemsError));
 
-  /** Count of configs currently awaiting a manual rotation from the operator. */
   readonly awaitingManualCount$: Observable<number> = this._configs$.pipe(
     map((configs) => configs.filter((c) => c.awaitingManualRotation).length),
   );
 
-  /** Rotation configs projected into presentation rows, joined with target systems and cipher names; updates with any source. */
   readonly rows$: Observable<RotationConfigRow[]> = combineLatest([
     this._configs$,
     this.targetSystems.systemById$,
@@ -78,16 +73,9 @@ export class RotationConfigsService {
   );
 
   /**
-   * Load the org's rotation configs and kick off sibling loads for target systems and
-   * org ciphers in parallel. All three fetches must complete before the loading state
-   * clears — the rows depend on all three.
-   *
-   * Records a failure on {@link loadError$} rather than rejecting: every caller invokes this as
-   * `void load(...)`, so a rejection would leave the tab rendering its empty state.
-   *
-   * The shell and the tab both load this shared instance, so two calls can be in flight at once.
-   * Each call holds a generation token and records nothing once a later call has superseded it,
-   * so neither ordering lets the losing call latch its outcome over the winning call's.
+   * Loading clears once the configs, target systems and ciphers have all landed, since rows need
+   * all three. Records a failure on {@link loadError$} rather than rejecting, and a superseded call
+   * records nothing.
    */
   async load(organizationId: OrganizationId): Promise<void> {
     this.organizationId = organizationId;
@@ -117,10 +105,6 @@ export class RotationConfigsService {
     }
   }
 
-  /**
-   * Pause a rotation config (set enabled = false).
-   * Optimistically patches local state; rolls back + rethrows on API failure.
-   */
   async pause(config: RotationConfig): Promise<void> {
     this.patchConfig(config.id, { enabled: false });
     try {
@@ -131,10 +115,6 @@ export class RotationConfigsService {
     }
   }
 
-  /**
-   * Resume a rotation config (set enabled = true).
-   * Optimistically patches local state; rolls back + rethrows on API failure.
-   */
   async resume(config: RotationConfig): Promise<void> {
     this.patchConfig(config.id, { enabled: true });
     try {
@@ -145,21 +125,12 @@ export class RotationConfigsService {
     }
   }
 
-  /**
-   * Dispatch an on-demand rotation for a config.
-   * Optimistically sets hasActiveJob = true so the row reflects the in-progress state
-   * immediately. Does not roll back on error — the list will re-reflect truth on next load.
-   */
+  /** Sets `hasActiveJob` once the server accepts, so the row shows the job without a reload. */
   async rotateNow(config: RotationConfig): Promise<void> {
     await this.rotationSdk.rotateNow(this.requireOrganizationId(), config.id);
     this.patchConfig(config.id, { hasActiveJob: true });
   }
 
-  /**
-   * Record that a manual rotation was performed out-of-band.
-   * Optimistically clears awaitingManualRotation and sets lastRotationAt to now.
-   * Rolls back + rethrows on API failure.
-   */
   async recordManual(config: RotationConfig): Promise<void> {
     const previousAwaitingManual = config.awaitingManualRotation;
     const previousLastRotationAt = config.lastRotationAt;
@@ -178,11 +149,6 @@ export class RotationConfigsService {
     }
   }
 
-  /**
-   * Delete a rotation config, removing it from local state once the server confirms.
-   *
-   * Not optimistic, so a thrown API call leaves `_configs$` unchanged — an implicit rollback.
-   */
   async delete(config: RotationConfig): Promise<void> {
     await this.rotationSdk.deleteConfig(this.requireOrganizationId(), config.id);
     this._configs$.next(this._configs$.value.filter((c) => c.id !== config.id));
@@ -195,10 +161,6 @@ export class RotationConfigsService {
     return this.organizationId;
   }
 
-  /**
-   * Apply a partial patch to the config with the given id in the local stream.
-   * Creates a new object (preserves reference-equality semantics for OnPush).
-   */
   private patchConfig(id: RotationConfigId, patch: Partial<RotationConfig>): void {
     this._configs$.next(
       this._configs$.value.map((c) =>

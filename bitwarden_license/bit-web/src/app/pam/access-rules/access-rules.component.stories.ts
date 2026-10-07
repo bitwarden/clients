@@ -23,7 +23,6 @@ const ORG_COLLECTIONS = [
   { id: "col-5", name: "Operations" },
 ];
 
-/** Builds an AccessRuleView with sensible defaults; overrides fill in per-rule specifics. */
 function rule(overrides: Record<string, unknown>): AccessRuleView {
   return {
     id: "rule",
@@ -91,7 +90,6 @@ const RULES: AccessRuleView[] = [
   }),
 ];
 
-/** Base SDK mock; per-story decorators override `listAccessRules` for the empty/loading states. */
 function pamApi(listAccessRules: () => Promise<AccessRuleView[]>): Partial<AccessRuleSdkService> {
   return {
     listAccessRules,
@@ -120,8 +118,7 @@ export default {
         { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },
         { provide: ToastService, useValue: { showToast: () => {} } },
         { provide: AccessRuleSdkService, useValue: pamApi(() => Promise.resolve(RULES)) },
-        // `AccessRulesService` is constructed with the component and injects this; `invalidate`
-        // is all the page ever reaches.
+        // Injected by `AccessRulesService`, which only ever calls `invalidate` here.
         { provide: GovernedCollectionsService, useValue: { invalidate: () => {} } },
       ],
     }),
@@ -130,11 +127,7 @@ export default {
 
 type Story = StoryObj<AccessRulesComponent>;
 
-/**
- * The populated table: a mix of active/inactive rules, conditions, and duration caps. The
- * header's "Create access rule" button opens a menu offering a blank Custom rule and the
- * three starter templates.
- */
+/** A mix of active and inactive rules, conditions and duration caps. */
 export const Default: Story = {
   parameters: {
     chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) },
@@ -146,7 +139,7 @@ export const FlagOn: Story = {
   globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
-/** No rules yet — the empty state with starter templates is shown. */
+/** No rules yet, so the empty state offers the starter templates. */
 export const Empty: Story = {
   decorators: [
     moduleMetadata({
@@ -155,7 +148,7 @@ export const Empty: Story = {
   ],
 };
 
-/** The initial load, before rules resolve — a spinner. */
+/** A spinner until the rules resolve. */
 export const Loading: Story = {
   decorators: [
     moduleMetadata({

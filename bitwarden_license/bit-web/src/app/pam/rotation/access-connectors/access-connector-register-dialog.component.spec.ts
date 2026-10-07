@@ -28,10 +28,7 @@ describe("AccessConnectorRegisterDialogComponent", () => {
   let dialogRef: jest.Mocked<DialogRef>;
   let toastService: jest.Mocked<ToastService>;
   let i18nService: jest.Mocked<I18nService>;
-  /**
-   * The DialogService actually injected into the component (which may come from
-   * DialogModule's own providers rather than the test-level override).
-   */
+  /** The component's own DialogService, which DialogModule may provide over the test's. */
   let injectedDialogService: DialogService;
 
   const orgId = ORGANIZATION_ID as OrganizationId;
@@ -79,8 +76,6 @@ describe("AccessConnectorRegisterDialogComponent", () => {
 
     fixture = TestBed.createComponent(AccessConnectorRegisterDialogComponent);
     component = fixture.componentInstance;
-    // Retrieves the DialogService the component actually uses, which may come from
-    // DialogModule, not the test override.
     injectedDialogService = fixture.debugElement.injector.get(DialogService);
     fixture.detectChanges();
   });

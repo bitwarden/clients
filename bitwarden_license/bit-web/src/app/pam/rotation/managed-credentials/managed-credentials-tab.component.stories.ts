@@ -32,9 +32,8 @@ import { buildRotationConfigRow, RotationConfigRow } from "./rotation-config-row
 import { RotationConfigsService } from "./rotation-configs.service";
 
 /**
- * Single hex digits, not descriptive labels: `id()` folds a multi-character label onto one digit,
- * so two labels can share a UUID. These ids key the collection lookup and must stay distinct.
- * `1` and `2` are the story's target systems and `a` its organization.
+ * Single hex digits, since `id()` folds a longer label onto one digit and two labels could collide.
+ * These key the collection lookup; `1`, `2` and `a` are taken by the target systems and the org.
  */
 const CIPHER_PROD = asUuid<CipherId>(id("4"));
 const CIPHER_STAGING = asUuid<CipherId>(id("5"));
@@ -163,9 +162,8 @@ function rotationServices(rows: RotationConfigRow[]) {
 }
 
 /**
- * Mirrors `rotation.routes.ts` (minus its guards) so the tab reads `organizationId` from a real
- * route param and its `[".."]` navigations resolve. The create and edit pages are stubbed as
- * childless routes: the stories only need them to exist as navigation targets.
+ * Mirrors `rotation.routes.ts`, minus its guards, so `organizationId` and the `[".."]` navigations
+ * resolve. The create and edit pages exist only as navigation targets.
  */
 const routes: Routes = [
   {

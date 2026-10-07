@@ -14,17 +14,12 @@ import {
 
 const INVALID_CIDR_MESSAGE = "Enter a valid CIDR range.";
 
-/**
- * Story stand-in for the SDK-backed {@link CidrValidationService}. The real check needs the WASM
- * SDK booted, which Storybook doesn't do — this lightweight IPv4/IPv6 shape check is enough to
- * exercise the editor's per-row validation UI.
- */
+/** A shape check standing in for the SDK, which Storybook doesn't boot. */
 const isValidCidr = (value: string): boolean => {
   const v = value.trim();
   return /^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/.test(v) || /^[0-9a-f:]+\/\d{1,3}$/i.test(v);
 };
 
-/** Builds the host-owned CIDR array the parent form would pass in. */
 function cidrArray(
   values: string[],
   { withArrayValidators = false, touched = false } = {},
@@ -78,21 +73,20 @@ function editorStory(array: IpAllowlistCidrsArray, readonly = false): Story {
   };
 }
 
-/** No rows yet — the editor seeds a single blank input to type into. */
+/** The editor seeds a single blank row. */
 export const Empty: Story = editorStory(cidrArray([]));
 
-/** A few configured ranges, each with a remove control. */
 export const Populated: Story = editorStory(cidrArray(["10.0.0.0/8", "192.168.0.0/16"]));
 
-/** Read-only mode: values are shown but add/remove controls are hidden. */
+/** Add and remove controls are hidden. */
 export const Readonly: Story = editorStory(cidrArray(["10.0.0.0/8", "192.168.0.0/16"]), true);
 
-/** A row whose value isn't a valid CIDR surfaces a per-row error once touched. */
+/** The per-row error shows once the row is touched. */
 export const InvalidRow: Story = editorStory(
   cidrArray(["10.0.0.0/8", "not-a-cidr"], { touched: true }),
 );
 
-/** Two rows sharing a range: each offending row carries its own error, with no prior interaction. */
+/** Each repeated row shows its own error, without being touched first. */
 export const DuplicateRanges: Story = editorStory(
   cidrArray(["10.0.0.0/8", "10.0.0.0/8"], { withArrayValidators: true }),
 );

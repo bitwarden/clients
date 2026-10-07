@@ -37,7 +37,6 @@ describe("DefaultPamNavBadgeService", () => {
   let service: DefaultPamNavBadgeService;
   const subscriptions: Subscription[] = [];
 
-  /** Collects the badge counts as they arrive. */
   function watch(): number[] {
     const seen: number[] = [];
     subscriptions.push(service.count$.subscribe((n) => seen.push(n)));
@@ -60,7 +59,7 @@ describe("DefaultPamNavBadgeService", () => {
       accessChanged$: () => push$.asObservable(),
       approverInboxChanged$: () => inboxPush$.asObservable(),
     };
-    // The real one, so a push reaches the badge the same way it does in the app: through it.
+    // The real one, so a push reaches the badge through it as in the app.
     accessRefresh = new DefaultAccessRefreshService(accessEvents);
     approvalPrivileges = { canApprove$ } as unknown as ApprovalPrivilegeService;
 
@@ -108,8 +107,6 @@ describe("DefaultPamNavBadgeService", () => {
   });
 
   it("counts a request the caller both raised and manages once", async () => {
-    // A manager gated by a rule on a collection they manage sees their own request on both
-    // tabs — one piece of work.
     const own = request("pending", "shared-id");
     requestsApi.listMyAccessRequests.mockResolvedValue([own]);
     approvalsApi.listInbox.mockResolvedValue([own]);
@@ -180,7 +177,6 @@ describe("DefaultPamNavBadgeService", () => {
   });
 
   it("drops the approver's own decision without waiting on a push", async () => {
-    // The approver decides in this tab; the push that would re-read may be late, or never come.
     approvalsApi.listInbox.mockResolvedValue([request("pending")]);
     const seen = watch();
     await settle();
@@ -226,7 +222,6 @@ describe("DefaultPamNavBadgeService", () => {
     push$.next();
     await settle();
 
-    // A nav badge must never be able to break navigation.
     expect(seen.at(-1)).toBe(1);
     expect(logService.error).toHaveBeenCalled();
   });

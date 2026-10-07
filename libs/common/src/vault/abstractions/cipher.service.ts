@@ -48,9 +48,9 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract cipherView$(userId: UserId, cipherId: CipherId): Observable<CipherView | undefined>;
   abstract cipherListViews$(userId: UserId): Observable<CipherListView[] | CipherView[]>;
   /**
-   * Like {@link cipherListViews$}, but includes PAM-gated ("partial") rows. Opt-in: only the
-   * vault list should consume it, so gated ciphers never reach autofill, export, key rotation,
-   * and similar flows.
+   * Like {@link cipherListViews$}, but includes PAM-gated ("partial") rows, whose sensitive
+   * fields the server suppressed. Only surfaces that render gated rows, such as the vault list,
+   * should use it.
    */
   abstract cipherListViewsWithPartials$(
     userId: UserId,
@@ -100,13 +100,8 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   ): Promise<CipherView[]>;
   abstract getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]>;
   /**
-   * Like {@link getAllDecryptedForIds}, but RETAINS PAM-gated ("partial") rows — ciphers whose
-   * sensitive fields the server suppressed, decrypted into a `partial` view carrying only the
-   * title and, for logins, the URIs.
-   *
-   * Opt-in, for the same reason {@link cipherListViewsWithPartials$} is: a surface naming a
-   * gated cipher would otherwise resolve nothing. Every other caller must use
-   * {@link getAllDecryptedForIds}, which excludes partials.
+   * Like {@link getAllDecryptedForIds}, but keeps PAM-gated ("partial") rows, which carry only the
+   * name and, for logins, the URIs. Only for surfaces that must name a gated cipher.
    */
   abstract getAllDecryptedForIdsIncludingPartials(
     userId: UserId,
