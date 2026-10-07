@@ -47,7 +47,6 @@ describe("DefaultAccessRefreshService", () => {
   });
 
   it("notifies every subscriber when no cipher is named", () => {
-    // This is the shape a server push takes: it says access changed, not for which item.
     const cipherOne = watch("cipher-1");
     const cipherTwo = watch("cipher-2");
 
@@ -68,8 +67,6 @@ describe("DefaultAccessRefreshService", () => {
   });
 
   it("does not replay a notification that fired before subscribing", () => {
-    // Nothing to update with no watcher; replaying to a freshly-opened item would re-read for no
-    // reason.
     service.notifyAccessChanged("cipher-1");
 
     const cipherOne = watch("cipher-1");
@@ -78,8 +75,6 @@ describe("DefaultAccessRefreshService", () => {
   });
 
   it("treats a server push as invalidating every cipher", () => {
-    // The push says only "access changed"; an approver's decision names no cipher, so it can't
-    // narrow to one open item.
     const cipherOne = watch("cipher-1");
     const cipherTwo = watch("cipher-2");
 
@@ -90,7 +85,6 @@ describe("DefaultAccessRefreshService", () => {
   });
 
   it("notifies a subscriber that names no cipher of every mutation and every push", () => {
-    // The nav badge spans ciphers; it needs to hear any local mutation, whichever item it named.
     let count = 0;
     subscriptions.push(service.accessChanged$().subscribe(() => (count += 1)));
 
@@ -103,7 +97,6 @@ describe("DefaultAccessRefreshService", () => {
   });
 
   it("does not attach to the push channel until a consumer subscribes", () => {
-    // A user who never opens a gated item should not hold a push-channel subscription.
     expect(push$.observed).toBe(false);
 
     watch("cipher-1");

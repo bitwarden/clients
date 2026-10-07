@@ -42,11 +42,8 @@ export class AutofocusDirective implements AfterContentChecked {
   readonly appAutofocus = input(undefined, { transform: booleanAttribute });
 
   /**
-   * Also select the focused element's contents, for a field whose prefilled value is a
-   * placeholder to type over, not extend. Opt-in, since selecting a value the user meant to
-   * append to would be actively hostile.
-   *
-   * No-op on an element without `select()`.
+   * Also select the focused element's contents, for a prefilled value the user types over. No-op
+   * on an element without `select()`.
    */
   readonly appAutofocusSelect = input(false, { transform: booleanAttribute });
 
@@ -54,9 +51,8 @@ export class AutofocusDirective implements AfterContentChecked {
   private focused = false;
 
   /**
-   * Separate from {@link focused}, which deliberately stays false through the Safari focus
-   * handoff so focusing can be retried. Selecting must not be retried: by then the user may
-   * have typed, and re-selecting would put their work one keystroke from being erased.
+   * Separate from {@link focused}, which stays false through the Safari focus handoff so focusing
+   * can retry. Selecting must not retry, or it could select text the user has typed since.
    */
   private selected = false;
 
@@ -128,7 +124,6 @@ export class AutofocusDirective implements AfterContentChecked {
   }
 }
 
-/** Select an element's value, if it is the kind of element that has one. */
 function selectContents(el: HTMLElement): void {
   if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
     el.select();

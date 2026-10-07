@@ -372,7 +372,6 @@ describe("AccessConnectorsService", () => {
   });
 });
 
-// Helper to get the current value of an observable synchronously.
 function firstValue<T>(obs: import("rxjs").Observable<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     obs.subscribe({ next: resolve, error: reject }).unsubscribe();

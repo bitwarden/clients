@@ -17,7 +17,7 @@ describe("deleteFailureMessageKey", () => {
     expect(deleteFailureMessageKey(cipher({ partial: true }))).toBe("pamDeleteRequiresAccess");
   });
 
-  // The reachable case: the lease lapsed after the last sync, so the cipher is still full.
+  // A lease that lapsed after the last sync leaves the cipher full.
   it("explains the refusal when every reachable collection gates", () => {
     const c = cipher({ collectionIds: ["c1", "c2"] });
     const collections = [collection("c1", true), collection("c2", true)];
@@ -25,7 +25,7 @@ describe("deleteFailureMessageKey", () => {
     expect(deleteFailureMessageKey(c, collections)).toBe("pamDeleteRequiresAccess");
   });
 
-  // The union rule: one ungated path is an escape, so the cipher was never gated.
+  // Under the union rule, one ungated path is an escape, so the cipher was never gated.
   it("falls back to the plain error when any reachable collection does not gate", () => {
     const c = cipher({ collectionIds: ["c1", "c2"] });
     const collections = [collection("c1", true), collection("c2", false)];

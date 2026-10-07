@@ -18,11 +18,7 @@ import {
 /** The "no maximum" option in the max-duration picker; encodes to an absent cap. */
 export const NO_DURATION_CAP = 0;
 
-/**
- * The longest name the server will store. `dbo.AccessRule.Name` is `NVARCHAR(256)`, and SQL
- * Server silently truncates anything longer rather than rejecting it, so a name must be kept
- * within this before it's sent, not after.
- */
+/** The longest name the SDK and the server accept, matching `dbo.AccessRule.Name`. */
 export const ACCESS_RULE_NAME_MAX_LENGTH = 256;
 
 /** The longest description the edit form accepts. */

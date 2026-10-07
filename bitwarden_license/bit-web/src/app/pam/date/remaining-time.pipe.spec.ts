@@ -7,7 +7,7 @@ describe("RemainingTimePipe", () => {
   // notAfter/now wiring the pipe adds.
   it("formats the remaining time until notAfter relative to nowMs", () => {
     const now = Date.parse("2026-01-01T00:00:00.000Z");
-    const notAfter = "2026-01-01T02:05:00.000Z"; // 2h 5m later
+    const notAfter = "2026-01-01T02:05:00.000Z";
 
     expect(pipe.transform(notAfter, now)).toBe("2h 5m");
   });

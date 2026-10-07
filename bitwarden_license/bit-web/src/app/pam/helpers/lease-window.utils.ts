@@ -1,8 +1,6 @@
 /**
- * Preset durations offered by the access-rule dialog's default/max lease
- * pickers. Expressed in seconds (to match the rule's `*LeaseDurationSeconds`
- * controls) and offering a wide range, since an administrator configuring a
- * rule can grant longer windows than a self-service request.
+ * The access-rule edit form's lease duration presets, wider than a requester's since an admin can
+ * grant longer windows.
  */
 export const ACCESS_RULE_DURATION_PRESETS: ReadonlyArray<{ seconds: number; labelKey: string }> = [
   { seconds: 15 * 60, labelKey: "pamAccessRuleDuration15m" },
@@ -20,11 +18,8 @@ export const ACCESS_RULE_DURATION_PRESETS: ReadonlyArray<{ seconds: number; labe
 export const DEFAULT_ACCESS_RULE_DURATION_SECONDS = 60 * 60;
 
 /**
- * Preset durations for the requester's own duration picker (the cipher-view banner). Narrower
- * than {@link ACCESS_RULE_DURATION_PRESETS} and topping out at a day, which is a judgement about
- * what a requester should reach for by default rather than a limit — the server's own ceiling is
- * far higher, and a rule permitting longer still offers its cap through
- * {@link requestDurationOptions}.
+ * The requester's duration presets. Topping out at a day is a default, not a limit, since
+ * {@link requestDurationOptions} still offers a rule's higher cap.
  */
 export const REQUEST_ACCESS_DURATION_PRESETS: ReadonlyArray<{
   seconds: number;
@@ -38,26 +33,15 @@ export const REQUEST_ACCESS_DURATION_PRESETS: ReadonlyArray<{
   { seconds: 24 * 60 * 60, labelKey: "requestAccessModalDuration1d" },
 ];
 
-/**
- * Duration pre-selected when the requester first opens the automatic-path form (1h).
- *
- * Only the fallback for a pre-check naming no default of its own; the governing rule's own
- * `defaultDurationSeconds` is the real authority.
- */
+/** The automatic form's placeholder until the pre-check supplies the rule's own default. */
 export const DEFAULT_REQUEST_ACCESS_DURATION_SECONDS = 60 * 60;
 
-/** One entry in the requester's duration picker. A `labelKey`-less entry is formatted from its value. */
+/** A requester duration option; one without a `labelKey` is formatted from its value. */
 export type RequestDurationOption = { seconds: number; labelKey?: string };
 
 /**
- * The duration options a requester may pick from under a rule capped at `maxSeconds`,
- * pre-selecting `defaultSeconds`.
- *
- * {@link REQUEST_ACCESS_DURATION_PRESETS} narrowed to what the cap allows, then widened to
- * include the cap and default themselves, so the picker is never empty and the default is
- * always a real option.
- *
- * Entries not in the preset list carry no `labelKey`; the template formats those from value.
+ * The presets under `maxSeconds`, plus the cap and default themselves, so the picker is never empty
+ * and the default is always an option.
  */
 export function requestDurationOptions(
   maxSeconds: number,
@@ -80,7 +64,7 @@ export function requestDurationOptions(
   return [...options.values()].sort((a, b) => a.seconds - b.seconds);
 }
 
-/** Admin-selectable maximum extension lengths, in seconds (30m–8h). */
+/** Admin-selectable maximum extension lengths, in seconds. */
 export const EXTENSION_DURATION_OPTIONS: ReadonlyArray<{ seconds: number; labelKey: string }> = [
   { seconds: 30 * 60, labelKey: "pamAccessRuleDuration30m" },
   { seconds: 60 * 60, labelKey: "pamAccessRuleDuration1h" },

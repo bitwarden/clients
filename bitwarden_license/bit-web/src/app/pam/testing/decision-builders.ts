@@ -4,14 +4,8 @@ import type { AccessApprover, AccessRequestDecisionView } from "../abstractions/
 const DECIDED_AT = "2026-06-10T10:30:00.000Z";
 
 /**
- * A human decision, for tests that exercise decider resolution (`resolveResolver`,
- * `findHumanDecision`).
- *
- * The SDK models the decider as a tagged union — `{ human: AccessApprover }`, not flat
- * id/name/email fields — so building it here keeps specs from re-deriving that shape.
- *
- * `name`/`email` default to absent, not placeholder text, since the display chain under test is
- * `name || email || id` and always filling all three would never exercise the fallbacks.
+ * `name` and `email` default to absent rather than placeholders, so specs exercise the
+ * `name || email || id` display fallbacks.
  */
 export function humanDecision(init: {
   id: string;
@@ -37,10 +31,7 @@ export function humanDecision(init: {
   };
 }
 
-/**
- * An access-rule decision — the automatic path, where no approver is involved. Its `decider` is the
- * bare `"automatic"`, which is what tells the UI to credit the rule rather than a person.
- */
+/** A rule's decision; the bare `"automatic"` decider credits the rule rather than a person. */
 export function automaticDecision(
   init: {
     verdict?: AccessRequestDecisionView["verdict"];
@@ -57,9 +48,8 @@ export function automaticDecision(
 }
 
 /**
- * The decision the server records when a lease holder ends their own lease: a `deny` whose
- * decider is the requester. Tells "ended by holder" from "revoked by an operator", since the
- * SDK's lease status collapses both to `revoked`.
+ * The decision the server records when a holder ends their own lease: a `deny` decided by the
+ * requester.
  */
 export function selfEndDecision(requesterId: string, comment?: string): AccessRequestDecisionView {
   return humanDecision({ id: requesterId, verdict: "deny", comment });

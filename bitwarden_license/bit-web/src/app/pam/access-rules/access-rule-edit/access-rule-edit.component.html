@@ -3,9 +3,8 @@
     <bit-breadcrumb [route]="['..']">{{ "pamAccessRules" | i18n }}</bit-breadcrumb>
   </bit-breadcrumbs>
 
-  <!-- Sits inside the h1 next to the name, so the sr-only label keeps "On"/"Off" from reading
-       as part of the title. Reflects the saved rule; the Status checkbox below only takes
-       effect on save. -->
+  <!-- Inside the h1, so the sr-only label keeps "On"/"Off" from reading as part of the title.
+       Reflects the saved rule, not the unsaved Status checkbox. -->
   <span slot="title-suffix" class="tw-flex tw-h-full tw-items-center">
     @if (existing(); as rule) {
       <span class="tw-sr-only">{{ "status" | i18n }}:</span>
@@ -36,9 +35,8 @@
         >
           <span class="tw-inline">{{ saveErrorMessage() }}</span>
           @if (error.kind === "generic") {
-            <!-- A plain submit button so the retry rides the form's own `bitSubmit`, keeping Save's
-                 loading and disabled handling. `bitAction`/`bitFormButton` cannot supply that here:
-                 both inject `ButtonLikeAbstraction`, which `bitLink` does not provide. -->
+            <!-- A plain submit button, so the retry rides the form's `bitSubmit`. `bitAction` and
+                 `bitFormButton` need `ButtonLikeAbstraction`, which `bitLink` does not provide. -->
             <button
               type="submit"
               bitLink

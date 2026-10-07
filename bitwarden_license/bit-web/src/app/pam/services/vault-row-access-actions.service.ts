@@ -26,15 +26,8 @@ import { AccessRequestCancelService } from "./access-request-cancel.service";
 const NEVER_CANCELABLE$ = of(false);
 
 /**
- * PAM's {@link VaultRowAccessActionsService}: lets the vault-row menu withdraw the caller's
- * outstanding access request for a gated cipher, without the row knowing about leasing. The
- * cancel itself runs through the shared {@link AccessRequestCancelService} flow.
- *
- * {@link cancelableRequest$} is memoized per cipher id and MUST stay that way, since the row
- * menu reads it via `async` pipe on every change-detection pass. The underlying read is lazy,
- * one per menu open, released on close via `shareReplay`/`refCount`.
- *
- * "Cancelable" mirrors the banner's withdraw semantics: pending or approved-but-unactivated.
+ * {@link cancelableRequest$} is memoized per cipher id, since the row menu reads it through `async`
+ * on every change-detection pass. Its read is lazy and released when the menu closes.
  */
 export class DefaultVaultRowAccessActionsService implements VaultRowAccessActionsService {
   private readonly cancelableByCipherId = new Map<string, Observable<boolean>>();
@@ -67,7 +60,7 @@ export class DefaultVaultRowAccessActionsService implements VaultRowAccessAction
     await this.accessRequestCancelService.cancelOutstandingRequest(cipherId);
   }
 
-  /** The cipher's id when it is PAM-gated — only such a row can carry an access request. */
+  /** Only a gated row can carry an access request. */
   private gatedCipherId(cipher: CipherViewLike): string | null {
     return CipherViewLikeUtils.isPartial(cipher) && cipher.id != null ? String(cipher.id) : null;
   }
@@ -83,8 +76,8 @@ export class DefaultVaultRowAccessActionsService implements VaultRowAccessAction
         }
         return from(this.accessRequestSdkService.getCipherAccessState(cipherId)).pipe(
           map((state) => state.pendingRequest != null || state.approvedRequest != null),
-          // A row whose state cannot be read offers no menu entry rather than an error — the
-          // vault-row badge behaves the same way.
+          // An unreadable state offers no menu entry rather than an error, like the vault-row
+          // badge.
           catchError(() => of(false)),
         );
       }),

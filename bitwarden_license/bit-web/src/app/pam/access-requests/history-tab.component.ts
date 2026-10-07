@@ -70,28 +70,19 @@ import { MyAccessService } from "./my-access.service";
 const HistoryScope = Object.freeze({ All: "all", Mine: "mine", Managed: "managed" } as const);
 type HistoryScope = (typeof HistoryScope)[keyof typeof HistoryScope];
 
-/** The scope chip's value as a scope; unset or unrecognized reads as All. */
 function toHistoryScope(value: unknown): HistoryScope {
   return value === HistoryScope.Mine || value === HistoryScope.Managed ? value : HistoryScope.All;
 }
 
 /**
- * How long the "loaded" announcement is left in the live region. Long enough for a polite
- * announcement to be taken, short enough that what is left behind is the empty region rather than a
- * stale claim about a load.
+ * How long the "loaded" announcement stays in the live region, long enough to be read but not to
+ * linger as a stale claim.
  */
 const announcementHoldMs = 2000;
 
 /**
- * "History" tab: decided requests merged from Mine (the caller's own terminal requests) and
- * Managed (decided requests for collections the caller manages, the only ones they can undo a
- * decision on).
- *
- * Opens on All so the reader is never shown an empty table behind an unset chip;
- * `managedIds` is the per-row authority, so a row the caller both raised and manages appears
- * once, keeping the richer copy.
- *
- * A caller with no approval privilege has no managed rows, no Actions column, and no chip.
+ * Decided requests merged from Mine (the caller's own) and Managed (on collections they manage,
+ * the only rows they can act on). The scope chip starts unset, which lists All.
  */
 @Component({
   selector: "pam-history-tab",
@@ -150,15 +141,12 @@ export class HistoryTabComponent {
   });
 
   /**
-   * `bit-filter-menu` isn't a `ControlValueAccessor`, so the chip owns its selection and is read
-   * through its `FILTER_CONTROL` contract rather than a form control. On the VFO1 path the chip
-   * sits in the table's toolbar and so also registers with the table, which narrows its rows by
-   * the chip's value through {@link matchesFilters}; this `viewChild` still drives {@link scope}
-   * for what reads the current slice outside the table.
+   * `bit-filter-menu` isn't a `ControlValueAccessor`, so the chip is read through its
+   * `FILTER_CONTROL` contract. On the VFO1 path the table also filters by it, but this still drives
+   * {@link scope} for readers outside the table.
    */
   private readonly scopeChip = viewChild("historyScopeFilter", { read: FILTER_CONTROL });
 
-  /** Request ids currently being acted on, so a second click on the same row is a no-op. */
   private readonly acting = signal<Set<string>>(new Set());
 
   private readonly myRows = toSignal(this.myAccess.historyRows$, {
@@ -181,22 +169,15 @@ export class HistoryTabComponent {
   private readonly myLoadError = toSignal(this.myAccess.loadError$, { initialValue: null });
   private readonly managedLoadError = toSignal(this.inbox.loadError$, { initialValue: null });
 
-  /**
-   * Whether either read the table draws from failed. Either one is enough: a failure on one side
-   * leaves the merged list short by everything that side holds, which the table cannot say for
-   * itself.
-   */
+  /** A failed read leaves the merged list short of that side's rows, which the table can't show. */
   private readonly loadFailed = computed(
     () => this.myLoadError() != null || this.managedLoadError() != null,
   );
 
   /**
-   * Latched true once every source the table draws from has finished loading.
-   *
-   * Latched, not tracked, so a background reload can't pull the table from under a reader, and
-   * sampled on the whole first load so All never renders a partial history as complete. A
-   * non-approver's inbox flag stays permanently unraised, and a genuine approver's brief false
-   * from `canApprove$` is covered by waiting for the first sync.
+   * Latched on the first complete load, so a background reload can't pull the table from under a
+   * reader. Waits on the inbox for an approver, or for anyone before the first sync, when
+   * `canApprove$` can read false.
    */
   private readonly historyLoaded$ = combineLatest([
     this.myAccess.loading$,
@@ -217,11 +198,7 @@ export class HistoryTabComponent {
 
   protected readonly historyLoaded = toSignal(this.historyLoaded$, { initialValue: false });
 
-  /**
-   * The skeleton is held back until the load has run for a second, per the component library's
-   * display guidance, so a history that arrives quickly never flashes it — arriving at this tab
-   * from a sibling, both reads have usually already answered.
-   */
+  /** Held back for a second of loading, so a quick history never flashes the skeleton. */
   private readonly showSkeleton = toSignal(
     this.historyLoaded$.pipe(
       map((loaded) => !loaded),
@@ -232,23 +209,18 @@ export class HistoryTabComponent {
   );
 
   /**
-   * Whether the skeleton table is on screen, driving the `role="status"` announcement too, so a
-   * load finishing inside the delay never announces a screen the user was not shown.
-   *
-   * The live region needs the `historyLoaded()` term even though the skeleton markup does not:
-   * without it the region keeps announcing "loading" over an already-rendered table.
+   * Also drives the `role="status"` announcement, so a load inside the delay never announces a
+   * screen the user wasn't shown. The `historyLoaded()` term stops the region announcing "loading"
+   * over a rendered table.
    */
   protected readonly skeletonVisible = computed(() => this.showSkeleton() && !this.historyLoaded());
 
-  /** Raised once the skeleton has been on screen long enough to announce its removal; lowered after. */
+  /** Raised once the skeleton shows, so its removal can be announced; lowered after the hold. */
   private readonly skeletonShown = signal(false);
 
   /**
-   * Whether the live region announces content arrival. Gated on the skeleton having shown and
-   * both reads finishing — a failed read resolves the latch like success too, so without the
-   * guard the region would claim "loaded" while the shell toasts the error.
-   *
-   * Transient, so a later re-read isn't handed a stale "loaded".
+   * Announces arrival only after a shown skeleton and no failed read, since a failure also resolves
+   * the latch and "loaded" would contradict the shell's error toast.
    */
   protected readonly announceLoaded = computed(
     () => this.skeletonShown() && !this.skeletonVisible() && !this.loadFailed(),
@@ -257,29 +229,23 @@ export class HistoryTabComponent {
   private readonly hasManagedHistory = computed(() => this.managedRows().length > 0);
 
   /**
-   * Offered to anyone who can approve, rows or not — gating on rows would hide the filters until
-   * there is something to filter. `hasManagedHistory()` also covers a viewer with managed rows
-   * whom the privilege predicate does not recognize as an approver.
+   * Offered to anyone who can approve, even with no rows yet. `hasManagedHistory()` also covers a
+   * viewer with managed rows whom the privilege predicate doesn't recognize.
    */
   protected readonly canSwitchScope = computed(() => this.canApprove() || this.hasManagedHistory());
 
   /**
-   * One source of truth for the scope — the shape the sibling access-audit page uses for its
-   * chips.
-   *
-   * Falls back to All, synchronously, if the chip disappears while filtered. The template's `@if`
-   * destroys the chip whenever {@link canSwitchScope} goes false, so a chip that returns starts
-   * unset: a stale pick can't silently re-narrow the table, and nothing has to forget it.
+   * Falls back to All at once if the chip disappears while filtered. The template's `@if` destroys
+   * the chip with {@link canSwitchScope}, so a returning chip starts unset and can't re-apply a
+   * stale pick.
    */
   protected readonly scope = computed<HistoryScope>(() =>
     this.canSwitchScope() ? toHistoryScope(this.scopeChip()?.value()) : HistoryScope.All,
   );
 
   /**
-   * Both sources in one list, de-duplicated by request id and re-sorted on the shared key. A row
-   * both reads return keeps the caller's own copy: `buildMyAccessRequestRows` folds an approved
-   * extension onto the grant it extended and fills in the "Extended" badge, which the inbox's
-   * straight row mapping leaves null.
+   * A row both reads return keeps the caller's own copy, since only `buildMyAccessRequestRows`
+   * fills in the "Extended" badge.
    */
   private readonly allRows = computed(() => {
     const rowsById = new Map(this.myRows().map((row) => [String(row.id), row]));
@@ -311,18 +277,16 @@ export class HistoryTabComponent {
   });
 
   /**
-   * Shown exactly when something in the current list is actionable, via the same predicates the
-   * cells use — managed-ness alone is weaker, since it also holds for decided-and-done requests.
-   * Keyed off the listed rows, not the viewer's privilege or the scope.
+   * Shown when a listed row is actionable, by the same predicates the cells use; managed-ness alone
+   * also holds for requests with nothing left to do.
    */
   protected readonly showActionsColumn = computed(() =>
     this.historyRows().some((row) => this.canRevoke(row) || this.canCancelApproval(row)),
   );
 
   /**
-   * Each scope answers for the slice it lists. All spans both sources, so borrowing either side's
-   * wording tells a reader with no history at all that they have raised nothing — which is only
-   * half of what the empty table means.
+   * Each scope words its own empty state; All spans both sources, so either side's wording would
+   * state only half of it.
    */
   protected readonly emptyMessageKey = computed(() => {
     switch (this.scope()) {
@@ -346,7 +310,7 @@ export class HistoryTabComponent {
   /** The VFO1 table, for reading the term the toolbar's `bit-search` registered with it. */
   private readonly tableRef = viewChild(BitTableV2Component<MyAccessRequestRow>);
 
-  /** The toolbar search's current term, trimmed and folded; empty when nothing is being searched. */
+  /** The toolbar search's term, which picks the no-results state over the empty one. */
   protected readonly searchTerm = computed(() =>
     ((this.tableRef()?.filterValues() as { search?: string } | undefined)?.search ?? "")
       .trim()
@@ -371,9 +335,8 @@ export class HistoryTabComponent {
   }
 
   /**
-   * The toolbar search, over the text the table actually shows: the item, its collection, who
-   * resolved it and what they said. A resolver named only by an i18n key is matched on its
-   * rendered wording rather than the key, so what a reader sees is what they can search for.
+   * Searches the text the table shows, so a resolver named by an i18n key matches on its rendered
+   * wording, not the key.
    */
   private matchesSearch(row: MyAccessRequestRow, values: { search?: string }): boolean {
     const term = (values.search ?? "").trim().toLowerCase();
@@ -388,24 +351,20 @@ export class HistoryTabComponent {
     ].some((field) => field != null && field.toLowerCase().includes(term));
   }
 
-  /**
-   * The toolbar's count label. These rows are access requests, not items, so the default
-   * "N items" would name them wrongly.
-   */
+  /** These rows are access requests, so the default "N items" count label would misname them. */
   protected readonly resultsLabel = (count: number) =>
     count === 1
       ? this.i18nService.t("oneFilterResult")
       : this.i18nService.t("filterResults", count);
 
   /**
-   * The Resolved column's sort, which is what actually orders the rendered table. Sorting on
-   * `resolvedAt` alone would send a row that was never decided to the end of the descending sort
-   * rather than to its submitted-at place. Ascending: `bitSortable` applies the direction itself.
+   * Falls back to submitted time, or an undecided row would sink to the end of the descending sort.
+   * Ascending, since `bitSortable` applies the direction itself.
    */
   protected readonly byResolvedOrSubmitted = (a: MyAccessRequestRow, b: MyAccessRequestRow) =>
     resolvedOrSubmittedMs(a) - resolvedOrSubmittedMs(b);
 
-  /** Five fills the space the table occupies without implying a row count the history may not have. */
+  /** Five rows fill the table's space without implying a real row count. */
   protected readonly skeletonRows = [0, 1, 2, 3, 4];
 
   constructor() {
@@ -434,17 +393,14 @@ export class HistoryTabComponent {
     return this.acting().has(String(row.id));
   }
 
-  /** A row on a collection the caller manages — the only rows they can act on. */
+  /** Only rows on collections the caller manages can be acted on. */
   private isManaged(row: MyAccessRequestRow): boolean {
     return this.managedIds().has(String(row.id));
   }
 
   /**
-   * A lease the caller granted and can still end: managed by them, produced a lease, and the
-   * server still holds it open ({@link isLiveManagedLease}).
-   *
-   * Membership differs from Active access's: that section also drops leases past their effective
-   * end, a test these rows can't make since `toRequestRow` leaves them no `extendedUntil`.
+   * A managed lease the server still reports active. Unlike Active access, it can't also test the
+   * effective end, since `toRequestRow` leaves these rows no `extendedUntil`.
    */
   protected canRevoke(row: MyAccessRequestRow): boolean {
     return this.isManaged(row) && isLiveManagedLease(row);
@@ -470,8 +426,7 @@ export class HistoryTabComponent {
       return;
     }
     await this.approverActions.withdrawApproval(
-      // The same expression the Item column renders, so the dialog and its row can never name the
-      // item differently.
+      // The same expression the Item column renders, so the dialog names the item as its row does.
       row.cipherName ?? row.cipherId,
       () => this.inbox.cancelApproval(row.id as AccessRequestId),
       rowBusy(this.acting, String(row.id)),

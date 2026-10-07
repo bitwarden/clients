@@ -142,6 +142,7 @@ describe("VaultComponent", () => {
 
     const cipherServiceMock = mock<CipherService>();
     cipherServiceMock.get.mockResolvedValue(mockCipher);
+    // The vault list reads the partials-inclusive stream; other consumers read `cipherListViews$`.
     cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(of([]));
     cipherServiceMock.cipherListViews$.mockReturnValue(of([]));
     cipherServiceMock.failedToDecryptCiphers$.mockReturnValue(of([]));
@@ -568,7 +569,6 @@ describe("VaultComponent", () => {
   });
 
   describe("deleteCipher", () => {
-    // PM-42916: a refused delete used to be logged and nothing more.
     let toastSpy: jest.SpyInstance;
     let translateSpy: jest.SpyInstance;
 

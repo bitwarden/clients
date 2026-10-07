@@ -1,9 +1,6 @@
 import { AccessConnector, AccessConnectorStatus, TargetSystem, TargetSystemId } from "./rotation";
 
-/**
- * The access connectors a target system can still be given: the active ones it does not already
- * hold.
- */
+/** The enabled access connectors a target system does not already hold. */
 export function assignableConnectors(
   targetSystemId: TargetSystemId,
   connectors: readonly AccessConnector[],
@@ -14,20 +11,14 @@ export function assignableConnectors(
 }
 
 /**
- * The access connectors that are in a position to be assigned to any target system at all: the
- * enabled ones, before any particular target's own assignments are taken off.
- *
- * {@link assignableConnectors} is this set minus one target's existing assignments, so an empty
- * result here is the stronger statement: the org has no connector to give.
+ * The access connectors any target system could be given. Empty here means the org has no
+ * connector to give, a stronger statement than an empty {@link assignableConnectors}.
  */
 export function eligibleConnectors(connectors: readonly AccessConnector[]): AccessConnector[] {
   return connectors.filter((connector) => connector.status === AccessConnectorStatus.Enabled);
 }
 
-/**
- * The mirror of {@link assignableConnectors}, read by the same two callers on the other tab: the
- * target systems a connector does not already hold.
- */
+/** The target systems a connector does not hold, the mirror of {@link assignableConnectors}. */
 export function assignableTargetSystems(
   assignedTargetSystemIds: readonly TargetSystemId[],
   eligible: readonly TargetSystem[],

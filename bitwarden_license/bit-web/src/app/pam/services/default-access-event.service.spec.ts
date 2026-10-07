@@ -68,8 +68,6 @@ describe("DefaultAccessEventService", () => {
   });
 
   it("keeps the two pushes on separate streams", () => {
-    // The approver push says a managed collection changed; no reason for requester-side
-    // surfaces to re-read, and vice versa.
     const ticks = watch();
     const inboxTicks = watchInbox();
 
@@ -101,7 +99,6 @@ describe("DefaultAccessEventService", () => {
   });
 
   it("takes one upstream subscription however many consumers there are", () => {
-    // share() — several surfaces watching must not multiply work on the push channel.
     let upstreamSubscribes = 0;
     const counted$ = new Subject<Emission>();
     const tracked = new DefaultAccessEventService(

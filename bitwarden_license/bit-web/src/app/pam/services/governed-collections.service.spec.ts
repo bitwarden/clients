@@ -48,7 +48,7 @@ describe("GovernedCollectionsService", () => {
   it("keeps serving the cached read across subscription churn within the TTL", async () => {
     accessRules.listAccessRules.mockResolvedValue(RULES);
 
-    // firstValueFrom completes its subscription each time — the scroll-churn case.
+    // firstValueFrom unsubscribes each time, like scroll churn.
     await firstValueFrom(service.rules$(ORG_ID));
     await firstValueFrom(service.rules$(ORG_ID));
 

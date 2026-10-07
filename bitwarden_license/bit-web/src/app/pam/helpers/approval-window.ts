@@ -2,18 +2,14 @@ import type { AccessRequestView } from "../abstractions/access-lease";
 
 import { requestedWindowSeconds } from "./requested-window";
 
-/** An i18n `{ key, value }` pair, leaving localization to the template. */
+/** An i18n `{ key, value }` pair, so localization stays in the template. */
 export type LabelValue = { key: string; value: number | null };
 
-/** The request's reason, trimmed, null if blank. */
 export function reasonText(request: Pick<AccessRequestView, "reason">): string | null {
   return request.reason?.trim() || null;
 }
 
-/**
- * A coarse i18n label for the requested lease duration ("1 hour", "4 hours", "30 min"), derived
- * from the requested window.
- */
+/** A coarse label for the requested duration, e.g. "4 hours" or "30 min". */
 export function durationLabel(
   request: Pick<AccessRequestView, "leaseNotBefore" | "leaseNotAfter">,
 ): LabelValue {
@@ -32,9 +28,8 @@ export function durationLabel(
 }
 
 /**
- * A relative phrase for when the window opens ("starting now", "today", "tomorrow", "in N
- * days"). `AccessRequestView` always resolves the window at submit, so "starting now" covers an
- * already-passed start (an immediate/on-demand request), not a missing bound.
+ * When the window opens, e.g. "tomorrow". The server always resolves the start, so "starting now"
+ * means it has passed rather than that it is missing.
  */
 export function relativeStart(
   request: Pick<AccessRequestView, "leaseNotBefore">,
@@ -56,13 +51,12 @@ export function relativeStart(
   return { key: "pamInboxStartInDays", value: diffDays };
 }
 
-/** Formatter for the exact-window tooltip, built once and reused. */
 const WINDOW_FORMAT = new Intl.DateTimeFormat(undefined, {
   dateStyle: "short",
   timeStyle: "short",
 });
 
-/** A fully-formatted "from – to" window for the tooltip. */
+/** The exact window, for the tooltip. */
 export function exactWindow(
   request: Pick<AccessRequestView, "leaseNotBefore" | "leaseNotAfter">,
 ): string {

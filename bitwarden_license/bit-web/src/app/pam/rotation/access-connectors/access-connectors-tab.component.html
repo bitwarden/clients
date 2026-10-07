@@ -376,7 +376,6 @@
       </ng-container>
       <ng-template body let-rows$>
         <tr bitRow *ngFor="let r of rows$ | async">
-          <!-- Name -->
           <td bitCell>
             <button
               type="button"
@@ -389,7 +388,6 @@
             </button>
           </td>
 
-          <!-- Status badge -->
           <td bitCell>
             @if (r.enabled) {
               <span bitBadge variant="success">{{ r.statusLabelKey | i18n }}</span>
@@ -398,7 +396,6 @@
             }
           </td>
 
-          <!-- Connection liveness -->
           <td bitCell>
             <span bitBadge [variant]="r.isConnected ? 'success' : 'secondary'">{{
               (r.isConnected ? "pamAccessConnectorConnected" : "pamAccessConnectorDisconnected")
@@ -406,7 +403,6 @@
             }}</span>
           </td>
 
-          <!-- Assignment count, expanding to the names -->
           <td bitCell>
             @if (r.assignmentNames.length === 0) {
               <span class="tw-text-muted">{{ "pamAccessConnectorAssignmentsNone" | i18n }}</span>
@@ -436,7 +432,6 @@
             }
           </td>
 
-          <!-- Row menu -->
           <td bitCell>
             <button
               type="button"

@@ -22,25 +22,13 @@ import { AccessConnectorStatus } from "../rotation";
 import type { RotationConfigDescription } from "../rotation-sdk.service";
 
 /**
- * Builders for the rotation views, shared across this module's specs.
- *
- * The SDK's views are branded on every id and complete on every field, so hand-rolling one in a
- * spec means a cast that hides the next field the SDK adds; these give a valid default and take
- * an override.
- *
- * The ids are fixed, well-formed UUIDs, not `"sys-1"` strings: `asUuid` validates, so a
- * placeholder throws at the boundary rather than failing the assertion it was meant to set up.
+ * Builders for the rotation views, so specs needn't hand-roll a cast that hides the next field the
+ * SDK adds. Each takes overrides on a valid default.
  */
 
 /**
- * A stable, well-formed UUID for a label.
- *
- * `asUuid` validates, so a spec can't use `"sys-1"` as an id; this hashes any label into a real
- * UUID that's the same on every run. A single hex digit maps to the all-same-digit UUID
- * (`id("1")` → `1111...`), used by the constants below.
- *
- * Distinct labels can collide onto the same UUID; where ids must differ, use two different
- * digits or the exported constants.
+ * A stable UUID for a label, since `asUuid` rejects ids like `"sys-1"`. A single hex digit maps to
+ * the all-same-digit UUID; longer labels hash to one digit and can collide.
  */
 export function id(label: string): string {
   const digit = /^[0-9a-f]$/.test(label)
@@ -72,7 +60,7 @@ export function passwordPolicy(overrides: Partial<PasswordPolicy> = {}): Passwor
   };
 }
 
-/** An active, automatic Entra target — the shape most tests want. */
+/** An active, automatic Entra target, the shape most tests want. */
 export function targetSystem(overrides: Partial<TargetSystem> = {}): TargetSystem {
   return {
     id: TARGET_SYSTEM_ID,
@@ -111,7 +99,7 @@ export function accessConnectorDetail(
   return { connector: accessConnector(), jobs: [], ...overrides };
 }
 
-/** An enabled, idle, automatic config — the one shape that offers a rotation. */
+/** An enabled, idle, automatic config, the one shape that offers a rotation. */
 export function rotationConfig(overrides: Partial<RotationConfig> = {}): RotationConfig {
   return {
     id: ROTATION_CONFIG_ID,
@@ -198,27 +186,22 @@ export function rotationConfigDescription(
   };
 }
 
-/** A branded {@link TargetSystemId} from a label. */
 export function sysId(label: string): TargetSystemId {
   return asUuid<TargetSystemId>(id(label));
 }
 
-/** A branded {@link AccessConnectorId} from a label. */
 export function connectorId(label: string): AccessConnectorId {
   return asUuid<AccessConnectorId>(id(label));
 }
 
-/** A branded {@link RotationConfigId} from a label. */
 export function configId(label: string): RotationConfigId {
   return asUuid<RotationConfigId>(id(label));
 }
 
-/** A branded {@link RotationJobId} from a label. */
 export function jobId(label: string): RotationJobId {
   return asUuid<RotationJobId>(id(label));
 }
 
-/** A branded {@link RotationAttemptId} from a label. */
 export function attemptId(label: string): RotationAttemptId {
   return asUuid<RotationAttemptId>(id(label));
 }

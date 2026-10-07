@@ -9,7 +9,7 @@ import { AccessStateBadgeComponent } from "./access-state-badge.component";
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
 
-/** `active` is the only state whose recipe depends on the clock, so `expiresAt` is built at render time, not module load. */
+/** Built at render time, not module load, since the `active` recipe depends on the clock. */
 function expiringIn(ms: number): AccessBadgeState {
   return { kind: "active", expiresAt: new Date(Date.now() + ms) };
 }
@@ -19,7 +19,7 @@ export default {
   component: AccessStateBadgeComponent,
   decorators: [
     moduleMetadata({
-      // Imported (not just declared as `component`) so the gallery story can render it from a template.
+      // Imported as well as set as `component` so the AllStates template can render it.
       imports: [AccessStateBadgeComponent],
       providers: [
         {
@@ -45,73 +45,60 @@ export default {
 
 type Story = StoryObj<AccessStateBadgeComponent>;
 
-/** The resting state: the item is governed by an access rule but nothing has been requested. */
+/** Governed by an access rule, with nothing requested. */
 export const Privileged: Story = {
   args: { state: { kind: "privileged" } },
 };
 
-/** A request is in with an approver and has not been decided. */
 export const Pending: Story = {
   args: { state: { kind: "pending" } },
 };
 
-/** Approved but not yet activated — the requester still has to start the lease. */
+/** Approved, but the requester has not started the lease yet. */
 export const Ready: Story = {
   args: { state: { kind: "ready" } },
 };
 
-/** A running lease with comfortable time left; the formatted value only changes once a minute, stable for a visual-regression capture. */
+/** Over an hour left, so the label changes once a minute and stays stable for snapshots. */
 export const Active: Story = {
   render: () => ({ props: { state: expiringIn(2 * HOUR + 5 * MINUTE) } }),
 };
 
-/**
- * At or below five minutes remaining the badge escalates from accent to danger. The threshold is a
- * function of the live countdown, not a separate state — the caller passes the same `active`.
- */
+/** Five minutes or less left escalates to danger, from the same `active` state. */
 export const EndingSoon: Story = {
   render: () => ({ props: { state: expiringIn(4 * MINUTE) } }),
 };
 
 /**
- * Under a minute the countdown switches to seconds, so this label really does change on every tick.
- * Snapshots are off for that reason; {@link EndingSoon} covers the same recipe deterministically.
+ * Under a minute the label counts seconds and changes every tick, so snapshots are off;
+ * {@link EndingSoon} covers the same recipe.
  */
 export const EndingSoonSeconds: Story = {
   render: () => ({ props: { state: expiringIn(45 * 1000) } }),
   parameters: { chromatic: { disableSnapshot: true } },
 };
 
-/**
- * A finished lease. Not currently reachable through `cipherAccessBadgeState` — the SDK has no
- * field to derive it from — but part of the badge model, so the recipe is pinned here.
- */
+/** Part of the badge model, though `cipherAccessBadgeState` never produces it. */
 export const Expired: Story = {
   args: { state: { kind: "expired" } },
 };
 
-/**
- * The item is held by another user. Like {@link Expired}, modelled but not yet produced by
- * `cipherAccessBadgeState`; it shares the muted lock recipe and differs only in copy.
- */
+/** Held by another user. Like {@link Expired}, never produced by `cipherAccessBadgeState`. */
 export const Unavailable: Story = {
   args: { state: { kind: "unavailable" } },
 };
 
-/**
- * An `active` lease whose `expiresAt` has already passed locally, before any refetch. The component
- * falls back to the resting "Access ended" recipe rather than rendering a negative countdown.
- */
+/** An `active` state past its `expiresAt` renders "Access ended", not a negative countdown. */
 export const LapsedLease: Story = {
   render: () => ({ props: { state: expiringIn(-1 * MINUTE) } }),
 };
 
-/** A `null` state — an ungated item — renders nothing at all rather than an empty pill. */
+/** A `null` state renders nothing rather than an empty pill. */
 export const NotGated: Story = {
   args: { state: null },
 };
 
-/** Every recipe side by side — the view to check when changing a colour, icon, or the five-minute escalation. */
+/** Every recipe side by side, for checking a colour, icon or escalation change. */
 export const AllStates: Story = {
   render: () => ({
     props: {

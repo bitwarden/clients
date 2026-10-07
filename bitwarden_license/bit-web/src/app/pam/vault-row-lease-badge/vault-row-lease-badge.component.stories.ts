@@ -15,13 +15,11 @@ import { AccessRequestSdkService } from "../abstractions/access-request-sdk.serv
 
 import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge.component";
 
-/** The SDK spells the resting states as bare strings and the active one as a tagged variant. */
 type BadgeState = string | { active: { expiresAt: string } };
 
-/** The organization every cipher fixture below belongs to, absent a story saying otherwise. */
 const PAM_ORGANIZATION_ID = "org-1";
 
-/** A cipher the SDK has marked as gated. Only `partial` and `id` decide whether a row fetches. */
+/** Only `partial` and `id` decide whether a row fetches. */
 function gatedCipher(): CipherView {
   const cipher = new CipherView();
   cipher.id = "cipher-1";
@@ -30,7 +28,6 @@ function gatedCipher(): CipherView {
   return cipher;
 }
 
-/** An ordinary vault row — not gated, so the badge never calls the SDK at all. */
 function ungatedCipher(): CipherView {
   const cipher = new CipherView();
   cipher.id = "cipher-2";
@@ -40,12 +37,9 @@ function ungatedCipher(): CipherView {
 }
 
 /**
- * `state` is a factory, not a value, so an active lease's `expiresAt` is relative to render
- * time, not module load — a stale one would resolve straight to "Access ended".
- *
- * `organizations` stands in for the account's PAM-eligible organizations, narrowing the em dash
- * placeholder to rows whose organization can carry access rules; defaults to the one
- * organization every fixture belongs to.
+ * `state` is a factory so an active lease's `expiresAt` is relative to render time; one built at
+ * module load could already read "Access ended". `organizations` decides which rows may draw the
+ * em dash.
  */
 function pam(
   options: {
@@ -101,16 +95,13 @@ export default {
 
 type Story = StoryObj<VaultRowLeaseBadgeComponent>;
 
-/**
- * A collection row reads the server-derived `hasEnabledAccessRule` straight off the collection, so
- * the resting "Privileged" pill costs no request per row and cannot go stale against the list.
- */
+/** Read straight off `hasEnabledAccessRule`, so the pill costs no request per row. */
 export const CollectionRow: Story = {
   args: { collection: { hasEnabledAccessRule: true } },
   decorators: [pam()],
 };
 
-/** An ungoverned collection — and the vault's pseudo-collections, which carry no flag — show nothing. */
+/** Shows nothing, as do the vault's pseudo-collections, which carry no flag. */
 export const CollectionRowUngoverned: Story = {
   args: { collection: { hasEnabledAccessRule: false } },
   decorators: [pam()],
@@ -122,13 +113,11 @@ export const CipherRowPrivileged: Story = {
   decorators: [pam({ state: () => "privileged" })],
 };
 
-/** A request submitted and awaiting an approver. */
 export const CipherRowPending: Story = {
   args: { cipher: gatedCipher() },
   decorators: [pam({ state: () => "pending" })],
 };
 
-/** A running lease. The countdown ticks inside the shared badge; the row itself does not poll. */
 export const CipherRowActiveLease: Story = {
   args: { cipher: gatedCipher() },
   decorators: [
@@ -140,16 +129,13 @@ export const CipherRowActiveLease: Story = {
   ],
 };
 
-/** An ordinary row: not gated, so no badge and no access-state request. */
+/** Not gated, so no access-state request; the em dash marks it as checked. */
 export const UngatedCipher: Story = {
   args: { cipher: ungatedCipher() },
   decorators: [pam({ state: () => "privileged" })],
 };
 
-/**
- * An ungated row whose organization cannot have access rules. The placeholder narrows to
- * `pamOrganizationIds`, so this row must render nothing, not the em dash `UngatedCipher` shows.
- */
+/** Renders nothing, not the em dash, since the row's organization does not use PAM. */
 export const UngatedCipherInNonPamOrganization: Story = {
   args: { cipher: ungatedCipher() },
   decorators: [
@@ -163,7 +149,7 @@ export const FeatureFlagOff: Story = {
   decorators: [pam({ enabled: false, state: () => "privileged" })],
 };
 
-/** A failed access-state read resolves to no badge, since it's decoration on someone else's list and should fail quiet. */
+/** A failed read renders nothing, since the badge is decoration and should fail quietly. */
 export const ReadFails: Story = {
   args: { cipher: gatedCipher() },
   decorators: [pam({ fails: true })],

@@ -3,7 +3,6 @@ import {
   activateAccessErrorMessageKey,
 } from "./activate-access-error";
 
-/** The SDK's activation error: a `name`-tagged Error carrying a `variant`. */
 const activationError = (variant: string, message: string) =>
   Object.assign(new Error(message), { name: "AccessRequestError", variant });
 

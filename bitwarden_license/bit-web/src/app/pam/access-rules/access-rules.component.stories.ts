@@ -118,8 +118,7 @@ export default {
         { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },
         { provide: ToastService, useValue: { showToast: () => {} } },
         { provide: AccessRuleSdkService, useValue: pamApi(() => Promise.resolve(RULES)) },
-        // `AccessRulesService` is constructed with the component and injects this; `invalidate`
-        // is all the page ever reaches.
+        // Injected by `AccessRulesService`, which only ever calls `invalidate` here.
         { provide: GovernedCollectionsService, useValue: { invalidate: () => {} } },
       ],
     }),
@@ -128,11 +127,7 @@ export default {
 
 type Story = StoryObj<AccessRulesComponent>;
 
-/**
- * The populated table: a mix of active/inactive rules, conditions, and duration caps. The
- * header's "Create access rule" button opens a menu offering a blank Custom rule and the
- * three starter templates.
- */
+/** A mix of active and inactive rules, conditions and duration caps. */
 export const Default: Story = {
   parameters: {
     chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) },
