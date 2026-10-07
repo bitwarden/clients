@@ -212,6 +212,11 @@ export declare namespace autofill {
     completeLockStatus(clientId: number, sequenceNumber: number, response: LockStatusResponse): number
     completeWindowHandleQuery(clientId: number, sequenceNumber: number, response: WindowHandleQueryResponse): number
     completeError(clientId: number, sequenceNumber: number, error: string): number
+    /**
+     * Fails a registration request because the vault holds a credential
+     * the relying party asked to exclude.
+     */
+    completeExcludedCredentialMatched(clientId: number, sequenceNumber: number): number
   }
   export interface AutofillIpcCallbacks {
     /**

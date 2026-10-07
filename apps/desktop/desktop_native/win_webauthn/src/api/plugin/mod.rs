@@ -14,9 +14,9 @@ use std::{
 
 pub use types::*;
 use windows::{
-    core::{GUID, PCWSTR},
+    core::{GUID, HRESULT, PCWSTR},
     Win32::{
-        Foundation::{LPARAM, WPARAM},
+        Foundation::{LPARAM, NTE_EXISTS, WPARAM},
         Security::Cryptography::BCRYPT_KEY_BLOB,
         System::Com::CLSIDFromString,
         UI::WindowsAndMessaging::{DispatchMessageA, GetMessageA, PostThreadMessageA, WM_QUIT},
@@ -72,6 +72,8 @@ pub trait PluginAuthenticator {
     /// Process a request to create a new credential.
     ///
     /// Returns a [CTAP authenticatorMakeCredential response structure](https://fidoalliance.org/specs/fido-v2.2-ps-20250714/fido-client-to-authenticator-protocol-v2.2-ps-20250714.html#authenticatormakecredential-response-structure).
+    ///
+    /// Return a [PluginError] to report a specific outcome to Windows.
     fn make_credential(
         &self,
         request: PluginMakeCredentialRequest,
@@ -93,6 +95,40 @@ pub trait PluginAuthenticator {
     /// Retrieve lock status.
     fn lock_status(&self) -> Result<PluginLockStatus, Box<dyn Error>>;
 }
+
+/// Errors a [PluginAuthenticator] can return to report a specific outcome to
+/// Windows.
+#[derive(Debug)]
+pub enum PluginError {
+    /// The authenticator holds a credential in the request's exclude list.
+    ///
+    /// Reported as `NTE_EXISTS`. Windows currently treats this like any other
+    /// plugin authenticator failure, so the relying party still sees an
+    /// unknown error. We report it anyway in case a future Windows update
+    /// handles it differently, e.g. mapping it to `InvalidStateError` as
+    /// `webauthn.h` does for platform errors.
+    ExcludedCredentialMatched,
+}
+
+impl PluginError {
+    pub(crate) fn hresult(&self) -> HRESULT {
+        match self {
+            Self::ExcludedCredentialMatched => NTE_EXISTS,
+        }
+    }
+}
+
+impl Display for PluginError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::ExcludedCredentialMatched => {
+                write!(f, "The authenticator holds an excluded credential")
+            }
+        }
+    }
+}
+
+impl Error for PluginError {}
 
 /// Public key for verifying a signature over an operation request or user verification response
 /// buffer retrieved via [webauthn_plugin_get_operation_signing_public_key] or

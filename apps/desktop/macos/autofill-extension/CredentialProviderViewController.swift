@@ -448,7 +448,12 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                         self.onFinish()
                         logger.error("[autofill-extension] OnError called, cancelling the request \(error)")
                         self.timeoutTimer.cancel()
-                        ctx.cancelRequest(withError: error)
+                        // We only pass excluded credentials on macOS 15+, the same release that added this error code.
+                        if case .ExcludedCredentialMatched = error, #available(macOSApplicationExtension 15.0, *) {
+                            ctx.cancelRequest(withError: ASExtensionError(.matchedExcludedCredential))
+                        } else {
+                            ctx.cancelRequest(withError: error)
+                        }
                     }
                 }
 

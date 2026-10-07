@@ -46,6 +46,7 @@ type PasskeyAssertionWithoutUserInterfaceRequest =
 type NativeStatus = autofill.NativeStatus;
 export type PasskeyProviderState = passkey_authenticator.PasskeyProviderState;
 
+import { AutofillIpcErrorKind } from "../models/autofill-ipc-channels";
 import {
   AutofillOpenSettingsCommand,
   AutofillRequestEnableCommand,
@@ -56,9 +57,12 @@ import {
   AutofillPasswordCredential,
   AutofillSyncCommand,
 } from "../models/autofill-sync.command";
-import { IpcListenerBindFn } from "../models/ipc-handler.type";
+import { CompletionCallback, IpcListenerBindFn } from "../models/ipc-handler.type";
 
-import type { NativeWindowObject } from "./desktop-fido2-user-interface.service";
+import {
+  ExcludedCredentialMatched,
+  type NativeWindowObject,
+} from "./desktop-fido2-user-interface.service";
 
 type NativeCredentialSyncFeatureFlag =
   typeof FeatureFlag.MacOsNativeCredentialSync | typeof FeatureFlag.WindowsNativeCredentialSync;
@@ -472,10 +476,7 @@ export class DesktopAutofillService implements OnDestroy {
       request: Request,
       /** Callback to return the response back to Autofill main process. May be
        * empty for requests that do not expect a response. */
-      completeCallback?: {
-        (error: null, response: Response): void;
-        (error: Error, response: null): void;
-      },
+      completeCallback?: CompletionCallback<Response>,
     ) => {
       this.logService.debug("[DesktopAutofillService]", `${handlerName}: Received message`, {
         clientId,
@@ -516,7 +517,9 @@ export class DesktopAutofillService implements OnDestroy {
           error,
         );
         if (completeCallback) {
-          if (error instanceof Error) {
+          if (error instanceof ExcludedCredentialMatched) {
+            completeCallback(error, null, AutofillIpcErrorKind.ExcludedCredentialMatched);
+          } else if (error instanceof Error) {
             completeCallback(error, null);
           } else if (typeof error === "string") {
             completeCallback(new Error(error), null);

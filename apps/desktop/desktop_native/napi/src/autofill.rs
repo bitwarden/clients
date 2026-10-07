@@ -300,6 +300,21 @@ pub mod autofill {
             self.send(client_id, serde_json::to_string(&message).unwrap())
         }
 
+        /// Fails a registration request because the vault holds a credential
+        /// the relying party asked to exclude.
+        #[napi]
+        pub fn complete_excluded_credential_matched(
+            &self,
+            client_id: u32,
+            sequence_number: u32,
+        ) -> napi::Result<u32> {
+            let message: PasskeyMessage<()> = PasskeyMessage {
+                sequence_number,
+                value: Err(BitwardenError::ExcludedCredentialMatched),
+            };
+            self.send(client_id, serde_json::to_string(&message).unwrap())
+        }
+
         // TODO: Add a way to send a message to a specific client?
         fn send(&self, _client_id: u32, message: String) -> napi::Result<u32> {
             self.server
