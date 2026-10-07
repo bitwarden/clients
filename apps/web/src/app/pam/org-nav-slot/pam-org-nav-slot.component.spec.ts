@@ -92,6 +92,12 @@ describe("PamOrgNavSlotComponent", () => {
     expect(navGroup()).toBeNull();
   });
 
+  it("renders nothing for an org without PAM, even when the member can read event logs", () => {
+    fixture.componentRef.setInput("organization", { ...org(false, true), usePam: false });
+    fixture.detectChanges();
+    expect(navGroup()).toBeNull();
+  });
+
   it("generates no box of its own, so rendering nothing takes up no space", () => {
     pamEnabled$.next(false);
     fixture.detectChanges();
