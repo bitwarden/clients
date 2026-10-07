@@ -2100,6 +2100,18 @@
   "languageDesc": {
     "message": "Change the language used by the application. Restart is required."
   },
+  "passkeyProvider": {
+    "message": "Passkey provider"
+  },
+  "passkeyProviderDesc": {
+    "message": "Use Bitwarden to save and sign in with passkeys in other apps."
+  },
+  "turnedOn": {
+    "message": "On"
+  },
+  "turnedOff": {
+    "message": "Off"
+  },
   "theme": {
     "message": "Theme"
   },
