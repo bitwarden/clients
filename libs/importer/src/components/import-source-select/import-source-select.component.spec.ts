@@ -40,7 +40,6 @@ jest.mock("../../models", () => {
       // Squished (no space) on purpose: displayNameFor's real value ("Zoho Vault", with a
       // space) diverges from this raw name — for the search-matches-display-name test below.
       buildOption({ id: "zohovaultcsv", name: "ZohoVault" }),
-      buildOption({ id: "keepassxcsv", name: "KeePassX (csv)" }),
       buildOption({ id: "keepercsv", name: "Keeper (csv)" }),
       buildOption({ id: "keeperjson", name: "Keeper (json)" }),
       // Real id with a real picker vendor-metadata entry that has no icon — for the
@@ -139,7 +138,7 @@ describe("ImportSourceSelectComponent", () => {
     const labels = cardLabels();
     expect(labels).toEqual(expect.arrayContaining(["1Password", "LastPass"]));
     expect(labels).not.toContain("Zoho Vault");
-    expect(labels).not.toContain("KeePassX");
+    expect(labels).not.toContain("Password Dragon");
   });
 
   it("shows a clean vendor display name, not ImportOption.name's format suffix", () => {
@@ -171,7 +170,7 @@ describe("ImportSourceSelectComponent", () => {
     showAllButton.nativeElement.click();
     fixture.detectChanges();
 
-    expect(cardLabels()).toEqual(expect.arrayContaining(["Zoho Vault", "KeePassX"]));
+    expect(cardLabels()).toEqual(expect.arrayContaining(["Zoho Vault", "Password Dragon"]));
   });
 
   it("relabels Show all to Show less once the disclosure is open, and back again", () => {

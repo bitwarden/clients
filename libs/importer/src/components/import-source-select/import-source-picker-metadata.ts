@@ -81,7 +81,6 @@ const PICKER_VENDOR_ICONS: Partial<Record<ImportType, PickerVendorIcon>> = {
   dashlanecsv: { icon: ImportDashlaneIcon, darkIcon: ImportDashlaneDarkIcon },
   firefoxcsv: { icon: ImportFirefoxIcon },
   keepass2xml: { icon: ImportKeepassIcon },
-  keepassxcsv: { icon: ImportKeepassIcon },
   keeper: { icon: ImportKeeperIcon },
   lastpasscsv: { icon: ImportLastpassIcon },
   safaricsv: { icon: ImportSafariIcon },

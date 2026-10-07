@@ -21,6 +21,8 @@ import {
 } from "@angular/forms";
 import { catchError, defer, firstValueFrom, map, of, startWith, switchMap } from "rxjs";
 
+import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
+import { BitSvg } from "@bitwarden/assets/svg";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -29,9 +31,11 @@ import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import {
   AsyncActionsModule,
+  BadgeModule,
   ButtonModule,
   CalloutModule,
   CardContentComponent,
@@ -46,6 +50,7 @@ import {
   SegmentedCardComponent,
   SelectModule,
   SpinnerComponent,
+  SvgModule,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -75,7 +80,12 @@ import {
   ImportSkippedItemsDialogComponent,
   ImportSuccessDialogComponent,
 } from "../dialog";
-import { pickerDisplayNameFor, pickerFormatsFor } from "../import-source-select/picker-vendor-data";
+import { pickerIconFor } from "../import-source-select/import-source-picker-metadata";
+import {
+  pickerAlwaysPromptsFormat,
+  pickerDisplayNameFor,
+  pickerFormatsFor,
+} from "../import-source-select/picker-vendor-data";
 import { KeeperDirectImportService } from "../keeper/keeper-direct-import.service";
 import { keeperImportGate, shouldSubmitAfterDialog } from "../keeper/keeper-import-gate";
 import { KEEPER_REGION_OPTIONS } from "../keeper/keeper-region-options";
@@ -127,6 +137,7 @@ const requiredTrimmedValidator: ValidatorFn = (control: AbstractControl<string>)
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AsyncActionsModule,
+    BadgeModule,
     ButtonModule,
     CalloutModule,
     CardContentComponent,
@@ -142,6 +153,7 @@ const requiredTrimmedValidator: ValidatorFn = (control: AbstractControl<string>)
     SegmentedCardComponent,
     SelectModule,
     SpinnerComponent,
+    SvgModule,
     TypographyModule,
   ],
 })
@@ -161,6 +173,7 @@ export class ImportControlsComponent {
   private readonly injector = inject(Injector);
   private readonly importService = inject(ImportServiceAbstraction);
   private readonly importMetadataService = inject(ImportMetadataServiceAbstraction);
+  private readonly themingService = inject(AbstractThemingService);
 
   /** The vendor chosen in step 1 — the picker's canonical `ImportType` for that vendor's card. */
   readonly importType = input.required<ImportType>();
@@ -183,6 +196,18 @@ export class ImportControlsComponent {
 
   /** The vendor name to interpolate. */
   protected readonly vendorName = computed(() => pickerDisplayNameFor(this.importType()));
+
+  /** A handful of vendor marks are a single fixed color and need a swapped variant against a dark
+   *  background — see `PickerVendorIcon.darkIcon`. Mirrors import-source-select.component.ts. */
+  private readonly isDarkTheme = toSignal(
+    this.themingService.theme$.pipe(map((theme) => theme === ThemeTypes.Dark)),
+    { initialValue: false },
+  );
+
+  /** The vendor's logo on the direct-importer login screen. Absent for vendors with no icon. */
+  protected readonly vendorIcon = computed<BitSvg | undefined>(() =>
+    pickerIconFor(this.importType(), this.isDarkTheme()),
+  );
 
   private readonly formatOptions = computed<ImportOption[]>(() =>
     pickerFormatsFor(this.importType())
@@ -338,11 +363,11 @@ export class ImportControlsComponent {
 
   protected readonly keeperRegions = KEEPER_REGION_OPTIONS;
 
-  /** Shows `invalidMasterPassword` instead of the generic required message, matching legacy. */
+  /** Shows `kdbxPasswordRequired` instead of the generic required message, per design review. */
   private readonly masterPasswordRequiredValidator: ValidatorFn = (control) =>
     (control.value ?? "").length > 0
       ? null
-      : { invalidMasterPassword: { message: this.i18nService.t("invalidMasterPassword") } };
+      : { kdbxPasswordRequired: { message: this.i18nService.t("kdbxPasswordRequired") } };
 
   protected readonly formGroup = this.formBuilder.group({
     keeperEmail: [{ value: "", disabled: true }, [Validators.required, Validators.email]],
@@ -350,7 +375,7 @@ export class ImportControlsComponent {
     lastPassEmail: [{ value: "", disabled: true }, [Validators.required, Validators.email]],
     includeSharedFolders: [false],
     // Validators.required listed second: compose() preserves order, so the custom validator's
-    // "invalid master password" message wins over the generic one.
+    // "password is required" message wins over the generic one.
     kdbxPassword: [
       { value: "", disabled: true },
       [this.masterPasswordRequiredValidator, Validators.required],
@@ -363,8 +388,8 @@ export class ImportControlsComponent {
     file: [null as File | null],
     fileContents: this.formBuilder.nonNullable.control(""),
 
-    // Only ever active when the resolved candidate set for the current file/paste content has
-    // more than one entry — today, only 1Password's Windows vs. Mac legacy CSV export.
+    // Active on a genuine extension collision (1Password's Windows vs. Mac csv) or for a vendor
+    // that always prompts regardless of collision (KeePass, 1Password) — see showFormatChoice().
     formatChoice: [{ value: null as ImportType | null, disabled: true }, Validators.required],
   });
 
@@ -397,7 +422,9 @@ export class ImportControlsComponent {
       return narrowed.length > 0 ? narrowed : candidates;
     }
 
-    const extension = this.chosenFileName()?.split(".").pop()?.toLowerCase();
+    // chosenFile(), not chosenFileName(): a same-named re-pick is a new File object but an
+    // unchanged name string, which chosenFileName()'s dedup would never mark dirty.
+    const extension = this.chosenFile()?.name.split(".").pop()?.toLowerCase();
     return extension
       ? this.formatOptions().filter((option) => option.acceptedFileTypes.includes(extension))
       : [];
@@ -405,9 +432,67 @@ export class ImportControlsComponent {
 
   protected readonly needsFormatDisambiguation = computed(() => this.candidateFormats().length > 1);
 
+  protected readonly alwaysPromptFormat = computed(() =>
+    pickerAlwaysPromptsFormat(this.importType()),
+  );
+
+  /** Whether the format picker renders: a genuine extension collision, or a vendor that always
+   *  prompts regardless (KeePass's formats never collide; 1Password's wincsv/maccsv do, but
+   *  `alwaysPromptFormat` also shows the control before a file narrows it down). */
+  protected readonly showFormatChoice = computed(
+    () => this.needsFormatDisambiguation() || this.alwaysPromptFormat(),
+  );
+
+  /** Options to list: the real candidates once any exist, else every sibling format — so an
+   *  always-prompt vendor's picker isn't empty before a file/paste narrows it down. */
+  protected readonly formatChoiceOptions = computed<ImportOption[]>(() => {
+    const candidates = this.candidateFormats();
+    if (candidates.length > 0) {
+      return candidates;
+    }
+    // Pre-content fallback: don't list a format the accepted-formats hint above it excludes.
+    const options = this.formatOptions();
+    return this.method() === "paste"
+      ? options.filter((option) => option.pasteFormats.length > 0)
+      : options;
+  });
+
+  /** Every extension this candidate accepts, joined (".1pux, .json") — or the full descriptive
+   *  name if any of them collides with another listed option's (e.g. Windows vs. Mac csv). Reads
+   *  pasteFormats in paste mode; there's no file extension to show there. */
+  protected formatChoiceLabel(candidate: ImportOption): string {
+    const extensionsFor = (option: ImportOption) =>
+      this.method() === "paste" ? option.pasteFormats : option.acceptedFileTypes;
+    const extensions = extensionsFor(candidate);
+    if (extensions.length === 0) {
+      return candidate.name;
+    }
+    const options = this.formatChoiceOptions();
+    const sharesAnyExtension = extensions.some((extension) =>
+      options.some(
+        (option) => option.id !== candidate.id && extensionsFor(option).includes(extension),
+      ),
+    );
+    return sharesAnyExtension
+      ? candidate.name
+      : extensions.map((extension) => `.${extension}`).join(", ");
+  }
+
   private readonly formatChoice = toSignal(this.formGroup.controls.formatChoice.valueChanges, {
     initialValue: this.formGroup.controls.formatChoice.value,
   });
+
+  /** Whether the user has actually chosen a file or typed/pasted content yet, independent of
+   *  whether it resolved to anything — distinguishes "nothing selected yet" from "selected
+   *  something that matches zero formats" for resolvedFormat()'s 0-candidate case below. */
+  private readonly hasAttemptedContent = computed(() =>
+    this.method() === "paste" ? this.pastedContent().trim().length > 0 : this.chosenFile() != null,
+  );
+
+  /** Whether the format control should be shown/enabled at all. Written by the effect below (not
+   *  a computed(): the template must use the exact same value the effect acted on, not its own
+   *  independently-derived copy, or the control can render visible-but-dead). */
+  protected readonly formatChoiceActive = signal(false);
 
   protected readonly resolvedFormat = computed<ImportType | undefined>(() => {
     const candidates = this.candidateFormats();
@@ -415,6 +500,11 @@ export class ImportControlsComponent {
       return candidates[0].id as ImportType;
     }
     if (candidates.length > 1) {
+      return this.formatChoice() ?? undefined;
+    }
+    // 0 candidates: only an always-prompt vendor's own pre-file dropdown pick counts, and only
+    // before anything's been attempted — once something's chosen, 0 candidates means unsupported.
+    if (this.alwaysPromptFormat() && !this.hasAttemptedContent()) {
       return this.formatChoice() ?? undefined;
     }
     return undefined;
@@ -446,12 +536,41 @@ export class ImportControlsComponent {
       this.formGroup.controls.fileContents.markAsUntouched();
     });
 
-    this.formGroup.controls.file.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
-      this.formGroup.controls.formatChoice.reset(null);
-      // reset() also clears touched, so a new kdbx file doesn't show the old one's stale error.
-      this.formGroup.controls.kdbxPassword.reset("");
-      this.formGroup.controls.keyFile.setValue(null);
-      this.showKeyFile.set(false);
+    // previousFile: null means the first-ever pick (preserve a still-valid pre-file answer);
+    // non-null means replacing a file (always re-opens disambiguation, even if still valid).
+    let previousFile: File | null = null;
+    this.formGroup.controls.file.valueChanges.pipe(takeUntilDestroyed()).subscribe((file) => {
+      const current = this.formGroup.controls.formatChoice.value;
+      const keepCurrent =
+        previousFile == null && this.candidateFormats().some((option) => option.id === current);
+      if (!keepCurrent) {
+        this.formGroup.controls.formatChoice.reset(null);
+      }
+      if (previousFile != null && previousFile !== file) {
+        // reset() also clears touched, so a new kdbx file doesn't show the old one's stale error.
+        // Identity check, not just non-null: file.valueChanges can re-emit the same File object
+        // (e.g. updateValueAndValidity() on a method change), which isn't a real replacement.
+        this.formGroup.controls.kdbxPassword.reset("");
+        this.formGroup.controls.keyFile.setValue(null);
+        this.showKeyFile.set(false);
+      }
+      previousFile = file;
+    });
+
+    // Resets only when the candidate *set* changes (not on every ambiguous keystroke or an
+    // identical re-paste). Unlike the file subscriber below, never preserves a pre-content pick:
+    // 1Password's paste-mode set is always either empty or the same full 4 items, so a cosmetic
+    // default would always look "still valid" and silently answer the disambiguation it's meant
+    // to stay unforced against.
+    let previousCandidateIds: string | null = null;
+    this.formGroup.controls.fileContents.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      const currentCandidateIds = this.candidateFormats()
+        .map((option) => option.id)
+        .join(",");
+      if (currentCandidateIds !== previousCandidateIds) {
+        this.formGroup.controls.formatChoice.reset(null);
+      }
+      previousCandidateIds = currentCandidateIds;
     });
 
     effect(() => {
@@ -504,16 +623,6 @@ export class ImportControlsComponent {
     });
 
     effect(() => {
-      // Gated on primaryMode too: needsFormatDisambiguation() alone can stay true after
-      // switching away from manual mode, since file/fileContents aren't cleared by that toggle.
-      const active = this.primaryMode() === "manual" && this.needsFormatDisambiguation();
-      setEnabled(this.formGroup.controls.formatChoice, active);
-      if (!active) {
-        this.formGroup.controls.formatChoice.reset(null);
-      }
-    });
-
-    effect(() => {
       const active = this.needsKdbxCredentials();
       setEnabled(this.formGroup.controls.kdbxPassword, active);
       setEnabled(this.formGroup.controls.keyFile, active && this.showKeyFile());
@@ -549,6 +658,31 @@ export class ImportControlsComponent {
         keyFile: null,
         formatChoice: null,
       });
+    });
+
+    // Declared last so a live importType() switch always seeds against the vendor-reset effect's
+    // post-reset state, not the other way around (effects run in creation order within a flush).
+    effect(() => {
+      const genuinelyUnsupported =
+        this.candidateFormats().length === 0 && this.hasAttemptedContent();
+      const active =
+        this.primaryMode() === "manual" && this.showFormatChoice() && !genuinelyUnsupported;
+      this.formatChoiceActive.set(active);
+      setEnabled(this.formGroup.controls.formatChoice, active);
+      if (!active) {
+        this.formGroup.controls.formatChoice.reset(null);
+        return;
+      }
+      // Outside genuine disambiguation: with one candidate, resolvedFormat() ignores this value
+      // anyway; with zero (always-prompt, nothing chosen yet), resolvedFormat() does read it.
+      if (this.needsFormatDisambiguation()) {
+        return;
+      }
+      const options = this.formatChoiceOptions();
+      const current = this.formGroup.controls.formatChoice.value;
+      if (!options.some((option) => option.id === current)) {
+        this.formGroup.controls.formatChoice.setValue((options[0]?.id as ImportType) ?? null);
+      }
     });
   }
   protected onBack(): void {

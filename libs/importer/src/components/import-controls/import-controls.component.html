@@ -7,57 +7,69 @@
         </div>
       } @else if (primaryMode() === "direct") {
         @if (directStep() === "intro") {
-          <h2 bitTypography="h2" noMargin>
+          <h2 bitTypography="h2" noMargin class="tw-mb-1">
             {{ "importDataDirectTitle" | i18n }}
-            <span class="tw-ml-2 tw-align-middle tw-text-fg-success tw-text-xs">{{
-              "fastest" | i18n
-            }}</span>
+            <span
+              bitBadge
+              variant="success"
+              size="small"
+              [startIcon]="null"
+              class="tw-ml-2 tw-align-middle"
+              >{{ "fastest" | i18n }}</span
+            >
           </h2>
           <p bitTypography="body1" class="tw-text-fg-body-subtle">
-            {{ "importDataDirectSubtitle" | i18n: vendorName() }}
+            {{ "importDataDirectSubtitlePrefix" | i18n }}{{ " "
+            }}<span class="tw-font-semibold">{{ vendorName() }}</span
+            >{{ " " }}{{ "importDataDirectSubtitleSuffix" | i18n }}
           </p>
 
-          <div class="tw-flex tw-gap-3 tw-mb-2">
-            <bit-icon name="bwi-lock" aria-hidden="true"></bit-icon>
+          <div class="tw-flex tw-gap-4 tw-mb-4">
+            <bit-icon name="bwi-lock" aria-hidden="true" class="tw-text-fg-brand"></bit-icon>
             <div>
-              <p bitTypography="body2" noMargin class="tw-font-semibold">
+              <h3 bitTypography="h6" noMargin>
                 {{ "importDataSecureByDesignTitle" | i18n }}
-              </p>
+              </h3>
               <p bitTypography="body2" noMargin class="tw-text-fg-body-subtle">
                 {{ "importDataSecureByDesignBody" | i18n: vendorName() }}
               </p>
             </div>
           </div>
-          <div class="tw-flex tw-gap-3 tw-mb-2">
-            <bit-icon name="bwi-eye" aria-hidden="true"></bit-icon>
+          <div class="tw-flex tw-gap-4 tw-mb-4">
+            <bit-icon name="bwi-eye" aria-hidden="true" class="tw-text-fg-brand"></bit-icon>
             <div>
-              <p bitTypography="body2" noMargin class="tw-font-semibold">
+              <h3 bitTypography="h6" noMargin>
                 {{ "importDataLoginInfoTitle" | i18n }}
-              </p>
+              </h3>
               <p bitTypography="body2" noMargin class="tw-text-fg-body-subtle">
                 {{ "importDataLoginInfoBody" | i18n: vendorName() }}
               </p>
             </div>
           </div>
-          <div class="tw-flex tw-gap-3">
-            <bit-icon name="bwi-download" aria-hidden="true"></bit-icon>
+          <div class="tw-flex tw-gap-4">
+            <bit-icon name="bwi-download" aria-hidden="true" class="tw-text-fg-brand"></bit-icon>
             <div>
-              <p bitTypography="body2" noMargin class="tw-font-semibold">
+              <h3 bitTypography="h6" noMargin>
                 {{ "importDataEverythingTransfersTitle" | i18n }}
-              </p>
+              </h3>
               <p bitTypography="body2" noMargin class="tw-text-fg-body-subtle">
                 {{ "importDataEverythingTransfersBody" | i18n }}
               </p>
             </div>
           </div>
         } @else {
-          <h2 bitTypography="h2" noMargin>{{ "importDataLoginTitle" | i18n: vendorName() }}</h2>
-          <p bitTypography="body1" class="tw-text-fg-body-subtle">
+          <div class="tw-flex tw-items-center tw-gap-2">
+            @if (vendorIcon(); as icon) {
+              <bit-svg [content]="icon" class="tw-size-6"></bit-svg>
+            }
+            <h2 bitTypography="h2" noMargin>{{ "importDataLoginTitle" | i18n: vendorName() }}</h2>
+          </div>
+          <p bitTypography="body1" class="tw-text-fg-body-subtle tw-mt-1">
             {{ "importDataLoginSubtitle" | i18n }}
           </p>
 
           @if (isKeeper()) {
-            <bit-form-field>
+            <bit-form-field class="tw-max-w-sm">
               <bit-label>{{ "keeperEmail" | i18n }}</bit-label>
               <input
                 bitInput
@@ -66,7 +78,7 @@
                 id="importer-controls_input_keeper-email"
               />
             </bit-form-field>
-            <bit-form-field>
+            <bit-form-field class="tw-max-w-sm">
               <bit-label>{{ "dataCenterLocation" | i18n }}</bit-label>
               <bit-select
                 formControlName="keeperRegion"
@@ -78,7 +90,7 @@
               </bit-select>
             </bit-form-field>
           } @else if (isLastPass()) {
-            <bit-form-field>
+            <bit-form-field class="tw-max-w-sm">
               <bit-label>{{ "lastPassEmail" | i18n }}</bit-label>
               <input
                 bitInput
@@ -87,7 +99,7 @@
                 id="importer-controls_input_lastpass-email"
               />
             </bit-form-field>
-            <bit-form-control>
+            <bit-form-control [disableMargin]="true">
               <input
                 bitCheckbox
                 type="checkbox"
@@ -139,13 +151,13 @@
           </bit-select>
         </bit-form-field>
       } @else {
-        <h2 bitTypography="h2" noMargin>{{ "importDataTitle" | i18n }}</h2>
+        <h2 bitTypography="h2" noMargin class="tw-mb-1">{{ "importDataTitle" | i18n }}</h2>
         <p bitTypography="body1" class="tw-text-fg-body-subtle">
           {{ "importDataManualSubtitle" | i18n: vendorName() }}
         </p>
 
         @if (activeInstructions().instructionKey || activeInstructions().instructionLink) {
-          <bit-callout type="info">
+          <bit-callout type="info" class="[&_aside]:!tw-py-1">
             @if (activeInstructions().instructionKey; as key) {
               {{ key | i18n }}
             }
@@ -174,41 +186,15 @@
           </bit-radio-button>
         </bit-radio-group>
 
-        @if (method() === "file") {
-          <bit-file-upload
-            formControlName="file"
-            id="importer-controls_input_file"
-            [accept]="fileAccept()"
-            class="[&_bit-form-field]:!tw-mb-0"
-          >
-            <bit-label>{{ "uploadFile" | i18n }}</bit-label>
-            <bit-hint>{{ "importAcceptedFormats" | i18n: acceptedFileTypesHint() }}</bit-hint>
-          </bit-file-upload>
-        } @else {
-          <bit-form-field disableMargin>
-            <bit-label>{{ "plainText" | i18n }}</bit-label>
-            <textarea
-              bitInput
-              formControlName="fileContents"
-              id="importer-controls_textarea_file-contents"
-            ></textarea>
-            <bit-hint>{{ "importAcceptedFormats" | i18n: pasteFormatsHint() }}</bit-hint>
+        @if (formatChoiceActive()) {
+          <bit-form-field class="tw-mt-4 tw-max-w-sm">
+            <bit-label>{{ "importVendorFileType" | i18n: vendorName() }}</bit-label>
+            <bit-select formControlName="formatChoice" id="importer-controls_select_format-choice">
+              @for (candidate of formatChoiceOptions(); track candidate.id) {
+                <bit-option [value]="candidate.id" [label]="formatChoiceLabel(candidate)" />
+              }
+            </bit-select>
           </bit-form-field>
-        }
-
-        @if (needsFormatDisambiguation()) {
-          <bit-radio-group formControlName="formatChoice" [block]="true" class="tw-mt-4">
-            <bit-label>{{ "importWhichFormat" | i18n }}</bit-label>
-            @for (candidate of candidateFormats(); track candidate.id) {
-              <bit-radio-button
-                class="tw-block"
-                [value]="candidate.id"
-                [id]="'importer-controls_radio_format-' + candidate.id"
-              >
-                <bit-label>{{ candidate.name }}</bit-label>
-              </bit-radio-button>
-            }
-          </bit-radio-group>
         }
 
         @if (needsKdbxCredentials()) {
@@ -240,6 +226,28 @@
             </button>
           }
         }
+
+        @if (method() === "file") {
+          <bit-file-upload
+            formControlName="file"
+            id="importer-controls_input_file"
+            [accept]="fileAccept()"
+            class="[&_bit-form-field]:!tw-mb-0"
+          >
+            <bit-label>{{ "uploadFile" | i18n }}</bit-label>
+            <bit-hint>{{ "importAcceptedFormats" | i18n: acceptedFileTypesHint() }}</bit-hint>
+          </bit-file-upload>
+        } @else {
+          <bit-form-field disableMargin>
+            <bit-label>{{ "plainText" | i18n }}</bit-label>
+            <textarea
+              bitInput
+              formControlName="fileContents"
+              id="importer-controls_textarea_file-contents"
+            ></textarea>
+            <bit-hint>{{ "importAcceptedFormats" | i18n: pasteFormatsHint() }}</bit-hint>
+          </bit-form-field>
+        }
       }
     </bit-card-content>
 
@@ -249,8 +257,8 @@
           @if (primaryMode() === "manual") {
             <button
               type="button"
-              bitLink
-              linkType="primary"
+              bitButton
+              buttonType="primaryGhost"
               (click)="toggleToAlternate()"
               id="importer-controls_button_directly-import-instead"
             >
@@ -259,8 +267,8 @@
           } @else {
             <button
               type="button"
-              bitLink
-              linkType="primary"
+              bitButton
+              buttonType="primaryGhost"
               (click)="toggleToManual()"
               id="importer-controls_button_import-manually-instead"
             >

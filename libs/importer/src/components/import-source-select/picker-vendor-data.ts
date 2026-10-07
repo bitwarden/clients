@@ -7,9 +7,11 @@ interface PickerVendorData {
   /** e.g. "Dashlane" — not ImportOption.name's "Dashlane (csv)". */
   displayName: string;
   /** Sibling ImportTypes this same vendor can also produce (e.g. 1Password's 1pux/1pif/win-csv/
-   *  mac-csv). Only same-vendor formats belong here — KeePassX is a different product, not a
-   *  KeePass format, so it stays out of keepass2xml's list. */
+   *  mac-csv, or KeePass's kdbx/xml/KeePassX's csv). */
   formats?: readonly ImportType[];
+  /** Show the format picker unconditionally. KeePass's formats never collide, so it'd never
+   *  otherwise appear; 1Password's wincsv/maccsv do collide, but this still shows it pre-file. */
+  alwaysPromptFormat?: boolean;
 }
 
 const PICKER_VENDOR_DATA: Partial<Record<ImportType, PickerVendorData>> = {
@@ -17,8 +19,11 @@ const PICKER_VENDOR_DATA: Partial<Record<ImportType, PickerVendorData>> = {
   chromecsv: { displayName: "Chrome" },
   dashlanecsv: { displayName: "Dashlane", formats: ["dashlanecsv", "dashlanejson"] },
   firefoxcsv: { displayName: "Firefox" },
-  keepass2xml: { displayName: "KeePass", formats: ["keepass2xml", "keepasskdbx"] },
-  keepassxcsv: { displayName: "KeePassX" },
+  keepass2xml: {
+    displayName: "KeePass",
+    formats: ["keepass2xml", "keepasskdbx", "keepassxcsv"],
+    alwaysPromptFormat: true,
+  },
   // No bare "keeper" entry in this list: that id is the direct-import pseudo-format, not a file
   // format `ImportService.getImporter` can parse — only "keepercsv"/"keeperjson" have importers.
   keeper: { displayName: "Keeper", formats: ["keepercsv", "keeperjson"] },
@@ -27,6 +32,7 @@ const PICKER_VENDOR_DATA: Partial<Record<ImportType, PickerVendorData>> = {
   "1password1pux": {
     displayName: "1Password",
     formats: ["1password1pux", "1password1pif", "1passwordwincsv", "1passwordmaccsv"],
+    alwaysPromptFormat: true,
   },
   roboformcsv: { displayName: "RoboForm" },
   enpasscsv: { displayName: "Enpass", formats: ["enpasscsv", "enpassjson"] },
@@ -91,6 +97,12 @@ export function isPickerVendor(id: string): boolean {
 // Caller must confirm isPickerVendor(id) first — the ! assumes an entry exists.
 export function pickerDisplayNameFor(id: string): string {
   return PICKER_VENDOR_DATA[id as ImportType]!.displayName;
+}
+
+// Whether this vendor's format picker should show unconditionally, not just on a genuine
+// extension collision.
+export function pickerAlwaysPromptsFormat(id: string): boolean {
+  return PICKER_VENDOR_DATA[id as ImportType]?.alwaysPromptFormat ?? false;
 }
 
 // Every ImportType this vendor's card can produce. Used by ImportControlsComponent to union

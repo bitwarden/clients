@@ -1,6 +1,11 @@
 import { importOptions } from "../../models";
 
-import { isPickerVendor, pickerDisplayNameFor, pickerFormatsFor } from "./picker-vendor-data";
+import {
+  isPickerVendor,
+  pickerAlwaysPromptsFormat,
+  pickerDisplayNameFor,
+  pickerFormatsFor,
+} from "./picker-vendor-data";
 
 describe("isPickerVendor", () => {
   it("rejects inherited Object.prototype property names", () => {
@@ -49,14 +54,25 @@ describe("pickerFormatsFor", () => {
     expect(pickerFormatsFor("delineaxml")).toEqual(["delineaxml", "delineacsv"]);
   });
 
-  it("groups KeePass's kdbx sibling in, but never pulls in KeePassX — a different product, not a format variant", () => {
-    expect(pickerFormatsFor("keepass2xml")).toEqual(["keepass2xml", "keepasskdbx"]);
-    expect(pickerFormatsFor("keepassxcsv")).toEqual(["keepassxcsv"]);
+  it("groups KeePass's kdbx and KeePassX's csv siblings under one KeePass card", () => {
+    expect(pickerFormatsFor("keepass2xml")).toEqual(["keepass2xml", "keepasskdbx", "keepassxcsv"]);
   });
 
   it("resolves Keeper's manual-mode formats, not the direct-import pseudo-format", () => {
     // "keeper" itself has no importer (ImportService.getImporter only handles "keepercsv" and
     // "keeperjson") — pickerFormatsFor("keeper") must resolve to those, not to "keeper" itself.
     expect(pickerFormatsFor("keeper")).toEqual(["keepercsv", "keeperjson"]);
+  });
+});
+
+describe("pickerAlwaysPromptsFormat", () => {
+  it("is true for KeePass (whose sibling formats never collide on extension) and 1Password (whose wincsv/maccsv siblings do)", () => {
+    expect(pickerAlwaysPromptsFormat("keepass2xml")).toBe(true);
+    expect(pickerAlwaysPromptsFormat("1password1pux")).toBe(true);
+  });
+
+  it("is false for vendors with no entry, or no flag set", () => {
+    expect(pickerAlwaysPromptsFormat("chromecsv")).toBe(false);
+    expect(pickerAlwaysPromptsFormat("some-unknown-id")).toBe(false);
   });
 });

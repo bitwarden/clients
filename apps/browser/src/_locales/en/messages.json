@@ -5300,14 +5300,13 @@
   "importDataDirectTitle": {
     "message": "Import your data in minutes"
   },
-  "importDataDirectSubtitle": {
-    "message": "Import your items directly from $VENDOR$ to get all your data.",
-    "placeholders": {
-      "vendor": {
-        "content": "$1",
-        "example": "1Password"
-      }
-    }
+  "importDataDirectSubtitlePrefix": {
+    "message": "Import your items directly from",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "to get all your data.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
   },
   "importDataManualSubtitle": {
     "message": "Import from $VENDOR$ or copy and paste the export content.",
@@ -5375,8 +5374,14 @@
       }
     }
   },
-  "importWhichFormat": {
-    "message": "Which of these matches what you're importing?"
+  "importVendorFileType": {
+    "message": "$VENDOR$ file type",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "The process is exactly the same as importing from Google Chrome.",
@@ -5577,6 +5582,9 @@
   },
   "keePassMasterPassword": {
     "message": "KeePass master password"
+  },
+  "kdbxPasswordRequired": {
+    "message": "Password is required."
   },
   "addKeyFile": {
     "message": "Add key file"

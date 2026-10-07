@@ -5,12 +5,14 @@ import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
 import { map, of } from "rxjs";
 
+import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
 
@@ -64,6 +66,10 @@ describe("ImportControlsComponent", () => {
     { provide: SyncService, useValue: syncService },
     { provide: KeeperDirectImportService, useValue: keeperDirectImportService },
     { provide: LastPassDirectImportService, useValue: lastPassDirectImportService },
+    {
+      provide: AbstractThemingService,
+      useValue: { theme$: of(ThemeTypes.Light) } as Partial<AbstractThemingService>,
+    },
   ];
 
   const setup = async (importType: ImportType, clientType: ClientType) => {
@@ -191,6 +197,12 @@ describe("ImportControlsComponent", () => {
         acceptedFileTypes: ["kdbx"],
         pasteFormats: [],
         sdk: { fileTypes: ["kdbx"], credentialKind: CredentialKind.passwordWithKeyFile },
+      }),
+      keepassxcsv: buildOption({
+        id: "keepassxcsv",
+        name: "KeePassX (csv)",
+        acceptedFileTypes: ["csv"],
+        pasteFormats: ["csv"],
       }),
       bravecsv: buildOption({
         id: "bravecsv",
@@ -663,15 +675,138 @@ describe("ImportControlsComponent", () => {
       expect(fileUpload.className).toContain("[&_bit-form-field]:!tw-mb-0");
     });
 
-    it("binds the formatChoice radio group's block input to true too", async () => {
+    it("renders formatChoice as a dropdown, labeled with the vendor name, not a radio group", async () => {
       await setup("1password1pux", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
       fixture.detectChanges();
 
-      const radioGroups = fixture.debugElement.queryAll(By.css("bit-radio-group"));
-      const formatChoiceGroup = radioGroups[radioGroups.length - 1];
+      expect(byId("importer-controls_select_format-choice")).toBeTruthy();
+      expect(fixture.nativeElement.textContent).toContain("importVendorFileType");
+      expect(fixture.debugElement.queryAll(By.css("bit-radio-group")).length).toBe(1); // method only
+    });
 
-      expect((formatChoiceGroup.componentInstance as { block: () => boolean }).block()).toBe(true);
+    it("labels an unambiguous always-prompt format with a bare extension, not the full descriptive name", async () => {
+      await setup("keepass2xml", ClientType.Web);
+      component().formGroup.controls.file.setValue({ name: "export.kdbx" } as File);
+      fixture.detectChanges();
+
+      expect(component().needsFormatDisambiguation()).toBe(false);
+      const [candidate] = component().formatChoiceOptions();
+      expect(candidate.id).toBe("keepasskdbx");
+      expect(component().formatChoiceLabel(candidate)).toBe(".kdbx");
+    });
+
+    it("keeps the full descriptive label for a genuine collision (Windows vs. Mac csv)", async () => {
+      await setup("1password1pux", ClientType.Web);
+      component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
+      fixture.detectChanges();
+
+      expect(component().needsFormatDisambiguation()).toBe(true);
+      const labels = component()
+        .formatChoiceOptions()
+        .map((candidate: ImportOption) => component().formatChoiceLabel(candidate));
+      expect(labels).toEqual(["1Password 6 and 7 Windows (csv)", "1Password 6 and 7 Mac (csv)"]);
+    });
+
+    it("falls back to the full descriptive label for a shared extension even outside a disambiguation prompt (1Password's wincsv/maccsv, before any file narrows the list)", async () => {
+      await setup("1password1pux", ClientType.Web);
+      fixture.detectChanges();
+
+      expect(component().needsFormatDisambiguation()).toBe(false);
+      const labels = component()
+        .formatChoiceOptions()
+        .map((candidate: ImportOption) => component().formatChoiceLabel(candidate));
+      expect(labels).toEqual([
+        // 1password1pux accepts both — neither collides with any sibling's own extension(s).
+        ".1pux, .json",
+        ".1pif",
+        "1Password 6 and 7 Windows (csv)",
+        "1Password 6 and 7 Mac (csv)",
+      ]);
+    });
+
+    it("still shows both of 1password1pux's accepted extensions once a real .json file resolves it, not just the first-declared .1pux", async () => {
+      await setup("1password1pux", ClientType.Web);
+      component().formGroup.controls.file.setValue({ name: "export.json" } as File);
+      fixture.detectChanges();
+
+      expect(component().resolvedFormat()).toBe("1password1pux");
+      const [candidate] = component().formatChoiceOptions();
+      expect(candidate.id).toBe("1password1pux");
+      expect(component().formatChoiceLabel(candidate)).toBe(".1pux, .json");
+    });
+
+    it("keeps a pre-file dropdown pick when it's still valid for the first file chosen, instead of discarding it", async () => {
+      await setup("1password1pux", ClientType.Web);
+      component().formGroup.controls.formatChoice.setValue("1passwordmaccsv");
+      fixture.detectChanges();
+
+      // wincsv/maccsv both accept .csv, so this genuinely collides.
+      component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
+      fixture.detectChanges();
+
+      expect(component().needsFormatDisambiguation()).toBe(true);
+      expect(component().formGroup.controls.formatChoice.value).toBe("1passwordmaccsv");
+      expect(component().resolvedFormat()).toBe("1passwordmaccsv");
+    });
+
+    it("still forces independent re-confirmation on a SECOND ambiguous file, even if the first file's answer is still technically valid", async () => {
+      await setup("1password1pux", ClientType.Web);
+      component().formGroup.controls.file.setValue({ name: "first.csv" } as File);
+      fixture.detectChanges();
+      component().formGroup.controls.formatChoice.setValue("1passwordmaccsv");
+      fixture.detectChanges();
+
+      component().formGroup.controls.file.setValue({ name: "second.csv" } as File);
+      fixture.detectChanges();
+
+      expect(component().formGroup.controls.formatChoice.value).toBeNull();
+    });
+
+    it("does not let a cosmetic pre-file auto-seed survive into the genuine collision the first real file creates", async () => {
+      // A cosmetic seed (not a real pick) must still reset correctly — it's only ever preserved
+      // because it never coincides with this vendor's real collision set, not because it's "safe".
+      await setup("1password1pux", ClientType.Web);
+      fixture.detectChanges();
+      expect(component().formGroup.controls.formatChoice.value).toBe("1password1pux");
+
+      component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
+      fixture.detectChanges();
+
+      expect(component().needsFormatDisambiguation()).toBe(true);
+      expect(component().formGroup.controls.formatChoice.value).toBeNull();
+      expect(component().resolvedFormat()).toBeUndefined();
+    });
+
+    it("falls back to the candidate's name if it declares no accepted file type (file mode) or paste format (paste mode)", async () => {
+      // Not reachable with real data today (every entry declares at least one of each) — guards
+      // against a future entry that omits one, rather than rendering a bare ".undefined" label.
+      await setup("dashlanecsv", ClientType.Web);
+      const noFileType = buildOption({ id: "no-file-type", acceptedFileTypes: [] });
+      const noPasteFormat = buildOption({ id: "no-paste-format", pasteFormats: [] });
+
+      expect(component().formatChoiceLabel(noFileType)).toBe(noFileType.name);
+
+      component().formGroup.controls.method.setValue("paste");
+      fixture.detectChanges();
+      expect(component().formatChoiceLabel(noPasteFormat)).toBe(noPasteFormat.name);
+    });
+
+    it("labels by pasteFormats in paste mode, not acceptedFileTypes — there's no file extension to show", async () => {
+      await setup("1password1pux", ClientType.Web);
+      component().formGroup.controls.method.setValue("paste");
+      fixture.detectChanges();
+
+      // 1password1pux's pasteFormats is ["json"], not acceptedFileTypes' ["1pux", "json"].
+      const labels = component()
+        .formatChoiceOptions()
+        .map((candidate: ImportOption) => component().formatChoiceLabel(candidate));
+      expect(labels).toEqual([
+        ".json",
+        ".1pif",
+        "1Password 6 and 7 Windows (csv)",
+        "1Password 6 and 7 Mac (csv)",
+      ]);
     });
 
     it("does not need disambiguation for a vendor with no extension collision", async () => {
@@ -681,6 +816,20 @@ describe("ImportControlsComponent", () => {
 
       expect(component().needsFormatDisambiguation()).toBe(false);
       expect(component().resolvedFormat()).toBe("dashlanecsv");
+    });
+
+    it("never renders the format dropdown for an ordinary vendor, with or without a file chosen", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+      fixture.detectChanges();
+
+      expect(component().showFormatChoice()).toBe(false);
+      expect(byId("importer-controls_select_format-choice")).toBeFalsy();
+
+      component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
+      fixture.detectChanges();
+
+      expect(component().showFormatChoice()).toBe(false);
+      expect(byId("importer-controls_select_format-choice")).toBeFalsy();
     });
 
     it("shows the resolved sibling format's own instructions once one resolves, not the vendor default", async () => {
@@ -750,7 +899,74 @@ describe("ImportControlsComponent", () => {
       expect(component().resolvedFormat()).toBe("1password1pif");
     });
 
-    it("clears a stale format choice when a new file is chosen", async () => {
+    it("resolves an always-prompt vendor's dropdown pick before any file is chosen, instead of leaving it decorative", async () => {
+      await setup("keepass2xml", ClientType.Web);
+      fixture.detectChanges();
+
+      expect(component().candidateFormats()).toEqual([]);
+      component().formGroup.controls.formatChoice.setValue("keepasskdbx");
+      fixture.detectChanges();
+
+      expect(component().resolvedFormat()).toBe("keepasskdbx");
+      expect(component().needsKdbxCredentials()).toBe(true);
+    });
+
+    it("re-enables and re-seeds formatChoice after re-selecting a same-named file, instead of leaving it stuck blank", async () => {
+      await setup("keepass2xml", ClientType.Web);
+      const firstFile = { name: "Database.kdbx" } as File;
+      component().formGroup.controls.file.setValue(firstFile);
+      fixture.detectChanges();
+      expect(component().resolvedFormat()).toBe("keepasskdbx");
+
+      // Distinct File object, identical name — exactly what re-picking the same file produces.
+      const secondFile = { name: "Database.kdbx" } as File;
+      component().formGroup.controls.file.setValue(secondFile);
+      fixture.detectChanges();
+
+      expect(
+        component()
+          .candidateFormats()
+          .map((o: ImportOption) => o.id),
+      ).toEqual(["keepasskdbx"]);
+      expect(component().resolvedFormat()).toBe("keepasskdbx");
+      expect(component().formGroup.controls.formatChoice.valid).toBe(true);
+    });
+
+    it("still reports unresolved for an always-prompt vendor once a file is chosen that matches no format", async () => {
+      await setup("1password1pux", ClientType.Web);
+      component().formGroup.controls.file.setValue({ name: "export.pdf" } as File);
+      fixture.detectChanges();
+
+      // Disabled, not just null: required+null would block submit() before the real toast fires.
+      expect(component().candidateFormats()).toEqual([]);
+      expect(component().resolvedFormat()).toBeUndefined();
+      expect(component().formGroup.controls.formatChoice.value).toBeNull();
+      expect(component().formGroup.controls.formatChoice.disabled).toBe(true);
+      expect(component().formGroup.valid).toBe(true);
+      expect(byId("importer-controls_select_format-choice")).toBeFalsy();
+    });
+
+    it("surfaces the real 'unsupported file type' toast on the first submit() for an always-prompt vendor, not a spurious required error", async () => {
+      await setup("1password1pux", ClientType.Web);
+      component().formGroup.controls.file.setValue({ name: "export.pdf" } as File);
+      fixture.detectChanges();
+
+      await component().submit();
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "selectFileUnsupportedType" }),
+      );
+    });
+
+    it("does not resolve an ordinary vendor's empty candidate set from a leftover formatChoice value", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+      fixture.detectChanges();
+
+      expect(component().candidateFormats()).toEqual([]);
+      expect(component().resolvedFormat()).toBeUndefined();
+    });
+
+    it("clears a stale format choice when a new file is chosen, resolving unambiguously", async () => {
       await setup("1password1pux", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
       component().formGroup.controls.formatChoice.setValue("1passwordmaccsv");
@@ -758,7 +974,8 @@ describe("ImportControlsComponent", () => {
       component().formGroup.controls.file.setValue({ name: "export.1pux" } as File);
       fixture.detectChanges();
 
-      expect(component().formGroup.controls.formatChoice.value).toBeNull();
+      // Re-syncs to match the resolved file rather than sitting blank.
+      expect(component().formGroup.controls.formatChoice.value).toBe("1password1pux");
       expect(component().resolvedFormat()).toBe("1password1pux");
     });
 
@@ -824,6 +1041,45 @@ describe("ImportControlsComponent", () => {
         expect(component().resolvedFormat()).toBe("1passwordmaccsv");
       });
 
+      it("keeps an explicit choice when the content is edited further without changing the candidate set", async () => {
+        // 1Password is never shape-narrowable, so needsFormatDisambiguation() stays true on every
+        // keystroke, not just the one that created the collision.
+        await setup("1password1pux", ClientType.Web);
+        component().formGroup.controls.method.setValue("paste");
+        component().formGroup.controls.fileContents.setValue(
+          "url,username,password\nhttps://example.com,me,hunter2",
+        );
+        fixture.detectChanges();
+        component().formGroup.controls.formatChoice.setValue("1passwordmaccsv");
+        fixture.detectChanges();
+
+        component().formGroup.controls.fileContents.setValue(
+          "url,username,password\nhttps://example.com,me,hunter2\nmore,rows,here",
+        );
+        fixture.detectChanges();
+
+        expect(component().formGroup.controls.formatChoice.value).toBe("1passwordmaccsv");
+        expect(component().resolvedFormat()).toBe("1passwordmaccsv");
+      });
+
+      it("does not let a formatChoice seeded while unambiguous survive into a genuine collision the edited content now creates", async () => {
+        await setup("1password1pux", ClientType.Web);
+        component().formGroup.controls.method.setValue("paste");
+        fixture.detectChanges();
+
+        // No content yet: single-vendor fallback list, seeded to its first entry — unforced, cosmetic.
+        expect(component().formGroup.controls.formatChoice.value).toBe("1password1pux");
+
+        // Editing content now creates a genuine 4-way collision (1Password isn't shape-narrowable).
+        // The earlier seed must not silently answer it.
+        component().formGroup.controls.fileContents.setValue('{"some": "json"}');
+        fixture.detectChanges();
+
+        expect(component().needsFormatDisambiguation()).toBe(true);
+        expect(component().formGroup.controls.formatChoice.value).toBeNull();
+        expect(component().resolvedFormat()).toBeUndefined();
+      });
+
       it("shows no candidates until content is actually present", async () => {
         await setup("dashlanecsv", ClientType.Web);
         component().formGroup.controls.method.setValue("paste");
@@ -864,6 +1120,57 @@ describe("ImportControlsComponent", () => {
         expect(component().resolvedFormat()).toBe("delineaxml");
       });
 
+      it("doesn't list keepasskdbx in the pre-content fallback, since it can't be pasted", async () => {
+        await setup("keepass2xml", ClientType.Web);
+        component().formGroup.controls.method.setValue("paste");
+        fixture.detectChanges();
+
+        // Must match pasteFormatsHint(), which already excludes keepasskdbx (pasteFormats is []).
+        const ids = component()
+          .formatChoiceOptions()
+          .map((option: ImportOption) => option.id);
+        expect(ids).toEqual(["keepass2xml", "keepassxcsv"]);
+      });
+
+      it("narrows KeePass's xml/csv pair by shape, now that keepassxcsv joined the same picker card", async () => {
+        await setup("keepass2xml", ClientType.Web);
+        component().formGroup.controls.method.setValue("paste");
+        component().formGroup.controls.fileContents.setValue('<?xml version="1.0"?><root></root>');
+        fixture.detectChanges();
+
+        expect(component().needsFormatDisambiguation()).toBe(false);
+        expect(component().resolvedFormat()).toBe("keepass2xml");
+      });
+
+      it("narrows to the csv sibling for KeePass when pasted content doesn't look like xml", async () => {
+        await setup("keepass2xml", ClientType.Web);
+        component().formGroup.controls.method.setValue("paste");
+        component().formGroup.controls.fileContents.setValue(
+          "url,username,password\nhttps://example.com,me,hunter2",
+        );
+        fixture.detectChanges();
+
+        expect(component().needsFormatDisambiguation()).toBe(false);
+        expect(component().resolvedFormat()).toBe("keepassxcsv");
+      });
+
+      it("stays valid and resolved when an input event re-emits identical pasted content", async () => {
+        // pastedContent() dedupes as a toSignal, so this must not leave formatChoice null-and-required
+        // with nothing left to re-seed it.
+        await setup("keepass2xml", ClientType.Web);
+        component().formGroup.controls.method.setValue("paste");
+        const content = '<?xml version="1.0"?><root></root>';
+        component().formGroup.controls.fileContents.setValue(content);
+        fixture.detectChanges();
+        expect(component().resolvedFormat()).toBe("keepass2xml");
+
+        component().formGroup.controls.fileContents.setValue(content);
+        fixture.detectChanges();
+
+        expect(component().formGroup.controls.formatChoice.valid).toBe(true);
+        expect(component().resolvedFormat()).toBe("keepass2xml");
+      });
+
       it("still requires an explicit choice for 1Password's Windows/Mac csv pair, since content shape can't tell them apart", async () => {
         await setup("1password1pux", ClientType.Web);
         component().formGroup.controls.method.setValue("paste");
@@ -892,12 +1199,7 @@ describe("ImportControlsComponent", () => {
         true,
       );
       expect(component().formGroup.controls.formatChoice.invalid).toBe(true);
-
-      const radioGroups = fixture.debugElement.queryAll(By.css("bit-radio-group"));
-      const formatChoiceGroup = radioGroups[radioGroups.length - 1];
-      expect((formatChoiceGroup.componentInstance as { required: () => boolean }).required()).toBe(
-        true,
-      );
+      expect(fixture.nativeElement.textContent).toContain("(required)");
     });
 
     it("blocks submit() with an inline required error, and never reaches onContinue(), when an ambiguous format is unresolved", async () => {
@@ -1309,7 +1611,7 @@ describe("ImportControlsComponent", () => {
       expect(fixture.nativeElement.textContent).toContain("(required)");
     });
 
-    it("shows the specific 'invalid master password' error, not the generic required message, when both validators fail on an empty value", async () => {
+    it("shows the specific 'password is required' error, not the generic required message, when both validators fail on an empty value", async () => {
       await setup("keepass2xml", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.kdbx" } as File);
       fixture.detectChanges();
@@ -1319,8 +1621,27 @@ describe("ImportControlsComponent", () => {
 
       const bitErrors = fixture.debugElement.queryAll(By.css("bit-error"));
       expect(bitErrors.length).toBe(1);
-      expect(bitErrors[0].nativeElement.textContent).toContain("invalidMasterPassword");
+      expect(bitErrors[0].nativeElement.textContent).toContain("kdbxPasswordRequired");
       expect(bitErrors[0].nativeElement.textContent).not.toContain("inputRequired");
+    });
+
+    it("renders the format dropdown and kdbx credentials before the file upload control, not after", async () => {
+      // The dropdown is the control: picking .kdbx is what makes the password/key-file fields
+      // relevant at all, so it (and they) must precede the upload input they gate, not follow it.
+      await setup("keepass2xml", ClientType.Web);
+      component().formGroup.controls.formatChoice.setValue("keepasskdbx");
+      fixture.detectChanges();
+
+      const dropdown = byId("importer-controls_select_format-choice").nativeElement;
+      const password = byId("importer-controls_input_kdbx-password").nativeElement;
+      const upload = byId("importer-controls_input_file").nativeElement;
+
+      expect(
+        dropdown.compareDocumentPosition(password) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+      expect(
+        password.compareDocumentPosition(upload) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
     });
   });
 
@@ -1340,6 +1661,20 @@ describe("ImportControlsComponent", () => {
       expect(component().directStep()).toBe("intro");
       expect(component().formGroup.controls.fileContents.value).toBe("");
       expect(component().formGroup.controls.method.value).toBe("file");
+    });
+
+    it("seeds formatChoice when switching live into an always-prompt vendor, surviving the same-flush vendor-reset", async () => {
+      // Both effects dirty on the same importType() change — the seed must run after the reset.
+      await setup("dashlanecsv", ClientType.Web);
+      fixture.detectChanges();
+      expect(component().formGroup.controls.formatChoice.value).toBeNull();
+
+      fixture.componentRef.setInput("importType", "keepass2xml");
+      fixture.detectChanges();
+
+      expect(component().formGroup.controls.formatChoice.value).toBe("keepass2xml");
+      expect(component().formGroup.controls.formatChoice.valid).toBe(true);
+      expect(component().resolvedFormat()).toBe("keepass2xml");
     });
 
     it("does not leak the previous vendor's chromium availability onto a new vendor via a stale capabilities emission", async () => {

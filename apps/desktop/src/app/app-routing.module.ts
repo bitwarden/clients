@@ -553,6 +553,7 @@ export const routes: Routes = [
               .pipe(map((flagValue) => flagValue === true)),
         ],
         component: ImportShellDesktopComponent,
+        data: { pageTitle: { key: "importNoun" } } satisfies RouteDataProperties,
         children: [
           {
             path: "",

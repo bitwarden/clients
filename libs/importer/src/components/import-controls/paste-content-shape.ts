@@ -4,7 +4,8 @@ export type PasteContentShape = "json" | "xml" | "csv";
 
 const PASTE_SHAPES: ReadonlySet<string> = new Set<PasteContentShape>(["json", "xml", "csv"]);
 
-// Vendors whose paste formats are distinguishable by shape. Explicit list — excludes 1Password.
+// Vendors whose paste formats are distinguishable by shape. Excludes 1Password (wincsv/maccsv
+// share a shape). Includes keepass2xml now that keepassxcsv joined its picker card.
 const SHAPE_NARROWABLE_VENDORS: ReadonlySet<ImportType> = new Set([
   "bitwardenjson",
   "dashlanecsv",
@@ -12,6 +13,7 @@ const SHAPE_NARROWABLE_VENDORS: ReadonlySet<ImportType> = new Set([
   "enpasscsv",
   "avastcsv",
   "delineaxml",
+  "keepass2xml",
 ]);
 
 export function vendorSupportsPasteShapeNarrowing(vendorId: ImportType): boolean {

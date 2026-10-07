@@ -2,12 +2,14 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { map, Observable, of } from "rxjs";
 import { action } from "storybook/actions";
 
+import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, I18nMockService, ToastService } from "@bitwarden/components";
 
@@ -131,6 +133,13 @@ const options: Record<string, ImportOption> = {
     sourceName: "KeePass",
     instructionLink: "https://bitwarden.com/help/import-from-keepass/",
   }),
+  keepassxcsv: buildOption({
+    id: "keepassxcsv",
+    name: "KeePassX (csv)",
+    acceptedFileTypes: ["csv"],
+    pasteFormats: ["csv"],
+    instructionKey: "importKeepassxInstructions",
+  }),
 };
 
 const importServiceStub: Partial<ImportServiceAbstraction> = {
@@ -217,6 +226,10 @@ function decoratorsFor(
           useValue: { fullSync: () => Promise.resolve(true) } as Partial<SyncService>,
         },
         {
+          provide: AbstractThemingService,
+          useValue: { theme$: of(ThemeTypes.Light) } as Partial<AbstractThemingService>,
+        },
+        {
           provide: KeeperDirectImportService,
           useValue: {
             handleImport: () => Promise.reject(new Error("Not wired up in Storybook.")),
@@ -242,9 +255,9 @@ function decoratorsFor(
               callout: "Callout",
               required: "required",
               error: "Error",
-              // Resolved by real onContinue() paths: kdbx validation, rejected imports, empty
-              // manual-mode submissions.
-              invalidMasterPassword: "Invalid master password",
+              // The kdbxPassword field's empty-value form validator message (import-controls
+              // .component.ts), surfaced before submit — not an onContinue()/SDK error path.
+              kdbxPasswordRequired: "Password is required.",
               errorOccurred: "An error has occurred.",
               selectFile: "Select a file.",
               selectFileUnsupportedType: "That file type isn't accepted for this source.",
@@ -291,10 +304,10 @@ function decoratorsFor(
               directlyImportInstead: "Directly import instead",
               importDataTitle: "Import your data",
               importDataDirectTitle: "Import your data in minutes",
-              importDataDirectSubtitle: (vendor?: string) =>
-                `Import your items directly from ${vendor} to get all your data.`,
+              importDataDirectSubtitlePrefix: "Import your items directly from",
+              importDataDirectSubtitleSuffix: "to get all your data.",
               importDataManualSubtitle: (vendor?: string) =>
-                `Export from ${vendor} or copy and paste the export content.`,
+                `Import from ${vendor} or copy and paste the export content.`,
               importDataChromiumSubtitle: "Select the profile you wish to import passwords from.",
               importDataLoginTitle: (vendor?: string) => `Log in to ${vendor}`,
               importDataLoginSubtitle:
@@ -317,8 +330,10 @@ function decoratorsFor(
                 "Dashlane no longer supports the JSON format. Only use this if you have an existing JSON for import. Use the CSV importer when creating new exports.",
               importKeepass2Instructions:
                 'Using the KeePass 2 desktop application, navigate to "File" → "Export" and select the "KeePass XML (2.x)" option.',
+              importKeepassxInstructions:
+                'Using the KeePassX desktop application, navigate to "Database" → "Export to CSV file" and save the CSV file.',
               importAcceptedFormats: (formats?: string) => `Accepted: ${formats}`,
-              importWhichFormat: "Which of these matches what you're importing?",
+              importVendorFileType: (vendor?: string) => `${vendor} file type`,
               fastest: "Fastest",
               keePassMasterPassword: "Master password",
               keyFileUpload: "Key file",
@@ -393,8 +408,8 @@ export const VendorFormatGrouping: Story = {
   }),
 };
 
-/** KeePass — grouped with its kdbx sibling (no collision with the .xml format, so no
- *  disambiguation control). Choose a .kdbx file to see the master-password and "Add key file"
+/** KeePass — now always prompts for a format (xml/kdbx/csv), even though none of its siblings
+ *  collide on extension. Choose a .kdbx file to see the master-password and "Add key file"
  *  fields appear. */
 export const KdbxCredentials: Story = {
   decorators: decoratorsFor(ClientType.Web),
