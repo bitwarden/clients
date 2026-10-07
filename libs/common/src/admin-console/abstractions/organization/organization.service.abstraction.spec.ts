@@ -92,7 +92,6 @@ describe("canAccessAccessIntelligence", () => {
 });
 
 describe("canAccessOrgAdmin", () => {
-  /** A member with no authority over anything the Admin Console shows. */
   const none = {
     enabled: true,
     canManageUsers: false,

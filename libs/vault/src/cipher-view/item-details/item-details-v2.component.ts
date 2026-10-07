@@ -48,9 +48,8 @@ export class ItemDetailsV2Component {
   protected readonly vfo1Enabled = this.vfo1TerminologyService.enabled;
 
   /**
-   * Optional host-provided badge rendered on the item name row. Only the web vault provides one
-   * today (privileged-access state); elsewhere this is null and nothing renders.
-   * See {@link ITEM_DETAILS_STATE_BADGE}.
+   * Optional host-provided badge on the item name row, used by the web vault for
+   * privileged-access state.
    */
   protected readonly stateBadgeComponent: Type<unknown> | null = inject(ITEM_DETAILS_STATE_BADGE, {
     optional: true,

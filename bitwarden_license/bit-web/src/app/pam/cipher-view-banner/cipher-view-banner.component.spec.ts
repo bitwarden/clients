@@ -36,14 +36,10 @@ import { CipherViewBannerComponent } from "./cipher-view-banner.component";
 import { REQUEST_WINDOW_ERROR_KEY } from "./request-access-window.validators";
 
 /**
- * The SDK views are wide and every field is server-populated, so tests build only the fields the
- * banner reads and widen through `unknown` — the same convention `my-access.service.spec.ts` uses.
+ * The SDK views are wide, so the builders below set only the fields the banner reads and widen
+ * through `unknown`.
  */
-/**
- * Tomorrow, in the shape `<input type="date">` carries.
- *
- * Anchored to the real clock, since the window validator rejects an already-ended window and a literal date would eventually start failing.
- */
+/** Tomorrow, anchored to the real clock, since the window validator rejects an ended window. */
 const futureDate = toDateInputValue(new Date(Date.now() + 24 * 60 * 60 * 1000));
 
 function leaseView(overrides: Partial<AccessLeaseView> = {}): AccessLeaseView {
@@ -65,8 +61,8 @@ function requestView(overrides: Partial<AccessRequestView> = {}): AccessRequestV
 }
 
 /**
- * The activation window the server resolves at submit, as an override for {@link requestView}.
- * `startsInSeconds` covers the human-approval route, whose window can open in the future.
+ * An activation window override for {@link requestView}. `startsInSeconds` models a human-approval
+ * window that opens in the future.
  */
 function grantedWindow(lengthSeconds: number, startsInSeconds = 0): Partial<AccessRequestView> {
   const startMs = Date.now() + startsInSeconds * 1000;
@@ -77,9 +73,8 @@ function grantedWindow(lengthSeconds: number, startsInSeconds = 0): Partial<Acce
 }
 
 /**
- * The badge the SDK would rank for a state built from the parts below.
- *
- * Mirrored here so a fixture stays a faithful stand-in for a real response; the ranking itself is tested in the SDK.
+ * Mirrors the SDK's badge ranking so a fixture stays faithful to a real response; the SDK tests the
+ * ranking itself.
  */
 function badgeStateFor(state: CipherAccessStateView): CipherAccessStateView["badgeState"] {
   if (state.activeLease != null) {
@@ -122,9 +117,8 @@ function preCheck(overrides: Partial<AccessPreCheckView> = {}): AccessPreCheckVi
 const ORGANIZATION_ID = "org-1";
 
 /**
- * A membership as the banner reads it. Goes through the real `Organization` so the licensing
- * predicate under test is the shipped one rather than a stand-in. Every field is an override, so a
- * case can omit `accessPam` entirely — the un-synced blob the tri-state exists for.
+ * A real `Organization`, so the licensing predicate under test is the shipped one. A case can omit
+ * `accessPam` to model an un-synced membership.
  */
 function organization(overrides: Partial<Organization> = {}): Organization {
   return Object.assign(new Organization(), {
@@ -180,8 +174,8 @@ describe("CipherViewBannerComponent", () => {
   }
 
   /**
-   * Move the banner to its next access state the way a real change does — announce on
-   * {@link AccessRefreshService} and let the re-read drive the template.
+   * Announces on {@link AccessRefreshService} and lets the re-read render `next`, as a real change
+   * does.
    */
   async function refreshTo(next: CipherAccessStateView): Promise<void> {
     requestsApi.getCipherAccessState.mockResolvedValue(next);
@@ -267,7 +261,7 @@ describe("CipherViewBannerComponent", () => {
   });
 
   describe("licensing", () => {
-    // The shared `gatedCipher()` leaves organizationId unset, staying focused on the rule.
+    // The shared `gatedCipher()` leaves organizationId unset to stay focused on the rule.
     function orgGatedCipher(overrides: Partial<CipherView> = {}): CipherView {
       return gatedCipher({ organizationId: ORGANIZATION_ID, ...overrides });
     }
@@ -308,7 +302,6 @@ describe("CipherViewBannerComponent", () => {
 
       await create(orgGatedCipher());
 
-      // The server stops releasing the credential to an unlicensed holder regardless of lease.
       expect(query("[data-testid='cipher-view-banner-unlicensed']")).not.toBeNull();
       expect(query("[data-testid='cipher-view-banner-active']")).toBeNull();
       expect(query("#pam-cipher-view-banner_button_extend")).toBeNull();
@@ -322,7 +315,6 @@ describe("CipherViewBannerComponent", () => {
 
       await create(orgGatedCipher());
 
-      // Withdrawing stays reachable elsewhere, ungated by licensing.
       expect(query("[data-testid='cipher-view-banner-unlicensed']")).not.toBeNull();
       expect(query("#pam-cipher-view-banner_button_start")).toBeNull();
     });
@@ -340,7 +332,6 @@ describe("CipherViewBannerComponent", () => {
     });
 
     it("offers no request card until licensing is known", async () => {
-      // Licensing is unknown before `organizations$` emits; treating that as licensed would flash the card.
       organizations$ = new BehaviorSubject<Organization[]>([]);
       const pending$ = new Subject<Organization[]>();
       TestBed.overrideProvider(OrganizationService, {
@@ -362,7 +353,6 @@ describe("CipherViewBannerComponent", () => {
     });
 
     it("still blocks when the access-state read fails", async () => {
-      // The block derives from local membership, not the access-state read.
       organizations$.next([organization({ usePam: true, accessPam: false })]);
       requestsApi.getCipherAccessState.mockRejectedValue(new Error("boom"));
 
@@ -404,9 +394,8 @@ describe("CipherViewBannerComponent", () => {
       expect(query("bit-card")).toBeNull();
     });
 
-    // PM-43689: the item gained a collection carrying no rule after the lease was minted, so the
-    // server hands back the full credential and neither `partial` nor `leaseGated` is set. The
-    // lease is still live and still the holder's to extend or end.
+    // The item gained a rule-less collection after the lease was minted, so neither `partial` nor
+    // `leaseGated` is set while the lease is still live.
     it("reads access state for an ungated cipher the caller still holds a lease on", async () => {
       myLeases.hasActiveLease$.mockReturnValue(of(true));
 
@@ -474,7 +463,6 @@ describe("CipherViewBannerComponent", () => {
       );
     });
 
-    // The human-approval window may be entirely in the future.
     it("states the granted duration for a window that has not opened yet", async () => {
       requestsApi.getCipherAccessState.mockResolvedValue(
         accessState({ approvedRequest: requestView(grantedWindow(3 * 3600, 24 * 3600)) }),
@@ -668,7 +656,6 @@ describe("CipherViewBannerComponent", () => {
       );
       expect(query('[data-testid="active-lease-countdown"]')).toBeNull();
       expect(glyph("bwi-exclamation-triangle")).not.toBeNull();
-      // The warning is only worth showing if it can be acted on from here.
       expect(query("#pam-cipher-view-banner_button_extend")).not.toBeNull();
       expect(query("#pam-cipher-view-banner_button_end")).not.toBeNull();
     });
@@ -692,7 +679,6 @@ describe("CipherViewBannerComponent", () => {
     });
 
     it("shows no active card at all for a lease that lapsed before the read landed", async () => {
-      // A lapsed lease is dropped however the server answered, leaving no active tile to escalate.
       await activeLeaseEndingIn(-60 * 1000);
 
       expect(query('bit-card[data-testid="cipher-view-banner-active"]')).toBeNull();
@@ -705,8 +691,8 @@ describe("CipherViewBannerComponent", () => {
     const NOW = Date.parse("2026-01-01T15:00:00.000Z");
     const ENDS_AT = new Date(NOW + 60_000).toISOString();
 
-    // Pinned rather than faked: a fake timer would stall `fixture.whenStable()`. Moving the pin
-    // forward is the whole event — nothing is announced and nothing is clicked.
+    // Pinned rather than faked, since a fake timer would stall `fixture.whenStable()`. Moving the
+    // pin forward is the whole event; nothing is announced or clicked.
     beforeEach(() => {
       jest.spyOn(Date, "now").mockReturnValue(NOW);
     });
@@ -978,11 +964,9 @@ describe("CipherViewBannerComponent", () => {
       document.body.appendChild(elsewhere);
       elsewhere.focus();
 
-      // The request is approved and started, so the resting card and its toggle unmount...
       await refreshTo(accessState({ activeLease: leaseView() }));
       expect(query("#pam-cipher-view-banner_button_request-toggle")).toBeNull();
 
-      // The lapsing lease brings both back, with the requester editing elsewhere.
       await refreshTo(accessState());
       expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
 
@@ -1073,8 +1057,6 @@ describe("CipherViewBannerComponent", () => {
       expect(reason?.getAttribute("rows")).toBe("3");
     });
 
-    // Nothing reviews an automatic request, so its hint must not promise an approver will read
-    // the reason. Only the human path gets that copy.
     it("hints the automatic path's Reason without naming an approver", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
@@ -1111,7 +1093,6 @@ describe("CipherViewBannerComponent", () => {
       );
     });
 
-    // Presets and default come from the pre-check's bounds, not a hardcoded list.
     it("narrows the duration picker to the rule's maximum", async () => {
       requestsApi.preCheck.mockResolvedValue(
         preCheck({
@@ -1249,7 +1230,6 @@ describe("CipherViewBannerComponent", () => {
 
       const date = query("#pam-cipher-view-banner_input_start-date") as HTMLInputElement | null;
       expect(date?.getAttribute("min")).toBe(toDateInputValue(new Date()));
-      // The seeded date is the floor itself, so the form opens valid rather than pre-erroring.
       expect(component["humanForm"].controls.startDate.value).toBe(date?.getAttribute("min"));
     });
 
@@ -1325,7 +1305,6 @@ describe("CipherViewBannerComponent", () => {
 
         const text = fixture.nativeElement.textContent as string;
         expect(text).toContain("pamRequestSlotTakenUntil");
-        // Replaced, not shown alongside the warning, while the slot is taken.
         expect(text).not.toContain("requestAccessModalAutomaticDescription");
       });
 
@@ -1352,7 +1331,6 @@ describe("CipherViewBannerComponent", () => {
         await component["toggleRequestForm"]();
         fixture.detectChanges();
 
-        // An approved request is still worth holding: it can be started the moment the slot frees.
         expect(query("#pam-cipher-view-banner_select_duration")).not.toBeNull();
         const submit = query("#pam-cipher-view-banner_button_request-submit");
         expect(submit).not.toBeNull();
@@ -1360,8 +1338,6 @@ describe("CipherViewBannerComponent", () => {
       });
 
       it("stays quiet on the human path, whose window is not now", async () => {
-        // canStartLease answers about now; the warning is scoped to an auto_approve request, not a
-        // future-dated one.
         requestsApi.preCheck.mockResolvedValue(
           preCheck({
             approvalMode: "human",
@@ -1389,7 +1365,6 @@ describe("CipherViewBannerComponent", () => {
         await component["toggleRequestForm"]();
         expect(component["slotContention"]()).not.toBeNull();
 
-        // Collapse, then reopen after the holder finishes.
         await component["toggleRequestForm"]();
         requestsApi.preCheck.mockResolvedValue(preCheck({ canStartLease: true }));
         await component["toggleRequestForm"]();
@@ -1695,8 +1670,6 @@ describe("CipherViewBannerComponent", () => {
       expect(component["requestFormExpanded"]()).toBe(true);
     });
 
-    // The automatic path has no localized string for this, so it must echo the server rather than
-    // borrow the window wording on a form that shows no window.
     it("echoes an over-long duration rather than wording it as a window", async () => {
       const durationExceedsMax = "The requested duration exceeds the maximum of 1800 seconds.";
       await submitAndFail(durationExceedsMax);

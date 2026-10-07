@@ -159,7 +159,6 @@ describe("AccessConnectorsTabComponent", () => {
     component.searchControl.setValue("prod");
     fixture.detectChanges();
 
-    // The filter function should accept rows whose name contains the search text.
     const matchRow = makeAccessConnectorRow({ name: "production-access-connector" });
     const noMatchRow = makeAccessConnectorRow({ id: connectorId("d2"), name: "staging" });
 
@@ -254,10 +253,7 @@ describe("AccessConnectorsTabComponent", () => {
     expect(toastService.showToast).not.toHaveBeenCalled();
   });
 
-  /**
-   * Every mutation on this tab answers a refusal the same way: one error toast, nothing else
-   * claimed.
-   */
+  /** Every mutation answers a refusal with one error toast and claims nothing else. */
   describe("a refused mutation", () => {
     type Actions = {
       disable: (row: AccessConnectorRow) => Promise<void>;
@@ -806,14 +802,13 @@ describe("AccessConnectorsTabComponent", () => {
   });
 
   describe("loading skeleton", () => {
-    /** Runs the placeholder's clock on. */
     function advance(ms: number): void {
       fixture.detectChanges();
       jest.advanceTimersByTime(ms);
       fixture.detectChanges();
     }
 
-    /** Runs out the delay the placeholder is held back by, and renders what it leaves. */
+    /** Runs out the skeleton's delay. */
     function showSkeleton(): void {
       advance(1000);
     }
@@ -943,7 +938,6 @@ describe("AccessConnectorsTabComponent", () => {
 });
 
 describe("AccessConnectorsTabComponent toolbar filters", () => {
-  /** The component's protected surface, as these tests read it. */
   type FiltersComp = {
     dataSource: { filteredData?: AccessConnectorRow[] };
     searchControl: { setValue: (value: string) => void };

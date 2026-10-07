@@ -24,16 +24,8 @@ import { AccessConnector, RotationConfig, TargetSystem } from "./rotation";
 import { TargetSystemsService } from "./target-systems/target-systems.service";
 
 /**
- * Rotation feature shell: renders the page header and the three routed tabs (Access connectors /
- * Target systems / Managed credentials); page-scoped services stay shared across tab
- * navigation since the shell stays mounted.
- *
- * Off the VFO1 flag the header hosts the active tab's primary create action, driven by the active
- * child route, so each tab renders only its list. On it, each tab hosts its own action in its
- * table toolbar.
- *
- * The Managed credentials tab label shows a warning berry when configs await a manual rotation
- * confirmation.
+ * Header and routed tabs for the rotation feature. Off the VFO1 flag the header hosts the active
+ * tab's create action; on it, each tab hosts its own in its table toolbar.
  */
 @Component({
   selector: "app-rotation-shell",
@@ -58,13 +50,13 @@ export class RotationShellComponent {
     { initialValue: false },
   );
 
-  /** organizationId from the route params (inherited via paramsInheritanceStrategy "always"). */
+  /** Inherited from the org route, since `paramsInheritanceStrategy` is `"always"`. */
   protected readonly organizationId = toSignal(
     this.route.params.pipe(map((p) => p.organizationId as OrganizationId)),
     { requireSync: true },
   );
 
-  /** The path of the active child route ("target-systems" / "access-connectors" / ...), driving the header button. */
+  /** The active child route's path, which picks the header's create button. */
   protected readonly activeTab = toSignal(
     this.router.events.pipe(
       filter((e) => e instanceof NavigationEnd),
@@ -73,24 +65,25 @@ export class RotationShellComponent {
     { initialValue: this.route.snapshot.firstChild?.routeConfig?.path ?? null },
   );
 
-  /** Whether any target systems exist; hides the "New target system" header button, since the empty state owns that action. */
+  /**
+   * Each tab's empty state owns its create action, so the header's create buttons wait for the
+   * list to have rows.
+   */
   private readonly targetSystems = toSignal(this.targetSystemsService.systems$, {
     initialValue: [] as TargetSystem[],
   });
   protected readonly hasTargetSystems = computed(() => this.targetSystems().length > 0);
 
-  /** Number of configs awaiting a manual rotation confirmation — drives the tab berry. */
+  /** Configs awaiting a manual rotation confirmation, for the tab berry. */
   protected readonly awaitingManualCount = toSignal(this.configsService.awaitingManualCount$, {
     initialValue: 0,
   });
 
-  /** Whether any managed credentials exist; hides the "New managed credential" header button, since the empty state owns that action. */
   private readonly configs = toSignal(this.configsService.configs$, {
     initialValue: [] as RotationConfig[],
   });
   protected readonly hasConfigs = computed(() => this.configs().length > 0);
 
-  /** Whether any access connectors exist; hides the "New access connector" header button, since the empty state owns that action. */
   private readonly accessConnectors = toSignal(this.accessConnectorsService.accessConnectors$, {
     initialValue: [] as AccessConnector[],
   });
@@ -103,15 +96,12 @@ export class RotationShellComponent {
     });
   }
 
-  /** Navigate to the managed-credential create page (sibling of the shell). */
   protected readonly createManagedCredential = (): Promise<boolean> =>
     this.router.navigate(["managed-credentials", "new"], { relativeTo: this.route });
 
-  /** Navigate to the target-system create page (sibling of the shell). */
   protected readonly createTargetSystem = (): Promise<boolean> =>
     this.router.navigate(["target-systems", "new"], { relativeTo: this.route });
 
-  /** Open the access connector registration dialog and refresh the shared list on success. */
   protected readonly registerAccessConnector = async (): Promise<void> => {
     const orgId = this.organizationId();
     const ref = AccessConnectorRegisterDialogComponent.open(this.dialogService, {

@@ -13,7 +13,7 @@ import { AuditEventDrawerComponent, AuditEventDrawerParams } from "./audit-event
 
 const OCCURRED_AT = new Date("2026-08-18T09:00:00.000Z");
 
-/** A lease activation with every field the trail can carry — the widest the pane ever gets. */
+/** A lease activation carrying every field, the widest the pane gets. */
 const POPULATED: AuditRow = {
   occurredAt: OCCURRED_AT,
   kindLabelKey: "pamAuditKindAccessActivated",
@@ -42,11 +42,7 @@ const POPULATED: AuditRow = {
   extendedUntil: null,
 };
 
-/**
- * The absence check: a freeze the system recorded against nothing, whose outcome was never confirmed.
- * Every field the pane can render carries no value, so the muted em dash lines up down the whole pane
- * — beside the one absence that is not one, the automated event's actor, which reads "System".
- */
+/** An unconfirmed system freeze, so every field but the actor ("System") shows a dash. */
 const BARE: AuditRow = {
   occurredAt: OCCURRED_AT,
   kindLabelKey: "pamAuditKindAccessFreezeEnabled",
@@ -74,10 +70,6 @@ const BARE: AuditRow = {
   extendedUntil: null,
 };
 
-/**
- * A rule deletion, whose name the store snapshotted at write time; the rule itself is gone, so
- * the name renders without an anchor regardless of permission.
- */
 const RULE_DELETED: AuditRow = {
   ...POPULATED,
   kindLabelKey: "pamAuditKindRuleDeleted",
@@ -92,10 +84,6 @@ const RULE_DELETED: AuditRow = {
   detail: null,
 };
 
-/**
- * A fleet event: no cipher and no rule, so the subject is the access connector and the target it was assigned to.
- * Those two fields are what keep a rotation-heavy trail from reading as a column of em dashes.
- */
 const CONNECTOR_ASSIGNED: AuditRow = {
   ...POPULATED,
   kindLabelKey: "pamAuditKindAccessConnectorAssigned",
@@ -159,10 +147,7 @@ export default {
 
 type Story = StoryObj<AuditEventDrawerComponent>;
 
-/**
- * Everything an auditor needs about one event, in read order: when, who, what, the granted
- * window, the free-text Detail, and the ids support asks for.
- */
+/** A lease activation with every field populated and linked. */
 export const Default: Story = {
   render: () => ({
     moduleMetadata: {
@@ -172,10 +157,6 @@ export const Default: Story = {
   }),
 };
 
-/**
- * An event that names almost nothing. Every field still renders, absence showing as the muted em dash
- * the table uses, so a reader can tell "we hold no value for this" from a pane that failed to draw it.
- */
 export const EmptyFields: Story = {
   render: () => ({
     moduleMetadata: {
@@ -185,11 +166,7 @@ export const EmptyFields: Story = {
   }),
 };
 
-/**
- * The rule this event names no longer exists, so the Access rule field reads as a name with no anchor
- * even though the viewer administers rules. Following one would land on a 404 from the very event an
- * auditor reconstructing a change is most likely to open.
- */
+/** The rule is gone, so its name renders without a link even for a rule administrator. */
 export const DeletedRule: Story = {
   render: () => ({
     moduleMetadata: {
@@ -199,10 +176,7 @@ export const DeletedRule: Story = {
   }),
 };
 
-/**
- * A rotation fleet event. It names neither a cipher nor a rule, so Item falls through to the access connector and
- * the Target system / Access connector fields carry the pair the action actually concerned.
- */
+/** Names no cipher or rule, so Item falls through to the access connector. */
 export const FleetEvent: Story = {
   render: () => ({
     moduleMetadata: {
@@ -212,11 +186,7 @@ export const FleetEvent: Story = {
   }),
 };
 
-/**
- * The same event read by an auditor holding AccessEventLogs and nothing more. Every name is
- * still there, but the rule and collection render as plain text, since those pages are guarded
- * by permissions this viewer lacks.
- */
+/** An auditor holding only AccessEventLogs sees the rule and collection as plain text. */
 export const WithoutLinkPermissions: Story = {
   render: () => ({
     moduleMetadata: {
@@ -226,12 +196,7 @@ export const WithoutLinkPermissions: Story = {
   }),
 };
 
-/**
- * A reason with no break opportunity anywhere — a pasted token or correlation id, not prose.
- *
- * The pane holds it because its width comes from the dialog's size token, not its content, so
- * the field wraps instead of widening.
- */
+/** A pasted token with no break opportunity wraps, since the dialog's size fixes the width. */
 export const LongUnbrokenReason: Story = {
   render: () => ({
     moduleMetadata: {

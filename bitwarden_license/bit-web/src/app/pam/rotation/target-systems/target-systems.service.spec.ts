@@ -33,7 +33,6 @@ describe("TargetSystemsService", () => {
       rotationSdk.listTargetSystems.mockResolvedValue([targetSystem()]);
       await service.load(ORG_ID);
 
-      // initial true (from BehaviorSubject(true)), then false after resolve
       expect(loadingStates).toContain(false);
       expect(loadingStates[0]).toBe(true);
     });
@@ -208,7 +207,7 @@ describe("TargetSystemsService", () => {
     });
 
     it("keeps the system when the server refuses, and re-throws", async () => {
-      // The server refuses while a rotation config still names the target; the row must stay.
+      // As when a rotation config still names the target.
       rotationSdk.deleteTargetSystem.mockRejectedValue(new Error("target system in use"));
 
       await expect(service.delete(targetSystem({ id: sysId("sys-1") }))).rejects.toThrow(

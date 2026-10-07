@@ -16,10 +16,9 @@ export class RotationLoadingAnnouncerComponent {
   /** i18n key naming what has arrived, announced once the load finishes. */
   readonly loadedKey = input.required<string>();
 
-  /** Whether the load failed. */
   readonly failed = input(false);
 
-  /** Latches within one attempt, so arrival is only announced after a departure. Clears on retry. */
+  /** Latches per attempt, so arrival is announced only after a departure. Clears on retry. */
   private readonly announced = linkedSignal<{ loading: boolean; failed: boolean }, boolean>({
     source: () => ({ loading: this.loading(), failed: this.failed() }),
     computation: ({ loading, failed }, previous) => {

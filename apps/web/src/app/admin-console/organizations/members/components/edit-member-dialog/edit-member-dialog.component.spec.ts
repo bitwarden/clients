@@ -381,8 +381,8 @@ describe("EditMemberDialogComponent", () => {
       expect(checkbox(fixture)).toBeNull();
     });
 
-    // The permission can also be granted through the public API, so an organization that never
-    // renders the checkbox must submit what the member already holds rather than clear it.
+    // The public API can also grant the permission, so a hidden checkbox must submit the member's
+    // existing grant rather than clear it.
     it("round-trips an existing grant the checkbox never rendered", async () => {
       const { fixture, component, mocks } = await createComponent(defaultParams(), {
         userDetails: customMember(true),

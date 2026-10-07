@@ -16,31 +16,20 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { AccessConnector, TargetSystem } from "../rotation";
 
 export type AssignConnectorDialogParams = {
-  /** The target system being assigned an access connector. */
   targetSystem: TargetSystem;
-  /**
-   * The set of enabled access connectors that are NOT already assigned to this
-   * target system.
-   */
+  /** The enabled access connectors not yet assigned to this target system. */
   options: AccessConnector[];
   /**
-   * Whether the organization has no enabled access connector at all, as opposed to having them
-   * all assigned to this target system already.
-   *
-   * Both states reach the dialog as an empty `options`, and they read very differently: one asks
-   * the operator to register or activate a connector, the other tells them there is nothing left
-   * to add. Optional, and false when omitted, so a caller that cannot yet tell the two apart keeps
-   * the all-assigned reading rather than asserting the stronger claim.
+   * True when the org has no enabled access connector at all, rather than all of them being
+   * assigned already. Both arrive as an empty `options`; omitted, the dialog assumes the weaker
+   * all-assigned reading.
    */
   noneEligible?: boolean;
 };
 
-/**
- * Closed with the selected `accessConnectorId` on confirm, or `undefined` on dismiss.
- */
+/** The selected `accessConnectorId` on confirm, or `undefined` on dismiss. */
 export type AssignConnectorDialogResult = string | undefined;
 
-/** Simple select-and-confirm dialog for assigning an enabled access connector to a target system. */
 @Component({
   selector: "app-assign-connector-dialog",
   templateUrl: "./assign-connector-dialog.component.html",

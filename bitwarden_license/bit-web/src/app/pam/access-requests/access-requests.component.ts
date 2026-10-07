@@ -15,13 +15,8 @@ import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import { MyAccessService } from "./my-access.service";
 
 /**
- * "Access requests" (`/pam`): a tabbed shell over Approvals, My requests, and History.
- * Approvals is hidden entirely for a non-approver, rather than shown empty.
- *
- * Each tab is a child route in the shell's `<router-outlet>`, which stays mounted across tab
- * navigation, as does the `/pam/requests/:id` dialog. {@link MyAccessService} and
- * {@link ApproverInboxService} are provided at the parent route so every tab shares one loaded
- * instance.
+ * The "Access requests" shell at `/pam`, over the Approvals, My requests and History tab routes.
+ * Approvals is hidden for a non-approver rather than shown empty.
  */
 @Component({
   selector: "pam-access-requests",
@@ -37,10 +32,7 @@ export class AccessRequestsComponent implements OnInit {
   private readonly logService = inject(LogService);
   private readonly destroyRef = inject(DestroyRef);
 
-  /**
-   * The "My requests" berry: everything the caller still holds or can act on — pending requests,
-   * open extension requests, and active leases. Zero renders no berry (see `bit-tab-link`).
-   */
+  /** The My requests berry, counting everything the caller holds or can still act on. */
   protected readonly myRequestsCount = toSignal(
     combineLatest([
       this.myAccess.pendingRows$,
@@ -54,18 +46,15 @@ export class AccessRequestsComponent implements OnInit {
 
   private readonly approvalPrivileges$ = inject(ApprovalPrivilegeService).canApprove$;
 
-  /** Whether to render the Approvals tab at all. */
   protected readonly canApprove = toSignal(this.approvalPrivileges$, { initialValue: false });
 
-  /** The "Approvals" berry: requests awaiting the caller's decision. */
   protected readonly approvalsCount = toSignal(this.inbox.pendingCount$, { initialValue: 0 });
 
   ngOnInit(): void {
     void this.myAccess.load();
 
-    // Only an approver has anything to load here; driven off the stream, not `canApprove()`,
-    // which is still its initial `false` here since the privilege depends on an unresolved
-    // organization lookup.
+    // Driven off the stream, since `canApprove()` still holds its initial `false` until the
+    // organization lookup resolves.
     this.approvalPrivileges$
       .pipe(filter(Boolean), take(1), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => void this.inbox.load());

@@ -5,12 +5,9 @@ import { SkeletonComponent, SkeletonTextComponent, TableModule } from "@bitwarde
 import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
- * Placeholder for {@link RotationHistoryComponent}'s table. Carries the same columns and the same
- * table chrome, so the history that lands under it does not shift the page.
- *
- * The whole placeholder is hidden from assistive technology, per the component library: a screen
- * reader would otherwise meet a table of empty cells. {@link RotationLoadingAnnouncerComponent}
- * carries the announcement instead.
+ * Placeholder for {@link RotationHistoryComponent}'s table, with the same columns so the page
+ * doesn't shift. Hidden from assistive technology; {@link RotationLoadingAnnouncerComponent}
+ * announces instead.
  */
 @Component({
   selector: "app-rotation-history-skeleton",
@@ -22,6 +19,5 @@ export class RotationHistorySkeletonComponent {
   /** Whether the credential column is present, matching the history table's own input. */
   readonly showCredential = input(false);
 
-  /** Four rows, one width each. */
   protected readonly rows = ["tw-w-24", "tw-w-20", "tw-w-24", "tw-w-16"];
 }

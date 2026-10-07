@@ -77,8 +77,8 @@ const routes: Routes = [
 ];
 
 /**
- * The Admin Console section to land a member on, in descending order of how central it is to the
- * console. Must be called inside an injection context.
+ * The Admin Console section to land a member on, checked most central first. Must be called in an
+ * injection context.
  */
 export function getOrganizationRoute(organization: Organization): string | undefined {
   if (canAccessVaultTab(organization)) {
@@ -96,8 +96,8 @@ export function getOrganizationRoute(organization: Organization): string | undef
   if (canAccessSettingsTab(organization)) {
     return "settings";
   }
-  // Unprovided in OSS-only builds, which mount no PAM pages. Annotated because
-  // SafeInjectionToken is `@ts-strict-ignore`, so `inject` infers `unknown`.
+  // Unprovided in OSS-only builds, which mount no PAM pages. Annotated because `inject` infers
+  // `unknown` from a SafeInjectionToken.
   const pamRoute: string | null = inject(PAM_ORG_ADMIN_ROUTE, { optional: true });
   if (
     pamRoute != null &&

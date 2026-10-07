@@ -4,7 +4,7 @@ import type { RotationAttemptId, RotationJobId } from "../rotation";
 
 /** The presentation models the rotation history renders. */
 
-/** A duration split into the units the history renders, or `null` when it cannot be measured. */
+/** A duration split into the units the history renders. */
 export interface DurationParts {
   hours: number;
   minutes: number;
@@ -18,10 +18,8 @@ export interface AttemptView {
   startedAt: string;
   duration: DurationParts | null;
   /**
-   * Whether the attempt is still executing.
-   *
-   * A `null` {@link duration} does not imply it: an attempt abandoned without an end recorded,
-   * or one whose timestamps cannot be measured, has no duration either.
+   * Whether the attempt is still executing. A `null` {@link duration} doesn't imply it, since an
+   * abandoned or unmeasurable attempt has none either.
    */
   running: boolean;
   statusLabelKey: string;
@@ -41,29 +39,20 @@ export interface JobView {
   statusVariant: BadgeVariant;
   failed: boolean;
   /**
-   * Whether a connector has claimed the job and is executing it.
-   *
-   * A job the queue still holds is not running: nothing has claimed it, it has no start and no
-   * span, and it may never be claimed at all.
+   * Whether a connector has claimed the job and is executing it. A queued job is not running and
+   * may never be claimed.
    */
   running: boolean;
   /**
-   * When the job's first attempt began, or `null` when no attempt has been recorded.
-   *
-   * A job waits in the queue before a connector claims it, so {@link createdAt} is when the
-   * rotation was asked for rather than when any of it ran. The history states a job's start from
-   * here and measures {@link duration} from here, and states neither for a job that has nothing
-   * to read a start from.
+   * When the first attempt began, or `null` with no attempt recorded. The history states the start
+   * and measures {@link duration} from here, not from {@link createdAt}, which is when it queued.
    */
   startedAt: string | null;
-  /** When the job was queued, which is not when it started. See {@link startedAt}. */
+  /** When the job was queued, not when it started. */
   createdAt: string;
   /**
-   * The job's total span, or `null` when it cannot be measured.
-   *
-   * Unmeasurable is not the same as unfinished: a job that timed out before it was ever claimed,
-   * or one holding an attempt with no end recorded, is terminal and still has no span. Read
-   * {@link running} to tell the two apart.
+   * The job's total span, or `null` when unmeasurable. A terminal job can have none, such as one
+   * that timed out unclaimed, so read {@link running} to tell it from an unfinished one.
    */
   duration: DurationParts | null;
   attempts: AttemptView[];
