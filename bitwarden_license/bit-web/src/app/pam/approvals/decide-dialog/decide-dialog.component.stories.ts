@@ -13,11 +13,7 @@ import { DecideDialogComponent, DecideDialogParams } from "./decide-dialog.compo
 /** Fixed so the window and "submitted N ago" labels don't drift with the clock. */
 const NOW = new Date("2026-08-17T12:00:00.000Z");
 
-/**
- * Built through `toApprovalRow` rather than hand-written, so the summary renders the same
- * precomputed labels the inbox row behind the dialog does — the point of repeating the request
- * here is that the two cannot disagree.
- */
+/** Built through `toApprovalRow` so the summary matches the inbox row's precomputed labels. */
 function approvalRow(
   overrides: Record<string, unknown> = {},
   collectionName: string | null = "Production",
@@ -53,7 +49,7 @@ function approvalRow(
   );
 }
 
-/** `DIALOG_DATA` is what every story varies, provided per story since the dialog reads it once at construction. */
+/** Provided per story, since the dialog reads `DIALOG_DATA` once at construction. */
 function withParams(params: DecideDialogParams) {
   return moduleMetadata({
     imports: [DecideDialogComponent],
@@ -77,17 +73,11 @@ export default {
 
 type Story = StoryObj<DecideDialogComponent>;
 
-/** Approving: the confirm button is primary and the copy is the approve variant. */
 export const Approve: Story = {
   decorators: [withParams({ verdict: "approve", row: approvalRow() })],
 };
 
-/**
- * Denying: same summary, but the note becomes a required "Reason for denial" — so this opens with
- * the confirm button already disabled — and that button escalates to danger. Reached either from
- * the inbox's Deny button or from the approve variant's own "Deny request", which switches this
- * dialog in place.
- */
+/** Opens with confirm disabled, since denying requires a reason. */
 export const Deny: Story = {
   decorators: [withParams({ verdict: "deny", row: approvalRow() })],
 };
@@ -103,8 +93,8 @@ export const NoCollection: Story = {
 };
 
 /**
- * An approver outside the owning organization resolves no name for it. Nothing is rendered — never
- * the raw uuid, which would tell the approver less than the blank does.
+ * An approver outside the owning organization resolves no name for it, so nothing renders rather
+ * than the raw uuid.
  */
 export const NoOrganization: Story = {
   decorators: [withParams({ verdict: "approve", row: approvalRow({}, "Production", null) })],

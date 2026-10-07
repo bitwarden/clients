@@ -22,7 +22,6 @@ describe("ApproverActionsService", () => {
 
   const params = { verdict: "approve", row: { id: "req-1" } } as unknown as DecideDialogParams;
 
-  /** The decide dialog closing as the approver left it. */
   function decideDialogCloses(result: unknown): void {
     dialogService.open.mockReturnValue({ closed: of(result) } as never);
   }

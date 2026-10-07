@@ -87,14 +87,7 @@ import {
   IpAllowlistEditorComponent,
 } from "./ip-allowlist/ip-allowlist-editor.component";
 
-/**
- * Routed page for creating or editing a PAM access rule. Edit mode fetches the rule via
- * `accessRuleId` (route param) through {@link AccessRuleSdkService.getAccessRule}; create mode
- * reads an optional `template` query param to prefill.
- *
- * Groups the form into card sections per the design; on save, routes back to the access-rules
- * list.
- */
+/** Creates or edits an access rule; create mode prefills from an optional `template` param. */
 @Component({
   templateUrl: "./access-rule-edit.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -144,9 +137,8 @@ export class AccessRuleEditComponent {
   private readonly accessRuleId = this.route.snapshot.params.accessRuleId as
     AccessRuleId | undefined;
   /**
-   * Set by the list's "Make a copy": the rule was just created from another one and its name
-   * still carries the "(copy)" suffix, so the admin's first act is almost certainly to rename it.
-   * Drives the name field's autofocus-and-select; presence is the signal, the value is not read.
+   * Set by the list's "Make a copy", so the name field opens selected for a rename. Presence is the
+   * signal; the value is not read.
    */
   protected readonly renaming = this.route.snapshot.queryParams.renaming != null;
 
@@ -160,9 +152,8 @@ export class AccessRuleEditComponent {
   protected readonly loading = signal(true);
 
   /**
-   * The inline save-failure callout; null while there is nothing to report. Never toasted, so the
-   * notice persists alongside entered values. Retry shows only for a `generic` outcome — a mapped
-   * failure needs a change first, or resubmitting fails identically.
+   * Shown inline rather than toasted, so it stays beside the entered values. Retry shows only for a
+   * `generic` outcome, since a mapped failure needs a change first.
    */
   protected readonly saveError = signal<AccessRuleErrorOutcome | null>(null);
 
@@ -183,11 +174,6 @@ export class AccessRuleEditComponent {
     ? "pamAccessRuleEditTitle"
     : "pamAccessRuleCreateTitle";
 
-  /**
-   * The page heading. Edit mode shows the rule's own name, per the design; it falls back to
-   * the page-type label until the rule has loaded. Create mode keeps the page-type label,
-   * since there is no name yet and a blank heading would be worse.
-   */
   protected readonly titleText = computed(
     () => this.existing()?.name ?? this.i18nService.t(this.pageTypeKey),
   );
@@ -195,9 +181,8 @@ export class AccessRuleEditComponent {
   protected readonly eventLogRoute = ["/organizations", this.organizationId, "pam", "audit"];
 
   /**
-   * Gates the footer notice. `canManageAccessRules` (this page's guard) does not imply access to
-   * event logs: `canAccessEventLogs` also requires the organization's `useEvents` entitlement, and
-   * without it the PAM audit route's own guard bounces the admin straight back out.
+   * Gates the footer notice's event log link. `canAccessEventLogs` also needs the organization's
+   * `useEvents` entitlement, which this page's guard does not check.
    */
   protected readonly canAccessEventLogs = toSignal(
     this.activeUserId$.pipe(
@@ -243,16 +228,8 @@ export class AccessRuleEditComponent {
   private readonly allCollectionsLoading = signal(true);
 
   /**
-   * Ids of collections a DIFFERENT access rule already claims, so the picker never offers a choice
-   * the server would reject with `CollectionsGoverned` (`helpers/access-rule-error.ts`). Mirrors
-   * `AccessRuleWriteValidator.ValidateCollectionsAsync`, which rejects on `Collection.AccessRuleId`
-   * regardless of the owning rule's `enabled` flag — so a disabled rule's collections are excluded
-   * here too, unlike `rulesGoverningCollection`'s enabled-only filter for the collection callout,
-   * which answers what is enforced today rather than what the server will reject. This rule's own
-   * collections are never excluded, matching the server's `existingRuleId` exemption.
-   *
-   * `undefined` until the read settles. `rules$` resolves to `[]` on a failed read, so this then
-   * excludes nothing and the server's `CollectionsGoverned` rejection remains the backstop.
+   * Collections another rule claims; choosing one fails on the server with `CollectionsGoverned`.
+   * Includes disabled rules, as the server's validator does; a failed read excludes nothing.
    */
   private readonly governedCollectionIds = toSignal(
     this.governedCollections
@@ -274,9 +251,8 @@ export class AccessRuleEditComponent {
   );
 
   /**
-   * A signal rather than a direct `formGroup.controls.collections.value` read inside
-   * `collectionOptions`: a `FormControl` getter isn't a signal, so `computed()` wouldn't re-run on
-   * a selection change and a deselected-but-governed collection would stay in the picker.
+   * A signal, since `computed()` can't track a `FormControl` value; a deselected but governed
+   * collection would otherwise stay in the picker.
    */
   private readonly selectedCollectionIds = toSignal(
     this.formGroup.controls.collections.valueChanges.pipe(
@@ -285,11 +261,7 @@ export class AccessRuleEditComponent {
     { initialValue: new Set<string>() },
   );
 
-  /**
-   * Never excludes a collection the form's `collections` control already holds: dropping one
-   * here would silently remove it from the rule on the next save rather than merely hiding it
-   * from new selection.
-   */
+  /** Keeps selected collections, since dropping one here would remove it from the rule on save. */
   protected readonly collectionOptions = computed<SelectItemView[]>(() => {
     const governed = this.governedCollectionIds();
     const selectedIds = this.selectedCollectionIds();
@@ -331,10 +303,8 @@ export class AccessRuleEditComponent {
     await this.loadCollections(this.existing());
   }
 
-  /** Fetch the rule under edit; on a stale/inaccessible id (or any other failure), toast and route back. */
   private async loadRule(): Promise<AccessRuleView | null> {
-    // `accessRuleId` is only a *claimed* id until checked; `uuidAsString` unwraps the brand for
-    // `isGuid`.
+    // The route param is unchecked; `uuidAsString` unwraps the brand for `isGuid`.
     if (!isGuid(uuidAsString(this.accessRuleId!))) {
       return await this.ruleNotFound();
     }
@@ -353,7 +323,6 @@ export class AccessRuleEditComponent {
     }
   }
 
-  /** Toast and route back to the list for an id that does not resolve to a rule, malformed or not. */
   private async ruleNotFound(): Promise<null> {
     this.toastService.showToast({
       variant: "error",
@@ -403,10 +372,8 @@ export class AccessRuleEditComponent {
       );
       this.allCollections.set(collections.map((c) => ({ id: c.id, name: c.name })));
 
-      // Unfiltered: the collections control is still empty here, so `collectionOptions`' "already
-      // selected" exemption doesn't cover this rule's own ids yet. Filtering would drop a
-      // collection another rule record also lists (stale data, a lost race on the server's
-      // exclusivity check), silently losing it from the rule on the next save.
+      // Unfiltered, since the control is still empty and `collectionOptions` can't yet exempt this
+      // rule's own ids; a stale governed read would otherwise drop one from the rule on save.
       const optionsById = new Map(
         this.allCollections().map((c): [string, SelectItemView] => [
           c.id,
@@ -483,10 +450,8 @@ export class AccessRuleEditComponent {
   }
 
   /**
-   * Report a rejected save that names a specific field on that field, where the fix is, rather than
-   * in the callout above the form. The error is set directly rather than through a validator so it
-   * clears the moment the admin edits the control — the next `updateValueAndValidity` recomputes
-   * from the validators alone.
+   * Shown on the field, where the fix is, rather than in the callout. Set directly rather than as a
+   * validator, so it clears as soon as the admin edits the control.
    */
   private showFieldSaveError(field: AccessRuleErrorField, message: string): void {
     const control = this.formGroup.controls[field];
@@ -494,10 +459,7 @@ export class AccessRuleEditComponent {
     control.markAsTouched();
   }
 
-  /**
-   * The copy for a rejected save, naming the collections at fault: the server reports only that
-   * one exists, leaving the admin to find it by removing collections one at a time (PM-43430).
-   */
+  /** Names the collections at fault, since the server reports only that a conflict exists. */
   private async fieldSaveErrorMessage(messageKey: string): Promise<string> {
     if (messageKey !== "pamAccessRuleErrorCollectionsGoverned") {
       return this.i18nService.t(messageKey);
@@ -551,8 +513,7 @@ export class AccessRuleEditComponent {
           message: this.i18nService.t("pamAccessRuleCreated"),
         });
       }
-      // The write changed which collections are governed; drop the cached read so the next
-      // consumer doesn't serve up to CACHE_TTL_MS of stale state.
+      // The write changed which collections are governed, so the cached read is stale.
       this.governedCollections.invalidate(this.organizationId);
       await this.navigateToList();
     } catch (e) {
@@ -569,9 +530,8 @@ export class AccessRuleEditComponent {
   };
 
   /**
-   * Confirm before unsaved edits are thrown away. Called both by Cancel and by the route's
-   * CanDeactivate guard, which covers the breadcrumb and browser back/forward. A pristine form
-   * has nothing to lose, so it skips the dialog rather than asking about an empty page.
+   * Called by Cancel and by the route's CanDeactivate guard, which covers the breadcrumb and
+   * browser back and forward.
    */
   async confirmDiscard(): Promise<boolean> {
     if (!this.formGroup.dirty) {
@@ -591,10 +551,6 @@ export class AccessRuleEditComponent {
     await this.navigateToList();
   };
 
-  /**
-   * Delete the rule under edit, after confirmation. Edit mode only — there is nothing
-   * to delete before the rule exists on the server.
-   */
   protected readonly remove = async (): Promise<void> => {
     const existing = this.existing();
     if (existing == null) {
@@ -614,7 +570,7 @@ export class AccessRuleEditComponent {
         variant: "success",
         message: this.i18nService.t("pamAccessRuleDeleted"),
       });
-      // Freed this rule's collections; see the matching comment in submit().
+      // Deleting frees this rule's collections.
       this.governedCollections.invalidate(this.organizationId);
       await this.navigateToList();
     } catch (e) {
@@ -625,7 +581,6 @@ export class AccessRuleEditComponent {
     }
   };
 
-  /** Return to the access-rules list (the parent of both the `new` and `:id` routes). */
   private navigateToList(): Promise<boolean> {
     // An exit the admin already agreed to; the CanDeactivate guard must not ask a second time.
     this.formGroup.markAsPristine();

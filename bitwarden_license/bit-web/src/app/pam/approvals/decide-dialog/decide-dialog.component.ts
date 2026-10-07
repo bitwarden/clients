@@ -32,19 +32,16 @@ import { RequestSummaryComponent } from "../../request-summary/request-summary.c
 import { ApprovalRow } from "../approval-row";
 
 export type DecideDialogParams = {
-  /** The verdict the inbox button asked for; the approver can still switch it here. */
+  /** The verdict the inbox button asked for; the approve variant can still switch to deny. */
   verdict: AccessDecisionVerdict;
   row: ApprovalRow;
-  /** The decrypted gated cipher, for the item card's favicon; absent when the approver can't see it. */
+  /** The decrypted gated cipher, for the favicon; absent when the approver can't see it. */
   cipher?: CipherViewLike;
 };
 
 /**
  * Only an explicit confirm produces a result; every other way out closes with `undefined`.
- *
- * `verdict` is the one the approver landed on, which is NOT necessarily the one the dialog was
- * opened with — the approve variant can be switched to deny in place. Callers must record this
- * verdict rather than the one they passed.
+ * Callers must record this `verdict`, since the approve variant can switch to deny in place.
  */
 export type DecideDialogResult = {
   confirmed: true;
@@ -53,17 +50,9 @@ export type DecideDialogResult = {
 };
 
 /**
- * Confirms an approve or deny and collects the approver's note.
- *
- * A summary of what's being decided is repeated here, not assumed remembered from the row
- * behind the dialog, since approving the wrong request grants real access and the clicked row
- * may have scrolled out of view; rendered by the shared {@link RequestSummaryComponent} so both
- * surfaces describe a request identically.
- *
- * The verdict is dialog state, not a fixed parameter: "Deny request" switches this dialog to the
- * deny variant in place, discarding any note typed while approving, and denying requires a
- * reason while approving trims a whitespace-only note to `undefined`. The dialog makes no API
- * call — it returns the decision, keeping retry-and-toast logic with the caller.
+ * Confirms an approve or deny and collects the approver's note, repeating the request summary
+ * since approving the wrong request grants real access. Returns the decision for the caller to
+ * record.
  */
 @Component({
   selector: "pam-decide-dialog",
@@ -88,7 +77,10 @@ export class DecideDialogComponent {
   private readonly commentField = viewChild<ElementRef<HTMLTextAreaElement>>("commentField");
   protected readonly params = inject<DecideDialogParams>(DIALOG_DATA);
 
-  /** A group for one control, since `[bitSubmit]` only matches a form with one — that's what gives the confirm button its busy state. */
+  /**
+   * A group for one control, since `[bitSubmit]` only matches a `[formGroup]` and drives the
+   * confirm button's busy state.
+   */
   protected readonly formGroup = this.formBuilder.nonNullable.group({ comment: [""] });
 
   protected readonly verdict = signal<AccessDecisionVerdict>(this.params.verdict);
@@ -100,10 +92,7 @@ export class DecideDialogComponent {
     initialValue: "",
   });
 
-  /**
-   * `Validators.required` accepts a string of spaces, so the button is gated on the trimmed value
-   * as well — a denial whose only recorded reason is whitespace explains nothing to the requester.
-   */
+  /** `Validators.required` accepts spaces, so the button also gates on the trimmed value. */
   protected readonly confirmDisabled = computed(
     () => !this.approve() && this.comment().trim().length === 0,
   );
@@ -113,12 +102,8 @@ export class DecideDialogComponent {
   }
 
   /**
-   * A note typed while approving is cleared, not carried over — it would arrive at the requester
-   * and audit log as the reason for denial, and a non-blank leftover would leave the
-   * required-reason gate already satisfied.
-   *
-   * Focus moves after the re-render, since the triggering button lives in the approve-only
-   * branch and its own removal would otherwise drop focus to `<body>`.
+   * Clears a note typed while approving, so it can't become the denial reason. Focus moves after
+   * the re-render, since removing the switch button would drop it to `<body>`.
    */
   protected switchToDeny(): void {
     this.verdict.set("deny");
