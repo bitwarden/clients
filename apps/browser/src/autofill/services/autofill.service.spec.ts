@@ -990,6 +990,9 @@ describe("AutofillService", () => {
     it("blocks autofill on an untrusted iframe", async () => {
       autofillOptions.allowUntrustedIframe = false;
       autofillOptions.cipher.login.matchesUri = jest.fn().mockReturnValueOnce(false);
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockReturnValue(of(true));
       jest.spyOn(logService, "info");
 
       const autofillResult = await autofillService.doAutoFill(autofillOptions);
@@ -1003,6 +1006,9 @@ describe("AutofillService", () => {
     it("allows autofill on an untrusted iframe if the passed option allowing untrusted iframes is set to true", async () => {
       autofillOptions.allowUntrustedIframe = true;
       autofillOptions.cipher.login.matchesUri = jest.fn().mockReturnValue(false);
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockReturnValue(of(true));
       jest.spyOn(logService, "info");
 
       await autofillService.doAutoFill(autofillOptions);
@@ -1375,6 +1381,34 @@ describe("AutofillService", () => {
           autoSubmitLogin: false,
         });
         expect(result).toEqual({ didAutofill: true, totp: totpCode });
+      });
+
+      it("pins the last used cipher for auto-submit login and does not rotate the cipher index", async () => {
+        jest.spyOn(autofillService, "doAutoFill").mockResolvedValueOnce({ didAutofill: true });
+        jest.spyOn(cipherService, "getNextCipherForUrl");
+        jest.spyOn(cipherService, "getLastLaunchedForUrl");
+        jest.spyOn(cipherService, "getLastUsedForUrl").mockResolvedValueOnce(cipher);
+        jest.spyOn(cipherService, "updateLastUsedIndexForUrl");
+
+        const result = await autofillService.doAutoFillOnTab(pageDetails, tab, true, true);
+
+        expect(cipherService.getNextCipherForUrl).not.toHaveBeenCalled();
+        expect(cipherService.getLastLaunchedForUrl).not.toHaveBeenCalled();
+        expect(cipherService.getLastUsedForUrl).toHaveBeenCalledWith(tab.url, mockUserId, false);
+        expect(cipherService.updateLastUsedIndexForUrl).not.toHaveBeenCalled();
+        expect(autofillService.doAutoFill).toHaveBeenCalledWith({
+          tab: tab,
+          cipher: cipher,
+          pageDetails: pageDetails,
+          skipLastUsed: false,
+          skipUsernameOnlyFill: false,
+          onlyEmptyFields: false,
+          fillNewPassword: true,
+          allowUntrustedIframe: false,
+          allowTotpAutofill: false,
+          autoSubmitLogin: true,
+        });
+        expect(result).toEqual({ didAutofill: true });
       });
 
       it("will skip autofill, launch the password reprompt window, and report no fill if the cipher re-prompt type is not `None`", async () => {
@@ -3354,6 +3388,64 @@ describe("AutofillService", () => {
             options.cipher.login.username,
           );
           expect(value.autosubmit).toEqual(["form1"]);
+        });
+
+        it("marks formless autosubmit when the focused username field has no enclosing form", async () => {
+          focusedField.form = null;
+          pageDetails.fields = [focusedField];
+          pageDetails.forms = {};
+          options.autoSubmitLogin = true;
+
+          const value = await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(value.autosubmit).toEqual([null]);
+        });
+
+        it("marks formless autosubmit when filled login fields are not inside a form", async () => {
+          passwordField.form = null;
+          pageDetails.fields = [passwordField];
+          pageDetails.forms = {};
+          options.focusedFieldOpid = undefined;
+          options.autoSubmitLogin = true;
+
+          const value = await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(value.autosubmit).toEqual([null]);
+        });
+
+        it("does not set autosubmit for a TOTP-only step", async () => {
+          pageDetails.fields = [
+            createAutofillFieldMock({
+              opid: "totp",
+              form: null,
+              autoCompleteType: "one-time-code",
+            }),
+          ];
+          pageDetails.forms = {};
+          options.focusedFieldOpid = undefined;
+          options.autoSubmitLogin = true;
+          options.allowTotpAutofill = true;
+          options.cipher.login.totp = "totp-seed";
+          totpService.getCode$.mockReturnValue(of({ code: "123456", period: 30 }));
+
+          const value = await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(value.autosubmit).toBeNull();
         });
 
         it("will prioritize focused field and skip passwords in different forms", async () => {

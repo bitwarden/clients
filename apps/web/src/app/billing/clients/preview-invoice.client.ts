@@ -4,6 +4,10 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 import { BillingAddress } from "@bitwarden/web-vault/app/billing/payment/types";
+import {
+  OrganizationSubscriptionPlan,
+  OrganizationSubscriptionPurchase,
+} from "@bitwarden/web-vault/app/billing/types";
 
 class TaxAmountResponse extends BaseResponse implements TaxAmounts {
   tax: number;
@@ -35,23 +39,7 @@ export class ProrationPreviewResponse extends BaseResponse {
   }
 }
 
-export type OrganizationSubscriptionPlan = {
-  tier: "families" | "teams" | "enterprise";
-  cadence: "annually" | "monthly";
-};
-
-export type OrganizationSubscriptionPurchase = OrganizationSubscriptionPlan & {
-  passwordManager: {
-    seats: number;
-    additionalStorage: number;
-    sponsored: boolean;
-  };
-  secretsManager?: {
-    seats: number;
-    additionalServiceAccounts: number;
-    standalone: boolean;
-  };
-};
+export type { OrganizationSubscriptionPlan, OrganizationSubscriptionPurchase };
 
 export type OrganizationSubscriptionUpdate = {
   passwordManager?: {
