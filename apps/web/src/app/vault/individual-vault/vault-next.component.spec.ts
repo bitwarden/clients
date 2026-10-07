@@ -275,7 +275,7 @@ describe("VaultNextComponent", () => {
     accountService.activeAccount$ = of({ id: userId } as Account);
 
     const cipherService = mock<CipherService>();
-    cipherService.cipherListViews$.mockReturnValue(ciphers$ as never);
+    cipherService.cipherListViewsWithPartials$.mockReturnValue(ciphers$ as never);
     cipherService.failedToDecryptCiphers$.mockReturnValue(failedCiphers$);
 
     const folderService = mock<FolderService>();
@@ -441,6 +441,20 @@ describe("VaultNextComponent", () => {
           .ciphers()
           .map((c: CipherView) => c.id),
       ).toEqual(["visible"]);
+    });
+
+    it("lists PAM-gated (partial) items alongside ungated ones", () => {
+      const ungated = buildCipher({ id: "ungated" });
+      const gated = buildCipher({ id: "gated", partial: true });
+
+      ciphers$.next([ungated, gated]);
+      fixture.detectChanges();
+
+      expect(
+        component()
+          .ciphers()
+          .map((c: CipherView) => c.id),
+      ).toEqual(["ungated", "gated"]);
     });
 
     it("excludes restricted items from every scope, trash and archive included", () => {

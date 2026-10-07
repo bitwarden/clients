@@ -191,7 +191,7 @@ describe("SharedFoldersComponent", () => {
           provide: CollectionService,
           useValue: { decryptedCollections$: () => collections$ },
         },
-        { provide: CipherService, useValue: { cipherListViews$: () => ciphers$ } },
+        { provide: CipherService, useValue: { cipherListViewsWithPartials$: () => ciphers$ } },
         { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
         ...(withCollectionDialog
           ? [{ provide: COLLECTION_DIALOG, useValue: collectionDialog }]
@@ -306,6 +306,20 @@ describe("SharedFoldersComponent", () => {
       fixture.detectChanges();
 
       expect(component["loading"]()).toBe(false);
+    });
+
+    // A gated folder must not read as empty: the count is what tells the member there is
+    // something in there worth requesting access to.
+    it("counts PAM-gated items, which reach it only through cipherListViewsWithPartials$", async () => {
+      const gated = Object.assign(cipher("gated", ["a"]), { partial: true });
+
+      await setup({
+        collections: [collection({ id: "a", name: "Engineering" })],
+        ciphers: [gated, cipher("ungated", ["a"])],
+      });
+      fixture.detectChanges();
+
+      expect(bitTable().filtered()).toEqual([expect.objectContaining({ items: 2 })]);
     });
 
     it("re-renders as the collections stream re-emits", async () => {
