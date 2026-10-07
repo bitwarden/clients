@@ -8,6 +8,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
 import { SshAgentPromptType } from "../models/ssh-agent-setting";
 
+import { AgentRequestGate } from "./agent-request-gate.service";
 import { SshAgentService } from "./ssh-agent.service";
 
 function makeSshCipher(id: string, name: string, privateKey: string): CipherView {
@@ -31,6 +32,17 @@ const flush = () => new Promise<void>((resolve) => setTimeout(resolve));
  */
 const rejectLater = (message: string) =>
   new Promise<never>((_, reject) => setTimeout(() => reject(new Error(message))));
+
+const gates: AgentRequestGate[] = [];
+afterEach(() => gates.splice(0).forEach((gate) => gate.ngOnDestroy()));
+
+// Takes the pre-gate constructor arguments and builds a real gate from the same mocks.
+function createService(...deps: any[]): SshAgentService {
+  const [cipher, log, dialog, messages, auth, toast, i18n, settings, account] = deps;
+  const gate = new AgentRequestGate(auth, account, toast, i18n, log);
+  gates.push(gate);
+  return new SshAgentService(cipher, log, dialog, messages, auth, i18n, settings, account, gate);
+}
 
 describe("SshAgentService", () => {
   let service: SshAgentService;
@@ -105,7 +117,7 @@ describe("SshAgentService", () => {
     };
     const mockAccountService = { activeAccount$: accountSubject.asObservable() };
 
-    service = new SshAgentService(
+    service = createService(
       mockCipherService as any,
       mockLogService as any,
       mockDialogService as any,
@@ -357,12 +369,12 @@ describe("SshAgentService", () => {
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    (service as any).authorizedHosts = new Map([["cipher-abc", new Set(["local"])]]);
+    (service as any).gate.remembered.add("ssh:cipher-abc:local");
 
-    service.ngOnDestroy();
+    (service as any).gate.ngOnDestroy();
     await flush();
 
-    expect((service as any).authorizedHosts).toEqual(new Map());
+    expect((service as any).gate.remembered.has("ssh:cipher-abc:local")).toBe(false);
   });
 
   it("when server is already loaded, does not call init again on unlock", async () => {
@@ -381,24 +393,24 @@ describe("SshAgentService", () => {
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    (service as any).authorizedHosts = new Map([["cipher-abc", new Set(["local"])]]);
+    (service as any).gate.remembered.add("ssh:cipher-abc:local");
 
     accountSubject.next({ id: "user-2" as UserId });
     await flush();
 
-    expect((service as any).authorizedHosts).toEqual(new Map());
+    expect((service as any).gate.remembered.has("ssh:cipher-abc:local")).toBe(false);
   });
 
   it("when the active account changes with feature disabled, still resets in-memory approval state", async () => {
     accountSubject.next({ id: "user-1" as UserId });
     await flush();
 
-    (service as any).authorizedHosts = new Map([["cipher-abc", new Set(["local"])]]);
+    (service as any).gate.remembered.add("ssh:cipher-abc:local");
 
     accountSubject.next({ id: "user-2" as UserId });
     await flush();
 
-    expect((service as any).authorizedHosts).toEqual(new Map());
+    expect((service as any).gate.remembered.has("ssh:cipher-abc:local")).toBe(false);
   });
 
   it("when activeAccount$ re-emits with the same id, does not reset approval state", async () => {
@@ -406,13 +418,12 @@ describe("SshAgentService", () => {
     accountSubject.next({ id: "user-1" as UserId });
     await flush();
 
-    const seeded = new Map([["cipher-abc", new Set(["local"])]]);
-    (service as any).authorizedHosts = seeded;
+    (service as any).gate.remembered.add("ssh:cipher-abc:local");
 
     accountSubject.next({ id: "user-1" as UserId });
     await flush();
 
-    expect((service as any).authorizedHosts).toBe(seeded);
+    expect((service as any).gate.remembered.has("ssh:cipher-abc:local")).toBe(true);
   });
 
   it("when a key push fails, it is attempted once and not retried in a loop", async () => {
@@ -557,7 +568,7 @@ describe("SshAgentService – sign request authorization", () => {
       platform: { focusWindow: mockFocusWindow },
     };
 
-    service = new SshAgentService(
+    service = createService(
       {
         cipherViews$: jest.fn().mockReturnValue(of([])),
         getAllDecrypted: mockGetAllDecrypted,
@@ -634,7 +645,7 @@ describe("SshAgentService – sign request authorization", () => {
 
     it("RememberUntilLock: refuses even with an approval already remembered", async () => {
       promptBehaviorSubject.next(SshAgentPromptType.RememberUntilLock);
-      (service as any).authorizedKeys = new Map([[CIPHER_ID, new Set(["local"])]]);
+      (service as any).gate.remembered.add(`ssh:${CIPHER_ID}:local`);
 
       sendSignRequest();
       await flush();
@@ -994,7 +1005,7 @@ describe("SshAgentService – list keys request", () => {
       platform: { focusWindow: mockFocusWindow },
     };
 
-    service = new SshAgentService(
+    service = createService(
       {
         cipherViews$: jest.fn().mockReturnValue(of([])),
         getAllDecrypted: jest.fn().mockResolvedValue([makeSshCipher("c1", "My Key", "pem")]),
@@ -1145,7 +1156,7 @@ describe("SshAgentService – concurrent sign requests", () => {
       platform: { focusWindow: jest.fn() },
     };
 
-    service = new SshAgentService(
+    service = createService(
       {
         cipherViews$: jest.fn().mockReturnValue(of([])),
         getAllDecrypted: mockGetAllDecrypted,
@@ -1252,7 +1263,7 @@ describe("SshAgentService – concurrent list keys requests", () => {
       platform: { focusWindow: jest.fn() },
     };
 
-    service = new SshAgentService(
+    service = createService(
       {
         cipherViews$: jest.fn().mockReturnValue(of([])),
         getAllDecrypted: mockGetAllDecrypted,
