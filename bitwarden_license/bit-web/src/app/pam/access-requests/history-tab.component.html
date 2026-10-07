@@ -108,6 +108,12 @@
       }
     </div>
   }
+} @else if (!hasHistory()) {
+  <bit-status-lockup class="tw-mt-2 tw-block" data-testid="my-access-history-empty">
+    <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>
+    <span slot="title">{{ "pamHistoryEmptyTitle" | i18n }}</span>
+    <span slot="description">{{ "pamHistoryEmptyDescription" | i18n }}</span>
+  </bit-status-lockup>
 } @else if (vfo1Enabled()) {
   <bit-table-v2 [tableDef]="historyTable" [filter]="matchesFilters">
     <bit-table-toolbar [countLabel]="resultsLabel">
@@ -398,7 +404,7 @@
 }
 
 <ng-template #historyEmptyState>
-  <bit-status-lockup class="tw-mt-2 tw-block" data-testid="my-access-history-empty">
+  <bit-status-lockup class="tw-mt-2 tw-block" data-testid="my-access-history-scope-empty">
     <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>
     <span slot="title">{{ emptyMessageKey() | i18n }}</span>
   </bit-status-lockup>
