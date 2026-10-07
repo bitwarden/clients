@@ -77,7 +77,12 @@ describe("AutoSubmitLogin content script", () => {
 
   describe("when the page contains form fields", () => {
     it("ends the auto-submit login workflow if the provided fill script does not contain an autosubmit value", async () => {
+      (chrome.runtime.onMessage.addListener as unknown as jest.Mock).mockClear();
+      (chrome.runtime.onMessage.removeListener as unknown as jest.Mock).mockClear();
       await initAutoSubmitWorkflow();
+
+      const listener = (chrome.runtime.onMessage.addListener as unknown as jest.Mock).mock
+        .calls[0][0];
 
       sendMockExtensionMessage({
         command: "triggerAutoSubmitLogin",
@@ -86,6 +91,7 @@ describe("AutoSubmitLogin content script", () => {
       });
       await flushPromises();
 
+      expect(chrome.runtime.onMessage.removeListener).toHaveBeenCalledWith(listener);
       expect(chrome.runtime.sendMessage).toHaveBeenCalledWith(
         {
           command: "updateIsFieldCurrentlyFilling",
