@@ -1,9 +1,11 @@
-import { computed, signal } from "@angular/core";
+import { Injectable, computed, signal } from "@angular/core";
 
-import { PositionIdentifier } from "../popover";
+import { PopoverAnchorRef, PositionIdentifier } from "../popover";
 
-export interface CoachmarkStep<TStepId extends string = string> {
-  readonly id: TStepId;
+export interface CoachmarkStep {
+  readonly id: string;
+  /** The element to spotlight, read while the step is active. The step waits while it's missing. */
+  readonly anchor: PopoverAnchorRef;
   /** Preferred popover position for this step. */
   readonly position?: PositionIdentifier;
   /** Include the step only when this returns true. Checked once, when the tour starts. */
@@ -20,19 +22,31 @@ export interface CoachmarkTourOptions {
 }
 
 /**
- * Step state for a coachmark tour. Holds no storage or eligibility logic: the consumer decides
- * when to `start()` and persists completion in `onEnd`.
+ * Step state for one coachmark tour. Provide it on the component that owns the tour, where its
+ * `bit-coachmark`s inject it; the consumer decides when to `start()` and persists in `onEnd`.
  *
  * @example
  * ```ts
- * readonly tour = new CoachmarkTour([
- *   { id: "filters", position: "below-end" },
- *   { id: "filterRow", beforeEnter: () => this.dialogOpen.set(true), afterLeave: () => this.dialogOpen.set(false) },
- * ], { onEnd: () => this.saveTourCompleted() });
+ * @Component({ providers: [CoachmarkTourService], … })
+ * class VaultComponent {
+ *   private readonly tour = inject(CoachmarkTourService);
+ *   private readonly toolbar = viewChild.required(BitTableToolbarComponent);
+ *
+ *   constructor() {
+ *     this.tour.configure(
+ *       [{ id: "filters", anchor: computed(() => this.toolbar().filterButton()) }],
+ *       { onEnd: () => this.saveTourCompleted() },
+ *     );
+ *   }
+ * }
  * ```
  */
-export class CoachmarkTour<TStepId extends string = string> {
-  private readonly steps = signal<readonly CoachmarkStep<TStepId>[]>([]);
+@Injectable()
+export class CoachmarkTourService {
+  private allSteps: readonly CoachmarkStep[] = [];
+  private options: CoachmarkTourOptions = {};
+
+  private readonly steps = signal<readonly CoachmarkStep[]>([]);
   private readonly index = signal(-1);
 
   readonly activeStep = computed(() => this.steps()[this.index()]);
@@ -41,17 +55,14 @@ export class CoachmarkTour<TStepId extends string = string> {
   readonly stepNumber = computed(() => this.index() + 1);
   readonly totalSteps = computed(() => this.steps().length);
 
-  constructor(
-    private readonly allSteps: readonly CoachmarkStep<TStepId>[],
-    private readonly options: CoachmarkTourOptions = {},
-  ) {}
-
-  isActive(id: TStepId): boolean {
-    return this.activeStep()?.id === id;
+  /** Sets the tour's steps. Call before `start()`. */
+  configure(steps: readonly CoachmarkStep[], options: CoachmarkTourOptions = {}): void {
+    this.allSteps = steps;
+    this.options = options;
   }
 
-  position(id: TStepId): PositionIdentifier | undefined {
-    return this.allSteps.find((step) => step.id === id)?.position;
+  isActive(id: string): boolean {
+    return this.activeStep()?.id === id;
   }
 
   /** Starts at the first step whose `when` passes. No-op if running or no step applies. */

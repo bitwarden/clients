@@ -1,5 +1,13 @@
 import { NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormRecord, ReactiveFormsModule } from "@angular/forms";
 import { NavigationEnd, Router } from "@angular/router";
@@ -17,7 +25,7 @@ import { BulkActionsBarComponent } from "../../bulk-actions-bar/bulk-actions-bar
 import { BulkAdditionalActionComponent } from "../../bulk-actions-bar/bulk-additional-action.component";
 import { ButtonModule } from "../../button";
 import { ChipActionComponent } from "../../chips/chip-action";
-import { CoachmarkComponent, CoachmarkTour } from "../../coachmark";
+import { CoachmarkComponent, CoachmarkTourService } from "../../coachmark";
 import { DialogModule } from "../../dialog";
 import { FilterMenuModule, type FilterOptionIconTile } from "../../filter-menu";
 import { FormFieldModule } from "../../form-field";
@@ -426,6 +434,7 @@ class DemoFilterableTableComponent {
 @Component({
   selector: "demo-filter-coachmark-table",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [CoachmarkTourService],
   imports: [
     BitTableV2Component,
     BitColumnComponent,
@@ -443,7 +452,6 @@ class DemoFilterableTableComponent {
     <div class="tw-flex tw-flex-col" style="width: 380px; height: 600px">
       <bit-table-v2 [tableDef]="table" [filter]="filter" presentation="list" height="fill">
         <bit-table-toolbar
-          #toolbar
           [(filterDialogOpen)]="filterDialogOpen"
           (filterDialogOpenChange)="$event || tour.end()"
         >
@@ -496,31 +504,36 @@ class DemoFilterableTableComponent {
       </bit-table-v2>
     </div>
 
-    <bit-coachmark [tour]="tour" step="filters" [anchor]="toolbar.filtersAnchor()" title="Filters">
+    <bit-coachmark step="filters" title="Filters">
       Narrow the list by type or vault.
     </bit-coachmark>
-    <bit-coachmark
-      [tour]="tour"
-      step="vaultRow"
-      [anchor]="toolbar.filterDialogRowAnchor('vault')"
-      title="Vaults"
-    >
+    <bit-coachmark step="vaultRow" title="Vaults">
       Show items from one vault at a time.
     </bit-coachmark>
   `,
 })
 class DemoFilterCoachmarkTableComponent extends DemoFilterableTableComponent {
   protected readonly filterDialogOpen = signal(false);
+  protected readonly tour = inject(CoachmarkTourService);
+  private readonly toolbar = viewChild.required(BitTableToolbarComponent);
 
-  protected readonly tour = new CoachmarkTour([
-    { id: "filters", position: "below-end" },
-    {
-      id: "vaultRow",
-      position: "above-center",
-      beforeEnter: () => this.filterDialogOpen.set(true),
-      afterLeave: () => this.filterDialogOpen.set(false),
-    },
-  ]);
+  constructor() {
+    super();
+    this.tour.configure([
+      {
+        id: "filters",
+        anchor: computed(() => this.toolbar().filterButton()),
+        position: "below-end",
+      },
+      {
+        id: "vaultRow",
+        anchor: computed(() => this.toolbar().filterRow("vault")()),
+        position: "above-center",
+        beforeEnter: () => this.filterDialogOpen.set(true),
+        afterLeave: () => this.filterDialogOpen.set(false),
+      },
+    ]);
+  }
 }
 
 @Component({

@@ -1,2 +1,2 @@
 export * from "./coachmark.component";
-export * from "./coachmark-tour";
+export * from "./coachmark-tour.service";

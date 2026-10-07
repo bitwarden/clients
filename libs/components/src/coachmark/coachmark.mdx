@@ -16,40 +16,47 @@ and Back / Next / Close.
 
 A tour has two parts:
 
-- **`CoachmarkTour`** holds the steps and which one is active. Create one per tour in the consuming
-  component.
-- **`<bit-coachmark>`** is one step's popover. It shows while its step is active, spotlighting the
-  element passed to `[anchor]`.
+- **`CoachmarkTourService`** holds the steps, their anchors, and which one is active. Provide it on
+  the component that owns the tour, so each tour gets its own instance.
+- **`<bit-coachmark>`** is one step's content. It shows while its step is active, spotlighting that
+  step's anchor.
 
 ```ts
-readonly tour = new CoachmarkTour(
-  [
-    { id: "filters", position: "below-end" },
-    {
-      id: "filterRow",
-      position: "above-center",
-      beforeEnter: () => this.filterDialogOpen.set(true),
-      afterLeave: () => this.filterDialogOpen.set(false),
-    },
-  ],
-  { onEnd: () => this.saveTourCompleted() },
-);
+@Component({
+  providers: [CoachmarkTourService],
+  …
+})
+export class VaultComponent {
+  private readonly tour = inject(CoachmarkTourService);
+  private readonly toolbar = viewChild.required(BitTableToolbarComponent);
+
+  constructor() {
+    this.tour.configure(
+      [
+        {
+          id: "filters",
+          anchor: computed(() => this.toolbar().filterButton()),
+          position: "below-end",
+        },
+        {
+          id: "filterRow",
+          anchor: computed(() => this.toolbar().filterRow("vault")()),
+          position: "above-center",
+          beforeEnter: () => this.filterDialogOpen.set(true),
+          afterLeave: () => this.filterDialogOpen.set(false),
+        },
+      ],
+      { onEnd: () => this.saveTourCompleted() },
+    );
+  }
+}
 ```
 
 ```html
-<bit-table-toolbar #toolbar [(filterDialogOpen)]="filterDialogOpen">…</bit-table-toolbar>
+<bit-table-toolbar [(filterDialogOpen)]="filterDialogOpen">…</bit-table-toolbar>
 
-<bit-coachmark [tour]="tour" step="filters" [anchor]="toolbar.filtersAnchor()" [title]="…">
-  …
-</bit-coachmark>
-<bit-coachmark
-  [tour]="tour"
-  step="filterRow"
-  [anchor]="toolbar.filterDialogRowAnchor('vault')"
-  [title]="…"
->
-  …
-</bit-coachmark>
+<bit-coachmark step="filters" [title]="…">…</bit-coachmark>
+<bit-coachmark step="filterRow" [title]="…">…</bit-coachmark>
 ```
 
 Call `tour.start()` when the user is eligible. The library doesn't store anything: persist
@@ -57,9 +64,9 @@ completion in `onEnd`, which runs whether the user finishes or dismisses the tou
 
 ### Anchors
 
-`[anchor]` takes an element: a template reference for something you render, or an anchor a library
-component exposes (such as `bit-table-toolbar`'s `filtersAnchor()`). While it's `undefined`, the
-step waits for it to render and finish animating in. If it goes away while shown, the tour ends.
+A step's `anchor` is an element, an `ElementRef`, or a signal of one: a `viewChild` for something
+you render, or a `computed` over a ref a library component exposes (such as `bit-table-toolbar`'s
+`filterButton`). The step waits for it to render and finish animating in, and hides while it's gone.
 
 ### Revealing a step's container
 

@@ -1,14 +1,32 @@
-import { CoachmarkStep, CoachmarkTour } from "./coachmark-tour";
+import {
+  CoachmarkStep,
+  CoachmarkTourOptions,
+  CoachmarkTourService,
+} from "./coachmark-tour.service";
 
-describe("CoachmarkTour", () => {
-  const steps: CoachmarkStep<"a" | "b" | "c">[] = [
+const anchor = document.createElement("div");
+
+function createTour(
+  steps: readonly Omit<CoachmarkStep, "anchor">[],
+  options?: CoachmarkTourOptions,
+): CoachmarkTourService {
+  const tour = new CoachmarkTourService();
+  tour.configure(
+    steps.map((step) => ({ ...step, anchor })),
+    options,
+  );
+  return tour;
+}
+
+describe("CoachmarkTourService", () => {
+  const steps: Omit<CoachmarkStep, "anchor">[] = [
     { id: "a", position: "below-end" },
     { id: "b" },
     { id: "c" },
   ];
 
   it("is idle until started", () => {
-    const tour = new CoachmarkTour(steps);
+    const tour = createTour(steps);
 
     expect(tour.running()).toBe(false);
     expect(tour.stepNumber()).toBe(0);
@@ -16,7 +34,7 @@ describe("CoachmarkTour", () => {
   });
 
   it("walks forward and back through the steps", () => {
-    const tour = new CoachmarkTour(steps);
+    const tour = createTour(steps);
 
     tour.start();
     expect(tour.isActive("a")).toBe(true);
@@ -35,7 +53,7 @@ describe("CoachmarkTour", () => {
 
   it("ends from the last step and calls onEnd once", () => {
     const onEnd = jest.fn();
-    const tour = new CoachmarkTour(steps, { onEnd });
+    const tour = createTour(steps, { onEnd });
 
     tour.start();
     tour.next();
@@ -50,7 +68,7 @@ describe("CoachmarkTour", () => {
   });
 
   it("skips steps whose `when` fails, and counts only the rest", () => {
-    const tour = new CoachmarkTour([{ id: "a", when: () => false }, { id: "b" }, { id: "c" }]);
+    const tour = createTour([{ id: "a", when: () => false }, { id: "b" }, { id: "c" }]);
 
     tour.start();
 
@@ -59,7 +77,7 @@ describe("CoachmarkTour", () => {
   });
 
   it("doesn't start when no step applies", () => {
-    const tour = new CoachmarkTour([{ id: "a", when: () => false }]);
+    const tour = createTour([{ id: "a", when: () => false }]);
 
     tour.start();
 
@@ -67,7 +85,7 @@ describe("CoachmarkTour", () => {
   });
 
   it("ignores start() while already running", () => {
-    const tour = new CoachmarkTour(steps);
+    const tour = createTour(steps);
 
     tour.start();
     tour.next();
@@ -78,8 +96,7 @@ describe("CoachmarkTour", () => {
 
   it("runs beforeEnter before the step activates and afterLeave when leaving it", () => {
     const calls: string[] = [];
-    let tour: CoachmarkTour = new CoachmarkTour([]);
-    tour = new CoachmarkTour([
+    const tour: CoachmarkTourService = createTour([
       { id: "a" },
       {
         id: "b",
@@ -102,10 +119,19 @@ describe("CoachmarkTour", () => {
     ]);
   });
 
-  it("looks up a step's position", () => {
-    const tour = new CoachmarkTour(steps);
+  it("exposes the active step's anchor and position", () => {
+    const tour = createTour(steps);
 
-    expect(tour.position("a")).toBe("below-end");
-    expect(tour.position("b")).toBeUndefined();
+    tour.start();
+
+    expect(tour.activeStep()).toMatchObject({ anchor, position: "below-end" });
+  });
+
+  it("doesn't start before it's configured", () => {
+    const tour = new CoachmarkTourService();
+
+    tour.start();
+
+    expect(tour.running()).toBe(false);
   });
 });
