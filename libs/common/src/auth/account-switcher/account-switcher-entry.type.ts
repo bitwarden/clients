@@ -11,5 +11,4 @@ export type AccountSwitcherEntry = {
   status: AuthenticationStatus;
   avatarColor: string | null;
   serverHostname: string | undefined;
-  isActive: boolean;
 };

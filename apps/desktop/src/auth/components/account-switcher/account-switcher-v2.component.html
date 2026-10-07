@@ -1,6 +1,6 @@
 <ng-container *ngIf="view$ | async as view">
   @if (view.showSwitcher) {
-    @if (view.activeAccount?.email != null) {
+    @if (view.active?.email != null) {
       @if (expanded()) {
         <span class="tw-flex tw-w-full tw-justify-start tw-overflow-hidden tw-gap-2 tw-pl-1">
           <button
@@ -11,17 +11,15 @@
             class="tw-border-0 tw-bg-transparent tw-px-0 tw-py-3"
           >
             <bit-avatar
-              [text]="view.activeAccount.name ?? view.activeAccount.email"
-              [id]="view.activeAccount.id"
-              [color]="view.activeAccount.avatarColor"
-              [attr.aria-label]="view.activeAccount.name ?? view.activeAccount.email"
+              [text]="view.active.name ?? view.active.email"
+              [id]="view.active.id"
+              [color]="view.active.avatarColor"
+              [attr.aria-label]="view.active.name ?? view.active.email"
             ></bit-avatar>
           </button>
           <span class="tw-flex tw-justify-center tw-flex-col tw-overflow-hidden">
-            <span class="tw-truncate">{{
-              view.activeAccount.name ?? view.activeAccount.email
-            }}</span>
-            <small class="tw-truncate tw-text-fg-body-subtle">{{ view.activeAccount.email }}</small>
+            <span class="tw-truncate">{{ view.active.name ?? view.active.email }}</span>
+            <small class="tw-truncate tw-text-fg-body-subtle">{{ view.active.email }}</small>
           </span>
         </span>
       } @else {
@@ -34,10 +32,10 @@
             class="tw-border-0 tw-bg-transparent tw-px-0 tw-py-3"
           >
             <bit-avatar
-              [text]="view.activeAccount.name ?? view.activeAccount.email"
-              [id]="view.activeAccount.id"
-              [color]="view.activeAccount.avatarColor"
-              [attr.aria-label]="view.activeAccount.name ?? view.activeAccount.email"
+              [text]="view.active.name ?? view.active.email"
+              [id]="view.active.id"
+              [color]="view.active.avatarColor"
+              [attr.aria-label]="view.active.name ?? view.active.email"
             ></bit-avatar>
           </button>
         </span>
@@ -61,8 +59,8 @@
 
     <bit-menu #switcherMenu>
       <div class="tw-flex tw-min-w-52 tw-max-w-72 tw-flex-col">
-        @if (view.inactiveAccounts.length > 0) {
-          @for (account of view.inactiveAccounts; track account.id) {
+        @if (view.inactive.length > 0) {
+          @for (account of view.inactive; track account.id) {
             <button bitMenuItem type="button" (click)="switch(account.id)">
               <span class="tw-flex tw-gap-2">
                 @if (account.email != null) {
@@ -96,9 +94,9 @@
             </button>
           }
         }
-        @if (view.activeAccount) {
+        @if (view.active) {
           <bit-menu-divider></bit-menu-divider>
-          @if (view.inactiveAccounts.length < 4) {
+          @if (view.canAddAccount) {
             <button bitMenuItem type="button" (click)="addAccount()">
               <bit-icon name="bwi-plus" aria-hidden="true"></bit-icon>
               {{ "addAccount" | i18n }}

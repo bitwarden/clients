@@ -7,7 +7,7 @@ import { firstValueFrom, map, Observable } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
-  AccountSwitcherEntry,
+  AccountSwitcherEntries,
   AccountSwitcherService,
 } from "@bitwarden/common/auth/account-switcher";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -25,11 +25,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DesktopBiometricsService } from "../../../key-management/biometrics/desktop.biometrics.service";
 
-type SwitcherView = {
-  activeAccount: AccountSwitcherEntry | null;
-  inactiveAccounts: AccountSwitcherEntry[];
-  showSwitcher: boolean;
-};
+type SwitcherView = AccountSwitcherEntries & { showSwitcher: boolean };
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -68,15 +64,10 @@ export class AccountSwitcherV2Component {
     private accountSwitcherService: AccountSwitcherService,
   ) {
     this.view$ = this.accountSwitcherService.entries$.pipe(
-      map((entries) => {
-        const activeAccount = entries.find((entry) => entry.isActive) ?? null;
-        const inactiveAccounts = entries.filter((entry) => !entry.isActive);
-        return {
-          activeAccount,
-          inactiveAccounts,
-          showSwitcher: activeAccount != null || inactiveAccounts.length > 0,
-        };
-      }),
+      map((entries) => ({
+        ...entries,
+        showSwitcher: entries.active != null || entries.inactive.length > 0,
+      })),
     );
   }
 

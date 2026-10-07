@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, map } from "rxjs";
+import { BehaviorSubject, firstValueFrom, map, of } from "rxjs";
 
 import { mockAccountInfoWith } from "../../../spec/fake-account-service";
 import { Environment, EnvironmentService } from "../../platform/abstractions/environment.service";
@@ -9,6 +9,7 @@ import { AuthService } from "../abstractions/auth.service";
 import { AvatarService } from "../abstractions/avatar.service";
 import { AuthenticationStatus } from "../enums/authentication-status";
 
+import { AccountSwitcherEntries } from "./account-switcher-entries.type";
 import { DefaultAccountSwitcherService } from "./default-account-switcher.service";
 
 describe("DefaultAccountSwitcherService", () => {
@@ -31,6 +32,12 @@ describe("DefaultAccountSwitcherService", () => {
 
   const environmentWithHost = (hostname: string) =>
     ({ getHostname: () => hostname }) as Environment;
+
+  /** Reduces entries to their user IDs for compact assertions. */
+  const idsOf = (entries: AccountSwitcherEntries) => ({
+    active: entries.active?.id ?? null,
+    inactive: entries.inactive.map((entry) => entry.id),
+  });
 
   const infoFor = (userId: UserId) =>
     mockAccountInfoWith({ name: `name-${userId}`, email: `${userId}@example.com` });
@@ -71,10 +78,14 @@ describe("DefaultAccountSwitcherService", () => {
     );
 
     avatarService = mock<AvatarService>();
-    avatarService.getUserAvatarColor$.mockImplementation((userId) => avatarColors[userId]);
+    avatarService.getUserAvatarColor$.mockImplementation(
+      (userId) => avatarColors[userId] ?? of(null),
+    );
 
     environmentService = mock<EnvironmentService>();
-    environmentService.getEnvironment$.mockImplementation((userId) => environments[userId]);
+    environmentService.getEnvironment$.mockImplementation(
+      (userId) => environments[userId] ?? of(environmentWithHost(`server-${userId}`)),
+    );
 
     sut = new DefaultAccountSwitcherService(
       accountService,
@@ -85,7 +96,7 @@ describe("DefaultAccountSwitcherService", () => {
   });
 
   describe("entries$", () => {
-    it("includes the active account and excludes logged-out accounts", async () => {
+    it("splits the active account from the others and excludes logged-out accounts", async () => {
       setup({
         [userA]: AuthenticationStatus.Unlocked,
         [userB]: AuthenticationStatus.LoggedOut,
@@ -94,13 +105,10 @@ describe("DefaultAccountSwitcherService", () => {
 
       const result = await firstValueFrom(sut.entries$);
 
-      expect(result.map((e) => [e.id, e.isActive])).toEqual([
-        [userA, true],
-        [userC, false],
-      ]);
+      expect(idsOf(result)).toEqual({ active: userA, inactive: [userC] });
     });
 
-    it("orders entries by most recent activity", async () => {
+    it("orders the inactive accounts by most recent activity", async () => {
       setup({
         [userA]: AuthenticationStatus.Unlocked,
         [userB]: AuthenticationStatus.Locked,
@@ -110,7 +118,7 @@ describe("DefaultAccountSwitcherService", () => {
 
       const result = await firstValueFrom(sut.entries$);
 
-      expect(result.map((e) => e.id)).toEqual([userC, userA, userB]);
+      expect(idsOf(result)).toEqual({ active: userA, inactive: [userC, userB] });
     });
 
     it("excludes accounts with no recorded activity", async () => {
@@ -123,7 +131,7 @@ describe("DefaultAccountSwitcherService", () => {
 
       const result = await firstValueFrom(sut.entries$);
 
-      expect(result.map((e) => e.id)).toEqual([userA, userC]);
+      expect(idsOf(result)).toEqual({ active: userA, inactive: [userC] });
     });
 
     it("excludes activity entries with no matching account", async () => {
@@ -136,7 +144,45 @@ describe("DefaultAccountSwitcherService", () => {
 
       const result = await firstValueFrom(sut.entries$);
 
-      expect(result.map((e) => e.id)).toEqual([userA, userC]);
+      expect(idsOf(result)).toEqual({ active: userA, inactive: [userC] });
+    });
+
+    it("excludes accounts with no known status", async () => {
+      setup({
+        [userA]: AuthenticationStatus.Unlocked,
+        [userC]: AuthenticationStatus.Locked,
+      });
+
+      const result = await firstValueFrom(sut.entries$);
+
+      expect(idsOf(result)).toEqual({ active: userA, inactive: [userC] });
+    });
+
+    it("has no active entry when the active account is logged out", async () => {
+      setup({
+        [userA]: AuthenticationStatus.LoggedOut,
+        [userB]: AuthenticationStatus.Locked,
+        [userC]: AuthenticationStatus.LoggedOut,
+      });
+
+      const result = await firstValueFrom(sut.entries$);
+
+      expect(idsOf(result)).toEqual({ active: null, inactive: [userB] });
+    });
+
+    it("has no active entry when there is no active account", async () => {
+      setup(
+        {
+          [userA]: AuthenticationStatus.Unlocked,
+          [userB]: AuthenticationStatus.Locked,
+          [userC]: AuthenticationStatus.LoggedOut,
+        },
+        null,
+      );
+
+      const result = await firstValueFrom(sut.entries$);
+
+      expect(idsOf(result)).toEqual({ active: null, inactive: [userA, userB] });
     });
 
     it("builds each entry from account, status, avatar, and environment data", async () => {
@@ -148,26 +194,83 @@ describe("DefaultAccountSwitcherService", () => {
 
       const result = await firstValueFrom(sut.entries$);
 
-      expect(result).toEqual([
-        {
+      expect(result).toEqual({
+        active: {
           id: userA,
           name: `name-${userA}`,
           email: `${userA}@example.com`,
           status: AuthenticationStatus.Unlocked,
           avatarColor: "#aaaaaa",
           serverHostname: `server-${userA}`,
-          isActive: true,
         },
-        {
-          id: userB,
-          name: `name-${userB}`,
-          email: `${userB}@example.com`,
-          status: AuthenticationStatus.Locked,
-          avatarColor: "#bbbbbb",
-          serverHostname: `server-${userB}`,
-          isActive: false,
-        },
-      ]);
+        inactive: [
+          {
+            id: userB,
+            name: `name-${userB}`,
+            email: `${userB}@example.com`,
+            status: AuthenticationStatus.Locked,
+            avatarColor: "#bbbbbb",
+            serverHostname: `server-${userB}`,
+          },
+        ],
+        canAddAccount: true,
+      });
+    });
+
+    it("updates an entry when its status changes", async () => {
+      setup({
+        [userA]: AuthenticationStatus.Unlocked,
+        [userB]: AuthenticationStatus.Locked,
+        [userC]: AuthenticationStatus.Locked,
+      });
+      const emissions: AccountSwitcherEntries[] = [];
+      const subscription = sut.entries$.subscribe((entries) => emissions.push(entries));
+
+      authStatuses$.next({
+        [userA]: AuthenticationStatus.Unlocked,
+        [userB]: AuthenticationStatus.Unlocked,
+        [userC]: AuthenticationStatus.LoggedOut,
+      });
+      subscription.unsubscribe();
+
+      const latest = emissions.at(-1)!;
+      expect(idsOf(latest)).toEqual({ active: userA, inactive: [userB] });
+      expect(latest.inactive[0].status).toBe(AuthenticationStatus.Unlocked);
+    });
+
+    it("moves an account to active when the active account changes", async () => {
+      setup({
+        [userA]: AuthenticationStatus.Unlocked,
+        [userB]: AuthenticationStatus.Unlocked,
+        [userC]: AuthenticationStatus.LoggedOut,
+      });
+      const emissions: AccountSwitcherEntries[] = [];
+      const subscription = sut.entries$.subscribe((entries) => emissions.push(entries));
+
+      activeAccount$.next({ id: userB, ...infoFor(userB) });
+      subscription.unsubscribe();
+
+      expect(idsOf(emissions.at(-1)!)).toEqual({ active: userB, inactive: [userA] });
+    });
+
+    it("never shows an account as both active and inactive, or as neither, during a switch", async () => {
+      setup({
+        [userA]: AuthenticationStatus.Unlocked,
+        [userB]: AuthenticationStatus.Unlocked,
+        [userC]: AuthenticationStatus.Locked,
+      });
+      const emissions: AccountSwitcherEntries[] = [];
+      const subscription = sut.entries$.subscribe((entries) => emissions.push(entries));
+
+      activeAccount$.next({ id: userB, ...infoFor(userB) });
+      activeAccount$.next({ id: userC, ...infoFor(userC) });
+      subscription.unsubscribe();
+
+      for (const entries of emissions) {
+        const ids = [entries.active?.id, ...entries.inactive.map((entry) => entry.id)];
+        expect(ids.sort()).toEqual([userA, userB, userC].sort());
+      }
+      expect(idsOf(emissions.at(-1)!)).toEqual({ active: userC, inactive: [userA, userB] });
     });
 
     it("emits again when an avatar color changes", async () => {
@@ -178,80 +281,13 @@ describe("DefaultAccountSwitcherService", () => {
       });
       const emissions: (string | null)[] = [];
       const subscription = sut.entries$.subscribe((entries) =>
-        emissions.push(entries.find((e) => e.id === userB)?.avatarColor ?? null),
+        emissions.push(entries.inactive[0]?.avatarColor ?? null),
       );
 
       avatarColors[userB].next("#123456");
       subscription.unsubscribe();
 
       expect(emissions).toEqual(["#bbbbbb", "#123456"]);
-    });
-
-    it("excludes the active account when it is logged out", async () => {
-      setup({
-        [userA]: AuthenticationStatus.LoggedOut,
-        [userB]: AuthenticationStatus.Locked,
-        [userC]: AuthenticationStatus.LoggedOut,
-      });
-
-      const result = await firstValueFrom(sut.entries$);
-
-      expect(result.map((e) => [e.id, e.isActive])).toEqual([[userB, false]]);
-    });
-
-    it("excludes accounts with no known status", async () => {
-      setup({
-        [userA]: AuthenticationStatus.Unlocked,
-        [userC]: AuthenticationStatus.Locked,
-      });
-
-      const result = await firstValueFrom(sut.entries$);
-
-      expect(result.map((e) => e.id)).toEqual([userA, userC]);
-    });
-
-    it("updates an entry when its status changes", async () => {
-      setup({
-        [userA]: AuthenticationStatus.Unlocked,
-        [userB]: AuthenticationStatus.Locked,
-        [userC]: AuthenticationStatus.Locked,
-      });
-      const emissions: [string, AuthenticationStatus][][] = [];
-      const subscription = sut.entries$.subscribe((entries) =>
-        emissions.push(entries.map((e) => [e.id, e.status])),
-      );
-
-      authStatuses$.next({
-        [userA]: AuthenticationStatus.Unlocked,
-        [userB]: AuthenticationStatus.Unlocked,
-        [userC]: AuthenticationStatus.LoggedOut,
-      });
-      subscription.unsubscribe();
-
-      expect(emissions.at(-1)).toEqual([
-        [userA, AuthenticationStatus.Unlocked],
-        [userB, AuthenticationStatus.Unlocked],
-      ]);
-    });
-
-    it("moves the active flag when the active account changes", async () => {
-      setup({
-        [userA]: AuthenticationStatus.Unlocked,
-        [userB]: AuthenticationStatus.Unlocked,
-        [userC]: AuthenticationStatus.LoggedOut,
-      });
-      const emissions: [string, boolean][][] = [];
-      const subscription = sut.entries$.subscribe((entries) =>
-        emissions.push(entries.map((e) => [e.id, e.isActive])),
-      );
-
-      activeAccount$.next({ id: userB, ...infoFor(userB) });
-      subscription.unsubscribe();
-
-      expect(emissions.at(-1)).toEqual([
-        [userA, false],
-        [userB, true],
-      ]);
     });
 
     it("emits again when a server hostname changes", async () => {
@@ -262,7 +298,7 @@ describe("DefaultAccountSwitcherService", () => {
       });
       const emissions: (string | undefined)[] = [];
       const subscription = sut.entries$.subscribe((entries) =>
-        emissions.push(entries.find((e) => e.id === userB)?.serverHostname),
+        emissions.push(entries.inactive[0]?.serverHostname),
       );
 
       environments[userB].next(environmentWithHost("self-hosted.example.com"));
@@ -271,7 +307,7 @@ describe("DefaultAccountSwitcherService", () => {
       expect(emissions).toEqual([`server-${userB}`, "self-hosted.example.com"]);
     });
 
-    it("emits an empty list when every account is logged out", async () => {
+    it("emits no entries when every account is logged out", async () => {
       setup({
         [userA]: AuthenticationStatus.LoggedOut,
         [userB]: AuthenticationStatus.LoggedOut,
@@ -280,7 +316,66 @@ describe("DefaultAccountSwitcherService", () => {
 
       const result = await firstValueFrom(sut.entries$);
 
-      expect(result).toEqual([]);
+      expect(result).toEqual({ active: null, inactive: [], canAddAccount: true });
+    });
+  });
+
+  describe("account limit", () => {
+    const userD = "00000000-0000-0000-0000-00000000000d" as UserId;
+    const userE = "00000000-0000-0000-0000-00000000000e" as UserId;
+    const allUsers = [userA, userB, userC, userD, userE];
+
+    const allWithStatus = (status: AuthenticationStatus) =>
+      Object.fromEntries(allUsers.map((id) => [id, status])) as Record<
+        UserId,
+        AuthenticationStatus
+      >;
+
+    /** Sets up five accounts with the given statuses. A is active. */
+    const setupFive = (statuses: Record<UserId, AuthenticationStatus>) => {
+      accounts$.next(Object.fromEntries(allUsers.map((id) => [id, infoFor(id)])));
+      activeAccount$.next({ id: userA, ...infoFor(userA) });
+      sortedUserIds$.next(allUsers);
+      authStatuses$.next(statuses);
+    };
+
+    const fourOfFive = {
+      ...allWithStatus(AuthenticationStatus.Locked),
+      [userE]: AuthenticationStatus.LoggedOut,
+    };
+
+    it("does not allow another account when five accounts are not logged out", async () => {
+      setupFive(allWithStatus(AuthenticationStatus.Locked));
+
+      expect(await firstValueFrom(sut.canAddAccount$)).toBe(false);
+      expect((await firstValueFrom(sut.entries$)).canAddAccount).toBe(false);
+    });
+
+    it("allows another account when four accounts are not logged out", async () => {
+      setupFive(fourOfFive);
+
+      expect(await firstValueFrom(sut.canAddAccount$)).toBe(true);
+      expect((await firstValueFrom(sut.entries$)).canAddAccount).toBe(true);
+    });
+
+    it("allows another account again after an account logs out", async () => {
+      setupFive(allWithStatus(AuthenticationStatus.Locked));
+      const emissions: boolean[] = [];
+      const subscription = sut.canAddAccount$.subscribe((canAdd) => emissions.push(canAdd));
+
+      authStatuses$.next(fourOfFive);
+      subscription.unsubscribe();
+
+      expect(emissions).toEqual([false, true]);
+    });
+
+    it("does not read avatar or environment data for canAddAccount$", async () => {
+      setupFive(fourOfFive);
+
+      await firstValueFrom(sut.canAddAccount$);
+
+      expect(avatarService.getUserAvatarColor$).not.toHaveBeenCalled();
+      expect(environmentService.getEnvironment$).not.toHaveBeenCalled();
     });
   });
 

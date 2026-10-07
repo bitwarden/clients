@@ -6,14 +6,22 @@ import { AuthService } from "../abstractions/auth.service";
 import { AvatarService } from "../abstractions/avatar.service";
 import { AuthenticationStatus } from "../enums/authentication-status";
 
+import { AccountSwitcherEntries } from "./account-switcher-entries.type";
 import { AccountSwitcherEntry } from "./account-switcher-entry.type";
 import { AccountSwitcherService } from "./account-switcher.service";
 import { ActiveAccountResolution } from "./active-account-resolution.type";
 
+/** The most accounts that can be not logged out at the same time. */
+const MAX_ACCOUNTS = 5;
+
 type UsableAccount = { account: Account; status: AuthenticationStatus; isActive: boolean };
 
+const hasRoomForAnotherAccount = (usableAccounts: UsableAccount[]) =>
+  usableAccounts.length < MAX_ACCOUNTS;
+
 export class DefaultAccountSwitcherService implements AccountSwitcherService {
-  readonly entries$: Observable<AccountSwitcherEntry[]>;
+  readonly entries$: Observable<AccountSwitcherEntries>;
+  readonly canAddAccount$: Observable<boolean>;
   readonly nextSwitchableAccount$: Observable<Account | null>;
 
   /** Every account that is not logged out, the active account included, most recently active first. */
@@ -49,12 +57,24 @@ export class DefaultAccountSwitcherService implements AccountSwitcherService {
     );
 
     this.entries$ = this.usableAccounts$.pipe(
-      switchMap((usableAccounts) =>
-        usableAccounts.length === 0
-          ? of([])
-          : combineLatest(usableAccounts.map((usableAccount) => this.toEntry$(usableAccount))),
-      ),
+      switchMap((usableAccounts) => {
+        const entries$: Observable<AccountSwitcherEntry[]> =
+          usableAccounts.length === 0
+            ? of([])
+            : combineLatest(usableAccounts.map((usableAccount) => this.toEntry$(usableAccount)));
+        const activeIndex = usableAccounts.findIndex((usableAccount) => usableAccount.isActive);
+
+        return entries$.pipe(
+          map((entries) => ({
+            active: activeIndex === -1 ? null : entries[activeIndex],
+            inactive: entries.filter((_, index) => index !== activeIndex),
+            canAddAccount: hasRoomForAnotherAccount(usableAccounts),
+          })),
+        );
+      }),
     );
+
+    this.canAddAccount$ = this.usableAccounts$.pipe(map(hasRoomForAnotherAccount));
 
     this.nextSwitchableAccount$ = this.usableAccounts$.pipe(
       map(
@@ -81,7 +101,7 @@ export class DefaultAccountSwitcherService implements AccountSwitcherService {
       : { action: "switch", targetUserId: nextAccount.id };
   }
 
-  private toEntry$({ account, status, isActive }: UsableAccount): Observable<AccountSwitcherEntry> {
+  private toEntry$({ account, status }: UsableAccount): Observable<AccountSwitcherEntry> {
     return combineLatest([
       this.avatarService.getUserAvatarColor$(account.id),
       this.environmentService.getEnvironment$(account.id),
@@ -93,7 +113,6 @@ export class DefaultAccountSwitcherService implements AccountSwitcherService {
         status,
         avatarColor,
         serverHostname: environment?.getHostname(),
-        isActive,
       })),
     );
   }

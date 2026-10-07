@@ -2,7 +2,7 @@ import { Observable } from "rxjs";
 
 import { Account } from "../abstractions/account.service";
 
-import { AccountSwitcherEntry } from "./account-switcher-entry.type";
+import { AccountSwitcherEntries } from "./account-switcher-entries.type";
 import { ActiveAccountResolution } from "./active-account-resolution.type";
 
 /**
@@ -12,9 +12,16 @@ import { ActiveAccountResolution } from "./active-account-resolution.type";
  */
 export abstract class AccountSwitcherService {
   /**
-   * Every account that is not logged out, the active account included, most recently active first.
+   * The accounts that are not logged out, split into the active account and the others, and
+   * whether another account can be added. Emits one consistent value per change.
    */
-  abstract entries$: Observable<AccountSwitcherEntry[]>;
+  abstract entries$: Observable<AccountSwitcherEntries>;
+
+  /**
+   * Whether another account can be added without exceeding the account limit. Matches
+   * `canAddAccount` in {@link entries$}, without reading avatar or server data.
+   */
+  abstract canAddAccount$: Observable<boolean>;
 
   /**
    * The most recently active account, other than the active account, that is not logged out.
