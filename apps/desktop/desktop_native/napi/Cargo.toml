@@ -17,13 +17,13 @@ default = []
 manual_test = []
 
 [dependencies]
+agent_access = { path = "../agent_access" }
 anyhow = { workspace = true }
 async-trait = { workspace = true }
 autofill_provider = { path = "../autofill_provider", features = ["napi"] }
 autotype = { path = "../autotype" }
 biometric = { path = "../biometric" }
 chromium_importer = { path = "../chromium_importer" }
-credential_agent = { path = "../credential_agent" }
 desktop_core = { path = "../core" }
 napi = { workspace = true, features = ["async", "anyhow"] }
 napi-derive = { workspace = true }

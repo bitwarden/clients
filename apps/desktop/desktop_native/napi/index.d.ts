@@ -192,6 +192,84 @@ export declare namespace autofill {
     handle: Array<number>
   }
 }
+export declare namespace agent_access {
+  export class AgentAccessState {
+    /** Starts the listener; every request is answered through `callback`. */
+    static serve(callback: ((err: Error | null, arg: AgentRequest) => Promise<AgentOutcome>)): Promise<AgentAccessState>
+    stop(): void
+    isRunning(): boolean
+  }
+  export interface AgentOutcome {
+    status: OutcomeStatus
+    /** Only for an approved credential request. */
+    credential?: Credential
+  }
+  export interface AgentRequest {
+    kind: AgentRequestKind
+    requester: Requester
+    /** Epoch ms after which nobody waits for the answer. */
+    deadline: number
+  }
+  export type AgentRequestKind =
+    | { type: 'credential', query: CredentialQuery, purpose?: Purpose }
+    | { type: 'approval', title: string, body?: string }
+  export interface Credential {
+    username?: string
+    password?: string
+    totp?: string
+    uri?: string
+    credentialId?: string
+  }
+  /** Exactly one field is set, as on the wire. */
+  export interface CredentialQuery {
+    domain?: string
+    id?: string
+    search?: string
+  }
+  export const enum OutcomeStatus {
+    Approved = 'approved',
+    Denied = 'denied',
+    NotFound = 'notFound',
+    Locked = 'locked',
+    Timeout = 'timeout',
+    Error = 'error'
+  }
+  export interface ProcessHop {
+    pid: number
+    name: string
+    exe?: string
+    signer?: Signer
+  }
+  /** Client-reported; display only. */
+  export interface Purpose {
+    command?: string
+    env: Record<string, string>
+  }
+  export interface Requester {
+    app: RequesterApp
+    /** From the socket peer upwards. */
+    chain: Array<ProcessHop>
+  }
+  export interface RequesterApp {
+    name: string
+    pid: number
+    exe?: string
+    signer?: Signer
+  }
+  export interface Signer {
+    kind: SignerKind
+    id?: string
+    organization?: string
+    valid: boolean
+  }
+  export const enum SignerKind {
+    DeveloperId = 'developerId',
+    Platform = 'platform',
+    AdHoc = 'adHoc',
+    Other = 'other'
+  }
+}
+
 export declare namespace autofill {
   export class AutofillIpcServer {
     /**
@@ -320,47 +398,6 @@ export declare namespace chromium_importer {
 export declare namespace clipboards {
   export function read(): Promise<string>
   export function write(text: string, password: boolean): Promise<void>
-}
-
-export declare namespace credential_agent {
-  /** Wrapper for Electron to interface with the agent directly. */
-  export class CredentialAgentState {
-    /**
-     * Creates the agent and starts its listener.
-     *
-     * # Arguments
-     *
-     * * `request_callback` - Resolves a credential request, including user approval.
-     */
-    static serve(requestCallback: ((err: Error | null, arg: CredentialRequest) => Promise<CredentialResponse>)): Promise<CredentialAgentState>
-    stop(): void
-    isRunning(): boolean
-  }
-  export interface Credential {
-    cipherId: string
-    name: string
-    username?: string
-    password?: string
-    totp?: string
-  }
-  /** A credential request handed to Electron. */
-  export interface CredentialRequest {
-    uri?: string
-    name?: string
-    /** The process that opened the connection, when it could be resolved. */
-    processName?: string
-    processId?: number
-  }
-  /** Electron's answer. `credential` is set only when `status` is `granted`. */
-  export interface CredentialResponse {
-    status: CredentialStatus
-    credential?: Credential
-  }
-  export const enum CredentialStatus {
-    Granted = 'granted',
-    Denied = 'denied',
-    NotFound = 'notFound'
-  }
 }
 
 export declare namespace ipc {
