@@ -33,7 +33,7 @@ providers: [
 
 ### Injection tokens
 
-Give every `SafeInjectionToken<T>` a specific `T` — never `Type<unknown>`, `unknown` or `any`. For a component token, declare an interface for the inputs the consumer binds and use `Type<ThatInterface>`.
+Give every `SafeInjectionToken<T>` a specific `T` — never `Type<unknown>`, `unknown` or `any`. For a component token, declare an interface or type for the inputs the consumer binds and use `Type<ThatShape>`.
 
 ```typescript
 export interface VaultGatedCollectionBanner {
