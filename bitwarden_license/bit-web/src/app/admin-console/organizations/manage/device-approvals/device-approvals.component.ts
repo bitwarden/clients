@@ -1,7 +1,7 @@
 import { Component, DestroyRef, OnInit, signal, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { BehaviorSubject, combineLatest, map, shareReplay, startWith, switchMap } from "rxjs";
+import { BehaviorSubject, combineLatest, map, merge, shareReplay, switchMap } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
@@ -80,9 +80,9 @@ export class DeviceApprovalsComponent implements OnInit {
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  protected loading$ = this.requests$.pipe(
-    map(() => false),
-    startWith(true),
+  protected loading$ = merge(
+    combineLatest([this.orgId$, this.refresh$]).pipe(map(() => true)),
+    this.requests$.pipe(map(() => false)),
   );
 
   async ngOnInit() {
