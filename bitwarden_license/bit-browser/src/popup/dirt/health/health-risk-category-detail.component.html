@@ -73,7 +73,7 @@
               <bit-menu #itemMenu>
                 @if (exclusionsEnabled()) {
                   <button bitMenuItem type="button" (click)="onExcludeItem(health)">
-                    <bit-icon name="bwi-error" slot="start" />
+                    <bit-icon name="bwi-warning" slot="start" />
                     {{ "excludeFromList" | i18n }}
                   </button>
                 }

@@ -78,10 +78,10 @@ describe("HealthExcludeAtRiskItemDialogComponent", () => {
     expect(text()).toContain("cancel");
   });
 
-  it("shows the danger icon instead of the default warning icon", async () => {
+  it("shows the warning circle icon from the design", async () => {
     await initComponent();
 
-    expect(host().querySelector('bit-icon[name="bwi-error"]')).not.toBeNull();
+    expect(host().querySelector('bit-icon[name="bwi-warning"]')).not.toBeNull();
   });
 
   it("shows the additional risks when the item has lower risks", async () => {
