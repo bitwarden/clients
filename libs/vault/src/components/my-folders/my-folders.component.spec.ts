@@ -144,7 +144,7 @@ describe("MyFoldersComponent", () => {
         { provide: AccountService, useValue: mockAccountServiceWith(userId) },
         {
           provide: CipherService,
-          useValue: { cipherListViewsIncludingRestricted$: () => cipherListViews$ },
+          useValue: { cipherListViewsWithPartials$: () => cipherListViews$ },
         },
         { provide: DialogService, useValue: dialogService },
         { provide: FolderApiServiceAbstraction, useValue: folderApiService },
