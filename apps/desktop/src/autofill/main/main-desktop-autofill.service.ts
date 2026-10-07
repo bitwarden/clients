@@ -116,11 +116,12 @@ export class DesktopAutofillMain {
       return true;
     }
 
-    if (process.platform === "win32") {
-      try {
-        passkey_authenticator.register();
-      } catch (err) {
-        this.logService.error("Failed to register windows passkey plugin:", err);
+    try {
+      passkey_authenticator.register();
+    } catch (err) {
+      // The passkey plugin is not supported, so there is nothing to register.
+      if (!(err instanceof Error && err.message === passkey_authenticator.NOT_SUPPORTED)) {
+        this.logService.error("Failed to register passkey plugin:", err);
         this.enabled = false;
         return false;
       }

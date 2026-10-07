@@ -2,12 +2,13 @@ use super::RegisterError;
 use crate::passkey_authenticator::passkey_authenticator::PasskeyProviderState;
 
 pub fn register() -> Result<(), RegisterError> {
-    windows_plugin_authenticator::register().map_err(|e| match e {
-        windows_plugin_authenticator::RegisterError::NotSupported => RegisterError::NotSupported,
-        windows_plugin_authenticator::RegisterError::Failed(reason) => {
-            RegisterError::Failed(reason)
-        }
-    })
+    // The OS registers the autofill extension, so there is nothing to do as long as the app is
+    // entitled to act as a credential provider.
+    if desktop_core::autofill::has_credential_provider_entitlement() {
+        Ok(())
+    } else {
+        Err(RegisterError::NotSupported)
+    }
 }
 
 #[allow(clippy::unused_async)]
