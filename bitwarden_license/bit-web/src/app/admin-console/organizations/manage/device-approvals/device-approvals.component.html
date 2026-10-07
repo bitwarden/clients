@@ -56,7 +56,7 @@
       </tr>
     </ng-container>
     <ng-template body let-rows$>
-      @for (r of rows$ | async; track r.id) {
+      @for (r of $any(rows$ | async); track r.id) {
         <tr bitRow alignContent="top">
           <td bitCell class="tw-flex-col">
             <div>{{ r.email }}</div>
