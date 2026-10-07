@@ -417,16 +417,12 @@ export class CipherViewLikeUtils {
   };
 
   /**
-   * @returns `true` for a restricted cipher: the server withheld its secrets, so the view has only
-   *   the name, login URIs and metadata. Default cipher streams exclude these; see
-   *   `cipherListViewsIncludingRestricted$`.
+   * @returns `true` for a PAM-gated ("partial") cipher, whose view carries only the name and
+   *   login URIs. Default cipher streams exclude these; see `cipherListViewsWithPartials$`.
    */
-  static isRestricted = (cipher: CipherViewLike): boolean => {
+  static isPartial = (cipher: CipherViewLike): boolean => {
     return "partial" in cipher ? !!cipher.partial : false;
   };
-
-  /** @deprecated Use {@link isRestricted}. */
-  static isPartial = CipherViewLikeUtils.isRestricted;
 
   /**
    * Returns the notes from the cipher.

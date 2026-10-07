@@ -25,21 +25,8 @@ import type { CipherAccessStateView } from "../abstractions/access-lease";
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 
 /**
- * PAM's {@link GatedCipherReloader}: reveals a gated cipher in place once an active lease
- * covers it, and re-locks it when the lease ends.
- *
- * Emits `null` while ungated, the full {@link Cipher} while covered, keyed off the lease id.
- * Reads through the STANDARD single-cipher endpoint, not a PAM-specific one, since the server
- * already decides per caller what a cipher's payload contains.
- *
- * "Ends" includes running out of time, which nothing announces; {@link rereadOnLapse} supplies
- * that tick (PM-41837).
- *
- * THIS IS THE MODULE'S LAST RAW-HTTP CALL: swap {@link fetchLeased} onto
- * `pam().leases().leased_cipher(cipherId)` once a published `sdk-internal` carries it.
- *
- * The result is never written into the local cipher cache, so a lapsed lease can't leave
- * decryptable secrets behind.
+ * Never caches the revealed cipher locally, so a lapsed lease leaves no decryptable secrets.
+ * {@link fetchLeased} uses raw HTTP until a published `sdk-internal` has `leased_cipher()`.
  */
 export class PamGatedCipherReloader implements GatedCipherReloader {
   constructor(
@@ -78,9 +65,8 @@ export class PamGatedCipherReloader implements GatedCipherReloader {
   }
 
   /**
-   * The clock ticks OUTSIDE the zone, since an in-zone interval never lets NgZone settle. The
-   * re-lock it drives rewrites plain component fields on the open dialog, so change detection has
-   * to run behind it. Applied after `distinctUntilChanged`, so only a real change pays for it.
+   * The clock ticks outside the zone, but the re-lock rewrites plain component fields on the open
+   * dialog, so emissions re-enter it. Applied after `distinctUntilChanged`, so only a change pays.
    */
   private inAngularZone<T>(): MonoTypeOperatorFunction<T> {
     return (source) =>
@@ -94,9 +80,8 @@ export class PamGatedCipherReloader implements GatedCipherReloader {
   }
 
   /**
-   * Read the cipher now that a lease covers it. A response that is still restricted means the lease
-   * lapsed between the state read and this fetch, so it is reported as "no access" rather than
-   * revealed — the partial copy the dialog already holds is the correct thing to keep showing.
+   * A still-restricted response means the lease lapsed after the state read, so it reports no
+   * access and the dialog keeps its partial copy.
    */
   private async fetchLeased(cipherId: string): Promise<Cipher | null> {
     try {

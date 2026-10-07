@@ -177,7 +177,6 @@ export const FlagOn: Story = {
   globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
-/** No access connectors have been registered yet. */
 export const Empty: Story = {
   decorators: [rotationServices([])],
 };

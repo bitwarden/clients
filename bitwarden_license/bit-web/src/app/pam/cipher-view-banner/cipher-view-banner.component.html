@@ -1,9 +1,7 @@
 @if (unlicensed()) {
   <!--
-    First, replacing every other state: the server withholds a gated cipher's secrets from an
-    unlicensed caller regardless of lease (`CipherLeaseGate.LeaseCanRelease`), so there's no
-    access left to describe. Withdrawing an outstanding request stays reachable from the
-    vault-row menu and the My requests tab, neither of which is licensing-gated.
+    No cancel here; the vault-row menu and the My requests tab still withdraw a request, and
+    neither is licensing-gated.
   -->
   <bit-card class="tw-mb-5 bit-compact:tw-mb-4" data-testid="cipher-view-banner-unlicensed">
     <div class="tw-flex tw-items-start tw-gap-4">
@@ -33,10 +31,6 @@
       />
       <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-gap-2 tw-text-fg-body">
         <div class="tw-flex tw-flex-col">
-          <!--
-            Escalates on the same five-minute cutoff as the access-state badge (PM-40498). The
-            badge itself is suppressed on this surface, so this heading carries the warning.
-          -->
           @if (leaseEndingSoon()) {
             <h3 bitTypography="h5" noMargin data-testid="active-lease-ending-soon">
               {{ "pamActiveLeaseBannerEndingSoonTitle" | i18n: leaseRemainingLabel() }}
@@ -216,9 +210,8 @@
         } @else if (requestMode() !== null) {
           @if (slotContention(); as contention) {
             <!--
-              Replaces the description rather than stacking on it: the automatic path's
-              immediate-access copy is false while the slot is taken. The form stays enabled —
-              the request is still worth making.
+              Replaces the description, whose immediate-access copy is false while the slot is
+              taken. The form stays enabled, since the request is still worth making.
             -->
             <p bitTypography="body2" class="tw-mb-4 tw-mt-0 tw-flex tw-items-start tw-gap-2">
               <bit-icon name="bwi-exclamation-triangle" class="tw-mt-0.5 tw-text-warning" />

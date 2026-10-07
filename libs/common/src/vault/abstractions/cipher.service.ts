@@ -59,11 +59,11 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract cipherView$(userId: UserId, cipherId: CipherId): Observable<CipherView | undefined>;
   abstract cipherListViews$(userId: UserId): Observable<CipherListView[] | CipherView[]>;
   /**
-   * Like {@link cipherListViews$}, but includes restricted ciphers. Opt-in: only the
-   * vault list should consume it, so restricted ciphers never reach autofill, export, key rotation,
-   * and similar flows.
+   * Like {@link cipherListViews$}, but includes PAM-gated ("partial") rows, whose sensitive
+   * fields the server suppressed. Only surfaces that render gated rows, such as the vault list,
+   * should use it.
    */
-  abstract cipherListViewsIncludingRestricted$(
+  abstract cipherListViewsWithPartials$(
     userId: UserId,
   ): Observable<CipherListView[] | CipherView[]>;
   abstract ciphers$(userId: UserId): Observable<Record<CipherId, CipherData>>;
@@ -111,10 +111,10 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   ): Promise<CipherView[]>;
   abstract getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]>;
   /**
-   * Like {@link getAllDecryptedForIds}, but keeps restricted ciphers, which carry only the
-   * name and, for logins, the URIs. Only for surfaces that must name a restricted cipher.
+   * Like {@link getAllDecryptedForIds}, but keeps PAM-gated ("partial") rows, which carry only the
+   * name and, for logins, the URIs. Only for surfaces that must name a gated cipher.
    */
-  abstract getAllDecryptedForIdsIncludingRestricted(
+  abstract getAllDecryptedForIdsIncludingPartials(
     userId: UserId,
     ids: string[],
   ): Promise<CipherView[]>;

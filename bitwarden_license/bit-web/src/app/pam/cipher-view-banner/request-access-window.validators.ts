@@ -6,23 +6,17 @@ import {
   requestWindowProblem,
 } from "../helpers/request-access-window";
 
-/** The key the window validator reports its {@link RequestWindowError} under. */
 export const REQUEST_WINDOW_ERROR_KEY = "requestWindow";
 
 /**
- * The shape reported under {@link REQUEST_WINDOW_ERROR_KEY}. `message` is already localized so
- * `bit-error` renders it through its `error[1].message` fall-through.
+ * `message` is already localized, so `bit-error` renders it through its `error[1].message`
+ * fall-through.
  */
 export type RequestWindowError = { problem: RequestWindowProblem; message: string };
 
 /**
- * End-time validator for the human-path window: rejects an end not after the start, an elapsed
- * window, and a span past the rule's cap.
- *
- * Field-level, not group-level, so `bit-form-field` renders it in the End time slot.
- *
- * A factory, since the cap is per-rule and unknown until the pre-check lands;
- * `maxWindowSeconds` and `now` are callbacks, not captured values.
+ * Field-level rather than group-level, so `bit-form-field` renders it in the End time slot. The cap
+ * is a callback, since it is per-rule and unknown until the pre-check lands.
  */
 export function requestWindowEndValidator(
   maxWindowSeconds: () => number | null,
@@ -34,8 +28,8 @@ export function requestWindowEndValidator(
     if (group == null) {
       return null;
     }
-    // Read off sibling CONTROLS, never `group.value`: a child's `valueChanges` fires before the
-    // group's cached value updates.
+    // Reads the sibling controls rather than `group.value`, since a child's `valueChanges` fires
+    // before the group's cached value updates.
     const requested: RequestWindowFormValue = {
       startDate: group.get("startDate")?.value,
       startTime: group.get("startTime")?.value,
