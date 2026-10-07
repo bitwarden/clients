@@ -37,7 +37,10 @@ export const DELETE_MANAGED_USER_WARNING = new StateDefinition(
   },
 );
 export const AUTO_CONFIRM = new StateDefinition("autoConfirm", "disk", { web: "disk-local" });
-export const ORGANIZATION_INVITE_LINK_DISK = new StateDefinition("organizationInviteLink", "disk");
+export const ORGANIZATION_INVITE_LINK_MEMORY = new StateDefinition(
+  "organizationInviteLink",
+  "memory",
+);
 export const INVITE_LINK_CALLOUT_DISK = new StateDefinition("inviteLinkCallout", "disk", {
   web: "disk-local",
 });
