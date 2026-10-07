@@ -29,7 +29,7 @@ const routes: Routes = [
       },
       {
         path: "audit",
-        canActivate: [organizationPermissionsGuard((org) => org.canAccessEventLogs)],
+        canActivate: [organizationPermissionsGuard((org) => org.usePam && org.canAccessEventLogs)],
         component: AccessAuditComponent,
         // Route-provided (not root): resolves cipher/collection names from local vault state,
         // same as "My access".
