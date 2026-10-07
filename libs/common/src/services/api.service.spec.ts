@@ -1385,4 +1385,77 @@ describe("ApiService", () => {
       expect(nativeXMLHttpRequest).not.toHaveBeenCalled();
     });
   });
+
+  describe("nativeXMLHttpRequest", () => {
+    const originalXMLHttpRequest = globalThis.XMLHttpRequest;
+
+    beforeAll(() => {
+      // jsdom doesn't ship Response
+      (globalThis as any).Response = class {
+        constructor(
+          public body: unknown,
+          public init: { status: number; headers: Headers },
+        ) {}
+        get status() {
+          return this.init.status;
+        }
+        get headers() {
+          return this.init.headers;
+        }
+      };
+    });
+
+    afterAll(() => {
+      delete (globalThis as any).Response;
+    });
+
+    afterEach(() => {
+      globalThis.XMLHttpRequest = originalXMLHttpRequest;
+    });
+
+    function stubXhr(status: number, responseHeaders: string, body: string) {
+      class FakeXhr {
+        responseType = "";
+        response: ArrayBuffer;
+        status = status;
+        upload = {} as XMLHttpRequestUpload;
+        onload: () => void;
+        onerror: () => void;
+        open = jest.fn();
+        setRequestHeader = jest.fn();
+        getAllResponseHeaders = () => responseHeaders;
+        send = () => {
+          this.response = new TextEncoder().encode(body).buffer as ArrayBuffer;
+          this.onload();
+        };
+      }
+      globalThis.XMLHttpRequest = FakeXhr as unknown as typeof XMLHttpRequest;
+    }
+
+    const request = {
+      method: "POST",
+      url: "https://example.com/upload",
+      headers: new Headers(),
+      arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+    } satisfies Partial<Request> as Request;
+
+    it("propagates the XHR response headers onto the returned Response", async () => {
+      stubXhr(400, "Content-Type: application/json\r\nX-Custom: a:b\r\n", "{}");
+
+      const response = await sut.nativeXMLHttpRequest(request, jest.fn());
+
+      expect(response.status).toBe(400);
+      expect(response.headers.get("content-type")).toBe("application/json");
+      expect(response.headers.get("x-custom")).toBe("a:b");
+    });
+
+    it("resolves with empty headers when the XHR exposes none", async () => {
+      stubXhr(201, "", "");
+
+      const response = await sut.nativeXMLHttpRequest(request, jest.fn());
+
+      expect(response.status).toBe(201);
+      expect(response.headers.get("content-type")).toBeNull();
+    });
+  });
 });

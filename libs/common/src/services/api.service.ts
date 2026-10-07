@@ -1316,7 +1316,21 @@ export class ApiService implements ApiServiceAbstraction {
           onProgress(Math.round((e.loaded / e.total) * 100));
         }
       };
-      xhr.onload = () => resolve(new Response(xhr.response, { status: xhr.status }));
+      xhr.onload = () => {
+        const headers = new Headers();
+        xhr
+          .getAllResponseHeaders()
+          .trim()
+          .split(/[\r\n]+/)
+          .filter(Boolean)
+          .forEach((line) => {
+            const separatorIndex = line.indexOf(":");
+            const name = line.slice(0, separatorIndex).trim();
+            const value = line.slice(separatorIndex + 1).trim();
+            headers.append(name, value);
+          });
+        resolve(new Response(xhr.response, { status: xhr.status, headers }));
+      };
       xhr.onerror = () => reject(new Error("Network error during upload"));
       void request
         .arrayBuffer()
