@@ -24,9 +24,9 @@ import { I18nPipe } from "@bitwarden/ui-common";
 const HEIGHT_PROPERTY = "--private-access-banner-height";
 
 /**
- * Where a banner instance is rendered. `app` sits above the router outlet and covers routes
- * without `bit-layout`; `layout` sits inside `bit-layout`'s focus trap so its link stays
- * keyboard reachable, and suppresses the `app` instance while it is mounted.
+ * `app` sits above the router outlet for routes without `bit-layout`. `layout` sits inside
+ * `bit-layout`'s focus trap so its link stays keyboard reachable, and hides the `app` instance
+ * while mounted.
  */
 export type PrivateAccessBannerPlacement = "app" | "layout";
 

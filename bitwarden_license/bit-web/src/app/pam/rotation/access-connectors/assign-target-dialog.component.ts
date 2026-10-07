@@ -19,30 +19,18 @@ import { AccessConnector, TargetSystem } from "../rotation";
 import { ROTATION_TABS, rotationLink } from "../rotation-links";
 
 export type AssignTargetDialogParams = {
-  /** The access connector being assigned a target system. */
   accessConnector: AccessConnector;
-  /**
-   * The set of automatic target systems that are NOT already assigned to this access connector,
-   * including disabled ones. Callers (the tab component) compute this from
-   * `automaticSystems$` filtered against `accessConnector.assignedTargetSystemIds`.
-   */
+  /** The automatic target systems not yet assigned to this access connector, disabled included. */
   options: TargetSystem[];
   /**
-   * True when the organization has no active automatic target system at all, as opposed to
-   * having some that are all already assigned to this access connector.
+   * True when the organization has no automatic target system at all, rather than all of them
+   * being assigned already. Status is not considered.
    */
   noActiveAutomaticSystems: boolean;
 };
 
-/**
- * Closed with the selected `targetSystemId` on confirm, or `undefined` on dismiss.
- */
+/** The selected `targetSystemId` on confirm, or `undefined` on dismiss. */
 export type AssignTargetDialogResult = string | undefined;
-
-/**
- * Simple select-and-confirm dialog for assigning an automatic target
- * system to an access connector.
- */
 @Component({
   selector: "app-assign-target-dialog",
   templateUrl: "./assign-target-dialog.component.html",

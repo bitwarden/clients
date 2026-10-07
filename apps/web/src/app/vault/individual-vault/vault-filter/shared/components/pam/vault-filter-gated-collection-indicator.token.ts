@@ -3,10 +3,8 @@ import { Type } from "@angular/core";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 
 /**
- * Optional indicator rendered beside each collection in the Filters sidebar. A host provides
- * the component class; `app-filter-section` mounts it via `NgComponentOutlet` for collection
- * nodes, passing the node as `collection`. Whether a collection warrants an indicator is
- * entirely the provided component's decision. Unprovided, the sidebar is unchanged.
+ * Optional component rendered beside each collection in the Filters sidebar, given the node as its
+ * `collection` input. The component decides whether that collection gets an indicator.
  */
 export const VAULT_FILTER_GATED_COLLECTION_INDICATOR = new SafeInjectionToken<Type<unknown>>(
   "VaultFilterGatedCollectionIndicator",

@@ -18,7 +18,6 @@ describe("ACCESS_RULE_DURATION_PRESETS", () => {
   });
 
   it("labels every multi-day preset in the unit the list promotes it to", () => {
-    // Same hazard as the 24h case, for the presets the list renders in days.
     const dayPresets = ACCESS_RULE_DURATION_PRESETS.filter(
       (p) => pickDurationUnit(p.seconds).unit === "day",
     );

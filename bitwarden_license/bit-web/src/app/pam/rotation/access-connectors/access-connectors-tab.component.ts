@@ -72,14 +72,8 @@ import { AccessConnectorRegisterDialogComponent } from "./access-connector-regis
 import { AccessConnectorRow, AccessConnectorsService } from "./access-connectors.service";
 import { AssignTargetDialogComponent } from "./assign-target-dialog.component";
 
-/**
- * A {@link AccessConnectorRow} with the row menu's own state added.
- */
 export type AccessConnectorTabRow = AccessConnectorRow & {
-  /**
-   * Why no target system can be assigned to this connector right now, as the i18n key the menu
-   * item's tooltip states, or null when one can.
-   */
+  /** The i18n key for why the menu can't assign a target system now, or null when it can. */
   readonly assignTargetsBlockedKey: string | null;
 };
 
@@ -148,9 +142,6 @@ export class AccessConnectorsTabComponent {
   /** Whether the placeholder is drawn, which trails {@link loading} by the skeleton delay. */
   protected readonly showSkeleton = showSkeletonWhile(this.loading);
 
-  /**
-   * Whether the loading branch is on screen.
-   */
   protected readonly loadingVisible = computed(() => this.loading() || this.showSkeleton());
 
   protected readonly skeletonRows = [0, 1, 2, 3, 4];
@@ -168,16 +159,12 @@ export class AccessConnectorsTabComponent {
     initialValue: null,
   });
 
-  /**
-   * Whether the target-system list has actually been read.
-   */
+  /** Whether the target-system list has been read successfully. */
   private readonly targetSystemsKnown = computed(
     () => !this.targetSystemsLoading() && this.targetSystemsLoadError() == null,
   );
 
-  /**
-   * Whether the target-system read has landed and failed, so there is no list to offer.
-   */
+  /** Whether the target-system read has landed and failed, so there is no list to offer. */
   private readonly targetSystemsUnavailable = computed(
     () => !this.targetSystemsLoading() && this.targetSystemsLoadError() != null,
   );
@@ -194,8 +181,8 @@ export class AccessConnectorsTabComponent {
   protected readonly dataSource = new TableDataSource<AccessConnectorTabRow>();
   protected readonly table = defineTable<AccessConnectorTabRow, "actions">(this.rows);
   /**
-   * Model for the loading placeholder, which draws no data rows: while a load is in flight, rows
-   * already held from an earlier load would otherwise show through before the skeleton's delay.
+   * Model for the loading placeholder, with no rows, so rows from an earlier load don't show
+   * through before the skeleton's delay.
    */
   protected readonly loadingTable = defineTable<AccessConnectorTabRow, "actions">(
     signal<AccessConnectorTabRow[]>([]),
@@ -205,7 +192,6 @@ export class AccessConnectorsTabComponent {
   protected readonly searchControl = new FormControl("", { nonNullable: true });
   private readonly searchText = toSignal(this.searchControl.valueChanges, { initialValue: "" });
 
-  /** Status/connection toolbar chips. */
   private readonly statusFilterChip = viewChild("statusFilter", { read: FILTER_CONTROL });
   private readonly connectionFilterChip = viewChild("connectionFilter", { read: FILTER_CONTROL });
 
@@ -248,12 +234,8 @@ export class AccessConnectorsTabComponent {
   });
 
   /**
-   * The v2 table's row test. Inside the toolbar the chips and the `bit-search` register with
-   * `bit-table-v2`, so their values arrive as `values` rather than through the chip refs — the
-   * table needs the keyed shape to count each chip's options.
-   *
-   * The term must come from `values.search` alone. {@link searchText} carries the same term (the
-   * projected `bit-search` keeps its form control), and reading both would narrow the rows twice.
+   * The v2 table's row test; inside the toolbar, chip and search values arrive as `values`. Read
+   * the term from `values.search` alone, since {@link searchText} holds the same term.
    */
   protected readonly rowMatchesFilter = (
     row: AccessConnectorTabRow,
@@ -311,14 +293,12 @@ export class AccessConnectorsTabComponent {
     return this.loadAll(this.organizationId());
   };
 
-  /** Navigate to the access connector detail page (sibling of the shell). */
   protected readonly openDetail = (row: AccessConnectorRow): Promise<boolean> =>
     this.router.navigate(["..", "access-connectors", row.id], { relativeTo: this.route });
 
   /**
-   * Open the access connector registration dialog and refresh the shared list on success.
-   * Owned by the empty state; the non-empty list is covered by this tab's toolbar button on the
-   * VFO1 flag, and by the shell's header button off it.
+   * Bound to the empty state and the VFO1 toolbar; off the flag, the shell's header button
+   * registers instead.
    */
   protected readonly registerAccessConnector = async (): Promise<void> => {
     const orgId = this.organizationId();
@@ -336,12 +316,9 @@ export class AccessConnectorsTabComponent {
   };
 
   /**
-   * Open the dialog that picks an active automatic target system for this connector.
-   *
-   * The menu item is live while the target-system read is still in flight, so a click can arrive
-   * before there is a list to offer. The read settles first: opening on an empty list would state
-   * an emptiness the org may not have, and a read that failed says so instead of opening at all.
-   * The wait is gated on the component, so leaving the tab mid-wait opens nothing.
+   * The menu item is live while the target-system read is in flight, so this waits for it to
+   * settle rather than offer an incomplete list. A failed read toasts instead, and leaving the tab
+   * mid-wait opens nothing.
    */
   protected readonly openAssignDialog = (row: AccessConnectorRow): Promise<void> =>
     this.busyRows.run(row.id, async () => {
@@ -482,11 +459,7 @@ export class AccessConnectorsTabComponent {
   }
 }
 
-/**
- * The toolbar's raw values, keyed by each control's filter key. Untyped per chip because that is
- * what both hosts hand over: `bit-table-v2` collects whatever each chip reports, and off the flag
- * the chips are read one at a time through `FilterControl`.
- */
+/** The toolbar's raw values by filter key, untyped because each host passes what a chip reports. */
 type AccessConnectorFilterValues = {
   search?: string;
   status?: unknown;
@@ -499,10 +472,7 @@ type AccessConnectorFilter = {
   isConnected: boolean | null;
 };
 
-/**
- * `??` rather than a truthiness test: the connection chip's unselected side carries `false`, which
- * is a narrowing the operator asked for, not an absent filter.
- */
+/** Uses `??` because the connection chip's `false` (disconnected) is a chosen filter. */
 function toAccessConnectorFilter(values: AccessConnectorFilterValues): AccessConnectorFilter {
   return {
     text: (values.search ?? "").trim().toLowerCase(),

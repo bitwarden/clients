@@ -242,9 +242,9 @@ export class CipherRowMenuService {
   }
 
   /**
-   * A PAM-gated ("partial") row is one the caller has no access to yet, so the menu withholds the
-   * actions that would change the item's state. The legacy web row menu guards the same entries on
-   * `isPartial`; this keeps the two menus in step.
+   * The caller has no access to a PAM-gated ("partial") row yet, so the menu withholds actions
+   * that change the item. `vault-cipher-row.component` guards the same entries on `isPartial`;
+   * keep the two in step.
    */
   private isGated(cipher: CipherViewLike): boolean {
     return CipherViewLikeUtils.isPartial(cipher);

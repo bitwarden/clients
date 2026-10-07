@@ -29,7 +29,6 @@ import { CipherViewBannerComponent } from "./cipher-view-banner.component";
 
 const ORGANIZATION_ID = "org-1";
 
-/** The caller's membership, with their Privileged Access Manager seat under the story's control. */
 function organization(licensed: boolean): Organization {
   return Object.assign(new Organization(), {
     id: ORGANIZATION_ID,
@@ -46,13 +45,12 @@ function gatedCipher(): CipherView {
   cipher.id = "cipher-1";
   cipher.name = "Prod database";
   cipher.partial = true;
-  // Only an organization-owned cipher can be governed, and it is the organization the licensing
-  // check reads the caller's seat from.
+  // The licensing check reads the caller's seat from the cipher's organization.
   cipher.organizationId = ORGANIZATION_ID;
   return cipher;
 }
 
-/** A cipher already being served under a lease — no longer partial, but still PAM-governed. */
+/** Served under a lease: no longer partial, but still PAM-governed. */
 function leasedCipher(): CipherView {
   const cipher = gatedCipher();
   cipher.partial = false;
@@ -72,7 +70,6 @@ function pam(
     mode?: "automatic" | "human";
     enabled?: boolean;
     maxDurationSeconds?: number;
-    /** The caller's own Privileged Access Manager seat; licensed by default. */
     licensed?: boolean;
   } = {},
 ) {
@@ -151,18 +148,12 @@ export default {
 
 type Story = StoryObj<CipherViewBannerComponent>;
 
-/**
- * The resting state under an auto-approving rule: the card carries the rule's cap and the
- * instant-approval clause, and expanding it collects a duration only.
- */
+/** The resting state under an auto-approving rule; expanding it collects a duration only. */
 export const Privileged: Story = {
   decorators: [pam({ state: () => ({ badgeState: "privileged" }) })],
 };
 
-/**
- * The same entry point against a rule that requires human approval: the card carries the cap
- * alone, and expanding it collects a window plus a justification.
- */
+/** Under a human-approval rule, expanding the card collects a window and a justification. */
 export const PrivilegedHumanApproval: Story = {
   decorators: [
     pam({
@@ -174,15 +165,13 @@ export const PrivilegedHumanApproval: Story = {
 };
 
 /**
- * The caller belongs to a Privileged Access organization but holds no seat of their own. This
- * card replaces every other state, including an active lease, since the server stops releasing
- * the credential to an unlicensed holder regardless of lease.
+ * The caller's organization uses PAM but the caller holds no seat. This card replaces every other
+ * state, including an active lease.
  */
 export const Unlicensed: Story = {
   decorators: [pam({ state: () => ({ badgeState: "privileged" }), licensed: false })],
 };
 
-/** A request is with an approver. Request access is not offered again; the request can be canceled. */
 export const PendingRequest: Story = {
   decorators: [
     pam({
@@ -197,7 +186,6 @@ export const PendingRequest: Story = {
   ],
 };
 
-/** Approved but not yet activated — the requester still has to start the lease. */
 export const ApprovedReadyToStart: Story = {
   decorators: [
     pam({
@@ -213,10 +201,7 @@ export const ApprovedReadyToStart: Story = {
   ],
 };
 
-/**
- * The same state reached the other way: a human approver approved a window the requester chose,
- * which can open in the future. The granted duration is the window's length either way.
- */
+/** A human-approved window that opens later; the granted duration is still its length. */
 export const ApprovedByApprover: Story = {
   decorators: [
     pam({
@@ -233,7 +218,6 @@ export const ApprovedByApprover: Story = {
   ],
 };
 
-/** A running lease, with the countdown ticking and the rule allowing extensions. */
 export const ActiveLease: Story = {
   args: { cipher: leasedCipher() },
   decorators: [
@@ -250,10 +234,6 @@ export const ActiveLease: Story = {
   ],
 };
 
-/**
- * The same lease inside the five-minute cutoff: the tile turns danger and the heading warns, so the
- * requester can extend or release before the window closes rather than discovering it has.
- */
 export const ActiveLeaseEndingSoon: Story = {
   args: { cipher: leasedCipher() },
   decorators: [
@@ -270,7 +250,6 @@ export const ActiveLeaseEndingSoon: Story = {
   ],
 };
 
-/** The same lease under a rule that does not allow extensions — only End access is offered. */
 export const ActiveLeaseNoExtensions: Story = {
   args: { cipher: leasedCipher() },
   decorators: [
@@ -287,15 +266,11 @@ export const ActiveLeaseNoExtensions: Story = {
   ],
 };
 
-/** With the PAM flag off the banner renders nothing, whatever the cipher is. */
 export const FeatureFlagOff: Story = {
   decorators: [pam({ enabled: false, state: () => ({ badgeState: "privileged" }) })],
 };
 
-/**
- * A gated cipher whose access state could not be read. The banner renders nothing rather than an
- * error — the cipher view behind it is still useful, and the vault-row badge fails the same way.
- */
+/** Renders nothing rather than an error, like the vault-row badge. */
 export const StateReadFails: Story = {
   decorators: [
     moduleMetadata({

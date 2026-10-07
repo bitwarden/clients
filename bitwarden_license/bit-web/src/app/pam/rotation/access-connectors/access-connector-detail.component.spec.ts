@@ -52,7 +52,6 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
   translate: (id: string) => id,
 };
 
-/** The component's protected surface, as the tests drive it. */
 type DetailApi = {
   titleText: () => string;
   activeTab: () => string;
@@ -179,12 +178,11 @@ function fieldText(
   return el?.textContent?.trim() ?? "";
 }
 
-/** The pending state of one listed assignment, by id. */
 function pendingOf(comp: DetailApi, system: TargetSystem): string | null | undefined {
   return comp.assignments().find((a) => a.targetSystemId === system.id)?.pending;
 }
 
-/** Flips the Active checkbox the way its value accessor does: a new value, and a dirty control. */
+/** Flips the Active checkbox and marks it dirty, as its value accessor does. */
 function stageActive(comp: DetailApi, active: boolean): void {
   comp.formGroup.controls.active.setValue(active);
   comp.formGroup.controls.active.markAsDirty();
@@ -194,7 +192,7 @@ describe("AccessConnectorDetailComponent", () => {
   let fixture: ComponentFixture<AccessConnectorDetailComponent>;
   let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
 
-  /** Creates the component and settles the two loads the page kicks off in its constructor. */
+  /** Creates the component and settles the loads its constructor starts. */
   async function createComponent(): Promise<DetailApi> {
     fixture = TestBed.createComponent(AccessConnectorDetailComponent);
     fixture.detectChanges();
@@ -1041,7 +1039,6 @@ describe("AccessConnectorDetailComponent", () => {
       expect(fixture.nativeElement.textContent).toContain("pamRotationConfigColumnCredential");
     });
 
-    /** The Credential column is the one place a connector's jobs are named by what they rotate. */
     it("names each job by the credential it rotated", async () => {
       rotationSdk.getConnector.mockResolvedValue(
         accessConnectorDetail({
@@ -1260,14 +1257,12 @@ describe("AccessConnectorDetailComponent", () => {
 
     afterEach(() => jest.useRealTimers());
 
-    /** Runs the placeholder's clock on. */
     function advance(ms: number): void {
       fixture.detectChanges();
       jest.advanceTimersByTime(ms);
       fixture.detectChanges();
     }
 
-    /** Renders the page with its load still in flight. */
     async function renderLoading(tab = "configuration") {
       rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
       rotationSdk.listTargetSystems.mockResolvedValue([makeSystem()]);
@@ -1280,7 +1275,6 @@ describe("AccessConnectorDetailComponent", () => {
       fixture.detectChanges();
     }
 
-    /** Renders the page mid-load with its placeholder already drawn. */
     async function renderSkeleton(tab = "configuration") {
       await renderLoading(tab);
       advance(1000);

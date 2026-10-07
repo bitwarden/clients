@@ -34,8 +34,8 @@ describe("ItemDetailsStateBadgeComponent", () => {
   }
 
   /**
-   * A state under an active lease. The SDK ranks the badge FROM the lease, so the two always
-   * travel together; a fixture carrying only the badge is a response the server cannot produce.
+   * The SDK ranks the badge from the lease, so a fixture carrying only the badge is a response the
+   * server cannot produce.
    */
   function activeLeaseState(notAfterMs: number): CipherAccessStateView {
     const notAfter = new Date(notAfterMs).toISOString();
@@ -154,7 +154,7 @@ describe("ItemDetailsStateBadgeComponent", () => {
   });
 
   it("brings the pill back the second the lease's window closes", async () => {
-    // PM-41837: nothing announces the lapse, so this host watches the shared badge clock for it.
+    // Nothing announces the lapse, so this host watches the shared badge clock for it.
     jest.useFakeTimers();
     accessRequestSdkService.getCipherAccessState.mockResolvedValue(
       activeLeaseState(Date.now() + 5_000),
@@ -197,7 +197,7 @@ describe("ItemDetailsStateBadgeComponent", () => {
 
   it("shows the badge for a lease the server still reports past its window", async () => {
     // Suppressed on the window, not the `active` ranking, or a trailing server clock would hide
-    // the pill for good while the banner below had already fallen back to "Request access".
+    // the pill for good.
     accessRequestSdkService.getCipherAccessState.mockResolvedValue(
       activeLeaseState(Date.now() - 1_000),
     );

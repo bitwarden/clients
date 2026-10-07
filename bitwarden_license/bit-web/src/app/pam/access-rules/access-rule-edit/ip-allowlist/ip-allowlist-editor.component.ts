@@ -32,12 +32,8 @@ export function cidrRowControl(
 }
 
 /**
- * Editor for the `ip_allowlist` access rule.
- *
- * Renders a repeatable list of CIDR inputs over a {@link FormArray} owned by the host form and
- * passed in via {@link cidrArray}; the host keeps value and validity, this component manages the
- * row UI and marks rows that repeat another's range. Empty rows stay in the value — the host
- * trims them when serializing.
+ * Row UI for the `ip_allowlist` condition over the host's array. Empty rows stay in the value; the
+ * host drops them when serializing.
  */
 @Component({
   selector: "app-pam-ip-allowlist-editor",
@@ -55,7 +51,6 @@ export function cidrRowControl(
   ],
 })
 export class IpAllowlistEditorComponent implements OnInit, DoCheck {
-  /** The host-owned CIDR array this editor renders and mutates. */
   readonly cidrArray = input.required<IpAllowlistCidrsArray>();
 
   readonly readonly = input<boolean>(false);
@@ -70,9 +65,8 @@ export class IpAllowlistEditorComponent implements OnInit, DoCheck {
   }
 
   /**
-   * The row marks must track the array's own duplicate validator, which the host can re-run
-   * with `emitEvent: false` — no `valueChanges`/`statusChanges` fires. Checking each cycle keeps
-   * the two in step; {@link syncDuplicateErrors} writes nothing once they agree.
+   * The host can re-run the array's validators with `emitEvent: false`, so no change event fires.
+   * {@link syncDuplicateErrors} writes nothing once the row marks are in step.
    */
   ngDoCheck(): void {
     this.syncDuplicateErrors();
@@ -99,13 +93,8 @@ export class IpAllowlistEditorComponent implements OnInit, DoCheck {
   }
 
   /**
-   * Marks every row {@link duplicateCidrValues} reports as repeated, so `bit-form-field` renders
-   * `accessRuleIpAllowlistDuplicateCidr` under each offending row, same as {@link cidrValidator}
-   * does for `invalidCidr`. `invalidCidr` stays first, so a malformed-and-repeated row shows the
-   * format error.
-   *
-   * Row marks and the array's `duplicateCidrs` error come from the same function, so the array
-   * is never rejected with no row saying why.
+   * Marks each repeated row so `bit-form-field` shows the error under it. `invalidCidr` stays
+   * first, so a malformed repeated row shows the format error.
    */
   private syncDuplicateErrors(): void {
     const controls = this.cidrArray().controls;

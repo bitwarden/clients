@@ -33,7 +33,7 @@ export const SCHEDULE_INTERVAL_MODE = "interval" as const;
 /** What the schedule select can hold: any SDK preset, or the interval builder. */
 export type ScheduleMode = QuartzSchedulePreset | typeof SCHEDULE_INTERVAL_MODE;
 
-/** The units the interval builder can step. Quartz steps day-of-month and month; not weeks. */
+/** Quartz can step day-of-month and month, but not weeks. */
 export const ScheduleIntervalUnit = Object.freeze({
   Days: "days",
   Months: "months",
@@ -52,7 +52,6 @@ const MAX_MINUTE = 59;
 /** `<input type="time">` emits "HH:MM"; seconds are accepted and dropped. */
 const TIME_OF_DAY = /^(\d{1,2}):(\d{2})(?::\d{2})?$/;
 
-/** Rejects a fractional count. */
 function wholeNumber(message: string): ValidatorFn {
   return ({ value }) =>
     value == null || Number.isInteger(value) ? null : { notWholeNumber: { message } };
@@ -90,7 +89,6 @@ const SCHEDULE_ECHO_KEYS: Partial<Record<QuartzSchedulePreset, string>> = {
   [QuartzSchedulePreset.Monthly]: "pamRotationScheduleEchoMonthly",
 };
 
-/** Interval unit → the sentence for a count of one, and the sentence for any other count. */
 const INTERVAL_ECHO_KEYS: Readonly<Record<ScheduleIntervalUnit, { one: string; many: string }>> =
   Object.freeze({
     [ScheduleIntervalUnit.Days]: {
@@ -103,29 +101,20 @@ const INTERVAL_ECHO_KEYS: Readonly<Record<ScheduleIntervalUnit, { one: string; m
     },
   });
 
-/** What the echo line renders: a message key, plus the parameters that message takes. */
 interface ScheduleEcho {
   key: string;
   p1?: string | number;
   p2?: string | number;
 }
 
-/** A clock reading as `<input type="time">` and the SDK's presets both spell it: zero-padded. */
+/** Zero-padded, as `<input type="time">` and the SDK's presets spell it. */
 function timeOfDay(hh: number, mm: number): string {
   return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
 }
 
 /**
- * CVA sub-editor for a Quartz cron schedule (or null for "no schedule").
- *
- * The outer value is `string | null`: `null` for None, a preset's own cron expression for that
- * preset, an expression the interval builder could have composed for Interval, any other string
- * for Custom.
- *
- * Every cron rule belongs to the SDK, not this component — which preset an expression maps to,
- * and whether a custom one is Quartz-shaped, is resolved there and re-validated asynchronously.
- *
- * Client validation is advisory; the server enforces a 15-minute interval floor.
+ * Form control for a Quartz cron schedule, or `null` for none. The SDK names presets and judges a
+ * custom expression's shape asynchronously; the server enforces a 15-minute interval floor.
  */
 @Component({
   selector: "app-rotation-schedule-input",
@@ -151,7 +140,7 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
   private readonly rotationSdk = inject(RotationSdkService);
   private readonly cdr = inject(ChangeDetectorRef);
 
-  /** Preset → cron expression, resolved from the SDK on construction; empty until that read lands. */
+  /** Resolved from the SDK on construction; empty until that read lands. */
   private readonly cronByPreset = new Map<QuartzSchedulePreset, string>();
 
   /**
@@ -161,10 +150,8 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
   // eslint-disable-next-line @bitwarden/components/enforce-readonly-angular-properties
   private cronShapeValid = true;
 
-  /** Expose preset const for template comparisons. */
   protected readonly QuartzSchedulePreset = QuartzSchedulePreset;
 
-  /** Expose the interval mode and its units for template comparisons. */
   protected readonly ScheduleInterval = SCHEDULE_INTERVAL_MODE;
   protected readonly ScheduleIntervalUnit = ScheduleIntervalUnit;
 
@@ -204,7 +191,6 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
   constructor() {
     void this.loadPresetCrons();
 
-    // Propagates outward on any preset or custom-text change.
     this.presetControl.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       this.emitValue();
       this.onValidatorChange();
@@ -229,12 +215,7 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     return MAX_INTERVAL_COUNT[this.intervalUnitControl.value];
   }
 
-  /**
-   * Resolves each named preset's cron expression from the SDK.
-   *
-   * `None` and `Custom` have no fixed expression, so they are absent from the table by design —
-   * {@link currentValue} handles both before consulting it.
-   */
+  /** Skips `None` and `Custom`, which have no fixed cron; {@link currentValue} handles both. */
   private async loadPresetCrons(): Promise<void> {
     const named = [
       QuartzSchedulePreset.Hourly,
@@ -254,10 +235,9 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     this.cdr.markForCheck();
   }
 
-  /** Re-checks the custom expression's shape and re-validates against the new verdict. */
   private async refreshCronShape(value: string): Promise<void> {
     const raw = value.trim();
-    // An empty field is "no schedule", not a malformed one — see validate().
+    // An empty field means no schedule, not a malformed one.
     this.cronShapeValid = raw === "" || (await this.rotationSdk.isLikelyQuartzCron(raw));
     this.customControl.updateValueAndValidity({ emitEvent: false });
     this.customControl.setErrors(this.customControl.errors);
@@ -276,7 +256,7 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
 
   private async applyPreset(value: string | null): Promise<void> {
     const preset = await this.rotationSdk.presetForCron(value);
-    // A named preset wins over the builder: an expression the SDK names stays a named preset.
+    // A named preset wins over the interval builder.
     if (preset !== QuartzSchedulePreset.Custom) {
       this.presetControl.setValue(preset, { emitEvent: false });
       this.resetCustom();
@@ -303,7 +283,7 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     await this.refreshCronShape(value ?? "");
   }
 
-  /** Settles a value this component recognised: nothing is left for the shape check to judge. */
+  /** A recognised value leaves nothing for the shape check to judge. */
   private acceptKnownShape(): void {
     this.cronShapeValid = true;
     this.onValidatorChange();
@@ -386,9 +366,8 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
   }
 
   /**
-   * The plain-English echo rendered beneath the control, or `null` when there is nothing honest to
-   * say — an incomplete builder and an empty or malformed custom expression each describe no
-   * schedule.
+   * The plain-English echo beneath the control, or `null` for an incomplete builder or an empty
+   * or malformed custom expression.
    */
   protected get scheduleEcho(): ScheduleEcho | null {
     const preset = this.presetControl.value;
@@ -456,7 +435,6 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     return { count, unit, hh, mm };
   }
 
-  /** The Quartz expression for the builder's current parts, or `null` when they are incomplete. */
   private composeIntervalCron(): string | null {
     const parts = this.intervalParts();
     if (parts == null) {

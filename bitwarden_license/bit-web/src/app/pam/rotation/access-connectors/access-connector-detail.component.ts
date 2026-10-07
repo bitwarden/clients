@@ -67,19 +67,11 @@ import { showSkeletonWhile } from "../skeleton-delay";
 import { TargetSystemLabel, targetSystemLabel } from "../target-systems/target-system-label";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
-/**
- * The detail page's two tabs, each with a URL of its own; Configuration is the default.
- */
 const ACCESS_CONNECTOR_DETAIL_TABS = ["configuration", "history"] as const;
 
-/**
- * Whether a listed assignment is saved, or only staged for a save that has not happened yet.
- */
+/** `null` for a saved assignment, otherwise the staged change not yet saved. */
 export type AccessConnectorAssignmentPending = "add" | "remove" | null;
 
-/**
- * An assigned target system, named for the row that lists it.
- */
 export type AccessConnectorAssignment = Omit<TargetSystemLabel, "id"> &
   AssignmentPickerRow & {
     readonly targetSystemId: TargetSystemId;
@@ -87,12 +79,8 @@ export type AccessConnectorAssignment = Omit<TargetSystemLabel, "id"> &
   };
 
 /**
- * Routed detail page for a single rotation access connector — a sibling of the rotation shell, matching
- * the target-system / rotation-config detail pages. Reached from the access connectors tab.
- *
- * Shows status, connection, assigned target systems (via a page-scoped
- * {@link TargetSystemsService}), and recent rotation activity via the shared
- * {@link RotationHistoryComponent}.
+ * Detail page for one access connector, a sibling of the rotation shell. It provides its own
+ * {@link TargetSystemsService} and {@link OrgCiphersService}, since the shell's don't reach it.
  */
 @Component({
   templateUrl: "./access-connector-detail.component.html",
@@ -148,16 +136,13 @@ export class AccessConnectorDetailComponent {
   /** Whether the placeholder is drawn, which trails {@link loading} by the skeleton delay. */
   protected readonly showSkeleton = showSkeletonWhile(this.loading);
 
-  /** Whether the loading branch is on screen. */
   protected readonly loadingVisible = computed(() => this.loading() || this.showSkeleton());
 
-  /** The error from the last read of the connector, or null when it succeeded. */
   protected readonly loadError = signal<unknown | null>(null);
   protected readonly accessConnector = signal<AccessConnectorDetail | null>(null);
 
   /**
-   * The connector as the operator has asked for it, which is what the page renders and what
-   * {@link submit} diffs against the loaded connector.
+   * The staged connector, which the page renders and {@link submit} diffs against the saved one.
    */
   protected readonly formGroup = this.formBuilder.nonNullable.group({
     active: false,
@@ -173,7 +158,6 @@ export class AccessConnectorDetailComponent {
 
   private readonly stagedAssignmentIds = computed(() => this.staged().assignedTargetSystemIds);
 
-  /** The tab the URL names. */
   protected readonly activeTab = toSignal(
     this.route.paramMap.pipe(
       map((params) => tabFromSegment(params.get("tab"), ACCESS_CONNECTOR_DETAIL_TABS)),
@@ -241,10 +225,9 @@ export class AccessConnectorDetailComponent {
     initialValue: null as unknown,
   });
 
-  /** The connector itself; the detail's other half is its recent job history. */
   private readonly connector = computed(() => this.accessConnector()?.connector ?? null);
 
-  /** The assignments as last read from the server, which the staged list is diffed against. */
+  /** The saved assignments, which the staged list is diffed against. */
   private readonly savedAssignmentIds = computed<readonly TargetSystemId[]>(
     () => this.connector()?.assignedTargetSystemIds ?? [],
   );
@@ -282,7 +265,7 @@ export class AccessConnectorDetailComponent {
     () => this.connector()?.status === AccessConnectorStatus.Enabled,
   );
 
-  /** The active automatic target systems the staged list does not already hold, as picker rows. */
+  /** The automatic target systems the staged list does not hold, as picker rows. */
   protected readonly assignOptions = computed<SelectItemView[]>(() => {
     const staged = new Set<string>(this.stagedAssignmentIds().map(String));
     return this.automaticSystems()
@@ -293,7 +276,7 @@ export class AccessConnectorDetailComponent {
       });
   });
 
-  /** True when the org has nothing eligible at all, as opposed to having assigned it all already. */
+  /** True when the org has nothing eligible at all, rather than having assigned it all. */
   protected readonly noEligibleTargetSystems = computed(
     () => this.targetSystemsLoadError() == null && this.automaticSystems().length === 0,
   );
@@ -348,7 +331,10 @@ export class AccessConnectorDetailComponent {
     return true;
   };
 
-  /** Write the staged connector: the status change, then the assignments it gained and lost. */
+  /**
+   * Enables before writing assignments and disables after, since only an enabled connector can be
+   * assigned.
+   */
   protected readonly submit = async (): Promise<void> => {
     const connector = this.connector();
     if (connector == null) {
@@ -386,7 +372,6 @@ export class AccessConnectorDetailComponent {
     });
   };
 
-  /** Delete the access connector permanently after confirming, then return to the list. */
   protected readonly deleteAccessConnector = async (): Promise<void> => {
     const connector = this.connector();
     if (connector == null) {
@@ -410,7 +395,6 @@ export class AccessConnectorDetailComponent {
     }
   };
 
-  /** Confirm before staged edits are thrown away. */
   async confirmDiscard(): Promise<boolean> {
     if (!this.formGroup.dirty) {
       return true;
@@ -424,12 +408,8 @@ export class AccessConnectorDetailComponent {
   }
 
   /**
-   * Drop the assignments staged on top of the saved list.
-   *
-   * The server takes `assignTarget` only while the connector is enabled, so a staged addition
-   * cannot outlive the Active checkbox that {@link assignTargets} required to stage it. Staged
-   * removals survive: taking an assignment away from a connector that is on its way to inactive
-   * is a request the server still honours.
+   * The server assigns only to an enabled connector, so unchecking Active drops staged additions.
+   * Staged removals survive, since the server still honours them for an inactive connector.
    */
   private dropStagedAssignmentAdditions(): void {
     const saved = new Set<string>(this.savedAssignmentIds().map(String));
@@ -445,7 +425,6 @@ export class AccessConnectorDetailComponent {
     control.markAsDirty();
   }
 
-  /** Applies one status change, patching the local copy once the server has taken it. */
   private async writeStatus(id: AccessConnectorId, active: boolean): Promise<void> {
     if (active) {
       await this.rotationSdk.enableConnector(this.organizationId, id);
@@ -455,7 +434,7 @@ export class AccessConnectorDetailComponent {
     this.patchStatus(active ? AccessConnectorStatus.Enabled : AccessConnectorStatus.Disabled);
   }
 
-  /** Applies the assignment diff one call at a time, stopping at the first refusal. */
+  /** One call at a time; a refusal stops the rest and leaves earlier writes saved. */
   private async writeAssignments(
     id: AccessConnectorId,
     toAssign: readonly TargetSystemId[],
@@ -500,7 +479,6 @@ export class AccessConnectorDetailComponent {
     }
   }
 
-  /** Seed the form from the loaded connector. */
   private resetForm(): void {
     this.formGroup.setValue({
       active: this.enabled(),
@@ -510,15 +488,8 @@ export class AccessConnectorDetailComponent {
   }
 
   /**
-   * Resolve the names of the managed credentials this connector's jobs rotated.
-   *
-   * Only worth the org-wide config and cipher reads when there is history to label, and a failure
-   * costs the History tab its Credential names rather than the page: the table falls back to the
-   * rotation config id, which still tells an operator which credential to look up.
-   *
-   * Left to settle on its own rather than awaited, for the same reason: the names land in a signal
-   * the Credential column reads, and the column already renders without them, so the Configuration
-   * tab does not spend its first paint waiting on a decrypt of every cipher in the organization.
+   * Not awaited, so first paint doesn't wait on decrypting every org cipher. A failure only costs
+   * the Credential column its names; it falls back to the rotation config id.
    */
   private async loadCredentialNames(): Promise<void> {
     try {
@@ -532,7 +503,7 @@ export class AccessConnectorDetailComponent {
     }
   }
 
-  /** Reads the connector, recording a failure rather than leaving the page to guess from a null. */
+  /** Records a failure, so the page needn't guess from a null. */
   private async loadAccessConnector(): Promise<AccessConnectorDetail | null> {
     try {
       return await this.rotationSdk.getConnector(this.organizationId, this.accessConnectorId);
@@ -547,7 +518,6 @@ export class AccessConnectorDetailComponent {
     return this.router.navigate(this.connectorsListRoute);
   }
 
-  /** Patch the loaded access connector's status locally (new reference for OnPush; jobs + fields carried over). */
   private patchStatus(status: AccessConnectorStatus): void {
     const accessConnector = this.accessConnector();
     if (accessConnector == null) {
@@ -559,10 +529,6 @@ export class AccessConnectorDetailComponent {
     });
   }
 
-  /**
-   * Patch the loaded access connector's assignments locally (new reference for OnPush; jobs + fields carried
-   * over).
-   */
   private patchAssignments(update: (ids: TargetSystemId[]) => TargetSystemId[]): void {
     const accessConnector = this.accessConnector();
     if (accessConnector == null) {

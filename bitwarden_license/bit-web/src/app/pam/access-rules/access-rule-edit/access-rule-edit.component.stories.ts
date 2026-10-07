@@ -70,7 +70,7 @@ const routes: Routes = [
   },
 ];
 
-/** A minimal rule whose only interesting property is the collections it claims. */
+/** A minimal rule; only the collections it claims matter. */
 const governingRule = (name: string, enabled: boolean, collections: string[]) =>
   ({
     id: `rule-${name}`,
@@ -81,7 +81,7 @@ const governingRule = (name: string, enabled: boolean, collections: string[]) =>
     singleActiveLease: false,
   }) as unknown as AccessRuleView;
 
-/** Reports `rules` as the org's access rules, driving the picker's governed-collection filter. */
+/** Drives the picker's governed-collection filter. */
 const governedBy = (rules: AccessRuleView[]): Decorator =>
   moduleMetadata({
     providers: [
@@ -144,11 +144,7 @@ export const CreateFromTemplate: Story = {
   decorators: [atUrl("/organizations/org-1/access-rules/new?template=approval-required")],
 };
 
-/**
- * Create mode with `col-1` and `col-3` governed by other rules, so both are missing from the
- * picker and only `col-2` stays selectable. `col-1`'s rule is disabled and still counts, per
- * `AccessRuleWriteValidator`.
- */
+/** Only `col-2` is offered; `col-1`'s rule is disabled but still counts, as on the server. */
 export const CreateWithGovernedCollections: Story = {
   decorators: [
     atUrl("/organizations/org-1/access-rules/new"),
@@ -159,16 +155,12 @@ export const CreateWithGovernedCollections: Story = {
   ],
 };
 
-/**
- * Edit mode: the form is populated from an existing rule (conditions + extensions enabled).
- * `rule-1` governs its own collections, so this also shows self-exclusion — `col-1` and `col-3`
- * stay selectable.
- */
+/** `rule-1` governs its own collections, which stay selectable. */
 export const Edit: Story = {
   decorators: [atUrl("/organizations/org-1/access-rules/rule-1"), governedBy([SAMPLE_RULE])],
 };
 
-/** Edit mode on a deactivated rule: the header badge reads "Off" and the Status checkbox is clear. */
+/** The header badge reads "Off" and the Status checkbox is clear. */
 export const EditInactive: Story = {
   decorators: [
     atUrl("/organizations/org-1/access-rules/rule-1"),
@@ -186,10 +178,7 @@ export const EditInactive: Story = {
   ],
 };
 
-/**
- * The save-failure callout. Edit mode, with the update rejected: the form arrives valid and
- * populated, so pressing Save goes straight to the failure rather than to validation.
- */
+/** Edit mode, so the form is already valid and Save goes straight to the failure callout. */
 export const SaveError: Story = {
   decorators: [
     atUrl("/organizations/org-1/access-rules/rule-1"),
@@ -212,9 +201,8 @@ export const SaveError: Story = {
 };
 
 /**
- * A rejected save the admin can act on: the server reports the chosen collections are already
- * governed. Recognised messages are reported on the field they name instead of in the callout,
- * and without a retry — resending the same collections would fail identically.
+ * A recognised rejection shows on the field it names, without a retry, since resending the same
+ * collections would fail the same way.
  */
 export const SaveErrorOnField: Story = {
   decorators: [
@@ -242,10 +230,7 @@ export const SaveErrorOnField: Story = {
   },
 };
 
-/**
- * The validation summary above the action row: submitting the empty create form, where
- * name and collections are both required.
- */
+/** Submits the empty create form, where name and collections are required. */
 export const ValidationSummary: Story = {
   play: async (context) => {
     await userEvent.click(getByText(context.canvasElement, "Save"));
@@ -253,9 +238,8 @@ export const ValidationSummary: Story = {
 };
 
 /**
- * The discard confirmation. Typing into the name dirties the form, so Cancel asks before
- * leaving. `DialogModule` supplies the real {@link DialogService} in place of the default
- * stub, so the dialog itself renders — it is what this story is for.
+ * Typing dirties the form, so Cancel asks first. `DialogModule` replaces the default
+ * {@link DialogService} stub so the dialog renders.
  */
 export const DiscardConfirmation: Story = {
   decorators: [

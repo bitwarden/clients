@@ -12,7 +12,6 @@ import {
   AssignTargetDialogParams,
 } from "./assign-target-dialog.component";
 
-// Simple i18n stub: returns the key for any translation.
 const i18nStub: Pick<I18nService, "t"> = {
   t: (id: string) => id,
 };
@@ -108,7 +107,6 @@ describe("AssignTargetDialogComponent", () => {
   it("does not confirm when no option is selected", async () => {
     await createComponent([makeSystem("ts-1", "Prod")]);
     (component as any).confirm();
-    // Must not close: the form is invalid.
     expect(dialogRef.close).not.toHaveBeenCalledWith(expect.any(String));
   });
 

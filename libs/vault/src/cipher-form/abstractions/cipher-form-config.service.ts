@@ -84,10 +84,9 @@ type BaseCipherFormConfig = {
   originalCipher?: Cipher;
 
   /**
-   * True when {@link originalCipher} is a PAM-gated cipher revealed under an active lease, not
-   * the partial copy local state holds. Saving must take a different SDK path, since the
-   * regular one rebuilds password history from state a gated cipher lacks. Stamped by the
-   * vault item dialog when it swaps the full cipher in.
+   * True when {@link originalCipher} is a PAM-gated cipher the vault item dialog revealed under an
+   * active lease. Saving then takes the SDK's gated path, since local state holds only the
+   * partial copy.
    */
   leaseGated?: boolean;
 

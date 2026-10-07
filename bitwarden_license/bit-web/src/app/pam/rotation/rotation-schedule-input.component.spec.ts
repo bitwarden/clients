@@ -17,8 +17,8 @@ import {
 import { RotationSdkService } from "./rotation-sdk.service";
 
 /**
- * The preset table as the SDK defines it, duplicated so these tests stub the wiring rather than
- * exercise the mapping, which is covered separately by `preset_for_cron` in bitwarden-pam.
+ * The SDK's preset table, duplicated so these tests stub the wiring; `preset_for_cron` in
+ * bitwarden-pam covers the mapping.
  */
 const PRESET_CRONS: Record<string, string> = {
   hourly: "0 0 * * * ?",
@@ -41,7 +41,7 @@ function scheduleStub(): Pick<
       return (match?.[0] as QuartzSchedulePreset) ?? QuartzSchedulePreset.Custom;
     }),
     cronForPreset: jest.fn(async (preset: QuartzSchedulePreset) => PRESET_CRONS[preset] ?? null),
-    // 6- or 7-field, Quartz's character set — enough for the component's error branch.
+    // 6 or 7 fields of Quartz's character set, enough for the component's error branch.
     isLikelyQuartzCron: jest.fn(async (value: string) => {
       const fields = value.trim().split(/\s+/);
       return (
@@ -56,8 +56,6 @@ function scheduleStub(): Pick<
 describe("RotationScheduleInputComponent", () => {
   let fixture: ComponentFixture<RotationScheduleInputComponent>;
   let component: RotationScheduleInputComponent;
-
-  /** Outer FormControl wired into the CVA. */
   let outerControl: FormControl<string | null>;
 
   const i18nService = {
@@ -91,7 +89,6 @@ describe("RotationScheduleInputComponent", () => {
     await fixture.whenStable();
   });
 
-  /** Convenience access to the protected preset form control. */
   function presetCtrl(): {
     value: ScheduleMode;
     setValue: (v: ScheduleMode, opts?: { emitEvent?: boolean }) => void;
@@ -101,7 +98,6 @@ describe("RotationScheduleInputComponent", () => {
     ).presetControl as ReturnType<typeof presetCtrl>;
   }
 
-  /** Convenience access to the protected custom form control. */
   function customCtrl(): {
     value: string;
     setValue: (v: string, opts?: { emitEvent?: boolean }) => void;
@@ -111,7 +107,6 @@ describe("RotationScheduleInputComponent", () => {
     ).customControl as ReturnType<typeof customCtrl>;
   }
 
-  /** Convenience access to the protected interval builder controls. */
   function protectedControl<T>(name: string): FormControl<T> {
     return (component as unknown as Record<string, FormControl<T>>)[name];
   }
@@ -133,8 +128,6 @@ describe("RotationScheduleInputComponent", () => {
       hint.textContent?.trim(),
     );
   }
-
-  // ---- writeValue (reverse-map) ----
 
   it("maps null to None preset", async () => {
     component.writeValue(null);
@@ -244,8 +237,6 @@ describe("RotationScheduleInputComponent", () => {
     expect(errors).toBeNull();
   });
 
-  // ---- timezone hint ----
-
   it("renders the timezone hint under the preset select", () => {
     expect(hintTexts()).toContain("pamRotationScheduleTimezoneHint");
   });
@@ -258,8 +249,6 @@ describe("RotationScheduleInputComponent", () => {
     expect(hints).toContain("pamRotationScheduleTimezoneHint");
     expect(hints).toContain("pamRotationScheduleCustomHint");
   });
-
-  // ---- interval builder: composition ----
 
   it("every 1 day at 00:00 emits the midnight daily expression", () => {
     buildInterval(ScheduleIntervalUnit.Days, 1, "00:00");
@@ -295,8 +284,6 @@ describe("RotationScheduleInputComponent", () => {
     buildInterval(ScheduleIntervalUnit.Months, 12, "06:45");
     expect(outerControl.value).toBe("0 45 6 1 1/12 ?");
   });
-
-  // ---- interval builder: round-trip ----
 
   it("maps a stepped day-of-month cron back into the day builder", async () => {
     component.writeValue("0 0 2 1/7 * ?");
@@ -361,8 +348,6 @@ describe("RotationScheduleInputComponent", () => {
     expect(customCtrl().value).toBe("0 0 2 1/7 * ? 2027");
   });
 
-  // ---- interval builder: validation ----
-
   it("a complete interval returns no validation error", () => {
     buildInterval(ScheduleIntervalUnit.Days, 7, "02:00");
     expect(component.validate({ value: outerControl.value } as never)).toBeNull();
@@ -405,8 +390,6 @@ describe("RotationScheduleInputComponent", () => {
       invalidInterval: { message: "pamRotationScheduleInvalidInterval" },
     });
   });
-
-  // ---- interval builder: rendering ----
 
   it("offers the interval option alongside the seven presets", () => {
     const select: SelectComponent<ScheduleMode> = fixture.debugElement.query(
@@ -520,8 +503,6 @@ describe("RotationScheduleInputComponent", () => {
 
     expect(time.closest("bit-form-field")?.querySelector("bit-error")).not.toBeNull();
   });
-
-  // ---- plain-English echo ----
 
   function echoElement(): HTMLElement {
     return fixture.nativeElement.querySelector("[data-testid='schedule-echo']");

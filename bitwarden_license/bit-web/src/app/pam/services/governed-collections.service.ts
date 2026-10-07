@@ -8,24 +8,16 @@ import type { AccessRuleView } from "../abstractions/access-rule";
 import { AccessRuleSdkService } from "../abstractions/access-rule-sdk.service";
 
 /**
- * How long a cached per-org read is served before a new consumer triggers a fresh one, bounding
- * staleness while collapsing repeated dialog opens into one read. Checked lazily on access, so
- * an already-open callout keeps its value.
+ * How long a cached per-organization read serves new consumers. Checked lazily, so an open callout
+ * keeps its value.
  */
 const CACHE_TTL_MS = 30_000;
 
 type CacheEntry = { fetchedAt: number; rules$: Observable<readonly AccessRuleView[]> };
 
 /**
- * One shared, cached `listAccessRules` read per organization, backing the collection-dialog
- * callout via `rulesGoverningCollection`.
- *
- * The callout needs the rules themselves, since it names them and summarises what they
- * enforce — a boolean can't say that; the vault-row badge instead reads the collection's own
- * `hasEnabledAccessRule`, computed server-side from the same "governed" definition.
- *
- * An informational consumer only: a failed read resolves to no rules rather than erroring the
- * host surface.
+ * One cached `listAccessRules` read per organization, for surfaces that need the rules rather than
+ * `hasEnabledAccessRule`. A failed read resolves to no rules, as every consumer is informational.
  */
 @Injectable()
 export class GovernedCollectionsService {
@@ -55,10 +47,8 @@ export class GovernedCollectionsService {
   }
 
   /**
-   * Drop the organization's cached read. Call after any successful access-rule
-   * create/update/delete: otherwise a collection freed (or newly governed) by that write stays
-   * wrong for up to {@link CACHE_TTL_MS}, with no in-app way to force a refresh (root-scoped
-   * cache, SPA navigation).
+   * Call after any access-rule write, or a collection it freed or governed stays wrong for up to
+   * {@link CACHE_TTL_MS} with no in-app way to refresh.
    */
   invalidate(organizationId: OrganizationId): void {
     this.cache.delete(organizationId);

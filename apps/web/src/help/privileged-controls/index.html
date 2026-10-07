@@ -87,9 +87,8 @@
               >Schedule a call</a
             >
             <!--
-              The address is shown as text rather than behind a mailto: button. A mailto: does
-              nothing for anyone without a mail client configured, and the old button never
-              displayed the address, so those readers had nothing to copy.
+              The address is shown as text, not a mailto: button, so readers without a configured
+              mail client can still copy it.
             -->
             <p class="sidebar-help-email">
               <svg
@@ -537,9 +536,9 @@
           </p>
 
           <!--
-            Hidden for the private preview: the Access rules page does not yet flag items that are
-            reachable through a path with no access rule, so this section describes a warning
-            testers cannot see. Restore it when that check ships.
+            Hidden for the private preview: the Access rules page does not yet flag items reachable
+            through a path with no access rule, so testers cannot see this warning. Restore it when
+            that check ships.
 
             <h3 id="check-that-every-route-to-the-item-is-governed-by-a-rule">
               Check that every route to the item is governed by a rule
@@ -1567,8 +1566,8 @@
               permission.
             </li>
             <!--
-              Hidden alongside the "Check that every route to the item is governed by a rule"
-              section above: there is no warning for testers to assess yet.
+              Hidden along with the "Check that every route to the item is governed by a rule"
+              section above.
 
               <li>
                 Leave a second route to a credential with no access rule on it, and assess whether

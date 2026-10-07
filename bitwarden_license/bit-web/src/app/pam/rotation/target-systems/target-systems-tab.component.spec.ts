@@ -1018,7 +1018,7 @@ describe("TargetSystemsTabComponent", () => {
       void (component as unknown as AssignComp).openAssignConnectorDialog(sys);
       flushMicrotasks();
 
-      // Empty options, but not empty for the same reason as above.
+      // Empty options because all are assigned, not because none are eligible.
       expect(dialogService.open).toHaveBeenCalledWith(
         expect.anything(),
         expect.objectContaining({
@@ -1078,8 +1078,7 @@ describe("TargetSystemsTabComponent", () => {
       const call = (component as unknown as AssignComp).openAssignConnectorDialog(sys);
       await Promise.resolve();
 
-      // An empty list here is not evidence of anything, and the dialog would have read it as
-      // every connector already being assigned.
+      // An empty list mid-load proves nothing, and the dialog would read it as all assigned.
       expect(dialogService.open).not.toHaveBeenCalled();
 
       const connector = accessConnector({
@@ -1139,14 +1138,13 @@ describe("TargetSystemsTabComponent", () => {
   });
 
   describe("loading skeleton", () => {
-    /** Runs the placeholder's clock on. */
     function advance(ms: number): void {
       fixture.detectChanges();
       jest.advanceTimersByTime(ms);
       fixture.detectChanges();
     }
 
-    /** Runs out the delay the placeholder is held back by, and renders what it leaves. */
+    /** Runs out the skeleton's delay. */
     function showSkeleton(): void {
       advance(1000);
     }
@@ -1281,7 +1279,6 @@ describe("TargetSystemsTabComponent", () => {
 });
 
 describe("TargetSystemsTabComponent toolbar filters", () => {
-  /** The component's protected surface, as these tests read it. */
   type FiltersComp = {
     dataSource: { filteredData?: TargetSystemRow[] };
     searchControl: { setValue: (value: string) => void };
@@ -1782,9 +1779,8 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
     });
 
     /**
-     * Raises the loading flag on a fake clock. The clock goes in only after `render` has settled:
-     * the toolbar's chip measurement schedules a change detection pass on a timer, which
-     * `whenStable` waits for and a fake clock would never run.
+     * Fakes the clock only after `render` settles, since the toolbar's chip measurement schedules
+     * change detection on a timer that `whenStable` waits for and a fake clock never runs.
      */
     function startLoading(): void {
       jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
@@ -2042,7 +2038,7 @@ describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
     const off = await render(false);
     setFilters(off, filters);
     const expected = v1Names(off);
-    // Guards the comparison: two empty lists would agree without either path filtering.
+    // Two empty lists would agree without either path filtering.
     expect(expected.length).toBeGreaterThan(0);
     expect(expected.length).toBeLessThan(SYSTEMS.length);
 
