@@ -2,11 +2,13 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import {
+  afterNextRender,
   ChangeDetectorRef,
   Component,
   computed,
   DestroyRef,
   inject,
+  Injector,
   NgZone,
   OnDestroy,
   OnInit,
@@ -58,6 +60,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -145,6 +148,7 @@ import {
   vaultScopeTitle,
   VaultScopeType,
   defaultUserCollectionId,
+  VAULT_RENDERED_MARK,
 } from "@bitwarden/vault";
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
@@ -223,6 +227,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private restrictedItemTypesService = inject(RestrictedItemTypesService);
   private cipherArchiveService = inject(CipherArchiveService);
   private policyService = inject(PolicyService);
+  private logService = inject(LogService);
+  private injector = inject(Injector);
   private cipherActionService = inject(CipherActionService);
   private routedVaultFilterBridgeService = inject(RoutedVaultFilterBridgeService);
   private vaultFilterService = inject(VaultFilterService);
@@ -236,7 +242,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   private destroyRef = inject(DestroyRef);
   private cipherFormConfigService = inject(CipherFormConfigService);
-  private vaultBatchBarService = inject(VaultBatchBarService, { optional: true });
+  private vaultBatchBarService = inject(VaultBatchBarService);
   private activeDrawerRef?: DialogRef<VaultItemDialogResult>;
 
   protected readonly activeFilter = signal<VaultFilter>(new VaultFilter());
@@ -263,14 +269,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
       ),
     ),
-    { initialValue: false },
-  );
-
-  protected readonly vaultBatchBarFeatureFlag = toSignal(
-    combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
-      this.configService.getFeatureFlag$(FeatureFlag.PM37785_DesktopVaultBatchBar),
-    ]).pipe(map(([batchBarFlag, desktopBatchBarFlag]) => batchBarFlag && desktopBatchBarFlag)),
     { initialValue: false },
   );
 
@@ -818,18 +816,26 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.ciphers = ciphers;
           this.collectionsToDisplay = collections;
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
+          const initialLoad = this.performingInitialLoad;
           this.performingInitialLoad = false;
           this.refreshing = false;
 
           // WS server notifications emit outside the Angular zone; force change detection so the list updates.
           this.changeDetectorRef.detectChanges();
+
+          // Marks when the first vault list is painted, the end point of unlock/login perf traces
+          if (initialLoad) {
+            afterNextRender(() => this.logService.mark(VAULT_RENDERED_MARK), {
+              injector: this.injector,
+            });
+          }
         },
       );
 
     combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0)), inTrash$])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([allCollections, hasCiphers, inTrash]) =>
-        this.vaultBatchBarService?.setConfig({
+        this.vaultBatchBarService.setConfig({
           isOrgVault: false,
           allCollections,
           hasCiphers,
@@ -844,9 +850,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         skip(1),
         takeUntil(this.destroy$),
       )
-      .subscribe(() => this.vaultBatchBarService?.clearSelection());
+      .subscribe(() => this.vaultBatchBarService.clearSelection());
 
-    this.vaultBatchBarService?.completed$
+    this.vaultBatchBarService.completed$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.refresh());
 

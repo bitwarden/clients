@@ -1,7 +1,8 @@
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
   "extraMetadata": {
-    "name": "bitwarden-beta"
+    "name": "bitwarden-beta",
+    "productName": "Bitwarden Beta"
   },
   "productName": "Bitwarden Beta",
   "appId": "com.bitwarden.desktop.beta",
@@ -145,8 +146,12 @@
         "to": "plugin_authenticator_config.json"
       },
       {
-        "from": "resources/windows_plugin_authenticator_logo.beta.svg",
-        "to": "plugin_authenticator_logo.svg"
+        "from": "resources/windows_plugin_authenticator_logo_light.beta.svg",
+        "to": "plugin_authenticator_logo_light.svg"
+      },
+      {
+        "from": "resources/windows_plugin_authenticator_logo_dark.beta.svg",
+        "to": "plugin_authenticator_logo_dark.svg"
       }
     ]
   },
@@ -164,7 +169,7 @@
   },
   "appx": {
     "artifactName": "Bitwarden-Beta-${version}-${arch}.${ext}",
-    "backgroundColor": "#FDC700",
+    "backgroundColor": "#175DDC",
     "customExtensionsPath": "../custom-appx-extensions.beta.xml",
     "minVersion": "10.0.14393.0",
     "applicationId": "BitwardenBeta",
