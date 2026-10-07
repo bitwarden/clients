@@ -15600,20 +15600,11 @@
   "atRiskPassword": {
     "message": "At-risk password"
   },
-  "changeAtRiskPassword": {
-    "message": "Mainīt riskam pakļautu paroli"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Šis pieteikšanās vienums ir pakļauts riskam, un tam nav norādīta tīmekļvietne. Lielākai drošībai jāpievieno tīmekļvietne un jānomaina parole."
-  },
   "vulnerablePassword": {
     "message": "Ievainojama parole."
   },
   "changeNow": {
     "message": "Mainīt tagad"
-  },
-  "missingWebsite": {
-    "message": "Nav norādīta tīmekļvietne"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Noņemt atslēgšanu ar PIN"
@@ -17041,6 +17032,15 @@
         "example": "4"
       }
     }
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Keeper email"

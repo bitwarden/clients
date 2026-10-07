@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "ভল্ট ভিউতে অটোফিল করতে আইটেম ক্লিক করুন"
   },
-  "clickToAutofill": {
-    "message": "পূরণ করতে অটোফিল সাজেশনে আইটেম ক্লিক করুন"
-  },
   "clearClipboard": {
     "message": "ক্লিপবোর্ড পরিষ্কার",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "আপনার LastPass অ্যাকাউন্টের সাথে যুক্ত YubiKey আপনার কম্পিউটারের USB পোর্টে ঢোকান, তারপর এর বোতাম স্পর্শ করুন।"
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper ইমেইল"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "ঝুঁকিপূর্ণ পাসওয়ার্ড পরিবর্তন করুন"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "এই লগইনটি ঝুঁকিপূর্ণ এবং একটি ওয়েবসাইট অনুপস্থিত। আরও শক্তিশালী নিরাপত্তার জন্য একটি ওয়েবসাইট যোগ করুন এবং পাসওয়ার্ড পরিবর্তন করুন।"
-  },
   "vulnerablePassword": {
     "message": "দুর্বল পাসওয়ার্ড।"
   },
   "changeNow": {
     "message": "এখনই পরিবর্তন করুন"
-  },
-  "missingWebsite": {
-    "message": "অনুপস্থিত ওয়েবসাইট"
   },
   "settingsVaultOptions": {
     "message": "ভল্ট বিকল্প"

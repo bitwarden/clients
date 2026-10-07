@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "వాల్ట్ వీక్షణలో ఆటోఫిల్ చేయడానికి ఐటమ్‌లపై క్లిక్ చేయండి"
   },
-  "clickToAutofill": {
-    "message": "పూరించడానికి ఆటోఫిల్ సూచనలోని ఐటమ్‌లపై క్లిక్ చేయండి"
-  },
   "clearClipboard": {
     "message": "క్లిప్‌బోర్డ్ క్లియర్ చేయి",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "మీ LastPass ఖాతాకు సంబంధించిన YubiKeyని మీ కంప్యూటర్ యొక్క USB పోర్ట్‌లో చొప్పించండి, ఆపై దాని బటన్‌ను తాకండి."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper ఇమెయిల్"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "ప్రమాదంలో ఉన్న పాస్‌వర్డ్ మార్చు"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "ఈ లాగిన్ ప్రమాదంలో ఉంది మరియు వెబ్‌సైట్ లేదు. మరింత బలమైన భద్రత కోసం వెబ్‌సైట్‌ను జోడించి పాస్‌వర్డ్‌ను మార్చండి."
-  },
   "vulnerablePassword": {
     "message": "దుర్బలమైన పాస్‌వర్డ్."
   },
   "changeNow": {
     "message": "ఇప్పుడే మార్చు"
-  },
-  "missingWebsite": {
-    "message": "వెబ్‌సైట్ లేదు"
   },
   "settingsVaultOptions": {
     "message": "వాల్ట్ ఎంపికలు"

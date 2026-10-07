@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "भल्ट दृश्यमा स्वतः भर्न वस्तुहरू क्लिक गर्नुहोस्"
   },
-  "clickToAutofill": {
-    "message": "भर्नको लागि स्वतः भर्ने सुझावमा वस्तुहरू क्लिक गर्नुहोस्"
-  },
   "clearClipboard": {
     "message": "क्लिपबोर्ड खाली गर्नुहोस्",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "तपाईंको LastPass खातासँग सम्बन्धित YubiKey कम्प्युटरको USB पोर्टमा घुसाउनुहोस्, त्यसपछि यसको बटन छुनुहोस्।"
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper इमेल"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "जोखिममा रहेको पासवर्ड परिवर्तन गर्नुहोस्"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "यो लगइन जोखिममा छ र वेबसाइट हराइरहेको छ। बलियो सुरक्षाको लागि वेबसाइट थप्नुहोस् र पासवर्ड परिवर्तन गर्नुहोस्।"
-  },
   "vulnerablePassword": {
     "message": "कमजोर पासवर्ड।"
   },
   "changeNow": {
     "message": "अहिले परिवर्तन गर्नुहोस्"
-  },
-  "missingWebsite": {
-    "message": "हराइरहेको वेबसाइट"
   },
   "settingsVaultOptions": {
     "message": "भल्ट विकल्पहरू"
