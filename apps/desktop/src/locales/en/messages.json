@@ -798,6 +798,10 @@
   "agentAccessToRun": {
     "message": "To run"
   },
+  "agentAccessSshAction": {
+    "message": "To",
+    "description": "Labels what an SSH key would be used for, e.g. 'To: sign a git commit'."
+  },
   "agentAccessQuestion": {
     "message": "Question"
   },
@@ -5553,12 +5557,6 @@
   },
   "agentForwardingWarningText": {
     "message": "This request comes from a remote device that you are logged into"
-  },
-  "sshkeyApprovalMessageInfix": {
-    "message": "is requesting access to"
-  },
-  "sshkeyApprovalMessageSuffix": {
-    "message": "in order to"
   },
   "sshActionLogin": {
     "message": "authenticate to a server"

@@ -21,7 +21,7 @@ pub mod agent_access {
         pub deadline: f64,
     }
 
-    #[napi(discriminant = "type", discriminant_case = "lowercase")]
+    #[napi(discriminant = "type", discriminant_case = "camelCase")]
     pub enum AgentRequestKind {
         Credential {
             query: CredentialQuery,
@@ -30,6 +30,12 @@ pub mod agent_access {
         Approval {
             title: String,
             body: Option<String>,
+        },
+        SshSign {
+            cipher_id: String,
+            namespace: Option<String>,
+            is_forwarding: bool,
+            host_fingerprint: Option<String>,
         },
     }
 
@@ -114,8 +120,8 @@ pub mod agent_access {
     }
 
     /// The desktop answerer; the router owns the timeout, so this waits as long as it is polled.
-    struct ElectronAnswerer {
-        callback: ThreadsafeFunction<AgentRequest, Promise<AgentOutcome>>,
+    pub(crate) struct ElectronAnswerer {
+        pub(crate) callback: ThreadsafeFunction<AgentRequest, Promise<AgentOutcome>>,
     }
 
     #[async_trait]
@@ -186,6 +192,17 @@ pub mod agent_access {
                 RequestKind::Approval { prompt } => AgentRequestKind::Approval {
                     title: prompt.title,
                     body: prompt.body,
+                },
+                RequestKind::SshSign {
+                    cipher_id,
+                    namespace,
+                    is_forwarding,
+                    host_fingerprint,
+                } => AgentRequestKind::SshSign {
+                    cipher_id,
+                    namespace,
+                    is_forwarding,
+                    host_fingerprint,
                 },
             };
             let deadline = request

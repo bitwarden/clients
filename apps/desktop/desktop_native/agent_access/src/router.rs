@@ -26,6 +26,14 @@ pub enum RequestKind {
     Approval {
         prompt: ApprovalPrompt,
     },
+    /// From the SSH agent, which knows only the peer's process name.
+    SshSign {
+        cipher_id: String,
+        /// SSHSIG namespace; `None` for an SSH login.
+        namespace: Option<String>,
+        is_forwarding: bool,
+        host_fingerprint: Option<String>,
+    },
 }
 
 #[derive(Debug, Clone)]

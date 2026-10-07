@@ -30,8 +30,9 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
-import { ApproveSshRequestComponent } from "../components/approve-ssh-request";
-import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
+import { ApproveAgentRequestComponent } from "../components/approve-agent-request.component";
+import { AgentOutcomeStatus, AgentRequest, AgentSshSign } from "../models/agent-request";
+import { AGENT_ACCESS_IPC_CHANNELS, SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
 import { SshAgentPromptType } from "../models/ssh-agent-setting";
 
 import { AgentRequestGate } from "./agent-request-gate.service";
@@ -70,26 +71,29 @@ export class SshAgentService implements OnDestroy {
   }
 
   private async initListeners() {
-    // Sign request approval — renderer shows the approval dialog.
+    // Sign requests arrive through main's agent request broker, shared with agent access.
     this.messageListener
-      .messages$(new CommandDefinition(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST))
+      .messages$(new CommandDefinition<AgentRequest>(AGENT_ACCESS_IPC_CHANNELS.REQUEST))
       .pipe(
+        filter((request): request is AgentRequest<AgentSshSign> => request.kind.type === "sshSign"),
         withLatestFrom(this.desktopSettingsService.sshAgentEnabled$),
         // Keys are retained in the agent's keystore across vault lock, so the agent can serve a sign request while the vault is locked without ever firing the list callback.
-        mergeMap(([message, enabled]) =>
+        mergeMap(([request, enabled]) =>
           this.gate.run({
             label: "SSH sign request",
             enabled,
             unlock: {
               requiredMessage: "sshAgentUnlockRequired",
               timeoutMessage: "sshAgentUnlockTimeout",
-              timeoutMs: this.SSH_VAULT_UNLOCK_REQUEST_TIMEOUT,
+              timeoutMs: Math.max(0, request.deadline - Date.now()),
             },
             refused: false,
             handle: async (userId) =>
-              this.processSignRequest(message, await this.cipherService.getAllDecrypted(userId)),
+              this.processSignRequest(request, await this.cipherService.getAllDecrypted(userId)),
             respond: (approved) =>
-              ipc.autofill.sshAgent.signRequestResponse(message.requestId as number, approved),
+              ipc.autofill.agentAccess.respond(request.requestId, {
+                status: approved ? AgentOutcomeStatus.Approved : AgentOutcomeStatus.Denied,
+              }),
           }),
         ),
         catchError((error: unknown, source) => {
@@ -251,16 +255,11 @@ export class SshAgentService implements OnDestroy {
   }
 
   // Shows the approval dialog if the prompt setting calls for it; resolves to the agent's answer.
-  private async processSignRequest(message: Record<string, unknown>, ciphers: CipherView[]) {
-    const cipherId = message.cipherId as string;
-    let application = message.processName as string;
-    const namespace = message.namespace as string;
-    const isAgentForwarding = message.isAgentForwarding as boolean;
-    const hostFingerprint = message.hostFingerprint as string | undefined;
-
-    if (application == "") {
-      application = this.i18nService.t("unknownApplication");
-    }
+  private async processSignRequest(
+    { kind, requester, deadline }: AgentRequest<AgentSshSign>,
+    ciphers: CipherView[],
+  ) {
+    const { cipherId, namespace, isForwarding, hostFingerprint } = kind;
 
     // Resolve the key before deciding on authorization. The agent derives cipherId from its own
     // keystore, which outlives a vault lock and an account switch, so a cipher received in the
@@ -273,19 +272,19 @@ export class SshAgentService implements OnDestroy {
       return false;
     }
 
-    if (await this.needsAuthorization(cipherId, isAgentForwarding, hostFingerprint)) {
-      const approved = await this.gate.confirm(() =>
-        ApproveSshRequestComponent.open(
-          this.dialogService,
-          cipher.name,
-          application,
-          isAgentForwarding,
-          namespace,
-        ),
+    if (await this.needsAuthorization(cipherId, isForwarding, hostFingerprint)) {
+      const name = requester.app.name || this.i18nService.t("unknownApplication");
+      const result = await this.gate.confirm(
+        () =>
+          ApproveAgentRequestComponent.open(this.dialogService, {
+            requester: { ...requester, app: { ...requester.app, name } },
+            ssh: { cipherName: cipher.name, namespace, isForwarding },
+          }),
+        deadline,
       );
 
-      if (approved) {
-        await this.storeAuthorizedHost(cipherId, isAgentForwarding, hostFingerprint);
+      if (result?.approved) {
+        await this.storeAuthorizedHost(cipherId, isForwarding, hostFingerprint);
         return true;
       } else {
         return false;

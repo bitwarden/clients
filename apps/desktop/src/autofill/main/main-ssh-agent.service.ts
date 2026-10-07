@@ -4,12 +4,12 @@ import { ipcMain } from "electron";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { sshagent } from "@bitwarden/desktop-napi";
+import { agent_access, sshagent } from "@bitwarden/desktop-napi";
 
 import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
 
 export class MainSshAgentService {
-  // The napi callback requestSign() is awaited directly by the Rust agent,
+  // The napi callback requestListKeys() is awaited directly by the Rust agent,
   // so it must return a Promise that resolves with the user's decision.
   // The approval dialog lives in the renderer (a separate process), so bridging a callback
   // to a user decision requires a round-trip: main fires a message to the renderer, the
@@ -25,6 +25,7 @@ export class MainSshAgentService {
   constructor(
     private logService: LogService,
     private messagingService: MessagingService,
+    private answer: (request: agent_access.AgentRequest) => Promise<agent_access.AgentOutcome>,
   ) {
     this.registerIpcHandlers();
   }
@@ -47,14 +48,6 @@ export class MainSshAgentService {
       },
     );
 
-    ipcMain.handle(
-      SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE,
-      async (_, { requestId, accepted }: { requestId: number; accepted: boolean }) => {
-        this.pendingRequests.get(requestId)?.(accepted);
-        this.pendingRequests.delete(requestId);
-      },
-    );
-
     ipcMain.handle(SSH_AGENT_IPC_CHANNELS.STOP, async () => {
       if (this.agentState != null) {
         this.agentState.stop();
@@ -74,7 +67,7 @@ export class MainSshAgentService {
   // Starts the Agent.
   // @pre: The agent must not be running. The caller may utilize `is_running()` and `stop()`.
   private async init() {
-    const signCb = (_err: Error | null, data: sshagent.SignRequestData) => this.requestSign(data);
+    const signCb = (_err: Error | null, request: agent_access.AgentRequest) => this.answer(request);
     const listCb = (_err: Error | null) => this.requestListKeys();
     try {
       this.agentState = await sshagent.SshAgentState.serve(signCb, listCb);
@@ -89,21 +82,6 @@ export class MainSshAgentService {
     return new Promise((resolve) => {
       this.pendingRequests.set(id, resolve);
       this.messagingService.send(SSH_AGENT_IPC_CHANNELS.LIST_KEYS_REQUEST, { requestId: id });
-    });
-  }
-
-  private requestSign(data: sshagent.SignRequestData): Promise<boolean> {
-    const id = ++this.requestId;
-    return new Promise((resolve) => {
-      this.pendingRequests.set(id, resolve);
-      this.messagingService.send(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST, {
-        cipherId: data.cipherId,
-        requestId: id,
-        processName: data.signRequest.processName,
-        isAgentForwarding: data.signRequest.isForwarding,
-        namespace: data.signRequest.namespace,
-        hostFingerprint: data.signRequest.hostFingerprint,
-      });
     });
   }
 }

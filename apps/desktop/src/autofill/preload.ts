@@ -17,9 +17,6 @@ const sshAgent = {
   },
   replace: (keys: { name: string; privateKey: string; cipherId: string }[]): Promise<void> =>
     ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.REPLACE, keys),
-  signRequestResponse: async (requestId: number, accepted: boolean) => {
-    await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE, { requestId, accepted });
-  },
   listRequestResponse: async (requestId: number, accepted: boolean) => {
     await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.LIST_KEYS_RESPONSE, { requestId, accepted });
   },

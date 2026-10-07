@@ -1,10 +1,20 @@
 <form bit-dialog [formGroup]="form">
   <span bitDialogTitle>
-    {{
-      (params.approval ? "agentAccessApprovalTitle" : "agentAccessCredentialTitle") | i18n: app.name
-    }}
+    @if (params.ssh) {
+      {{ "sshkeyApprovalTitle" | i18n }}
+    } @else {
+      {{
+        (params.approval ? "agentAccessApprovalTitle" : "agentAccessCredentialTitle")
+          | i18n: app.name
+      }}
+    }
   </span>
   <div bitDialogContent>
+    @if (params.ssh?.isForwarding) {
+      <bit-callout type="warning" [title]="'agentForwardingWarningTitle' | i18n">
+        {{ "agentForwardingWarningText" | i18n }}
+      </bit-callout>
+    }
     <dl class="tw-m-0 tw-grid tw-grid-cols-[max-content_1fr] tw-gap-x-4 tw-gap-y-3">
       <dt class="tw-text-muted">{{ "agentAccessApp" | i18n }}</dt>
       <dd class="tw-m-0">
@@ -57,6 +67,14 @@
             <code class="tw-break-all tw-font-mono tw-text-sm">{{ command }}</code>
           </dd>
         }
+      }
+
+      @if (params.ssh; as ssh) {
+        <dt class="tw-text-muted">{{ "agentAccessItem" | i18n }}</dt>
+        <dd class="tw-m-0">{{ ssh.cipherName }}</dd>
+
+        <dt class="tw-text-muted">{{ "agentAccessSshAction" | i18n }}</dt>
+        <dd class="tw-m-0">{{ sshAction | i18n }}</dd>
       }
 
       @if (params.approval; as approval) {

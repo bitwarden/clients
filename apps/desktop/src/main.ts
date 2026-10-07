@@ -344,12 +344,16 @@ export class Main {
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
 
-    this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
     this.agentAccessService = new MainAgentAccessService(
       this.logService,
       this.messagingService,
       this.windowMain,
       () => this.trayMain.restoreFromTray(),
+    );
+    this.sshAgentService = new MainSshAgentService(
+      this.logService,
+      this.messagingService,
+      this.agentAccessService.answer,
     );
 
     new EphemeralValueStorageService();

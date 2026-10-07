@@ -5,6 +5,7 @@ import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   ButtonModule,
+  CalloutModule,
   CheckboxModule,
   DIALOG_DATA,
   DialogModule,
@@ -33,6 +34,7 @@ export type ApproveAgentRequestParams = {
     rememberable: boolean;
   };
   approval?: { title: string; body?: string };
+  ssh?: { cipherName: string; namespace?: string; isForwarding: boolean };
 };
 
 export type ApproveAgentRequestResult = {
@@ -49,6 +51,7 @@ const FIELD_LABELS = { username: "username", password: "password", totp: "verifi
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ButtonModule,
+    CalloutModule,
     CheckboxModule,
     DialogModule,
     FormControlModule,
@@ -63,6 +66,7 @@ export class ApproveAgentRequestComponent {
   private readonly i18nService = inject(I18nService);
 
   protected readonly app = describeApp(this.params.requester);
+  protected readonly sshAction = sshActionKey(this.params.ssh?.namespace);
   protected readonly candidates = this.params.credential?.candidates ?? [];
   protected readonly form = new FormGroup({
     cipherId: new FormControl(this.candidates[0]?.id ?? "", { nonNullable: true }),
@@ -101,6 +105,13 @@ export class ApproveAgentRequestComponent {
   protected deny() {
     void this.dialogRef.close({ approved: false });
   }
+}
+
+function sshActionKey(namespace: string | undefined) {
+  if (namespace === "git") {
+    return "sshActionGitSign";
+  }
+  return namespace ? "sshActionSign" : "sshActionLogin";
 }
 
 /** The app is named only with what the OS verified; the hops it went through are shown below. */

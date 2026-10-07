@@ -27,14 +27,25 @@ export type AgentCredentialQuery = { domain?: string; id?: string; search?: stri
 /** Client-reported; display only. `env` maps a variable name to a credential field. */
 export type AgentPurpose = { command?: string; env: Record<string, string> };
 
+/** From the SSH agent; its requester carries only a process name. */
+export type AgentSshSign = {
+  type: "sshSign";
+  cipherId: string;
+  /** SSHSIG namespace; absent for an SSH login. */
+  namespace?: string;
+  isForwarding: boolean;
+  hostFingerprint?: string;
+};
+
 export type AgentRequestKind =
   | { type: "credential"; query: AgentCredentialQuery; purpose?: AgentPurpose }
-  | { type: "approval"; title: string; body?: string };
+  | { type: "approval"; title: string; body?: string }
+  | AgentSshSign;
 
-export type AgentRequest = {
+export type AgentRequest<K extends AgentRequestKind = AgentRequestKind> = {
   /** Main's broker id. */
   requestId: number;
-  kind: AgentRequestKind;
+  kind: K;
   requester: AgentRequester;
   /** Epoch ms after which nobody waits for the answer. */
   deadline: number;

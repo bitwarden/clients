@@ -48,13 +48,17 @@ export class MainAgentAccessService {
     );
   }
 
+  /** Also answers the SSH agent's sign approvals, so every request shares one broker. */
+  readonly answer = async (request: agent_access.AgentRequest) =>
+    toNative(await this.broker.request(request, request.deadline));
+
   private async init() {
     if (this.agentState?.isRunning()) {
       return;
     }
     try {
-      this.agentState = await agent_access.AgentAccessState.serve(async (_err, request) =>
-        toNative(await this.broker.request(request, request.deadline)),
+      this.agentState = await agent_access.AgentAccessState.serve((_err, request) =>
+        this.answer(request),
       );
       this.logService.info("Agent access listener started");
     } catch (e: unknown) {

@@ -213,6 +213,7 @@ export declare namespace agent_access {
   export type AgentRequestKind =
     | { type: 'credential', query: CredentialQuery, purpose?: Purpose }
     | { type: 'approval', title: string, body?: string }
+    | { type: 'sshSign', cipherId: string, namespace?: string, isForwarding: boolean, hostFingerprint?: string }
   export interface Credential {
     username?: string
     password?: string
@@ -493,39 +494,15 @@ export declare namespace sshagent {
      *
      * # Arguments
      *
-     * * `sign_callback` - Allows agent to get approval for sign requests
+     * * `callback` - The agent access callback; answers sign approvals
      * * `list_callback` - Allows agent to get approval for list key requests
      */
-    static serve(signCallback: ((err: Error | null, arg: SignRequestData) => Promise<boolean>), listCallback: ((err: Error | null, ) => Promise<boolean>)): Promise<SshAgentState>
+    static serve(callback: (err: Error | null, arg: agent_access.AgentRequest) => Promise<agent_access.AgentOutcome>, listCallback: (err: Error | null) => Promise<boolean>): Promise<SshAgentState>
     stop(): void
     isRunning(): boolean
     replace(newKeys: Array<SshKeyData>): void
   }
   export type SSHAgentState = SshAgentState
-  /** SSH public key data */
-  export interface PublicKey {
-    alg: string
-    blob: Array<number>
-  }
-  /** A sign request's SIG namespace */
-  export const enum SIGNamespace {
-    Git = 'git',
-    File = 'file',
-    Unsupported = 'unsupported'
-  }
-  /** SSH sign request fields. */
-  export interface SignRequest {
-    publicKey: PublicKey
-    processName?: string
-    isForwarding: boolean
-    namespace?: SIGNamespace
-    hostFingerprint?: string
-  }
-  /** Data for a sign request, including vault cipher context. */
-  export interface SignRequestData {
-    signRequest: SignRequest
-    cipherId?: string
-  }
   /** SSH key data, sent from Electron. */
   export interface SshKeyData {
     privateKey: string

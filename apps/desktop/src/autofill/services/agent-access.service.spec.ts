@@ -238,6 +238,17 @@ describe("AgentAccessService", () => {
     expect(answer()).toEqual({ status: "denied" });
   });
 
+  it("leaves SSH signs to the SSH agent service, even with the setting off", async () => {
+    const sign: AgentRequestKind = { type: "sshSign", cipherId: "c1", isForwarding: false };
+    send(sign);
+    enabled.next(false);
+    send(sign);
+    await flush();
+
+    expect(dialogService.open).not.toHaveBeenCalled();
+    expect(respond).not.toHaveBeenCalled();
+  });
+
   it("refuses without touching the vault when the setting is off", async () => {
     enabled.next(false);
     send(github);
