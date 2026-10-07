@@ -2,6 +2,11 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["github>bitwarden/renovate-config"], // Extends our default configuration for pinned dependencies
   enabledManagers: ["cargo", "github-actions", "npm", "custom.regex"],
+  // Renovate's current default Rust (1.99) ignores
+  // registry.global-min-publish-age in .cargo/config.toml. Remove once
+  // Renovate installs Rust 1.100+ This should be in stable 2026-11-12,
+  // but double check before removing this line.
+  constraints: { rust: "nightly-2026-09-25" },
   customManagers: [
     {
       // Pinned binary cargo tools declared in [workspace.metadata.bin]. These are
@@ -220,6 +225,7 @@
         "napi",
         "napi-build",
         "napi-derive",
+        "napi-derive-backend",
         "node-ipc",
         "nx",
         "oo7",
@@ -433,7 +439,7 @@
     {
       // We need to group all napi-related packages together to avoid build errors caused by version incompatibilities.
       groupName: "napi",
-      matchPackageNames: ["napi", "napi-build", "napi-derive"],
+      matchPackageNames: ["napi", "napi-build", "napi-derive", "napi-derive-backend", "napi-sys"],
     },
     {
       // We need to group all macOS/iOS binding-related packages together to avoid build errors caused by version incompatibilities.

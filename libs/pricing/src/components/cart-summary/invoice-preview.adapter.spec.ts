@@ -233,8 +233,8 @@ describe("adaptInvoicePreviewToCart", () => {
 
     it.each([
       [InvoicePreviewFlowContext.PremiumOrgUpgrade, "premiumSubscriptionCredit"],
-      [InvoicePreviewFlowContext.OrganizationPlanChange, "appliedSubscriptionCredits"],
-      [InvoicePreviewFlowContext.OrganizationSubscriptionPage, "appliedSubscriptionCredits"],
+      [InvoicePreviewFlowContext.OrganizationPlanChange, "appliedProrationCredits"],
+      [InvoicePreviewFlowContext.OrganizationSubscriptionPage, "appliedProrationCredits"],
     ])("should emit a credit row for %s", (flowContext, expectedKey) => {
       const preview = basePreview({
         passwordManager: {
@@ -276,7 +276,7 @@ describe("adaptInvoicePreviewToCart", () => {
           },
         ]);
         expect(cart.credit).toEqual({
-          translationKey: "appliedSubscriptionCredits",
+          translationKey: "appliedProrationCredits",
           value: 37.64,
         });
         expect(cart.hidePricingTerm).toBe(true);
@@ -338,7 +338,7 @@ describe("adaptInvoicePreviewToCart", () => {
           },
         ]);
         expect(cart.credit).toEqual({
-          translationKey: "appliedSubscriptionCredits",
+          translationKey: "appliedProrationCredits",
           value: 9.02,
         });
         expect(cart.hidePricingTerm).toBeUndefined();
@@ -370,9 +370,116 @@ describe("adaptInvoicePreviewToCart", () => {
 
         expect(cart.passwordManager.prorationCharges).toBeUndefined();
         expect(cart.credit).toEqual({
-          translationKey: "appliedSubscriptionCredits",
+          translationKey: "appliedProrationCredits",
           value: 9.02,
         });
+      });
+    });
+
+    describe("plan change", () => {
+      it("should render charged prorations as their own lines beside a real seat line", () => {
+        // A plan change previews the new plan's per-unit price plus a separate mid-cycle proration
+        // charge, so the charge renders as its own line rather than merging into the seat line.
+        const preview = basePreview({
+          passwordManager: {
+            seats: { reference: "pm-seat", quantity: 3, cost: 144 },
+            prorations: [
+              {
+                reference: "pm-seat",
+                credit: 7,
+                charge: 13.99,
+                tax: 0,
+                total: 6.99,
+                months: 1,
+              },
+            ],
+          },
+          planTier: "enterprise",
+        });
+
+        const cart = adaptInvoicePreviewToCart(
+          preview,
+          InvoicePreviewFlowContext.OrganizationPlanChange,
+          logService,
+        );
+
+        expect(cart.passwordManager.seats).toEqual({
+          translationKey: "passwordManagerPlanPrice",
+          quantity: 3,
+          cost: 144,
+        });
+        expect(cart.passwordManager.prorationCharges).toEqual([
+          {
+            translationKey: "passwordManagerProratedCharge",
+            quantity: 1,
+            cost: 13.99,
+            hideBreakdown: true,
+          },
+        ]);
+        expect(cart.credit).toEqual({
+          translationKey: "appliedProrationCredits",
+          value: 7,
+        });
+        // The invoice is a one-time proration settlement, so the total carries no recurring term
+        // even though a recurring seat line is present.
+        expect(cart.hidePricingTerm).toBe(true);
+      });
+
+      it("should show negative total for a credit-only mid-cycle change", () => {
+        const preview = basePreview({
+          passwordManager: {
+            seats: { reference: "pm-seat", quantity: 6, cost: 42 },
+            prorations: [
+              {
+                reference: "pm-seat",
+                credit: 83.09,
+                charge: 0,
+                tax: -3.0,
+                total: -83.09,
+                months: 1,
+              },
+            ],
+          },
+          planTier: "teams",
+          estimatedTax: -3.0,
+          total: -83.09,
+        });
+
+        const cart = adaptInvoicePreviewToCart(
+          preview,
+          InvoicePreviewFlowContext.OrganizationPlanChange,
+          logService,
+        );
+
+        expect(cart.passwordManager.seats).toEqual({
+          translationKey: "passwordManagerPlanPrice",
+          quantity: 6,
+          cost: 42,
+        });
+        expect(cart.passwordManager.prorationCharges).toBeUndefined();
+        expect(cart.credit).toEqual({ translationKey: "appliedProrationCredits", value: 83.09 });
+        expect(cart.estimatedTax).toBe(-3.0);
+        expect(cart.total).toBe(-83.09);
+        expect(cart.hidePricingTerm).toBe(true);
+      });
+
+      it("keeps the recurring term for a plan change with no prorations", () => {
+        // A change with no mid-cycle proration (e.g. a free org upgrading) is a normal recurring
+        // purchase, so the term stays and no credit or charge rows render.
+        const preview = basePreview({
+          passwordManager: { seats: { reference: "pm-seat", quantity: 3, cost: 144 } },
+          planTier: "enterprise",
+        });
+
+        const cart = adaptInvoicePreviewToCart(
+          preview,
+          InvoicePreviewFlowContext.OrganizationPlanChange,
+          logService,
+        );
+
+        expect(cart.passwordManager.prorationCharges).toBeUndefined();
+        expect(cart.credit).toBeUndefined();
+        expect(cart.hidePricingTerm).toBeUndefined();
       });
     });
 
@@ -475,7 +582,7 @@ describe("adaptInvoicePreviewToCart", () => {
             prorations: [{ credit: 2, charge: 18, tax: 0, total: 16, months: 6 }],
           },
         }),
-        InvoicePreviewFlowContext.OrganizationPlanChange,
+        InvoicePreviewFlowContext.PremiumOrgUpgrade,
         logService,
       );
 
@@ -777,7 +884,7 @@ describe("adaptInvoicePreviewToCart", () => {
         logService,
       );
 
-      expect(cart.credit).toEqual({ translationKey: "appliedSubscriptionCredits", value: 6.67 });
+      expect(cart.credit).toEqual({ translationKey: "appliedProrationCredits", value: 6.67 });
       expect(cart.appliedBalance).toBe(10);
     });
 

@@ -30,10 +30,10 @@ export type OrganizationPurchasePreviewRequest = {
   billingAddress: BillingAddress;
 };
 
-// TODO(PM-40224): finalize the organization plan change request shape.
 export type OrganizationPlanChangePreviewRequest = {
-  planTier: PlanTier;
+  tier: PlanTier;
   cadence: string;
+  billingAddress: Pick<BillingAddress, "country" | "postalCode" | "taxId">;
 };
 
 /**
@@ -99,14 +99,19 @@ export class InvoicePreviewClient {
     return new InvoicePreviewResponse(json);
   };
 
-  /** Consumed by PM-40224. */
+  /**
+   * Previews the invoice for an organization plan change.
+   * @param organizationId The ID of the organization for which to preview the plan change.
+   * @param request The details of the plan change to preview.
+   * @returns A promise that resolves to the invoice preview response.
+   */
   previewOrganizationPlanChange = async (
     organizationId: string,
     request: OrganizationPlanChangePreviewRequest,
   ): Promise<InvoicePreviewResponse> => {
     const json = await this.apiService.send(
       "POST",
-      `/organizations/${organizationId}/billing/subscription/plan-change/invoice/preview`,
+      `/organizations/${organizationId}/billing/subscription/plan-change/preview`,
       request,
       true,
       true,
