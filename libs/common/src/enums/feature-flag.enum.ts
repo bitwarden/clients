@@ -122,7 +122,6 @@ export type AllowedFeatureFlagTypes = boolean | number | string;
 
 // Helper to ensure the value is treated as a boolean.
 const FALSE = false as boolean;
-const TRUE = true as boolean;
 
 /**
  * Default value for feature flags.
@@ -228,9 +227,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SecretVersioning]: FALSE,
 
   /* PAM */
-  // pam/uat only, not for main. On by default so a branch build works against a server that
-  // does not report the flag; a server that reports it still wins.
-  [FeatureFlag.Pam]: TRUE,
+  [FeatureFlag.Pam]: FALSE,
   [FeatureFlag.PamAccessConnector]: FALSE,
 
   /* VFO */
@@ -241,26 +238,10 @@ export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
 
 export type FeatureFlagValueType<Flag extends FeatureFlag> = DefaultFeatureFlagValueType[Flag];
 
-/**
- * pam/uat only; do not carry this to main.
- *
- * Flags pinned to a value the server cannot override, so the branch keeps the v1 layout during
- * the VFO refresh. Unlike {@link DefaultFeatureFlagValue}, this wins over
- * `serverConfig.featureStates`.
- */
-const PinnedFeatureFlagValue: Partial<Record<FeatureFlag, AllowedFeatureFlagTypes>> = {
-  [FeatureFlag.VFO1Foundation]: false,
-};
-
 export function getFeatureFlagValue<Flag extends FeatureFlag>(
   serverConfig: ServerConfig | null,
   flag: Flag,
 ) {
-  const pinned = PinnedFeatureFlagValue[flag];
-  if (pinned !== undefined) {
-    return pinned as FeatureFlagValueType<Flag>;
-  }
-
   if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
     return DefaultFeatureFlagValue[flag];
   }
