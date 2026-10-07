@@ -10,15 +10,7 @@ mod server;
 
 pub use agent::BitwardenCredentialAgent;
 pub use router::{AgentRequest, Answerer, Outcome, RequestKind, Router};
-
-/// The Unix socket the agent listens on, and that clients connect to.
 #[cfg(unix)]
-pub fn socket_path() -> anyhow::Result<std::path::PathBuf> {
-    server::listener::unix::socket_path()
-}
-
-/// The named pipe the agent listens on, and that clients connect to.
+pub use server::listener::unix::socket_paths;
 #[cfg(windows)]
-pub fn pipe_name() -> &'static str {
-    server::listener::windows::PIPE_NAME
-}
+pub use server::listener::windows::{pipe_name, verify_pipe_server};

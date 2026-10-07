@@ -2,7 +2,7 @@
 
 use std::{
     fs,
-    os::unix::fs::{MetadataExt, PermissionsExt},
+    os::unix::fs::{FileTypeExt, MetadataExt, PermissionsExt},
     path::{Path, PathBuf},
 };
 
@@ -17,6 +17,12 @@ const FLATPAK_DATA_DIR: &str = ".var/app/com.bitwarden.desktop/data";
 const SOCKFILE_NAME: &str = ".bitwarden-access.sock";
 const SOCKET_MODE: u32 = 0o600;
 
+/// Under `~`, where a sandboxed app's `$HOME` (or Flatpak's writable dir) puts the socket.
+#[cfg(target_os = "macos")]
+const SANDBOXED_HOMES: &[&str] = &["Library/Containers/com.bitwarden.desktop/Data"];
+#[cfg(not(target_os = "macos"))]
+const SANDBOXED_HOMES: &[&str] = &[FLATPAK_DATA_DIR, "snap/bitwarden/current"];
+
 pub(crate) struct UnixListener {
     inner: tokio::net::UnixListener,
     path: PathBuf,
@@ -28,14 +34,9 @@ impl UnixListener {
         let path = socket_path()?;
         remove_stale_socket(&path)?;
 
-        // Bind under a umask so the socket is never briefly reachable by others.
-        // SAFETY: umask has no preconditions; the previous mask is restored right after bind.
-        let previous = unsafe { libc::umask(0o177) };
-        let bound = tokio::net::UnixListener::bind(&path);
-        // SAFETY: as above.
-        unsafe { libc::umask(previous) };
-        let inner = bound.map_err(|e| anyhow!("Unable to bind {}: {e}", path.display()))?;
-
+        // Before the chmod other users may connect, but accept() drops them.
+        let inner = tokio::net::UnixListener::bind(&path)
+            .map_err(|e| anyhow!("Unable to bind {}: {e}", path.display()))?;
         fs::set_permissions(&path, fs::Permissions::from_mode(SOCKET_MODE))?;
         let inode = fs::metadata(&path)?.ino();
         info!(socket_path = %path.display(), "agent socket ready");
@@ -79,23 +80,46 @@ impl Listener for UnixListener {
     }
 }
 
-pub fn socket_path() -> Result<PathBuf> {
+/// Where this process binds: `$HOME` is the sandbox's own under Snap and the App Store.
+pub(crate) fn socket_path() -> Result<PathBuf> {
     if let Ok(path) = std::env::var(ENV_SOCKET_PATH) {
         return Ok(PathBuf::from(path));
     }
 
-    let Ok(Some(mut home)) = homedir::my_home() else {
-        bail!("Could not determine home directory");
-    };
+    let mut home = home()?;
     if std::env::var("container").as_deref() == Ok("flatpak") {
         home = home.join(FLATPAK_DATA_DIR);
     }
     Ok(home.join(SOCKFILE_NAME))
 }
 
+/// Where a client outside any sandbox looks, in order.
+pub fn socket_paths() -> Result<Vec<PathBuf>> {
+    if let Ok(path) = std::env::var(ENV_SOCKET_PATH) {
+        return Ok(vec![PathBuf::from(path)]);
+    }
+
+    let home = home()?;
+    let sandboxed = SANDBOXED_HOMES.iter().map(|dir| home.join(dir));
+    Ok(std::iter::once(home.clone())
+        .chain(sandboxed)
+        .map(|dir| dir.join(SOCKFILE_NAME))
+        .collect())
+}
+
+fn home() -> Result<PathBuf> {
+    let Ok(Some(home)) = homedir::my_home() else {
+        bail!("Could not determine home directory");
+    };
+    Ok(home)
+}
+
 fn remove_stale_socket(path: &Path) -> Result<()> {
-    if !fs::exists(path)? {
+    let Ok(metadata) = fs::symlink_metadata(path) else {
         return Ok(());
+    };
+    if !metadata.file_type().is_socket() {
+        bail!("{} exists and is not a socket", path.display());
     }
     if std::os::unix::net::UnixStream::connect(path).is_ok() {
         bail!("Another process is serving {}", path.display());
@@ -128,10 +152,31 @@ mod tests {
     fn test_env_var_overrides_socket_path() {
         // SAFETY: tests touching env vars are serialized via #[serial].
         unsafe { std::env::set_var(ENV_SOCKET_PATH, "/tmp/custom.sock") };
-        let path = socket_path().unwrap();
+        let (path, paths) = (socket_path().unwrap(), socket_paths().unwrap());
         unsafe { std::env::remove_var(ENV_SOCKET_PATH) };
 
         assert_eq!(path, PathBuf::from("/tmp/custom.sock"));
+        assert_eq!(paths, [path]);
+    }
+
+    #[test]
+    #[serial_test::serial]
+    fn test_clients_also_look_in_sandboxed_homes() {
+        let paths = socket_paths().unwrap();
+
+        assert_eq!(paths[0], socket_path().unwrap());
+        assert_eq!(paths.len(), 1 + SANDBOXED_HOMES.len());
+        assert!(paths.iter().all(|p| p.ends_with(SOCKFILE_NAME)));
+    }
+
+    #[test]
+    fn test_refuses_to_remove_a_file_that_is_not_a_socket() {
+        let path = temp_path("file");
+        fs::write(&path, "keep").unwrap();
+
+        assert!(remove_stale_socket(&path).is_err());
+        assert!(path.exists());
+        fs::remove_file(&path).unwrap();
     }
 
     #[test]

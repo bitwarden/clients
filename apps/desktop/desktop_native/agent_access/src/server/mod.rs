@@ -27,6 +27,9 @@ const READ_TIMEOUT: Duration = Duration::from_secs(10);
 /// Requests waiting on the user at once; more are refused rather than queued as dialogs.
 const MAX_IN_FLIGHT: usize = 8;
 
+/// Some accept errors persist (EMFILE); don't spin on them.
+const ACCEPT_BACKOFF: Duration = Duration::from_millis(100);
+
 pub(crate) async fn serve<L: Listener>(
     mut listener: L,
     router: Arc<Router>,
@@ -49,8 +52,10 @@ pub(crate) async fn serve<L: Listener>(
                         }
                     });
                 }
-                // Accept failures are typically transient; keep the listener alive.
-                Err(error) => error!(%error, "agent accept failed"),
+                Err(error) => {
+                    error!(%error, "agent accept failed");
+                    tokio::time::sleep(ACCEPT_BACKOFF).await;
+                }
             },
         }
     }

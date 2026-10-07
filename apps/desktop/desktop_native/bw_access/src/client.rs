@@ -111,25 +111,33 @@ pub async fn request(request: &Request) -> Result<Response> {
 
 #[cfg(unix)]
 async fn connect() -> Result<tokio::net::UnixStream> {
-    let path = agent_access::socket_path()?;
-    tokio::net::UnixStream::connect(&path)
-        .await
-        .with_context(|| format!("could not connect to {} ({NOT_RUNNING})", path.display()))
+    let paths = agent_access::socket_paths()?;
+    for path in &paths {
+        if let Ok(stream) = tokio::net::UnixStream::connect(path).await {
+            return Ok(stream);
+        }
+    }
+    bail!(
+        "could not connect to {} ({NOT_RUNNING})",
+        paths[0].display()
+    )
 }
 
 #[cfg(windows)]
 async fn connect() -> Result<tokio::net::windows::named_pipe::NamedPipeClient> {
     const ERROR_PIPE_BUSY: i32 = 231;
-    let name = agent_access::pipe_name();
+    let name = agent_access::pipe_name()?;
     // Busy: another client took the free instance; the server opens the next one right away.
     for _ in 0..20 {
-        match tokio::net::windows::named_pipe::ClientOptions::new().open(name) {
+        match tokio::net::windows::named_pipe::ClientOptions::new().open(&name) {
             Err(error) if error.raw_os_error() == Some(ERROR_PIPE_BUSY) => {
                 tokio::time::sleep(std::time::Duration::from_millis(50)).await;
             }
             result => {
-                return result
-                    .with_context(|| format!("could not connect to {name} ({NOT_RUNNING})"))
+                let pipe = result
+                    .with_context(|| format!("could not connect to {name} ({NOT_RUNNING})"))?;
+                agent_access::verify_pipe_server(&pipe)?;
+                return Ok(pipe);
             }
         }
     }

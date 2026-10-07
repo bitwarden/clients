@@ -116,10 +116,8 @@ async function doBuild(context) {
       child_process.execSync(
         `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${proxyPath}"`,
       );
-      // Launched from a shell, not by the app, so it gets its own sandbox rather than inheriting.
-      child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${bwAccessPath}"`,
-      );
+      // Not shipped: its sandbox would confine the commands `bw-access run` starts.
+      fse.removeSync(bwAccessPath);
 
       const inheritEntitlementsName = "entitlements.desktop_proxy.inherit.plist";
       const inheritEntitlementsPath = path.join(

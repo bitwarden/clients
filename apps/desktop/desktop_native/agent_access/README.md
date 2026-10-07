@@ -12,14 +12,15 @@ client ──socket──▶ listener ──▶ Router ──▶ Answerer (napi)
 - `requester` — names the app: walks up from the peer pid past shells and our own CLI to the
   first valid Developer ID signer (macOS); elsewhere, the first non-transparent process.
 - `router` — one `Answerer`, one budget; a typed slot for a future phone answerer.
-- `server` — Unix socket (0600, umask-bound, never steals a live socket, same-uid peers only) or
-  named pipe (owner-only DACL, first instance, no remote clients).
+- `server` — Unix socket (0600, never steals a live socket, same-uid peers only) or named pipe
+  (per-user name and DACL, first instance, no remote clients; clients check the server's user).
 
 ## Transport
 
-- Unix: `~/.bitwarden-access.sock`; Flatpak uses the SSH agent's data dir. `BITWARDEN_ACCESS_SOCK`
-  overrides it.
-- Windows: `\\.\pipe\bitwarden-access`.
+- Unix: `~/.bitwarden-access.sock`; Flatpak, Snap and the App Store build bind under their own
+  data dir, and clients look there too. `BITWARDEN_ACCESS_SOCK` overrides it.
+- Windows: `\\.\pipe\bitwarden-access-<user SID>`.
+- The App Store build doesn't ship `bw-access`: its sandbox would confine `run`'s commands.
 
 ## Wire v1
 
