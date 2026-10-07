@@ -17,6 +17,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
+import { PerfTrackGroup } from "@bitwarden/logging";
 
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "../../../auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
@@ -251,16 +252,10 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         this.logService.info("[Notifications Service] Received logout notification");
 
         const logOutNotification = notification.payload as LogOutNotification;
-        const noLogoutOnKdfChange = await firstValueFrom(
-          this.configService.getFeatureFlag$(FeatureFlag.NoLogoutOnKdfChange),
-        );
         const noLogoutOnKeyUpgradeRotation = await firstValueFrom(
           this.configService.getFeatureFlag$(FeatureFlag.NoLogoutOnKeyUpgradeRotation),
         );
-        if (
-          noLogoutOnKdfChange &&
-          logOutNotification.reason === PushNotificationLogOutReasonType.KdfChange
-        ) {
+        if (logOutNotification.reason === PushNotificationLogOutReasonType.KdfChange) {
           this.logService.info(
             "[Notifications Service] Skipping logout due to no logout KDF change",
           );
@@ -362,6 +357,15 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     return this.notifications$
       .pipe(
         mergeMap(async ([notification, userId]) => {
+          // Instant event per incoming notification, e.g. "SyncCipherUpdate"
+          this.logService
+            .startMeasurement(
+              PerfTrackGroup.Notifications,
+              "Incoming",
+              NotificationType[notification.type],
+            )
+            .finishWithDefaultTime();
+
           try {
             await this.processNotification(notification, userId);
           } catch (err: unknown) {
