@@ -3052,11 +3052,11 @@ describe("AutofillService", () => {
       });
 
       describe("given a focused password-like field with no form", () => {
-        // Mirrors Gmail's password step with "Show password" checked:
-        // the password input is type="text", name="Passwd", autocomplete="off",
-        // aria-label="Enter your password", and the step has no <form> element.
-        // Without the fix, the inline menu writes the username value into this
-        // field (treating the focused type="text" input as a username candidate).
+        // Mirrors Gmail's password step with "Show password" checked: the
+        // input is type="text", name="Passwd", autocomplete="off",
+        // aria-label="Enter your password", and no form wraps it. The
+        // heuristic must still treat the focused input as a password, not
+        // a username candidate.
         let gmailPasswordField: AutofillField;
 
         beforeEach(() => {
@@ -4937,10 +4937,10 @@ describe("AutofillService", () => {
       );
 
       it("returns the field in an array for a Gmail-shaped password input with Show-password checked", () => {
-        // Gmail's password input when "Show password" is checked: type flips to
-        // text, autocomplete goes to "off", but aria-label and name are stable.
-        // name="Passwd" does not normalize to contain "password", so recognition
-        // relies on label-aria.
+        // Gmail's password input with "Show password" checked: type flips
+        // to text and autocomplete goes to "off". aria-label and name are
+        // stable, but name="Passwd" doesn't normalize to contain
+        // "password", so recognition relies on label-aria.
         passwordField.htmlName = "Passwd";
         passwordField.autoCompleteType = "off";
         passwordField["label-aria"] = "Enter your password";

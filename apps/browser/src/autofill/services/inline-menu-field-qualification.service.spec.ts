@@ -360,10 +360,10 @@ describe("InlineMenuFieldQualificationService", () => {
         );
 
         it("qualifies a Gmail-shaped password input with Show-password checked", () => {
-          // Gmail's password input when "Show password" is checked: type flips to
-          // text, autocomplete goes to "off", but aria-label and name are stable.
-          // name="Passwd" does not normalize to contain "password", so recognition
-          // relies on label-aria.
+          // Gmail's password input with "Show password" checked: type flips
+          // to text and autocomplete goes to "off". aria-label and name
+          // are stable, but name="Passwd" doesn't normalize to contain
+          // "password", so recognition relies on label-aria.
           const field = mock<AutofillField>({
             type: "text",
             htmlID: null,

@@ -1106,9 +1106,8 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return false;
     }
 
-    // WHATWG autofill tokens — standards-compliant signal. Catches sites
-    // that do a proper show-password toggle (type → text while preserving
-    // autocomplete).
+    // WHATWG autofill tokens. Catches sites with a show password toggle
+    // that flips the type to text while preserving autocomplete.
     if (
       AutofillService.autoCompleteTypeIncludesToken(
         field.autoCompleteType,

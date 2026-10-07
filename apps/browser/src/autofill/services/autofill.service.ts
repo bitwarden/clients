@@ -1027,10 +1027,9 @@ export default class AutofillService implements AutofillServiceInterface {
         focusedField.autoCompleteType === "one-time-code") &&
       !fieldContainsKeyword(focusedField, [...AutoFillConstants.RecoveryCodeFieldNames]);
 
-    // Don't treat the focused field as a username candidate when the password
-    // heuristic has already identified it as a password field. This arises on
-    // show-password-toggle sites (e.g. Gmail) where the password <input>'s type
-    // flips to "text" while remaining the real password field.
+    // If the heuristic flagged this field as a password, do not treat it
+    // as a username candidate. A show password toggle can set type="text"
+    // on the real password input.
     const focusedFieldIsPassword =
       focusedField != null && prioritizedPasswordFields.some((pf) => pf.opid === focusedField.opid);
 
@@ -1048,9 +1047,9 @@ export default class AutofillService implements AutofillServiceInterface {
       if (!focusedField) {
         return true;
       }
-      // The focused field itself is this password field — handles form-less
-      // pages where neither form membership nor the username-equivalence
-      // check would otherwise match.
+      // Match when the focused field is this password field. Needed when
+      // the page has no form, where neither form membership nor username
+      // equivalence would otherwise match.
       if (pf.opid === focusedField.opid) {
         return true;
       }
@@ -2744,10 +2743,9 @@ export default class AutofillService implements AutofillServiceInterface {
           return false;
         }
 
-        // WHATWG autofill tokens — standards-compliant signal. Catches sites
-        // that do a proper show-password toggle (type → text while preserving
-        // autocomplete). The downstream fillNewPassword guard still filters
-        // new-password fields when they shouldn't be filled.
+        // WHATWG autofill tokens. Catches sites with a show password toggle
+        // that flips the type to text while preserving autocomplete. The
+        // downstream fillNewPassword guard still filters new-password fields.
         if (
           AutofillService.autoCompleteTypeIncludesToken(
             f.autoCompleteType,
