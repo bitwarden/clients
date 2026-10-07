@@ -1337,6 +1337,23 @@ describe("ApiService", () => {
       tokenService.tokenNeedsRefresh.calledWith(testActiveUser).mockResolvedValue(false);
     });
 
+    it("throws InsecureUrlNotAllowedError when onProgress is set and the API URL is not https", async () => {
+      environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+        of({
+          getApiUrl: () => "http://example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+
+      const nativeXMLHttpRequest = jest.fn();
+      sut.nativeXMLHttpRequest = nativeXMLHttpRequest;
+
+      await expect(
+        sut.postAttachmentFile("cipher-id", "attachment-id", new FormData(), uploadOptions),
+      ).rejects.toThrow(InsecureUrlNotAllowedError);
+
+      expect(nativeXMLHttpRequest).not.toHaveBeenCalled();
+    });
+
     it("throws when the progress-reporting XHR upload returns a non-success status", async () => {
       const nativeXMLHttpRequest = jest.fn().mockResolvedValue({
         status: 400,

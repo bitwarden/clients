@@ -583,6 +583,9 @@ export class ApiService implements ApiServiceAbstraction {
       const userId = await this.getActiveUser();
       const environment = await firstValueFrom(this.environmentService.getEnvironment$(userId));
       const apiUrl = environment.getApiUrl();
+      if (!apiUrl.startsWith("https://") && !this.platformUtilsService.isDev()) {
+        throw new InsecureUrlNotAllowedError();
+      }
       const headers = await this.buildRequestHeaders();
       const request = new Request(`${apiUrl}/ciphers/${id}/attachment/${attachmentId}`, {
         method: "POST",
