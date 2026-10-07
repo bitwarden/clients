@@ -1,0 +1,51 @@
+/** Mirrors napi `agent_access`; the renderer can't import napi. */
+
+export const AgentOutcomeStatus = Object.freeze({
+  Approved: "approved",
+  Denied: "denied",
+  NotFound: "notFound",
+  Locked: "locked",
+  Timeout: "timeout",
+  Error: "error",
+} as const);
+export type AgentOutcomeStatus = (typeof AgentOutcomeStatus)[keyof typeof AgentOutcomeStatus];
+
+export type AgentSigner = {
+  kind: "developerId" | "platform" | "adHoc" | "other";
+  id?: string;
+  organization?: string;
+  valid: boolean;
+};
+
+export type AgentProcess = { pid: number; name: string; exe?: string; signer?: AgentSigner };
+
+/** Set by the OS-facing listener, never by the client. `chain` runs from the socket peer up. */
+export type AgentRequester = { app: AgentProcess; chain: AgentProcess[] };
+
+export type AgentCredentialQuery = { domain?: string; id?: string; search?: string };
+
+/** Client-reported; display only. `env` maps a variable name to a credential field. */
+export type AgentPurpose = { command?: string; env: Record<string, string> };
+
+export type AgentRequestKind =
+  | { type: "credential"; query: AgentCredentialQuery; purpose?: AgentPurpose }
+  | { type: "approval"; title: string; body?: string };
+
+export type AgentRequest = {
+  /** Main's broker id. */
+  requestId: number;
+  kind: AgentRequestKind;
+  requester: AgentRequester;
+  /** Epoch ms after which nobody waits for the answer. */
+  deadline: number;
+};
+
+export type AgentCredential = {
+  username?: string;
+  password?: string;
+  totp?: string;
+  uri?: string;
+  credentialId?: string;
+};
+
+export type AgentOutcome = { status: AgentOutcomeStatus; credential?: AgentCredential };

@@ -43,7 +43,7 @@ import {
 import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitwarden/storage-core";
 
 import { SSOLocalhostCallbackService } from "./auth/services/sso-localhost-callback.service";
-import { MainCredentialAgentService } from "./autofill/main/main-credential-agent.service";
+import { MainAgentAccessService } from "./autofill/main/main-agent-access.service";
 import { DesktopAutofillMain } from "./autofill/main/main-desktop-autofill.service";
 import { MainDesktopAutotypeMvpService } from "./autofill/main/main-desktop-autotype-mvp.service";
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
@@ -109,7 +109,7 @@ export class Main {
   versionMain: VersionMain;
   shell: SafeShell;
   sshAgentService: MainSshAgentService;
-  credentialAgentService: MainCredentialAgentService;
+  agentAccessService: MainAgentAccessService;
   sdkLoadService: SdkLoadService;
   mainDesktopAutotypeMvpService: MainDesktopAutotypeMvpService;
   mainDesktopAutotypeService: MainDesktopAutotypeService;
@@ -345,9 +345,11 @@ export class Main {
     this.clipboardMain.init();
 
     this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
-    this.credentialAgentService = new MainCredentialAgentService(
+    this.agentAccessService = new MainAgentAccessService(
       this.logService,
       this.messagingService,
+      this.windowMain,
+      () => this.trayMain.restoreFromTray(),
     );
 
     new EphemeralValueStorageService();

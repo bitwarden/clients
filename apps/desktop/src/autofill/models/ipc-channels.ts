@@ -18,10 +18,11 @@ export const SSH_AGENT_IPC_CHANNELS = {
   LIST_KEYS_RESPONSE: "sshagent.listkeysresponse",
 } as const;
 
-export const CREDENTIAL_AGENT_IPC_CHANNELS = {
-  INIT: "credentialagent.init",
-  IS_LOADED: "credentialagent.isloaded",
-  STOP: "credentialagent.stop",
-  REQUEST: "credentialagent.request",
-  REQUEST_RESPONSE: "credentialagent.requestresponse",
+export const AGENT_ACCESS_IPC_CHANNELS = {
+  INIT: "agentaccess.init",
+  IS_LOADED: "agentaccess.isloaded",
+  STOP: "agentaccess.stop",
+  READY: "agentaccess.ready",
+  REQUEST: "agentaccess.request",
+  RESPONSE: "agentaccess.response",
 } as const;

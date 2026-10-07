@@ -1,13 +1,13 @@
 import { ipcRenderer } from "electron";
 
 import { DesktopAutofillPreload } from "./desktop-autofill.preload";
+import { AgentOutcome } from "./models/agent-request";
 import { AutotypeConfig } from "./models/autotype-config";
 import { AutotypeMatchError } from "./models/autotype-errors";
 import { AutotypeVaultData } from "./models/autotype-vault-data";
-import { CredentialAgentResponse } from "./models/credential-agent-request";
 import {
+  AGENT_ACCESS_IPC_CHANNELS,
   AUTOTYPE_MVP_IPC_CHANNELS,
-  CREDENTIAL_AGENT_IPC_CHANNELS,
   SSH_AGENT_IPC_CHANNELS,
 } from "./models/ipc-channels";
 
@@ -29,17 +29,13 @@ const sshAgent = {
   stop: async () => ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.STOP),
 };
 
-const credentialAgent = {
-  init: async () => {
-    await ipcRenderer.invoke(CREDENTIAL_AGENT_IPC_CHANNELS.INIT);
-  },
-  isLoaded: (): Promise<boolean> => ipcRenderer.invoke(CREDENTIAL_AGENT_IPC_CHANNELS.IS_LOADED),
-  stop: async () => {
-    await ipcRenderer.invoke(CREDENTIAL_AGENT_IPC_CHANNELS.STOP);
-  },
-  requestResponse: async (response: CredentialAgentResponse) => {
-    await ipcRenderer.invoke(CREDENTIAL_AGENT_IPC_CHANNELS.REQUEST_RESPONSE, response);
-  },
+const agentAccess = {
+  init: (): Promise<void> => ipcRenderer.invoke(AGENT_ACCESS_IPC_CHANNELS.INIT),
+  isLoaded: (): Promise<boolean> => ipcRenderer.invoke(AGENT_ACCESS_IPC_CHANNELS.IS_LOADED),
+  stop: (): Promise<void> => ipcRenderer.invoke(AGENT_ACCESS_IPC_CHANNELS.STOP),
+  ready: (): Promise<void> => ipcRenderer.invoke(AGENT_ACCESS_IPC_CHANNELS.READY),
+  respond: (requestId: number, outcome: AgentOutcome): Promise<void> =>
+    ipcRenderer.invoke(AGENT_ACCESS_IPC_CHANNELS.RESPONSE, { requestId, outcome }),
 };
 
 // MVP, delete with PM-41067
@@ -90,7 +86,7 @@ export default {
 
   sshAgent,
 
-  credentialAgent,
+  agentAccess,
 
   autotypeMvp,
 };
