@@ -33,7 +33,10 @@ import {
 } from "../../models/vault-scope";
 import { EXACT_PATH } from "../../routing/exact-path";
 import { VaultNavService } from "../../services/vault-nav.service";
-import { VAULT_NAV_ORGANIZATION_OPTIONS } from "../../tokens/vault-nav-organization-options.token";
+import {
+  VAULT_NAV_ORGANIZATION_OPTIONS,
+  VaultNavOrganizationOptions,
+} from "../../tokens/vault-nav-organization-options.token";
 
 /**
  * Renders the Password Manager side-nav Vaults section from the shared {@link VaultNavService}
@@ -76,9 +79,10 @@ export class VaultNavSectionComponent {
   private readonly accountService = inject(AccountService);
   private readonly router = inject(Router);
 
-  protected readonly organizationOptions = inject<Type<unknown>>(VAULT_NAV_ORGANIZATION_OPTIONS, {
-    optional: true,
-  });
+  protected readonly organizationOptions = inject<Type<VaultNavOrganizationOptions>>(
+    VAULT_NAV_ORGANIZATION_OPTIONS,
+    { optional: true },
+  );
 
   protected readonly vaultNav = toSignal(
     this.accountService.activeAccount$.pipe(

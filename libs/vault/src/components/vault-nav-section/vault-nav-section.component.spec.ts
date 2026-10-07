@@ -24,7 +24,10 @@ import {
   VaultsNavViewModel,
 } from "../../models/vault-nav-view-model";
 import { VaultNavService } from "../../services/vault-nav.service";
-import { VAULT_NAV_ORGANIZATION_OPTIONS } from "../../tokens/vault-nav-organization-options.token";
+import {
+  VAULT_NAV_ORGANIZATION_OPTIONS,
+  VaultNavOrganizationOptions,
+} from "../../tokens/vault-nav-organization-options.token";
 
 import { VaultNavSectionComponent } from "./vault-nav-section.component";
 
@@ -119,7 +122,7 @@ describe("VaultNavSectionComponent", () => {
   const i18nService = mock<I18nService>();
   const accountService = mock<AccountService>();
   // Read once when the nav is created, so a describe sets it in `beforeAll`.
-  let organizationOptions: Type<unknown> | null = null;
+  let organizationOptions: Type<VaultNavOrganizationOptions> | null = null;
 
   /** Trimmed first-line text of every rendered nav item, group, and section, in document order. */
   const navText = () =>
