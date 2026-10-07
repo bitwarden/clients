@@ -48,8 +48,6 @@ type FolderFixture = {
   name: string;
   permissions: SharedFolderPermission;
   items: number;
-
-  gated?: boolean;
 };
 
 const folders: FolderFixture[] = [
@@ -110,10 +108,7 @@ function toCollection(fixture: FolderFixture): CollectionView {
     organizationId,
     name: fixture.name,
   });
-  Object.assign(view, FLAGS[fixture.permissions], {
-    assigned: true,
-    hasEnabledAccessRule: fixture.gated ?? false,
-  });
+  Object.assign(view, FLAGS[fixture.permissions], { assigned: true });
   return view;
 }
 
@@ -193,10 +188,7 @@ const withVault: Decorator = (storyFn, context) => {
       { provide: PinnedSharedFoldersService, useValue: pinnedSharedFolders },
       { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" as UserId }) } },
       { provide: CollectionService, useValue: { decryptedCollections$: () => of(collections) } },
-      {
-        provide: CipherService,
-        useValue: { cipherListViewsIncludingRestricted$: () => of(ciphers) },
-      },
+      { provide: CipherService, useValue: { cipherListViewsWithPartials$: () => of(ciphers) } },
       { provide: OrganizationService, useValue: { organizations$: () => of(organizations) } },
     ],
   })(storyFn, context);
@@ -329,7 +321,6 @@ export default {
               // Columns and rows
               name: "Name",
               permissions: "Permissions",
-              controlledAccess: "Controlled access",
               viewItems: "View items",
               viewItemsHidePass: "View items, hidden passwords",
               editItems: "Edit items",
@@ -387,28 +378,6 @@ type Story = StoryObj<StoryProps>;
  */
 export const Default: Story = {
   args: { folders: [...folders, ...nestedFolders] },
-};
-
-export const PrivilegedControls: Story = {
-  args: {
-    folders: [
-      ...folders.map((folder) => ({
-        ...folder,
-        gated: folder.name === "Engineering" || folder.name === "Operations",
-      })),
-      {
-        id: "col-7",
-        name: "Engineering platform and developer experience shared credentials",
-        permissions: SharedFolderPermission.View,
-        items: 5,
-        gated: true,
-      },
-    ],
-  },
-};
-
-export const AllFoldersGated: Story = {
-  args: { folders: folders.map((folder) => ({ ...folder, gated: true })) },
 };
 
 /**
