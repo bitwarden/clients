@@ -1203,26 +1203,43 @@ export default class AutofillService implements AutofillServiceInterface {
         focusedField.autoCompleteType === "one-time-code") &&
       !fieldContainsKeyword(focusedField, [...AutoFillConstants.RecoveryCodeFieldNames]);
 
+    // Don't treat the focused field as a username candidate when the password
+    // heuristic has already identified it as a password field. This arises on
+    // show-password-toggle sites (e.g. Gmail) where the password <input>'s type
+    // flips to "text" while remaining the real password field.
+    const focusedFieldIsPassword =
+      focusedField != null && prioritizedPasswordFields.some((pf) => pf.opid === focusedField.opid);
+
     const focusedUsernameField =
       focusedField &&
       !isFocusedTotpField &&
+      !focusedFieldIsPassword &&
       login.username &&
       (focusedField.type === "text" ||
         focusedField.type === "email" ||
         focusedField.type === "tel") &&
       focusedField;
 
-    const passwordMatchesFocused = (pf: AutofillField): boolean =>
-      !focusedField
-        ? true
-        : focusedForm != null
-          ? pf.form === focusedForm
-          : !!(
-              focusedUsernameField &&
-              pf.form == null &&
-              this.findUsernameField(pageDetails, pf, false, false, true)?.opid ===
-                focusedUsernameField.opid
-            );
+    const passwordMatchesFocused = (pf: AutofillField): boolean => {
+      if (!focusedField) {
+        return true;
+      }
+      // The focused field itself is this password field — handles form-less
+      // pages where neither form membership nor the username-equivalence
+      // check would otherwise match.
+      if (pf.opid === focusedField.opid) {
+        return true;
+      }
+      if (focusedForm != null) {
+        return pf.form === focusedForm;
+      }
+      return !!(
+        focusedUsernameField &&
+        pf.form == null &&
+        this.findUsernameField(pageDetails, pf, false, false, true)?.opid ===
+          focusedUsernameField.opid
+      );
+    };
 
     const getUsernameForPassword = (
       pf: AutofillField,
@@ -2903,7 +2920,32 @@ export default class AutofillService implements AutofillServiceInterface {
           return false;
         }
 
-        const testedValues = [f.htmlID, f.htmlName, f.placeholder];
+        // WHATWG autofill tokens — standards-compliant signal. Catches sites
+        // that do a proper show-password toggle (type → text while preserving
+        // autocomplete). The downstream fillNewPassword guard still filters
+        // new-password fields when they shouldn't be filled.
+        if (
+          AutofillService.autoCompleteTypeIncludesToken(
+            f.autoCompleteType,
+            AutoFillConstants.AutocompleteCurrentPassword,
+          ) ||
+          AutofillService.autoCompleteTypeIncludesToken(
+            f.autoCompleteType,
+            AutoFillConstants.AutocompleteNewPassword,
+          )
+        ) {
+          return true;
+        }
+
+        const testedValues = [
+          f.htmlID,
+          f.htmlName,
+          f.placeholder,
+          f["label-aria"],
+          f["label-tag"],
+          f["label-top"],
+          f["label-left"],
+        ];
         for (let i = 0; i < testedValues.length; i++) {
           const value = testedValues[i];
           if (value != null && AutofillService.valueIsLikePassword(value)) {

@@ -3451,6 +3451,54 @@ describe("AutofillService", () => {
           );
         });
       });
+
+      describe("given a focused password-like field with no form", () => {
+        // Mirrors Gmail's password step with "Show password" checked:
+        // the password input is type="text", name="Passwd", autocomplete="off",
+        // aria-label="Enter your password", and the step has no <form> element.
+        // Without the fix, the inline menu writes the username value into this
+        // field (treating the focused type="text" input as a username candidate).
+        let gmailPasswordField: AutofillField;
+
+        beforeEach(() => {
+          gmailPasswordField = createAutofillFieldMock({
+            opid: "gmail-password",
+            type: "text",
+            htmlID: null,
+            htmlName: "Passwd",
+            autoCompleteType: "off",
+            form: null,
+            elementNumber: 1,
+          });
+          gmailPasswordField["label-aria"] = "Enter your password";
+          pageDetails.forms = {};
+          options.focusedFieldOpid = "gmail-password";
+          jest.spyOn(autofillService as any, "inUntrustedIframe").mockResolvedValue(false);
+          jest.spyOn(AutofillService, "fillByOpid");
+        });
+
+        it("fills the password value into the focused field (not the username value)", async () => {
+          pageDetails.fields = [gmailPasswordField];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            gmailPasswordField,
+            options.cipher.login.password,
+          );
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            gmailPasswordField,
+            options.cipher.login.username,
+          );
+        });
+      });
     });
   });
 
@@ -5228,6 +5276,111 @@ describe("AutofillService", () => {
         passwordField.htmlID = "inputPasswordCaptcha";
         passwordField.htmlName = "captcha";
         passwordField.placeholder = "Enter password";
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual([]);
+      });
+
+      it("returns the field in an array when autoCompleteType is `current-password`", () => {
+        passwordField.autoCompleteType = "current-password";
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual([passwordField]);
+      });
+
+      it("returns the field in an array when autoCompleteType is a space-separated list including `current-password`", () => {
+        passwordField.autoCompleteType = "current-password webauthn";
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual([passwordField]);
+      });
+
+      it("returns the field in an array when autoCompleteType is `new-password` and fillNewPassword is true", () => {
+        passwordField.autoCompleteType = "new-password";
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, true);
+
+        expect(result).toStrictEqual([passwordField]);
+      });
+
+      it("returns an empty array when autoCompleteType is `new-password` and fillNewPassword is false", () => {
+        passwordField.autoCompleteType = "new-password";
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual([]);
+      });
+
+      it("returns the field in an array when `label-aria` contains the word `password`", () => {
+        passwordField["label-aria"] = "Enter your password";
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual([passwordField]);
+      });
+
+      it("returns the field in an array when `label-tag` contains the word `password`", () => {
+        passwordField["label-tag"] = "Password";
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual([passwordField]);
+      });
+
+      it("returns the field in an array when `label-top` contains the word `password`", () => {
+        passwordField["label-top"] = "Password";
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual([passwordField]);
+      });
+
+      it("returns the field in an array when `label-left` contains the word `password`", () => {
+        passwordField["label-left"] = "Password";
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual([passwordField]);
+      });
+
+      it("returns the field in an array for a Gmail-shaped password input with Show-password checked", () => {
+        // Gmail's password input when "Show password" is checked: type flips to
+        // text, autocomplete goes to "off", but aria-label and name are stable.
+        // name="Passwd" does not normalize to contain "password", so recognition
+        // relies on label-aria.
+        passwordField.htmlName = "Passwd";
+        passwordField.autoCompleteType = "off";
+        passwordField["label-aria"] = "Enter your password";
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual([passwordField]);
+      });
+
+      it("returns an empty array when `label-aria` contains `password hint`", () => {
+        passwordField["label-aria"] = "Password hint";
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual([]);
+      });
+
+      it("returns an empty array when `label-aria` contains `forgot password`", () => {
+        passwordField["label-aria"] = "Forgot password?";
         pageDetails.fields = [passwordField];
 
         const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
