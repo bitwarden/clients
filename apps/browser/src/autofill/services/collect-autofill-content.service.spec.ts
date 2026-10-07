@@ -3242,6 +3242,28 @@ describe("CollectAutofillContentService", () => {
         expect(domQueryService.refreshShadowDomStateForUserRequest).not.toHaveBeenCalled();
       });
 
+      it("discards a populated cache when prepareForExplicitCollection is forced", () => {
+        jest.spyOn(domQueryService, "refreshShadowDomStateForUserRequest");
+        const disconnectSpy = jest.spyOn(
+          collectAutofillContentService["intersectionObserver"],
+          "disconnect",
+        );
+        const field = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+        collectAutofillContentService["noFieldsFound"] = false;
+        collectAutofillContentService["domRecentlyMutated"] = false;
+        collectAutofillContentService["autofillFieldElements"].set(
+          field,
+          createAutofillFieldMock(),
+        );
+
+        collectAutofillContentService.prepareForExplicitCollection(true);
+
+        expect(collectAutofillContentService["domRecentlyMutated"]).toBe(true);
+        expect(domQueryService.refreshShadowDomStateForUserRequest).toHaveBeenCalled();
+        expect(disconnectSpy).toHaveBeenCalled();
+        expect(collectAutofillContentService["autofillFieldElements"].size).toBe(0);
+      });
+
       it("keeps serving the populated cache when only hosts are awaiting definition", () => {
         // Steady state on framework pages: every unregistered component selector (<app-root>,
         // <mat-form-field>, …) parks in hostsAwaitingDefinition permanently. That must NOT force
