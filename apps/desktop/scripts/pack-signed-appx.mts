@@ -16,7 +16,7 @@
 /// The signed Appx lands on the configured `appx.artifactName`, so move or rename the
 /// unsigned Store package first if both are wanted. Cf .github/workflows/build-desktop.yml.
 ///
-/// Signing is delegated to scripts/sign-windows.js, which needs ELECTRON_BUILDER_SIGN=1 plus its Azure Key
+/// Signing is delegated to sign.js, which needs ELECTRON_BUILDER_SIGN=1 plus its Azure Key
 /// Vault environment, and ELECTRON_BUILDER_SIGN_APPX=1 to sign Appx files.
 ///
 /// Usage:

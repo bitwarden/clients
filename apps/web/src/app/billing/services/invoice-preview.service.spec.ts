@@ -169,11 +169,12 @@ describe("InvoicePreviewService", () => {
       } as never);
 
       const cart = await sut.previewPlanChangeCart("org-id-123", {
-        planTier: "teams",
+        tier: "teams",
         cadence: "annually",
+        billingAddress: { country: "US", postalCode: "12345", taxId: null },
       });
 
-      expect(cart.credit).toEqual({ translationKey: "appliedSubscriptionCredits", value: 12.5 });
+      expect(cart.credit).toEqual({ translationKey: "appliedProrationCredits", value: 12.5 });
       expect(cart.passwordManager.seats.translationKey).toBe("passwordManagerPlanPrice");
       expect(mockLogService.error).not.toHaveBeenCalled();
     });
@@ -181,8 +182,9 @@ describe("InvoicePreviewService", () => {
     it("should pass the organization id through to the client", async () => {
       mockClient.previewOrganizationPlanChange.mockResolvedValue(preview("teams") as never);
       const request: OrganizationPlanChangePreviewRequest = {
-        planTier: "teams",
+        tier: "teams",
         cadence: "annually",
+        billingAddress: { country: "US", postalCode: "12345", taxId: null },
       };
 
       await sut.previewPlanChangeCart("org-id-123", request);

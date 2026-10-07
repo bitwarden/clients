@@ -143,6 +143,9 @@ at all. Stick to `px` / `fr` / `minmax`.
 
 The selection checkbox column is a fixed `56px` and isn't configurable.
 
+If no visible column can grow, the first visible column's max becomes `1fr` so rows still fill their
+width: `minmax(240px, 480px)` becomes `minmax(240px, 1fr)`.
+
 ### Columns without a data field
 
 For columns that don't map to a field on your row type — action buttons, expand/collapse, and the
@@ -186,6 +189,37 @@ show every column in declaration order.**
   </bit-column>
 </bit-table-v2>
 ```
+
+### Letting the user choose columns
+
+To enable column customization, mark a `bit-column` as `removable` and give it a `label` for the
+Customize dialog. This also requires a unique `stateKey` on the table to store the user's
+preference. A **Customize** button then appears in the toolbar.
+
+```html
+<bit-table-v2 [tableDef]="table" stateKey="vaultItems">
+  <bit-table-toolbar>
+    <bit-search [placeholder]="'search' | i18n"></bit-search>
+  </bit-table-toolbar>
+
+  <bit-column sortable>
+    <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+  </bit-column>
+
+  <bit-column removable [label]="'email' | i18n" sortable>
+    <bit-header-cell>{{ "email" | i18n }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.email; let row">{{ row.email }}</bit-cell>
+  </bit-column>
+</bit-table-v2>
+```
+
+- Register the `stateKey` in `TABLE_STATE_KEYS` (`table-state-keys.ts`).
+- A `removable` column without a `label` is ignored and stays visible.
+- `displayedColumns` decides which columns are available; the user's choice hides a subset of those.
+- Not offered in `list` presentation.
+- Leave the row's identity column and any row-action columns unmarked, so the table can't be
+  emptied.
 
 ### Reusable columns
 
