@@ -20,6 +20,8 @@ import {
   GetSendAccessTokenError,
   SendAccessDomainCredentials,
   TryGetSendAccessTokenError,
+  normalizeSendAccessTokenError,
+  toSdkSendAccessCredentials,
 } from "@bitwarden/common/auth/send-access";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -46,8 +48,6 @@ import {
 } from "@bitwarden/legacy-crypto";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 import {
-  SendAccessCredentials,
-  SendAccessTokenError,
   SendReceiveClient,
   isAccessSendError,
   isGetFileDownloadDataError,
@@ -717,11 +717,11 @@ export class SendReceiveCommand extends DownloadCommand {
         try {
           const response = await client.request_send_access_token({
             sendId,
-            sendAccessCredentials: toSdkCredentials(credentials),
+            sendAccessCredentials: toSdkSendAccessCredentials(credentials),
           });
           return SendAccessToken.fromSendAccessTokenResponse(response);
         } catch (e) {
-          return toGetSendAccessTokenError(e);
+          return normalizeSendAccessTokenError(e);
         }
       },
       hashPassword: async (password) =>
@@ -742,64 +742,13 @@ export class SendReceiveCommand extends DownloadCommand {
   }
 
   /**
-   * SendApiService surfaces a missing Send as an {@link ErrorResponse}. The SDK has no status field
-   * on its API errors, so the status is only recoverable from the message ApiError formats
-   * ("error in response: status code 404 Not Found: ...").
+   * SendApiService surfaces a missing Send as an {@link ErrorResponse}; the SDK surfaces it as the
+   * NotFound variant of its access and file download data errors.
    */
   private isNotFound(e: unknown): boolean {
     if (e instanceof ErrorResponse) {
       return e.statusCode === 404;
     }
-    return (
-      (isAccessSendError(e) || isGetFileDownloadDataError(e)) &&
-      e.variant === "Api" &&
-      e.message.includes("status code 404")
-    );
+    return (isAccessSendError(e) || isGetFileDownloadDataError(e)) && e.variant === "NotFound";
   }
-}
-
-/** Maps domain credentials to the SDK's request shape, as DefaultSendTokenService does. */
-function toSdkCredentials(
-  credentials: SendAccessDomainCredentials | undefined,
-): SendAccessCredentials | undefined {
-  switch (credentials?.kind) {
-    case "password":
-      return { passwordHashB64: credentials.passwordHashB64 };
-    case "email":
-      return { email: credentials.email };
-    case "email_otp":
-      return { email: credentials.email, otp: credentials.otp };
-    default:
-      return undefined;
-  }
-}
-
-/**
- * Maps an SDK token request failure to the shape SendTokenService returns, so the callers' error
- * predicates and messages are the same on either path. Mirrors DefaultSendTokenService.
- */
-function toGetSendAccessTokenError(e: unknown): GetSendAccessTokenError {
-  if (isSendAccessTokenError(e)) {
-    return e.kind === "unexpected"
-      ? { kind: "unexpected_server", error: e.data }
-      : { kind: "expected_server", error: e.data };
-  }
-  if (e instanceof Error) {
-    return { kind: "unknown", error: e.message };
-  }
-  try {
-    return { kind: "unknown", error: JSON.stringify(e) };
-  } catch {
-    return { kind: "unknown", error: "error cannot be stringified" };
-  }
-}
-
-/** The SDK's SendAccessTokenError is a plain tagged union, so it has no generated type guard. */
-function isSendAccessTokenError(e: unknown): e is SendAccessTokenError {
-  return (
-    typeof e === "object" &&
-    e !== null &&
-    "kind" in e &&
-    (e.kind === "expected" || e.kind === "unexpected")
-  );
 }

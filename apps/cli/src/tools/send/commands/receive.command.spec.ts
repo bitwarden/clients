@@ -1291,11 +1291,12 @@ describe("SendReceiveCommand", () => {
         expect(receiveClient.access_send).not.toHaveBeenCalled();
       });
 
-      it("maps an SDK 404 to not found", async () => {
-        const error = new Error("error in response: status code 404 Not Found: {}");
-        error.name = "AccessSendError";
-        (error as Error & { variant: string }).variant = "Api";
-        receiveClient.access_send.mockRejectedValue(error);
+      /** A flat wasm SDK error, as the SDK's generated type guards recognize it. */
+      const sdkError = (name: string, variant: string, message = "") =>
+        Object.assign(new Error(message), { name, variant });
+
+      it("maps the SDK's NotFound access error to not found", async () => {
+        receiveClient.access_send.mockRejectedValue(sdkError("AccessSendError", "NotFound"));
 
         const response = await accessSendWithToken();
 
@@ -1303,11 +1304,30 @@ describe("SendReceiveCommand", () => {
         expect(response.message).toBe("Not found.");
       });
 
-      it("reports other SDK errors as errors", async () => {
-        const error = new Error("error in response: status code 500 Internal Server Error: {}");
-        error.name = "AccessSendError";
-        (error as Error & { variant: string }).variant = "Api";
-        receiveClient.access_send.mockRejectedValue(error);
+      it("maps the SDK's NotFound file download data error to not found", async () => {
+        receiveClient.decrypt_send_access.mockReturnValue({
+          id: "access-id",
+          type: SdkSendType.File,
+          file: { id: "file-123", fileName: "report.pdf" },
+        });
+        receiveClient.get_file_download_data.mockRejectedValue(
+          sdkError("GetFileDownloadDataError", "NotFound"),
+        );
+
+        const response = await accessSendWithToken();
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe("Not found.");
+      });
+
+      it("reports other SDK API errors as errors", async () => {
+        receiveClient.access_send.mockRejectedValue(
+          sdkError(
+            "AccessSendError",
+            "Api",
+            "error in response: status code 500 Internal Server Error: {}",
+          ),
+        );
 
         const response = await accessSendWithToken();
 
