@@ -155,7 +155,7 @@ describe("DefaultAccountSwitcherService", () => {
           email: `${userA}@example.com`,
           status: AuthenticationStatus.Unlocked,
           avatarColor: "#aaaaaa",
-          server: `server-${userA}`,
+          serverHostname: `server-${userA}`,
           isActive: true,
         },
         {
@@ -164,7 +164,7 @@ describe("DefaultAccountSwitcherService", () => {
           email: `${userB}@example.com`,
           status: AuthenticationStatus.Locked,
           avatarColor: "#bbbbbb",
-          server: `server-${userB}`,
+          serverHostname: `server-${userB}`,
           isActive: false,
         },
       ]);
@@ -254,7 +254,7 @@ describe("DefaultAccountSwitcherService", () => {
       ]);
     });
 
-    it("emits again when a server changes", async () => {
+    it("emits again when a server hostname changes", async () => {
       setup({
         [userA]: AuthenticationStatus.Unlocked,
         [userB]: AuthenticationStatus.Locked,
@@ -262,7 +262,7 @@ describe("DefaultAccountSwitcherService", () => {
       });
       const emissions: (string | undefined)[] = [];
       const subscription = sut.entries$.subscribe((entries) =>
-        emissions.push(entries.find((e) => e.id === userB)?.server),
+        emissions.push(entries.find((e) => e.id === userB)?.serverHostname),
       );
 
       environments[userB].next(environmentWithHost("self-hosted.example.com"));

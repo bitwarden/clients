@@ -90,7 +90,7 @@ export class DefaultAccountSwitcherService implements AccountSwitcherService {
         email: account.email,
         status,
         avatarColor,
-        server: environment?.getHostname(),
+        serverHostname: environment?.getHostname(),
         isActive,
       })),
     );

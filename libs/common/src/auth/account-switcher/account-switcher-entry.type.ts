@@ -10,7 +10,6 @@ export type AccountSwitcherEntry = {
   email: string;
   status: AuthenticationStatus;
   avatarColor: string | null;
-  /** Hostname of the server the account belongs to. */
-  server: string | undefined;
+  serverHostname: string | undefined;
   isActive: boolean;
 };
