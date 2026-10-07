@@ -7,7 +7,7 @@
   />
 </bit-header>
 
-<!-- Shared password-policy card for both create and edit modes; its controls are self-gating. -->
+<!-- Shared by create and edit; its controls gate themselves on the method. -->
 <ng-template #policyCard>
   <bit-section [formGroup]="policyForm">
     <bit-section-header>
@@ -87,7 +87,7 @@
         </div>
       }
 
-      <!-- Session termination (Automatic only): intrinsic for native integrations, opt-in for custom scripts -->
+      <!-- Session termination: intrinsic for native integrations, opt-in for custom scripts. -->
       @if (isAutomatic()) {
         @if (isNativeIntegration()) {
           <div>
@@ -269,7 +269,6 @@
     </form>
   } @else {
     <div class="tw-max-w-4xl">
-      <!-- Setup guidance -->
       @let setupSteps = outstandingSetupSteps();
       @if (setupSteps.length > 0) {
         <bit-callout
@@ -289,7 +288,6 @@
         </bit-callout>
       }
 
-      <!-- Name card -->
       <bit-section [formGroup]="nameForm">
         <bit-section-header>
           <h2 bitTypography="h5">{{ "pamTargetSystemGeneralInfoHeading" | i18n }}</h2>
@@ -338,12 +336,10 @@
         </bit-card>
       </bit-section>
 
-      <!-- Policy card (Automatic + Manual) -->
       @if (showPolicyCard()) {
         <ng-container *ngTemplateOutlet="policyCard"></ng-container>
       }
 
-      <!-- Assigned access connectors -->
       @if (isAutomatic()) {
         <ng-template #connectorRow let-row let-vfo1="vfo1">
           @if (vfo1) {

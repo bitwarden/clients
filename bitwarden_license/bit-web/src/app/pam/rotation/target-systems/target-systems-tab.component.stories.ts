@@ -23,9 +23,7 @@ import { atUrl } from "../testing/story-helpers";
 import { TargetSystemsTabComponent } from "./target-systems-tab.component";
 import { TargetSystemsService } from "./target-systems.service";
 
-/**
- * Every method, kind and status the chips can offer.
- */
+/** Every method, kind and status the chips can offer. */
 const SYSTEMS: TargetSystem[] = [
   targetSystem({ id: sysId("1"), name: "Prod Entra", kind: "entra" }),
   targetSystem({ id: sysId("3"), name: "Billing rotation script", kind: "custom_script" }),
@@ -76,9 +74,7 @@ function rotationServices(systems: TargetSystem[]) {
   });
 }
 
-/**
- * Mirrors `rotation.routes.ts` (minus its guards). The component declares no selector.
- */
+/** Mirrors `rotation.routes.ts`, minus its guards, since the component declares no selector. */
 const routes: Routes = [
   {
     path: "organizations/:organizationId/pam/rotation",
@@ -110,9 +106,7 @@ export default {
 
 type Story = StoryObj<TargetSystemsTabComponent>;
 
-/**
- * The full toolbar: search plus the Method, Type and Status chips, each with options to pick.
- */
+/** The full toolbar, with search and the Method, Type and Status chips, each with options. */
 export const Default: Story = {
   decorators: [rotationServices(SYSTEMS)],
   parameters: {
@@ -126,16 +120,13 @@ export const FlagOn: Story = {
   globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
-/**
- * Every target retired. No row offers "Add managed credential".
- */
+/** No row offers "Add managed credential". */
 export const AllDisabled: Story = {
   decorators: [
     rotationServices(SYSTEMS.map((system) => targetSystem({ ...system, status: "disabled" }))),
   ],
 };
 
-/** No target systems configured yet. */
 export const Empty: Story = {
   decorators: [rotationServices([])],
 };

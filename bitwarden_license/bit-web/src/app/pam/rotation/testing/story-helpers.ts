@@ -1,11 +1,8 @@
 import { Decorator } from "@storybook/angular";
 
 /**
- * Renders the story at `url`; hash routing keeps Storybook's own query string intact.
- *
- * Only takes effect on a story that provides `provideRouter(routes, withHashLocation())`. Under
- * the default `PathLocationStrategy` the hash is ignored and the story renders at the default
- * route, with nothing raised to say so.
+ * Renders the story at `url` through the hash, which keeps Storybook's query string intact. Needs
+ * `provideRouter(routes, withHashLocation())`, or the story silently renders the default route.
  */
 export const atUrl =
   (url: string): Decorator =>

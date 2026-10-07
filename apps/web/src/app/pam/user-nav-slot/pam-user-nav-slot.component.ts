@@ -12,14 +12,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { PamNavBadgeService } from "../pam-nav-badge.service";
 
-/**
- * Renders the "Access requests" nav item in the individual user side nav when
- * {@link FeatureFlag.Pam} is on and the user belongs to a PAM-enabled organization (`usePam`).
- *
- * Badges the item with the number of access requests still awaiting the caller's attention,
- * read through the optional {@link PamNavBadgeService} seam, unprovided in OSS-only builds
- * where the count falls back to 0.
- */
+/** "Access requests" nav item in the individual user side nav, badged with the pending count. */
 @Component({
   selector: "app-pam-user-nav-slot",
   templateUrl: "./pam-user-nav-slot.component.html",

@@ -7,8 +7,8 @@ import { CipherListView } from "@bitwarden/sdk-internal";
 import { VaultFilterService } from "@bitwarden/vault";
 
 /**
- * Includes PAM-gated ("partial") ciphers in the folder tree, matching the web vault list, which
- * renders them. Other clients keep the base behavior and exclude them.
+ * Includes PAM-gated ("partial") ciphers when deciding which folders have items, to match the web
+ * vault list. Other clients keep the base behavior, which excludes them.
  */
 @Injectable()
 export class WebIndividualVaultFilterService extends VaultFilterService {

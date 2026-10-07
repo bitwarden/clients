@@ -17,30 +17,18 @@ import type {
 import type { ResolvedNames } from "../access-requests/access-name-resolver.service";
 
 /**
- * Shared fixtures for the PAM page-level stories.
- *
- * Stories build rows through the real row builders (`toRequestRow`, `toApprovalRow`,
- * `toLeaseRow`), since a hand-written row could quietly disagree with what the builders produce.
- *
- * Everything is stamped relative to {@link STORY_NOW}, not the wall clock, so timestamps don't
- * drift into a visual-regression diff.
+ * Fixed, so story timestamps don't drift into a visual-regression diff. Build rows through the real
+ * row builders, since a hand-written row can disagree with them.
  */
 export const STORY_NOW = new Date("2026-08-17T12:00:00.000Z");
 
-/**
- * Milliseconds offset from {@link STORY_NOW}, as an ISO string. Use for anything whose label is
- * computed by a builder that takes `now` as an argument (`toApprovalRow`, `toRequestRow`), where a
- * fixed clock keeps the rendered text stable.
- */
+/** An offset from {@link STORY_NOW}, for labels built by a builder that takes `now`. */
 export function fromNow(ms: number): string {
   return new Date(STORY_NOW.getTime() + ms).toISOString();
 }
 
 /**
- * Milliseconds offset from the REAL clock, evaluated when called.
- *
- * Some surfaces tick their own `Date.now()` signal rather than a passed-in `now`, so a
- * {@link fromNow} window would already read as expired against the real clock. Call inside a
+ * An offset from the real clock, for surfaces that tick their own `Date.now()`. Call inside a
  * story's provider factory so it stays fresh on every render.
  */
 export function liveFromNow(ms: number): string {
@@ -51,10 +39,7 @@ export const MINUTE = 60 * 1000;
 export const HOUR = 60 * MINUTE;
 export const DAY = 24 * HOUR;
 
-/**
- * A pending access request for a gated cipher. Overrides widen through `unknown`, since the SDK
- * brands most of these ids and a fully-branded fixture isn't worth the ceremony.
- */
+/** A pending request. Overrides widen through `unknown`, since the SDK brands most of these ids. */
 export function accessRequest(overrides: Record<string, unknown> = {}): AccessRequestView {
   return {
     id: "req-1",
@@ -78,7 +63,6 @@ export function accessRequest(overrides: Record<string, unknown> = {}): AccessRe
   } as unknown as AccessRequestView;
 }
 
-/** An active lease the caller holds. */
 export function accessLease(overrides: Record<string, unknown> = {}): AccessLeaseView {
   return {
     id: "lease-1",
@@ -93,7 +77,6 @@ export function accessLease(overrides: Record<string, unknown> = {}): AccessLeas
   } as unknown as AccessLeaseView;
 }
 
-/** A recorded human decision, for the resolver column and the approver comment. */
 export function decision(overrides: Record<string, unknown> = {}): AccessRequestDecisionView {
   return {
     decider: { human: { id: "approver-1", name: "Ada Lovelace", email: "ada@example.com" } },
@@ -112,10 +95,7 @@ function cipherView(id: string, name: string): CipherView {
   return cipher;
 }
 
-/**
- * Name lookups covering the fixture ids above. Ids absent here are exactly the "not in the caller's
- * local vault" case the row builders fall back on, so a story can drop an entry to exercise it.
- */
+/** Drop an entry to exercise the row builders' not-in-local-vault fallback. */
 export function storyNames(): ResolvedNames {
   return {
     cipherNameById: new Map([
@@ -137,11 +117,8 @@ export function storyNames(): ResolvedNames {
 }
 
 /**
- * A no-op {@link LogService}, as a ready-made provider.
- *
- * Every page-level PAM surface injects one to record swallowed errors; Storybook's root injector
- * has none, so without this a story dies on NG0201. Silent, not console-backed, so a story
- * logging on purpose doesn't look broken.
+ * Storybook's root injector has no {@link LogService}, so a PAM story dies on NG0201 without this.
+ * Silent, so a story whose logging is expected doesn't look broken.
  */
 export function provideStoryLogService() {
   const noop = () => {};
@@ -161,14 +138,8 @@ export function provideStoryLogService() {
 }
 
 /**
- * A stub for the web header's product switcher.
- *
- * `ProductSwitcherService` is `providedIn: "root"` and pulls in an entire service graph a page
- * story has no interest in; overriding it in the root injector short-circuits all of it, and the
- * switcher renders empty, which is what a story wants.
- *
- * Must go in `applicationConfig`, not `moduleMetadata` — a root service isn't resolved from the
- * module injector.
+ * Stubs the root `ProductSwitcherService` and its service graph. Must go in `applicationConfig`,
+ * since a root service isn't resolved from the module injector.
  */
 export function provideStoryProductSwitcher() {
   return {
@@ -177,13 +148,7 @@ export function provideStoryProductSwitcher() {
   };
 }
 
-/**
- * Everything `app-header` needs beyond the product switcher: active account, lock state, and
- * self-hosted status.
- *
- * A page story is about the page, not the chrome; these just let the header render. Root
- * injector, same reason as {@link provideStoryProductSwitcher}.
- */
+/** What `app-header` needs beyond the product switcher, also at the root injector. */
 export function provideStoryWebHeader() {
   return [
     provideStoryProductSwitcher(),
@@ -198,13 +163,8 @@ export function provideStoryWebHeader() {
 }
 
 /**
- * Zoneless change detection, overriding the zone-based provider in `.storybook/preview.tsx`.
- *
- * Storybook resolves a story's async work outside the Angular zone, so the zone-based scheduler's
- * `NgZone.onMicrotaskEmpty` tick never fires for work arriving after first paint. Zoneless
- * schedules the tick directly off a signal write instead.
- *
- * Scoped to these stories deliberately; the shared preview affects every story in the repo.
+ * Overrides the preview's zone-based scheduler, since Storybook resolves async work outside the
+ * zone and its tick never fires after first paint. Scoped to these stories, not the shared preview.
  */
 export function provideStoryChangeDetection() {
   return provideZonelessChangeDetection();

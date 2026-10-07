@@ -141,10 +141,7 @@ export default {
 
 type Story = StoryObj<RotationConfigEditComponent>;
 
-/**
- * Edit mode, on the Configuration tab: the breadcrumb trail reads "Managed credentials > Edit
- * managed credential".
- */
+/** The Configuration tab; the breadcrumb trail ends in "Edit managed credential". */
 export const Edit: Story = {
   decorators: [
     atUrl(
@@ -153,7 +150,7 @@ export const Edit: Story = {
   ],
 };
 
-/** Edit mode, on the History tab: the job table takes the page rather than the form's column. */
+/** The job table takes the full page width rather than the form's column. */
 export const EditHistory: Story = {
   decorators: [
     atUrl(
@@ -162,12 +159,10 @@ export const EditHistory: Story = {
   ],
 };
 
-/** Create mode. */
 export const Create: Story = {
   decorators: [atUrl(`/organizations/${ORGANIZATION_ID}/pam/rotation/managed-credentials/new`)],
 };
 
-/** Create mode with the target picker empty. */
 export const CreateWithNoActiveTargetSystems: Story = {
   decorators: [
     atUrl(`/organizations/${ORGANIZATION_ID}/pam/rotation/managed-credentials/new`),

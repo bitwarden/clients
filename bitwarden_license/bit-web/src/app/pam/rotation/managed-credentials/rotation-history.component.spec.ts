@@ -538,7 +538,7 @@ describe("RotationHistoryComponent rendering", () => {
     return fixture;
   }
 
-  /** The seeded shape this screen is designed around: one failure, retried five identical times. */
+  /** The seeded worst case, with one failure retried five identical times. */
   function retriedFailure(): RotationJob {
     return rotationJob({
       status: RotationJobStatus.Failed,
@@ -572,10 +572,7 @@ describe("RotationHistoryComponent rendering", () => {
       .map((th: any) => th.nativeElement.textContent.trim());
   }
 
-  /**
-   * Arms the drawer mock with a ref whose `closed` this test controls, for the two behaviours that
-   * only happen on the way out.
-   */
+  /** Returns the drawer's `closed` subject, so a test can drive the close. */
   function openedDrawer(): Subject<unknown> {
     const closed = new Subject<unknown>();
     dialogService.openDrawer.mockResolvedValue({ closed } as any);
@@ -588,7 +585,6 @@ describe("RotationHistoryComponent rendering", () => {
     fixture.detectChanges();
   }
 
-  /** The params the drawer was opened with, or null when it was never opened. */
   function drawerParams() {
     const call = dialogService.openDrawer.mock.calls[0];
     return call ? ((call[1] as any).data ?? null) : null;

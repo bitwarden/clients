@@ -346,7 +346,6 @@ describe("VaultItemDialogComponent", () => {
   });
 
   describe("delete", () => {
-    // PM-42916: a refused delete used to be reported as Deleted anyway, closing the dialog.
     it("keeps the dialog open and explains the failure when the server refuses", async () => {
       const toastService = TestBed.inject(ToastService);
       component.setTestCipher({ id: "cipher-id", isDeleted: false, partial: true } as any);
@@ -687,7 +686,7 @@ describe("VaultItemDialogComponent", () => {
     let gatedComponent: TestVaultItemDialogComponent;
     let gatedFixture: ComponentFixture<TestVaultItemDialogComponent>;
 
-    /** The partial copy a gated cipher opens as: `partialData` set, secrets absent. */
+    /** The partial copy a gated cipher opens as. */
     const partialCipher = { id: "gated-1", partialData: '{"name":"gated"}' } as unknown as Cipher;
     /** What the reloader hands back after a lease covers the item. */
     const leasedCipher = { id: "gated-1", partialData: undefined } as unknown as Cipher;
@@ -874,7 +873,7 @@ describe("VaultItemDialogComponent", () => {
 
       it("leaves the form alone, without throwing, when the re-read finds no lease", async () => {
         await revealThenPrepareUpload();
-        // A lapsed lease between upload and re-read used to throw, and leave a stale revision date.
+        // The lease lapses between the upload and the re-read.
         reloaderFullCipher$.mockReturnValueOnce(of(null));
 
         await expect(gatedComponent["openAttachmentsDialog"]()).resolves.toBeUndefined();
@@ -898,7 +897,7 @@ describe("VaultItemDialogComponent", () => {
         await settle();
 
         // The form echoes the server's write, stripped for a gated cipher; taking it at face
-        // value re-locked the item mid-lease.
+        // value would re-lock the item mid-lease.
         await gatedComponent["onCipherSaved"]({
           id: "gated-1",
           partial: true,
@@ -918,8 +917,8 @@ describe("VaultItemDialogComponent", () => {
         reloaderFullCipher$.mockReturnValueOnce(of(null));
         cipherServiceMock.get.mockResolvedValue(partialCipher as any);
 
-        // The echo the server returns for a gated write has its secrets blanked but is NOT flagged
-        // partial, so leaving it in place rendered the item populated-but-empty, Edit still on.
+        // The server's echo of a gated write has its secrets blanked but is not flagged partial,
+        // so leaving it in place would render the item blank with Edit still on.
         const echoedView = {
           id: "gated-1",
           partial: false,

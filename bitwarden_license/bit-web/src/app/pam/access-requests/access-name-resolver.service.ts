@@ -12,19 +12,17 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import type { AccessRequestView } from "../abstractions/access-lease";
 
 /**
- * Cipher + collection + organization display names (and decrypted cipher views, for the item
- * favicon) resolved from local vault state, keyed by raw id. A missing entry means the id isn't
- * in the caller's local vault; callers fall back to the raw id or render nothing.
+ * Display names from local vault state, keyed by raw id. A missing entry means the id isn't in the
+ * caller's vault; callers fall back to the raw id or render nothing.
  */
 export type ResolvedNames = {
   cipherNameById: Map<string, string>;
   collectionNameById: Map<string, string>;
   organizationNameById: Map<string, string>;
-  /** The decrypted cipher views themselves, keyed by id — the source for favicon rendering. */
+  /** The decrypted cipher views, for favicons. */
   cipherById: Map<string, CipherView>;
 };
 
-/** An empty name lookup — the graceful default before a vault snapshot resolves. */
 export function emptyResolvedNames(): ResolvedNames {
   return {
     cipherNameById: new Map(),
@@ -49,15 +47,9 @@ export function organizationNameFor(
 }
 
 /**
- * One-shot cipher + collection + organization display-name (and favicon) lookup for the "My
- * access" page and its request-detail route, resolved from local vault state — no decryption
- * happens here, only already-decrypted local state is read.
- *
- * The read MUST go through `getAllDecryptedForIdsIncludingPartials`: every id here names a gated
- * cipher, and the default accessors strip partials, so using one resolves nothing at all.
- *
- * Deliberately a plain one-shot `Promise`: both callers re-resolve names on every fetch, so a
- * live subscription buys nothing here.
+ * Reads through `getAllDecryptedForIdsIncludingPartials`, since every id names a gated cipher and
+ * the default accessors strip partials. A one-shot `Promise`, since callers re-resolve on every
+ * fetch.
  */
 @Injectable()
 export class AccessNameResolverService {
@@ -66,11 +58,7 @@ export class AccessNameResolverService {
   private readonly collectionService = inject(CollectionService);
   private readonly organizationService = inject(OrganizationService);
 
-  /**
-   * Resolve cipher, collection and organization display names (and cipher views) for the given refs
-   * from local vault state. Unresolvable ids (not in the caller's vault, or collection state not yet
-   * warm) are simply absent from the returned maps — callers fall back to the raw id.
-   */
+  /** Ids missing from the caller's vault, or from collection state not yet warm, are absent. */
   async resolveNames(
     refs: ReadonlyArray<{ cipherId: string; collectionId: string }>,
   ): Promise<ResolvedNames> {

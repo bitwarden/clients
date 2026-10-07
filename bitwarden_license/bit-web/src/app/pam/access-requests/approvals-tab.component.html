@@ -157,10 +157,9 @@
   }
 
   @if (!vfo1Enabled() && rows().length === 0 && leaseRows().length === 0) {
-    <!-- Rendered after the toolbar on purpose: a filter that matches nothing must not take the
-         filter controls away with it, or there is no way back. On the VFO1 path the toolbar sits
-         in the Pending table, which holds its place above its own empty state, so the accordion
-         group stays up instead. -->
+    <!-- After the toolbar, so a filter that matches nothing leaves the controls to undo it. The
+         VFO1 path keeps the accordion group up instead, since its toolbar sits in the Pending
+         table. -->
     <bit-status-lockup class="tw-mt-2 tw-block" data-testid="approvals-no-results">
       <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>
       <span slot="title">{{ "pamApprovalsNoResults" | i18n }}</span>

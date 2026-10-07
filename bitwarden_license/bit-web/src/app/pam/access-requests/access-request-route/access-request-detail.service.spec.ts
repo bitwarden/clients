@@ -116,7 +116,7 @@ describe("AccessRequestDetailService", () => {
     };
 
     requestsApi.getAccessRequest.mockResolvedValue(request());
-    // Name resolution is the resolver's own concern (and its own spec); this service only reads its maps.
+    // Name resolution has its own spec; this service only reads the maps.
     nameResolver.resolveNames.mockResolvedValue(emptyResolvedNames() as ResolvedNames);
     leasingErrors.isLeasingError.mockReturnValue(false);
   });

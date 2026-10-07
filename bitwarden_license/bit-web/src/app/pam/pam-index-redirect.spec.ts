@@ -29,10 +29,8 @@ class ShellComponent {}
 class BlankComponent {}
 
 /**
- * The nesting `OrganizationsRoutingModule` gives the commercial PAM pages, with the index route
- * copied from `PamRoutingModule` and the sections stubbed. The feature and permission guards are
- * left off: what is under test is where the index route sends a member, not what the sections
- * then refuse.
+ * Mirrors the `OrganizationsRoutingModule` nesting with `PamRoutingModule`'s index route and
+ * stubbed sections. Guards are left off, since only the index redirect is under test.
  */
 const routes: Routes = [
   {

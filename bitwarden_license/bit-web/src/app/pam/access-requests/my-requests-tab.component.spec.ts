@@ -24,8 +24,8 @@ import { MyRequestsTabComponent } from "./my-requests-tab.component";
 const LEASE_END = "2026-08-20T12:00:00.000Z";
 
 /**
- * The ids of the once-a-second clocks a spied `setInterval` created, told apart from the
- * zero-delay timers Angular's own scheduler queues during change detection.
+ * The ids of the per-second clocks a spied `setInterval` created, apart from Angular's own
+ * zero-delay scheduler timers.
  */
 function secondlyIntervalIds(spy: jest.SpyInstance): unknown[] {
   return spy.mock.results
@@ -33,8 +33,7 @@ function secondlyIntervalIds(spy: jest.SpyInstance): unknown[] {
     .map((result) => result.value);
 }
 
-// Loosely typed, not `Partial<MyAccessLeaseRow>`, since row ids are opaque branded types (same
-// convention as `history-tab.component.spec.ts`).
+// Loosely typed, not `Partial<MyAccessLeaseRow>`, since row ids are opaque branded types.
 function leaseRow(overrides: Record<string, unknown> = {}): MyAccessLeaseRow {
   return {
     id: "lease-1",
@@ -111,7 +110,6 @@ describe("MyRequestsTabComponent", () => {
     return [...rows].map((row) => row.getAttribute("data-testid"));
   }
 
-  /** Click the active-access table's Item header, toggling its sort the way a user would. */
   function sortActiveAccessByItem(): void {
     const anyRow = fixture.nativeElement.querySelector(
       'tr[data-testid^="my-access-lease-"], tr[data-testid^="my-access-approved-"]',

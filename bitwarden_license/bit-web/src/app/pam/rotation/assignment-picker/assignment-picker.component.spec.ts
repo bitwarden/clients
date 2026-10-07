@@ -22,7 +22,7 @@ import {
   AssignmentPickerRow,
 } from "./assignment-picker.component";
 
-/** Echoes the key. */
+/** Echoes the key and its first placeholder. */
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
   t: (id: string, p1?: string | number) => (p1 == null ? id : `${id}:${p1}`),
   translate: (id: string) => id,
@@ -112,7 +112,6 @@ class AssignmentPickerHostComponent {
   unassign: (row: TestRow) => Promise<boolean | void> = jest.fn(() => Promise.resolve());
 }
 
-/** The picker's protected surface, as these tests drive it. */
 type PickerApi = {
   pendingSelection: { (): SelectItemView[]; set(items: SelectItemView[]): void };
   hintKey: () => string;
@@ -121,14 +120,13 @@ type PickerApi = {
 };
 
 /**
- * The two ways bit-multi-select reports a selection: it notifies its value accessor on every
- * change, including a chip dismissed with the dropdown shut, and announces a confirmed pick only
- * when the dropdown closes — and not at all when the closing selection is empty.
+ * How bit-multi-select reports a selection: its value accessor hears every change, while a
+ * confirmed pick is announced only when the dropdown closes, and never for an empty selection.
  */
 type ControlApi = {
   onChange(items: SelectItemView[]): void;
   onDropdownClosed(): void;
-  /** What the control itself holds — the chips and checkmarks the user is looking at. */
+  /** What the control itself shows as selected. */
   selectedItems(): SelectItemView[] | null;
 };
 
@@ -148,13 +146,11 @@ describe("AssignmentPickerComponent", () => {
     return (fixture.nativeElement as HTMLElement).querySelector<T>(selector);
   }
 
-  /** The multi-select the picker owns, driven through the contract it reports selections on. */
   function control(): ControlApi {
     return fixture.debugElement.query(By.css("bit-multi-select"))
       .componentInstance as unknown as ControlApi;
   }
 
-  /** Assign's own tooltip. */
   function assignTooltip(): TooltipDirective {
     return fixture.debugElement.query(By.css("#host_button_assign")).injector.get(TooltipDirective);
   }
@@ -164,10 +160,8 @@ describe("AssignmentPickerComponent", () => {
   }
 
   /**
-   * Runs change detection and lets the `[ngModel]` writeback land. Anything asserting on what the
-   * control holds needs this: the push back into the control happens a microtask after the
-   * selection handler returns, so an assertion made straight after `onChange` reads the selection
-   * before it could have been overwritten and passes either way.
+   * Lets the `[ngModel]` writeback land, a microtask after the selection handler returns. Without
+   * it, an assertion on the control's selection passes either way.
    */
   async function settle(): Promise<void> {
     fixture.detectChanges();
@@ -296,8 +290,7 @@ describe("AssignmentPickerComponent", () => {
       control().onChange([option("opt-1", "Prod Entra")]);
       await settle();
 
-      // Unarmed until the dropdown closes, but the chip and its checkmark are still there to
-      // close over: the pick used to be erased by its own notification.
+      // Unarmed until the dropdown closes, but the pick stays selected in the control.
       expect(control().selectedItems()).toEqual([option("opt-1", "Prod Entra")]);
       expect(picker.pendingSelection()).toEqual([]);
 
