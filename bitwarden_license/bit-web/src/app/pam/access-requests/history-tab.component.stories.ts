@@ -205,6 +205,11 @@ export const Empty: Story = {
   decorators: [history({ mine: [] })],
 };
 
+export const EmptyForAnApprover: Story = {
+  decorators: [history({ mine: [], canApprove: true })],
+  parameters: { chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) } },
+};
+
 /** An approver's view, opening on All with revoke and withdraw offered only on managed rows. */
 export const WithManagedHistory: Story = {
   decorators: [history({ managed: managedRows })],
