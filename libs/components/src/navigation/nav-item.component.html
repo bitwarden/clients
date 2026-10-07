@@ -193,7 +193,7 @@
       <!-- Leading icon tile: inside the interactive element and, when collapsed, the sole rail glyph -->
       <ng-container *ngTemplateOutlet="iconTileSlot"></ng-container>
       @if ((icon() || treeDepth() > 1) && !hasStartIconTile()) {
-        <div class="tw-size-6 tw-flex tw-items-center tw-justify-center">
+        <div class="tw-size-6 tw-shrink-0 tw-flex tw-items-center tw-justify-center">
           @if (icon()) {
             <bit-icon
               class="!tw-m-0 tw-text-lg tw-shrink-0"
