@@ -1106,11 +1106,35 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return false;
     }
 
-    const testedValues = [field.htmlID, field.htmlName, field.placeholder];
+    // WHATWG autofill tokens — standards-compliant signal. Catches sites
+    // that do a proper show-password toggle (type → text while preserving
+    // autocomplete).
+    if (
+      AutofillService.autoCompleteTypeIncludesToken(
+        field.autoCompleteType,
+        AutoFillConstants.AutocompleteCurrentPassword,
+      ) ||
+      AutofillService.autoCompleteTypeIncludesToken(
+        field.autoCompleteType,
+        AutoFillConstants.AutocompleteNewPassword,
+      )
+    ) {
+      return true;
+    }
+
+    const testedValues = [
+      field.htmlID,
+      field.htmlName,
+      field.placeholder,
+      field["label-aria"],
+      field["label-tag"],
+      field["label-top"],
+      field["label-left"],
+    ];
     for (let i = 0; i < testedValues.length; i++) {
       const attributeValueToMatch = testedValues[i];
 
-      if (!attributeValueToMatch) {
+      if (typeof attributeValueToMatch !== "string" || !attributeValueToMatch) {
         continue;
       }
 

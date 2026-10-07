@@ -313,6 +313,71 @@ describe("InlineMenuFieldQualificationService", () => {
           );
         });
 
+        it("has a type of `text` with an autoCompleteType of `current-password`", () => {
+          const field = mock<AutofillField>({
+            type: "text",
+            htmlID: null,
+            htmlName: "something-else",
+            placeholder: "something-else",
+            autoCompleteType: "current-password",
+          });
+
+          expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
+            true,
+          );
+        });
+
+        it("has a type of `text` with a space-separated autoCompleteType including `current-password`", () => {
+          const field = mock<AutofillField>({
+            type: "text",
+            htmlID: null,
+            htmlName: "something-else",
+            placeholder: "something-else",
+            autoCompleteType: "current-password webauthn",
+          });
+
+          expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
+            true,
+          );
+        });
+
+        it.each(["label-aria", "label-tag", "label-top", "label-left"])(
+          "has a type of `text` with the word `password` in %s",
+          (attr) => {
+            const field = mock<AutofillField>({
+              type: "text",
+              htmlID: null,
+              htmlName: "something-else",
+              placeholder: "something-else",
+              autoCompleteType: "",
+              [attr]: "Password",
+            });
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(true);
+          },
+        );
+
+        it("qualifies a Gmail-shaped password input with Show-password checked", () => {
+          // Gmail's password input when "Show password" is checked: type flips to
+          // text, autocomplete goes to "off", but aria-label and name are stable.
+          // name="Passwd" does not normalize to contain "password", so recognition
+          // relies on label-aria.
+          const field = mock<AutofillField>({
+            type: "text",
+            htmlID: null,
+            htmlName: "Passwd",
+            placeholder: "",
+            autoCompleteType: "off",
+            "label-aria": "Enter your password",
+          });
+
+          expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
+            true,
+          );
+        });
+
         describe("does not have a parent form element", () => {
           it("is the only password field on the page, has one username field on the page, and has a non-disabled `autocompleteType` value", () => {
             pageDetails.forms = {};

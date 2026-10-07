@@ -5319,41 +5319,23 @@ describe("AutofillService", () => {
         expect(result).toStrictEqual([]);
       });
 
-      it("returns the field in an array when `label-aria` contains the word `password`", () => {
-        passwordField["label-aria"] = "Enter your password";
-        pageDetails.fields = [passwordField];
+      it.each(["label-aria", "label-tag", "label-top", "label-left"])(
+        "returns the field in an array when %s contains the word `password`",
+        (attr) => {
+          passwordField[attr] = "Password";
+          pageDetails.fields = [passwordField];
 
-        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+          const result = AutofillService.loadPasswordFields(
+            pageDetails,
+            false,
+            false,
+            false,
+            false,
+          );
 
-        expect(result).toStrictEqual([passwordField]);
-      });
-
-      it("returns the field in an array when `label-tag` contains the word `password`", () => {
-        passwordField["label-tag"] = "Password";
-        pageDetails.fields = [passwordField];
-
-        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
-
-        expect(result).toStrictEqual([passwordField]);
-      });
-
-      it("returns the field in an array when `label-top` contains the word `password`", () => {
-        passwordField["label-top"] = "Password";
-        pageDetails.fields = [passwordField];
-
-        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
-
-        expect(result).toStrictEqual([passwordField]);
-      });
-
-      it("returns the field in an array when `label-left` contains the word `password`", () => {
-        passwordField["label-left"] = "Password";
-        pageDetails.fields = [passwordField];
-
-        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
-
-        expect(result).toStrictEqual([passwordField]);
-      });
+          expect(result).toStrictEqual([passwordField]);
+        },
+      );
 
       it("returns the field in an array for a Gmail-shaped password input with Show-password checked", () => {
         // Gmail's password input when "Show password" is checked: type flips to
