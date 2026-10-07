@@ -245,6 +245,15 @@ describe("HistoryTabComponent", () => {
       expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
     });
 
+    it("is withheld from an approver with no history at all", () => {
+      canApprove$.next(true);
+
+      create();
+
+      expect(query('[data-testid="history-scope-filter"]')).toBeNull();
+      expect(component["scope"]()).toBe("all");
+    });
+
     it("shows both sources merged under All, newest first", () => {
       canApprove$.next(true);
       myRows$.next([historyRow({ id: "mine-1", resolvedAt: "2026-08-17T10:00:00.000Z" })]);
@@ -616,7 +625,7 @@ describe("HistoryTabComponent", () => {
       passSkeletonDelay();
 
       expect(query('[data-testid="history-loading"]')).not.toBeNull();
-      expect(fixture.nativeElement.textContent).not.toContain("pamMyRequestsHistoryEmpty");
+      expect(query('[data-testid="my-access-history-empty"]')).toBeNull();
 
       myRows$.next([historyRow({ id: "mine-1" })]);
       myLoading$.next(false);
@@ -1258,27 +1267,24 @@ describe("HistoryTabComponent", () => {
       expect(text(query('[data-testid="history-scope-filter"]')!)).toBe(v1);
     });
 
-    it("shows the scope's empty state inside the table, with the toolbar still up", () => {
+    it("replaces the table and its toolbar with the empty state for an approver with no history", () => {
       canApprove$.next(true);
 
       createWithFlag(true);
 
-      const empty = query('[data-testid="my-access-history-empty"]')!;
-      expect(empty.closest("bit-table-v2")).not.toBeNull();
-      expect(text(empty)).toContain("pamHistoryEmpty");
-      expect(query('bit-table-toolbar [data-testid="history-scope-filter"]')).not.toBeNull();
+      const empty = text(query('[data-testid="my-access-history-empty"]')!);
+      expect(empty).toContain("pamHistoryEmptyTitle");
+      expect(empty).toContain("pamHistoryEmptyDescription");
+      expect(query("bit-table-v2")).toBeNull();
+      expect(query('[data-testid="history-scope-filter"]')).toBeNull();
     });
 
-    // The toolbar carries the search for every viewer, so it renders without the scope chip.
-    it("shows the scope's empty state inside the table when no scope chip is offered", () => {
+    it("replaces the table and its search with the empty state for a member with no history", () => {
       createWithFlag(true);
 
-      const empty = query('[data-testid="my-access-history-empty"]')!;
-      expect(empty.closest("bit-table-v2")).not.toBeNull();
-      expect(text(empty)).toContain("pamHistoryEmpty");
-      expect(query("bit-table-toolbar")).not.toBeNull();
-      expect(query('bit-table-toolbar [data-testid="history-scope-filter"]')).toBeNull();
-      expect(query("bit-table-toolbar bit-search")).not.toBeNull();
+      expect(query('[data-testid="my-access-history-empty"]')).not.toBeNull();
+      expect(query("bit-table-v2")).toBeNull();
+      expect(query("bit-search")).toBeNull();
     });
 
     it("holds the scope when the chosen scope matches nothing", () => {
@@ -1291,7 +1297,7 @@ describe("HistoryTabComponent", () => {
 
       expect(component["scope"]()).toBe("mine");
       expect(rowIds()).toEqual([]);
-      expect(text(query('[data-testid="my-access-history-empty"]')!)).toContain(
+      expect(text(query('[data-testid="my-access-history-scope-empty"]')!)).toContain(
         "pamMyRequestsHistoryEmpty",
       );
       expect(query('bit-table-toolbar [data-testid="history-scope-filter"]')).not.toBeNull();
@@ -1445,7 +1451,7 @@ describe("HistoryTabComponent", () => {
         searchFor("no-such-thing");
 
         expect(rowIds()).toEqual([]);
-        expect(query('[data-testid="my-access-history-empty"]')).toBeNull();
+        expect(query('[data-testid="my-access-history-scope-empty"]')).toBeNull();
         expect(text(query('[data-testid="my-access-history-no-results"]')!)).toContain(
           "noMatchingItems",
         );
@@ -1513,19 +1519,42 @@ describe("HistoryTabComponent", () => {
     });
   });
 
-  // All spans both sources, so it can't borrow either side's empty-state wording.
-  it("says which slice is empty", () => {
-    canApprove$.next(true);
-    create();
+  describe("empty state", () => {
+    it("takes the chip away with the rows and shows the empty history copy", () => {
+      canApprove$.next(true);
 
-    expect(fixture.nativeElement.textContent).toContain("pamHistoryEmpty");
+      create();
 
-    selectScope("mine");
+      expect(query('[data-testid="history-scope-filter"]')).toBeNull();
+      const empty = query('[data-testid="my-access-history-empty"]')!;
+      expect(empty.textContent).toContain("pamHistoryEmptyTitle");
+      expect(empty.textContent).toContain("pamHistoryEmptyDescription");
+    });
 
-    expect(fixture.nativeElement.textContent).toContain("pamMyRequestsHistoryEmpty");
+    it("keeps the chip and names the empty slice when another scope still holds rows", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+      create();
 
-    showManaged();
+      showManaged();
 
-    expect(fixture.nativeElement.textContent).toContain("pamInboxHistoryEmpty");
+      expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
+      expect(query('[data-testid="my-access-history-empty"]')).toBeNull();
+      expect(query('[data-testid="my-access-history-scope-empty"]')!.textContent).toContain(
+        "pamInboxHistoryEmpty",
+      );
+    });
+
+    it("names an empty Mine against a history of managed rows", () => {
+      managedRows$.next([historyRow({ id: "managed-1" })]);
+      create();
+
+      selectScope("mine");
+
+      expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
+      expect(query('[data-testid="my-access-history-scope-empty"]')!.textContent).toContain(
+        "pamMyRequestsHistoryEmpty",
+      );
+    });
   });
 });
