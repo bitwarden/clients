@@ -1,8 +1,17 @@
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, firstValueFrom, map, Observable, shareReplay, switchMap } from "rxjs";
+import {
+  combineLatest,
+  concatMap,
+  firstValueFrom,
+  map,
+  Observable,
+  shareReplay,
+  switchMap,
+  withLatestFrom,
+} from "rxjs";
 
 import { DomainIcon } from "@bitwarden/assets/svg";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
@@ -81,22 +90,16 @@ export class DomainVerificationComponent implements OnInit {
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  private readonly singleOrgPolicyEnabled = toSignal(
-    this.organizationId$.pipe(
-      switchMap((organizationId) =>
-        this.accountService.activeAccount$.pipe(
-          getUserId,
-          switchMap((userId) => this.policyService.policies$(userId)),
-          map(
-            (policies) =>
-              policies.find(
-                (p) => p.type === PolicyType.SingleOrg && p.organizationId === organizationId,
-              )?.enabled ?? false,
-          ),
-        ),
-      ),
+  private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
+
+  private readonly singleOrgPolicyEnabled$ = this.userId$.pipe(
+    switchMap((userId) => this.policyService.policies$(userId)),
+    withLatestFrom(this.organizationId$),
+    map(
+      ([policies, organizationId]) =>
+        policies.find((p) => p.type === PolicyType.SingleOrg && p.organizationId === organizationId)
+          ?.enabled ?? false,
     ),
-    { initialValue: false },
   );
 
   readonly loading = signal(true);
@@ -118,10 +121,10 @@ export class DomainVerificationComponent implements OnInit {
     };
 
     const showSingleOrgWarning = await firstValueFrom(
-      this.orgDomains$.pipe(
+      combineLatest([this.orgDomains$, this.singleOrgPolicyEnabled$]).pipe(
         map(
-          (organizationDomains) =>
-            !this.singleOrgPolicyEnabled() &&
+          ([organizationDomains, singleOrgPolicyEnabled]) =>
+            !singleOrgPolicyEnabled &&
             organizationDomains.every((domain) => domain.verifiedDate === null),
         ),
       ),
