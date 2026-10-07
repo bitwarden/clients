@@ -722,35 +722,93 @@
   "sshAgentPromptBehaviorRememberUntilLock": {
     "message": "Remember until vault is locked"
   },
-  "enableCredentialAgent": {
-    "message": "Enable credential agent"
+  "allowAgentAccess": {
+    "message": "Allow apps and agents to request items"
   },
-  "enableCredentialAgentDesc": {
-    "message": "Allow applications on this device to request logins from your vault."
+  "allowAgentAccessDesc": {
+    "message": "Programs on this device, such as AI agents and scripts, can ask for a login or a yes/no decision. You approve each request."
   },
-  "credentialAgentPromptBehavior": {
-    "message": "Credential agent approval"
+  "agentAccessPromptBehavior": {
+    "message": "Ask for approval"
   },
-  "credentialAgentPromptBehaviorDesc": {
-    "message": "Choose when to ask for approval before a login is shared with an application."
+  "agentAccessPromptBehaviorAlways": {
+    "message": "Every time"
   },
-  "credentialAgentPromptBehaviorAlways": {
-    "message": "Always ask"
-  },
-  "credentialAgentPromptBehaviorNever": {
-    "message": "Never ask"
-  },
-  "credentialAgentPromptBehaviorRememberUntilLock": {
+  "agentAccessPromptBehaviorRememberUntilLock": {
     "message": "Remember until vault is locked"
   },
-  "credentialApprovalTitle": {
-    "message": "Approve credential request"
+  "agentAccessCredentialTitle": {
+    "message": "Allow $APP$ to use a login?",
+    "placeholders": {
+      "app": {
+        "content": "$1",
+        "example": "Claude Code"
+      }
+    }
   },
-  "credentialApprovalMessageInfix": {
-    "message": "is requesting the login"
+  "agentAccessApprovalTitle": {
+    "message": "$APP$ is asking for your decision",
+    "placeholders": {
+      "app": {
+        "content": "$1",
+        "example": "Claude Code"
+      }
+    }
   },
-  "credentialAgentUnlockRequired": {
-    "message": "Unlock your vault to answer the credential request."
+  "agentAccessApp": {
+    "message": "App"
+  },
+  "agentAccessVia": {
+    "message": "via $CHAIN$",
+    "placeholders": {
+      "chain": {
+        "content": "$1",
+        "example": "zsh → bw-access"
+      }
+    }
+  },
+  "agentAccessNotVerified": {
+    "message": "Not verified · $PATH$",
+    "placeholders": {
+      "path": {
+        "content": "$1",
+        "example": "/usr/local/bin/agent"
+      }
+    }
+  },
+  "agentAccessItem": {
+    "message": "Item"
+  },
+  "agentAccessShares": {
+    "message": "Shares"
+  },
+  "agentAccessSharedAs": {
+    "message": "$FIELD$, as $VARIABLE$",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Password"
+      },
+      "variable": {
+        "content": "$2",
+        "example": "$GH_TOKEN"
+      }
+    }
+  },
+  "agentAccessToRun": {
+    "message": "To run"
+  },
+  "agentAccessQuestion": {
+    "message": "Question"
+  },
+  "agentAccessRemember": {
+    "message": "Remember until vault is locked"
+  },
+  "agentAccessUnlockRequired": {
+    "message": "Unlock your vault to answer a request from an app or agent."
+  },
+  "agentAccessUnlockTimeout": {
+    "message": "A request from an app or agent timed out."
   },
   "premiumRequired": {
     "message": "Premium required"

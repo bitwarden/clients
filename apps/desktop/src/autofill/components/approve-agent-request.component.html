@@ -1,0 +1,88 @@
+<form bit-dialog [formGroup]="form">
+  <span bitDialogTitle>
+    {{
+      (params.approval ? "agentAccessApprovalTitle" : "agentAccessCredentialTitle") | i18n: app.name
+    }}
+  </span>
+  <div bitDialogContent>
+    <dl class="tw-m-0 tw-grid tw-grid-cols-[max-content_1fr] tw-gap-x-4 tw-gap-y-3">
+      <dt class="tw-text-muted">{{ "agentAccessApp" | i18n }}</dt>
+      <dd class="tw-m-0">
+        <div>
+          {{ app.name }}
+          @if (app.organization) {
+            · {{ app.organization }}
+          }
+        </div>
+        @if (app.via) {
+          <div class="tw-text-sm tw-text-muted">{{ "agentAccessVia" | i18n: app.via }}</div>
+        }
+        @if (app.exe) {
+          <div class="tw-text-sm tw-text-muted tw-break-all">
+            {{ "agentAccessNotVerified" | i18n: app.exe }}
+          </div>
+        }
+      </dd>
+
+      @if (params.credential; as credential) {
+        <dt class="tw-text-muted">{{ "agentAccessItem" | i18n }}</dt>
+        <dd class="tw-m-0">
+          @if (candidates.length > 1) {
+            <bit-radio-group formControlName="cipherId">
+              @for (candidate of candidates; track candidate.id) {
+                <bit-radio-button [value]="candidate.id">
+                  <bit-label>
+                    {{ candidate.name }}
+                    @if (candidate.username) {
+                      · {{ candidate.username }}
+                    }
+                  </bit-label>
+                </bit-radio-button>
+              }
+            </bit-radio-group>
+          } @else {
+            {{ selected()?.name }}
+            @if (selected()?.username) {
+              · {{ selected()?.username }}
+            }
+          }
+        </dd>
+
+        <dt class="tw-text-muted">{{ "agentAccessShares" | i18n }}</dt>
+        <dd class="tw-m-0">{{ shares() }}</dd>
+
+        @if (credential.purpose?.command; as command) {
+          <dt class="tw-text-muted">{{ "agentAccessToRun" | i18n }}</dt>
+          <dd class="tw-m-0">
+            <code class="tw-break-all tw-font-mono tw-text-sm">{{ command }}</code>
+          </dd>
+        }
+      }
+
+      @if (params.approval; as approval) {
+        <dt class="tw-text-muted">{{ "agentAccessQuestion" | i18n }}</dt>
+        <dd class="tw-m-0">
+          <div class="tw-font-medium">{{ approval.title }}</div>
+          @if (approval.body) {
+            <div class="tw-whitespace-pre-line">{{ approval.body }}</div>
+          }
+        </dd>
+      }
+    </dl>
+
+    @if (params.credential?.rememberable) {
+      <bit-form-control class="tw-mt-4 tw-mb-0">
+        <input type="checkbox" bitCheckbox formControlName="remember" />
+        <bit-label>{{ "agentAccessRemember" | i18n }}</bit-label>
+      </bit-form-control>
+    }
+  </div>
+  <ng-container bitDialogFooter>
+    <button type="button" bitButton buttonType="primary" (click)="approve()">
+      {{ (params.approval ? "yes" : "authorize") | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="secondary" (click)="deny()">
+      {{ (params.approval ? "no" : "deny") | i18n }}
+    </button>
+  </ng-container>
+</form>

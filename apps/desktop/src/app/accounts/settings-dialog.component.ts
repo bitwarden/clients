@@ -66,7 +66,7 @@ import {
 } from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
-import { CredentialAgentPromptType } from "../../autofill/models/credential-agent-setting";
+import { AgentAccessPromptType } from "../../autofill/models/agent-access-setting";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
@@ -146,7 +146,7 @@ export class SettingsDialogComponent implements OnInit {
   protected readonly themeOptions: Option<string>[];
   protected readonly clearClipboardOptions: Option<string>[];
   protected readonly sshAgentPromptBehaviorOptions: Option<string>[];
-  protected readonly credentialAgentPromptBehaviorOptions: Option<string>[];
+  protected readonly agentAccessPromptBehaviorOptions: Option<string>[];
 
   protected readonly isWindows: boolean;
   protected readonly isLinux: boolean;
@@ -197,9 +197,9 @@ export class SettingsDialogComponent implements OnInit {
     enableHardwareAcceleration: true,
     enableSshAgent: false,
     sshAgentPromptBehavior: SshAgentPromptType.Always,
-    enableCredentialAgent: false,
-    credentialAgentPromptBehavior: this.formBuilder.control<CredentialAgentPromptType>(
-      CredentialAgentPromptType.Always,
+    enableAgentAccess: false,
+    agentAccessPromptBehavior: this.formBuilder.control<AgentAccessPromptType>(
+      AgentAccessPromptType.Always,
     ),
     allowScreenshots: false,
     enableDuckDuckGoBrowserIntegration: false,
@@ -270,18 +270,14 @@ export class SettingsDialogComponent implements OnInit {
         value: SshAgentPromptType.RememberUntilLock,
       },
     ];
-    this.credentialAgentPromptBehaviorOptions = [
+    this.agentAccessPromptBehaviorOptions = [
       {
-        label: this.i18nService.t("credentialAgentPromptBehaviorAlways"),
-        value: CredentialAgentPromptType.Always,
+        label: this.i18nService.t("agentAccessPromptBehaviorAlways"),
+        value: AgentAccessPromptType.Always,
       },
       {
-        label: this.i18nService.t("credentialAgentPromptBehaviorNever"),
-        value: CredentialAgentPromptType.Never,
-      },
-      {
-        label: this.i18nService.t("credentialAgentPromptBehaviorRememberUntilLock"),
-        value: CredentialAgentPromptType.RememberUntilLock,
+        label: this.i18nService.t("agentAccessPromptBehaviorRememberUntilLock"),
+        value: AgentAccessPromptType.RememberUntilLock,
       },
     ];
   }
@@ -328,11 +324,9 @@ export class SettingsDialogComponent implements OnInit {
       sshAgentPromptBehavior: await firstValueFrom(
         this.desktopSettingsService.sshAgentPromptBehavior$,
       ),
-      enableCredentialAgent: await firstValueFrom(
-        this.desktopSettingsService.credentialAgentEnabled$,
-      ),
-      credentialAgentPromptBehavior: await firstValueFrom(
-        this.desktopSettingsService.credentialAgentPromptBehavior$,
+      enableAgentAccess: await firstValueFrom(this.desktopSettingsService.agentAccessEnabled$),
+      agentAccessPromptBehavior: await firstValueFrom(
+        this.desktopSettingsService.agentAccessPromptBehavior$,
       ),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
       enableAutotype: await firstValueFrom(
@@ -408,10 +402,10 @@ export class SettingsDialogComponent implements OnInit {
       )
       .subscribe();
 
-    this.form.controls.credentialAgentPromptBehavior.valueChanges
+    this.form.controls.agentAccessPromptBehavior.valueChanges
       .pipe(
-        concatMap(async (value: CredentialAgentPromptType) =>
-          this.saveCredentialAgentPromptBehavior(value),
+        concatMap(async (value: AgentAccessPromptType) =>
+          this.desktopSettingsService.setAgentAccessPromptBehavior(value),
         ),
         takeUntilDestroyed(this.destroyRef),
       )
@@ -670,14 +664,8 @@ export class SettingsDialogComponent implements OnInit {
     await this.desktopSettingsService.setSshAgentEnabled(this.form.value.enableSshAgent);
   }
 
-  protected async saveCredentialAgent() {
-    await this.desktopSettingsService.setCredentialAgentEnabled(
-      this.form.value.enableCredentialAgent,
-    );
-  }
-
-  private async saveCredentialAgentPromptBehavior(newValue: CredentialAgentPromptType) {
-    await this.desktopSettingsService.setCredentialAgentPromptBehavior(newValue);
+  protected async saveAgentAccess() {
+    await this.desktopSettingsService.setAgentAccessEnabled(this.form.value.enableAgentAccess);
   }
 
   private async saveSshAgentPromptBehavior(newValue: SshAgentPromptType) {

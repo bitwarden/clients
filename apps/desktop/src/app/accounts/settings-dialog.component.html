@@ -104,6 +104,27 @@
             <vault-permit-cipher-details-popover slot="end" />
           </bit-label>
         </bit-form-control>
+
+        <bit-form-control>
+          <input
+            type="checkbox"
+            bitCheckbox
+            formControlName="enableAgentAccess"
+            (change)="saveAgentAccess()"
+          />
+          <bit-label>{{ "allowAgentAccess" | i18n }}</bit-label>
+          <bit-hint>{{ "allowAgentAccessDesc" | i18n }}</bit-hint>
+        </bit-form-control>
+
+        @if (form.value.enableAgentAccess) {
+          <bit-form-field>
+            <bit-label>{{ "agentAccessPromptBehavior" | i18n }}</bit-label>
+            <bit-select
+              formControlName="agentAccessPromptBehavior"
+              [items]="agentAccessPromptBehaviorOptions"
+            />
+          </bit-form-field>
+        }
       </bit-tab>
 
       <bit-tab [label]="'appPreferences' | i18n">
@@ -227,28 +248,6 @@
               [items]="sshAgentPromptBehaviorOptions"
             />
             <bit-hint>{{ "sshAgentPromptBehaviorDesc" | i18n }}</bit-hint>
-          </bit-form-field>
-        }
-
-        <bit-form-control>
-          <input
-            type="checkbox"
-            bitCheckbox
-            formControlName="enableCredentialAgent"
-            (change)="saveCredentialAgent()"
-          />
-          <bit-label>{{ "enableCredentialAgent" | i18n }}</bit-label>
-          <bit-hint>{{ "enableCredentialAgentDesc" | i18n }}</bit-hint>
-        </bit-form-control>
-
-        @if (form.value.enableCredentialAgent) {
-          <bit-form-field>
-            <bit-label>{{ "credentialAgentPromptBehavior" | i18n }}</bit-label>
-            <bit-select
-              formControlName="credentialAgentPromptBehavior"
-              [items]="credentialAgentPromptBehaviorOptions"
-            />
-            <bit-hint>{{ "credentialAgentPromptBehaviorDesc" | i18n }}</bit-hint>
           </bit-form-field>
         }
 

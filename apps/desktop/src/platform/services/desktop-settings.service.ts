@@ -18,7 +18,7 @@ import {
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { CredentialAgentPromptType } from "../../autofill/models/credential-agent-setting";
+import { AgentAccessPromptType } from "../../autofill/models/agent-access-setting";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { isDev } from "../../utils";
 import { ModalModeState, WindowState } from "../models/domain/window-state";
@@ -60,21 +60,16 @@ const SSH_AGENT_PROMPT_BEHAVIOR = new UserKeyDefinition<SshAgentPromptType>(
   },
 );
 
-const CREDENTIAL_AGENT_ENABLED = new KeyDefinition<boolean>(
+const AGENT_ACCESS_ENABLED = new UserKeyDefinition<boolean>(
   DESKTOP_SETTINGS_DISK,
-  "credentialAgentEnabled",
-  {
-    deserializer: (b) => b,
-  },
+  "agentAccessEnabled",
+  { deserializer: (b) => b, clearOn: [] },
 );
 
-const CREDENTIAL_AGENT_PROMPT_BEHAVIOR = new UserKeyDefinition<CredentialAgentPromptType>(
+const AGENT_ACCESS_PROMPT_BEHAVIOR = new UserKeyDefinition<AgentAccessPromptType>(
   DESKTOP_SETTINGS_DISK,
-  "credentialAgentPromptBehavior",
-  {
-    deserializer: (b) => b,
-    clearOn: [],
-  },
+  "agentAccessPromptBehavior",
+  { deserializer: (b) => b, clearOn: [] },
 );
 
 const MINIMIZE_ON_COPY = new UserKeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "minimizeOnCopy", {
@@ -133,17 +128,16 @@ export class DesktopSettingsService {
     map((v) => v ?? SshAgentPromptType.Always),
   );
 
-  private readonly credentialAgentEnabledState =
-    this.stateProvider.getGlobal(CREDENTIAL_AGENT_ENABLED);
+  private readonly agentAccessEnabledState = this.stateProvider.getActive(AGENT_ACCESS_ENABLED);
 
-  credentialAgentEnabled$ = this.credentialAgentEnabledState.state$.pipe(map(Boolean));
+  agentAccessEnabled$ = this.agentAccessEnabledState.state$.pipe(map(Boolean));
 
-  private readonly credentialAgentPromptBehavior = this.stateProvider.getActive(
-    CREDENTIAL_AGENT_PROMPT_BEHAVIOR,
+  private readonly agentAccessPromptBehaviorState = this.stateProvider.getActive(
+    AGENT_ACCESS_PROMPT_BEHAVIOR,
   );
 
-  credentialAgentPromptBehavior$ = this.credentialAgentPromptBehavior.state$.pipe(
-    map((v) => v ?? CredentialAgentPromptType.Always),
+  agentAccessPromptBehavior$ = this.agentAccessPromptBehaviorState.state$.pipe(
+    map((v) => v ?? AgentAccessPromptType.Always),
   );
 
   private readonly preventScreenshotState = this.stateProvider.getGlobal(PREVENT_SCREENSHOTS);
@@ -234,15 +228,12 @@ export class DesktopSettingsService {
     await this.sshAgentPromptBehavior.update(() => value);
   }
 
-  /**
-   * Sets a setting for whether or not the credential agent is enabled.
-   */
-  async setCredentialAgentEnabled(value: boolean) {
-    await this.credentialAgentEnabledState.update(() => value);
+  async setAgentAccessEnabled(value: boolean) {
+    await this.agentAccessEnabledState.update(() => value);
   }
 
-  async setCredentialAgentPromptBehavior(value: CredentialAgentPromptType) {
-    await this.credentialAgentPromptBehavior.update(() => value);
+  async setAgentAccessPromptBehavior(value: AgentAccessPromptType) {
+    await this.agentAccessPromptBehaviorState.update(() => value);
   }
 
   /**
