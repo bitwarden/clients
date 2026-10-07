@@ -1,95 +1,126 @@
 <form bit-dialog [formGroup]="form">
-  <span bitDialogTitle>
-    @if (params.ssh) {
-      {{ "sshkeyApprovalTitle" | i18n }}
-    } @else {
-      {{
-        (params.approval ? "agentAccessApprovalTitle" : "agentAccessCredentialTitle")
-          | i18n: app.name
-      }}
-    }
-  </span>
+  <bit-icon-tile bitDialogHeaderStart aria-hidden="true" [icon]="style.icon" />
+  <span bitDialogTitle>{{ style.title | i18n: app.name }}</span>
   <div bitDialogContent>
     @if (params.ssh?.isForwarding) {
       <bit-callout type="warning" [title]="'agentForwardingWarningTitle' | i18n">
         {{ "agentForwardingWarningText" | i18n }}
       </bit-callout>
     }
-    <dl class="tw-m-0 tw-grid tw-grid-cols-[max-content_1fr] tw-gap-x-4 tw-gap-y-3">
-      <dt class="tw-text-muted">{{ "agentAccessApp" | i18n }}</dt>
-      <dd class="tw-m-0">
-        <div>
-          {{ app.name }}
-          @if (app.organization) {
-            · {{ app.organization }}
+
+    <bit-card-segmented>
+      <div class="tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-3">
+        <bit-avatar size="sm" aria-hidden="true" [text]="app.name" />
+        <div class="tw-min-w-0">
+          @if (app.signature; as signature) {
+            <div bitTypography="body2" class="tw-flex tw-flex-wrap tw-items-center tw-gap-x-2">
+              <span bitBadge size="small" [variant]="signature.verified ? 'success' : 'warning'">
+                {{ (signature.verified ? "agentAccessSigned" : "agentAccessNotVerified") | i18n }}
+              </span>
+              <span class="[overflow-wrap:anywhere]">{{ signature.detail }}</span>
+            </div>
+          } @else {
+            <div bitTypography="body2">{{ app.name }}</div>
+          }
+          @if (app.via) {
+            <div bitTypography="helper" class="tw-text-muted">
+              {{ "agentAccessVia" | i18n: app.via }}
+            </div>
           }
         </div>
-        @if (app.via) {
-          <div class="tw-text-sm tw-text-muted">{{ "agentAccessVia" | i18n: app.via }}</div>
-        }
-        @if (app.exe) {
-          <div class="tw-text-sm tw-text-muted tw-break-all">
-            {{ "agentAccessNotVerified" | i18n: app.exe }}
-          </div>
-        }
-      </dd>
-
+      </div>
       @if (params.credential; as credential) {
-        <dt class="tw-text-muted">{{ "agentAccessItem" | i18n }}</dt>
-        <dd class="tw-m-0">
+        <div class="tw-grid tw-grid-cols-[7rem_1fr] tw-gap-x-4 tw-px-4 tw-py-3">
+          <span bitTypography="body2" class="tw-flex tw-items-center tw-gap-2 tw-text-muted"
+            ><bit-icon name="bwi-lock" aria-hidden="true" />{{ "agentAccessItem" | i18n }}</span
+          >
           @if (candidates.length > 1) {
-            <bit-radio-group formControlName="cipherId">
+            <bit-radio-group formControlName="cipherId" [block]="true">
               @for (candidate of candidates; track candidate.id) {
-                <bit-radio-button [value]="candidate.id">
+                <bit-form-control disableMargin>
+                  <input type="radio" bitRadio [value]="candidate.id" />
                   <bit-label>
                     {{ candidate.name }}
                     @if (candidate.username) {
                       · {{ candidate.username }}
                     }
                   </bit-label>
-                </bit-radio-button>
+                </bit-form-control>
               }
             </bit-radio-group>
           } @else {
-            {{ selected()?.name }}
-            @if (selected()?.username) {
-              · {{ selected()?.username }}
-            }
+            <span bitTypography="body2">
+              <span class="tw-font-semibold">{{ selected()?.name }}</span>
+              @if (selected()?.username) {
+                · {{ selected()?.username }}
+              }
+            </span>
           }
-        </dd>
-
-        <dt class="tw-text-muted">{{ "agentAccessShares" | i18n }}</dt>
-        <dd class="tw-m-0">{{ shares() }}</dd>
-
+        </div>
+        <div class="tw-grid tw-grid-cols-[7rem_1fr] tw-gap-x-4 tw-px-4 tw-py-3">
+          <span bitTypography="body2" class="tw-flex tw-items-center tw-gap-2 tw-text-muted"
+            ><bit-icon name="bwi-arrow-right" aria-hidden="true" />{{
+              "agentAccessShares" | i18n
+            }}</span
+          >
+          <span bitTypography="body2">{{ shares() }}</span>
+        </div>
         @if (credential.purpose?.command; as command) {
-          <dt class="tw-text-muted">{{ "agentAccessToRun" | i18n }}</dt>
-          <dd class="tw-m-0">
+          <div class="tw-grid tw-grid-cols-[7rem_1fr] tw-gap-x-4 tw-px-4 tw-py-3">
+            <span bitTypography="body2" class="tw-flex tw-items-center tw-gap-2 tw-text-muted">
+              <bit-icon aria-hidden="true" [name]="kind === 'run' ? 'bwi-terminal' : 'bwi-globe'" />
+              {{ (kind === "run" ? "agentAccessToRun" : "agentAccessFor") | i18n }}
+            </span>
             <code class="tw-break-all tw-font-mono tw-text-sm">{{ command }}</code>
-          </dd>
+          </div>
         }
       }
-
       @if (params.ssh; as ssh) {
-        <dt class="tw-text-muted">{{ "agentAccessItem" | i18n }}</dt>
-        <dd class="tw-m-0">{{ ssh.cipherName }}</dd>
-
-        <dt class="tw-text-muted">{{ "agentAccessSshAction" | i18n }}</dt>
-        <dd class="tw-m-0">{{ sshAction | i18n }}</dd>
+        <div class="tw-grid tw-grid-cols-[7rem_1fr] tw-gap-x-4 tw-px-4 tw-py-3">
+          <span bitTypography="body2" class="tw-flex tw-items-center tw-gap-2 tw-text-muted"
+            ><bit-icon name="bwi-key" aria-hidden="true" />{{ "agentAccessKey" | i18n }}</span
+          >
+          <span bitTypography="body2" class="tw-font-semibold">{{ ssh.cipherName }}</span>
+        </div>
+        <div class="tw-grid tw-grid-cols-[7rem_1fr] tw-gap-x-4 tw-px-4 tw-py-3">
+          <span bitTypography="body2" class="tw-flex tw-items-center tw-gap-2 tw-text-muted"
+            ><bit-icon name="bwi-pencil" aria-hidden="true" />{{ "agentAccessAction" | i18n }}</span
+          >
+          <span bitTypography="body2">{{ sshAction | i18n }}</span>
+        </div>
       }
-
       @if (params.approval; as approval) {
-        <dt class="tw-text-muted">{{ "agentAccessQuestion" | i18n }}</dt>
-        <dd class="tw-m-0">
-          <div class="tw-font-medium">{{ approval.title }}</div>
-          @if (approval.body) {
-            <div class="tw-whitespace-pre-line">{{ approval.body }}</div>
-          }
-        </dd>
+        <div class="tw-grid tw-grid-cols-[7rem_1fr] tw-gap-x-4 tw-px-4 tw-py-3">
+          <span bitTypography="body2" class="tw-flex tw-items-center tw-gap-2 tw-text-muted"
+            ><bit-icon name="bwi-question-circle" aria-hidden="true" />{{
+              "agentAccessQuestion" | i18n
+            }}</span
+          >
+          <span bitTypography="body2" class="tw-font-semibold">{{ approval.title }}</span>
+        </div>
+        @if (approval.body) {
+          <div class="tw-grid tw-grid-cols-[7rem_1fr] tw-gap-x-4 tw-px-4 tw-py-3">
+            <span bitTypography="body2" class="tw-flex tw-items-center tw-gap-2 tw-text-muted"
+              ><bit-icon name="bwi-list" aria-hidden="true" />{{
+                "agentAccessDetails" | i18n
+              }}</span
+            >
+            <span bitTypography="body2" class="tw-whitespace-pre-line">{{ approval.body }}</span>
+          </div>
+        }
       }
-    </dl>
+    </bit-card-segmented>
+
+    <p
+      bitTypography="helper"
+      class="tw-mb-0 tw-mt-3 tw-flex tw-items-center tw-gap-2 tw-text-muted"
+    >
+      <bit-icon name="bwi-info-circle" aria-hidden="true" />
+      {{ leaves[0] | i18n: leaves[1] }}
+    </p>
 
     @if (params.credential?.rememberable) {
-      <bit-form-control class="tw-mt-4 tw-mb-0">
+      <bit-form-control disableMargin class="tw-mt-4">
         <input type="checkbox" bitCheckbox formControlName="remember" />
         <bit-label>{{ "agentAccessRemember" | i18n }}</bit-label>
       </bit-form-control>
@@ -97,10 +128,10 @@
   </div>
   <ng-container bitDialogFooter>
     <button type="button" bitButton buttonType="primary" (click)="approve()">
-      {{ (params.approval ? "yes" : "authorize") | i18n }}
+      {{ style.approve | i18n }}
     </button>
     <button type="button" bitButton buttonType="secondary" (click)="deny()">
-      {{ (params.approval ? "no" : "deny") | i18n }}
+      {{ style.deny | i18n }}
     </button>
   </ng-container>
 </form>

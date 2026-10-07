@@ -747,16 +747,13 @@
     }
   },
   "agentAccessApprovalTitle": {
-    "message": "$APP$ is asking for your decision",
+    "message": "$APP$ is asking",
     "placeholders": {
       "app": {
         "content": "$1",
         "example": "Claude Code"
       }
     }
-  },
-  "agentAccessApp": {
-    "message": "App"
   },
   "agentAccessVia": {
     "message": "via $CHAIN$",
@@ -768,13 +765,7 @@
     }
   },
   "agentAccessNotVerified": {
-    "message": "Not verified · $PATH$",
-    "placeholders": {
-      "path": {
-        "content": "$1",
-        "example": "/usr/local/bin/agent"
-      }
-    }
+    "message": "Not verified"
   },
   "agentAccessItem": {
     "message": "Item"
@@ -798,15 +789,68 @@
   "agentAccessToRun": {
     "message": "To run"
   },
-  "agentAccessSshAction": {
-    "message": "To",
-    "description": "Labels what an SSH key would be used for, e.g. 'To: sign a git commit'."
-  },
   "agentAccessQuestion": {
     "message": "Question"
   },
   "agentAccessRemember": {
     "message": "Remember until vault is locked"
+  },
+  "agentAccessSshTitle": {
+    "message": "Allow $APP$ to use an SSH key?",
+    "placeholders": {
+      "app": {
+        "content": "$1",
+        "example": "Claude Code"
+      }
+    }
+  },
+  "agentAccessSigned": {
+    "message": "Signed"
+  },
+  "agentAccessTeam": {
+    "message": "Team $TEAM$",
+    "placeholders": {
+      "team": {
+        "content": "$1",
+        "example": "Q6L2SF6YDW"
+      }
+    }
+  },
+  "agentAccessFor": {
+    "message": "For"
+  },
+  "agentAccessKey": {
+    "message": "Key"
+  },
+  "agentAccessAction": {
+    "message": "Action"
+  },
+  "agentAccessDetails": {
+    "message": "Details"
+  },
+  "agentAccessLeavesRun": {
+    "message": "The command gets the secrets. Only its output goes back."
+  },
+  "agentAccessLeavesShare": {
+    "message": "The login is returned to $CALLER$.",
+    "placeholders": {
+      "caller": {
+        "content": "$1",
+        "example": "git"
+      }
+    }
+  },
+  "agentAccessLeavesShareApp": {
+    "message": "The login is returned to the requesting app."
+  },
+  "agentAccessLeavesSsh": {
+    "message": "Only a signature leaves Bitwarden. The private key stays."
+  },
+  "agentAccessLeavesAsk": {
+    "message": "Nothing from your vault is shared."
+  },
+  "agentAccessSign": {
+    "message": "Sign"
   },
   "agentAccessUnlockRequired": {
     "message": "Unlock your vault to answer a request from an app or agent."
@@ -5548,9 +5592,6 @@
   },
   "deny": {
     "message": "Deny"
-  },
-  "sshkeyApprovalTitle": {
-    "message": "Confirm SSH key usage"
   },
   "agentForwardingWarningTitle": {
     "message": "Warning: Agent Forwarding"
