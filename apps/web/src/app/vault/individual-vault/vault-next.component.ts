@@ -748,8 +748,8 @@ export class VaultNextComponent implements OnInit {
       return;
     }
     const outcome = await this.collectionDialog?.open({ organizationId, collectionId, initialTab });
-    if (outcome === CollectionDialogOutcome.Deleted) {
-      // The Info tab has its own Delete button, so a dialog opened to edit can still delete.
+
+    if (outcome === CollectionDialogOutcome.Deleted || this.currentCollection() == null) {
       await this.navigateToSharedFolders(organizationId);
     }
   }
@@ -761,7 +761,7 @@ export class VaultNextComponent implements OnInit {
       return;
     }
     const result = await this.bulkDeleteDialog?.open({ organization, collections: [collection] });
-    if (result === BulkDeleteDialogResult.Deleted) {
+    if (result === BulkDeleteDialogResult.Deleted || this.currentCollection() == null) {
       await this.navigateToSharedFolders(organization.id);
     }
   }

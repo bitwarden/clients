@@ -931,6 +931,31 @@ describe("VaultNextComponent", () => {
             expect(router.navigate).not.toHaveBeenCalled();
           });
 
+          it("stays put when an Access-tab save keeps the member's own assignment", async () => {
+            collectionDialog.open.mockResolvedValue(CollectionDialogOutcome.Saved);
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            await component().editCollectionAccess();
+
+            expect(router.navigate).not.toHaveBeenCalled();
+          });
+
+          it("goes to the organization's shared folders list when an Access-tab save drops the member's own assignment", async () => {
+            collectionDialog.open.mockImplementation(async () => {
+              collections$.next([]);
+              return CollectionDialogOutcome.Saved;
+            });
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            await component().editCollectionAccess();
+
+            expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
+              replaceUrl: true,
+            });
+          });
+
           it("goes to the organization's shared folders list when Delete succeeds", async () => {
             bulkDeleteDialog.open.mockResolvedValue(BulkDeleteDialogResult.Deleted);
             collections$.next([manageableFolder()]);
@@ -951,6 +976,21 @@ describe("VaultNextComponent", () => {
             await component().deleteCurrentCollection();
 
             expect(router.navigate).not.toHaveBeenCalled();
+          });
+
+          it("goes to the organization's shared folders list if the folder is gone even when Delete is canceled", async () => {
+            bulkDeleteDialog.open.mockImplementation(async () => {
+              collections$.next([]);
+              return BulkDeleteDialogResult.Canceled;
+            });
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            await component().deleteCurrentCollection();
+
+            expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
+              replaceUrl: true,
+            });
           });
         });
       });
