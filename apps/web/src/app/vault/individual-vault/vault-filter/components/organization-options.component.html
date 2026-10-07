@@ -1,63 +1,75 @@
-@if (!hideMenu) {
-  <ng-container>
-    <button
-      type="button"
-      [bitMenuTriggerFor]="optionsMenu"
-      class="filter-options-icon"
-      [attr.aria-label]="'organizationOptionsMenu' | i18n"
-    >
-      <i class="bwi bwi-ellipsis-v" aria-hidden="true"></i>
-    </button>
-    <bit-menu class="filter-organization-options" #optionsMenu>
-      @if (!loaded) {
-        <ng-container>
-          <i
-            class="bwi bwi-spinner bwi-spin tw-m-2 tw-text-muted"
-            title="{{ 'loading' | i18n }}"
-            aria-hidden="true"
-          ></i>
-          <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-        </ng-container>
-      } @else {
-        <div
-          class="tw-flex tw-min-w-[200px] tw-max-w-[300px] tw-flex-col"
-          [appApiAction]="actionPromise"
-        >
-          @if (allowEnrollmentChanges(organization) && !organization.resetPasswordEnrolled) {
-            <button type="button" bitMenuItem (click)="toggleResetPasswordEnrollment(organization)">
-              <i class="bwi bwi-fw bwi-key" aria-hidden="true"></i>
-              {{ "enrollAccountRecovery" | i18n }}
-            </button>
-          }
-          @if (allowEnrollmentChanges(organization) && organization.resetPasswordEnrolled) {
-            <button type="button" bitMenuItem (click)="toggleResetPasswordEnrollment(organization)">
-              <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
-              {{ "withdrawAccountRecovery" | i18n }}
-            </button>
-          }
-          @if (showSsoOptions(organization)) {
-            <ng-container>
-              @if (organization.ssoBound) {
-                <button type="button" bitMenuItem (click)="unlinkSso(organization)">
-                  <i class="bwi bwi-fw bwi-minus-circle"></i>
-                  {{ "unlinkSso" | i18n }}
-                </button>
-              } @else {
-                <button type="button" bitMenuItem (click)="handleLinkSso(organization)">
-                  <i class="bwi bwi-fw bwi-plus-circle"></i>
-                  {{ "linkSso" | i18n }}
-                </button>
-              }
-            </ng-container>
-          }
-          @if (showLeaveOrgOption) {
-            <button type="button" variant="danger" bitMenuItem (click)="leave(organization)">
-              <bit-icon fixedWidth name="bwi-sign-out" slot="start" />
-              {{ "leave" | i18n }}
-            </button>
-          }
-        </div>
+@let state = menuState();
+@if (state && (state.allowEnrollmentChanges || state.showSso || state.showLeave)) {
+  @let org = state.organization;
+  <button
+    type="button"
+    [id]="'organization-options_button_menu-' + org.id"
+    [bitMenuTriggerFor]="optionsMenu"
+    class="filter-options-icon"
+    [attr.aria-label]="'organizationOptionsMenu' | i18n"
+  >
+    <i class="bwi bwi-ellipsis-v" aria-hidden="true"></i>
+  </button>
+  <bit-menu class="filter-organization-options" #optionsMenu>
+    <div class="tw-flex tw-min-w-[200px] tw-max-w-[300px] tw-flex-col">
+      @if (state.allowEnrollmentChanges) {
+        @if (org.resetPasswordEnrolled) {
+          <button
+            type="button"
+            [id]="'organization-options_button_withdraw-account-recovery-' + org.id"
+            bitMenuItem
+            (click)="toggleResetPasswordEnrollment(org)"
+          >
+            <bit-icon fixedWidth name="bwi-undo" slot="start" />
+            {{ "withdrawAccountRecovery" | i18n }}
+          </button>
+        } @else {
+          <button
+            type="button"
+            [id]="'organization-options_button_enroll-account-recovery-' + org.id"
+            bitMenuItem
+            (click)="toggleResetPasswordEnrollment(org)"
+          >
+            <bit-icon fixedWidth name="bwi-key" slot="start" />
+            {{ "enrollAccountRecovery" | i18n }}
+          </button>
+        }
       }
-    </bit-menu>
-  </ng-container>
+      @if (state.showSso) {
+        @if (org.ssoBound) {
+          <button
+            type="button"
+            [id]="'organization-options_button_unlink-sso-' + org.id"
+            bitMenuItem
+            (click)="unlinkSso(org)"
+          >
+            <bit-icon fixedWidth name="bwi-minus-circle" slot="start" />
+            {{ "unlinkSso" | i18n }}
+          </button>
+        } @else {
+          <button
+            type="button"
+            [id]="'organization-options_button_link-sso-' + org.id"
+            bitMenuItem
+            (click)="handleLinkSso(org)"
+          >
+            <bit-icon fixedWidth name="bwi-plus-circle" slot="start" />
+            {{ "linkSso" | i18n }}
+          </button>
+        }
+      }
+      @if (state.showLeave) {
+        <button
+          type="button"
+          [id]="'organization-options_button_leave-' + org.id"
+          variant="danger"
+          bitMenuItem
+          (click)="leave(org)"
+        >
+          <bit-icon fixedWidth name="bwi-sign-out" slot="start" />
+          {{ "leave" | i18n }}
+        </button>
+      }
+    </div>
+  </bit-menu>
 }
