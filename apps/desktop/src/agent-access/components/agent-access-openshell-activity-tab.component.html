@@ -1,0 +1,75 @@
+<div class="tw-flex tw-flex-col tw-gap-4" data-testid="openshell-activity">
+  <div class="tw-flex tw-flex-wrap tw-items-start tw-justify-between tw-gap-4">
+    <p bitTypography="body2" class="tw-m-0 tw-max-w-prose tw-text-muted">
+      {{ "agentAccessOsActIntro" | i18n }}
+    </p>
+    <div class="tw-flex tw-items-center tw-gap-2">
+      <bit-toggle-group
+        [selected]="filter()"
+        (selectedChange)="setFilter($event)"
+        [label]="'agentAccessOsActFilterLabel' | i18n"
+        data-testid="openshell-activity-filter"
+      >
+        <bit-toggle value="all">{{ "agentAccessOsActFilterAll" | i18n }}</bit-toggle>
+        <bit-toggle value="allowed">{{ "agentAccessOsActAllowed" | i18n }}</bit-toggle>
+        <bit-toggle value="denied">{{ "agentAccessOsActDenied" | i18n }}</bit-toggle>
+      </bit-toggle-group>
+      <button
+        id="agent-access-openshell-activity_button_refresh"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        startIcon="bwi-refresh"
+        (click)="refresh()"
+      >
+        {{ "agentAccessOsActRefresh" | i18n }}
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <bit-skeleton-group data-testid="openshell-activity-loading">
+      <bit-skeleton-text [lines]="3" class="tw-w-1/2"></bit-skeleton-text>
+    </bit-skeleton-group>
+  } @else if (failure(); as fail) {
+    <bit-callout type="danger" data-testid="openshell-activity-error">
+      {{ "agentAccessOsCredErrorFailed" | i18n }}
+      @if (fail.message) {
+        <span class="tw-block tw-break-words" bitTypography="helper">{{ fail.message }}</span>
+      }
+    </bit-callout>
+  } @else if (rows().length === 0) {
+    <p class="tw-m-0 tw-text-muted" data-testid="openshell-activity-empty">
+      @if (events().length === 0) {
+        {{ "agentAccessOsActEmpty" | i18n }}
+      } @else {
+        {{ "agentAccessOsActEmptyFiltered" | i18n }}
+      }
+    </p>
+  } @else {
+    <bit-table>
+      <ng-container header>
+        <tr>
+          <th bitCell>{{ "agentAccessOsActColumnWhat" | i18n }}</th>
+          <th bitCell class="tw-w-40">{{ "agentAccessOsActColumnResult" | i18n }}</th>
+          <th bitCell class="tw-w-44">{{ "agentAccessOsActColumnWhen" | i18n }}</th>
+        </tr>
+      </ng-container>
+      <ng-template body>
+        @for (row of rows(); track row.id) {
+          <tr bitRow data-testid="openshell-activity-row">
+            <td bitCell class="tw-break-words">
+              <bdi>{{ row.text }}</bdi>
+            </td>
+            <td bitCell>
+              <bit-badge [variant]="row.variant" data-testid="openshell-activity-outcome">{{
+                row.labelKey | i18n
+              }}</bit-badge>
+            </td>
+            <td bitCell class="tw-text-muted" [attr.title]="row.exact">{{ row.when }}</td>
+          </tr>
+        }
+      </ng-template>
+    </bit-table>
+  }
+</div>

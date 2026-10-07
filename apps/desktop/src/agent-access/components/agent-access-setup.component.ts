@@ -6,6 +6,7 @@ import {
   effect,
   inject,
   signal,
+  viewChild,
 } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
@@ -22,6 +23,7 @@ import {
   SkeletonGroupComponent,
   SkeletonTextComponent,
   TableModule,
+  ToggleGroupModule,
   TypographyModule,
 } from "@bitwarden/components";
 import type { agent_access } from "@bitwarden/desktop-napi";
@@ -31,7 +33,15 @@ import { AgentAccessPageStateService } from "../services/agent-access-page-state
 import { shortenFingerprint } from "../utils/shorten-fingerprint";
 
 import { AgentAccessConnectComponent } from "./agent-access-connect.component";
+import { AgentAccessOpenShellSectionComponent } from "./agent-access-openshell-section.component";
 import { AgentAccessPairAgentDialogComponent } from "./agent-access-pair-agent-dialog.component";
+
+const Pane = Object.freeze({
+  Local: "local",
+  OpenShell: "openShell",
+  Remote: "remote",
+} as const);
+type Pane = (typeof Pane)[keyof typeof Pane];
 
 /**
  * "Setup" tab of the Agent Access page: every path for adding an agent lives here, and nowhere
@@ -75,6 +85,7 @@ import { AgentAccessPairAgentDialogComponent } from "./agent-access-pair-agent-d
     DatePipe,
     I18nPipe,
     AgentAccessConnectComponent,
+    AgentAccessOpenShellSectionComponent,
     AsyncActionsModule,
     ButtonModule,
     IconButtonModule,
@@ -85,10 +96,30 @@ import { AgentAccessPairAgentDialogComponent } from "./agent-access-pair-agent-d
     SkeletonGroupComponent,
     SkeletonTextComponent,
     TableModule,
+    ToggleGroupModule,
     TypographyModule,
   ],
 })
 export class AgentAccessSetupComponent {
+  protected readonly Pane = Pane;
+
+  protected readonly selectedPane = signal<Pane>(Pane.Local);
+
+  private readonly openShellSection = viewChild(AgentAccessOpenShellSectionComponent);
+
+  /** The OpenShell toggle only exists when the section applies (detected, Agent Access on, not
+   *  Windows) — the section decides that itself, so this reads its answer rather than repeating
+   *  the detection logic. */
+  protected readonly openShellVisible = computed(() => this.openShellSection()?.visible() ?? false);
+
+  /** `selectedPane`, except an OpenShell selection falls back to the local pane if OpenShell stops
+   *  applying (e.g. Agent Access is switched off while the pane is open). */
+  protected readonly activePane = computed(() =>
+    this.selectedPane() === Pane.OpenShell && !this.openShellVisible()
+      ? Pane.Local
+      : this.selectedPane(),
+  );
+
   protected readonly pageState = inject(AgentAccessPageStateService);
   private readonly dialogService = inject(DialogService);
 

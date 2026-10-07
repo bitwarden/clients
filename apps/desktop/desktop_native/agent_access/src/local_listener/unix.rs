@@ -354,6 +354,7 @@ mod tests {
 
         let handle = crate::local_listener::spawn(
             path_str.clone(),
+            crate::local_listener::ListenerKind::Agent,
             Arc::new(ApprovingHandler),
             Arc::new(NoopEventSink),
         )

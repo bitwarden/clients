@@ -41,6 +41,7 @@ import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitward
 
 import { MainAgentAccessCliService } from "./agent-access/main/main-agent-access-cli.service";
 import { MainAgentAccessService } from "./agent-access/main/main-agent-access.service";
+import { OpenShellEnabledState } from "./agent-access/main/openshell-enabled-state";
 import { SSOLocalhostCallbackService } from "./auth/services/sso-localhost-callback.service";
 import { DesktopAutofillMain } from "./autofill/main/main-desktop-autofill.service";
 import { MainDesktopAutotypeMvpService } from "./autofill/main/main-desktop-autotype-mvp.service";
@@ -338,12 +339,30 @@ export class Main {
     this.clipboardMain.init();
 
     this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
-    this.agentAccessService = new MainAgentAccessService(this.logService, this.messagingService);
+    // One holder, shared: the service that applies the OpenShell toggle and the management gate.
+    const openShellEnabledState = new OpenShellEnabledState();
+    this.agentAccessService = new MainAgentAccessService(
+      this.logService,
+      this.messagingService,
+      undefined,
+      openShellEnabledState,
+    );
     this.agentAccessCliService = new MainAgentAccessCliService(
       this.logService,
       app.getPath("userData"),
       app.getPath("exe"),
       app.getAppPath(),
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      openShellEnabledState,
+    );
+    this.agentAccessCliService.setOpenShellActivitySource(() =>
+      this.agentAccessService.getActivityEntries(),
     );
 
     new EphemeralValueStorageService();

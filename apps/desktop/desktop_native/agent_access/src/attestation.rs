@@ -4,21 +4,21 @@
 //! See agent-access-architecture.md's "Attestation model (W2a)" for the contract this
 //! implements. Two steps, both run from [`attest`]:
 //!
-//! 1. [`resolve_parent`] walks exactly **one level** up the process tree from the peer PID
-//!    (the `aac` CLI, captured at accept time by `local_listener`). The wrinkle this exists for
-//!    (agent-access-desktop-plan.md, "W2 — Caller attestation") is that the socket peer is
-//!    always `aac`, a short-lived subprocess — the thing worth showing the user is whoever
-//!    *spawned* `aac` (the agent), not `aac` itself.
-//! 2. `verify_signature` (platform-specific, defined per-`cfg` below) checks the code signature
-//!    of the **attested** process — the resolved parent if one was found, else the immediate
-//!    peer — and produces a [`SignatureInfo`].
+//! 1. [`resolve_parent`] walks exactly **one level** up the process tree from the peer PID (the
+//!    `aac` CLI, captured at accept time by `local_listener`). The wrinkle this exists for
+//!    (agent-access-desktop-plan.md, "W2 — Caller attestation") is that the socket peer is always
+//!    `aac`, a short-lived subprocess — the thing worth showing the user is whoever *spawned* `aac`
+//!    (the agent), not `aac` itself.
+//! 2. `verify_signature` (platform-specific, defined per-`cfg` below) checks the code signature of
+//!    the **attested** process — the resolved parent if one was found, else the immediate peer —
+//!    and produces a [`SignatureInfo`].
 //!
 //! # This is defense-in-depth, not a boundary
 //!
 //! Both steps are inherently racy and both are best-effort:
-//! - The parent identified in step 1 can exit between the walk and the approval dialog being
-//!   shown to the user. A signature verified in step 2 attests "this was the parent process at
-//!   request time", never "this is still running and safe."
+//! - The parent identified in step 1 can exit between the walk and the approval dialog being shown
+//!   to the user. A signature verified in step 2 attests "this was the parent process at request
+//!   time", never "this is still running and safe."
 //! - Same-user malware can inject into or ptrace a legitimately-signed process (absent hardened
 //!   runtime), or simply wait for the user to approve a request and scrape the result.
 //!
@@ -99,10 +99,10 @@ pub(crate) fn attest(mut peer: LocalPeerInfo) -> LocalPeerInfo {
 /// `aac` CLI). Returns `None` when:
 /// - `pid` itself can no longer be resolved (it already exited),
 /// - the OS reports no parent, or
-/// - the parent is pid 0 or 1 (`launchd` on macOS, `init`/PID 1 on Linux, the reaper any
-///   orphaned process gets reparented to). That means the *real* parent (the agent) already
-///   exited before this walk ran, so there is nothing meaningful left to attest one level up —
-///   attesting the reaper process would be actively misleading, not merely absent.
+/// - the parent is pid 0 or 1 (`launchd` on macOS, `init`/PID 1 on Linux, the reaper any orphaned
+///   process gets reparented to). That means the *real* parent (the agent) already exited before
+///   this walk ran, so there is nothing meaningful left to attest one level up — attesting the
+///   reaper process would be actively misleading, not merely absent.
 ///
 /// This is a single, best-effort hop, never a recursive walk — see the module docs' "This is
 /// defense-in-depth, not a boundary" section for why going further (or retrying) wouldn't make
@@ -156,6 +156,7 @@ fn verify_signature(pid: u32, exe_path: Option<&str>) -> Option<SignatureInfo> {
     extern "C" {
         static kSecCodeInfoIdentifier: CFStringRef;
         static kSecCodeInfoTeamIdentifier: CFStringRef;
+        static kSecCodeInfoCertificates: CFStringRef;
 
         fn SecCodeCopySigningInformation(
             code: SecCodeRef,
@@ -220,10 +221,33 @@ fn verify_signature(pid: u32, exe_path: Option<&str>) -> Option<SignatureInfo> {
 
     // SAFETY: reading `extern` static `CFStringRef` constants owned by Security.framework —
     // valid for the lifetime of the process, per the framework's contract for these symbols.
-    let (identifier_key, team_id_key) =
-        unsafe { (kSecCodeInfoIdentifier, kSecCodeInfoTeamIdentifier) };
+    let (identifier_key, team_id_key, certificates_key) = unsafe {
+        (
+            kSecCodeInfoIdentifier,
+            kSecCodeInfoTeamIdentifier,
+            kSecCodeInfoCertificates,
+        )
+    };
     let identifier = cf_dict_string(&info, identifier_key);
     let team_id = cf_dict_string(&info, team_id_key);
+
+    // An ad-hoc signature (`codesign -s -`, the linker's default on Apple Silicon, typical for
+    // Homebrew builds) has no certificate chain, so its signing identifier is whatever the signer
+    // chose and `SecCodeCheckValidity` still passes. Treat it as path-only: not `valid`, and
+    // identified by its canonical executable path so a binary elsewhere that copies the
+    // identifier cannot share a grant key. Apple platform binaries have no team ID but do carry
+    // a certificate chain, so they keep their identifier.
+    if cf_dict_array_len(&info, certificates_key).unwrap_or(0) == 0 {
+        let path = exe_path
+            .and_then(|p| std::fs::canonicalize(p).ok())
+            .and_then(|p| p.to_str().map(str::to_string))
+            .unwrap_or_else(fallback_identity);
+        return Some(SignatureInfo {
+            kind: SignatureKind::MacosTeamId,
+            identity: path,
+            valid: false,
+        });
+    }
 
     let identity = match (team_id, identifier) {
         (Some(team), Some(id)) => format!("{team}:{id}"),
@@ -259,6 +283,33 @@ fn cf_dict_string(
     // `kSecCodeInfoTeamIdentifier` are documented to map to `CFString` values when present.
     let value = unsafe { CFString::wrap_under_get_rule(value.cast()) };
     Some(value.to_string())
+}
+
+/// Length of a `CFArray`-valued entry in a signing-information dictionary, if present and an
+/// array.
+#[cfg(target_os = "macos")]
+fn cf_dict_array_len(
+    dict: &core_foundation::dictionary::CFDictionary<
+        *const std::ffi::c_void,
+        *const std::ffi::c_void,
+    >,
+    key: core_foundation::string::CFStringRef,
+) -> Option<usize> {
+    use core_foundation::{
+        array::CFArray,
+        base::{CFType, TCFType},
+    };
+
+    let value: *const std::ffi::c_void = *dict.find(key.cast::<std::ffi::c_void>())?;
+    if value.is_null() {
+        return None;
+    }
+    // SAFETY: `value` is a "get rule" (borrowed) pointer into `dict`'s live storage, valid
+    // because `dict` outlives this call. It is wrapped as a generic `CFType` and only treated as
+    // an array after a checked type-id downcast.
+    let value = unsafe { CFType::wrap_under_get_rule(value.cast()) };
+    let array = value.downcast::<CFArray<*const std::ffi::c_void>>()?;
+    usize::try_from(array.len()).ok()
 }
 
 /// Windows: Authenticode publisher verification on the resolved executable path, mirroring
@@ -465,5 +516,42 @@ mod tests {
             // No assertion on `valid` — a locally-signed dev toolchain could plausibly sign the
             // test binary. The only real assertion is "this returned instead of panicking".
         }
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn macos_ad_hoc_signature_is_path_only_and_not_valid() {
+        // Copy an Apple binary and re-sign the copy ad hoc, keeping Apple's signing identifier:
+        // exactly what a forged `openshell-gateway` would do. It must not be reported valid, and
+        // its identity must be its own path, not the borrowed identifier.
+        let dir = std::env::temp_dir().join(format!("aa-adhoc-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).expect("mkdir");
+        let copy = dir.join("sleep");
+        std::fs::copy("/bin/sleep", &copy).expect("copy");
+        let signed = std::process::Command::new("/usr/bin/codesign")
+            .args(["--force", "-s", "-", "-i", "com.apple.sleep"])
+            .arg(&copy)
+            .status()
+            .expect("codesign runs");
+        assert!(signed.success());
+        let mut child = std::process::Command::new(&copy)
+            .arg("5")
+            .spawn()
+            .expect("spawn");
+        let copy_path = copy.to_str().expect("utf-8").to_string();
+        let signature = verify_signature(child.id(), Some(&copy_path));
+        let _ = child.kill();
+        let _ = child.wait();
+        let _ = std::fs::remove_dir_all(&dir);
+
+        let signature = signature.expect("signature info");
+        assert!(!signature.valid, "ad-hoc must not be reported valid");
+        assert_ne!(signature.identity, "com.apple.sleep");
+        assert!(
+            signature.identity.ends_with("/sleep"),
+            "{}",
+            signature.identity
+        );
     }
 }

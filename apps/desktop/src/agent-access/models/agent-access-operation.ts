@@ -30,5 +30,10 @@ export const AgentAccessOperation = Object.freeze({
    * ever touched, no activity row is opened, and no dialog is shown.
    */
   DescribeFillTarget: "describeFillTarget",
+  /**
+   * An OpenShell gateway resolving one provider's `bw://` references (agent-access-architecture
+   * .md, §M8). Only ever paired with origin `"openshell"`; every other pairing is denied.
+   */
+  ProviderResolve: "providerResolve",
 } as const);
 export type AgentAccessOperation = (typeof AgentAccessOperation)[keyof typeof AgentAccessOperation];

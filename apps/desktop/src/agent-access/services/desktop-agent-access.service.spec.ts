@@ -21,6 +21,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { AGENT_ACCESS_IPC_CHANNELS } from "../models/ipc-channels";
 
+import { AgentAccessOpenShellService } from "./agent-access-openshell.service";
 import {
   AgentAccessSecretsService,
   SmSecretMatch,
@@ -66,6 +67,7 @@ function makeLoginCipher(
     isDeleted: false,
     isArchived: false,
     notes: null,
+    viewPassword: true,
     login: {
       username: "user@example.com",
       password: "hunter2",
@@ -104,6 +106,11 @@ describe("DesktopAgentAccessService", () => {
 
   let accountSubject: BehaviorSubject<{ id: UserId } | null>;
   let agentAccessEnabledSubject: BehaviorSubject<boolean>;
+  let openShellEnabledSubject: BehaviorSubject<boolean>;
+  let mockSetOpenShellListener: jest.Mock;
+  let mockOpenShellHandle: jest.Mock;
+  let mockCanAnswerWithoutQueue: jest.Mock;
+  let mockResetCoalescing: jest.Mock;
   let authStatusPerUser: Map<string, BehaviorSubject<AuthenticationStatus>>;
   let activeAccountStatusSubject: BehaviorSubject<AuthenticationStatus>;
   let credentialRequestSubject: Subject<Record<string, unknown>>;
@@ -183,6 +190,7 @@ describe("DesktopAgentAccessService", () => {
     const mockI18nService = { t: jest.fn().mockReturnValue("") };
     const mockDesktopSettingsService = {
       agentAccessEnabled$: agentAccessEnabledSubject.asObservable(),
+      agentAccessOpenShellEnabled$: openShellEnabledSubject.asObservable(),
     };
     const mockAccountService = { activeAccount$: accountSubject.asObservable() };
     const mockConfigService = { getFeatureFlag: mockGetFeatureFlag };
@@ -234,6 +242,14 @@ describe("DesktopAgentAccessService", () => {
         { provide: EventCollectionService, useValue: mockEventCollectionService },
         { provide: DomainSettingsService, useValue: mockDomainSettingsService },
         { provide: AgentFillBrowserService, useValue: mockAgentFillBrowserService },
+        {
+          provide: AgentAccessOpenShellService,
+          useValue: {
+            handle: mockOpenShellHandle,
+            canAnswerWithoutQueue: mockCanAnswerWithoutQueue,
+            resetCoalescing: mockResetCoalescing,
+          },
+        },
       ],
     });
 
@@ -243,11 +259,25 @@ describe("DesktopAgentAccessService", () => {
   beforeEach(() => {
     accountSubject = new BehaviorSubject<{ id: UserId } | null>(null);
     agentAccessEnabledSubject = new BehaviorSubject<boolean>(false);
+    openShellEnabledSubject = new BehaviorSubject<boolean>(false);
+    mockSetOpenShellListener = jest.fn().mockResolvedValue({ listening: true });
+    mockOpenShellHandle = jest.fn();
+    mockCanAnswerWithoutQueue = jest.fn().mockReturnValue(false);
+    mockResetCoalescing = jest.fn();
     authStatusPerUser = new Map();
     activeAccountStatusSubject = new BehaviorSubject<AuthenticationStatus>(
       AuthenticationStatus.Locked,
     );
     credentialRequestSubject = new Subject();
+    // Real requests always carry `origin` (napi sets it on every request). Most tests below
+    // predate the §M8.9 exhaustive origin switch and model relay requests by omitting it; default
+    // those to "relay" here so they keep exercising the path they were written for. The switch's
+    // own tests send explicit (including unknown) origins.
+    const rawNext = credentialRequestSubject.next.bind(credentialRequestSubject);
+    credentialRequestSubject.next = (message: Record<string, unknown>) =>
+      rawNext(
+        message != null && !("origin" in message) ? { origin: "relay", ...message } : message,
+      );
     fingerprintRequestSubject = new Subject();
 
     mockIsLoaded = jest.fn().mockResolvedValue(false);
@@ -324,6 +354,7 @@ describe("DesktopAgentAccessService", () => {
         findGrant: mockFindGrant,
         upsertGrant: mockUpsertGrant,
         clearActivity: mockClearActivity,
+        setOpenShellListener: mockSetOpenShellListener,
       },
       platform: { focusWindow: mockFocusWindow },
     };
@@ -728,6 +759,28 @@ describe("DesktopAgentAccessService", () => {
           fieldsShared: ["username", "password", "uri"],
         },
       );
+    });
+
+    it("never releases the password or TOTP of an item whose password is hidden from the user", async () => {
+      const cipher = makeLoginCipher("c1", "My Login", { totp: "JBSWY3DPEHPK3PXP" });
+      (cipher as unknown as { viewPassword: boolean }).viewPassword = false;
+      mockGetAllDecrypted.mockResolvedValue([cipher]);
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true, selectedId: "c1" }) });
+
+      credentialRequestSubject.next({
+        requestId: 12,
+        queryType: "id",
+        queryValue: "c1",
+        requesterFingerprint: "fp",
+        requesterName: "Test Agent",
+      });
+      await flush();
+
+      const [, response] = mockCredentialRequestResponse.mock.calls.at(-1);
+      expect(response.approved).toBe(true);
+      expect(response.username).toBe("user@example.com");
+      expect(response.password).toBeUndefined();
+      expect(response.totp).toBeUndefined();
     });
 
     it("never includes notes in the released payload, even when the cipher has them", async () => {
@@ -3106,6 +3159,271 @@ describe("DesktopAgentAccessService", () => {
 
       expect(mockDialogOpen).not.toHaveBeenCalled();
       expect(mockFocusWindow).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("§M8.9 origin switch and OpenShell", () => {
+    beforeEach(async () => {
+      service = buildService(true);
+      await service.init();
+      mockIsLoaded.mockResolvedValue(true);
+      agentAccessEnabledSubject.next(true);
+      accountSubject.next({ id: "user-1" as UserId });
+      authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+      activeAccountStatusSubject.next(AuthenticationStatus.Unlocked);
+      await flush();
+      mockDialogOpen.mockClear();
+    });
+
+    function lastResponse() {
+      return mockCredentialRequestResponse.mock.calls.at(-1);
+    }
+
+    it.each([["bogus"], [undefined], [null]])(
+      "denies an unknown origin %p with reason error and no dialog",
+      async (origin) => {
+        credentialRequestSubject.next({ requestId: 41, origin, queryType: "id", queryValue: "c1" });
+        await flush();
+        expect(lastResponse()).toEqual([
+          41,
+          { approved: false, reason: "error" },
+          { status: "denied" },
+        ]);
+        expect(mockDialogOpen).not.toHaveBeenCalled();
+        expect(mockGetAllDecrypted).not.toHaveBeenCalled();
+        expect(mockOpenShellHandle).not.toHaveBeenCalled();
+      },
+    );
+
+    it("denies openshell with any operation other than providerResolve", async () => {
+      credentialRequestSubject.next({
+        requestId: 42,
+        origin: "openshell",
+        operation: "request",
+        queryType: "id",
+        queryValue: "c1",
+      });
+      await flush();
+      expect(lastResponse()?.[1]).toEqual({ approved: false, reason: "error" });
+      expect(mockOpenShellHandle).not.toHaveBeenCalled();
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it.each([["local"], ["relay"]])("denies providerResolve from %s", async (origin) => {
+      credentialRequestSubject.next({
+        requestId: 43,
+        origin,
+        operation: "providerResolve",
+        queryType: "id",
+        queryValue: "",
+        localPeer: { pid: 1, exePath: "/usr/bin/aac" },
+      });
+      await flush();
+      expect(lastResponse()?.[1]).toEqual({ approved: false, reason: "error" });
+      expect(mockOpenShellHandle).not.toHaveBeenCalled();
+      expect(mockFindGrant).not.toHaveBeenCalled();
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("hands openshell + providerResolve to the OpenShell service and forwards its answer", async () => {
+      const answer = {
+        response: { approved: false, reason: "notFound" },
+        outcome: { status: "not_found" },
+      };
+      mockOpenShellHandle.mockResolvedValue(answer);
+      const message = { requestId: 44, origin: "openshell", operation: "providerResolve" };
+      credentialRequestSubject.next(message);
+      await flush();
+      expect(mockOpenShellHandle).toHaveBeenCalledWith(
+        expect.objectContaining(message),
+        "user-1",
+        {},
+      );
+      expect(lastResponse()).toEqual([44, answer.response, answer.outcome]);
+      // Never routed through the plain-local grant/first-use path.
+      expect(mockFindGrant).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      [true, 1],
+      [false, 0],
+    ])(
+      "runs the OpenShell bookkeeping only when main reports delivery (delivered: %s)",
+      async (delivered, calls) => {
+        const onDelivered = jest.fn().mockResolvedValue(undefined);
+        mockOpenShellHandle.mockResolvedValue({
+          response: { approved: true },
+          outcome: { status: "shared" },
+          onDelivered,
+        });
+        mockCredentialRequestResponse.mockResolvedValueOnce(delivered);
+        credentialRequestSubject.next({
+          requestId: 46,
+          origin: "openshell",
+          operation: "providerResolve",
+        });
+        await flush();
+        expect(onDelivered).toHaveBeenCalledTimes(calls);
+      },
+    );
+
+    it("denies with error when the OpenShell service throws", async () => {
+      mockOpenShellHandle.mockRejectedValue(new Error("boom"));
+      credentialRequestSubject.next({
+        requestId: 45,
+        origin: "openshell",
+        operation: "providerResolve",
+      });
+      await flush();
+      expect(lastResponse()?.[1]).toEqual({ approved: false, reason: "error" });
+    });
+
+    it("holds the queue until the coalesced dialog closes, after replying on time (§M8.18)", async () => {
+      let closeDialog!: () => void;
+      const holdUntil = new Promise<void>((resolve) => (closeDialog = resolve));
+      mockOpenShellHandle.mockResolvedValueOnce({
+        response: { approved: false, reason: "timeout" },
+        outcome: { status: "denied" },
+        holdUntil,
+      });
+      credentialRequestSubject.next({
+        requestId: 50,
+        origin: "openshell",
+        operation: "providerResolve",
+      });
+      await flush();
+      // The first request's own reply is already out…
+      expect(lastResponse()?.[0]).toBe(50);
+
+      // …but a different (queued) request waits until the dialog has closed.
+      mockOpenShellHandle.mockResolvedValueOnce({
+        response: { approved: false, reason: "notFound" },
+        outcome: { status: "not_found" },
+      });
+      credentialRequestSubject.next({
+        requestId: 51,
+        origin: "openshell",
+        operation: "providerResolve",
+      });
+      await flush();
+      expect(mockOpenShellHandle).toHaveBeenCalledTimes(1);
+
+      closeDialog();
+      await flush();
+      expect(mockOpenShellHandle).toHaveBeenCalledTimes(2);
+      expect(lastResponse()?.[0]).toBe(51);
+    });
+
+    it("answers an identical retry outside the held queue, without letting it open a dialog", async () => {
+      const holdUntil = new Promise<void>(() => undefined);
+      mockOpenShellHandle.mockResolvedValueOnce({
+        response: { approved: false, reason: "timeout" },
+        outcome: { status: "denied" },
+        holdUntil,
+      });
+      credentialRequestSubject.next({
+        requestId: 52,
+        origin: "openshell",
+        operation: "providerResolve",
+      });
+      await flush();
+
+      mockCanAnswerWithoutQueue.mockReturnValueOnce(true);
+      mockOpenShellHandle.mockResolvedValueOnce({
+        response: { approved: true },
+        outcome: { status: "shared" },
+      });
+      const retry = { requestId: 53, origin: "openshell", operation: "providerResolve" };
+      credentialRequestSubject.next(retry);
+      await flush();
+      expect(mockCanAnswerWithoutQueue).toHaveBeenCalledWith(
+        expect.objectContaining(retry),
+        "user-1",
+      );
+      expect(mockOpenShellHandle).toHaveBeenLastCalledWith(
+        expect.objectContaining(retry),
+        "user-1",
+        { mayOpenDialog: false },
+      );
+      expect(lastResponse()?.[0]).toBe(53);
+    });
+
+    it("drops carried OpenShell decisions on lock, toggle off and account switch", async () => {
+      openShellEnabledSubject.next(true);
+      await flush();
+      mockResetCoalescing.mockClear();
+      activeAccountStatusSubject.next(AuthenticationStatus.Locked);
+      await flush();
+      expect(mockResetCoalescing).toHaveBeenCalledTimes(1);
+
+      activeAccountStatusSubject.next(AuthenticationStatus.Unlocked);
+      await flush();
+      mockResetCoalescing.mockClear();
+
+      openShellEnabledSubject.next(false);
+      await flush();
+      expect(mockResetCoalescing).toHaveBeenCalledTimes(1);
+
+      openShellEnabledSubject.next(true);
+      await flush();
+      mockResetCoalescing.mockClear();
+      accountSubject.next({ id: "user-2" as UserId });
+      await flush();
+      expect(mockResetCoalescing).toHaveBeenCalledTimes(1);
+    });
+
+    it("answers locked at once for an OpenShell request while the vault is locked", async () => {
+      activeAccountStatusSubject.next(AuthenticationStatus.Locked);
+      credentialRequestSubject.next({
+        requestId: 46,
+        origin: "openshell",
+        operation: "providerResolve",
+      });
+      await flush();
+      expect(lastResponse()?.[1]).toEqual({ approved: false, reason: "locked" });
+      expect(mockShowToast).not.toHaveBeenCalled();
+      expect(mockOpenShellHandle).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("§M8.9 OpenShell listener lifecycle", () => {
+    beforeEach(async () => {
+      service = buildService(true);
+      await service.init();
+    });
+
+    it("starts the listener only when Agent Access, the toggle and the server are all on", async () => {
+      await flush();
+      expect(mockSetOpenShellListener).toHaveBeenLastCalledWith(false);
+
+      mockIsLoaded.mockResolvedValue(true);
+      agentAccessEnabledSubject.next(true);
+      accountSubject.next({ id: "user-1" as UserId });
+      authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+      await flush();
+      expect(mockSetOpenShellListener).not.toHaveBeenCalledWith(true);
+
+      openShellEnabledSubject.next(true);
+      await flush();
+      expect(mockSetOpenShellListener).toHaveBeenLastCalledWith(true);
+
+      openShellEnabledSubject.next(false);
+      await flush();
+      expect(mockSetOpenShellListener).toHaveBeenLastCalledWith(false);
+    });
+
+    it("turns the listener off when the server stops", async () => {
+      mockIsLoaded.mockResolvedValue(true);
+      openShellEnabledSubject.next(true);
+      agentAccessEnabledSubject.next(true);
+      accountSubject.next({ id: "user-1" as UserId });
+      authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+      await flush();
+      expect(mockSetOpenShellListener).toHaveBeenLastCalledWith(true);
+
+      agentAccessEnabledSubject.next(false);
+      await flush();
+      expect(mockSetOpenShellListener).toHaveBeenLastCalledWith(false);
     });
   });
 });

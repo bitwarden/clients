@@ -19,16 +19,22 @@ import {
 import {
   AgentAccessGrant,
   AgentAccessGrantKey,
+  AgentAccessGrantScope,
   isAgentAccessGrantScope,
+  isAgentAccessOpenShellGrantDetails,
+  isAgentAccessOpenShellGrantKey,
   UpsertAgentAccessGrantInput,
 } from "../models/agent-access-grant";
 import { AgentAccessOperation } from "../models/agent-access-operation";
 import { AgentAccessResourceType } from "../models/agent-access-resource-type";
 import { CredentialQueryType } from "../models/credential-query-type";
 import { AGENT_ACCESS_IPC_CHANNELS } from "../models/ipc-channels";
+import { OPENSHELL_DESKTOP_SOCKET_FILENAME, SetOpenShellListenerResult } from "../models/openshell";
 import { deriveAgentAccessDisplayName } from "../utils/agent-access-attestation.util";
 
 import { AgentAccessGrantStoreService } from "./agent-access-grant-store.service";
+import { OpenShellDetectionService } from "./openshell-detection.service";
+import { OpenShellEnabledState } from "./openshell-enabled-state";
 
 // Default local socket/pipe path, per agent-access-architecture.md's "Local wire protocol v1"
 // ("Socket path (fixed, userData-independent — both sides hardcode the same defaults)"). This
@@ -81,6 +87,20 @@ const RUST_CREDENTIAL_EVENT_KINDS: ReadonlySet<string> = new Set([
   "credential_denied",
 ]);
 
+// §M8.4: emitted for a value-free `openshellHello`. Main keeps only the last-seen timestamp.
+const OPENSHELL_DRIVER_SEEN_EVENT_KIND = "openshellDriverSeen";
+
+// §M8.18: Rust emits this (with only the request's dispatch token as `detail`) when aac hung up
+// while the request was still waiting — the gateway or supervisor cancelled it. Main settles that
+// one request as an undelivered, value-free timeout, so a later approval for it reports
+// `delivered: false` and the renderer keeps the decision for the supervisor's retry.
+const OPENSHELL_ABANDONED_EVENT_KIND = "openshellRequestAbandoned";
+/** Every OpenShell dispatch token Rust puts in `queryValue` starts with this. */
+const OPENSHELL_DISPATCH_TOKEN_PREFIX = "openshell-dispatch:";
+/** Abandon events that arrived before their request was registered (napi delivers the two on
+ *  different threadsafe functions, so their order isn't guaranteed). Bounded. */
+const MAX_EARLY_ABANDONED_TOKENS = 64;
+
 // Upper bound on how long a credential/fingerprint callback Promise (and the `pendingRequests`
 // entry backing it) is allowed to live before this process gives up on the renderer ever
 // answering — e.g. the credential pipeline isn't listening (feature flag off), the renderer
@@ -103,7 +123,20 @@ interface PendingRequestEntry {
   kind: "credential" | "describe" | "fingerprint";
   resolve: (response: unknown) => void;
   timer: ReturnType<typeof setTimeout>;
+  /** OpenShell only: after this instant Rust's dispatch timeout (`min(60 s, deadlineMs)`, started
+   *  just before main saw the request) has already fired, so an approval can no longer be
+   *  delivered. A late answer is settled as a timeout (no values cross napi) and reported to the
+   *  renderer as undelivered, so it records no grant and no release. */
+  replyByMs?: number;
+  /** OpenShell only (§M8.18): Rust's dispatch token, to match an `openshellRequestAbandoned`. */
+  openShellDispatchToken?: string;
 }
+
+/** Rust's dispatch cap for an OpenShell request (§M8.4 `min(CALLBACK_TIMEOUT, deadlineMs)`). */
+const OPENSHELL_DISPATCH_CAP_MS = 60_000;
+/** Margin for the time between Rust starting its timeout and main seeing the request, plus the
+ *  reply's own trip back to Rust. */
+const OPENSHELL_DELIVERY_MARGIN_MS = 1_000;
 
 /** Activity-entry id for a credential request, so its outcome can find the row it opened. */
 function activityIdFor(requestId: number): string {
@@ -159,6 +192,8 @@ export class MainAgentAccessService {
   // so the IPC response can be matched back to the correct waiting Promise. Electron has no native
   // main->renderer request-response mechanism, making this correlation map necessary.
   private pendingRequests = new Map<number, PendingRequestEntry>();
+  /** §M8.18: see `MAX_EARLY_ABANDONED_TOKENS`. Insertion-ordered, so the oldest drops first. */
+  private readonly earlyAbandonedTokens = new Set<string>();
   private requestId = 0;
   private agentState: agent_access.AgentAccessState;
   private handlersRegistered = false;
@@ -173,10 +208,17 @@ export class MainAgentAccessService {
   // agent-access-architecture.md, "Grant store (W2b)". Available independent of INIT/run state,
   // like GET_ACTIVITY — the handlers are registered unconditionally below.
   private grantStore: AgentAccessGrantStoreService;
+  // Last `openshellDriverSeen` (§M8.4): a timestamp only — the hello carries nothing else, and
+  // it is never written to the activity buffer.
+  private openShellDriverLastSeenMs: number | null = null;
 
   constructor(
     private logService: LogService,
     private messagingService: MessagingService,
+    private openShellDetectionService: OpenShellDetectionService = new OpenShellDetectionService(
+      logService,
+    ),
+    private openShellEnabledState: OpenShellEnabledState = new OpenShellEnabledState(),
   ) {
     this.grantStore = new AgentAccessGrantStoreService(this.logService, KEYCHAIN_SERVICE_NAME);
     this.registerIpcHandlers();
@@ -261,10 +303,60 @@ export class MainAgentAccessService {
         await this.grantStore.remove(id);
       },
     );
+
+    // OpenShell listener toggle (§M8.8). Registered unconditionally so a renderer call before
+    // INIT gets an honest "not running" refusal instead of an unhandled channel.
+    ipcMain.handle(
+      AGENT_ACCESS_IPC_CHANNELS.SET_OPENSHELL_LISTENER,
+      async (_event: any, enabled: unknown): Promise<SetOpenShellListenerResult> =>
+        this.setOpenShellListener(enabled),
+    );
+
+    ipcMain.handle(
+      AGENT_ACCESS_IPC_CHANNELS.GET_OPENSHELL_DRIVER_LAST_SEEN,
+      async (): Promise<number | null> => this.openShellDriverLastSeenMs,
+    );
+  }
+
+  /**
+   * Starts or stops the OpenShell listener (§M8.8). The renderer only says on/off: on `true`
+   * main re-runs detection itself and refuses unless OpenShell is present on a supported
+   * platform and the agent-access server is running; the socket path is main-owned.
+   */
+  private async setOpenShellListener(enabled: unknown): Promise<SetOpenShellListenerResult> {
+    if (typeof enabled !== "boolean") {
+      throw new Error("setOpenShellListener expects a boolean");
+    }
+    if (!enabled) {
+      this.openShellEnabledState.set(false);
+      await this.agentState?.setOpenShellListener(null);
+      return { listening: false };
+    }
+
+    const detection = await this.openShellDetectionService.detect();
+    if (!detection.platformSupported) {
+      return { listening: false, refusedReason: "unsupportedPlatform" };
+    }
+    if (!detection.present) {
+      return { listening: false, refusedReason: "notDetected" };
+    }
+    if (this.agentState == null || !this.agentState.isRunning()) {
+      return { listening: false, refusedReason: "agentAccessNotRunning" };
+    }
+    await this.agentState.setOpenShellListener(this.getOpenShellSocketPath());
+    this.openShellEnabledState.set(true);
+    return { listening: true };
+  }
+
+  // §M8.4: the OpenShell listener's fixed, home-relative path. Main-owned; never renderer input.
+  private getOpenShellSocketPath(): string {
+    return path.join(os.homedir(), OPENSHELL_DESKTOP_SOCKET_FILENAME);
   }
 
   private registerAgentAccessIpcHandlers() {
     ipcMain.handle(AGENT_ACCESS_IPC_CHANNELS.STOP, async () => {
+      // The listener goes down with the server, so management is off with it.
+      this.openShellEnabledState.set(false);
       if (this.agentState != null) {
         this.agentState.stop();
         this.agentState = null;
@@ -321,9 +413,15 @@ export class MainAgentAccessService {
           // read into the activity buffer.
           outcome?: CredentialRequestOutcome;
         },
-      ) => {
-        this.resolveCredentialRequest(requestId, outcome);
-        this.settlePendingRequest(requestId, response);
+      ): Promise<boolean> => {
+        // `true` only when the answer reached a request Rust is still waiting for. The renderer
+        // persists an OpenShell grant and records release events only on `true`.
+        const delivered = this.settlePendingRequest(requestId, response);
+        this.resolveCredentialRequest(
+          requestId,
+          delivered || outcome == null ? outcome : { status: AgentAccessRequestStatus.Denied },
+        );
+        return delivered;
       },
     );
 
@@ -352,6 +450,9 @@ export class MainAgentAccessService {
       this.logService.info("Agent Access server already running; ignoring redundant init");
       return;
     }
+
+    // A fresh server has no OpenShell listener until the toggle is applied again.
+    this.openShellEnabledState.set(false);
 
     const credentialCb = (_err: Error | null, data: agent_access.CredentialRequestData) =>
       this.requestCredential(data);
@@ -420,6 +521,22 @@ export class MainAgentAccessService {
       if (RUST_CREDENTIAL_EVENT_KINDS.has(event.kind)) {
         return;
       }
+      if (event.kind === OPENSHELL_ABANDONED_EVENT_KIND) {
+        // Never buffered: a dispatch token is internal bookkeeping, not an activity row.
+        if (
+          typeof event.detail === "string" &&
+          event.detail.startsWith(OPENSHELL_DISPATCH_TOKEN_PREFIX)
+        ) {
+          this.abandonOpenShellRequest(event.detail);
+        }
+        return;
+      }
+      if (event.kind === OPENSHELL_DRIVER_SEEN_EVENT_KIND) {
+        // Timestamp only, never buffered (§M8.4).
+        const seenAt = Number(event.timestampMs);
+        this.openShellDriverLastSeenMs = Number.isFinite(seenAt) ? seenAt : Date.now();
+        return;
+      }
       this.appendActivity({
         type: AgentAccessActivityType.Lifecycle,
         id: `lifecycle-${++this.lifecycleEntryCount}`,
@@ -456,6 +573,11 @@ export class MainAgentAccessService {
         return;
       }
 
+      if (data.origin === AgentAccessActivityOrigin.OpenShell) {
+        this.appendActivity(this.openShellActivityRow(requestId, data));
+        return;
+      }
+
       this.appendActivity({
         type: AgentAccessActivityType.CredentialRequest,
         id: activityIdFor(requestId),
@@ -466,6 +588,7 @@ export class MainAgentAccessService {
         // OS- or store-sourced; neither is ever self-reported by the requester.
         agentName: data.requesterName ?? deriveAgentAccessDisplayName(data.localPeer),
         agentFingerprint: data.requesterFingerprint,
+        // OpenShell rows never reach here (see the early return above).
         origin:
           data.origin === AgentAccessActivityOrigin.Local
             ? AgentAccessActivityOrigin.Local
@@ -490,6 +613,28 @@ export class MainAgentAccessService {
     } catch (e: unknown) {
       this.logService.error("Failed to open an Agent Access activity entry", e);
     }
+  }
+
+  // §M8.8: an OpenShell row stores exactly these keys — ids, the digest and the requested
+  // target ids. No gateway/sandbox/provider/item names, no image, no endpoints, no values.
+  // `agentName` is the attested gateway binary's name, from the shared display-name helper.
+  private openShellActivityRow(
+    requestId: number,
+    data: agent_access.CredentialRequestData,
+  ): AgentAccessActivityEntry {
+    return {
+      type: AgentAccessActivityType.CredentialRequest,
+      id: activityIdFor(requestId),
+      timestampMs: `${Date.now()}`,
+      agentName: deriveAgentAccessDisplayName(data.localPeer),
+      origin: AgentAccessActivityOrigin.OpenShell,
+      operation: AgentAccessOperation.ProviderResolve,
+      sandboxId: data.openshell?.sandboxId,
+      providerId: data.openshell?.providerId,
+      policyDigest: data.openshell?.policyDigest,
+      targetIds: (data.providerTargets ?? []).map((target) => target.id),
+      status: AgentAccessRequestStatus.Pending,
+    };
   }
 
   // Resolves the row `openCredentialRequest` opened, in place, so one request stays one row.
@@ -528,6 +673,27 @@ export class MainAgentAccessService {
       // (M6) has no single target — the project *list itself* was the release — so it copies
       // neither a `secretId` nor a `projectId`; it still transitions `Pending -> "listed"` like
       // every other terminal status.
+      // OpenShell rows keep their fixed key set (§M8.8): only the status and resolution time
+      // change. The targets are already recorded as ids; nothing from the outcome is copied.
+      if (entry.origin === AgentAccessActivityOrigin.OpenShell) {
+        const status =
+          outcome.status === AgentAccessRequestStatus.Shared
+            ? AgentAccessRequestStatus.Shared
+            : outcome.status === AgentAccessRequestStatus.NotFound
+              ? AgentAccessRequestStatus.NotFound
+              : AgentAccessRequestStatus.Denied;
+        const resolvedOpenShell: AgentAccessActivityEntry = {
+          ...entry,
+          status,
+          resolvedAtMs: `${Date.now()}`,
+        };
+        this.activityBuffer[index] = resolvedOpenShell;
+        this.messagingService.send(AGENT_ACCESS_IPC_CHANNELS.ACTIVITY, {
+          entry: resolvedOpenShell,
+        });
+        return;
+      }
+
       const pointsAtSecretOrProject =
         outcome.status === AgentAccessRequestStatus.Shared ||
         outcome.status === AgentAccessRequestStatus.Created ||
@@ -554,6 +720,11 @@ export class MainAgentAccessService {
     } catch (e: unknown) {
       this.logService.error("Failed to resolve an Agent Access activity entry", e);
     }
+  }
+
+  /** A copy of the activity buffer, for read-only consumers in main (the OpenShell Activity tab). */
+  getActivityEntries(): readonly AgentAccessActivityEntry[] {
+    return [...this.activityBuffer];
   }
 
   // Drops the buffer on logout/account switch, then tells the renderer to re-fetch. Nothing here
@@ -585,8 +756,30 @@ export class MainAgentAccessService {
       toAgentAccessOperation(data.operation) === AgentAccessOperation.DescribeFillTarget
         ? "describe"
         : "credential";
+    const deadlineMs = data.openshell?.deadlineMs;
+    const replyByMs =
+      data.origin === AgentAccessActivityOrigin.OpenShell && typeof deadlineMs === "number"
+        ? Date.now() +
+          Math.min(OPENSHELL_DISPATCH_CAP_MS, deadlineMs) -
+          OPENSHELL_DELIVERY_MARGIN_MS
+        : undefined;
+    const dispatchToken =
+      data.origin === AgentAccessActivityOrigin.OpenShell &&
+      typeof data.queryValue === "string" &&
+      data.queryValue.startsWith(OPENSHELL_DISPATCH_TOKEN_PREFIX)
+        ? data.queryValue
+        : undefined;
     return new Promise((resolve) => {
-      this.setPendingRequest(id, kind, resolve as (response: unknown) => void);
+      this.setPendingRequest(
+        id,
+        kind,
+        resolve as (response: unknown) => void,
+        replyByMs,
+        dispatchToken,
+      );
+      if (dispatchToken != null && this.earlyAbandonedTokens.delete(dispatchToken)) {
+        this.abandonOpenShellRequest(dispatchToken);
+      }
       this.messagingService.send(AGENT_ACCESS_IPC_CHANNELS.CREDENTIAL_REQUEST, {
         requestId: id,
         queryType: data.queryType,
@@ -627,6 +820,15 @@ export class MainAgentAccessService {
         // only and never enter `activityBuffer`.
         fillFields: data.fillFields,
         fillTargetToken: data.fillTargetToken,
+        // Additive (§M8): gateway-reported OpenShell context and the requested `bw://` targets
+        // (ids and env-var names only) for `operation: "providerResolve"`, plus when main handed
+        // the request over, so the renderer can tell how much of the deadline is left. Live IPC
+        // only — the activity row above keeps ids alone.
+        openshell: data.openshell,
+        providerTargets: data.providerTargets,
+        ...(data.origin === AgentAccessActivityOrigin.OpenShell
+          ? { receivedAtMs: Date.now() }
+          : {}),
       });
     });
   }
@@ -651,25 +853,66 @@ export class MainAgentAccessService {
     requestId: number,
     kind: PendingRequestEntry["kind"],
     resolve: (response: unknown) => void,
+    replyByMs?: number,
+    openShellDispatchToken?: string,
   ): void {
     const timer = setTimeout(
       () => this.expirePendingRequest(requestId),
       PENDING_REQUEST_TIMEOUT_MS,
     );
-    this.pendingRequests.set(requestId, { kind, resolve, timer });
+    this.pendingRequests.set(requestId, {
+      kind,
+      resolve,
+      timer,
+      replyByMs,
+      ...(openShellDispatchToken != null ? { openShellDispatchToken } : {}),
+    });
+  }
+
+  // §M8.18: aac hung up on this OpenShell request. Settle it now as a value-free timeout (Rust has
+  // already dropped the dispatch, so nothing reaches it either way); the renderer's later answer
+  // finds no pending entry and is reported undelivered, so it records no grant and no release.
+  private abandonOpenShellRequest(token: string): void {
+    for (const [requestId, entry] of this.pendingRequests) {
+      if (entry.openShellDispatchToken === token) {
+        clearTimeout(entry.timer);
+        this.pendingRequests.delete(requestId);
+        entry.resolve({
+          approved: false,
+          reason: "timeout",
+        } as agent_access.CredentialResponseData);
+        return;
+      }
+    }
+    // Not registered yet: remember it briefly (bounded) so registration can settle it.
+    this.earlyAbandonedTokens.add(token);
+    if (this.earlyAbandonedTokens.size > MAX_EARLY_ABANDONED_TOKENS) {
+      const oldest = this.earlyAbandonedTokens.values().next().value;
+      if (oldest != null) {
+        this.earlyAbandonedTokens.delete(oldest);
+      }
+    }
   }
 
   // Settles a pending request with the renderer's actual answer (CREDENTIAL_REQUEST_RESPONSE /
   // FINGERPRINT_RESPONSE), clearing its expiry timer so it can never also fire a stray denial
   // after the fact.
-  private settlePendingRequest(requestId: number, response: unknown): void {
+  //
+  // Returns whether the answer was delivered to a request that is still waiting. An OpenShell
+  // answer past its `replyByMs` is settled as a value-free timeout instead.
+  private settlePendingRequest(requestId: number, response: unknown): boolean {
     const entry = this.pendingRequests.get(requestId);
     if (entry == null) {
-      return;
+      return false;
     }
     clearTimeout(entry.timer);
     this.pendingRequests.delete(requestId);
+    if (entry.replyByMs != null && Date.now() > entry.replyByMs) {
+      entry.resolve({ approved: false, reason: "timeout" } as agent_access.CredentialResponseData);
+      return false;
+    }
     entry.resolve(response);
+    return true;
   }
 
   // Backstop for a request the renderer never answered at all (feature disabled, renderer crash,
@@ -703,6 +946,7 @@ export class MainAgentAccessService {
       clearTimeout(entry.timer);
     }
     this.pendingRequests.clear();
+    this.earlyAbandonedTokens.clear();
   }
 
   // Storage callbacks back identity/connection/PSK persistence with the OS keychain. This never
@@ -756,7 +1000,9 @@ export class MainAgentAccessService {
     const candidate = key as Partial<AgentAccessGrantKey>;
     return (
       MainAgentAccessService.isNonEmptyString(candidate.signatureKind) &&
-      MainAgentAccessService.isNonEmptyString(candidate.signatureIdentity)
+      MainAgentAccessService.isNonEmptyString(candidate.signatureIdentity) &&
+      // §M8.5: an OpenShell key is checked field by field (type, length, charset).
+      (candidate.openshell === undefined || isAgentAccessOpenShellGrantKey(candidate.openshell))
     );
   }
 
@@ -765,10 +1011,17 @@ export class MainAgentAccessService {
       return false;
     }
     const candidate = input as Partial<UpsertAgentAccessGrantInput>;
+    // §M8.5: `scope === "openshellSandbox"` if and only if `openshell` is present, and the
+    // details are validated in full.
+    const isOpenShellScope = candidate.scope === AgentAccessGrantScope.OpenShellSandbox;
+    const openShellValid = isOpenShellScope
+      ? isAgentAccessOpenShellGrantDetails(candidate.openshell)
+      : candidate.openshell === undefined;
     return (
       MainAgentAccessService.isNonEmptyString(candidate.displayName) &&
       isAgentAccessGrantScope(candidate.scope) &&
-      (candidate.exePath == null || typeof candidate.exePath === "string")
+      (candidate.exePath == null || typeof candidate.exePath === "string") &&
+      openShellValid
     );
   }
 }

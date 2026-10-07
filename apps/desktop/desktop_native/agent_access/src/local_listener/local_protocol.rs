@@ -58,6 +58,16 @@ pub(super) struct WireRequest {
     /// be the same class of confusing client-bug-goes-unnoticed as an ignored `create` object.
     #[serde(default)]
     pub(super) fill: Option<WireFillParams>,
+    /// Present only on the OpenShell socket's `openshellResolve`/`openshellHello` ops (§M8.4).
+    /// Kept untyped here and parsed strictly by `local_listener::openshell`; every existing op's
+    /// validator rejects it as a foreign object, so an old-style request can never smuggle
+    /// OpenShell context past the agent socket.
+    #[serde(default)]
+    pub(super) openshell: Option<serde_json::Value>,
+    /// Never valid at the top level of any op. Only captured so the OpenShell validator can
+    /// reject it as a foreign object (§M8.4); every other op keeps ignoring it as before.
+    #[serde(default)]
+    pub(super) generate: Option<serde_json::Value>,
     #[serde(default)]
     pub(super) client: Option<WireClientInfo>,
 }
@@ -417,6 +427,11 @@ impl std::fmt::Debug for ValidatedRequest {
 pub(super) fn validate(request: WireRequest) -> Result<ValidatedRequest, &'static str> {
     if request.version != VERSION {
         return Err("unsupported protocol version");
+    }
+    // §M8.4: an `openshell` object belongs only to the OpenShell socket's ops. On every op this
+    // validator handles it is a foreign object — rejected, never ignored.
+    if request.openshell.is_some() {
+        return Err("openshell object is not valid for this operation");
     }
     match request.op.as_str() {
         "credentialRequest" | "secretRequest" => validate_lookup(request),
@@ -790,7 +805,7 @@ fn validate_describe_fill_target(request: WireRequest) -> Result<ValidatedReques
 // Response
 // ---------------------------------------------------------------------------------------------
 
-#[derive(Debug, Serialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub(super) enum WireStatus {
     Approved,
@@ -1017,6 +1032,16 @@ pub(super) fn build_response(
                     WireResponse::status(WireStatus::Error, "Missing delivery mode"),
                     None,
                 ),
+                // Never reached: a provider resolve is only ever dispatched from the OpenShell
+                // socket, whose replies are built by `local_listener::openshell::build_reply`.
+                // Fail closed rather than build an agent-socket reply for it.
+                (RequestOperation::ProviderResolve, _) => (
+                    WireResponse::status(
+                        WireStatus::Error,
+                        "Operation not available on this socket",
+                    ),
+                    None,
+                ),
             };
             DispatchOutcome {
                 response: built,
@@ -1075,6 +1100,11 @@ pub(super) fn build_response(
                         .denial_detail
                         .as_deref()
                         .unwrap_or("No safe fill target on this page"),
+                    "credential_denied",
+                ),
+                Some(CredentialDenialReason::Timeout) => (
+                    WireStatus::Timeout,
+                    "Request timed out",
                     "credential_denied",
                 ),
                 Some(CredentialDenialReason::Denied) | None => {
@@ -1412,10 +1442,8 @@ fn build_approved_reference_and_name(
     response: &CredentialResponseData,
     resource: ResourceKind,
 ) -> WireResponse {
-    let (Some(id), Some(name)) = (
-        resource_id(response, resource),
-        response.item_name.clone(),
-    ) else {
+    let (Some(id), Some(name)) = (resource_id(response, resource), response.item_name.clone())
+    else {
         return WireResponse::status(WireStatus::Error, "Approved response missing id or name");
     };
     WireResponse {
@@ -1644,6 +1672,8 @@ mod tests {
             update: None,
             target: None,
             fill: None,
+            openshell: None,
+            generate: None,
             client: None,
         }
     }
@@ -1788,6 +1818,8 @@ mod tests {
             update: None,
             target: None,
             fill: None,
+            openshell: None,
+            generate: None,
             client: None,
         }
     }
@@ -2216,6 +2248,8 @@ mod tests {
                 project: Some("my-app".to_string()),
             }),
             fill: None,
+            openshell: None,
+            generate: None,
             client: None,
         }
     }
@@ -2291,7 +2325,9 @@ mod tests {
             ..base_secret_update_request()
         };
         match validate(request).unwrap() {
-            ValidatedRequest::Update { value, generate, .. } => {
+            ValidatedRequest::Update {
+                value, generate, ..
+            } => {
                 assert!(value.is_none());
                 let generate = generate.expect("generate options expected");
                 assert_eq!(generate.length, Some(20));
@@ -2573,6 +2609,8 @@ mod tests {
                 id: "secret-1".to_string(),
             }),
             fill: None,
+            openshell: None,
+            generate: None,
             client: None,
         }
     }
@@ -2705,6 +2743,8 @@ mod tests {
             update: None,
             target: None,
             fill: None,
+            openshell: None,
+            generate: None,
             client: None,
         }
     }
@@ -2916,6 +2956,8 @@ mod tests {
             update: None,
             target: None,
             fill: None,
+            openshell: None,
+            generate: None,
             client: Some(WireClientInfo {
                 name: "aac".to_string(),
                 version: "0.1.0".to_string(),

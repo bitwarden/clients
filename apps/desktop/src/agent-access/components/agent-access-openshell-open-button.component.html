@@ -1,0 +1,35 @@
+<button
+  id="agent-access-openshell-open_button_open"
+  type="button"
+  bitButton
+  buttonType="primary"
+  endIcon="bwi-angle-down"
+  [disabled]="disabled() || busy()"
+  [loading]="busy()"
+  [bitMenuTriggerFor]="openMenu"
+  data-testid="openshell-open"
+>
+  {{ "agentAccessOsOpen" | i18n }}
+</button>
+<bit-menu #openMenu>
+  @if (canOpenTerminal) {
+    <button
+      id="agent-access-openshell-open_button_terminal"
+      type="button"
+      bitMenuItem
+      data-testid="openshell-open-terminal"
+      (click)="openTerminal()"
+    >
+      {{ "agentAccessOsOpenInTerminal" | i18n }}
+    </button>
+  }
+  <button
+    id="agent-access-openshell-open_button_copy"
+    type="button"
+    bitMenuItem
+    data-testid="openshell-open-copy"
+    (click)="copyCommand()"
+  >
+    {{ "agentAccessOsOpenCopyCommand" | i18n }}
+  </button>
+</bit-menu>

@@ -22,7 +22,7 @@
              `app-agent-access-connected-agents` carries the same CTA itself, and showing both at
              once gives the user two identical buttons a few hundred pixels apart. Same split as the
              Setup tab's remote-agents section. -->
-        @if (pageState.grants().length > 0) {
+        @if (pageState.localGrants().length > 0) {
           <a
             slot="end"
             id="agent-access-agents_anchor_connect-agent"
@@ -38,5 +38,61 @@
       </bit-section-header>
       <app-agent-access-connected-agents></app-agent-access-connected-agents>
     </bit-section>
+
+    <!-- OpenShell sandbox grants (agent-access-architecture.md, §M8.9). A grant is the right to
+         ask: removing one only means the next request starts again from first use. -->
+    @if (pageState.openShellGrants().length > 0) {
+      <bit-section [disableMargin]="true" data-testid="agent-access-openshell-grants">
+        <bit-section-header>
+          <h2 bitTypography="h5">{{ "agentAccessOpenShellTitle" | i18n }}</h2>
+        </bit-section-header>
+        <bit-table>
+          <ng-container header>
+            <tr>
+              <th bitCell>{{ "name" | i18n }}</th>
+              <th bitCell>{{ "agentAccessOpenShellPolicyFingerprint" | i18n }}</th>
+              <th bitCell class="tw-text-right">{{ "options" | i18n }}</th>
+            </tr>
+          </ng-container>
+          <ng-template body>
+            @for (grant of pageState.openShellGrants(); track grant.id) {
+              @if (grant.openshell; as openshell) {
+                <tr bitRow data-testid="agent-access-openshell-grant-row">
+                  <td bitCell>
+                    <div class="tw-flex tw-min-w-0 tw-flex-col">
+                      <span class="tw-truncate">{{
+                        "agentAccessOpenShellGrantRow"
+                          | i18n
+                            : openshell.sandboxName || openshell.sandboxId
+                            : openshell.gatewayName
+                      }}</span>
+                      <span class="tw-truncate tw-text-muted" bitTypography="helper"
+                        >{{ "agentAccessOpenShellProvider" | i18n }}: {{ openshell.providerName }} ·
+                        {{ lifetimeLabelKey(openshell.lifetimeMode) | i18n }}</span
+                      >
+                    </div>
+                  </td>
+                  <td bitCell>
+                    <span class="tw-font-mono" [title]="openshell.policyDigest">{{
+                      digestPrefix(openshell.policyDigest)
+                    }}</span>
+                  </td>
+                  <td bitCell class="tw-text-right">
+                    <button
+                      [id]="'agent-access-agents_button_remove-openshell-grant-' + grant.id"
+                      type="button"
+                      bitIconButton="bwi-trash"
+                      buttonType="dangerGhost"
+                      [bitAction]="removeGrantAction(grant)"
+                      [label]="'agentAccessRemoveAgent' | i18n"
+                    ></button>
+                  </td>
+                </tr>
+              }
+            }
+          </ng-template>
+        </bit-table>
+      </bit-section>
+    }
   }
 </div>

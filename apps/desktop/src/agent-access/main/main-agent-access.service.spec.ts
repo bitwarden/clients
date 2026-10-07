@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 
+import * as os from "os";
+import * as path from "path";
+
 import { ipcMain } from "electron";
 
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -7,6 +10,7 @@ import { agent_access, passwords } from "@bitwarden/desktop-napi";
 import { LogService } from "@bitwarden/logging";
 
 import { MainAgentAccessService, sanitizeWindowsPipeUsername } from "./main-agent-access.service";
+import { OpenShellEnabledState } from "./openshell-enabled-state";
 
 jest.mock("electron", () => ({
   ipcMain: {
@@ -1695,5 +1699,505 @@ describe("sanitizeWindowsPipeUsername", () => {
     ["plainuser", "plainuser"],
   ])("sanitizes %s to %s", (input, expected) => {
     expect(sanitizeWindowsPipeUsername(input)).toBe(expected);
+  });
+});
+
+describe("MainAgentAccessService — OpenShell (§M8.8)", () => {
+  const SOCKET_PATH = path.join(os.homedir(), ".bitwarden-agent-access-openshell.sock");
+  const DIGEST = "sha256:998f40a71463c9250c9eaf7bcb560234fc838a2bf7592b260165f9b4af110020";
+
+  let handlers: Map<string, Function>;
+  let messaging: { send: jest.Mock };
+  let detection: { detect: jest.Mock };
+  let enabledState: OpenShellEnabledState;
+  let agentState: { isRunning: jest.Mock; stop: jest.Mock; setOpenShellListener: jest.Mock };
+  let credentialCb: Function;
+  let eventCb: Function;
+  let grantBlob: string | null;
+
+  const detected = {
+    present: true,
+    platformSupported: true,
+    gateways: [],
+    gatewayConfigPathHint: "/x/gateway.toml",
+  };
+
+  function openshellRequest(): agent_access.CredentialRequestData {
+    return {
+      queryType: "id" as agent_access.CredentialQueryType,
+      queryValue: "",
+      origin: "openshell" as agent_access.CredentialRequestOrigin,
+      operation: "providerResolve" as agent_access.OperationType,
+      resourceType: "credential" as agent_access.ResourceType,
+      localPeer: {
+        pid: 2,
+        processName: "aac",
+        exePath: "/usr/bin/aac",
+        parent: { pid: 1, processName: "openshell-gateway", exePath: "/usr/bin/openshell-gateway" },
+        signature: {
+          kind: "linuxPathOnly" as agent_access.SignatureKindData,
+          identity: "/usr/bin/openshell-gateway",
+          valid: false,
+        },
+      },
+      openshell: {
+        deadlineMs: 25000,
+        gatewayName: "openshell",
+        gatewayEndpoint: "https://127.0.0.1:17670",
+        providerId: "prov-7f3a",
+        providerName: "gh-agent-1",
+        providerProfile: "github",
+        workspace: "default",
+        sandboxId: "sbx-01J9Z6",
+        sandboxName: "agent-1",
+        sandboxImage: "ghcr.io/example/agent:1.2",
+        endpoints: [
+          {
+            host: "api.github.com",
+            port: 443,
+            path: "/**",
+            source: "profile" as agent_access.OpenShellEndpointSource,
+          },
+        ],
+        policyDigest: DIGEST,
+        advisorEnabled: false,
+      },
+      providerTargets: [
+        {
+          credentialKey: "GITHUB_TOKEN",
+          resourceType: "credential" as agent_access.ResourceType,
+          id: "3f1c2b9e-8a4d-4c7e-9b21-5d6f7a8b9c0d",
+          field: "password" as agent_access.ProviderField,
+        },
+      ],
+    } as agent_access.CredentialRequestData;
+  }
+
+  const sent = (channel: string) =>
+    messaging.send.mock.calls.filter((call) => call[0] === channel).map((call) => call[1]);
+
+  async function create({ init }: { init: boolean }) {
+    handlers = new Map();
+    messaging = { send: jest.fn() };
+    detection = { detect: jest.fn().mockResolvedValue(detected) };
+    agentState = {
+      isRunning: jest.fn().mockReturnValue(true),
+      stop: jest.fn(),
+      setOpenShellListener: jest.fn().mockResolvedValue(undefined),
+    };
+    (ipcMain.handle as jest.Mock).mockImplementation((channel: string, handler: Function) => {
+      handlers.set(channel, handler);
+    });
+    (agent_access.AgentAccessState.serve as jest.Mock).mockImplementation(
+      (
+        _config: unknown,
+        cCb: Function,
+        _f: Function,
+        _g: Function,
+        _s: Function,
+        eCb: Function,
+      ) => {
+        credentialCb = cCb;
+        eventCb = eCb;
+        return Promise.resolve(agentState);
+      },
+    );
+    grantBlob = null;
+    (passwords.getPassword as jest.Mock).mockImplementation(async () => {
+      if (grantBlob == null) {
+        throw new Error(passwords.PASSWORD_NOT_FOUND);
+      }
+      return grantBlob;
+    });
+    (passwords.setPassword as jest.Mock).mockImplementation(
+      async (_s: string, _k: string, value: string) => {
+        grantBlob = value;
+      },
+    );
+    enabledState = new OpenShellEnabledState();
+    new MainAgentAccessService(
+      { info: jest.fn(), error: jest.fn(), debug: jest.fn(), warning: jest.fn() } as any,
+      messaging as any,
+      detection as any,
+      enabledState,
+    );
+    if (init) {
+      await handlers.get("agentaccess.init")!({}, { relayUrl: "wss://relay.example" });
+    }
+  }
+
+  describe("SET_OPENSHELL_LISTENER", () => {
+    it("rejects a non-boolean argument (including a renderer-supplied path)", async () => {
+      await create({ init: true });
+      const handler = handlers.get("agentaccess.setopenshelllistener")!;
+      for (const bad of ["/tmp/evil.sock", 1, null, undefined, { enabled: true }]) {
+        await expect(handler({}, bad)).rejects.toThrow();
+      }
+      expect(agentState.setOpenShellListener).not.toHaveBeenCalled();
+    });
+
+    it("computes the socket path in main and starts the listener", async () => {
+      await create({ init: true });
+      const result = await handlers.get("agentaccess.setopenshelllistener")!({}, true);
+      expect(result).toEqual({ listening: true });
+      expect(detection.detect).toHaveBeenCalledTimes(1);
+      expect(agentState.setOpenShellListener).toHaveBeenCalledWith(SOCKET_PATH);
+    });
+
+    it("refuses when OpenShell isn't detected", async () => {
+      await create({ init: true });
+      detection.detect.mockResolvedValue({ ...detected, present: false });
+      expect(await handlers.get("agentaccess.setopenshelllistener")!({}, true)).toEqual({
+        listening: false,
+        refusedReason: "notDetected",
+      });
+      expect(agentState.setOpenShellListener).not.toHaveBeenCalled();
+    });
+
+    it("refuses on an unsupported platform", async () => {
+      await create({ init: true });
+      detection.detect.mockResolvedValue({
+        ...detected,
+        platformSupported: false,
+        unsupportedReason: "snap",
+      });
+      expect(await handlers.get("agentaccess.setopenshelllistener")!({}, true)).toEqual({
+        listening: false,
+        refusedReason: "unsupportedPlatform",
+      });
+      expect(agentState.setOpenShellListener).not.toHaveBeenCalled();
+    });
+
+    it("refuses when the server has never started", async () => {
+      await create({ init: false });
+      expect(await handlers.get("agentaccess.setopenshelllistener")!({}, true)).toEqual({
+        listening: false,
+        refusedReason: "agentAccessNotRunning",
+      });
+    });
+
+    it("refuses when the server is stopped", async () => {
+      await create({ init: true });
+      agentState.isRunning.mockReturnValue(false);
+      expect(await handlers.get("agentaccess.setopenshelllistener")!({}, true)).toEqual({
+        listening: false,
+        refusedReason: "agentAccessNotRunning",
+      });
+      expect(agentState.setOpenShellListener).not.toHaveBeenCalled();
+    });
+
+    describe("shared enabled state (management gate input)", () => {
+      it("is off until the listener has actually started", async () => {
+        await create({ init: true });
+        expect(enabledState.isEnabled()).toBe(false);
+        await handlers.get("agentaccess.setopenshelllistener")!({}, true);
+        expect(enabledState.isEnabled()).toBe(true);
+      });
+
+      it("stays off when the listener is refused", async () => {
+        await create({ init: true });
+        detection.detect.mockResolvedValue({ ...detected, present: false });
+        await handlers.get("agentaccess.setopenshelllistener")!({}, true);
+        expect(enabledState.isEnabled()).toBe(false);
+
+        detection.detect.mockResolvedValue(detected);
+        agentState.isRunning.mockReturnValue(false);
+        await handlers.get("agentaccess.setopenshelllistener")!({}, true);
+        expect(enabledState.isEnabled()).toBe(false);
+      });
+
+      it("stays off when starting the listener throws", async () => {
+        await create({ init: true });
+        agentState.setOpenShellListener.mockRejectedValueOnce(new Error("bind failed"));
+        await expect(handlers.get("agentaccess.setopenshelllistener")!({}, true)).rejects.toThrow();
+        expect(enabledState.isEnabled()).toBe(false);
+      });
+
+      it("goes off when the toggle is turned off", async () => {
+        await create({ init: true });
+        await handlers.get("agentaccess.setopenshelllistener")!({}, true);
+        await handlers.get("agentaccess.setopenshelllistener")!({}, false);
+        expect(enabledState.isEnabled()).toBe(false);
+      });
+
+      it("goes off when Agent Access stops", async () => {
+        await create({ init: true });
+        await handlers.get("agentaccess.setopenshelllistener")!({}, true);
+        await handlers.get("agentaccess.stop")!({});
+        expect(enabledState.isEnabled()).toBe(false);
+      });
+
+      it("goes off when the server is started again", async () => {
+        await create({ init: true });
+        await handlers.get("agentaccess.setopenshelllistener")!({}, true);
+        agentState.isRunning.mockReturnValue(false);
+        await handlers.get("agentaccess.init")!({}, { relayUrl: "wss://relay.example" });
+        expect(enabledState.isEnabled()).toBe(false);
+      });
+    });
+
+    it("stops the listener on false without re-running detection", async () => {
+      await create({ init: true });
+      expect(await handlers.get("agentaccess.setopenshelllistener")!({}, false)).toEqual({
+        listening: false,
+      });
+      expect(agentState.setOpenShellListener).toHaveBeenCalledWith(null);
+      expect(detection.detect).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("driver last seen", () => {
+    it("keeps only the timestamp and never buffers the hello", async () => {
+      await create({ init: true });
+      expect(await handlers.get("agentaccess.getopenshelldriverlastseen")!({})).toBeNull();
+      await eventCb(null, { kind: "openshellDriverSeen", timestampMs: "1791230967890" });
+      expect(await handlers.get("agentaccess.getopenshelldriverlastseen")!({})).toBe(1791230967890);
+      expect(await handlers.get("agentaccess.getactivity")!({})).toEqual([]);
+    });
+  });
+
+  describe("activity row", () => {
+    it("stores exactly the §M8.8 key set for an OpenShell request", async () => {
+      await create({ init: true });
+      void credentialCb(null, openshellRequest());
+      const [row] = await handlers.get("agentaccess.getactivity")!({});
+      expect(Object.keys(row).sort()).toEqual(
+        [
+          "type",
+          "id",
+          "timestampMs",
+          "agentName",
+          "origin",
+          "operation",
+          "sandboxId",
+          "providerId",
+          "policyDigest",
+          "targetIds",
+          "status",
+        ].sort(),
+      );
+      expect(row).toMatchObject({
+        origin: "openshell",
+        operation: "providerResolve",
+        sandboxId: "sbx-01J9Z6",
+        providerId: "prov-7f3a",
+        policyDigest: DIGEST,
+        targetIds: ["3f1c2b9e-8a4d-4c7e-9b21-5d6f7a8b9c0d"],
+        agentName: "openshell-gateway",
+        status: "pending",
+      });
+      const text = JSON.stringify(row);
+      for (const name of ['agent-1"', "gh-agent-1", "ghcr.io", "api.github.com", "GITHUB_TOKEN"]) {
+        expect(text).not.toContain(name);
+      }
+    });
+
+    it("keeps the key set when resolved, adding only resolvedAtMs", async () => {
+      await create({ init: true });
+      void credentialCb(null, openshellRequest());
+      const [opened] = await handlers.get("agentaccess.getactivity")!({});
+      const requestId = Number(opened.id.replace("request-", ""));
+      await handlers.get("agentaccess.credentialrequestresponse")!(
+        {},
+        {
+          requestId,
+          response: {
+            approved: true,
+            openshellValues: [{ credentialKey: "GITHUB_TOKEN", value: "live-secret" }],
+          },
+          outcome: { status: "shared", cipherId: "should-not-be-copied", fieldsShared: ["x"] },
+        },
+      );
+      const [resolved] = await handlers.get("agentaccess.getactivity")!({});
+      expect(Object.keys(resolved).sort()).toEqual([...Object.keys(opened), "resolvedAtMs"].sort());
+      expect(resolved.status).toBe("shared");
+      expect(JSON.stringify(resolved)).not.toContain("live-secret");
+      expect(JSON.stringify(resolved)).not.toContain("should-not-be-copied");
+    });
+
+    it("reports delivery, and settles a late OpenShell approval as a value-free timeout", async () => {
+      const nowSpy = jest.spyOn(Date, "now").mockReturnValue(1_000_000);
+      try {
+        await create({ init: true });
+        const onTime = credentialCb(null, openshellRequest());
+        const late = credentialCb(null, openshellRequest());
+        const rows = await handlers.get("agentaccess.getactivity")!({});
+        const ids = rows.map((row: { id: string }) => Number(row.id.replace("request-", "")));
+        const [lateId, onTimeId] = [Math.max(...ids), Math.min(...ids)];
+        const approved = {
+          approved: true,
+          openshellValues: [{ credentialKey: "GITHUB_TOKEN", value: "live-secret" }],
+        };
+        const respond = (requestId: number) =>
+          handlers.get("agentaccess.credentialrequestresponse")!(
+            {},
+            { requestId, response: approved, outcome: { status: "shared" } },
+          );
+
+        expect(await respond(onTimeId)).toBe(true);
+        await expect(onTime).resolves.toEqual(approved);
+
+        // Past min(60 s, deadlineMs) minus the margin: Rust has already given up.
+        const deadlineMs = openshellRequest().openshell!.deadlineMs;
+        nowSpy.mockReturnValue(1_000_000 + deadlineMs);
+        expect(await respond(lateId)).toBe(false);
+        await expect(late).resolves.toEqual({ approved: false, reason: "timeout" });
+        const lateRow = (await handlers.get("agentaccess.getactivity")!({})).find(
+          (row: { id: string }) => row.id === `request-${lateId}`,
+        );
+        expect(lateRow.status).toBe("denied");
+
+        // An unknown or already-settled request is never reported delivered.
+        expect(await respond(onTimeId)).toBe(false);
+      } finally {
+        nowSpy.mockRestore();
+      }
+    });
+
+    it("settles an abandoned OpenShell request as an undelivered, value-free timeout (§M8.18)", async () => {
+      await create({ init: true });
+      const abandoned = credentialCb(null, {
+        ...openshellRequest(),
+        queryValue: "openshell-dispatch:7",
+      });
+      const kept = credentialCb(null, {
+        ...openshellRequest(),
+        queryValue: "openshell-dispatch:8",
+      });
+      const rows = await handlers.get("agentaccess.getactivity")!({});
+      const ids = rows.map((row: { id: string }) => Number(row.id.replace("request-", "")));
+      const [abandonedId, keptId] = [Math.min(...ids), Math.max(...ids)];
+
+      await eventCb(null, { kind: "openshellRequestAbandoned", detail: "openshell-dispatch:7" });
+      await expect(abandoned).resolves.toEqual({ approved: false, reason: "timeout" });
+
+      const approved = {
+        approved: true,
+        openshellValues: [{ credentialKey: "GITHUB_TOKEN", value: "live-secret" }],
+      };
+      const respond = (requestId: number) =>
+        handlers.get("agentaccess.credentialrequestresponse")!(
+          {},
+          { requestId, response: approved, outcome: { status: "shared" } },
+        );
+      // The renderer's later approval for the abandoned request is reported undelivered…
+      expect(await respond(abandonedId)).toBe(false);
+      // …while the other (identical, still waiting) request is unaffected.
+      expect(await respond(keptId)).toBe(true);
+      await expect(kept).resolves.toEqual(approved);
+
+      // Never an activity row, and the abandoned row is marked denied.
+      const after = await handlers.get("agentaccess.getactivity")!({});
+      expect(JSON.stringify(after)).not.toContain("openshell-dispatch");
+      expect(after.find((row: { id: string }) => row.id === `request-${abandonedId}`).status).toBe(
+        "denied",
+      );
+    });
+
+    it("settles a request whose abandon event arrived before it was registered", async () => {
+      await create({ init: true });
+      await eventCb(null, { kind: "openshellRequestAbandoned", detail: "openshell-dispatch:9" });
+      const early = credentialCb(null, {
+        ...openshellRequest(),
+        queryValue: "openshell-dispatch:9",
+      });
+      await expect(early).resolves.toEqual({ approved: false, reason: "timeout" });
+    });
+
+    it("ignores an abandon event with no dispatch token", async () => {
+      await create({ init: true });
+      const pending = credentialCb(null, {
+        ...openshellRequest(),
+        queryValue: "openshell-dispatch:3",
+      });
+      await eventCb(null, { kind: "openshellRequestAbandoned", detail: "something-else" });
+      await eventCb(null, { kind: "openshellRequestAbandoned" });
+      const rows = await handlers.get("agentaccess.getactivity")!({});
+      const id = Number(rows[rows.length - 1].id.replace("request-", ""));
+      expect(
+        await handlers.get("agentaccess.credentialrequestresponse")!(
+          {},
+          { requestId: id, response: { approved: false, reason: "denied" } },
+        ),
+      ).toBe(true);
+      await expect(pending).resolves.toEqual({ approved: false, reason: "denied" });
+    });
+
+    it("forwards the OpenShell context and targets on the live IPC message only", async () => {
+      await create({ init: true });
+      void credentialCb(null, openshellRequest());
+      const [message] = sent("agentaccess.credentialrequest");
+      expect(message.origin).toBe("openshell");
+      expect(message.operation).toBe("providerResolve");
+      expect(message.openshell.sandboxName).toBe("agent-1");
+      expect(message.providerTargets).toHaveLength(1);
+      expect(typeof message.receivedAtMs).toBe("number");
+    });
+  });
+
+  describe("grant IPC validation", () => {
+    const details = {
+      gatewayEndpoint: "https://127.0.0.1:17670",
+      sandboxId: "sbx-01J9Z6",
+      providerId: "prov-7f3a",
+      gatewayName: "openshell",
+      sandboxName: "agent-1",
+      providerName: "gh-agent-1",
+      policyDigest: DIGEST,
+      lifetimeMode: "ttl",
+      windowExpiresAtMs: 1791234567890,
+    };
+    const base = {
+      signatureKind: "linuxPathOnly",
+      signatureIdentity: "/usr/bin/openshell-gateway",
+      displayName: "openshell-gateway",
+    };
+
+    async function upsert(input: unknown) {
+      return handlers.get("agentaccess.upsertgrant")!({}, input);
+    }
+
+    it("accepts a well-formed OpenShell grant", async () => {
+      await create({ init: false });
+      const grant = await upsert({ ...base, scope: "openshellSandbox", openshell: details });
+      expect(grant?.openshell).toEqual(details);
+    });
+
+    it("requires scope openshellSandbox if and only if openshell is present", async () => {
+      await create({ init: false });
+      expect(await upsert({ ...base, scope: "allLogins", openshell: details })).toBeNull();
+      expect(await upsert({ ...base, scope: "openshellSandbox" })).toBeNull();
+    });
+
+    it.each([
+      ["gatewayEndpoint", { gatewayEndpoint: "ftp://x" }],
+      ["gatewayEndpoint length", { gatewayEndpoint: `https://${"a".repeat(260)}` }],
+      ["sandboxId charset", { sandboxId: "sbx 1" }],
+      ["sandboxId type", { sandboxId: 7 }],
+      ["providerId empty", { providerId: "" }],
+      ["gatewayName", { gatewayName: "bad name" }],
+      ["sandboxName control", { sandboxName: "a\nb" }],
+      ["sandboxName length", { sandboxName: "a".repeat(129) }],
+      ["providerName empty", { providerName: "" }],
+      ["policyDigest", { policyDigest: "sha256:XYZ" }],
+      ["lifetimeMode", { lifetimeMode: "forever" }],
+      ["ttl window missing", { windowExpiresAtMs: undefined }],
+      ["ttl window fractional", { windowExpiresAtMs: 1.5 }],
+      ["ttl window NaN", { windowExpiresAtMs: Number.NaN }],
+      ["window on a non-ttl mode", { lifetimeMode: "sandboxLifetime" }],
+    ])("rejects an invalid %s", async (_label, change) => {
+      await create({ init: false });
+      expect(
+        await upsert({ ...base, scope: "openshellSandbox", openshell: { ...details, ...change } }),
+      ).toBeNull();
+    });
+
+    it("rejects a malformed OpenShell key on FIND_GRANT", async () => {
+      await create({ init: false });
+      const find = handlers.get("agentaccess.findgrant")!;
+      expect(
+        await find({}, { ...base, openshell: { ...details, sandboxId: "../../etc" } }),
+      ).toBeNull();
+    });
   });
 });

@@ -1,0 +1,89 @@
+<bit-dialog>
+  <span bitDialogTitle>{{ "agentAccessOsReqDialogTitle" | i18n }}</span>
+  <div bitDialogContent>
+    <bit-callout
+      [type]="params.request.flagged ? 'danger' : 'warning'"
+      [title]="
+        (params.request.flagged ? 'agentAccessOsReqFlaggedTitle' : 'agentAccessOsReqDialogTitle')
+          | i18n
+      "
+      data-testid="openshell-request-dialog-callout"
+    >
+      {{ "agentAccessOsReqDialogRequestedBy" | i18n: params.sandboxName }}
+      @if (params.request.flagged) {
+        {{ "agentAccessOsReqFlaggedBody" | i18n }}
+        @if (params.request.flagNote) {
+          <span class="tw-mt-1 tw-block tw-break-words" bitTypography="helper">{{
+            params.request.flagNote
+          }}</span>
+        }
+      } @else {
+        {{ "agentAccessOsReqDialogNotice" | i18n }}
+      }
+    </bit-callout>
+
+    <p bitTypography="body2">{{ "agentAccessOsReqDialogReach" | i18n }}</p>
+    <ul class="tw-list-disc tw-pl-6" data-testid="openshell-request-dialog-endpoints">
+      @for (endpoint of params.request.endpoints; track $index) {
+        <li class="tw-break-all tw-font-mono">{{ target(endpoint) }}</li>
+      } @empty {
+        <li>{{ "agentAccessOsReqSummaryUnknown" | i18n }}</li>
+      }
+    </ul>
+
+    @if (params.request.programs.length > 0) {
+      <p bitTypography="body2">{{ "agentAccessOsReqDialogPrograms" | i18n }}</p>
+      <ul class="tw-list-disc tw-pl-6" data-testid="openshell-request-dialog-programs">
+        @for (program of params.request.programs; track $index) {
+          <li class="tw-break-all tw-font-mono">{{ program }}</li>
+        }
+      </ul>
+    }
+
+    @if (params.request.rationale) {
+      <p class="tw-break-words tw-text-muted" bitTypography="helper">
+        {{ "agentAccessOsReqReason" | i18n: params.request.rationale }}
+      </p>
+    }
+
+    @if (params.request.hits !== null) {
+      <p class="tw-text-muted" bitTypography="helper">
+        {{ "agentAccessOsReqHits" | i18n: params.request.hits }}
+      </p>
+    }
+  </div>
+  <ng-container bitDialogFooter>
+    <button
+      id="agent-access-openshell-request-dialog_button_approve"
+      type="button"
+      bitButton
+      buttonType="primary"
+      (click)="decide('approve')"
+      data-testid="openshell-request-dialog-approve"
+    >
+      {{ "authorize" | i18n }}
+    </button>
+    <button
+      id="agent-access-openshell-request-dialog_button_deny"
+      type="button"
+      bitButton
+      buttonType="secondary"
+      (click)="decide('deny')"
+      data-testid="openshell-request-dialog-deny"
+    >
+      {{ "deny" | i18n }}
+    </button>
+    @if (params.request.endpoints.length > 0) {
+      <button
+        id="agent-access-openshell-request-dialog_button_create-permission"
+        type="button"
+        bitButton
+        buttonType="subtleGhost"
+        (click)="decide('createPermission')"
+        data-testid="openshell-request-dialog-create-permission"
+      >
+        {{ "agentAccessOsReqCreatePermission" | i18n }}
+      </button>
+    }
+  </ng-container>
+</bit-dialog>

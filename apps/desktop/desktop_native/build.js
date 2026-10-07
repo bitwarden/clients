@@ -115,7 +115,9 @@ const agentAccessCliManifest = path.join(agentAccessRoot, "crates", "ap-cli", "C
  *
  * Built with `--no-default-features` to drop the `bws` feature (Bitwarden Secrets Manager
  * support), which pulls in the full Secrets Manager SDK that the bundled binary never needs -
- * it is only ever invoked as `aac connect`.
+ * it is only ever invoked as `aac connect`. On macOS and Linux the `openshell` feature is added
+ * back explicitly: it provides `aac openshell-driver`, the command the OpenShell `gateway.toml`
+ * snippet points at (architecture §M8.12). It carries no Secrets Manager code.
  * @param {string} target Rust compiler target, e.g. `aarch64-pc-windows-msvc`.
  * @param {boolean} release Whether to build in release mode.
  */
@@ -132,7 +134,11 @@ function buildAgentAccessCliBin(target, release) {
     }
     const targetArg = target ? `--target=${target}` : "";
     const releaseArg = release ? "--release" : "";
-    const args = ["build", "--manifest-path", agentAccessCliManifest, "--bin", "aac", "--no-default-features", releaseArg, targetArg]
+    // `--no-default-features` drops `bws`, and with it the default `openshell` feature, so the
+    // OpenShell driver must be re-enabled here or the shipped aac has no `openshell-driver`.
+    const withOpenShell = effectivePlatform(target) !== "win32";
+    const featureArgs = withOpenShell ? ["--features", "openshell"] : [];
+    const args = ["build", "--manifest-path", agentAccessCliManifest, "--bin", "aac", "--no-default-features", ...featureArgs, releaseArg, targetArg]
     // Use cross-compilation helper if necessary
     if (effectivePlatform(target) === "win32" && process.platform !== "win32") {
         args.unshift("xwin")
@@ -156,7 +162,20 @@ function buildAgentAccessCliBin(target, release) {
     const src = path.join(agentAccessRoot, "target", target ? target : "", profileFolder, `aac${ext}`)
     const dst = path.join(__dirname, "dist", `aac.${platform}-${nodeArch}${ext}`)
     console.log(`Copying ${src} to ${dst}`);
+    // Replace rather than overwrite: copying over a binary that has already been executed keeps
+    // its cached code signature on arm64 macOS, and the kernel then kills the new contents with
+    // SIGKILL (exit 137) on first launch. A new file gets a fresh signature check.
+    fs.rmSync(dst, { force: true });
     fs.copyFileSync(src, dst);
+
+    // Guard against the driver silently dropping out of the bundled binary again. Only runnable
+    // when the binary was built for this host.
+    if (withOpenShell && platform === process.platform && nodeArch === process.arch) {
+        const check = child_process.spawnSync(dst, ["openshell-driver", "--help"], { stdio: "ignore" });
+        if (check.status !== 0) {
+            throw new Error(`The bundled aac at ${dst} has no working \`openshell-driver\` subcommand.`);
+        }
+    }
 }
 
 function buildWindowsPluginBin(target, release = true) {

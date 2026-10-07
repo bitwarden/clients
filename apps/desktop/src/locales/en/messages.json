@@ -7068,5 +7068,1715 @@
         "example": "4"
       }
     }
+  },
+  "agentAccessSetupPaneLabel": {
+    "message": "Where does your agent run?"
+  },
+  "agentAccessOpenShellTitle": {
+    "message": "OpenShell"
+  },
+  "agentAccessOpenShellDesc": {
+    "message": "Let OpenShell sandboxes use your Bitwarden logins and secrets. The agent inside the sandbox only sees placeholders."
+  },
+  "agentAccessOpenShellEnable": {
+    "message": "Use Bitwarden as the OpenShell credential provider"
+  },
+  "agentAccessOpenShellUnsupportedSnap": {
+    "message": "OpenShell integration isn't available for Snap installs."
+  },
+  "agentAccessOpenShellUnsupportedAppImage": {
+    "message": "OpenShell integration isn't available when Bitwarden runs as an AppImage."
+  },
+  "agentAccessOpenShellLifetimeTitle": {
+    "message": "How long an approval lasts"
+  },
+  "agentAccessOpenShellLifetimePerRequest": {
+    "message": "Each time the sandbox loads it: usable for 2 minutes after you approve"
+  },
+  "agentAccessOpenShellLifetimePerRequestHint": {
+    "message": "OpenShell can't ask per web request. Bitwarden asks every time the sandbox loads credentials. OpenShell asks twice for each load, so a repeat of the same request within 10 seconds of your approval uses that approval."
+  },
+  "agentAccessOpenShellLifetimeTtl": {
+    "message": "For a set time after you approve"
+  },
+  "agentAccessOpenShellLifetimeTtlContinues": {
+    "message": "Continues your current approval for this sandbox. It is not extended."
+  },
+  "agentAccessOpenShellLifetimeSandbox": {
+    "message": "Until the sandbox stops or its provider settings change"
+  },
+  "agentAccessOpenShellTtlMinutes": {
+    "message": "$MINUTES$ minutes",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "agentAccessOpenShellTtlHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "agentAccessOpenShellConfigStep": {
+    "message": "Merge this into your gateway.toml, then restart the gateway"
+  },
+  "agentAccessOpenShellConfigPathHint": {
+    "message": "Gateway configuration: $PATH$",
+    "placeholders": {
+      "path": {
+        "content": "$1",
+        "example": "~/.config/openshell/gateway.toml"
+      }
+    }
+  },
+  "agentAccessOpenShellMergeNote": {
+    "message": "If your file already has an [openshell.gateway] section, add the credential_drivers line to it instead of adding a second section."
+  },
+  "agentAccessOpenShellTakeoverWarning": {
+    "message": "Bitwarden will handle every provider credential on this gateway. Credentials that aren't bw:// references will be rejected."
+  },
+  "agentAccessOpenShellProviderStep": {
+    "message": "Create a provider that points at a Bitwarden item or secret, then attach it to one sandbox"
+  },
+  "agentAccessOpenShellOneSandboxRule": {
+    "message": "Attach each Bitwarden provider to exactly one sandbox. Requests from a provider attached to more than one sandbox are refused."
+  },
+  "agentAccessOpenShellSetupButton": {
+    "message": "Set up OpenShell"
+  },
+  "agentAccessOpenShellSetupAgain": {
+    "message": "Run setup again"
+  },
+  "agentAccessOpenShellSetupDescription": {
+    "message": "Adds Bitwarden to your OpenShell gateway's config and restarts the gateway. Your current config is backed up first."
+  },
+  "agentAccessOpenShellSetupConfiguredNotSeen": {
+    "message": "The gateway's config already includes Bitwarden, but the gateway hasn't connected to it yet. Restarting the gateway usually fixes this."
+  },
+  "agentAccessOpenShellSetupRunning": {
+    "message": "Updating the config and restarting the gateway…"
+  },
+  "agentAccessOpenShellSetupWaiting": {
+    "message": "Waiting for the gateway to connect…"
+  },
+  "agentAccessOpenShellSetupConnected": {
+    "message": "Bitwarden is connected to your OpenShell gateway."
+  },
+  "agentAccessOpenShellSetupRemove": {
+    "message": "Remove"
+  },
+  "agentAccessOpenShellSetupRetry": {
+    "message": "Try again"
+  },
+  "agentAccessOpenShellSetupTimedOut": {
+    "message": "The gateway restarted but hasn't connected to Bitwarden yet. Check that the gateway is running, then try again."
+  },
+  "agentAccessOpenShellSetupWatching": {
+    "message": "This will update once the gateway connects."
+  },
+  "agentAccessOpenShellSetupFailUnmergeable": {
+    "message": "Your gateway config has a setting this button can't safely change, so it was left as it is. Use the manual steps below instead."
+  },
+  "agentAccessOpenShellSetupFailNotWritable": {
+    "message": "Bitwarden couldn't write to the gateway config. Use the manual steps below instead."
+  },
+  "agentAccessOpenShellSetupFailRestart": {
+    "message": "The config was updated, but the gateway couldn't be restarted automatically. Restart it yourself."
+  },
+  "agentAccessOpenShellSetupFailRestartManual": {
+    "message": "The config was updated. Restart your OpenShell gateway yourself so it picks up the change."
+  },
+  "agentAccessOpenShellSetupFailNoCli": {
+    "message": "This build of Bitwarden doesn't include the Agent Access CLI, so it can't be set up automatically."
+  },
+  "agentAccessOpenShellSetupFailGeneric": {
+    "message": "Setup couldn't be completed. Use the manual steps below instead."
+  },
+  "agentAccessOpenShellSetupManual": {
+    "message": "Set up manually"
+  },
+  "agentAccessOpenShellSetupBackup": {
+    "message": "Previous config saved to $PATH$",
+    "placeholders": {
+      "path": {
+        "content": "$1",
+        "example": "/opt/homebrew/var/openshell/gateway.toml.bak-bitwarden-20261007080503"
+      }
+    }
+  },
+  "agentAccessOsCredTitle": {
+    "message": "Credentials"
+  },
+  "agentAccessOsCredAddAction": {
+    "message": "Add secret"
+  },
+  "agentAccessOsCredEmptyTitle": {
+    "message": "No credentials yet"
+  },
+  "agentAccessOsCredEmptyDescription": {
+    "message": "A sandbox can only use the credentials added here. Add a login or a Secrets Manager secret to let this sandbox use it, without the sandbox ever seeing the value."
+  },
+  "agentAccessOsCredUnmanaged": {
+    "message": "Added outside Bitwarden"
+  },
+  "agentAccessOsCredProfile": {
+    "message": "Profile"
+  },
+  "agentAccessOsCredFieldValue": {
+    "message": "value"
+  },
+  "agentAccessOsCredRemoveTitle": {
+    "message": "Remove credential"
+  },
+  "agentAccessOsCredRemoveContent": {
+    "message": "$PROVIDER$ will no longer be available to $SANDBOX$.",
+    "placeholders": {
+      "provider": {
+        "content": "$1"
+      },
+      "sandbox": {
+        "content": "$2"
+      }
+    }
+  },
+  "agentAccessOsCredDeleteProviderTitle": {
+    "message": "Delete the provider too?"
+  },
+  "agentAccessOsCredDeleteProviderContent": {
+    "message": "Bitwarden created $PROVIDER$. Delete it from the gateway as well, or keep it so it can be attached again later.",
+    "placeholders": {
+      "provider": {
+        "content": "$1"
+      }
+    }
+  },
+  "agentAccessOsCredDeleteProviderAccept": {
+    "message": "Delete provider"
+  },
+  "agentAccessOsCredDeleteProviderKeep": {
+    "message": "Keep provider"
+  },
+  "agentAccessOsCredApplyWaiting": {
+    "message": "Waiting for the sandbox to apply it…"
+  },
+  "agentAccessOsCredApplyApplied": {
+    "message": "Applied to the sandbox"
+  },
+  "agentAccessOsCredApplyTimedOut": {
+    "message": "The sandbox has not confirmed the change yet. It may still apply it shortly."
+  },
+  "agentAccessOsCredErrorCliMissing": {
+    "message": "The OpenShell command line tool was not found."
+  },
+  "agentAccessOsCredErrorGatewayUnreachable": {
+    "message": "The OpenShell gateway could not be reached. Check that it is running."
+  },
+  "agentAccessOsCredErrorUnsupported": {
+    "message": "Managing OpenShell credentials is not supported here."
+  },
+  "agentAccessOsCredErrorFailed": {
+    "message": "OpenShell could not complete the request."
+  },
+  "agentAccessOsCredAddTitle": {
+    "message": "Add secrets to $SANDBOX$",
+    "placeholders": {
+      "sandbox": {
+        "content": "$1"
+      }
+    }
+  },
+  "agentAccessOsCredProfileLabel": {
+    "message": "Provider profile"
+  },
+  "agentAccessOsCredEndpointsLabel": {
+    "message": "Can be used to reach"
+  },
+  "agentAccessOsCredNoEndpoints": {
+    "message": "No endpoints listed"
+  },
+  "agentAccessOsCredRequired": {
+    "message": "Required"
+  },
+  "agentAccessOsCredOptional": {
+    "message": "Optional"
+  },
+  "agentAccessOsCredSourceLabel": {
+    "message": "Vault login or secret"
+  },
+  "agentAccessOsCredSourceHint": {
+    "message": "Type to search by name. Only names are shown."
+  },
+  "agentAccessOsCredSourceLoading": {
+    "message": "Loading your vault…"
+  },
+  "agentAccessOsCredSourceNone": {
+    "message": "No matching logins or secrets"
+  },
+  "agentAccessOsCredTypeLogin": {
+    "message": "Login"
+  },
+  "agentAccessOsCredTypeSecret": {
+    "message": "Secret"
+  },
+  "agentAccessOsCredSelected": {
+    "message": "Selected"
+  },
+  "agentAccessOsCredChange": {
+    "message": "Change"
+  },
+  "agentAccessOsCredFieldLabel": {
+    "message": "Field"
+  },
+  "agentAccessOsCredEnvVarLabel": {
+    "message": "Environment variable name"
+  },
+  "agentAccessOsCredEnvVarSuggestions": {
+    "message": "Other names this profile uses: $NAMES$",
+    "placeholders": {
+      "names": {
+        "content": "$1"
+      }
+    }
+  },
+  "agentAccessOsCredSummary": {
+    "message": "$ITEM$ will be available to $SANDBOX$ as $ENVVAR$.",
+    "placeholders": {
+      "item": {
+        "content": "$1"
+      },
+      "sandbox": {
+        "content": "$2"
+      },
+      "envvar": {
+        "content": "$3"
+      }
+    }
+  },
+  "agentAccessOsCredSummaryEndpoints": {
+    "message": "Only for $ENDPOINTS$.",
+    "placeholders": {
+      "endpoints": {
+        "content": "$1"
+      }
+    }
+  },
+  "agentAccessOsCredIssueMissingSource": {
+    "message": "Choose a vault login or secret for $NAME$.",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "agentAccessOsCredIssueEnvVar": {
+    "message": "Use capital letters, digits and underscores for $NAME$, starting with a letter or underscore.",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "agentAccessOsCredIssueDuplicateEnvVar": {
+    "message": "The environment variable $NAME$ is used more than once.",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "agentAccessOsCredIssueField": {
+    "message": "Choose which field to use for $NAME$.",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "agentAccessOsCredIssueNoBinding": {
+    "message": "Choose at least one credential."
+  },
+  "agentAccessOpenShellTab": {
+    "message": "OpenShell"
+  },
+  "agentAccessOsPageDescription": {
+    "message": "Create sandboxes and choose which vault credentials each one can use."
+  },
+  "agentAccessOsPageRefresh": {
+    "message": "Refresh"
+  },
+  "agentAccessOsPageCreate": {
+    "message": "Create sandbox"
+  },
+  "agentAccessOsPageErrorCliMissing": {
+    "message": "The OpenShell command-line tool wasn't found"
+  },
+  "agentAccessOsPageErrorGatewayUnreachable": {
+    "message": "Couldn't reach the OpenShell gateway"
+  },
+  "agentAccessOsPageErrorUnsupported": {
+    "message": "Sandbox management isn't available here"
+  },
+  "agentAccessOsPageErrorFailed": {
+    "message": "Couldn't load sandboxes"
+  },
+  "agentAccessOsPageEmptyTitle": {
+    "message": "No sandboxes yet"
+  },
+  "agentAccessOsPageEmptyDescription": {
+    "message": "Create a sandbox, then give it the vault credentials it needs."
+  },
+  "agentAccessOsPageStart": {
+    "message": "Start"
+  },
+  "agentAccessOsPageStop": {
+    "message": "Stop"
+  },
+  "agentAccessOsPageDelete": {
+    "message": "Delete sandbox"
+  },
+  "agentAccessOsPageDeleteTitle": {
+    "message": "Delete sandbox"
+  },
+  "agentAccessOsPageActionFailedTitle": {
+    "message": "That didn't work"
+  },
+  "agentAccessOsPageSelectHint": {
+    "message": "Select a sandbox to see and change its credentials."
+  },
+  "agentAccessOsCreateTitle": {
+    "message": "Create sandbox"
+  },
+  "agentAccessOsCreateName": {
+    "message": "Name (optional)"
+  },
+  "agentAccessOsCreateNameHint": {
+    "message": "Leave empty to let OpenShell pick a name."
+  },
+  "agentAccessOsCreateNameInvalid": {
+    "message": "Use letters, numbers, dots, dashes and underscores, starting with a letter or number."
+  },
+  "agentAccessOsCreateSource": {
+    "message": "Start from"
+  },
+  "agentAccessOsCreateSourceDefault": {
+    "message": "Default sandbox"
+  },
+  "agentAccessOsCreateSourceImage": {
+    "message": "Container image"
+  },
+  "agentAccessOsCreateSourceTemplate": {
+    "message": "Template"
+  },
+  "agentAccessOsCreateImage": {
+    "message": "Image"
+  },
+  "agentAccessOsCreateImageHint": {
+    "message": "A registry image, for example registry/name:tag."
+  },
+  "agentAccessOsCreateImageInvalid": {
+    "message": "Enter an image reference without spaces, starting with a letter or number."
+  },
+  "agentAccessOsCreateTemplate": {
+    "message": "Template name"
+  },
+  "agentAccessOsCreateTemplateInvalid": {
+    "message": "Use letters, numbers, dots, dashes and underscores, starting with a letter or number."
+  },
+  "agentAccessOsCreateAdvanced": {
+    "message": "Advanced"
+  },
+  "agentAccessOsCreateCpu": {
+    "message": "CPU (optional)"
+  },
+  "agentAccessOsCreateCpuHint": {
+    "message": "For example 500m or 2."
+  },
+  "agentAccessOsCreateCpuInvalid": {
+    "message": "Enter a number of cores such as 2, or millicores such as 500m."
+  },
+  "agentAccessOsCreateMemory": {
+    "message": "Memory (optional)"
+  },
+  "agentAccessOsCreateMemoryHint": {
+    "message": "For example 512Mi or 4Gi."
+  },
+  "agentAccessOsCreateMemoryInvalid": {
+    "message": "Enter an amount such as 512Mi or 4Gi."
+  },
+  "agentAccessOsCreateCredentialsLater": {
+    "message": "You add credentials after the sandbox is created."
+  },
+  "agentAccessOsCreateSubmit": {
+    "message": "Create sandbox"
+  },
+  "agentAccessOsCreateErrorExists": {
+    "message": "A sandbox with that name already exists."
+  },
+  "agentAccessOsCreateErrorGeneric": {
+    "message": "The sandbox couldn't be created."
+  },
+  "agentAccessOsPageCredentialCount": {
+    "message": "Credentials: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "agentAccessOsPageDeleteContent": {
+    "message": "$NAME$ and its workspace will be permanently deleted. This can't be undone.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "my-sandbox"
+      }
+    }
+  },
+  "agentAccessOpenShellAuthUnsupported": {
+    "message": "Gateway $NAME$ uses an authentication method Bitwarden doesn't support. Use mTLS, or a local plaintext gateway.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "openshell"
+      }
+    }
+  },
+  "agentAccessOpenShellDriverLastSeen": {
+    "message": "Driver last connected $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "Oct 6, 2026, 6:30:00 PM"
+      }
+    }
+  },
+  "agentAccessOpenShellDriverNotSeen": {
+    "message": "Driver hasn't connected yet"
+  },
+  "agentAccessOpenShellRequestTitle": {
+    "message": "OpenShell sandbox is requesting credentials"
+  },
+  "agentAccessOpenShellGatewayVerified": {
+    "message": "Requested through the OpenShell gateway on this computer"
+  },
+  "agentAccessOpenShellReportedByGateway": {
+    "message": "The details below are reported by the OpenShell gateway, not verified by Bitwarden."
+  },
+  "agentAccessOpenShellSandbox": {
+    "message": "Sandbox"
+  },
+  "agentAccessOpenShellImage": {
+    "message": "Image"
+  },
+  "agentAccessOpenShellWorkspace": {
+    "message": "Workspace"
+  },
+  "agentAccessOpenShellGateway": {
+    "message": "Gateway"
+  },
+  "agentAccessOpenShellProvider": {
+    "message": "Provider"
+  },
+  "agentAccessOpenShellCredentials": {
+    "message": "Credentials"
+  },
+  "agentAccessOpenShellAllowedEndpoints": {
+    "message": "Can only be sent to"
+  },
+  "agentAccessOpenShellSourceProfile": {
+    "message": "Profile"
+  },
+  "agentAccessOpenShellSourcePolicy": {
+    "message": "Policy"
+  },
+  "agentAccessOpenShellPolicyFingerprint": {
+    "message": "Policy fingerprint"
+  },
+  "agentAccessOpenShellPolicyNew": {
+    "message": "New"
+  },
+  "agentAccessOpenShellPolicyChanged": {
+    "message": "Changed since you last approved (was $PREFIX$)",
+    "placeholders": {
+      "prefix": {
+        "content": "$1",
+        "example": "998f40a71463"
+      }
+    }
+  },
+  "agentAccessOpenShellPolicyUnchanged": {
+    "message": "Unchanged"
+  },
+  "agentAccessOpenShellAdvisorWarning": {
+    "message": "This sandbox's policy may gain new destinations after you approve. Keep OpenShell Advisor auto-approve off."
+  },
+  "agentAccessOpenShellRetention": {
+    "message": "The sandbox keeps these values in memory and may keep them after they stop working. The agent sees only placeholders."
+  },
+  "agentAccessOpenShellRetryNote": {
+    "message": "If the sandbox stops waiting before you answer, Bitwarden gives your answer to its next identical retry within 1 minute. Nothing is sent unless it asks again."
+  },
+  "agentAccessOpenShellExpiresAt": {
+    "message": "Stops working at $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "Oct 6, 2026, 7:30:00 PM"
+      }
+    }
+  },
+  "agentAccessOpenShellExpiryReload": {
+    "message": "After that, the sandbox must reload credentials to ask again."
+  },
+  "agentAccessOpenShellWindowExpired": {
+    "message": "Your previous approval for this sandbox has expired."
+  },
+  "agentAccessOpenShellFirstUseAck": {
+    "message": "Allow this sandbox to request credentials from Bitwarden"
+  },
+  "agentAccessOpenShellDeadline": {
+    "message": "Closes in $SECONDS$ seconds",
+    "placeholders": {
+      "seconds": {
+        "content": "$1",
+        "example": "24"
+      }
+    }
+  },
+  "agentAccessOpenShellFieldUsername": {
+    "message": "Username"
+  },
+  "agentAccessOpenShellFieldPassword": {
+    "message": "Password"
+  },
+  "agentAccessOpenShellFieldSecret": {
+    "message": "Secret value"
+  },
+  "agentAccessOpenShellReprompt": {
+    "message": "This item requires master password re-prompt and can't be used by OpenShell."
+  },
+  "agentAccessOpenShellGrantRow": {
+    "message": "$SANDBOX$ on $GATEWAY$",
+    "placeholders": {
+      "sandbox": {
+        "content": "$1",
+        "example": "agent-1"
+      },
+      "gateway": {
+        "content": "$2",
+        "example": "openshell"
+      }
+    }
+  },
+  "agentAccessOsSandboxes": {
+    "message": "Sandboxes",
+    "description": "Breadcrumb back to the list of OpenShell sandboxes"
+  },
+  "agentAccessOsSandboxTabs": {
+    "message": "Sandbox sections",
+    "description": "Accessible label of the tab bar on a sandbox page"
+  },
+  "agentAccessOsTabSecrets": {
+    "message": "Secrets",
+    "description": "Tab on a sandbox page listing the vault logins and secrets it can use"
+  },
+  "agentAccessOsTabPermissions": {
+    "message": "Permissions",
+    "description": "Tab on a sandbox page showing where its credentials can be used"
+  },
+  "agentAccessOsSandboxNotFound": {
+    "message": "Sandbox not found",
+    "description": "Title shown when a sandbox page is opened for a sandbox that no longer exists"
+  },
+  "agentAccessOsSandboxNotFoundDescription": {
+    "message": "It may have been deleted. Go back to Sandboxes to see what exists.",
+    "description": "Body shown when a sandbox is not found"
+  },
+  "agentAccessOsPageColumnStatus": {
+    "message": "Status",
+    "description": "Sandboxes table column"
+  },
+  "agentAccessOsPageColumnSecrets": {
+    "message": "Secrets",
+    "description": "Sandboxes table column: how many secrets the sandbox can use"
+  },
+  "agentAccessOsPageColumnCreated": {
+    "message": "Created",
+    "description": "Sandboxes table column"
+  },
+  "agentAccessOsCredColumnSecret": {
+    "message": "Secret",
+    "description": "Secrets table column: the vault login or secret"
+  },
+  "agentAccessOsCredColumnSeenAs": {
+    "message": "Agent sees it as",
+    "description": "Secrets table column: the environment variable name inside the sandbox"
+  },
+  "agentAccessOsCredColumnService": {
+    "message": "Service",
+    "description": "Table column: the service a credential is for"
+  },
+  "agentAccessOsCredIntro": {
+    "message": "Vault logins and secrets this sandbox can use. The agent only ever gets a placeholder, never the real value.",
+    "description": "Intro above the secrets table"
+  },
+  "agentAccessOsPermIntro": {
+    "message": "Where secrets can be sent and from which programs. Permissions are shared: a change applies to every sandbox that uses one. Every use still needs your approval in Bitwarden.",
+    "description": "Intro above the permissions table"
+  },
+  "agentAccessOsPermEmpty": {
+    "message": "No permissions yet. Create one to limit where a secret can be sent.",
+    "description": "Permissions tab empty state"
+  },
+  "agentAccessOsPermColumnHosts": {
+    "message": "Can be sent to",
+    "description": "Permissions table column: hosts a credential may be sent to"
+  },
+  "agentAccessOsPermColumnApproval": {
+    "message": "Approval",
+    "description": "Permissions table column"
+  },
+  "agentAccessOsPermHostsUnknown": {
+    "message": "Not reported by the gateway",
+    "description": "Shown when no hosts are known for a credential"
+  },
+  "agentAccessOsPermApprovalEach": {
+    "message": "Needs your approval",
+    "description": "Permissions table cell"
+  },
+  "agentAccessOsCredNoProfilesTitle": {
+    "message": "No permissions available",
+    "description": "Warning title when the gateway has no permission profile a single secret can use"
+  },
+  "agentAccessOsCredNoProfilesDescription": {
+    "message": "This gateway has no permission profile to give a secret. Add one to the gateway, then try again.",
+    "description": "Warning body when no permission profile exists"
+  },
+  "agentAccessOsCredSecretsLabel": {
+    "message": "Search your vault",
+    "description": "Label of the search box for picking vault logins and secrets"
+  },
+  "agentAccessOsCredSecretsHint": {
+    "message": "Logins and Secrets Manager secrets. Only names are read, never the values.",
+    "description": "Hint under the secret search box"
+  },
+  "agentAccessOsCredAddRow": {
+    "message": "Add",
+    "description": "Button that adds a vault login or secret to the list being shared"
+  },
+  "agentAccessOsCredColumnShare": {
+    "message": "Share",
+    "description": "Column: which part of the login the sandbox can use"
+  },
+  "agentAccessOsCredColumnPermission": {
+    "message": "Permission",
+    "description": "Column: the permission profile that limits where a secret can be used"
+  },
+  "agentAccessOsCredSave": {
+    "message": "Save",
+    "description": "Button that gives the sandbox access to the chosen secrets"
+  },
+  "agentAccessOsCredIssueNoPermission": {
+    "message": "Choose a permission for $NAME$.",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    },
+    "description": "Validation: a chosen secret has no permission"
+  },
+  "agentAccessOsPermColumnPrograms": {
+    "message": "Allowed programs",
+    "description": "Permissions table column: programs that may use the credential"
+  },
+  "agentAccessOsPermProgramsAny": {
+    "message": "Any program",
+    "description": "Shown when a permission does not restrict programs"
+  },
+  "agentAccessOsCredChangeTitle": {
+    "message": "Change permission?",
+    "description": "Dialog title when moving a secret to another permission"
+  },
+  "agentAccessOsCredChangeAccept": {
+    "message": "Change permission",
+    "description": "Confirm button when moving a secret to another permission"
+  },
+  "agentAccessOsCredChangeContent": {
+    "message": "$SECRET$ will use the permission $PERMISSION$ and can only be sent to $HOSTS$. The name the agent sees it as may change.",
+    "description": "Dialog body when moving a secret to another permission",
+    "placeholders": {
+      "secret": {
+        "content": "$1"
+      },
+      "permission": {
+        "content": "$2"
+      },
+      "hosts": {
+        "content": "$3"
+      }
+    }
+  },
+  "agentAccessOsPermNew": {
+    "message": "New permission",
+    "description": "Button that creates a new permission"
+  },
+  "agentAccessOsPermBuiltIn": {
+    "message": "Built in",
+    "description": "Badge on a permission that cannot be edited"
+  },
+  "agentAccessOsPermUsedBy": {
+    "message": "Used by",
+    "description": "Label before the sandboxes using a permission"
+  },
+  "agentAccessOsPermUnused": {
+    "message": "Not used by any sandbox",
+    "description": "Shown when no sandbox uses a permission"
+  },
+  "agentAccessOsPermDeleteTitle": {
+    "message": "Delete permission?",
+    "description": "Dialog title"
+  },
+  "agentAccessOsPermEditTitle": {
+    "message": "Edit permission",
+    "description": "Dialog title"
+  },
+  "agentAccessOsPermNewTitle": {
+    "message": "New permission",
+    "description": "Dialog title"
+  },
+  "agentAccessOsPermSharedTitle": {
+    "message": "This permission is shared",
+    "description": "Warning title when editing a permission"
+  },
+  "agentAccessOsPermSharedDescription": {
+    "message": "Changes apply to every sandbox that uses it.",
+    "description": "Warning body when editing a permission"
+  },
+  "agentAccessOsPermAffected": {
+    "message": "Used by",
+    "description": "Label before the sandboxes a change affects"
+  },
+  "agentAccessOsPermAffectedNone": {
+    "message": "No sandbox uses it yet.",
+    "description": "Shown when no sandbox uses the permission being edited"
+  },
+  "agentAccessOsPermAffectedIncomplete": {
+    "message": "Some sandboxes could not be checked, so this list may be incomplete.",
+    "description": "Shown when not every sandbox could be read"
+  },
+  "agentAccessOsPermNameLabel": {
+    "message": "Name",
+    "description": "Field label"
+  },
+  "agentAccessOsPermDescriptionLabel": {
+    "message": "Description (optional)",
+    "description": "Field label"
+  },
+  "agentAccessOsPermEnvVarLabel": {
+    "message": "Agent sees the secret as",
+    "description": "Field label: environment variable name"
+  },
+  "agentAccessOsPermEnvVarHint": {
+    "message": "The variable name inside the sandbox. It holds a placeholder, never the real value.",
+    "description": "Hint under the variable name field"
+  },
+  "agentAccessOsPermHostsTitle": {
+    "message": "Hosts",
+    "description": "Section title"
+  },
+  "agentAccessOsPermHostsHint": {
+    "message": "The only places a secret with this permission can be sent. Use a name like api.github.com or *.example.com.",
+    "description": "Hint under the hosts title"
+  },
+  "agentAccessOsPermHostColumn": {
+    "message": "Host",
+    "description": "Hosts table column"
+  },
+  "agentAccessOsPermPortColumn": {
+    "message": "Port",
+    "description": "Hosts table column"
+  },
+  "agentAccessOsPermAccessColumn": {
+    "message": "Access",
+    "description": "Hosts table column"
+  },
+  "agentAccessOsPermAccessReadOnly": {
+    "message": "Read only",
+    "description": "Access choice"
+  },
+  "agentAccessOsPermAccessReadWrite": {
+    "message": "Read and write",
+    "description": "Access choice"
+  },
+  "agentAccessOsPermAddHost": {
+    "message": "Add host",
+    "description": "Button"
+  },
+  "agentAccessOsPermProgramsTitle": {
+    "message": "Programs",
+    "description": "Field label"
+  },
+  "agentAccessOsPermProgramsAnyWarning": {
+    "message": "Any program in the sandbox could use this secret.",
+    "description": "Warning hint when no program is listed"
+  },
+  "agentAccessOsPermAdvanced": {
+    "message": "Advanced",
+    "description": "Disclosure label"
+  },
+  "agentAccessOsPermIdLabel": {
+    "message": "Permission id",
+    "description": "Field label"
+  },
+  "agentAccessOsPermIssueName": {
+    "message": "Give the permission a name.",
+    "description": "Validation"
+  },
+  "agentAccessOsPermIssueId": {
+    "message": "The id can only use letters, digits, dots, dashes and underscores.",
+    "description": "Validation"
+  },
+  "agentAccessOsPermIssueEnvVar": {
+    "message": "Use capital letters, digits and underscores for the variable name, starting with a letter or underscore.",
+    "description": "Validation"
+  },
+  "agentAccessOsPermIssueNoHosts": {
+    "message": "Add at least one host.",
+    "description": "Validation"
+  },
+  "agentAccessOsPermIssuePort": {
+    "message": "Use a port from 1 to 65535.",
+    "description": "Validation"
+  },
+  "agentAccessOsPermErrorAlreadyExists": {
+    "message": "A permission with this id already exists.",
+    "description": "Error"
+  },
+  "agentAccessOsPermWidenTitle": {
+    "message": "Allow more access?",
+    "description": "Dialog title"
+  },
+  "agentAccessOsPermWidenAccept": {
+    "message": "Allow",
+    "description": "Confirm button"
+  },
+  "agentAccessOsPermWidenAnyProgram": {
+    "message": "any program can use it",
+    "description": "Part of the widening confirmation"
+  },
+  "agentAccessOsCredChoosePermission": {
+    "message": "Choose a permission…",
+    "description": "Placeholder option in the permission dropdown"
+  },
+  "agentAccessOsPermDeleteContent": {
+    "message": "$NAME$ will be removed from the gateway.",
+    "description": "Dialog body",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "agentAccessOsPermIssueIdTaken": {
+    "message": "The id $ID$ is already used.",
+    "description": "Validation",
+    "placeholders": {
+      "id": {
+        "content": "$1"
+      }
+    }
+  },
+  "agentAccessOsPermIssueHost": {
+    "message": "\"$HOST$\" is not a valid host. Use a name like api.example.com, without https:// or a path.",
+    "description": "Validation",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "agentAccessOsPermIssueDuplicateHost": {
+    "message": "$HOST$ is listed twice with the same port.",
+    "description": "Validation",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "agentAccessOsPermIssueProgram": {
+    "message": "\"$PROGRAM$\" is not an absolute path.",
+    "description": "Validation",
+    "placeholders": {
+      "program": {
+        "content": "$1"
+      }
+    }
+  },
+  "agentAccessOsPermWidenContent": {
+    "message": "This lets secrets with this permission go further: $CHANGES$. It applies to every sandbox that uses it.",
+    "description": "Dialog body",
+    "placeholders": {
+      "changes": {
+        "content": "$1"
+      }
+    }
+  },
+  "agentAccessOsPermWidenHost": {
+    "message": "they can be sent to $HOST$",
+    "description": "Part of the widening confirmation",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "agentAccessOsPermWidenAccess": {
+    "message": "$HOST$ becomes read and write",
+    "description": "Part of the widening confirmation",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "agentAccessOsPermWidenProgram": {
+    "message": "$PROGRAM$ can use it",
+    "description": "Part of the widening confirmation",
+    "placeholders": {
+      "program": {
+        "content": "$1"
+      }
+    }
+  },
+  "agentAccessOsPermProgramsModeLabel": {
+    "message": "Which programs can use this permission",
+    "description": "Accessible label of the Any program / Only these programs toggle"
+  },
+  "agentAccessOsPermProgramsModeAny": {
+    "message": "Any program",
+    "description": "Toggle option: no program restriction"
+  },
+  "agentAccessOsPermProgramsModeOnly": {
+    "message": "Only these programs",
+    "description": "Toggle option: limit to the ticked programs"
+  },
+  "agentAccessOsPermProgramsOnlyHint": {
+    "message": "Programs run inside the sandbox. Only the ones you tick can use the secret.",
+    "description": "Hint above the program checklist"
+  },
+  "agentAccessOsPermProgramsOtherLabel": {
+    "message": "Other program (full path inside the sandbox)",
+    "description": "Label of the custom program path input"
+  },
+  "agentAccessOsPermProgramsAddOther": {
+    "message": "Add",
+    "description": "Button that adds a custom program path"
+  },
+  "agentAccessOsPermProgramsOtherInvalid": {
+    "message": "Enter the full path of a program, starting with / and with no spaces.",
+    "description": "Error under the custom program path input"
+  },
+  "agentAccessOsPermIssueNoPrograms": {
+    "message": "Tick at least one program, or switch to Any program.",
+    "description": "Validation: Only these programs is chosen but none is ticked"
+  },
+  "agentAccessOsTabActivity": {
+    "message": "Activity",
+    "description": "Tab on a sandbox page: what the agent has done in the sandbox"
+  },
+  "agentAccessOsActIntro": {
+    "message": "What agents asked this sandbox's secrets for, and whether you allowed it. Shows this session only, and never the secrets themselves.",
+    "description": "Intro on the sandbox Activity tab"
+  },
+  "agentAccessOsActFilterLabel": {
+    "message": "Filter activity",
+    "description": "Accessible label for the Activity filter"
+  },
+  "agentAccessOsActFilterAll": {
+    "message": "All",
+    "description": "Activity filter: show every row"
+  },
+  "agentAccessOsActAllowed": {
+    "message": "Allowed",
+    "description": "Activity outcome and filter: the user allowed the request"
+  },
+  "agentAccessOsActDenied": {
+    "message": "Denied",
+    "description": "Activity outcome and filter: the request was refused"
+  },
+  "agentAccessOsActNotFound": {
+    "message": "No match",
+    "description": "Activity outcome: nothing matched the request"
+  },
+  "agentAccessOsActPending": {
+    "message": "Waiting for you",
+    "description": "Activity outcome: the request is waiting for the user's decision"
+  },
+  "agentAccessOsActRefresh": {
+    "message": "Refresh",
+    "description": "Button on the Activity tab that reloads the list"
+  },
+  "agentAccessOsActUnknownAgent": {
+    "message": "The sandbox",
+    "description": "Subject of an activity sentence when the requesting program is unknown"
+  },
+  "agentAccessOsActRowAllowed": {
+    "message": "$AGENT$ used $COUNT$ secret(s) from your vault",
+    "placeholders": {
+      "agent": {
+        "content": "$1",
+        "example": "openshell-gateway"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    },
+    "description": "Activity row sentence. $AGENT$ is a program name, $COUNT$ a number"
+  },
+  "agentAccessOsActRowDenied": {
+    "message": "$AGENT$ asked for $COUNT$ secret(s) and was refused",
+    "placeholders": {
+      "agent": {
+        "content": "$1",
+        "example": "openshell-gateway"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    },
+    "description": "Activity row sentence. $AGENT$ is a program name, $COUNT$ a number"
+  },
+  "agentAccessOsActRowNotFound": {
+    "message": "$AGENT$ asked for a secret that could not be found",
+    "placeholders": {
+      "agent": {
+        "content": "$1",
+        "example": "openshell-gateway"
+      }
+    },
+    "description": "Activity row sentence. $AGENT$ is a program name"
+  },
+  "agentAccessOsActRowPending": {
+    "message": "$AGENT$ is asking for $COUNT$ secret(s)",
+    "placeholders": {
+      "agent": {
+        "content": "$1",
+        "example": "openshell-gateway"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    },
+    "description": "Activity row sentence. $AGENT$ is a program name, $COUNT$ a number"
+  },
+  "agentAccessOsActColumnWhat": {
+    "message": "What happened",
+    "description": "Activity table column"
+  },
+  "agentAccessOsActColumnResult": {
+    "message": "Result",
+    "description": "Activity table column"
+  },
+  "agentAccessOsActColumnWhen": {
+    "message": "When",
+    "description": "Activity table column"
+  },
+  "agentAccessOsActEmpty": {
+    "message": "Nothing yet. When an agent in this sandbox asks for a secret, it shows up here.",
+    "description": "Activity tab empty state"
+  },
+  "agentAccessOsActEmptyFiltered": {
+    "message": "No activity matches this filter.",
+    "description": "Activity tab empty state when a filter hides every row"
+  },
+  "agentAccessOsOpen": {
+    "message": "Open",
+    "description": "Primary button on a sandbox page that gets a shell in the sandbox"
+  },
+  "agentAccessOsOpenInTerminal": {
+    "message": "Open in Terminal",
+    "description": "Menu item (macOS) that opens a Terminal window connected to the sandbox"
+  },
+  "agentAccessOsOpenCopyCommand": {
+    "message": "Copy connect command",
+    "description": "Menu item that copies the command line which connects a terminal to the sandbox"
+  },
+  "agentAccessOsOpenCopied": {
+    "message": "Connect command copied",
+    "description": "Toast after copying the connect command"
+  },
+  "agentAccessOsOpenFailed": {
+    "message": "Couldn't open a shell",
+    "description": "Toast title when opening a shell in a sandbox failed"
+  },
+  "agentAccessOsTabPorts": {
+    "message": "Ports",
+    "description": "Tab on a sandbox page listing its port forwards"
+  },
+  "agentAccessOsPortsIntro": {
+    "message": "Forward a port from this sandbox to this computer. Forwards are bound to localhost, so only this computer can reach them, and the same port number is used on both ends.",
+    "description": "Intro text on the Ports tab"
+  },
+  "agentAccessOsPortsPortLabel": {
+    "message": "Port",
+    "description": "Field label for the port number to forward"
+  },
+  "agentAccessOsPortsPortHint": {
+    "message": "1 to 65535",
+    "description": "Hint under the port number field"
+  },
+  "agentAccessOsPortsInvalidPort": {
+    "message": "Enter a port from 1 to 65535.",
+    "description": "Error when the port number is not valid"
+  },
+  "agentAccessOsPortsNameLabel": {
+    "message": "Name (optional)",
+    "description": "Field label for a friendly name of a forwarded port, such as Web vault"
+  },
+  "agentAccessOsPortsSave": {
+    "message": "Remember this port",
+    "description": "Checkbox: keep the port in the saved list of this sandbox"
+  },
+  "agentAccessOsPortsStart": {
+    "message": "Start forward",
+    "description": "Button that starts forwarding a port"
+  },
+  "agentAccessOsPortsStartAllSaved": {
+    "message": "Start all saved",
+    "description": "Button that starts every saved port that is not forwarding"
+  },
+  "agentAccessOsPortsStop": {
+    "message": "Stop",
+    "description": "Button that stops forwarding a port"
+  },
+  "agentAccessOsPortsOpenBrowser": {
+    "message": "Open in browser",
+    "description": "Button that opens a forwarded port in the web browser"
+  },
+  "agentAccessOsPortsRemember": {
+    "message": "Remember",
+    "description": "Button that adds a forwarded port to the saved list"
+  },
+  "agentAccessOsPortsForget": {
+    "message": "Forget",
+    "description": "Button that removes a port from the saved list"
+  },
+  "agentAccessOsPortsColumnPort": {
+    "message": "Port",
+    "description": "Ports table column"
+  },
+  "agentAccessOsPortsColumnName": {
+    "message": "Name",
+    "description": "Ports table column"
+  },
+  "agentAccessOsPortsColumnStatus": {
+    "message": "Status",
+    "description": "Ports table column"
+  },
+  "agentAccessOsPortsActive": {
+    "message": "Forwarding",
+    "description": "Badge on a port that is being forwarded"
+  },
+  "agentAccessOsPortsInactive": {
+    "message": "Not running",
+    "description": "Badge on a saved port that is not being forwarded"
+  },
+  "agentAccessOsPortsExposed": {
+    "message": "Open to network",
+    "description": "Badge on a forward that is not bound to localhost only"
+  },
+  "agentAccessOsPortsEmpty": {
+    "message": "No ports yet. Add one above to forward it to this computer.",
+    "description": "Ports tab empty state"
+  },
+  "agentAccessOsPortsSavedLimit": {
+    "message": "You can remember at most 20 ports for a sandbox. Forget one first.",
+    "description": "Error when the saved port list is full"
+  },
+  "agentAccessOsTabRequests": {
+    "message": "Requests",
+    "description": "Tab on a sandbox page listing what agents were blocked from reaching, waiting for a decision"
+  },
+  "agentAccessOsReqIntro": {
+    "message": "Things an agent in this sandbox tried to reach and was blocked from. Approve to let it through, or deny to keep it blocked.",
+    "description": "Intro text of the Requests tab"
+  },
+  "agentAccessOsReqViewLabel": {
+    "message": "Show requests",
+    "description": "Accessible label of the switch between waiting and decided requests"
+  },
+  "agentAccessOsReqViewPending": {
+    "message": "Waiting",
+    "description": "Switch option showing requests that still need a decision"
+  },
+  "agentAccessOsReqViewHistory": {
+    "message": "History",
+    "description": "Switch option showing requests that were approved or denied"
+  },
+  "agentAccessOsReqEmpty": {
+    "message": "No requests. If an agent is blocked from reaching something, it shows up here.",
+    "description": "Empty state of the Requests tab"
+  },
+  "agentAccessOsReqHistoryEmpty": {
+    "message": "No decided requests yet.",
+    "description": "Empty state of the Requests tab history"
+  },
+  "agentAccessOsReqSummary": {
+    "message": "An agent in this sandbox tried to reach $TARGET$.",
+    "description": "One request in plain words. TARGET is a host name, optionally with a port",
+    "placeholders": {
+      "target": {
+        "content": "$1"
+      }
+    }
+  },
+  "agentAccessOsReqSummaryWithProgram": {
+    "message": "An agent in this sandbox tried to reach $TARGET$ using $PROGRAM$.",
+    "description": "One request in plain words. TARGET is a host name, PROGRAM is the program's file name, for example curl",
+    "placeholders": {
+      "target": {
+        "content": "$1"
+      },
+      "program": {
+        "content": "$2"
+      }
+    }
+  },
+  "agentAccessOsReqSummaryUnknown": {
+    "message": "An agent in this sandbox tried to reach something that could not be read.",
+    "description": "A request whose destination the gateway reported in a form the app could not read"
+  },
+  "agentAccessOsReqAlsoReaching": {
+    "message": "Also:",
+    "description": "Label before further hosts the same request asks for"
+  },
+  "agentAccessOsReqReason": {
+    "message": "Reason given: $REASON$",
+    "description": "The reason the agent gave for a request. REASON is untrusted text from the agent",
+    "placeholders": {
+      "reason": {
+        "content": "$1"
+      }
+    }
+  },
+  "agentAccessOsReqHits": {
+    "message": "Blocked $COUNT$ times",
+    "description": "How many times the request was blocked",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "agentAccessOsReqApprove": {
+    "message": "Approve",
+    "description": "Button letting a blocked request through"
+  },
+  "agentAccessOsReqDeny": {
+    "message": "Deny",
+    "description": "Button keeping a blocked request blocked"
+  },
+  "agentAccessOsReqCreatePermission": {
+    "message": "Create permission instead",
+    "description": "Button opening the permission editor prefilled from a request"
+  },
+  "agentAccessOsReqStatusApproved": {
+    "message": "Approved",
+    "description": "Badge on a request that was approved"
+  },
+  "agentAccessOsReqStatusRejected": {
+    "message": "Denied",
+    "description": "Badge on a request that was denied"
+  },
+  "agentAccessOsReqFlaggedTitle": {
+    "message": "Flagged for review",
+    "description": "Title of the warning on a request OpenShell flagged as a possible security risk"
+  },
+  "agentAccessOsReqFlaggedBody": {
+    "message": "OpenShell flagged this request as a possible security risk. Only approve it if you recognize what it is.",
+    "description": "Body of the warning on a flagged request"
+  },
+  "agentAccessOsReqFlaggedConfirmTitle": {
+    "message": "Approve a flagged request?",
+    "description": "Title of the extra confirmation before approving a flagged request"
+  },
+  "agentAccessOsReqFlaggedConfirmContent": {
+    "message": "OpenShell flagged this request as a possible security risk. Approving it lets the agent reach it. Approve only if you understand why the agent needs it.",
+    "description": "Body of the extra confirmation before approving a flagged request"
+  },
+  "agentAccessOsReqFlaggedConfirmAccept": {
+    "message": "Approve anyway",
+    "description": "Button confirming approval of a flagged request"
+  },
+  "agentAccessOsReqActionFailed": {
+    "message": "Could not update the request",
+    "description": "Title of the error shown when approving or denying a request failed"
+  },
+  "agentAccessOsViewLabel": {
+    "message": "OpenShell view",
+    "description": "Accessible label of the Sandboxes/Environments switch"
+  },
+  "agentAccessOsViewSandboxes": {
+    "message": "Sandboxes",
+    "description": "Switch option: the sandbox list"
+  },
+  "agentAccessOsViewEnvironments": {
+    "message": "Environments",
+    "description": "Switch option: saved environments and secret sets"
+  },
+  "agentAccessOsEnvNew": {
+    "message": "New environment",
+    "description": "Button: create an environment"
+  },
+  "agentAccessOsEnvDescriptionText": {
+    "message": "An environment is a saved starting point for a sandbox: an image or template, resources and the secrets it begins with. Pick one when you create a sandbox.",
+    "description": "Intro text of the Environments view"
+  },
+  "agentAccessOsEnvEmptyTitle": {
+    "message": "No environments yet",
+    "description": "Empty state title of the Environments view"
+  },
+  "agentAccessOsEnvEmptyDescription": {
+    "message": "Save the setup you use most as an environment, or from a sandbox's page with Save as environment.",
+    "description": "Empty state description of the Environments view"
+  },
+  "agentAccessOsEnvColumnSource": {
+    "message": "Image or template",
+    "description": "Environments table column"
+  },
+  "agentAccessOsEnvColumnResources": {
+    "message": "CPU / memory",
+    "description": "Environments table column"
+  },
+  "agentAccessOsEnvColumnSecrets": {
+    "message": "Secrets",
+    "description": "Environments table column"
+  },
+  "agentAccessOsEnvSecretsInline": {
+    "message": "$COUNT$ saved secrets",
+    "description": "Secrets of an environment kept inside it, shown as a count",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "agentAccessOsEnvSetMissing": {
+    "message": "Secret set not found",
+    "description": "Shown when the secret set an environment points at no longer exists"
+  },
+  "agentAccessOsEnvDeleteTitle": {
+    "message": "Delete environment",
+    "description": "Title of the delete environment confirmation"
+  },
+  "agentAccessOsEnvDeleteContent": {
+    "message": "Delete the environment $NAME$? Sandboxes already created from it are not changed.",
+    "description": "Body of the delete environment confirmation",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Dev"
+      }
+    }
+  },
+  "agentAccessOsEnvErrorLoad": {
+    "message": "Environments could not be loaded",
+    "description": "Callout title when environments cannot be read"
+  },
+  "agentAccessOsEnvErrorDelete": {
+    "message": "The environment or set could not be deleted.",
+    "description": "Fallback error when a delete fails"
+  },
+  "agentAccessOsEnvErrorSave": {
+    "message": "The environment could not be saved.",
+    "description": "Fallback error when a save fails"
+  },
+  "agentAccessOsEnvErrorNameTaken": {
+    "message": "That name is already used. Choose another.",
+    "description": "Error when a name is already taken"
+  },
+  "agentAccessOsEnvErrorNotFound": {
+    "message": "The environment or its secret set no longer exists. Close this dialog and try again.",
+    "description": "Error when the item being saved was deleted"
+  },
+  "agentAccessOsEnvNewTitle": {
+    "message": "New environment",
+    "description": "Dialog title: create an environment"
+  },
+  "agentAccessOsEnvEditTitle": {
+    "message": "Edit environment",
+    "description": "Dialog title: edit an environment"
+  },
+  "agentAccessOsEnvName": {
+    "message": "Environment name",
+    "description": "Label of the environment name input"
+  },
+  "agentAccessOsEnvDescription": {
+    "message": "Description (optional)",
+    "description": "Label of the environment description input"
+  },
+  "agentAccessOsEnvSecrets": {
+    "message": "Secrets",
+    "description": "Label of the environment secrets choice"
+  },
+  "agentAccessOsEnvSecretsNone": {
+    "message": "None",
+    "description": "Choice: the environment adds no secrets"
+  },
+  "agentAccessOsEnvSecretsHint": {
+    "message": "The sandbox gets these secrets, one by one, after it is created.",
+    "description": "Hint under the environment secrets choice"
+  },
+  "agentAccessOsEnvSkipped": {
+    "message": "$COUNT$ of this sandbox's secrets were not made by this app and cannot be saved here.",
+    "description": "Note when some of a sandbox's secrets cannot be saved to an environment or set",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "agentAccessOsEnvSaveAs": {
+    "message": "Save as environment",
+    "description": "Menu action on a sandbox: save it as an environment"
+  },
+  "agentAccessOsEnvSaved": {
+    "message": "Saved the environment $NAME$.",
+    "description": "Confirmation after saving an environment from a sandbox",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Dev"
+      }
+    }
+  },
+  "agentAccessOsSetsTitle": {
+    "message": "Secret sets",
+    "description": "Heading of the secret sets section"
+  },
+  "agentAccessOsSetsDescription": {
+    "message": "A secret set is a named group of secrets you can add to a sandbox, or to an environment, in one step.",
+    "description": "Intro of the secret sets section"
+  },
+  "agentAccessOsSetsEmpty": {
+    "message": "No sets yet. Open a sandbox's Secrets tab and choose Save as set.",
+    "description": "Empty state of the secret sets section"
+  },
+  "agentAccessOsSetsColumnSecrets": {
+    "message": "Secrets",
+    "description": "Secret sets table column"
+  },
+  "agentAccessOsSetRename": {
+    "message": "Rename",
+    "description": "Menu action: rename a secret set"
+  },
+  "agentAccessOsSetRenameTitle": {
+    "message": "Rename secret set",
+    "description": "Dialog title: rename a secret set"
+  },
+  "agentAccessOsSetDeleteTitle": {
+    "message": "Delete secret set",
+    "description": "Title of the delete secret set confirmation"
+  },
+  "agentAccessOsSetDeleteContent": {
+    "message": "Delete the set $NAME$? The secrets themselves stay in your vault and in any sandbox that already has them.",
+    "description": "Body of the delete secret set confirmation",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "agentAccessOsSetName": {
+    "message": "Set name",
+    "description": "Label of the secret set name input"
+  },
+  "agentAccessOsSetSaveAs": {
+    "message": "Save as set",
+    "description": "Button on a sandbox's Secrets tab: save its secrets as a set"
+  },
+  "agentAccessOsSetSaveTitle": {
+    "message": "Save secrets as a set",
+    "description": "Dialog title: save a sandbox's secrets as a set"
+  },
+  "agentAccessOsSetSaved": {
+    "message": "Saved the set $NAME$.",
+    "description": "Confirmation after saving a secret set",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "agentAccessOsSetSavedSkipped": {
+    "message": "$COUNT$ secrets were left out because this app did not create them.",
+    "description": "Added to the set confirmation when some secrets could not be kept",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "agentAccessOsCredAddSetLabel": {
+    "message": "Add a set",
+    "description": "Label of the secret set picker in the add secrets dialog"
+  },
+  "agentAccessOsCredAddSetPlaceholder": {
+    "message": "Choose a set",
+    "description": "Placeholder option of the secret set picker"
+  },
+  "agentAccessOsCredAddSetAction": {
+    "message": "Add set",
+    "description": "Button: add all secrets of the chosen set"
+  },
+  "agentAccessOsMetaEdit": {
+    "message": "Edit details",
+    "description": "Menu action on a sandbox: edit its purpose and color"
+  },
+  "agentAccessOsMetaTitle": {
+    "message": "Details for $NAME$",
+    "description": "Dialog title: edit a sandbox's purpose and color",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "box"
+      }
+    }
+  },
+  "agentAccessOsMetaPurpose": {
+    "message": "Purpose",
+    "description": "Label of the sandbox purpose input"
+  },
+  "agentAccessOsMetaPurposeHint": {
+    "message": "One line, up to $MAX$ characters. Kept on this computer only.",
+    "description": "Hint under the sandbox purpose input",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "120"
+      }
+    }
+  },
+  "agentAccessOsMetaColor": {
+    "message": "Color",
+    "description": "Label of the sandbox accent color choice"
+  },
+  "agentAccessOsMetaColorNone": {
+    "message": "None",
+    "description": "Choice: no accent color"
+  },
+  "agentAccessOsMetaColorBlue": {
+    "message": "Blue",
+    "description": "Accent color name"
+  },
+  "agentAccessOsMetaColorGreen": {
+    "message": "Green",
+    "description": "Accent color name"
+  },
+  "agentAccessOsMetaColorAmber": {
+    "message": "Amber",
+    "description": "Accent color name"
+  },
+  "agentAccessOsMetaColorRed": {
+    "message": "Red",
+    "description": "Accent color name"
+  },
+  "agentAccessOsMetaColorGray": {
+    "message": "Gray",
+    "description": "Accent color name"
+  },
+  "agentAccessOsMetaErrorSave": {
+    "message": "The details could not be saved.",
+    "description": "Fallback error when saving sandbox details fails"
+  },
+  "agentAccessOsCreateEnvironment": {
+    "message": "Start from environment",
+    "description": "Label of the environment choice in the create sandbox dialog"
+  },
+  "agentAccessOsCreateEnvironmentNone": {
+    "message": "None",
+    "description": "Choice: do not use an environment"
+  },
+  "agentAccessOsCreateEnvironmentHint": {
+    "message": "Fills in the image and resources below, and adds the environment's secrets once the sandbox exists.",
+    "description": "Hint under the environment choice"
+  },
+  "agentAccessOsCreatePartialTitle": {
+    "message": "$NAME$ was created, but not all secrets were added",
+    "description": "Callout title when some of an environment's secrets could not be added",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "box"
+      }
+    }
+  },
+  "agentAccessOsCreatePartialSummary": {
+    "message": "$FAILED$ of $TOTAL$ secrets could not be added:",
+    "description": "Callout line before the list of secrets that failed",
+    "placeholders": {
+      "failed": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "agentAccessOsCreatePartialHint": {
+    "message": "Open the sandbox to add them from its Secrets tab.",
+    "description": "Callout hint after the list of secrets that failed"
+  },
+  "agentAccessOsCreateOpenSandbox": {
+    "message": "Open sandbox",
+    "description": "Button: open the sandbox that was just created"
+  },
+  "agentAccessOsReqReview": {
+    "message": "Review",
+    "description": "Button opening the approval popup for a blocked request"
+  },
+  "agentAccessOsReqDialogTitle": {
+    "message": "Agent permission request",
+    "description": "Title of the popup asking to allow a blocked request"
+  },
+  "agentAccessOsReqDialogRequestedBy": {
+    "message": "An agent in $SANDBOX$ is asking for access.",
+    "description": "Callout line in the request popup. SANDBOX is the sandbox name",
+    "placeholders": {
+      "sandbox": {
+        "content": "$1",
+        "example": "dev-clients"
+      }
+    }
+  },
+  "agentAccessOsReqDialogNotice": {
+    "message": "Allowing only opens this network path. It does not give the agent any of your vault items.",
+    "description": "Callout reassurance in the request popup"
+  },
+  "agentAccessOsReqDialogReach": {
+    "message": "It wants to reach:",
+    "description": "Label before the addresses a request asks for"
+  },
+  "agentAccessOsReqDialogPrograms": {
+    "message": "Using these programs:",
+    "description": "Label before the programs a request came from"
   }
 }

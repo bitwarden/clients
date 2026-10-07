@@ -8,7 +8,7 @@
         </bit-skeleton-group>
       }
     </div>
-  } @else if (pageState.grants().length === 0) {
+  } @else if (pageState.localGrants().length === 0) {
     <bit-no-items [icon]="DevicesIcon" data-testid="agent-access-no-connected-agents">
       <ng-container slot="title">{{ "agentAccessNoConnectedAgents" | i18n }}</ng-container>
       <ng-container slot="description">{{
@@ -38,7 +38,7 @@
         </tr>
       </ng-container>
       <ng-template body>
-        @for (grant of pageState.grants(); track grant.id) {
+        @for (grant of pageState.localGrants(); track grant.id) {
           <tr bitRow>
             <td bitCell>
               <div class="tw-flex tw-min-w-0 tw-items-center tw-gap-3">

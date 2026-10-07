@@ -1,0 +1,178 @@
+<div class="tw-flex tw-flex-col tw-gap-4" data-testid="agent-access-openshell-sandbox">
+  <bit-breadcrumbs>
+    <bit-breadcrumb [route]="['/agent-access/openshell']" icon="bwi-angle-left">{{
+      "agentAccessOsSandboxes" | i18n
+    }}</bit-breadcrumb>
+  </bit-breadcrumbs>
+
+  @if (loading() && sandbox() === null) {
+    <bit-skeleton-group data-testid="agent-access-openshell-sandbox-loading">
+      <bit-skeleton-text [lines]="2" class="tw-w-1/2"></bit-skeleton-text>
+    </bit-skeleton-group>
+  } @else if (failure(); as fail) {
+    <bit-callout
+      type="warning"
+      [title]="failureKey() | i18n"
+      data-testid="agent-access-openshell-sandbox-error"
+    >
+      @if (fail.message) {
+        <p class="tw-m-0 tw-break-words">{{ fail.message }}</p>
+      }
+      <button
+        id="agent-access-openshell-sandbox_button_retry"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        size="small"
+        class="tw-mt-3"
+        (click)="refresh()"
+      >
+        {{ "tryAgain" | i18n }}
+      </button>
+    </bit-callout>
+  } @else if (sandbox(); as current) {
+    <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-3">
+      <h2 bitTypography="h2" class="tw-m-0 tw-min-w-0 tw-break-all" data-testid="sandbox-title">
+        @if (metaColorClass(); as accent) {
+          <span
+            class="tw-mr-2 tw-inline-block tw-size-3 tw-rounded-full"
+            [class]="accent"
+            data-testid="sandbox-accent"
+          ></span>
+        }
+        <bdi>{{ current.name }}</bdi>
+      </h2>
+      <bit-badge [variant]="phaseVariant()" data-testid="phase-badge">{{
+        current.phase
+      }}</bit-badge>
+      <span class="tw-flex-1"></span>
+      <app-agent-access-openshell-open-button
+        [sandboxName]="current.name"
+        [disabled]="!isReady() || busy()"
+      ></app-agent-access-openshell-open-button>
+      @if (isStopped()) {
+        <button
+          id="agent-access-openshell-sandbox_button_start"
+          type="button"
+          bitButton
+          buttonType="secondary"
+          [loading]="busy()"
+          [disabled]="busy()"
+          (click)="start()"
+        >
+          {{ "agentAccessOsPageStart" | i18n }}
+        </button>
+      }
+      @if (isReady()) {
+        <button
+          id="agent-access-openshell-sandbox_button_stop"
+          type="button"
+          bitButton
+          buttonType="secondary"
+          [loading]="busy()"
+          [disabled]="busy()"
+          (click)="stop()"
+        >
+          {{ "agentAccessOsPageStop" | i18n }}
+        </button>
+      }
+      <button
+        id="agent-access-openshell-sandbox_button_options"
+        type="button"
+        bitIconButton="bwi-ellipsis-v"
+        buttonType="subtleGhost"
+        [bitMenuTriggerFor]="sandboxMenu"
+        [label]="'options' | i18n"
+        [disabled]="busy()"
+      ></button>
+      <bit-menu #sandboxMenu>
+        <button
+          id="agent-access-openshell-sandbox_button_edit-details"
+          type="button"
+          bitMenuItem
+          (click)="editDetails()"
+        >
+          {{ "agentAccessOsMetaEdit" | i18n }}
+        </button>
+        <button
+          id="agent-access-openshell-sandbox_button_save-environment"
+          type="button"
+          bitMenuItem
+          (click)="saveAsEnvironment()"
+        >
+          {{ "agentAccessOsEnvSaveAs" | i18n }}
+        </button>
+      </bit-menu>
+      <button
+        id="agent-access-openshell-sandbox_button_delete"
+        type="button"
+        bitIconButton="bwi-trash"
+        buttonType="dangerGhost"
+        [label]="'agentAccessOsPageDelete' | i18n"
+        [disabled]="busy()"
+        (click)="delete()"
+      ></button>
+    </div>
+
+    @if (meta()?.purpose; as purpose) {
+      <p
+        bitTypography="body2"
+        class="tw-m-0 tw-break-words tw-text-muted"
+        data-testid="sandbox-purpose"
+      >
+        <bdi>{{ purpose }}</bdi>
+      </p>
+    }
+
+    @if (actionNotice(); as notice) {
+      <bit-callout type="success" data-testid="agent-access-openshell-sandbox-notice">
+        {{ notice }}
+      </bit-callout>
+    }
+
+    @if (actionError(); as message) {
+      <bit-callout
+        type="danger"
+        [title]="'agentAccessOsPageActionFailedTitle' | i18n"
+        data-testid="agent-access-openshell-sandbox-action-error"
+      >
+        {{ message }}
+      </bit-callout>
+    }
+
+    <bit-tab-nav-bar [label]="'agentAccessOsSandboxTabs' | i18n">
+      <bit-tab-link route="secrets">
+        {{ "agentAccessOsTabSecrets" | i18n }}
+        @if (current.providerCount !== null) {
+          <div slot="end" class="tw-text-muted">{{ current.providerCount }}</div>
+        }
+      </bit-tab-link>
+      <bit-tab-link route="permissions">{{ "agentAccessOsTabPermissions" | i18n }}</bit-tab-link>
+      <bit-tab-link route="requests">
+        {{ "agentAccessOsTabRequests" | i18n }}
+        @if (pendingRequests() > 0) {
+          <bit-badge slot="end" variant="accent-primary" data-testid="requests-badge">{{
+            pendingRequests()
+          }}</bit-badge>
+        }
+      </bit-tab-link>
+      <bit-tab-link route="activity">{{ "agentAccessOsTabActivity" | i18n }}</bit-tab-link>
+      <bit-tab-link route="ports">
+        {{ "agentAccessOsTabPorts" | i18n }}
+        @if (forwardCount() !== null) {
+          <div slot="end" class="tw-text-muted">{{ forwardCount() }}</div>
+        }
+      </bit-tab-link>
+    </bit-tab-nav-bar>
+
+    <router-outlet></router-outlet>
+  } @else {
+    <bit-callout
+      type="warning"
+      [title]="'agentAccessOsSandboxNotFound' | i18n"
+      data-testid="agent-access-openshell-sandbox-not-found"
+    >
+      {{ "agentAccessOsSandboxNotFoundDescription" | i18n }}
+    </bit-callout>
+  }
+</div>

@@ -1,0 +1,334 @@
+<form [formGroup]="form" [bitSubmit]="submit" bit-dialog dialogSize="large">
+  <span bitDialogTitle>{{
+    (editing ? "agentAccessOsPermEditTitle" : "agentAccessOsPermNewTitle") | i18n
+  }}</span>
+
+  <div bitDialogContent class="tw-flex tw-flex-col tw-gap-4">
+    @if (editing) {
+      <bit-callout
+        type="warning"
+        [title]="'agentAccessOsPermSharedTitle' | i18n"
+        data-testid="openshell-permission-shared"
+      >
+        {{ "agentAccessOsPermSharedDescription" | i18n }}
+        @if (affected(); as names) {
+          <div class="tw-mt-2" data-testid="openshell-permission-affected">
+            @if (names.length > 0) {
+              {{ "agentAccessOsPermAffected" | i18n }}:
+              <bdi>{{ names.join(", ") }}</bdi>
+            } @else {
+              {{ "agentAccessOsPermAffectedNone" | i18n }}
+            }
+            @if (affectedUnknown()) {
+              <div bitTypography="helper" class="tw-text-muted">
+                {{ "agentAccessOsPermAffectedIncomplete" | i18n }}
+              </div>
+            }
+          </div>
+        }
+      </bit-callout>
+    }
+
+    <bit-form-field>
+      <bit-label>{{ "agentAccessOsPermNameLabel" | i18n }}</bit-label>
+      <input
+        id="agent-access-openshell-permission-dialog_input_name"
+        bitInput
+        type="text"
+        autocomplete="off"
+        [value]="displayName()"
+        (input)="setName($any($event.target).value)"
+      />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "agentAccessOsPermDescriptionLabel" | i18n }}</bit-label>
+      <input
+        id="agent-access-openshell-permission-dialog_input_description"
+        bitInput
+        type="text"
+        autocomplete="off"
+        [value]="description()"
+        (input)="description.set($any($event.target).value)"
+      />
+    </bit-form-field>
+
+    @if (!editing) {
+      <bit-form-field>
+        <bit-label>{{ "agentAccessOsPermEnvVarLabel" | i18n }}</bit-label>
+        <input
+          id="agent-access-openshell-permission-dialog_input_env-var"
+          bitInput
+          type="text"
+          class="tw-font-mono"
+          autocomplete="off"
+          [attr.spellcheck]="false"
+          [value]="envVar()"
+          (input)="setEnvVar($any($event.target).value)"
+        />
+        <bit-hint>{{ "agentAccessOsPermEnvVarHint" | i18n }}</bit-hint>
+      </bit-form-field>
+    }
+
+    <section class="tw-flex tw-flex-col tw-gap-2">
+      <h3 bitTypography="h6" class="tw-m-0">{{ "agentAccessOsPermHostsTitle" | i18n }}</h3>
+      <p bitTypography="helper" class="tw-m-0 tw-text-muted">
+        {{ "agentAccessOsPermHostsHint" | i18n }}
+      </p>
+      <bit-table data-testid="openshell-permission-hosts">
+        <ng-container header>
+          <tr>
+            <th bitCell>{{ "agentAccessOsPermHostColumn" | i18n }}</th>
+            <th bitCell class="tw-w-24">{{ "agentAccessOsPermPortColumn" | i18n }}</th>
+            <th bitCell class="tw-w-44">{{ "agentAccessOsPermAccessColumn" | i18n }}</th>
+            <th bitCell class="tw-w-12"></th>
+          </tr>
+        </ng-container>
+        <ng-template body>
+          @for (row of hosts(); track row.key; let i = $index) {
+            <tr bitRow data-testid="openshell-permission-host-row">
+              <td bitCell>
+                <input
+                  [id]="'agent-access-openshell-permission-dialog_input_host-' + i"
+                  type="text"
+                  class="tw-w-full tw-rounded tw-border tw-border-solid tw-border-secondary-300 tw-bg-background tw-p-1 tw-font-mono tw-text-main"
+                  autocomplete="off"
+                  [attr.spellcheck]="false"
+                  [attr.aria-label]="'agentAccessOsPermHostColumn' | i18n"
+                  [value]="row.host()"
+                  (input)="row.host.set($any($event.target).value)"
+                />
+              </td>
+              <td bitCell>
+                <input
+                  [id]="'agent-access-openshell-permission-dialog_input_port-' + i"
+                  type="text"
+                  inputmode="numeric"
+                  class="tw-w-full tw-rounded tw-border tw-border-solid tw-border-secondary-300 tw-bg-background tw-p-1 tw-font-mono tw-text-main"
+                  autocomplete="off"
+                  [attr.aria-label]="'agentAccessOsPermPortColumn' | i18n"
+                  [value]="row.port()"
+                  (input)="row.port.set($any($event.target).value)"
+                />
+              </td>
+              <td bitCell>
+                <select
+                  [id]="'agent-access-openshell-permission-dialog_select_access-' + i"
+                  class="tw-w-full tw-rounded tw-border tw-border-solid tw-border-secondary-300 tw-bg-background tw-p-1 tw-text-main"
+                  [attr.aria-label]="'agentAccessOsPermAccessColumn' | i18n"
+                  (change)="setAccess(row, $any($event.target).value)"
+                >
+                  <option value="read-only" [selected]="row.access() === 'read-only'">
+                    {{ "agentAccessOsPermAccessReadOnly" | i18n }}
+                  </option>
+                  <option value="read-write" [selected]="row.access() === 'read-write'">
+                    {{ "agentAccessOsPermAccessReadWrite" | i18n }}
+                  </option>
+                </select>
+              </td>
+              <td bitCell class="tw-text-right">
+                <button
+                  [id]="'agent-access-openshell-permission-dialog_button_remove-host-' + i"
+                  type="button"
+                  bitIconButton="bwi-close"
+                  buttonType="subtleGhost"
+                  size="small"
+                  [label]="'remove' | i18n"
+                  (click)="removeHost(row)"
+                ></button>
+              </td>
+            </tr>
+          }
+        </ng-template>
+      </bit-table>
+      <div>
+        <button
+          id="agent-access-openshell-permission-dialog_button_add-host"
+          type="button"
+          bitButton
+          buttonType="secondary"
+          size="small"
+          startIcon="bwi-plus"
+          (click)="addHost()"
+        >
+          {{ "agentAccessOsPermAddHost" | i18n }}
+        </button>
+      </div>
+    </section>
+
+    <section class="tw-flex tw-flex-col tw-gap-2" data-testid="openshell-permission-programs">
+      <h3 bitTypography="h6" class="tw-m-0">{{ "agentAccessOsPermProgramsTitle" | i18n }}</h3>
+      <bit-toggle-group
+        [(selected)]="programMode"
+        [label]="'agentAccessOsPermProgramsModeLabel' | i18n"
+      >
+        <bit-toggle [value]="ProgramMode.Any">{{
+          "agentAccessOsPermProgramsModeAny" | i18n
+        }}</bit-toggle>
+        <bit-toggle [value]="ProgramMode.Only">{{
+          "agentAccessOsPermProgramsModeOnly" | i18n
+        }}</bit-toggle>
+      </bit-toggle-group>
+
+      @if (anyProgram()) {
+        <p
+          bitTypography="helper"
+          class="tw-m-0 tw-text-muted"
+          data-testid="openshell-permission-any-program"
+        >
+          {{ "agentAccessOsPermProgramsAnyWarning" | i18n }}
+        </p>
+      } @else {
+        <p bitTypography="helper" class="tw-m-0 tw-text-muted">
+          {{ "agentAccessOsPermProgramsOnlyHint" | i18n }}
+        </p>
+        <ul
+          class="tw-m-0 tw-flex tw-list-none tw-flex-col tw-gap-1 tw-p-0"
+          data-testid="openshell-permission-program-list"
+        >
+          @for (program of catalog; track program.id) {
+            <li data-testid="openshell-permission-program">
+              <label class="tw-flex tw-cursor-pointer tw-items-center tw-gap-3 tw-py-1">
+                <input
+                  [id]="'agent-access-openshell-permission-dialog_checkbox_program-' + program.id"
+                  type="checkbox"
+                  [checked]="isProgramSelected(program.id)"
+                  (change)="toggleProgram(program.id, $any($event.target).checked)"
+                />
+                <app-agent-access-openshell-program-icon
+                  [program]="program"
+                ></app-agent-access-openshell-program-icon>
+                <span class="tw-flex tw-min-w-0 tw-flex-col">
+                  <span>{{ program.name }}</span>
+                  <span bitTypography="helper" class="tw-font-mono tw-text-muted">{{
+                    program.paths[0]
+                  }}</span>
+                </span>
+              </label>
+            </li>
+          }
+        </ul>
+
+        @for (path of customPrograms(); track path) {
+          <div
+            class="tw-flex tw-items-center tw-justify-between tw-gap-2"
+            data-testid="openshell-permission-custom-program"
+          >
+            <span class="tw-break-all tw-font-mono">{{ path }}</span>
+            <button
+              type="button"
+              bitIconButton="bwi-close"
+              buttonType="subtleGhost"
+              size="small"
+              [label]="'remove' | i18n"
+              (click)="removeCustomProgram(path)"
+            ></button>
+          </div>
+        }
+
+        <div class="tw-flex tw-flex-col tw-gap-1">
+          <label
+            for="agent-access-openshell-permission-dialog_input_custom-program"
+            bitTypography="helper"
+            class="tw-text-muted"
+            >{{ "agentAccessOsPermProgramsOtherLabel" | i18n }}</label
+          >
+          <div class="tw-flex tw-items-center tw-gap-2">
+            <input
+              id="agent-access-openshell-permission-dialog_input_custom-program"
+              type="text"
+              class="tw-min-w-0 tw-flex-1 tw-rounded tw-border tw-border-solid tw-border-secondary-300 tw-bg-background tw-p-1 tw-font-mono tw-text-main"
+              autocomplete="off"
+              placeholder="/usr/local/bin/mytool"
+              [attr.spellcheck]="false"
+              [value]="customInput()"
+              (input)="setCustomInput($any($event.target).value)"
+              (keydown.enter)="$event.preventDefault(); addCustomProgram()"
+            />
+            <button
+              id="agent-access-openshell-permission-dialog_button_add-custom-program"
+              type="button"
+              bitButton
+              buttonType="secondary"
+              size="small"
+              (click)="addCustomProgram()"
+            >
+              {{ "agentAccessOsPermProgramsAddOther" | i18n }}
+            </button>
+          </div>
+          @if (customInvalid()) {
+            <span
+              bitTypography="helper"
+              class="tw-text-danger"
+              role="alert"
+              data-testid="openshell-permission-custom-program-error"
+              >{{ "agentAccessOsPermProgramsOtherInvalid" | i18n }}</span
+            >
+          }
+        </div>
+      }
+    </section>
+
+    @if (!editing) {
+      <details>
+        <summary class="tw-cursor-pointer tw-text-muted">
+          {{ "agentAccessOsPermAdvanced" | i18n }}
+        </summary>
+        <bit-form-field class="tw-mt-2">
+          <bit-label>{{ "agentAccessOsPermIdLabel" | i18n }}</bit-label>
+          <input
+            id="agent-access-openshell-permission-dialog_input_id"
+            bitInput
+            type="text"
+            class="tw-font-mono"
+            autocomplete="off"
+            [attr.spellcheck]="false"
+            [value]="id()"
+            (input)="setId($any($event.target).value)"
+          />
+        </bit-form-field>
+      </details>
+    }
+
+    @if (showIssues() && issues().length > 0) {
+      <bit-callout type="warning" [title]="null" data-testid="openshell-permission-issues">
+        <ul class="tw-m-0 tw-ps-4">
+          @for (issue of issues(); track issue.key + issue.args.join()) {
+            <li>{{ issue.key | i18n: issue.args[0] }}</li>
+          }
+        </ul>
+      </bit-callout>
+    }
+
+    @if (submitFailure(); as failure) {
+      <bit-callout type="danger" data-testid="openshell-permission-error">
+        {{ errorKey(failure.error) | i18n }}
+        @if (failure.message) {
+          <span class="tw-block tw-break-words" bitTypography="helper">{{ failure.message }}</span>
+        }
+      </bit-callout>
+    }
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button
+      id="agent-access-openshell-permission-dialog_button_submit"
+      type="submit"
+      bitButton
+      bitFormButton
+      buttonType="primary"
+    >
+      {{ "save" | i18n }}
+    </button>
+    <button
+      id="agent-access-openshell-permission-dialog_button_cancel"
+      type="button"
+      bitButton
+      bitFormButton
+      buttonType="secondary"
+      (click)="close()"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</form>

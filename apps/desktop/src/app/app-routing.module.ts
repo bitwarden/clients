@@ -48,6 +48,14 @@ import {
 
 import { AgentAccessActivityComponent } from "../agent-access/components/agent-access-activity.component";
 import { AgentAccessAgentsComponent } from "../agent-access/components/agent-access-agents.component";
+import { AgentAccessOpenShellActivityTabComponent } from "../agent-access/components/agent-access-openshell-activity-tab.component";
+import { AgentAccessOpenShellEnvironmentsComponent } from "../agent-access/components/agent-access-openshell-environments.component";
+import { AgentAccessOpenShellPageComponent } from "../agent-access/components/agent-access-openshell-page.component";
+import { AgentAccessOpenShellPermissionsTabComponent } from "../agent-access/components/agent-access-openshell-permissions-tab.component";
+import { AgentAccessOpenShellPortsTabComponent } from "../agent-access/components/agent-access-openshell-ports-tab.component";
+import { AgentAccessOpenShellRequestsTabComponent } from "../agent-access/components/agent-access-openshell-requests-tab.component";
+import { AgentAccessOpenShellSandboxComponent } from "../agent-access/components/agent-access-openshell-sandbox.component";
+import { AgentAccessOpenShellSecretsTabComponent } from "../agent-access/components/agent-access-openshell-secrets-tab.component";
 import { AgentAccessSetupComponent } from "../agent-access/components/agent-access-setup.component";
 import { AgentAccessComponent } from "../agent-access/components/agent-access.component";
 import { AgentAccessPageStateService } from "../agent-access/services/agent-access-page-state.service";
@@ -470,6 +478,29 @@ const routes: Routes = [
           { path: "", pathMatch: "full", redirectTo: "agents" },
           { path: "agents", component: AgentAccessAgentsComponent },
           { path: "setup", component: AgentAccessSetupComponent },
+          {
+            path: "openshell",
+            children: [
+              { path: "", pathMatch: "full", component: AgentAccessOpenShellPageComponent },
+              // Before `:name`; a leading underscore can never be a sandbox name.
+              { path: "_environments", component: AgentAccessOpenShellEnvironmentsComponent },
+              {
+                path: ":name",
+                component: AgentAccessOpenShellSandboxComponent,
+                children: [
+                  { path: "", pathMatch: "full", redirectTo: "secrets" },
+                  { path: "secrets", component: AgentAccessOpenShellSecretsTabComponent },
+                  {
+                    path: "permissions",
+                    component: AgentAccessOpenShellPermissionsTabComponent,
+                  },
+                  { path: "requests", component: AgentAccessOpenShellRequestsTabComponent },
+                  { path: "activity", component: AgentAccessOpenShellActivityTabComponent },
+                  { path: "ports", component: AgentAccessOpenShellPortsTabComponent },
+                ],
+              },
+            ],
+          },
           { path: "activity", component: AgentAccessActivityComponent },
         ],
       },

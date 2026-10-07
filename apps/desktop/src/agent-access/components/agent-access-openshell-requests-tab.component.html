@@ -1,0 +1,165 @@
+<div class="tw-flex tw-flex-col tw-gap-4" data-testid="openshell-requests">
+  <div class="tw-flex tw-flex-wrap tw-items-start tw-justify-between tw-gap-4">
+    <p bitTypography="body2" class="tw-m-0 tw-max-w-prose tw-text-muted">
+      {{ "agentAccessOsReqIntro" | i18n }}
+    </p>
+    <bit-toggle-group
+      [selected]="view()"
+      (selectedChange)="setView($event)"
+      [label]="'agentAccessOsReqViewLabel' | i18n"
+      data-testid="openshell-requests-view"
+    >
+      <bit-toggle value="pending">{{ "agentAccessOsReqViewPending" | i18n }}</bit-toggle>
+      <bit-toggle value="history">{{ "agentAccessOsReqViewHistory" | i18n }}</bit-toggle>
+    </bit-toggle-group>
+  </div>
+
+  @if (actionFailure(); as action) {
+    <bit-callout
+      type="danger"
+      [title]="'agentAccessOsReqActionFailed' | i18n"
+      data-testid="openshell-requests-action-error"
+    >
+      @if (action.message) {
+        <span class="tw-block tw-break-words">{{ action.message }}</span>
+      }
+    </bit-callout>
+  }
+
+  @if (loading()) {
+    <bit-skeleton-group data-testid="openshell-requests-loading">
+      <bit-skeleton-text [lines]="3" class="tw-w-1/2"></bit-skeleton-text>
+    </bit-skeleton-group>
+  } @else if (failure(); as fail) {
+    <bit-callout
+      type="warning"
+      [title]="failureKey() | i18n"
+      data-testid="openshell-requests-error"
+    >
+      @if (fail.message) {
+        <p class="tw-m-0 tw-break-words">{{ fail.message }}</p>
+      }
+      <button
+        id="agent-access-openshell-requests_button_retry"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        size="small"
+        class="tw-mt-3"
+        (click)="retry()"
+      >
+        {{ "tryAgain" | i18n }}
+      </button>
+    </bit-callout>
+  } @else if (requests().length === 0) {
+    <p class="tw-m-0 tw-text-muted" data-testid="openshell-requests-empty">
+      {{ (view() === "pending" ? "agentAccessOsReqEmpty" : "agentAccessOsReqHistoryEmpty") | i18n }}
+    </p>
+  } @else {
+    <ul class="tw-m-0 tw-flex tw-list-none tw-flex-col tw-gap-3 tw-p-0">
+      @for (request of requests(); track request.id) {
+        <li
+          class="tw-flex tw-flex-col tw-gap-3 tw-rounded-lg tw-border tw-border-solid tw-border-border-base tw-p-4"
+          data-testid="openshell-request"
+        >
+          <div class="tw-flex tw-flex-wrap tw-items-start tw-gap-2">
+            <p
+              bitTypography="body1"
+              class="tw-m-0 tw-min-w-0 tw-flex-1 tw-break-words"
+              data-testid="openshell-request-summary"
+            >
+              @if (request.endpoints.length === 0) {
+                {{ "agentAccessOsReqSummaryUnknown" | i18n }}
+              } @else if (programName(request)) {
+                {{
+                  "agentAccessOsReqSummaryWithProgram"
+                    | i18n: target(request.endpoints[0]) : programName(request)
+                }}
+              } @else {
+                {{ "agentAccessOsReqSummary" | i18n: target(request.endpoints[0]) }}
+              }
+            </p>
+            @if (!isPending(request)) {
+              <bit-badge
+                [variant]="request.status === 'approved' ? 'success' : 'subtle'"
+                data-testid="openshell-request-status"
+              >
+                {{
+                  (request.status === "approved"
+                    ? "agentAccessOsReqStatusApproved"
+                    : "agentAccessOsReqStatusRejected"
+                  ) | i18n
+                }}
+              </bit-badge>
+            }
+          </div>
+
+          @if (request.endpoints.length > 1) {
+            <div bitTypography="helper" class="tw-text-muted" data-testid="openshell-request-more">
+              {{ "agentAccessOsReqAlsoReaching" | i18n }}
+              @for (endpoint of request.endpoints.slice(1); track $index) {
+                <span class="tw-font-mono tw-break-all">{{ target(endpoint) }}</span>
+                @if (!$last) {
+                  <span>, </span>
+                }
+              }
+            </div>
+          }
+
+          @if (request.rationale) {
+            <p
+              bitTypography="body2"
+              class="tw-m-0 tw-break-words tw-text-muted"
+              data-testid="openshell-request-reason"
+            >
+              {{ "agentAccessOsReqReason" | i18n: request.rationale }}
+            </p>
+          }
+
+          @if (request.flagged) {
+            <bit-badge
+              variant="danger"
+              class="tw-self-start"
+              data-testid="openshell-request-flagged"
+            >
+              {{ "agentAccessOsReqFlaggedTitle" | i18n }}
+            </bit-badge>
+          }
+
+          @if (request.programs.length > 0) {
+            <div
+              bitTypography="helper"
+              class="tw-break-all tw-font-mono tw-text-muted"
+              data-testid="openshell-request-programs"
+            >
+              {{ request.programs.join(", ") }}
+            </div>
+          }
+
+          @if (request.hits !== null) {
+            <div bitTypography="helper" class="tw-text-muted" data-testid="openshell-request-hits">
+              {{ "agentAccessOsReqHits" | i18n: request.hits }}
+            </div>
+          }
+
+          @if (isPending(request)) {
+            <div>
+              <button
+                type="button"
+                bitButton
+                buttonType="primary"
+                size="small"
+                [loading]="busyId() === request.id"
+                [disabled]="busyId() !== null"
+                (click)="review(request)"
+                data-testid="openshell-request-review"
+              >
+                {{ "agentAccessOsReqReview" | i18n }}
+              </button>
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  }
+</div>

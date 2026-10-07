@@ -3,6 +3,7 @@ import type { agent_access } from "@bitwarden/desktop-napi";
 import {
   deriveAgentAccessAttestationKey,
   deriveAgentAccessDisplayName,
+  PATH_SIGNATURE_KIND,
 } from "./agent-access-attestation.util";
 
 function makeLocalPeer(
@@ -102,5 +103,42 @@ describe("deriveAgentAccessDisplayName", () => {
 
   it("returns undefined when localPeer itself is undefined", () => {
     expect(deriveAgentAccessDisplayName(undefined)).toBeUndefined();
+  });
+
+  describe("with an OpenShell key (§M8.5)", () => {
+    const openshell = {
+      gatewayEndpoint: "https://127.0.0.1:17670",
+      sandboxId: "sbx-01J9Z6",
+      providerId: "prov-7f3a",
+    };
+
+    it("adds the OpenShell key to the attested gateway identity", () => {
+      const key = deriveAgentAccessAttestationKey(
+        {
+          pid: 2,
+          exePath: "/usr/bin/aac",
+          parent: { pid: 1, exePath: "/usr/bin/openshell-gateway" },
+          signature: {
+            kind: "linuxPathOnly" as agent_access.SignatureKindData,
+            identity: "/usr/bin/openshell-gateway",
+            valid: false,
+          },
+        } as agent_access.LocalPeerInfoData,
+        { ...openshell, extra: "ignored" } as typeof openshell,
+      );
+      expect(key).toEqual({
+        signatureKind: PATH_SIGNATURE_KIND,
+        signatureIdentity: "/usr/bin/openshell-gateway",
+        openshell,
+      });
+    });
+
+    it("omits the OpenShell part entirely for a plain local key", () => {
+      const key = deriveAgentAccessAttestationKey({
+        pid: 2,
+        exePath: "/usr/bin/aac",
+      } as agent_access.LocalPeerInfoData);
+      expect("openshell" in key).toBe(false);
+    });
   });
 });

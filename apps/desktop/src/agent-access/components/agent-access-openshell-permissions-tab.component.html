@@ -1,0 +1,154 @@
+<div class="tw-flex tw-flex-col tw-gap-4" data-testid="openshell-permissions">
+  <div class="tw-flex tw-flex-wrap tw-items-start tw-justify-between tw-gap-4">
+    <p bitTypography="body2" class="tw-m-0 tw-max-w-prose tw-text-muted">
+      {{ "agentAccessOsPermIntro" | i18n }}
+    </p>
+    @if (!loading() && !failure()) {
+      <button
+        id="agent-access-openshell-permissions_button_new"
+        type="button"
+        bitButton
+        buttonType="primary"
+        startIcon="bwi-plus"
+        (click)="openNew()"
+      >
+        {{ "agentAccessOsPermNew" | i18n }}
+      </button>
+    }
+  </div>
+
+  @if (actionFailure(); as message) {
+    <bit-callout type="danger" data-testid="openshell-permissions-action-error">
+      {{ message }}
+    </bit-callout>
+  }
+
+  @if (loading()) {
+    <bit-skeleton-group data-testid="openshell-permissions-loading">
+      <bit-skeleton-text [lines]="3" class="tw-w-1/2"></bit-skeleton-text>
+    </bit-skeleton-group>
+  } @else if (failure(); as fail) {
+    <bit-callout type="danger" data-testid="openshell-permissions-error">
+      {{ "agentAccessOsCredErrorFailed" | i18n }}
+      @if (fail.message) {
+        <span class="tw-block tw-break-words" bitTypography="helper">{{ fail.message }}</span>
+      }
+    </bit-callout>
+  } @else if (rows().length === 0) {
+    <div
+      class="tw-flex tw-flex-col tw-items-start tw-gap-3"
+      data-testid="openshell-permissions-empty"
+    >
+      <p class="tw-m-0 tw-text-muted">{{ "agentAccessOsPermEmpty" | i18n }}</p>
+      <button
+        id="agent-access-openshell-permissions_button_new-empty"
+        type="button"
+        bitButton
+        buttonType="primary"
+        startIcon="bwi-plus"
+        (click)="openNew()"
+      >
+        {{ "agentAccessOsPermNew" | i18n }}
+      </button>
+    </div>
+  } @else {
+    <bit-table>
+      <ng-container header>
+        <tr>
+          <th bitCell>{{ "agentAccessOsCredColumnPermission" | i18n }}</th>
+          <th bitCell>{{ "agentAccessOsPermColumnHosts" | i18n }}</th>
+          <th bitCell>{{ "agentAccessOsPermColumnPrograms" | i18n }}</th>
+          <th bitCell class="tw-w-12"></th>
+        </tr>
+      </ng-container>
+      <ng-template body>
+        @for (row of rows(); track row.id) {
+          <tr bitRow data-testid="openshell-permission-row">
+            <td bitCell class="tw-break-all">
+              <bdi>{{ row.name }}</bdi>
+              @if (!row.editable) {
+                <bit-badge variant="subtle" data-testid="openshell-permission-builtin">{{
+                  "agentAccessOsPermBuiltIn" | i18n
+                }}</bit-badge>
+              }
+              @if (row.envVars.length > 0) {
+                <div class="tw-font-mono tw-text-muted">{{ row.envVars.join(", ") }}</div>
+              }
+              <div
+                bitTypography="helper"
+                class="tw-text-muted"
+                data-testid="openshell-permission-used-by"
+              >
+                @if (row.usedBy.length > 0) {
+                  {{ "agentAccessOsPermUsedBy" | i18n }}: <bdi>{{ row.usedBy.join(", ") }}</bdi>
+                } @else {
+                  {{ "agentAccessOsPermUnused" | i18n }}
+                }
+              </div>
+            </td>
+            <td bitCell class="tw-break-all">
+              @for (endpoint of row.endpoints; track endpoint.host + endpoint.port) {
+                <div class="tw-font-mono">
+                  {{ endpoint.host }}:{{ endpoint.port }}
+                  @if (endpoint.access) {
+                    <span class="tw-font-sans tw-text-muted">&middot; {{ endpoint.access }}</span>
+                  }
+                </div>
+              } @empty {
+                <span class="tw-text-muted">{{ "agentAccessOsPermHostsUnknown" | i18n }}</span>
+              }
+            </td>
+            <td bitCell class="tw-break-all">
+              @for (item of row.programs; track item.key) {
+                @if (item.program; as program) {
+                  <div class="tw-flex tw-items-center tw-gap-2 tw-py-0.5">
+                    <app-agent-access-openshell-program-icon
+                      [program]="program"
+                    ></app-agent-access-openshell-program-icon>
+                    <span>{{ program.name }}</span>
+                  </div>
+                } @else {
+                  <div class="tw-font-mono">{{ item.path }}</div>
+                }
+              } @empty {
+                <span class="tw-text-muted">{{ "agentAccessOsPermProgramsAny" | i18n }}</span>
+              }
+            </td>
+            <td bitCell class="tw-text-right">
+              @if (row.editable) {
+                <button
+                  type="button"
+                  bitIconButton="bwi-ellipsis-v"
+                  buttonType="subtleGhost"
+                  size="small"
+                  [bitMenuTriggerFor]="rowMenu"
+                  [label]="'options' | i18n"
+                  [id]="'agent-access-openshell-permissions_button_options-' + row.id"
+                ></button>
+                <bit-menu #rowMenu>
+                  <button
+                    type="button"
+                    bitMenuItem
+                    [id]="'agent-access-openshell-permissions_button_edit-' + row.id"
+                    (click)="edit(row)"
+                  >
+                    {{ "edit" | i18n }}
+                  </button>
+                  <button
+                    type="button"
+                    bitMenuItem
+                    [disabled]="!canDelete(row)"
+                    [id]="'agent-access-openshell-permissions_button_delete-' + row.id"
+                    (click)="delete(row)"
+                  >
+                    <span [class.tw-text-danger]="canDelete(row)">{{ "delete" | i18n }}</span>
+                  </button>
+                </bit-menu>
+              }
+            </td>
+          </tr>
+        }
+      </ng-template>
+    </bit-table>
+  }
+</div>

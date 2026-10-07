@@ -18,6 +18,10 @@ import {
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
+import {
+  coerceOpenShellApprovalLifetime,
+  OpenShellApprovalLifetime,
+} from "../../agent-access/models/openshell";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { isDev } from "../../utils";
 import { ModalModeState, WindowState } from "../models/domain/window-state";
@@ -55,6 +59,26 @@ const AGENT_ACCESS_ENABLED = new KeyDefinition<boolean>(
   "agentAccessEnabled",
   {
     deserializer: (b) => b,
+  },
+);
+
+/** Optional NVIDIA OpenShell integration for Agent Access (agent-access-architecture.md, §M8.6).
+ *  Off by default; the toggle is only offered when OpenShell is detected. */
+const AGENT_ACCESS_OPENSHELL_ENABLED = new KeyDefinition<boolean>(
+  DESKTOP_SETTINGS_DISK,
+  "agentAccessOpenShellEnabled",
+  {
+    deserializer: (b) => b,
+  },
+);
+
+/** §M8.6: how long one OpenShell approval lasts. Default `{ mode: "ttl", ttlMinutes: 60 }`; an
+ *  invalid persisted value is coerced to that default when read. */
+const AGENT_ACCESS_OPENSHELL_APPROVAL_LIFETIME = new KeyDefinition<OpenShellApprovalLifetime>(
+  DESKTOP_SETTINGS_DISK,
+  "agentAccessOpenShellApprovalLifetime",
+  {
+    deserializer: (value) => coerceOpenShellApprovalLifetime(value),
   },
 );
 
@@ -121,6 +145,24 @@ export class DesktopSettingsService {
   private readonly agentAccessEnabledState = this.stateProvider.getGlobal(AGENT_ACCESS_ENABLED);
 
   agentAccessEnabled$ = this.agentAccessEnabledState.state$.pipe(map(Boolean));
+
+  private readonly agentAccessOpenShellEnabledState = this.stateProvider.getGlobal(
+    AGENT_ACCESS_OPENSHELL_ENABLED,
+  );
+
+  /** Whether the optional OpenShell integration is on. Defaults to `false`. */
+  agentAccessOpenShellEnabled$: Observable<boolean> =
+    this.agentAccessOpenShellEnabledState.state$.pipe(map((v) => v === true));
+
+  private readonly agentAccessOpenShellApprovalLifetimeState = this.stateProvider.getGlobal(
+    AGENT_ACCESS_OPENSHELL_APPROVAL_LIFETIME,
+  );
+
+  /** How long one OpenShell approval lasts. Never emits an invalid value. */
+  agentAccessOpenShellApprovalLifetime$: Observable<OpenShellApprovalLifetime> =
+    this.agentAccessOpenShellApprovalLifetimeState.state$.pipe(
+      map((v) => coerceOpenShellApprovalLifetime(v)),
+    );
 
   private readonly sshAgentPromptBehavior = this.stateProvider.getActive(SSH_AGENT_PROMPT_BEHAVIOR);
   sshAgentPromptBehavior$ = this.sshAgentPromptBehavior.state$.pipe(
@@ -221,6 +263,18 @@ export class DesktopSettingsService {
    */
   async setAgentAccessEnabled(value: boolean) {
     await this.agentAccessEnabledState.update(() => value);
+  }
+
+  /** Turns the optional OpenShell integration on or off. */
+  async setAgentAccessOpenShellEnabled(value: boolean): Promise<void> {
+    await this.agentAccessOpenShellEnabledState.update(() => value === true);
+  }
+
+  /** Sets how long one OpenShell approval lasts. Invalid input is coerced to the default. */
+  async setAgentAccessOpenShellApprovalLifetime(value: OpenShellApprovalLifetime): Promise<void> {
+    await this.agentAccessOpenShellApprovalLifetimeState.update(() =>
+      coerceOpenShellApprovalLifetime(value),
+    );
   }
 
   /**

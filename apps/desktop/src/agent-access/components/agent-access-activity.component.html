@@ -30,7 +30,12 @@
                  `CredentialRequestActivity` for why the main process never stores one. -->
             <td bitCell class="tw-align-top">
               <div class="tw-flex tw-items-center tw-gap-2">
-                @if (entry.queryType) {
+                @if (entry.origin === "openshell") {
+                  <!-- OpenShell rows (§M8.8) carry ids only: show the gateway-reported sandbox id. -->
+                  <div bitTypography="helper" class="tw-text-muted">
+                    {{ "agentAccessOpenShellTitle" | i18n }}
+                  </div>
+                } @else if (entry.queryType) {
                   <div bitTypography="helper" class="tw-text-muted">
                     {{ queryTypeLabel(entry.queryType) }}
                   </div>
@@ -45,7 +50,11 @@
                   </span>
                 }
               </div>
-              @if (entry.queryValue) {
+              @if (entry.origin === "openshell" && entry.sandboxId) {
+                <span class="tw-font-mono tw-break-all"
+                  ><bdi>{{ entry.sandboxId }}</bdi></span
+                >
+              } @else if (entry.queryValue) {
                 <span class="tw-font-mono tw-break-all">{{ entry.queryValue }}</span>
               }
             </td>

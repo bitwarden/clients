@@ -1,0 +1,197 @@
+<div class="tw-flex tw-flex-col tw-gap-6" data-testid="agent-access-openshell-page">
+  <app-agent-access-openshell-view-toggle view="sandboxes" />
+  <div class="tw-flex tw-flex-wrap tw-items-start tw-justify-between tw-gap-4">
+    <p bitTypography="body2" class="tw-m-0 tw-max-w-prose tw-text-muted">
+      {{ "agentAccessOsPageDescription" | i18n }}
+    </p>
+    <div class="tw-flex tw-gap-2">
+      <button
+        id="agent-access-openshell-page_button_refresh"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        startIcon="bwi-refresh"
+        [disabled]="loading()"
+        (click)="refresh()"
+      >
+        {{ "agentAccessOsPageRefresh" | i18n }}
+      </button>
+      <button
+        id="agent-access-openshell-page_button_create"
+        type="button"
+        bitButton
+        buttonType="primary"
+        startIcon="bwi-plus"
+        (click)="openCreateDialog()"
+      >
+        {{ "agentAccessOsPageCreate" | i18n }}
+      </button>
+    </div>
+  </div>
+
+  @if (actionError(); as message) {
+    <bit-callout
+      type="danger"
+      [title]="'agentAccessOsPageActionFailedTitle' | i18n"
+      data-testid="agent-access-openshell-action-error"
+    >
+      {{ message }}
+    </bit-callout>
+  }
+
+  @if (loading() && sandboxes() === null) {
+    <div class="tw-flex tw-flex-col tw-gap-3" data-testid="agent-access-openshell-loading">
+      @for (i of skeletonRows; track i) {
+        <bit-skeleton-group>
+          <bit-skeleton class="tw-size-8" slot="start"></bit-skeleton>
+          <bit-skeleton-text [lines]="2" class="tw-w-1/2"></bit-skeleton-text>
+        </bit-skeleton-group>
+      }
+    </div>
+  } @else if (failure(); as fail) {
+    <bit-callout
+      type="warning"
+      [title]="failureKey() | i18n"
+      data-testid="agent-access-openshell-error"
+      [attr.data-error]="fail.error"
+    >
+      @if (fail.message) {
+        <p class="tw-m-0 tw-break-words" data-testid="agent-access-openshell-error-message">
+          {{ fail.message }}
+        </p>
+      }
+      <button
+        id="agent-access-openshell-page_button_retry"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        size="small"
+        class="tw-mt-3"
+        (click)="refresh()"
+      >
+        {{ "tryAgain" | i18n }}
+      </button>
+    </bit-callout>
+  } @else if (sandboxes(); as list) {
+    @if (list.length === 0) {
+      <bit-no-items data-testid="agent-access-openshell-empty">
+        <ng-container slot="title">{{ "agentAccessOsPageEmptyTitle" | i18n }}</ng-container>
+        <ng-container slot="description">{{
+          "agentAccessOsPageEmptyDescription" | i18n
+        }}</ng-container>
+        <button
+          slot="button"
+          id="agent-access-openshell-page_button_create-empty"
+          type="button"
+          bitButton
+          buttonType="primary"
+          startIcon="bwi-plus"
+          (click)="openCreateDialog()"
+        >
+          {{ "agentAccessOsPageCreate" | i18n }}
+        </button>
+      </bit-no-items>
+    } @else {
+      <bit-table data-testid="agent-access-openshell-list">
+        <ng-container header>
+          <tr>
+            <th bitCell>{{ "name" | i18n }}</th>
+            <th bitCell>{{ "agentAccessOsPageColumnStatus" | i18n }}</th>
+            <th bitCell>{{ "agentAccessOsPageColumnSecrets" | i18n }}</th>
+            <th bitCell>{{ "agentAccessOsPageColumnCreated" | i18n }}</th>
+            <th bitCell class="tw-w-12"></th>
+          </tr>
+        </ng-container>
+        <ng-template body>
+          @for (sandbox of list; track sandbox.id) {
+            <tr bitRow data-testid="agent-access-openshell-row">
+              <td bitCell>
+                <a
+                  bitLink
+                  [routerLink]="[sandbox.name]"
+                  [id]="'agent-access-openshell-page_link_open-' + sandbox.name"
+                  class="tw-break-all"
+                >
+                  @if (colorClassOf(sandbox.name); as accent) {
+                    <span
+                      class="tw-mr-2 tw-inline-block tw-size-2 tw-rounded-full"
+                      [class]="accent"
+                      data-testid="sandbox-accent"
+                    ></span>
+                  }
+                  <bdi>{{ sandbox.name }}</bdi>
+                </a>
+                @if (purposeOf(sandbox.name); as purpose) {
+                  <div
+                    bitTypography="helper"
+                    class="tw-break-words tw-text-muted"
+                    data-testid="sandbox-purpose"
+                  >
+                    <bdi>{{ purpose }}</bdi>
+                  </div>
+                }
+              </td>
+              <td bitCell>
+                <bit-badge [variant]="phaseVariant(sandbox)" data-testid="phase-badge">
+                  {{ sandbox.phase }}
+                </bit-badge>
+              </td>
+              <td bitCell data-testid="secret-count">
+                {{ sandbox.providerCount ?? "" }}
+              </td>
+              <td bitCell class="tw-text-muted">
+                @if (createdDate(sandbox); as created) {
+                  {{ created | date: "medium" }}
+                } @else {
+                  {{ sandbox.createdAt }}
+                }
+              </td>
+              <td bitCell class="tw-text-right">
+                <button
+                  type="button"
+                  bitIconButton="bwi-ellipsis-v"
+                  buttonType="subtleGhost"
+                  size="small"
+                  [bitMenuTriggerFor]="rowMenu"
+                  [label]="'options' | i18n"
+                  [disabled]="isBusy(sandbox.name)"
+                  [id]="'agent-access-openshell-page_button_options-' + sandbox.name"
+                ></button>
+                <bit-menu #rowMenu>
+                  @if (isStopped(sandbox)) {
+                    <button
+                      type="button"
+                      bitMenuItem
+                      [id]="'agent-access-openshell-page_button_start-' + sandbox.name"
+                      (click)="start(sandbox)"
+                    >
+                      {{ "agentAccessOsPageStart" | i18n }}
+                    </button>
+                  }
+                  @if (isReady(sandbox)) {
+                    <button
+                      type="button"
+                      bitMenuItem
+                      [id]="'agent-access-openshell-page_button_stop-' + sandbox.name"
+                      (click)="stop(sandbox)"
+                    >
+                      {{ "agentAccessOsPageStop" | i18n }}
+                    </button>
+                  }
+                  <button
+                    type="button"
+                    bitMenuItem
+                    [id]="'agent-access-openshell-page_button_delete-' + sandbox.name"
+                    (click)="delete(sandbox)"
+                  >
+                    <span class="tw-text-danger">{{ "agentAccessOsPageDelete" | i18n }}</span>
+                  </button>
+                </bit-menu>
+              </td>
+            </tr>
+          }
+        </ng-template>
+      </bit-table>
+    }
+  }
+</div>

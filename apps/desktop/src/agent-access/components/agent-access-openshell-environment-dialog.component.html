@@ -1,0 +1,171 @@
+<form [formGroup]="form" [bitSubmit]="submit" bit-dialog>
+  <span bitDialogTitle>{{
+    (editing ? "agentAccessOsEnvEditTitle" : "agentAccessOsEnvNewTitle") | i18n
+  }}</span>
+
+  <div bitDialogContent class="tw-flex tw-flex-col tw-gap-4">
+    @if (errorMessage(); as message) {
+      <bit-callout type="danger" data-testid="agent-access-os-env-error">
+        {{ message }}
+      </bit-callout>
+    }
+
+    <bit-form-field>
+      <bit-label>{{ "agentAccessOsEnvName" | i18n }}</bit-label>
+      <input
+        id="agent-access-openshell-environment-dialog_input_name"
+        bitInput
+        type="text"
+        formControlName="name"
+        autocomplete="off"
+        [maxlength]="maxName"
+        [spellcheck]="false"
+      />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "agentAccessOsEnvDescription" | i18n }}</bit-label>
+      <input
+        id="agent-access-openshell-environment-dialog_input_description"
+        bitInput
+        type="text"
+        formControlName="description"
+        autocomplete="off"
+        [maxlength]="maxDescription"
+      />
+    </bit-form-field>
+
+    <bit-radio-group formControlName="source" [block]="true">
+      <bit-label>{{ "agentAccessOsCreateSource" | i18n }}</bit-label>
+      <bit-radio-button
+        id="agent-access-openshell-environment-dialog_radio_source-default"
+        value="default"
+      >
+        <bit-label>{{ "agentAccessOsCreateSourceDefault" | i18n }}</bit-label>
+      </bit-radio-button>
+      <bit-radio-button
+        id="agent-access-openshell-environment-dialog_radio_source-image"
+        value="image"
+      >
+        <bit-label>{{ "agentAccessOsCreateSourceImage" | i18n }}</bit-label>
+      </bit-radio-button>
+      <bit-radio-button
+        id="agent-access-openshell-environment-dialog_radio_source-template"
+        value="template"
+      >
+        <bit-label>{{ "agentAccessOsCreateSourceTemplate" | i18n }}</bit-label>
+      </bit-radio-button>
+    </bit-radio-group>
+
+    @if (source() === "image") {
+      <bit-form-field>
+        <bit-label>{{ "agentAccessOsCreateImage" | i18n }}</bit-label>
+        <input
+          id="agent-access-openshell-environment-dialog_input_image"
+          bitInput
+          type="text"
+          class="tw-font-mono"
+          formControlName="sourceValue"
+          autocomplete="off"
+          [spellcheck]="false"
+          placeholder="registry.example.com/image:tag"
+        />
+        <bit-hint>{{ "agentAccessOsCreateImageHint" | i18n }}</bit-hint>
+      </bit-form-field>
+    } @else if (source() === "template") {
+      <bit-form-field>
+        <bit-label>{{ "agentAccessOsCreateTemplate" | i18n }}</bit-label>
+        <input
+          id="agent-access-openshell-environment-dialog_input_template"
+          bitInput
+          type="text"
+          formControlName="sourceValue"
+          autocomplete="off"
+          [spellcheck]="false"
+        />
+      </bit-form-field>
+    }
+
+    <div class="tw-flex tw-gap-4">
+      <bit-form-field class="tw-flex-1">
+        <bit-label>{{ "agentAccessOsCreateCpu" | i18n }}</bit-label>
+        <input
+          id="agent-access-openshell-environment-dialog_input_cpu"
+          bitInput
+          type="text"
+          formControlName="cpu"
+          autocomplete="off"
+          [spellcheck]="false"
+          placeholder="500m, 2"
+        />
+      </bit-form-field>
+      <bit-form-field class="tw-flex-1">
+        <bit-label>{{ "agentAccessOsCreateMemory" | i18n }}</bit-label>
+        <input
+          id="agent-access-openshell-environment-dialog_input_memory"
+          bitInput
+          type="text"
+          formControlName="memory"
+          autocomplete="off"
+          [spellcheck]="false"
+          placeholder="512Mi, 4Gi"
+        />
+      </bit-form-field>
+    </div>
+
+    <bit-form-field disableMargin>
+      <bit-label>{{ "agentAccessOsEnvSecrets" | i18n }}</bit-label>
+      <bit-select
+        id="agent-access-openshell-environment-dialog_select_secrets"
+        formControlName="secrets"
+      >
+        <bit-option
+          [value]="ENV_SECRETS_NONE"
+          [label]="'agentAccessOsEnvSecretsNone' | i18n"
+        ></bit-option>
+        @if (inlineSecrets.length > 0) {
+          <bit-option
+            [value]="ENV_SECRETS_INLINE"
+            [label]="'agentAccessOsEnvSecretsInline' | i18n: inlineSecrets.length"
+          ></bit-option>
+        }
+        @for (set of sets; track set.id) {
+          <bit-option [value]="set.id" [label]="set.name"></bit-option>
+        }
+      </bit-select>
+      <bit-hint>{{ "agentAccessOsEnvSecretsHint" | i18n }}</bit-hint>
+    </bit-form-field>
+
+    @if (skippedSecrets > 0) {
+      <p
+        bitTypography="helper"
+        class="tw-m-0 tw-text-muted"
+        data-testid="agent-access-os-env-skipped"
+      >
+        {{ "agentAccessOsEnvSkipped" | i18n: skippedSecrets }}
+      </p>
+    }
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button
+      id="agent-access-openshell-environment-dialog_button_save"
+      type="submit"
+      bitButton
+      bitFormButton
+      buttonType="primary"
+    >
+      {{ "save" | i18n }}
+    </button>
+    <button
+      id="agent-access-openshell-environment-dialog_button_cancel"
+      type="button"
+      bitButton
+      bitFormButton
+      buttonType="secondary"
+      bitDialogClose
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</form>

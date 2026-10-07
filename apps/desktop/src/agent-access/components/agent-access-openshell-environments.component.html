@@ -1,0 +1,213 @@
+<div class="tw-flex tw-flex-col tw-gap-6" data-testid="agent-access-openshell-environments">
+  <app-agent-access-openshell-view-toggle view="environments" />
+
+  <div class="tw-flex tw-flex-wrap tw-items-start tw-justify-between tw-gap-4">
+    <p bitTypography="body2" class="tw-m-0 tw-max-w-prose tw-text-muted">
+      {{ "agentAccessOsEnvDescriptionText" | i18n }}
+    </p>
+    <button
+      id="agent-access-openshell-environments_button_new"
+      type="button"
+      bitButton
+      buttonType="primary"
+      startIcon="bwi-plus"
+      (click)="newEnvironment()"
+    >
+      {{ "agentAccessOsEnvNew" | i18n }}
+    </button>
+  </div>
+
+  @if (actionError(); as message) {
+    <bit-callout
+      type="danger"
+      [title]="'agentAccessOsPageActionFailedTitle' | i18n"
+      data-testid="agent-access-openshell-environments-action-error"
+    >
+      {{ message }}
+    </bit-callout>
+  }
+
+  @if (loading() && environments().length === 0 && sets().length === 0 && !failure()) {
+    <div
+      class="tw-flex tw-flex-col tw-gap-3"
+      data-testid="agent-access-openshell-environments-loading"
+    >
+      @for (i of skeletonRows; track i) {
+        <bit-skeleton-group>
+          <bit-skeleton-text [lines]="2" class="tw-w-1/2"></bit-skeleton-text>
+        </bit-skeleton-group>
+      }
+    </div>
+  } @else if (failure(); as fail) {
+    <bit-callout
+      type="warning"
+      [title]="failureKey() | i18n"
+      data-testid="agent-access-openshell-environments-error"
+      [attr.data-error]="fail.error"
+    >
+      @if (fail.message) {
+        <p class="tw-m-0 tw-break-words">{{ fail.message }}</p>
+      }
+      <button
+        id="agent-access-openshell-environments_button_retry"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        size="small"
+        class="tw-mt-3"
+        (click)="retry()"
+      >
+        {{ "tryAgain" | i18n }}
+      </button>
+    </bit-callout>
+  } @else {
+    @if (environments().length === 0) {
+      <bit-no-items data-testid="agent-access-openshell-environments-empty">
+        <ng-container slot="title">{{ "agentAccessOsEnvEmptyTitle" | i18n }}</ng-container>
+        <ng-container slot="description">{{
+          "agentAccessOsEnvEmptyDescription" | i18n
+        }}</ng-container>
+        <button
+          slot="button"
+          id="agent-access-openshell-environments_button_new-empty"
+          type="button"
+          bitButton
+          buttonType="primary"
+          startIcon="bwi-plus"
+          (click)="newEnvironment()"
+        >
+          {{ "agentAccessOsEnvNew" | i18n }}
+        </button>
+      </bit-no-items>
+    } @else {
+      <bit-table data-testid="agent-access-openshell-environments-list">
+        <ng-container header>
+          <tr>
+            <th bitCell>{{ "name" | i18n }}</th>
+            <th bitCell>{{ "agentAccessOsEnvColumnSource" | i18n }}</th>
+            <th bitCell>{{ "agentAccessOsEnvColumnResources" | i18n }}</th>
+            <th bitCell>{{ "agentAccessOsEnvColumnSecrets" | i18n }}</th>
+            <th bitCell class="tw-w-12"></th>
+          </tr>
+        </ng-container>
+        <ng-template body>
+          @for (environment of environments(); track environment.id) {
+            <tr bitRow data-testid="agent-access-openshell-environment-row">
+              <td bitCell class="tw-break-all">
+                <bdi>{{ environment.name }}</bdi>
+                @if (environment.description) {
+                  <div
+                    bitTypography="helper"
+                    class="tw-text-muted"
+                    data-testid="environment-description"
+                  >
+                    <bdi>{{ environment.description }}</bdi>
+                  </div>
+                }
+              </td>
+              <td bitCell class="tw-break-all tw-font-mono">{{ sourceText(environment) }}</td>
+              <td bitCell>{{ resourcesText(environment) }}</td>
+              <td bitCell class="tw-text-muted" data-testid="environment-secrets">
+                <bdi>{{ secretsText(environment) }}</bdi>
+              </td>
+              <td bitCell class="tw-text-right">
+                <button
+                  type="button"
+                  bitIconButton="bwi-ellipsis-v"
+                  buttonType="subtleGhost"
+                  size="small"
+                  [bitMenuTriggerFor]="envMenu"
+                  [label]="'options' | i18n"
+                  [id]="'agent-access-openshell-environments_button_options-' + environment.id"
+                ></button>
+                <bit-menu #envMenu>
+                  <button
+                    type="button"
+                    bitMenuItem
+                    [id]="'agent-access-openshell-environments_button_edit-' + environment.id"
+                    (click)="edit(environment)"
+                  >
+                    {{ "edit" | i18n }}
+                  </button>
+                  <button
+                    type="button"
+                    bitMenuItem
+                    [id]="'agent-access-openshell-environments_button_delete-' + environment.id"
+                    (click)="delete(environment)"
+                  >
+                    <span class="tw-text-danger">{{ "delete" | i18n }}</span>
+                  </button>
+                </bit-menu>
+              </td>
+            </tr>
+          }
+        </ng-template>
+      </bit-table>
+    }
+
+    <section class="tw-flex tw-flex-col tw-gap-3" data-testid="agent-access-openshell-sets">
+      <h3 bitTypography="h3" class="tw-m-0">{{ "agentAccessOsSetsTitle" | i18n }}</h3>
+      <p bitTypography="body2" class="tw-m-0 tw-max-w-prose tw-text-muted">
+        {{ "agentAccessOsSetsDescription" | i18n }}
+      </p>
+      @if (sets().length === 0) {
+        <p
+          bitTypography="body2"
+          class="tw-m-0 tw-text-muted"
+          data-testid="agent-access-openshell-sets-empty"
+        >
+          {{ "agentAccessOsSetsEmpty" | i18n }}
+        </p>
+      } @else {
+        <bit-table>
+          <ng-container header>
+            <tr>
+              <th bitCell>{{ "name" | i18n }}</th>
+              <th bitCell>{{ "agentAccessOsSetsColumnSecrets" | i18n }}</th>
+              <th bitCell class="tw-w-12"></th>
+            </tr>
+          </ng-container>
+          <ng-template body>
+            @for (set of sets(); track set.id) {
+              <tr bitRow data-testid="agent-access-openshell-set-row">
+                <td bitCell class="tw-break-all">
+                  <bdi>{{ set.name }}</bdi>
+                </td>
+                <td bitCell data-testid="set-secret-count">{{ set.secrets.length }}</td>
+                <td bitCell class="tw-text-right">
+                  <button
+                    type="button"
+                    bitIconButton="bwi-ellipsis-v"
+                    buttonType="subtleGhost"
+                    size="small"
+                    [bitMenuTriggerFor]="setMenu"
+                    [label]="'options' | i18n"
+                    [id]="'agent-access-openshell-environments_button_set-options-' + set.id"
+                  ></button>
+                  <bit-menu #setMenu>
+                    <button
+                      type="button"
+                      bitMenuItem
+                      [id]="'agent-access-openshell-environments_button_set-rename-' + set.id"
+                      (click)="renameSet(set)"
+                    >
+                      {{ "agentAccessOsSetRename" | i18n }}
+                    </button>
+                    <button
+                      type="button"
+                      bitMenuItem
+                      [id]="'agent-access-openshell-environments_button_set-delete-' + set.id"
+                      (click)="deleteSet(set)"
+                    >
+                      <span class="tw-text-danger">{{ "delete" | i18n }}</span>
+                    </button>
+                  </bit-menu>
+                </td>
+              </tr>
+            }
+          </ng-template>
+        </bit-table>
+      }
+    </section>
+  }
+</div>

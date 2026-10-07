@@ -1,5 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from "@angular/core";
-import { RouterOutlet } from "@angular/router";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
+import { filter, map } from "rxjs";
 
 import { CalloutModule, TabsModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -38,8 +47,37 @@ import { AgentAccessPageStateService } from "../services/agent-access-page-state
 })
 export class AgentAccessComponent implements OnInit {
   protected readonly pageState = inject(AgentAccessPageStateService);
+  private readonly router = inject(Router);
+
+  /** OpenShell is detected here and its gateway driver is set up (§M8.19 `configured`). */
+  private readonly openShellReady = signal(false);
+  private readonly currentUrl = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map((event) => event.urlAfterRedirects),
+    ),
+    { initialValue: this.router.url },
+  );
+
+  /** The OpenShell tab appears once OpenShell is set up, and stays while its page is open. */
+  protected readonly showOpenShellTab = computed(
+    () => this.openShellReady() || this.currentUrl().startsWith("/agent-access/openshell"),
+  );
 
   async ngOnInit() {
-    await this.pageState.refreshStatus();
+    await Promise.all([this.pageState.refreshStatus(), this.loadOpenShellTab()]);
+  }
+
+  private async loadOpenShellTab(): Promise<void> {
+    try {
+      const detection = await ipc.agentAccess.detectOpenShell();
+      if (!detection.present || !detection.platformSupported) {
+        return;
+      }
+      const status = await ipc.agentAccess.getOpenShellSetupStatus();
+      this.openShellReady.set(status.configured);
+    } catch {
+      this.openShellReady.set(false);
+    }
   }
 }

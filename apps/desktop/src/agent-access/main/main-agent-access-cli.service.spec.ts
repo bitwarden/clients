@@ -15,6 +15,10 @@ import { AgentAccessRegistrationStatusService } from "./agent-access-registratio
 import { AgentAccessRegistrationService } from "./agent-access-registration.service";
 import { AgentDetectionService } from "./agent-detection.service";
 import { MainAgentAccessCliService } from "./main-agent-access-cli.service";
+import { OpenShellDetectionService } from "./openshell-detection.service";
+import { OpenShellEnabledState } from "./openshell-enabled-state";
+import { OpenShellManagementService } from "./openshell-management.service";
+import { OpenShellSetupService } from "./openshell-setup.service";
 
 jest.mock("electron", () => ({
   ipcMain: {
@@ -345,6 +349,304 @@ describe("MainAgentAccessCliService", () => {
 
       expect(agentRegistrationStatusService.getAgentRegistrationStatuses).toHaveBeenCalled();
       expect(result).toEqual(statuses);
+    });
+  });
+
+  describe("OpenShell IPC (§M8.8)", () => {
+    const detected = {
+      present: true,
+      platformSupported: true,
+      gateways: [
+        {
+          name: "home",
+          endpoint: "https://127.0.0.1:1",
+          authMode: "mtls",
+          active: false,
+          authSupported: true,
+        },
+        {
+          name: "work",
+          endpoint: "https://127.0.0.1:2",
+          authMode: "mtls",
+          active: true,
+          authSupported: true,
+        },
+      ],
+      gatewayConfigPathHint: "/opt/homebrew/var/openshell/gateway.toml",
+    };
+
+    function create(detection: Partial<typeof detected> & Record<string, unknown> = detected) {
+      const openShellDetection = mock<OpenShellDetectionService>();
+      openShellDetection.detect.mockResolvedValue({ ...detected, ...detection } as any);
+      const service = new MainAgentAccessCliService(
+        mockLogService,
+        userDataPath,
+        exePath,
+        appPath,
+        mock<AgentDetectionService>(),
+        mock<AgentAccessRegistrationService>(),
+        mock<AgentAccessRegistrationStatusService>(),
+        openShellDetection,
+        "/Users/test",
+      );
+      return { service, openShellDetection };
+    }
+
+    it("registers DETECT_OPENSHELL and returns the detection result", async () => {
+      const { openShellDetection } = create();
+      const result = await ipcHandlers.get("agentaccess.detectopenshell")!({});
+      expect(openShellDetection.detect).toHaveBeenCalled();
+      expect(result.present).toBe(true);
+    });
+
+    it("builds the snippet from main-owned inputs only, using the active gateway", async () => {
+      (existsSync as jest.Mock).mockReturnValue(true);
+      create();
+      const snippet = await ipcHandlers.get("agentaccess.getopenshellsnippet")!(
+        {},
+        { aacPath: "/tmp/evil", driverSocketPath: "/tmp/evil.sock" },
+      );
+      expect(snippet.gatewayName).toBe("work");
+      expect(snippet.gatewayToml).toContain(
+        'command = "/Applications/Bitwarden.app/Contents/MacOS/aac"',
+      );
+      expect(snippet.gatewayToml).toContain(
+        'socket_path = "/Users/test/.bitwarden-openshell-driver.sock"',
+      );
+      expect(snippet.gatewayToml).toContain('"--gateway", "work"]');
+      expect(snippet.gatewayToml).not.toContain("evil");
+    });
+
+    it("falls back to the default gateway name when none is configured", async () => {
+      (existsSync as jest.Mock).mockReturnValue(true);
+      create({ gateways: [] });
+      const snippet = await ipcHandlers.get("agentaccess.getopenshellsnippet")!({});
+      expect(snippet.gatewayName).toBe("openshell");
+    });
+
+    it("returns no snippet when OpenShell is absent, unsupported, or there is no bundled aac", async () => {
+      (existsSync as jest.Mock).mockReturnValue(true);
+      create({ present: false });
+      expect(await ipcHandlers.get("agentaccess.getopenshellsnippet")!({})).toBeNull();
+
+      create({ platformSupported: false, unsupportedReason: "snap" });
+      expect(await ipcHandlers.get("agentaccess.getopenshellsnippet")!({})).toBeNull();
+
+      (existsSync as jest.Mock).mockReturnValue(false);
+      create();
+      expect(await ipcHandlers.get("agentaccess.getopenshellsnippet")!({})).toBeNull();
+    });
+
+    it("never writes anything for detection or the snippet on macOS", async () => {
+      (existsSync as jest.Mock).mockReturnValue(true);
+      create();
+      await ipcHandlers.get("agentaccess.detectopenshell")!({});
+      await ipcHandlers.get("agentaccess.getopenshellsnippet")!({});
+      for (const write of [fs.mkdir, fs.link, fs.copyFile, fs.unlink]) {
+        expect(write).not.toHaveBeenCalled();
+      }
+    });
+  });
+  describe("OpenShell management IPC (§M8.20)", () => {
+    const CHANNELS: Record<string, [string, boolean]> = {
+      listSandboxes: ["agentaccess.openshell.listsandboxes", false],
+      sandboxAction: ["agentaccess.openshell.sandboxaction", true],
+      createSandbox: ["agentaccess.openshell.createsandbox", true],
+      listProfiles: ["agentaccess.openshell.listprofiles", false],
+      listCredentials: ["agentaccess.openshell.listcredentials", true],
+      addCredential: ["agentaccess.openshell.addcredential", true],
+      removeCredential: ["agentaccess.openshell.removecredential", true],
+      getApplyStatus: ["agentaccess.openshell.getapplystatus", true],
+      createProfile: ["agentaccess.openshell.createprofile", true],
+      updateProfile: ["agentaccess.openshell.updateprofile", true],
+      deleteProfile: ["agentaccess.openshell.deleteprofile", true],
+    };
+
+    function createWithManagement() {
+      const management = mock<OpenShellManagementService>();
+      for (const method of Object.keys(CHANNELS)) {
+        (management as any)[method].mockResolvedValue({ ok: true, data: method });
+      }
+      new MainAgentAccessCliService(
+        mockLogService,
+        userDataPath,
+        exePath,
+        appPath,
+        mock<AgentDetectionService>(),
+        mock<AgentAccessRegistrationService>(),
+        mock<AgentAccessRegistrationStatusService>(),
+        mock<OpenShellDetectionService>(),
+        "/Users/test",
+        mock<OpenShellSetupService>(),
+        management,
+      );
+      return management;
+    }
+
+    it("registers all eleven channels and delegates each to the service", async () => {
+      const management = createWithManagement();
+      for (const [method, [channel, takesRequest]] of Object.entries(CHANNELS)) {
+        expect(ipcHandlers.has(channel)).toBe(true);
+        const request = takesRequest ? { sandboxName: "box" } : undefined;
+        const result = await ipcHandlers.get(channel)!({}, request);
+        expect(result).toEqual({ ok: true, data: method });
+        expect((management as any)[method]).toHaveBeenCalledTimes(1);
+        if (takesRequest) {
+          expect((management as any)[method]).toHaveBeenCalledWith(request);
+        }
+      }
+    });
+
+    it("rejects a payload that is not a plain object with invalidInput, without calling the service", async () => {
+      const management = createWithManagement();
+      for (const [method, [channel, takesRequest]] of Object.entries(CHANNELS)) {
+        for (const payload of ["x", 5, ["a"], true, new Date(), new (class Evil {})()]) {
+          expect(await ipcHandlers.get(channel)!({}, payload)).toEqual({
+            ok: false,
+            error: "invalidInput",
+          });
+        }
+        if (takesRequest) {
+          expect(await ipcHandlers.get(channel)!({})).toEqual({ ok: false, error: "invalidInput" });
+          expect(await ipcHandlers.get(channel)!({}, null)).toEqual({
+            ok: false,
+            error: "invalidInput",
+          });
+        }
+        expect((management as any)[method]).not.toHaveBeenCalled();
+      }
+    });
+
+    it("accepts no payload, null or an empty object for the argument-less channels", async () => {
+      const management = createWithManagement();
+      const channel = CHANNELS.listSandboxes[0];
+      await ipcHandlers.get(channel)!({});
+      await ipcHandlers.get(channel)!({}, null);
+      await ipcHandlers.get(channel)!({}, {});
+      expect(management.listSandboxes).toHaveBeenCalledTimes(3);
+    });
+
+    it("returns failed instead of throwing when the service throws", async () => {
+      const management = createWithManagement();
+      management.listProfiles.mockRejectedValue(new Error("boom"));
+      expect(await ipcHandlers.get(CHANNELS.listProfiles[0])!({})).toEqual({
+        ok: false,
+        error: "failed",
+      });
+    });
+
+    it("answers unsupported, without running anything, when OpenShell is not set up", async () => {
+      const setup = mock<OpenShellSetupService>();
+      setup.getStatus.mockResolvedValue({ configured: false } as any);
+      const detection = mock<OpenShellDetectionService>();
+      detection.detect.mockResolvedValue({
+        present: true,
+        platformSupported: true,
+        cliPath: "/opt/homebrew/bin/openshell",
+        gateways: [],
+        gatewayConfigPathHint: "/x",
+      } as any);
+      new MainAgentAccessCliService(
+        mockLogService,
+        userDataPath,
+        exePath,
+        appPath,
+        mock<AgentDetectionService>(),
+        mock<AgentAccessRegistrationService>(),
+        mock<AgentAccessRegistrationStatusService>(),
+        detection,
+        "/Users/test",
+        setup,
+      );
+      expect(await ipcHandlers.get(CHANNELS.listSandboxes[0])!({})).toEqual({
+        ok: false,
+        error: "unsupported",
+      });
+      expect(
+        await ipcHandlers.get(CHANNELS.sandboxAction[0])!({}, { action: "stop", name: "box" }),
+      ).toEqual({ ok: false, error: "unsupported" });
+    });
+
+    describe("Agent Access OpenShell toggle", () => {
+      function createGated(enabledState: OpenShellEnabledState) {
+        const setup = mock<OpenShellSetupService>();
+        setup.getStatus.mockResolvedValue({ configured: true } as any);
+        const detection = mock<OpenShellDetectionService>();
+        detection.detect.mockResolvedValue({
+          present: true,
+          platformSupported: true,
+          // Never exists: a request that passes the gate fails to start rather than running anything.
+          cliPath: "/nonexistent-dir/openshell",
+          gateways: [],
+          gatewayConfigPathHint: "/x",
+        } as any);
+        new MainAgentAccessCliService(
+          mockLogService,
+          userDataPath,
+          exePath,
+          appPath,
+          mock<AgentDetectionService>(),
+          mock<AgentAccessRegistrationService>(),
+          mock<AgentAccessRegistrationStatusService>(),
+          detection,
+          "/Users/test",
+          setup,
+          undefined,
+          enabledState,
+        );
+        return { setup, detection };
+      }
+
+      it("answers unsupported when set up but the toggle is off", async () => {
+        const { setup } = createGated(new OpenShellEnabledState());
+        expect(await ipcHandlers.get(CHANNELS.listSandboxes[0])!({})).toEqual({
+          ok: false,
+          error: "unsupported",
+        });
+        expect(
+          await ipcHandlers.get(CHANNELS.sandboxAction[0])!({}, { action: "delete", name: "box" }),
+        ).toEqual({ ok: false, error: "unsupported" });
+        expect(setup.getStatus).not.toHaveBeenCalled();
+      });
+
+      it("lets the request through once the toggle is on", async () => {
+        const state = new OpenShellEnabledState();
+        createGated(state);
+        state.set(true);
+        expect(await ipcHandlers.get(CHANNELS.listProfiles[0])!({})).toEqual({
+          ok: false,
+          error: "cliMissing",
+        });
+      });
+    });
+
+    it("answers unsupported when detection says the platform is unsupported", async () => {
+      const setup = mock<OpenShellSetupService>();
+      setup.getStatus.mockResolvedValue({ configured: true } as any);
+      const detection = mock<OpenShellDetectionService>();
+      detection.detect.mockResolvedValue({
+        present: true,
+        platformSupported: false,
+        cliPath: "/opt/homebrew/bin/openshell",
+        gateways: [],
+        gatewayConfigPathHint: "/x",
+      } as any);
+      new MainAgentAccessCliService(
+        mockLogService,
+        userDataPath,
+        exePath,
+        appPath,
+        mock<AgentDetectionService>(),
+        mock<AgentAccessRegistrationService>(),
+        mock<AgentAccessRegistrationStatusService>(),
+        detection,
+        "/Users/test",
+        setup,
+      );
+      expect(await ipcHandlers.get(CHANNELS.listProfiles[0])!({})).toEqual({
+        ok: false,
+        error: "unsupported",
+      });
     });
   });
 });

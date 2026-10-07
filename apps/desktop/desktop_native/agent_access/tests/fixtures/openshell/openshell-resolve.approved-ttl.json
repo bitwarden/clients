@@ -1,0 +1,1 @@
+{"version":1,"status":"approved","openshell":{"lifetime":{"mode":"ttl","expiresAtMs":1791234567890},"values":[{"credentialKey":"GITHUB_TOKEN","value":"fixture-password"},{"credentialKey":"DB_PASSWORD","value":"fixture-secret"}]}}

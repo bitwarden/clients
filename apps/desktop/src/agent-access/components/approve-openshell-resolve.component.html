@@ -1,0 +1,258 @@
+<bit-dialog dialogSize="large">
+  <span bitDialogTitle>{{ "agentAccessOpenShellRequestTitle" | i18n }}</span>
+
+  <div bitDialogContent class="tw-flex tw-flex-col tw-gap-4">
+    <!-- 2. The one verified fact: the gateway process that spawned aac. -->
+    <bit-callout
+      type="info"
+      [title]="'agentAccessOpenShellGatewayVerified' | i18n"
+      data-testid="openshell-verified-gateway"
+    >
+      <div class="tw-flex tw-flex-col tw-gap-1">
+        <span bitTypography="helper" class="tw-break-all tw-font-mono">
+          {{ params.gatewayIdentity.signatureKind }}: {{ params.gatewayIdentity.signatureIdentity }}
+        </span>
+        @if (params.gatewayIdentity.exePath) {
+          <span bitTypography="helper" class="tw-break-all tw-font-mono tw-text-muted">{{
+            params.gatewayIdentity.exePath
+          }}</span>
+        }
+        @if (params.gatewayIdentity.signatureValid !== true) {
+          <span bitTypography="helper" data-testid="openshell-gateway-weaker-guarantee">{{
+            "agentAccessFirstUseWeakerGuaranteeNote" | i18n
+          }}</span>
+        }
+      </div>
+    </bit-callout>
+
+    <!-- 3. Everything below is reported by the gateway. Always shown. -->
+    <bit-callout type="warning" [title]="null" data-testid="openshell-reported-by-gateway">
+      {{ "agentAccessOpenShellReportedByGateway" | i18n }}
+    </bit-callout>
+
+    @if (params.mode === "windowExpired") {
+      <p bitTypography="body2" class="tw-m-0" data-testid="openshell-window-expired">
+        {{ "agentAccessOpenShellWindowExpired" | i18n }}
+      </p>
+    }
+
+    <!-- 4–6. Sandbox, gateway, provider. Every gateway-reported string is wrapped in <bdi> so a
+         name with bidi control characters can't reorder the text around it. -->
+    <bit-section [disableMargin]="true">
+      <bit-item>
+        <div bit-item-content [truncate]="false">
+          <span class="tw-font-medium">{{ "agentAccessOpenShellSandbox" | i18n }}</span>
+          <span slot="secondary" class="tw-flex tw-flex-col">
+            <span data-testid="openshell-sandbox-name"
+              ><bdi>{{ params.context.sandboxName }}</bdi></span
+            >
+            <span class="tw-break-all tw-font-mono"
+              ><bdi>{{ params.context.sandboxId }}</bdi></span
+            >
+            @if (params.context.sandboxImage) {
+              <span class="tw-break-all"
+                >{{ "agentAccessOpenShellImage" | i18n }}:
+                <bdi>{{ params.context.sandboxImage }}</bdi></span
+              >
+            }
+            @if (params.context.workspace) {
+              <span
+                >{{ "agentAccessOpenShellWorkspace" | i18n }}:
+                <bdi>{{ params.context.workspace }}</bdi></span
+              >
+            }
+          </span>
+        </div>
+      </bit-item>
+      <bit-item>
+        <div bit-item-content [truncate]="false">
+          <span class="tw-font-medium">{{ "agentAccessOpenShellGateway" | i18n }}</span>
+          <span slot="secondary" class="tw-break-all"
+            ><bdi>{{ params.context.gatewayName }}</bdi> ·
+            <bdi>{{ params.context.gatewayEndpoint }}</bdi></span
+          >
+        </div>
+      </bit-item>
+      <bit-item>
+        <div bit-item-content [truncate]="false">
+          <span class="tw-font-medium">{{ "agentAccessOpenShellProvider" | i18n }}</span>
+          <span slot="secondary" class="tw-break-all"
+            ><bdi>{{ params.context.providerName }}</bdi>
+            @if (params.context.providerProfile) {
+              · <bdi>{{ params.context.providerProfile }}</bdi>
+            }
+          </span>
+        </div>
+      </bit-item>
+    </bit-section>
+
+    <!-- 7. Credentials: env var → item and field, or secret. -->
+    <bit-section [disableMargin]="true">
+      <bit-section-header>
+        <h3 bitTypography="h6">{{ "agentAccessOpenShellCredentials" | i18n }}</h3>
+      </bit-section-header>
+      @for (target of params.targets; track target.credentialKey) {
+        <bit-item>
+          <div bit-item-content [truncate]="false" data-testid="openshell-target">
+            <span class="tw-font-mono">{{ target.credentialKey }}</span>
+            <span slot="secondary"
+              ><bdi>{{ target.label }}</bdi> · {{ target.fieldLabel }}</span
+            >
+          </div>
+        </bit-item>
+      }
+    </bit-section>
+
+    <!-- 8. Allowed endpoints with their source. -->
+    <bit-section [disableMargin]="true">
+      <bit-section-header>
+        <h3 bitTypography="h6">{{ "agentAccessOpenShellAllowedEndpoints" | i18n }}</h3>
+      </bit-section-header>
+      @for (endpoint of params.context.endpoints; track $index) {
+        <bit-item>
+          <div bit-item-content [truncate]="false" data-testid="openshell-endpoint">
+            <span class="tw-break-all tw-font-mono"
+              ><bdi>{{ endpointLabel(endpoint) }}</bdi></span
+            >
+            <span slot="end">
+              @if (endpoint.source === "profile") {
+                <span bitBadge variant="subtle" size="small" data-testid="openshell-source-badge">{{
+                  "agentAccessOpenShellSourceProfile" | i18n
+                }}</span>
+              } @else {
+                <span
+                  bitBadge
+                  variant="primary"
+                  size="small"
+                  data-testid="openshell-source-badge"
+                  >{{ "agentAccessOpenShellSourcePolicy" | i18n }}</span
+                >
+              }
+            </span>
+          </div>
+        </bit-item>
+      }
+    </bit-section>
+
+    <!-- 9. Policy fingerprint. -->
+    <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+      <span bitTypography="body2" class="tw-font-medium">{{
+        "agentAccessOpenShellPolicyFingerprint" | i18n
+      }}</span>
+      <span
+        class="tw-font-mono"
+        bitTypography="body2"
+        [title]="params.context.policyDigest"
+        data-testid="openshell-digest"
+        >{{ digestPrefix }}</span
+      >
+      @switch (policyState) {
+        @case ("new") {
+          <span bitBadge variant="primary" size="small">{{
+            "agentAccessOpenShellPolicyNew" | i18n
+          }}</span>
+        }
+        @case ("changed") {
+          <span bitBadge variant="warning" size="small" data-testid="openshell-policy-changed">{{
+            "agentAccessOpenShellPolicyChanged" | i18n: previousDigestPrefix
+          }}</span>
+        }
+        @default {
+          <span bitBadge variant="success" size="small">{{
+            "agentAccessOpenShellPolicyUnchanged" | i18n
+          }}</span>
+        }
+      }
+    </div>
+
+    <!-- 10. Advisor warning unless the gateway says Advisor is off. -->
+    @if (showAdvisorWarning) {
+      <bit-callout type="warning" [title]="null" data-testid="openshell-advisor-warning">
+        {{ "agentAccessOpenShellAdvisorWarning" | i18n }}
+      </bit-callout>
+    }
+
+    <!-- 11. Lifetime statement and the retention sentence. -->
+    <div class="tw-flex tw-flex-col tw-gap-1" data-testid="openshell-lifetime">
+      @switch (params.lifetime.mode) {
+        @case ("perRequest") {
+          <span bitTypography="body2">{{ "agentAccessOpenShellLifetimePerRequest" | i18n }}</span>
+        }
+        @case ("ttl") {
+          @if (params.lifetime.reusedWindow) {
+            <span bitTypography="body2">{{
+              "agentAccessOpenShellLifetimeTtlContinues" | i18n
+            }}</span>
+          } @else {
+            <span bitTypography="body2"
+              >{{ "agentAccessOpenShellLifetimeTtl" | i18n }}
+              @if (ttlDuration(); as duration) {
+                ({{ duration.key | i18n: duration.value }})
+              }
+            </span>
+          }
+        }
+        @default {
+          <span bitTypography="body2">{{ "agentAccessOpenShellLifetimeSandbox" | i18n }}</span>
+        }
+      }
+      @if (params.lifetime.expiresAtMs != null) {
+        <span bitTypography="helper" class="tw-text-muted">{{
+          "agentAccessOpenShellExpiresAt" | i18n: (params.lifetime.expiresAtMs | date: "medium")
+        }}</span>
+        <span bitTypography="helper" class="tw-text-muted">{{
+          "agentAccessOpenShellExpiryReload" | i18n
+        }}</span>
+      }
+      <span bitTypography="helper" class="tw-text-muted">{{
+        "agentAccessOpenShellRetention" | i18n
+      }}</span>
+      <span bitTypography="helper" class="tw-text-muted" data-testid="openshell-retry-note">{{
+        "agentAccessOpenShellRetryNote" | i18n
+      }}</span>
+    </div>
+
+    <!-- 12. Inline first-use acknowledgement, every mode except previouslyApproved. -->
+    @if (requiresAcknowledgement) {
+      <bit-form-control>
+        <input
+          id="approve-openshell-resolve_checkbox_acknowledge"
+          type="checkbox"
+          bitCheckbox
+          [formControl]="acknowledgement"
+        />
+        <bit-label>{{ "agentAccessOpenShellFirstUseAck" | i18n }}</bit-label>
+      </bit-form-control>
+    }
+  </div>
+
+  <!-- 13. Countdown, then Deny and Approve. -->
+  <ng-container bitDialogFooter>
+    <button
+      id="approve-openshell-resolve_button_approve"
+      type="button"
+      bitButton
+      buttonType="primary"
+      [disabled]="!canApprove()"
+      (click)="approve()"
+    >
+      {{ "approve" | i18n }}
+    </button>
+    <button
+      id="approve-openshell-resolve_button_deny"
+      type="button"
+      bitButton
+      buttonType="secondary"
+      (click)="deny()"
+    >
+      {{ "deny" | i18n }}
+    </button>
+    <span
+      bitTypography="helper"
+      class="tw-ms-auto tw-text-muted"
+      aria-live="polite"
+      data-testid="openshell-countdown"
+      >{{ "agentAccessOpenShellDeadline" | i18n: remainingSeconds() }}</span
+    >
+  </ng-container>
+</bit-dialog>

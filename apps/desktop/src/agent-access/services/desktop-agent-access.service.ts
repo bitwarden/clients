@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { inject, Injectable, OnDestroy } from "@angular/core";
 import {
+  BehaviorSubject,
   catchError,
   combineLatest,
   concatMap,
@@ -79,7 +80,10 @@ import {
   UpdateSecretRequestComponent,
   UpdateSecretRequestResult,
 } from "../components/update-secret-request.component";
-import { AgentAccessRequestStatus } from "../models/agent-access-activity";
+import {
+  AgentAccessActivityOrigin,
+  AgentAccessRequestStatus,
+} from "../models/agent-access-activity";
 import { AgentAccessDeliveryMode } from "../models/agent-access-delivery-mode";
 import { AgentAccessGrantScope, UpsertAgentAccessGrantInput } from "../models/agent-access-grant";
 import { AgentAccessOperation } from "../models/agent-access-operation";
@@ -92,12 +96,14 @@ import {
   deriveAgentAccessDisplayName,
 } from "../utils/agent-access-attestation.util";
 
+import { AgentAccessOpenShellService } from "./agent-access-openshell.service";
 import { AgentAccessSecretsService, SmProjectMatch } from "./agent-access-secrets.service";
 import {
   AgentFillBrowserService,
   MultipleBrowsersError,
   NoDescribableTargetError,
 } from "./agent-fill-browser.service";
+import { OpenShellRequestWatcherService } from "./openshell-request-watcher.service";
 
 /**
  * Default Agent Access relay. This is a development relay operated outside Bitwarden
@@ -249,6 +255,12 @@ export class DesktopAgentAccessService implements OnDestroy {
   private eventCollectionService = inject(EventCollectionService);
   private domainSettingsService = inject(DomainSettingsService);
   private agentFillBrowserService = inject(AgentFillBrowserService);
+  private agentAccessOpenShellService = inject(AgentAccessOpenShellService);
+  private openShellRequestWatcher = inject(OpenShellRequestWatcherService);
+
+  /** Whether this renderer last saw the agent-access server running (set by
+   *  `ensureAgentRunning`/`stopAgent`). Drives the OpenShell listener lifecycle (§M8.9). */
+  private readonly serverRunning$ = new BehaviorSubject<boolean>(false);
 
   // Session-remembered last org/project choice for the secret-creation dialog (M4b). In-memory
   // only — deliberately not persisted anywhere (keychain, userData, ...): it's a UX convenience
@@ -268,6 +280,9 @@ export class DesktopAgentAccessService implements OnDestroy {
     }
 
     this.initStartStopPipeline();
+    this.initOpenShellListenerPipeline();
+    this.initOpenShellCoalescingResetPipeline();
+    this.initOpenShellRequestWatcher();
     this.initCredentialRequestPipeline();
     // Subscribe the agent-fill endpoint registry early so extension hellos that arrive before
     // the first fill request are not missed (M5 — the desktop cannot enumerate endpoints).
@@ -319,6 +334,75 @@ export class DesktopAgentAccessService implements OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
+  }
+
+  // §M8.9: the OpenShell socket exists only while Agent Access, the OpenShell toggle (default
+  // off) and the server are all on. Main re-checks detection and platform itself on every
+  // "on", so this is the renderer's request, not the gate.
+  private initOpenShellListenerPipeline() {
+    combineLatest([
+      this.desktopSettingsService.agentAccessEnabled$,
+      this.desktopSettingsService.agentAccessOpenShellEnabled$,
+      this.serverRunning$,
+    ])
+      .pipe(
+        map(([agentAccess, openShell, running]) => agentAccess && openShell && running),
+        distinctUntilChanged(),
+        concatMap(async (listen) => {
+          try {
+            const result = await ipc.agentAccess.setOpenShellListener(listen);
+            if (listen && !result.listening) {
+              this.logService.info(
+                `Agent Access: OpenShell listener not started (${result.refusedReason ?? "unknown"})`,
+              );
+            }
+          } catch (e) {
+            this.logService.error("Agent Access: failed to toggle the OpenShell listener", e);
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+  }
+
+  // §M8.18: carried OpenShell decisions and coalesced dialogs live only while the same account
+  // stays unlocked with Agent Access and the OpenShell toggle on. Any lock, logout, account switch
+  // or toggle-off drops them (and closes any coalesced dialog), so a decision never outlives the
+  // session it was made in.
+  private initOpenShellCoalescingResetPipeline() {
+    combineLatest([
+      this.accountService.activeAccount$.pipe(map((account) => account?.id ?? null)),
+      this.authService.activeAccountStatus$,
+      this.desktopSettingsService.agentAccessEnabled$,
+      this.desktopSettingsService.agentAccessOpenShellEnabled$,
+    ])
+      .pipe(
+        map(([userId, status, agentAccess, openShell]) =>
+          userId != null && status === AuthenticationStatus.Unlocked && agentAccess && openShell
+            ? `active:${userId}`
+            : "inactive",
+        ),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => this.agentAccessOpenShellService.resetCoalescing());
+  }
+
+  // Pops the approval dialog by itself when an agent in a running sandbox is blocked, but only
+  // while Agent Access and OpenShell are on and the vault is unlocked.
+  private initOpenShellRequestWatcher() {
+    this.openShellRequestWatcher.start(
+      combineLatest([
+        this.authService.activeAccountStatus$,
+        this.desktopSettingsService.agentAccessEnabled$,
+        this.desktopSettingsService.agentAccessOpenShellEnabled$,
+      ]).pipe(
+        map(
+          ([status, agentAccess, openShell]) =>
+            status === AuthenticationStatus.Unlocked && agentAccess && openShell,
+        ),
+      ),
+    );
   }
 
   // Keeps one account's activity out of the next one's log. The main process's buffer is
@@ -380,6 +464,32 @@ export class DesktopAgentAccessService implements OnDestroy {
           if (this.isDescribeFillTargetRequest(message)) {
             return of([message, account?.id] as const);
           }
+          // OpenShell (§M8.4): the gateway's deadline (≤ 28 s) is far shorter than the unlock
+          // wait, so a locked vault answers `locked` at once instead of opening a dialog after
+          // the gateway has already given up.
+          if (
+            (message.origin as string | undefined) === AgentAccessActivityOrigin.OpenShell &&
+            (status !== AuthenticationStatus.Unlocked || account == null)
+          ) {
+            return from(
+              this.denyCredentialRequest(
+                message.requestId as number,
+                CredentialDenialReason.Locked,
+              ),
+            ).pipe(switchMap(() => EMPTY));
+          }
+          // §M8.18: an OpenShell retry identical to a request whose dialog is open (or whose
+          // decision is carried) is answered right here, outside the queue — the queue is held
+          // by that very dialog. It never opens a dialog of its own from here.
+          if (
+            (message.origin as string | undefined) === AgentAccessActivityOrigin.OpenShell &&
+            (message.operation as string | undefined) === AgentAccessOperation.ProviderResolve &&
+            account != null &&
+            this.agentAccessOpenShellService.canAnswerWithoutQueue(message, account.id)
+          ) {
+            void this.handleOpenShellRequest(message, account.id, { mayOpenDialog: false });
+            return EMPTY;
+          }
           if (status !== AuthenticationStatus.Unlocked || account == null) {
             ipc.platform.focusWindow();
             this.toastService.showToast({
@@ -431,15 +541,40 @@ export class DesktopAgentAccessService implements OnDestroy {
         // side effects kept running in the background. The result would then be silently
         // discarded for request A while request B's dialog opened on top of it. concatMap instead
         // queues B until A's authorization (and everything downstream of it) has fully resolved.
+        //
+        // §M8.9: an exhaustive switch on `origin`. An unknown origin is denied without a dialog
+        // (the previous `origin !== "local"` skip would have failed open for any new origin), and
+        // `providerResolve` is valid from `openshell` only — and is the only op valid from it.
         concatMap(([message, userId]: [Record<string, unknown>, UserId]) => {
-          if ((message.origin as string | undefined) !== "local") {
-            return of([message, userId] as const);
+          const requestId = message.requestId as number;
+          const origin = message.origin as string | undefined;
+          const isProviderResolve =
+            (message.operation as string | undefined) === AgentAccessOperation.ProviderResolve;
+          switch (origin) {
+            case AgentAccessActivityOrigin.Relay:
+              if (isProviderResolve) {
+                return this.denyAndStop(requestId);
+              }
+              return of([message, userId] as const);
+            case AgentAccessActivityOrigin.Local:
+              if (isProviderResolve) {
+                return this.denyAndStop(requestId);
+              }
+              return from(this.authorizeLocalRequest(message)).pipe(
+                switchMap((authorizedMessage) =>
+                  authorizedMessage == null ? EMPTY : of([authorizedMessage, userId] as const),
+                ),
+              );
+            case AgentAccessActivityOrigin.OpenShell:
+              if (!isProviderResolve) {
+                return this.denyAndStop(requestId);
+              }
+              return from(this.handleOpenShellRequest(message, userId)).pipe(
+                switchMap(() => EMPTY),
+              );
+            default:
+              return this.denyAndStop(requestId);
           }
-          return from(this.authorizeLocalRequest(message)).pipe(
-            switchMap((authorizedMessage) =>
-              authorizedMessage == null ? EMPTY : of([authorizedMessage, userId] as const),
-            ),
-          );
         }),
         // Write/list branch (agent-access-architecture.md, "M4b" + "M6 — Full Secrets Manager
         // surface"): after the shared enable/unlock/grant gates above, a create/update/delete/
@@ -1669,6 +1804,51 @@ export class DesktopAgentAccessService implements OnDestroy {
     return undefined;
   }
 
+  /** Denies with reason `"error"` (never a user decision) and ends this request's pipeline. */
+  private denyAndStop(requestId: number) {
+    return from(this.denyCredentialRequest(requestId, CredentialDenialReason.Error)).pipe(
+      switchMap(() => EMPTY),
+    );
+  }
+
+  // §M8.9: the OpenShell branch owns its lifecycle end to end and replies exactly once. The
+  // response may carry live values; it is handed straight to main and not kept.
+  //
+  // §M8.18: for the request that opened a coalesced dialog, this also waits (`holdUntil`) until
+  // that dialog has closed — after this request's own reply went out — so the serialized
+  // pipeline stays held and no other approval dialog stacks on top of it.
+  private async handleOpenShellRequest(
+    message: Record<string, unknown>,
+    userId: UserId,
+    options: { mayOpenDialog?: boolean } = {},
+  ): Promise<void> {
+    const requestId = message.requestId as number;
+    let holdUntil: Promise<void> | undefined;
+    try {
+      const result = await this.agentAccessOpenShellService.handle(message, userId, options);
+      holdUntil = result.holdUntil;
+      const delivered = await ipc.agentAccess.credentialRequestResponse(
+        requestId,
+        result.response,
+        result.outcome,
+      );
+      if (delivered && result.onDelivered != null) {
+        try {
+          await result.onDelivered();
+        } catch (e) {
+          // The reply is already delivered; only the bookkeeping failed.
+          this.logService.error("Agent Access: failed to record a delivered OpenShell release", e);
+        }
+      }
+    } catch (e) {
+      this.logService.error("Agent Access: OpenShell request failed", e);
+      await this.denyCredentialRequest(requestId, CredentialDenialReason.Error);
+    }
+    if (holdUntil != null) {
+      await holdUntil.catch((): void => undefined);
+    }
+  }
+
   // Grant check + first-use authorization for a local-origin credential request
   // (agent-access-architecture.md, "Grant store (W2b)"). Relay requests never call this — they
   // have no OS-verified peer to key a grant on and keep the (unchanged) pairing-based model.
@@ -1707,7 +1887,9 @@ export class DesktopAgentAccessService implements OnDestroy {
       deriveAgentAccessDisplayName(localPeer) ??
       this.i18nService.t("agentAccessUnknownApplication");
     const exePath = localPeer.parent?.exePath ?? localPeer.exePath;
-    const key = deriveAgentAccessAttestationKey(localPeer);
+    // Plain local key: never carries an `openshell` part (§M8.5 — the two never cross-match).
+    const { signatureKind, signatureIdentity } = deriveAgentAccessAttestationKey(localPeer);
+    const key = { signatureKind, signatureIdentity };
 
     const existingGrant = await ipc.agentAccess.findGrant(key);
     if (existingGrant != null) {
@@ -1864,8 +2046,11 @@ export class DesktopAgentAccessService implements OnDestroy {
 
   private async buildCandidate(cipher: CipherView): Promise<CredentialCandidate> {
     const login = cipher.login;
+    // "Can view, except passwords" hides the password and TOTP from this user, so a request
+    // (which hands the values to the agent, like a copy) never releases them.
+    const mayViewPassword = cipher.viewPassword === true;
     let totp: string | undefined;
-    if (login?.totp) {
+    if (mayViewPassword && login?.totp) {
       try {
         const totpResponse = await firstValueFrom(this.totpService.getCode$(login.totp));
         totp = totpResponse?.code;
@@ -1881,7 +2066,7 @@ export class DesktopAgentAccessService implements OnDestroy {
       response: {
         approved: true,
         username: login?.username ?? undefined,
-        password: login?.password ?? undefined,
+        password: mayViewPassword ? (login?.password ?? undefined) : undefined,
         totp,
         uri: login?.uris?.[0]?.uri ?? undefined,
         // `notes` is deliberately never included — it frequently carries unrelated secrets, and
@@ -1948,13 +2133,18 @@ export class DesktopAgentAccessService implements OnDestroy {
       if (!(await ipc.agentAccess.isLoaded())) {
         await ipc.agentAccess.init({ relayUrl: DEFAULT_RELAY_URL });
       }
+      this.serverRunning$.next(await ipc.agentAccess.isLoaded());
     } catch (e) {
       this.logService.error("Failed to start the Agent Access server", e);
+      this.serverRunning$.next(false);
     }
   }
 
   // Stops the agent server if it is running.
   private async stopAgent(): Promise<void> {
+    // Stopping the server also closes the OpenShell listener (Rust `stop()`); flip this first
+    // so the lifecycle never asks main to start a listener for a server that is going away.
+    this.serverRunning$.next(false);
     try {
       if (await ipc.agentAccess.isLoaded()) {
         await ipc.agentAccess.stop();

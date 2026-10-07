@@ -1,0 +1,45 @@
+<form [formGroup]="form" [bitSubmit]="submit" bit-dialog>
+  <span bitDialogTitle>{{ titleKey | i18n }}</span>
+
+  <div bitDialogContent class="tw-flex tw-flex-col tw-gap-4">
+    @if (errorMessage(); as message) {
+      <bit-callout type="danger" data-testid="agent-access-os-set-name-error">
+        {{ message }}
+      </bit-callout>
+    }
+    <bit-form-field disableMargin>
+      <bit-label>{{ "agentAccessOsSetName" | i18n }}</bit-label>
+      <input
+        id="agent-access-openshell-set-name-dialog_input_name"
+        bitInput
+        type="text"
+        formControlName="name"
+        autocomplete="off"
+        [maxlength]="maxChars"
+        [spellcheck]="false"
+      />
+    </bit-form-field>
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button
+      id="agent-access-openshell-set-name-dialog_button_save"
+      type="submit"
+      bitButton
+      bitFormButton
+      buttonType="primary"
+    >
+      {{ "save" | i18n }}
+    </button>
+    <button
+      id="agent-access-openshell-set-name-dialog_button_cancel"
+      type="button"
+      bitButton
+      bitFormButton
+      buttonType="secondary"
+      bitDialogClose
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</form>

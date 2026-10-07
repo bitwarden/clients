@@ -87,6 +87,10 @@ pub enum CredentialRequestOrigin {
     Relay,
     /// The local `aac` CLI, connected through the Unix-socket / named-pipe listener.
     Local,
+    /// `aac openshell-driver`, spawned by a local NVIDIA OpenShell gateway, connected through the
+    /// separate, toggle-gated OpenShell socket (agent-access-architecture.md, "§M8 OpenShell
+    /// integration"). Set by the listener kind (`ListenerKind::OpenShell`), never by the wire.
+    OpenShell,
 }
 
 /// Whether a [`CredentialRequestData`] is asking to look up existing vault data (the original
@@ -123,8 +127,15 @@ pub enum RequestOperation {
     /// Release the full readable Secrets Manager project list in one approval (`projectList`) —
     /// M6. Local-transport-only, always paired with [`ResourceKind::Project`]. No query, no
     /// target — `CredentialRequestData::query_type`/`query_value`/`target_id` carry no
-    /// meaningful data for this operation, same treatment as [`DescribeFillTarget`](Self::DescribeFillTarget).
+    /// meaningful data for this operation, same treatment as
+    /// [`DescribeFillTarget`](Self::DescribeFillTarget).
     List,
+    /// `openshellResolve` (§M8.4) — an OpenShell gateway asking for the values behind one
+    /// provider's `bw://` references. Only ever paired with [`CredentialRequestOrigin::OpenShell`]
+    /// and only reachable from the OpenShell socket. `query_type`/`query_value` are `Id`/`""`;
+    /// [`CredentialRequestData::openshell`] and [`CredentialRequestData::provider_targets`]
+    /// carry the request.
+    ProviderResolve,
 }
 
 /// How the requester wants an approved credential delivered. Only meaningful for
@@ -243,6 +254,13 @@ pub struct CredentialRequestData {
     /// — so it's printed directly in `Debug`. Only set when `delivery_mode` is
     /// `Some(DeliveryMode::Fill)`.
     pub fill_target_token: Option<String>,
+    /// Gateway-reported context for a [`RequestOperation::ProviderResolve`] request (§M8.4).
+    /// `Some` only for [`CredentialRequestOrigin::OpenShell`]. Everything in it is reported by the
+    /// OpenShell gateway, not verified by Bitwarden.
+    pub openshell: Option<OpenShellContext>,
+    /// The `bw://` targets a [`RequestOperation::ProviderResolve`] request asks for, in wire
+    /// order. Empty for every other operation. Ids and env-var names only, never values.
+    pub provider_targets: Vec<ProviderTarget>,
 }
 
 impl std::fmt::Debug for CredentialRequestData {
@@ -267,6 +285,8 @@ impl std::fmt::Debug for CredentialRequestData {
             .field("generate_symbols", &self.generate_symbols)
             .field("fill_fields", &self.fill_fields)
             .field("fill_target_token", &self.fill_target_token)
+            .field("openshell", &self.openshell)
+            .field("provider_targets", &self.provider_targets)
             .finish()
     }
 }
@@ -305,6 +325,9 @@ pub enum CredentialDenialReason {
     /// Also a pre-prompt, mechanical refusal. `CredentialResponseData::denial_detail` carries
     /// the value-free, machine-readable reason code.
     NoSafeTarget,
+    /// The approval dialog's own countdown ran out before the user decided (§M8.4: the OpenShell
+    /// dialog auto-denies at 0). Reported as `timeout`, never as a user denial.
+    Timeout,
 }
 
 /// One entry of an approved [`RequestOperation::List`] response (M6, `projectList`) — project
@@ -379,7 +402,8 @@ pub struct CredentialResponseData {
     /// `local_protocol::build_approved_describe_fill_target`. Set only for
     /// `operation: DescribeFillTarget` responses.
     pub fill_target: Option<String>,
-    /// Machine-readable, value-free detail for an [`OriginMismatch`](CredentialDenialReason::OriginMismatch)/
+    /// Machine-readable, value-free detail for an
+    /// [`OriginMismatch`](CredentialDenialReason::OriginMismatch)/
     /// [`NoSafeTarget`](CredentialDenialReason::NoSafeTarget) denial (the mismatched origin, or
     /// a `looks-like-registration`/`ambiguous-target`/... reason code). `None` for every other
     /// reason.
@@ -390,6 +414,10 @@ pub struct CredentialResponseData {
     /// event never depends on this crate understanding the pass-through's JSON shape. Unset for
     /// every other delivery mode.
     pub fill_fields_shared: Option<Vec<String>>,
+    /// The released values and approval lifetime for an approved
+    /// [`RequestOperation::ProviderResolve`] request (§M8.4). Validated again by the OpenShell
+    /// reply builder before anything is written to the socket. Unset for every other operation.
+    pub openshell: Option<OpenShellResolution>,
 }
 
 impl std::fmt::Debug for CredentialResponseData {
@@ -415,6 +443,132 @@ impl std::fmt::Debug for CredentialResponseData {
             .field("has_fill_target", &self.fill_target.is_some())
             .field("has_denial_detail", &self.denial_detail.is_some())
             .field("has_fill_fields_shared", &self.fill_fields_shared.is_some())
+            .field("openshell", &self.openshell)
+            .finish()
+    }
+}
+
+/// Which source an [`OpenShellEndpoint`] came from (§M8.5 "Endpoint set").
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum OpenShellEndpointSource {
+    /// The provider profile's own endpoints (`GetProviderProfile`).
+    Profile,
+    /// An effective-policy endpoint whose credential binding names this provider.
+    PolicyBinding,
+}
+
+/// One endpoint an OpenShell provider credential can be sent to, as reported by the gateway.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OpenShellEndpoint {
+    pub host: String,
+    pub port: u16,
+    pub path: Option<String>,
+    pub source: OpenShellEndpointSource,
+}
+
+/// Gateway-reported context for an `openshellResolve` request (§M8.4, §M8.7). Every field is
+/// reported by the OpenShell gateway through `aac`, already validated by
+/// `local_listener::openshell`, and never verified by Bitwarden — the renderer labels it so.
+///
+/// `Debug` prints ids, the digest and counts only. Names and the image are not vault data, but
+/// they describe what a user runs, so they are kept out of log lines by default.
+#[derive(Clone, PartialEq, Eq)]
+pub struct OpenShellContext {
+    pub deadline: std::time::Duration,
+    pub gateway_name: String,
+    pub gateway_endpoint: String,
+    pub provider_id: String,
+    pub provider_name: String,
+    pub provider_profile: String,
+    pub workspace: String,
+    pub sandbox_id: String,
+    pub sandbox_name: String,
+    pub sandbox_image: Option<String>,
+    pub endpoints: Vec<OpenShellEndpoint>,
+    pub policy_digest: String,
+    pub advisor_enabled: Option<bool>,
+}
+
+impl std::fmt::Debug for OpenShellContext {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("OpenShellContext")
+            .field("deadline", &self.deadline)
+            .field("provider_id", &self.provider_id)
+            .field("sandbox_id", &self.sandbox_id)
+            .field("policy_digest", &self.policy_digest)
+            .field("endpoints_count", &self.endpoints.len())
+            .field("advisor_enabled", &self.advisor_enabled)
+            .finish()
+    }
+}
+
+/// Which field of a vault item or secret a [`ProviderTarget`] names (§M8.3).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProviderField {
+    Username,
+    Password,
+    /// A Secrets Manager secret's value.
+    Value,
+}
+
+/// One `bw://` target of an `openshellResolve` request: an env-var name plus the item or secret
+/// id behind it. Value-free, so a derived `Debug` is fine.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ProviderTarget {
+    pub credential_key: String,
+    /// [`ResourceKind::Credential`] for `resource: "item"`, [`ResourceKind::Secret`] for
+    /// `resource: "secret"`. Never [`ResourceKind::Project`].
+    pub resource: ResourceKind,
+    pub id: String,
+    pub field: ProviderField,
+}
+
+/// How long one OpenShell approval lasts (§M8.6).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum OpenShellLifetimeMode {
+    PerRequest,
+    Ttl,
+    SandboxLifetime,
+}
+
+/// The lifetime attached to an approved `openshellResolve` reply. `expires_at_ms` is Unix epoch
+/// milliseconds; required for `PerRequest`/`Ttl`, absent for `SandboxLifetime` — enforced by the
+/// OpenShell reply builder, not by this type.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct OpenShellLifetime {
+    pub mode: OpenShellLifetimeMode,
+    pub expires_at_ms: Option<u64>,
+}
+
+/// One released provider credential value. `Debug` prints the env-var name only.
+#[derive(Clone)]
+pub struct ProviderValue {
+    pub credential_key: String,
+    pub value: Zeroizing<String>,
+}
+
+impl std::fmt::Debug for ProviderValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ProviderValue")
+            .field("credential_key", &self.credential_key)
+            .field("value", &"<redacted>")
+            .finish()
+    }
+}
+
+/// The host's answer to an approved `openshellResolve`: the lifetime plus the values in target
+/// order. `Debug` prints the lifetime and the env-var names only.
+#[derive(Clone)]
+pub struct OpenShellResolution {
+    pub lifetime: OpenShellLifetime,
+    pub values: Vec<ProviderValue>,
+}
+
+impl std::fmt::Debug for OpenShellResolution {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("OpenShellResolution")
+            .field("lifetime", &self.lifetime)
+            .field("values", &self.values)
             .finish()
     }
 }
@@ -481,6 +635,9 @@ pub trait KvStorage: Send + Sync {
 /// A single agent-access activity event, surfaced to the host for a live activity log (e.g. a
 /// desktop "agent access events" panel).
 ///
+/// `kind: "openshellDriverSeen"` (§M8.4) is emitted for a value-free `openshellHello` and
+/// carries nothing but `timestamp_ms`.
+///
 /// SECURITY: never populate these fields with credential values, PSKs, tokens, or key
 /// material — only identity fingerprints, already-known friendly names, field *presence*
 /// info, and `ap_client`-generated protocol/error strings. See [`crate::audit::ForwardingAuditLog`]
@@ -515,11 +672,16 @@ impl AgentAccessEvent {
     /// created so `timestamp_ms` reflects when the underlying action happened, not when it was
     /// eventually delivered to the host.
     pub(crate) fn now_ms() -> String {
-        SystemTime::now()
+        Self::now_ms_u64().to_string()
+    }
+
+    /// Current unix time in milliseconds as a number, for the OpenShell lifetime checks.
+    pub(crate) fn now_ms_u64() -> u64 {
+        let millis = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap_or_default()
-            .as_millis()
-            .to_string()
+            .as_millis();
+        u64::try_from(millis).unwrap_or(u64::MAX)
     }
 }
 

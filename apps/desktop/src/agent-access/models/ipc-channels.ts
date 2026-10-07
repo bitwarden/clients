@@ -50,4 +50,53 @@ export const AGENT_ACCESS_IPC_CHANNELS = {
   // per-route `AgentAccessPageStateService` has already fetched. renderer -> renderer
   // (MessageSender/MessageListener)
   GRANTS_CHANGED: "agentaccess.grantschanged",
+  // Optional OpenShell integration (agent-access-architecture.md, §M8.8). Detection never runs a
+  // process or opens a connection; the snippet is text only and is the fallback for the setup
+  // channels below. renderer -> main (ipcMain.handle)
+  DETECT_OPENSHELL: "agentaccess.detectopenshell",
+  GET_OPENSHELL_SNIPPET: "agentaccess.getopenshellsnippet",
+  // Starts/stops the toggle-gated OpenShell socket. Main re-runs detection itself and computes
+  // the socket path; the renderer only says on/off. renderer -> main (ipcMain.handle)
+  SET_OPENSHELL_LISTENER: "agentaccess.setopenshelllistener",
+  GET_OPENSHELL_DRIVER_LAST_SEEN: "agentaccess.getopenshelldriverlastseen",
+  // One-button setup (§M8.19): edits gateway.toml and restarts the gateway. Takes no arguments —
+  // every path and command is chosen in main.
+  GET_OPENSHELL_SETUP_STATUS: "agentaccess.getopenshellsetupstatus",
+  RUN_OPENSHELL_SETUP: "agentaccess.runopenshellsetup",
+  REMOVE_OPENSHELL_SETUP: "agentaccess.removeopenshellsetup",
+  // OpenShell management page (§M8.20). Each takes one plain request object (or none), validated
+  // in main, and returns an `OpenShellManagementResult<T>`; none ever throws across IPC.
+  OPENSHELL_LIST_SANDBOXES: "agentaccess.openshell.listsandboxes",
+  OPENSHELL_SANDBOX_ACTION: "agentaccess.openshell.sandboxaction",
+  OPENSHELL_CREATE_SANDBOX: "agentaccess.openshell.createsandbox",
+  OPENSHELL_LIST_PROFILES: "agentaccess.openshell.listprofiles",
+  OPENSHELL_LIST_CREDENTIALS: "agentaccess.openshell.listcredentials",
+  OPENSHELL_ADD_CREDENTIAL: "agentaccess.openshell.addcredential",
+  OPENSHELL_REMOVE_CREDENTIAL: "agentaccess.openshell.removecredential",
+  OPENSHELL_GET_APPLY_STATUS: "agentaccess.openshell.getapplystatus",
+  OPENSHELL_CREATE_PROFILE: "agentaccess.openshell.createprofile",
+  OPENSHELL_UPDATE_PROFILE: "agentaccess.openshell.updateprofile",
+  OPENSHELL_DELETE_PROFILE: "agentaccess.openshell.deleteprofile",
+  // Environments, secret sets and sandbox metadata (§M8.20 rule 17). App-side only: no process is run.
+  OPENSHELL_ENV_LIST: "agentaccess.openshell.envlist",
+  OPENSHELL_ENV_SAVE: "agentaccess.openshell.envsave",
+  OPENSHELL_ENV_DELETE: "agentaccess.openshell.envdelete",
+  OPENSHELL_SET_LIST: "agentaccess.openshell.setlist",
+  OPENSHELL_SET_SAVE: "agentaccess.openshell.setsave",
+  OPENSHELL_SET_DELETE: "agentaccess.openshell.setdelete",
+  OPENSHELL_META_GET: "agentaccess.openshell.metaget",
+  OPENSHELL_META_SET: "agentaccess.openshell.metaset",
+  // Open a shell and port forwards for one sandbox (§M8.20 rule 15). Same envelope and gate.
+  OPENSHELL_LIST_FORWARDS: "agentaccess.openshell.listforwards",
+  OPENSHELL_START_FORWARD: "agentaccess.openshell.startforward",
+  OPENSHELL_STOP_FORWARD: "agentaccess.openshell.stopforward",
+  OPENSHELL_OPEN_SHELL: "agentaccess.openshell.openshell",
+  OPENSHELL_SAVED_PORTS_GET: "agentaccess.openshell.savedportsget",
+  OPENSHELL_SAVED_PORTS_SET: "agentaccess.openshell.savedportsset",
+  OPENSHELL_LIST_ACTIVITY: "agentaccess.openshell.listactivity",
+  // Agent permission requests (§M8.20 rule 16): pending network rules the gateway recorded for
+  // blocked outbound requests. Same envelope as the management channels above.
+  OPENSHELL_LIST_REQUESTS: "agentaccess.openshell.listrequests",
+  OPENSHELL_APPROVE_REQUEST: "agentaccess.openshell.approverequest",
+  OPENSHELL_REJECT_REQUEST: "agentaccess.openshell.rejectrequest",
 } as const;

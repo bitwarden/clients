@@ -1,0 +1,215 @@
+<div class="tw-flex tw-flex-col tw-gap-4" data-testid="openshell-ports">
+  <div class="tw-flex tw-flex-wrap tw-items-start tw-justify-between tw-gap-4">
+    <p bitTypography="body2" class="tw-m-0 tw-max-w-prose tw-text-muted">
+      {{ "agentAccessOsPortsIntro" | i18n }}
+    </p>
+    @if (startableSaved().length > 0) {
+      <button
+        id="agent-access-openshell-ports_button_start-all"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        [disabled]="busy()"
+        (click)="startAllSaved()"
+        data-testid="openshell-ports-start-all"
+      >
+        {{ "agentAccessOsPortsStartAllSaved" | i18n }}
+      </button>
+    }
+  </div>
+
+  @if (actionFailure(); as message) {
+    <bit-callout type="danger" data-testid="openshell-ports-action-error">
+      <span class="tw-break-words">{{ message }}</span>
+    </bit-callout>
+  }
+
+  <form
+    [formGroup]="form"
+    (ngSubmit)="startNew()"
+    class="tw-flex tw-flex-wrap tw-items-start tw-gap-3"
+    data-testid="openshell-ports-form"
+  >
+    <bit-form-field class="tw-w-40">
+      <bit-label>{{ "agentAccessOsPortsPortLabel" | i18n }}</bit-label>
+      <input
+        id="agent-access-openshell-ports_input_port"
+        bitInput
+        type="text"
+        inputmode="numeric"
+        formControlName="port"
+        autocomplete="off"
+        [spellcheck]="false"
+        placeholder="8080"
+      />
+      @if (portError()) {
+        <bit-hint class="tw-text-danger" data-testid="openshell-ports-port-error">{{
+          "agentAccessOsPortsInvalidPort" | i18n
+        }}</bit-hint>
+      } @else {
+        <bit-hint>{{ "agentAccessOsPortsPortHint" | i18n }}</bit-hint>
+      }
+    </bit-form-field>
+    <bit-form-field class="tw-w-56">
+      <bit-label>{{ "agentAccessOsPortsNameLabel" | i18n }}</bit-label>
+      <input
+        id="agent-access-openshell-ports_input_name"
+        bitInput
+        type="text"
+        formControlName="friendlyName"
+        autocomplete="off"
+        [maxlength]="maxNameChars"
+        [spellcheck]="false"
+      />
+    </bit-form-field>
+    <bit-form-control class="tw-mt-8">
+      <input
+        id="agent-access-openshell-ports_checkbox_save"
+        type="checkbox"
+        bitCheckbox
+        formControlName="save"
+      />
+      <bit-label>{{ "agentAccessOsPortsSave" | i18n }}</bit-label>
+    </bit-form-control>
+    <button
+      id="agent-access-openshell-ports_button_start"
+      type="submit"
+      bitButton
+      buttonType="primary"
+      class="tw-mt-8"
+      startIcon="bwi-plus"
+      [disabled]="busy()"
+    >
+      {{ "agentAccessOsPortsStart" | i18n }}
+    </button>
+  </form>
+
+  @if (loading()) {
+    <bit-skeleton-group data-testid="openshell-ports-loading">
+      <bit-skeleton-text [lines]="3" class="tw-w-1/2"></bit-skeleton-text>
+    </bit-skeleton-group>
+  } @else if (failure(); as fail) {
+    <bit-callout type="warning" [title]="failureKey() | i18n" data-testid="openshell-ports-error">
+      @if (fail.message) {
+        <p class="tw-m-0 tw-break-words">{{ fail.message }}</p>
+      }
+      <button
+        id="agent-access-openshell-ports_button_retry"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        size="small"
+        class="tw-mt-3"
+        (click)="refresh()"
+      >
+        {{ "tryAgain" | i18n }}
+      </button>
+    </bit-callout>
+  } @else if (rows().length === 0) {
+    <p class="tw-m-0 tw-text-muted" data-testid="openshell-ports-empty">
+      {{ "agentAccessOsPortsEmpty" | i18n }}
+    </p>
+  } @else {
+    <bit-table>
+      <ng-container header>
+        <tr>
+          <th bitCell>{{ "agentAccessOsPortsColumnPort" | i18n }}</th>
+          <th bitCell>{{ "agentAccessOsPortsColumnName" | i18n }}</th>
+          <th bitCell>{{ "agentAccessOsPortsColumnStatus" | i18n }}</th>
+          <th bitCell></th>
+        </tr>
+      </ng-container>
+      <ng-template body>
+        @for (row of rows(); track row.port) {
+          <tr bitRow data-testid="openshell-ports-row">
+            <td bitCell class="tw-font-mono">{{ row.port }}</td>
+            <td bitCell class="tw-break-all">
+              <bdi>{{ row.name }}</bdi>
+            </td>
+            <td bitCell>
+              @if (row.active) {
+                <bit-badge variant="success" data-testid="openshell-ports-active">{{
+                  "agentAccessOsPortsActive" | i18n
+                }}</bit-badge>
+                @if (row.exposed) {
+                  <bit-badge variant="warning" data-testid="openshell-ports-exposed">{{
+                    "agentAccessOsPortsExposed" | i18n
+                  }}</bit-badge>
+                }
+              } @else {
+                <bit-badge variant="subtle">{{ "agentAccessOsPortsInactive" | i18n }}</bit-badge>
+              }
+            </td>
+            <td bitCell class="tw-text-right">
+              <div class="tw-flex tw-flex-wrap tw-justify-end tw-gap-2">
+                @if (row.active) {
+                  <button
+                    [id]="'agent-access-openshell-ports_button_browser-' + row.port"
+                    type="button"
+                    bitButton
+                    buttonType="secondary"
+                    size="small"
+                    data-testid="openshell-ports-browser"
+                    (click)="openInBrowser(row)"
+                  >
+                    {{ "agentAccessOsPortsOpenBrowser" | i18n }}
+                  </button>
+                  <button
+                    [id]="'agent-access-openshell-ports_button_stop-' + row.port"
+                    type="button"
+                    bitButton
+                    buttonType="secondary"
+                    size="small"
+                    [disabled]="busy()"
+                    data-testid="openshell-ports-stop"
+                    (click)="stopRow(row)"
+                  >
+                    {{ "agentAccessOsPortsStop" | i18n }}
+                  </button>
+                } @else {
+                  <button
+                    [id]="'agent-access-openshell-ports_button_start-' + row.port"
+                    type="button"
+                    bitButton
+                    buttonType="secondary"
+                    size="small"
+                    [disabled]="busy()"
+                    data-testid="openshell-ports-start-row"
+                    (click)="startRow(row)"
+                  >
+                    {{ "agentAccessOsPortsStart" | i18n }}
+                  </button>
+                }
+                @if (row.saved) {
+                  <button
+                    [id]="'agent-access-openshell-ports_button_forget-' + row.port"
+                    type="button"
+                    bitButton
+                    buttonType="subtleGhost"
+                    size="small"
+                    data-testid="openshell-ports-forget"
+                    (click)="forget(row)"
+                  >
+                    {{ "agentAccessOsPortsForget" | i18n }}
+                  </button>
+                } @else {
+                  <button
+                    [id]="'agent-access-openshell-ports_button_remember-' + row.port"
+                    type="button"
+                    bitButton
+                    buttonType="subtleGhost"
+                    size="small"
+                    data-testid="openshell-ports-remember"
+                    (click)="remember(row)"
+                  >
+                    {{ "agentAccessOsPortsRemember" | i18n }}
+                  </button>
+                }
+              </div>
+            </td>
+          </tr>
+        }
+      </ng-template>
+    </bit-table>
+  }
+</div>

@@ -4,18 +4,24 @@ import { RouterLink } from "@angular/router";
 
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import {
+  AsyncActionsModule,
   ButtonModule,
   CardComponent,
+  DialogService,
+  IconButtonModule,
   SectionComponent,
   SectionHeaderComponent,
   SkeletonComponent,
   SkeletonGroupComponent,
   SkeletonTextComponent,
+  TableModule,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { AgentAccessGrant } from "../models/agent-access-grant";
 import { AGENT_ACCESS_IPC_CHANNELS } from "../models/ipc-channels";
+import { OpenShellLifetimeMode, openShellDigestPrefix } from "../models/openshell";
 import { AgentAccessPageStateService } from "../services/agent-access-page-state.service";
 
 import { AgentAccessConnectedAgentsComponent } from "./agent-access-connected-agents.component";
@@ -59,19 +65,23 @@ const GRANTS_CHANGED_COMMAND = new CommandDefinition<Record<string, never>>(
     I18nPipe,
     RouterLink,
     AgentAccessConnectedAgentsComponent,
+    AsyncActionsModule,
     ButtonModule,
+    IconButtonModule,
     CardComponent,
     SectionComponent,
     SectionHeaderComponent,
     SkeletonComponent,
     SkeletonGroupComponent,
     SkeletonTextComponent,
+    TableModule,
     TypographyModule,
   ],
 })
 export class AgentAccessAgentsComponent {
   protected readonly pageState = inject(AgentAccessPageStateService);
   private readonly messageListener = inject(MessageListener);
+  private readonly dialogService = inject(DialogService);
 
   /** Placeholder rows shown by the skeleton while status/grants load. */
   protected readonly skeletonRows = [0, 1];
@@ -94,5 +104,38 @@ export class AgentAccessAgentsComponent {
       .messages$(GRANTS_CHANGED_COMMAND)
       .pipe(takeUntilDestroyed())
       .subscribe(() => void this.pageState.refreshGrants());
+  }
+
+  protected digestPrefix(digest: string): string {
+    return openShellDigestPrefix(digest);
+  }
+
+  protected lifetimeLabelKey(mode: OpenShellLifetimeMode): string {
+    switch (mode) {
+      case "perRequest":
+        return "agentAccessOpenShellLifetimePerRequest";
+      case "ttl":
+        return "agentAccessOpenShellLifetimeTtl";
+      case "sandboxLifetime":
+        return "agentAccessOpenShellLifetimeSandbox";
+    }
+  }
+
+  // Same closure pattern as `AgentAccessConnectedAgentsComponent.removeGrantAction`.
+  protected removeGrantAction(grant: AgentAccessGrant) {
+    return () => this.removeGrant(grant);
+  }
+
+  private async removeGrant(grant: AgentAccessGrant): Promise<void> {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "agentAccessRemoveAgent" },
+      content: grant.openshell?.sandboxName || grant.openshell?.sandboxId || grant.displayName,
+      type: "warning",
+    });
+    if (!confirmed) {
+      return;
+    }
+    await ipc.agentAccess.removeGrant(grant.id);
+    await this.pageState.refreshGrants();
   }
 }

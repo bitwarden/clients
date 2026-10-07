@@ -1,0 +1,82 @@
+<form [formGroup]="form" [bitSubmit]="submit" bit-dialog>
+  <span bitDialogTitle>{{ "agentAccessOsMetaTitle" | i18n: sandboxName }}</span>
+
+  <div bitDialogContent class="tw-flex tw-flex-col tw-gap-4">
+    @if (errorMessage(); as message) {
+      <bit-callout type="danger" data-testid="agent-access-os-details-error">
+        {{ message }}
+      </bit-callout>
+    }
+
+    <bit-form-field>
+      <bit-label>{{ "agentAccessOsMetaPurpose" | i18n }}</bit-label>
+      <input
+        id="agent-access-openshell-details-dialog_input_purpose"
+        bitInput
+        type="text"
+        formControlName="purpose"
+        autocomplete="off"
+        [maxlength]="maxChars"
+        [spellcheck]="false"
+      />
+      <bit-hint>{{ "agentAccessOsMetaPurposeHint" | i18n: maxChars }}</bit-hint>
+    </bit-form-field>
+
+    <div role="radiogroup" [attr.aria-label]="'agentAccessOsMetaColor' | i18n">
+      <div bitTypography="body2" class="tw-mb-2 tw-font-semibold">
+        {{ "agentAccessOsMetaColor" | i18n }}
+      </div>
+      <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+        <button
+          id="agent-access-openshell-details-dialog_button_color-none"
+          type="button"
+          role="radio"
+          class="tw-rounded tw-border tw-border-solid tw-bg-transparent tw-px-3 tw-py-1 tw-text-main"
+          [class.tw-border-primary-600]="color() === null"
+          [class.tw-border-secondary-300]="color() !== null"
+          [attr.aria-checked]="color() === null"
+          (click)="setColor(null)"
+        >
+          {{ "agentAccessOsMetaColorNone" | i18n }}
+        </button>
+        @for (option of colors; track option) {
+          <button
+            [id]="'agent-access-openshell-details-dialog_button_color-' + option"
+            type="button"
+            role="radio"
+            class="tw-flex tw-items-center tw-gap-2 tw-rounded tw-border tw-border-solid tw-bg-transparent tw-px-3 tw-py-1 tw-text-main"
+            [class.tw-border-primary-600]="color() === option"
+            [class.tw-border-secondary-300]="color() !== option"
+            [attr.aria-checked]="color() === option"
+            (click)="setColor(option)"
+          >
+            <span class="tw-size-3 tw-rounded-full" [class]="colorClass[option]"></span>
+            {{ colorKey[option] | i18n }}
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button
+      id="agent-access-openshell-details-dialog_button_save"
+      type="submit"
+      bitButton
+      bitFormButton
+      buttonType="primary"
+    >
+      {{ "save" | i18n }}
+    </button>
+    <button
+      id="agent-access-openshell-details-dialog_button_cancel"
+      type="button"
+      bitButton
+      bitFormButton
+      buttonType="secondary"
+      bitDialogClose
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</form>

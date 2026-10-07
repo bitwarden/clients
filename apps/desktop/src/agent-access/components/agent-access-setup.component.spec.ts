@@ -1,5 +1,5 @@
 import { DatePipe } from "@angular/common";
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, forwardRef, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
@@ -17,6 +17,7 @@ import {
   SkeletonGroupComponent,
   SkeletonTextComponent,
   TableModule,
+  ToggleGroupModule,
   TypographyModule,
 } from "@bitwarden/components";
 import type { agent_access } from "@bitwarden/desktop-napi";
@@ -24,6 +25,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { AgentAccessPageStateService } from "../services/agent-access-page-state.service";
 
+import { AgentAccessOpenShellSectionComponent } from "./agent-access-openshell-section.component";
 import { AgentAccessPairAgentDialogComponent } from "./agent-access-pair-agent-dialog.component";
 import { AgentAccessSetupComponent } from "./agent-access-setup.component";
 
@@ -39,6 +41,29 @@ import { AgentAccessSetupComponent } from "./agent-access-setup.component";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class StubAgentAccessConnectComponent {}
+
+// Stands in for the section's own "does this apply" answer, which the tab reads for its toggle.
+const openShellVisible = signal(false);
+
+// Same treatment for the OpenShell section (agent-access-openshell-section.component.spec.ts
+// covers it): these tests are about this tab's own structure. One test below asserts the section
+// is placed on the tab.
+@Component({
+  selector: "app-agent-access-openshell-section",
+  template: "",
+  // The tab finds the section with `viewChild(AgentAccessOpenShellSectionComponent)`; a query
+  // matches provider tokens, so the stub answers to the real class.
+  providers: [
+    {
+      provide: AgentAccessOpenShellSectionComponent,
+      useExisting: forwardRef(() => StubAgentAccessOpenShellSectionComponent),
+    },
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class StubAgentAccessOpenShellSectionComponent {
+  readonly visible = openShellVisible;
+}
 
 describe("AgentAccessSetupComponent", () => {
   let originalIpc: any;
@@ -188,6 +213,7 @@ describe("AgentAccessSetupComponent", () => {
             DatePipe,
             I18nPipe,
             StubAgentAccessConnectComponent,
+            StubAgentAccessOpenShellSectionComponent,
             AsyncActionsModule,
             ButtonModule,
             IconButtonModule,
@@ -198,12 +224,22 @@ describe("AgentAccessSetupComponent", () => {
             SkeletonGroupComponent,
             SkeletonTextComponent,
             TableModule,
+            ToggleGroupModule,
             TypographyModule,
           ],
         },
       });
 
       fixture = TestBed.createComponent(AgentAccessSetupComponent);
+    });
+
+    it("places the OpenShell section on the tab (it renders nothing on its own unless detected)", async () => {
+      pageState.statusLoading.set(false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(
+        (fixture.nativeElement as HTMLElement).querySelector("app-agent-access-openshell-section"),
+      ).not.toBeNull();
     });
 
     it("renders both ways of adding an agent as peer sections, neither behind a disclosure", async () => {
@@ -223,8 +259,43 @@ describe("AgentAccessSetupComponent", () => {
       // before they can tell this page pairs remote agents at all.
       const remoteSection = compiled.querySelector("bit-section");
       expect(remoteSection).toBeTruthy();
-      expect(remoteSection?.querySelector("bit-section-header")).toBeTruthy();
       expect(compiled.querySelector("bit-disclosure")).toBeNull();
+    });
+
+    it("shows one pane at a time, starting on the local agents", async () => {
+      pageState.statusLoading.set(false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const paneHidden = (selector: string) =>
+        (fixture.nativeElement.querySelector(selector).parentElement as HTMLElement).hidden;
+      expect(paneHidden("app-agent-access-connect")).toBe(false);
+      expect(paneHidden("app-agent-access-openshell-section")).toBe(true);
+
+      (fixture.componentInstance as any).selectedPane.set("remote");
+      fixture.detectChanges();
+      expect(paneHidden("app-agent-access-connect")).toBe(true);
+    });
+
+    it("offers the OpenShell pane only when the section applies, and falls back if it stops", async () => {
+      pageState.statusLoading.set(false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      const component = fixture.componentInstance as any;
+
+      openShellVisible.set(false);
+      component.selectedPane.set("openShell");
+      fixture.detectChanges();
+      expect(component.activePane()).toBe("local");
+
+      openShellVisible.set(true);
+      fixture.detectChanges();
+      expect(component.activePane()).toBe("openShell");
+
+      openShellVisible.set(false);
+      fixture.detectChanges();
+      expect(component.activePane()).toBe("local");
     });
 
     it("does not gate the local connect UI on this tab's own remote-connection fetch", () => {
@@ -255,7 +326,7 @@ describe("AgentAccessSetupComponent", () => {
       expect(compiled.querySelector("#agent-access-setup_button_pair-agent")).toBeFalsy();
     });
 
-    it("lists paired agents in a table with the pair action in the section header", async () => {
+    it("lists paired agents in a table with the pair action beside the description", async () => {
       pageState.statusLoading.set(false);
       pageState.running.set(true);
       fixture.detectChanges();

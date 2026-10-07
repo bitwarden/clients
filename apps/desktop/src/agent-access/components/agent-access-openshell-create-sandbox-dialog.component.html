@@ -1,0 +1,200 @@
+<form [formGroup]="createForm" [bitSubmit]="submit" bit-dialog>
+  <span bitDialogTitle>{{ "agentAccessOsCreateTitle" | i18n }}</span>
+
+  <div bitDialogContent class="tw-flex tw-flex-col tw-gap-4">
+    @if (partial(); as result) {
+      <bit-callout
+        type="warning"
+        [title]="'agentAccessOsCreatePartialTitle' | i18n: result.name"
+        data-testid="agent-access-os-create-partial"
+      >
+        @if (result.total > 0) {
+          <p class="tw-m-0">
+            {{ "agentAccessOsCreatePartialSummary" | i18n: result.failures.length : result.total }}
+          </p>
+        }
+        <ul class="tw-m-0 tw-list-disc tw-pl-5">
+          @for (failure of result.failures; track $index) {
+            <li class="tw-break-words" data-testid="agent-access-os-create-partial-failure">
+              <bdi>{{ failure.label }}</bdi>
+              @if (failure.message) {
+                : {{ failure.message }}
+              }
+            </li>
+          }
+        </ul>
+        <p class="tw-m-0 tw-mt-2">{{ "agentAccessOsCreatePartialHint" | i18n }}</p>
+      </bit-callout>
+    } @else {
+      @if (environments().length > 0) {
+        <bit-form-field>
+          <bit-label>{{ "agentAccessOsCreateEnvironment" | i18n }}</bit-label>
+          <bit-select
+            id="agent-access-openshell-create-sandbox-dialog_select_environment"
+            formControlName="environment"
+          >
+            <bit-option value="" [label]="'agentAccessOsCreateEnvironmentNone' | i18n"></bit-option>
+            @for (environment of environments(); track environment.id) {
+              <bit-option [value]="environment.id" [label]="environment.name"></bit-option>
+            }
+          </bit-select>
+          <bit-hint>{{ "agentAccessOsCreateEnvironmentHint" | i18n }}</bit-hint>
+        </bit-form-field>
+      }
+
+      @if (errorMessage(); as message) {
+        <bit-callout type="danger" data-testid="agent-access-os-create-error">
+          {{ message }}
+        </bit-callout>
+      }
+
+      <bit-form-field>
+        <bit-label>{{ "agentAccessOsCreateName" | i18n }}</bit-label>
+        <input
+          id="agent-access-openshell-create-sandbox-dialog_input_name"
+          bitInput
+          type="text"
+          formControlName="name"
+          autocomplete="off"
+          [spellcheck]="false"
+        />
+        <bit-hint>{{ "agentAccessOsCreateNameHint" | i18n }}</bit-hint>
+      </bit-form-field>
+
+      <bit-radio-group formControlName="source" [block]="true">
+        <bit-label>{{ "agentAccessOsCreateSource" | i18n }}</bit-label>
+        <bit-radio-button
+          id="agent-access-openshell-create-sandbox-dialog_radio_source-default"
+          value="default"
+        >
+          <bit-label>{{ "agentAccessOsCreateSourceDefault" | i18n }}</bit-label>
+        </bit-radio-button>
+        <bit-radio-button
+          id="agent-access-openshell-create-sandbox-dialog_radio_source-image"
+          value="image"
+        >
+          <bit-label>{{ "agentAccessOsCreateSourceImage" | i18n }}</bit-label>
+        </bit-radio-button>
+        <bit-radio-button
+          id="agent-access-openshell-create-sandbox-dialog_radio_source-template"
+          value="template"
+        >
+          <bit-label>{{ "agentAccessOsCreateSourceTemplate" | i18n }}</bit-label>
+        </bit-radio-button>
+      </bit-radio-group>
+
+      @if (source() === "image") {
+        <bit-form-field>
+          <bit-label>{{ "agentAccessOsCreateImage" | i18n }}</bit-label>
+          <input
+            id="agent-access-openshell-create-sandbox-dialog_input_image"
+            bitInput
+            type="text"
+            class="tw-font-mono"
+            formControlName="sourceValue"
+            autocomplete="off"
+            [spellcheck]="false"
+            placeholder="registry.example.com/image:tag"
+          />
+          <bit-hint>{{ "agentAccessOsCreateImageHint" | i18n }}</bit-hint>
+        </bit-form-field>
+      } @else if (source() === "template") {
+        <bit-form-field>
+          <bit-label>{{ "agentAccessOsCreateTemplate" | i18n }}</bit-label>
+          <input
+            id="agent-access-openshell-create-sandbox-dialog_input_template"
+            bitInput
+            type="text"
+            formControlName="sourceValue"
+            autocomplete="off"
+            [spellcheck]="false"
+          />
+        </bit-form-field>
+      }
+
+      <div>
+        <button
+          id="agent-access-openshell-create-sandbox-dialog_button_toggle-advanced"
+          type="button"
+          class="tw-flex tw-items-center tw-gap-2 tw-border-0 tw-bg-transparent tw-p-0 tw-text-muted"
+          bitTypography="body1"
+          [bitDisclosureTriggerFor]="advancedDisclosure"
+        >
+          <bit-icon [name]="advancedOpen() ? 'bwi-angle-down' : 'bwi-angle-right'"></bit-icon>
+          {{ "agentAccessOsCreateAdvanced" | i18n }}
+        </button>
+        <bit-disclosure
+          #advancedDisclosure
+          [(open)]="advancedOpen"
+          class="tw-flex tw-flex-col tw-gap-4 tw-pt-3"
+        >
+          <bit-form-field>
+            <bit-label>{{ "agentAccessOsCreateCpu" | i18n }}</bit-label>
+            <input
+              id="agent-access-openshell-create-sandbox-dialog_input_cpu"
+              bitInput
+              type="text"
+              formControlName="cpu"
+              autocomplete="off"
+              [spellcheck]="false"
+              placeholder="500m, 2"
+            />
+            <bit-hint>{{ "agentAccessOsCreateCpuHint" | i18n }}</bit-hint>
+          </bit-form-field>
+
+          <bit-form-field disableMargin>
+            <bit-label>{{ "agentAccessOsCreateMemory" | i18n }}</bit-label>
+            <input
+              id="agent-access-openshell-create-sandbox-dialog_input_memory"
+              bitInput
+              type="text"
+              formControlName="memory"
+              autocomplete="off"
+              [spellcheck]="false"
+              placeholder="512Mi, 4Gi"
+            />
+            <bit-hint>{{ "agentAccessOsCreateMemoryHint" | i18n }}</bit-hint>
+          </bit-form-field>
+        </bit-disclosure>
+      </div>
+
+      <p bitTypography="helper" class="tw-m-0 tw-text-muted">
+        {{ "agentAccessOsCreateCredentialsLater" | i18n }}
+      </p>
+    }
+  </div>
+
+  <ng-container bitDialogFooter>
+    @if (partial()) {
+      <button
+        id="agent-access-openshell-create-sandbox-dialog_button_open-created"
+        type="button"
+        bitButton
+        buttonType="primary"
+        (click)="openCreated()"
+      >
+        {{ "agentAccessOsCreateOpenSandbox" | i18n }}
+      </button>
+    } @else {
+      <button
+        id="agent-access-openshell-create-sandbox-dialog_button_create"
+        type="submit"
+        bitButton
+        bitFormButton
+        buttonType="primary"
+      >
+        {{ "agentAccessOsCreateSubmit" | i18n }}
+      </button>
+      <button
+        id="agent-access-openshell-create-sandbox-dialog_button_cancel"
+        type="button"
+        bitButton
+        bitFormButton
+        buttonType="secondary"
+        bitDialogClose
+      >
+        {{ "cancel" | i18n }}
+      </button>
+    }
+  </ng-container>
+</form>

@@ -3,6 +3,9 @@
     <bit-tab-nav-bar slot="tabs">
       <bit-tab-link route="agents">{{ "agentAccessAgents" | i18n }}</bit-tab-link>
       <bit-tab-link route="setup">{{ "agentAccessSetup" | i18n }}</bit-tab-link>
+      @if (showOpenShellTab()) {
+        <bit-tab-link route="openshell">{{ "agentAccessOpenShellTab" | i18n }}</bit-tab-link>
+      }
       <bit-tab-link route="activity">{{ "agentAccessActivity" | i18n }}</bit-tab-link>
     </bit-tab-nav-bar>
   </app-header>
