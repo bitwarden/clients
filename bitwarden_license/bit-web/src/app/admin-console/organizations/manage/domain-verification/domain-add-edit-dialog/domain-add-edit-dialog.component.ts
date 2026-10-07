@@ -1,9 +1,8 @@
-import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { Component, DestroyRef, inject, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   FormBuilder,
   FormControl,
-  FormGroup,
   ReactiveFormsModule,
   ValidatorFn,
   Validators,
@@ -61,21 +60,7 @@ export interface DomainAddEditDialogData {
     I18nPipe,
   ],
 })
-export class DomainAddEditDialogComponent implements OnInit {
-  readonly domainForm = signal<FormGroup | undefined>(undefined);
-  protected readonly domainNameReadonly = signal(false);
-
-  get domainNameCtrl(): FormControl {
-    return this.domainForm()?.controls.domainName as FormControl;
-  }
-  get txtCtrl(): FormControl {
-    return this.domainForm()?.controls.txt as FormControl;
-  }
-
-  readonly rejectedDomainNameValidator = signal<ValidatorFn | undefined>(undefined);
-
-  readonly rejectedDomainNames = signal<string[]>([]);
-
+export class DomainAddEditDialogComponent {
   dialogRef = inject(DialogRef);
   data = inject<DomainAddEditDialogData>(DIALOG_DATA);
 
@@ -88,7 +73,36 @@ export class DomainAddEditDialogComponent implements OnInit {
   private toastService = inject(ToastService);
   private destroyRef = inject(DestroyRef);
 
-  async ngOnInit(): Promise<void> {
+  readonly domainForm = this.formBuilder.group({
+    domainName: ["", this.buildDomainNameValidators()],
+    txt: [null as string | null],
+  });
+  protected readonly domainNameReadonly = signal(this.data.orgDomain != null);
+
+  get domainNameCtrl(): FormControl {
+    return this.domainForm.controls.domainName;
+  }
+  get txtCtrl(): FormControl {
+    return this.domainForm.controls.txt;
+  }
+
+  readonly rejectedDomainNameValidator = signal<ValidatorFn | undefined>(undefined);
+
+  readonly rejectedDomainNames = signal<string[]>([]);
+
+  constructor() {
+    if (this.data.orgDomain) {
+      this.domainForm.patchValue(this.data.orgDomain);
+    }
+
+    // <bit-form-field> suppresses touched state on change for reactive form controls
+    // Manually set touched to show validation errors as the user stypes
+    this.domainForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.domainForm.markAllAsTouched();
+    });
+  }
+
+  private buildDomainNameValidators(): ValidatorFn[] {
     const domainNameValidators = [
       Validators.required,
       domainNameValidator(this.i18nService.t("invalidDomainNameClaimMessage")),
@@ -105,34 +119,7 @@ export class DomainAddEditDialogComponent implements OnInit {
       );
     }
 
-    this.domainForm.set(
-      this.formBuilder.group({
-        domainName: ["", domainNameValidators],
-        txt: [null],
-      }),
-    );
-    // If we have data.orgDomain, then editing, otherwise creating new domain
-    await this.populateForm();
-  }
-
-  async populateForm(): Promise<void> {
-    if (this.data.orgDomain) {
-      // Edit
-      this.domainForm()?.patchValue(this.data.orgDomain);
-      this.domainNameReadonly.set(true);
-    }
-
-    this.setupFormListeners();
-  }
-
-  setupFormListeners(): void {
-    // <bit-form-field> suppresses touched state on change for reactive form controls
-    // Manually set touched to show validation errors as the user stypes
-    this.domainForm()
-      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.domainForm()?.markAllAsTouched();
-      });
+    return domainNameValidators;
   }
 
   copyDnsTxt(): void {
@@ -145,8 +132,7 @@ export class DomainAddEditDialogComponent implements OnInit {
 
   // Creates a new domain record. The DNS TXT Record will be generated server-side and returned in the response.
   saveDomain = async (): Promise<void> => {
-    const domainForm = this.domainForm();
-    if (domainForm == null || domainForm.invalid) {
+    if (this.domainForm.invalid) {
       this.toastService.showToast({
         variant: "error",
         message: this.i18nService.t("domainFormInvalid"),
@@ -163,7 +149,7 @@ export class DomainAddEditDialogComponent implements OnInit {
     try {
       this.data.orgDomain = await this.orgDomainApiService.post(this.data.organizationId, request);
       // Patch the DNS TXT Record that was generated server-side
-      domainForm.controls.txt.patchValue(this.data.orgDomain.txt);
+      this.domainForm.controls.txt.patchValue(this.data.orgDomain.txt);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("domainSaved"),
@@ -219,8 +205,7 @@ export class DomainAddEditDialogComponent implements OnInit {
   }
 
   verifyDomain = async (): Promise<void> => {
-    const domainForm = this.domainForm();
-    if (domainForm == null || domainForm.invalid || this.data.orgDomain == null) {
+    if (this.domainForm.invalid || this.data.orgDomain == null) {
       // Note: shouldn't be possible, but going to leave this to be safe.
       this.toastService.showToast({
         variant: "error",
