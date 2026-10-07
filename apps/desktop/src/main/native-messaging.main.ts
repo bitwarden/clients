@@ -238,23 +238,19 @@ export class NativeMessagingMain {
         break;
       }
       case "linux": {
-        // Because on linux, the path inside the sandbox is different, and we want to support:
-        // Flatpak App, Unsandboxed App, Flatpak Browser, Unsandboxed Browser, Snap App, Unsandboxed App
-        // and any combination of the above, we copy the binary to the applications native-messaging-hosts path
-        // so that a canonical path to put in the manifest can be used.
-
-        // Unsandboxed browser
-        for (const [key, browserDirectory] of Object.entries(this.getLinuxNMHS())) {
+        for (const [key, browserDirectory] of Object.entries(this.getLinuxNMHS()).concat(
+          Object.entries(this.getFlatpakNMHS()),
+        )) {
           if (existsSync(browserDirectory)) {
-            let nhmsPath = path.join(browserDirectory, "NativeMessagingHosts");
+            let nmhsPath = path.join(browserDirectory, "NativeMessagingHosts");
             if (key === "Firefox") {
-              nhmsPath = path.join(browserDirectory, "native-messaging-hosts");
+              nmhsPath = path.join(browserDirectory, "native-messaging-hosts");
             }
-            const browserBinaryPath = path.join(nhmsPath, ".bitwarden_desktop_proxy");
+            const browserBinaryPath = path.join(nmhsPath, ".bitwarden_desktop_proxy");
 
             if (key === "Firefox") {
               // Only generate the NMHS dir if the browser directory exists
-              await fs.mkdir(nhmsPath, { recursive: true });
+              await fs.mkdir(nmhsPath, { recursive: true });
             }
 
             await this.linkOrCopy(binaryPath, browserBinaryPath);
@@ -264,40 +260,14 @@ export class NativeMessagingMain {
 
             if (key === "Firefox") {
               await this.writeManifest(
-                path.join(nhmsPath, "com.8bit.bitwarden.json"),
+                path.join(nmhsPath, "com.8bit.bitwarden.json"),
                 await this.generateFirefoxJson(browserBinaryPath),
               );
             } else {
               await this.writeManifest(
-                path.join(nhmsPath, "com.8bit.bitwarden.json"),
+                path.join(nmhsPath, "com.8bit.bitwarden.json"),
                 await this.generateChromeJson(browserBinaryPath),
               );
-            }
-          } else {
-            this.logService.warning(`${key} not found, skipping.`);
-          }
-        }
-
-        for (const [key, value] of Object.entries(this.getFlatpakNMHS())) {
-          if (existsSync(value)) {
-            const sandboxedProxyBinaryPath = path.join(value, ".bitwarden_desktop_proxy");
-            await this.linkOrCopy(binaryPath, sandboxedProxyBinaryPath);
-            this.logService.info(
-              `[Native messaging] Hard-linked ${binaryPath} to ${sandboxedProxyBinaryPath}`,
-            );
-
-            if (key === "Firefox") {
-              await this.writeManifest(
-                path.join(value, "com.8bit.bitwarden.json"),
-                await this.generateFirefoxJson(sandboxedProxyBinaryPath),
-              );
-            } else if (key === "Chrome" || key === "Chromium" || key === "Microsoft Edge") {
-              await this.writeManifest(
-                path.join(value, "com.8bit.bitwarden.json"),
-                await this.generateChromeJson(sandboxedProxyBinaryPath),
-              );
-            } else {
-              this.logService.warning(`Flatpak ${key} not supported, skipping.`);
             }
           } else {
             this.logService.warning(`${key} not found, skipping.`);
@@ -394,7 +364,9 @@ export class NativeMessagingMain {
         break;
       }
       case "linux": {
-        for (const [key, value] of Object.entries(this.getLinuxNMHS())) {
+        for (const [key, value] of Object.entries(this.getLinuxNMHS()).concat(
+          Object.entries(this.getFlatpakNMHS()),
+        )) {
           if (key === "Firefox") {
             await this.removeIfExists(
               path.join(value, "native-messaging-hosts", "com.8bit.bitwarden.json"),
@@ -405,12 +377,6 @@ export class NativeMessagingMain {
             );
           }
         }
-
-        for (const [, value] of Object.entries(this.getFlatpakNMHS())) {
-          await this.removeIfExists(path.join(value, "com.8bit.bitwarden.json"));
-          await this.removeIfExists(path.join(value, ".bitwarden_desktop_proxy"));
-        }
-
         break;
       }
       default:
@@ -495,10 +461,10 @@ export class NativeMessagingMain {
 
   private getFlatpakNMHS() {
     return {
-      Firefox: `${this.homedir()}/.var/app/org.mozilla.firefox/.mozilla/native-messaging-hosts/`,
-      Chrome: `${this.homedir()}/.var/app/com.google.Chrome/config/google-chrome/NativeMessagingHosts/`,
-      Chromium: `${this.homedir()}/.var/app/org.chromium.Chromium/config/chromium/NativeMessagingHosts/`,
-      "Microsoft Edge": `${this.homedir()}/.var/app/com.microsoft.Edge/config/microsoft-edge/NativeMessagingHosts/`,
+      Firefox: `${this.homedir()}/.var/app/org.mozilla.firefox/.mozilla/`,
+      Chrome: `${this.homedir()}/.var/app/com.google.Chrome/config/google-chrome/`,
+      Chromium: `${this.homedir()}/.var/app/org.chromium.Chromium/config/chromium/`,
+      "Microsoft Edge": `${this.homedir()}/.var/app/com.microsoft.Edge/config/microsoft-edge/`,
     };
   }
 
