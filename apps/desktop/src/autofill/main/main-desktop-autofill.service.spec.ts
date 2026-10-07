@@ -2,7 +2,7 @@ import { BrowserWindow, ipcMain } from "electron";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { autofill } from "@bitwarden/desktop-napi";
+import { autofill, passkey_authenticator } from "@bitwarden/desktop-napi";
 
 import { WindowMain } from "../../main/window.main";
 import { AutofillIpcChannelControl } from "../models/autofill-ipc-channels";
@@ -29,6 +29,7 @@ jest.mock("@bitwarden/desktop-napi", () => ({
     },
   },
   passkey_authenticator: {
+    NOT_SUPPORTED: "Passkey authenticator plugin is not supported",
     register: jest.fn(),
   },
 }));
@@ -94,6 +95,36 @@ describe("DesktopAutofillMain", () => {
 
       expect(secondResult).toBe(true);
       expect(AutofillIpcServer.listen).toHaveBeenCalledTimes(1);
+    });
+
+    describe("passkey plugin registration", () => {
+      afterEach(() => {
+        (passkey_authenticator.register as jest.Mock).mockReset();
+      });
+
+      it("starts the IPC server when the plugin is not supported", async () => {
+        (passkey_authenticator.register as jest.Mock).mockImplementation(() => {
+          throw new Error(passkey_authenticator.NOT_SUPPORTED);
+        });
+        service.init();
+
+        const started = await getSetEnabledHandler()(null, true);
+
+        expect(started).toBe(true);
+        expect(AutofillIpcServer.listen).toHaveBeenCalledTimes(1);
+      });
+
+      it("reports not running when plugin registration fails", async () => {
+        (passkey_authenticator.register as jest.Mock).mockImplementation(() => {
+          throw new Error("Passkey registration failed: boom");
+        });
+        service.init();
+
+        const started = await getSetEnabledHandler()(null, true);
+
+        expect(started).toBe(false);
+        expect(AutofillIpcServer.listen).not.toHaveBeenCalled();
+      });
     });
 
     it("reports not running when disabled before ever being enabled", async () => {
