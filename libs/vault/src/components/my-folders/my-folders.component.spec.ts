@@ -102,7 +102,10 @@ describe("MyFoldersComponent", () => {
       imports: [MyFoldersComponent, NoopAnimationsModule],
       providers: [
         { provide: AccountService, useValue: mockAccountServiceWith(userId) },
-        { provide: CipherService, useValue: { cipherListViews$: () => cipherListViews$ } },
+        {
+          provide: CipherService,
+          useValue: { cipherListViewsWithPartials$: () => cipherListViews$ },
+        },
         { provide: DialogService, useValue: dialogService },
         { provide: FolderApiServiceAbstraction, useValue: folderApiService },
         { provide: FolderService, useValue: folderService },
