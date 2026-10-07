@@ -7,17 +7,9 @@ import { Directive } from "@angular/core";
 @Directive({
   selector: "[bitHoverRevealContainer]",
   host: {
-    class: [
-      "[--bit-hover-reveal:0]",
-      "hover:[--bit-hover-reveal:1]",
-      // Focus outside a boundary reveals even while a boundary is hovered
-      "[&:has(:focus-visible):not(:has([bitHoverRevealBoundary]_:focus-visible))]:![--bit-hover-reveal:1]",
-      "has-[.tw-test-focus-visible]:[--bit-hover-reveal:1]",
-      // Touch devices can't hover, so always show; `!` outranks the more specific boundary reset
-      "[@media(hover:none)]:![--bit-hover-reveal:1]",
-      // Hover inside a boundary doesn't count
-      "[&:has([bitHoverRevealBoundary]:hover)]:[--bit-hover-reveal:0]",
-    ].join(" "),
+    // `!` lets focus outside a boundary, and touch devices (no hover), override the boundary-hover reset.
+    class:
+      "[--bit-hover-reveal:0] hover:[--bit-hover-reveal:1] [&:has(:focus-visible):not(:has([bitHoverRevealBoundary]_:focus-visible))]:![--bit-hover-reveal:1] has-[.tw-test-focus-visible]:[--bit-hover-reveal:1] [@media(hover:none)]:![--bit-hover-reveal:1] [&:has([bitHoverRevealBoundary]:hover)]:[--bit-hover-reveal:0]",
   },
 })
 export class HoverRevealContainerDirective {}
@@ -36,12 +28,8 @@ export class HoverRevealBoundaryDirective {}
 @Directive({
   selector: "[bitHoverReveal]",
   host: {
-    class: [
-      "tw-opacity-[var(--bit-hover-reveal,1)]",
-      "tw-transition-opacity",
-      "aria-expanded:tw-opacity-100",
-      "[&:has([aria-expanded='true'])]:tw-opacity-100",
-    ].join(" "),
+    class:
+      "tw-opacity-[var(--bit-hover-reveal,1)] tw-transition-opacity aria-expanded:tw-opacity-100 [&:has([aria-expanded='true'])]:tw-opacity-100",
   },
 })
 export class HoverRevealDirective {}
