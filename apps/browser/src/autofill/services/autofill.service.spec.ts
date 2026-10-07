@@ -5370,17 +5370,17 @@ describe("AutofillService", () => {
         expect(result).toStrictEqual([passwordField]);
       });
 
-      it("returns an empty array when `label-aria` contains `password hint`", () => {
-        passwordField["label-aria"] = "Password hint";
-        pageDetails.fields = [passwordField];
-
-        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
-
-        expect(result).toStrictEqual([]);
-      });
-
-      it("returns an empty array when `label-aria` contains `forgot password`", () => {
-        passwordField["label-aria"] = "Forgot password?";
+      it.each([
+        ["label-aria", "Password hint"],
+        ["label-aria", "Forgot password?"],
+        ["label-tag", "Password hint"],
+        ["label-tag", "Forgot password?"],
+        ["label-top", "Password hint"],
+        ["label-top", "Forgot password?"],
+        ["label-left", "Password hint"],
+        ["label-left", "Forgot password?"],
+      ])("returns an empty array when %s contains an excluded phrase (%s)", (attr, value) => {
+        passwordField[attr] = value;
         pageDetails.fields = [passwordField];
 
         const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
