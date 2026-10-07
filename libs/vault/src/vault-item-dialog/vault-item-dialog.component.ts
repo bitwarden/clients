@@ -100,6 +100,15 @@ export interface VaultItemDialogParams {
    * Function to restore a cipher from the trash.
    */
   restore?: (c: CipherViewLike) => Promise<void>;
+
+  /**
+   * Called whenever the dialog successfully saves a cipher (including the initial save of a
+   * newly created or cloned cipher), with the fully decrypted, saved `CipherView`. Callers that
+   * need to know which cipher is now active in the dialog — e.g. to keep it selected for
+   * shortcut actions — should use this instead of relying on the `Saved` close result, which
+   * does not carry the cipher.
+   */
+  onCipherSaved?: (cipher: CipherView) => void;
 }
 
 export const VaultItemDialogResult = {
@@ -438,6 +447,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   protected async onCipherSaved(cipherView: CipherView) {
     // We successfully saved the cipher, update the dialog state and switch to view mode.
     this.cipher = cipherView;
+    this.params.onCipherSaved?.(cipherView);
     this.collections = this.formConfig.collections.filter((c) =>
       cipherView.collectionIds?.includes(c.id),
     );

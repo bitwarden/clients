@@ -569,6 +569,27 @@ describe("VaultItemDialogComponent", () => {
         component["params"].isAdminConsoleAction,
       );
     });
+
+    it("calls params.onCipherSaved with the saved cipher after creating a new item", async () => {
+      (component as any)._originalFormMode = "add";
+
+      const onCipherSaved = jest.fn();
+      component.setTestParams({ onCipherSaved });
+
+      const savedCipherView = { id: "new-cipher-id", collectionIds: [] } as any;
+
+      await component["onCipherSaved"](savedCipherView);
+
+      expect(onCipherSaved).toHaveBeenCalledWith(savedCipherView);
+    });
+
+    it("does not throw when params.onCipherSaved is not provided", async () => {
+      (component as any)._originalFormMode = "add";
+
+      const savedCipherView = { id: "new-cipher-id", collectionIds: [] } as any;
+
+      await expect(component["onCipherSaved"](savedCipherView)).resolves.not.toThrow();
+    });
   });
 
   describe("openAttachmentsDialog", () => {

@@ -1222,6 +1222,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       mode,
       formConfig,
       restore: this.restore,
+      // Keep the saved cipher selected so copy shortcuts keep working on it, e.g. right after
+      // creating a new item (the dialog's `Saved` close result doesn't carry the cipher).
+      onCipherSaved: (cipher) => this.cipher.set(cipher),
     });
     this.activeDrawerRef = drawerRef;
     drawerRef?.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
