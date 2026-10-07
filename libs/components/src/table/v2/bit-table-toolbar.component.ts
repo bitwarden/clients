@@ -81,12 +81,19 @@ export class BitTableToolbarComponent {
     undefined,
   );
 
+  private readonly filterRows = new Map<string, Signal<ElementRef<HTMLElement> | undefined>>();
+
   /** The small-screen filter button, for anchoring a popover. `undefined` while chips show inline. */
   readonly filterButton = viewChild("filterButton", { read: ElementRef<HTMLElement> });
 
   /** The filter dialog's list-page row for `key`. `undefined` while closed or drilled in. */
   filterRow(key: string): Signal<ElementRef<HTMLElement> | undefined> {
-    return computed(() => this.dialogRef()?.componentInstance?.row(key));
+    let row = this.filterRows.get(key);
+    if (!row) {
+      row = computed(() => this.dialogRef()?.componentInstance?.row(key));
+      this.filterRows.set(key, row);
+    }
+    return row;
   }
 
   /** The table this toolbar is projected into; the source of the item count. */
