@@ -1,0 +1,45 @@
+import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { TestBed } from "@angular/core/testing";
+
+import { HoverRevealContainerDirective, HoverRevealDirective } from "./hover-reveal.directive";
+
+@Component({
+  imports: [HoverRevealContainerDirective, HoverRevealDirective],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <div bitHoverRevealContainer data-testid="container">
+      <button type="button" bitHoverReveal data-testid="reveal">Edit</button>
+    </div>
+  `,
+})
+class TestHostComponent {}
+
+describe("HoverReveal directives", () => {
+  let el: HTMLElement;
+
+  beforeEach(() => {
+    const fixture = TestBed.createComponent(TestHostComponent);
+    fixture.detectChanges();
+    el = fixture.nativeElement;
+  });
+
+  const byTestId = (id: string) => el.querySelector(`[data-testid='${id}']`) as HTMLElement;
+
+  it("sets the reveal variable and boundary reset on the container", () => {
+    const classes = byTestId("container").classList;
+
+    expect(classes).toContain("[--bit-hover-reveal:0]");
+    expect(classes).toContain("hover:[--bit-hover-reveal:1]");
+    expect(classes).toContain(
+      "[&:has(:focus-visible):not(:has([bitHoverRevealBoundary]_:focus-visible))]:![--bit-hover-reveal:1]",
+    );
+    expect(classes).toContain("[&:has([bitHoverRevealBoundary]:hover)]:[--bit-hover-reveal:0]");
+  });
+
+  it("binds the revealed element's opacity to the variable and pins it while expanded", () => {
+    const classes = byTestId("reveal").classList;
+
+    expect(classes).toContain("tw-opacity-[var(--bit-hover-reveal,1)]");
+    expect(classes).toContain("aria-expanded:tw-opacity-100");
+  });
+});
