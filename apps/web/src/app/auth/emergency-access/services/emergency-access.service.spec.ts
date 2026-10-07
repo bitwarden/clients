@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { MockProxy } from "jest-mock-extended";
 import mock from "jest-mock-extended/lib/Mock";
 import { of } from "rxjs";
@@ -336,7 +334,9 @@ describe("EmergencyAccessService", () => {
 
     it("should throw if the grantor user key cannot be decrypted via the active user private key", async () => {
       // Arrange
-      encryptService.decapsulateKeyUnsigned.mockResolvedValue(null);
+      encryptService.decapsulateKeyUnsigned.mockResolvedValue(
+        null as unknown as SymmetricCryptoKey,
+      );
 
       // Act
       const promise = emergencyAccessService.takeover(id, masterPassword, email, activeUserId);
@@ -374,8 +374,8 @@ describe("EmergencyAccessService", () => {
 
       const expectedKdfConfig = new Argon2KdfConfig(
         argon2TakeoverResponse.kdfIterations,
-        argon2TakeoverResponse.kdfMemory,
-        argon2TakeoverResponse.kdfParallelism,
+        argon2TakeoverResponse.kdfMemory!,
+        argon2TakeoverResponse.kdfParallelism!,
       );
 
       // Act
@@ -492,7 +492,7 @@ describe("EmergencyAccessService", () => {
       const takeoverResponseWithNullSalt = {
         ...takeoverResponse,
         salt: null,
-      } as EmergencyAccessTakeoverResponse;
+      } as unknown as EmergencyAccessTakeoverResponse;
 
       emergencyAccessApiService.postEmergencyAccessTakeover.mockResolvedValue(
         takeoverResponseWithNullSalt,
@@ -583,16 +583,20 @@ describe("EmergencyAccessService", () => {
 
     it("throws if new user key is null", async () => {
       await expect(
-        emergencyAccessService.getRotatedData(null, mockTrustedPublicKeys, "mockUserId" as UserId),
+        emergencyAccessService.getRotatedData(
+          null as unknown as UserKey,
+          mockTrustedPublicKeys,
+          "mockUserId" as UserId,
+        ),
       ).rejects.toThrow("New user key is required for rotation.");
     });
   });
 
   describe("getEmergencyAccessTrusted", () => {
     it("should return an empty array if no emergency access is granted", async () => {
-      emergencyAccessApiService.getEmergencyAccessTrusted.mockResolvedValue({
-        data: [],
-      } as ListResponse<EmergencyAccessGranteeDetailsResponse>);
+      emergencyAccessApiService.getEmergencyAccessTrusted.mockResolvedValue(
+        new ListResponse({ Data: [] }, EmergencyAccessGranteeDetailsResponse),
+      );
 
       const result = await emergencyAccessService.getEmergencyAccessTrusted();
 
@@ -642,9 +646,9 @@ describe("EmergencyAccessService", () => {
 
   describe("getEmergencyAccessGranted", () => {
     it("should return an empty array if no emergency access is granted", async () => {
-      emergencyAccessApiService.getEmergencyAccessGranted.mockResolvedValue({
-        data: [],
-      } as ListResponse<EmergencyAccessGrantorDetailsResponse>);
+      emergencyAccessApiService.getEmergencyAccessGranted.mockResolvedValue(
+        new ListResponse({ Data: [] }, EmergencyAccessGrantorDetailsResponse),
+      );
 
       const result = await emergencyAccessService.getEmergencyAccessGranted();
 
