@@ -8,10 +8,10 @@
     [disabled]="disabled()"
     [appA11yTitle]="getButtonLabel() | i18n"
     [bitTooltip]="disabled() ? ('organizationIsSuspended' | i18n) : ''"
-    [bitPopoverAnchorFor]="coachmarkPopover()"
-    [popoverOpen]="coachmarkPopoverOpen()"
-    [position]="coachmarkPosition()"
-    [spotlight]="!!coachmarkPopover()"
+    [bitPopoverAnchorFor]="addItemCoachmark.popover()"
+    [popoverOpen]="coachmark.isStepActive('addItem')"
+    [position]="coachmark.getStepPosition('addItem')"
+    [spotlight]="coachmark.isStepActive('addItem')"
     [startIcon]="icon()"
   >
     {{ getButtonLabel() | i18n }}
@@ -28,10 +28,10 @@
       [disabled]="disabled()"
       [appA11yTitle]="getButtonLabel() | i18n"
       [bitTooltip]="disabled() ? ('organizationIsSuspended' | i18n) : ''"
-      [bitPopoverAnchorFor]="coachmarkPopover()"
-      [popoverOpen]="coachmarkPopoverOpen()"
-      [position]="coachmarkPosition()"
-      [spotlight]="!!coachmarkPopover()"
+      [bitPopoverAnchorFor]="addItemCoachmark.popover()"
+      [popoverOpen]="coachmark.isStepActive('addItem')"
+      [position]="coachmark.getStepPosition('addItem')"
+      [spotlight]="coachmark.isStepActive('addItem')"
       [closeOnBackdropClick]="false"
       [startIcon]="icon()"
     >
@@ -62,3 +62,4 @@
     </bit-menu>
   </div>
 }
+<vault-coachmark #addItemCoachmark stepId="addItem" />

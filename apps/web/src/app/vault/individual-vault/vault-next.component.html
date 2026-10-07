@@ -82,21 +82,17 @@
       >
         {{ "importNoun" | i18n }}
       </button>
-      <app-coachmark #importCoachmark stepId="importData" />
+      <vault-coachmark #importCoachmark stepId="importData" />
       <vault-new-cipher-menu
         [canCreateCipher]="true"
         [canCreateSshKey]="true"
         [canCreateFolder]="true"
         [canCreateCollection]="canCreateCollections()"
-        [coachmarkPopover]="addItemCoachmark.popover()"
-        [coachmarkPopoverOpen]="addItemCoachmarkOpen()"
-        [coachmarkPosition]="coachmarkService.getStepPosition('addItem')"
         (cipherAdded)="addCipher($event)"
         (onAddItemDialog)="openAddItemDialog('toolbar')"
         (folderAdded)="addFolder()"
         (collectionAdded)="addCollection()"
       />
-      <app-coachmark #addItemCoachmark stepId="addItem" />
     }
   </div>
 </vault-items-table>

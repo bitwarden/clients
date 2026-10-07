@@ -3,20 +3,23 @@ import { TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { BehaviorSubject, of } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
 import { UserId } from "@bitwarden/common/types/guid";
 import { SideNavService } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
-import { Vfo1TerminologyService } from "@bitwarden/vault";
 
-import { COACHMARK_STEPS } from "./coachmark-step";
+import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
+
+import { CoachmarkStep } from "./coachmark-step";
+import { CoachmarkTour } from "./coachmark-tour";
 import { CoachmarkService } from "./coachmark.service";
+import { newUserTour } from "./tours/new-user-tour";
 
 describe("CoachmarkService", () => {
   let service: CoachmarkService;
@@ -33,7 +36,7 @@ describe("CoachmarkService", () => {
   const sideNavOpen = signal(false);
 
   let activeAccount$: BehaviorSubject<Account | null>;
-  let serverSettings$: BehaviorSubject<ServerSettings | null>;
+  let tour: CoachmarkTour;
 
   function createAccount(overrides: Partial<Account> = {}): Account {
     return {
@@ -50,7 +53,6 @@ describe("CoachmarkService", () => {
     sideNavOpen.set(false);
 
     activeAccount$ = new BehaviorSubject<Account | null>(createAccount());
-    serverSettings$ = new BehaviorSubject<ServerSettings | null>(new ServerSettings());
 
     TestBed.configureTestingModule({
       providers: [
@@ -60,7 +62,6 @@ describe("CoachmarkService", () => {
         { provide: StateProvider, useValue: { getUserState$, setUserState } },
         { provide: I18nService, useValue: { t } },
         { provide: Router, useValue: { navigate } },
-        { provide: ConfigService, useValue: { serverSettings$: serverSettings$.asObservable() } },
         { provide: Vfo1TerminologyService, useValue: { enabled: vfo1Enabled } },
         { provide: CollectionService, useValue: { decryptedCollections$ } },
         { provide: SideNavService, useValue: { open: sideNavOpen } },
@@ -68,12 +69,20 @@ describe("CoachmarkService", () => {
     });
 
     service = TestBed.inject(CoachmarkService);
+    tour = newUserTour(TestBed.inject(StateProvider));
+  });
+
+  const startTour = fakeAsync(() => {
+    void service.startTour(tour);
+    tick(200);
   });
 
   describe("getStepConfig", () => {
+    beforeEach(startTour);
+
     it("returns the config for a known step", () => {
       const config = service.getStepConfig("importData");
-      expect(config).toEqual(COACHMARK_STEPS[0]);
+      expect(config).toEqual(tour.steps[0]);
     });
 
     it("returns undefined for an unknown step", () => {
@@ -83,6 +92,8 @@ describe("CoachmarkService", () => {
   });
 
   describe("getStepTitle", () => {
+    beforeEach(startTour);
+
     it("returns translated title for a valid step", () => {
       service.getStepTitle("importData");
       expect(t).toHaveBeenCalledWith("coachmarkImportTitle");
@@ -95,6 +106,8 @@ describe("CoachmarkService", () => {
   });
 
   describe("getStepDescription", () => {
+    beforeEach(startTour);
+
     it("returns translated description for a valid step", () => {
       service.getStepDescription("addItem");
       expect(t).toHaveBeenCalledWith("coachmarkAddItemDescription");
@@ -118,6 +131,8 @@ describe("CoachmarkService", () => {
   });
 
   describe("getStepLearnMoreUrl", () => {
+    beforeEach(startTour);
+
     it("returns the learn more URL for a step that has one", () => {
       const url = service.getStepLearnMoreUrl("importData");
       expect(url).toBe("https://bitwarden.com/help/import-data/");
@@ -130,6 +145,8 @@ describe("CoachmarkService", () => {
   });
 
   describe("getStepPosition", () => {
+    beforeEach(startTour);
+
     it("returns the position for a valid step", () => {
       const position = service.getStepPosition("importData");
       expect(position).toBe("right-center");
@@ -146,32 +163,22 @@ describe("CoachmarkService", () => {
       getUserState$.mockReturnValue(of(false));
       hasOrganizations.mockReturnValue(of(false));
 
-      void service.startTour();
+      void service.startTour(tour);
       tick(200);
 
       expect(service.isRunning()).toBe(true);
 
       navigate.mockClear();
-      void service.startTour();
+      void service.startTour(tour);
       tick(200);
 
-      expect(navigate).not.toHaveBeenCalled();
-    }));
-
-    it("should not start if suppressOnboardingInterstitials is enabled", fakeAsync(() => {
-      serverSettings$.next(new ServerSettings({ suppressOnboardingInterstitials: true }));
-
-      void service.startTour();
-      tick(200);
-
-      expect(service.isRunning()).toBe(false);
       expect(navigate).not.toHaveBeenCalled();
     }));
 
     it("should not start if there is no active account", fakeAsync(() => {
       activeAccount$.next(null);
 
-      void service.startTour();
+      void service.startTour(tour);
       tick(200);
 
       expect(service.isRunning()).toBe(false);
@@ -180,7 +187,7 @@ describe("CoachmarkService", () => {
     it("should not start if tour has already been completed", fakeAsync(() => {
       getUserState$.mockReturnValue(of(true));
 
-      void service.startTour();
+      void service.startTour(tour);
       tick(200);
 
       expect(service.isRunning()).toBe(false);
@@ -190,7 +197,7 @@ describe("CoachmarkService", () => {
       getUserState$.mockReturnValue(of(false));
       hasOrganizations.mockReturnValue(of(false));
 
-      void service.startTour();
+      void service.startTour(tour);
       tick(200);
 
       expect(navigate).toHaveBeenCalledWith(["/tools/import"]);
@@ -204,7 +211,7 @@ describe("CoachmarkService", () => {
       hasOrganizations.mockReturnValue(of(false));
       vfo1Enabled.mockReturnValue(true);
 
-      void service.startTour();
+      void service.startTour(tour);
       tick(200);
 
       expect(navigate).toHaveBeenCalledWith(["/vault"]);
@@ -216,7 +223,7 @@ describe("CoachmarkService", () => {
       getUserState$.mockReturnValue(of(false));
       hasOrganizations.mockReturnValue(of(true));
 
-      void service.startTour();
+      void service.startTour(tour);
       tick(200);
 
       // The tour starts on importData, which anchors the vault page rather than the nav.
@@ -236,7 +243,7 @@ describe("CoachmarkService", () => {
       hasOrganizations.mockReturnValue(of(true));
       decryptedCollections$.mockReturnValue(of([{} as CollectionView]));
 
-      void service.startTour();
+      void service.startTour(tour);
       tick(200);
 
       expect(service.totalSteps()).toBe(4);
@@ -247,7 +254,7 @@ describe("CoachmarkService", () => {
       hasOrganizations.mockReturnValue(of(true));
       decryptedCollections$.mockReturnValue(of([]));
 
-      void service.startTour();
+      void service.startTour(tour);
       tick(200);
 
       expect(service.totalSteps()).toBe(3);
@@ -257,7 +264,7 @@ describe("CoachmarkService", () => {
       getUserState$.mockReturnValue(of(false));
       hasOrganizations.mockReturnValue(of(false));
 
-      void service.startTour();
+      void service.startTour(tour);
       tick(200);
 
       // shareWithCollections step is excluded
@@ -270,7 +277,7 @@ describe("CoachmarkService", () => {
       getUserState$.mockReturnValue(of(false));
       hasOrganizations.mockReturnValue(of(false));
 
-      void service.startTour();
+      void service.startTour(tour);
       tick(200);
 
       navigate.mockClear();
@@ -322,7 +329,7 @@ describe("CoachmarkService", () => {
       getUserState$.mockReturnValue(of(false));
       hasOrganizations.mockReturnValue(of(false));
 
-      void service.startTour();
+      void service.startTour(tour);
       tick(200);
 
       navigate.mockClear();
@@ -369,7 +376,7 @@ describe("CoachmarkService", () => {
       getUserState$.mockReturnValue(of(false));
       hasOrganizations.mockReturnValue(of(false));
 
-      void service.startTour();
+      void service.startTour(tour);
       tick(200);
 
       expect(service.isRunning()).toBe(true);
@@ -389,7 +396,7 @@ describe("CoachmarkService", () => {
       getUserState$.mockReturnValue(of(false));
       hasOrganizations.mockReturnValue(of(false));
 
-      void service.startTour();
+      void service.startTour(tour);
       tick(200);
 
       activeAccount$.next(null);
@@ -398,6 +405,93 @@ describe("CoachmarkService", () => {
       tick(200);
 
       expect(setUserState).not.toHaveBeenCalled();
+    }));
+  });
+
+  describe("custom tours", () => {
+    function testTour(
+      overrides: Partial<CoachmarkTour> & { steps: CoachmarkStep[] },
+    ): CoachmarkTour {
+      return {
+        completed: jest.fn().mockResolvedValue(false),
+        markCompleted: jest.fn().mockResolvedValue(undefined),
+        ...overrides,
+      };
+    }
+
+    const step = (overrides: Partial<CoachmarkStep> = {}): CoachmarkStep => ({
+      id: "addItem",
+      titleKey: "tourATitle",
+      descriptionKey: "tourADescription",
+      position: "below-center",
+      ...overrides,
+    });
+
+    it("ignores a second startTour while a tour is running", fakeAsync(() => {
+      const tourA = testTour({ steps: [step({ id: "importData" }), step({ id: "addItem" })] });
+      const tourB = testTour({ steps: [step({ id: "monitorSecurity" })] });
+
+      void service.startTour(tourA);
+      tick(200);
+      void service.startTour(tourB);
+      tick(200);
+
+      expect(service.activeStepId()).toBe("importData");
+      expect(service.totalSteps()).toBe(2);
+      expect(tourB.completed).not.toHaveBeenCalled();
+    }));
+
+    it("reopens the side nav while a lockSideNav tour runs", fakeAsync(() => {
+      void service.startTour(testTour({ steps: [step()], lockSideNav: true }));
+      tick(200);
+      TestBed.tick();
+
+      sideNavOpen.set(false);
+      TestBed.tick();
+
+      expect(sideNavOpen()).toBe(true);
+    }));
+
+    it("leaves the side nav closed when the tour does not set lockSideNav", fakeAsync(() => {
+      void service.startTour(testTour({ steps: [step()] }));
+      tick(200);
+      TestBed.tick();
+
+      sideNavOpen.set(false);
+      TestBed.tick();
+
+      expect(sideNavOpen()).toBe(false);
+    }));
+
+    it("resolves a shared step id against the running tour", fakeAsync(() => {
+      const tourB = testTour({ steps: [step({ titleKey: "tourBTitle" })] });
+
+      void service.startTour(tourB);
+      tick(200);
+
+      expect(service.getStepTitle("addItem")).toBe("tourBTitle");
+    }));
+
+    it("navigates to the tour's endRoute on completion", fakeAsync(() => {
+      void service.startTour(testTour({ steps: [step()], endRoute: "/somewhere" }));
+      tick(200);
+      navigate.mockClear();
+
+      void service.completeTour();
+      tick(200);
+
+      expect(navigate).toHaveBeenCalledWith(["/somewhere"]);
+    }));
+
+    it("does not navigate on completion when the tour has no endRoute", fakeAsync(() => {
+      void service.startTour(testTour({ steps: [step()] }));
+      tick(200);
+      navigate.mockClear();
+
+      void service.completeTour();
+      tick(200);
+
+      expect(navigate).not.toHaveBeenCalled();
     }));
   });
 
