@@ -9,9 +9,8 @@ export type CipherStatus = "all" | "favorites" | "archive" | "trash" | CipherTyp
 
 export type CipherTypeFilter = ITreeNodeObject & { type: CipherStatus; icon?: BitwardenIcon };
 /**
- * A node of the "Controlled access" group. Unlike the other filters it maps to no vault-side
- * concept: the ids and names come from whichever host fills the controlled-access seam, and this
- * library only routes the selected id back out again.
+ * A node of the "Controlled access" group. Its ids and names come from the host that fills the
+ * controlled-access seam; this library only routes the selected id back out.
  */
 export type ControlledAccessFilter = ITreeNodeObject & { icon?: BitwardenIcon };
 

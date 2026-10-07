@@ -22,18 +22,9 @@ import { AccessRequestDialogComponent } from "./access-request-dialog.component"
 type OriginTab = "approvals" | "history" | "my-requests";
 
 /**
- * `/pam/requests/:id` — the shareable link to one access request. Every row links here, and both
- * the requester's and the approvers' emails deep-link here, so the URL is load-bearing and stays
- * a real route.
- *
- * The detail is a dialog over the access-requests shell, not a page of its own: a child of the
- * shell route, so the header and tab bar stay put, and closing it REPLACES the URL with the
- * origin tab rather than pushing — a dismissed dialog must not stay addressable or stack on top
- * of one the caller can still reach with Back.
- *
- * {@link AccessRequestDetailService} is provided here, not on the route config, since it reads
- * `:id` off `ActivatedRoute`, which a route-level provider can't see; it reaches the dialog
- * through `DIALOG_DATA` for the same reason.
+ * Hosts the `/pam/requests/:id` dialog over the shell. Closing replaces the URL with the origin
+ * tab, so a dismissed dialog isn't left addressable. {@link AccessRequestDetailService} is
+ * provided here since a route-level provider can't read `:id`.
  */
 @Component({
   selector: "app-pam-access-request-route",
@@ -49,11 +40,8 @@ export class AccessRequestRouteComponent implements OnInit {
   private readonly router = inject(Router);
 
   /**
-   * The tab the caller navigated from — read off the in-flight navigation, so an approver opening
-   * a row keeps the Approvals inbox behind it rather than watching it swap to My requests.
-   *
-   * Absent on a cold load: the shell's own activation defers this component past when the router
-   * has dropped the navigation.
+   * The tab the caller navigated from, so an approver opening a row keeps the Approvals inbox
+   * behind it. Absent on a cold load.
    */
   private readonly navigatedFrom = tabFrom(
     this.router.getCurrentNavigation()?.previousNavigation?.finalUrl,
@@ -63,14 +51,9 @@ export class AccessRequestRouteComponent implements OnInit {
   private readonly loading = toSignal(this.detail.loading$, { initialValue: true });
 
   /**
-   * The tab to render behind the dialog, and the one closing it returns to. With no tab to go
-   * back to, it follows who is viewing: an approver arriving from the email lands on Approvals,
-   * the requester on My requests.
-   *
-   * Undefined until the viewer is known, so nothing renders rather than My requests being swapped
-   * out from under an approver; closing before then returns to My requests. A load that settles
-   * without a request (missing, not visible, or failed) has no viewer to follow, and falls back
-   * to My requests.
+   * The tab behind the dialog, and the one closing returns to. Without an origin it follows the
+   * viewer, staying undefined until the viewer is known so My requests isn't swapped out from
+   * under an approver.
    */
   protected readonly originTab = computed<OriginTab | undefined>(() => {
     if (this.navigatedFrom != null) {
@@ -88,8 +71,7 @@ export class AccessRequestRouteComponent implements OnInit {
       detail: this.detail,
     });
 
-    // The ref reports every close the same way; leaving the route must be told apart from a
-    // dismissal, or navigating away fires a second close.
+    // Leaving the route also closes the dialog, and that close must not navigate a second time.
     let leaving = false;
 
     this.destroyRef.onDestroy(() => {
@@ -108,8 +90,8 @@ export class AccessRequestRouteComponent implements OnInit {
 }
 
 /**
- * The tab a URL addresses, matched on the whole `/pam/<tab>` shape, not just the trailing
- * segment — `history` is also the last segment of the billing routes. Undefined for anything else.
+ * Matches the whole `/pam/<tab>` shape, since `history` is also the last segment of the billing
+ * routes.
  */
 function tabFrom(url: UrlTree | undefined): OriginTab | undefined {
   const segments = url?.root.children[PRIMARY_OUTLET]?.segments.map((s) => s.path) ?? [];

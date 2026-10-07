@@ -30,17 +30,14 @@ import { MyAccessService } from "./my-access.service";
 
 const names = storyNames();
 
-/**
- * Picks an option from the History scope chip, found by the label its trigger carries. The chip's
- * menu renders in a CDK overlay on `document.body`, outside the story's own canvas.
- */
+/** The chip's menu renders in a CDK overlay on `document.body`, outside the story's canvas. */
 async function selectHistoryScope(canvasElement: HTMLElement, option: string): Promise<void> {
   const trigger = canvasElement.querySelector<HTMLButtonElement>(
     'bit-filter-menu button[title^="History scope"]',
   )!;
   await userEvent.click(trigger);
-  // Scoped to the popover: the chip also stamps every option into a hidden slot, so an unscoped
-  // text query is ambiguous and resolves to the hidden copy.
+  // Scoped to the popover, since the chip also stamps each option into a hidden slot that an
+  // unscoped query would match.
   const menu = await within(document.body).findByRole("dialog", { name: "History scope" });
   await userEvent.click(await within(menu).findByText(option));
   // Option rows are not `bitMenuItem`, so selecting one leaves the menu open over the table.
@@ -192,10 +189,7 @@ export default {
 
 type Story = StoryObj<HistoryTabComponent>;
 
-/**
- * The caller's own history, for a member who cannot approve. With no managed rows and no approval
- * privilege the chip is not rendered at all: every filter would narrow the same one list.
- */
+/** The history of a member who cannot approve, so no scope chip renders. */
 export const Default: Story = {
   decorators: [history()],
   parameters: { chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) } },
@@ -211,11 +205,7 @@ export const Empty: Story = {
   decorators: [history({ mine: [] })],
 };
 
-/**
- * An approver's view. The table opens on All — both the rows they raised and the ones they decided,
- * newest first — with revoke and withdraw offered only on the rows they manage. The chip narrows
- * that list to either source.
- */
+/** An approver's view, opening on All with revoke and withdraw offered only on managed rows. */
 export const WithManagedHistory: Story = {
   decorators: [history({ managed: managedRows })],
   parameters: { chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) } },
@@ -227,9 +217,8 @@ export const WithManagedHistoryFlagOn: Story = {
 };
 
 /**
- * The scope chip in force on the `bit-table-v2` path: the applied-filter styling and the toolbar's
- * clear-all button only show once a scope is picked, and the whole toolbar sits inside the
- * table's border.
+ * A scope picked on the `bit-table-v2` path, which shows the applied-filter styling and the
+ * clear-all button.
  */
 export const FlagOnFiltered: Story = {
   decorators: [history({ managed: managedRows })],
@@ -239,7 +228,7 @@ export const FlagOnFiltered: Story = {
   },
 };
 
-/** An approver with nothing decided yet: the filters are offered before there is anything to narrow. */
+/** An approver with nothing decided yet still gets the scope chip. */
 export const ApproverWithoutManagedHistory: Story = {
   decorators: [history({ canApprove: true })],
 };

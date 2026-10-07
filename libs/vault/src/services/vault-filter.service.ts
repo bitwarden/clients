@@ -89,8 +89,9 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
   protected _organizationFilter = new BehaviorSubject<Organization>(null);
 
   /**
-   * Cipher stream backing the folder tree. Excludes PAM-gated ("partial") rows; the web
-   * individual vault overrides this to include them, matching its list.
+   * Ciphers that decide which folders have items under an org filter. Excludes PAM-gated
+   * ("partial") rows so a gated cipher never surfaces a folder; the web individual vault overrides
+   * this to include them.
    */
   protected folderFilterCiphers$(userId: UserId): Observable<CipherView[] | CipherListView[]> {
     return this.cipherService.cipherListViews$(userId);
@@ -351,8 +352,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
         const collectionCopy = cloneCollection(
           new CollectionView({ ...c, name: c.name }),
         ) as CollectionFilter;
-        // `new CollectionView(...)` copies only id/organizationId/name, resetting
-        // `hasEnabledAccessRule` to `false`; the indicator must carry it over explicitly.
+        // `new CollectionView(...)` resets `hasEnabledAccessRule`, so copy it explicitly.
         collectionCopy.hasEnabledAccessRule = c.hasEnabledAccessRule;
         collectionCopy.icon = this.vfo1TerminologyService.iconClass(
           c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",

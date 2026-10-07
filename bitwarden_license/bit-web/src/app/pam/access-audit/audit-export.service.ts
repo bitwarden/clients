@@ -10,33 +10,20 @@ import { AuditExport } from "./audit.export";
 const FILE_NAME_PREFIX = "pam_audit";
 
 /**
- * The characters a spreadsheet reads as the opening of a formula rather than as text.
- *
- * Tab and carriage return are triggers in their own right: Excel drops leading whitespace before
- * deciding what a cell is, so the real trigger character can land back in first position.
+ * Characters a spreadsheet reads as opening a formula. Tab and carriage return count because Excel
+ * drops leading whitespace, which can put a real trigger back in first position.
  */
 const FORMULA_TRIGGERS = ["=", "+", "-", "@", "\t", "\r"];
 
 /**
- * One cell, neutralized against spreadsheet formula injection.
- *
- * Most of this file is free text an auditor never chose — an approver's comment, a revoke
- * reason, a name someone else set — and a cell opening with a formula trigger would be evaluated
- * on open, the classic case being a `HYPERLINK` that carries a neighbouring cell to an
- * attacker's host.
- *
- * A leading apostrophe is what Excel, LibreOffice and Sheets read as "the rest of this cell is
- * text", applied only where a cell would otherwise evaluate. An escape, not a strip: an audit
- * record must not quietly differ from what was recorded.
+ * Guards against formula injection from free text such as approver comments. Escapes with a leading
+ * apostrophe rather than stripping, so the file still matches what was recorded.
  */
 function neutralizeFormula(value: string): string {
   return FORMULA_TRIGGERS.some((trigger) => value.startsWith(trigger)) ? `'${value}` : value;
 }
 
-/**
- * Every string cell of a record neutralized, applied to the assembled record rather than field by
- * field so a column added later cannot be the one that was forgotten.
- */
+/** Applied to the whole record rather than per field, so a column added later cannot be missed. */
 function neutralizeRecord(record: AuditExport): AuditExport {
   return Object.fromEntries(
     Object.entries(record).map(([column, value]) => [
@@ -46,15 +33,11 @@ function neutralizeRecord(record: AuditExport): AuditExport {
   ) as AuditExport;
 }
 
-/**
- * Turns already-fetched audit rows into a CSV file, in memory. Nothing here reads the network: the trail the
- * caller passes in is the one the table is already showing, and the result goes straight to the download.
- */
+/** Builds the CSV in memory from rows the caller has already fetched. */
 @Injectable({ providedIn: "root" })
 export class AuditExportService {
   private readonly i18nService = inject(I18nService);
 
-  /** The rows as CSV, one record per row, in the order given. */
   getAuditExport(rows: AuditRow[]): string {
     return papa.unparse(rows.map((row) => this.toAuditExport(row)));
   }
@@ -63,11 +46,6 @@ export class AuditExportService {
     return ExportHelper.getFileName(FILE_NAME_PREFIX, "csv");
   }
 
-  /**
-   * One row as its CSV record. Every absent value becomes an empty cell rather than the text "null", and the
-   * event label and duration go through the i18n keys the cells render, so the file and the screen agree.
-   * Every string cell is neutralized against formula injection on the way out (see {@link neutralizeFormula}).
-   */
   toAuditExport(row: AuditRow): AuditExport {
     return neutralizeRecord({
       timestamp: row.occurredAt.toISOString(),

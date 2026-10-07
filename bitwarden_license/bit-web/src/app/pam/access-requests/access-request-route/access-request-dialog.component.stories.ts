@@ -33,16 +33,9 @@ import {
 const names = storyNames();
 
 /**
- * The dialog reads everything off the route-scoped detail service the host hands it, so a stub
- * of that service is the whole fixture — load/not-found/error surfaced as the three streams the
- * dialog branches on.
- *
- * The dialog clocks its own countdown for a running lease, so open windows are built against the
- * real clock inside the factory.
- *
- * The footer follows the viewer, so `viewer` picks the side: the requester by default, or an
- * approver, whose decision needs the request's inbox row and whose Withdraw / Revoke need the
- * collection to be one they manage.
+ * A stub of the detail service is the whole fixture. `request` is a factory so open windows use
+ * the real clock the countdown runs on. An approver's decision needs `approvalRow`, and Withdraw
+ * and Revoke need `managed`.
  */
 function detail(
   options: {
@@ -118,7 +111,7 @@ export default {
 
 type Story = StoryObj<AccessRequestDialogComponent>;
 
-/** Awaiting a decision — the shareable link an approver is most likely to be sent. */
+/** Awaiting a decision, as the requester sees it. */
 export const Pending: Story = {
   decorators: [detail({ request: () => accessRequest({}) })],
 };
@@ -139,7 +132,7 @@ export const ApprovedReadyToStart: Story = {
   ],
 };
 
-/** Activated, with the lease still running — the remaining-time countdown ticks here. */
+/** Activated, with the lease still running and its countdown ticking. */
 export const ActiveLease: Story = {
   decorators: [
     detail({
@@ -158,8 +151,8 @@ export const ActiveLease: Story = {
 };
 
 /**
- * An extended lease: the countdown runs to the lease's own end, which the extension pushed an hour
- * past the request's activation window, and the badge names the time it added.
+ * The countdown runs to the lease's own end, an hour past the request's window, and the badge
+ * names the time added.
  */
 export const ExtendedLease: Story = {
   decorators: [
@@ -210,9 +203,8 @@ export const AutoApproved: Story = {
 };
 
 /**
- * A link to a request that no longer exists — or that is not this caller's to see. The server
- * returns 404 for both so ids cannot be probed, and the detail service reads that as not-found
- * rather than an error banner.
+ * A request that doesn't exist or isn't the caller's to see; the server 404s both, so ids can't be
+ * probed.
  */
 export const NotFound: Story = {
   decorators: [detail({ notFound: true })],

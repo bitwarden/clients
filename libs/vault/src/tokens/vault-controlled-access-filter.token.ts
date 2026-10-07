@@ -15,19 +15,17 @@ export type ControlledAccessFilterOption = {
 };
 
 /**
- * Optional "Controlled access" group in the vault's Filters sidebar, and the narrowing it applies
- * to the item list. The vault renders whatever children {@link options$} emits and hands the
- * selected child's id back to {@link narrow$}; what those ids mean is entirely the providing
- * host's decision. Unprovided, the sidebar and the item list are unchanged.
+ * Optional "Controlled access" group in the vault's Filters sidebar and the narrowing it applies
+ * to the item list. The ids are opaque to the vault, which renders {@link options$} and hands the
+ * selected id back to {@link narrow$}.
  */
 export abstract class VaultControlledAccessFilter {
-  /** The group's children. An empty array hides the group entirely. */
+  /** The group's children. An empty array hides the group. */
   abstract readonly options$: Observable<ControlledAccessFilterOption[]>;
 
   /**
-   * The subset of `ciphers` matching the selected option. An option id can outlive the group that
-   * offered it (a bookmarked link), so an id {@link options$} no longer offers must yield the
-   * input unchanged rather than an empty list.
+   * The subset of `ciphers` matching the selected option. An id {@link options$} does not offer
+   * (such as from a bookmarked link) must yield the input unchanged, not an empty list.
    */
   abstract narrow$<C extends CipherViewLike>(optionId: string, ciphers: C[]): Observable<C[]>;
 }

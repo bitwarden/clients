@@ -1,9 +1,8 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
 /**
- * The governance vocabulary for an audit event's kind. Must stay in lockstep with the server's
- * `AccessAuditEventKindNames`, which is the wire contract for both the reported `kind` and the `kind` filter — a
- * name missing here renders as "Unknown event" (see {@link auditKindLabelKey}).
+ * Must match the server's `AccessAuditEventKindNames`, the wire names for both the reported `kind`
+ * and the `kind` filter. A name missing here renders as "Unknown event".
  */
 export const AccessAuditEventKind = Object.freeze({
   RequestSubmitted: "requestSubmitted",
@@ -59,18 +58,14 @@ export const AccessAuditEventKind = Object.freeze({
 export type AccessAuditEventKind = (typeof AccessAuditEventKind)[keyof typeof AccessAuditEventKind];
 
 /**
- * One row of the PAM access-audit trail, as the governance client renders it. Read from the
- * dedicated audit store, where each event was written self-contained (names snapshotted at
- * write time).
- *
- * `kind` carries the outcome; `actorId` is who performed it (null for automated, per
- * `automated`). Subject ids/names populate according to the kind.
+ * One event of the PAM access-audit trail. Names are snapshotted when the event is written; which
+ * subject fields are set depends on `kind`.
  */
 export class AccessAuditEventResponse extends BaseResponse {
   kind: AccessAuditEventKind;
   occurredAt: string;
   organizationId: string;
-  /** Who performed the event; null for a system / automatic event. */
+  /** Null for a system event. */
   actorId: string | null;
   /** The owner of the subject request or lease. */
   requesterId: string | null;
@@ -87,22 +82,19 @@ export class AccessAuditEventResponse extends BaseResponse {
   actorEmail: string | null;
   requesterName: string | null;
   requesterEmail: string | null;
-  /** Encrypted — decrypt before display. */
+  /** Not sent by the server; `toAuditRow` resolves the name from the local vault. */
   cipherName: string | null;
-  /** Encrypted — decrypt before display. */
+  /** Not sent by the server; `toAuditRow` resolves the name from the local vault. */
   collectionName: string | null;
-  /** The access rule's name — plaintext org configuration (not vault data), for rule administration events. */
+  /** Plaintext organization configuration, for rule administration events. */
   ruleName: string | null;
-  /** The target system's name — plaintext org configuration, for rotation and target administration events. */
+  /** Plaintext organization configuration, for rotation and target administration events. */
   targetSystemName: string | null;
-  /**
-   * The access connector's name — plaintext org configuration, for rotation and fleet administration
-   * events.
-   */
+  /** Plaintext organization configuration, for rotation and fleet administration events. */
   accessConnectorName: string | null;
-  /** True when there's no human actor — a system / automatic event. */
+  /** True for a system event with no human actor. */
   automated: boolean;
-  /** True when the action's outcome never landed — only the write-ahead attempt, an in-doubt entry. */
+  /** True when only the write-ahead attempt was recorded, so the outcome is in doubt. */
   incomplete: boolean;
 
   constructor(response: unknown) {

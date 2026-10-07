@@ -28,17 +28,9 @@ import { isGovernedCipher } from "../helpers/governed-cipher";
 import { liveActiveLease } from "../helpers/lease-liveness";
 
 /**
- * Binds `ITEM_DETAILS_STATE_BADGE` for the open item: the access-state pill on the
- * item-details card's name row, via the shared {@link AccessStateBadgeComponent}.
- *
- * Separate from `VaultRowLeaseBadgeComponent` since this one drops the `active` state; both
- * re-read on {@link AccessRefreshService} so a mutation can't leave a contradicting pill.
- *
- * {@link isGovernedCipher} keeps a plain item from firing a PAM read; a null state renders no
- * element, not even the spacing wrapper.
- *
- * An ACTIVE lease shows no pill here, since the banner heading below already runs its own
- * countdown and two independent timers would drift visibly. It returns when the lease runs out.
+ * Binds `ITEM_DETAILS_STATE_BADGE`, the access-state pill on the open item's name row. A live
+ * lease shows no pill, since the banner heading below runs its own countdown and two timers would
+ * drift visibly.
  */
 @Component({
   selector: "app-pam-item-details-state-badge",
@@ -68,8 +60,8 @@ export class ItemDetailsStateBadgeComponent {
       const read$ = () =>
         from(this.accessRequestSdkService.getCipherAccessState(cipherId)).pipe(
           catchError((e: unknown) => {
-            // An unreadable access state renders no pill rather than an error: the item itself
-            // is still useful, and the banner below behaves the same way.
+            // No pill rather than an error, since the item is still usable; the banner below
+            // does the same.
             this.logService.error(e);
             return of(null);
           }),
@@ -82,13 +74,9 @@ export class ItemDetailsStateBadgeComponent {
   );
 
   /**
-   * `state`'s badge, withheld while its lease is live and released the moment it lapses.
-   *
-   * Withheld on a LIVE lease, not on the SDK's `active` ranking. The two part ways when a server
-   * whose clock trails this one still reports the lease, and the ranking would then hide the pill
-   * for good while the banner below had already fallen back to "Request access". The released
-   * badge lands on {@link AccessStateBadgeComponent}'s `remainingMs <= 0` "Access ended" recipe,
-   * unless the server, asked again, reports the lease extended (PAM-152).
+   * `state`'s badge, withheld while the lease is live on this clock. Keying on the SDK's `active`
+   * ranking instead would hide the pill for good when the server's clock trails. On lapse it
+   * re-reads in case the lease was extended.
    */
   private badgeWhileLeaseRuns$(
     state: CipherAccessStateView | null,

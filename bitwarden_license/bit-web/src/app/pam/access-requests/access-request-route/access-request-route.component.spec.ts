@@ -31,12 +31,11 @@ describe("AccessRequestRouteComponent", () => {
     fixture.detectChanges();
   }
 
-  /** A previous navigation that finished on `path`, as the router would report it. */
   function cameFrom(path: string): Navigation {
     return { finalUrl: new DefaultUrlSerializer().parse(path) } as Navigation;
   }
 
-  /** A stand-in for the browser history stack: a navigation pushes unless told to replace, and Back at the bottom does nothing. */
+  /** A browser history stand-in: a navigation pushes unless replacing; Back stops at the bottom. */
   class BrowserHistory {
     readonly entries: string[];
     private index: number;
@@ -75,7 +74,7 @@ describe("AccessRequestRouteComponent", () => {
 
   beforeEach(async () => {
     closed$ = new Subject<void>();
-    // The real ref emits `closed` however it's closed; the host must tell that apart from dismissal.
+    // The real ref emits `closed` however it closes, so the stub does too.
     close = jest.fn(() => closed$.next());
     dialogService = mock<DialogService>();
     dialogService.open.mockReturnValue({
@@ -94,7 +93,7 @@ describe("AccessRequestRouteComponent", () => {
         { provide: Router, useValue: router },
       ],
     })
-      // The detail service is provided here so it can read `:id` off `ActivatedRoute`.
+      // The component provides the detail service itself, so the stub replaces it there.
       .overrideComponent(AccessRequestRouteComponent, {
         remove: {
           imports: [ApprovalsTabComponent, HistoryTabComponent, MyRequestsTabComponent],
@@ -246,7 +245,6 @@ describe("AccessRequestRouteComponent", () => {
     // If close had pushed instead of replaced, this would land back on the dialog.
     history.back();
     create(cameFrom("/pam/my-requests"));
-    // The caller closes it a second time.
     closed$.next();
 
     expect(history.url).not.toBe(detailUrl);

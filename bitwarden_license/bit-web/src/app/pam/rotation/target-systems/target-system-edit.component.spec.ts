@@ -47,7 +47,6 @@ class ResizeObserverStub {
 }
 (global as unknown as { ResizeObserver: unknown }).ResizeObserver = ResizeObserverStub;
 
-/** Simple i18n fake that echoes the key as its translation. */
 const ORG_ID = ORGANIZATION_ID;
 
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
@@ -55,9 +54,7 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
   translate: (id: string) => id,
 };
 
-/**
- * Stands in for the rotation shell route.
- */
+/** Stub for the rotation shell route. */
 const ROUTE_PARENT = { snapshot: { params: {} } };
 
 function makeSystem(overrides: Partial<TargetSystem> = {}): TargetSystem {
@@ -83,7 +80,6 @@ function createFormOf(fixture: ComponentFixture<TargetSystemEditComponent>): For
   return (fixture.componentInstance as unknown as { createForm: FormGroup }).createForm;
 }
 
-/** Build a configured TestBed for create mode (no targetSystemId). */
 async function setupCreate(rotationSdk: ReturnType<typeof mock<RotationSdkService>>) {
   TestBed.overrideComponent(TargetSystemEditComponent, { set: { template: "" } });
   await TestBed.configureTestingModule({
@@ -105,7 +101,6 @@ async function setupCreate(rotationSdk: ReturnType<typeof mock<RotationSdkServic
   }).compileComponents();
 }
 
-/** Build create mode with a ?template query param and return the initialized component. */
 async function setupCreateWithTemplate(template: string): Promise<
   TargetSystemEditComponent & {
     createForm: { getRawValue: () => { method: TargetSystemMethod; kind: TargetSystemKind } };
@@ -139,7 +134,6 @@ async function setupCreateWithTemplate(template: string): Promise<
   };
 }
 
-/** Build create mode with arbitrary query params, returning the pieces a handoff test needs. */
 async function setupCreateWithQueryParams(queryParams: Record<string, string>) {
   const rotationSdk = mock<RotationSdkService>();
   TestBed.overrideComponent(TargetSystemEditComponent, { set: { template: "" } });
@@ -176,7 +170,6 @@ async function setupCreateWithQueryParams(queryParams: Record<string, string>) {
   };
 }
 
-/** Build a configured TestBed for edit mode (with targetSystemId). */
 async function setupEdit(
   rotationSdk: ReturnType<typeof mock<RotationSdkService>>,
   routeTargetSystemId: string = uuidAsString(sysId("sys-1")),
@@ -233,7 +226,6 @@ describe("TargetSystemEditComponent — create mode", () => {
     rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
     const nav = jest.spyOn(router, "navigate").mockResolvedValue(true);
 
-    // Patch form to valid state via the formGroup
     const createForm = (
       fixture.componentInstance as unknown as { createForm: { patchValue: (v: unknown) => void } }
     ).createForm;
@@ -285,7 +277,6 @@ describe("TargetSystemEditComponent — create mode", () => {
     const call = rotationSdk.createTargetSystem.mock.calls[0];
     expect(call).toBeDefined();
     expect(call![1].method).toBe(TargetSystemMethod.Manual);
-    // Manual systems carry an editable password policy.
     expect(call![1].passwordPolicy).toBeDefined();
   });
 
@@ -293,7 +284,6 @@ describe("TargetSystemEditComponent — create mode", () => {
     rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
     jest.spyOn(router, "navigate").mockResolvedValue(true);
 
-    // Leave name empty (invalid)
     const comp = fixture.componentInstance as unknown as { submitCreate: () => Promise<void> };
     await comp.submitCreate();
 
@@ -340,8 +330,6 @@ describe("TargetSystemEditComponent — create mode", () => {
     TestBed.resetTestingModule();
     const comp = await setupCreateWithTemplate("manual");
     expect(comp.createForm.getRawValue().method).toBe(TargetSystemMethod.Manual);
-    // No integration card for Manual (not Automatic), but the password-policy card is shown for
-    // both methods.
     expect((comp as unknown as { isAutomatic: () => boolean }).isAutomatic()).toBe(false);
     expect((comp as unknown as { showPolicyCard: () => boolean }).showPolicyCard()).toBe(true);
   });
@@ -355,10 +343,7 @@ describe("TargetSystemEditComponent — create mode", () => {
     expect((comp as unknown as { showPolicyCard: () => boolean }).showPolicyCard()).toBe(true);
   });
 
-  /**
-   * The managed-credential create page sends the operator here when its target picker has nothing
-   * they want.
-   */
+  /** The managed-credential create page sends operators here when no target fits. */
   it("returns to the credential create page with the new target when ?then=managed-credential", async () => {
     TestBed.resetTestingModule();
     const created = makeSystem({ id: sysId("sys-new") });
@@ -442,7 +427,7 @@ describe("TargetSystemEditComponent — create mode", () => {
       method: TargetSystemMethod.Automatic,
       kind: TargetSystemKind.Entra,
     });
-    // Leave the checkbox control false — native integrations must still report supported.
+    // The checkbox stays false; a native integration must still report supported.
     comp.policyForm.patchValue({
       minLength: 14,
       maxLength: 64,
@@ -583,7 +568,6 @@ describe("TargetSystemEditComponent — create mode", () => {
   });
 });
 
-// Mounts the real template so the radio group and reactive cards are exercised end-to-end.
 describe("TargetSystemEditComponent — create mode (rendered)", () => {
   let fixture: ComponentFixture<TargetSystemEditComponent>;
 
@@ -642,7 +626,7 @@ describe("TargetSystemEditComponent — create mode (rendered)", () => {
 
   it("shows the Integration (kind) select only for the Automatic method", () => {
     const el = fixture.nativeElement as HTMLElement;
-    // Automatic is the default: kind select is present.
+    // Automatic is the default.
     expect(el.querySelector("#target-system-edit_select_kind")).toBeTruthy();
 
     patchMethod(TargetSystemMethod.Manual);
@@ -672,7 +656,6 @@ describe("TargetSystemEditComponent — create mode (rendered)", () => {
 
   it("hides the session-termination checkbox for native integrations", () => {
     const el = fixture.nativeElement as HTMLElement;
-    // Automatic + Entra (native) is the default: static "Supported" text, no checkbox.
     patchKind(TargetSystemKind.Entra);
     expect(el.querySelector("#target-system-edit_checkbox_session-termination")).toBeNull();
   });
@@ -746,7 +729,7 @@ describe("TargetSystemEditComponent — edit mode", () => {
     comp.nameForm.patchValue({ name: "Renamed" });
     await comp.submitEdit();
 
-    // One call, not two: the server takes the name, the policy and the capability together.
+    // The server takes the name, policy and capability in one write.
     expect(rotationSdk.updateTargetSystem).toHaveBeenCalledTimes(1);
     expect(rotationSdk.updateTargetSystem).toHaveBeenCalledWith(
       ORG_ID,
@@ -775,7 +758,7 @@ describe("TargetSystemEditComponent — edit mode", () => {
   });
 
   it("shows termination withdrawal warning when supportsSessionTermination unchecked", async () => {
-    // existing has supportsSessionTermination: true; uncheck it
+    // The fixture's system supports session termination.
     const comp = fixture.componentInstance as unknown as {
       policyForm: { patchValue: (v: unknown) => void };
       showTerminationWarning: () => boolean;
@@ -841,7 +824,6 @@ describe("TargetSystemEditComponent — edit mode", () => {
   });
 
   it("navigates back when not found", async () => {
-    // Rebuild for a missing id scenario
     TestBed.resetTestingModule();
     const rotationApi2 = mock<RotationSdkService>();
     const toastService2 = mock<ToastService>();
@@ -1117,18 +1099,13 @@ describe("TargetSystemEditComponent — discard guard", () => {
   });
 });
 
-/**
- * The assigned-access-connectors picker, the diff it stages, and the one action row.
- */
 describe("TargetSystemEditComponent — assigned access connectors", () => {
-  /** One row of the picker's table, as these tests read it. */
   type ConnectorRow = {
     connector: AccessConnector;
     statusLabelKey: string;
     staged: "assign" | "unassign" | null;
   };
 
-  /** The component's protected surface, as these tests drive it. */
   type AssignmentsComp = {
     assignedConnectorRows: () => ConnectorRow[];
     connectorOptions: () => SelectItemView[];
@@ -1150,7 +1127,6 @@ describe("TargetSystemEditComponent — assigned access connectors", () => {
   let dialogService: ReturnType<typeof mock<DialogService>>;
   let router: Router;
 
-  /** The option the picker would offer for a connector. */
   function optionFor(connector: AccessConnector): SelectItemView {
     return { id: String(connector.id), listName: connector.name, labelName: connector.name };
   }
@@ -1243,7 +1219,7 @@ describe("TargetSystemEditComponent — assigned access connectors", () => {
     ]);
 
     expect(component.connectorOptions()).toEqual([]);
-    // Having assigned them all is not the same as the org having none; the hint differs.
+    // All assigned is not the same as none eligible; the hint differs.
     expect(component.noConnectorsEligible()).toBe(false);
   });
 
@@ -1750,15 +1726,11 @@ describe("TargetSystemEditComponent — assigned access connectors", () => {
   });
 });
 
-/**
- * The setup hint names the steps a target has not had done yet.
- */
 describe("TargetSystemEditComponent — outstanding setup hint", () => {
   const SYSTEM_ID = sysId("sys-1");
   const CONNECTOR_STEP = "pamTargetSystemSetupGuidanceAutomaticConnector";
   const CREDENTIAL_STEP = "pamTargetSystemSetupGuidanceCredential";
 
-  /** The component's protected surface, as these tests read it. */
   type HintComp = {
     outstandingSetupSteps: () => readonly string[];
     stageAssign: (selected: SelectItemView[]) => Promise<readonly string[]>;
@@ -1779,7 +1751,6 @@ describe("TargetSystemEditComponent — outstanding setup hint", () => {
   let component: HintComp;
   let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
 
-  /** A connector already assigned to this target. */
   function assignedConnector(): AccessConnector {
     return accessConnector({
       id: connectorId("c-assigned"),
@@ -1788,7 +1759,6 @@ describe("TargetSystemEditComponent — outstanding setup hint", () => {
     });
   }
 
-  /** A managed credential naming this target. */
   function credentialHere(): RotationConfig {
     return rotationConfig({ targetSystemId: SYSTEM_ID });
   }
@@ -2024,18 +1994,12 @@ describe("TargetSystemEditComponent — loading skeleton", () => {
 
   afterEach(() => jest.useRealTimers());
 
-  /**
-   * Runs the placeholder's clock on.
-   */
   function advance(ms: number): void {
     fixture.detectChanges();
     jest.advanceTimersByTime(ms);
     fixture.detectChanges();
   }
 
-  /**
-   * Renders the page with the target system read still in flight.
-   */
   async function renderLoading({ editing = true } = {}) {
     TestBed.resetTestingModule();
     jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
@@ -2072,7 +2036,6 @@ describe("TargetSystemEditComponent — loading skeleton", () => {
     fixture.detectChanges();
   }
 
-  /** Renders the page mid-load with its placeholder already drawn. */
   async function renderSkeleton({ editing = true } = {}) {
     await renderLoading({ editing });
     advance(1000);
@@ -2202,10 +2165,6 @@ describe("TargetSystemEditComponent — load error state", () => {
     fixture.detectChanges();
   }
 
-  /**
-   * Renders the edit page from its own template, with the target-system read either failing or
-   * answering.
-   */
   async function render({ readFails = true } = {}) {
     TestBed.resetTestingModule();
     rotationSdk = mock<RotationSdkService>();
@@ -2282,9 +2241,7 @@ describe("TargetSystemEditComponent — load error state", () => {
     expect(nav).not.toHaveBeenCalled();
   });
 
-  /**
-   * The post-save re-read is a different read from the one that opens the page.
-   */
+  /** The post-save re-read is separate from the read that opens the page. */
   describe("re-reading after a save", () => {
     const submitEdit = () =>
       (fixture.componentInstance as unknown as { submitEdit: () => Promise<void> }).submitEdit();
@@ -2339,9 +2296,6 @@ describe("TargetSystemEditComponent — load error state", () => {
   });
 });
 
-/**
- * The withdrawal warning answers a live checkbox.
- */
 describe("TargetSystemEditComponent — session termination withdrawal (rendered)", () => {
   const SYSTEM_ID = sysId("sys-1");
 
@@ -2428,9 +2382,6 @@ describe("TargetSystemEditComponent — session termination withdrawal (rendered
     expect(el().textContent).not.toContain("pamTargetSystemTerminationWithdrawalCredentialWarning");
   });
 
-  /**
-   * The page names the integration through the same helper the list column uses.
-   */
   describe("naming the integration", () => {
     it("names a kind it can model", async () => {
       await render({ kind: TargetSystemKind.Entra, supportsSessionTermination: false });

@@ -60,7 +60,6 @@ class TestHostDisabledComponent {
   readonly target = viewChild.required<ElementRef<HTMLInputElement>>("target");
 }
 
-/** Opts into selecting the focused value, for a prefilled name the user types over. */
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
@@ -245,8 +244,8 @@ describe("AutofocusDirective", () => {
     });
 
     it("does not re-select when it re-asserts focus after the user moved away", () => {
-      // Focus stays unlatched until the document owns it, so focusing retries; by then the
-      // user may have typed, and re-selecting would erase a keystroke's work.
+      // Focus stays unlatched until the document owns it, so focusing retries, and a re-select
+      // then could erase what the user typed.
       jest.spyOn(document, "hasFocus").mockReturnValue(false);
       const fixture = TestBed.createComponent(TestHostSelectComponent);
       fixture.detectChanges();
@@ -258,7 +257,7 @@ describe("AutofocusDirective", () => {
       fixture.componentInstance.other().nativeElement.focus();
       fixture.detectChanges();
 
-      expect(document.activeElement).toBe(target); // focus was re-asserted
+      expect(document.activeElement).toBe(target);
       expect(selectSpy).not.toHaveBeenCalled();
     });
 

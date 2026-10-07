@@ -692,7 +692,6 @@ describe("VaultCipherActionsService", () => {
       expect(logService.error).toHaveBeenCalled();
     });
 
-    // PM-42916: the throw used to be logged and nothing more.
     it("shows an error toast when the server call throws", async () => {
       const cipher = buildCipher();
       dialogService.openSimpleDialog.mockResolvedValue(true);
