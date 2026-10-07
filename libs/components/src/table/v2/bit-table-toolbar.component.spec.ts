@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal, viewChild } from "@angular/core";
+import { ChangeDetectionStrategy, Component, ElementRef, signal, viewChild } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { MockProxy, mock } from "jest-mock-extended";
@@ -195,7 +195,12 @@ describe("BitTableToolbarComponent", () => {
   describe("filterDialogOpen", () => {
     let dialogService: MockProxy<DialogService>;
     let closed: Subject<unknown>;
-    let ref: { closed: Subject<unknown>; close: jest.Mock };
+    let ref: {
+      closed: Subject<unknown>;
+      close: jest.Mock;
+      componentInstance: { row: jest.Mock };
+    };
+    const row = new ElementRef(document.createElement("button"));
 
     const toolbar = () =>
       fixture.debugElement.query(By.directive(BitTableToolbarComponent))
@@ -209,7 +214,11 @@ describe("BitTableToolbarComponent", () => {
     beforeEach(() => {
       dialogService = TestBed.inject(DialogService) as MockProxy<DialogService>;
       closed = new Subject();
-      ref = { closed, close: jest.fn(() => closed.next(undefined)) };
+      ref = {
+        closed,
+        close: jest.fn(() => closed.next(undefined)),
+        componentInstance: { row: jest.fn((key: string) => (key === "vault" ? row : undefined)) },
+      };
       dialogService.open.mockReturnValue(ref as unknown as DialogRef);
     });
 
@@ -234,12 +243,15 @@ describe("BitTableToolbarComponent", () => {
       expect(toolbar().filterDialogOpen()).toBe(false);
     });
 
-    it("passes its anchors to the dialog so the rows register there", () => {
-      setOpen(true);
+    it("exposes a dialog row while the dialog is open", () => {
+      const vaultRow = toolbar().filterRow("vault");
+      expect(vaultRow()).toBeUndefined();
 
-      expect(dialogService.open.mock.calls[0][1]?.data).toMatchObject({
-        anchors: toolbar().anchors,
-      });
+      setOpen(true);
+      expect(vaultRow()).toBe(row);
+
+      closed.next(undefined);
+      expect(vaultRow()).toBeUndefined();
     });
 
     it("can reopen after the dialog closes", () => {

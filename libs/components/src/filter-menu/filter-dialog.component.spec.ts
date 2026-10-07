@@ -5,7 +5,6 @@ import { By } from "@angular/platform-browser";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { DIALOG_DATA } from "../dialog";
-import { AnchorParts } from "../popover/anchor-parts";
 import { TooltipDirective } from "../tooltip";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
@@ -30,7 +29,7 @@ function presenter(label: string, summaryLabels: string[]): FilterPresenter {
 }
 
 describe("FilterDialogComponent", () => {
-  const setUp = async (filters: readonly FilterPresenter[], anchors?: AnchorParts) => {
+  const setUp = async (filters: readonly FilterPresenter[]) => {
     await TestBed.configureTestingModule({
       imports: [FilterDialogComponent],
       providers: [
@@ -49,7 +48,7 @@ describe("FilterDialogComponent", () => {
         },
         {
           provide: DIALOG_DATA,
-          useValue: { filters: signal(filters), anchors } satisfies FilterDialogParams,
+          useValue: { filters: signal(filters) } satisfies FilterDialogParams,
         },
       ],
     }).compileComponents();
@@ -82,11 +81,11 @@ describe("FilterDialogComponent", () => {
     ]);
   });
 
-  it("registers each row in the opener's anchors as `filter:<key>`", async () => {
-    const anchors = new AnchorParts();
-    await setUp([presenter("Type", []), presenter("Vault", [])], anchors);
+  it("exposes each row by filter key", async () => {
+    const fixture = await setUp([presenter("Type", []), presenter("Vault", [])]);
+    const row = (key: string) => fixture.componentInstance.row(key);
 
-    expect(anchors.get("filter:Vault")?.textContent).toContain("Vault");
-    expect(anchors.get("filter:Missing")).toBeUndefined();
+    expect(row("Vault")?.nativeElement.textContent).toContain("Vault");
+    expect(row("Missing")).toBeUndefined();
   });
 });

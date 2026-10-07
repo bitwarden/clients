@@ -498,14 +498,14 @@ class DemoFilterableTableComponent {
 
     <ng-container
       [bitPopoverAnchorFor]="filtersCoachmark"
-      [anchor]="toolbar.anchors.get('filters')"
+      [anchor]="toolbar.filterButton"
       [popoverOpen]="step() === 1"
       [spotlight]="true"
       [position]="'below-end'"
     />
     <ng-container
       [bitPopoverAnchorFor]="vaultRowCoachmark"
-      [anchor]="toolbar.anchors.get('filter:vault')"
+      [anchor]="toolbar.filterRow('vault')"
       [popoverOpen]="step() === 2"
       [spotlight]="true"
       [position]="'above-center'"

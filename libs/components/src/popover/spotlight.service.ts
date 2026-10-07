@@ -2,7 +2,7 @@ import { Overlay, OverlayRef } from "@angular/cdk/overlay";
 import { DomPortal } from "@angular/cdk/portal";
 import { ElementRef, Injectable, inject } from "@angular/core";
 
-import type { PopoverAnchorForDirective } from "./popover-anchor-for.directive";
+import type { PopoverRef } from "./popover-ref";
 
 /**
  * Service that coordinates spotlight effects across multiple popover instances.
@@ -18,7 +18,7 @@ export class SpotlightService {
   private resizeObserver: ResizeObserver | null = null;
   private windowResizeListener: (() => void) | null = null;
   private hideTimeout: number | null = null;
-  private activePopover: PopoverAnchorForDirective | null = null;
+  private activePopover: PopoverRef | null = null;
 
   private readonly padding: number = 8;
 
@@ -67,11 +67,7 @@ export class SpotlightService {
     this.createBorderOverlay(resolvedTarget);
   }
 
-  /**
-   * The CDK overlay pane element for the active spotlight border.
-   * Used by PopoverAnchorForDirective as the popover origin when spotlight is enabled,
-   * so the popover naturally attaches to the outer edge of the highlighted area.
-   */
+  /** The active spotlight's overlay pane; popovers attach to its outer edge. */
   get overlayElement(): HTMLElement | null {
     return this.borderOverlayRef?.overlayElement ?? null;
   }
@@ -80,18 +76,18 @@ export class SpotlightService {
    * Registers a popover as the active spotlight popover.
    * Closes any other active spotlight popover.
    */
-  register(directive: PopoverAnchorForDirective): void {
-    if (this.activePopover && this.activePopover !== directive) {
-      this.activePopover.closePopover();
+  register(popover: PopoverRef): void {
+    if (this.activePopover && this.activePopover !== popover) {
+      this.activePopover.close();
     }
-    this.activePopover = directive;
+    this.activePopover = popover;
   }
 
   /**
    * Unregisters a popover when it closes.
    */
-  unregister(directive: PopoverAnchorForDirective): void {
-    if (this.activePopover === directive) {
+  unregister(popover: PopoverRef): void {
+    if (this.activePopover === popover) {
       this.activePopover = null;
     }
   }

@@ -1,4 +1,11 @@
-import { signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { getByRole, userEvent } from "storybook/test";
 
@@ -11,8 +18,52 @@ import { LinkModule } from "../link";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { PopoverAnchorForDirective } from "./popover-anchor-for.directive";
+import { PopoverRef } from "./popover-ref";
 import { PopoverComponent } from "./popover.component";
 import { PopoverModule } from "./popover.module";
+import { PopoverService } from "./popover.service";
+
+@Component({
+  selector: "demo-open-from-code",
+  imports: [PopoverModule, ButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <div class="tw-h-[400px] tw-mt-32 tw-flex tw-gap-2">
+      <button type="button" bitButton buttonType="primary" (click)="open()">Open</button>
+      <div
+        #target
+        class="tw-w-fit tw-p-6 tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-bg-background"
+      >
+        Anchor
+      </div>
+    </div>
+
+    <bit-popover [title]="'Opened from code'" #popover>
+      <div>Opened with <code>PopoverService.open</code>.</div>
+      <div class="tw-mt-4">
+        <button type="button" bitButton buttonType="secondary" (click)="close()">Close</button>
+      </div>
+    </bit-popover>
+  `,
+})
+class OpenFromCodeComponent {
+  private readonly popoverService = inject(PopoverService);
+  private readonly target = viewChild.required("target", { read: ElementRef<HTMLElement> });
+  private readonly popover = viewChild.required(PopoverComponent);
+  private ref?: PopoverRef;
+
+  protected open(): void {
+    this.ref?.close();
+    this.ref = this.popoverService.open(this.popover(), this.target, {
+      position: "below-center",
+      spotlight: true,
+    });
+  }
+
+  protected close(): void {
+    this.ref?.close();
+  }
+}
 
 export default {
   title: "Component Library/Popover",
@@ -851,5 +902,12 @@ export const AnchorElement: Story = {
         </div>
       </bit-popover>
       `,
+  }),
+};
+
+export const OpenFromCode: Story = {
+  decorators: [moduleMetadata({ imports: [OpenFromCodeComponent] })],
+  render: () => ({
+    template: `<demo-open-from-code />`,
   }),
 };
