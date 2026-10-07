@@ -636,7 +636,7 @@ describe("Cipher Service", () => {
     });
 
     it("excludes partial (PAM-gated) ciphers from rotation", async () => {
-      // Drop the beforeEach mock so the real cipherViews$ filter chain runs.
+      // The real cipherViews$ chain is what drops partials, so undo the beforeEach's mock.
       (cipherService.cipherViews$ as jest.Mock).mockRestore();
 
       const normal = new CipherView(encryptionContext.cipher);
@@ -655,6 +655,7 @@ describe("Cipher Service", () => {
 
       const result = await cipherService.getRotatedData(originalUserKey, newUserKey, mockUserId);
 
+      // Rotating a partial would overwrite its suppressed fields with blanks.
       expect(cipherEncryptionService.encryptCipherForRotation).toHaveBeenCalledTimes(1);
       expect(cipherEncryptionService.encryptCipherForRotation).toHaveBeenCalledWith(
         normal,
@@ -1598,8 +1599,8 @@ describe("Cipher Service", () => {
       expect(apiSpy).not.toHaveBeenCalled();
     });
 
-    // PAM gated rows are handled on the legacy (non-SDK) branch of this method, which is the
-    // path that still runs `decryptOrganizationCiphersResponse`.
+    // The gated-row routing lives in `decryptOrganizationCiphersResponse`, which only the
+    // non-SDK branch runs.
     it("routes PAM-gated (partial) rows through the SDK decryption, so they keep their name", async () => {
       configService.getFeatureFlag
         .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
@@ -1611,8 +1612,7 @@ describe("Cipher Service", () => {
         } as CipherDecryptionKeys),
       );
 
-      // A gated row as the server sends it: secrets suppressed, a `PartialData` envelope in
-      // their place.
+      // A gated row as the server sends it, with `partialData` in place of the suppressed secrets.
       jest.spyOn(apiService, "getCiphersOrganization").mockResolvedValue({
         data: [
           {

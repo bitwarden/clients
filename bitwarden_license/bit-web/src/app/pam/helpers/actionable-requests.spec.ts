@@ -28,7 +28,6 @@ describe("isActionableRequest", () => {
   });
 
   it("does not count an approved request whose window has lapsed", () => {
-    // The server rejects activating it, so badging it would point at something unusable.
     expect(isActionableRequest(request("approved", PAST), NOW)).toBe(false);
   });
 

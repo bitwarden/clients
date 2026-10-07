@@ -166,7 +166,7 @@
           <bit-hint>{{ "pamRotationConfigTerminateSessionsHint" | i18n }}</bit-hint>
         </bit-form-control>
 
-        <!-- Renders its own labeled bit-form-fields internally — must not be wrapped in one. -->
+        <!-- Renders its own labeled bit-form-fields, so it must not be wrapped in one. -->
         <app-rotation-schedule-input formControlName="scheduleCron"></app-rotation-schedule-input>
 
         <bit-form-control disableMargin>
@@ -225,7 +225,6 @@
           </bit-section>
         }
         @default {
-          <!-- Read-only cipher + target labels -->
           <bit-section>
             <bit-section-header>
               <h2 bitTypography="h5">{{ "pamRotationConfigDetailsHeading" | i18n }}</h2>
@@ -270,15 +269,13 @@
             </bit-card>
           </bit-section>
 
-          <!-- Schedule + account: one form; the server takes them in a single write. -->
           <form [formGroup]="editForm" [bitSubmit]="submitEdit">
             <bit-section>
               <bit-section-header>
                 <h2 bitTypography="h5">{{ "pamRotationConfigSettingsHeading" | i18n }}</h2>
               </bit-section-header>
               <bit-card formGroupName="settings">
-                <!-- Renders its own labeled bit-form-fields internally — must not be wrapped
-                     in one. -->
+                <!-- Renders its own labeled bit-form-fields, so it must not be wrapped in one. -->
                 <app-rotation-schedule-input
                   formControlName="scheduleCron"
                 ></app-rotation-schedule-input>

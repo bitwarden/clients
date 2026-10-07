@@ -28,9 +28,8 @@ function rule(overrides: Record<string, unknown> = {}): AccessRuleView {
 }
 
 /**
- * `GovernedCollectionsService` is stubbed, not provided over a stubbed SDK: the real service's
- * per-org cache would otherwise carry one story's rules into the next. The component still runs
- * the real `rulesGoverningCollection` filter over this, so the results stay honest.
+ * Stubbed rather than run over a stubbed SDK, since the real per-org cache would carry one story's
+ * rules into the next.
  */
 function withRules(rules: AccessRuleView[]) {
   return moduleMetadata({
@@ -66,15 +65,12 @@ export default {
 
 type Story = StoryObj<CollectionAccessRuleCalloutComponent>;
 
-/** One governing rule, auto-approved — the common case inside the collection edit dialog. */
+/** One auto-approved rule, the common case. */
 export const SingleRule: Story = {
   decorators: [withRules([rule()])],
 };
 
-/**
- * A collection can be governed by more than one rule, and all of them are named: listing only the
- * first would understate the gating the administrator is about to change access to.
- */
+/** Every rule the read returns is named; only a stale read can list two for one collection. */
 export const MultipleRules: Story = {
   decorators: [
     withRules([
@@ -88,7 +84,7 @@ export const MultipleRules: Story = {
   ],
 };
 
-/** Every condition at once, checking the summary joins its keys with " + " rather than wrapping oddly. */
+/** Every condition at once, joined with " + " in the summary. */
 export const AllConditions: Story = {
   decorators: [
     withRules([
@@ -101,12 +97,12 @@ export const AllConditions: Story = {
   ],
 };
 
-/** A disabled rule gates nothing, so it's filtered out and the callout doesn't render. */
+/** A disabled rule gates nothing, so the callout doesn't render. */
 export const DisabledRuleHidden: Story = {
   decorators: [withRules([rule({ enabled: false })])],
 };
 
-/** Rules exist in the org but none target this collection, so nothing renders. */
+/** The org has rules, but none target this collection. */
 export const NotGoverned: Story = {
   decorators: [withRules([rule({ collections: ["col-other"] })])],
 };

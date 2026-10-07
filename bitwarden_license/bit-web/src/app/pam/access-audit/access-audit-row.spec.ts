@@ -116,7 +116,7 @@ describe("toAuditRow", () => {
     expect(result.cipherName).toBe("prod db");
   });
 
-  // The id rides on the row regardless of decryption; the Item cell links only a row with a name.
+  // The Item cell, not the row, withholds the link when the name is missing.
   it("carries the subject cipher's id even when the item did not decrypt", () => {
     const event = new AccessAuditEventResponse({
       Kind: AccessAuditEventKind.CredentialAccessed,
@@ -239,7 +239,6 @@ describe("auditPresetRange", () => {
     expect(range.to).toBeNull();
   });
 
-  // The whole fetched trail, which is the 90-day window the endpoint serves — not all history.
   it("bounds All time on neither side", () => {
     expect(auditPresetRange("allTime", now)).toEqual({ from: null, to: null });
   });

@@ -10,19 +10,11 @@ import {
 
 import { RotationRowStatus, buildRotationConfigRow } from "./rotation-config-row";
 
-/**
- * `buildRotationConfigRow` maps a config onto presentation: i18n keys, sortable columns, and the
- * SDK's already-decided actions.
- *
- * Decides nothing itself — whether a config may rotate and which preset its cron matches are
- * the SDK's calls, arriving here in the description — so these tests assert the mapping and
- * pass-through, not the rules.
- */
+/** The SDK decides the rules, so these tests cover the mapping and pass-through only. */
 describe("buildRotationConfigRow", () => {
   /**
-   * Takes an options object rather than positional arguments so a test can pass an explicit
-   * `undefined` for the target or the cipher name — the two "not loaded yet" cases — which a
-   * default parameter would silently fill back in.
+   * An options object, so a test can pass an explicit `undefined` target or cipher name, which a
+   * default parameter would fill back in.
    */
   const row = (
     options: {
@@ -115,11 +107,7 @@ describe("buildRotationConfigRow", () => {
     });
   });
 
-  /**
-   * The column used to sort on `statusLabelKey`, which ordered rows by the spelling of an i18n
-   * identifier: "pamRotationConfigRotatingBadge" ahead of "pamRotationConfigStatusActive" for no
-   * reason a reader of the rendered labels could see.
-   */
+  /** Sorting on `statusLabelKey` would order rows by the spelling of an i18n identifier. */
   describe("status sort order", () => {
     const orderOf = (config: Partial<RotationConfig>) => row({ config }).statusSortOrder;
 
@@ -166,8 +154,8 @@ describe("buildRotationConfigRow", () => {
   });
 
   /**
-   * Only removal is gated on an in-flight job, so a config can be paused and mid-rotation at once.
-   * The status badge shows the rotation; this flag is what keeps the pause visible.
+   * Pausing isn't locked by an in-flight job, so a config can be paused mid-rotation; this flag
+   * keeps the pause visible.
    */
   describe("paused while rotating", () => {
     it("flags a paused config whose claimed job is still running", () => {
@@ -215,7 +203,7 @@ describe("buildRotationConfigRow", () => {
       expect(built.scheduleLabelKeyOrCron).toBe("pamRotationScheduleNone");
     });
 
-    /** A custom expression is shown verbatim — there is no key that describes it. */
+    /** No key describes a custom expression, so it shows verbatim. */
     it("shows a custom expression as its raw cron", () => {
       const built = row({
         config: { scheduleCron: "0 */30 * * * ?" },
@@ -239,10 +227,7 @@ describe("buildRotationConfigRow", () => {
   });
 
   describe("actions", () => {
-    /**
-     * The five flags are the SDK's verdict, so the row must carry them through rather than
-     * recompute — including a combination the row could not have derived itself.
-     */
+    /** Uses a combination the row couldn't derive itself, so recomputing would fail this. */
     it("carries the SDK's verdict through unchanged", () => {
       const actions = rotationConfigActions({
         canRotateNow: false,

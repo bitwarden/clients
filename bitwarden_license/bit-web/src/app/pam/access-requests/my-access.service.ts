@@ -35,16 +35,9 @@ import {
 } from "./my-access-row";
 
 /**
- * Page-level data service for "My access": owns the caller's own access requests and leases,
- * reloads on open and every server-pushed access event, resolves display names, and performs
- * mutations via the SDK-backed services.
- *
- * Provided on the shell route so each visit shares one instance; view concerns stay in the tab
- * components.
- *
- * Each mutation that lands also announces on {@link AccessRefreshService}, standing in for the push
- * the server is about to send, so the root-level nav badge re-reads even when that push is missed
- * or slow.
+ * Data service for the caller's own requests and leases, provided on the shell route so the tabs
+ * share one load. Each landed mutation announces on {@link AccessRefreshService}, so the root nav
+ * badge re-reads without waiting for the push.
  */
 @Injectable()
 export class MyAccessService {
@@ -64,13 +57,12 @@ export class MyAccessService {
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
   readonly loadError$: Observable<unknown | null> = this._loadError$.asObservable();
 
-  /** Every one of the caller's requests, mapped to display rows (no filtering/sorting/paging). */
   private readonly rows$: Observable<MyAccessRequestRow[]> = combineLatest([
     this._requests$,
     this._names$,
   ]).pipe(map(([requests, names]) => buildMyAccessRequestRows(requests, names)));
 
-  /** The leases the caller holds (`status === "active"`), badged with any joined-in extension. */
+  /** The caller's active leases, badged with any applied extension. */
   readonly leases$: Observable<MyAccessLeaseRow[]> = combineLatest([
     this._leases$,
     this._requests$,
@@ -85,11 +77,8 @@ export class MyAccessService {
   );
 
   /**
-   * Requests the requester can still act on: still pending, or approved and awaiting an
-   * activation that can still happen ({@link isRedeemableGrant}). A grant whose window lapsed
-   * unused settles in {@link historyRows$} instead.
-   *
-   * Extension requests are surfaced separately (see {@link extensionRows$}).
+   * Requests the requester can still act on: pending, or a grant that can still be activated.
+   * Pending extensions are listed in {@link extensionRows$} instead.
    */
   readonly pendingRows$: Observable<MyAccessRequestRow[]> = this.rows$.pipe(
     map((rows) => {
@@ -101,11 +90,9 @@ export class MyAccessService {
   );
 
   /**
-   * Still-open extension requests, rebuilt directly from the raw requests rather than through
-   * {@link rows$}, which folds them onto their originating grant.
-   *
-   * Terminal extensions drop off this section: an applied one shows as the "Extended" badge on
-   * its grant, a denied one moves to {@link historyRows$}.
+   * Pending extension requests, read from the raw requests since {@link rows$} folds extensions
+   * onto their grant. An applied one becomes its grant's "Extended" badge; a denied one moves to
+   * History.
    */
   readonly extensionRows$: Observable<MyAccessRequestRow[]> = combineLatest([
     this._requests$,
@@ -120,12 +107,8 @@ export class MyAccessService {
   );
 
   /**
-   * Terminal requests, newest first — the exact complement of {@link pendingRows$}; a grant whose
-   * lease is still active returns here once the lease ends.
-   *
-   * An unactivated grant that lapses gets its badge corrected here, since
-   * {@link historyDisplayStatus} can't name that state. Includes a denied extension, which
-   * {@link rows$} doesn't fold onto its grant.
+   * Terminal requests, newest first. A grant with an active lease joins once the lease ends, and
+   * an unactivated grant that lapsed gets {@link lapsedGrantBadge}.
    */
   readonly historyRows$: Observable<MyAccessRequestRow[]> = combineLatest([
     this.rows$,
@@ -152,16 +135,15 @@ export class MyAccessService {
   );
 
   /**
-   * Decrypted gated ciphers keyed by id; the template reads these to render an item's favicon.
-   * Ciphers absent from the caller's vault are simply missing, so those rows render without one.
+   * Decrypted gated ciphers by id, for favicons. A cipher absent from the caller's vault is
+   * missing, so its row renders without one.
    */
   readonly cipherById$: Observable<Map<string, CipherView>> = this._names$.pipe(
     map((names) => names.cipherById),
   );
 
   constructor() {
-    // Reloads on every access push with concatMap, not switchMap, so two close-together pushes
-    // can't interleave and leave the three subjects describing different moments.
+    // `concatMap` so two pushes can't interleave their loads and leave the subjects out of step.
     this.accessEvents
       .accessChanged$()
       .pipe(
@@ -171,7 +153,6 @@ export class MyAccessService {
       .subscribe();
   }
 
-  /** Fetch the caller's requests + active leases and replace local state. */
   async load(): Promise<void> {
     this._loading$.next(true);
     this._loadError$.next(null);
@@ -192,9 +173,8 @@ export class MyAccessService {
   }
 
   /**
-   * Cancel a pending, or approved-but-unactivated, request. Flips the row to "canceled"
-   * optimistically (an immutable copy, not the poc's in-place mutation), then calls the SDK; on
-   * failure restores the prior list and rethrows so the caller can toast.
+   * Cancels a pending or unactivated approved request. Marks it `canceled` optimistically and
+   * restores it on failure.
    */
   async cancel(id: AccessRequestId): Promise<void> {
     const current = this._requests$.value;
@@ -220,9 +200,8 @@ export class MyAccessService {
   }
 
   /**
-   * Ends the caller's own active lease early. Optimistically drops it from Active access and
-   * marks the originating request's produced lease `canceled`, so History shows it right away;
-   * restores both and rethrows on API failure.
+   * Ends the caller's own lease early. Optimistically drops it and marks the producing request's
+   * lease `canceled` so History shows it at once; restores both on failure.
    */
   async endLease(leaseId: AccessLeaseId): Promise<void> {
     const currentLeases = this._leases$.value;
@@ -252,9 +231,8 @@ export class MyAccessService {
   }
 
   /**
-   * Activate an approved request (mints the lease). Not optimistic — reloads on success so the
-   * new lease and the `producedLeaseId` that marks the request activated surface; rethrows on
-   * failure for the caller to toast.
+   * Activates an approved request, minting its lease. Reloads rather than patching, since the new
+   * lease and `producedLeaseId` come from the server.
    */
   async activate(id: AccessRequestId): Promise<void> {
     await this.requestsApi.activateAccessRequest(id);
@@ -263,7 +241,6 @@ export class MyAccessService {
   }
 }
 
-/** The distinct cipher/collection refs across a set of requests + leases, for name resolution. */
 function refsFor(
   requests: AccessRequestView[],
   leases: AccessLeaseView[],

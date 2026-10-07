@@ -80,14 +80,13 @@ describe("HistoryTabComponent", () => {
     return fixture.nativeElement.querySelector(selector) as HTMLElement | null;
   }
 
-  /** The ids of the rows the table actually renders, in the order the table renders them. */
+  /** The ids of the rendered rows, in rendered order. */
   function renderedRowIds(): string[] {
     return [...fixture.nativeElement.querySelectorAll("tr[data-testid]")].map((row: HTMLElement) =>
       (row.getAttribute("data-testid") ?? "").replace("my-access-history-", ""),
     );
   }
 
-  /** The text of every column header the table renders. */
   function renderedHeaders(): (string | undefined)[] {
     return [...fixture.nativeElement.querySelectorAll("th")].map((th: HTMLElement) =>
       th.textContent?.trim(),
@@ -95,23 +94,21 @@ describe("HistoryTabComponent", () => {
   }
 
   /**
-   * Drives the scope chip through its own `setValue`, as a click on an option would, and
-   * re-renders. `"all"` clears the chip: All is its reset row, not a third option.
+   * Drives the scope chip through its own `setValue`, as an option click would. `"all"` clears the
+   * chip, since All is its reset row rather than an option.
    */
   function selectScope(scope: "mine" | "managed" | "all"): void {
     component["scopeChip"]()?.setValue(scope === "all" ? null : scope);
     fixture.detectChanges();
   }
 
-  /** Switch to the approver-side scope and re-render. */
   function showManaged(): void {
     selectScope("managed");
   }
 
   /**
-   * Types a term into the toolbar's search and re-renders. Driven through the component's own
-   * change handler rather than the DOM input: `ngModel` registers with its form over a microtask
-   * these synchronous, fake-timered tests never flush, so a raw `input` event reaches nothing.
+   * Calls the search's own change handler, since `ngModel` registers over a microtask these
+   * fake-timered tests never flush, so a raw `input` event reaches nothing.
    */
   function searchFor(term: string): void {
     const search = fixture.debugElement.query(By.css("bit-search")).componentInstance as {
@@ -121,7 +118,6 @@ describe("HistoryTabComponent", () => {
     fixture.detectChanges();
   }
 
-  /** Run past the skeleton's show delay and re-render. */
   function passSkeletonDelay(): void {
     jest.advanceTimersByTime(1000);
     fixture.detectChanges();
@@ -389,7 +385,7 @@ describe("HistoryTabComponent", () => {
       expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1"]);
     });
 
-    // The fallback must forget the pick, not just stop applying it.
+    // The fallback must stop applying the pick and also forget it.
     it("does not restore the filter it fell back from when the filter returns", () => {
       managedRows$.next([historyRow({ id: "managed-1" })]);
       myRows$.next([historyRow({ id: "mine-1" })]);
@@ -1273,8 +1269,7 @@ describe("HistoryTabComponent", () => {
       expect(query('bit-table-toolbar [data-testid="history-scope-filter"]')).not.toBeNull();
     });
 
-    // The toolbar now carries the search, which is offered to every viewer, so it outlives the
-    // scope chip rather than appearing with it.
+    // The toolbar carries the search for every viewer, so it renders without the scope chip.
     it("shows the scope's empty state inside the table when no scope chip is offered", () => {
       createWithFlag(true);
 
@@ -1367,8 +1362,8 @@ describe("HistoryTabComponent", () => {
         }),
       ];
 
-      // The toolbar's top row renders with a bottom border of its own as soon as there is a filter
-      // row under it, so with nothing projected into it the reader sees an empty bordered band.
+      // With a filter row beneath, the toolbar's top row draws its own bottom border, so left
+      // empty it shows a bare bordered band.
       it("fills the toolbar's top row with a search rather than leaving it empty", () => {
         populateApprover();
 
@@ -1442,8 +1437,7 @@ describe("HistoryTabComponent", () => {
         expect(rowIds()).toEqual([]);
       });
 
-      // The empty state asserts an absolute -- "you have resolved nothing" -- which is not what a
-      // search that matched nothing means.
+      // The empty state says nothing was resolved, which is not what an unmatched search means.
       it("says nothing matched rather than that the history is empty", () => {
         myRows$.next(namedRows);
         createWithFlag(true);
@@ -1519,7 +1513,7 @@ describe("HistoryTabComponent", () => {
     });
   });
 
-  // Spans both sources, so it can't borrow either side's empty-state wording.
+  // All spans both sources, so it can't borrow either side's empty-state wording.
   it("says which slice is empty", () => {
     canApprove$.next(true);
     create();

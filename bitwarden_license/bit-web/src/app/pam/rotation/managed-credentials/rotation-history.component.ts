@@ -33,7 +33,6 @@ import { RotationDurationComponent } from "./rotation-duration.component";
 import { RotationJobDrawerComponent } from "./rotation-job-drawer/rotation-job-drawer.component";
 import type { AttemptView, DurationParts, JobView } from "./rotation-job-row";
 
-/** Presentational component rendering rotation job history as a table. */
 const SOURCE_LABEL_KEYS: Partial<Record<RotationSource, string>> = {
   [RotationSource.Scheduled]: "pamRotationSourceScheduled",
   [RotationSource.OnDemand]: "pamRotationSourceOnDemand",
@@ -93,12 +92,7 @@ export class RotationHistoryComponent {
   /** Managed-credential display names by rotation config id, for {@link showCredential}. */
   readonly credentialNames = input<ReadonlyMap<RotationConfigId, string>>(new Map());
 
-  /**
-   * Jobs newest-first by the start the Started column shows.
-   *
-   * A job that never started has none, so it takes its place from `createdAt`, the instant every
-   * job has.
-   */
+  /** Newest first by start time, falling back to `createdAt` for a job that never started. */
   protected readonly jobViews = computed(() =>
     this.jobs()
       .map((job) => this.toJobView(job))
@@ -107,7 +101,6 @@ export class RotationHistoryComponent {
       ),
   );
 
-  /** The open details drawer, or null when none is open. */
   private readonly detailsDrawer = signal<DrawerRef<unknown, RotationJobDrawerComponent> | null>(
     null,
   );
@@ -122,7 +115,7 @@ export class RotationHistoryComponent {
     void this.showJob(job, trigger);
   }
 
-  /** Opens one job's details in the side drawer and hands focus back to its row on the way out. */
+  /** Returns focus to the row's trigger when the drawer closes. */
   private async showJob(job: JobView, trigger: HTMLElement): Promise<void> {
     const seq = this.openSeq() + 1;
     this.openSeq.set(seq);
@@ -144,10 +137,8 @@ export class RotationHistoryComponent {
 
   protected toJobView(job: RotationJob): JobView {
     /**
-     * Sorted oldest-first by each attempt's own `startedAt`, since the server does not guarantee
-     * position reflects order. Every job-level fact below, and the attempt table's ordinals, come
-     * from this same ordering so a reordered page cannot pick a different attempt as the job's
-     * start, cause, or last outcome.
+     * The server doesn't guarantee attempt order, so every job-level fact and ordinal below derives
+     * from this one sort.
      */
     const attempts = [...(job.attempts ?? [])].sort(
       (a, b) => Date.parse(a.startedAt) - Date.parse(b.startedAt),
@@ -271,7 +262,7 @@ export class RotationHistoryComponent {
     return SESSION_TERMINATION_LABEL_KEYS[state] ?? "pamRotationSessionTerminationUnknown";
   }
 
-  /** The i18n key explaining a failure reason in plain language, or `null` when the reason is not one this screen recognises. */
+  /** A plain-language i18n key for a recognised failure reason, else `null`. */
   protected failureCauseLabelKey(failureReason: string): string | null {
     const ldapResultCode = /\bLDAP\s+(?:result\s+|error\s+)?code\s+(\d{1,3})\b/i.exec(
       failureReason,
