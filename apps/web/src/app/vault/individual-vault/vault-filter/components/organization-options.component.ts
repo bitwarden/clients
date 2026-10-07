@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { isActive, Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import {
@@ -22,10 +23,23 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { DialogService, IconModule, MenuModule, ToastService } from "@bitwarden/components";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import {
+  DialogService,
+  IconButtonModule,
+  IconModule,
+  MenuModule,
+  ToastService,
+} from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { OrganizationFilter } from "@bitwarden/vault";
+import {
+  ALL_ITEMS_SCOPE,
+  OrganizationFilter,
+  VAULT_BASE_ROUTE,
+  vaultScopeCommands,
+  VaultScopeType,
+} from "@bitwarden/vault";
 
 import { OrganizationUserResetPasswordService } from "../../../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { EnrollMasterPasswordReset } from "../../../../admin-console/organizations/users/enroll-master-password-reset.component";
@@ -42,15 +56,28 @@ type MenuState = {
 /**
  * The options menu for an organization the user belongs to: account recovery enrollment, SSO
  * linking, and leaving the organization.
+ *
+ * TODO: with the VFO1Foundation flag, move this component out of `individual-vault/vault-filter/`.
  */
 @Component({
   selector: "app-organization-options",
   templateUrl: "organization-options.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [I18nPipe, IconModule, MenuModule],
+  imports: [I18nPipe, IconButtonModule, IconModule, MenuModule],
 })
 export class OrganizationOptionsComponent {
-  private readonly organization$ = inject<Observable<OrganizationFilter>>(OptionsInput);
+  /** The organization to show options for. Set by the vault side nav. */
+  readonly organizationId = input<OrganizationId>();
+
+  /**
+   * The organization node the legacy vault filter provides.
+   *
+   * TODO: remove with the VFO1Foundation flag, along with the branch that reads it in
+   * `organization$`. Then make `organizationId` required.
+   */
+  private readonly optionsInput$ = inject<Observable<OrganizationFilter>>(OptionsInput, {
+    optional: true,
+  });
 
   private readonly i18nService = inject(I18nService);
   private readonly apiService = inject(ApiService);
@@ -70,6 +97,11 @@ export class OrganizationOptionsComponent {
   private readonly accountService = inject(AccountService);
   private readonly linkSsoService = inject(LinkSsoService);
   private readonly ssoLoginService = inject(SsoLoginServiceAbstraction);
+  private readonly router = inject(Router);
+  private readonly vaultBaseRoute = inject(VAULT_BASE_ROUTE);
+
+  /** TODO: remove with the VFO1Foundation flag, along with the legacy trigger button. */
+  protected readonly legacyFilter = this.optionsInput$ != null;
 
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -77,7 +109,14 @@ export class OrganizationOptionsComponent {
     switchMap((userId) => this.organizationService.organizations$(userId)),
   );
 
-  /** `undefined` while loading. */
+  private readonly organization$: Observable<Organization | undefined> =
+    // TODO: remove the `optionsInput$` branch with the VFO1Foundation flag.
+    this.optionsInput$ ??
+    combineLatest([toObservable(this.organizationId), this.organizations$]).pipe(
+      map(([organizationId, organizations]) => organizations.find((o) => o.id === organizationId)),
+    );
+
+  /** `undefined` while loading, or once the user is no longer a member. */
   protected readonly menuState = toSignal(
     combineLatest([
       this.organization$,
@@ -177,6 +216,7 @@ export class OrganizationOptionsComponent {
       });
 
       await this.removeUserFromSsoRequiredCacheIfPresent();
+      await this.navigateAwayFromOrganization(org.id);
     } catch (e) {
       this.handleApiError(e);
     }
@@ -230,6 +270,26 @@ export class OrganizationOptionsComponent {
     }
 
     return false;
+  }
+
+  /** `vaultScopeGuard` only runs on navigation, so it can't move the user off a vault they left. */
+  private async navigateAwayFromOrganization(organizationId: OrganizationId) {
+    const organizationVault = this.router.createUrlTree(
+      vaultScopeCommands(
+        { type: VaultScopeType.Organization, organizationId },
+        this.vaultBaseRoute,
+      ),
+    );
+    const viewingOrganization = isActive(organizationVault, this.router, {
+      paths: "subset",
+      queryParams: "ignored",
+      fragment: "ignored",
+      matrixParams: "ignored",
+    })();
+
+    if (viewingOrganization) {
+      await this.router.navigate(vaultScopeCommands(ALL_ITEMS_SCOPE, this.vaultBaseRoute));
+    }
   }
 
   /** The menu closes before these calls settle, so errors surface as a toast. */

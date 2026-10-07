@@ -138,6 +138,7 @@ export {
 } from "./tokens/collection-dialog.token";
 
 export { SHARE_ITEM_ENTRY_POINT } from "./tokens/share-item-entry-point.token";
+export { VAULT_NAV_ORGANIZATION_OPTIONS } from "./tokens/vault-nav-organization-options.token";
 
 export {
   VaultBatchBarService,

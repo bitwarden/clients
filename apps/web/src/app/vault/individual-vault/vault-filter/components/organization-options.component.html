@@ -1,15 +1,28 @@
 @let state = menuState();
 @if (state && (state.allowEnrollmentChanges || state.showSso || state.showLeave)) {
   @let org = state.organization;
-  <button
-    type="button"
-    [id]="'organization-options_button_menu-' + org.id"
-    [bitMenuTriggerFor]="optionsMenu"
-    class="filter-options-icon"
-    [attr.aria-label]="'organizationOptionsMenu' | i18n"
-  >
-    <i class="bwi bwi-ellipsis-v" aria-hidden="true"></i>
-  </button>
+  <!-- TODO: remove the legacy branch with the VFO1Foundation flag; keep only the side-nav icon button. -->
+  @if (legacyFilter) {
+    <button
+      type="button"
+      [id]="'organization-options_button_menu-' + org.id"
+      [bitMenuTriggerFor]="optionsMenu"
+      class="filter-options-icon"
+      [attr.aria-label]="'organizationOptionsMenu' | i18n"
+    >
+      <i class="bwi bwi-ellipsis-v" aria-hidden="true"></i>
+    </button>
+  } @else {
+    <button
+      type="button"
+      [id]="'organization-options_button_menu-' + org.id"
+      bitIconButton="bwi-ellipsis-h"
+      buttonType="side-nav"
+      size="xsmall"
+      [label]="'vaultOptions' | i18n"
+      [bitMenuTriggerFor]="optionsMenu"
+    ></button>
+  }
   <bit-menu class="filter-organization-options" #optionsMenu>
     <div class="tw-flex tw-min-w-[200px] tw-max-w-[300px] tw-flex-col">
       @if (state.allowEnrollmentChanges) {

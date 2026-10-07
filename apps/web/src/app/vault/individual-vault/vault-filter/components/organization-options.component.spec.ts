@@ -1,6 +1,8 @@
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { provideRouter, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, Observable, of } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import {
@@ -60,12 +62,14 @@ const resetPasswordPolicy = (overrides: Partial<Policy> = {}) =>
     ...overrides,
   });
 
+@Component({ template: "", changeDetection: ChangeDetectionStrategy.OnPush })
+class DummyComponent {}
+
 const masterPasswordUser = { hasMasterPassword: true } as UserDecryptionOptions;
 
 describe("OrganizationOptionsComponent", () => {
   let fixture: ComponentFixture<OrganizationOptionsComponent>;
 
-  let organization$: BehaviorSubject<OrganizationFilter>;
   let organizations$: BehaviorSubject<Organization[]>;
   let policies$: BehaviorSubject<Policy[]>;
   let decryptionOptions$: BehaviorSubject<UserDecryptionOptions>;
@@ -78,18 +82,12 @@ describe("OrganizationOptionsComponent", () => {
   const validationService = mock<ValidationService>();
   const accountService = mock<AccountService>();
 
-  const setup = async () => {
+  const setup = async (optionsInput?: Observable<OrganizationFilter>) => {
     const providers = [
       { provide: OrganizationService, useValue: organizationService },
       { provide: PolicyService, useValue: policyService },
-      {
-        provide: UserDecryptionOptionsServiceAbstraction,
-        useValue: userDecryptionOptionsService,
-      },
-      {
-        provide: OrganizationApiServiceAbstraction,
-        useValue: organizationApiService,
-      },
+      { provide: UserDecryptionOptionsServiceAbstraction, useValue: userDecryptionOptionsService },
+      { provide: OrganizationApiServiceAbstraction, useValue: organizationApiService },
       { provide: DialogService, useValue: dialogService },
       { provide: ValidationService, useValue: validationService },
       { provide: AccountService, useValue: accountService },
@@ -97,26 +95,22 @@ describe("OrganizationOptionsComponent", () => {
       { provide: ApiService, useValue: mock<ApiService>() },
       { provide: SyncService, useValue: mock<SyncService>() },
       { provide: LogService, useValue: mock<LogService>() },
-      {
-        provide: OrganizationUserApiService,
-        useValue: mock<OrganizationUserApiService>(),
-      },
+      { provide: OrganizationUserApiService, useValue: mock<OrganizationUserApiService>() },
       {
         provide: OrganizationUserResetPasswordService,
         useValue: mock<OrganizationUserResetPasswordService>(),
       },
-      {
-        provide: UserVerificationService,
-        useValue: mock<UserVerificationService>(),
-      },
+      { provide: UserVerificationService, useValue: mock<UserVerificationService>() },
       { provide: ToastService, useValue: mock<ToastService>() },
       { provide: KeyService, useValue: mock<KeyService>() },
       { provide: LinkSsoService, useValue: mock<LinkSsoService>() },
-      {
-        provide: SsoLoginServiceAbstraction,
-        useValue: mock<SsoLoginServiceAbstraction>(),
-      },
-      { provide: OptionsInput, useValue: organization$ },
+      { provide: SsoLoginServiceAbstraction, useValue: mock<SsoLoginServiceAbstraction>() },
+      provideRouter([
+        { path: "vault", component: DummyComponent },
+        { path: "vault/:vaultId", component: DummyComponent },
+        { path: "settings", component: DummyComponent },
+      ]),
+      ...(optionsInput ? [{ provide: OptionsInput, useValue: optionsInput }] : []),
     ];
 
     await TestBed.configureTestingModule({
@@ -125,12 +119,9 @@ describe("OrganizationOptionsComponent", () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(OrganizationOptionsComponent);
-    fixture.detectChanges();
-  };
-
-  const setOrganization = (org: Organization) => {
-    organization$.next(org as OrganizationFilter);
-    organizations$.next([org]);
+    if (!optionsInput) {
+      fixture.componentRef.setInput("organizationId", orgId);
+    }
     fixture.detectChanges();
   };
 
@@ -142,7 +133,6 @@ describe("OrganizationOptionsComponent", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    organization$ = new BehaviorSubject(buildOrg() as OrganizationFilter);
     organizations$ = new BehaviorSubject([buildOrg()]);
     policies$ = new BehaviorSubject<Policy[]>([]);
     decryptionOptions$ = new BehaviorSubject(masterPasswordUser);
@@ -153,93 +143,135 @@ describe("OrganizationOptionsComponent", () => {
     userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(decryptionOptions$);
   });
 
-  beforeEach(() => setup());
+  describe("in the vault side nav", () => {
+    beforeEach(() => setup());
 
-  it("reads the organization from OptionsInput and renders the trigger", () => {
-    expect(state()?.organization.id).toBe(orgId);
-    expect(trigger()?.classList).toContain("filter-options-icon");
+    it("finds the organization by id and renders the side-nav icon button", () => {
+      expect(state()?.organization.id).toBe(orgId);
+      expect(trigger()?.hasAttribute("bitIconButton")).toBe(true);
+      expect(trigger()?.classList).not.toContain("filter-options-icon");
+    });
+
+    it("renders nothing once the user is no longer a member", () => {
+      organizations$.next([]);
+      fixture.detectChanges();
+
+      expect(state()).toBeUndefined();
+      expect(trigger()).toBeNull();
+    });
+
+    it("renders nothing when no option applies", () => {
+      // Claimed by this org, so leave is hidden; no SSO; no reset password policy.
+      organizations$.next([buildOrg({ userIsClaimedByOrganization: true })]);
+      fixture.detectChanges();
+
+      expect(state()).toMatchObject({
+        allowEnrollmentChanges: false,
+        showSso: false,
+        showLeave: false,
+      });
+      expect(trigger()).toBeNull();
+    });
+
+    describe("account recovery enrollment", () => {
+      it("is allowed when the org's reset password policy is enabled", () => {
+        policies$.next([resetPasswordPolicy()]);
+        fixture.detectChanges();
+
+        expect(state()?.allowEnrollmentChanges).toBe(true);
+      });
+
+      it("is not allowed when the policy is disabled", () => {
+        policies$.next([resetPasswordPolicy({ enabled: false })]);
+        fixture.detectChanges();
+
+        expect(state()?.allowEnrollmentChanges).toBe(false);
+      });
+
+      it("is not allowed when another org holds the policy", () => {
+        policies$.next([resetPasswordPolicy({ organizationId: "other-org" as OrganizationId })]);
+        fixture.detectChanges();
+
+        expect(state()?.allowEnrollmentChanges).toBe(false);
+      });
+
+      it("can't be withdrawn once auto-enrolled", () => {
+        organizations$.next([buildOrg({ resetPasswordEnrolled: true })]);
+        policies$.next([resetPasswordPolicy({ data: { autoEnrollEnabled: true } })]);
+        fixture.detectChanges();
+
+        expect(state()?.allowEnrollmentChanges).toBe(false);
+      });
+    });
+
+    it("shows SSO options when the org uses SSO and has an identifier", () => {
+      organizations$.next([buildOrg({ useSso: true })]);
+      fixture.detectChanges();
+
+      expect(state()?.showSso).toBe(true);
+    });
+
+    describe("leave", () => {
+      it("is shown for a user with a master password", () => {
+        expect(state()?.showLeave).toBe(true);
+      });
+
+      it("is hidden for a TDE user with no master password", () => {
+        decryptionOptions$.next({
+          hasMasterPassword: false,
+          trustedDeviceOption: {},
+        } as UserDecryptionOptions);
+        fixture.detectChanges();
+
+        expect(state()?.showLeave).toBe(false);
+      });
+
+      it("leaves the organization once confirmed", async () => {
+        dialogService.openSimpleDialog.mockResolvedValue(true);
+
+        await fixture.componentInstance["leave"](buildOrg());
+
+        expect(organizationApiService.leave).toHaveBeenCalledWith(orgId);
+      });
+
+      it("moves to All items when the user is viewing the vault they left", async () => {
+        const router = TestBed.inject(Router);
+        await router.navigateByUrl(`/vault/${orgId}`);
+        dialogService.openSimpleDialog.mockResolvedValue(true);
+
+        await fixture.componentInstance["leave"](buildOrg());
+
+        expect(router.url).toBe("/vault");
+      });
+
+      it("stays on a page outside the vault the user left", async () => {
+        const router = TestBed.inject(Router);
+        await router.navigateByUrl("/settings");
+        dialogService.openSimpleDialog.mockResolvedValue(true);
+
+        await fixture.componentInstance["leave"](buildOrg());
+
+        expect(router.url).toBe("/settings");
+      });
+
+      it("shows the API error, since the menu has closed", async () => {
+        const error = new Error("nope");
+        dialogService.openSimpleDialog.mockResolvedValue(true);
+        organizationApiService.leave.mockRejectedValue(error);
+
+        await fixture.componentInstance["leave"](buildOrg());
+
+        expect(validationService.showError).toHaveBeenCalledWith(error);
+      });
+    });
   });
 
-  it("renders nothing when no option applies", () => {
-    // Claimed by this org, so leave is hidden; no SSO; no reset password policy.
-    setOrganization(buildOrg({ userIsClaimedByOrganization: true }));
+  describe("in the legacy vault filter", () => {
+    beforeEach(() => setup(of(buildOrg() as OrganizationFilter)));
 
-    expect(state()).toMatchObject({
-      allowEnrollmentChanges: false,
-      showSso: false,
-      showLeave: false,
-    });
-    expect(trigger()).toBeNull();
-  });
-
-  describe("account recovery enrollment", () => {
-    it("is allowed when the org's reset password policy is enabled", () => {
-      policies$.next([resetPasswordPolicy()]);
-      fixture.detectChanges();
-
-      expect(state()?.allowEnrollmentChanges).toBe(true);
-    });
-
-    it("is not allowed when the policy is disabled", () => {
-      policies$.next([resetPasswordPolicy({ enabled: false })]);
-      fixture.detectChanges();
-
-      expect(state()?.allowEnrollmentChanges).toBe(false);
-    });
-
-    it("is not allowed when another org holds the policy", () => {
-      policies$.next([resetPasswordPolicy({ organizationId: "other-org" as OrganizationId })]);
-      fixture.detectChanges();
-
-      expect(state()?.allowEnrollmentChanges).toBe(false);
-    });
-
-    it("can't be withdrawn once auto-enrolled", () => {
-      setOrganization(buildOrg({ resetPasswordEnrolled: true }));
-      policies$.next([resetPasswordPolicy({ data: { autoEnrollEnabled: true } })]);
-      fixture.detectChanges();
-
-      expect(state()?.allowEnrollmentChanges).toBe(false);
-    });
-  });
-
-  it("shows SSO options when the org uses SSO and has an identifier", () => {
-    setOrganization(buildOrg({ useSso: true }));
-
-    expect(state()?.showSso).toBe(true);
-  });
-
-  describe("leave", () => {
-    it("is shown for a user with a master password", () => {
-      expect(state()?.showLeave).toBe(true);
-    });
-
-    it("is hidden for a TDE user with no master password", () => {
-      decryptionOptions$.next({
-        hasMasterPassword: false,
-        trustedDeviceOption: {},
-      } as UserDecryptionOptions);
-      fixture.detectChanges();
-
-      expect(state()?.showLeave).toBe(false);
-    });
-
-    it("leaves the organization once confirmed", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(true);
-
-      await fixture.componentInstance["leave"](buildOrg());
-
-      expect(organizationApiService.leave).toHaveBeenCalledWith(orgId);
-    });
-
-    it("shows the API error, since the menu has closed", async () => {
-      const error = new Error("nope");
-      dialogService.openSimpleDialog.mockResolvedValue(true);
-      organizationApiService.leave.mockRejectedValue(error);
-
-      await fixture.componentInstance["leave"](buildOrg());
-
-      expect(validationService.showError).toHaveBeenCalledWith(error);
+    it("reads the organization from OptionsInput and renders the legacy trigger", () => {
+      expect(state()?.organization.id).toBe(orgId);
+      expect(trigger()?.classList).toContain("filter-options-icon");
     });
   });
 });

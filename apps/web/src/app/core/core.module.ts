@@ -166,9 +166,11 @@ import {
   PasswordRepromptService,
   SHARE_ITEM_ENTRY_POINT,
   SshImportPromptService,
+  VAULT_NAV_ORGANIZATION_OPTIONS,
   VaultNavService,
 } from "@bitwarden/vault";
 import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/billing/services/web-premium-upgrade-prompt.service";
+import { OrganizationOptionsComponent } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/components/organization-options.component";
 import { WebCipherFormGenerationService } from "@bitwarden/web-vault/app/vault/services/web-cipher-form-generation.service";
 
 import { flagEnabled } from "../../utils/flags";
@@ -553,6 +555,10 @@ const safeProviders: SafeProvider[] = [
     provide: VaultNavService,
     useClass: DefaultVaultNavService,
     deps: [],
+  }),
+  safeProvider({
+    provide: VAULT_NAV_ORGANIZATION_OPTIONS,
+    useValue: OrganizationOptionsComponent,
   }),
   safeProvider({
     provide: PremiumUpgradePromptService,
