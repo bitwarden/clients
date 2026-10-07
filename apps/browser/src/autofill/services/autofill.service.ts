@@ -2766,7 +2766,6 @@ export default class AutofillService implements AutofillServiceInterface {
           f["label-aria"],
           f["label-tag"],
           f["label-top"],
-          f["label-left"],
         ];
         for (let i = 0; i < testedValues.length; i++) {
           const value = testedValues[i];

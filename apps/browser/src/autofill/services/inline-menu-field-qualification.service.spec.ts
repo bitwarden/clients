@@ -341,7 +341,7 @@ describe("InlineMenuFieldQualificationService", () => {
           );
         });
 
-        it.each(["label-aria", "label-tag", "label-top", "label-left"])(
+        it.each(["label-aria", "label-tag", "label-top"])(
           "has a type of `text` with the word `password` in %s",
           (attr) => {
             const field = mock<AutofillField>({

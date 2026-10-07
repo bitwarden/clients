@@ -4974,7 +4974,7 @@ describe("AutofillService", () => {
         expect(result).toStrictEqual([]);
       });
 
-      it.each(["label-aria", "label-tag", "label-top", "label-left"])(
+      it.each(["label-aria", "label-tag", "label-top"])(
         "returns the field in an array when %s contains the word `password`",
         (attr) => {
           passwordField[attr] = "Password";
@@ -5014,8 +5014,6 @@ describe("AutofillService", () => {
         ["label-tag", "Forgot password?"],
         ["label-top", "Password hint"],
         ["label-top", "Forgot password?"],
-        ["label-left", "Password hint"],
-        ["label-left", "Forgot password?"],
       ])("returns an empty array when %s contains an excluded phrase (%s)", (attr, value) => {
         passwordField[attr] = value;
         pageDetails.fields = [passwordField];

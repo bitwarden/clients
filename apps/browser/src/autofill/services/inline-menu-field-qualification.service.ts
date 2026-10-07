@@ -1128,7 +1128,6 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       field["label-aria"],
       field["label-tag"],
       field["label-top"],
-      field["label-left"],
     ];
     for (let i = 0; i < testedValues.length; i++) {
       const attributeValueToMatch = testedValues[i];
