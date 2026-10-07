@@ -25,6 +25,12 @@ describe("pamLandingRoute", () => {
     expect(pamLandingRoute(member({ accessEventLogs: true }))).toBe("audit");
   });
 
+  it("lands an auditor nowhere when the organization does not use PAM", () => {
+    const auditor = member({ accessEventLogs: true });
+    auditor.usePam = false;
+    expect(pamLandingRoute(auditor)).toBeUndefined();
+  });
+
   it("lands a rotation admin on the rotation pages", () => {
     expect(pamLandingRoute(member({ manageRotation: true }))).toBe("rotation");
   });

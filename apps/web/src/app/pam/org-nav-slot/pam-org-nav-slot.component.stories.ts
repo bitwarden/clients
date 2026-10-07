@@ -49,7 +49,12 @@ function organization(
   canAccessEventLogs: boolean,
   canManageRotation = canManageAccessRules,
 ): Organization {
-  return { canManageAccessRules, canAccessEventLogs, canManageRotation } as Organization;
+  return {
+    usePam: true,
+    canManageAccessRules,
+    canAccessEventLogs,
+    canManageRotation,
+  } as Organization;
 }
 
 function featureFlags(options: { rotationEnabled?: boolean } = {}) {
