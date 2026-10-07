@@ -36,7 +36,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { autofill } from "@bitwarden/desktop-napi";
+import { autofill, passkey_authenticator } from "@bitwarden/desktop-napi";
 type PasskeyAssertionRequest = autofill.PasskeyAssertionRequest;
 type PasskeyAssertionResponse = autofill.PasskeyAssertionResponse;
 type PasskeyRegistrationResponse = autofill.PasskeyRegistrationResponse;
@@ -44,7 +44,12 @@ type PasskeyRegistrationRequest = autofill.PasskeyRegistrationRequest;
 type PasskeyAssertionWithoutUserInterfaceRequest =
   autofill.PasskeyAssertionWithoutUserInterfaceRequest;
 type NativeStatus = autofill.NativeStatus;
+export type PasskeyProviderState = passkey_authenticator.PasskeyProviderState;
 
+import {
+  AutofillOpenSettingsCommand,
+  AutofillRequestEnableCommand,
+} from "../models/autofill-settings.command";
 import { AutofillStatusCommand } from "../models/autofill-status.command";
 import {
   AutofillFido2Credential,
@@ -104,8 +109,8 @@ export class DesktopAutofillService implements OnDestroy {
 
   /**
    * Signals the main process to register the native OS credential provider and start the autofill
-   * IPC server, then starts syncing and listening for requests. Safe to call repeatedly: syncing and
-   * listeners are only started once.
+   * IPC server, then starts syncing and listening for requests. Safe to call repeatedly: each call
+   * re-submits the registration, but syncing and listeners are only started once.
    *
    * @returns whether native autofill is running.
    */
@@ -134,6 +139,52 @@ export class DesktopAutofillService implements OnDestroy {
       this.listenIpc();
     }
     return true;
+  }
+
+  /**
+   * Re-submits the passkey provider registration with the OS, enabling native autofill if needed.
+   *
+   * @returns the app's status as a passkey provider with the OS.
+   */
+  async refreshPasskeyProviderState(): Promise<PasskeyProviderState> {
+    if (!(await this.ensureEnabled())) {
+      return { registered: false, enabled: false };
+    }
+    return this.getPasskeyProviderState();
+  }
+
+  /** Gets the app's status as a passkey provider with the OS, without re-submitting registration. */
+  getPasskeyProviderState(): Promise<PasskeyProviderState> {
+    return ipc.autofill.desktopAutofill.getPasskeyProviderState();
+  }
+
+  /**
+   * Asks the user to turn on the app as a credential provider.
+   *
+   * @returns whether the app is enabled, or `undefined` if the OS cannot prompt.
+   */
+  async requestEnableCredentialProvider(): Promise<boolean | undefined> {
+    const result = await ipc.autofill.desktopAutofill.runCommand<AutofillRequestEnableCommand>({
+      namespace: "autofill",
+      command: "requestEnable",
+      params: {},
+    });
+    if (result.type === "error") {
+      throw new Error(result.error);
+    }
+    return result.value.supported ? result.value.enabled : undefined;
+  }
+
+  /** Opens the OS settings for credential providers. */
+  async openCredentialProviderSettings(): Promise<void> {
+    const result = await ipc.autofill.desktopAutofill.runCommand<AutofillOpenSettingsCommand>({
+      namespace: "autofill",
+      command: "openSettings",
+      params: {},
+    });
+    if (result.type === "error") {
+      throw new Error(result.error);
+    }
   }
 
   private startSync(featureFlag: NativeCredentialSyncFeatureFlag) {
