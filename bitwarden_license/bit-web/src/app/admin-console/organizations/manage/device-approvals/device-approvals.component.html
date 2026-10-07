@@ -1,105 +1,114 @@
-<app-header>
-  <ng-container slot="title-suffix" *ngIf="loading || actionInProgress">
-    <i
-      class="bwi bwi-spinner bwi-spin tw-text-muted"
-      title="{{ 'loading' | i18n }}"
-      aria-hidden="true"
-    ></i>
-    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-  </ng-container>
-</app-header>
+@if (orgId$ | async; as organizationId) {
+  @let loading = loading$ | async;
+  <app-header>
+    @if (loading || actionInProgress()) {
+      <ng-container slot="title-suffix">
+        <i
+          class="bwi bwi-spinner bwi-spin tw-text-muted"
+          title="{{ 'loading' | i18n }}"
+          aria-hidden="true"
+        ></i>
+        <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+      </ng-container>
+    }
+  </app-header>
 
-<p>
-  {{ "deviceApprovalsDesc" | i18n }}
-</p>
+  <p>
+    {{ "deviceApprovalsDesc" | i18n }}
+  </p>
 
-<bit-table [dataSource]="tableDataSource">
-  <ng-container header>
-    <tr>
-      <th bitCell>{{ "member" | i18n }}</th>
-      <th bitCell>{{ "deviceInfo" | i18n }}</th>
-      <th bitCell>{{ "time" | i18n }}</th>
-      <th bitCell class="tw-w-10">
-        <button
-          [bitMenuTriggerFor]="headerMenu"
-          bitIconButton="bwi-ellipsis-v"
-          size="small"
-          type="button"
-          label="{{ 'options' | i18n }}"
-        ></button>
-        <bit-menu #headerMenu>
+  <bit-table [dataSource]="tableDataSource">
+    <ng-container header>
+      <tr>
+        <th bitCell>{{ "member" | i18n }}</th>
+        <th bitCell>{{ "deviceInfo" | i18n }}</th>
+        <th bitCell>{{ "time" | i18n }}</th>
+        <th bitCell class="tw-w-10">
           <button
+            [bitMenuTriggerFor]="headerMenu"
+            bitIconButton="bwi-ellipsis-v"
+            size="small"
             type="button"
-            bitMenuItem
-            (click)="approveAllRequests()"
-            [disabled]="actionInProgress"
-          >
-            <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
-            {{ "approveAllRequests" | i18n }}
-          </button>
-          <button
-            type="button"
-            bitMenuItem
-            variant="danger"
-            (click)="denyAllRequests()"
-            [disabled]="actionInProgress"
-          >
-            <bit-icon fixedWidth name="bwi-close" slot="start" />
-            {{ "denyAllRequests" | i18n }}
-          </button>
-        </bit-menu>
-      </th>
-    </tr>
-  </ng-container>
-  <ng-template body let-rows$>
-    <tr bitRow alignContent="top" *ngFor="let r of rows$ | async">
-      <td bitCell class="tw-flex-col">
-        <div>{{ r.email }}</div>
-        <code class="tw-text-sm">{{ r.fingerprintPhrase }}</code>
-      </td>
-      <td bitCell class="tw-flex-col">
-        <div>{{ r.requestDeviceType }}</div>
-        <div class="tw-text-sm">{{ r.requestIpAddress }}</div>
-      </td>
-      <td bitCell class="tw-flex-col tw-text-muted">
-        {{ r.creationDate | date: "medium" }}
-      </td>
-      <td bitCell class="tw-align-middle">
-        <button
-          [bitMenuTriggerFor]="rowMenu"
-          bitIconButton="bwi-ellipsis-v"
-          size="small"
-          type="button"
-          label="{{ 'options' | i18n }}"
-        ></button>
-        <bit-menu #rowMenu>
-          <button
-            type="button"
-            bitMenuItem
-            (click)="approveRequest(r)"
-            [disabled]="actionInProgress"
-          >
-            <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
-            {{ "approveRequest" | i18n }}
-          </button>
-          <button
-            type="button"
-            bitMenuItem
-            variant="danger"
-            (click)="denyRequest(r.id)"
-            [disabled]="actionInProgress"
-          >
-            <bit-icon fixedWidth name="bwi-close" slot="start" />
-            {{ "denyRequest" | i18n }}
-          </button>
-        </bit-menu>
-      </td>
-    </tr>
-  </ng-template>
-</bit-table>
+            label="{{ 'options' | i18n }}"
+          ></button>
+          <bit-menu #headerMenu>
+            <button
+              type="button"
+              bitMenuItem
+              (click)="approveAllRequests(organizationId)"
+              [disabled]="actionInProgress()"
+            >
+              <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
+              {{ "approveAllRequests" | i18n }}
+            </button>
+            <button
+              type="button"
+              bitMenuItem
+              variant="danger"
+              (click)="denyAllRequests(organizationId)"
+              [disabled]="actionInProgress()"
+            >
+              <bit-icon fixedWidth name="bwi-close" slot="start" />
+              {{ "denyAllRequests" | i18n }}
+            </button>
+          </bit-menu>
+        </th>
+      </tr>
+    </ng-container>
+    <ng-template body let-rows$>
+      @for (r of rows$ | async; track r.id) {
+        <tr bitRow alignContent="top">
+          <td bitCell class="tw-flex-col">
+            <div>{{ r.email }}</div>
+            <code class="tw-text-sm">{{ r.fingerprintPhrase }}</code>
+          </td>
+          <td bitCell class="tw-flex-col">
+            <div>{{ r.requestDeviceType }}</div>
+            <div class="tw-text-sm">{{ r.requestIpAddress }}</div>
+          </td>
+          <td bitCell class="tw-flex-col tw-text-muted">
+            {{ r.creationDate | date: "medium" }}
+          </td>
+          <td bitCell class="tw-align-middle">
+            <button
+              [bitMenuTriggerFor]="rowMenu"
+              bitIconButton="bwi-ellipsis-v"
+              size="small"
+              type="button"
+              label="{{ 'options' | i18n }}"
+            ></button>
+            <bit-menu #rowMenu>
+              <button
+                type="button"
+                bitMenuItem
+                (click)="approveRequest(organizationId, r)"
+                [disabled]="actionInProgress()"
+              >
+                <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
+                {{ "approveRequest" | i18n }}
+              </button>
+              <button
+                type="button"
+                bitMenuItem
+                variant="danger"
+                (click)="denyRequest(organizationId, r.id)"
+                [disabled]="actionInProgress()"
+              >
+                <bit-icon fixedWidth name="bwi-close" slot="start" />
+                {{ "denyRequest" | i18n }}
+              </button>
+            </bit-menu>
+          </td>
+        </tr>
+      }
+    </ng-template>
+  </bit-table>
 
-<bit-status-lockup class="tw-text-main" *ngIf="!loading && tableDataSource.data.length == 0">
-  <bit-svg slot="graphic" [content]="DevicesIcon"></bit-svg>
-  <ng-container slot="title">{{ "noDeviceRequests" | i18n }}</ng-container>
-  <ng-container slot="description">{{ "noDeviceRequestsDesc" | i18n }}</ng-container>
-</bit-status-lockup>
+  @if (!loading && tableDataSource.data.length == 0) {
+    <bit-status-lockup class="tw-text-main">
+      <bit-svg slot="graphic" [content]="DevicesIcon" />
+      <ng-container slot="title">{{ "noDeviceRequests" | i18n }}</ng-container>
+      <ng-container slot="description">{{ "noDeviceRequestsDesc" | i18n }}</ng-container>
+    </bit-status-lockup>
+  }
+}
