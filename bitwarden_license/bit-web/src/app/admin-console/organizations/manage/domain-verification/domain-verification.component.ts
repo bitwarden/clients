@@ -1,18 +1,8 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute, Params } from "@angular/router";
-import {
-  concatMap,
-  firstValueFrom,
-  map,
-  Observable,
-  Subject,
-  switchMap,
-  take,
-  takeUntil,
-} from "rxjs";
+import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { ActivatedRoute } from "@angular/router";
+import { concatMap, firstValueFrom, map, Observable, shareReplay, switchMap } from "rxjs";
 
 import { DomainIcon } from "@bitwarden/assets/svg";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
@@ -26,6 +16,7 @@ import { HttpStatusCode } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   A11yTitleDirective,
   BadgeModule,
@@ -69,76 +60,68 @@ import {
     I18nPipe,
   ],
 })
-export class DomainVerificationComponent implements OnInit, OnDestroy {
-  private componentDestroyed$ = new Subject<void>();
-  private singleOrgPolicyEnabled = false;
+export class DomainVerificationComponent implements OnInit {
   protected domainIcon = DomainIcon;
 
-  loading = true;
+  private route = inject(ActivatedRoute);
+  private i18nService = inject(I18nService);
+  private orgDomainApiService = inject(OrgDomainApiServiceAbstraction);
+  private orgDomainService = inject(OrgDomainServiceAbstraction);
+  private dialogService = inject(DialogService);
+  private validationService = inject(ValidationService);
+  private toastService = inject(ToastService);
+  private policyService = inject(PolicyService);
+  private accountService = inject(AccountService);
+  private destroyRef = inject(DestroyRef);
 
-  organizationId: string;
-  orgDomains$: Observable<OrganizationDomainResponse[]>;
+  readonly orgDomains$ = this.orgDomainService.orgDomains$;
 
-  constructor(
-    private route: ActivatedRoute,
-    private i18nService: I18nService,
-    private orgDomainApiService: OrgDomainApiServiceAbstraction,
-    private orgDomainService: OrgDomainServiceAbstraction,
-    private dialogService: DialogService,
-    private validationService: ValidationService,
-    private toastService: ToastService,
-    private policyService: PolicyService,
-    private accountService: AccountService,
-  ) {}
+  readonly organizationId$: Observable<OrganizationId> = this.route.params.pipe(
+    map((params) => params.organizationId),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
 
-  async ngOnInit() {
-    this.orgDomains$ = this.orgDomainService.orgDomains$;
-
-    // Note: going to use concatMap as async subscribe blocks don't work as you expect and
-    // as such, ESLint rejects it
-    // ex: https://stackoverflow.com/a/71056380
-    this.route.params
-      .pipe(
-        concatMap(async (params: Params) => {
-          this.organizationId = params.organizationId;
-          await this.load();
-        }),
-        takeUntil(this.componentDestroyed$),
-      )
-      .subscribe();
-  }
-
-  async load() {
-    await this.orgDomainApiService.getAllByOrgId(this.organizationId);
-
-    const singleOrgPolicy = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(
-        getUserId,
-        switchMap((userId) => this.policyService.policies$(userId)),
-        map((policies) =>
-          policies.find(
-            (p) => p.type === PolicyType.SingleOrg && p.organizationId === this.organizationId,
+  private readonly singleOrgPolicyEnabled = toSignal(
+    this.organizationId$.pipe(
+      switchMap((organizationId) =>
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) => this.policyService.policies$(userId)),
+          map(
+            (policies) =>
+              policies.find(
+                (p) => p.type === PolicyType.SingleOrg && p.organizationId === organizationId,
+              )?.enabled ?? false,
           ),
         ),
       ),
-    );
-    this.singleOrgPolicyEnabled = singleOrgPolicy?.enabled ?? false;
+    ),
+    { initialValue: false },
+  );
 
-    this.loading = false;
+  readonly loading = signal(true);
+
+  ngOnInit() {
+    this.organizationId$
+      .pipe(
+        concatMap((organizationId) => this.orgDomainApiService.getAllByOrgId(organizationId)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => this.loading.set(false));
   }
 
-  async addDomain() {
+  async addDomain(organizationId: OrganizationId) {
     const domainAddEditDialogData: DomainAddEditDialogData = {
-      organizationId: this.organizationId,
-      orgDomain: null,
-      existingDomainNames: this.getExistingDomainNames(),
+      organizationId: organizationId,
+      orgDomain: undefined,
+      existingDomainNames: await this.getExistingDomainNames(),
     };
 
     const showSingleOrgWarning = await firstValueFrom(
       this.orgDomains$.pipe(
         map(
           (organizationDomains) =>
-            !this.singleOrgPolicyEnabled &&
+            !this.singleOrgPolicyEnabled() &&
             organizationDomains.every((domain) => domain.verifiedDate === null),
         ),
       ),
@@ -166,11 +149,11 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
     });
   }
 
-  editDomain(orgDomain: OrganizationDomainResponse) {
+  async editDomain(organizationId: OrganizationId, orgDomain: OrganizationDomainResponse) {
     const domainAddEditDialogData: DomainAddEditDialogData = {
-      organizationId: this.organizationId,
+      organizationId: organizationId,
       orgDomain: orgDomain,
-      existingDomainNames: this.getExistingDomainNames(),
+      existingDomainNames: await this.getExistingDomainNames(),
     };
 
     this.dialogService.open(DomainAddEditDialogComponent, {
@@ -178,61 +161,56 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
     });
   }
 
-  private getExistingDomainNames(): Array<string> {
-    let existingDomainNames: string[];
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.orgDomains$.pipe(take(1)).subscribe((orgDomains: Array<OrganizationDomainResponse>) => {
-      existingDomainNames = orgDomains.map((o) => o.domainName);
-    });
-    return existingDomainNames;
+  private async getExistingDomainNames(): Promise<string[]> {
+    const orgDomains = await firstValueFrom(this.orgDomains$);
+    return orgDomains.map((o) => o.domainName);
   }
-
-  // Options
 
   copyDnsTxt(dnsTxt: string): void {
     this.orgDomainService.copyDnsTxt(dnsTxt);
     this.toastService.showToast({
       variant: "success",
-      title: null,
       message: this.i18nService.t("valueCopied", this.i18nService.t("dnsTxtRecord")),
     });
   }
 
-  async verifyDomain(orgDomainId: string, domainName: string): Promise<void> {
+  async verifyDomain(
+    organizationId: OrganizationId,
+    orgDomainId: string,
+    domainName: string,
+  ): Promise<void> {
     try {
       const orgDomain: OrganizationDomainResponse = await this.orgDomainApiService.verify(
-        this.organizationId,
+        organizationId,
         orgDomainId,
       );
 
       if (orgDomain.verifiedDate) {
         this.toastService.showToast({
           variant: "success",
-          title: null,
           message: this.i18nService.t("domainClaimed"),
         });
       } else {
         this.toastService.showToast({
           variant: "error",
-          title: null,
           message: this.i18nService.t("domainNotClaimed", domainName),
         });
         // Update this item so the last checked date gets updated.
-        await this.updateOrgDomain(orgDomainId);
+        await this.updateOrgDomain(organizationId, orgDomainId);
       }
     } catch (e) {
       this.handleVerifyDomainError(e, domainName);
       // Update this item so the last checked date gets updated.
-      await this.updateOrgDomain(orgDomainId);
+      await this.updateOrgDomain(organizationId, orgDomainId);
     }
   }
 
-  private async updateOrgDomain(orgDomainId: string) {
+  private async updateOrgDomain(organizationId: OrganizationId, orgDomainId: string) {
     // Update this item so the last checked date gets updated.
-    await this.orgDomainApiService.getByOrgIdAndOrgDomainId(this.organizationId, orgDomainId);
+    await this.orgDomainApiService.getByOrgIdAndOrgDomainId(organizationId, orgDomainId);
   }
 
-  private handleVerifyDomainError(e: any, domainName: string): void {
+  private handleVerifyDomainError(e: unknown, domainName: string): void {
     if (e instanceof ErrorResponse) {
       const errorResponse: ErrorResponse = e as ErrorResponse;
       switch (errorResponse.statusCode) {
@@ -240,7 +218,6 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
           if (errorResponse.message.includes("The domain is not available to be claimed")) {
             this.toastService.showToast({
               variant: "error",
-              title: null,
               message: this.i18nService.t("domainNotAvailable", domainName),
             });
           }
@@ -253,7 +230,7 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
     }
   }
 
-  async deleteDomain(orgDomainId: string): Promise<void> {
+  async deleteDomain(organizationId: OrganizationId, orgDomainId: string): Promise<void> {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "removeDomain" },
       content: { key: "removeDomainWarning" },
@@ -264,17 +241,11 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.orgDomainApiService.delete(this.organizationId, orgDomainId);
+    await this.orgDomainApiService.delete(organizationId, orgDomainId);
 
     this.toastService.showToast({
       variant: "success",
-      title: null,
       message: this.i18nService.t("domainRemoved"),
     });
-  }
-
-  ngOnDestroy(): void {
-    this.componentDestroyed$.next();
-    this.componentDestroyed$.complete();
   }
 }
