@@ -320,12 +320,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   readonly copyPresentation = input<VaultItemsTableCopyPresentation>(DEFAULT_COPY_PRESENTATION);
 
   /**
-   * Optional per-row badge for the Controlled access column. Given a component class, the table
-   * shows the column and renders one instance per row, bound to that row as its `cipher` input;
-   * left unset, the column is absent and the table is unchanged.
-   *
-   * The table asks nothing of the component beyond that input, and decides nothing about when the
-   * column applies — a host that has such a badge to show passes it, and one that hasn't doesn't.
+   * Optional per-row badge for the Controlled access column, rendered with the row as its
+   * `cipher` input. Unset, the column is absent; the host alone decides when the column applies.
    */
   readonly controlledAccessBadge = input<Type<unknown> | null>(null);
 
@@ -912,24 +908,21 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     this.scopedOrganizationId,
   );
 
-  /**
-   * The optional host contribution behind the Controlled access chip. Unprovided — every client
-   * but the one that supplies it — the chip is absent and the table is unchanged.
-   */
+  /** Host contribution behind the Controlled access chip. Unprovided, the chip is absent. */
   private readonly controlledAccessFilter: VaultControlledAccessFilter | null = inject(
     VAULT_CONTROLLED_ACCESS_FILTER,
     { optional: true },
   );
 
-  /** The chip's options, already localized by the host. Empty hides the chip entirely. */
+  /** The chip's options, already localized by the host. Empty hides the chip. */
   protected readonly controlledAccessOptions = toSignal(
     this.controlledAccessFilter?.options$ ?? of<ControlledAccessFilterOption[]>([]),
     { initialValue: [] as ControlledAccessFilterOption[] },
   );
 
   /**
-   * Icon tile per Controlled access option, so each option row's binding keeps a stable identity
-   * across change detection rather than handing the chip a fresh object every pass.
+   * Icon tile per Controlled access option, so each option's binding keeps a stable identity
+   * across change detection.
    */
   protected readonly controlledAccessTiles = computed(() => {
     const tiles = new Map<string, IconTileOptions>();
@@ -940,13 +933,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   });
 
   /**
-   * Whether anything has asked the predicate about a Controlled access option yet: a selection, or
-   * the chip's faceted counts, which `bit-filter-menu` only reads while its options are rendered.
-   * Until then {@link controlledAccessMatches} resolves nothing, so a vault that never touches the
-   * chip issues no `narrow$` calls. Once set it stays set.
-   *
-   * Fed from {@link matchesControlledAccess} and delivered on a microtask: the predicate runs
-   * inside `bit-table-v2`'s computeds, where writing a signal throws.
+   * Turns true the first time the predicate is asked about an option, so a vault that never
+   * touches the chip makes no `narrow$` calls. Delivered on a microtask, since writing a signal
+   * inside `bit-table-v2`'s computeds throws.
    */
   private readonly controlledAccessRequests = new Subject<void>();
   private readonly controlledAccessRequested = toSignal(
@@ -959,18 +948,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   );
 
   /**
-   * The ids of the rows each offered Controlled access option admits, keyed by option id.
-   *
-   * `narrow$` is asynchronous and set-based — the same shape of problem as the search — so it is
-   * resolved out of band here and {@link matchesControlledAccess} degrades to a set lookup.
-   *
-   * Resolved for every offered option, not just the selected one: `bit-table-v2` computes each
-   * option's count by re-running the predicate with that option pinned, so a map holding only the
-   * selection would report every other option's count as unfiltered.
-   *
-   * A change keeps the previous map until the new one lands, as {@link cipherSearchMatches} does:
-   * the sets are keyed by id, so they still apply to fresh objects for the same ciphers, and
-   * dropping them would un-narrow the table while the chip still shows its selection.
+   * Row ids each offered option admits, resolved for every option since `bit-table-v2` re-runs the
+   * predicate per option for its counts. A change keeps the old map until the new one lands, so
+   * the table stays narrowed meanwhile.
    */
   private readonly controlledAccessMatches: Signal<Map<string, Set<string>> | undefined> = toSignal(
     toObservable(
@@ -1034,8 +1014,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   /**
    * Whether the cipher is among the selected Controlled access option's matches. Unresolved
-   * matches mean every row passes, as in {@link matchesSearch}; so does an option id no longer
-   * offered, which is what `narrow$` promises a bookmarked link.
+   * matches let every row pass, as in {@link matchesSearch}, and so does a stale option id from a
+   * bookmarked link.
    */
   private matchesControlledAccess(cipher: C, optionId: string | undefined): boolean {
     if (optionId == null) {

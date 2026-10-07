@@ -28,16 +28,9 @@ export function rowBusy(ids: WritableSignal<Set<string>>, key: string): Approver
 }
 
 /**
- * An approver's decide, revoke and withdraw-approval as every surface offers them: the confirm,
- * the success and failure toasts, and the error log. The caller hands in the mutation as `run` and
- * keeps its own busy state, since the tabs track rows and the request dialog tracks one request.
- *
- * Which requests qualify is not decided here; callers gate on {@link isLiveManagedLease} and
- * {@link isUnstartedApproval}, plus their own managed and viewer checks.
- *
- * Provided on each component that offers the actions, not in root, so its confirms open through
- * the `DialogService` that component resolves: the request dialog's own `DialogModule` provides
- * one, and a route-level provider would not reach a dialog, whose injector is built from root.
+ * An approver's decide, revoke and withdraw-approval, with their confirms and toasts. Provided
+ * per component so confirms open through that component's `DialogService`; a route provider
+ * would never reach the request dialog.
  */
 @Injectable()
 export class ApproverActionsService {
@@ -47,11 +40,8 @@ export class ApproverActionsService {
   private readonly logService = inject(LogService);
 
   /**
-   * Confirm and record a decision. Any dismissal other than an explicit confirm (Cancel, the
-   * header X, Escape, a backdrop click) closes with `undefined` and leaves the request untouched.
-   *
-   * `run` gets the verdict the dialog closed with, not `params.verdict`: the approve variant can
-   * switch to "Deny request" in place.
+   * Confirm and record a decision. `run` gets the verdict the dialog closed with, not
+   * `params.verdict`, since the approve variant can switch to deny in place.
    */
   async decide(
     params: DecideDialogParams,
@@ -72,10 +62,7 @@ export class ApproverActionsService {
     );
   }
 
-  /**
-   * Confirm and end a lease that is running right now. The confirm is not optional: this cuts off
-   * access someone is already using, and every dismissal route resolves false.
-   */
+  /** Confirm and end a lease someone is using right now. */
   async revoke(run: () => Promise<void>, busy: ApproverActionBusy): Promise<void> {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "pamInboxRevoke" },
@@ -90,9 +77,8 @@ export class ApproverActionsService {
   }
 
   /**
-   * Confirm and withdraw an approval the requester has not started. Confirmed first, since it
-   * takes a decision away from a third party and cannot be undone. `cipherName` names the item in
-   * the confirm, so pass the same text the caller shows for it.
+   * Confirm and withdraw an approval the requester has not started. The confirm names the item,
+   * so pass as `cipherName` the text the caller shows for it.
    */
   async withdrawApproval(
     cipherName: string,
@@ -116,10 +102,7 @@ export class ApproverActionsService {
     );
   }
 
-  /**
-   * Run a confirmed mutation under the caller's busy flag, then toast its outcome. `failureKey`
-   * reads what was thrown, so a refusal the server worded gets its own copy.
-   */
+  /** `failureKey` reads what was thrown, so a refusal the server worded gets its own copy. */
   private async perform(
     run: () => Promise<void>,
     busy: ApproverActionBusy,

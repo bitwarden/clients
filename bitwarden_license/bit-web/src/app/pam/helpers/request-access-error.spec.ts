@@ -53,10 +53,7 @@ describe("classifyRequestAccessError", () => {
       });
     });
 
-    // Spelled out, not read off the catalog: comparing each constant against itself would pass
-    // however it's worded. These literals are the copies of record —
-    // `SubmitAccessRequestCommand.RequestHumanApprovalAsync` and
-    // `AccessRequestWindowError::EndInPast` — so editing either without the other fails.
+    // Literals rather than the catalog constants, which would pass however they're worded.
     it.each([
       ["the server refuses it on arrival", "The end date must be in the future."],
       ["the SDK refuses it before the wire", "The requested window has already ended."],
@@ -68,11 +65,7 @@ describe("classifyRequestAccessError", () => {
     });
   });
 
-  // The server words these from the governing rule's own cap, so a fixed sentence matches exactly
-  // one configuration and misses every other. Only the number is reported: the caller renders it
-  // in the requester's own language.
   describe("interpolated maximum cases", () => {
-    // The scope is reported too: wording a duration refusal as a window one would be plainly wrong.
     it.each([
       [
         "the duration path",
@@ -100,7 +93,6 @@ describe("classifyRequestAccessError", () => {
     });
 
     it("falls back to generic when the sentence names no maximum", () => {
-      // The number is the actionable part; matching the prose alone would echo a useless sentence.
       expect(
         classifyRequestAccessError("The requested window exceeds the maximum of seconds."),
       ).toEqual({ kind: "generic" });
@@ -119,8 +111,6 @@ describe("classifyRequestAccessError", () => {
   });
 
   it("prefers reconciliation over inline when a message somehow carries both", () => {
-    // Reconciliation is checked first, since it's more useful than pointing at a field the
-    // requester can't fix.
     const message = `${WINDOW_EXCEEDS_7D} ${REQUEST_ACCESS_SERVER_ERRORS.AlreadyActive}`;
 
     expect(classifyRequestAccessError(message)).toEqual({

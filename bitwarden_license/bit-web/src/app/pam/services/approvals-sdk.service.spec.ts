@@ -118,7 +118,6 @@ describe("ApprovalsSdkService", () => {
         } as AccessDecisionRequest),
       ).rejects.toBe(error);
       expect(logService.error).toHaveBeenCalled();
-      // The approver's comment is user-authored content and must never reach the log.
       const logged = (logService.error as jest.Mock).mock.calls.flat().join(" ");
       expect(logged).not.toContain("secret reason");
     });

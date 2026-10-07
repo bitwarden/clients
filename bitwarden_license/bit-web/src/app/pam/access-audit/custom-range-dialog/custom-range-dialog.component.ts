@@ -26,26 +26,16 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { auditRangeEnd, auditRangeStart } from "../access-audit-row";
 
-/** A custom audit range as `datetime-local` values; a blank bound is unbounded on that side. */
+/** `datetime-local` values; a blank bound leaves that side open. */
 export type CustomRangeDialogParams = { from: string; to: string };
 
-/**
- * What the auditor asked for. Tagged, not shaped, since "no range" and "both ends blank" are
- * different intents — the first drops the selection, the second isn't offerable at all.
- */
 export type CustomRangeDialogResult =
   { action: "apply"; from: string; to: string } | { action: "clear" };
 
 /**
- * Collects the custom bounds behind the audit log's Time period filter.
- *
- * The two `datetime-local` fields live here, not in the toolbar, so the toolbar stays chips
- * alone — a labelled field beside a chip left the row ragged and orphaned the buttons.
- *
- * Opens with the bounds currently in force; only an explicit confirm produces a result, and
- * Cancel explicitly closes with `undefined` so a bare `bitDialogClose` can't be mistaken for one.
- *
- * Clear is the way out of a custom range from inside the dialog.
+ * Collects the custom bounds behind the audit log's Time period filter, so the toolbar stays chips
+ * alone. Cancel closes with an explicit `undefined`, so a bare `bitDialogClose` can't pass for a
+ * result.
  */
 @Component({
   selector: "pam-custom-range-dialog",
@@ -79,23 +69,20 @@ export class CustomRangeDialogComponent {
     initialValue: this.params.to,
   });
 
-  /** From after To; surfaced to the auditor, who otherwise reads an empty table as no events. */
+  /** From after To. Surfaced, since an empty table would otherwise read as no events. */
   protected readonly invertedRange = computed(() => {
     const start = auditRangeStart(this.fromValue());
     const end = auditRangeEnd(this.toValue());
     return start != null && end != null && end.getTime() < start.getTime();
   });
 
-  /**
-   * The inverted range as the To control's own error, so the field carries the danger border,
-   * `aria-invalid` and the message that `bit-form-field` already renders for a control in error.
-   */
+  /** Set on the To control, so `bit-form-field` renders its usual error state and message. */
   private readonly invertedRangeValidator: ValidatorFn = () =>
     this.invertedRange()
       ? { invalidDateRange: { message: this.i18nService.t("invalidDateRange") } }
       : null;
 
-  /** Whether either end is set. Both blank is the same as no custom range, which Save must not apply. */
+  /** Both blank means no custom range, which Save must not apply. */
   private readonly bounded = computed(
     () => auditRangeStart(this.fromValue()) != null || auditRangeEnd(this.toValue()) != null,
   );
@@ -107,9 +94,8 @@ export class CustomRangeDialogComponent {
 
     this.formGroup.controls.to.addValidators(this.invertedRangeValidator);
 
-    // Marked touched on every inverted edit, not just when the range flips: `BitInputDirective`
-    // untouches on each keystroke, and an untouched control paints no error — the message would
-    // otherwise blink out mid-edit.
+    // Marked touched on every inverted edit, since `BitInputDirective` untouches on each keystroke
+    // and an untouched control shows no error.
     effect(() => {
       this.fromValue();
       this.toValue();

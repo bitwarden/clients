@@ -14,7 +14,6 @@ describe("selectedFilterStrings", () => {
   });
 
   it("returns an empty array for anything that isn't an array", () => {
-    // A chip's value is never a bare scalar, so there is nothing to unwrap.
     expect(selectedFilterStrings("a")).toEqual([]);
     expect(selectedFilterStrings(undefined)).toEqual([]);
     expect(selectedFilterStrings(null)).toEqual([]);

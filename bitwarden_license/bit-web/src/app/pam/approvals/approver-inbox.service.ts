@@ -46,18 +46,9 @@ import { isActionableInboxRequest } from "./inbox-request-filter";
 import { ManagedLeaseRow, isLiveManagedLease, toManagedLeaseRow } from "./managed-lease-row";
 
 /**
- * Page-level data service for the approver surfaces: the pending inbox and decided history for
- * managed collections, plus decide/revoke/cancel mutations, all through
- * {@link ApprovalSdkService}.
- *
- * Provided on the shell route so Approvals and History share one instance, and reloads on every
- * server-pushed access event.
- *
- * Each mutation that lands also announces on {@link AccessRefreshService}, standing in for the push
- * the server is about to send, so the root-level nav badge re-reads even when that push is missed
- * or slow.
- *
- * View concerns — toasts, dialogs, filters, the clock — stay in the tab components.
+ * Data service for the approver surfaces, provided on the shell route so the tabs share one
+ * load. Each landed mutation announces on {@link AccessRefreshService}, so the root nav badge
+ * re-reads without waiting for the push.
  */
 @Injectable()
 export class ApproverInboxService {
@@ -101,13 +92,10 @@ export class ApproverInboxService {
     ),
   );
 
-  /** How many requests await the caller's decision — the count the tab badges. */
+  /** How many requests await the caller's decision, for the Approvals tab badge. */
   readonly pendingCount$: Observable<number> = this.inboxRows$.pipe(map((rows) => rows.length));
 
-  /**
-   * The decided requests for the collections the caller manages, newest first, as the same row model
-   * the requester's own history uses.
-   */
+  /** The decided requests on managed collections, newest first. */
   readonly historyRows$: Observable<MyAccessRequestRow[]> = combineLatest([
     this._history$,
     this._names$,
@@ -120,11 +108,8 @@ export class ApproverInboxService {
   );
 
   /**
-   * The leases live right now on the collections the caller manages, soonest to end first.
-   *
-   * Filters the history read rather than a separate governance read, since `listHistory()`
-   * already returns every managed lease's id and status. Tests the window too, not just status,
-   * since the server never transitions a lease out of `active` when its window closes.
+   * The leases live right now on managed collections, soonest to end first. Tests the effective
+   * end as well as the status, since a lease can lapse after the history was read.
    */
   readonly activeLeaseRows$: Observable<ManagedLeaseRow[]> = combineLatest([
     this._history$,
@@ -143,10 +128,7 @@ export class ApproverInboxService {
     }),
   );
 
-  /**
-   * The ids the caller manages, so the history table knows which rows it may act on. The
-   * requester's own resolved requests are merged into the same table but expose no actions.
-   */
+  /** The request ids on managed collections, the only History rows the caller may act on. */
   readonly managedIds$: Observable<Set<string>> = this._history$.pipe(
     map((requests) => new Set(requests.map((request) => uuidAsString(request.id)))),
   );
@@ -157,8 +139,7 @@ export class ApproverInboxService {
   );
 
   constructor() {
-    // Both halves of the server's push; `concatMap` so two pushes can't interleave and describe
-    // different moments.
+    // `concatMap` so two pushes can't interleave their loads and leave the subjects out of step.
     merge(this.accessEvents.accessChanged$(), this.accessEvents.approverInboxChanged$())
       .pipe(
         concatMap(() => from(this.load())),
@@ -167,7 +148,6 @@ export class ApproverInboxService {
       .subscribe();
   }
 
-  /** Fetch the inbox and the history, resolve display names, and replace local state. */
   async load(): Promise<void> {
     this._loading$.next(true);
     this._loadError$.next(null);
@@ -193,15 +173,9 @@ export class ApproverInboxService {
   }
 
   /**
-   * Records an approve or deny. Removes the row from the inbox first so a slow server can't
-   * leave a decided request sitting there; restores it and rethrows on failure.
-   *
-   * A refusal meaning the request already left the pending set re-reads instead: the snapshot
-   * predates whatever resolved it, so restoring it would return a withdrawn request to the queue
-   * and clobber any push-driven load that landed meanwhile.
-   *
-   * Reloads on success instead of moving the row to history itself: the decision response names
-   * neither the approver nor the requester, which only the list reads resolve.
+   * Drops the row before the call so a slow server can't leave it showing, and restores it on
+   * failure. A request that already left the pending set re-reads instead, since restoring would
+   * clobber any load that landed meanwhile.
    */
   async decide(
     id: AccessRequestId,
@@ -209,8 +183,8 @@ export class ApproverInboxService {
     comment: string | undefined,
   ): Promise<void> {
     const current = this._inbox$.value;
-    // -1 means it is already gone (a double click, or another approver got there first); the call
-    // still goes through, so one click is always one request.
+    // A row already gone (a double click, or another approver decided first) still sends the
+    // call, so one click is always one request.
     const index = current.findIndex((request) => uuidAsString(request.id) === uuidAsString(id));
     if (index !== -1) {
       this._inbox$.next(current.filter((_, i) => i !== index));
@@ -231,8 +205,8 @@ export class ApproverInboxService {
   }
 
   /**
-   * Ends someone else's active lease early, served by the SDK (`leases().end()`); optimistically
-   * marks it `revoked` so the row re-buckets, restoring and rethrowing on failure.
+   * Ends someone else's active lease early. Marks it `revoked` optimistically so the row
+   * re-buckets.
    */
   async revokeLease(requestId: AccessRequestId, leaseId: AccessLeaseId): Promise<void> {
     const current = this._history$.value;
@@ -247,12 +221,8 @@ export class ApproverInboxService {
   }
 
   /**
-   * Withdraw an approval the requester has not yet started. Served by the SDK
-   * (`access_requests().cancel()`), the same call the requester's own cancel makes; the server
-   * records it as the approver's decision.
-   *
-   * Reloads instead of restamping the status here, so the row's resolver names whoever withdrew
-   * the approval rather than whoever granted it.
+   * Withdraws an approval the requester has not started; the server records the cancel as the
+   * approver's decision. Reloads instead of patching, so the row names whoever withdrew it.
    */
   async cancelApproval(requestId: AccessRequestId): Promise<void> {
     await this.requestsApi.cancelAccessRequest(requestId);
@@ -269,7 +239,6 @@ function canDecide(request: AccessRequestView, userId: string | null): boolean {
   return canApprove({ requesterId: uuidAsString(request.requesterId) }, { id: userId });
 }
 
-/** Replace one request in a list with an immutable copy carrying `patch`. */
 function patchRequest(
   requests: AccessRequestView[],
   id: AccessRequestId,
@@ -280,7 +249,6 @@ function patchRequest(
   );
 }
 
-/** The distinct cipher/collection refs across a set of requests, for name resolution. */
 function refsFor(requests: AccessRequestView[]): Array<{ cipherId: string; collectionId: string }> {
   return requests.map((request) => ({
     cipherId: uuidAsString(request.cipherId),

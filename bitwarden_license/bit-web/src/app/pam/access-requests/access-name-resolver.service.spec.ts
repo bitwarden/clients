@@ -28,7 +28,7 @@ function organizations(entries: Array<[string, string]>): Organization[] {
 
 describe("AccessNameResolverService", () => {
   let service: AccessNameResolverService;
-  // Narrowed to the one method the service calls, so the mock says exactly what it depends on.
+  // Narrowed to the one method the service calls, so the mock names only what it depends on.
   let cipherService: jest.Mocked<Pick<CipherService, "getAllDecryptedForIdsIncludingPartials">>;
   let collections$: BehaviorSubject<CollectionView[]>;
   let organizations$: BehaviorSubject<Organization[]>;
@@ -107,7 +107,6 @@ describe("AccessNameResolverService", () => {
   });
 
   it("dedupes cipher ids before decrypting", async () => {
-    // Several requests for the same item are common; decrypt it once.
     await service.resolveNames([
       { cipherId: "cipher-1", collectionId: "col-1" },
       { cipherId: "cipher-1", collectionId: "col-2" },
@@ -135,7 +134,7 @@ describe("AccessNameResolverService", () => {
   });
 
   it("picks up collection state that warmed up after an earlier resolve", async () => {
-    // Every fetch re-resolves, so a later call simply sees the warm state.
+    // Every fetch re-resolves, so a later call sees the warm state.
     const refs = [{ cipherId: "cipher-1", collectionId: "col-1" }];
     expect((await service.resolveNames(refs)).collectionNameById.get("col-1")).toBeUndefined();
 

@@ -105,7 +105,7 @@ export class BitTableToolbarComponent {
   protected readonly isLargeScreen = isAtOrLargerThanBreakpointSignal("md");
 
   /**
-   * Overrides the "N items" count label, for a table whose rows are not items — e.g.
+   * Overrides the "N items" count label for a table whose rows are not items, e.g.
    * `(count) => i18n.t("filterResults", count)`. Unset, the count reads `itemCount`.
    */
   readonly countLabel = input<((count: number) => string) | undefined>(undefined);

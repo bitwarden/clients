@@ -291,7 +291,7 @@ describe("ApprovalsTabComponent", () => {
 
       expect(query('[data-testid="approvals-loading-status"]')?.textContent?.trim()).toBe("");
 
-      // A push retries the load, and the service clears the error before the fetch is even sent.
+      // A push retries the load, and the service clears the error before the fetch is sent.
       inbox.loading$.next(true);
       inbox.loadError$.next(null);
       fixture.detectChanges();
@@ -383,7 +383,7 @@ describe("ApprovalsTabComponent", () => {
         expectVisibleFrom(element, visibleFrom);
       }
 
-      // The skeleton stands in for the table, hiding the same columns at the same widths.
+      // The skeleton is the table's placeholder, so it hides the same columns at the same widths.
       fixture.destroy();
       inbox.inboxRows$.next([]);
       inbox.loading$.next(true);
@@ -1097,7 +1097,7 @@ describe("ApprovalsTabComponent", () => {
         return queryAll(root, "bit-filter-menu");
       }
 
-      /** The toolbar's chip row — the unit that collapses into the filter dialog below md. */
+      /** The toolbar's chip row, which collapses into the filter dialog below md. */
       function filterRow(): HTMLElement {
         return query("bit-table-toolbar [bitOverflowList]") as HTMLElement;
       }

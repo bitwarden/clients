@@ -4,10 +4,8 @@ import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 
 /**
- * The two inputs `app-vault` sets on the banner through `NgComponentOutlet`. Naming them here is
- * what makes the binding a compile-time contract: a provided component missing an input, or
- * declaring one with a different type, fails the build instead of silently ignoring the value at
- * runtime, where `NgComponentOutlet` would drop it without a word.
+ * The inputs `app-vault` sets on the banner through `NgComponentOutlet`. Naming them makes a
+ * missing or mistyped input a build error rather than a value `NgComponentOutlet` silently drops.
  */
 export interface VaultGatedCollectionBanner {
   readonly organizationId: InputSignal<OrganizationId | undefined>;
@@ -15,11 +13,8 @@ export interface VaultGatedCollectionBanner {
 }
 
 /**
- * Optional notice rendered above the vault's item list while a single collection is the active
- * filter. A host provides the component class; `app-vault` mounts it via `NgComponentOutlet`,
- * passing the selected collection's `organizationId` and `collectionId`. Whether that
- * collection warrants a notice is entirely the provided component's decision. Unprovided, the
- * vault is unchanged.
+ * Optional notice above the vault's item list while a single collection is the active filter. The
+ * provided component decides whether that collection warrants one; unprovided, nothing renders.
  */
 export const VAULT_GATED_COLLECTION_BANNER = new SafeInjectionToken<
   Type<VaultGatedCollectionBanner>

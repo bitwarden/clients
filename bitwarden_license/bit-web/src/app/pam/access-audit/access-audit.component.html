@@ -1,7 +1,6 @@
 <!--
-  Declared once, rendered into whichever host the flag selects: the hand-rolled band off the flag,
-  the table toolbar's end slot on it. Stamping them twice would let the two copies drift apart on
-  ids and handlers, which is exactly what the flag-off path is checked against.
+  Declared once for both the flag-on toolbar and the flag-off band, so their ids and handlers can't
+  drift apart.
 -->
 <ng-template #pageActions>
   <div class="tw-flex tw-shrink-0 tw-gap-3" id="access-audit_container_actions">
@@ -64,10 +63,6 @@
 
 <ng-template #loadMoreAction>
   @if (canLoadMore()) {
-    <!--
-      Below the table, continuing the list rather than acting on the page. Disappears on the
-      last page: the server's resume token, not a row count, marks the end.
-    -->
     <div class="tw-mt-4 tw-flex tw-justify-center">
       <button
         type="button"
@@ -135,10 +130,8 @@
     @if (vfo1Enabled()) {
       <bit-table-v2 [tableDef]="table" [displayedColumns]="displayedColumns()">
         <!--
-          The chips are declared here rather than outlet in: a projection selector matches the
-          node as written in this template, so a `bit-filter-menu` arriving through
-          `ngTemplateOutlet` would reach neither the toolbar's filter row nor the table's
-          registry, and would be dropped without a word.
+          The chips are declared inline rather than through `ngTemplateOutlet`, since content
+          projection matches nodes as written here and would silently drop an outlet's chips.
         -->
         <bit-table-toolbar>
           <ng-container slot="end">
@@ -146,10 +139,9 @@
             <ng-container *ngTemplateOutlet="pageActions" />
           </ng-container>
           <!--
-            Each option list sits inside an `@if`, not directly under its chip: `refreshView` runs a
-            view's effects before updating its embedded views, so a same-view `@for` option would be
-            visible to the summary effect before Angular bound its required `value`, throwing
-            NG0950. Nesting one view deeper defers option creation until after those effects run.
+            Each option list is nested in an `@if`, deferring the options until the chip's summary
+            effect has run. That effect would otherwise read an option before its required `value`
+            is bound, throwing NG0950.
           -->
           <bit-filter-menu
             #kindFilter
@@ -230,9 +222,9 @@
             (click)="openDetails(row)"
           >
             <!--
-              A `bit-cell` host is `display: contents` and cannot take focus, so the row's one
-              keyboard activator is a span inside the cell rather than the cell itself. Pointer
-              activation stays on the cells, so the span must not repeat it.
+              A `bit-cell` host is `display: contents` and can't take focus, so the row's keyboard
+              activator is this span. Pointer activation stays on the cells, so the span must not
+              repeat it.
             -->
             <span
               role="button"
@@ -364,11 +356,7 @@
       }
     } @else {
       <!-- Remove this branch along with the VFO1 flag. -->
-      <!--
-        One band: the chips read from the start of the row, the page's own actions sit at its end.
-        Only the chip block wraps — the actions keep their place on the first line rather than
-        dropping below a wrapped chip row, which would leave them under the table's left edge.
-      -->
+      <!-- Only the chip block wraps, so the page actions stay at the end of the first line. -->
       <div
         class="tw-mb-4 tw-flex tw-items-center tw-justify-between tw-gap-3"
         id="access-audit_container_toolbar"
@@ -378,10 +366,9 @@
           id="access-audit_container_filters"
         >
           <!--
-            Each option list sits inside an `@if`, not directly under its chip: `refreshView` runs a
-            view's effects before updating its embedded views, so a same-view `@for` option would be
-            visible to the summary effect before Angular bound its required `value`, throwing
-            NG0950. Nesting one view deeper defers option creation until after those effects run.
+            Each option list is nested in an `@if`, deferring the options until the chip's summary
+            effect has run. That effect would otherwise read an option before its required `value`
+            is bound, throwing NG0950.
           -->
           <bit-filter-menu
             #kindFilter
@@ -470,12 +457,8 @@
                 <th bitCell class="tw-whitespace-nowrap">{{ "timestamp" | i18n }}</th>
                 <th bitCell class="tw-whitespace-nowrap">{{ "pamAuditColumnEvent" | i18n }}</th>
                 <!--
-                  Actor, Requester and Duration stand down while the drawer is open — the drawer
-                  already shows them for the selected row, and Timestamp/Event/Item are what keep a
-                  place in the list.
-
-                  `tw-hidden`, not opacity or width, so the cells leave the accessibility tree with
-                  no unreadable focusable anchor left behind.
+                  Hidden while the drawer shows these for the selected row. `tw-hidden` rather than
+                  opacity or width, so no unreadable focusable anchor stays behind.
                 -->
                 <th bitCell [class.tw-hidden]="detailsOpen()">
                   {{ "pamAuditColumnActor" | i18n }}
@@ -498,13 +481,9 @@
                     {{ row.occurredAt | date: "medium" }}
                   </td>
                   <!--
-                    Keyboard affordance following the clickable-row pattern (`role="button"` +
-                    `tabindex` + Enter/Space on one cell, not the `tr`). One cell only, since a tab
-                    stop per cell would be hundreds across a 90-day trail; pointer activation stays
-                    on the row, so the cell must not repeat it.
-
-                    `button` marks its children presentational, so the in-doubt badge reaches a
-                    screen reader only through this cell's name.
+                    The row's one keyboard stop; pointer activation stays on the row, so the cell
+                    must not repeat it. `role="button"` makes its children presentational, so the
+                    label carries the in-doubt badge.
                   -->
                   <td
                     bitCell

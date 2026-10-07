@@ -109,7 +109,7 @@ const COMMON_BINDINGS = `
   [goToLabelKey]="goToLabelKey"
 `;
 
-/** The connector detail page's flavour: two text columns. */
+/** The connector detail page's flavour, with two text columns. */
 const targetTemplate = `
   <pam-assignment-picker
     idPrefix="access-connector-detail"
@@ -131,7 +131,7 @@ const targetTemplate = `
   </ng-template>
 `;
 
-/** The target system page's flavour: a name and two badge columns. */
+/** The target system page's flavour, with a name and two badge columns. */
 const connectorTemplate = `
   <pam-assignment-picker
     idPrefix="target-system-edit"
@@ -204,7 +204,7 @@ export default {
 
 type Story = StoryObj<AssignmentPickerComponent<TargetRow>>;
 
-/** The resting state: something assigned, something left to assign. */
+/** The resting state, with something assigned and something left to assign. */
 export const Default: Story = {
   parameters: {
     chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) },
@@ -216,7 +216,6 @@ export const FlagOn: Story = {
   globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
-/** Nothing assigned yet. */
 export const NoAssignments: Story = {
   args: { assignments: [] },
   parameters: {
@@ -224,7 +223,6 @@ export const NoAssignments: Story = {
   },
 };
 
-/** Everything eligible is already assigned. */
 export const AllAssigned: Story = {
   args: { options: [] },
 };
@@ -237,7 +235,6 @@ export const Blocked: Story = {
   },
 };
 
-/** The organization has nothing eligible at all. */
 export const NothingEligible: Story = {
   args: {
     options: [],
@@ -248,12 +245,11 @@ export const NothingEligible: Story = {
   },
 };
 
-/** The eligible list could not be read. */
 export const LoadFailed: Story = {
   args: { options: [], loadError: true },
 };
 
-/** The other call site: the same card, with the target system page's three columns and badges. */
+/** The same card at its other call site, with the target system page's three columns and badges. */
 export const ConnectorColumns: Story = {
   args: {
     options: CONNECTOR_OPTIONS,
@@ -267,7 +263,6 @@ export const ConnectorColumns: Story = {
   },
 };
 
-/** The badge columns with nothing assigned. */
 export const ConnectorColumnsEmpty: Story = {
   args: {
     options: CONNECTOR_OPTIONS,

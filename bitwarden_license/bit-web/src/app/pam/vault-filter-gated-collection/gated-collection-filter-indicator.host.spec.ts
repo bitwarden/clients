@@ -22,12 +22,8 @@ import { VaultFilterSectionComponent } from "@bitwarden/web-vault/app/vault/indi
 import { GatedCollectionFilterIndicatorComponent } from "./gated-collection-filter-indicator.component";
 
 /**
- * `VaultFilterSectionComponent` is shared between the individual vault's Filters sidebar and
- * the Admin Console org collections sidebar, so `GatedCollectionFilterIndicatorComponent`
- * mounts and reads `hasEnabledAccessRule` off the node identically in both.
- *
- * Unlike the removed `listAccessRules` read, nothing here requires organization membership, so
- * a provider browsing a client org sees the same lock a member does.
+ * `VaultFilterSectionComponent` hosts the indicator in both the individual vault and the Admin
+ * Console sidebars, reading `hasEnabledAccessRule` off the node, which needs no membership.
  */
 function collectionSection(hasEnabledAccessRule: boolean): VaultFilterSection {
   const head = { id: "AllCollections", name: "collections" } as unknown as VaultFilterType;

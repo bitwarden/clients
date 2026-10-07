@@ -52,15 +52,8 @@ const CONTROLLED_ACCESS_FILTERS: readonly ControlledAccessFilterDefinition[] = [
 ];
 
 /**
- * Binds `VAULT_CONTROLLED_ACCESS_FILTER`: the vault sidebar's "Controlled access" group and the
- * narrowing its children apply to the item list.
- *
- * The group's children partition {@link AccessBadgeState}: "Privileged" is a gated item nobody
- * has requested, "My requests" covers `pending`/`ready`/`active`, and "Unavailable" can't be
- * built at all, since `cipherAccessBadgeState` never produces that kind.
- *
- * Narrowing costs one `getCipherAccessState` call per gated row, issued only for rows that are
- * gated and belong to an organization carrying Privileged Access.
+ * The vault sidebar's "Controlled access" group, whose children partition {@link AccessBadgeState}.
+ * Narrowing costs one `getCipherAccessState` call per gated row in a PAM organization.
  */
 @Injectable()
 export class ControlledAccessVaultFilterService implements VaultControlledAccessFilter {
@@ -83,8 +76,8 @@ export class ControlledAccessVaultFilterService implements VaultControlledAccess
           .map((o) => o.id)
           .sort(),
       ),
-      // `organizations$` re-emits on every sync, not just PAM changes; dedupe on content so an
-      // unrelated sync doesn't re-trigger the fan-out in `narrowToPrivileged$`.
+      // `organizations$` re-emits on every sync, so dedupe on content to keep an unrelated sync
+      // from re-running the `narrowTo$` fan-out.
       distinctUntilChanged((a, b) => a.length === b.length && a.every((id, i) => id === b[i])),
       map((ids) => new Set(ids)),
       shareReplay({ refCount: true, bufferSize: 1 }),
@@ -103,9 +96,8 @@ export class ControlledAccessVaultFilterService implements VaultControlledAccess
           }))
         : [],
     ),
-    // `getFeatureFlag$`/`pamOrganizationIds$` re-emit their current value on renewal/sync;
-    // without a dedupe, `narrow$`'s `switchMap` would re-issue the `getCipherAccessState`
-    // fan-out for an identical option list.
+    // Upstream re-emits on renewal or sync, which would re-run `narrow$`'s fan-out for an
+    // identical option list.
     distinctUntilChanged(
       (a, b) => a.length === b.length && a.every((option, i) => option.id === b[i].id),
     ),

@@ -1,6 +1,5 @@
 import { SimpleDialogOptions } from "@bitwarden/components";
 
-/** Confirmation copy for deactivating a single access connector. */
 export function accessConnectorDeactivateConfirmOptions(name: string): SimpleDialogOptions {
   return {
     title: { key: "pamAccessConnectorDeactivateConfirmTitle" },
@@ -11,7 +10,6 @@ export function accessConnectorDeactivateConfirmOptions(name: string): SimpleDia
   };
 }
 
-/** Confirmation copy for deleting a single access connector. */
 export function accessConnectorDeleteConfirmOptions(name: string): SimpleDialogOptions {
   return {
     title: { key: "pamAccessConnectorDeleteConfirmTitle" },

@@ -61,20 +61,13 @@ import { RotationHistoryComponent } from "./rotation-history.component";
 
 const ACCOUNT_IDENTITY_MAX_LENGTH = 500;
 
-/** The edit page's two tabs, each with a URL of its own. Configuration, the first, is the default. */
 const ROTATION_CONFIG_EDIT_TABS = ["configuration", "history"] as const;
 
 export type RotationConfigEditTab = (typeof ROTATION_CONFIG_EDIT_TABS)[number];
 
 /**
- * Routed page for creating or editing a PAM rotation config.
- *
- * Create mode (no `configId`) picks target system, cipher and schedule. Edit mode renders
- * cipher + target as read-only and splits settings from account into two save cards; the
- * account card disables while `hasActiveJob` is true.
- *
- * Provides its own `OrgCiphersService` and `TargetSystemsService`, page-scoped, since this page
- * is a sibling of the shell rather than a child, outside the shell's DI scope.
+ * Create and edit page for a rotation config. It provides its own `OrgCiphersService` and
+ * `TargetSystemsService`, since the shell route's providers don't reach a sibling page.
  */
 @Component({
   templateUrl: "./rotation-config-edit.component.html",
@@ -145,7 +138,6 @@ export class RotationConfigEditComponent {
   ];
   protected readonly historyTabRoute = [...this.credentialsListRoute, this.configId, "history"];
 
-  /** The tab the URL names, as {@link tabFromSegment} reads it. */
   protected readonly activeTab = toSignal(
     this.route.paramMap.pipe(
       map((params) => tabFromSegment(params.get("tab"), ROTATION_CONFIG_EDIT_TABS)),
@@ -163,10 +155,8 @@ export class RotationConfigEditComponent {
   /** Whether the placeholder is drawn, which trails {@link loading} by the skeleton delay. */
   protected readonly showSkeleton = showSkeletonWhile(this.loading);
 
-  /** Whether the loading branch is on screen. */
   protected readonly loadingVisible = computed(() => this.loading() || this.showSkeleton());
 
-  /** The error that stopped this page being filled in, or null. */
   protected readonly loadError = signal<unknown | null>(null);
 
   /** Four blocks, the rough depth of the card each of these pages opens with. */
@@ -174,7 +164,6 @@ export class RotationConfigEditComponent {
 
   protected readonly existingConfig = signal<RotationConfigDetail | null>(null);
 
-  /** The config itself; the detail's other half is its job history. */
   private readonly config = computed(() => this.existingConfig()?.config ?? null);
 
   protected readonly titleText = computed(() =>
@@ -187,22 +176,20 @@ export class RotationConfigEditComponent {
     initialValue: [],
   });
 
-  /** Active target systems only — the create picker should only show these. */
+  /** The create picker offers only active targets; the server rejects an inactive one. */
   protected readonly activeTargetSystems = computed(() =>
     this.allTargetSystems().filter((s) => s.status === TargetSystemStatus.Active),
   );
 
-  /** Whether the picker has anything to offer. */
   protected readonly hasActiveTargetSystems = computed(() => this.activeTargetSystems().length > 0);
 
   private readonly allCiphers = toSignal(this.orgCiphersService.ciphers$, {
     initialValue: [],
   });
 
-  /** CipherIds already configured — excluded from the create picker. */
+  /** A cipher can have only one rotation config, so configured ones leave the create picker. */
   private readonly configuredCipherIds = signal<Set<CipherId>>(new Set());
 
-  /** Ciphers eligible for a new config (Login type, not deleted, not already configured). */
   protected readonly availableCiphers = computed(() =>
     this.allCiphers().filter((c) => !this.configuredCipherIds().has(asUuid<CipherId>(c.id))),
   );
@@ -227,18 +214,14 @@ export class RotationConfigEditComponent {
   });
 
   /**
-   * The two edit cards as one form, since the server takes the schedule and the account in a
-   * single write.
-   *
-   * Stay separate groups rather than a flat one, since the account half disables on its own
-   * while a job is in flight; the parent group is what lets one `<form>` and one Save span both.
+   * The two edit cards as one form, since the server takes schedule and account in one write.
+   * Separate groups let the account half disable alone while a job runs.
    */
   protected readonly editForm = this.formBuilder.group({
     settings: this.settingsForm,
     account: this.accountForm,
   });
 
-  /** Whether the account form should be disabled (a rotation job is in progress). */
   protected readonly accountFormLocked = computed(() => this.config()?.hasActiveJob ?? false);
 
   constructor() {
@@ -283,10 +266,8 @@ export class RotationConfigEditComponent {
   }
 
   /**
-   * Surface a failed target-systems read as this page's own load error.
-   *
-   * `TargetSystemsService.load` records failures on `loadError$` and resolves, so awaiting it
-   * alone cannot tell a failed read from an org with no target systems.
+   * `TargetSystemsService.load` resolves even on failure, so this checks `loadError$` to tell a
+   * failed read from an org with no targets.
    */
   private async throwIfTargetSystemsFailed(): Promise<void> {
     const error = await firstValueFrom(this.targetSystemsService.loadError$);
@@ -295,7 +276,7 @@ export class RotationConfigEditComponent {
     }
   }
 
-  /** Select {@link preselectedTargetSystemId} if it names a target the picker actually offers. */
+  /** Selects {@link preselectedTargetSystemId} only if the picker offers it. */
   private applyPreselectedTargetSystem(): void {
     const preselected = this.preselectedTargetSystemId;
     if (
@@ -323,10 +304,7 @@ export class RotationConfigEditComponent {
     });
   }
 
-  /**
-   * Disables and resets terminateSessions for a target that isn't Automatic or doesn't support
-   * session termination. Mirrors the coupleDurationBounds pattern in access-rule-edit.component.ts.
-   */
+  /** The server rejects `terminateSessions` unless the target is automatic and supports it. */
   private coupleTerminateSessions(): void {
     const targetControl = this.createForm.controls.targetSystemId;
     const terminateControl = this.createForm.controls.terminateSessions;
@@ -374,12 +352,8 @@ export class RotationConfigEditComponent {
   };
 
   /**
-   * Edit mode: one save for the account and the schedule together, since the server takes
-   * both in a single write — a caller changing only the schedule still sends the current
-   * account identity.
-   *
-   * The account identity is locked while a job is in flight; the server rejects the write
-   * regardless.
+   * Sends the account with the schedule, since the server takes both in one write. The server
+   * rejects the write while a job is in flight.
    */
   protected readonly submitEdit = async (): Promise<void> => {
     this.settingsForm.markAllAsTouched();
@@ -413,9 +387,8 @@ export class RotationConfigEditComponent {
   };
 
   /**
-   * Remove the rotation configuration (not the credential itself). Blocked while a rotation job is
-   * in progress — the server rejects it, and we also disable the action in the template. The cipher
-   * stays in the vault; only rotation management is removed.
+   * Removes rotation management; the cipher stays in the vault. Blocked while a job is in flight,
+   * which the server also rejects.
    */
   protected readonly removeRotation = async (): Promise<void> => {
     const config = this.config();
@@ -444,10 +417,7 @@ export class RotationConfigEditComponent {
     }
   };
 
-  /**
-   * Leave for the target-system create page, marked so that page returns here with the target it
-   * creates already selected instead of landing on the target-systems list.
-   */
+  /** The target-system create page returns here with the new target selected. */
   protected readonly createTargetSystem = (): Promise<boolean> => {
     this.markSaved();
     return this.router.navigate(["target-systems", "new"], {
@@ -468,15 +438,8 @@ export class RotationConfigEditComponent {
   }
 
   /**
-   * Confirm before unsaved input is thrown away. Called both by Cancel and by the route's
-   * CanDeactivate guard, which covers the breadcrumb and browser back/forward. A tab switch is not
-   * an exit: the route keeps the guard off a `:tab` change, and the reused component keeps the
-   * input.
-   *
-   * While the page is still loading there is nothing to discard: `savedValue` is only filled by
-   * `markSaved()` once `initialize()` settles, so until then it holds no snapshot to compare
-   * against and every exit would be prompted. `initialize()` clears `loading` and marks saved back
-   * to back in the same `finally`, so no window is left where one is done and the other is not.
+   * Called by Cancel and by the CanDeactivate guard, which a `:tab` change doesn't trigger. Exits
+   * while loading pass, since `savedValue` has no snapshot until `initialize()` settles.
    */
   async confirmDiscard(): Promise<boolean> {
     if (this.loading()) {
@@ -503,7 +466,6 @@ export class RotationConfigEditComponent {
     await this.navigateBack();
   };
 
-  /** Return to the managed-credentials tab. */
   private navigateBack(): Promise<boolean> {
     this.markSaved();
     return this.router.navigate(this.credentialsListRoute);

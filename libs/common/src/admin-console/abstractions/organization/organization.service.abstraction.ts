@@ -30,18 +30,12 @@ export function canAccessGroupsTab(org: Organization): boolean {
   return org.canManageGroups;
 }
 
-/**
- * The PAM access-rules surface. One of two Admin Console sections no other tab predicate implies:
- * a Custom member reaches it on `ManageAccessRules` alone.
- */
+/** The PAM access-rules tab, which a Custom member can reach on `ManageAccessRules` alone. */
 export function canAccessAccessRulesTab(org: Organization): boolean {
   return org.canManageAccessRules;
 }
 
-/**
- * The PAM rotation surface. The other section no other predicate implies: a Custom member reaches
- * it on `ManageRotation` alone, which `ManageAccessRules` does not carry.
- */
+/** The PAM rotation tab, which a Custom member can reach on `ManageRotation` alone. */
 export function canAccessRotationTab(org: Organization): boolean {
   return org.canManageRotation;
 }

@@ -7,11 +7,10 @@ import {
 } from "./access-rule-error";
 import { ACCESS_RULE_NAME_MAX_LENGTH } from "./access-rule-request";
 
-/** The SDK's flat access-rule error: a `name`-tagged Error carrying a `variant`. */
 const accessRuleError = (variant: string, message: string) =>
   Object.assign(new Error(message), { name: "AccessRuleError", variant });
 
-/** How the wire body actually reaches `.message`: the sentence buried in the serialized response. */
+/** The serialized response the SDK puts in `.message`, with the server's sentence inside. */
 const wireBody = (serverMessage: string) =>
   `error in response: status code 400 Bad Request: {"object":"error","message":"${serverMessage}",` +
   `"validationErrors":null,"exceptionMessage":"${serverMessage}","exceptionStackTrace":" at ` +
@@ -124,11 +123,8 @@ describe("accessRuleErrorMessageKey", () => {
 });
 
 /**
- * The SDK builds this sentence itself with no code to switch on, so the Name-field mapping
- * survives only while the catalog repeats it verbatim.
- *
- * The first expectation pins the literal sentence; the rest hold it to the SDK, since the wasm
- * formats the maximum in at runtime rather than spelling the sentence out whole.
+ * The Name-field mapping survives only while the catalog repeats the SDK's sentence verbatim. The
+ * wasm formats the maximum in at runtime, so the pieces around it are checked separately.
  */
 describe("ACCESS_RULE_SERVER_ERRORS.NameRequiredLocally", () => {
   const { serverMessage } = ACCESS_RULE_SERVER_ERRORS.NameRequiredLocally;

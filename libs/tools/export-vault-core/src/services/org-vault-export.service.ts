@@ -224,11 +224,9 @@ export class OrganizationVaultExportService
   }
 
   /**
-   * The managed-collections export scope for `organizationId`: the collections the caller
-   * manages, and every cipher reachable through them the export is otherwise willing to emit.
-   *
-   * PAM-gated ("partial") rows are deliberately retained: callers partition on `partialData`,
-   * so the exported set and the excluded count stay two halves of one population.
+   * The collections the caller manages in `organizationId`, and every exportable cipher in them.
+   * Keeps PAM-gated ("partial") rows; callers split on `partialData` into the export and the
+   * excluded count.
    */
   private async getManagedExportScope(
     activeUserId: UserId,
@@ -259,11 +257,8 @@ export class OrganizationVaultExportService
   }
 
   /**
-   * Counts the PAM-gated ("partial") ciphers a managed-collections export of `organizationId`
-   * leaves out, so callers can warn before the file is produced.
-   *
-   * Reads the encrypted rows via {@link getManagedExportScope}, not `getAllDecrypted`: the
-   * decrypted stream already drops partials, so counting there would always return zero.
+   * Counts the PAM-gated ("partial") ciphers a managed-collections export leaves out, so callers
+   * can warn first. Reads encrypted rows, since `getAllDecrypted` already drops partials.
    */
   async getManagedExportGatedItemCount(
     activeUserId: UserId,

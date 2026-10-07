@@ -299,9 +299,8 @@ describe("Organization", () => {
     });
   });
 
-  // Both mirror server-side requirements: ManageAccessRulesRequirement admits a Custom user
-  // holding the permission, ManageAccessConnectorRequirement does not, and neither admits a
-  // provider managing the organization.
+  // Both mirror server-side requirements: each admits a Custom user only with its own
+  // permission, and neither admits a provider managing the organization.
   describe("canManageAccessRules", () => {
     beforeEach(() => {
       data.usePam = true;

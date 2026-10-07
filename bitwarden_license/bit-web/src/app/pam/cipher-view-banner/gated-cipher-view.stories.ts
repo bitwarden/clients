@@ -50,11 +50,8 @@ import {
 import { CipherViewBannerComponent } from "./cipher-view-banner.component";
 
 /**
- * The composed cipher view, not the banner on its own — these stories exist to show card order
- * and the name-row badge: state badge, identity, access, Autofill, Item history.
- *
- * {@link OrdinaryLogin} is load-bearing: every vault item renders through these templates, so an
- * ungoverned item must show neither outlet at all.
+ * The composed cipher view, showing card order and the name-row badge. Every vault item renders
+ * through these templates, so {@link OrdinaryLogin} must show neither outlet.
  */
 
 function loginCipher(id: string, name: string, uri: string): CipherView {
@@ -87,7 +84,10 @@ function ordinaryCipher(): CipherView {
   return cipher;
 }
 
-/** Everything `CipherViewComponent` and its section children inject. Root injector, since `Vfo1TerminologyService` is `providedIn: "root"`. */
+/**
+ * Everything `CipherViewComponent` and its sections inject, at the root injector since
+ * `Vfo1TerminologyService` is `providedIn: "root"`.
+ */
 function provideStoryCipherView() {
   return [
     // Only the PAM flag is on; enabling every flag would silently swap terminology and drop the
@@ -138,11 +138,8 @@ function provideStoryCipherView() {
 }
 
 /**
- * Binds the real banner and the real name-row badge to their tokens, over one access state built
- * at render time. The two seams read the same state, so disagreement is a bug.
- *
- * No active-lease story, since that state only badges in the banner heading — see
- * `ItemDetailsStateBadgeComponent`.
+ * Binds the real banner and name-row badge over one access state, so any disagreement is a bug. No
+ * active-lease story, since the name-row badge drops that state.
  */
 function gated(state: () => Record<string, unknown>) {
   return moduleMetadata({
@@ -200,7 +197,6 @@ export default {
 
 type Story = StoryObj<CipherViewComponent>;
 
-/** The resting state: the "Privileged" badge on the name row, the access card under the identity. */
 export const RequestAccess: Story = {
   decorators: [gated(() => ({ badgeState: "privileged" }))],
 };
@@ -215,12 +211,10 @@ function pendingState() {
   };
 }
 
-/** A request is with an approver: "Pending approval" on the name row, Cancel request in the card. */
 export const Pending: Story = {
   decorators: [gated(pendingState)],
 };
 
-/** Approved but not yet started: "Ready to use" on the name row, the tallest of the access cards. */
 export const Approved: Story = {
   decorators: [
     gated(() => ({
@@ -235,19 +229,14 @@ export const Approved: Story = {
 };
 
 /**
- * The narrow-width case the name row has to survive: the name is `tw-break-all tw-line-clamp-2` and
- * now shares its row with a badge that must not be squeezed. Pending is the longest label.
+ * A long name sharing its row with a badge that must not be squeezed. Pending is the longest label.
  */
 export const LongNameWithBadge: Story = {
   args: { cipher: longNameGatedCipher() },
   decorators: [gated(pendingState)],
 };
 
-/**
- * An ungoverned login with neither seam bound. The name row carries no badge and the card order is
- * identical to what it was before either outlet existed: identity, credentials, Autofill options,
- * Item history.
- */
+/** An ungoverned login with neither seam bound, so no badge and no access card. */
 export const OrdinaryLogin: Story = {
   args: { cipher: ordinaryCipher() },
 };

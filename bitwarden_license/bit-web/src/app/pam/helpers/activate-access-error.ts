@@ -3,13 +3,8 @@ import { serverErrorSentence } from "../abstractions/api-error";
 import { UNLICENSED_SERVER_MESSAGE } from "./pam-license-error";
 
 /**
- * The activation endpoint's error catalog, as the server words it, paired with the copy shown
- * instead. Reproduced here, not imported, since the strings cross the wire as prose with no
- * machine-readable code to switch on.
- *
- * Sourced from `ActivateAccessRequestCommand`, except the three "not permitted" sentences, which
- * the rule engine's `AccessDenialMessage` words for both this gate and the submit gate. Mixes
- * `400` and `409` responses, so the status code doesn't disambiguate them either.
+ * The activation endpoint's refusals as the server words them, since no machine-readable code
+ * crosses the wire. Mixes `400` and `409` responses, so the status code doesn't tell them apart.
  */
 export const ACTIVATE_ACCESS_SERVER_ERRORS = Object.freeze({
   WindowNotStarted: {
@@ -49,10 +44,8 @@ export const ACTIVATE_ACCESS_SERVER_ERRORS = Object.freeze({
     messageKey: "pamStartLeaseErrorNotPermitted",
   },
   /**
-   * The caller holds no Privileged Controls license (`PamLicenseGuard`). Reachable from surfaces
-   * with no licensing block of their own — the My requests tab and shared request dialog, which
-   * offer Start with no cipher in hand — and from the banner when the seat is withdrawn between
-   * render and click.
+   * Reached from surfaces with no licensing block of their own, such as the My requests tab, and
+   * from the banner when the seat is withdrawn between render and click.
    */
   Unlicensed: {
     serverMessage: UNLICENSED_SERVER_MESSAGE,

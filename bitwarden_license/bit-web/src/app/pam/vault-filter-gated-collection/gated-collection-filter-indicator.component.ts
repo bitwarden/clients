@@ -6,24 +6,12 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { IconComponent } from "@bitwarden/components";
 
-/**
- * The collection field the indicator reads, structurally — the sidebar passes its own
- * `CollectionFilter` node, which this component must not import. Optional, since the sidebar
- * also renders pseudo-collections carrying no server state.
- */
+/** Structural, so this needn't import the sidebar's node type; optional for pseudo-collections. */
 type FilterCollection = { hasEnabledAccessRule?: boolean };
 
 /**
- * Binds `VAULT_FILTER_GATED_COLLECTION_INDICATOR` for one collection in the vault's Filters
- * sidebar: a lock glyph on collections an enabled access rule governs, so a member can tell
- * before clicking that its items open through a request.
- *
- * Reads the collection's own server-derived `hasEnabledAccessRule`, not a `listAccessRules`
- * read — the same source the collection-row "Privileged" pill uses.
- * `VaultFilterService.buildCollectionTree` carries the flag onto the sidebar's node explicitly,
- * since its clone otherwise resets it to `false`; this costs nothing per collection and, unlike
- * a rules read, works for a provider browsing a client org, since `listAccessRules` requires
- * membership a provider lacks.
+ * Lock glyph on a governed collection in the Filters sidebar. Reads the server-derived
+ * `hasEnabledAccessRule`, which unlike `listAccessRules` needs no membership, so providers see it.
  */
 @Component({
   selector: "app-pam-gated-collection-filter-indicator",

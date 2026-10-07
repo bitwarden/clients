@@ -61,8 +61,7 @@ describe("RotationConfigsService", () => {
       rotateNow: jest.fn().mockResolvedValue(undefined),
       recordManualRotation: jest.fn().mockResolvedValue(undefined),
       deleteConfig: jest.fn().mockResolvedValue(undefined),
-      // `rows$` asks the SDK to derive each config's actions/schedule in one call; the mock
-      // signature matches so jest infers it.
+      // Typed like the real method so jest infers the mock's signature.
       describeConfigs: jest.fn(
         async (
           configs: readonly RotationConfig[],

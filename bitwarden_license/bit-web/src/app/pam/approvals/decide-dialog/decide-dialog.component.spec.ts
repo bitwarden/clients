@@ -159,7 +159,6 @@ describe("DecideDialogComponent", () => {
   });
 
   it("never calls an API itself; the caller records the decision", async () => {
-    // Keeps retry-and-toast in one place rather than split across the dialog and its opener.
     await create();
 
     await component["confirm"]();
@@ -199,7 +198,7 @@ describe("DecideDialogComponent", () => {
     });
 
     it("treats a whitespace-only reason as no reason", async () => {
-      // `Validators.required` accepts "   ", so the trimmed value is what actually gates the button.
+      // `Validators.required` accepts "   ", so only the trimmed check rejects it.
       await create("deny");
       component["formGroup"].patchValue({ comment: "   " });
 
@@ -258,7 +257,6 @@ describe("DecideDialogComponent", () => {
       fixture.detectChanges();
 
       expect(component["formGroup"].getRawValue().comment).toBe("");
-      // The whole point of the required reason: it has to engage on this path too.
       expect(component["confirmDisabled"]()).toBe(true);
 
       await component["confirm"]();

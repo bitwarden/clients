@@ -577,8 +577,7 @@ describe("CipherAttachmentsComponent", () => {
       await initialize();
 
       expect(apiService.getFullCipherDetails).toHaveBeenCalledWith("5555-444-3333");
-      // The stripped copy carries no attachment metadata, so decrypting it renders the item as
-      // having none.
+      // Decrypting the stripped copy would show no attachments.
       expect(cipherServiceDecrypt).toHaveBeenCalledWith(
         expect.objectContaining({ partialData: undefined }),
         mockUserId,

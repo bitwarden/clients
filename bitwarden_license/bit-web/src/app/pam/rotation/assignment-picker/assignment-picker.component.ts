@@ -47,19 +47,15 @@ export interface AssignmentPickerRow {
 
 /** One column of the assigned-rows table, other than the trailing options column. */
 export interface AssignmentPickerColumn {
-  /** i18n key for the header cell. */
   readonly headerKey: string;
-  /** Classes for the header cell, for width and alignment. */
   readonly headerClass?: string;
 }
 
-/** The context each assigned row's cells are rendered with. */
 export interface AssignmentPickerRowContext<TRow extends AssignmentPickerRow> {
   readonly $implicit: TRow;
   /**
-   * Set when the row is drawn by `bit-table-v2`, whose cells must then be `<bit-cell>`: a `<td>`
-   * there has no `<table>` ancestor, so it is exposed with no cell role at all. Remove when the
-   * VFO1 flag is removed.
+   * Set under `bit-table-v2`, whose cells must be `<bit-cell>`, since a `<td>` there has no
+   * `<table>` ancestor and no cell role. Remove when the VFO1 flag is removed.
    */
   readonly vfo1?: boolean;
 }
@@ -69,16 +65,14 @@ export interface AssignmentPickerHints {
   readonly default: string;
   readonly noneEligible: string;
   readonly loadError: string;
-  /** Optional; omitted, a blocked picker falls through to whichever other state applies. */
+  /** Without it, a blocked picker shows whichever other state applies. */
   readonly disabled?: string;
 }
 
 /**
- * The assign-things-of-one-kind-to-this-record card the rotation surface uses everywhere: a
- * multi-select of what is eligible, an Assign beside it, a hint carrying whichever state the
- * section is in, and a table of what is assigned with a Remove per row.
- *
- * The assigned rows' cells come from the caller as a {@link TemplateRef}.
+ * The rotation pages' assignment card: a multi-select of eligible options with an Assign button,
+ * and a table of current assignments with a Remove per row. The caller renders each row's cells
+ * as a {@link TemplateRef}.
  */
 @Component({
   selector: "pam-assignment-picker",
@@ -118,60 +112,46 @@ export class AssignmentPickerComponent<TRow extends AssignmentPickerRow> {
     { initialValue: false },
   );
 
-  /** i18n key for the section heading. */
   readonly headingKey = input.required<string>();
 
-  /** i18n key for the multi-select's label. */
   readonly selectLabelKey = input.required<string>();
 
-  /** i18n key for the multi-select's placeholder; unset, the control keeps its own default. */
+  /** Unset, the control keeps its own placeholder. */
   readonly placeholderKey = input<string | null>(null);
 
-  /** i18n key for the Assign button. */
   readonly assignLabelKey = input("assign");
 
-  /**
-   * i18n key for the Remove control's accessible name, taking the row's `label` as its one
-   * placeholder.
-   */
+  /** The Remove control's accessible name, with the row's `label` as its placeholder. */
   readonly unassignLabelKey = input.required<string>();
 
-  /** i18n key for the row that stands in for an empty table. */
+  /** i18n key for the row shown when the table is empty. */
   readonly emptyKey = input.required<string>();
 
   /** What can still be assigned: everything eligible the record does not already hold. */
   readonly options = input.required<SelectItemView[]>();
 
-  /** What is assigned now, one row each. */
   readonly assignments = input.required<readonly TRow[]>();
 
-  /** The assigned table's columns, left to right; the options column is appended for you. */
+  /** Left to right; the options column is appended. */
   readonly columns = input.required<readonly AssignmentPickerColumn[]>();
 
-  /** Renders one assigned row's cells, matching {@link columns}. The `<tr>` is not yours. */
+  /** Renders one row's cells, matching {@link columns}; the component supplies the row element. */
   readonly rowTemplate = input.required<TemplateRef<AssignmentPickerRowContext<TRow>>>();
 
   readonly hints = input.required<AssignmentPickerHints>();
 
   /**
-   * Assigns the picked options and resolves with the ids it actually assigned, so a partial
-   * success keeps the rest in the picker for a retry without reselecting. Resolving with nothing
-   * clears what was sent. Rejecting leaves the whole selection in place; `bitAction` surfaces it.
-   *
-   * Only what was sent is ever cleared: the multi-select stays live while the call is out, and an
-   * option picked in that window has not been offered to anyone yet.
+   * Resolves with the ids that were assigned, so a partial success leaves the rest picked for a
+   * retry; resolving with nothing clears what was sent. A rejection keeps the selection, and
+   * `bitAction` surfaces it.
    */
   readonly assign =
     input.required<(selected: SelectItemView[]) => Promise<readonly string[] | void>>();
 
   /**
-   * Removes one assignment. Resolve with `false` when nothing was removed after all — a declined
-   * confirmation.
-   *
-   * Remove is a plain control rather than a `bitAction` one, so nothing here catches or reports a
-   * rejection: the caller owns the toast, as it does for every other write this card triggers. A
-   * failed removal must be caught and resolved as `false`, or the row stays in the table with
-   * focus handed to Assign as though it had gone.
+   * Resolve with `false` when nothing was removed, such as a declined confirmation. Nothing here
+   * catches a rejection, so the caller must toast a failure and resolve `false`, or focus moves to
+   * Assign as though the row had gone.
    */
   readonly unassign = input.required<(row: TRow) => Promise<boolean | void>>();
 
@@ -190,16 +170,14 @@ export class AssignmentPickerComponent<TRow extends AssignmentPickerRow> {
   /** Where the escape hatch under {@link noneEligible} goes; unset, no link is offered. */
   readonly goToRoute = input<unknown[] | null>(null);
 
-  /** i18n key for that link. */
   readonly goToLabelKey = input<string | null>(null);
 
-  /** Prefix for this card's element ids. */
   readonly idPrefix = input.required<string>();
 
   /** Options picked but not yet assigned. */
   protected readonly pendingSelection = signal<SelectItemView[]>([]);
 
-  /** Holds every Remove, not just the clicked one. */
+  /** Holds every Remove, not only the clicked one. */
   protected readonly unassigning = signal(false);
 
   private readonly assignButton = viewChild<unknown, ElementRef<HTMLButtonElement>>(
@@ -212,31 +190,19 @@ export class AssignmentPickerComponent<TRow extends AssignmentPickerRow> {
     return key == null ? undefined : this.i18nService.t(key);
   });
 
-  /**
-   * The control is closed only when the record is genuinely blocked. An exhausted option list
-   * leaves it open, so the dropdown can say so itself.
-   */
+  /** An exhausted option list leaves the control enabled, so the dropdown can say so itself. */
   protected readonly canSelect = computed(() => !this.disabled());
 
   /**
-   * Known gap, and not one this component can close: pressing Escape with the dropdown open makes
-   * `bit-multi-select` empty its own displayed selection without notifying its value accessor, and
-   * its close handler returns early on an empty list — so no event of any kind reaches this
-   * component. A confirmed pick therefore survives here and keeps Assign armed over a field showing
-   * nothing, until the next selection change or a successful assign resyncs the two.
-   *
-   * Closing it means changing Escape's behaviour in the shared control, which is not this stack's
-   * to change. Do not try to paper over it here by clearing on some proxy for Escape: the pick is
-   * still assignable, and the last read of the control's selection is the honest one.
+   * Known gap: Escape with the dropdown open empties `bit-multi-select`'s displayed selection
+   * without notifying anyone, so a confirmed pick keeps Assign armed over an empty field. The fix
+   * belongs in the shared control.
    */
   protected readonly canAssign = computed(
     () => !this.disabled() && this.pendingSelection().length > 0,
   );
 
-  /**
-   * The hint under the picker. An exhausted option list gets no hint of its own: the dropdown
-   * opens and says it has nothing to offer.
-   */
+  /** An exhausted option list gets no hint, since the dropdown says it has nothing to offer. */
   protected readonly hintKey = computed(() => {
     const hints = this.hints();
     if (this.disabled() && hints.disabled != null) {
@@ -269,26 +235,9 @@ export class AssignmentPickerComponent<TRow extends AssignmentPickerRow> {
   protected readonly columnCount = computed(() => this.columns().length + 1);
 
   /**
-   * The control announces a pick only when its dropdown closes, and it skips that announcement
-   * when the selection is empty. So additions arrive through `onItemsConfirmed` and removals
-   * arrive here, off the value accessor, which the control does notify on every deselection and
-   * every dismissed chip — a chip can be dismissed with the dropdown shut, and a dropdown can be
-   * emptied before it closes. Taking only removals here leaves an unconfirmed pick unarmed.
-   *
-   * The same split as the access selector's inline mode.
-   *
-   * Two things this has to be careful about, both because `[ngModel]` writes whatever this signal
-   * holds straight back into the control:
-   *
-   * - It must hand back the *same array* when nothing was removed. A fresh array notifies, and the
-   *   writeback then pushes this mirror over the control's own selection, erasing the pick that
-   *   prompted the notification in the first place.
-   * - A genuine removal takes the control's whole selection rather than filtering this mirror down
-   *   to it. The two differ while a pick is unconfirmed — the mirror is the smaller of the pair —
-   *   and writing that subset back would drop the unconfirmed pick out of the control along with
-   *   the chip that was actually dismissed. Adopting the selection keeps the control intact, at
-   *   the cost of arming Assign over a pick whose dropdown never closed; the control is showing
-   *   that pick as selected, so the button agrees with the field either way.
+   * Additions arrive through `onItemsConfirmed`; this handles removals. `[ngModel]` writes this
+   * signal back into the control, so it keeps the same array when nothing was removed and
+   * otherwise adopts the control's whole selection.
    */
   protected readonly onSelectionChanged = (items: SelectItemView[] | null): void => {
     const selected = items ?? [];

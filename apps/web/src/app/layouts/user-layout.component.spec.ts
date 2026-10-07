@@ -188,8 +188,7 @@ describe("UserLayoutComponent", () => {
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
         { provide: SyncService, useValue: mock<SyncService>() },
         { provide: AccountService, useValue: { activeAccount$: of({ id: userId }) } },
-        // This layout renders PamUserNavSlotComponent, which reads the user's organizations to
-        // decide whether to show the PAM link.
+        // PamUserNavSlotComponent reads the user's organizations to decide on the PAM link.
         { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
         { provide: SendPolicyService, useValue: { disableSend$: of(false) } },
         {

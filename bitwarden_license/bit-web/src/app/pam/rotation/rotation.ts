@@ -35,9 +35,8 @@ export type {
 } from "@bitwarden/sdk-internal";
 
 /**
- * How a target system's credential is rotated: `Automatic` (a connector writes the new secret),
- * `Manual` (an operator applies it out of band and records having done so), or `Unknown` (a
- * method a newer server named that this SDK can't model — treated as inert).
+ * How a target system's credential is rotated. `Manual` means an operator applies it out of band
+ * and records it; `Unknown` is a method from a newer server, treated as inert.
  */
 export const TargetSystemMethod = Object.freeze({
   Automatic: "automatic",
@@ -55,7 +54,7 @@ export const TargetSystemKind = Object.freeze({
 } as const satisfies Record<string, SdkTargetSystemKind>);
 export type TargetSystemKind = SdkTargetSystemKind;
 
-/** Lifecycle state of a target system. `Disabled` stops new jobs; in-flight jobs finish. */
+/** `Disabled` stops new jobs; in-flight jobs finish. */
 export const TargetSystemStatus = Object.freeze({
   Active: "active",
   Disabled: "disabled",
@@ -63,13 +62,7 @@ export const TargetSystemStatus = Object.freeze({
 } as const satisfies Record<string, SdkTargetSystemStatus>);
 export type TargetSystemStatus = SdkTargetSystemStatus;
 
-/**
- * Lifecycle state of an access connector.
- *
- * `Disabled` is reversible. Deleting a connector invalidates its credential, but rotating the
- * organization key remains the remediation for suspected compromise, since it held that key in
- * plaintext.
- */
+/** `Disabled` is reversible. */
 export const AccessConnectorStatus = Object.freeze({
   Enabled: "enabled",
   Disabled: "disabled",
@@ -86,7 +79,6 @@ export const RotationSource = Object.freeze({
 } as const satisfies Record<string, SdkRotationSource>);
 export type RotationSource = SdkRotationSource;
 
-/** Overall status of a rotation job. */
 export const RotationJobStatus = Object.freeze({
   Pending: "pending",
   Claimed: "claimed",
@@ -108,10 +100,9 @@ export const RotationAttemptStatus = Object.freeze({
 export type RotationAttemptStatus = SdkRotationAttemptStatus;
 
 /**
- * Whether the target system ended up holding the rotated credential.
- *
- * `Indeterminate` is the one to handle deliberately: the target-system call may or may not have
- * applied, and no vault write was attempted, so the two can disagree until the next rotation.
+ * Whether the target system ended up holding the rotated credential. `Indeterminate` means the
+ * target call may have applied without a vault write, so the two can disagree until the next
+ * rotation.
  */
 export const RotationSyncState = Object.freeze({
   TargetUnchanged: "target_unchanged",
@@ -131,10 +122,8 @@ export const SessionTerminationOutcome = Object.freeze({
 export type SessionTerminationOutcome = SdkSessionTerminationOutcome;
 
 /**
- * A named rotation schedule.
- *
- * Presentation only — the server stores just the cron string, so `Custom` means "a valid
- * expression that matches no preset" and round-trips unchanged.
+ * A named rotation schedule, presentation only. The server stores only the cron string, so
+ * `Custom` is a valid expression matching no preset and round-trips unchanged.
  */
 export const QuartzSchedulePreset = Object.freeze({
   None: "none",

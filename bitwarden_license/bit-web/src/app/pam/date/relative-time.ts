@@ -1,11 +1,6 @@
 /**
- * Format an instant as a localized relative phrase, e.g. "5 min. ago" or
- * "in 2 hr.", by walking from seconds up to years and emitting the first unit
- * the delta fits within.
- *
- * The {@link Intl.RelativeTimeFormat} is passed in (not constructed here) so the
- * caller controls locale and can cache the formatter across many rows. Both
- * times are epoch milliseconds; a non-finite result returns the empty string.
+ * An instant as a relative phrase in the first unit its distance from `nowMs` fits. The formatter
+ * is passed in so the caller picks the locale and can reuse it across rows.
  */
 export function formatRelativeTime(
   epochMs: number,

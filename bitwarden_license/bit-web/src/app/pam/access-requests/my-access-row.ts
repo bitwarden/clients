@@ -17,10 +17,10 @@ import { AccessBadgeState } from "../access-state-badge/access-badge-state";
 
 import { ResolvedNames } from "./access-name-resolver.service";
 
-/** Max items rendered per section (no pagination), matching the poc. */
+/** Max items rendered per section, since there is no pagination. */
 export const MY_ACCESS_PAGE_LIMIT = 50;
 
-/** A row in the Pending or History table on the "My access" page. */
+/** A request row on the My requests and History tabs. */
 export type MyAccessRequestRow = {
   id: AccessRequestId;
   /** The gated cipher's raw id, for the favicon lookup and as the item name's fallback. */
@@ -32,35 +32,29 @@ export type MyAccessRequestRow = {
   collectionName: string | null;
   status: AccessRequestStatus;
   /**
-   * The shared access-state badge for the status column, so this page, the vault row and the
-   * cipher-view modal show one vocabulary. Null for every outcome the shared model cannot state
-   * from this row alone — {@link statusBadge} carries those. See {@link historyDisplayStatus}.
+   * The shared access-state badge for the status column. Null when the shared model can't state
+   * the outcome, and {@link statusBadge} carries it instead.
    */
   badgeState: AccessBadgeState | null;
-  /** Non-null exactly when {@link badgeState} is null — see {@link historyDisplayStatus}. */
+  /** Non-null exactly when {@link badgeState} is null. */
   statusBadge: TerminalStatusBadge | null;
   submittedAt: string;
   resolvedAt: string | null;
   leaseNotBefore: string;
   leaseNotAfter: string;
-  /** i18n key for a system, access-rule, or unnamed resolver; null for a named human, or pending. */
+  /** i18n key when the resolver is the requester, an access rule, or an unknown approver. */
   resolverLabelKey: string | null;
-  /** The human resolver's display name (name, falling back to email); null when neither is known. */
+  /** The human resolver's name, falling back to email; null when neither is known. */
   resolverName: string | null;
   approverComment: string | null;
-  /**
-   * The raw id of the lease this request minted; null if it never activated one.
-   *
-   * Excludes the row from History while that lease is active (shown in Active access instead).
-   */
+  /** The raw id of the lease this request minted; null if it never activated one. */
   producedLeaseId: string | null;
   /**
-   * The produced lease's status as of the read this row was built from; null until activation. The
-   * source {@link statusBadge} is derived from, and the honest read for "is this access still
-   * running?" — see {@link isLiveManagedLease}.
+   * The produced lease's status as of this row's read; null until activation. {@link statusBadge}
+   * derives from it.
    */
   producedLeaseStatus: AccessLeaseStatus | null;
-  /** Present only if the minted lease was later extended — see {@link buildMyAccessRequestRows}. */
+  /** Set only when the minted lease was extended; see {@link buildMyAccessRequestRows}. */
   extendedBySeconds: number | null;
   extendedUntil: string | null;
 };
@@ -93,7 +87,7 @@ type TerminalRequestStatus = Exclude<AccessRequestStatus, "pending" | "approved"
 /** Time an extension (or sum of extensions) added to a lease, and the resulting end (ms). */
 export type LeaseExtensionSummary = { addedSeconds: number; latestEndMs: number };
 
-/** The one sort key every history list orders by: when decided, falling back to when raised. */
+/** The sort key every history list orders by. */
 export function resolvedOrSubmittedMs(
   row: Pick<MyAccessRequestRow, "resolvedAt" | "submittedAt">,
 ): number {
@@ -101,8 +95,8 @@ export function resolvedOrSubmittedMs(
 }
 
 /**
- * An approved request that can still become access: not yet activated, and its activation window
- * has not closed. The server refuses to activate past `leaseNotAfter`.
+ * An approved, unactivated request whose window is still open, since the server refuses to activate
+ * past `leaseNotAfter`.
  */
 export function isRedeemableGrant(
   row: Pick<MyAccessRequestRow, "status" | "producedLeaseId" | "leaseNotAfter">,
@@ -116,16 +110,15 @@ export function isRedeemableGrant(
 }
 
 /**
- * The status of a grant whose activation window closed before it was used. {@link
- * historyDisplayStatus} is caller-agnostic and cannot see the clock, so it keeps reading "Approved"
- * for a grant that can no longer produce access.
+ * The badge for a grant whose activation window closed unused. {@link historyDisplayStatus} cannot
+ * see the clock, so it still reads "Approved" for one until the next load.
  */
 export const lapsedGrantBadge: TerminalStatusBadge = {
   labelKey: "pamStatusExpired",
   variant: "warning",
 };
 
-/** Map a terminal status to its badge. Exported for tests + storybook fidelity. */
+/** Exported for tests. */
 export function terminalStatusBadge(status: TerminalRequestStatus): TerminalStatusBadge {
   switch (status) {
     case "denied":
@@ -141,19 +134,16 @@ export function terminalStatusBadge(status: TerminalRequestStatus): TerminalStat
 }
 
 /**
- * Display status + badge for a request.
- *
- * A pending request maps onto the shared access-state model via `AccessStateBadgeComponent`;
- * every other outcome keeps its own label. `canceled`/`revoked` read straight off
- * `producedLeaseStatus` — requester-ended is Canceled, operator-ended is Revoked.
+ * Only a pending request maps onto the shared access-state model; every other outcome keeps its
+ * own label. A lease the requester ended reads Canceled, one an operator ended Revoked.
  */
 export function historyDisplayStatus(
   request: Pick<AccessRequestView, "status" | "producedLeaseId" | "producedLeaseStatus">,
 ): Pick<MyAccessRequestRow, "badgeState" | "statusBadge"> {
   if (request.status === "approved") {
     if (request.producedLeaseId == null) {
-      // Deliberately not the shared model's "Ready to use": this row also feeds approver surfaces
-      // where the viewer holds no lease and can't see leaseNotBefore/leaseNotAfter.
+      // Not the shared model's "Ready to use", since approver surfaces render this row too and
+      // that viewer has nothing to use.
       return terminal("pamStatusApproved", "success");
     }
     if (request.producedLeaseStatus === "active") {
@@ -165,7 +155,7 @@ export function historyDisplayStatus(
     if (request.producedLeaseStatus === "revoked") {
       return terminal("pamStatusRevoked", "subtle");
     }
-    // Covers the SDK's "unknown" default too, plus a lease that lapses after load.
+    // `expired`, plus the SDK's `unknown` default.
     return terminal("pamStatusExpired", "warning");
   }
   if (request.status === "pending") {
@@ -182,21 +172,14 @@ function terminal(
 }
 
 /**
- * Resolve who actioned a request: an i18n key for system decisions, a display name for human
- * ones (name, falling back to email).
- *
- * A canceled request was withdrawn by its requester, never logged as a decision. An empty log is
- * the only thing that means nobody acted — `expired` alone does not, since an approval nobody
- * activated lapses to `expired` still carrying the decision that granted it.
- *
- * An approver with neither name nor email — their user no longer resolves — reads as unknown,
- * never as their raw id.
+ * A canceled request was withdrawn by its requester, which logs no decision. Only an empty log
+ * means nobody acted, since an approval nobody activated lapses to `expired` with its decision.
  */
 export function resolveResolver(
   status: AccessRequestStatus,
   decisions: AccessRequestDecisionView[],
 ): Pick<MyAccessRequestRow, "resolverLabelKey" | "resolverName"> {
-  // The terminal transition's actor, not just any human in the log.
+  // The log is oldest first, so an approver's verdict wins over a later retraction or lease end.
   if (status === "pending") {
     return { resolverLabelKey: null, resolverName: null };
   }
@@ -246,10 +229,8 @@ export function toRequestRow(request: AccessRequestView, names: ResolvedNames): 
 }
 
 /**
- * Sum the applied extensions per parent lease id.
- *
- * An applied extension ends at `leaseNotAfter`; a still-pending/denied/canceled one never moved
- * the lease end, so it does not count. Keyed by `extensionOfLeaseId`.
+ * Sums the applied extensions per parent lease id. Only an approved extension moved the lease end,
+ * so no other status counts.
  */
 export function extensionsByLeaseId(
   requests: AccessRequestView[],
@@ -271,11 +252,8 @@ export function extensionsByLeaseId(
 }
 
 /**
- * Build the rows the "My access" list renders from the caller's raw requests.
- *
- * An extension folds into its original row (`extensionOfLeaseId`), badged with the added time and
- * the lease's current end. A denied extension keeps its own row, since folding it away would
- * leave no record of the request.
+ * An extension folds into its original row, badged with the added time and the lease's current
+ * end. A denied extension keeps its own row, or nothing would record it.
  */
 export function buildMyAccessRequestRows(
   requests: AccessRequestView[],
@@ -286,7 +264,7 @@ export function buildMyAccessRequestRows(
   const rows: MyAccessRequestRow[] = [];
   for (const request of requests) {
     if (request.extensionOfLeaseId != null && request.status !== "denied") {
-      continue; // Folded into its original row below — never shown on its own.
+      continue; // Folded into its original row below.
     }
     const row = toRequestRow(request, names);
     const extension = row.producedLeaseId == null ? undefined : byLease.get(row.producedLeaseId);

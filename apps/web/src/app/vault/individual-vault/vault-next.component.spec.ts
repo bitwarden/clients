@@ -74,7 +74,7 @@ import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 
 import { VaultNextComponent } from "./vault-next.component";
 
-/** Stands in for the badge a commercial build binds to `VAULT_ROW_LEASE_BADGE`. */
+/** Stub for the badge a commercial build binds to `VAULT_ROW_LEASE_BADGE`. */
 @Component({
   selector: "test-lease-badge",
   template: "",
@@ -387,8 +387,8 @@ describe("VaultNextComponent", () => {
             { provide: WebVaultItemActionsService, useValue: itemActions },
             { provide: WebVaultPromptService, useValue: webVaultPromptService },
             { provide: VaultBatchBarService, useValue: batchBarService },
-            // A factory, not a value: the seam is resolved per component built, so a test can
-            // bind a badge and rebuild the page to exercise the provided case.
+            // A factory, so the seam is resolved per component built and a test can bind a
+            // badge, then rebuild the page.
             { provide: VAULT_ROW_LEASE_BADGE, useFactory: () => leaseBadge },
           ],
         },
@@ -1001,8 +1001,8 @@ describe("VaultNextComponent", () => {
       buildOrganization(otherOrganizationId, "Other organization", { usePam: false });
 
     /**
-     * Rebuilds the page with the badge seam bound and PAM's flag set. Both are read once, as the
-     * component is constructed, so neither can be changed on the standing fixture.
+     * Rebuilds the page with the badge seam and PAM's flag set. Both are read once at
+     * construction, so neither can change on the standing fixture.
      */
     const renderWith = (badge: Type<unknown> | null, pamEnabled: boolean) => {
       leaseBadge = badge;

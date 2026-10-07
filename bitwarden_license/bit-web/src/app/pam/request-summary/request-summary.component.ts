@@ -11,14 +11,9 @@ import type { LabelValue } from "../helpers/approval-window";
 import { SummaryFieldComponent } from "./summary-field.component";
 
 /**
- * The item + "Request details" cards shared by the approver's decide dialog and the requester's
- * `/pam/requests/:id` page, so the two surfaces describe a request identically.
- *
- * Purely presentational: every value arrives already resolved into an i18n `{ key, value }` pair
- * by the shared `helpers/approval-window` builders, injecting no data service.
- *
- * Fields only one surface carries — Status, Submitted, Resolved — are projected through
- * `<ng-content>` rather than added as inputs, landing in the same card.
+ * The item and "Request details" cards shared by the decide dialog and the `/pam/requests/:id`
+ * dialog. Fields only one surface carries (Status, Submitted, Resolved) are projected through
+ * `<ng-content>`.
  */
 @Component({
   selector: "pam-request-summary",
@@ -49,13 +44,13 @@ export class RequestSummaryComponent {
   readonly exactWindow = input<string>("");
   readonly reason = input<string | null>(null);
 
-  /** Suppressed when the requester has no name, since `requesterName` already falls back to email. */
+  /** Hidden when `requesterName` already fell back to the email. */
   protected readonly secondaryEmail = computed(() => {
     const email = this.requesterEmail();
     return email == null || email === this.requesterName() ? null : email;
   });
 
-  /** "4 hours, starting tomorrow" — the two window labels joined once. */
+  /** The window labels joined, e.g. "4 hours, starting tomorrow". */
   protected readonly accessRequested = computed(() =>
     [this.duration(), this.relativeStart()]
       .filter((label): label is LabelValue => label != null)

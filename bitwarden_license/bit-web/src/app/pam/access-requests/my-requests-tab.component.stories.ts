@@ -26,7 +26,7 @@ import { MyRequestsTabComponent } from "./my-requests-tab.component";
 
 const names = storyNames();
 
-/** Ticks its own `Date.now()` signal so windows build against the real clock at render time. */
+/** The tab ticks against the real clock, so these windows are built at render time. */
 function content() {
   const pending = [
     // Approved and ready to activate: renders in the active-access section, badged "Ready to use".
@@ -150,10 +150,7 @@ export default {
 
 type Story = StoryObj<MyRequestsTabComponent>;
 
-/**
- * All three sections populated. The startable grant sits with the two leases under the last
- * heading, not under Pending, which holds only the request still awaiting a decision.
- */
+/** All three sections populated; the startable grant sits with the leases, not under Pending. */
 export const Default: Story = {
   decorators: [myAccess()],
   parameters: { chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) } },
@@ -165,9 +162,8 @@ export const FlagOn: Story = {
 };
 
 /**
- * The Collection chip in force on the `bit-table-v2` path: the toolbar's second row, the
- * applied-filter styling and the item count only render once something is selected, and the other
- * two sections narrow with it from outside the table the toolbar sits in.
+ * A Collection filter applied on the `bit-table-v2` path, which shows the toolbar's applied state
+ * and narrows the other two sections from outside its table.
  */
 export const FlagOnFiltered: Story = {
   decorators: [myAccess()],
@@ -180,7 +176,7 @@ export const FlagOnFiltered: Story = {
   },
 };
 
-/** Nothing outstanding. Pending and Active carry their own empty state; Extension requests renders nothing at all. */
+/** Pending and Active access show empty states; Extension requests renders nothing. */
 export const Empty: Story = {
   decorators: [myAccess({ content: empty })],
 };
@@ -207,9 +203,8 @@ export const ActiveLeaseOnly: Story = {
 };
 
 /**
- * An approved grant whose window has not opened yet. It is badged "Approved" rather than "Ready to
- * use", but Start access is still offered — `canStart` does not read `leaseNotBefore`, and the
- * product deliberately lets the requester try and surfaces the server's refusal.
+ * Badged "Approved" rather than "Ready to use", but Start is still offered so the requester can try
+ * and see the server's refusal.
  */
 export const ApprovedNotYetRedeemable: Story = {
   decorators: [
@@ -235,9 +230,8 @@ export const ApprovedNotYetRedeemable: Story = {
 };
 
 /**
- * An approved grant whose window lapsed while the tab was open — the next load moves it to History.
- * Until then it stays with the active access, badged "Expired" with no action offered, below the
- * lease the caller actually holds even though its own window ended first.
+ * A grant that lapsed while the tab was open stays in Active access until the next load, badged
+ * "Expired" with no action, below the held lease.
  */
 export const ApprovedWindowLapsed: Story = {
   decorators: [

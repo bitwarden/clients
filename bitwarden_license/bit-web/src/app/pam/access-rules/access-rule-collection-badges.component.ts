@@ -10,10 +10,8 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { resolveCollectionNames } from "..";
 
 /**
- * Renders the collections a rule governs as one grouped count badge, resolving the rule's
- * collection ids against the org's loaded collections. The resolved names ride along as
- * the badge's tooltip, so the detail stays reachable without widening the column. Shows a
- * muted placeholder when the rule targets none.
+ * One count badge for a rule's collections, with their names as its tooltip so the column stays
+ * narrow.
  */
 @Component({
   selector: "pam-access-rule-collection-badges",

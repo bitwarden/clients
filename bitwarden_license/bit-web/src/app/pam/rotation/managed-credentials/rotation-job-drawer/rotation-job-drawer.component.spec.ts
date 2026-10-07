@@ -34,7 +34,7 @@ function attempt(ordinal: number, overrides: Partial<AttemptView> = {}): Attempt
   };
 }
 
-/** The seeded worst case: one cause, retried five identical times. */
+/** The seeded worst case, with one cause retried five identical times. */
 function retriedFailure(overrides: Partial<JobView> = {}): JobView {
   return {
     id: jobId("1"),

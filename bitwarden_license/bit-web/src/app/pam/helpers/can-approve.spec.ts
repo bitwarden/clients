@@ -10,7 +10,6 @@ describe("canApprove", () => {
   });
 
   it("compares ids exactly, so a differently-cased id is a different user", () => {
-    // Ids are opaque; treating "ME" as "me" would be a guess, and the server is the real arbiter.
     expect(canApprove({ requesterId: "ME" }, { id: "me" })).toBe(true);
   });
 });

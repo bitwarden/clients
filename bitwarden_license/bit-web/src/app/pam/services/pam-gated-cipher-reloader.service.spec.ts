@@ -18,7 +18,7 @@ import { PamGatedCipherReloader } from "./pam-gated-cipher-reloader.service";
 
 const CIPHER_ID = "cipher-1";
 
-/** A fixture with no `notAfter` describes a lease that has already lapsed, not one without end. */
+/** Defaults `notAfter` to 30 minutes ahead, since a lease without one reads as lapsed. */
 function stateWithLease(
   leaseId: string,
   notAfterMs = Date.now() + 30 * 60 * 1000,
@@ -54,7 +54,6 @@ describe("PamGatedCipherReloader", () => {
   let reloader: PamGatedCipherReloader;
   let subscription: Subscription | undefined;
 
-  /** Collects everything `fullCipher$` emits for the cipher under test. */
   function collect(): Array<Cipher | null> {
     const emissions: Array<Cipher | null> = [];
     subscription = reloader.fullCipher$(CIPHER_ID).subscribe((c) => emissions.push(c));
@@ -119,7 +118,6 @@ describe("PamGatedCipherReloader", () => {
   });
 
   it("never writes the fetched cipher into the local cache", async () => {
-    // The cache must stay partial so a lapsed lease cannot leave decryptable secrets in local state.
     requestsApi.getCipherAccessState.mockResolvedValue(stateWithLease("lease-1"));
     apiService.getFullCipherDetails.mockResolvedValue(cipherResponse());
 
@@ -180,7 +178,7 @@ describe("PamGatedCipherReloader", () => {
     await settle();
     expect(apiService.getFullCipherDetails).toHaveBeenCalledTimes(1);
 
-    // Same lease id — e.g. a sibling request resolved. Nothing about this cipher's payload changed.
+    // Same lease id, as when a sibling request resolves.
     accessRefresh.notifyAccessChanged(CIPHER_ID);
     await settle();
 
@@ -215,7 +213,6 @@ describe("PamGatedCipherReloader", () => {
   });
 
   it("re-locks when the lease's window closes with nothing else happening", async () => {
-    // PM-41837: nothing announces the lapse, so the open item has to notice it itself.
     jest.useFakeTimers();
     requestsApi.getCipherAccessState.mockResolvedValue(
       stateWithLease("lease-1", Date.now() + 150_000),
@@ -304,7 +301,6 @@ describe("PamGatedCipherReloader", () => {
   });
 
   it("re-locks once and then leaves the clock alone", async () => {
-    // One emission, not one a second.
     jest.useFakeTimers();
     requestsApi.getCipherAccessState.mockResolvedValue(
       stateWithLease("lease-1", Date.now() + 60_000),

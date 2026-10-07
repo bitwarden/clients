@@ -4,26 +4,8 @@ import { BreadcrumbsModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
- * The breadcrumb row shared by the rotation feature's three detail pages: the list this record
- * came from, then the record itself as the current page.
- *
- * Project it into `bit-header`'s `breadcrumbs` slot and leave the page's `<h1>` to the header's
- * `title` input:
- *
- * ```html
- * <bit-header [title]="titleText()" icon="bwi-desktop">
- *   <pam-detail-breadcrumb
- *     slot="breadcrumbs"
- *     [route]="['..']"
- *     parentLabelKey="pamRotationTabTargetSystems"
- *     [current]="titleText()"
- *   />
- * </bit-header>
- * ```
- *
- * The row is the trail, not the heading. `bit-breadcrumbs` only promotes a crumb to the `<h1>`
- * when one of its crumbs is the active route, and the parent crumb here never is, so the header
- * keeps rendering the heading and `current` restates the record name at the end of the trail.
+ * Breadcrumb row for the rotation detail pages, projected into `bit-header`'s `breadcrumbs` slot.
+ * The parent crumb is never the active route, so `bit-breadcrumbs` leaves the `<h1>` to the header.
  */
 @Component({
   selector: "pam-detail-breadcrumb",
@@ -31,9 +13,8 @@ import { I18nPipe } from "@bitwarden/ui-common";
   imports: [BreadcrumbsModule, TypographyModule, I18nPipe],
   template: `
     <div class="tw-flex tw-min-w-0 tw-items-baseline">
-      <!-- \`bit-breadcrumbs\`' host carries \`tw-w-full\`, sized against its own containing block; this
-           wrapper gives it one shaped to its content instead of the whole row, so the static crumb
-           below stays in flow next to it rather than being pushed to the row's far edge. -->
+      <!-- \`bit-breadcrumbs\`' host is \`tw-w-full\`; this wrapper sizes it to its content, so the
+           static crumb below stays next to it instead of at the row's far edge. -->
       <div class="tw-min-w-0" [class.tw-shrink-0]="truncate()">
         <bit-breadcrumbs showTrailingArrow>
           <bit-breadcrumb [route]="route()">{{ parentLabelKey() | i18n }}</bit-breadcrumb>
@@ -58,7 +39,6 @@ export class DetailBreadcrumbComponent {
   /** Router link to the list this record came from. */
   readonly route = input.required<unknown[]>();
 
-  /** i18n key naming that list. */
   readonly parentLabelKey = input.required<string>();
 
   /** The current page's own title, rendered verbatim. */

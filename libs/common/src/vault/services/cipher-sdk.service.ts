@@ -27,12 +27,8 @@ import { Cipher } from "../models/domain/cipher";
 import { CipherView } from "../models/view/cipher.view";
 
 /**
- * `CiphersClient` plus the PAM gated-edit entry point. `sdk-internal` doesn't declare
- * `edit_gated` yet, so it's bridged here — same stopgap shape as the `partial` bridge in
- * `models/view/cipher.view.ts`, collapsing away the same way.
- *
- * The Rust side is done but unpublished: `CiphersClient::edit_gated` lives on
- * `pam/cipher-partial-data` with exactly this signature, not yet on `main`.
+ * `CiphersClient` plus the PAM `edit_gated` entry point, until the published `sdk-internal`
+ * declares it. Same stopgap as the `partial` bridge in `models/view/cipher.view.ts`.
  */
 type CiphersClientWithGatedEdit = CiphersClient & {
   edit_gated(request: CipherEditRequest, originalCipherView: SdkCipherView): Promise<SdkCipherView>;

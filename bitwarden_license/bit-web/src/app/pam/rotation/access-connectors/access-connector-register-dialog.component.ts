@@ -25,19 +25,12 @@ export type AccessConnectorRegisterDialogParams = {
   organizationId: OrganizationId;
 };
 
-/**
- * Result of a successful registration. `undefined` means the dialog was dismissed
- * without registering (cancel, X, backdrop, escape).
- */
+/** `undefined` when dismissed without registering. */
 export type AccessConnectorRegisterDialogResult = { registered: true } | undefined;
 
 /**
- * Name-entry dialog for registering a new rotation access connector.
- *
- * On successful submit:
- * 1. Calls {@link RotationSdkService.registerConnector} to derive the key + POST to the server.
- * 2. Closes itself, awaiting the promise {@link DialogRef.close} returns.
- * 3. Opens {@link AccessConnectorTokenDialogComponent} to show the one-time token.
+ * Name-entry dialog for a new access connector. On success it closes itself, then opens
+ * {@link AccessConnectorTokenDialogComponent} to show the one-time token.
  */
 @Component({
   selector: "app-access-connector-register-dialog",
@@ -74,12 +67,10 @@ export class AccessConnectorRegisterDialogComponent {
     const name = this.form.controls.name.value;
 
     try {
-      // The SDK derives the key material, calls the server, and assembles the one-time token.
       const { token } = await this.rotationSdk.registerConnector(this.params.organizationId, name);
 
       await this.dialogRef.close({ registered: true });
 
-      // Show the operator-entered name (not the access connector's GUID) as the dialog subtitle.
       AccessConnectorTokenDialogComponent.open(this.dialogService, {
         data: { accessConnectorName: name, token },
       });

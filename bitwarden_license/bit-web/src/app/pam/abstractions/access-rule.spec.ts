@@ -31,8 +31,6 @@ describe("accessRuleErrorMessage", () => {
     expect(accessRuleErrorMessage(accessRuleError(variant))).toBe("boom");
   });
 
-  // The Api variant wraps the whole failed HTTP response; only the server's inner
-  // `message` field is toastable.
   describe("the Api variant", () => {
     const wrap = (body: string) =>
       accessRuleError("Api", `error in response: status code 400 Bad Request: ${body}`);

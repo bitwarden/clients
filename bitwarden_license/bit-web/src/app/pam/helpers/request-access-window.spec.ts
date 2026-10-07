@@ -10,9 +10,8 @@ import {
 } from "./request-access-window";
 
 /**
- * The instant the fixed windows below are judged against. Pinned rather than left to the real
- * clock: `requestWindowProblem` rejects a window that has already ended, so literal dates close to
- * the day a test was written would pass then and fail later.
+ * Pinned, since `requestWindowProblem` rejects an ended window and the literal dates below would
+ * eventually fail against the real clock.
  */
 const NOW = new Date("2026-08-17T08:00");
 

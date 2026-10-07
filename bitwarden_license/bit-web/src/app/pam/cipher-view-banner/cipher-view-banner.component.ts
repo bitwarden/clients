@@ -100,13 +100,8 @@ import {
 const CUSTOM_OPTION = "custom";
 
 /**
- * Cipher-view banner for PAM-governed items — the requester's entry point into the leasing flow.
- *
- * Renders one of five states from `getCipherAccessState`: unlicensed, active lease, approved
- * request, pending request, or an inline form; unlicensed replaces every other state, since the
- * server withholds the credential from an unlicensed holder regardless of lease. Refreshes via
- * {@link AccessRefreshService}, except expiry, which {@link activeLease} takes off this banner's
- * own clock.
+ * Cipher-view banner for PAM-governed items. The unlicensed state replaces every other, since the
+ * server withholds the credential from an unlicensed holder regardless of lease.
  */
 @Component({
   selector: "app-pam-cipher-view-banner",
@@ -152,7 +147,7 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly injector = inject(Injector);
   private readonly locale = inject(LOCALE_ID);
 
-  /** Ticks every second so the live countdown and a scheduled window's opening stay current. */
+  /** Advanced every second while {@link clockAdvances}. */
   private readonly nowMs = signal(Date.now());
 
   private readonly enabled$ = this.configService.getFeatureFlag$(FeatureFlag.Pam);
@@ -162,10 +157,7 @@ export class CipherViewBannerComponent implements OnInit {
     this.organizationService,
   );
 
-  /**
-   * The open cipher once PAM has anything to say about it, `null` otherwise — shared precondition
-   * for {@link state} and {@link unlicensed}.
-   */
+  /** The open cipher when PAM governs it, else `null`. */
   private readonly governedCipher$ = combineLatest([toObservable(this.cipher), this.enabled$]).pipe(
     switchMap(([cipher, enabled]) => {
       if (!enabled || cipher.id == null) {
@@ -174,9 +166,8 @@ export class CipherViewBannerComponent implements OnInit {
       if (isGovernedCipher(cipher)) {
         return of(cipher);
       }
-      // Ungated now, but a live lease still governs itself: the item became reachable through a
-      // collection carrying no rule after the lease was minted, so the credential reads in full
-      // while the lease remains the holder's to extend or end.
+      // A live lease keeps governing an item that has since become reachable through a rule-less
+      // collection, so the holder can still extend or end it.
       return this.myLeasesService
         .hasActiveLease$(String(cipher.id))
         .pipe(map((held) => (held ? cipher : null)));
@@ -186,11 +177,8 @@ export class CipherViewBannerComponent implements OnInit {
   );
 
   /**
-   * The caller's access state for the open cipher, re-read on every access change. Reads only for a
-   * governed cipher (see {@link governedCipher$}).
-   *
-   * The re-read trigger is {@link AccessRefreshService}, shared with the gated-cipher reloader, so
-   * starting access here also reveals the credential in the item behind this banner.
+   * The caller's access state, re-read on every {@link AccessRefreshService} change. The
+   * gated-cipher reloader shares that trigger, so starting access here also reveals the credential.
    */
   protected readonly state = toSignal(
     this.governedCipher$.pipe(
@@ -202,8 +190,8 @@ export class CipherViewBannerComponent implements OnInit {
         const read$ = () =>
           from(this.accessRequestSdkService.getCipherAccessState(cipherId)).pipe(
             catchError((e: unknown) => {
-              // A gated cipher whose state can't be read renders no banner, not an error, matching the
-              // vault-row badge.
+              // An unreadable state renders no banner rather than an error, like the vault-row
+              // badge.
               this.logService.error(e);
               return of(null);
             }),
@@ -217,9 +205,8 @@ export class CipherViewBannerComponent implements OnInit {
   );
 
   /**
-   * Whether the caller is blocked from privileged access by their own licensing — see
-   * {@link unlicensedForPam}. Read from local membership state, independent of {@link state} so
-   * the block still renders when that read fails.
+   * Read from local membership state, independent of {@link state}, so the unlicensed block still
+   * renders when that read fails.
    */
   protected readonly unlicensed = toSignal(
     this.governedCipher$.pipe(
@@ -240,16 +227,14 @@ export class CipherViewBannerComponent implements OnInit {
     { initialValue: undefined },
   );
 
-  /** Read against {@link nowMs}: a lease is over at its `notAfter`, asked again or not. */
+  /** Read against {@link nowMs}, since a lease ends at its `notAfter` without a re-read. */
   protected readonly activeLease = computed(() => liveActiveLease(this.state(), this.nowMs()));
   protected readonly approvedRequest = computed(() => this.state()?.approvedRequest);
   protected readonly pendingRequest = computed(() => this.state()?.pendingRequest);
 
   /**
-   * How much access the approval granted, from the request's own activation window — the length of
-   * the grant, not the time left to use it, since the lease still ends at `leaseNotAfter`.
-   *
-   * `null` for a window that does not resolve to a positive span.
+   * The granted span from the request's activation window, not the time left to use it, since the
+   * lease still ends at `leaseNotAfter`.
    */
   protected readonly approvedDurationSeconds = computed(() => {
     const approved = this.approvedRequest();
@@ -260,13 +245,11 @@ export class CipherViewBannerComponent implements OnInit {
     return Number.isFinite(seconds) && seconds > 0 ? seconds : null;
   });
 
-  /** The rule governing the active lease opted into extensions. */
   protected readonly canExtendLease = computed(() => this.state()?.extensionsAllowed === true);
 
   /**
-   * Offer "Request access" only for a still-gated cipher with nothing already in play, held by
-   * someone licensed to ask. A cipher that is `leaseGated` but has no active lease has just lapsed;
-   * its state stream re-drives the resting banner instead.
+   * Requires a still-gated (`partial`) cipher. A `leaseGated` cipher without a live lease has
+   * lapsed, and its state stream re-drives the resting banner instead.
    */
   protected readonly canRequestAccess = computed(
     () =>
@@ -279,8 +262,8 @@ export class CipherViewBannerComponent implements OnInit {
   );
 
   /**
-   * The governing rule's terms for a request not yet made, from the fold-out's own `preCheck` —
-   * {@link state} carries no such fields. `null` when the cap is missing, not a made-up limit.
+   * The governing rule's terms for the resting banner, from `preCheck`, since {@link state} carries
+   * none. `null` when the cap is missing, rather than a made-up limit.
    */
   protected readonly restingRequestTerms = toSignal(
     toObservable(computed(() => (this.canRequestAccess() ? this.cipher().id : null))).pipe(
@@ -320,16 +303,8 @@ export class CipherViewBannerComponent implements OnInit {
   );
 
   /**
-   * Whether the active lease has crossed the five-minute cutoff, escalating this banner to the
-   * danger tile and the "ending soon" heading.
-   *
-   * The same {@link ENDING_SOON_THRESHOLD_MS} the access-state badge escalates on — and it has to
-   * be honoured here rather than left to that badge, because `ItemDetailsStateBadgeComponent`
-   * drops the `active` state on this surface to keep one timer on screen. Without this the heading
-   * below would be the modal's only countdown and the only one that never warns.
-   *
-   * The `<=` is defensive only: {@link activeLease} is a clock read, so a lease with nothing left
-   * to count down leaves no active tile to escalate.
+   * Escalates at the access-state badge's threshold. Handled here because
+   * `ItemDetailsStateBadgeComponent` drops the `active` state on this surface to keep one timer.
    */
   protected readonly leaseEndingSoon = computed(
     () =>
@@ -337,19 +312,13 @@ export class CipherViewBannerComponent implements OnInit {
       this.activeLeaseExpiryMs() - this.nowMs() <= ENDING_SOON_THRESHOLD_MS,
   );
 
-  /**
-   * Whether an approved request's window has already opened — mirrors `startsNow` in
-   * `my-requests-tab.component.ts`, so both surfaces describe a granted window the same way.
-   */
+  /** Mirrors `startsNow` in `my-requests-tab.component.ts`, so both describe a window alike. */
   protected readonly approvedRequestStartsNow = computed(() => {
     const request = this.approvedRequest();
     return request != null && Date.parse(request.leaseNotBefore) <= this.nowMs();
   });
 
-  /**
-   * Whether anything on screen still reads {@link nowMs} — only the active lease's countdown and an
-   * approved request awaiting its window.
-   */
+  /** Whether anything on screen still reads {@link nowMs}. */
   private readonly clockAdvances = computed(
     () =>
       this.activeLease() != null ||
@@ -363,24 +332,22 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly requestFoldOut = viewChild("requestFoldOut", {
     read: ElementRef<HTMLElement>,
   });
-  /** Approval path resolved by the pre-check; `null` until the fold-out lands it. */
+  /** `null` until the fold-out's pre-check resolves the approval path. */
   protected readonly requestMode = signal<AccessApprovalMode | null>(null);
   protected readonly loadingRequestForm = signal(false);
   protected readonly requestError = signal<string | null>(null);
 
   /**
-   * The duration bounds the pre-check resolved from the governing rule — `null` until the fold-out
-   * runs it. Both paths read the cap from here rather than from a local constant, so the picker and
-   * the window validator can only offer what submit will accept.
+   * The governing rule's bounds from the pre-check. Both paths read the cap here, so the picker and
+   * the window validator only offer what submit accepts.
    */
   private readonly requestBounds = signal<{ defaultSeconds: number; maxSeconds: number } | null>(
     null,
   );
 
   /**
-   * The requester's duration choices for the resolved rule, narrowed to its cap. Falls back to the
-   * unnarrowed presets before the pre-check lands, which is only ever a transient state: the
-   * fold-out renders no form until `requestMode` is set, and that happens with the bounds.
+   * Duration choices narrowed to the rule's cap. The unnarrowed fallback never renders, since no
+   * form shows until `requestMode` is set along with the bounds.
    */
   protected readonly durationOptions = computed<readonly RequestDurationOption[]>(() => {
     const bounds = this.requestBounds();
@@ -389,23 +356,18 @@ export class CipherViewBannerComponent implements OnInit {
       : requestDurationOptions(bounds.maxSeconds, bounds.defaultSeconds);
   });
 
-  /**
-   * The cap the human path's window must fit inside, for the message under the time fields.
-   * `null` until the pre-check resolves the governing rule; no form renders before then.
-   */
+  /** The human path's window cap, for the message under the time fields. */
   protected readonly maxWindowSeconds = computed(() => this.requestBounds()?.maxSeconds ?? null);
 
   /**
-   * Floor for the human path's start date picker, pinned when the fold-out opened.
-   *
-   * An affordance only — reactive forms don't read `min`, so `requestWindowEndValidator` is the
-   * real check.
+   * Start picker floor, pinned when the fold-out opened. Reactive forms ignore `min`, so
+   * `requestWindowEndValidator` is the real check.
    */
   protected readonly minRequestDate = signal("");
 
   /**
-   * `freesAt` for a held single-active-lease slot; `null` means free, unknown, or unsupported —
-   * deliberately conflated as free.
+   * Set while another member holds the single-active-lease slot. `null` treats free, unknown and
+   * unsupported alike.
    */
   protected readonly slotContention = signal<{ freesAt: string | null } | null>(null);
 
@@ -436,7 +398,6 @@ export class CipherViewBannerComponent implements OnInit {
     initialValue: this.humanForm.value,
   });
 
-  /** Floor for the end date picker: the chosen start date, else the start picker's own floor. */
   protected readonly minEndDate = computed(
     () => this.humanFormValue().startDate || this.minRequestDate(),
   );
@@ -538,8 +499,8 @@ export class CipherViewBannerComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         endTime.updateValueAndValidity();
-        // Narrow on purpose: only a fresh window error from a sibling edit, so this never nags a blank
-        // End or races `BitInputDirective.onInput`'s own `markAsUntouched`.
+        // Only a fresh window error from a sibling edit, so this never nags a blank End or races
+        // `BitInputDirective.onInput`'s own `markAsUntouched`.
         if (endTime.errors?.[REQUEST_WINDOW_ERROR_KEY] != null) {
           endTime.markAsTouched();
         }
@@ -579,15 +540,13 @@ export class CipherViewBannerComponent implements OnInit {
   }
 
   /**
-   * Toggle the fold-out. On open, reset the form and resolve the approval path with a
-   * side-effect-free pre-check so the form below is purely inputs plus submit. A pre-check that
-   * reports an active lease means one raced in — collapse and let the state stream reveal it.
+   * On open, resets the form and resolves the approval path with a side-effect-free pre-check. A
+   * lease that raced in collapses the fold-out and lets the state stream reveal it.
    */
   protected async toggleRequestForm(): Promise<void> {
     const next = !this.requestFormExpanded();
     this.requestFormExpanded.set(next);
-    // Toggling unmounts the button just activated, dropping focus to <body>; bound to this
-    // toggle's own render.
+    // Toggling unmounts the activated button, which would drop focus to <body>.
     afterNextRender(
       () => (next ? this.requestFoldOut() : this.requestToggleButton())?.nativeElement.focus(),
       { injector: this.injector },
@@ -618,8 +577,6 @@ export class CipherViewBannerComponent implements OnInit {
         return;
       }
 
-      // The rule's bounds, read before either form is seeded: both the picker and the default window
-      // are built from them.
       const bounds = {
         defaultSeconds: preCheck.defaultDurationSeconds,
         maxSeconds: preCheck.maxDurationSeconds,
@@ -627,7 +584,7 @@ export class CipherViewBannerComponent implements OnInit {
       this.requestBounds.set(bounds);
 
       if (preCheck.approvalMode === "human") {
-        // One clock reading for both, so the picker's floor is exactly the day it pre-fills.
+        // One clock reading for both, so the picker's floor is the day it pre-fills.
         const openedAt = new Date();
         this.minRequestDate.set(toDateInputValue(openedAt));
         this.requestOpenedAt.set(openedAt);
@@ -635,11 +592,10 @@ export class CipherViewBannerComponent implements OnInit {
         this.customEnd.set(false);
         this.endDuration.setValue(String(bounds.defaultSeconds), { emitEvent: false });
         this.humanForm.patchValue(defaultRequestWindow(openedAt, bounds.defaultSeconds));
-        // `canStartLease` answers about now, and this window is in the future, so a slot taken right
-        // now does not warrant a contention warning.
+        // `canStartLease` answers about now, not this future window, so no contention warning here.
       } else {
-        // Pre-select the rule's own default rather than a hardcoded hour. `requestDurationOptions`
-        // guarantees it is one of the offered options, so the select cannot render blank.
+        // `requestDurationOptions` always offers the rule's default, so this select cannot render
+        // blank.
         this.automaticForm.patchValue({ durationSeconds: bounds.defaultSeconds });
 
         // The SDK owns the fail-open default (absent reads as true), so this is a plain boolean.
@@ -649,7 +605,7 @@ export class CipherViewBannerComponent implements OnInit {
       }
       this.requestMode.set(preCheck.approvalMode);
     } catch (e) {
-      // Without the pre-check the form cannot be shaped, so there is nothing useful to show.
+      // Without the pre-check the form cannot be shaped, so only the generic error shows.
       this.logService.error(e);
       this.requestError.set(this.i18nService.t("requestAccessModalGenericError"));
     } finally {
@@ -673,7 +629,10 @@ export class CipherViewBannerComponent implements OnInit {
     this.endDuration.setValue(String(seconds));
   }
 
-  /** In preset mode the start must be one of the offered slots, or the select renders blank; keeps the nearest one at or after it. */
+  /**
+   * In preset mode the start must be an offered slot, or the select renders blank, so this keeps
+   * the nearest one at or after it.
+   */
   private keepStartOnASlot(): void {
     if (this.customStart()) {
       return;
@@ -728,8 +687,8 @@ export class CipherViewBannerComponent implements OnInit {
     }
   }
 
-  // `[bitAction]` owns the button's busy state and serialises re-entrant clicks, so this only has to
-  // guard on form validity.
+  // `[bitAction]` owns the busy state and serialises re-entrant clicks, so this only guards on form
+  // validity.
   protected readonly submitRequest = async (): Promise<void> => {
     const mode = this.requestMode();
     const cipherId = this.cipher().id;
@@ -759,7 +718,6 @@ export class CipherViewBannerComponent implements OnInit {
         String(cipherId),
         request,
       );
-      // Neither path mints a lease at submit; both return a request awaiting activation.
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t(
@@ -799,9 +757,8 @@ export class CipherViewBannerComponent implements OnInit {
   };
 
   /**
-   * Withdraw whichever request is outstanding — the shared cipher-scoped cancel flow, which
-   * covers both a pending request and an approved-but-unactivated one, toasts the outcome, and
-   * announces the refresh that drives this banner into its next state.
+   * Withdraws the pending or approved request. The shared cancel flow toasts the outcome and
+   * announces the refresh.
    */
   protected readonly cancelRequest = async (): Promise<void> => {
     const cipherId = this.cipher().id;
@@ -812,10 +769,8 @@ export class CipherViewBannerComponent implements OnInit {
   };
 
   /**
-   * Extends the active lease through the shared {@link ExtendLeaseDialogComponent}.
-   *
-   * A resolved-but-denied extension is not a thrown error: branch on the returned status, not
-   * try/catch, or an expired-lease denial reads as a successful extension.
+   * A denied extension resolves rather than throws, so this branches on the returned status, or an
+   * expired-lease denial would read as success.
    */
   protected readonly extendLease = async (): Promise<void> => {
     const lease = this.activeLease();
@@ -839,8 +794,8 @@ export class CipherViewBannerComponent implements OnInit {
       this.logService.error(e);
       this.toastService.showToast({
         variant: "error",
-        // Reachable only if the seat is withdrawn between render and click; `canExtendLease`
-        // normally hides this button.
+        // Reachable only if the seat is withdrawn between render and click; the unlicensed state
+        // otherwise replaces this card.
         message: this.i18nService.t(
           isUnlicensedError(e) ? "pamLeaseErrorUnlicensed" : "pamExtendLeaseError",
         ),
@@ -881,10 +836,7 @@ export class CipherViewBannerComponent implements OnInit {
     }
   };
 
-  /**
-   * Announce that this cipher's access changed, which re-reads the state here and lets the
-   * gated-cipher reloader reveal or re-lock the item behind this banner.
-   */
+  /** Re-reads the state here and lets the gated-cipher reloader reveal or re-lock the item. */
   private notifyAccessChanged(): void {
     // The gate for an ungated-but-leased item reads the cached lease list, which must not outlive
     // a mutation that ended or extended the lease.
@@ -920,8 +872,8 @@ export class CipherViewBannerComponent implements OnInit {
   }
 
   /**
-   * Reconciles a rejected submit. An "already have this" rejection is not a failure: collapse the
-   * fold-out and let the re-read settle the banner into the state that already exists.
+   * An "already have this" rejection is not a failure: the fold-out collapses and the re-read shows
+   * the state that already exists.
    */
   private handleRequestError(e: unknown): void {
     const message = this.leasingErrorService.isLeasingError(e)
@@ -949,9 +901,8 @@ export class CipherViewBannerComponent implements OnInit {
         this.requestError.set(outcome.serverMessage);
         return;
       case "exceedsMax":
-        // Localized only where a string already exists. The automatic path has none, and its
-        // refusal is reachable only on pre-check/submit skew, so it echoes the server instead of
-        // earning new copy.
+        // The automatic path's refusal needs pre-check/submit skew, so it echoes the server rather
+        // than getting its own string.
         this.requestError.set(
           outcome.scope === "window"
             ? this.windowProblemMessage("exceedsMaxWindow", outcome.maxSeconds)
@@ -966,7 +917,7 @@ export class CipherViewBannerComponent implements OnInit {
   }
 }
 
-/** Rejects a control whose value is only whitespace — the server requires a non-empty reason. */
+/** Rejects a whitespace-only value, since the server requires a non-empty reason. */
 function nonBlank(control: { value: unknown }): { required: true } | null {
   return typeof control.value === "string" && control.value.trim().length > 0
     ? null

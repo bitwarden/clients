@@ -5,7 +5,7 @@ import { TargetSystem, TargetSystemId, TargetSystemKind, TargetSystemMethod } fr
 /** A target system as a list row, a picker option, or a control's accessible name names it. */
 export type TargetSystemLabel = {
   id: TargetSystemId;
-  /** The system's own name. Two systems can share one. */
+  /** Not unique; two systems can share one. */
   name: string;
   /** i18n key for the qualifying detail, or null when there is none to state. */
   qualifierKey: string | null;
@@ -27,24 +27,22 @@ const METHOD_LABEL_KEYS: Record<TargetSystemMethod, string | null> = {
 };
 
 /**
- * The i18n key naming the integration behind a target system. Null for a manual target, which has
- * no integration, and for a kind this client does not name: `mssql`, which it no longer offers, or
- * one a newer server named that this SDK version cannot model.
+ * The i18n key naming a target system's integration. Null for a manual target, for `mssql`, which
+ * this client does not offer, and for a kind this SDK cannot model.
  */
 export function targetSystemKindLabelKey(kind: TargetSystemKind | undefined | null): string | null {
   return kind == null ? null : (KIND_LABEL_KEYS[kind] ?? null);
 }
 
-/** The i18n key naming how a target system rotates, or null for a method this version cannot model. */
+/** The i18n key for a target system's rotation method, or null for one this SDK can't model. */
 export function targetSystemMethodLabelKey(method: TargetSystemMethod): string | null {
   return METHOD_LABEL_KEYS[method] ?? null;
 }
 
 /**
- * The i18n key for the detail that distinguishes a target system from a same-named sibling of a
- * different kind or method. Two same-named siblings that also share a kind (or share a method,
- * for manual ones) still produce the same qualifier: this function only sees one system, so a
- * caller that needs a guaranteed-unique label should key off {@link TargetSystemLabel.id} instead.
+ * The i18n key for the detail that tells a target system from a same-named sibling of another kind
+ * or method. Siblings sharing both still match, so key off {@link TargetSystemLabel.id} for
+ * uniqueness.
  */
 export function targetSystemQualifierKey(
   system: Pick<TargetSystem, "kind" | "method">,
@@ -54,7 +52,7 @@ export function targetSystemQualifierKey(
     : targetSystemKindLabelKey(system.kind);
 }
 
-/** Name a target system for display. */
+/** Falls back to the raw id while the system is unknown. */
 export function targetSystemLabel(
   i18nService: I18nService,
   id: TargetSystemId,

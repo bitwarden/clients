@@ -18,7 +18,6 @@ import { ORGANIZATION_ID, id } from "./testing/rotation-builders";
 const ORG_ID = ORGANIZATION_ID as OrganizationId;
 const USER_ID = "user-1" as UserId;
 
-/** Create a minimal CipherView stub. */
 function makeCipher(
   id: string,
   name: string,
@@ -29,7 +28,7 @@ function makeCipher(
   c.id = id;
   c.name = name;
   c.type = type;
-  // CipherView.isDeleted is a getter: `return this.deletedDate != null`
+  // `isDeleted` is a getter over `deletedDate`.
   (c as unknown as Record<string, unknown>).deletedDate = deletedDate;
   return c;
 }

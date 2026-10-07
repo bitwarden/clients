@@ -1,6 +1,5 @@
 describe("pam", () => {
-  // Placeholder test until the library exports something. Replace with real
-  // coverage as the PAM library grows.
+  // Placeholder until the library exports something.
   it("should work", () => {
     expect(true).toBe(true);
   });

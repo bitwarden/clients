@@ -33,16 +33,8 @@ import { SecureNoteView } from "./secure-note.view";
 import { SshKeyView } from "./ssh-key.view";
 
 /**
- * `SdkCipherView` plus the PAM gating marker. `sdk-internal` doesn't declare `partial` on
- * `CipherView` yet, so it's bridged here for {@link CipherView.fromSdkCipherView} to read;
- * optional, so a plain `SdkCipherView` stays assignable.
- *
- * The Rust side shipped this as `partial?: boolean` in sdk-internal commit b19f4d40, on both
- * `CipherView` and `CipherListView` (the latter is what lets `CipherViewLikeUtils.isPartial`
- * report gating for list rows) — but unpublished, so no `main` build carries it yet. Collapse
- * into `SdkCipherView` once it ships.
- *
- * See the sibling bridge in `domain/cipher.ts` for the same migration.
+ * `SdkCipherView` plus the PAM `partial` flag until the published `sdk-internal` declares it;
+ * optional, so a plain `SdkCipherView` stays assignable. Same stopgap as in `domain/cipher.ts`.
  */
 type SdkCipherViewWithPartial = SdkCipherView & { partial?: boolean };
 
@@ -80,16 +72,12 @@ export class CipherView implements View, InitializerMetadata {
   reprompt: CipherRepromptType = CipherRepromptType.None;
   key?: SymmetricCryptoKey;
 
-  /**
-   * True when the server gated this cipher: only the name and (for logins) URIs are populated.
-   * The row badge, the cipher-view banner, and edit-blocking key off this.
-   */
+  /** True when decrypted from a PAM-gated cipher; only the name and login URIs are populated. */
   partial = false;
 
   /**
-   * Client-only companion to {@link partial}: a full cipher served under an active PAM lease, so
-   * gating surfaces keep rendering lease state. Never persisted or serialized; the vault-item
-   * dialog stamps it on the view when it swaps in the cipher from `GATED_CIPHER_RELOADER`.
+   * Set by the vault-item dialog on a full cipher revealed under an active PAM lease. Client-only;
+   * never sent by the server or persisted.
    */
   leaseGated?: boolean;
 
@@ -121,7 +109,7 @@ export class CipherView implements View, InitializerMetadata {
     this.archivedDate = c.archivedDate;
     // Old locally stored ciphers might have reprompt == null. If so set it to None.
     this.reprompt = c.reprompt ?? CipherRepromptType.None;
-    // The SDK decrypt path sets this from the SDK view instead, see fromSdkCipherView.
+    // The SDK decrypt path sets `partial` from the SDK view instead; see `fromSdkCipherView`.
     this.partial = c.isPartial;
   }
 
@@ -262,7 +250,7 @@ export class CipherView implements View, InitializerMetadata {
     view.organizationUseTotp = obj.organizationUseTotp ?? false;
     view.localData = obj.localData ? obj.localData : undefined;
     view.permissions = obj.permissions ? CipherPermissionsApi.fromJSON(obj.permissions) : undefined;
-    // `leaseGated` is deliberately absent — it must not survive serialization.
+    // `leaseGated` is not copied, since it must not survive serialization.
     view.partial = obj.partial ?? false;
     view.reprompt = obj.reprompt ?? CipherRepromptType.None;
     view.decryptionFailure = obj.decryptionFailure ?? false;

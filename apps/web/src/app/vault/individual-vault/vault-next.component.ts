@@ -186,10 +186,7 @@ export class VaultNextComponent implements OnInit {
     () => this.coachmarkService.activeStepId() === "addItem",
   );
 
-  /**
-   * Host-provided "Controlled access" badge seam. Unprovided, no privileged-access feature is
-   * installed and the table's Controlled access column stays absent.
-   */
+  /** Host-provided "Controlled access" badge seam. Unprovided, the column stays absent. */
   private readonly leaseBadge: Type<unknown> | null = inject(VAULT_ROW_LEASE_BADGE, {
     optional: true,
   });
@@ -395,9 +392,8 @@ export class VaultNextComponent implements OnInit {
   });
 
   /**
-   * The badge the table renders in its Controlled access column, or `null` to leave the column
-   * out: the PAM feature flag is enabled, at least one organization in view has `usePam`, and a
-   * host provides the badge seam — the same gate the v1 list applies in `vault-items.component`.
+   * The badge for the table's Controlled access column, or `null` to omit it. Mirrors the gate in
+   * `vault-items.component`'s `showControlledAccess`.
    */
   protected readonly controlledAccessBadge = computed<Type<unknown> | null>(() =>
     this.pamEnabled() && this.leaseBadge != null && this.scopedOrganizations().some((o) => o.usePam)

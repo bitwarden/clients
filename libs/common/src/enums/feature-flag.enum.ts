@@ -228,8 +228,8 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SecretVersioning]: FALSE,
 
   /* PAM */
-  // pam/uat only - do not carry this to main. On by default so a branch build works
-  // against a server that does not report the flag; a server that reports it still wins.
+  // pam/uat only, not for main. On by default so a branch build works against a server that
+  // does not report the flag; a server that reports it still wins.
   [FeatureFlag.Pam]: TRUE,
   [FeatureFlag.PamAccessConnector]: FALSE,
 
@@ -242,15 +242,11 @@ export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
 export type FeatureFlagValueType<Flag extends FeatureFlag> = DefaultFeatureFlagValueType[Flag];
 
 /**
- * pam/uat only - do not carry this to main.
+ * pam/uat only; do not carry this to main.
  *
- * Flags pinned to a value the server cannot override, so the branch keeps rendering the v1
- * layout while the VFO refresh rolls out elsewhere. Unlike {@link DefaultFeatureFlagValue}
- * this wins over `serverConfig.featureStates`, which is the point: a LaunchDarkly-connected
- * environment reports `vfo1-foundation` on, and a default would lose to it.
- *
- * Storybook is unaffected - its mock `ConfigService` reads {@link DefaultFeatureFlagValue}
- * and the story globals directly, so the UIF v2 layout stories still render v2.
+ * Flags pinned to a value the server cannot override, so the branch keeps the v1 layout during
+ * the VFO refresh. Unlike {@link DefaultFeatureFlagValue}, this wins over
+ * `serverConfig.featureStates`.
  */
 const PinnedFeatureFlagValue: Partial<Record<FeatureFlag, AllowedFeatureFlagTypes>> = {
   [FeatureFlag.VFO1Foundation]: false,

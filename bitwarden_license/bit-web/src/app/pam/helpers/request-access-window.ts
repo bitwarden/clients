@@ -1,7 +1,4 @@
-/**
- * The control values the human-path request form collects: a local start date and time plus an end
- * date and time, kept as raw strings so this module is unit-testable without a TestBed.
- */
+/** The human-path form's raw local date and time strings, kept framework-free for testing. */
 export type RequestWindowFormValue = {
   startDate?: string | null;
   startTime?: string | null;
@@ -9,15 +6,9 @@ export type RequestWindowFormValue = {
   endTime?: string | null;
 };
 
-/** The ways a fully-populated requested window can be invalid. */
 export type RequestWindowProblem = "endNotAfterStart" | "endInPast" | "exceedsMaxWindow";
 
-/**
- * Composes the form's local dates and times into an absolute window; `null` while any field is
- * blank or unparseable.
- *
- * `new Date("YYYY-MM-DDTHH:mm")` parses as local time; the SDK serializes to UTC on the way out.
- */
+/** `null` while any field is blank or unparseable; `YYYY-MM-DDTHH:mm` parses as local time. */
 export function composeRequestWindow(
   value: RequestWindowFormValue,
 ): { start: Date; end: Date } | null {
@@ -34,11 +25,8 @@ export function composeRequestWindow(
 }
 
 /**
- * Validates a requested window, mirroring the three server checks: end strictly after start, not
- * already elapsed, and within `maxWindowSeconds`. `null` for a valid or incomplete window.
- *
- * `maxWindowSeconds` has no default on purpose: it is the governing rule's cap, which only the
- * pre-check knows.
+ * Mirrors the server's three window checks; `null` for a valid or incomplete window.
+ * `maxWindowSeconds` has no default, since only the pre-check knows the rule's cap.
  */
 export function requestWindowProblem(
   value: RequestWindowFormValue,
@@ -53,15 +41,14 @@ export function requestWindowProblem(
   if (spanMs <= 0) {
     return "endNotAfterStart";
   }
-  // Elapsed-window check comes first: it's wrong wherever it sits, and moving it into the future
-  // is the fix the requester must make before length matters.
+  // Checked before length, since moving the window into the future is the first fix to make.
   if (window.end.getTime() <= now.getTime()) {
     return "endInPast";
   }
   return spanMs > maxWindowSeconds * 1000 ? "exceedsMaxWindow" : null;
 }
 
-/** `YYYY-MM-DD` for a date, in local time — the value shape `<input type="date">` expects. */
+/** `YYYY-MM-DD` in local time, the value shape `<input type="date">` expects. */
 export function toDateInputValue(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -69,7 +56,7 @@ export function toDateInputValue(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-/** `HH:mm` for a date, in local time — the value shape `<input type="time">` expects. */
+/** `HH:mm` in local time, the value shape `<input type="time">` expects. */
 export function toTimeInputValue(date: Date): string {
   const hours = String(date.getHours()).padStart(2, "0");
   const minutes = String(date.getMinutes()).padStart(2, "0");
@@ -78,7 +65,7 @@ export function toTimeInputValue(date: Date): string {
 
 const SLOT_MINUTES = 30;
 
-/** `HH:mm` start times offered for `date`: now and each half hour after it today, every half hour on a later day. */
+/** Start times for `date`: now and each later half hour today, every half hour on a later day. */
 export function startTimeSlots(date: string, now: Date): string[] {
   const today = date === toDateInputValue(now);
   const slots = today ? [toTimeInputValue(now)] : [];
@@ -91,7 +78,7 @@ export function startTimeSlots(date: string, now: Date): string[] {
   return slots;
 }
 
-/** The instant `seconds` after the given local start; `null` while the start is blank or unparseable. */
+/** The instant `seconds` after the local start; `null` while the start is blank or unparseable. */
 export function windowEndAt(
   startDate: string | null | undefined,
   startTime: string | null | undefined,
@@ -107,7 +94,6 @@ export function windowEndAt(
 /** Below a minute the time inputs, which step in minutes, can't hold distinct values. */
 const MIN_SEEDABLE_WINDOW_SECONDS = 60;
 
-/** Seed values for a window starting at `now` and running `durationSeconds`. */
 export function defaultRequestWindow(
   now: Date,
   durationSeconds: number,
