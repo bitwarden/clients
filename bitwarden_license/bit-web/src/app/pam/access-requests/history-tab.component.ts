@@ -228,11 +228,17 @@ export class HistoryTabComponent {
 
   private readonly hasManagedHistory = computed(() => this.managedRows().length > 0);
 
+  protected readonly hasHistory = computed(
+    () => this.myRows().length > 0 || this.hasManagedHistory(),
+  );
+
   /**
-   * Offered to anyone who can approve, even with no rows yet. `hasManagedHistory()` also covers a
-   * viewer with managed rows whom the privilege predicate doesn't recognize.
+   * Offered to anyone who can approve once there is history to narrow. `hasManagedHistory()` also
+   * covers a viewer with managed rows whom the privilege predicate doesn't recognize.
    */
-  protected readonly canSwitchScope = computed(() => this.canApprove() || this.hasManagedHistory());
+  protected readonly canSwitchScope = computed(
+    () => this.hasHistory() && (this.canApprove() || this.hasManagedHistory()),
+  );
 
   /**
    * Falls back to All at once if the chip disappears while filtered. The template's `@if` destroys
@@ -284,20 +290,9 @@ export class HistoryTabComponent {
     this.historyRows().some((row) => this.canRevoke(row) || this.canCancelApproval(row)),
   );
 
-  /**
-   * Each scope words its own empty state; All spans both sources, so either side's wording would
-   * state only half of it.
-   */
-  protected readonly emptyMessageKey = computed(() => {
-    switch (this.scope()) {
-      case HistoryScope.Managed:
-        return "pamInboxHistoryEmpty";
-      case HistoryScope.Mine:
-        return "pamMyRequestsHistoryEmpty";
-      default:
-        return "pamHistoryEmpty";
-    }
-  });
+  protected readonly emptyMessageKey = computed(() =>
+    this.scope() === HistoryScope.Managed ? "pamInboxHistoryEmpty" : "pamMyRequestsHistoryEmpty",
+  );
 
   protected readonly historyDataSource = new TableDataSource<MyAccessRequestRow>();
 
