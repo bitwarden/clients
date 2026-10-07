@@ -1526,9 +1526,11 @@ jobs:
           - variant: oss
             license_type: oss
             artifact_prefix: ""
+            browser_artifact_prefix: ""
           - variant: bit
             license_type: commercial
             artifact_prefix: "commercial-"
+            browser_artifact_prefix: "bit-"
     runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     needs:
@@ -1758,10 +1760,12 @@ jobs:
           path: ${{ github.workspace }}/browser-build-artifacts
 
       - name: Unzip Safari artifact
+        env:
+          _BROWSER_ARTIFACT_PREFIX: ${{ matrix.browser_artifact_prefix }}
         run: |
-          SAFARI_DIR=$(find "$GITHUB_WORKSPACE/browser-build-artifacts" -name 'dist-safari-*.zip')
+          SAFARI_DIR=$(find "$GITHUB_WORKSPACE/browser-build-artifacts" -name "${_BROWSER_ARTIFACT_PREFIX}dist-safari-*.zip")
           echo "$SAFARI_DIR"
-          unzip "$SAFARI_DIR/dist-safari.zip" -d "$GITHUB_WORKSPACE/browser-build-artifacts"
+          unzip "$SAFARI_DIR/${_BROWSER_ARTIFACT_PREFIX}dist-safari.zip" -d "$GITHUB_WORKSPACE/browser-build-artifacts"
 
       - name: Load Safari extension for .dmg
         run: |
@@ -2074,9 +2078,11 @@ jobs:
           - variant: oss
             license_type: oss
             artifact_prefix: ""
+            browser_artifact_prefix: ""
           - variant: bit
             license_type: commercial
             artifact_prefix: "commercial-"
+            browser_artifact_prefix: "bit-"
     runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     needs:
@@ -2314,10 +2320,12 @@ jobs:
           path: ${{ github.workspace }}/browser-build-artifacts
 
       - name: Unzip Safari artifact
+        env:
+          _BROWSER_ARTIFACT_PREFIX: ${{ matrix.browser_artifact_prefix }}
         run: |
-          SAFARI_DIR=$(find "$GITHUB_WORKSPACE/browser-build-artifacts" -name 'dist-safari-*.zip')
+          SAFARI_DIR=$(find "$GITHUB_WORKSPACE/browser-build-artifacts" -name "${_BROWSER_ARTIFACT_PREFIX}dist-safari-*.zip")
           echo "$SAFARI_DIR"
-          unzip "$SAFARI_DIR/dist-safari.zip" -d "$GITHUB_WORKSPACE/browser-build-artifacts"
+          unzip "$SAFARI_DIR/${_BROWSER_ARTIFACT_PREFIX}dist-safari.zip" -d "$GITHUB_WORKSPACE/browser-build-artifacts"
 
       - name: Load Safari extension for App Store
         run: |
