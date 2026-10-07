@@ -471,7 +471,8 @@ export class AppComponent implements OnInit, OnDestroy {
             } else if (authStatus === AuthenticationStatus.LoggedOut) {
               this.modalService.closeAll();
               // A logged-out account has nothing to sync and cannot open the vault. Leave `loading`
-              // untouched: toggling it re-creates the router outlet and remounts every routed component.
+              // untouched: toggling it re-creates the router outlet, which remounts every routed
+              // component and re-runs its initialization.
               await this.router.navigate(["login"]);
             } else {
               this.messagingService.send("unlocked");
@@ -541,6 +542,10 @@ export class AppComponent implements OnInit, OnDestroy {
    * Replaces a logged-out active account with a switchable one, or clears it. Accounts whose
    * tokens live only in memory are logged out after every launch and process reload, so this
    * runs once per renderer load.
+   *
+   * It must run after the message handler subscribes, and it must navigate: a process reload
+   * restores the previous route, so the root route's redirect guard does not choose the page.
+   * Sending `switchAccount` reuses that handler's routing and sync.
    */
   private async resolveActiveAccount() {
     try {

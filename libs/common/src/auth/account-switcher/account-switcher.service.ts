@@ -13,7 +13,8 @@ import { ActiveAccountResolution } from "./active-account-resolution.type";
 export abstract class AccountSwitcherService {
   /**
    * The accounts that are not logged out, split into the active account and the others, and
-   * whether another account can be added. Emits one consistent value per change.
+   * whether another account can be added. Emits one value per change, so the active account and
+   * the others never disagree, for example during an account switch.
    */
   abstract entries$: Observable<AccountSwitcherEntries>;
 
