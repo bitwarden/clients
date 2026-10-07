@@ -27,6 +27,18 @@
       </div>
     }
     <div [class]="endSlotClasses()">
+      @if (canCustomizeColumns()) {
+        <button
+          type="button"
+          data-testid="customize-columns"
+          bitButton
+          buttonType="secondary"
+          startIcon="bwi-grid"
+          (click)="openCustomizeColumns()"
+        >
+          {{ "customize" | i18n }}
+        </button>
+      }
       <ng-content select="[slot=end]"></ng-content>
     </div>
   </div>
