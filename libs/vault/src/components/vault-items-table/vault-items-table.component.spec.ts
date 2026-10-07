@@ -133,8 +133,8 @@ class BareToolbarHostComponent {
 }
 
 /**
- * Stands in for a host's Controlled access badge: takes the row on the one input the table binds,
- * and renders its name so a test can tell which row each instance received.
+ * Stub for a host's Controlled access badge, rendering its row's name so a test can tell which
+ * row each instance received.
  */
 @Component({
   selector: "test-controlled-access-badge",

@@ -121,12 +121,8 @@ export class CollectionDialogComponent implements OnInit {
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   /**
-   * PAM's collection access-rule callout, bound in commercial code via
-   * {@link COLLECTION_ACCESS_RULE_CALLOUT}; null in OSS-only builds, where nothing renders.
-   *
-   * Annotated rather than inferred: without it the template checker cannot see this as a
-   * `Type<...>` and rejects the `ngComponentOutlet` binding. The other component-class seams
-   * (`CIPHER_VIEW_BANNER`, `VAULT_ROW_LEASE_BADGE`) annotate it the same way.
+   * PAM's access-rule callout, provided by commercial code; null in OSS-only builds. Annotated
+   * because `inject` infers `unknown` from a SafeInjectionToken, which `ngComponentOutlet` rejects.
    */
   protected readonly accessRuleCallout: Type<unknown> | null = inject(
     COLLECTION_ACCESS_RULE_CALLOUT,

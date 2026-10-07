@@ -14,7 +14,7 @@ import {
   IpAllowlistEditorComponent,
 } from "./ip-allowlist-editor.component";
 
-// Stand-in for the SDK-backed CIDR check the app injects; recognises the fixtures these specs use.
+// Stand-in for the SDK-backed CIDR check the app injects.
 const isValidCidr = (value: string): boolean =>
   value === "10.0.0.0/8" || value === "192.168.0.0/16";
 
@@ -23,7 +23,6 @@ describe("IpAllowlistEditorComponent", () => {
   let component: IpAllowlistEditorComponent;
   let cidrArray: IpAllowlistCidrsArray;
 
-  /** A host-owned CIDR array seeded with the given values, as the parent form builds it. */
   function hostArray(...cidrs: string[]): IpAllowlistCidrsArray {
     return new FormArray<FormControl<string>>(
       cidrs.map((c) => cidrRowControl(c, "invalid", isValidCidr)),
@@ -31,12 +30,10 @@ describe("IpAllowlistEditorComponent", () => {
     );
   }
 
-  /** The per-row remove buttons currently rendered, in row order. */
   function removeButtons(): HTMLButtonElement[] {
     return Array.from(fixture.nativeElement.querySelectorAll("bit-form-field button"));
   }
 
-  /** Creates the component bound to `array` and runs ngOnInit. */
   function create(array: IpAllowlistCidrsArray): void {
     cidrArray = array;
     fixture = TestBed.createComponent(IpAllowlistEditorComponent);
@@ -179,11 +176,7 @@ describe("IpAllowlistEditorComponent", () => {
       return fixture.debugElement.queryAll(By.css("bit-form-field"));
     }
 
-    /**
-     * The `bit-error` text rendered inside each row's own `bit-form-field`, in row order. Scoped
-     * per row rather than counted across the component, so a mark landing under the wrong input
-     * fails instead of passing on a matching total.
-     */
+    /** Read per row, so a mark under the wrong input can't pass on a matching total. */
     function errorsByRow(): string[][] {
       fixture.detectChanges();
       return rows().map((row) =>
@@ -194,8 +187,7 @@ describe("IpAllowlistEditorComponent", () => {
     }
 
     /**
-     * Indices of the rows carrying the row-level `duplicateCidr` mark. Asserted alongside
-     * {@link errorsByRow}, which reads the DOM and can still show a stale `bit-error` when the
+     * Checked alongside {@link errorsByRow}, whose DOM read can show a stale `bit-error` when the
      * host mutates the array without emitting.
      */
     function markedRows(): number[] {

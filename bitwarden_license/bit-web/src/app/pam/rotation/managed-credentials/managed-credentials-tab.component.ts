@@ -71,13 +71,6 @@ import { TargetSystemsService } from "../target-systems/target-systems.service";
 import { ROTATION_STATUS_BADGES, RotationConfigRow } from "./rotation-config-row";
 import { RotationConfigsService } from "./rotation-configs.service";
 
-/**
- * Managed credentials tab: lists all rotation configs for the organisation.
- *
- * Row menu actions call the service methods directly, toasting on success or failure;
- * confirmations use `DialogService.openSimpleDialog`. The edit page is a shell sibling, so
- * navigation uses `["..", "managed-credentials", id]`.
- */
 @Component({
   selector: "app-managed-credentials-tab",
   templateUrl: "./managed-credentials-tab.component.html",
@@ -140,7 +133,6 @@ export class ManagedCredentialsTabComponent {
   /** Whether the placeholder is drawn, which trails {@link loading} by the skeleton delay. */
   protected readonly showSkeleton = showSkeletonWhile(this.loading);
 
-  /** Whether the loading branch is on screen. */
   protected readonly loadingVisible = computed(() => this.loading() || this.showSkeleton());
 
   protected readonly skeletonRows = [0, 1, 2, 3, 4];
@@ -149,10 +141,7 @@ export class ManagedCredentialsTabComponent {
     initialValue: [] as RotationConfigRow[],
   });
 
-  /**
-   * Whether any target systems exist. A rotation config always references a target system, so
-   * with none the tab directs the user to set one up first instead of offering to create a config.
-   */
+  /** A config needs a target system, so with none the tab offers to set one up instead. */
   private readonly targetSystems = toSignal(this.targetSystemsService.systems$, {
     initialValue: [] as TargetSystem[],
   });
@@ -165,7 +154,7 @@ export class ManagedCredentialsTabComponent {
     initialValue: null,
   });
 
-  /** Whether the target-system list has actually been read. */
+  /** Whether the target-system list has been read successfully. */
   protected readonly targetSystemsKnown = computed(
     () => !this.targetSystemsLoading() && this.targetSystemsLoadError() == null,
   );
@@ -181,14 +170,12 @@ export class ManagedCredentialsTabComponent {
     { requireSync: true },
   );
 
-  /** Expose for template. */
   protected readonly TargetSystemMethod = TargetSystemMethod;
 
   private readonly busyRows = new RowBusyTracker<RotationConfigId>();
 
   protected readonly isRowBusy = this.busyRows.isBusy;
 
-  /** Status/target-system/collection toolbar chips. */
   /** The status filter offers every status a row can hold, named by the badge that shows it. */
   protected readonly statusBadges = ROTATION_STATUS_BADGES;
 
@@ -198,10 +185,7 @@ export class ManagedCredentialsTabComponent {
   });
   private readonly collectionFilterChip = viewChild("collectionFilter", { read: FILTER_CONTROL });
 
-  /**
-   * Distinct target systems present in the currently-loaded rows, keyed by id and sorted by name
-   * for the chip.
-   */
+  /** The target systems the loaded rows name, keyed by id. */
   protected readonly targetSystemOptions = computed(() =>
     filterOptions(
       this.rows().map((row) => [row.config.targetSystemId, row.targetSystemName] as const),
@@ -212,7 +196,6 @@ export class ManagedCredentialsTabComponent {
     initialValue: [] as CipherView[],
   });
 
-  /** Each cipher's collection ids, keyed by its id, for resolving a row's collections via `cipherId`. */
   private readonly cipherCollectionIdsById = computed(() => {
     const map = new Map<CipherId, string[]>();
     for (const cipher of this.ciphers()) {
@@ -221,16 +204,13 @@ export class ManagedCredentialsTabComponent {
     return map;
   });
 
-  /** The org's collections, for resolving the ids above to names. */
+  /** The org's collections, for naming the chip's options. */
   private readonly collections = signal<CollectionAdminView[]>([]);
 
   /** Whether the collection read failed, as opposed to answering with nothing. */
   private readonly collectionsUnavailable = signal(false);
 
-  /**
-   * Collection filter options: only the collections actually reachable from a visible row's
-   * cipher, not every collection in the org.
-   */
+  /** Only the collections a loaded row's cipher is in, not every collection in the org. */
   protected readonly collectionOptions = computed(() => {
     if (this.collectionsUnavailable()) {
       return [];
@@ -243,10 +223,7 @@ export class ManagedCredentialsTabComponent {
     );
   });
 
-  /**
-   * `row`'s cipher's collection ids, via {@link cipherCollectionIdsById}, or `undefined` when the
-   * cipher never loaded.
-   */
+  /** `undefined` when the row's cipher never loaded. */
   private cipherCollectionIds(row: RotationConfigRow): string[] | undefined {
     return this.cipherCollectionIdsById().get(row.config.cipherId);
   }
@@ -262,12 +239,8 @@ export class ManagedCredentialsTabComponent {
   });
 
   /**
-   * The v2 table's row test. Inside the toolbar the chips and the `bit-search` register with
-   * `bit-table-v2`, so their values arrive as `values` rather than through the chip refs — the
-   * table needs the keyed shape to count each chip's options.
-   *
-   * The term must come from `values.search` alone. {@link searchText} carries the same term (the
-   * projected `bit-search` keeps its form control), and reading both would narrow the rows twice.
+   * The v2 table's row test; inside the toolbar, chip and search values arrive as `values`. Read
+   * the term from `values.search` alone, since {@link searchText} holds the same term.
    */
   protected readonly rowMatchesFilter = (
     row: RotationConfigRow,
@@ -275,8 +248,8 @@ export class ManagedCredentialsTabComponent {
   ): boolean => this.matchesFilter(row, toManagedCredentialFilter(values));
 
   /**
-   * A row with no loaded cipher passes the collection chip rather than being hidden by it: the
-   * collection ids are unknown, not empty, and dropping the row would silently shrink the list.
+   * A row whose cipher never loaded passes the collection chip, since its collections are unknown
+   * rather than empty.
    */
   private matchesFilter(row: RotationConfigRow, filter: ManagedCredentialFilter): boolean {
     const { text, statusLabelKey, targetSystemId, collectionId } = filter;
@@ -318,7 +291,6 @@ export class ManagedCredentialsTabComponent {
     });
   }
 
-  /** Read the collections the filter chip names its options with. */
   private async loadCollections(organizationId: OrganizationId): Promise<void> {
     try {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -362,8 +334,8 @@ export class ManagedCredentialsTabComponent {
     this.router.navigate(["..", "managed-credentials", "new"], { relativeTo: this.route });
 
   /**
-   * Set up the first target system (shown when none exist yet), then come back here to create the
-   * credential that needed it.
+   * Shown when no target system exists. After creating one, the operator lands on the managed
+   * credential create page.
    */
   protected readonly setUpTargetSystem = (): Promise<boolean> =>
     this.router.navigate(["..", "target-systems", "new"], {
@@ -468,11 +440,7 @@ export class ManagedCredentialsTabComponent {
   }
 }
 
-/**
- * The toolbar's raw values, keyed by each control's filter key. Untyped per chip because that is
- * what both hosts hand over: `bit-table-v2` collects whatever each chip reports, and off the flag
- * the chips are read one at a time through `FilterControl`.
- */
+/** The toolbar's raw values by filter key, untyped because each host passes what a chip reports. */
 type ManagedCredentialFilterValues = {
   search?: string;
   status?: unknown;

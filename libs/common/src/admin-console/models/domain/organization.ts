@@ -39,8 +39,8 @@ export class Organization {
   usePasswordManager: boolean;
   usePam: boolean;
   /**
-   * This member's own Privileged Access Manager license, drawn against the organization's {@link usePam}
-   * subscription. Both are needed to act on a governed item -- see {@link canAccessPrivilegedAccess}.
+   * This member's own PAM seat, drawn against the organization's {@link usePam} subscription.
+   * Acting on a governed item needs both; see {@link canAccessPrivilegedAccess}.
    */
   accessPam: boolean;
   useActivateAutofillPolicy: boolean;
@@ -332,12 +332,9 @@ export class Organization {
   }
 
   /**
-   * Whether the member may author access rules: an Owner, an Admin, or a Custom user holding the
-   * permission. Mirrors the server's `ManageAccessRulesRequirement`, which admits no provider
-   * managing the organization — unlike {@link isAdmin}, which counts one as an Owner.
-   *
-   * Distinct from {@link canManageRotation}, which governs the machinery a rule's
-   * credentials are rotated by and carries a permission of its own.
+   * Whether the member may author access rules. Mirrors the server's
+   * `ManageAccessRulesRequirement`, which admits no provider, though {@link isAdmin} counts one as
+   * an Owner.
    */
   get canManageAccessRules() {
     return (
@@ -346,13 +343,9 @@ export class Organization {
   }
 
   /**
-   * Whether the member may administer the organization's rotation fleet — the access connectors,
-   * their target systems, and the per-credential rotation configs: an Owner, an Admin, or a Custom
-   * user holding `ManageRotation`. Mirrors the server's `ManageAccessConnectorRequirement`.
-   *
-   * `ManageAccessRules` is not a substitute, which is why this is a permission of its own: that one
-   * is authority over who may lease a credential, not over the connectors that rewrite it at the
-   * target system. No provider arm either, as with {@link canManageAccessRules}.
+   * Whether the member may administer access connectors, their target systems and rotation
+   * configs. Mirrors the server's `ManageAccessConnectorRequirement`, which also admits no
+   * provider.
    */
   get canManageRotation() {
     return (this.isAdmin || this.permissions.manageRotation) && this.usePam && !this.isProviderUser;
@@ -422,12 +415,8 @@ export class Organization {
     return this.hasProvider && this.providerType === ProviderType.Reseller;
   }
   /**
-   * Whether this member may take out privileged access: the organization is subscribed and
-   * they hold a seat against it. Mirrors the server's own AND in
-   * `CurrentContextOrganization.AccessPam`, shaped like {@link canAccessSecretsManager}.
-   *
-   * Distinct from {@link canManageAccessRules}, which is about authoring rules, not requesting
-   * access under them: an admin without a seat administers PAM but can't use it.
+   * Whether this member may use PAM. Mirrors the server's `CurrentContextOrganization.AccessPam`.
+   * An admin without a seat can manage PAM but not use it.
    */
   get canAccessPrivilegedAccess() {
     return this.usePam && this.accessPam;

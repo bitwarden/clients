@@ -17,23 +17,10 @@ import type {
 
 import { AccessRequestSdkService } from "..";
 
-/**
- * SDK-backed implementation of {@link AccessRequestSdkService}. Access-request lifecycle goes
- * through the Rust SDK's `commercial().pam().access_requests()` client, not hand-rolled
- * HTTP/DTOs; these calls are user-scoped, so no `organizationId` is threaded through.
- *
- * Follows the canonical per-call SDK-consumption pattern: resolve the active user, take a
- * client `Ref` from `SdkService.userClient$`, and dispose it (`using`) once the call settles.
- * Errors surface as-is, for callers to interpret via `isLeasingError`.
- */
 export class AccessRequestsSdkService implements AccessRequestSdkService {
   /**
-   * Reads for the same cipher that are still in flight, so concurrent callers share one SDK
-   * round trip — several surfaces (the vault-row badge, the sidebar's narrowing) ask about the
-   * same row in the same render pass, and the SDK caches nothing.
-   *
-   * Entries drop the moment the read settles, collapsing simultaneous duplicates without ever
-   * serving a stale access state.
+   * In-flight reads per cipher, so surfaces asking about the same row in one render pass share a
+   * round trip. Entries drop once the read settles, so no stale state is ever served.
    */
   private readonly cipherAccessStateReads = new Map<string, Promise<CipherAccessStateView>>();
 

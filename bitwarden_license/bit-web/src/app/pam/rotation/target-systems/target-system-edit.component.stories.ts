@@ -35,7 +35,6 @@ const ASSIGNED_SYSTEM = targetSystem({ id: sysId("assigned"), name: "Prod SQL" }
 /** An automatic target every enabled connector is already assigned to. */
 const SATURATED_SYSTEM = targetSystem({ id: sysId("saturated"), name: "Staging SQL" });
 
-/** A manual target: rotated by hand. */
 const MANUAL_SYSTEM = targetSystem({
   id: sysId("manual"),
   name: "Legacy mainframe",
@@ -71,9 +70,7 @@ const CONNECTORS = [
   }),
 ];
 
-/**
- * The org's managed credentials.
- */
+/** Only `ASSIGNED_SYSTEM` has a managed credential. */
 const CONFIGS = [
   rotationConfig({ targetSystemId: ASSIGNED_SYSTEM.id, targetSystemName: ASSIGNED_SYSTEM.name }),
 ];
@@ -90,9 +87,7 @@ const rotationSdk: Partial<RotationSdkService> = {
   unassignTarget: () => Promise.resolve(),
 };
 
-/**
- * Mirrors `rotation.routes.ts` (minus its guards).
- */
+/** Mirrors `rotation.routes.ts`, minus its guards. */
 const routes: Routes = [
   {
     path: "organizations/:organizationId/pam/rotation",
@@ -132,35 +127,22 @@ type Story = StoryObj<TargetSystemEditComponent>;
 const at = (targetSystemId: TargetSystemId): ReturnType<typeof atUrl> =>
   atUrl(`/organizations/${ORGANIZATION_ID}/pam/rotation/target-systems/${targetSystemId}`);
 
-/**
- * Edit mode: the breadcrumb trail reads "Target systems > Edit target system", and the
- * assigned-access-connectors card sits in its empty state. The footer's only right-hand action is
- * Delete. Neither setup step is done.
- */
+/** The connectors card is empty and neither setup step is done. */
 export const Edit: Story = {
   decorators: [at(SAMPLE_SYSTEM.id)],
 };
 
-/**
- * Two assigned connectors, one connected and one not, with a spare left to assign: the card's
- * table renders both status and connection badges and a remove control per row. Rotation is fully
- * set up here.
- */
+/** One connected and one disconnected connector, a spare to assign, and rotation set up. */
 export const AssignedConnectors: Story = {
   decorators: [at(ASSIGNED_SYSTEM.id)],
 };
 
-/**
- * Every enabled connector is already assigned here. The disabled connector still shows as an
- * assigned row. Only the credential is outstanding.
- */
+/** The disabled connector still shows as assigned, and only the credential step is left. */
 export const AllConnectorsAssigned: Story = {
   decorators: [at(SATURATED_SYSTEM.id)],
 };
 
-/**
- * A manual target: no integration, no connector. The connector step does not apply to it.
- */
+/** No integration or connector card, and no connector setup step. */
 export const ManualTarget: Story = {
   decorators: [at(MANUAL_SYSTEM.id)],
 };

@@ -27,7 +27,7 @@ import { ApprovalsTabComponent } from "./approvals-tab.component";
 
 const names = storyNames();
 
-/** `canDecide` is false only for the viewer's own request — no self-approval. */
+/** `canDecide` is false only for the viewer's own request. */
 function row(overrides: Record<string, unknown>, canDecide = true): ApprovalRow {
   return toApprovalRow(accessRequest(overrides), names, STORY_NOW, canDecide);
 }
@@ -51,13 +51,13 @@ const ROWS: ApprovalRow[] = [
     reason: "Quarterly key rotation.",
     submittedAt: new Date(STORY_NOW.getTime() - 15 * MINUTE).toISOString(),
   }),
-  // The viewer's own request: decide buttons are disabled, not hidden, so a tooltip can explain why.
+  // The viewer's own request, whose decide buttons are disabled with a tooltip.
   row({ id: "req-4", cipherId: "cipher-2", requesterName: "You", reason: "Own request." }, false),
 ];
 
 /**
- * Lease ends are stamped off the real clock, not {@link STORY_NOW}: the remaining-time badge runs
- * its own countdown, so a STORY_NOW-relative window renders as already expired.
+ * Lease ends use the real clock, not {@link STORY_NOW}, since the badge runs its own countdown and
+ * a STORY_NOW window would read as expired.
  */
 function lease(
   overrides: Record<string, unknown>,
@@ -168,11 +168,7 @@ export const FlagOn: Story = {
   globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
-/**
- * A chip in force on the `bit-table-v2` path: the toolbar's second row, the applied-filter styling
- * and the item count only render once something is selected, and only the table the toolbar sits in
- * is bordered around them.
- */
+/** A chip applied on the `bit-table-v2` path, which renders the toolbar's applied-filter row. */
 export const FlagOnFiltered: Story = {
   decorators: [inbox({ leases: activeLeases })],
   globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
@@ -196,22 +192,21 @@ export const ActiveAccessOnly: Story = {
   decorators: [inbox({ rows: [], leases: activeLeases })],
 };
 
-/** Nothing awaiting a decision — distinct from a filter that matched nothing. */
+/** Nothing awaiting a decision, as opposed to a filter that matched nothing. */
 export const Empty: Story = {
   decorators: [inbox({ rows: [] })],
 };
 
 /**
- * The first load, before any row has arrived. The skeleton is held back for a second, per the
- * component library's display guidance, so this story renders blank for its first second — the
- * Chromatic capture is delayed past that so the snapshot covers the skeleton, not the blank.
+ * The first load. The skeleton is held back for a second, so the Chromatic capture is delayed past
+ * that to catch it.
  */
 export const Loading: Story = {
   decorators: [inbox({ rows: [], loading: true })],
   parameters: { chromatic: { delay: 1500 } },
 };
 
-/** A single request — the narrowest the table gets before the empty state takes over. */
+/** A single request, the smallest table before the empty state takes over. */
 export const SingleRequest: Story = {
   decorators: [inbox({ rows: [ROWS[0]] })],
 };

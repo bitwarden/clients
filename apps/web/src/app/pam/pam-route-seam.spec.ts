@@ -32,20 +32,15 @@ const pamChildRoutes: Routes = [{ path: "", component: PamPageComponent }];
 describe("PAM_ROUTES seam", () => {
   let calls: string[];
 
-  /** Stands in for a real guard, recording that it ran and allowing navigation. */
   const record = (name: string) => () => {
     calls.push(name);
     return true;
   };
 
   /**
-   * The shape `OssRoutingModule` gives the user shell: one `UserLayoutComponent` mount behind
-   * `deepLinkGuard` + `authGuard`, with `pam` as a child. The guards are recorders, not the real
-   * ones, so their relative order is observable.
-   *
-   * `canMatch` and `loadChildren` are copied verbatim from `OssRoutingModule`: both reach the
-   * seam through `inject()`, legal only inside the router's injection context on navigation —
-   * neither `test:types` nor a production build executes this callback.
+   * Mirrors the `OssRoutingModule` user shell, with recorders for guards so their order shows.
+   * `canMatch` and `loadChildren` are copied verbatim, since their `inject()` calls only run on
+   * navigation.
    */
   const routes: Routes = [
     {

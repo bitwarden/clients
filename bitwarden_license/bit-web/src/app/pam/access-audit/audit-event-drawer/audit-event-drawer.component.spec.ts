@@ -26,7 +26,6 @@ const LEASE_ID = "b27e4c91-5d3a-4f88-a1c6-90e7d5f2b834";
 const ADA = { name: "Ada", email: "ada@example.com", organizationUserId: "org-user-1" };
 const GRACE = { name: "Grace", email: "grace@example.com", organizationUserId: "org-user-2" };
 
-/** A fully-populated row, so a test can knock out the one field it is about. */
 function row(overrides: Partial<AuditRow> = {}): AuditRow {
   return {
     occurredAt: new Date("2026-08-18T09:00:00.000Z"),
@@ -141,7 +140,6 @@ describe("AuditEventDrawerComponent", () => {
 
   const text = (name: string) => field(name).textContent!.trim().replace(/\s+/g, " ");
 
-  /** The params the one opened dialog was configured with. */
   const dialogData = () =>
     (dialogService.open.mock.calls[0][1] as { data: Record<string, unknown> }).data;
 
@@ -171,7 +169,7 @@ describe("AuditEventDrawerComponent", () => {
     it("renders the whole timestamp", async () => {
       await render();
 
-      // `long` carries the seconds and the zone, which is what an auditor correlating two systems needs.
+      // The `long` format carries seconds and the zone.
       expect(text("timestamp")).toContain("2026");
       expect(text("timestamp")).toContain(":00:00");
     });
@@ -203,7 +201,6 @@ describe("AuditEventDrawerComponent", () => {
       );
     });
 
-    // The trail falls back to email as the display name; repeating it would read as a bug.
     it("does not repeat an email that is already the display name", async () => {
       await render({ row: row({ actor: "ada@example.com" }), actor: null });
 
@@ -218,7 +215,6 @@ describe("AuditEventDrawerComponent", () => {
       expect(text("item")).toBe("Production access");
     });
 
-    // PM-43606: a fleet event names neither, so Item read as a dash while the pane held the connector all along.
     it("falls back to the access connector when the event names neither an item nor a rule", async () => {
       await render({
         row: row({
@@ -249,7 +245,6 @@ describe("AuditEventDrawerComponent", () => {
       expect(text("access-connector")).toBe("—");
     });
 
-    // "System" is a value, not an absence — an automated event has an actor, just not a person.
     it("reads System rather than a dash for an automated event", async () => {
       await render({ row: row({ automated: true }), actor: null });
 
@@ -269,8 +264,6 @@ describe("AuditEventDrawerComponent", () => {
       expect(text("duration")).toContain("Extended to");
     });
 
-    // The reason is unbounded and the column is a fixed 24rem; an unbroken value like a token or
-    // id must wrap, not widen the column.
     it("wraps a reason that offers no break opportunity", async () => {
       const unbroken = "Xk9Qw2Zr7Lm4Vb8Ns3Ty6Hj1Pd5Gf0Cx".repeat(13);
 
@@ -281,7 +274,6 @@ describe("AuditEventDrawerComponent", () => {
     });
   });
 
-  // Dropping empty rows would hide "no value" behind "failed to draw it".
   describe("absent values", () => {
     const EMPTY_ROW = row({
       actor: null,
@@ -371,7 +363,6 @@ describe("AuditEventDrawerComponent", () => {
       });
     });
 
-    // A dead link on an audit surface invites a click that reports nothing.
     it("leaves an identity the page could not resolve as plain text", async () => {
       await render({ actor: null, requester: null });
 
@@ -395,7 +386,6 @@ describe("AuditEventDrawerComponent", () => {
   describe("access rule", () => {
     const link = () => fixture.nativeElement.querySelector("#pam-audit-event-drawer_link_rule");
 
-    // A uuid tells an auditor nothing, and the store already carries the name it stood for.
     it("names the rule rather than identifying it by uuid", async () => {
       await render();
 
@@ -409,7 +399,6 @@ describe("AuditEventDrawerComponent", () => {
       expect(link().getAttribute("href")).toBe("/organizations/org-1/pam/access-rules/rule-1");
     });
 
-    // The rule is gone, so the editor would answer the one event most worth reading with a 404.
     it("leaves a rule deletion's name as plain text", async () => {
       await render({ row: row({ kindLabelKey: "pamAuditKindRuleDeleted" }) });
 
@@ -417,7 +406,6 @@ describe("AuditEventDrawerComponent", () => {
       expect(text("rule")).toBe("Approval required");
     });
 
-    // This page's own guard does not imply the rule editor's.
     it("leaves the name as plain text without the rules permission", async () => {
       await render({ canManageAccessRules: false });
 

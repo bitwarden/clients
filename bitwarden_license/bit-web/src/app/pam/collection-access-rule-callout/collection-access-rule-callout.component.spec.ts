@@ -38,8 +38,8 @@ describe("CollectionAccessRuleCalloutComponent", () => {
   let enabled$: BehaviorSubject<boolean>;
 
   /**
-   * Inputs are passed in an object rather than as positional parameters with defaults: a default
-   * parameter fires for an explicit `undefined`, which is exactly the case these tests need to set.
+   * Takes an object rather than defaulted parameters, since a default would replace the explicit
+   * `undefined` these tests pass.
    */
   async function create(
     inputs: { organizationId?: OrganizationId; collectionId?: CollectionId } = {},
@@ -75,7 +75,6 @@ describe("CollectionAccessRuleCalloutComponent", () => {
       providers: [
         // The link's target, so clicking it navigates rather than logging an unmatched-route error.
         provideRouter([{ path: "organizations/:organizationId/pam/access-rules", children: [] }]),
-        // The real cached read over the mocked SDK service, as in production wiring.
         {
           provide: GovernedCollectionsService,
           useFactory: () => new GovernedCollectionsService(accessRuleSdkService, logService),
@@ -119,7 +118,6 @@ describe("CollectionAccessRuleCalloutComponent", () => {
   });
 
   it("names every governing rule, not just the first", async () => {
-    // A collection can be governed by more than one; naming one would understate the gating.
     accessRuleSdkService.listAccessRules.mockResolvedValue([
       rule({ id: "rule-1", name: "First rule" }),
       rule({ id: "rule-2", name: "Second rule" }),
@@ -171,7 +169,6 @@ describe("CollectionAccessRuleCalloutComponent", () => {
   });
 
   it("hides itself and logs when the rule read fails, rather than blocking the dialog", async () => {
-    // The callout is informational, not a gate.
     accessRuleSdkService.listAccessRules.mockRejectedValue(new Error("boom"));
 
     await create();

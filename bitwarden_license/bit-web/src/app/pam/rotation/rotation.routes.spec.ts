@@ -5,7 +5,6 @@ import { rotationConfigEditDiscardGuard } from "./managed-credentials/rotation-c
 import { ROTATION_TABS } from "./rotation-links";
 import { rotationRoutes } from "./rotation.routes";
 
-/** The route declared at `path`, or a failure that names the path rather than one that doesn't. */
 function routeAt(path: string): Route {
   const route = rotationRoutes.find((candidate) => candidate.path === path);
   if (route == null) {
@@ -14,12 +13,10 @@ function routeAt(path: string): Route {
   return route;
 }
 
-/** A snapshot with only what the re-run rule reads off it. */
 function snapshotOf(params: Record<string, string>): ActivatedRouteSnapshot {
   return { params } as unknown as ActivatedRouteSnapshot;
 }
 
-/** Whether the route would re-run its guards for this move, asked the way the router asks. */
 function rerunsGuards(
   route: Route,
   from: Record<string, string>,

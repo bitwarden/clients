@@ -1017,8 +1017,8 @@ export class EventService {
         );
         break;
 
-      // PAM: the subset of the access-audit trail reported organization-wide; item named first,
-      // the trailing request/lease id is a correlation handle into PAM's own audit view.
+      // PAM access-audit events reported organization-wide. The trailing request or lease id
+      // correlates the row with PAM's own audit view.
       case EventType.Pam_AccessRequest_Submitted:
         msg = this.i18nService.t(
           "pamEventRequestedAccess",
@@ -1128,7 +1128,7 @@ export class EventService {
           this.getShortId(ev.accessRequestId),
         );
         break;
-      // Rule administration names no subject: a rule spans collections and has no id column on the event.
+      // Rule events name no subject: a rule spans collections and has no id column on the event.
       case EventType.Pam_AccessRule_Created:
         msg = humanReadableMsg = this.i18nService.t("pamEventCreatedAccessRule");
         break;
@@ -1733,7 +1733,7 @@ export class EventService {
     return a.outerHTML;
   }
 
-  // PAM subject ids are plain code, not links: the request-detail page needs a different
+  // PAM subject ids are plain code, not links, since the request-detail page needs a different
   // permission than AccessEventLogs.
   private formatAccessRequestId(ev: EventResponse) {
     return "<code>" + this.escapeHtml(this.getShortId(ev.accessRequestId)) + "</code>";

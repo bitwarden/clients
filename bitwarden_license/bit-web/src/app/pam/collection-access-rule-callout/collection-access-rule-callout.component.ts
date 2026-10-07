@@ -16,14 +16,8 @@ import { GovernedCollectionsService } from "../services/governed-collections.ser
 import { accessRuleSummaryKeys, rulesGoverningCollection } from "./access-rule-summary";
 
 /**
- * Names the privileged-access rule governing a collection, inside the collection edit dialog.
- *
- * Someone editing who can reach a collection needs to know a rule may already be gating its
- * items, or the member list looks like the whole story. Informational, not a gate: a failed
- * read hides the callout rather than blocking the dialog.
- *
- * Bound to `COLLECTION_ACCESS_RULE_CALLOUT` in `provide-pam.ts`; the host passes
- * `organizationId` and `collectionId` and knows nothing else about PAM.
+ * Names the rule gating a collection inside its edit dialog, where the member list alone isn't the
+ * whole story. A failed read hides the callout rather than blocking the dialog.
  */
 @Component({
   selector: "app-pam-collection-access-rule-callout",
@@ -38,10 +32,7 @@ export class CollectionAccessRuleCalloutComponent {
   private readonly governedCollections = inject(GovernedCollectionsService);
   private readonly configService = inject(ConfigService);
   private readonly i18nService = inject(I18nService);
-  /**
-   * Optional: the callout is normally inside the collection dialog and closes it on navigate, but it
-   * also renders standalone (e.g. a story), where there is no dialog to close.
-   */
+  /** Optional, since a story renders the callout without a dialog. */
   private readonly dialogRef = inject(DialogRef, { optional: true });
 
   private readonly rules = toSignal(
@@ -54,8 +45,7 @@ export class CollectionAccessRuleCalloutComponent {
         if (!enabled || organizationId == null || collectionId == null) {
           return of<AccessRuleView[]>([]);
         }
-        // The shared per-org cached read (also behind the collection-row badge); it already
-        // resolves a failed read to no rules, which hides the callout.
+        // The shared per-org cached read resolves a failure to no rules, hiding the callout.
         return this.governedCollections
           .rules$(organizationId)
           .pipe(map((rules) => rulesGoverningCollection(rules, collectionId)));
@@ -64,21 +54,15 @@ export class CollectionAccessRuleCalloutComponent {
     { initialValue: [] as AccessRuleView[] },
   );
 
-  /**
-   * Every enabled rule governing this collection, not just the first. A collection can be governed by
-   * more than one, and naming only one would understate the gating an administrator is about to
-   * change access to.
-   */
   protected readonly governingRules = this.rules;
 
-  /** The conditions a rule enforces, as one translated line. */
   protected summaryFor(rule: AccessRuleView): string {
     return accessRuleSummaryKeys(rule)
       .map((key) => this.i18nService.t(key))
       .join(" + ");
   }
 
-  /** Closes the host dialog when following the link to the rule, so a modal doesn't strand over the page navigated to. */
+  /** So the dialog isn't stranded over the rule page the link opens. */
   protected closeDialog(): void {
     void this.dialogRef?.close();
   }

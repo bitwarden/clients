@@ -4,11 +4,10 @@ import {
   isRequestNoLongerPendingError,
 } from "./decide-access-error";
 
-/** The SDK's decide error: a `name`-tagged Error carrying a `variant`. */
 const approvalError = (variant: string, message: string) =>
   Object.assign(new Error(message), { name: "ApprovalError", variant });
 
-/** The sentence buried in the serialized response, apostrophes escaped as `'`. */
+/** The sentence buried in the serialized response, apostrophes escaped as `\u0027`. */
 const wireBody = (serverMessage: string) => {
   const encoded = serverMessage.replace(/'/g, "\\u0027");
   return (
@@ -21,9 +20,8 @@ const wireBody = (serverMessage: string) => {
 };
 
 /**
- * Pinned against the sentences `DecideAccessRequestCommand` throws, spelled out here rather than
- * read off the catalog, so a server-side rewording fails this test instead of silently degrading
- * the approver's copy to generic.
+ * Spelled out rather than read off the catalog, so a server-side rewording fails this test instead
+ * of degrading the approver's copy to generic.
  */
 describe("DECIDE_ACCESS_SERVER_ERRORS", () => {
   it("carries the server's sentences verbatim", () => {

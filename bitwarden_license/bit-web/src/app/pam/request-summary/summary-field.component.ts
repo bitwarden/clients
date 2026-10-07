@@ -1,9 +1,8 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 /**
- * One label-over-value row of the request-details card. Every row uses it, so label and value
- * sit on one left edge with one vertical rhythm, and a value can be rich — a two-tone
- * name-then-email or a status badge.
+ * One label-over-value row of the request-details card. The value is projected, so it can be
+ * rich, such as a name with its email or a status badge.
  */
 @Component({
   selector: "pam-summary-field",

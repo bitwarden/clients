@@ -7,7 +7,6 @@ import { hasApprovalPrivileges } from "./approval-privileges";
 const pamOrgId = "org-1" as OrganizationId;
 const otherOrgId = "org-2" as OrganizationId;
 
-/** PAM-entitled, with no organization-wide collection authority unless overridden. */
 function org(
   options: {
     id?: OrganizationId;
@@ -41,8 +40,7 @@ describe("hasApprovalPrivileges", () => {
   });
 
   it("denies anyone holding no collection Manage", () => {
-    // Covers a member without Manage and an Admin the org doesn't let reach all items; neither
-    // holds Manage.
+    // Covers a member without Manage and an Admin the org doesn't let reach all items.
     expect(hasApprovalPrivileges([org()], [])).toBe(false);
     expect(hasApprovalPrivileges([org()], [collection(pamOrgId, false)])).toBe(false);
   });

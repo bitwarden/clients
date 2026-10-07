@@ -7,29 +7,14 @@ import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.se
 import type { AccessLeaseView } from "../abstractions/access-lease";
 import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
 
-/**
- * How long a cached read is served before a new consumer triggers a fresh one, bounding staleness
- * while collapsing repeated item opens into one read. Checked lazily on access, matching
- * `GovernedCollectionsService`.
- */
+/** How long a cached read serves new consumers, checked lazily on access. */
 const CACHE_TTL_MS = 30_000;
 
 type CacheEntry = { fetchedAt: number; leases$: Observable<readonly AccessLeaseView[]> };
 
 /**
- * One shared, cached `listMyLeases` read, backing the cipher-view banner's gate for an item the
- * server no longer gates.
- *
- * A lease can only be minted while its cipher is gated, so this answers a question the cipher
- * itself cannot: the item later became reachable through a collection carrying no rule, leaving
- * `partial` unset and the credential fully readable, while the lease it was granted under is
- * still live and still the holder's to extend or end.
- *
- * Cached because the banner's gate exists to keep a plain item from firing a PAM read, and this
- * read is per-caller rather than per-item — one list answers every item the caller opens.
- *
- * An informational consumer only: a failed read resolves to no leases, leaving the gate shut
- * rather than erroring the open item.
+ * One cached `listMyLeases` read, for an item that became reachable through a rule-less collection
+ * after its lease was minted. A failed read resolves to no leases, so the gate stays shut.
  */
 @Injectable()
 export class MyLeasesService {
@@ -58,7 +43,6 @@ export class MyLeasesService {
     return leases$;
   }
 
-  /** Whether the caller holds a live lease on `cipherId`. */
   hasActiveLease$(cipherId: string): Observable<boolean> {
     return this.leases$().pipe(
       map((leases) =>
@@ -70,8 +54,8 @@ export class MyLeasesService {
   }
 
   /**
-   * Drop the cached read. Call after ending or extending a lease: otherwise a gate opened by a
-   * lease that no longer exists stays open for up to {@link CACHE_TTL_MS}.
+   * Call after ending or extending a lease, or a gate it opened stays open for up to
+   * {@link CACHE_TTL_MS}.
    */
   invalidate(): void {
     this.cache = null;

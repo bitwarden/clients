@@ -312,8 +312,8 @@ describe("DefaultCipherSdkService", () => {
       cipherView.organizationId = orgId;
       cipherView.edit = true;
 
-      // The full original the caller revealed under the lease — local state only ever holds the
-      // partial copy, which is why `edit` cannot be used here.
+      // The full original revealed under the lease. Local state holds only the partial copy, so
+      // `edit` cannot be used.
       const originalCipherView = new CipherView();
       originalCipherView.id = cipherId;
       originalCipherView.type = CipherType.Login;

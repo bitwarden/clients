@@ -2,7 +2,6 @@ import { elapsedLabel } from "./elapsed";
 
 const NOW = new Date("2026-08-17T12:00:00.000Z");
 
-/** `NOW` minus the given number of minutes, as an ISO string. */
 function minutesAgo(minutes: number): string {
   return new Date(NOW.getTime() - minutes * 60_000).toISOString();
 }
@@ -50,7 +49,6 @@ describe("elapsedLabel", () => {
   });
 
   it("reads an unparseable timestamp as 'just now' rather than throwing", () => {
-    // A malformed date must not blank out a row the approver still needs to act on.
     expect(elapsedLabel("not-a-date", NOW)).toEqual({ key: "pamInboxElapsedJustNow", value: 0 });
   });
 });

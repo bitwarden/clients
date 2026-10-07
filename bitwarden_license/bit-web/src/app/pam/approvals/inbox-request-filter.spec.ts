@@ -8,7 +8,6 @@ describe("isActionableInboxRequest", () => {
   });
 
   it("drops a request whose window has fully elapsed", () => {
-    // Approving it would grant nothing, so it belongs in history, not the decision queue.
     expect(isActionableInboxRequest({ leaseNotAfter: "2026-08-17T11:00:00.000Z" }, NOW)).toBe(
       false,
     );

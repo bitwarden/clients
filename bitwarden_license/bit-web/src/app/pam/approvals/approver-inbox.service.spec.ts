@@ -68,7 +68,7 @@ function extendedLease(requestEnd: string, extendedEnd: string): AccessRequestVi
   ];
 }
 
-/** The 409 the server answers a decision on a request that has left the pending set with. */
+/** The server's 409 for a decision on a request that has left the pending set. */
 function alreadyResolved(): Error {
   return Object.assign(new Error(DECIDE_ACCESS_SERVER_ERRORS.AlreadyResolved.serverMessage), {
     name: "ApprovalError",
@@ -197,7 +197,6 @@ describe("ApproverInboxService", () => {
     });
 
     it("reloads on an approver-inbox push", async () => {
-      // The push an approver gets: someone else's request landed on a collection they manage.
       await service.load();
       approvalApi.listInbox.mockClear();
 
@@ -406,7 +405,7 @@ describe("ApproverInboxService", () => {
       );
       await service.cancelApproval("req-1" as unknown as AccessRequestId);
 
-      // The seam is exactly three routes; revoke and cancel are not among them.
+      // `decide` is the only mutation on `ApprovalSdkService`.
       expect(approvalApi.decide).not.toHaveBeenCalled();
     });
   });

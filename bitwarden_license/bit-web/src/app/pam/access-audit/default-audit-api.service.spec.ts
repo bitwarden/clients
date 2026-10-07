@@ -8,10 +8,7 @@ import { DefaultAuditApiService } from "./default-audit-api.service";
 const ORGANIZATION_ID = "org-1";
 const USER_ID = "user-1";
 
-/**
- * The wire shape of the trail read. Worth its own tests since a misspelled query dimension
- * comes back as an unfiltered trail, not an error.
- */
+/** A misspelled query parameter comes back as an unfiltered trail, not an error. */
 describe("DefaultAuditApiService", () => {
   let apiService: { send: jest.Mock };
   let service: DefaultAuditApiService;
@@ -24,7 +21,6 @@ describe("DefaultAuditApiService", () => {
     );
   });
 
-  /** The path the read was sent to, which is where the filter lives. */
   const requestedPath = () => apiService.send.mock.calls[0][1] as string;
 
   const query = () => new URLSearchParams(requestedPath().split("?")[1] ?? "");
@@ -41,7 +37,6 @@ describe("DefaultAuditApiService", () => {
     );
   });
 
-  // An unset dimension is omitted, not sent empty: empty on the wire would mean "match nothing".
   it("sends no query string at all for an empty filter", async () => {
     await service.listAccessAuditTrail(ORGANIZATION_ID, {});
 
@@ -59,7 +54,7 @@ describe("DefaultAuditApiService", () => {
     expect(requestedPath()).toBe(`/organizations/${ORGANIZATION_ID}/audit`);
   });
 
-  // Repeated keys rather than one comma-joined value, which is what the server's array binding reads.
+  // The server's array binding reads repeated keys, not a comma-joined value.
   it("spells a multi-select dimension as a repeated key", async () => {
     await service.listAccessAuditTrail(ORGANIZATION_ID, {
       kinds: ["requestApproved", "leaseRevoked"],
@@ -72,7 +67,6 @@ describe("DefaultAuditApiService", () => {
     expect(query().getAll("requesterId")).toEqual(["requester-a"]);
   });
 
-  // ISO instants, so the server reads the moment the auditor picked whatever timezone either end sits in.
   it("sends the bounds as ISO instants", async () => {
     const start = new Date("2026-08-18T09:00:00.000Z");
     const end = new Date("2026-08-18T17:00:00.000Z");
@@ -93,7 +87,7 @@ describe("DefaultAuditApiService", () => {
     expect(query().getAll("actorId")).toEqual(["actor-a"]);
   });
 
-  // The Item chip carries both kinds, so they travel as separate repeated keys the server unions.
+  // The server unions the two, as halves of one Item selection.
   it("sends the two halves of an Item selection as separate repeated keys", async () => {
     await service.listAccessAuditTrail(ORGANIZATION_ID, {
       cipherIds: ["cipher-1", "cipher-2"],
@@ -165,7 +159,6 @@ describe("DefaultAuditApiService", () => {
     expect(page.continuationToken).toBe("page-2");
   });
 
-  // The last page carries no token, telling a caller walking the trail to stop.
   it("reports no resume position on the last page", async () => {
     apiService.send.mockResolvedValue({ Data: [] });
 

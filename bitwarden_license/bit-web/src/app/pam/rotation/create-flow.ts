@@ -1,6 +1,4 @@
-/**
- * The query parameters that join the two rotation create flows.
- */
+/** The query parameters that join the two rotation create flows. */
 export const TARGET_SYSTEM_QUERY_PARAM = "targetSystemId";
 
 /** @see TARGET_SYSTEM_QUERY_PARAM */

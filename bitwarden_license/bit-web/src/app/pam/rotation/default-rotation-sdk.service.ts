@@ -25,14 +25,6 @@ import type {
 import { QuartzSchedulePreset, TargetSystemStatus } from "./rotation";
 import { RotationConfigDescription, RotationSdkService } from "./rotation-sdk.service";
 
-/**
- * SDK-backed {@link RotationSdkService}. Every call goes through the Rust SDK's
- * `commercial().pam().rotation()` client rather than hand-rolled HTTP and DTOs.
- *
- * Follows the same per-call pattern as `AccessRulesSdkService`: resolve the active user, take a
- * client `Ref`, and dispose it (`using`) once the call settles. Errors surface as-is; this
- * service only logs them.
- */
 export class DefaultRotationSdkService extends RotationSdkService {
   constructor(
     private sdkService: SdkService,
@@ -42,12 +34,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
     super();
   }
 
-  /**
-   * Runs `operation` against a freshly-taken rotation client, logging and rethrowing on failure.
-   *
-   * `description` only ever reaches the log — it names the operation, never its arguments, so no
-   * organization or credential detail is written out.
-   */
+  /** `description` reaches the log, so it names the operation and never its arguments. */
   private async withRotationClient<T>(
     description: string,
     operation: (rotation: RotationClient) => Promise<T> | T,
@@ -89,8 +76,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
     name: string,
   ): Promise<AccessConnectorRegistrationResponse> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
-    // The resolved value carries the one-time token. Nothing here logs it, and callers must not
-    // persist it — see RotationSdkService.registerConnector.
+    // The result carries the one-time token, so nothing here may log it.
     return this.withRotationClient("register access connector", (rotation) =>
       rotation.connectors().register(orgId, name),
     );
@@ -188,8 +174,6 @@ export class DefaultRotationSdkService extends RotationSdkService {
     );
   }
 
-  // Managed credentials (rotation configs) ————————————————————————————————————
-
   async listConfigs(organizationId: OrganizationId): Promise<RotationConfig[]> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     return this.withRotationClient("list rotation configs", (rotation) =>
@@ -262,8 +246,6 @@ export class DefaultRotationSdkService extends RotationSdkService {
       rotation.configs().delete(orgId, id),
     );
   }
-
-  // Derived logic ————————————————————————————————————————————————————————————
 
   async describeConfigs(
     configs: readonly RotationConfig[],

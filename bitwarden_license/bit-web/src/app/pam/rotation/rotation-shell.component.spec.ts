@@ -223,8 +223,6 @@ describe("RotationShellComponent", () => {
   });
 });
 
-// Exercises the shell against the REAL route shape, validating relative navigation and the
-// activeTab signal end-to-end.
 describe("RotationShellComponent (real router)", () => {
   @Component({
     template: "",
@@ -300,7 +298,6 @@ describe("RotationShellComponent (real router)", () => {
     harness = await RouterTestingHarness.create();
   });
 
-  /** Renders the shell on `tab` with the VFO1 flag in the given state, and returns its header. */
   const renderHeader = async (
     tab: keyof typeof CREATE_BUTTON_ID,
     vfo1: boolean,

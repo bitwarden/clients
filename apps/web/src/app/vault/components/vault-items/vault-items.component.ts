@@ -134,11 +134,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   protected readonly batchBarService = inject(VaultBatchBarService) as VaultBatchBarService<C>;
 
-  /**
-   * Host-provided "Controlled access" badge seam. Its presence (a privileged-access feature is
-   * installed) is what surfaces the Controlled access column; unprovided, the column is absent
-   * and the table is unchanged.
-   */
+  /** Host-provided "Controlled access" badge seam. Unprovided, the column stays absent. */
   protected readonly leaseBadge = inject(VAULT_ROW_LEASE_BADGE, { optional: true });
 
   protected editableItems: VaultItem<C>[] = [];
@@ -177,10 +173,6 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     return this.showCollections || this.showGroups || this.showOwner || this.showControlledAccess;
   }
 
-  /**
-   * Whether to render the "Controlled access" column: the PAM feature flag is enabled, at least
-   * one organization in view has `usePam`, and a host provides the badge seam.
-   */
   get showControlledAccess() {
     return (
       this.pamEnabled() && this.leaseBadge != null && this.allOrganizations.some((o) => o.usePam)
@@ -372,7 +364,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       .map((cipher) => ({ cipher }));
     const items: VaultItem<C>[] = [].concat(collections).concat(ciphers);
 
-    // PAM-gated ("partial") ciphers are never selectable; they're read-only.
+    // PAM-gated ("partial") ciphers are read-only, so never selectable.
     this.editableItems = items.filter(
       (item) =>
         (item.cipher !== undefined &&

@@ -13,10 +13,8 @@ import { ButtonModule, StatusLockupComponent, SvgComponent } from "@bitwarden/co
 import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
- * Shown by a rotation surface when what it needs could not be fetched: in place of a tab's empty
- * state, or in place of a detail page's content.
- *
- * Emits {@link retry}; the parent owns re-running whichever loads that surface needs.
+ * Replaces a rotation tab's empty state or a detail page's content when its load fails. The
+ * parent re-runs the loads on {@link retry}.
  */
 @Component({
   selector: "pam-rotation-load-error",
@@ -31,9 +29,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 export class RotationLoadErrorComponent implements AfterViewInit {
   readonly retry = output<void>();
 
-  /**
-   * Whether this state is the answer to a retry rather than the first read.
-   */
+  /** Whether this state answers a retry rather than the first read. */
   readonly focusRetry = input(false);
 
   protected readonly icon = ReportBreach;

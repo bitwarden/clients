@@ -14,7 +14,6 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { ApprovalPrivilegeService } from "./approval-privilege.service";
 import { canViewApprovalsGuard } from "./can-view-approvals.guard";
 
-/** A snapshot whose `pathFromRoot` spells out `segments`, as the router builds it. */
 function snapshotFor(segments: string[]): ActivatedRouteSnapshot {
   return {
     pathFromRoot: segments.map((path) => ({ url: [new UrlSegment(path, {})] })),
@@ -27,11 +26,8 @@ describe("canViewApprovalsGuard", () => {
   let router: Router;
 
   /**
-   * Runs the guard in an injection context and normalises its result to a promise.
-   *
-   * The guard is typed `CanActivateFn`, so call sites must pass both `route` and `state`; static
-   * analysis reads the arrow function's arity, and dropping the unused argument fails the build
-   * with TS2554.
+   * Passes a `state` the guard ignores, since `CanActivateFn` declares both parameters and
+   * omitting it fails the build with TS2554.
    */
   async function run(segments = ["pam", "approvals"]): Promise<GuardResult> {
     const result = TestBed.runInInjectionContext(() =>
@@ -41,7 +37,7 @@ describe("canViewApprovalsGuard", () => {
   }
 
   beforeEach(() => {
-    // What the privilege IS lives in `approval-privileges.spec.ts`; this only checks routing.
+    // The privilege itself is tested in `approval-privileges.spec.ts`; this covers routing.
     canApprove$ = new BehaviorSubject<boolean>(true);
     syncService = {
       getLastSync: jest.fn().mockResolvedValue(new Date()),
@@ -66,7 +62,6 @@ describe("canViewApprovalsGuard", () => {
   });
 
   it("syncs before deciding when nothing has synced yet", async () => {
-    // The privilege comes from synced collection state; deciding first would bounce a real approver.
     syncService.getLastSync.mockResolvedValue(null);
 
     expect(await run()).toBe(true);

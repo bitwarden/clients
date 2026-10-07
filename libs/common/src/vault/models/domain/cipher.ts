@@ -36,16 +36,8 @@ import { SecureNote } from "./secure-note";
 import { SshKey } from "./ssh-key";
 
 /**
- * `SdkCipher` plus the PAM partial-cipher envelope. `sdk-internal` doesn't declare
- * `partialData` on `Cipher` yet, so it's bridged here to keep the SDK mappers round-tripping
- * it; optional, so a plain `SdkCipher` stays assignable.
- *
- * The Rust side shipped this as `partialData?: string` in sdk-internal commit b19f4d40, on
- * `pam/uat`, not yet on `main`. Collapse into `SdkCipher` once it ships.
- *
- * That bump also needs migrating `libs/common/src/key-management` off `UserKeyState` and
- * `EphemeralPinEnvelopeState`, dropped by SDK commit 99ffb6ef; the `partial` bridge in
- * `cipher.view.ts` releases with the same bump.
+ * `SdkCipher` plus the PAM `partialData` envelope, bridged so the SDK mappers round-trip it until
+ * the published `sdk-internal` declares it. Optional, so a plain `SdkCipher` stays assignable.
  */
 type SdkCipherWithPartialData = SdkCipher & { partialData?: string };
 
@@ -108,7 +100,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   key?: EncString;
   /** @deprecated Opaque sealed blob (blob format only), not public API. Never parse or construct it. See {@link Cipher}. */
   data?: string;
-  /** Raw JSON-string partial-data envelope for PAM-gated rows; see {@link CipherData.partialData}. */
+  /** Raw JSON partial-data envelope for PAM-gated rows; see {@link CipherData.partialData}. */
   partialData?: string;
 
   constructor(obj?: CipherData, localData?: LocalData) {

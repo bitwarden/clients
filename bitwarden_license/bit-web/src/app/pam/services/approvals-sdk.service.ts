@@ -12,14 +12,6 @@ import type {
 
 import { ApprovalSdkService } from "..";
 
-/**
- * SDK-backed implementation of {@link ApprovalSdkService}. The approver-facing reads and the
- * decide mutation go through the Rust SDK's `commercial().pam().approvals()` client, not
- * hand-rolled HTTP/DTOs.
- *
- * Follows the canonical per-call SDK-consumption pattern: resolve the active user, take a
- * client `Ref` from `SdkService.userClient$`, and dispose it (`using`) once the call settles.
- */
 export class ApprovalsSdkService implements ApprovalSdkService {
   constructor(
     private sdkService: SdkService,

@@ -57,9 +57,7 @@ global.ResizeObserver = class ResizeObserver {
 /** The daily preset the loaded config sits on; the rest of the table resolves to nothing. */
 const DAILY_CRON = "0 0 0 * * ?";
 
-/**
- * Stands in for the rotation shell route.
- */
+/** Stub for the rotation shell route. */
 const ROUTE_PARENT = { snapshot: { params: {} } };
 
 /** The config the edit page loads: daily schedule, idle, automatic. */
@@ -170,8 +168,7 @@ function setup(options: SetupOptions = {}) {
     });
   }
 
-  // Overrides component-level providers so the real implementations are never instantiated;
-  // component-level providers shadow module-level mocks.
+  // The component's own providers shadow module-level mocks, so override them directly.
   TestBed.overrideProvider(OrgCiphersService, { useValue: orgCiphersService });
   TestBed.overrideProvider(TargetSystemsService, { useValue: targetSystemsService });
 
@@ -231,7 +228,6 @@ async function renderPage(
   return fixture;
 }
 
-/** One of the action row's buttons, by the id the template gives it. */
 function actionButton(
   fixture: ComponentFixture<RotationConfigEditComponent>,
   name: "save" | "delete",
@@ -271,7 +267,6 @@ describe("RotationConfigEditComponent — CREATE mode", () => {
 
   it("does not call createConfig when form is invalid", async () => {
     const { component, rotationSdk } = setup();
-    // cipherId + targetSystemId empty — form is invalid
     await component.submitCreate();
     expect(rotationSdk.createConfig).not.toHaveBeenCalled();
   });
@@ -424,7 +419,6 @@ describe("RotationConfigEditComponent — target-system handoff", () => {
   });
 
   describe("load error state", () => {
-    /** A create page rendered from its own template, settled, whose supporting reads failed. */
     async function renderFailedCreate() {
       const api = setup({ template: "real", listConfigsRejects: true });
       await api.fixture.whenStable();
@@ -518,9 +512,7 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
     expect(component.settingsForm.controls.scheduleCron.value).toBe("0 0 0 * * ?");
   });
 
-  /**
-   * The server takes the schedule and the account in one write.
-   */
+  /** The server takes the schedule and the account in one write. */
   it("sends the schedule and the account together on submit", async () => {
     const { component, fixture, rotationSdk } = setup({ configId: configId("cfg-1") });
     await fixture.whenStable();
@@ -540,9 +532,7 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
     );
   });
 
-  /**
-   * Every field on the Configuration tab is part of `editForm`.
-   */
+  /** Every field on the Configuration tab is part of `editForm`. */
   it("holds a changed schedule and account back until Save", async () => {
     const { component, fixture, rotationSdk } = setup({ configId: configId("cfg-1") });
     await fixture.whenStable();
@@ -580,7 +570,6 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
   });
 
   describe("load error state", () => {
-    /** An edit page rendered from its own template, settled, whose config read failed. */
     async function renderFailedEdit() {
       const api = setup({ configId: configId("cfg-1"), template: "real", getConfigRejects: true });
       const nav = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
@@ -676,9 +665,7 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
     expect(rotationSdk.deleteConfig).not.toHaveBeenCalled();
   });
 
-  /**
-   * The three catch blocks are all that stand between a refused write and a silent no-op.
-   */
+  /** Without the three catch blocks, a refused write would fail silently. */
   describe("a refused write", () => {
     it("reports a refused save and leaves the page unsaved", async () => {
       const { component, fixture, rotationSdk, dialogService, toastService } = setup({
@@ -785,9 +772,8 @@ describe("RotationConfigEditComponent — discard guard", () => {
   });
 
   /**
-   * `savedValue` is only filled once `initialize()` settles, so until then it holds no snapshot and
-   * the value comparison alone would treat the form's own defaults as unsaved input. There is
-   * nothing to discard yet; leaving must be free.
+   * `savedValue` holds no snapshot until `initialize()` settles, so a bare comparison would treat
+   * the form's defaults as unsaved input.
    */
   describe("while the page is still loading", () => {
     it("leaves an edit page mid-load without asking", async () => {
@@ -952,9 +938,8 @@ describe("RotationConfigEditComponent — tabs", () => {
 });
 
 /**
- * The two tab links the page renders are only as good as the route table behind them, and that
- * table is a sibling of the shell rather than part of it, so nothing the page renders would catch
- * a missing `:tab` layer. Resolved against the real table, with its pages stubbed out.
+ * Resolves the page's tab links against the real route table, with its pages stubbed, since
+ * nothing the page renders would catch a missing `:tab` layer.
  */
 describe("RotationConfigEditComponent — tab routes", () => {
   @Component({
@@ -964,8 +949,7 @@ describe("RotationConfigEditComponent — tab routes", () => {
   })
   class StubComponent {}
 
-  // Route-level providers and guards go with the pages they belong to, so what is left under test
-  // is the path vocabulary.
+  // Drops route providers and guards, so only the paths under test remain.
   const pathsOnly = (config: Routes): Routes =>
     config.map((route) => ({
       ...route,
@@ -978,7 +962,6 @@ describe("RotationConfigEditComponent — tab routes", () => {
   const CONFIG_ID = String(configId("cfg-1"));
   const ROTATION_URL = `/organizations/${ORG_ID}/pam/rotation`;
 
-  /** The link the page builds for one of its tabs, as an absolute router link. */
   const tabLink = (...rest: string[]) =>
     rotationLink(ORG_ID, ROTATION_TABS.managedCredentials, CONFIG_ID, ...rest);
 
@@ -1094,9 +1077,6 @@ describe("RotationConfigEditComponent — loading skeleton", () => {
 
   afterEach(() => jest.useRealTimers());
 
-  /**
-   * Runs the placeholder's clock on.
-   */
   function advance(fixture: ComponentFixture<RotationConfigEditComponent>, ms: number): void {
     fixture.detectChanges();
     jest.advanceTimersByTime(ms);
@@ -1109,7 +1089,6 @@ describe("RotationConfigEditComponent — loading skeleton", () => {
     return { fixture, el: fixture.nativeElement as HTMLElement };
   }
 
-  /** The page mid-load with its placeholder already drawn. */
   function renderSkeleton(options: SetupOptions = {}) {
     const rendered = renderLoading(options);
     advance(rendered.fixture, 1000);

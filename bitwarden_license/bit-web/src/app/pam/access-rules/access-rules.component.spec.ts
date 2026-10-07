@@ -23,12 +23,10 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
   translate: (id: string) => id,
 };
 
-/** The SDK's flat access-rule error: a `name`-tagged Error carrying a `variant`. */
 const accessRuleError = (variant: string, message: string) =>
   Object.assign(new Error(message), { name: "AccessRuleError", variant });
 
-// A real rejected mutation, verbatim — stack trace and filesystem paths included, none of which
-// may reach a toast.
+// A real rejected mutation, verbatim. Its stack trace and file paths must not reach a toast.
 const RAW_SERVER_PAYLOAD =
   'error in response: status code 400 Bad Request: {"object":"error","message":"One or more ' +
   'collections are already governed by another access rule.","validationErrors":null,' +
@@ -72,12 +70,10 @@ const configServiceWithVfo1 = (enabled: boolean): ConfigService => {
 
 type SetupOptions = {
   overrides?: ProviderOverride[];
-  /** Resolves to the user's answer for every confirmation the test triggers. */
   openSimpleDialog?: jest.Mock;
 };
 
-// Replaces the component's full table/toolbar stack so these tests exercise its own logic, not
-// child rendering.
+// Blanks the template so these tests exercise the component's logic, not its child rendering.
 const setup = async (
   rules: AccessRuleView[],
   { overrides = [], openSimpleDialog = jest.fn().mockResolvedValue(true) }: SetupOptions = {},
@@ -103,8 +99,8 @@ const setup = async (
     ],
   });
 
-  // Overridden, not provided: the component's imported modules bring their own `DialogService`,
-  // which shadows a TestBed provider.
+  // Overridden rather than provided, since the component's imported modules bring their own
+  // `DialogService`, which shadows a TestBed provider.
   TestBed.overrideProvider(DialogService, { useValue: { openSimpleDialog } });
 
   const fixture = TestBed.createComponent(AccessRulesComponent);
@@ -116,18 +112,12 @@ const setup = async (
   return fixture;
 };
 
-/** The mocks every mutation test asserts against, rebuilt per fixture. */
 let showToast: jest.Mock;
 let openSimpleDialog: jest.Mock;
 let updateAccessRule: jest.Mock;
 let deleteAccessRule: jest.Mock;
 let createAccessRule: jest.Mock;
 
-/**
- * A fixture wired for mutations: SDK writes and toasts spy-able, and every confirmation
- * answered with `confirmed`. The write mocks resolve by default; a test that needs a failure
- * re-points them with `mockRejectedValue`.
- */
 const setupMutations = async (
   rules: AccessRuleView[],
   confirmed = true,
@@ -137,7 +127,6 @@ const setupMutations = async (
   openSimpleDialog = jest.fn().mockResolvedValue(confirmed);
   updateAccessRule = jest.fn().mockImplementation((_orgId, id) => Promise.resolve(rule(id)));
   deleteAccessRule = jest.fn().mockResolvedValue(undefined);
-  // Echoes back the name it was asked for.
   createAccessRule = jest
     .fn()
     .mockImplementation((_orgId, request) => Promise.resolve(rule("rule-copy", request.name)));
@@ -160,7 +149,6 @@ const setupMutations = async (
   });
 };
 
-/** {@link setupMutations} with the whole list selected, for the bulk-actions bar. */
 const setupBulk = async (
   rules: AccessRuleView[],
   confirmed = true,
@@ -219,10 +207,7 @@ describe("AccessRulesComponent — make a copy", () => {
   let navigate: jest.SpyInstance;
   let route: ActivatedRoute;
 
-  /**
-   * Renders the two copy-name templates rather than echoing their keys, so the name the
-   * component asks `copyRuleName` for is legible in the assertions.
-   */
+  /** Renders the copy-name templates rather than echoing keys, so assertions read real names. */
   const COPY_NAME_TEMPLATES: Record<string, (name: string, count?: number) => string> = {
     pamAccessRuleDuplicateName: (name) => `${name} (copy)`,
     pamAccessRuleDuplicateNameNumbered: (name, count) => `${name} (copy ${count})`,
@@ -490,8 +475,6 @@ describe("AccessRulesComponent — bulk deactivate confirmation", () => {
     expect(openSimpleDialog).toHaveBeenCalledWith(accessRuleDeactivateConfirmOptions(2));
   });
 
-  // The single-rule dialog copy is the signed-off text for deactivating one rule, wherever it is
-  // triggered from.
   it("asks the single-rule question when only one selected rule will change", async () => {
     const rules = [rule("rule-1", "VPN", true), rule("rule-2", "SSH", false)];
     const fixture = await setupBulk(rules);
@@ -522,7 +505,7 @@ describe("AccessRulesComponent — bulk deactivate confirmation", () => {
     expect(updateAccessRule).not.toHaveBeenCalled();
   });
 
-  // Starts active; an inactive rule would short-circuit the count guard and pass trivially.
+  // Includes an active rule, since with none the deactivate count guard would pass this trivially.
   it("does not confirm before bulk activating", async () => {
     const fixture = await setupBulk([rule("rule-1", "VPN", true), rule("rule-2", "SSH", false)]);
 
@@ -534,7 +517,7 @@ describe("AccessRulesComponent — bulk deactivate confirmation", () => {
 });
 
 /**
- * These render the real template: the chips own their selection, and the blanked template the
+ * These render the real template, since the chips own their selection and the blanked template the
  * other blocks use would leave the `viewChild`s unset.
  */
 describe("AccessRulesComponent — toolbar filters", () => {
@@ -542,10 +525,6 @@ describe("AccessRulesComponent — toolbar filters", () => {
 
   const collection = (id: string, name: string) => ({ id, name }) as unknown as CollectionAdminView;
 
-  /**
-   * {@link rule} with collections on it. Cast through `unknown` for the same reason `rule` is:
-   * the SDK brands `collections` as `CollectionId[]`.
-   */
   const ruleIn = (id: string, name: string, collections: string[], enabled = true) =>
     ({ ...rule(id, name, enabled), collections }) as unknown as AccessRuleView;
 
@@ -585,7 +564,6 @@ describe("AccessRulesComponent — toolbar filters", () => {
     }
   };
 
-  /** A chip reached through the `FilterControl` contract, the way the component reads it. */
   const chip = (name: "statusFilter" | "collectionFilter"): FilterControl => {
     const control = fixture.componentInstance[name]();
     if (control == null) {
@@ -599,7 +577,6 @@ describe("AccessRulesComponent — toolbar filters", () => {
     fixture.detectChanges();
   };
 
-  /** The rule names left in the table, in data-source order. */
   const visible = () =>
     (fixture.componentInstance["dataSource"].filteredData ?? []).map((r) => r.name);
 
@@ -698,7 +675,6 @@ describe("AccessRulesComponent — VFO1 table (flag on)", () => {
     document.body.querySelectorAll(".cdk-overlay-container").forEach((el) => el.remove());
   });
 
-  /** Renders the real template under the given flag state; a fresh TestBed each time. */
   const render = async (vfo1: boolean): Promise<ComponentFixture<AccessRulesComponent>> => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
@@ -1090,8 +1066,8 @@ describe("AccessRulesComponent — VFO1 toolbar (flag on)", () => {
   it("moves the create action into the toolbar's end slot, keeping its id", async () => {
     const on = await render(true);
 
-    // The button itself has to be the slot's child: below `md` the slot sizes what it projects,
-    // and a wrapper would take the row and leave the button at its intrinsic width.
+    // The button must be the slot's direct child, since below `md` the slot sizes what it projects
+    // and a wrapper would leave the button at its intrinsic width.
     expect(Array.from(endSlot(on).children).map((n) => n.id)).toEqual(["access-rules_button_new"]);
     expect(on.nativeElement.querySelectorAll("#access-rules_button_new")).toHaveLength(1);
 

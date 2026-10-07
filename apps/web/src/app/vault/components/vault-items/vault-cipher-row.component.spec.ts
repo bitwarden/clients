@@ -332,7 +332,7 @@ describe("VaultCipherRowComponent", () => {
       component.organizations = [];
       component.collections = [];
       // The badge lives in the Controlled access column, which the table shows only when the
-      // seam is provided — mirror that gating here.
+      // seam is provided.
       component.showControlledAccess = provideBadge;
       fixture.detectChanges();
     }

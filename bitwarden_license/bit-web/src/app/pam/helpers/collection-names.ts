@@ -1,9 +1,4 @@
-/**
- * Resolves a rule's collection ids to their display names against the org's loaded
- * collections, sorted alphabetically. Falls back to the raw id when no matching
- * collection is found (e.g. one the current user cannot see). Pure, so the collection
- * badge component and the table's text-search filter can share it.
- */
+/** Sorted display names, falling back to the raw id for a collection the user cannot see. */
 export function resolveCollectionNames(
   collectionIds: string[],
   collections: readonly { id: string; name: string }[],

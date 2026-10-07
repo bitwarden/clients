@@ -209,14 +209,13 @@ describe("MyAccessService", () => {
             producedLeaseId: "lease-1",
             producedLeaseStatus: "expired",
           }),
-          // Applied: represented on its grant as time added, so it is not a row of its own.
           request("ext-applied", {
             extensionOfLeaseId: "lease-1",
             status: "approved",
             leaseNotBefore: "2024-01-01T01:00:00.000Z",
             leaseNotAfter: "2024-01-01T02:00:00.000Z",
           }),
-          // Denied because the lease ended first; history is the only place the requester can see it.
+          // Denied because the lease ended first.
           request("ext-denied", { extensionOfLeaseId: "lease-2", status: "denied" }),
         ]);
         leasesApi.listMyLeases.mockResolvedValue([]);
@@ -225,7 +224,6 @@ describe("MyAccessService", () => {
 
         const rows = await firstValueFrom(service.historyRows$);
         expect(rows.map((r) => r.id).sort()).toEqual(["ext-denied", "req-1"]);
-        // Nor does it show up as an outstanding extension — it is resolved, not open.
         expect(await firstValueFrom(service.extensionRows$)).toEqual([]);
       });
     });
@@ -349,7 +347,6 @@ describe("MyAccessService", () => {
       await service.load();
       expect(await firstValueFrom(service.pendingRows$)).toHaveLength(1);
 
-      // The approver approved it; the server pushes, and the page re-reads.
       requestsApi.listMyAccessRequests.mockResolvedValue([
         request("req-1", { status: "approved", leaseNotAfter: "2999-01-01T00:00:00.000Z" }),
       ]);

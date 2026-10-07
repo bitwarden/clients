@@ -140,8 +140,6 @@ describe("historyDisplayStatus", () => {
   });
 
   it("reads Revoked off the lease status even with the requester's own deny on the log", () => {
-    // `canceled` vs `revoked` on the lease settles the label; a logged self-deny must not flip it
-    // back.
     const r = request("req-1", {
       status: "approved",
       requesterId: "user-1",
@@ -344,7 +342,6 @@ describe("toRequestRow", () => {
   });
 
   it("falls back to the automatic decision's comment when no human decided", () => {
-    // An automatically denied request has no approver; the reason sits on the automatic decision.
     const row = toRequestRow(
       request("ext-1", {
         status: "denied",
@@ -428,7 +425,7 @@ describe("buildMyAccessRequestRows", () => {
 
   it("keeps a denied extension as its own row rather than folding it away", () => {
     const original = request("req-1", { status: "approved", producedLeaseId: "lease-1" });
-    // Refused because the parent lease ended first; folding it away would leave no record of the ask.
+    // Refused because the parent lease ended first.
     const denied = request("ext-1", {
       extensionOfLeaseId: "lease-1",
       status: "denied",

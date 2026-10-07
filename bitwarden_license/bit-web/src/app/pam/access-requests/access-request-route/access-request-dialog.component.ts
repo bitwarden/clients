@@ -54,11 +54,6 @@ import { historyDisplayStatus, lapsedGrantBadge } from "../my-access-row";
 
 import { AccessRequestDetailService } from "./access-request-detail.service";
 
-/**
- * i18n keys for a decision-log entry's outcome. A Deny recorded on a request that did not end
- * Denied is the lease ending (self-end or operator revoke), not a denial — mirroring the
- * historical-status derivation in `../my-access-row`.
- */
 const DECISION_LABEL_KEYS = {
   approved: "pamStatusApproved",
   denied: "pamStatusDenied",
@@ -68,22 +63,15 @@ const DECISION_LABEL_KEYS = {
 
 export type AccessRequestDialogParams = {
   /**
-   * Handed in rather than injected: `DialogService` builds the dialog's injector from the root
-   * one, so a provider scoped to the opening route isn't reachable from inside here.
+   * Handed in rather than injected, since `DialogService` builds the dialog's injector from the
+   * root one, out of reach of route-scoped providers.
    */
   detail: AccessRequestDetailService;
 };
 
 /**
- * One access request, opened over the access-requests shell by the `/pam/requests/:id` route;
- * the host route owns the URL and close navigation, this dialog owns the view.
- *
- * The same link reaches the requester and the request's approvers, so the footer follows the
- * viewer: Start / Cancel / End for the requester, Approve / Deny, Withdraw approval or Revoke
- * for an approver. Neither side ever sees the other's actions.
- *
- * Data, name resolution, and mutations live in {@link AccessRequestDetailService}; an approver's
- * confirms and toasts in {@link ApproverActionsService}, shared with the Approvals and History tabs.
+ * The view for `/pam/requests/:id`; the host route owns the URL and close navigation. The same
+ * link reaches the requester and approvers, so the footer offers only the viewer's own actions.
  */
 @Component({
   selector: "pam-access-request-dialog",
@@ -135,7 +123,6 @@ export class AccessRequestDialogComponent implements OnInit {
   /** An approver looking at a decided request on a collection they manage. */
   private readonly approverManages = computed(() => this.isApprover() && this.managed());
 
-  /** Cipher name resolved from local vault state; falls back to the raw id. */
   protected readonly cipherName = computed(() => {
     const request = this.request();
     return request == null
@@ -143,7 +130,6 @@ export class AccessRequestDialogComponent implements OnInit {
       : (this.names().cipherNameById.get(cipherId(request)) ?? cipherId(request));
   });
 
-  /** Collection name resolved from local vault state, null when unknown. */
   protected readonly collectionName = computed(() => {
     const request = this.request();
     return request == null
@@ -151,13 +137,12 @@ export class AccessRequestDialogComponent implements OnInit {
       : (this.names().collectionNameById.get(collectionId(request)) ?? null);
   });
 
-  /** Owning organization's name resolved from the caller's membership, null when unknown. */
   protected readonly organizationName = computed(() => {
     const request = this.request();
     return request == null ? null : organizationNameFor(request, this.names());
   });
 
-  /** Ticks every second so the lease / redemption countdowns stay live. */
+  /** Ticks every second so the countdowns stay live. */
   protected readonly nowMs = signal(Date.now());
 
   /** Per-action in-flight flags (prevent double-submit and drive button spinners). */
@@ -216,8 +201,8 @@ export class AccessRequestDialogComponent implements OnInit {
     return request.decisions.map((decision) => {
       const approver = humanApprover(decision);
       const denied = decision.verdict === "deny";
-      // A Deny on a request that didn't end Denied is the lease ending; revoke/self-end stores
-      // its reason as Deny.
+      // A Deny on a request that didn't end Denied is a lease end; revoke and self-end record
+      // their reason as Deny.
       const leaseEnd = denied && request.status !== "denied";
       const outcome = !denied
         ? "approved"
@@ -241,8 +226,8 @@ export class AccessRequestDialogComponent implements OnInit {
   protected readonly leaseActive = computed(() => this.request()?.producedLeaseStatus === "active");
 
   /**
-   * The applied extension's added time and the end it moved the lease to; null when the lease was
-   * never extended. A lease may be extended once, so the whole delta belongs to that extension.
+   * The applied extension's added time and new end; null if never extended. A lease extends at
+   * most once, so the whole delta is that extension's.
    */
   protected readonly extension = computed(() => {
     const request = this.request();
@@ -256,13 +241,9 @@ export class AccessRequestDialogComponent implements OnInit {
   });
 
   /**
-   * The live "ends in X" countdown's target — the produced lease's own end — while that lease is
-   * active and its window still open; null when there is nothing to count down.
-   *
-   * Read off `producedLeaseNotAfter`, not `leaseNotAfter`: the latter is the activation window
-   * pinned at submit, which an extension never restamps, so reading it here had the dialog
-   * contradict the Active access table on an extended lease (PAM-151). Falls back to it for a
-   * server predating the field, where the two agree anyway.
+   * The countdown target while the lease is live. Reads `producedLeaseNotAfter` because an
+   * extension never restamps `leaseNotAfter`, falling back to the latter for servers that omit the
+   * field.
    */
   protected readonly leaseEndsAt = computed(() => {
     const request = this.request();
@@ -273,7 +254,6 @@ export class AccessRequestDialogComponent implements OnInit {
     return Date.parse(endsAt) > this.nowMs() ? endsAt : null;
   });
 
-  /** The requester can start an approved request while its window can still produce access. */
   protected readonly canStart = computed(() => {
     const request = this.request();
     return (
@@ -285,7 +265,6 @@ export class AccessRequestDialogComponent implements OnInit {
     );
   });
 
-  /** The requester can withdraw a pending request, or an approved one whose window has not lapsed. */
   protected readonly canCancel = computed(() => {
     const request = this.request();
     if (request == null || !this.isRequester()) {
@@ -301,22 +280,16 @@ export class AccessRequestDialogComponent implements OnInit {
     );
   });
 
-  /** The holder can end their own active lease early. */
   protected readonly canEndLease = computed(() => this.isRequester() && this.leaseActive());
 
-  /** An approver can decide a request still waiting in their inbox. */
   protected readonly canDecide = computed(() => this.isApprover() && this.approvalRow() != null);
 
-  /** An approver can withdraw an approval the requester has not started — as the History tab does. */
   protected readonly canWithdrawApproval = computed(() => {
     const request = this.request();
     return request != null && this.approverManages() && isUnstartedApproval(request);
   });
 
-  /**
-   * An approver can end access someone is using right now on a collection they manage. No window
-   * check: an extension runs the lease past the request's `leaseNotAfter`, as History allows for.
-   */
+  /** No window check, since an extension runs the lease past the request's `leaseNotAfter`. */
   protected readonly canRevoke = computed(() => {
     const request = this.request();
     return request != null && this.approverManages() && isLiveManagedLease(request);
@@ -330,7 +303,7 @@ export class AccessRequestDialogComponent implements OnInit {
       this.destroyRef.onDestroy(() => clearInterval(intervalId));
     });
 
-    // A non-404 load failure (404 is the not-found state) surfaces as a toast.
+    // A 404 is the not-found state; any other load failure toasts.
     this.detail.loadError$
       .pipe(
         filter((e) => e != null),
@@ -461,8 +434,8 @@ export class AccessRequestDialogComponent implements OnInit {
   }
 
   /**
-   * `closeOnNavigation` is off; the host route decides when this closes, not the router. A CDK
-   * close on back-navigation would send the browser back twice.
+   * `closeOnNavigation` is off because the host route decides when this closes; a CDK close on
+   * back-navigation would send the browser back twice.
    */
   static open(
     dialogService: DialogService,
@@ -475,12 +448,10 @@ export class AccessRequestDialogComponent implements OnInit {
   }
 }
 
-/** The gated cipher's raw (string) id — the key {@link ResolvedNames} maps are keyed on. */
 function cipherId(request: AccessRequestView): string {
   return uuidAsString(request.cipherId);
 }
 
-/** The gated collection's raw (string) id — the key {@link ResolvedNames} maps are keyed on. */
 function collectionId(request: AccessRequestView): string {
   return uuidAsString(request.collectionId);
 }

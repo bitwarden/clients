@@ -54,7 +54,7 @@ describe("accessRuleSummaryKeys", () => {
   });
 
   it("ignores a condition kind this client does not know", () => {
-    // The SDK passes newer kinds through unchanged; summarising one it cannot read would be a guess.
+    // The SDK passes unknown kinds through unchanged.
     const conditions = [{ kind: "something_new" }];
 
     expect(accessRuleSummaryKeys(rule({ conditions }))).toEqual([
@@ -74,7 +74,6 @@ describe("rulesGoverningCollection", () => {
   });
 
   it("excludes a disabled rule, which gates nothing", () => {
-    // Naming one would tell an administrator their collection is governed when it is not.
     const rules = [rule({ id: "off", enabled: false })];
 
     expect(rulesGoverningCollection(rules, "col-1")).toEqual([]);

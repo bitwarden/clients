@@ -7,15 +7,8 @@ import { TargetSystemId, TargetSystemMethod, TargetSystemStatus, TargetSystem } 
 import { RotationSdkService } from "../rotation-sdk.service";
 
 /**
- * Page-scoped data service for the target-systems tab.
- *
- * Provided at the rotation shell route so all rotation tabs share one loaded instance; owns the
- * list of target systems, exposes derived lookups, and handles the enable/disable toggle with
- * optimistic patching.
- *
- * Delete and disable aren't interchangeable: disable retires a merely unavailable target,
- * leaving it and its configs intact; delete is for one that has left the estate, and the server
- * — not this service — refuses it while any config still names the target.
+ * Data service for the target systems, provided at the rotation shell route so the tabs share one
+ * load. Mutations patch local state only after the server confirms.
  */
 @Injectable()
 export class TargetSystemsService {
@@ -37,35 +30,22 @@ export class TargetSystemsService {
   /** The error from the last {@link load}, or null when it succeeded. */
   readonly loadError$: Observable<unknown | null> = this._loadError$.asObservable();
 
-  /** A map from targetSystemId → TargetSystem for O(1) lookups in derived services. */
   readonly systemById$: Observable<Map<TargetSystemId, TargetSystem>> = this._systems$.pipe(
     map((systems) => new Map(systems.map((s) => [s.id, s]))),
   );
 
   /**
-   * The subset of systems that use the Automatic method: the ones an access connector can be
-   * assigned to. Status is deliberately not considered, matching
-   * `AssignAccessConnectorToTargetCommand`, which checks the method alone.
-   *
-   * Not the choices for a new rotation config: `CreateRotationConfigCommand` additionally rejects
-   * an inactive target, and the config create page filters `systems$` on Active itself.
+   * The systems an access connector can be assigned to. Status is not considered, as in
+   * `AssignAccessConnectorToTargetCommand`; a new rotation config also needs an active target.
    */
   readonly automaticSystems$: Observable<TargetSystem[]> = combineLatest([this._systems$]).pipe(
     map(([systems]) => systems.filter((s) => s.method === TargetSystemMethod.Automatic)),
   );
 
   /**
-   * Fetch the org's target systems, replacing local state.
-   *
-   * Records a failure on {@link loadError$} rather than rejecting, so the tabs that call this as
-   * `void load(...)` can render an error state instead of an empty list. The callers that await it
-   * — `RotationConfigsService.load`, the rotation config edit page and the connector detail page
-   * — don't see a rejection either, and must read {@link loadError$} to tell a failed load
-   * from an empty one.
-   *
-   * Several tabs load this shared instance, so two calls can be in flight at once. Each call holds
-   * a generation token and records nothing once a later call has superseded it, so neither
-   * ordering lets the losing call latch its outcome over the winning call's.
+   * Records a failure on {@link loadError$} rather than rejecting, so awaiting callers must read it
+   * to tell a failed load from an empty one. Several tabs share this instance, so a superseded
+   * call records nothing.
    */
   async load(organizationId: OrganizationId): Promise<void> {
     this.organizationId = organizationId;
@@ -91,10 +71,7 @@ export class TargetSystemsService {
     }
   }
 
-  /**
-   * Enable or disable a target system, optimistically patching local state.
-   * The server returns 204 for enable/disable; state is patched by toggling the status field.
-   */
+  /** The server answers with no content, so the status is patched locally once it confirms. */
   async setEnabled(system: TargetSystem, enabled: boolean): Promise<void> {
     const orgId = this.requireOrganizationId();
     if (enabled) {
@@ -110,12 +87,7 @@ export class TargetSystemsService {
     );
   }
 
-  /**
-   * Permanently delete a target system, dropping it from local state once the server confirms.
-   *
-   * Not optimistic: the server refuses while a rotation config still names the target, and
-   * that's the common case, so the row stays until it's genuinely gone.
-   */
+  /** Not optimistic, since the server often refuses while a rotation config names the target. */
   async delete(system: TargetSystem): Promise<void> {
     const orgId = this.requireOrganizationId();
     await this.rotationSdk.deleteTargetSystem(orgId, system.id);

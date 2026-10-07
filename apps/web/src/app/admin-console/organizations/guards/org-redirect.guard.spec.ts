@@ -36,7 +36,7 @@ export class AdminConsoleComponent {}
 })
 export class AdminConsoleSubrouteComponent {}
 
-/** Stands in for the optional seam tokens a real redirect callback reads. */
+/** Placeholder for the optional seam tokens a real redirect callback reads. */
 const REDIRECT_SEAM = new InjectionToken<string>("RedirectSeam");
 
 const orgFactory = (props: Partial<Organization> = {}) =>

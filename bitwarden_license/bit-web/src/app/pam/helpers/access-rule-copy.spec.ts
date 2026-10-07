@@ -3,7 +3,7 @@ import type { AccessRuleView } from "../abstractions/access-rule";
 import { accessRuleToCopyRequest, copyRuleName } from "./access-rule-copy";
 import { ACCESS_RULE_NAME_MAX_LENGTH } from "./access-rule-request";
 
-/** Stands in for the i18n service, rendering the two copy-name templates as `en` words them. */
+/** Stub for the i18n service, rendering the two copy-name templates as `en` words them. */
 const t = (key: string, name: string, count?: number): string =>
   key === "pamAccessRuleDuplicateNameNumbered" ? `${name} (copy ${count})` : `${name} (copy)`;
 
@@ -27,7 +27,6 @@ describe("copyRuleName", () => {
   });
 
   it("does not renumber around a gap it does not need", () => {
-    // "VPN (copy 2)" is free, so the numbering stops there rather than walking past the 3.
     expect(copyRuleName("VPN", ["VPN (copy)", "VPN (copy 3)"], t)).toBe("VPN (copy 2)");
   });
 

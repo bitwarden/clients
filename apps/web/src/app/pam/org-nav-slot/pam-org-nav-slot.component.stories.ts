@@ -129,28 +129,22 @@ export default {
 
 type Story = StoryObj<PamOrgNavSlotComponent>;
 
-/** Both permissions granted, rotation off — the shipped shape of the group today. */
 export const Default: Story = {
   decorators: [featureFlags()],
   args: { organization: organization(true, true) },
 };
 
-/** Rotation's own flag on top of the other two, adding the third item. */
 export const WithRotation: Story = {
   decorators: [featureFlags({ rotationEnabled: true })],
   args: { organization: organization(true, true) },
 };
 
-/** No event-log permission — Audit log drops out, leaving Access rules alone. */
 export const AccessRulesOnly: Story = {
   decorators: [featureFlags()],
   args: { organization: organization(true, false) },
 };
 
-/**
- * A Custom member holding only ManageAccessRules: rule authorship without authority over the
- * rotation fleet, so Rotation stays hidden even with its flag on.
- */
+/** Can author rules but not manage rotation, so Rotation stays hidden despite its flag. */
 export const RuleAuthorWithoutRotation: Story = {
   decorators: [featureFlags({ rotationEnabled: true })],
   args: { organization: organization(true, true, false) },

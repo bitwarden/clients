@@ -261,8 +261,7 @@ export class CipherAttachmentsComponent {
           : undefined,
       );
 
-      // Re-reads rather than trusting the server's echo, since for a PAM-gated cipher that echo
-      // is the stripped shape.
+      // Re-read rather than trust the echo, which is stripped for a PAM-gated cipher.
       this.cipherDomain = (await this.getCipher(this.cipherId())) ?? this.cipherDomain;
 
       // re-decrypt the cipher to update the attachments
@@ -342,8 +341,8 @@ export class CipherAttachmentsComponent {
     // First try to get the cipher directly with user permissions
     const localCipher = await this.cipherService.get(id, this.activeUserId);
 
-    // A PAM-gated cipher's stripped local copy carries no attachment metadata; reads the full
-    // copy from the server instead, released only by a valid active lease.
+    // A PAM-gated cipher's local copy is stripped of attachment metadata; the server releases the
+    // full copy under an active lease.
     if (localCipher?.partialData != null) {
       return (await this.getFullCipherFromServer(id)) ?? localCipher;
     }
@@ -357,11 +356,8 @@ export class CipherAttachmentsComponent {
   }
 
   /**
-   * Reads a cipher's full copy straight from the server, for a PAM-gated cipher whose local copy
-   * is stripped. Used for this dialog only, never written to local state.
-   *
-   * Returns null when the server withholds it too — no lease covers the cipher — so the caller
-   * keeps the stripped copy it already has.
+   * Reads a PAM-gated cipher's full copy from the server, for this dialog only; it is never
+   * written to local state. Null when no lease covers the cipher or the read fails.
    */
   private async getFullCipherFromServer(id: CipherId): Promise<Cipher | null> {
     try {

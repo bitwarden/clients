@@ -253,9 +253,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * The footer's trailing Archive/Unarchive/Delete icon buttons. Withheld for a partial-data
-   * cipher for the same reason {@link showEdit} is: the caller has no access to the item yet, so
-   * the dialog offers nothing that would change its state.
+   * The footer's trailing Archive/Unarchive/Delete icon buttons, withheld like {@link showEdit}
+   * for a partial-data cipher the caller has no access to yet.
    */
   protected get showActionButtons() {
     return this.cipher !== null && this.formConfig.mode !== "clone" && !this.isPartialData;
@@ -280,17 +279,15 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * True for a cipher that arrived as partial data — gated with no access, so the server
-   * suppressed its sensitive fields. Must not be edited, or saving would clobber those fields
-   * with blanks.
+   * True for a gated cipher opened without access, whose sensitive fields the server suppressed.
+   * Must not be edited, or saving would overwrite those fields with blanks.
    */
   protected get isPartialData() {
     return this.cipher?.partial ?? false;
   }
 
   protected get showEdit() {
-    // Hide Edit for a partial-data cipher — the host banner owns the access flow until
-    // the full cipher is revealed.
+    // The host banner owns a partial-data cipher's access flow until the full cipher is revealed.
     return this.showCipherView && !this.isTrashFilter && !this.showRestore && !this.isPartialData;
   }
 
@@ -392,18 +389,14 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.revealGatedCipherWhenAccessBegins();
   }
 
-  /**
-   * Swaps the open partial cipher for the full one when access begins, and back when it ends.
-   * Only runs for a cipher that opened gated, with {@link GATED_CIPHER_RELOADER} provided.
-   */
+  /** Swaps the open partial cipher for the full one when access begins, and back when it ends. */
   private revealGatedCipherWhenAccessBegins(): void {
     const partialCipher = this.params.formConfig.originalCipher;
     if (this.gatedCipherReloader == null || partialCipher?.partialData == null) {
       return;
     }
 
-    // Only a `null` that FOLLOWS a reveal is a re-lock; the initial `null` (no access yet) must
-    // leave the partial view alone.
+    // Only a `null` after a reveal is a re-lock; the initial `null` means no access yet.
     let revealed = false;
     this.gatedCipherReloader
       .fullCipher$(partialCipher.id)
@@ -441,11 +434,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.updateTitle();
   }
 
-  /** Restores the partial cipher when access ends, tearing the form down with it. */
   private async relockToPartial(partialCipher: Cipher): Promise<void> {
     await this.swapInCipher(partialCipher, false);
-    // Unmounts the form too: its component-scoped state still holds the full decrypted cipher,
-    // so leaving it mounted would keep secrets reachable after re-lock.
+    // The form's component-scoped state still holds the full decrypted cipher, so unmount it.
     this.loadForm = false;
     this.params.mode = "view";
     this.canEdit = false;
@@ -454,9 +445,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Point the dialog at `cipher` — both the decrypted view it renders and the `originalCipher` a
-   * save would build on, which must move together or a save could write the partial copy's blanks
-   * over the fields the server suppressed.
+   * Points the dialog's view and `originalCipher` at `cipher`. They must move together, or a save
+   * could write the partial copy's blanks over the fields the server suppressed.
    */
   private async swapInCipher(cipher: Cipher, leased: boolean): Promise<CipherView | undefined> {
     const activeUserId = await firstValueFrom(this.userId$);
@@ -510,7 +500,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         ),
       );
 
-      // Forces a form-mode open back to view when the cipher can't be edited.
       if ((this.disableEdit || this.isPartialData) && this.params.mode === "form") {
         this.params.mode = "view";
         this.loadForm = false;
@@ -575,16 +564,16 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       // Update organizationUseTotp from server response
       this.cipher.organizationUseTotp = cipher.organizationUseTotp;
     } else if (this.formConfig.leaseGated) {
-      // Neither local state nor the save's echo can supply a gated cipher; local state is the
-      // stripped copy and the echo is blanked without being flagged partial, so it's re-read.
+      // Local state holds the stripped copy and the save's echo is blanked without being flagged
+      // partial, so re-read the gated cipher.
       const revealed = await this.reloadGatedCipher();
 
       if (revealed != null) {
         await this.swapInCipher(revealed, true);
         cipher = revealed;
       } else if (cipher != null) {
-        // The lease lapsed, or the read failed: re-lock to the stripped copy, as reopening would,
-        // rather than leave blanks on screen for an Edit to write over the suppressed fields.
+        // The lease lapsed or the read failed. Re-lock to the stripped copy, as reopening would,
+        // rather than leave blanks an Edit could write over the suppressed fields.
         this._cipherModified = true;
         await this.relockToPartial(cipher);
         await this.changeMode("view");
@@ -643,7 +632,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     try {
       await this.deleteCipher();
     } catch (e) {
-      // Reporting Deleted would close the dialog on a delete the server refused (PM-42916).
+      // Reporting Deleted would close the dialog on a delete the server refused.
       this.logService.error(e);
       this.toastService.showToast({
         variant: "error",
@@ -715,8 +704,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         );
       }
 
-      // Patches only from a view actually obtained; dereferencing an absent one used to throw
-      // and abandon the handler, leaving the form's revision date stale.
+      // Missing when, for example, a gated cipher's lease lapsed before the re-read.
       if (updatedCipherView == null) {
         this.logService.error(
           new Error(
@@ -738,11 +726,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   };
 
   /**
-   * Re-reads a leasing-gated cipher's full copy through {@link GATED_CIPHER_RELOADER}, to refresh
-   * the dialog after a mutation.
-   *
-   * Local state is never the source: `cipherView$` excludes gated ciphers and carries only the
-   * stripped copy. Null means the lease lapsed between the mutation and this read.
+   * Re-reads a gated cipher's full copy through {@link GATED_CIPHER_RELOADER} after a mutation,
+   * since local state holds only the stripped copy. Null when no lease covers it.
    */
   private async reloadGatedCipher(): Promise<Cipher | null> {
     const cipherId = this.formConfig.originalCipher?.id as CipherId;

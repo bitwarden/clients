@@ -13,13 +13,8 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import type { CipherId } from "@bitwarden/sdk-internal";
 
 /**
- * Page-scoped service that loads the organization's decrypted vault ciphers.
- *
- * Provided at the shell route (alongside {@link RotationConfigsService}) so both the configs
- * tab and the config-edit page share one loaded instance per navigation.
- *
- * Only Login-type, non-deleted ciphers are exposed; names decrypt locally via the org key, so
- * no unencrypted vault data reaches the server.
+ * The organization's decrypted login ciphers. Provided at the shell route for its tabs; the
+ * detail pages, siblings of the shell, provide their own.
  */
 @Injectable()
 export class OrgCiphersService {
@@ -30,28 +25,16 @@ export class OrgCiphersService {
   private readonly _ciphers$ = new BehaviorSubject<CipherView[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(false);
 
-  /** Whether a load is in progress. */
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
 
-  /**
-   * Login-type, non-deleted org ciphers as decrypted views.
-   * Empty array until {@link load} resolves.
-   */
+  /** Empty until {@link load} resolves. */
   readonly ciphers$: Observable<CipherView[]> = this._ciphers$.asObservable();
 
-  /**
-   * Convenience map of cipher id → decrypted name.
-   * Used by the configs list to resolve cipher display names.
-   */
   readonly cipherNameById$: Observable<Map<CipherId, string>> = this._ciphers$.pipe(
     map((ciphers) => new Map(ciphers.map((c) => [asUuid<CipherId>(c.id), c.name]))),
   );
 
-  /**
-   * Fetch the org's ciphers and store them locally. Uses `getAllFromApiForOrganization` for
-   * admin/owner scope, `getManyFromApiForOrganization` otherwise — mirroring the admin-console
-   * org-vault page.
-   */
+  /** Picks the API read by `canEditAllCiphers`, as the Admin Console org-vault page does. */
   async load(organizationId: OrganizationId): Promise<void> {
     this._loading$.next(true);
     try {
@@ -69,7 +52,7 @@ export class OrgCiphersService {
         ciphers = await this.cipherService.getManyFromApiForOrganization(organizationId);
       }
 
-      // Keep only Login-type, non-deleted ciphers (rotation targets credentials only).
+      // Rotation manages login credentials only.
       const filtered = ciphers.filter((c) => c.type === CipherType.Login && !c.isDeleted);
 
       this._ciphers$.next(filtered);

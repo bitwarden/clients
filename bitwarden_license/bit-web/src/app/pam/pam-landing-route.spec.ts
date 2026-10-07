@@ -35,8 +35,6 @@ describe("pamLandingRoute", () => {
     expect(pamLandingRoute(member({ manageRotation: true }))).toBe("rotation");
   });
 
-  // The static redirect this replaced sent everyone here, and the rules guard bounced the two
-  // members above straight back out.
   it("prefers the rules list when a member holds more than one", () => {
     expect(pamLandingRoute(member({ manageAccessRules: true, manageRotation: true }))).toBe(
       "access-rules",
