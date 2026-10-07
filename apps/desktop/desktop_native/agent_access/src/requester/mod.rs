@@ -1,0 +1,394 @@
+//! Names the app behind a request: walks up from the socket peer past shells and our own CLI to
+//! the first valid Developer ID signer, since the peer is always `bw-access` under some shell.
+
+#[cfg(target_os = "macos")]
+mod macos;
+
+use std::path::Path;
+
+use sysinfo::{Pid, ProcessRefreshKind, ProcessesToUpdate, System, UpdateKind};
+
+const MAX_HOPS: usize = 8;
+const BITWARDEN_TEAM_ID: &str = "LTZ2PFU5D6";
+const TRANSPARENT: &str =
+    "sh bash zsh fish dash ksh mksh tcsh csh nu pwsh powershell cmd env login sudo doas npx uvx \
+     bw-access";
+
+/// Who is asking, as far as the OS can tell. Best effort: same-user processes can lie by racing
+/// or injecting.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Requester {
+    pub app: App,
+    /// `chain[0]` is the socket peer, walking up.
+    pub chain: Vec<Hop>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct App {
+    pub name: String,
+    pub pid: u32,
+    pub exe: Option<String>,
+    pub signer: Option<Signer>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Hop {
+    pub pid: u32,
+    pub name: String,
+    pub exe: Option<String>,
+    pub signer: Option<Signer>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Signer {
+    pub kind: SignerKind,
+    /// Team id; the signing identifier for platform binaries; `None` for ad hoc.
+    pub id: Option<String>,
+    pub organization: Option<String>,
+    pub valid: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SignerKind {
+    DeveloperId,
+    Platform,
+    AdHoc,
+    Other,
+}
+
+pub(crate) struct ProcessEntry {
+    pub ppid: Option<u32>,
+    pub name: String,
+    pub exe: Option<String>,
+}
+
+#[derive(Clone)]
+pub(crate) struct SignerInfo {
+    pub signer: Signer,
+    pub identifier: Option<String>,
+    /// Info.plist display name, sealed by the signature.
+    pub bundle_name: Option<String>,
+}
+
+pub(crate) trait ProcessTable {
+    fn process(&self, pid: u32) -> Option<ProcessEntry>;
+    fn signer(&self, pid: u32, exe: Option<&str>) -> Option<SignerInfo>;
+}
+
+/// Blocking (process table + SecCode); call from spawn_blocking.
+pub fn resolve(peer_pid: u32) -> Requester {
+    walk(&OsTable, peer_pid)
+}
+
+fn walk(table: &impl ProcessTable, peer_pid: u32) -> Requester {
+    let (mut chain, mut app, mut peer) = (Vec::new(), None, None);
+    let mut pid = peer_pid;
+    while chain.len() < MAX_HOPS && pid > 1 && chain.iter().all(|h: &Hop| h.pid != pid) {
+        let Some(entry) = table.process(pid) else {
+            break;
+        };
+        let info = table.signer(pid, entry.exe.as_deref());
+        let name = entry
+            .exe
+            .as_deref()
+            .and_then(|e| Path::new(e).file_name()?.to_str());
+        let hop = Hop {
+            pid,
+            name: name.map_or(entry.name, str::to_string),
+            exe: entry.exe,
+            signer: info.as_ref().map(|i| i.signer.clone()),
+        };
+        let this = App {
+            name: display_name(&hop, info.as_ref()),
+            pid,
+            exe: hop.exe.clone(),
+            signer: hop.signer.clone(),
+        };
+        let candidate = !is_transparent(&hop);
+        let signed = candidate && is_developer_id(&hop, |s| s.valid);
+        chain.push(hop);
+        if signed || (candidate && app.is_none()) {
+            app = Some(this);
+        } else if peer.is_none() {
+            peer = Some(this);
+        }
+        match entry.ppid {
+            Some(ppid) if !signed => pid = ppid,
+            _ => break,
+        }
+    }
+    let app = app.or(peer).unwrap_or_else(|| App {
+        name: "unknown".to_string(),
+        pid: peer_pid,
+        exe: None,
+        signer: None,
+    });
+    Requester { app, chain }
+}
+
+fn is_developer_id(hop: &Hop, also: impl Fn(&Signer) -> bool) -> bool {
+    hop.signer
+        .as_ref()
+        .is_some_and(|s| s.kind == SignerKind::DeveloperId && also(s))
+}
+
+fn is_transparent(hop: &Hop) -> bool {
+    let name = hop.name.to_ascii_lowercase();
+    let name = name.strip_prefix('-').unwrap_or(&name);
+    let name = name.strip_suffix(".exe").unwrap_or(name);
+    TRANSPARENT.split_whitespace().any(|t| t == name)
+        || is_developer_id(hop, |s| s.id.as_deref() == Some(BITWARDEN_TEAM_ID))
+}
+
+fn display_name(hop: &Hop, info: Option<&SignerInfo>) -> String {
+    let humanized = || {
+        info.filter(|i| i.signer.kind == SignerKind::DeveloperId)?
+            .identifier
+            .as_deref()
+            .and_then(humanize)
+    };
+    info.and_then(|i| i.bundle_name.clone())
+        .or_else(humanized)
+        .unwrap_or_else(|| hop.name.clone())
+}
+
+/// `com.anthropic.claude-code` → `Claude Code`.
+fn humanize(identifier: &str) -> Option<String> {
+    let words: Vec<String> = identifier
+        .rsplit('.')
+        .next()?
+        .split(['-', '_'])
+        .filter_map(|word| {
+            let mut chars = word.chars();
+            chars
+                .next()
+                .map(|c| c.to_uppercase().chain(chars).collect())
+        })
+        .collect();
+    (!words.is_empty()).then(|| words.join(" "))
+}
+
+struct OsTable;
+
+impl ProcessTable for OsTable {
+    fn process(&self, pid: u32) -> Option<ProcessEntry> {
+        let pid = Pid::from_u32(pid);
+        let mut system = System::new();
+        system.refresh_processes_specifics(
+            ProcessesToUpdate::Some(&[pid]),
+            true,
+            ProcessRefreshKind::nothing().with_exe(UpdateKind::Always),
+        );
+        let process = system.process(pid)?;
+        let ppid = process.parent().map(Pid::as_u32);
+        #[cfg(target_os = "macos")]
+        let ppid = ppid.or_else(|| macos::ppid(pid.as_u32()));
+        Some(ProcessEntry {
+            ppid,
+            name: process.name().to_string_lossy().into_owned(),
+            exe: process.exe().and_then(Path::to_str).map(str::to_string),
+        })
+    }
+
+    #[cfg(target_os = "macos")]
+    fn signer(&self, pid: u32, _exe: Option<&str>) -> Option<SignerInfo> {
+        macos::signer(pid)
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    fn signer(&self, _pid: u32, _exe: Option<&str>) -> Option<SignerInfo> {
+        None
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// (pid, ppid, exe path or bare name, signer).
+    struct Fake(Vec<(u32, u32, &'static str, Option<SignerInfo>)>);
+
+    impl ProcessTable for Fake {
+        fn process(&self, pid: u32) -> Option<ProcessEntry> {
+            let (_, ppid, name, _) = self.0.iter().find(|r| r.0 == pid)?;
+            let exe = name.contains('/').then(|| name.to_string());
+            let name = name.rsplit('/').next().unwrap_or(name).to_string();
+            Some(ProcessEntry {
+                ppid: Some(*ppid),
+                name,
+                exe,
+            })
+        }
+        fn signer(&self, pid: u32, _exe: Option<&str>) -> Option<SignerInfo> {
+            self.0.iter().find(|r| r.0 == pid)?.3.clone()
+        }
+    }
+
+    fn info(kind: SignerKind, id: &str, org: &str, ident: &str) -> Option<SignerInfo> {
+        let (id, organization) = (Some(id.to_string()), Some(org.to_string()));
+        let signer = Signer {
+            kind,
+            id,
+            organization,
+            valid: true,
+        };
+        Some(SignerInfo {
+            signer,
+            identifier: Some(ident.to_string()),
+            bundle_name: None,
+        })
+    }
+
+    fn apple(ident: &str) -> Option<SignerInfo> {
+        info(SignerKind::Platform, ident, "Apple", ident)
+    }
+
+    fn dev(team: &str, org: &str, ident: &str) -> Option<SignerInfo> {
+        info(SignerKind::DeveloperId, team, org, ident)
+    }
+
+    fn claude() -> Option<SignerInfo> {
+        dev("Q6L2SF6YDW", "Anthropic PBC", "com.anthropic.claude-code")
+    }
+
+    fn ghostty() -> Option<SignerInfo> {
+        dev("24VZTF6M5V", "Mitchell Hashimoto", "com.mitchellh.ghostty")
+    }
+
+    fn names(r: &Requester) -> Vec<&str> {
+        r.chain.iter().map(|h| h.name.as_str()).collect()
+    }
+
+    #[test]
+    fn measured_claude_chain_names_claude_code() {
+        let t = Fake(vec![
+            (60, 50, "/opt/homebrew/bin/bw-access", None),
+            (50, 40, "/bin/zsh", apple("com.apple.zsh")),
+            (40, 30, "/Users/a/.local/bin/claude", claude()),
+            (30, 20, "-zsh", apple("com.apple.zsh")),
+            (20, 10, "/usr/bin/login", apple("com.apple.login")),
+            (10, 1, "ghostty", ghostty()),
+        ]);
+        let r = walk(&t, 60);
+        assert_eq!(r.app.name, "Claude Code");
+        assert_eq!(r.app.pid, 40);
+        let signer = r.app.signer.as_ref().expect("signer");
+        assert_eq!(signer.organization.as_deref(), Some("Anthropic PBC"));
+        assert_eq!(names(&r), ["bw-access", "zsh", "claude"]);
+    }
+
+    #[test]
+    fn human_in_terminal_falls_back_to_terminal() {
+        let t = Fake(vec![
+            (60, 50, "bw-access", None),
+            (50, 40, "-zsh", None),
+            (40, 30, "login", apple("com.apple.login")),
+            (30, 1, "Terminal", apple("com.apple.Terminal")),
+            (1, 0, "launchd", apple("com.apple.xpc.launchd")),
+        ]);
+        let r = walk(&t, 60);
+        assert_eq!((r.app.name.as_str(), r.app.pid), ("Terminal", 30));
+        assert_eq!(names(&r), ["bw-access", "-zsh", "login", "Terminal"]);
+    }
+
+    #[test]
+    fn unsigned_node_is_walked_past() {
+        let t = Fake(vec![
+            (60, 50, "bw-access", None),
+            (50, 40, "zsh", None),
+            (40, 30, "node", None),
+            (30, 20, "claude", claude()),
+            (20, 1, "ghostty", ghostty()),
+        ]);
+        let r = walk(&t, 60);
+        assert_eq!((r.app.name.as_str(), r.app.pid), ("Claude Code", 30));
+        assert_eq!(names(&r), ["bw-access", "zsh", "node", "claude"]);
+    }
+
+    #[test]
+    fn all_transparent_names_the_peer() {
+        let t = Fake(vec![(60, 50, "bw-access", None), (50, 1, "sh", None)]);
+        let r = walk(&t, 60);
+        assert_eq!((r.app.name.as_str(), r.app.pid), ("bw-access", 60));
+        assert_eq!(r.chain.len(), 2);
+    }
+
+    #[test]
+    fn unresolvable_peer_is_unknown() {
+        let r = walk(&Fake(vec![]), 42);
+        assert_eq!((r.app.name.as_str(), r.app.pid), ("unknown", 42));
+        assert!(r.chain.is_empty());
+    }
+
+    #[test]
+    fn walk_stops_at_eight_hops_and_on_cycles() {
+        let long = Fake((100..120).map(|p| (p, p + 1, "zsh", None)).collect());
+        assert_eq!(walk(&long, 100).chain.len(), MAX_HOPS);
+        let cycle = Fake(vec![(10, 11, "sh", None), (11, 10, "bash", None)]);
+        let r = walk(&cycle, 10);
+        assert_eq!(names(&r), ["sh", "bash"]);
+        assert_eq!(r.app.pid, 10);
+    }
+
+    #[test]
+    fn bitwarden_signed_hops_are_skipped() {
+        let bw = dev(BITWARDEN_TEAM_ID, "Bitwarden Inc.", "com.bitwarden.cli");
+        let t = Fake(vec![
+            (60, 50, "bw", bw),
+            (50, 40, "zsh", None),
+            (40, 1, "ghostty", ghostty()),
+        ]);
+        let r = walk(&t, 60);
+        assert_eq!((r.app.name.as_str(), r.app.pid), ("Ghostty", 40));
+    }
+
+    #[test]
+    fn bundle_name_beats_identifier_and_basename() {
+        let mut code = dev(
+            "UBF8T346G9",
+            "Microsoft Corporation",
+            "com.microsoft.VSCode",
+        );
+        if let Some(info) = code.as_mut() {
+            info.bundle_name = Some("Code".to_string());
+        }
+        let t = Fake(vec![(60, 50, "bw-access", None), (50, 1, "Electron", code)]);
+        assert_eq!(walk(&t, 60).app.name, "Code");
+    }
+
+    #[test]
+    fn transparency_ignores_case_login_dash_and_exe() {
+        let hop = |name: &str| Hop {
+            pid: 2,
+            name: name.to_string(),
+            exe: None,
+            signer: None,
+        };
+        for name in ["-zsh", "ZSH.EXE", "Bash", "pwsh.exe", "bw-access"] {
+            assert!(is_transparent(&hop(name)), "{name}");
+        }
+        for name in ["claude", "zshell", "node", "Code.exe"] {
+            assert!(!is_transparent(&hop(name)), "{name}");
+        }
+    }
+
+    #[test]
+    fn humanize_identifier() {
+        let cases = [
+            ("com.anthropic.claude-code", "Claude Code"),
+            ("com.example.my_cool-tool", "My Cool Tool"),
+            ("cursor", "Cursor"),
+            ("com.example.", ""),
+        ];
+        for (identifier, expected) in cases {
+            assert_eq!(humanize(identifier).unwrap_or_default(), expected);
+        }
+    }
+
+    #[test]
+    fn live_chain_starts_at_this_process() {
+        let me = std::process::id();
+        let r = resolve(me);
+        assert_eq!(r.chain.first().map(|h| h.pid), Some(me), "{r:?}");
+    }
+}

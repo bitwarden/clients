@@ -1,13 +1,13 @@
 [workspace]
 resolver = "2"
 members = [
+    "agent_access",
     "autofill_provider",
     "autotype",
     "biometric",
     "bitwarden_chromium_import_helper",
     "chromium_importer",
     "core",
-    "credential_agent",
     "credential_client",
     "napi",
     "process_isolation",

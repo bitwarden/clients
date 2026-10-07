@@ -1,4 +1,4 @@
-//! Lifecycle of the credential agent: owns the listener task and the provider it serves from.
+//! Lifecycle of the agent listener.
 
 use std::sync::Arc;
 
@@ -6,26 +6,19 @@ use anyhow::Result;
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, info};
 
-use crate::{provider::CredentialProvider, server};
+use crate::{router::Router, server};
 
-/// The Bitwarden credential agent.
-///
-/// ```text
-/// bw-credential (CLI) --[unix socket / named pipe]--> agent --[napi]--> Electron (vault + prompt)
-/// ```
-///
-/// The agent is pure transport and policy plumbing: it never holds vault data. Every request
-/// is resolved by the [`CredentialProvider`], which lives on the Electron side.
-pub struct BitwardenCredentialAgent<P: CredentialProvider> {
-    provider: Arc<P>,
+/// Transport only: it never holds vault data; the router's answerer resolves every request.
+pub struct BitwardenCredentialAgent {
+    router: Arc<Router>,
     /// `Some` exactly while the listener task is running.
     cancel_token: Option<CancellationToken>,
 }
 
-impl<P: CredentialProvider> BitwardenCredentialAgent<P> {
-    pub fn new(provider: P) -> Self {
+impl BitwardenCredentialAgent {
+    pub fn new(router: Arc<Router>) -> Self {
         Self {
-            provider: Arc::new(provider),
+            router,
             cancel_token: None,
         }
     }
@@ -40,19 +33,19 @@ impl<P: CredentialProvider> BitwardenCredentialAgent<P> {
     /// Returns an error if the socket or named pipe cannot be created.
     pub fn start(&mut self) -> Result<()> {
         if self.is_running() {
-            debug!("credential agent already running");
+            debug!("agent already running");
             return Ok(());
         }
 
         let listener = server::listener::create_listener()?;
 
         let token = CancellationToken::new();
-        let provider = self.provider.clone();
+        let router = self.router.clone();
         let task_token = token.clone();
-        tokio::spawn(async move { server::serve(listener, provider, task_token).await });
+        tokio::spawn(async move { server::serve(listener, router, task_token).await });
 
         self.cancel_token = Some(token);
-        info!("credential agent started");
+        info!("agent started");
 
         Ok(())
     }
@@ -61,7 +54,7 @@ impl<P: CredentialProvider> BitwardenCredentialAgent<P> {
     pub fn stop(&mut self) {
         if let Some(token) = self.cancel_token.take() {
             token.cancel();
-            info!("credential agent stopped");
+            info!("agent stopped");
         }
     }
 
@@ -72,7 +65,7 @@ impl<P: CredentialProvider> BitwardenCredentialAgent<P> {
     }
 }
 
-impl<P: CredentialProvider> Drop for BitwardenCredentialAgent<P> {
+impl Drop for BitwardenCredentialAgent {
     fn drop(&mut self) {
         self.stop();
     }

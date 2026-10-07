@@ -1,5 +1,5 @@
 [package]
-name = "credential_agent"
+name = "agent_access"
 edition = { workspace = true }
 license = { workspace = true }
 version = { workspace = true }
@@ -11,8 +11,7 @@ async-trait = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 sysinfo = { workspace = true }
-thiserror = { workspace = true }
-tokio = { workspace = true, features = ["io-util", "macros", "net", "rt", "sync"] }
+tokio = { workspace = true, features = ["io-util", "macros", "net", "rt", "sync", "time"] }
 tokio-util = { workspace = true }
 tracing = { workspace = true }
 
@@ -20,8 +19,18 @@ tracing = { workspace = true }
 homedir = { workspace = true }
 libc = { workspace = true }
 
+[target.'cfg(target_os = "macos")'.dependencies]
+core-foundation = { workspace = true }
+security-framework = { workspace = true }
+security-framework-sys = { workspace = true }
+
 [target.'cfg(windows)'.dependencies]
-windows = { workspace = true, features = ["Win32_Foundation", "Win32_System_Pipes"] }
+windows = { workspace = true, features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_Security_Authorization",
+    "Win32_System_Pipes",
+] }
 
 [dev-dependencies]
 serial_test = { workspace = true }

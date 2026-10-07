@@ -10,8 +10,8 @@ name = "credential_client"
 path = "src/main.rs"
 
 [dependencies]
+agent_access = { path = "../agent_access" }
 anyhow = { workspace = true }
-credential_agent = { path = "../credential_agent" }
 serde_json = { workspace = true }
 tokio = { workspace = true, features = ["io-util", "macros", "net", "rt"] }
 

@@ -1,4 +1,4 @@
-//! Platform-specific transports the credential agent accepts clients on.
+//! Platform transports the agent accepts clients on.
 
 #[cfg(unix)]
 pub(crate) mod unix;
@@ -9,15 +9,12 @@ pub(crate) mod windows;
 use anyhow::Result;
 use tokio::io::{AsyncRead, AsyncWrite};
 
-use crate::provider::PeerContext;
-
-/// An accepted client connection, paired with what we know about the peer process.
+/// An accepted client and the kernel-reported pid of the process on the other end.
 pub(crate) struct Connection<S> {
     pub(crate) stream: S,
-    pub(crate) peer: PeerContext,
+    pub(crate) peer_pid: Option<u32>,
 }
 
-/// Implementors create the platform socket/pipe and accept clients on it.
 #[async_trait::async_trait]
 pub(crate) trait Listener: Send + Sync + 'static {
     type Stream: AsyncRead + AsyncWrite + Send + Unpin + 'static;
@@ -25,13 +22,11 @@ pub(crate) trait Listener: Send + Sync + 'static {
     async fn accept(&mut self) -> Result<Connection<Self::Stream>>;
 }
 
-/// Creates the listener for the current platform.
 #[cfg(unix)]
 pub(crate) fn create_listener() -> Result<impl Listener> {
     unix::UnixListener::new()
 }
 
-/// Creates the listener for the current platform.
 #[cfg(windows)]
 pub(crate) fn create_listener() -> Result<impl Listener> {
     windows::WindowsListener::new()

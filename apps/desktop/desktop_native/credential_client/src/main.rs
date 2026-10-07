@@ -1,8 +1,8 @@
 //! `credential_client` — asks the running Bitwarden desktop app for a login credential.
 //!
 //! ```text
-//! credential_client --uri https://github.com
-//! credential_client --name "GitHub" --field password
+//! credential_client --domain github.com
+//! credential_client --search "GitHub" --field password
 //! ```
 //!
 //! The desktop app prompts the user for approval according to its credential agent
@@ -10,8 +10,8 @@
 
 use std::io::Write as _;
 
+use agent_access::protocol::{CredentialData, Response, Status, PROTOCOL_VERSION};
 use anyhow::{anyhow, bail, Context as _, Result};
-use credential_agent::{Credential, Response, PROTOCOL_VERSION};
 use serde_json::json;
 use tokio::io::{AsyncBufReadExt as _, AsyncWriteExt as _, BufReader};
 
@@ -21,14 +21,15 @@ const EXIT_NOT_FOUND: i32 = 3;
 const EXIT_ERROR: i32 = 4;
 
 const USAGE: &str = "\
-Usage: credential_client [--uri <uri>] [--name <name>] [--field <field>]
+Usage: credential_client (--domain <domain> | --id <id> | --search <text>) [--field <field>]
 
 Requests a login credential from the running Bitwarden desktop app.
 
 Options:
-  --uri <uri>      Match against the item's login URIs
-  --name <name>    Match against the item's name
-  --field <field>  One of: json (default), username, password, totp
+  --domain <domain>  Match against the item's login URIs
+  --id <id>          The item's id
+  --search <text>    Match against the item's name
+  --field <field>    One of: json (default), username, password, totp
   -h, --help       Print this help
 
 Exit codes: 0 granted, 2 denied, 3 not found, 4 error";
@@ -54,14 +55,12 @@ impl Field {
 }
 
 struct Args {
-    uri: Option<String>,
-    name: Option<String>,
+    query: serde_json::Value,
     field: Field,
 }
 
 fn parse_args() -> Result<Option<Args>> {
-    let mut uri = None;
-    let mut name = None;
+    let mut query = None;
     let mut field = Field::Json;
 
     let mut args = std::env::args().skip(1);
@@ -69,19 +68,20 @@ fn parse_args() -> Result<Option<Args>> {
         let mut value = || args.next().ok_or_else(|| anyhow!("{arg} requires a value"));
 
         match arg.as_str() {
-            "--uri" => uri = Some(value()?),
-            "--name" => name = Some(value()?),
+            "--domain" => query = Some(json!({ "domain": value()? })),
+            "--id" => query = Some(json!({ "id": value()? })),
+            "--search" => query = Some(json!({ "search": value()? })),
             "--field" => field = Field::parse(&value()?)?,
             "-h" | "--help" => return Ok(None),
             other => bail!("unknown argument '{other}'"),
         }
     }
 
-    if uri.is_none() && name.is_none() {
-        bail!("either --uri or --name is required");
-    }
+    let Some(query) = query else {
+        bail!("one of --domain, --id or --search is required");
+    };
 
-    Ok(Some(Args { uri, name, field }))
+    Ok(Some(Args { query, field }))
 }
 
 #[tokio::main(flavor = "current_thread")]
@@ -101,20 +101,34 @@ async fn main() {
     };
 
     match response {
-        Response::Ok { credential } => print_credential(&credential, &args.field),
-        Response::Denied => exit_with(EXIT_DENIED, "the request was denied"),
-        Response::NotFound => exit_with(EXIT_NOT_FOUND, "no matching credential was found"),
-        Response::Error { message } => fail(&message),
+        Response::CredentialResponse {
+            status: Status::Approved,
+            credential: Some(credential),
+            ..
+        } => print_credential(&credential, &args.field),
+        Response::CredentialResponse {
+            status: Status::Denied,
+            ..
+        } => exit_with(EXIT_DENIED, "the request was denied"),
+        Response::CredentialResponse {
+            status: Status::NotFound,
+            ..
+        } => exit_with(EXIT_NOT_FOUND, "no matching credential was found"),
+        Response::CredentialResponse { status, error, .. } => {
+            fail(&error.unwrap_or_else(|| format!("the request ended with status {status:?}")))
+        }
+        Response::ApprovalResponse { .. } => fail("unexpected response"),
+        Response::Error { error, .. } => fail(&error),
     }
 }
 
 /// Sends one request over the agent transport and reads the single response line back.
 async fn request(args: &Args) -> Result<Response> {
     let payload = json!({
-        "version": PROTOCOL_VERSION,
-        "action": "getCredential",
-        "uri": args.uri,
-        "name": args.name,
+        "v": PROTOCOL_VERSION,
+        "type": "credential-request",
+        "requestId": std::process::id().to_string(),
+        "query": args.query,
     });
 
     let stream = connect().await?;
@@ -135,7 +149,7 @@ async fn request(args: &Args) -> Result<Response> {
 
 #[cfg(unix)]
 async fn connect() -> Result<tokio::net::UnixStream> {
-    let path = credential_agent::socket_path()?;
+    let path = agent_access::socket_path()?;
 
     tokio::net::UnixStream::connect(&path).await.with_context(|| {
         format!(
@@ -146,8 +160,9 @@ async fn connect() -> Result<tokio::net::UnixStream> {
 }
 
 #[cfg(windows)]
+#[allow(clippy::unused_async, reason = "mirrors the unix signature")]
 async fn connect() -> Result<tokio::net::windows::named_pipe::NamedPipeClient> {
-    let name = credential_agent::pipe_name();
+    let name = agent_access::pipe_name();
 
     tokio::net::windows::named_pipe::ClientOptions::new()
         .open(name)
@@ -158,7 +173,7 @@ async fn connect() -> Result<tokio::net::windows::named_pipe::NamedPipeClient> {
         })
 }
 
-fn print_credential(credential: &Credential, field: &Field) {
+fn print_credential(credential: &CredentialData, field: &Field) {
     let value = match field {
         Field::Json => serde_json::to_string(credential).unwrap_or_default(),
         Field::Username => credential.username.clone().unwrap_or_default(),
