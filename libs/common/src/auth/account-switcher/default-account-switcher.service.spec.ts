@@ -358,7 +358,7 @@ describe("DefaultAccountSwitcherService", () => {
 
       const result = await sut.resolveActiveAccount();
 
-      expect(result).toEqual({ action: "switch", userId: userC });
+      expect(result).toEqual({ action: "switch", targetUserId: userC });
     });
 
     it("clears the active account when it is logged out and every other account is logged out", async () => {

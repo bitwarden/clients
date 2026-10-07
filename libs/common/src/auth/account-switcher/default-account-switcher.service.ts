@@ -76,7 +76,9 @@ export class DefaultAccountSwitcherService implements AccountSwitcherService {
     }
 
     const nextAccount = await firstValueFrom(this.nextSwitchableAccount$);
-    return nextAccount == null ? { action: "clear" } : { action: "switch", userId: nextAccount.id };
+    return nextAccount == null
+      ? { action: "clear" }
+      : { action: "switch", targetUserId: nextAccount.id };
   }
 
   private toEntry$({ account, status, isActive }: UsableAccount): Observable<AccountSwitcherEntry> {

@@ -546,7 +546,7 @@ export class AppComponent implements OnInit, OnDestroy {
     try {
       const resolution = await this.accountSwitcherService.resolveActiveAccount();
       if (resolution.action === "switch") {
-        this.messagingService.send("switchAccount", { userId: resolution.userId });
+        this.messagingService.send("switchAccount", { userId: resolution.targetUserId });
       } else if (resolution.action === "clear") {
         await this.accountService.switchAccount(null);
         await this.router.navigate(["login"]);

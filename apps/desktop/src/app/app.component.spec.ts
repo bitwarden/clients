@@ -370,7 +370,7 @@ describe("AppComponent (desktop)", () => {
       it("lands on login without re-creating the router outlet when the resolved account is logged out", async () => {
         accountSwitcherService.resolveActiveAccount.mockResolvedValue({
           action: "switch",
-          userId: nextUserId,
+          targetUserId: nextUserId,
         });
         authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.LoggedOut);
         const loadingDuringNavigation: boolean[] = [];
