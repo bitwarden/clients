@@ -97,8 +97,6 @@ import { DefaultMasterPasswordUnlockService } from "@bitwarden/common/key-manage
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
-import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
-import { DefaultSecurityStateService } from "@bitwarden/common/key-management/security-state/services/security-state.service";
 import { SendPasswordService } from "@bitwarden/common/key-management/sends/abstractions/send-password.service";
 import { DefaultSendPasswordService } from "@bitwarden/common/key-management/sends/services/default-send-password.service";
 import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
@@ -387,7 +385,6 @@ export class ServiceContainer {
   restrictedItemTypesService: RestrictedItemTypesService;
   cliRestrictedItemTypesService: CliRestrictedItemTypesService;
   encryptedMigrator: EncryptedMigrator;
-  securityStateService: SecurityStateService;
   masterPasswordUnlockService: MasterPasswordUnlockService;
   cipherArchiveService: CipherArchiveService;
   lockService: LockService;
@@ -503,10 +500,6 @@ export class ServiceContainer {
     );
 
     this.v2UpgradeTokenStateService = new DefaultV2UpgradeTokenStateService(this.stateProvider);
-
-    this.securityStateService = new DefaultSecurityStateService(
-      this.accountCryptographicStateService,
-    );
 
     this.environmentService = new DefaultEnvironmentService(
       this.stateProvider,
@@ -730,6 +723,7 @@ export class ServiceContainer {
       this.v2UpgradeTokenStateService,
       managedSettingsService,
       this.appIdService,
+      this.logService,
       customUserAgent,
     );
 
@@ -802,6 +796,7 @@ export class ServiceContainer {
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
       this.sdkService,
       this.logService,
+      this.configService,
     );
 
     this.collectionService = new DefaultCollectionService(
@@ -810,6 +805,7 @@ export class ServiceContainer {
       this.i18nService,
       this.stateProvider,
       this.collectionEncryptionService,
+      this.logService,
     );
 
     this.unlockService = new DefaultUnlockService(
@@ -1025,6 +1021,7 @@ export class ServiceContainer {
       this.i18nService,
       this.cipherService,
       this.stateProvider,
+      this.logService,
     );
 
     this.folderApiService = new FolderApiService(this.folderService, this.apiService);

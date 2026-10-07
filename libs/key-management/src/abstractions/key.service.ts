@@ -12,12 +12,7 @@ import {
   UserPublicKey,
 } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
-import {
-  EncryptedString,
-  EncString,
-  SignedPublicKey,
-  WrappedSigningKey,
-} from "@bitwarden/legacy-crypto";
+import { EncryptedString, EncString } from "@bitwarden/legacy-crypto";
 
 export class UserPrivateKeyDecryptionFailedError extends Error {
   constructor() {
@@ -206,17 +201,9 @@ export abstract class KeyService {
   abstract userPublicKey$(userId: UserId): Observable<Uint8Array | null>;
 
   /**
-   * Gets a users signing keys from local state.
-   * The observable will emit null, exactly if the local state returns null.
-   */
-  abstract userSigningKey$(userId: UserId): Observable<WrappedSigningKey | null>;
-
-  /**
    * Validates that a userkey is correct for a given user
    * @param key The key to validate
    * @param userId The user id for the key
    */
   abstract validateUserKey(key: UserKey, userId: UserId): Promise<boolean>;
-
-  abstract userSignedPublicKey$(userId: UserId): Observable<SignedPublicKey | null>;
 }
