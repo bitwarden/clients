@@ -1031,7 +1031,7 @@ export default class AutofillService implements AutofillServiceInterface {
     // as a username candidate. A show password toggle can set type="text"
     // on the real password input.
     const focusedFieldIsPassword =
-      focusedField != null && prioritizedPasswordFields.some((pf) => pf.opid === focusedField.opid);
+      focusedField != null && passwordFields.some((pf) => pf.opid === focusedField.opid);
 
     const focusedUsernameField =
       focusedField &&

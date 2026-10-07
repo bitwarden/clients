@@ -3098,6 +3098,62 @@ describe("AutofillService", () => {
           );
         });
       });
+
+      describe("given a focused password-like field classified as registration", () => {
+        // On a page with both a login form and a registration form, the
+        // focused password field (classified as registration) must not be
+        // treated as a username candidate just because the login fields win
+        // prioritization. The guard must inspect the full passwordFields set,
+        // not the post-prioritization subset.
+        let loginPasswordField: AutofillField;
+        let registrationPasswordField: AutofillField;
+
+        beforeEach(() => {
+          loginPasswordField = createAutofillFieldMock({
+            opid: "login-password",
+            type: "password",
+            form: "login-form",
+            autoCompleteType: "current-password",
+            elementNumber: 1,
+          });
+          registrationPasswordField = createAutofillFieldMock({
+            opid: "registration-password",
+            type: "text",
+            form: "register-form",
+            htmlName: "newPasswd",
+            autoCompleteType: "off",
+            elementNumber: 2,
+          });
+          registrationPasswordField["label-aria"] = "Create a password";
+          pageDetails.forms = {
+            "login-form": createAutofillFormMock({ opid: "login-form" }),
+            "register-form": createAutofillFormMock({
+              opid: "register-form",
+              htmlName: "register",
+            }),
+          };
+          options.focusedFieldOpid = "registration-password";
+          jest.spyOn(autofillService as any, "inUntrustedIframe").mockResolvedValue(false);
+          jest.spyOn(AutofillService, "fillByOpid");
+        });
+
+        it("does not write the username value into the focused registration password field", async () => {
+          pageDetails.fields = [loginPasswordField, registrationPasswordField];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            registrationPasswordField,
+            options.cipher.login.username,
+          );
+        });
+      });
     });
   });
 
