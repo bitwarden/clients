@@ -18,7 +18,12 @@ function org(
   canAccessEventLogs = false,
   canManageRotation = canManageAccessRules,
 ): Organization {
-  return { canManageAccessRules, canAccessEventLogs, canManageRotation } as Organization;
+  return {
+    usePam: true,
+    canManageAccessRules,
+    canAccessEventLogs,
+    canManageRotation,
+  } as Organization;
 }
 
 describe("PamOrgNavSlotComponent", () => {
@@ -86,6 +91,12 @@ describe("PamOrgNavSlotComponent", () => {
 
   it("renders nothing when the org has neither PAM permission", () => {
     fixture.componentRef.setInput("organization", org(false));
+    fixture.detectChanges();
+    expect(navGroup()).toBeNull();
+  });
+
+  it("renders nothing for an org without PAM, even when the member can read event logs", () => {
+    fixture.componentRef.setInput("organization", { ...org(false, true), usePam: false });
     fixture.detectChanges();
     expect(navGroup()).toBeNull();
   });
