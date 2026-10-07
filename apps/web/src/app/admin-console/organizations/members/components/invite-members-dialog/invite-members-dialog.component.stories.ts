@@ -19,8 +19,8 @@ import { DefaultServerSettingsService } from "@bitwarden/common/platform/service
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import {
-  OrganizationInviteLink,
   OrganizationInviteLinkService,
+  OrganizationInviteLinkView,
 } from "@bitwarden/organization-invite-link";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
 
@@ -120,26 +120,27 @@ const mockCollectionAdminService = {
 const mockInviteLinkUrl =
   "https://vault.example.com/#/joinOrganization?organizationId=org-1&orgUserToken=abc123&orgName=Acme+Corp";
 
-const mockInviteLink: OrganizationInviteLink = Object.assign(
-  new OrganizationInviteLink({} as any),
+const mockInviteLink: OrganizationInviteLinkView = Object.assign(
+  new OrganizationInviteLinkView({} as any),
   {
     id: "link-1",
-    code: "abc123",
     organizationId: "org-1",
     allowedDomains: ["example.com", "acme.org"],
-    invite: "enc-key",
     supportsConfirmation: true,
     creationDate: "2025-01-15T10:30:00Z",
+    url: mockInviteLinkUrl,
   },
 );
 
-function makeMockInviteLinkService(initialLink: OrganizationInviteLink | undefined = undefined) {
-  const inviteLink$ = new BehaviorSubject<OrganizationInviteLink | undefined>(initialLink);
+function makeMockInviteLinkService(
+  initialLink: OrganizationInviteLinkView | undefined = undefined,
+) {
+  const inviteLink$ = new BehaviorSubject<OrganizationInviteLinkView | undefined>(initialLink);
 
-  const patchLink = (patch: Partial<OrganizationInviteLink>) => {
+  const patchLink = (patch: Partial<OrganizationInviteLinkView>) => {
     const current = inviteLink$.getValue();
     inviteLink$.next(
-      Object.assign(new OrganizationInviteLink({} as any), {
+      Object.assign(new OrganizationInviteLinkView({} as any), {
         ...mockInviteLink,
         creationDate: current?.creationDate ?? new Date().toISOString(),
         supportsConfirmation: current?.supportsConfirmation ?? mockInviteLink.supportsConfirmation,
@@ -160,16 +161,11 @@ function makeMockInviteLinkService(initialLink: OrganizationInviteLink | undefin
 
   return {
     inviteLink$: () => inviteLink$.asObservable(),
-    reconstructUrl: () => of(mockInviteLinkUrl),
-    createInviteLink: (
-      _userId: unknown,
-      _orgId: unknown,
-      domains: string[],
-      supportsConfirmation: boolean,
-    ) => patchLink({ allowedDomains: domains, supportsConfirmation }),
+    create: (_userId: unknown, _orgId: unknown, domains: string[], supportsConfirmation: boolean) =>
+      patchLink({ allowedDomains: domains, supportsConfirmation }),
     updateAllowedDomains: upsertLink,
+    refresh: setSupportsConfirmation,
     setInviteConfirmation: setSupportsConfirmation,
-    refreshInviteLink: setSupportsConfirmation,
     delete: () => {
       inviteLink$.next(undefined);
       return Promise.resolve();
@@ -268,7 +264,7 @@ export default {
 type Story = StoryObj<StoryArgs>;
 
 const makeRender =
-  (initialLink: OrganizationInviteLink | undefined = undefined): Story["render"] =>
+  (initialLink: OrganizationInviteLinkView | undefined = undefined): Story["render"] =>
   (args) => ({
     moduleMetadata: {
       providers: [
