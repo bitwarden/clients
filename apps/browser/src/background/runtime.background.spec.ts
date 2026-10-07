@@ -1,8 +1,14 @@
+import { webcrypto } from "crypto";
+
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ExtensionCommand } from "@bitwarden/common/autofill/constants";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
   Region,
@@ -10,15 +16,22 @@ import {
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { Message, IntraprocessMessageSender } from "@bitwarden/common/platform/messaging";
+import {
+  IntraprocessMessageSender,
+  Message,
+  MessageListener,
+} from "@bitwarden/common/platform/messaging";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { LockService } from "@bitwarden/unlock";
 
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
 import {
+  openPasskeyResultPopout,
   openSsoAuthResultPopout,
   openTwoFactorAuthWebAuthnPopout,
 } from "../auth/popup/utils/auth-popout-window";
+import { PasskeyRelayService } from "../auth/services/passkey-relay.service";
 import {
   ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
   LockedVaultPendingNotificationsData,
@@ -32,6 +45,7 @@ import { crossContextBoundary, tagAsExternalMessage } from "../autofill/spec/tes
 import { BrowserApi } from "../platform/browser/browser-api";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
+import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 
 import MainBackground from "./main.background";
@@ -74,6 +88,7 @@ function createRuntimeBackground({
     undefined as any, // defaultPasswordManagerPromptStateAccessor
     autofillOrchestrator,
     intraprocessMessageSender,
+    mock<PasskeyRelayService>(),
   );
 }
 
@@ -500,5 +515,222 @@ describe("RuntimeBackground locked vault pending notifications", () => {
       RETRY_WHEN_UNLOCK_COMPLETED,
       expect.anything(),
     );
+  });
+});
+
+describe("RuntimeBackground passkey relay support", () => {
+  let runtimeBackground: RuntimeBackground;
+  let passkeyRelayService: MockProxy<PasskeyRelayService>;
+  let logService: MockProxy<LogService>;
+
+  const buildRuntimeBackground = () => {
+    return new RuntimeBackground(
+      mock<MainBackground>() as unknown as MainBackground,
+      mock<AutofillService>(),
+      mock<BrowserPlatformUtilsService>(),
+      mock<AutofillSettingsServiceAbstraction>(),
+      mock<BrowserEnvironmentService>(),
+      mock<MessagingService>(),
+      logService,
+      mock<ConfigService>(),
+      mock<MessageListener>(),
+      mock<AccountService>(),
+      mock<LockService>(),
+      mock<BillingAccountProfileStateService>(),
+      mock<BrowserInitialInstallService>(),
+      undefined as any, // autofillLifecycleService
+      undefined as any, // defaultPasswordManagerPromptStateAccessor
+      mock<AutofillOrchestrator>(),
+      mock<IntraprocessMessageSender>(),
+      passkeyRelayService,
+    );
+  };
+
+  beforeAll(() => {
+    // Make Web Crypto available to RuntimeBackground, which uses the global crypto object.
+    Object.defineProperty(globalThis, "crypto", { value: webcrypto });
+    Object.defineProperty(globalThis, "CryptoKey", { value: webcrypto.CryptoKey });
+
+    // RuntimeBackground wires up several extension event listeners in its constructor.
+    const chromeRuntime = (global as any).chrome.runtime;
+    chromeRuntime.onInstalled = { addListener: jest.fn() };
+    (global as any).chrome.permissions = {
+      ...((global as any).chrome.permissions ?? {}),
+      onAdded: { addListener: jest.fn() },
+    };
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    passkeyRelayService = mock<PasskeyRelayService>();
+    logService = mock<LogService>();
+    runtimeBackground = buildRuntimeBackground();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  describe("initiatePasskeyRelay", () => {
+    it("generates an ECDH key pair and returns the base64url-encoded public key", async () => {
+      const publicKey = await runtimeBackground.initiatePasskeyRelay();
+
+      expect(publicKey).toBeTruthy();
+      expect(publicKey).not.toContain("+");
+      expect(publicKey).not.toContain("/");
+      expect(publicKey).not.toContain("=");
+    });
+
+    it("stores a pending session with a private key and a future expiry", async () => {
+      const now = Date.now();
+      jest.spyOn(Date, "now").mockReturnValue(now);
+
+      await runtimeBackground.initiatePasskeyRelay();
+
+      const session = (runtimeBackground as any).pendingPasskeyLoginEcdhSession;
+      expect(session).toBeTruthy();
+      expect(session.privateKey.type).toBe("private");
+      expect(session.expiresAt).toBeGreaterThan(now);
+      expect(session.expiresAt).toBeLessThanOrEqual(now + 5 * 60 * 1000);
+    });
+
+    it("replaces any existing pending session", async () => {
+      const originalPrivateKey = {} as CryptoKey;
+      (runtimeBackground as any).pendingPasskeyLoginEcdhSession = {
+        privateKey: originalPrivateKey,
+        expiresAt: Date.now() + 1000,
+      };
+
+      await runtimeBackground.initiatePasskeyRelay();
+      const session2 = (runtimeBackground as any).pendingPasskeyLoginEcdhSession;
+
+      expect(session2.privateKey).not.toBe(originalPrivateKey);
+      expect(session2.privateKey.type).toBe("private");
+    });
+  });
+
+  describe("handlePasskeyResult", () => {
+    const validLoginMsg = {
+      type: "login" as const,
+      token: "login-token",
+      assertionData: "{}",
+      referrer: "https://vault.bitwarden.com",
+    };
+
+    const validUnlockMsg = {
+      type: "unlock" as const,
+      credentialId: "credential-id",
+      referrer: "https://vault.bitwarden.com",
+    };
+
+    const setValidSession = () => {
+      (runtimeBackground as any).pendingPasskeyLoginEcdhSession = {
+        privateKey: {} as CryptoKey,
+        expiresAt: Date.now() + 60 * 1000,
+      };
+    };
+
+    beforeEach(() => {
+      passkeyRelayService.storeResult.mockResolvedValue(undefined);
+    });
+
+    it("stores a login result and opens the login result popout", async () => {
+      setValidSession();
+
+      await (runtimeBackground as any).handlePasskeyResult(validLoginMsg);
+
+      expect(passkeyRelayService.storeResult).toHaveBeenCalledWith({
+        type: "login",
+        token: validLoginMsg.token,
+        assertionData: validLoginMsg.assertionData,
+        prfOutput: null,
+      });
+      expect(openPasskeyResultPopout).toHaveBeenCalledWith("login");
+    });
+
+    it("stores an unlock result and opens the unlock result popout", async () => {
+      setValidSession();
+
+      await (runtimeBackground as any).handlePasskeyResult(validUnlockMsg);
+
+      expect(passkeyRelayService.storeResult).toHaveBeenCalledWith({
+        type: "unlock",
+        credentialId: validUnlockMsg.credentialId,
+        prfOutput: null,
+      });
+      expect(openPasskeyResultPopout).toHaveBeenCalledWith("unlock");
+    });
+
+    it("passes decrypted PRF output through to the unlock result", async () => {
+      setValidSession();
+      const decryptedPrf = new Uint8Array([1, 2, 3]).buffer;
+      jest.spyOn(runtimeBackground as any, "decryptPrfOutput").mockResolvedValue(decryptedPrf);
+
+      await (runtimeBackground as any).handlePasskeyResult({
+        ...validUnlockMsg,
+        encryptedPrfOutput: { ciphertext: "cipher", iv: "iv" },
+        connectorPublicKey: "connector-key",
+      });
+
+      expect(passkeyRelayService.storeResult).toHaveBeenCalledWith({
+        type: "unlock",
+        credentialId: validUnlockMsg.credentialId,
+        prfOutput: decryptedPrf,
+      });
+    });
+
+    it("does nothing when no passkey session is pending", async () => {
+      await (runtimeBackground as any).handlePasskeyResult(validLoginMsg);
+
+      expect(passkeyRelayService.storeResult).not.toHaveBeenCalled();
+      expect(openPasskeyResultPopout).not.toHaveBeenCalled();
+      expect(logService.error).toHaveBeenCalledWith(
+        "[PasskeyLogin] No pending passkey session or session expired",
+      );
+    });
+
+    it("does nothing when the pending passkey session is expired", async () => {
+      (runtimeBackground as any).pendingPasskeyLoginEcdhSession = {
+        privateKey: {} as CryptoKey,
+        expiresAt: Date.now() - 1000,
+      };
+
+      await (runtimeBackground as any).handlePasskeyResult(validLoginMsg);
+
+      expect(passkeyRelayService.storeResult).not.toHaveBeenCalled();
+      expect(openPasskeyResultPopout).not.toHaveBeenCalled();
+    });
+
+    it("decrypts encrypted PRF output and passes it to the relay service", async () => {
+      setValidSession();
+      const decryptedPrf = new Uint8Array([1, 2, 3]).buffer;
+      const decryptSpy = jest
+        .spyOn(runtimeBackground as any, "decryptPrfOutput")
+        .mockResolvedValue(decryptedPrf);
+
+      await (runtimeBackground as any).handlePasskeyResult({
+        ...validLoginMsg,
+        encryptedPrfOutput: { ciphertext: "cipher", iv: "iv" },
+        connectorPublicKey: "connector-key",
+      });
+
+      expect(decryptSpy).toHaveBeenCalledWith("cipher", "iv", "connector-key");
+      expect(passkeyRelayService.storeResult).toHaveBeenCalledWith({
+        type: "login",
+        token: validLoginMsg.token,
+        assertionData: validLoginMsg.assertionData,
+        prfOutput: decryptedPrf,
+      });
+    });
+
+    it("clears the pending session even when an error occurs", async () => {
+      setValidSession();
+      passkeyRelayService.storeResult.mockRejectedValue(new Error("storage error"));
+
+      await (runtimeBackground as any).handlePasskeyResult(validLoginMsg);
+
+      expect((runtimeBackground as any).pendingPasskeyLoginEcdhSession).toBeNull();
+      expect(logService.error).toHaveBeenCalled();
+    });
   });
 });

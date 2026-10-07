@@ -17,6 +17,10 @@ const windowMessageHandlers: ContentMessageWindowEventHandlers = {
     handleAuthResultMessage(data, referrer),
   webAuthnResult: ({ data, referrer }: { data: any; referrer: string }) =>
     handleWebAuthnResultMessage(data, referrer),
+  passkeyLoginResult: ({ data, referrer }: { data: any; referrer: string }) =>
+    handlePasskeyResultMessage(data, referrer, "login"),
+  passkeyUnlockResult: ({ data, referrer }: { data: any; referrer: string }) =>
+    handlePasskeyResultMessage(data, referrer, "unlock"),
   [VaultMessages.checkBwInstalled]: () => handleExtensionInstallCheck(),
   duoResult: ({ data, referrer }: { data: any; referrer: string }) =>
     handleDuoResultMessage(data, referrer),
@@ -76,6 +80,36 @@ async function handleDuoResultMessage(data: ContentMessageWindowData, referrer: 
 function handleWebAuthnResultMessage(data: ContentMessageWindowData, referrer: string) {
   const { command, remember } = data;
   sendExtensionRuntimeMessage({ command, data: data.data, remember, referrer });
+}
+
+/**
+ * Handles passkey result messages (login or unlock) from the window.
+ *
+ * @param data - Data from the window message
+ * @param referrer - The referrer of the window
+ * @param type - The type of passkey result ('login' or 'unlock')
+ */
+function handlePasskeyResultMessage(
+  data: ContentMessageWindowData,
+  referrer: string,
+  type: "login" | "unlock",
+) {
+  const { command, encryptedPrfOutput, connectorPublicKey } = data;
+
+  const basePayload = {
+    command,
+    encryptedPrfOutput,
+    connectorPublicKey,
+    referrer,
+    type,
+  };
+
+  const typeSpecificData =
+    type === "login"
+      ? { token: data.token, assertionData: data.assertionData }
+      : { credentialId: data.credentialId };
+
+  sendExtensionRuntimeMessage({ ...basePayload, ...typeSpecificData });
 }
 
 /** @deprecated use {@link handleOpenBrowserExtensionToUrlMessage} */

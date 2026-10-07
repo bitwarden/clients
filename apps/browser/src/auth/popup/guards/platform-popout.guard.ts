@@ -16,6 +16,15 @@ export function platformPopoutGuard(
   forcePopout: boolean = false,
 ): CanActivateFn {
   return async (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
+    // Skip popout for Firefox — WebAuthn is handled via a relay tab (not in-popup),
+    // so the popout window is unnecessary and would be left orphaned.
+    const isFirefox =
+      navigator.userAgent.indexOf(" Firefox/") !== -1 ||
+      navigator.userAgent.indexOf(" Gecko/") !== -1;
+    if (isFirefox && !forcePopout) {
+      return true;
+    }
+
     // Check if current platform matches
     const platformInfo = await BrowserApi.getPlatformInfo();
     const isPlatformMatch = platforms.includes(platformInfo.os);

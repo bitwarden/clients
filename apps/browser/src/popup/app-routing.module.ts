@@ -22,6 +22,7 @@ import {
   DevicesIcon,
   ExpiredIcon,
   EmailCodeSentIcon,
+  SecurityKeyIcon,
   UserLockIcon,
   VaultIcon,
   LockIcon,
@@ -56,9 +57,11 @@ import { AccountSwitcherComponent } from "../auth/popup/account-switching/accoun
 import { AuthExtensionRoute } from "../auth/popup/constants/auth-extension-route.constant";
 import { fido2AuthGuard } from "../auth/popup/guards/fido2-auth.guard";
 import { platformPopoutGuard } from "../auth/popup/guards/platform-popout.guard";
+import { LoginWithPasskeyResultComponent } from "../auth/popup/login-with-passkey-result/login-with-passkey-result.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { ChangePasswordPageComponent } from "../auth/popup/settings/change-password-page.component";
 import { ExtensionDeviceManagementComponent } from "../auth/popup/settings/extension-device-management.component";
+import { UnlockWithPasskeyResultComponent } from "../auth/popup/unlock-with-passkey-result/unlock-with-passkey-result.component";
 import { AutofillToolsComponent } from "../autofill/popup/autofill-tools/autofill-tools.component";
 import { autofillToolsDevFlagGuard } from "../autofill/popup/autofill-tools/autofill-tools.guard";
 import { DefaultPasswordManagerPromptComponent } from "../autofill/popup/default-password-manager/default-password-manager-prompt.component";
@@ -689,6 +692,30 @@ const routes: Routes = [
           },
         ],
         canActivate: [authGuard],
+      },
+      {
+        path: "login-with-passkey-result",
+        canActivate: [unauthGuardFn(unauthRouteOverrides)],
+        data: {
+          pageIcon: SecurityKeyIcon,
+          pageTitle: {
+            key: "loggingIn",
+          },
+          elevation: 1,
+        } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
+        children: [{ path: "", component: LoginWithPasskeyResultComponent }],
+      },
+      {
+        path: "unlock-with-passkey-result",
+        canActivate: [lockGuard()],
+        data: {
+          pageIcon: SecurityKeyIcon,
+          pageTitle: {
+            key: "unlocking",
+          },
+          elevation: 1,
+        } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
+        children: [{ path: "", component: UnlockWithPasskeyResultComponent }],
       },
     ],
   },

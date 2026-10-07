@@ -5,7 +5,6 @@ import { merge, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
-import { LoginViaWebAuthnComponentService } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn-component.service";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { AngularThemingService } from "@bitwarden/angular/platform/services/theming/angular-theming.service";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
@@ -37,6 +36,7 @@ import {
   TwoFactorAuthWebAuthnComponentService,
   SsoComponentService,
   NewDeviceVerificationComponentService,
+  LoginViaWebAuthnComponentService,
 } from "@bitwarden/auth/angular";
 import {
   LoginEmailService,
@@ -174,6 +174,7 @@ import {
   DefaultWebAuthnPrfUnlockService,
   SessionTimeoutSettingsComponentService,
   KeyManagementUiModule,
+  UnlockViaWebAuthnComponentService,
 } from "@bitwarden/key-management-ui";
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -206,13 +207,15 @@ import {
 import { AccountSwitcherService } from "../../auth/popup/account-switching/services/account-switcher.service";
 import { ExtensionChangePasswordService } from "../../auth/popup/change-password/extension-change-password.service";
 import { ExtensionLoginComponentService } from "../../auth/popup/login/extension-login-component.service";
-import { ExtensionLoginViaWebAuthnComponentService } from "../../auth/popup/login/extension-login-via-webauthn-component.service";
 import { ExtensionSsoComponentService } from "../../auth/popup/login/extension-sso-component.service";
 import { ExtensionLogoutService } from "../../auth/popup/logout/extension-logout.service";
 import { ExtensionDeviceManagementComponentService } from "../../auth/services/extension-device-management-component.service";
+import { ExtensionLoginViaWebAuthnComponentService } from "../../auth/services/extension-login-via-webauthn-component.service";
 import { ExtensionTwoFactorAuthComponentService } from "../../auth/services/extension-two-factor-auth-component.service";
 import { ExtensionTwoFactorAuthDuoComponentService } from "../../auth/services/extension-two-factor-auth-duo-component.service";
 import { ExtensionTwoFactorAuthWebAuthnComponentService } from "../../auth/services/extension-two-factor-auth-webauthn-component.service";
+import { ExtensionUnlockViaWebAuthnComponentService } from "../../auth/services/extension-unlock-via-webauthn-component.service";
+import { PasskeyRelayService } from "../../auth/services/passkey-relay.service";
 import { AutofillLifecycleService } from "../../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
 import AutofillService from "../../autofill/services/autofill.service";
@@ -674,6 +677,11 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: LoginViaWebAuthnComponentService,
+    useClass: ExtensionLoginViaWebAuthnComponentService,
+    deps: [PlatformUtilsService, EnvironmentService],
+  }),
+  safeProvider({
     provide: TwoFactorAuthDuoComponentService,
     useClass: ExtensionTwoFactorAuthDuoComponentService,
     deps: [
@@ -721,6 +729,18 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsService,
       WINDOW,
       LogService,
+      ConfigService,
+      UnlockViaWebAuthnComponentService,
+    ],
+  }),
+  safeProvider({
+    provide: UnlockViaWebAuthnComponentService,
+    useClass: ExtensionUnlockViaWebAuthnComponentService,
+    deps: [
+      PlatformUtilsService,
+      EnvironmentService,
+      AccountService,
+      UserDecryptionOptionsServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -791,7 +811,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LoginViaWebAuthnComponentService,
     useClass: ExtensionLoginViaWebAuthnComponentService,
-    deps: [],
+    deps: [PlatformUtilsService, EnvironmentService],
   }),
   safeProvider({
     provide: LockService,
@@ -903,6 +923,11 @@ const safeProviders: SafeProvider[] = [
     provide: AUTO_CONFIRM_NUDGE_SERVICE as SafeInjectionToken<AutoConfirmNudgeService>,
     useClass: AutoConfirmNudgeService,
     deps: [StateProvider, AutomaticUserConfirmationService],
+  }),
+  safeProvider({
+    provide: PasskeyRelayService,
+    useFactory: (logService: LogService) => new PasskeyRelayService(logService),
+    deps: [LogService],
   }),
   safeProvider({
     // Reads the account's vaults for the header switcher and for `vaultScopeGuard`.

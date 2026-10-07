@@ -1,0 +1,27 @@
+<div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-min-h-[300px]">
+  @if (currentState() === "loggingIn") {
+    <div class="tw-text-center">
+      <div class="tw-mb-4">
+        <bit-icon name="bwi-spinner" class="tw-text-3xl tw-animate-spin"></bit-icon>
+      </div>
+      <p class="tw-text-lg">{{ "loggingIn" | i18n }}</p>
+      <p class="tw-text-sm tw-text-muted">{{ "completingPasskeyLogin" | i18n }}</p>
+    </div>
+  }
+
+  @if (currentState() === "loginFailed") {
+    <div class="tw-text-center tw-max-w-md">
+      <div class="tw-mb-4">
+        <bit-icon name="bwi-exclamation-triangle" class="tw-text-2xl tw-text-danger"></bit-icon>
+      </div>
+      <h2 class="tw-text-xl tw-font-semibold tw-mb-2">{{ "loginFailed" | i18n }}</h2>
+      <p class="tw-text-sm tw-text-muted tw-mb-6">{{ "passkeyLoginFailedDesc" | i18n }}</p>
+      <button type="button" bitButton buttonType="primary" (click)="retry()" class="tw-w-full">
+        {{ "tryAgain" | i18n }}
+      </button>
+      <a bitButton buttonType="secondary" routerLink="/login" class="tw-w-full tw-mt-2">
+        {{ "backToLogin" | i18n }}
+      </a>
+    </div>
+  }
+</div>

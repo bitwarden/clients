@@ -339,6 +339,7 @@ import {
 import { ExtensionAuthRequestAnsweringService } from "../auth/services/auth-request-answering/extension-auth-request-answering.service";
 import { AuthStatusBadgeUpdaterService } from "../auth/services/auth-status-badge-updater.service";
 import { ExtensionLockService } from "../auth/services/extension-lock.service";
+import { PasskeyRelayService } from "../auth/services/passkey-relay.service";
 import { OverlayNotificationsBackground as OverlayNotificationsBackgroundInterface } from "../autofill/background/abstractions/overlay-notifications.background";
 import {
   OverlayBackground as OverlayBackgroundInterface,
@@ -1594,6 +1595,8 @@ export default class MainBackground {
       logoutService,
     );
 
+    const passkeyRelayService = new PasskeyRelayService(this.logService);
+
     this.runtimeBackground = new RuntimeBackground(
       this,
       this.autofillService,
@@ -1612,6 +1615,7 @@ export default class MainBackground {
       this.defaultPasswordManagerPromptStateAccessor,
       this.autofillOrchestrator,
       this.#intraprocessMessageSender,
+      passkeyRelayService,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.encryptService,
