@@ -154,7 +154,7 @@ export class ImportOnePasswordComponent implements OnInit, OnDestroy {
       this.formGroup.controls[control].markAsTouched();
       return;
     }
-    this.toastService.showToast({ variant: "error", title: null, message });
+    this.toastService.showToast({ variant: "error", message });
   }
 
   private rejectionValidator(control: Rejection["control"]): ValidatorFn {
