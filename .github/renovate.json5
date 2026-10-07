@@ -225,6 +225,7 @@
         "napi",
         "napi-build",
         "napi-derive",
+        "napi-derive-backend",
         "node-ipc",
         "nx",
         "oo7",
@@ -438,7 +439,7 @@
     {
       // We need to group all napi-related packages together to avoid build errors caused by version incompatibilities.
       groupName: "napi",
-      matchPackageNames: ["napi", "napi-build", "napi-derive"],
+      matchPackageNames: ["napi", "napi-build", "napi-derive", "napi-derive-backend", "napi-sys"],
     },
     {
       // We need to group all macOS/iOS binding-related packages together to avoid build errors caused by version incompatibilities.
