@@ -81,11 +81,16 @@
       {
         "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
         "to": "MacOS/desktop_proxy.inherit"
+      },
+      {
+        "from": "desktop_native/dist/bw-access.${platform}-${arch}",
+        "to": "MacOS/bw-access"
       }
     ],
     "signIgnore": [
       "MacOS/desktop_proxy",
       "MacOS/desktop_proxy.inherit",
+      "MacOS/bw-access",
       "Contents/PlugIns/autofill-extension.appex",
       "Frameworks/Electron Framework.framework/(Electron Framework|Libraries|Resources|Versions/Current)/.*"
     ],
@@ -103,6 +108,10 @@
       {
         "from": "desktop_native/dist/desktop_proxy.win32-${arch}.exe",
         "to": "desktop_proxy.exe"
+      },
+      {
+        "from": "desktop_native/dist/bw-access.win32-${arch}.exe",
+        "to": "bw-access.exe"
       },
       {
         "from": "desktop_native/dist/bitwarden_chromium_import_helper.win32-${arch}.exe",
@@ -135,6 +144,10 @@
       {
         "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
         "to": "desktop_proxy"
+      },
+      {
+        "from": "desktop_native/dist/bw-access.${platform}-${arch}",
+        "to": "bw-access"
       },
       {
         "from": "desktop_native/dist/libprocess_isolation.so",

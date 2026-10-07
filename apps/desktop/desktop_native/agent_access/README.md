@@ -36,7 +36,18 @@ One JSON line in, one out, then the connection closes.
 - `status` is `approved | denied | notFound | locked | timeout | error`.
 - `purpose` (`command`, `env`) is client-reported and display-only. `notes` is never sent.
 
+## Client
+
+`bw-access` (`../bw_access`) ships next to the app. Exit codes: 0 approved, 2 denied, 3 not found,
+4 error.
+
 ```console
+$ bw-access get --domain github.com --field password
+$ bw-access run --domain github.com --env GH_TOKEN=password -- gh pr create --fill
+$ git config --global credential.helper '!bw-access git-credential'
+$ bw-access ask "Run terraform apply on prod?" --body "3 to add" && terraform apply
 $ printf '%s\n' '{"v":1,"type":"credential-request","requestId":"1","query":{"domain":"github.com"}}' \
     | nc -U ~/.bitwarden-access.sock
 ```
+
+`run` redacts the released secrets from the command's output.

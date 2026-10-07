@@ -804,6 +804,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72f5acc6cb2ba439de613abc23857ec3d78374d8ed5ac84e9d11336e87da8649"
 
 [[package]]
+name = "bw_access"
+version = "0.0.0"
+dependencies = [
+ "agent_access",
+ "anyhow",
+ "async-trait",
+ "serde_json",
+ "serial_test",
+ "tokio",
+]
+
+[[package]]
 name = "bytecheck"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1186,16 +1198,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b2a41393f66f16b0823bb79094d54ac5fbd34ab292ddafb9a0456ac9f87d201"
 dependencies = [
  "libc",
-]
-
-[[package]]
-name = "credential_client"
-version = "0.0.0"
-dependencies = [
- "agent_access",
- "anyhow",
- "serde_json",
- "tokio",
 ]
 
 [[package]]

@@ -99,13 +99,14 @@ async function doBuild(context) {
     }
 
     console.log(
-      `Signing proxy binary before the main bundle, using identity '${id}', for build ${context.electronPlatformName}`,
+      `Signing proxy and bw-access binaries before the main bundle, using identity '${id}', for build ${context.electronPlatformName}`,
     );
 
     const appName = context.packager.appInfo.productFilename;
     const appPath = `${context.appOutDir}/${appName}.app`;
     const proxyPath = path.join(appPath, "Contents", "MacOS", "desktop_proxy");
     const inheritProxyPath = path.join(appPath, "Contents", "MacOS", "desktop_proxy.inherit");
+    const bwAccessPath = path.join(appPath, "Contents", "MacOS", "bw-access");
 
     const packageId = context.packager.appInfo.id;
 
@@ -114,6 +115,10 @@ async function doBuild(context) {
       const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
       child_process.execSync(
         `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${proxyPath}"`,
+      );
+      // Launched from a shell, not by the app, so it gets its own sandbox rather than inheriting.
+      child_process.execSync(
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${bwAccessPath}"`,
       );
 
       const inheritEntitlementsName = "entitlements.desktop_proxy.inherit.plist";
@@ -136,6 +141,9 @@ async function doBuild(context) {
       );
       child_process.execSync(
         `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${inheritProxyPath}"`,
+      );
+      child_process.execSync(
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${bwAccessPath}"`,
       );
     }
   }
