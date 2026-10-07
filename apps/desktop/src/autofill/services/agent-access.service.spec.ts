@@ -14,7 +14,7 @@ import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { CopyCipherFieldService, PasswordRepromptService } from "@bitwarden/vault";
 
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { ApproveAgentRequestResult } from "../components/approve-agent-request.component";
@@ -54,6 +54,8 @@ describe("AgentAccessService", () => {
   const cipherService = mock<CipherService>();
   const dialogService = mock<DialogService>();
   const reprompt = mock<PasswordRepromptService>();
+  const copyCipherField = mock<CopyCipherFieldService>();
+  const getCode$ = jest.fn();
   let service: AgentAccessService;
 
   const claude: AgentRequester = {
@@ -102,6 +104,8 @@ describe("AgentAccessService", () => {
       () => ({ closed: of(dialogResult), close: jest.fn() }) as any,
     );
     reprompt.passwordRepromptCheck.mockResolvedValue(true);
+    copyCipherField.totpAllowed.mockImplementation(async (c) => !!(c as CipherView).login.totp);
+    getCode$.mockImplementation(() => of({ code: "123456" }));
 
     const account = new BehaviorSubject({ id: "user-1" as UserId });
     const auth = { activeAccountStatus$: of(AuthenticationStatus.Unlocked) };
@@ -121,7 +125,8 @@ describe("AgentAccessService", () => {
         { provide: AgentRequestGate, useValue: gate },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: PasswordRepromptService, useValue: reprompt },
-        { provide: TotpService, useValue: { getCode$: () => of({ code: "123456" }) } },
+        { provide: CopyCipherFieldService, useValue: copyCipherField },
+        { provide: TotpService, useValue: { getCode$ } },
         {
           provide: MessageListener,
           useValue: {
@@ -180,6 +185,30 @@ describe("AgentAccessService", () => {
     expect(answer().credential).toEqual(
       expect.objectContaining({ username: "me", password: undefined, totp: undefined }),
     );
+  });
+
+  it("generates the TOTP code only once the user approves", async () => {
+    ciphers = [login("c1", { login: { username: "me", totp: "otpauth://x" } as any })];
+    dialogService.open.mockImplementation(() => {
+      expect(getCode$).not.toHaveBeenCalled();
+      return { closed: of(dialogResult), close: jest.fn() } as any;
+    });
+    send(github);
+    await flush();
+
+    expect(dialogData().credential.candidates[0].fields).toEqual(["username", "totp"]);
+    expect(answer().credential.totp).toBe("123456");
+  });
+
+  it("withholds TOTP the account may not use", async () => {
+    ciphers = [login("c1", { login: { username: "me", totp: "otpauth://x" } as any })];
+    copyCipherField.totpAllowed.mockResolvedValue(false);
+    send(github);
+    await flush();
+
+    expect(dialogData().credential.candidates[0].fields).toEqual(["username"]);
+    expect(getCode$).not.toHaveBeenCalled();
+    expect(answer().credential.totp).toBeUndefined();
   });
 
   it("denies when the master password reprompt fails", async () => {

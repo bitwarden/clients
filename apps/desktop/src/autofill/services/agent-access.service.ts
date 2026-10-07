@@ -21,7 +21,7 @@ import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { CopyCipherFieldService, PasswordRepromptService } from "@bitwarden/vault";
 
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import {
@@ -31,6 +31,7 @@ import {
 import { AgentAccessPromptType } from "../models/agent-access-setting";
 import {
   AgentCredential,
+  AgentCredentialField,
   AgentCredentialQuery,
   AgentOutcome,
   AgentOutcomeStatus,
@@ -46,7 +47,7 @@ import { AgentRequestGate } from "./agent-request-gate.service";
 
 const MAX_CANDIDATES = 10;
 
-type Release = { cipher: CipherView; credential: AgentCredential };
+type Release = { cipher: CipherView; fields: AgentCredentialField[] };
 
 /** `run` keeps the secrets in the command's environment; `share` returns them to the caller. */
 type Mode = "run" | "share";
@@ -59,6 +60,7 @@ type AccessRequest = AgentRequest<Exclude<AgentRequestKind, AgentSshSign>>;
 export class AgentAccessService implements OnDestroy {
   private readonly accountService = inject(AccountService);
   private readonly cipherService = inject(CipherService);
+  private readonly copyCipherFieldService = inject(CopyCipherFieldService);
   private readonly dialogService = inject(DialogService);
   private readonly gate = inject(AgentRequestGate);
   private readonly logService = inject(LogService);
@@ -134,7 +136,7 @@ export class AgentAccessService implements OnDestroy {
     if (ciphers.length === 0) {
       return { status: AgentOutcomeStatus.NotFound };
     }
-    // Built before the dialog, so the user approves exactly what is released.
+    // The dialog shows the fields; values are read on approval, so a TOTP code is current.
     const releases = await Promise.all(ciphers.map((cipher) => this.release(cipher)));
 
     // Only the bundled CLI is known to honor `env`; anyone else gets the credential back.
@@ -154,7 +156,7 @@ export class AgentAccessService implements OnDestroy {
       only.cipher.reprompt === CipherRepromptType.None &&
       this.gate.remembered.has(`${scope}:${only.cipher.id}`)
     ) {
-      return { status: AgentOutcomeStatus.Approved, credential: only.credential };
+      return { status: AgentOutcomeStatus.Approved, credential: await this.credential(only) };
     }
 
     const result = await this.gate.confirm(
@@ -179,7 +181,7 @@ export class AgentAccessService implements OnDestroy {
     if (scope != null && result.remember && chosen.cipher.reprompt === CipherRepromptType.None) {
       this.gate.remembered.add(`${scope}:${chosen.cipher.id}`);
     }
-    return { status: AgentOutcomeStatus.Approved, credential: chosen.credential };
+    return { status: AgentOutcomeStatus.Approved, credential: await this.credential(chosen) };
   }
 
   private async find(query: AgentCredentialQuery, userId: UserId): Promise<CipherView[]> {
@@ -199,19 +201,31 @@ export class AgentAccessService implements OnDestroy {
     return ciphers.filter(usable).slice(0, MAX_CANDIDATES);
   }
 
-  /** Honors `viewPassword`: hidden passwords and their TOTP never leave the vault. */
+  /** Honors `viewPassword` and TOTP licensing, as the vault does. */
   private async release(cipher: CipherView): Promise<Release> {
-    const login = cipher.login;
-    const secrets = cipher.viewPassword;
+    const { login, viewPassword } = cipher;
+    const totp = viewPassword && (await this.copyCipherFieldService.totpAllowed(cipher));
+    const fields: AgentCredentialField[] = [];
+    if (login.username) {
+      fields.push("username");
+    }
+    if (viewPassword && login.password) {
+      fields.push("password");
+    }
+    if (totp) {
+      fields.push("totp");
+    }
+    return { cipher, fields };
+  }
+
+  private async credential({ cipher, fields }: Release): Promise<AgentCredential> {
+    const { login } = cipher;
     return {
-      cipher,
-      credential: {
-        credentialId: cipher.id,
-        username: login.username ?? undefined,
-        password: secrets ? (login.password ?? undefined) : undefined,
-        totp: secrets ? await this.totpCode(login.totp) : undefined,
-        uri: login.uris?.[0]?.uri ?? undefined,
-      },
+      credentialId: cipher.id,
+      username: fields.includes("username") ? login.username : undefined,
+      password: fields.includes("password") ? login.password : undefined,
+      totp: fields.includes("totp") ? await this.totpCode(login.totp) : undefined,
+      uri: login.uris?.[0]?.uri ?? undefined,
     };
   }
 
@@ -236,13 +250,8 @@ function toStatus(approved: boolean | undefined, deadline: number): AgentOutcome
   return approved ? AgentOutcomeStatus.Approved : AgentOutcomeStatus.Denied;
 }
 
-function toCandidate({ cipher, credential }: Release): AgentRequestCandidate {
-  return {
-    id: cipher.id,
-    name: cipher.name,
-    username: credential.username,
-    fields: (["username", "password", "totp"] as const).filter((f) => credential[f] != null),
-  };
+function toCandidate({ cipher, fields }: Release): AgentRequestCandidate {
+  return { id: cipher.id, name: cipher.name, username: cipher.login.username, fields };
 }
 
 /** Per verified signer, else executable path, and per mode; none when neither is known. */

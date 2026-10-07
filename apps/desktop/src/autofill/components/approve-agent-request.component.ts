@@ -23,14 +23,19 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { AgentPurpose, AgentRequester, verifiedSigner } from "../models/agent-request";
+import {
+  AgentCredentialField,
+  AgentPurpose,
+  AgentRequester,
+  verifiedSigner,
+} from "../models/agent-request";
 
 export type AgentRequestCandidate = {
   id: string;
   name: string;
   username?: string;
   /** What is released if this item is chosen. */
-  fields: ("username" | "password" | "totp")[];
+  fields: AgentCredentialField[];
 };
 
 export type ApproveAgentRequestParams = {

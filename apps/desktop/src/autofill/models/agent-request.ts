@@ -63,6 +63,8 @@ export type AgentRequest<K extends AgentRequestKind = AgentRequestKind> = {
   deadline: number;
 };
 
+export type AgentCredentialField = "username" | "password" | "totp";
+
 export type AgentCredential = {
   username?: string;
   password?: string;
