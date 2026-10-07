@@ -60,6 +60,7 @@ import {
 import { CompletionCallback, IpcListenerBindFn } from "../models/ipc-handler.type";
 
 import {
+  CredentialNotFound,
   ExcludedCredentialMatched,
   type NativeWindowObject,
 } from "./desktop-fido2-user-interface.service";
@@ -519,6 +520,8 @@ export class DesktopAutofillService implements OnDestroy {
         if (completeCallback) {
           if (error instanceof ExcludedCredentialMatched) {
             completeCallback(error, null, AutofillIpcErrorKind.ExcludedCredentialMatched);
+          } else if (error instanceof CredentialNotFound) {
+            completeCallback(error, null, AutofillIpcErrorKind.CredentialNotFound);
           } else if (error instanceof Error) {
             completeCallback(error, null);
           } else if (typeof error === "string") {

@@ -126,6 +126,17 @@ export class ExcludedCredentialMatched extends Error {
   }
 }
 
+/**
+ * Thrown when the vault holds none of the credentials the request asked for,
+ * e.g. a passkey deleted since the OS last synced its credential list.
+ */
+export class CredentialNotFound extends Error {
+  constructor() {
+    super("The vault does not contain the requested credential");
+    this.name = "CredentialNotFound";
+  }
+}
+
 export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServiceAbstraction<NativeWindowObject> {
   constructor(
     private authService: AuthService,
@@ -784,8 +795,14 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     );
   }
 
+  /**
+   * Rejects so the OS learns the vault holds none of the requested credentials.
+   *
+   * @throws {CredentialNotFound}
+   */
   async informCredentialNotFound(): Promise<void> {
     this.logService.debug("informCredentialNotFound");
+    throw new CredentialNotFound();
   }
 
   async close() {

@@ -22,6 +22,7 @@ import { DesktopSettingsService } from "../../platform/services/desktop-settings
 
 import {
   DesktopFido2UserInterfaceSession,
+  CredentialNotFound,
   ExcludedCredentialMatched,
 } from "./desktop-fido2-user-interface.service";
 import {
@@ -602,6 +603,13 @@ describe("DesktopFido2UserInterfaceSession", () => {
       await expect(session.informExcludedCredential(["cipher-1"])).rejects.toBe(
         "Operation cancelled",
       );
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("informCredentialNotFound", () => {
+    it("rejects without showing any UI", async () => {
+      await expect(session.informCredentialNotFound()).rejects.toBeInstanceOf(CredentialNotFound);
       expect(router.navigate).not.toHaveBeenCalled();
     });
   });

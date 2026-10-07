@@ -352,7 +352,12 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                         self.onFinish()
                         logger.error("[autofill-extension] OnError called, cancelling the request \(error)")
                         self.timeoutTimer.cancel()
-                        ctx.cancelRequest(withError: error)
+                        // The system asked for a specific credential identity that the vault no longer holds.
+                        if case .CredentialNotFound = error {
+                            ctx.cancelRequest(withError: ASExtensionError(.credentialIdentityNotFound))
+                        } else {
+                            ctx.cancelRequest(withError: error)
+                        }
                     }
                 }
 

@@ -271,7 +271,10 @@ impl PluginAuthenticatorComObject {
                 tracing::debug!("GetAssertion completed successfully");
                 Ok(())
             }
-            Err(_) => Err(E_FAIL.into()),
+            Err(err) => Err(err
+                .downcast_ref::<PluginError>()
+                .map_or(E_FAIL, PluginError::hresult)
+                .into()),
         }
     }
 

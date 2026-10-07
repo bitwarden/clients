@@ -47,6 +47,8 @@ export type AutofillIpcChannelOutgoing =
 export const AutofillIpcErrorKind = Object.freeze({
   /** The vault holds a credential the relying party asked to exclude. */
   ExcludedCredentialMatched: "excludedCredentialMatched",
+  /** The vault holds none of the credentials the request asked for. */
+  CredentialNotFound: "credentialNotFound",
 } as const);
 export type AutofillIpcErrorKind = (typeof AutofillIpcErrorKind)[keyof typeof AutofillIpcErrorKind];
 

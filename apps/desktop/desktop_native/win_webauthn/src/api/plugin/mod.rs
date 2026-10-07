@@ -16,7 +16,7 @@ pub use types::*;
 use windows::{
     core::{GUID, HRESULT, PCWSTR},
     Win32::{
-        Foundation::{LPARAM, NTE_EXISTS, WPARAM},
+        Foundation::{LPARAM, NTE_EXISTS, NTE_NOT_FOUND, WPARAM},
         Security::Cryptography::BCRYPT_KEY_BLOB,
         System::Com::CLSIDFromString,
         UI::WindowsAndMessaging::{DispatchMessageA, GetMessageA, PostThreadMessageA, WM_QUIT},
@@ -82,6 +82,8 @@ pub trait PluginAuthenticator {
     /// Process a request to assert a credential.
     ///
     /// Returns a [CTAP authenticatorGetAssertion response structure](https://fidoalliance.org/specs/fido-v2.2-ps-20250714/fido-client-to-authenticator-protocol-v2.2-ps-20250714.html#authenticatorgetassertion-response-structure).
+    ///
+    /// Return a [PluginError] to report a specific outcome to Windows.
     fn get_assertion(&self, request: PluginGetAssertionRequest) -> Result<Vec<u8>, Box<dyn Error>>;
 
     /// Cancel an ongoing operation.
@@ -108,12 +110,19 @@ pub enum PluginError {
     /// handles it differently, e.g. mapping it to `InvalidStateError` as
     /// `webauthn.h` does for platform errors.
     ExcludedCredentialMatched,
+
+    /// The authenticator holds none of the credentials the request asked for.
+    ///
+    /// Reported as `NTE_NOT_FOUND`, which `webauthn.h` maps to
+    /// `NotAllowedError` for platform errors.
+    CredentialNotFound,
 }
 
 impl PluginError {
     pub(crate) fn hresult(&self) -> HRESULT {
         match self {
             Self::ExcludedCredentialMatched => NTE_EXISTS,
+            Self::CredentialNotFound => NTE_NOT_FOUND,
         }
     }
 }
@@ -123,6 +132,12 @@ impl Display for PluginError {
         match self {
             Self::ExcludedCredentialMatched => {
                 write!(f, "The authenticator holds an excluded credential")
+            }
+            Self::CredentialNotFound => {
+                write!(
+                    f,
+                    "The authenticator holds none of the requested credentials"
+                )
             }
         }
     }

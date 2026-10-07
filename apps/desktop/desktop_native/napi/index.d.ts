@@ -217,6 +217,11 @@ export declare namespace autofill {
      * the relying party asked to exclude.
      */
     completeExcludedCredentialMatched(clientId: number, sequenceNumber: number): number
+    /**
+     * Fails an assertion request because the vault holds none of the
+     * requested credentials.
+     */
+    completeCredentialNotFound(clientId: number, sequenceNumber: number): number
   }
   export interface AutofillIpcCallbacks {
     /**

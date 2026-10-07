@@ -195,6 +195,8 @@ export class DesktopAutofillMain {
       const { clientId, sequenceNumber, error, kind } = data;
       if (kind === AutofillIpcErrorKind.ExcludedCredentialMatched) {
         this.ipcServer?.completeExcludedCredentialMatched(clientId, sequenceNumber);
+      } else if (kind === AutofillIpcErrorKind.CredentialNotFound) {
+        this.ipcServer?.completeCredentialNotFound(clientId, sequenceNumber);
       } else {
         this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
       }
