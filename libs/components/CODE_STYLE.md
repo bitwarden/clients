@@ -1,12 +1,6 @@
 # Code Style for `@bitwarden/components`
 
-How we write components in this library. Org-wide rules, including [Tailwind](https://contributing.bitwarden.com/contributing/code-style/web/tailwind), live in the [code style docs](https://contributing.bitwarden.com/contributing/code-style/).
-
-## Scope & Ownership
-
-- The CL holds low-level, domain-agnostic UI. Domain-coupled UI (ciphers, billing, onboarding tours) belongs in the owning team's folder; business logic belongs in services.
-- Build reusable behavior into the CL primitive (or a host directive) instead of having each consumer re-implement it. Promote UI into the CL once a second team needs it.
-- Wrap third-party dependencies behind a facade. Never expose them or their config in the public API, and don't break our API because a dependency changed.
+How we write components in this library. For what belongs in the library and PR requirements, see [CONTRIBUTING.md](./CONTRIBUTING.md). Org-wide rules, including [Tailwind](https://contributing.bitwarden.com/contributing/code-style/web/tailwind), live in the [code style docs](https://contributing.bitwarden.com/contributing/code-style/).
 
 ## Public API Design
 
@@ -21,11 +15,12 @@ How we write components in this library. Org-wide rules, including [Tailwind](ht
 - Component selectors are kebab-case (`bit-foo`); camelCase is for directives. Prefer element selectors unless native semantics require an attribute selector (`button`, `tr`).
 - Typically, only inputs and outputs are public. Template-only members are `protected`; everything else is `private`.
 - Helper components are marked `@internal` and not exported from `index.ts`.
-- Call out breaking changes explicitly in the PR.
+- Build reusable behavior into the CL primitive (or a host directive) instead of having each consumer re-implement it.
+- Wrap third-party dependencies behind a facade. Never expose them or their config in the public API, and don't break our API because a dependency changed.
 
 ## Angular Style
 
-- Use `input()`/`output()`/`model()`, `inject()`, `host: {}` (not `@HostBinding`/`@HostListener`), `@if`/`@for`, and `OnPush`. Drop `standalone: true` and empty constructors. Migrate files you touch to `OnPush` and resolve their FIXMEs.
+- Use `input()`/`output()`/`model()`, `inject()`, `host: {}` (not `@HostBinding`/`@HostListener`), `@if`/`@for`, and `OnPush`. Drop `standalone: true` and empty constructors.
 - Mark all class properties `readonly`.
 - Derive state with `computed()` instead of getters, setters, or method calls in templates. Don't wrap non-reactive values in `computed()`. Keep input transforms pure.
 - Prefer declarative reactivity: computed signals or piped observables over manual subscribe-and-assign. No side effects inside `pipe`. Use plain signals when no stream operators are needed; use `firstValueFrom` for single-emission observables.
@@ -34,6 +29,7 @@ How we write components in this library. Org-wide rules, including [Tailwind](ht
 - Prefer Angular/CDK built-ins (`FormRecord`, `LiveAnnouncer`, CDK focus restoration) over hand-rolled equivalents.
 - Inline single-use helpers, types, and wrapper components. Remove unnecessary wrapper DOM nodes.
 - Bind dynamic values with `[x]="y()"` and static values with attribute syntax. Never use `{{ }}` interpolation in attributes.
+- Comments explain a non-obvious _why_, especially bug workarounds. No narration, explanations of how Angular works, or history of what used to exist.
 
 ## Styling
 
@@ -57,9 +53,3 @@ How we write components in this library. Org-wide rules, including [Tailwind](ht
 - MDX describes usage only: no internals, no restating what the story already shows.
 - Use play functions to capture interactive states (hover, focus, open, validation errors) for visual regression.
 - Test internal helper components through their public component.
-- Comments explain a non-obvious _why_, especially bug workarounds. No narration, explanations of how Angular works, or history of what used to exist.
-
-## Process
-
-- Visual or behavioral changes (sizes, click targets, variants, global defaults) need Design sign-off and Figma documentation.
-- Keep PRs scoped, link a ticket, and call out non-obvious changes to consumer code. Keep PR descriptions and code comments concise; don't restate the diff.
