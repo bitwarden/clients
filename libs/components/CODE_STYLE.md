@@ -1,6 +1,6 @@
 # Code Style for `@bitwarden/components`
 
-How we write components in this library. For what belongs in the library and PR requirements, see [CONTRIBUTING.md](./CONTRIBUTING.md). Org-wide rules, including [Tailwind](https://contributing.bitwarden.com/contributing/code-style/web/tailwind), live in the [code style docs](https://contributing.bitwarden.com/contributing/code-style/).
+How we write components in this library. For what belongs in the library and PR requirements, see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Public API Design
 
