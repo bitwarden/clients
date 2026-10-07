@@ -39,7 +39,10 @@ function childFolders(names: string[]): CollectionView[] {
 
 const DEFAULT_FOLDERS = childFolders([
   "Engineering",
+  "Engineering/Backend",
+  "Engineering/Frontend",
   "Design",
+  "Design/Brand",
   "Marketing",
   "Finance",
   "People Ops",
@@ -95,6 +98,8 @@ export default {
               sharedFoldersInParent: (name) => `Shared folders in ${name}`,
               sharedFolderCount: (count) => `${count} shared folders`,
               sharedFolderSingular: (count) => `${count} shared folder`,
+              nestedSharedFolderCount: (count) => `${count} nested shared folders`,
+              nestedSharedFolderSingular: "1 nested shared folder",
               showAll: "Show all",
               showLess: "Show less",
             }),
@@ -116,7 +121,10 @@ export default {
  */
 type Story = StoryObj<SharedFolderCardGridComponent>;
 
-/** Five children — one full row of three plus a partial row, no overflow. */
+/**
+ * Five children — one full row of three plus a partial row, no overflow. Engineering and Design
+ * count the folders nested inside them beneath their names.
+ */
 export const Default: Story = {};
 
 export const SingleChild: Story = {

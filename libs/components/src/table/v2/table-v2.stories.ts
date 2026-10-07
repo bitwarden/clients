@@ -9,7 +9,7 @@ import { filter as rxFilter, map } from "rxjs";
 import { screen, userEvent, within } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { GlobalStateProvider } from "@bitwarden/state";
+import { GlobalStateProvider, StateProvider } from "@bitwarden/state";
 
 import { AsyncActionsModule } from "../../async-actions";
 import { BulkActionComponent } from "../../bulk-actions-bar/bulk-action.component";
@@ -29,7 +29,7 @@ import { SearchModule } from "../../search";
 import { SkeletonTextComponent } from "../../skeleton";
 import { positionFixedWrapperDecorator } from "../../stories/storybook-decorators";
 import { TypographyModule } from "../../typography";
-import { I18nMockService, StorybookGlobalStateProvider } from "../../utils";
+import { I18nMockService, StorybookGlobalStateProvider, StorybookStateProvider } from "../../utils";
 
 import { BitCellDefDirective } from "./bit-cell-def.directive";
 import { BitCellLoadingDirective } from "./bit-cell-loading.directive";
@@ -451,9 +451,6 @@ class DemoFilterableTableComponent {
             startIcon="bwi-download"
           >
             Import
-          </button>
-          <button bitButton buttonType="secondary" type="button" slot="end" startIcon="bwi-sliders">
-            Customize
           </button>
           <button bitButton buttonType="primary" type="button" slot="end" startIcon="bwi-plus">
             Add
@@ -928,6 +925,77 @@ class DemoLongLabelFiltersTableComponent {
     (!f.folder?.length || f.folder.includes(row.folderId));
 }
 
+/**
+ * The vault items table's shape: a bounded Name, two bounded middle columns, a fluid Folders
+ * column the user can hide, and a fixed-width Options column. Folders carries the row's only
+ * `fr` track, so hiding it would leave nothing to absorb the remainder.
+ */
+@Component({
+  selector: "demo-bounded-widths-table",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    BitTableV2Component,
+    BitColumnComponent,
+    BitCellDefDirective,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    BitTableToolbarComponent,
+    SearchModule,
+    IconButtonModule,
+  ],
+  template: `
+    <bit-table-v2 [tableDef]="table" stateKey="vaultItems">
+      <bit-table-toolbar>
+        <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
+      </bit-table-toolbar>
+
+      <bit-column sortable defaultSort="asc" width="minmax(240px, 480px)">
+        <bit-header-cell>Name</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+      </bit-column>
+      <bit-column removable label="Vault" sortable width="minmax(176px, 280px)">
+        <bit-header-cell>Vault</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.vault; let row">{{ vaultName(row.vault) }}</bit-cell>
+      </bit-column>
+      <bit-column removable label="Type" sortable width="minmax(176px, 280px)">
+        <bit-header-cell>Type</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.type; let row">{{ typeName(row.type) }}</bit-cell>
+      </bit-column>
+      <bit-column removable label="Folders" sortable width="minmax(140px, 1fr)">
+        <bit-header-cell>Folders</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.folderId; let row">{{
+          folderName(row.folderId)
+        }}</bit-cell>
+      </bit-column>
+      <bit-column width="160px">
+        <bit-header-cell><span class="tw-sr-only">Options</span></bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.actions; let row">
+          <button
+            slot="end"
+            type="button"
+            bitIconButton="bwi-ellipsis-v"
+            size="small"
+            label="Options"
+          ></button>
+        </bit-cell>
+      </bit-column>
+    </bit-table-v2>
+  `,
+})
+class DemoBoundedWidthsTableComponent {
+  protected readonly table = defineTable<VaultRow, "actions">(signal(VAULT_ROWS));
+
+  protected vaultName(id: string): string {
+    return VAULTS.find((v) => v.id === id)?.name ?? id;
+  }
+
+  protected folderName(id: string | null): string {
+    return FOLDERS.find((f) => f.id === id)?.name ?? "—";
+  }
+
+  protected readonly typeName = typeLabel;
+}
+
 export default {
   title: "Component Library/Table V2 (Beta)",
   decorators: [
@@ -953,11 +1021,13 @@ export default {
         DemoSearchableTableComponent,
         DemoUrlSyncTableComponent,
         DemoFormTableComponent,
+        DemoBoundedWidthsTableComponent,
         BulkActionsBarComponent,
         BulkActionComponent,
         BulkAdditionalActionComponent,
         IconTileComponent,
         ChipActionComponent,
+        ButtonModule,
         IconButtonModule,
         LayoutComponent,
         PageComponent,
@@ -972,6 +1042,10 @@ export default {
         {
           provide: GlobalStateProvider,
           useClass: StorybookGlobalStateProvider,
+        },
+        {
+          provide: StateProvider,
+          useClass: StorybookStateProvider,
         },
         // Provided at the application (root) level so dialogs opened via DialogService —
         // which root their injector at the app injector, not the story module — resolve it.
@@ -999,6 +1073,10 @@ export default {
               noMatchingItems: "No matching items",
               noFiltersMatchTerm: (term) => `No filters match \u201c${term}\u201d`,
               clearSearch: "Clear search",
+              customize: "Customize",
+              customizeYourView: "Customize your view",
+              showColumns: "Show columns",
+              resetToDefault: "Reset to default",
               oneFilterResult: "1 result",
               filterResults: (count) => `${count} results`,
               selectAllRows: "Select all rows",
@@ -1265,6 +1343,104 @@ export const ReorderedAndHidden: Story = {
       </bit-table-v2>
     `,
   }),
+};
+
+/** A table that opts two of its three columns into the Customize dialog. */
+const customizeColumnsTemplate = `
+  <bit-table-v2 [tableDef]="table" stateKey="vaultItems">
+    <bit-table-toolbar>
+      <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
+      <button bitButton buttonType="secondary" type="button" slot="end" startIcon="bwi-download">
+        Import
+      </button>
+      <button bitButton buttonType="primary" type="button" slot="end" startIcon="bwi-plus">
+        Add
+      </button>
+    </bit-table-toolbar>
+    <bit-column sortable>
+      <bit-header-cell>Name</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+    </bit-column>
+    <bit-column removable label="Id" sortable>
+      <bit-header-cell>Id</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+    </bit-column>
+    <bit-column removable label="Other" sortable>
+      <bit-header-cell>Other</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
+    </bit-column>
+  </bit-table-v2>
+`;
+
+/**
+ * A table opts into the column picker by setting `stateKey` and marking the columns
+ * the user may hide. The **Customize** button then appears beside the search input, and
+ * each switch in the dialog applies immediately — the table re-lays out behind the scrim.
+ *
+ * **Import** and **Add** are the host's own page controls, projected through `slot=end` the
+ * way the web vault does it. Customize belongs to the table, so it sits to their left.
+ */
+export const CustomizeColumns: Story = {
+  render: () => ({
+    props: { table: basicTable },
+    template: customizeColumnsTemplate,
+  }),
+};
+
+/**
+ * Turn the named columns off through the Customize dialog. The switch input is `sr-only` under a
+ * `pointer-events-none` wrapper — a real user clicks the card's overlay label, which has no
+ * queryable role — so the pointer check is skipped and the input clicked directly.
+ */
+async function hideColumns(canvasElement: HTMLElement, ...labels: string[]) {
+  const user = userEvent.setup({ pointerEventsCheck: 0 });
+  await user.click(await within(canvasElement).findByRole("button", { name: "Customize" }));
+  for (const label of labels) {
+    await user.click(await screen.findByRole("switch", { name: label }));
+  }
+  await user.click(await screen.findByRole("button", { name: "Done" }));
+}
+
+/**
+ * Every column has a bounded max except **Folders**, which supplies the row's only flexible
+ * track. Compare with {@link CustomizeColumnsBoundedWidthsHidden}.
+ */
+export const CustomizeColumnsBoundedWidths: Story = {
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
+  render: () => ({ template: `<demo-bounded-widths-table />` }),
+};
+
+/**
+ * The same table with **Folders** hidden. Nothing declared can grow, so the table frees the first
+ * column's max — Name stretches and Options stays flush with the row's right edge, instead of the
+ * cells stopping short of the row's background and hover fill.
+ */
+export const CustomizeColumnsBoundedWidthsHidden: Story = {
+  render: () => ({ template: `<demo-bounded-widths-table />` }),
+  play: ({ canvasElement }) => hideColumns(canvasElement, "Folders"),
+};
+
+/**
+ * The floor of the feature: everything hideable turned off, leaving only Name and the
+ * non-removable Options column. Name takes the whole remainder.
+ */
+export const CustomizeColumnsBoundedWidthsAllHidden: Story = {
+  render: () => ({ template: `<demo-bounded-widths-table />` }),
+  play: ({ canvasElement }) => hideColumns(canvasElement, "Vault", "Type", "Folders"),
+};
+
+/** The dialog as it opens, with one switch per hideable column. */
+export const CustomizeColumnsDialogOpen: Story = {
+  render: () => ({
+    props: { table: basicTable },
+    template: customizeColumnsTemplate,
+  }),
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
+    await userEvent.click(await canvas.findByRole("button", { name: "Customize" }));
+  },
 };
 
 /**

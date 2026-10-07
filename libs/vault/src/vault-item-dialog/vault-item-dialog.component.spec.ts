@@ -172,7 +172,7 @@ describe("VaultItemDialogComponent", () => {
       component.setTestFormConfig({ cipherType: CipherType.Login });
       component["updateTitle"]();
 
-      expect(component["title"]).toBe("viewItemHeaderLogin");
+      expect(component["title"]).toBe("viewItemHeaderLoginSentenceCase");
     });
 
     it("sets title for form mode (edit) and Card type", () => {
@@ -180,7 +180,7 @@ describe("VaultItemDialogComponent", () => {
       component.setTestFormConfig({ mode: "edit", cipherType: CipherType.Card });
       component["updateTitle"]();
 
-      expect(component["title"]).toBe("editItemHeaderCard");
+      expect(component["title"]).toBe("editItemHeaderCardSentenceCase");
     });
 
     it("sets title for form mode (add) and Identity type", () => {
@@ -188,7 +188,7 @@ describe("VaultItemDialogComponent", () => {
       component.setTestFormConfig({ mode: "add", cipherType: CipherType.Identity });
       component["updateTitle"]();
 
-      expect(component["title"]).toBe("newItemHeaderIdentity");
+      expect(component["title"]).toBe("addItemHeaderIdentity");
     });
 
     it("sets title for form mode (clone) and Card type", () => {
@@ -196,7 +196,7 @@ describe("VaultItemDialogComponent", () => {
       component.setTestFormConfig({ mode: "clone", cipherType: CipherType.Card });
       component["updateTitle"]();
 
-      expect(component["title"]).toBe("newItemHeaderCard");
+      expect(component["title"]).toBe("addItemHeaderCard");
     });
   });
 
