@@ -5,12 +5,8 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { AccessRefreshService, AccessRequestSdkService } from "..";
 
 /**
- * The one place a caller's outstanding access request for a gated cipher is withdrawn. Both
- * entry points starting from a CIPHER — the cipher-view banner and the vault-row menu — share
- * this flow; pages that already hold a request id keep their own cancel calls.
- *
- * "Outstanding" mirrors the banner's withdraw semantics: pending or approved-but-unactivated,
- * either withdrawable until a lease mints, after which the lease governs access.
+ * Withdraws the caller's outstanding request for a gated cipher, for entry points that start from a
+ * cipher rather than a request id.
  */
 export class AccessRequestCancelService {
   constructor(
@@ -23,12 +19,8 @@ export class AccessRequestCancelService {
   ) {}
 
   /**
-   * Withdraw the cipher's outstanding request, after confirming. Re-reads the access state at
-   * call time, not trusting what the caller rendered, since the request may have been decided
-   * or activated since.
-   *
-   * Never rejects: the outcome is surfaced as a toast, and the shared refresh signal always
-   * announces so every leasing surface reconciles through the usual path.
+   * Re-reads the access state rather than trusting what the caller rendered, which may be stale.
+   * Never rejects; the outcome is toasted and the refresh always announced.
    */
   async cancelOutstandingRequest(cipherId: string): Promise<void> {
     try {

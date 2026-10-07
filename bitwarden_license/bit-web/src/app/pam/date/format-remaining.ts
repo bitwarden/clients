@@ -1,9 +1,5 @@
 /**
- * Format a millisecond duration as a short low-noise countdown: "2h 5m", "2h" when minutes
- * round to zero, "47m" under one hour, "15s" under one minute, "0s" when non-positive or
- * non-finite.
- *
- * Rounds with `Math.ceil` so the countdown never undersells remaining time.
+ * A short countdown such as "2h 5m" or "47m". Rounds up, so it never undersells the time left.
  */
 export function formatRemaining(remainingMs: number): string {
   if (!Number.isFinite(remainingMs) || remainingMs <= 0) {

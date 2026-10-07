@@ -63,18 +63,7 @@ import {
   RotationSdkService,
 } from ".";
 
-/**
- * PAM-owned root-level providers, consumed by the commercial web `AppModule` so the shell imports
- * one function instead of enumerating each PAM provider.
- *
- * Binds the SDK-backed service implementations (access rules, requests, leases, approvals, CIDR
- * validation) and fills every OSS seam PAM owns, each injected `{ optional: true }` on the OSS
- * side so an unprovided token stays inert — see this directory's `CLAUDE.md` for what each seam
- * does.
- *
- * `AccessEventService` turns the server's access push into a tick; `AccessRefreshService` merges
- * that with local mutations so every leasing surface re-reads through one path.
- */
+/** PAM's root-level providers, including every OSS seam it fills. */
 export function providePam(): SafeProvider[] {
   return [
     safeProvider({
@@ -84,7 +73,7 @@ export function providePam(): SafeProvider[] {
           (m) => m.AccessRequestsRoutingModule,
         ),
     }),
-    // The path this build's `OrganizationsRoutingModule` mounts the admin-console pages at.
+    // Must match the path the commercial `OrganizationsRoutingModule` mounts the PAM pages at.
     safeProvider({
       provide: PAM_ORG_ADMIN_ROUTE,
       useValue: "pam",
@@ -114,8 +103,7 @@ export function providePam(): SafeProvider[] {
       useClass: DefaultLeasingErrorService,
       deps: [],
     }),
-    // The module's only HTTP-backed contract — see `audit-api.service.ts`. Bound here so a future
-    // SDK swap is a one-line change.
+    // HTTP-backed until the SDK has an audit client (see `audit-api.service.ts`).
     safeProvider({
       provide: AuditApiService,
       useClass: DefaultAuditApiService,
@@ -155,15 +143,12 @@ export function providePam(): SafeProvider[] {
       deps: [],
     }),
     // Root-level so the banner and repeated dialog opens share one cached per-org rules read.
-    // The vault-row badge and sidebar lock skip this, reading `hasEnabledAccessRule` off the
-    // collection directly instead.
     safeProvider({
       provide: GovernedCollectionsService,
       useClass: GovernedCollectionsService,
       deps: [AccessRuleSdkService, LogService],
     }),
-    // Root-level for the same reason: one cached per-caller lease read serves every item opened,
-    // so the banner's gate can recognise a leased item the server no longer gates.
+    // Root-level so one cached lease read serves every item opened.
     safeProvider({
       provide: MyLeasesService,
       useClass: MyLeasesService,
@@ -179,7 +164,7 @@ export function providePam(): SafeProvider[] {
     }),
     safeProvider({
       provide: AccessEventService,
-      // A factory, not useClass: the service takes the notification STREAM, not the service itself.
+      // A factory, since the service takes the notification stream rather than the service.
       useFactory: (notificationsService: ServerNotificationsService) =>
         new DefaultAccessEventService(notificationsService.notifications$),
       deps: [ServerNotificationsService],
@@ -218,8 +203,6 @@ export function providePam(): SafeProvider[] {
         LogService,
       ],
     }),
-    // The shared cipher-scoped cancel flow — one implementation behind both the cipher-view
-    // banner and the vault-row menu, so the withdraw semantics and outcome copy cannot drift.
     safeProvider({
       provide: AccessRequestCancelService,
       useClass: AccessRequestCancelService,

@@ -19,43 +19,22 @@ import { ResolvedMember } from "@bitwarden/web-vault/app/dirt/event-logs/compone
 
 import { AuditRow, auditRuleDeleted } from "../access-audit-row";
 
-/**
- * One audit event, plus what the table already worked out about it.
- *
- * The two identities arrive already resolved, not as ids to look up: whether a name is an anchor
- * depends on the page's one member lookup, which this drawer must not contradict.
- */
+/** The identities arrive resolved, so the drawer links names as the table does. */
 export type AuditEventDrawerParams = {
   row: AuditRow;
   organizationId: string;
-  /** The actor as someone whose history can be opened, or null when the row shows no anchor. */
+  /** Null when the table shows the actor without a link. */
   actor: ResolvedMember | null;
-  /** The requester, on the same terms as {@link AuditEventDrawerParams.actor}. */
   requester: ResolvedMember | null;
-  /**
-   * Whether the viewer may open the rule editor this pane's access-rule name links to. This page's own
-   * `canAccessEventLogs` does not imply it, so for many auditors the name stays plain text.
-   */
+  /** Gates the rule link; the page's `canAccessEventLogs` does not imply it. */
   canManageAccessRules: boolean;
-  /**
-   * Whether the viewer may open the organization vault the collection name links to, which is guarded
-   * by `canViewAllCollections` — again not implied by the permission that opened this trail.
-   */
+  /** Gates the collection link, whose route requires `canViewAllCollections`. */
   canViewCollections: boolean;
 };
 
 /**
- * One audit event read whole, in the side drawer.
- *
- * The table can't hold every field an auditor needs, so everything the row carries is here,
- * including the request and lease ids the table never showed. Every anchor is gated on the
- * permission its target needs — the actor/requester/item open the entity-events dialog under this
- * page's own AccessEventLogs, the rule under `canManageAccessRules`, the collection under
- * `canViewAllCollections` — and the request/lease ids anchor nothing, since no page keys on
- * either, so they render short and copyable instead.
- *
- * Every field renders regardless of value, absence shown as the muted em dash, so a reader can
- * tell "no value" from "not drawn".
+ * Every field the row carries, each link gated on the permission its target needs. Empty fields
+ * still render, as a muted dash, so a reader can tell "no value" from "not drawn".
  */
 @Component({
   selector: "pam-audit-event-drawer",
@@ -74,10 +53,7 @@ export type AuditEventDrawerParams = {
 })
 export class AuditEventDrawerComponent {
   private readonly dialogService = inject(DialogService);
-  /**
-   * Optional: the pane normally sits in a drawer it must close before navigating away, but it also
-   * renders standalone (a story), where there is no drawer to close.
-   */
+  /** Optional, since a story renders the pane without a drawer. */
   private readonly dialogRef = inject(DialogRef, { optional: true });
   protected readonly params = inject<AuditEventDrawerParams>(DIALOG_DATA);
 
@@ -85,12 +61,7 @@ export class AuditEventDrawerComponent {
     return this.params.row;
   }
 
-  /**
-   * The rule editor's route for this event's access rule, or null when the pane must not link it.
-   *
-   * Null on a deletion even though the name is still there: the rule itself is gone, so the route
-   * would 404. Null too without `canManageAccessRules`, which this page's own permission is not.
-   */
+  /** Null on a deletion, since the rule is gone even though its name remains. */
   protected get ruleRoute(): string[] | null {
     const { ruleName, ruleId } = this.row;
     if (
@@ -104,12 +75,7 @@ export class AuditEventDrawerComponent {
     return ["/organizations", this.params.organizationId, "pam", "access-rules", ruleId];
   }
 
-  /**
-   * The organization vault's route for this event's collection, or null when the pane must not link it.
-   *
-   * The collection id rides in a query parameter, not the path, landing on that one collection's
-   * contents. Null when the name didn't resolve — the collection isn't in this viewer's vault state.
-   */
+  /** Null when the name didn't resolve, meaning the collection isn't in this viewer's vault. */
   protected get collectionRoute(): string[] | null {
     const { collectionName, collectionId } = this.row;
     if (collectionName == null || collectionId == null || !this.params.canViewCollections) {
@@ -118,17 +84,16 @@ export class AuditEventDrawerComponent {
     return ["/organizations", this.params.organizationId, "vault"];
   }
 
-  /** An id in the short form the organization event log uses, which is enough to match two records by eye. */
+  /** The short form the organization event log uses, enough to match two records by eye. */
   protected shortId(id: string): string {
     return id.substring(0, 8);
   }
 
-  /** Closes the drawer when following a link out, so no pane is stranded over the page beneath. */
+  /** So no pane is stranded over the page a link opens. */
   protected closeDrawer(): void {
     void this.dialogRef?.close();
   }
 
-  /** Opens an identity's own event history, the way the table's equivalent cell opens it. */
   protected openMemberEvents(event: Event, member: ResolvedMember): void {
     event.preventDefault();
     if (member.organizationUserId == null) {
@@ -145,7 +110,7 @@ export class AuditEventDrawerComponent {
     });
   }
 
-  /** Opens the subject item's own event history. Reachable only from an item this viewer's vault decrypted. */
+  /** Reachable only from an item this viewer's vault decrypted. */
   protected openCipherEvents(event: Event): void {
     event.preventDefault();
     const { cipherId, cipherName } = this.row;

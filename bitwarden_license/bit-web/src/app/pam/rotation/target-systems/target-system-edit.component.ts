@@ -95,7 +95,6 @@ type PolicyControls = {
 };
 type PolicyGroup = FormGroup<PolicyControls>;
 
-/** Cross-field validator: minLength no greater than maxLength. */
 const minMaxValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const group = control as PolicyGroup;
   const min = group.controls.minLength.value;
@@ -103,7 +102,6 @@ const minMaxValidator: ValidatorFn = (control: AbstractControl): ValidationError
   return min > max ? { minExceedsMax: true } : null;
 };
 
-/** Cross-field validator: at least one character class must be enabled. */
 const characterClassValidator: ValidatorFn = (
   control: AbstractControl,
 ): ValidationErrors | null => {
@@ -116,10 +114,7 @@ const characterClassValidator: ValidatorFn = (
   return anyEnabled ? null : { noCharacterClass: true };
 };
 
-/**
- * How a row in the assigned-connectors table stands relative to what the server holds: an
- * assignment the operator has added, one they have taken away, or one already stored.
- */
+/** A staged change to a connector assignment; `null` where a row is what the server holds. */
 type StagedAssignment = "assign" | "unassign";
 
 const STAGED_LABEL_KEYS: Record<StagedAssignment, string> = {
@@ -127,14 +122,12 @@ const STAGED_LABEL_KEYS: Record<StagedAssignment, string> = {
   unassign: "pamRotationAssignmentPendingUnassign",
 };
 
-/** One row of the assigned-access-connectors table. */
 interface ConnectorAssignmentRow extends AssignmentPickerRow {
   readonly connector: AccessConnector;
   readonly enabled: boolean;
   readonly statusLabelKey: string;
   readonly connectionLabelKey: string;
   readonly staged: StagedAssignment | null;
-  /** Says which side of the save the row is on; null once it is what the server holds. */
   readonly stagedLabelKey: string | null;
   readonly removing: boolean;
 }
@@ -162,9 +155,7 @@ function buildPolicyGroup(fb: FormBuilder): PolicyGroup {
   );
 }
 
-/**
- * Routed create/edit page for a PAM target system.
- */
+/** Routed create and edit page for a target system. */
 @Component({
   templateUrl: "./target-system-edit.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -212,10 +203,7 @@ export class TargetSystemEditComponent {
       ? undefined
       : asUuid<TargetSystemId>(this.route.snapshot.params.targetSystemId);
 
-  /**
-   * Where the operator came from, when they came from somewhere that wants them back. Read once,
-   * in create mode only; see `create-flow.ts` for why the two create pages hand off at all.
-   */
+  /** Set when the managed-credential create page sent the operator here, to go back there. */
   private readonly then: string | undefined = this.route.snapshot.queryParams?.[THEN_QUERY_PARAM];
 
   protected readonly editing = this.targetSystemId != null;
@@ -224,10 +212,8 @@ export class TargetSystemEditComponent {
   /** Whether the placeholder is drawn, which trails {@link loading} by the skeleton delay. */
   protected readonly showSkeleton = showSkeletonWhile(this.loading);
 
-  /** Whether the loading branch is on screen. */
   protected readonly loadingVisible = computed(() => this.loading() || this.showSkeleton());
 
-  /** The error from the last read of the target system, or null when it answered. */
   protected readonly loadError = signal<unknown | null>(null);
 
   /** Four blocks, the rough depth of the card each of these pages opens with. */
@@ -235,29 +221,20 @@ export class TargetSystemEditComponent {
 
   protected readonly existing = signal<TargetSystem | null>(null);
 
-  /**
-   * The id an access connector's config file keys this target's rotation script on. Read off the
-   * stored record rather than the route, which reaches this page in either case.
-   */
+  /** The id an access connector's config file keys this target's rotation script on. */
   protected readonly systemIdText = computed(() => {
     const id = this.existing()?.id;
     return id == null ? null : uuidAsString(id);
   });
 
-  /**
-   * The i18n key naming this system's integration, or null for a kind this version cannot model.
-   * The list column answers the same question through the same helper.
-   */
   protected readonly kindLabelKey = computed(() => targetSystemKindLabelKey(this.existing()?.kind));
 
   protected readonly titleText = computed(() =>
     this.i18nService.t(this.editing ? "pamTargetSystemEditTitle" : "pamTargetSystemCreateTitle"),
   );
 
-  /** Expose const objects for template comparisons. */
   protected readonly TargetSystemMethod = TargetSystemMethod;
 
-  /** Kind options for the bit-select in Automatic mode. */
   protected readonly kindOptions = [
     { value: TargetSystemKind.Entra, label: "pamTargetSystemTypeEntra" },
     { value: TargetSystemKind.CustomScript, label: "pamTargetSystemTypeCustomScript" },
@@ -269,26 +246,22 @@ export class TargetSystemEditComponent {
     kind: [TargetSystemKind.Entra as TargetSystemKind, [Validators.required]],
   });
 
-  /** Password-policy sub-form, shared by both methods (separate group so it can be validated on its own). */
+  /** Shared by both methods, and a separate group so it validates on its own. */
   protected readonly policyForm = buildPolicyGroup(this.formBuilder);
 
-  /** Live create-mode method selection — drives the Integration/policy cards reactively. */
   private readonly createMethod = toSignal(this.createForm.controls.method.valueChanges, {
     initialValue: this.createForm.controls.method.value,
   });
 
-  /** Live create-mode kind selection — drives the session-termination presentation reactively. */
   private readonly createKind = toSignal(this.createForm.controls.kind.valueChanges, {
     initialValue: this.createForm.controls.kind.value,
   });
 
-  /** Live session-termination checkbox state — drives the withdrawal warning reactively. */
   private readonly stagedTermination = toSignal(
     this.policyForm.controls.supportsSessionTermination.valueChanges,
     { initialValue: this.policyForm.controls.supportsSessionTermination.value },
   );
 
-  /** The method in play — the existing system's method (edit) or the live radio selection (create). */
   private readonly method = computed<TargetSystemMethod | null>(() => {
     if (this.editing) {
       return this.existing()?.method ?? null;
@@ -296,22 +269,18 @@ export class TargetSystemEditComponent {
     return this.createMethod();
   });
 
-  /**
-   * The method in play is Automatic. Gates the integration (kind) card and the session-termination
-   * control — both are Automatic-only (Manual systems have no integration and no access connector session).
-   */
+  /** Gates the integration and session-termination controls, which a manual target lacks. */
   protected readonly isAutomatic = computed(() => this.method() === TargetSystemMethod.Automatic);
 
-  /** The method in play is Manual — gates the "rotate by hand" password-rules hint. */
+  /** Gates the "rotate by hand" password-rules hint. */
   protected readonly isManual = computed(() => this.method() === TargetSystemMethod.Manual);
 
   /**
-   * The password-policy card is shown for both methods: enforced by the access connector under Automatic,
-   * followed by the operator by hand under Manual.
+   * Both known methods use the policy: the access connector enforces it under Automatic, and the
+   * operator follows it under Manual.
    */
   protected readonly showPolicyCard = computed(() => this.isAutomatic() || this.isManual());
 
-  /** The integration kind in play — the existing system's kind (edit) or the live selection (create Automatic). */
   private readonly selectedKind = computed<TargetSystemKind | null>(() =>
     this.isAutomatic()
       ? this.editing
@@ -321,16 +290,15 @@ export class TargetSystemEditComponent {
   );
 
   /**
-   * Native integrations (anything other than a custom script) always terminate
-   * active sessions after rotation; the capability is intrinsic, so the form shows a static
-   * "Supported" indicator rather than an editable checkbox.
+   * Native integrations always terminate sessions after rotating, so the form shows a static
+   * "Supported" instead of a checkbox.
    */
   protected readonly isNativeIntegration = computed(() => {
     const kind = this.selectedKind();
     return kind != null && kind !== TargetSystemKind.CustomScript;
   });
 
-  /** Shows the session-termination withdrawal warning: edit mode only, when an existing supportsSessionTermination system is unchecked. */
+  /** Warns when an edit unchecks session termination on a system that supports it. */
   protected readonly showTerminationWarning = computed(() => {
     if (!this.editing) {
       return false;
@@ -346,14 +314,10 @@ export class TargetSystemEditComponent {
     name: ["", [Validators.required, Validators.maxLength(NAME_MAX_LENGTH)]],
   });
 
-  // -----------------------------------------------------------------------
-  // Assigned access connectors (edit mode, Automatic only)
-  // -----------------------------------------------------------------------
-
   /** The organization's connectors, held whole rather than pre-filtered. */
   private readonly connectors = signal<AccessConnector[]>([]);
 
-  /** True when the connector list could not be read, so an empty card is not read as "none assigned". */
+  /** Set when the connector read fails, so an empty card doesn't read as "none assigned". */
   protected readonly connectorsUnavailable = signal(false);
 
   /** The diff waiting on Save, held as two id lists rather than patched into {@link connectors}. */
@@ -361,12 +325,8 @@ export class TargetSystemEditComponent {
   private readonly stagedUnassigns = signal<readonly AccessConnectorId[]>([]);
 
   /**
-   * What the server holds, before the staged diff.
-   *
-   * The ids are normalized before they are compared, as {@link loadSystem} normalizes: this one
-   * came off the route as text, and the connectors' came off a different read. A case-sensitive
-   * match here would read as "none assigned", which is the answer {@link connectorsUnavailable}
-   * exists to avoid giving.
+   * What the server holds, before the staged diff. Ids are compared lowercased, since the route's
+   * id is text and may differ in case from the connector read's.
    */
   private readonly assignedConnectors = computed(() => {
     const targetSystemId = this.targetSystemId;
@@ -439,7 +399,7 @@ export class TargetSystemEditComponent {
     })),
   );
 
-  /** The org has no active connector at all, as opposed to having assigned them all here. */
+  /** The org has no enabled connector at all, rather than having assigned them all here. */
   protected readonly noConnectorsEligible = computed(
     () => !this.connectorsUnavailable() && this.eligibleConnectors().length === 0,
   );
@@ -462,28 +422,16 @@ export class TargetSystemEditComponent {
   );
 
   /**
-   * Only an automatic target can claim a connector assignment, mirroring the target-systems tab's
-   * `canAssignConnectors` row flag and `AssignAccessConnectorToTargetCommand`, which checks the
-   * method alone and says nothing about the target's status.
+   * Only an automatic target can claim a connector assignment. Status doesn't matter, as in
+   * `AssignAccessConnectorToTargetCommand`.
    */
   protected readonly canAssignConnectors = computed(() => this.isAutomatic());
 
-  // -----------------------------------------------------------------------
-  // Outstanding setup (edit mode)
-  // -----------------------------------------------------------------------
-
-  /**
-   * What is known about this target's managed credentials: not read yet, read and unreadable, or
-   * the answer.
-   */
   private readonly managedCredentials = signal<"pending" | "unavailable" | "none" | "some">(
     "pending",
   );
 
-  /**
-   * The setup steps this target has genuinely not had done yet, in the order they are worked
-   * through. Empty means rotation is set up, or that nothing can be said about it yet.
-   */
+  /** The setup steps this target still needs, in order; empty when set up or not yet known. */
   protected readonly outstandingSetupSteps = computed<readonly string[]>(() => {
     const credentials = this.managedCredentials();
     if (!this.editing || !this.isActive() || credentials === "pending") {
@@ -531,10 +479,7 @@ export class TargetSystemEditComponent {
     }
   }
 
-  /**
-   * Seed the create form from a starter template chosen on the empty state
-   * (Manual / Entra / Custom script). Unknown/absent values keep the defaults.
-   */
+  /** Seeds the create form from an empty-state template; unknown values keep the defaults. */
   private applyTemplate(template: string | undefined): void {
     switch (template) {
       case "manual":
@@ -555,7 +500,7 @@ export class TargetSystemEditComponent {
     }
   }
 
-  /** Read the target system this page edits, out of the organization's list. */
+  /** There is no by-id read, so this finds the target in the organization's list. */
   private async loadSystem({ recordFailure = true } = {}): Promise<"loaded" | "failed" | "gone"> {
     let systems: TargetSystem[];
     try {
@@ -582,7 +527,6 @@ export class TargetSystemEditComponent {
     return "loaded";
   }
 
-  /** Read the organization's access connectors for the assignment card. */
   private async loadConnectors(): Promise<void> {
     try {
       this.connectors.set((await this.rotationSdk.listConnectors(this.organizationId)) ?? []);
@@ -593,7 +537,6 @@ export class TargetSystemEditComponent {
     }
   }
 
-  /** Answer whether this target already has a managed credential, for the outstanding-setup hint. */
   private async loadManagedCredentials(): Promise<void> {
     const routeId = uuidAsString(this.targetSystemId!).toLowerCase();
     try {
@@ -609,7 +552,6 @@ export class TargetSystemEditComponent {
 
   private applySystem(system: TargetSystem): void {
     this.nameForm.patchValue({ name: system.name });
-    // A policy exists for both Automatic and Manual systems; pre-fill it for either.
     if (system.passwordPolicy != null) {
       this.policyForm.patchValue({
         minLength: system.passwordPolicy.minLength,
@@ -623,7 +565,6 @@ export class TargetSystemEditComponent {
     }
   }
 
-  /** Build a PasswordPolicy from the current policy-form values. */
   private buildPasswordPolicy(): PasswordPolicy {
     const policy = this.policyForm.getRawValue();
     return {
@@ -637,14 +578,13 @@ export class TargetSystemEditComponent {
   }
 
   /**
-   * Effective session-termination support for an Automatic system: native integrations always
-   * support it; custom scripts follow the checkbox. Callers gate this on the method being Automatic.
+   * Native integrations always support it and custom scripts follow the checkbox. Only meaningful
+   * for an automatic target.
    */
   private resolvedSessionTermination(): boolean {
     return this.isNativeIntegration() || this.policyForm.controls.supportsSessionTermination.value;
   }
 
-  /** Create mode: single submit creates the target system. */
   protected readonly submitCreate = async (): Promise<void> => {
     this.createForm.markAllAsTouched();
     this.policyForm.markAllAsTouched();
@@ -684,10 +624,6 @@ export class TargetSystemEditComponent {
     }
   };
 
-  /**
-   * Where to land once the target exists: normally the list, but back to the managed-credential
-   * create page when that page sent the operator here, with the new target selected.
-   */
   private navigateAfterCreate(created: TargetSystem): Promise<boolean> {
     if (this.then !== THEN_MANAGED_CREDENTIAL) {
       return this.navigateToList();
@@ -699,10 +635,7 @@ export class TargetSystemEditComponent {
     });
   }
 
-  /**
-   * Edit mode: the page's one save. Persists the name and the password policy in a single write,
-   * then applies whatever connector assignments were staged against it.
-   */
+  /** Saves name, policy and capability in one write, then applies the staged assignments. */
   protected readonly submitEdit = async (): Promise<void> => {
     this.nameForm.markAllAsTouched();
     this.policyForm.markAllAsTouched();
@@ -713,11 +646,10 @@ export class TargetSystemEditComponent {
 
     const { name } = this.nameForm.getRawValue();
     try {
-      // One write, not two: the server takes the name, the policy and the capability together.
       await this.rotationSdk.updateTargetSystem(this.organizationId, this.targetSystemId!, {
         name,
         passwordPolicy: this.buildPasswordPolicy(),
-        // Automatic follows native/custom-script rules; Manual has no access connector session to terminate.
+        // A manual target has no session to terminate.
         supportsSessionTermination: this.isAutomatic() && this.resolvedSessionTermination(),
       });
     } catch (e) {
@@ -753,7 +685,6 @@ export class TargetSystemEditComponent {
     });
   };
 
-  /** Write the staged assignment diff, one connector at a time. */
   private async applyStagedAssignments(): Promise<{ error: unknown } | undefined> {
     const targetSystemId = this.targetSystemId;
     if (targetSystemId == null) {
@@ -772,7 +703,7 @@ export class TargetSystemEditComponent {
     return unassigned.failure ?? assigned.failure;
   }
 
-  /** Runs `write` over `connectorIds` in order, collecting the refusals rather than stopping. */
+  /** Collects refusals rather than stopping at the first. */
   private async writeEach(
     connectorIds: readonly AccessConnectorId[],
     write: (connectorId: AccessConnectorId) => Promise<void>,
@@ -791,19 +722,14 @@ export class TargetSystemEditComponent {
   }
 
   /**
-   * Whether the loaded system is currently in service. Read by the outstanding-setup hint and
-   * the delete confirmation's wording; the connector picker follows the method alone, active or
-   * not. Only read from the edit branch, which renders after {@link loadSystem} has resolved, so
-   * the unloaded case never reaches the template.
+   * Only read once {@link loadSystem} has resolved. The connector picker ignores it and follows the
+   * method alone.
    */
   protected readonly isActive = computed(
     () => this.existing()?.status === TargetSystemStatus.Active,
   );
 
-  /**
-   * Stage the picked connectors for assignment, and resolve with what was staged so the picker
-   * clears them from its selection.
-   */
+  /** Resolves with what was staged, so the picker clears it from its selection. */
   protected readonly stageAssign = async (
     selected: SelectItemView[],
   ): Promise<readonly string[]> => {
@@ -850,7 +776,6 @@ export class TargetSystemEditComponent {
     this.nameForm.markAsDirty();
   }
 
-  /** Permanently delete this target system, then leave the page. */
   protected readonly deleteSystem = async (): Promise<void> => {
     const system = this.existing();
     if (system == null) {
@@ -896,8 +821,8 @@ export class TargetSystemEditComponent {
   }
 
   /**
-   * Confirm before unsaved input is thrown away. Called both by Cancel and by the route's
-   * CanDeactivate guard, which covers the breadcrumb and browser back/forward.
+   * Called by Cancel and by the CanDeactivate guard, which covers the breadcrumb and browser
+   * back/forward.
    */
   async confirmDiscard(): Promise<boolean> {
     if (!this.liveForms().some((form) => form.dirty)) {

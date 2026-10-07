@@ -11,14 +11,11 @@ import { ResolvedNames } from "../access-requests/access-name-resolver.service";
 import { LeaseExtensionSummary } from "../access-requests/my-access-row";
 
 /**
- * A lease that is live right now on a collection the caller manages.
- *
- * Separate from {@link MyAccessRequestRow} rather than an extension of it: that model carries no
- * requester identity and is shared with the requester-facing tabs, where "who holds this" is always
- * the viewer.
+ * A lease live right now on a collection the caller manages. Kept apart from
+ * {@link MyAccessRequestRow}, which carries no requester identity.
  */
 export type ManagedLeaseRow = {
-  /** The request that produced the lease — every row links to /pam/requests/:id. */
+  /** The request that produced the lease; each row links to its `/pam/requests/:id` page. */
   requestId: AccessRequestId;
   /** The live lease itself, the id `ApproverInboxService.revokeLease` ends. */
   leaseId: AccessLeaseId;
@@ -31,7 +28,7 @@ export type ManagedLeaseRow = {
   requester: string;
   requesterEmail: string | null;
   startsAt: string;
-  /** The lease's EFFECTIVE end — the latest extension's end, else the request's window end. */
+  /** The lease's effective end: the latest extension's end, else the request's window end. */
   endsAt: string;
   /** Sort key for the Remaining column. */
   endsAtMs: number;
@@ -48,16 +45,8 @@ type LeaseProducing = {
 };
 
 /**
- * Whether this request minted a lease the server still holds open.
- *
- * Not on its own "live right now": nothing moves a lease out of `active` when its window closes,
- * so a caller listing running access must also test the effective end.
- *
- * Reads the request, never the display badge: `historyDisplayStatus` only reaches its activated
- * branch for `status === "approved"`, and an activated grant can arrive with a different status.
- *
- * Structural, not tied to {@link AccessRequestView}, so every surface offering to end a lease
- * reads this one signal rather than its own display badge — the shared floor, not the whole test.
+ * Whether this request minted a lease the server reported `active` when read. The lease can lapse
+ * after that read, so callers must also test the effective end.
  */
 export function isLiveManagedLease<T extends LeaseProducing>(
   request: T,
@@ -72,24 +61,16 @@ type ApprovalProducing = {
 };
 
 /**
- * Whether this request was approved and its requester has not started it, so the approval can
- * still be withdrawn.
- *
+ * Whether the approval can still be withdrawn: approved, and not yet started by the requester.
  * Reads no window, unlike the requester's own cancel ({@link isRedeemableGrant}).
- *
- * Structural for the same reason as {@link isLiveManagedLease}: every surface offering to withdraw
- * an approval reads this one test, adding only its own managed and viewer checks.
  */
 export function isUnstartedApproval(request: ApprovalProducing): boolean {
   return request.status === "approved" && request.producedLeaseId == null;
 }
 
 /**
- * Build one live-lease row.
- *
- * `extension` is the summary for the produced lease, if any. An extension applies to the lease
- * in place, never moving the request's `leaseNotAfter`, so showing the request's end would
- * understate how long access actually runs.
+ * An extension applies to the lease in place without moving the request's `leaseNotAfter`, so
+ * `extension` supplies the effective end.
  */
 export function toManagedLeaseRow(
   request: AccessRequestView & { producedLeaseId: AccessLeaseId },

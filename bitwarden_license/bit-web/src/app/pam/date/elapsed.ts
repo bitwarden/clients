@@ -1,13 +1,9 @@
-/** An i18n key plus its numeric argument, leaving the formatting to the template. */
+/** An i18n key plus its numeric argument, for the template to format. */
 export type ElapsedLabel = { key: string; value: number };
 
 /**
- * How long ago something happened, as an i18n key and a count — "Just now", "10m ago", "5h
- * ago", "2d ago".
- *
- * Coarser than {@link formatRemaining} on purpose: rounds DOWN to the largest whole unit and
- * never ticks, since an approver needs to spot the oldest request, not a second-accurate age.
- * An unparseable timestamp reads as "Just now" rather than throwing.
+ * How long ago something happened, e.g. "10m ago". Rounds down to the largest whole unit and never
+ * ticks, since an approver needs to spot the oldest request, not a second-accurate age.
  */
 export function elapsedLabel(since: string, now: Date): ElapsedLabel {
   const sinceMs = Date.parse(since);

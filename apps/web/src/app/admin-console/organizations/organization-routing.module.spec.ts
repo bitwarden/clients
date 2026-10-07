@@ -19,7 +19,6 @@ function org(props: Partial<Organization> = {}): Organization {
   });
 }
 
-/** A Custom member whose only authority in the organization is authoring access rules. */
 function ruleAuthor(): Organization {
   return org({
     type: OrganizationUserType.Custom,
@@ -28,7 +27,6 @@ function ruleAuthor(): Organization {
   });
 }
 
-/** A Custom member whose only authority is administering the rotation fleet. */
 function rotationAdmin(): Organization {
   return org({
     type: OrganizationUserType.Custom,

@@ -34,10 +34,6 @@ import {
 
 const names = storyNames();
 
-/**
- * The server writes each audit event self-contained, with display names snapshotted at write time,
- * so a fixture is a flat object rather than something assembled from other fixtures.
- */
 function event(overrides: Record<string, unknown>): AccessAuditEventResponse {
   return {
     kind: AccessAuditEventKind.RequestSubmitted,
@@ -68,7 +64,7 @@ function event(overrides: Record<string, unknown>): AccessAuditEventResponse {
   } as unknown as AccessAuditEventResponse;
 }
 
-/** The approver, distinct from the two requesters so the Actor and Requester chips each have something to sort. */
+/** Distinct from both requesters, so the Actor and Requester chips each have options to sort. */
 const APPROVER = {
   actorId: "user-2",
   actorName: "Ada Lovelace",
@@ -82,16 +78,12 @@ const OTHER_REQUESTER = {
   requesterEmail: "katherine@example.com",
 };
 
-/**
- * One of each kind the trail actually emits today, newest first as the server returns them, spread
- * over a week so the date range has something to narrow.
- */
+/** Newest first, as the server returns them, spread over a week. */
 const EVENTS: AccessAuditEventResponse[] = [
   event({
     kind: AccessAuditEventKind.LeaseExpired,
     occurredAt: fromNow(-5 * MINUTE),
     leaseId: "lease-1",
-    // No actor: the lease ran out on its own, which the row renders as an automated action.
     actorId: null,
     actorName: null,
     actorEmail: null,
@@ -123,7 +115,7 @@ const EVENTS: AccessAuditEventResponse[] = [
     ...APPROVER,
     detail: "Approved for the incident window.",
   }),
-  // No actor: the rule auto-approved it, which the row renders as an automated action.
+  // Auto-approved by the rule, so there is no actor.
   event({
     kind: AccessAuditEventKind.RequestApproved,
     occurredAt: fromNow(-2 * DAY),
@@ -155,7 +147,7 @@ const EVENTS: AccessAuditEventResponse[] = [
     detail: "Use the read replica instead.",
   }),
   event({ kind: AccessAuditEventKind.RequestCancelled, occurredAt: fromNow(-5 * DAY) }),
-  // A rule change: no cipher, so the subject column falls back to the rule name.
+  // No cipher, so the Item cell falls back to the rule name.
   event({
     kind: AccessAuditEventKind.RuleUpdated,
     occurredAt: fromNow(-7 * DAY),
@@ -168,15 +160,7 @@ const EVENTS: AccessAuditEventResponse[] = [
   }),
 ];
 
-/**
- * Long text shapes that broke the layout: a rule name past sixty characters, and a single
- * token longer than the column cap, which must break mid-word.
- */
-/**
- * The rotation and fleet half of the trail, which read as a column of "Unknown event" until the client caught up
- * with the server's vocabulary (PM-43606). Every one is system-driven, and the fleet three name no cipher at all,
- * so the Item cell falls through to the access connector and the target.
- */
+/** Rotation and fleet events; those naming no cipher fall through to the connector or target. */
 const ROTATION_EVENTS: AccessAuditEventResponse[] = [
   event({
     kind: AccessAuditEventKind.RotationSucceeded,
@@ -243,6 +227,10 @@ const ROTATION_EVENTS: AccessAuditEventResponse[] = [
   }),
 ];
 
+/**
+ * A rule name past sixty characters, and a token longer than the column cap, which must break
+ * mid-word.
+ */
 const LONG_TEXT_EVENTS: AccessAuditEventResponse[] = [
   event({
     kind: AccessAuditEventKind.RuleDeleted,
@@ -278,17 +266,14 @@ const LONG_TEXT_EVENTS: AccessAuditEventResponse[] = [
   }),
 ];
 
-/**
- * The organization's members as `getAllMiniUserDetails` returns them, keyed by platform user
- * id. Deliberately short of the trail's named identities: `user-9` is a removed member.
- */
+/** Leaves out `user-9`, a removed member the trail still names. */
 const MEMBERS = [
   { userId: "user-1", id: "org-user-1", name: "Grace Hopper", email: "grace@example.com" },
   { userId: "user-2", id: "org-user-2", name: "Ada Lovelace", email: "ada@example.com" },
   { userId: "user-3", id: "org-user-3", name: "Katherine Johnson", email: "katherine@example.com" },
 ];
 
-/** An identity the member lookup cannot resolve — a member who has since left the organization. */
+/** A member who has left the organization, so the member lookup cannot resolve them. */
 const FORMER_MEMBER = {
   actorId: "user-9",
   actorName: "Alan Turing",
@@ -298,18 +283,14 @@ const FORMER_MEMBER = {
   requesterEmail: "alan@example.com",
 };
 
-/**
- * The linkability check: cells that must not become an anchor sit beside ones that must —
- * System actor, a former member, a rule (no entity-events dialog), and an undecrypted item.
- */
 const MIXED_LINK_EVENTS: AccessAuditEventResponse[] = [
-  // Every cell linkable: a resolved actor, a resolved requester, and an item this vault decrypted.
+  // Every cell links: a resolved actor and requester, and an item this vault decrypted.
   event({
     kind: AccessAuditEventKind.CredentialAccessed,
     occurredAt: fromNow(-5 * MINUTE),
     ...APPROVER,
   }),
-  // Automated: the Actor cell reads System, which is not a member and never a link.
+  // The Actor cell reads System, which is never a link.
   event({
     kind: AccessAuditEventKind.LeaseExpired,
     occurredAt: fromNow(-15 * MINUTE),
@@ -319,13 +300,13 @@ const MIXED_LINK_EVENTS: AccessAuditEventResponse[] = [
     actorEmail: null,
     automated: true,
   }),
-  // A former member: both names resolve to nothing the lookup knows, so both stay text.
+  // A former member, so both names stay text.
   event({
     kind: AccessAuditEventKind.RequestSubmitted,
     occurredAt: fromNow(-40 * MINUTE),
     ...FORMER_MEMBER,
   }),
-  // A rule change: the Item cell falls back to the rule name, which has no event history to open.
+  // The Item cell shows the rule name, which has no event history to open.
   event({
     kind: AccessAuditEventKind.RuleUpdated,
     occurredAt: fromNow(-3 * HOUR),
@@ -336,7 +317,7 @@ const MIXED_LINK_EVENTS: AccessAuditEventResponse[] = [
     ruleName: "Production access",
     ...APPROVER,
   }),
-  // An item outside this viewer's vault: no decrypted name, so nothing to render as link text.
+  // An item outside this viewer's vault, so there is no name to link.
   event({
     kind: AccessAuditEventKind.RequestApproved,
     occurredAt: fromNow(-DAY),
@@ -348,12 +329,8 @@ const MIXED_LINK_EVENTS: AccessAuditEventResponse[] = [
   }),
 ];
 
-/**
- * The absence check: every cell that can carry no value carries none, except the automated
- * row's Actor cell, which reads System — that IS the value, not an absence.
- */
 const EMPTY_FIELD_EVENTS: AccessAuditEventResponse[] = [
-  // Nothing but a time and a kind: no actor, no requester, no item, no duration, no detail.
+  // Nothing but a time and a kind.
   event({
     kind: AccessAuditEventKind.LeasingFreezeEnabled,
     occurredAt: fromNow(-5 * MINUTE),
@@ -367,7 +344,7 @@ const EMPTY_FIELD_EVENTS: AccessAuditEventResponse[] = [
     collectionId: null,
     requestId: null,
   }),
-  // Automated with every other field empty: only the Actor cell reads System.
+  // Automated with every other field empty, so only the Actor cell has a value.
   event({
     kind: AccessAuditEventKind.LeaseExpired,
     occurredAt: fromNow(-25 * MINUTE),
@@ -383,7 +360,7 @@ const EMPTY_FIELD_EVENTS: AccessAuditEventResponse[] = [
     requestId: null,
     automated: true,
   }),
-  // An actor but no requester: a rule change nobody asked for, and no comment recorded against it.
+  // An actor but no requester or detail.
   event({
     kind: AccessAuditEventKind.RuleCreated,
     occurredAt: fromNow(-2 * HOUR),
@@ -397,7 +374,7 @@ const EMPTY_FIELD_EVENTS: AccessAuditEventResponse[] = [
     requesterEmail: null,
     ...APPROVER,
   }),
-  // A full row beside them, so a regression that dashes a value is as visible as one that blanks an absence.
+  // A full row, so a regression that dashes a value shows as plainly as a missing dash.
   event({
     kind: AccessAuditEventKind.LeaseActivated,
     occurredAt: fromNow(-3 * HOUR),
@@ -410,9 +387,8 @@ const EMPTY_FIELD_EVENTS: AccessAuditEventResponse[] = [
 ];
 
 /**
- * A trail stamped against the REAL clock, for the stories that exercise the Time period presets. The
- * presets are measured from `Date.now()`, so a {@link fromNow} fixture — anchored to a fixed past
- * instant — would fall outside every window and leave those stories showing an empty table forever.
+ * Stamped against the real clock, since the Time period presets measure from `Date.now()` and a
+ * {@link fromNow} fixture is anchored to a fixed past instant.
  */
 function liveEvents(): AccessAuditEventResponse[] {
   return [
@@ -440,10 +416,7 @@ function liveEvents(): AccessAuditEventResponse[] {
   ];
 }
 
-/**
- * Picks an option from one of the filter chips, found by the label its trigger carries. The chip's menu
- * renders in a CDK overlay on `document.body`, outside the story's own canvas.
- */
+/** The chip's menu renders in a CDK overlay on `document.body`, outside the story's canvas. */
 async function selectChipOption(
   canvasElement: HTMLElement,
   chip: string,
@@ -454,8 +427,7 @@ async function selectChipOption(
   )!;
   await userEvent.click(trigger);
   await userEvent.click(await within(document.body).findByText(option));
-  // Closes the open multi-select before the next chip, or the click lands on this menu's
-  // backdrop.
+  // Close the multi-select, or the next chip's click lands on this menu's backdrop.
   await userEvent.keyboard("{Escape}");
 }
 
@@ -478,8 +450,7 @@ function audit(
     providers: [
       {
         provide: AuditApiService,
-        // A factory, not a value, so the read counter behind `refreshPending` restarts on every
-        // mount.
+        // A factory, so the read counter behind `refreshPending` restarts on every mount.
         useFactory: () => {
           let reads = 0;
           return {
@@ -488,13 +459,12 @@ function audit(
               if (fails) {
                 return Promise.reject(new Error("audit read failed"));
               }
-              // One page, with no position to resume from — these stories are about rendering, not paging.
+              // One page; these stories cover rendering, not paging.
               return refreshPending && reads > 1
                 ? new Promise<AuditTrailPage>(() => undefined)
                 : Promise.resolve({ data: events, continuationToken: null });
             },
-            // The Item menu is read separately from the trail; left with nothing to offer since these
-            // stories are about how the trail renders.
+            // Left empty, since these stories cover how the trail renders.
             listAccessAuditItems: () => Promise.resolve([]),
           };
         },
@@ -513,8 +483,7 @@ function audit(
         provide: DialogService,
         useValue: {
           open: () => ({ closed: of(undefined) }),
-          // A ref whose `closed` never emits stays open, which is what the page reads to size the
-          // table.
+          // `closed` never emits, so the page treats the drawer as open and narrows the table.
           openDrawer: () =>
             Promise.resolve(drawerStaysOpen ? { closed: NEVER, isDrawer: true } : undefined),
         },
@@ -554,7 +523,7 @@ export default {
 
 type Story = StoryObj<AccessAuditComponent>;
 
-/** The populated trail, with the kind chips limited to the kinds actually present. */
+/** The populated trail. */
 export const Default: Story = {
   decorators: [audit()],
   parameters: {
@@ -573,44 +542,27 @@ export const Empty: Story = {
   decorators: [audit({ events: [] })],
 };
 
-/**
- * The read failed. A caller without the AccessEventLogs permission gets a 404 rather than an empty
- * list, so this is also what insufficient permission looks like.
- */
+/** A failed read. A caller without AccessEventLogs sees this too, since the server answers 403. */
 export const LoadError: Story = {
   decorators: [audit({ fails: true })],
 };
 
-/** A single event — the trail right after an organization's first request. */
+/** The trail right after an organization's first request. */
 export const SingleEvent: Story = {
   decorators: [audit({ events: [EVENTS[EVENTS.length - 2]] })],
 };
 
-/**
- * A trail from an organization with rotation configured, where the connector- and sweep-driven kinds outnumber the
- * human ones. Each names its own subject: a rotation the cipher it rotated, a fleet event the connector and target
- * it concerned.
- */
+/** Rotation and fleet events mixed in, each naming its own subject in the Item cell. */
 export const RotationTrail: Story = {
   decorators: [audit({ events: [...ROTATION_EVENTS, ...EVENTS] })],
 };
 
-/**
- * The width check. Timestamp and Event hold on one line beside Item values long enough to wrap, and
- * the over-long token breaks inside its column — so the table stays within the page instead of
- * dragging a horizontal scrollbar onto it.
- */
+/** Long values wrap and an over-long token breaks inside its column, so the table fits the page. */
 export const LongValues: Story = {
   decorators: [audit({ events: [...LONG_TEXT_EVENTS, ...EVENTS] })],
 };
 
-/**
- * The table with the details drawer open, standing down Actor, Requester and Duration — the
- * pane shows all three for the selected row.
- *
- * The drawer here is a ref that never closes; this story is about the column set and the fit,
- * not the pane itself.
- */
+/** The drawer is a stub that never closes; this story covers the columns left, not the pane. */
 export const DetailsDrawerOpen: Story = {
   decorators: [audit({ events: [...LONG_TEXT_EVENTS, ...EVENTS], drawerStaysOpen: true })],
   render: () => ({ template: `<div class="tw-max-w-3xl"><app-pam-access-audit /></div>` }),
@@ -620,25 +572,18 @@ export const DetailsDrawerOpen: Story = {
   },
 };
 
-/** {@link DetailsDrawerOpen} on the `bit-table-v2` path, where the stood-down columns leave the grid. */
+/** {@link DetailsDrawerOpen} on the `bit-table-v2` path, where hidden columns leave the grid. */
 export const DetailsDrawerOpenFlagOn: Story = {
   ...DetailsDrawerOpen,
   globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
-/**
- * Which cells open an event history and which do not. The actor, requester and item of the top row are
- * all anchors; beside them sit the four that must stay plain text — the System actor, a former member's
- * name, an access rule, and an item this viewer's vault could not decrypt.
- */
+/** The top row's cells open event histories; the rows below show cells that must not link. */
 export const EntityLinks: Story = {
   decorators: [audit({ events: MIXED_LINK_EVENTS })],
 };
 
-/**
- * A refresh in flight. The table, chips and date range stay exactly as the auditor left them,
- * behind nothing but the button's own pending state.
- */
+/** The table and chips stay in place, with only the button showing the pending refresh. */
 export const Refreshing: Story = {
   decorators: [audit({ refreshPending: true })],
   play: async ({ canvasElement }) => {
@@ -647,18 +592,12 @@ export const Refreshing: Story = {
   },
 };
 
-/**
- * Absence, rendered one way: Actor, Requester, Item and Duration each show a muted em dash for
- * no value, distinct from the automated row's System actor, which is a value, not an absence.
- */
+/** Each missing value shows a muted dash; the automated row's System actor is a value. */
 export const EmptyFields: Story = {
   decorators: [audit({ events: EMPTY_FIELD_EVENTS })],
 };
 
-/**
- * A filter that matches nothing. Renders the standard empty state, not a warning callout, with
- * Export disabled and Clear all reachable from both the empty state and the chip row.
- */
+/** A filter matching nothing shows the empty state, with Export disabled. */
 export const NoMatches: Story = {
   decorators: [audit()],
   play: async ({ canvasElement }) => {
@@ -666,11 +605,7 @@ export const NoMatches: Story = {
   },
 };
 
-/**
- * The same over-narrowed trail on the `bit-table-v2` path, where the chips sit in the table's own
- * toolbar: the toolbar holds its place above the empty state, so loosening one chip is still a move
- * away rather than only the wholesale Clear all.
- */
+/** {@link NoMatches} on the `bit-table-v2` path, where the toolbar stays above the empty state. */
 export const NoMatchesFlagOn: Story = {
   decorators: [audit()],
   globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
@@ -679,11 +614,7 @@ export const NoMatchesFlagOn: Story = {
   },
 };
 
-/**
- * A preset in force. The Time period chip carries its selection the way the other three carry theirs —
- * same height, same pressed styling, same dismiss — so the row reads as one family of controls, and the
- * table is narrowed to the events inside the window rather than the whole fetched trail.
- */
+/** A preset in force; the Time period chip shows its selection like the other chips. */
 export const TimePeriodFiltered: Story = {
   decorators: [audit({ events: liveEvents() })],
   play: async ({ canvasElement }) => {
@@ -691,10 +622,7 @@ export const TimePeriodFiltered: Story = {
   },
 };
 
-/**
- * Two chips narrowed together — where Clear all earns its place, since it undoes both in one
- * move.
- */
+/** Two chips narrowed together, which Clear all undoes in one move. */
 export const FiltersActive: Story = {
   decorators: [audit({ events: liveEvents() })],
   play: async ({ canvasElement }) => {
@@ -703,10 +631,7 @@ export const FiltersActive: Story = {
   },
 };
 
-/**
- * The same two chips on the `bit-table-v2` path. Clear all is the toolbar's own here, and the item
- * count beside it reports the rows of the page in hand — see the toolbar note in the decisions log.
- */
+/** {@link FiltersActive} on the `bit-table-v2` path, whose toolbar counts only loaded rows. */
 export const FiltersActiveFlagOn: Story = {
   decorators: [audit({ events: liveEvents() })],
   globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],

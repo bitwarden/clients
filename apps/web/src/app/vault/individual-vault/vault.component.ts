@@ -306,7 +306,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         },
       };
 
-      // `??` is safe: selecting a controlled-access child clears `type` and vice versa
+      // Selecting a controlled-access child clears `type` and vice versa
       // (`RoutedVaultFilterBridge`), so at most one is set.
       const emptyStateKey = filter?.controlledAccess ?? filter?.type;
       if (isEmptyStateType(emptyStateMap, emptyStateKey)) {
@@ -460,7 +460,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         }),
       );
 
-    // The vault list is the only surface that renders PAM-gated ("partial") rows.
+    // The vault list is the only surface rendering PAM-gated ("partial") rows; other consumers
+    // use `cipherListViews$`, which excludes them.
     const _ciphers = this.cipherService
       .cipherListViewsWithPartials$(activeUserId)
       .pipe(filter((c) => c !== null));

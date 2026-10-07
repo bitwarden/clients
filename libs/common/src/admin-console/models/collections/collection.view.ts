@@ -29,11 +29,7 @@ export class CollectionView implements View, ITreeNodeObject {
   defaultUserCollectionEmail: string | undefined;
   /** True when this collection's data could not be decrypted; fields dependent on decryption are empty. */
   decryptionFailure: boolean = false;
-  /**
-   * True when the collection is governed by a currently enabled access rule, gating its items
-   * behind PAM leasing. Server-derived: association alone isn't enough, since a disabled rule
-   * gates nothing.
-   */
+  /** True when an enabled PAM access rule gates the collection's items. Derived by the server. */
   hasEnabledAccessRule: boolean = false;
 
   private _name: string;
@@ -188,11 +184,14 @@ export class CollectionView implements View, ITreeNodeObject {
   /**
    * Creates a CollectionView from the SDK CollectionView returned by SDK decrypt operations.
    *
-   * The `sourceCollection` parameter preserves two fields the SDK's type doesn't carry:
-   * `defaultUserCollectionEmail`, consumed by `canEditName()` to enforce the offboarded-collection
-   * name restriction (see WARNING there), and `hasEnabledAccessRule`, which drives the
-   * privileged-access badge — plaintext, server-derived state that rides alongside the SDK since
-   * its `Collection` is `deny_unknown_fields` and doesn't declare it.
+   * The `sourceCollection` parameter is required to preserve `defaultUserCollectionEmail`, which
+   * the SDK's CollectionView type does not carry. That field is consumed by `canEditName()` to
+   * enforce the security restriction that prevents editing names on offboarded default-user
+   * collections (see WARNING on `canEditName`). Without it the restriction would be silently
+   * bypassed on the SDK decrypt path.
+   *
+   * The parameter also carries `hasEnabledAccessRule`, server-derived state the SDK's `Collection`
+   * does not declare.
    */
   static fromSdkCollectionView(
     sdkView: SdkCollectionView,

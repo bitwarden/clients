@@ -14,11 +14,7 @@ export class CollectionData {
   manage: boolean = false;
   hidePasswords: boolean = false;
   type: CollectionType = CollectionTypes.SharedCollection;
-  /**
-   * True when the collection is governed by a currently enabled access rule, gating its items
-   * behind PAM leasing. Server-derived: association alone isn't enough, since a disabled rule
-   * gates nothing.
-   */
+  /** True when an enabled PAM access rule gates the collection's items. Derived by the server. */
   hasEnabledAccessRule: boolean = false;
 
   constructor(response: CollectionDetailsResponse) {

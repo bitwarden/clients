@@ -14,12 +14,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { AccessLeaseExtensionRequest, EXTENSION_DURATION_OPTIONS } from "../..";
 
-/**
- * Small confirm-style dialog for extending an active lease: a duration picker seeded from
- * {@link EXTENSION_DURATION_OPTIONS} and a required justification (the server rejects an
- * {@link AccessLeaseExtensionRequest} with an empty `reason`). Resolves with the request to
- * submit, or `undefined` when canceled.
- */
+/** Collects a lease extension. The reason is required because the server rejects an empty one. */
 @Component({
   selector: "pam-extend-lease-dialog",
   templateUrl: "./extend-lease-dialog.component.html",

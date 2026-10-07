@@ -480,7 +480,6 @@ describe("CipherActionService", () => {
       await expect(successPromise).resolves.toBeUndefined();
     });
 
-    // PM-42916: the failure used to be logged and nothing else.
     it("shows an error toast when delete throws", async () => {
       cipherService.softDeleteWithServer.mockRejectedValue(new Error("server error"));
 
@@ -504,8 +503,8 @@ describe("CipherActionService", () => {
       );
     });
 
-    // The reachable shape: the lease lapsed after the last sync, so the cipher is still full and
-    // only its collections say it is gated.
+    // A lease that lapsed after the last sync leaves the cipher full, so only its collections say
+    // it is gated.
     it("names the reason for a full cipher whose every collection gates", async () => {
       cipherService.softDeleteWithServer.mockRejectedValue(new Error("not found"));
       const cipher = makeCipher({ collectionIds: ["c1"] });

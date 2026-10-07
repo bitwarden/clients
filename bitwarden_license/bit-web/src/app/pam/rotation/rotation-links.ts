@@ -5,7 +5,7 @@ export const ROTATION_TABS = {
   managedCredentials: "managed-credentials",
 } as const;
 
-/** An absolute router link into the rotation feature, which is lazy-loaded under an organization. */
+/** An absolute router link into the rotation feature, lazy-loaded under an organization. */
 export function rotationLink(organizationId: string, ...rest: readonly string[]): string[] {
   return ["/organizations", organizationId, "pam", "rotation", ...rest];
 }

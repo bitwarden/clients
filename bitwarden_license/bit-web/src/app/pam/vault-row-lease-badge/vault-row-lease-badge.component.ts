@@ -21,30 +21,21 @@ import { AccessStateBadgeComponent } from "../access-state-badge/access-state-ba
 import { rereadOnLapse } from "../helpers/lease-liveness";
 
 /**
- * The collection field the badge reads, structurally — the host passes its own
- * `CollectionView`/`CollectionAdminView`, which this component must not import. Optional, since
- * the vault list also renders pseudo-collections carrying no server state.
+ * Structural, since the host passes its own `CollectionView`/`CollectionAdminView`, which this
+ * component must not import. Optional for the vault's pseudo-collections, which carry no flag.
  */
 type BadgeCollection = { hasEnabledAccessRule?: boolean };
 
 /**
- * What the row's lookup concluded: a badge state, `"none"` for "checked, governed by no rule",
- * or `null` for "nothing to say" — the feature is off, there is no row to check, or the lookup
- * failed. Only `"none"` can draw the em dash, and only a failed lookup must not.
+ * `"none"` means checked and governed by no rule, which draws the em dash. `null` means nothing to
+ * say: the feature is off, there is no row, or the lookup failed.
  */
 type LeaseBadgeCell = AccessBadgeState | "none" | null;
 
 /**
- * Binds `VAULT_ROW_LEASE_BADGE` for one row in the vault list — cipher or collection. The badge
- * recipe, copy, and countdown live in {@link AccessStateBadgeComponent}.
- *
- * A cipher row re-reads access state on {@link AccessRefreshService}, so cancelling a request
- * from this row's own menu cannot leave the badge contradicting it; a collection row instead
- * shows the resting "Privileged" pill straight off `hasEnabledAccessRule`, at no fetch cost.
- *
- * A cipher row with no rule draws an em dash — distinguishing "checked" from "not loaded" — but
- * a collection row never does, since `hasEnabledAccessRule` defaults `false` and can't tell "no
- * rule" from "server too old".
+ * A cipher row re-reads on {@link AccessRefreshService}, so a cancel from its own menu can't leave
+ * the badge stale. A collection row never draws the em dash, since an older server's missing
+ * `hasEnabledAccessRule` reads as no rule.
  */
 @Component({
   selector: "app-pam-vault-row-lease-badge",
@@ -66,9 +57,8 @@ export class VaultRowLeaseBadgeComponent {
   protected readonly noAccessRuleLabel = inject(I18nService).t("pamNoAccessRule");
 
   /**
-   * Ids of the organizations that actually carry Privileged Access. The column is table-wide —
-   * one PAM-enabled organization anywhere in view turns it on for every row — so the placeholder
-   * must be narrowed to the row's own organization here.
+   * One PAM organization in view turns the column on for every row, so the em dash narrows to rows
+   * whose own organization uses PAM.
    */
   private readonly pamOrganizationIds = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -118,8 +108,7 @@ export class VaultRowLeaseBadgeComponent {
   });
 
   private cipherCell$(cipher: CipherViewLike): Observable<LeaseBadgeCell> {
-    // Gating is driven by the SDK's `partial` flag, read through the util since only some
-    // `CipherViewLike` members carry it. Not gated is a real answer; no id means the lookup
+    // The SDK marks a gated cipher `partial`. Not gated is a real answer; no id means the lookup
     // couldn't run.
     if (!CipherViewLikeUtils.isPartial(cipher)) {
       return of("none");

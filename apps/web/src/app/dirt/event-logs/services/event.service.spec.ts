@@ -503,8 +503,7 @@ describe("EventService PAM events", () => {
     expect(info.message).toContain(`<code>${(subjectId as string).substring(0, 8)}</code>`);
   });
 
-  // A rule spans collections and has no id column on the event, so these rows report the actor and
-  // the time only. Asserted so the bare message reads as intended rather than as a missing subject.
+  // A rule spans collections and has no id column on the event, so the message names no subject.
   it.each([
     [EventType.Pam_AccessRule_Created, "pamEventCreatedAccessRule"],
     [EventType.Pam_AccessRule_Updated, "pamEventUpdatedAccessRule"],
@@ -516,7 +515,6 @@ describe("EventService PAM events", () => {
     expect(info.humanReadableMessage).toBe(key);
   });
 
-  // The item is named and linked into the vault the same way ordinary cipher events do.
   it("names the item and links it into the vault", async () => {
     const info = await sut.getEventInfo(pamEvent(EventType.Pam_AccessRequest_Submitted));
 
@@ -524,8 +522,7 @@ describe("EventService PAM events", () => {
     expect(info.message).toContain(`viewEvents=${cipherId}`);
   });
 
-  // The request-detail page needs a different permission than AccessEventLogs, so the id must
-  // not link.
+  // The request-detail page needs a different permission than AccessEventLogs, so no link.
   it("renders the subject id as plain code, never a link", async () => {
     const info = await sut.getEventInfo(pamEvent(EventType.Pam_AccessLease_Revoked));
 
