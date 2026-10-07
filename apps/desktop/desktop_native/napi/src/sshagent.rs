@@ -85,6 +85,7 @@ pub mod sshagent {
                 signer: None,
             },
             chain: vec![],
+            bundled_cli: false,
         };
 
         match router.route(String::new(), kind, requester).await {

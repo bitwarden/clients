@@ -140,6 +140,7 @@ mod tests {
                 signer: None,
             },
             chain: vec![],
+            bundled_cli: false,
         }
     }
 

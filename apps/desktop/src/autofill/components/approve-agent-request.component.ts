@@ -23,7 +23,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { AgentPurpose, AgentRequester } from "../models/agent-request";
+import { AgentPurpose, AgentRequester, verifiedSigner } from "../models/agent-request";
 
 export type AgentRequestCandidate = {
   id: string;
@@ -172,7 +172,7 @@ function sshActionKey(namespace: string | undefined) {
   return namespace ? "sshActionSign" : "sshActionLogin";
 }
 
-/** Env vars mean `bw-access run` or MCP `run_with_credential`. */
+/** Env vars mean `bw-access run` or MCP `run_with_credential`; the service drops unverified ones. */
 function kindOf({ ssh, approval, credential }: ApproveAgentRequestParams): Kind {
   if (ssh) {
     return "ssh";
@@ -198,8 +198,7 @@ function leavesLine(kind: Kind, { chain }: AgentRequester): [string, string?] {
 /** The app is named only with what the OS verified; the hops it went through are shown below. */
 function describeApp({ app, chain }: AgentRequester, i18n: I18nService) {
   const index = chain.findIndex((hop) => hop.pid === app.pid);
-  const signer = app.signer?.valid ? app.signer : undefined;
-  // Ad hoc signatures are valid but name nobody, so they count as unverified.
+  const signer = verifiedSigner(app.signer);
   const signature = signer?.organization
     ? { verified: true, detail: signer.organization }
     : signer?.id

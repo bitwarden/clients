@@ -38,6 +38,7 @@ import {
   AgentRequester,
   AgentRequestKind,
   AgentSshSign,
+  verifiedSigner,
 } from "../models/agent-request";
 import { AGENT_ACCESS_IPC_CHANNELS } from "../models/ipc-channels";
 
@@ -46,6 +47,9 @@ import { AgentRequestGate } from "./agent-request-gate.service";
 const MAX_CANDIDATES = 10;
 
 type Release = { cipher: CipherView; credential: AgentCredential };
+
+/** `run` keeps the secrets in the command's environment; `share` returns them to the caller. */
+type Mode = "run" | "share";
 
 /** SSH signs share the channel but are answered by `SshAgentService`. */
 type AccessRequest = AgentRequest<Exclude<AgentRequestKind, AgentSshSign>>;
@@ -133,14 +137,22 @@ export class AgentAccessService implements OnDestroy {
     // Built before the dialog, so the user approves exactly what is released.
     const releases = await Promise.all(ciphers.map((cipher) => this.release(cipher)));
 
+    // Only the bundled CLI is known to honor `env`; anyone else gets the credential back.
+    const purpose = requester.bundledCli
+      ? kind.purpose
+      : kind.purpose && { ...kind.purpose, env: {} };
+    const mode: Mode = Object.keys(purpose?.env ?? {}).length > 0 ? "run" : "share";
     const promptType = await firstValueFrom(this.settings.agentAccessPromptBehavior$);
-    const rememberable = promptType === AgentAccessPromptType.RememberUntilLock;
+    const scope =
+      promptType === AgentAccessPromptType.RememberUntilLock
+        ? rememberScope(requester, mode)
+        : undefined;
     const [only] = releases;
     if (
-      rememberable &&
+      scope != null &&
       releases.length === 1 &&
       only.cipher.reprompt === CipherRepromptType.None &&
-      this.gate.remembered.has(rememberKey(requester, only.cipher.id))
+      this.gate.remembered.has(`${scope}:${only.cipher.id}`)
     ) {
       return { status: AgentOutcomeStatus.Approved, credential: only.credential };
     }
@@ -151,8 +163,8 @@ export class AgentAccessService implements OnDestroy {
           requester,
           credential: {
             candidates: releases.map(toCandidate),
-            purpose: kind.purpose,
-            rememberable,
+            purpose,
+            rememberable: scope != null,
           },
         }),
       deadline,
@@ -164,8 +176,8 @@ export class AgentAccessService implements OnDestroy {
     if (!(await this.passwordRepromptService.passwordRepromptCheck(chosen.cipher))) {
       return { status: AgentOutcomeStatus.Denied };
     }
-    if (result.remember && chosen.cipher.reprompt === CipherRepromptType.None) {
-      this.gate.remembered.add(rememberKey(requester, chosen.cipher.id));
+    if (scope != null && result.remember && chosen.cipher.reprompt === CipherRepromptType.None) {
+      this.gate.remembered.add(`${scope}:${chosen.cipher.id}`);
     }
     return { status: AgentOutcomeStatus.Approved, credential: chosen.credential };
   }
@@ -233,8 +245,9 @@ function toCandidate({ cipher, credential }: Release): AgentRequestCandidate {
   };
 }
 
-/** Remembered per verified signer, else per executable path, and per item. */
-function rememberKey({ app }: AgentRequester, cipherId: string): string {
-  const signer = app.signer?.valid ? `${app.signer.kind}:${app.signer.id}` : `exe:${app.exe}`;
-  return `agent:${signer}:${cipherId}`;
+/** Per verified signer, else executable path, and per mode; none when neither is known. */
+function rememberScope({ app }: AgentRequester, mode: Mode): string | undefined {
+  const signer = verifiedSigner(app.signer);
+  const identity = signer?.id != null ? `${signer.kind}:${signer.id}` : app.exe && `exe:${app.exe}`;
+  return identity ? `agent:${mode}:${identity}` : undefined;
 }

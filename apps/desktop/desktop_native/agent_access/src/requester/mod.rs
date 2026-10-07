@@ -4,7 +4,7 @@
 #[cfg(target_os = "macos")]
 mod macos;
 
-use std::path::Path;
+use std::{fs, path::Path};
 
 use sysinfo::{Pid, ProcessRefreshKind, ProcessesToUpdate, System, UpdateKind};
 
@@ -21,6 +21,8 @@ pub struct Requester {
     pub app: App,
     /// `chain[0]` is the socket peer, walking up.
     pub chain: Vec<Hop>,
+    /// The peer is the `bw-access` shipped with this app, so its stated `purpose` holds.
+    pub bundled_cli: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -73,6 +75,8 @@ pub(crate) struct SignerInfo {
 pub(crate) trait ProcessTable {
     fn process(&self, pid: u32) -> Option<ProcessEntry>;
     fn signer(&self, pid: u32, exe: Option<&str>) -> Option<SignerInfo>;
+    /// `exe` is the `bw-access` installed next to this app.
+    fn is_bundled_cli(&self, exe: &str) -> bool;
 }
 
 /// Blocking (process table + SecCode); call from spawn_blocking.
@@ -123,7 +127,28 @@ fn walk(table: &impl ProcessTable, peer_pid: u32) -> Requester {
         exe: None,
         signer: None,
     });
-    Requester { app, chain }
+    let bundled_cli = chain
+        .first()
+        .is_some_and(|peer| is_bundled_cli(table, peer));
+    Requester {
+        app,
+        chain,
+        bundled_cli,
+    }
+}
+
+/// macOS: Bitwarden's Developer ID, since the bundle is user-writable. Elsewhere: the install path.
+fn is_bundled_cli(table: &impl ProcessTable, peer: &Hop) -> bool {
+    if cfg!(target_os = "macos") {
+        peer.name == "bw-access"
+            && is_developer_id(peer, |s| {
+                s.valid && s.id.as_deref() == Some(BITWARDEN_TEAM_ID)
+            })
+    } else {
+        peer.exe
+            .as_deref()
+            .is_some_and(|exe| table.is_bundled_cli(exe))
+    }
 }
 
 fn is_developer_id(hop: &Hop, also: impl Fn(&Signer) -> bool) -> bool {
@@ -140,14 +165,23 @@ fn is_transparent(hop: &Hop) -> bool {
         || is_developer_id(hop, |s| s.id.as_deref() == Some(BITWARDEN_TEAM_ID))
 }
 
+/// Only an Apple-anchored signature vouches for the bundle name; anyone can write an Info.plist.
 fn display_name(hop: &Hop, info: Option<&SignerInfo>) -> String {
-    let humanized = || {
-        info.filter(|i| i.signer.kind == SignerKind::DeveloperId)?
-            .identifier
-            .as_deref()
-            .and_then(humanize)
+    let Some(info) = info.filter(|i| {
+        i.signer.valid
+            && matches!(
+                i.signer.kind,
+                SignerKind::DeveloperId | SignerKind::Platform
+            )
+    }) else {
+        return hop.name.clone();
     };
-    info.and_then(|i| i.bundle_name.clone())
+    let humanized = || {
+        let identifier = info.identifier.as_deref();
+        humanize(identifier.filter(|_| info.signer.kind == SignerKind::DeveloperId)?)
+    };
+    info.bundle_name
+        .clone()
         .or_else(humanized)
         .unwrap_or_else(|| hop.name.clone())
 }
@@ -199,6 +233,18 @@ impl ProcessTable for OsTable {
     fn signer(&self, _pid: u32, _exe: Option<&str>) -> Option<SignerInfo> {
         None
     }
+
+    fn is_bundled_cli(&self, exe: &str) -> bool {
+        let name = if cfg!(windows) {
+            "bw-access.exe"
+        } else {
+            "bw-access"
+        };
+        let bundled = std::env::current_exe().map(|app| app.with_file_name(name));
+        bundled
+            .and_then(fs::canonicalize)
+            .is_ok_and(|bundled| fs::canonicalize(exe).is_ok_and(|exe| exe == bundled))
+    }
 }
 
 #[cfg(test)]
@@ -207,6 +253,8 @@ mod tests {
 
     /// (pid, ppid, exe path or bare name, signer).
     struct Fake(Vec<(u32, u32, &'static str, Option<SignerInfo>)>);
+
+    const BUNDLED: &str = "/opt/Bitwarden/bw-access";
 
     impl ProcessTable for Fake {
         fn process(&self, pid: u32) -> Option<ProcessEntry> {
@@ -221,6 +269,9 @@ mod tests {
         }
         fn signer(&self, pid: u32, _exe: Option<&str>) -> Option<SignerInfo> {
             self.0.iter().find(|r| r.0 == pid)?.3.clone()
+        }
+        fn is_bundled_cli(&self, exe: &str) -> bool {
+            exe == BUNDLED
         }
     }
 
@@ -354,6 +405,36 @@ mod tests {
         }
         let t = Fake(vec![(60, 50, "bw-access", None), (50, 1, "Electron", code)]);
         assert_eq!(walk(&t, 60).app.name, "Code");
+    }
+
+    #[test]
+    fn self_signed_bundle_name_is_ignored() {
+        let mut fake = info(SignerKind::Other, "Q6L2SF6YDW", "Anthropic PBC", "x");
+        if let Some(info) = fake.as_mut() {
+            info.bundle_name = Some("Claude Code".to_string());
+        }
+        let t = Fake(vec![
+            (60, 50, "bw-access", None),
+            (50, 1, "/tmp/evil", fake),
+        ]);
+        assert_eq!(walk(&t, 60).app.name, "evil");
+    }
+
+    #[test]
+    fn only_the_shipped_bw_access_is_the_bundled_cli() {
+        let bitwarden = || dev(BITWARDEN_TEAM_ID, "Bitwarden Inc.", "com.bitwarden.desktop");
+        let peer = |exe: &'static str, signer| {
+            let t = Fake(vec![(60, 1, exe, signer)]);
+            walk(&t, 60).bundled_cli
+        };
+        if cfg!(target_os = "macos") {
+            assert!(peer("/Applications/x/bw-access", bitwarden()));
+            assert!(!peer("/Applications/x/bw-access", None));
+            assert!(!peer("/Applications/x/evil", bitwarden()));
+        } else {
+            assert!(peer(BUNDLED, None));
+            assert!(!peer("/tmp/bw-access", None));
+        }
     }
 
     #[test]

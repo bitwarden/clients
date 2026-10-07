@@ -250,6 +250,8 @@ export declare namespace agent_access {
     app: RequesterApp
     /** From the socket peer upwards. */
     chain: Array<ProcessHop>
+    /** The peer is the `bw-access` shipped with this app. */
+    bundledCli: boolean
   }
   export interface RequesterApp {
     name: string

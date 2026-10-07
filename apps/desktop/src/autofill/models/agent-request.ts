@@ -20,7 +20,19 @@ export type AgentSigner = {
 export type AgentProcess = { pid: number; name: string; exe?: string; signer?: AgentSigner };
 
 /** Set by the OS-facing listener, never by the client. `chain` runs from the socket peer up. */
-export type AgentRequester = { app: AgentProcess; chain: AgentProcess[] };
+export type AgentRequester = {
+  app: AgentProcess;
+  chain: AgentProcess[];
+  /** The peer is the `bw-access` shipped with this app, so its `purpose` holds. */
+  bundledCli: boolean;
+};
+
+/** Only an Apple-anchored signature names who signed; ad hoc and self-signed ones prove nothing. */
+export function verifiedSigner(signer?: AgentSigner): AgentSigner | undefined {
+  return signer?.valid && (signer.kind === "developerId" || signer.kind === "platform")
+    ? signer
+    : undefined;
+}
 
 export type AgentCredentialQuery = { domain?: string; id?: string; search?: string };
 

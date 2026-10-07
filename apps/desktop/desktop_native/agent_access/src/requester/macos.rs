@@ -93,9 +93,10 @@ pub(super) fn signer(pid: u32) -> Option<SignerInfo> {
         Some(_) => SignerKind::Other,
     };
     let (id, organization) = match kind {
-        SignerKind::AdHoc => (None, None),
+        SignerKind::DeveloperId => (team, summary.as_deref().and_then(organization)),
         SignerKind::Platform => (Some(identifier.clone()), Some("Apple".to_string())),
-        _ => (team, summary.as_deref().and_then(organization)),
+        // A self-signed subject and team id are whatever the signer typed.
+        SignerKind::AdHoc | SignerKind::Other => (None, None),
     };
     let valid = status == 0;
     let signer = Signer {

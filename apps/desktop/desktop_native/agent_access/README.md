@@ -34,7 +34,8 @@ One JSON line in, one out, then the connection closes.
 
 - `query` is `{"domain"}`, `{"id"}` or `{"search"}`.
 - `status` is `approved | denied | notFound | locked | timeout | error`.
-- `purpose` (`command`, `env`) is client-reported and display-only. `notes` is never sent.
+- `purpose` (`command`, `env`) is client-reported and display-only; `env` is shown only when the
+  peer is the bundled `bw-access`. `notes` is never sent.
 
 ## Client
 

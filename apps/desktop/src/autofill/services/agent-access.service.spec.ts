@@ -19,7 +19,7 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { ApproveAgentRequestResult } from "../components/approve-agent-request.component";
 import { AgentAccessPromptType } from "../models/agent-access-setting";
-import { AgentRequest, AgentRequestKind } from "../models/agent-request";
+import { AgentRequest, AgentRequester, AgentRequestKind } from "../models/agent-request";
 import { AGENT_ACCESS_IPC_CHANNELS } from "../models/ipc-channels";
 
 import { AgentAccessService } from "./agent-access.service";
@@ -56,14 +56,23 @@ describe("AgentAccessService", () => {
   const reprompt = mock<PasswordRepromptService>();
   let service: AgentAccessService;
 
-  const send = (kind: AgentRequestKind, deadline = Date.now() + 60_000) =>
-    requests.next({
-      requestId: 7,
-      kind,
-      deadline,
-      requester: { app: { pid: 3, name: "Claude Code" }, chain: [] },
-    });
+  const claude: AgentRequester = {
+    app: {
+      pid: 3,
+      name: "Claude Code",
+      signer: { kind: "developerId", id: "Q6L2SF6YDW", organization: "Anthropic PBC", valid: true },
+    },
+    chain: [],
+    bundledCli: false,
+  };
+  const send = (kind: AgentRequestKind, deadline = Date.now() + 60_000, requester = claude) =>
+    requests.next({ requestId: 7, kind, deadline, requester });
   const github: AgentRequestKind = { type: "credential", query: { domain: "github.com" } };
+  const run: AgentRequestKind = {
+    ...github,
+    purpose: { command: "gh pr list", env: { GH_TOKEN: "password" } },
+  };
+  const dialogData = (call = 0) => dialogService.open.mock.calls[call][1]?.data;
   const answer = () => respond.mock.calls.at(-1)?.[1];
 
   beforeEach(async () => {
@@ -166,7 +175,7 @@ describe("AgentAccessService", () => {
     send(github);
     await flush();
 
-    const candidates = dialogService.open.mock.calls[0][1]?.data.credential.candidates;
+    const candidates = dialogData().credential.candidates;
     expect(candidates[0].fields).toEqual(["username"]);
     expect(answer().credential).toEqual(
       expect.objectContaining({ username: "me", password: undefined, totp: undefined }),
@@ -203,6 +212,44 @@ describe("AgentAccessService", () => {
     expect(answer().status).toBe("approved");
   });
 
+  it("never remembers a requester it can't identify", async () => {
+    prompt.next(AgentAccessPromptType.RememberUntilLock);
+    dialogResult = { approved: true, cipherId: "c1", remember: true };
+    const adHoc: AgentRequester = {
+      app: { pid: 3, name: "tool", signer: { kind: "adHoc", valid: true } },
+      chain: [],
+      bundledCli: false,
+    };
+    send(github, undefined, adHoc);
+    await flush();
+    send(github, undefined, adHoc);
+    await flush();
+
+    expect(dialogData().credential.rememberable).toBe(false);
+    expect(dialogService.open).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not let a remembered run release the credential to the caller", async () => {
+    prompt.next(AgentAccessPromptType.RememberUntilLock);
+    dialogResult = { approved: true, cipherId: "c1", remember: true };
+    send(run, undefined, { ...claude, bundledCli: true });
+    await flush();
+    send(github);
+    await flush();
+
+    expect(dialogService.open).toHaveBeenCalledTimes(2);
+  });
+
+  it("shows env only for the bundled CLI", async () => {
+    send(run);
+    await flush();
+    send(run, undefined, { ...claude, bundledCli: true });
+    await flush();
+
+    expect(dialogData(0).credential.purpose).toEqual({ command: "gh pr list", env: {} });
+    expect(dialogData(1).credential.purpose.env).toEqual({ GH_TOKEN: "password" });
+  });
+
   it("never remembers a reprompt item", async () => {
     prompt.next(AgentAccessPromptType.RememberUntilLock);
     ciphers = [login("c1", { reprompt: CipherRepromptType.Password })];
@@ -231,7 +278,7 @@ describe("AgentAccessService", () => {
     send({ type: "approval", title: "Deploy?" });
     await flush();
 
-    expect(dialogService.open.mock.calls[0][1]?.data.approval).toEqual({
+    expect(dialogData().approval).toEqual({
       type: "approval",
       title: "Deploy?",
     });

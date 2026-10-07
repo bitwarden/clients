@@ -34,7 +34,7 @@ function sshSign(
   return {
     requestId,
     kind: { type: "sshSign", cipherId, isForwarding, hostFingerprint },
-    requester: { app: { pid: 0, name: "test-app" }, chain: [] },
+    requester: { app: { pid: 0, name: "test-app" }, chain: [], bundledCli: false },
     deadline: Date.now() + 60_000,
   };
 }
@@ -773,7 +773,7 @@ describe("SshAgentService – sign request authorization", () => {
     await flush();
 
     expect(mockDialogOpen.mock.calls[0][1].data).toEqual({
-      requester: { app: { pid: 0, name: "test-app" }, chain: [] },
+      requester: { app: { pid: 0, name: "test-app" }, chain: [], bundledCli: false },
       ssh: { cipherName: "Test Key", isForwarding: true },
     });
   });

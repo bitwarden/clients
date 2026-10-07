@@ -59,6 +59,8 @@ pub mod agent_access {
         pub app: RequesterApp,
         /// From the socket peer upwards.
         pub chain: Vec<ProcessHop>,
+        /// The peer is the `bw-access` shipped with this app.
+        pub bundled_cli: bool,
     }
 
     #[napi(object)]
@@ -250,6 +252,7 @@ pub mod agent_access {
                         signer: hop.signer.map(Into::into),
                     })
                     .collect(),
+                bundled_cli: requester.bundled_cli,
             }
         }
     }
