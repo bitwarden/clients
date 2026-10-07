@@ -35,7 +35,7 @@
         @if (
           supportsBiometric() &&
           form.value.biometric &&
-          isWindows &&
+          (isWindows || isLinux) &&
           (userHasMasterPassword() || (form.value.pin && userHasPinSet()))
         ) {
           <bit-form-control class="tw-ms-5">
@@ -51,7 +51,14 @@
                 {{ "requireMasterPasswordOnAppRestart" | i18n }}
               }
             </bit-label>
+            <bit-hint>{{ "requireMasterPasswordOnAppRestartDesc" | i18n }}</bit-hint>
           </bit-form-control>
+
+          @if (!form.value.requireMasterPasswordOnAppRestart) {
+            <bit-callout type="warning" [title]="null" class="tw-block tw-ms-5">
+              {{ "requireMasterPasswordOnAppRestartWarning" | i18n }}
+            </bit-callout>
+          }
         }
 
         @if (supportsBiometric() && form.value.biometric && isMac) {
@@ -249,20 +256,18 @@
           </bit-form-control>
         }
 
-        @if (showQuickCopyActionsSetting()) {
-          <bit-form-control>
-            <input
-              type="checkbox"
-              bitCheckbox
-              formControlName="showQuickCopyActions"
-              (change)="saveQuickCopyActions()"
-            />
-            <bit-label>
-              {{ "showQuickCopyActionsInVault" | i18n }}
-              <show-quick-copy-actions-details-popover slot="end" />
-            </bit-label>
-          </bit-form-control>
-        }
+        <bit-form-control>
+          <input
+            type="checkbox"
+            bitCheckbox
+            formControlName="showQuickCopyActions"
+            (change)="saveQuickCopyActions()"
+          />
+          <bit-label>
+            {{ "showQuickCopyActionsInVault" | i18n }}
+            <show-quick-copy-actions-details-popover slot="end" />
+          </bit-label>
+        </bit-form-control>
 
         <bit-form-field>
           <bit-label>{{ "theme" | i18n }}</bit-label>

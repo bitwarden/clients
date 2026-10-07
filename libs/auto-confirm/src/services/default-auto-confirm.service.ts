@@ -164,6 +164,7 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
 
     const pendingResponse = await this.organizationUserApiService.getPendingAutoConfirmUsers(
       org.id,
+      userId,
     );
     if (!pendingResponse.data.length) {
       return;
@@ -171,7 +172,11 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
 
     const pendingUserIds = pendingResponse.data.map((u) => u.id);
     const bulkPublicKeyResponse =
-      await this.organizationUserApiService.postOrganizationUsersPublicKey(org.id, pendingUserIds);
+      await this.organizationUserApiService.postOrganizationUsersPublicKey(
+        org.id,
+        pendingUserIds,
+        userId,
+      );
     const publicKeyMap = new Map(bulkPublicKeyResponse.data.map((entry) => [entry.id, entry.key]));
 
     const confirmEntriesOrNull = await Promise.all(
@@ -206,6 +211,10 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
       defaultUserCollectionName,
     );
 
-    await this.organizationUserApiService.postBulkOrganizationUserAutoConfirm(org.id, bulkRequest);
+    await this.organizationUserApiService.postBulkOrganizationUserAutoConfirm(
+      org.id,
+      bulkRequest,
+      userId,
+    );
   }
 }

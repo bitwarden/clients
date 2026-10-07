@@ -4629,6 +4629,10 @@
   "selectImportSharedFolder": {
     "message": "Select a shared folder"
   },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Pilih opsi ini jika Anda ingin isi file yang diimpor dipindahkan ke koleksi"
   },
@@ -5105,6 +5109,15 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Masukkan YubiKey yang terkait dengan akun LastPass Anda ke port USB komputer, lalu sentuh tombolnya."
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Email Keeper"
@@ -5617,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Ekstensi peramban yang Anda gunakan sudah usang. Harap perbarui atau nonaktifkan validasi sidik jari integrasi peramban di pengaturan aplikasi desktop."
   },
-  "changeAtRiskPassword": {
-    "message": "Ubah kata sandi berisiko"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Login ini berisiko dan tidak memiliki situs web. Tambahkan situs web dan ubah kata sandi untuk keamanan yang lebih kuat."
-  },
   "vulnerablePassword": {
     "message": "Kata sandi rentan."
   },
   "changeNow": {
     "message": "Ubah sekarang"
-  },
-  "missingWebsite": {
-    "message": "Situs web hilang"
   },
   "missingPermissions": {
     "message": "Anda tidak memiliki izin yang diperlukan untuk melakukan tindakan ini."
@@ -6407,11 +6411,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Anda tidak memiliki folder."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Gunakan folder untuk mengatur item brankas. Folder ini hanya untuk Anda — tidak ada orang lain yang akan melihat atau menggunakannya."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "emptyVaultsDescription": {
     "message": "Tambahkan login, ID, kartu, dan item lainnya untuk memulai."

@@ -2626,11 +2626,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "У вас нет папок."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Используйте папки для организации хранилищ. Они только для вас: никто больше не увидит и не будет их использовать."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "emptyVaultsDescription": {
     "message": "Чтобы начать, добавьте логины, ID, карты и другие элементы."
@@ -3460,6 +3460,10 @@
   },
   "selectImportSharedFolder": {
     "message": "Выберите общую папку"
+  },
+  "importTargetMyFolder": {
+    "message": "Моя папка",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в коллекцию"
@@ -15596,20 +15600,11 @@
   "atRiskPassword": {
     "message": "Пароль, подверженный риску"
   },
-  "changeAtRiskPassword": {
-    "message": "Изменить пароль, подверженный риску"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Этот логин подвержен риску и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
-  },
   "vulnerablePassword": {
     "message": "Уязвимый пароль."
   },
   "changeNow": {
     "message": "Изменить сейчас"
-  },
-  "missingWebsite": {
-    "message": "Отсутствует сайт"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Отключить разблокировку PIN-кодом"
@@ -17038,6 +17033,15 @@
       }
     }
   },
+  "secretKey": {
+    "message": "Секретный ключ"
+  },
+  "secretKeyAndPassword": {
+    "message": "Секретный ключ и пароль"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Ваш аккаунт защищен секретным ключом и паролем. Для продолжения необходимо ввести и то, и другое."
+  },
   "keeperEmail": {
     "message": "Адрес email Keeper"
   },
@@ -17492,6 +17496,9 @@
   },
   "pam": {
     "message": "PAM"
+  },
+  "pamAccessRequestsTitle": {
+    "message": "Запросы доступа"
   },
   "pamAccessRules": {
     "message": "Правила доступа"

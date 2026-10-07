@@ -1,0 +1,31 @@
+<form [formGroup]="form" bit-dialog [title]="'customizeYourView' | i18n" dialogSize="default">
+  <div bitDialogContent>
+    <!-- No `grid`: switch cards aren't supported in the group's grid layout. -->
+    <bit-form-control-group>
+      <bit-label>{{ "showColumns" | i18n }}</bit-label>
+      @for (col of columns; track col.name()) {
+        <bit-form-control-card>
+          <bit-switch [formControlName]="col.name()!"></bit-switch>
+          <bit-label>{{ col.label() }}</bit-label>
+        </bit-form-control-card>
+      }
+    </bit-form-control-group>
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button bitButton buttonType="primary" type="button" bitDialogClose #doneButton>
+      {{ "done" | i18n }}
+    </button>
+    @if (modified()) {
+      <button
+        bitButton
+        buttonType="secondary"
+        type="button"
+        startIcon="bwi-refresh"
+        (click)="resetToDefault()"
+      >
+        {{ "resetToDefault" | i18n }}
+      </button>
+    }
+  </ng-container>
+</form>

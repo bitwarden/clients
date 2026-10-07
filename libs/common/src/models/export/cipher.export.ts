@@ -117,11 +117,29 @@ export class CipherExport {
     if (domain.organizationId == null) {
       domain.organizationId = req.organizationId;
     }
-    domain.name = req.name != null ? new EncString(req.name) : new EncString("");
-    domain.notes = req.notes != null ? new EncString(req.notes) : undefined;
     domain.favorite = req.favorite;
     domain.reprompt = req.reprompt ?? CipherRepromptType.None;
     domain.key = req.key != null ? new EncString(req.key) : undefined;
+
+    CipherExport.contentToDomain(req, domain);
+
+    domain.creationDate = req.creationDate ? new Date(req.creationDate) : domain.creationDate;
+    domain.revisionDate = req.revisionDate ? new Date(req.revisionDate) : domain.revisionDate;
+    domain.deletedDate = req.deletedDate ? new Date(req.deletedDate) : undefined;
+    domain.archivedDate = req.archivedDate ? new Date(req.archivedDate) : undefined;
+    return domain;
+  }
+
+  // Blob ciphers seal all content in `data`; their legacy per-field properties stay undefined.
+  private static contentToDomain(req: CipherExport, domain: CipherDomain) {
+    // V2 encryption export only nedes data & cipher key
+    if (req.data != null) {
+      domain.data = req.data;
+      return;
+    }
+
+    domain.name = req.name != null ? new EncString(req.name) : new EncString("");
+    domain.notes = req.notes != null ? new EncString(req.notes) : undefined;
 
     if (req.fields != null) {
       domain.fields = req.fields.map((f) => FieldExport.toDomain(f));
@@ -173,12 +191,6 @@ export class CipherExport {
     if (req.passwordHistory != null) {
       domain.passwordHistory = req.passwordHistory.map((ph) => PasswordHistoryExport.toDomain(ph));
     }
-
-    domain.creationDate = req.creationDate ? new Date(req.creationDate) : domain.creationDate;
-    domain.revisionDate = req.revisionDate ? new Date(req.revisionDate) : domain.revisionDate;
-    domain.deletedDate = req.deletedDate ? new Date(req.deletedDate) : undefined;
-    domain.archivedDate = req.archivedDate ? new Date(req.archivedDate) : undefined;
-    return domain;
   }
 
   type: CipherType = CipherType.Login;
@@ -204,6 +216,7 @@ export class CipherExport {
   deletedDate?: Date;
   archivedDate?: Date;
   key?: string;
+  data?: string;
 
   // Use build method instead of ctor so that we can control order of JSON stringify for pretty print
   build(o: CipherView | CipherDomain) {
@@ -222,6 +235,21 @@ export class CipherExport {
     }
 
     this.favorite = o.favorite;
+
+    this.buildContent(o);
+
+    this.creationDate = o.creationDate;
+    this.revisionDate = o.revisionDate;
+    this.deletedDate = o.deletedDate;
+    this.archivedDate = o.archivedDate;
+  }
+
+  // Blob ciphers seal all content in `data`; their legacy per-field properties are undefined.
+  private buildContent(o: CipherView | CipherDomain) {
+    if (o instanceof CipherDomain && o.data != null) {
+      this.data = o.data;
+      return;
+    }
 
     if (o.fields != null) {
       this.fields = o.fields.map((f) => new FieldExport(f));
@@ -257,10 +285,5 @@ export class CipherExport {
     if (o.passwordHistory != null) {
       this.passwordHistory = o.passwordHistory.map((ph) => new PasswordHistoryExport(ph));
     }
-
-    this.creationDate = o.creationDate;
-    this.revisionDate = o.revisionDate;
-    this.deletedDate = o.deletedDate;
-    this.archivedDate = o.archivedDate;
   }
 }

@@ -2,7 +2,7 @@ import { firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
-import { UserId, SharedUnlockDriver, SymmetricKey } from "@bitwarden/sdk-internal";
+import { UserId, PeerLockState, SharedUnlockDriver, SymmetricKey } from "@bitwarden/sdk-internal";
 import { LockService, LockSource, UnlockService } from "@bitwarden/unlock";
 import { UserId as TSUserId } from "@bitwarden/user-core";
 
@@ -64,5 +64,12 @@ export class JsSharedUnlockDriver implements SharedUnlockDriver {
       this.environmentService.getEnvironment$(fromSdkUserId(user_id)),
     );
     return environment.getWebVaultUrl();
+  }
+
+  async on_peer_state(user_id: UserId, lock_state: PeerLockState): Promise<void> {
+    // no-op: the SDK reports a responding peer's lock state after every accepted sync, but no
+    // client consumer exists for it yet. Implemented as an empty stub to satisfy the driver
+    // interface; wire this up when a consumer needs to distinguish "a peer answered and is locked"
+    // from "no peer answered at all".
   }
 }

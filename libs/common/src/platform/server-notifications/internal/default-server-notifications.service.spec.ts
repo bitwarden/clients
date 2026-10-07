@@ -5,6 +5,7 @@ import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, of, Subj
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
+import { Measurement } from "@bitwarden/logging";
 
 import { awaitAsync, mockAccountInfoWith } from "../../../../spec";
 import { Matrix } from "../../../../spec/matrix";
@@ -117,7 +118,7 @@ describe("NotificationsService", () => {
     );
 
     sut = new DefaultServerNotificationsService(
-      mock<LogService>(),
+      mock<LogService>({ startMeasurement: () => mock<Measurement>() }),
       syncService,
       appIdService,
       environmentService,
@@ -438,7 +439,6 @@ describe("NotificationsService", () => {
       it.each([
         { featureFlagEnabled: false, reason: undefined },
         { featureFlagEnabled: true, reason: undefined },
-        { featureFlagEnabled: false, reason: PushNotificationLogOutReasonType.KdfChange },
       ])(
         "should call logout callback when featureFlag=$featureFlagEnabled and reason=$reason",
         async ({ featureFlagEnabled, reason }) => {
@@ -464,8 +464,8 @@ describe("NotificationsService", () => {
         },
       );
 
-      it("should skip logout when receiving KDF change reason with feature flag enabled", async () => {
-        configService.getFeatureFlag$.mockReturnValue(of(true));
+      it("should skip logout when receiving KDF change reason", async () => {
+        configService.getFeatureFlag$.mockReturnValue(of(false));
 
         const notification = new NotificationResponse({
           type: NotificationType.LogOut,
