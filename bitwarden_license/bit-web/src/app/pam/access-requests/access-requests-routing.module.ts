@@ -16,16 +16,15 @@ const routes: Routes = [
   {
     path: "",
     component: AccessRequestsComponent,
-    // Provided on the shell route so the shell and every tab share one instance (routed children
-    // inherit a parent route's providers, not a component's).
+    // On the shell route so every tab shares one instance; routed children inherit a parent
+    // route's providers, not a component's.
     providers: [AccessNameResolverService, MyAccessService, ApproverInboxService],
     children: [
       { path: "", pathMatch: "full", redirectTo: "my-requests" },
       {
         path: "approvals",
         component: ApprovalsTabComponent,
-        // A non-approver is redirected to My requests rather than shown a tab that is hidden from
-        // their own tab bar; see the guard.
+        // Redirects a non-approver to My requests, since their tab bar hides Approvals.
         canActivate: [canViewApprovalsGuard],
         data: { titleId: "pamTabApprovals" },
       },
@@ -40,8 +39,8 @@ const routes: Routes = [
         data: { titleId: "pamTabHistory" },
       },
       {
-        // A shareable link to a single request/lease; a shell child, not a sibling, so the
-        // header and tab bar stay mounted underneath.
+        // A shareable link to one request; a shell child so the header and tab bar stay mounted
+        // underneath.
         path: "requests/:id",
         component: AccessRequestRouteComponent,
         data: { titleId: "pamAccessRequestTitle" },

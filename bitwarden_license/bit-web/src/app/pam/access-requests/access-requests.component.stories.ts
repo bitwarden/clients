@@ -26,12 +26,8 @@ type ShellOptions = {
 };
 
 /**
- * The shell renders the header and tab nav; the tabs are child routes, so the outlet is empty
- * here by design. These stories pin the tab nav — which tabs exist, and their berry counts.
- *
- * `AccountService`/`OrganizationService` go in the ROOT injector, not the module one: the
- * shared header's `ProductSwitcherService` is `providedIn: "root"` and resolves from the
- * environment injector, invisible to a module-level provider.
+ * The tabs are child routes, so the outlet stays empty; these stories cover the tab nav and its
+ * berry counts.
  */
 function shell(options: ShellOptions = {}) {
   const { pending = 0, extensions = 0, leases = 0, approvals = 0, canApprove = true } = options;
@@ -76,7 +72,7 @@ export default {
       providers: [
         provideStoryChangeDetection(),
         importProvidersFrom(PreloadedEnglishI18nModule),
-        // A wildcard route: the header nav resolves its links against the router, and the bare
+        // A wildcard route, since the header resolves its links against the router and the bare
         // `iframe.html` URL matches nothing in an empty route table (NG04002).
         importProvidersFrom(RouterModule.forRoot([{ path: "**", children: [] }])),
         provideStoryLogService(),
@@ -89,10 +85,7 @@ export default {
 
 type Story = StoryObj<AccessRequestsComponent>;
 
-/**
- * An approver with work on every tab. The My requests berry sums pending requests, open extension
- * requests and active leases — everything the caller still holds or can act on.
- */
+/** An approver with work on every tab; the My requests berry sums all three of its sections. */
 export const Default: Story = {
   decorators: shell({ pending: 2, extensions: 1, leases: 3, approvals: 4 }),
 };
@@ -102,10 +95,7 @@ export const NoCounts: Story = {
   decorators: shell(),
 };
 
-/**
- * A member with no approval privileges. The Approvals tab is not rendered at all — a tab that can
- * never hold anything is noise, and the route guard redirects the deep link to match.
- */
+/** A non-approver gets no Approvals tab; the route guard redirects its deep link to match. */
 export const WithoutApprovals: Story = {
   decorators: shell({ canApprove: false, pending: 1, leases: 1 }),
 };

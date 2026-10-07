@@ -31,26 +31,8 @@ import { ApprovalPrivilegeService } from "../approvals/approval-privilege.servic
 import { isActionableInboxRequest } from "../approvals/inbox-request-filter";
 
 /**
- * PAM's {@link PamNavBadgeService}: how much unattended access work the caller has, refreshed
- * whenever the server says something changed, or a mutation in this tab announces one on
- * {@link AccessRefreshService}.
- *
- * Two halves: the caller's own requests still needing something from them (`list_mine()`), and
- * the requests awaiting their decision (`list_inbox()`), read only for a caller who can
- * actually approve — gated on {@link ApprovalPrivilegeService} rather than always summing both.
- *
- * The two are unioned by request id, not added, since a manager's own request in a collection
- * they manage appears on both tabs as one piece of work.
- *
- * Listens for local mutations as well as pushes because the badge lives at the root while the
- * lists that mutate live in the `/pam` shell. Without them it keeps the old count until a push
- * arrives, and it waits forever when the push never comes.
- *
- * `shareReplay({ refCount: true })` so every badge consumer shares one read, while `refCount`
- * still releases the push-channel subscription once nothing renders a badge.
- *
- * A failed read reports the previous count rather than erroring, and reports `0` without
- * calling the SDK when the feature flag is off.
+ * Unions the caller's own actionable requests with their approver inbox by id, so a request on both
+ * counts once. Also re-reads on local mutations, since a push may be late or never arrive.
  */
 export class DefaultPamNavBadgeService implements PamNavBadgeService {
   readonly count$: Observable<number>;
@@ -77,10 +59,7 @@ export class DefaultPamNavBadgeService implements PamNavBadgeService {
     );
   }
 
-  /**
-   * The caller's own actionable requests, re-read on the requester-side push or a local mutation.
-   * Every mutation that changes what this counts sends the push, so this needs no clock of its own.
-   */
+  /** Needs no clock, since every mutation that changes this count sends the requester push. */
   private ownRequestIds$(): Observable<string[]> {
     return merge(of(undefined), this.accessRefreshService.accessChanged$()).pipe(
       switchMap(() =>
@@ -94,11 +73,9 @@ export class DefaultPamNavBadgeService implements PamNavBadgeService {
   }
 
   /**
-   * The requests awaiting the caller's decision, or nothing for a caller who approves nothing.
-   * Re-read on the approver-side push, which the server sends to every collection manager on
-   * submit, decide, activate, cancel, revoke and extend, covering every way the pending set can
-   * move. Also re-read on a local mutation, such as this caller's own approve or deny. That stream
-   * carries the requester-side push too, which costs one extra inbox read.
+   * Re-read on the approver push, which every collection manager gets for each change to the
+   * pending set, and on local mutations. The latter carries the requester push too, costing an
+   * extra read.
    */
   private inboxRequestIds$(): Observable<string[]> {
     return this.approvalPrivilegeService.canApprove$.pipe(
@@ -119,10 +96,7 @@ export class DefaultPamNavBadgeService implements PamNavBadgeService {
     );
   }
 
-  /**
-   * One read, reduced to the ids still needing attention. A failure logs and emits nothing, which
-   * leaves the enclosing `combineLatest` holding the last good value for this half.
-   */
+  /** A failure logs and emits nothing, so `combineLatest` keeps this half's last good value. */
   private actionableIds$(
     read: Promise<AccessRequestView[]>,
     needsAttention: (request: AccessRequestView, now: Date) => boolean,

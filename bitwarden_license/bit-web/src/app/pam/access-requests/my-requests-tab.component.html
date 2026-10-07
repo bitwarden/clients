@@ -1,6 +1,5 @@
 @if (!vfo1Enabled()) {
   <!-- Remove this branch along with the VFO1 flag. -->
-  <!-- Toolbar: free-text search + collection filter -->
   <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
     <bit-search
       class="tw-grow tw-max-w-md"
@@ -180,7 +179,6 @@
   </bit-accordion>
 
   @if (extensionRows().length > 0) {
-    <!-- Extension requests -->
     <bit-accordion [title]="'pamMyRequestsGroupExtensions' | i18n">
       <span slot="end" bitBadge variant="secondary">{{ extensionRows().length }}</span>
 

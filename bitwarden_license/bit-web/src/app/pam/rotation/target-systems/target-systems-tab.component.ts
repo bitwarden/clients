@@ -76,7 +76,6 @@ import {
 } from "./target-systems-empty-state.component";
 import { TargetSystemsService } from "./target-systems.service";
 
-/** A flattened, presentation-ready view of a {@link TargetSystem}. */
 export type TargetSystemRow = {
   id: TargetSystemId;
   /** {@link id} as the string the copy control hands the clipboard. */
@@ -84,16 +83,13 @@ export type TargetSystemRow = {
   system: TargetSystem;
   name: string;
   /**
-   * The i18n key naming how this target rotates, or null for a method this version cannot model.
-   *
-   * The Method chip keys its options on this rather than on `system.method`, so a value with no
-   * label of its own cannot arrive in the menu wearing another method's label.
+   * Null for a method this SDK can't model. The Method chip keys on this rather than
+   * `system.method`, so an unlabelled method can't borrow another's label.
    */
   methodLabelKey: string | null;
-  /** {@link methodLabelKey} rendered, or null when there is no method to name. */
   methodLabel: string | null;
   kindLabel: string | null;
-  /** Status is stated as two states, so an unmodellable one reads as inactive rather than as its own option. */
+  /** Two states only, so an unmodellable status reads as inactive. */
   statusLabelKey: "pamTargetSystemStatusActive" | "pamTargetSystemStatusInactive";
   statusLabel: string;
   active: boolean;
@@ -101,21 +97,10 @@ export type TargetSystemRow = {
   canAssignConnectors: boolean;
   /** Only an active target can take a new managed credential. */
   canAddManagedCredential: boolean;
-  /**
-   * Why no access connector can be assigned to this target right now, as the i18n key the menu
-   * item's tooltip states, or null when one can.
-   */
+  /** The i18n key for why the menu can't assign an access connector now, or null when it can. */
   assignConnectorsBlockedKey: string | null;
 };
 
-/**
- * Tab component for the target-systems list in the PAM Rotation shell.
- *
- * Shows a searchable table of all target systems, with row menus for Edit, Enable, Disable, and
- * Delete.
- * Row edit navigates to the sibling routed page (outside the shell, which has no tab bar); the
- * "New target system" create action lives in the shell header.
- */
 @Component({
   templateUrl: "./target-systems-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -179,7 +164,6 @@ export class TargetSystemsTabComponent {
   /** Whether the placeholder is drawn, which trails {@link loading} by the skeleton delay. */
   protected readonly showSkeleton = showSkeletonWhile(this.loading);
 
-  /** Whether the loading branch is on screen. */
   protected readonly loadingVisible = computed(() => this.loading() || this.showSkeleton());
 
   protected readonly skeletonRows = [0, 1, 2, 3, 4];
@@ -197,26 +181,21 @@ export class TargetSystemsTabComponent {
     initialValue: null,
   });
 
-  /** Whether the connector list has actually been read. */
+  /** Whether the connector list has been read successfully. */
   private readonly connectorsKnown = computed(
     () => !this.accessConnectorsLoading() && this.accessConnectorsLoadError() == null,
   );
 
-  /**
-   * Whether the connector read failed outright, which is a different answer from not having
-   * finished.
-   */
+  /** Whether the connector read has landed and failed, so there is no list to offer. */
   private readonly connectorsUnavailable = computed(
     () => !this.accessConnectorsLoading() && this.accessConnectorsLoadError() != null,
   );
 
-  /** The table's rows, and the set the toolbar chips derive their options from. */
   private readonly rows = computed(() => this.buildRows(this.systems(), this.accessConnectors()));
 
   /**
-   * Whether the org has any target system at all, which the toolbar's create button is gated on.
-   * A search term keeps the table and its toolbar on screen over an empty list, so the toolbar
-   * alone is not evidence that there is a list to add to.
+   * Gates the toolbar's create button. A search term keeps the toolbar on screen over an empty
+   * list, so the toolbar alone doesn't mean the org has target systems.
    */
   protected readonly hasSystems = computed(() => this.rows().length > 0);
 
@@ -225,8 +204,8 @@ export class TargetSystemsTabComponent {
     this.rows,
   );
   /**
-   * Model for the loading placeholder, which draws no data rows: while a load is in flight, rows
-   * already held from an earlier load would otherwise show through before the skeleton's delay.
+   * Model for the loading placeholder, with no rows, so rows from an earlier load don't show
+   * through before the skeleton's delay.
    */
   protected readonly loadingTable = defineTable<TargetSystemRow, "sessionTermination" | "actions">(
     signal<TargetSystemRow[]>([]),
@@ -235,12 +214,11 @@ export class TargetSystemsTabComponent {
 
   private readonly searchText = toSignal(this.searchControl.valueChanges, { initialValue: "" });
 
-  /** Method/kind/status toolbar chips. */
   private readonly methodFilterChip = viewChild("methodFilter", { read: FILTER_CONTROL });
   private readonly kindFilterChip = viewChild("kindFilter", { read: FILTER_CONTROL });
   private readonly statusFilterChip = viewChild("statusFilter", { read: FILTER_CONTROL });
 
-  /** A method this version cannot name contributes no option, so this chip can be empty. */
+  /** A method this SDK can't name adds no option, so this chip can be empty. */
   protected readonly methodOptions = computed(() =>
     filterOptions(
       this.rows().flatMap((row) =>
@@ -276,12 +254,8 @@ export class TargetSystemsTabComponent {
   });
 
   /**
-   * The v2 table's row test. Inside the toolbar the chips and the `bit-search` register with
-   * `bit-table-v2`, so their values arrive as `values` rather than through the chip refs — the
-   * table needs the keyed shape to count each chip's options.
-   *
-   * The term must come from `values.search` alone. {@link searchText} carries the same term (the
-   * projected `bit-search` keeps its form control), and reading both would narrow the rows twice.
+   * The v2 table's row test; inside the toolbar, chip and search values arrive as `values`. Read
+   * the term from `values.search` alone, since {@link searchText} holds the same term.
    */
   protected readonly rowMatchesFilter = (
     row: TargetSystemRow,
@@ -321,22 +295,18 @@ export class TargetSystemsTabComponent {
     return this.loadAll(this.organizationId());
   };
 
-  /** Navigate to the create page (sibling of the shell), shown from the empty state. */
   protected readonly openCreate = (): Promise<boolean> =>
     this.router.navigate(["..", "target-systems", "new"], { relativeTo: this.route });
 
-  /** Navigate to the create page seeded from a starter template. */
   protected readonly openFromTemplate = (key: TargetSystemTemplateKey): Promise<boolean> =>
     this.router.navigate(["..", "target-systems", "new"], {
       relativeTo: this.route,
       queryParams: { template: key },
     });
 
-  /** Navigate to the edit page for a target system. */
   protected readonly openEdit = (system: TargetSystem): Promise<boolean> =>
     this.router.navigate(["..", "target-systems", system.id], { relativeTo: this.route });
 
-  /** Navigate to the managed-credential create page with this target already chosen. */
   protected readonly openCreateManagedCredential = (system: TargetSystem): Promise<boolean> =>
     this.router.navigate(["..", "managed-credentials", "new"], {
       relativeTo: this.route,
@@ -344,17 +314,9 @@ export class TargetSystemsTabComponent {
     });
 
   /**
-   * Open the mirror of the access-connectors tab's "Assign targets" dialog: pick an enabled
-   * connector for this target instead of picking a target for a fixed connector.
-   *
-   * The menu item is live while the connector read is still in flight, so a click can arrive
-   * before there is a list to offer. The read settles first: opening on an empty list would leave
-   * the dialog stating an emptiness the org may not have, and a read that failed says so instead
-   * of opening at all. Which emptiness it is once the read has landed is `noneEligible`, taken
-   * from the same active-connector set the options come from. The wait is gated on the component,
-   * so leaving the tab mid-wait opens nothing over whichever tab the admin landed on. The row is
-   * busy throughout, which is what its own {@link isRowBusy} binding reflects and what keeps a
-   * delete from racing the assignment's optimistic patch.
+   * Waits for the connector read to settle, since the menu item is live while it is in flight; a
+   * failed read toasts instead. The row stays busy throughout, so a delete can't race the
+   * assignment's optimistic patch.
    */
   protected readonly openAssignConnectorDialog = (system: TargetSystem): Promise<void> =>
     this.busyRows.run(system.id, async () => {
@@ -404,7 +366,6 @@ export class TargetSystemsTabComponent {
       }
     });
 
-  /** Disable a target system after confirming with the operator. */
   protected readonly disable = (system: TargetSystem): Promise<void> =>
     this.busyRows.run(system.id, async () => {
       const confirmed = await this.dialogService.openSimpleDialog({
@@ -428,7 +389,6 @@ export class TargetSystemsTabComponent {
       }
     });
 
-  /** Re-enable a disabled target system. */
   protected readonly enable = (system: TargetSystem): Promise<void> =>
     this.busyRows.run(system.id, async () => {
       try {
@@ -443,15 +403,9 @@ export class TargetSystemsTabComponent {
     });
 
   /**
-   * Permanently delete a target system after confirming with the operator.
-   *
-   * The server, not this component, decides whether the delete is allowed: it refuses while
-   * any rotation config still names the target, surfaced as an ordinary error for
-   * {@link showError}. Offering the action unconditionally keeps one authority on the rule.
-   *
-   * Delete is offered on every row, so the confirmation names what this particular delete
-   * costs: the connector assignments it drops, the reversible alternative for a target still
-   * rotating, or neither for one already stopped.
+   * Offered on every row; the server refuses while a rotation config names the target. The
+   * confirmation also warns of dropped connector assignments, or suggests deactivating an active
+   * target instead.
    */
   protected readonly confirmDelete = (system: TargetSystem): Promise<void> =>
     this.busyRows.run(system.id, async () => {
@@ -480,8 +434,6 @@ export class TargetSystemsTabComponent {
       }
       try {
         await this.targetSystemsService.delete(system);
-        // The server drops the connector assignments with the target; mirror that locally so the
-        // access connectors tab does not keep projecting the dangling ID.
         this.accessConnectorsService.forgetTargetSystem(system.id);
         this.toastService.showToast({
           variant: "success",
@@ -526,7 +478,7 @@ export class TargetSystemsTabComponent {
     });
   }
 
-  /** Null for a kind a newer server named that this SDK version cannot model. */
+  /** Null for a kind with no label, such as one this SDK can't model. */
   private kindLabel(kind: TargetSystemKind): string | null {
     const key = targetSystemKindLabelKey(kind);
     return key == null ? null : this.i18nService.t(key);
@@ -541,11 +493,7 @@ export class TargetSystemsTabComponent {
   }
 }
 
-/**
- * The toolbar's raw values, keyed by each control's filter key. Untyped per chip because that is
- * what both hosts hand over: `bit-table-v2` collects whatever each chip reports, and off the flag
- * the chips are read one at a time through `FilterControl`.
- */
+/** The toolbar's raw values by filter key, untyped because each host passes what a chip reports. */
 type TargetSystemFilterValues = {
   search?: string;
   method?: unknown;

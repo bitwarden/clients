@@ -74,9 +74,8 @@ function makeTargetSystemsServiceStub(systems: unknown[] = [{ id: "ts-1" }]) {
 }
 
 /**
- * `loadError$` is composed the way the service composes it: its own failure, or failing that the
- * target-system read's, so a failed target-system read reaches the component on both streams.
- * Push a configs-side failure through {@link ownLoadError$}.
+ * Composes `loadError$` as the service does, its own failure else the target-system read's. Push a
+ * configs-side failure through {@link ownLoadError$}.
  */
 function makeConfigsServiceStub(
   targetSystems: ReturnType<typeof makeTargetSystemsServiceStub>,
@@ -181,10 +180,8 @@ describe("ManagedCredentialsTabComponent", () => {
 
   describe("first-run lockup", () => {
     /**
-     * The target-system read records its own failure rather than rejecting, so an empty list is
-     * either an org with no targets or a read that never landed. Only the first is grounds for
-     * the set-up-a-target invitation; the failure is folded into the configs load error, so it
-     * reaches the operator as the load-error state instead.
+     * An empty target list after a failed read isn't an org without targets, so it shows the
+     * load-error state rather than the set-up invitation.
      */
     it("shows the load error rather than the invitation when the target-system read failed", () => {
       setupTestBed(true, [], true);
@@ -495,10 +492,7 @@ describe("ManagedCredentialsTabComponent", () => {
     });
   });
 
-  /**
-   * The four statuses are mutually exclusive, so the cell shows one badge and never a stack: an
-   * Active badge sitting beside a "rotating" or "manual" one is what these exclude.
-   */
+  /** The statuses are exclusive, so the cell shows one badge, never a stack. */
   describe("status cell", () => {
     function statusCell(row: RotationConfigRow): HTMLElement {
       setupTestBed(true, [{ id: "ts-1" }], true);
@@ -561,8 +555,8 @@ describe("ManagedCredentialsTabComponent", () => {
     });
 
     /**
-     * Pausing is not gated on an in-flight job, so this state is reachable. The resolved status
-     * gives the job precedence, and the pause would otherwise leave no mark on the row.
+     * Pausing isn't locked by an in-flight job, and the job's status takes precedence, so the pause
+     * needs its own mark.
      */
     it("keeps the pause visible alongside the rotating badge", () => {
       const rendered = badges(statusCell(makeRow({ enabled: false, hasActiveJob: true })));
@@ -582,10 +576,7 @@ describe("ManagedCredentialsTabComponent", () => {
     });
   });
 
-  /**
-   * The column sorted on `statusLabelKey` until now, which compared raw i18n identifiers and so
-   * ordered the four statuses by the spelling of their keys.
-   */
+  /** Sorting on `statusLabelKey` would order the statuses by the spelling of their keys. */
   describe("status column sort", () => {
     function renderedStatuses(): string[] {
       return Array.from(
@@ -657,7 +648,7 @@ describe("ManagedCredentialsTabComponent", () => {
       return document.querySelector<HTMLButtonElement>(`.bit-menu-panel [id^="${idPrefix}"]`)!;
     }
 
-    /** The panel this test just opened. */
+    /** The panel this test opened last. */
     function itemLabels(): string[] {
       const panels = document.querySelectorAll<HTMLElement>(".bit-menu-panel");
       const panel = panels[panels.length - 1];
@@ -854,8 +845,7 @@ describe("ManagedCredentialsTabComponent", () => {
       return fixture.debugElement.query(By.css(`bit-filter-menu[key="${key}"]`)).componentInstance;
     }
 
-    // The chip draws its options from ROTATION_STATUS_BADGES. Nothing else asserts that export
-    // exists, and an absent one leaves the chip offering only "All" without raising.
+    // Nothing else covers ROTATION_STATUS_BADGES, and without it the chip silently offers "All".
     it("offers one status option per badge", () => {
       setupWithData([rowA, rowB, rowC], []);
 
@@ -1054,14 +1044,12 @@ describe("ManagedCredentialsTabComponent", () => {
       return fixture.nativeElement as HTMLElement;
     }
 
-    /** Runs the placeholder's clock on. */
     function advance(ms: number): void {
       fixture.detectChanges();
       jest.advanceTimersByTime(ms);
       fixture.detectChanges();
     }
 
-    /** Renders the page mid-load with its placeholder already drawn. */
     function renderSkeleton(): HTMLElement {
       const el = renderLoading();
       advance(1000);
@@ -1799,8 +1787,7 @@ describe("ManagedCredentialsTabComponent with the VFO1 flag", () => {
       expect(rowNames(el)).toEqual(ROWS.map((r) => r.cipherName));
     });
 
-    // The placeholder strip reserves the toolbar's height so the table does not shift down when
-    // the rows land and the real search and chips replace it.
+    // The placeholder strip holds the toolbar's height, so the table doesn't shift when rows land.
     it("reserves the toolbar row while loading on both paths", () => {
       const placeholders = (el: HTMLElement): number =>
         el.querySelectorAll(

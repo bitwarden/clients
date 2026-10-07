@@ -13,18 +13,13 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { RotationDurationComponent } from "../rotation-duration.component";
 import { JobView } from "../rotation-job-row";
 
-/** One job's details, plus the one thing the table already decided about how to name it. */
 export type RotationJobDrawerParams = {
   job: JobView;
-  /**
-   * Whether to name the managed credential this job rotated.
-   */
+  /** Whether to name the managed credential this job rotated. */
   showCredential: boolean;
 };
 
-/**
- * One rotation job read whole, in the side drawer.
- */
+/** One rotation job in full, in the side drawer. */
 @Component({
   selector: "pam-rotation-job-drawer",
   templateUrl: "./rotation-job-drawer.component.html",

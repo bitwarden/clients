@@ -90,10 +90,7 @@ export class VaultExportService implements VaultExportServiceAbstraction {
     );
   }
 
-  /**
-   * Delegates to the organization export service; see
-   * {@link OrganizationVaultExportServiceAbstraction.getManagedExportGatedItemCount}.
-   */
+  /** See {@link OrganizationVaultExportServiceAbstraction.getManagedExportGatedItemCount}. */
   async getManagedExportGatedItemCount(
     userId: UserId,
     organizationId: OrganizationId,

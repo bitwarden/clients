@@ -83,11 +83,8 @@ const emptyViewModel: VaultsNavViewModel = { vaults: [], organizationDataOwnersh
 const pamChildRoutes: Routes = [{ path: "", component: FeaturePageComponent }];
 
 /**
- * The production shape: ONE `UserLayoutComponent` mount at the root, with every feature —
- * `/pam` included — as a child. See `OssRoutingModule`.
- *
- * `/pam` reaches its pages through the same lazy `PAM_ROUTES` seam production uses, so what
- * renders here is what a licensed build renders.
+ * Mirrors `OssRoutingModule`: one root `UserLayoutComponent`, with `/pam` a child loaded through
+ * the same `PAM_ROUTES` seam.
  */
 const routes: Routes = [
   {
@@ -125,13 +122,8 @@ Object.defineProperty(window, "matchMedia", {
 });
 
 /**
- * The side nav's ~20 items use RELATIVE routes, resolved against the `ActivatedRoute` of the
- * component rendering them. Mounting PAM under a second `UserLayoutComponent` at a top-level
- * path would silently re-base the whole nav beneath `/pam`; this pins the constraint that PAM
- * joins the root layout as a child, keeping the shared nav root-relative.
- *
- * `UserLayoutComponent` is the fixture here, not the subject — only a change to where PAM mounts
- * breaks this spec.
+ * The side nav's links are relative to the layout rendering them, so mounting PAM under a second
+ * `UserLayoutComponent` would re-base the whole nav beneath `/pam`.
  */
 describe("PAM mount / shared nav link resolution", () => {
   const flag$ = new BehaviorSubject<boolean>(true);

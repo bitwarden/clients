@@ -417,8 +417,8 @@ export class CipherViewLikeUtils {
   };
 
   /**
-   * @returns `true` when the server gated the cipher: only name and login URIs are populated.
-   * Gated ciphers are kept out of every cipher stream except `cipherListViewsWithPartials$`.
+   * @returns `true` for a PAM-gated ("partial") cipher, whose view carries only the name and
+   *   login URIs. Default cipher streams exclude these; see `cipherListViewsWithPartials$`.
    */
   static isPartial = (cipher: CipherViewLike): boolean => {
     return "partial" in cipher ? !!cipher.partial : false;
