@@ -6933,6 +6933,19 @@
     "message": "Expires",
     "description": "Label for the expiration date of an access token."
   },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
   "unknownCipher": {
     "message": "Unknown item, you may need to request permission to access this item."
   },

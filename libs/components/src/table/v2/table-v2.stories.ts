@@ -1,5 +1,13 @@
 import { NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormRecord, ReactiveFormsModule } from "@angular/forms";
 import { NavigationEnd, Router } from "@angular/router";
@@ -17,6 +25,7 @@ import { BulkActionsBarComponent } from "../../bulk-actions-bar/bulk-actions-bar
 import { BulkAdditionalActionComponent } from "../../bulk-actions-bar/bulk-additional-action.component";
 import { ButtonModule } from "../../button";
 import { ChipActionComponent } from "../../chips/chip-action";
+import { CoachmarkComponent, CoachmarkTourService } from "../../coachmark";
 import { DialogModule } from "../../dialog";
 import { FilterMenuModule, type FilterOptionIconTile } from "../../filter-menu";
 import { FormFieldModule } from "../../form-field";
@@ -25,7 +34,6 @@ import { IconTileComponent, type IconTileVariant } from "../../icon-tile/icon-ti
 import { InputModule } from "../../input/input.module";
 import { LayoutComponent, PageComponent } from "../../layout";
 import { mockLayoutI18n } from "../../layout/mocks";
-import { PopoverModule } from "../../popover";
 import { SearchModule } from "../../search";
 import { SkeletonTextComponent } from "../../skeleton";
 import { positionFixedWrapperDecorator } from "../../stories/storybook-decorators";
@@ -426,6 +434,7 @@ class DemoFilterableTableComponent {
 @Component({
   selector: "demo-filter-coachmark-table",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [CoachmarkTourService],
   imports: [
     BitTableV2Component,
     BitColumnComponent,
@@ -436,19 +445,18 @@ class DemoFilterableTableComponent {
     FilterMenuModule,
     SearchModule,
     ButtonModule,
-    PopoverModule,
+    CoachmarkComponent,
   ],
   template: `
     <!-- Popup-sized: the chips can't fit, so the toolbar shows the filter button at any viewport. -->
     <div class="tw-flex tw-flex-col" style="width: 380px; height: 600px">
       <bit-table-v2 [tableDef]="table" [filter]="filter" presentation="list" height="fill">
         <bit-table-toolbar
-          #toolbar
           [(filterDialogOpen)]="filterDialogOpen"
-          (filterDialogOpenChange)="$event || endTour()"
+          (filterDialogOpenChange)="$event || tour.end()"
         >
           <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
-          <button bitButton buttonType="primary" type="button" slot="end" (click)="step.set(1)">
+          <button bitButton buttonType="primary" type="button" slot="end" (click)="tour.start()">
             Start tour
           </button>
 
@@ -496,48 +504,35 @@ class DemoFilterableTableComponent {
       </bit-table-v2>
     </div>
 
-    <ng-container
-      [bitPopoverAnchorFor]="filtersCoachmark"
-      [anchor]="toolbar.filterButton"
-      [popoverOpen]="step() === 1"
-      [spotlight]="true"
-      [position]="'below-end'"
-    />
-    <ng-container
-      [bitPopoverAnchorFor]="vaultRowCoachmark"
-      [anchor]="toolbar.filterRow('vault')"
-      [popoverOpen]="step() === 2"
-      [spotlight]="true"
-      [position]="'above-center'"
-    />
-
-    <bit-popover [title]="'Filters'" (closed)="endTour()" #filtersCoachmark>
-      <div>Narrow the list by type or vault.</div>
-      <div class="tw-mt-4">
-        <button type="button" bitButton buttonType="primary" (click)="next()">Next</button>
-      </div>
-    </bit-popover>
-    <bit-popover [title]="'Vaults'" (closed)="endTour()" #vaultRowCoachmark>
-      <div>Show items from one vault at a time.</div>
-      <div class="tw-mt-4">
-        <button type="button" bitButton buttonType="primary" (click)="endTour()">Done</button>
-      </div>
-    </bit-popover>
+    <bit-coachmark step="filters" title="Filters">
+      Narrow the list by type or vault.
+    </bit-coachmark>
+    <bit-coachmark step="vaultRow" title="Vaults">
+      Show items from one vault at a time.
+    </bit-coachmark>
   `,
 })
 class DemoFilterCoachmarkTableComponent extends DemoFilterableTableComponent {
-  protected readonly step = signal<0 | 1 | 2>(0);
   protected readonly filterDialogOpen = signal(false);
+  protected readonly tour = inject(CoachmarkTourService);
+  private readonly toolbar = viewChild.required(BitTableToolbarComponent);
 
-  protected next(): void {
-    // The second coachmark waits for the dialog row to render.
-    this.filterDialogOpen.set(true);
-    this.step.set(2);
-  }
-
-  protected endTour(): void {
-    this.step.set(0);
-    this.filterDialogOpen.set(false);
+  constructor() {
+    super();
+    this.tour.configure([
+      {
+        id: "filters",
+        anchor: computed(() => this.toolbar().filterButton()),
+        position: "below-end",
+      },
+      {
+        id: "vaultRow",
+        anchor: computed(() => this.toolbar().filterRow("vault")()),
+        position: "above-center",
+        beforeEnter: () => this.filterDialogOpen.set(true),
+        afterLeave: () => this.filterDialogOpen.set(false),
+      },
+    ]);
   }
 }
 
@@ -1184,6 +1179,9 @@ export default {
               resetSearch: "Reset search",
               viewItemsIn: (name) => `View items in ${name}`,
               back: "Back",
+              next: "Next",
+              close: "Close",
+              coachmarkStepsIndicator: (current, total) => `${current} of ${total}`,
               backTo: (name) => `Back to ${name}`,
               removeItem: (name) => `Remove ${name}`,
               clearFilters: "Clear all filters",
