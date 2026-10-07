@@ -1,3 +1,5 @@
+use windows_plugin_authenticator::AuthenticatorState;
+
 use super::RegisterError;
 use crate::passkey_authenticator::passkey_authenticator::PasskeyProviderState;
 
@@ -12,8 +14,9 @@ pub fn register() -> Result<(), RegisterError> {
 
 #[allow(clippy::unused_async)]
 pub async fn get_state() -> anyhow::Result<PasskeyProviderState> {
+    let state = windows_plugin_authenticator::authenticator_state();
     Ok(PasskeyProviderState {
-        registered: false,
-        enabled: false,
+        registered: state.is_some(),
+        enabled: state == Some(AuthenticatorState::Enabled),
     })
 }

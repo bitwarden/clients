@@ -30,6 +30,7 @@ jest.mock("@bitwarden/desktop-napi", () => ({
   },
   passkey_authenticator: {
     NOT_SUPPORTED: "Passkey authenticator plugin is not supported",
+    getState: jest.fn(),
     register: jest.fn(),
   },
 }));
@@ -86,7 +87,7 @@ describe("DesktopAutofillMain", () => {
       expect(AutofillIpcServer.listen).toHaveBeenCalledTimes(1);
     });
 
-    it("does not start the IPC server twice when enabled repeatedly", async () => {
+    it("re-registers but does not start the IPC server twice when enabled repeatedly", async () => {
       service.init();
       const handler = getSetEnabledHandler();
 
@@ -94,6 +95,7 @@ describe("DesktopAutofillMain", () => {
       const secondResult = await handler(null, true);
 
       expect(secondResult).toBe(true);
+      expect(passkey_authenticator.register).toHaveBeenCalledTimes(2);
       expect(AutofillIpcServer.listen).toHaveBeenCalledTimes(1);
     });
 
@@ -114,6 +116,20 @@ describe("DesktopAutofillMain", () => {
         expect(AutofillIpcServer.listen).toHaveBeenCalledTimes(1);
       });
 
+      it("reports failure when re-registration fails after the IPC server started", async () => {
+        service.init();
+        const handler = getSetEnabledHandler();
+        await handler(null, true);
+        (passkey_authenticator.register as jest.Mock).mockImplementation(() => {
+          throw new Error("Passkey registration failed: boom");
+        });
+
+        const result = await handler(null, true);
+
+        expect(result).toBe(false);
+        expect(AutofillIpcServer.listen).toHaveBeenCalledTimes(1);
+      });
+
       it("reports not running when plugin registration fails", async () => {
         (passkey_authenticator.register as jest.Mock).mockImplementation(() => {
           throw new Error("Passkey registration failed: boom");
@@ -125,6 +141,17 @@ describe("DesktopAutofillMain", () => {
         expect(started).toBe(false);
         expect(AutofillIpcServer.listen).not.toHaveBeenCalled();
       });
+    });
+
+    it("reports the passkey provider state", async () => {
+      const state = { registered: true, enabled: false };
+      (passkey_authenticator.getState as jest.Mock).mockResolvedValue(state);
+      service.init();
+      const call = (ipcMain.handle as jest.Mock).mock.calls.find(
+        ([channel]) => channel === AutofillIpcChannelControl.GetPasskeyProviderState,
+      );
+
+      await expect(call?.[1]()).resolves.toEqual(state);
     });
 
     it("reports not running when disabled before ever being enabled", async () => {
