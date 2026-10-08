@@ -65,6 +65,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { orgIconTile, personalIconTile } from "../../models/vault-icon-tile";
 import { VaultScope, VaultScopeType } from "../../models/vault-scope";
 import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
+import { sharedFolderName } from "../../utils/shared-folder-name";
 import {
   idString,
   matchesFavorite,
@@ -529,7 +530,15 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   private readonly folderNames = computed(() => this.nameMap(this.folders()));
 
-  private readonly collectionNames = computed(() => this.nameMap(this.collections()));
+  /** Each collection's own name, without its parent path — see {@link sharedFolderName}. */
+  private readonly collectionNames = computed(() =>
+    this.nameMap(
+      this.collections().map((collection) => ({
+        id: collection.id,
+        name: sharedFolderName(collection),
+      })),
+    ),
+  );
 
   private readonly organizationNames = computed(() => this.nameMap(this.organizations()));
 
@@ -967,7 +976,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   ): FilterOptionNode<CollectionId>[] {
     const toNode = (node: TreeNode<CollectionView>): FilterOptionNode<CollectionId> => ({
       value: node.node.id,
-      label: node.node.name,
+      label: sharedFolderName(node.node),
       options: node.children.map(toNode),
     });
     return getNestedCollectionTree([...sharedFolders])
