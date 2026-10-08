@@ -873,16 +873,14 @@ describe("ImportControlsComponent", () => {
         .formatChoiceOptions()
         .map((candidate: ImportOption) => component().formatChoiceLabel(candidate));
       expect(labels).toEqual([
-        // 1password1pux's label is its own primary extension only — its secondary .json
-        // acceptance is for the file picker/hint, not this identifier.
-        ".1pux",
+        ".1pux/.json",
         ".1pif",
         "1Password 6 and 7 Windows (csv)",
         "1Password 6 and 7 Mac (csv)",
       ]);
     });
 
-    it("keeps the primary-extension label for 1password1pux even once a real .json file resolves it, not switching to .json", async () => {
+    it("keeps the .1pux/.json label for 1password1pux even once a real .json file resolves it", async () => {
       await setup("1password1pux", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.json" } as File);
       fixture.detectChanges();
@@ -890,7 +888,7 @@ describe("ImportControlsComponent", () => {
       expect(component().resolvedFormat()).toBe("1password1pux");
       const [candidate] = component().formatChoiceOptions();
       expect(candidate.id).toBe("1password1pux");
-      expect(component().formatChoiceLabel(candidate)).toBe(".1pux");
+      expect(component().formatChoiceLabel(candidate)).toBe(".1pux/.json");
     });
 
     it("keeps a pre-file dropdown pick when it's still valid for the first file chosen, instead of discarding it", async () => {
@@ -954,12 +952,12 @@ describe("ImportControlsComponent", () => {
       component().formGroup.controls.method.setValue("paste");
       fixture.detectChanges();
 
-      // 1password1pux's pasteFormats is ["json"], not acceptedFileTypes' ["1pux", "json"].
+      // 1password1pux keeps its .1pux/.json label in paste mode too, despite pasteFormats ["json"].
       const labels = component()
         .formatChoiceOptions()
         .map((candidate: ImportOption) => component().formatChoiceLabel(candidate));
       expect(labels).toEqual([
-        ".json",
+        ".1pux/.json",
         ".1pif",
         "1Password 6 and 7 Windows (csv)",
         "1Password 6 and 7 Mac (csv)",

@@ -480,8 +480,11 @@ export class ImportControlsComponent {
       : options;
   });
 
-  /** Primary extension (".1pux"), or the full name if it collides with another option's. */
+  /** Primary extension (".1pif"), or the full name if it collides with another option's. */
   protected formatChoiceLabel(candidate: ImportOption): string {
+    if (candidate.id === "1password1pux") {
+      return candidate.acceptedFileTypes.map((extension) => `.${extension}`).join("/");
+    }
     const extensionsFor = (option: ImportOption) =>
       this.method() === "paste" ? option.pasteFormats : option.acceptedFileTypes;
     const extensions = extensionsFor(candidate);
