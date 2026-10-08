@@ -4,7 +4,6 @@ import {
   OnDestroy,
   ViewContainerRef,
   afterNextRender,
-  computed,
   effect,
   inject,
   input,
@@ -17,10 +16,7 @@ import { PositionIdentifier } from "./default-positions";
 import { PopoverPanelComponent } from "./popover-panel.component";
 import { PopoverRef } from "./popover-ref";
 import { PopoverComponent } from "./popover.component";
-import { PopoverAnchorRef, PopoverService, resolveAnchor } from "./popover.service";
-
-/** Default for `anchor`; templates can't produce it, so unbound is distinguishable from a bound `null`. */
-const UNBOUND = Symbol("unbound anchor");
+import { PopoverService } from "./popover.service";
 
 /** Implement and provide as `useExisting` to redirect `[bitPopoverAnchorFor]` from the host to another element. */
 export abstract class PopoverElementProvider {
@@ -51,14 +47,6 @@ export abstract class PopoverElementProvider {
  * </div>
  * ```
  *
- * @example
- * Anchored to an element a component exposes, from an `<ng-container>` anywhere in the template:
- * ```html
- * <bit-table-toolbar #toolbar>…</bit-table-toolbar>
- * <ng-container [bitPopoverAnchorFor]="myPopover" [anchor]="toolbar.filterButton"
- *   [(popoverOpen)]="isOpen" />
- * ```
- *
  * Use `PopoverTriggerForDirective` instead if the popover should open on user click, or
  * `PopoverService` to open one from code.
  */
@@ -84,25 +72,13 @@ export class PopoverAnchorForDirective implements OnDestroy {
   /** Enable spotlight effect that dims everything except the anchor element */
   readonly spotlight = input<boolean>(false);
 
-  /**
-   * Anchor to this element, or a signal of one such as a component's public `viewChild`, instead
-   * of the host. Unbound anchors to the host; a bound `null` or `undefined` waits until it resolves.
-   */
-  readonly anchor = input<PopoverAnchorRef | typeof UNBOUND>(UNBOUND);
-
   private readonly popoverElementProvider = inject<PopoverElementProvider>(PopoverElementProvider, {
     host: true,
     optional: true,
   });
-  private readonly hostElementRef = this.popoverElementProvider
+  private readonly elementRef = this.popoverElementProvider
     ? this.popoverElementProvider.popoverAnchorElementRef
     : inject<ElementRef<HTMLElement>>(ElementRef);
-
-  /** The bound `anchor`'s element; `undefined` while unbound or unresolved. */
-  private readonly anchorElement = computed(() => {
-    const anchor = this.anchor();
-    return anchor === UNBOUND ? undefined : resolveAnchor(anchor);
-  });
 
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly popoverService = inject(PopoverService);
@@ -137,9 +113,8 @@ export class PopoverAnchorForDirective implements OnDestroy {
     }
     this.popoverOpen.set(true);
 
-    // The host is read at open time, since a `PopoverElementProvider` may rebind it after init
-    const anchor = this.anchor() === UNBOUND ? this.hostElement() : this.anchorElement;
-    const ref = this.popoverService.open(this.popover(), anchor, {
+    // Read at open time, since a `PopoverElementProvider` may rebind it after init
+    const ref = this.popoverService.open(this.popover(), this.elementRef.nativeElement, {
       position: this.position(),
       spotlight: this.spotlight(),
       closeOnBackdropClick: this.closeOnBackdropClick(),
@@ -163,12 +138,6 @@ export class PopoverAnchorForDirective implements OnDestroy {
   ngOnDestroy() {
     this.isDestroyed = true;
     this.disposeRef();
-  }
-
-  private hostElement(): HTMLElement | undefined {
-    // An `<ng-container>` host is a comment node, which can't be anchored to
-    const host = this.hostElementRef.nativeElement;
-    return host instanceof HTMLElement ? host : undefined;
   }
 
   private disposeRef() {

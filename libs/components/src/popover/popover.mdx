@@ -130,18 +130,15 @@ before opening. If the anchor goes away, the popover hides and reopens once it r
 ### Anchoring to an element inside another component
 
 Library components expose elements a consumer might point at as public `viewChild` signals, such as
-`bit-table-toolbar`'s `filterButton`. Pass one to `PopoverService.open`, or to `[anchor]` on an
-`<ng-container>` anywhere in the template:
+`bit-table-toolbar`'s `filterButton`. Pass one to `PopoverService.open`:
 
-```html
-<bit-table-toolbar #toolbar>…</bit-table-toolbar>
+```ts
+private readonly toolbar = viewChild.required(BitTableToolbarComponent);
+private readonly coachmark = viewChild.required<PopoverComponent>("coachmark");
 
-<ng-container
-  [bitPopoverAnchorFor]="coachmark"
-  [anchor]="toolbar.filterButton"
-  [popoverOpen]="open"
-  [spotlight]="true"
-/>
+open() {
+  this.popoverService.open(this.coachmark(), this.toolbar().filterButton, { spotlight: true });
+}
 ```
 
 To expose one from a library component, add a template reference variable and a public
@@ -150,8 +147,6 @@ that reads through the `DialogRef`'s `componentInstance`, like the toolbar's `fi
 
 This differs from `data-spotlight-target`, which only moves a spotlight's ring onto an element
 inside the anchor's own host (as `bit-nav-item` does).
-
-<Canvas of={stories.AnchorElement} />
 
 ### Block-level anchor requirement
 

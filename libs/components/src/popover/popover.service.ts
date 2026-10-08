@@ -41,7 +41,7 @@ export interface PopoverOptions {
 }
 
 /** Reads an anchor ref, tracking it when it's a signal. */
-export function resolveAnchor(anchor: PopoverAnchorRef): HTMLElement | undefined {
+function resolveAnchor(anchor: PopoverAnchorRef): HTMLElement | undefined {
   const value = isSignal(anchor) ? anchor() : anchor;
   return (value instanceof ElementRef ? value.nativeElement : value) ?? undefined;
 }

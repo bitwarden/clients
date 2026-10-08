@@ -859,52 +859,6 @@ export const MultipleSpotlights: Story = {
   }),
 };
 
-export const AnchorElement: Story = {
-  render: () => ({
-    props: {
-      open: signal(false),
-      showTarget: signal(true),
-    },
-    template: /*html*/ `
-      <div class="tw-h-[400px] tw-mt-32">
-        <div class="tw-mb-6 tw-flex tw-gap-2">
-          <button type="button" bitButton buttonType="primary" (click)="open.set(true)">
-            Open
-          </button>
-          <button type="button" bitButton buttonType="secondary" (click)="showTarget.set(true)">
-            Restore anchor
-          </button>
-        </div>
-
-        <div
-          #target
-          class="tw-w-fit tw-p-6 tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-bg-background"
-        >
-          Passed to <code>[anchor]</code>
-        </div>
-      </div>
-
-      <ng-container
-        [bitPopoverAnchorFor]="anchorPopover"
-        [anchor]="showTarget() ? target : undefined"
-        [(popoverOpen)]="open"
-        [spotlight]="true"
-        [position]="'below-center'"
-      />
-
-      <bit-popover [title]="'Anchored by reference'" #anchorPopover>
-        <div>This popover's anchor sits elsewhere in the template and points here by reference.</div>
-        <p class="tw-mt-2 tw-mb-0">When the anchor goes away, the popover hides until it returns.</p>
-        <div class="tw-mt-4">
-          <button type="button" bitButton buttonType="secondary" (click)="showTarget.set(false)">
-            Remove anchor
-          </button>
-        </div>
-      </bit-popover>
-      `,
-  }),
-};
-
 export const OpenFromCode: Story = {
   decorators: [moduleMetadata({ imports: [OpenFromCodeComponent] })],
   render: () => ({
