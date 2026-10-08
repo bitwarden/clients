@@ -32,6 +32,7 @@ jest.mock("@bitwarden/desktop-napi", () => ({
 
 describe("MainAgentAccessService", () => {
   let handlers: Map<string, Function>;
+  let messaging: ReturnType<typeof mock<MessagingService>>;
   let service: MainAgentAccessService;
 
   const request = (kind: agent_access.AgentRequestKind): agent_access.AgentRequest => ({
@@ -48,12 +49,8 @@ describe("MainAgentAccessService", () => {
     );
     const windowMain = { win: { isDestroyed: () => false } } as unknown as WindowMain;
 
-    service = new MainAgentAccessService(
-      mock<LogService>(),
-      mock<MessagingService>(),
-      windowMain,
-      jest.fn(),
-    );
+    messaging = mock<MessagingService>();
+    service = new MainAgentAccessService(mock<LogService>(), messaging, windowMain, jest.fn());
     handlers.get("agentaccess.ready")!();
   });
 
@@ -63,10 +60,12 @@ describe("MainAgentAccessService", () => {
     const credential = service.answer(request({ type: "credential", query: { domain: "x" } }));
     const sign = service.answer(request({ type: "sshSign", cipherId: "c", isForwarding: false }));
 
+    const { requestId } = messaging.send.mock.calls[1][1] as { requestId: number };
+
     handlers.get("agentaccess.stop")!();
     handlers.get("agentaccess.response")!(
       {},
-      { requestId: 2, outcome: { status: AgentOutcomeStatus.Approved } },
+      { requestId, outcome: { status: AgentOutcomeStatus.Approved } },
     );
 
     await expect(credential).resolves.toEqual({ status: "denied" });

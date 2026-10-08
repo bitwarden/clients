@@ -353,6 +353,8 @@ export class Main {
     this.sshAgentService = new MainSshAgentService(
       this.logService,
       this.messagingService,
+      this.windowMain,
+      () => this.trayMain.restoreFromTray(),
       this.agentAccessService.answer,
     );
 

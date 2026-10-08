@@ -64,8 +64,6 @@ pub trait Answerer: Send + Sync + 'static {
 
 pub struct Router {
     desktop: Arc<dyn Answerer>,
-    /// Slot for the phone (desktop as AAP RemoteClient), asked when the desktop is locked.
-    escalation: Option<Arc<dyn Answerer>>,
     budget: Duration,
 }
 
@@ -73,7 +71,6 @@ impl Router {
     pub fn new(desktop: Arc<dyn Answerer>) -> Self {
         Self {
             desktop,
-            escalation: None,
             budget: BUDGET,
         }
     }
@@ -91,20 +88,9 @@ impl Router {
             deadline: SystemTime::now() + self.budget,
         };
 
-        timeout(self.budget, self.answer(request))
+        timeout(self.budget, self.desktop.answer(request))
             .await
             .unwrap_or(Outcome::Timeout)
-    }
-
-    async fn answer(&self, request: AgentRequest) -> Outcome {
-        let Some(phone) = &self.escalation else {
-            return self.desktop.answer(request).await;
-        };
-
-        match self.desktop.answer(request.clone()).await {
-            Outcome::Locked => phone.answer(request).await,
-            outcome => outcome,
-        }
     }
 }
 
@@ -169,21 +155,5 @@ mod tests {
         };
 
         assert!(matches!(route(&router).await, Outcome::Timeout));
-    }
-
-    #[tokio::test]
-    async fn test_escalates_only_when_locked() {
-        let phone: Arc<dyn Answerer> = Arc::new(Fixed(|| Outcome::Approved(None)));
-        let locked = Router {
-            escalation: Some(phone.clone()),
-            ..Router::new(Arc::new(Fixed(|| Outcome::Locked)))
-        };
-        let denied = Router {
-            escalation: Some(phone),
-            ..Router::new(Arc::new(Fixed(|| Outcome::Denied)))
-        };
-
-        assert!(matches!(route(&locked).await, Outcome::Approved(None)));
-        assert!(matches!(route(&denied).await, Outcome::Denied));
     }
 }

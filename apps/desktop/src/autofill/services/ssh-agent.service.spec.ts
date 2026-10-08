@@ -101,6 +101,7 @@ describe("SshAgentService", () => {
         sshAgent: {
           isLoaded: mockIsLoaded,
           init: mockInit,
+          ready: jest.fn().mockResolvedValue(undefined),
           replace: mockReplace,
           stop: mockStop,
         },
@@ -576,6 +577,7 @@ describe("SshAgentService – sign request authorization", () => {
         sshAgent: {
           isLoaded: jest.fn().mockResolvedValue(false),
           init: jest.fn().mockResolvedValue(undefined),
+          ready: jest.fn().mockResolvedValue(undefined),
           replace: jest.fn().mockResolvedValue(undefined),
           stop: jest.fn().mockResolvedValue(undefined),
           listRequestResponse: jest.fn().mockResolvedValue(undefined),
@@ -1027,6 +1029,7 @@ describe("SshAgentService – list keys request", () => {
         sshAgent: {
           isLoaded: jest.fn().mockResolvedValue(false),
           init: jest.fn().mockResolvedValue(undefined),
+          ready: jest.fn().mockResolvedValue(undefined),
           replace: mockReplace,
           stop: jest.fn().mockResolvedValue(undefined),
           listRequestResponse: mockListRequestResponse,
@@ -1072,9 +1075,13 @@ describe("SshAgentService – list keys request", () => {
     jest.clearAllMocks();
   });
 
-  function sendListRequest() {
-    listKeysRequestSubject.next({ requestId: LIST_REQUEST_ID });
+  function sendListRequest(deadline = Date.now() + 60_000) {
+    listKeysRequestSubject.next({ requestId: LIST_REQUEST_ID, deadline });
   }
+
+  it("tells main it is listening, so held list requests are delivered", () => {
+    expect(ipc.autofill.sshAgent.ready).toHaveBeenCalled();
+  });
 
   it("when vault is unlocked, replaces keys and sends listRequestResponse(true)", async () => {
     sendListRequest();
@@ -1128,10 +1135,7 @@ describe("SshAgentService – list keys request", () => {
       mockReplace.mockClear();
       mockListRequestResponse.mockClear();
 
-      // Reduce timeout so the timer fires quickly under fake timers.
-      (service as any).SSH_VAULT_UNLOCK_REQUEST_TIMEOUT = 50;
-
-      sendListRequest();
+      sendListRequest(Date.now() + 50);
 
       // Advance past the 50ms deadline; async, since the gate arms the timeout after reading the setting.
       await jest.advanceTimersByTimeAsync(100);
@@ -1177,6 +1181,7 @@ describe("SshAgentService – concurrent sign requests", () => {
         sshAgent: {
           isLoaded: jest.fn().mockResolvedValue(false),
           init: jest.fn().mockResolvedValue(undefined),
+          ready: jest.fn().mockResolvedValue(undefined),
           replace: jest.fn().mockResolvedValue(undefined),
           stop: jest.fn().mockResolvedValue(undefined),
           listRequestResponse: jest.fn().mockResolvedValue(undefined),
@@ -1272,6 +1277,7 @@ describe("SshAgentService – concurrent list keys requests", () => {
         sshAgent: {
           isLoaded: jest.fn().mockResolvedValue(false),
           init: jest.fn().mockResolvedValue(undefined),
+          ready: jest.fn().mockResolvedValue(undefined),
           replace: jest.fn().mockResolvedValue(undefined),
           stop: jest.fn().mockResolvedValue(undefined),
           listRequestResponse: mockListRequestResponse,
@@ -1327,8 +1333,8 @@ describe("SshAgentService – concurrent list keys requests", () => {
       )
       .mockResolvedValue([]);
 
-    listKeysRequestSubject.next({ requestId: 1 });
-    listKeysRequestSubject.next({ requestId: 2 });
+    listKeysRequestSubject.next({ requestId: 1, deadline: Date.now() + 60_000 });
+    listKeysRequestSubject.next({ requestId: 2, deadline: Date.now() + 60_000 });
     await flush();
 
     resolveFirstDecrypt([]);

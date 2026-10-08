@@ -11,7 +11,7 @@ client ──socket──▶ listener ──▶ Router ──▶ Answerer (napi)
 - `protocol` — wire v1. Payloads mirror Agent Access §5 (`CredentialQuery`, `CredentialData`).
 - `requester` — names the app: walks up from the peer pid past shells and our own CLI to the
   first valid Developer ID signer (macOS); elsewhere, the first non-transparent process.
-- `router` — one `Answerer`, one budget; a typed slot for a future phone answerer.
+- `router` — one `Answerer`, one budget.
 - `server` — Unix socket (0600, never steals a live socket, same-uid peers only) or named pipe
   (per-user name and DACL, first instance, no remote clients; clients check the server's user).
 

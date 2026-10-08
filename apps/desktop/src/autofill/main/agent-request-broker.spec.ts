@@ -12,6 +12,7 @@ describe("AgentRequestBroker", () => {
   let broker: AgentRequestBroker<{ q: string }, string>;
 
   const sent = () => messaging.send.mock.calls.map(([, payload]) => payload);
+  const ids = () => sent().map(({ requestId }) => requestId);
   const inAMinute = () => Date.now() + 60_000;
 
   beforeEach(() => {
@@ -37,15 +38,38 @@ describe("AgentRequestBroker", () => {
 
     broker.rendererStarted();
 
-    expect(messaging.send).toHaveBeenCalledWith("agent.request", { q: "a", requestId: 1 });
+    expect(messaging.send).toHaveBeenCalledWith("agent.request", {
+      q: "a",
+      requestId: expect.any(Number),
+    });
+  });
+
+  it("numbers requests uniquely across brokers", () => {
+    const other = new AgentRequestBroker<{ q: string }, string>(
+      "other.request",
+      messaging,
+      mock<LogService>(),
+      () => window,
+      showWindow,
+      "timeout",
+    );
+    broker.rendererStarted();
+    other.rendererStarted();
+
+    void broker.request({ q: "a" }, inAMinute());
+    void other.request({ q: "b" }, inAMinute());
+
+    const [a, b] = ids();
+    expect(a).not.toBe(b);
   });
 
   it("resolves with the renderer's answer exactly once", async () => {
     broker.rendererStarted();
     const answer = broker.request({ q: "a" }, inAMinute());
+    const [id] = ids();
 
-    broker.answer(1, "approved");
-    broker.answer(1, "denied");
+    broker.answer(id, "approved");
+    broker.answer(id, "denied");
 
     await expect(answer).resolves.toBe("approved");
   });
@@ -53,9 +77,10 @@ describe("AgentRequestBroker", () => {
   it("resolves at the deadline and ignores a late answer", async () => {
     broker.rendererStarted();
     const answer = broker.request({ q: "a" }, Date.now() + 1_000);
+    const [id] = ids();
 
     jest.advanceTimersByTime(1_000);
-    broker.answer(1, "approved");
+    broker.answer(id, "approved");
 
     await expect(answer).resolves.toBe("timeout");
   });
@@ -64,14 +89,15 @@ describe("AgentRequestBroker", () => {
     broker.rendererStarted();
     void broker.request({ q: "a" }, inAMinute());
     void broker.request({ q: "b" }, inAMinute());
-    broker.answer(1, "approved");
+    const [a, b] = ids();
+    broker.answer(a, "approved");
 
     broker.rendererStarted();
 
     expect(sent()).toEqual([
-      { q: "a", requestId: 1 },
-      { q: "b", requestId: 2 },
-      { q: "b", requestId: 2 },
+      { q: "a", requestId: a },
+      { q: "b", requestId: b },
+      { q: "b", requestId: b },
     ]);
   });
 
@@ -101,11 +127,13 @@ describe("AgentRequestBroker", () => {
   });
 
   it("settles only the pending requests the filter picks", async () => {
+    broker.rendererStarted();
     const a = broker.request({ q: "a" }, inAMinute());
     const b = broker.request({ q: "b" }, inAMinute());
+    const [, idB] = ids();
 
     broker.settleAll("denied", (request) => request.q === "a");
-    broker.answer(2, "approved");
+    broker.answer(idB, "approved");
 
     await expect(Promise.all([a, b])).resolves.toEqual(["denied", "approved"]);
   });

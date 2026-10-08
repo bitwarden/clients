@@ -7,6 +7,9 @@ type Pending<TRequest, TAnswer> = {
   timer: ReturnType<typeof setTimeout>;
 };
 
+/** Unique across brokers, so the renderer can tell a re-send from a new request. */
+let lastId = 0;
+
 /**
  * Correlates requests sent to the renderer with its answers. A request waits while no renderer
  * listens and is re-sent whenever one (re)starts, so a closed window or a reload doesn't lose it.
@@ -14,7 +17,6 @@ type Pending<TRequest, TAnswer> = {
  */
 export class AgentRequestBroker<TRequest extends object, TAnswer> {
   private pending = new Map<number, Pending<TRequest, TAnswer>>();
-  private lastId = 0;
   private rendererReady = false;
   private opening: Promise<void> | null = null;
 
@@ -28,7 +30,7 @@ export class AgentRequestBroker<TRequest extends object, TAnswer> {
   ) {}
 
   request(request: TRequest, deadline: number): Promise<TAnswer> {
-    const requestId = ++this.lastId;
+    const requestId = ++lastId;
     return new Promise<TAnswer>((resolve) => {
       const timer = setTimeout(
         () => this.answer(requestId, this.timedOut),

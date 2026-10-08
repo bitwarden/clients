@@ -6,6 +6,8 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { agent_access, sshagent } from "@bitwarden/desktop-napi";
 import { LogService } from "@bitwarden/logging";
 
+import { WindowMain } from "../../main/window.main";
+
 import { MainSshAgentService } from "./main-ssh-agent.service";
 
 jest.mock("electron", () => ({
@@ -26,6 +28,8 @@ describe("MainSshAgentService", () => {
   let mockLogService: jest.Mocked<LogService>;
   let mockMessagingService: jest.Mocked<MessagingService>;
   let mockAnswer: jest.Mock;
+  let windowMain: { win: { isDestroyed: () => boolean } | null };
+  let showWindow: jest.Mock;
 
   let ipcHandlers: Map<string, Function>;
   let mockAgentState: {
@@ -55,6 +59,8 @@ describe("MainSshAgentService", () => {
     } as any;
 
     mockAnswer = jest.fn();
+    windowMain = { win: { isDestroyed: () => false } };
+    showWindow = jest.fn().mockResolvedValue(undefined);
 
     mockAgentState = {
       isRunning: jest.fn().mockReturnValue(true),
@@ -74,10 +80,22 @@ describe("MainSshAgentService", () => {
       },
     );
 
-    new MainSshAgentService(mockLogService, mockMessagingService, mockAnswer);
+    createService();
     await ipcHandlers.get("sshagent.init")!({});
     await Promise.resolve(); // let agentState settle
   });
+
+  function createService() {
+    return new MainSshAgentService(
+      mockLogService,
+      mockMessagingService,
+      windowMain as unknown as WindowMain,
+      showWindow,
+      mockAnswer,
+    );
+  }
+
+  const sentListRequest = () => mockMessagingService.send.mock.calls.at(-1)?.[1];
 
   describe("constructor", () => {
     // Handlers are registered up front rather than on INIT, so a call that arrives before the
@@ -87,6 +105,7 @@ describe("MainSshAgentService", () => {
       "sshagent.isloaded",
       "sshagent.replace",
       "sshagent.stop",
+      "sshagent.ready",
       "sshagent.listkeysresponse",
     ])("should register the %s IPC handler", (channel) => {
       expect(ipcHandlers.has(channel)).toBe(true);
@@ -96,7 +115,7 @@ describe("MainSshAgentService", () => {
   describe("sshagent.isloaded IPC handler", () => {
     it("should return false before sshagent.init IPC is called", async () => {
       // Create a fresh service that has not received the INIT IPC call
-      new MainSshAgentService(mockLogService, mockMessagingService, mockAnswer);
+      createService();
       const handler = ipcHandlers.get("sshagent.isloaded")!;
       expect(await handler({})).toBe(false);
     });
@@ -130,7 +149,7 @@ describe("MainSshAgentService", () => {
       (sshagent.SshAgentState.serve as jest.Mock).mockRejectedValueOnce(error);
 
       // Re-create service and invoke INIT again with the rejecting mock
-      new MainSshAgentService(mockLogService, mockMessagingService, mockAnswer);
+      createService();
       await ipcHandlers.get("sshagent.init")!({});
       await Promise.resolve(); // propagates rejection through .then()
       await Promise.resolve(); // .catch() handler runs
@@ -150,29 +169,41 @@ describe("MainSshAgentService", () => {
     });
   });
 
-  describe("requestListKeys (via list callback)", () => {
-    it("should send sshagent.listkeysrequest with a requestId", () => {
+  describe("list callback", () => {
+    it("should hold the request until the renderer is ready, then send it with an id and deadline", () => {
       void capturedListCb(null);
+      expect(mockMessagingService.send).not.toHaveBeenCalled();
+
+      ipcHandlers.get("sshagent.ready")!();
 
       expect(mockMessagingService.send).toHaveBeenCalledWith("sshagent.listkeysrequest", {
         requestId: expect.any(Number),
+        deadline: expect.any(Number),
       });
     });
 
-    it("should resolve with true when the renderer accepts", async () => {
+    it.each([true, false])("should resolve with the renderer's answer (%s)", async (accepted) => {
+      ipcHandlers.get("sshagent.ready")!();
       const listPromise = capturedListCb(null);
 
-      const responseHandler = ipcHandlers.get("sshagent.listkeysresponse")!;
-      await responseHandler({}, { requestId: 1, accepted: true });
+      const { requestId } = sentListRequest();
+      await ipcHandlers.get("sshagent.listkeysresponse")!({}, { requestId, accepted });
 
-      expect(await listPromise).toBe(true);
+      expect(await listPromise).toBe(accepted);
     });
 
-    it("should resolve with false when the renderer rejects", async () => {
+    it("should open a window when none is open", () => {
+      windowMain.win = null;
+
+      void capturedListCb(null);
+
+      expect(showWindow).toHaveBeenCalled();
+    });
+
+    it("should refuse pending requests when the agent stops", async () => {
       const listPromise = capturedListCb(null);
 
-      const responseHandler = ipcHandlers.get("sshagent.listkeysresponse")!;
-      await responseHandler({}, { requestId: 1, accepted: false });
+      await ipcHandlers.get("sshagent.stop")!({});
 
       expect(await listPromise).toBe(false);
     });

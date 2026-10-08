@@ -17,7 +17,7 @@
               <span bitBadge size="small" [variant]="signature.verified ? 'success' : 'warning'">
                 {{ (signature.verified ? "agentAccessSigned" : "agentAccessNotVerified") | i18n }}
               </span>
-              <span class="[overflow-wrap:anywhere]">{{ signature.detail }}</span>
+              <span class="tw-min-w-0 tw-break-words">{{ signature.detail }}</span>
             </div>
           } @else {
             <div bitTypography="body2">{{ app.name }}</div>
@@ -30,8 +30,10 @@
         </div>
       </div>
       @if (params.credential; as credential) {
-        <div class="tw-grid tw-grid-cols-[7rem_1fr] tw-gap-x-4 tw-px-4 tw-py-3">
-          <span bitTypography="body2" class="tw-flex tw-items-center tw-gap-2 tw-text-muted"
+        <div class="tw-flex tw-gap-4 tw-px-4 tw-py-3">
+          <span
+            bitTypography="body2"
+            class="tw-flex tw-w-28 tw-shrink-0 tw-items-center tw-gap-2 tw-text-muted"
             ><bit-icon name="bwi-lock" aria-hidden="true" />{{ "agentAccessItem" | i18n }}</span
           >
           @if (candidates.length > 1) {
@@ -57,8 +59,10 @@
             </span>
           }
         </div>
-        <div class="tw-grid tw-grid-cols-[7rem_1fr] tw-gap-x-4 tw-px-4 tw-py-3">
-          <span bitTypography="body2" class="tw-flex tw-items-center tw-gap-2 tw-text-muted"
+        <div class="tw-flex tw-gap-4 tw-px-4 tw-py-3">
+          <span
+            bitTypography="body2"
+            class="tw-flex tw-w-28 tw-shrink-0 tw-items-center tw-gap-2 tw-text-muted"
             ><bit-icon name="bwi-arrow-right" aria-hidden="true" />{{
               "agentAccessShares" | i18n
             }}</span
@@ -66,8 +70,11 @@
           <span bitTypography="body2">{{ shares() }}</span>
         </div>
         @if (credential.purpose?.command; as command) {
-          <div class="tw-grid tw-grid-cols-[7rem_1fr] tw-gap-x-4 tw-px-4 tw-py-3">
-            <span bitTypography="body2" class="tw-flex tw-items-center tw-gap-2 tw-text-muted">
+          <div class="tw-flex tw-gap-4 tw-px-4 tw-py-3">
+            <span
+              bitTypography="body2"
+              class="tw-flex tw-w-28 tw-shrink-0 tw-items-center tw-gap-2 tw-text-muted"
+            >
               <bit-icon aria-hidden="true" [name]="kind === 'run' ? 'bwi-terminal' : 'bwi-globe'" />
               {{ (kind === "run" ? "agentAccessToRun" : "agentAccessFor") | i18n }}
             </span>
@@ -76,22 +83,28 @@
         }
       }
       @if (params.ssh; as ssh) {
-        <div class="tw-grid tw-grid-cols-[7rem_1fr] tw-gap-x-4 tw-px-4 tw-py-3">
-          <span bitTypography="body2" class="tw-flex tw-items-center tw-gap-2 tw-text-muted"
+        <div class="tw-flex tw-gap-4 tw-px-4 tw-py-3">
+          <span
+            bitTypography="body2"
+            class="tw-flex tw-w-28 tw-shrink-0 tw-items-center tw-gap-2 tw-text-muted"
             ><bit-icon name="bwi-key" aria-hidden="true" />{{ "agentAccessKey" | i18n }}</span
           >
           <span bitTypography="body2" class="tw-font-semibold">{{ ssh.cipherName }}</span>
         </div>
-        <div class="tw-grid tw-grid-cols-[7rem_1fr] tw-gap-x-4 tw-px-4 tw-py-3">
-          <span bitTypography="body2" class="tw-flex tw-items-center tw-gap-2 tw-text-muted"
+        <div class="tw-flex tw-gap-4 tw-px-4 tw-py-3">
+          <span
+            bitTypography="body2"
+            class="tw-flex tw-w-28 tw-shrink-0 tw-items-center tw-gap-2 tw-text-muted"
             ><bit-icon name="bwi-pencil" aria-hidden="true" />{{ "agentAccessAction" | i18n }}</span
           >
           <span bitTypography="body2">{{ sshAction | i18n }}</span>
         </div>
       }
       @if (params.approval; as approval) {
-        <div class="tw-grid tw-grid-cols-[7rem_1fr] tw-gap-x-4 tw-px-4 tw-py-3">
-          <span bitTypography="body2" class="tw-flex tw-items-center tw-gap-2 tw-text-muted"
+        <div class="tw-flex tw-gap-4 tw-px-4 tw-py-3">
+          <span
+            bitTypography="body2"
+            class="tw-flex tw-w-28 tw-shrink-0 tw-items-center tw-gap-2 tw-text-muted"
             ><bit-icon name="bwi-question-circle" aria-hidden="true" />{{
               "agentAccessQuestion" | i18n
             }}</span
@@ -99,8 +112,10 @@
           <span bitTypography="body2" class="tw-font-semibold">{{ approval.title }}</span>
         </div>
         @if (approval.body) {
-          <div class="tw-grid tw-grid-cols-[7rem_1fr] tw-gap-x-4 tw-px-4 tw-py-3">
-            <span bitTypography="body2" class="tw-flex tw-items-center tw-gap-2 tw-text-muted"
+          <div class="tw-flex tw-gap-4 tw-px-4 tw-py-3">
+            <span
+              bitTypography="body2"
+              class="tw-flex tw-w-28 tw-shrink-0 tw-items-center tw-gap-2 tw-text-muted"
               ><bit-icon name="bwi-list" aria-hidden="true" />{{
                 "agentAccessDetails" | i18n
               }}</span

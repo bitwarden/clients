@@ -50,8 +50,6 @@ type AuthorizationScope = (typeof AuthorizationScope)[keyof typeof Authorization
   providedIn: "root",
 })
 export class SshAgentService implements OnDestroy {
-  SSH_VAULT_UNLOCK_REQUEST_TIMEOUT = 60_000;
-
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -68,6 +66,7 @@ export class SshAgentService implements OnDestroy {
 
   async init() {
     await this.initListeners();
+    await ipc.autofill.sshAgent.ready();
   }
 
   private async initListeners() {
@@ -105,16 +104,22 @@ export class SshAgentService implements OnDestroy {
       .subscribe();
 
     // Handle list-keys requests when the vault is locked (BFU case).
-    // The Rust agent fires a list callback when its keystore is empty. The renderer then prompts
-    // for unlock, pushes keys once unlocked, and signals the agent to return them.
+    // The Rust agent fires a list callback when its keystore is empty. Main's broker delivers it
+    // here, opening a window if needed; the renderer prompts for unlock, pushes keys once
+    // unlocked, and signals the agent to return them.
     this.messageListener
-      .messages$(new CommandDefinition(SSH_AGENT_IPC_CHANNELS.LIST_KEYS_REQUEST))
+      .messages$(
+        new CommandDefinition<{ requestId: number; deadline: number }>(
+          SSH_AGENT_IPC_CHANNELS.LIST_KEYS_REQUEST,
+        ),
+      )
       .pipe(
-        mergeMap((message) =>
+        mergeMap(({ requestId, deadline }) =>
           this.gate.run({
             label: "SSH list keys request",
+            requestId,
             enabled: of(true),
-            deadline: Date.now() + this.SSH_VAULT_UNLOCK_REQUEST_TIMEOUT,
+            deadline,
             unlock: { requiredMessage: "sshAgentUnlockRequired" },
             refused: false,
             exclusive: false,
@@ -124,8 +129,7 @@ export class SshAgentService implements OnDestroy {
               await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers ?? []));
               return true;
             },
-            respond: (pushed) =>
-              ipc.autofill.sshAgent.listRequestResponse(message.requestId as number, pushed),
+            respond: (pushed) => ipc.autofill.sshAgent.listRequestResponse(requestId, pushed),
           }),
         ),
         catchError((error: unknown, source) => {
