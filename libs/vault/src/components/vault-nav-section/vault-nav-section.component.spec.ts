@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, Type } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideRouter, Router } from "@angular/router";
@@ -10,6 +10,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { CollectionId, UserId } from "@bitwarden/common/types/guid";
 import {
+  HoverRevealDirective,
   NavigationModule,
   PopoverAnchorForDirective,
   PopoverComponent,
@@ -23,6 +24,10 @@ import {
   VaultsNavViewModel,
 } from "../../models/vault-nav-view-model";
 import { VaultNavService } from "../../services/vault-nav.service";
+import {
+  VAULT_NAV_ORGANIZATION_OPTIONS,
+  VaultNavOrganizationOptions,
+} from "../../tokens/vault-nav-organization-options.token";
 
 import { VaultNavSectionComponent } from "./vault-nav-section.component";
 
@@ -71,6 +76,15 @@ const orgDataOwnership: VaultsNavViewModel = {
 @Component({ template: "", changeDetection: ChangeDetectionStrategy.OnPush })
 class DummyComponent {}
 
+@Component({
+  selector: "stub-organization-options",
+  template: "{{ organizationId() }}",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class StubOrganizationOptionsComponent {
+  readonly organizationId = input.required<string>();
+}
+
 /** The vault routes the nav links to, and the pages nested under them that it stands in for. */
 const routes = [
   { path: "vault", component: DummyComponent },
@@ -107,6 +121,8 @@ describe("VaultNavSectionComponent", () => {
   const vaultNavService = mock<VaultNavService>();
   const i18nService = mock<I18nService>();
   const accountService = mock<AccountService>();
+  // Read once when the nav is created, so a describe sets it in `beforeAll`.
+  let organizationOptions: Type<VaultNavOrganizationOptions> | null = null;
 
   /** Trimmed first-line text of every rendered nav item, group, and section, in document order. */
   const navText = () =>
@@ -174,6 +190,7 @@ describe("VaultNavSectionComponent", () => {
         { provide: VaultNavService, useValue: vaultNavService },
         { provide: AccountService, useValue: accountService },
         { provide: I18nService, useValue: i18nService },
+        { provide: VAULT_NAV_ORGANIZATION_OPTIONS, useFactory: () => organizationOptions },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
         provideRouter(routes),
       ],
@@ -428,6 +445,62 @@ describe("VaultNavSectionComponent", () => {
       fixture.detectChanges();
 
       expect(suspendedIconGroups()).toEqual([]);
+    });
+  });
+
+  describe("organization options", () => {
+    /** The organization id each rendered options menu received, by the group it sits in. */
+    const optionsByGroup = () =>
+      fixture.debugElement
+        .queryAll(By.css("bit-nav-group"))
+        .map((group) => [
+          group.componentInstance.text(),
+          group
+            .query(By.directive(StubOrganizationOptionsComponent))
+            ?.componentInstance.organizationId(),
+        ]);
+
+    describe("with a client menu", () => {
+      beforeAll(() => {
+        organizationOptions = StubOrganizationOptionsComponent;
+      });
+
+      afterAll(() => {
+        organizationOptions = null;
+      });
+
+      beforeEach(() => {
+        viewModel$.next(withOrgs);
+        fixture.detectChanges();
+      });
+
+      it("renders one menu per organization, given that organization's id", () => {
+        expect(optionsByGroup()).toEqual([
+          ["Acme corporation", "org-a"],
+          ["Smith family", "org-b"],
+        ]);
+      });
+
+      it("renders no menu for the personal vault", () => {
+        expect(
+          fixture.debugElement.queryAll(By.directive(StubOrganizationOptionsComponent)),
+        ).toHaveLength(2);
+      });
+
+      it("places each menu in its group's end slot, hidden until hover or focus", () => {
+        const menu = fixture.debugElement.query(By.directive(StubOrganizationOptionsComponent));
+        const wrapper = menu.parent;
+
+        expect(wrapper.attributes["slot"]).toBe("end");
+        expect(wrapper.injector.get(HoverRevealDirective, null)).not.toBeNull();
+      });
+    });
+
+    it("renders no menu when the client provides none", () => {
+      viewModel$.next(withOrgs);
+      fixture.detectChanges();
+
+      expect(fixture.debugElement.queryAll(By.directive(HoverRevealDirective))).toHaveLength(0);
     });
   });
 
