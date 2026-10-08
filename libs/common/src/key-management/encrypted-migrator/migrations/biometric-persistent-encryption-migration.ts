@@ -46,7 +46,7 @@ export class BiometricPersistentMigration implements EncryptedMigration {
 
     await SdkLoadService.Ready;
     const keyId = CryptoClient.get_key_id_for_symmetric_key(userKey.toEncoded());
-    const currentKeyId = Utils.fromArrayToHex(keyId);
+    const currentKeyId = keyId == null ? null : Utils.fromArrayToHex(keyId);
     const enrolledKeyId = await this.biometricStateService.getBiometricEnrolledKeyId(userId);
 
     return currentKeyId === enrolledKeyId ? "noMigrationNeeded" : "needsMigration";
@@ -84,7 +84,7 @@ export class BiometricPersistentMigration implements EncryptedMigration {
 
     this.platformUtilsService.showToast(
       "warning",
-      null,
+      this.i18nService.t("unlockWithBiometrics"),
       this.i18nService.t("biometricUnlockOnRestartTurnedOff"),
     );
   }

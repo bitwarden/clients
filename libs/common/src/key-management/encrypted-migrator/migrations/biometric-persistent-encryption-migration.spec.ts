@@ -160,18 +160,17 @@ describe("BiometricPersistentMigration", () => {
       // migration run, so persistent unlock is turned off and the user is told.
       it("turns off persistent biometric unlock and shows a toast", async () => {
         mockBiometricsService.enrollPersistent.mockRejectedValue(enrollmentError);
-        mockI18nService.t.mockReturnValue("translated");
+        mockI18nService.t.mockImplementation((key) => key);
 
         await sut.runMigrations(mockUserId, null);
 
         expect(mockBiometricsService.deleteBiometricUnlockKeyForUser).toHaveBeenCalledWith(
           mockUserId,
         );
-        expect(mockI18nService.t).toHaveBeenCalledWith("biometricUnlockOnRestartTurnedOff");
         expect(mockPlatformUtilsService.showToast).toHaveBeenCalledWith(
           "warning",
-          null,
-          "translated",
+          "unlockWithBiometrics",
+          "biometricUnlockOnRestartTurnedOff",
         );
       });
 
