@@ -65,6 +65,11 @@
             {{ "permission" | i18n }}
           </th>
         }
+        @if (showControlledAccess) {
+          <th bitCell class="tw-hidden tw-w-40 lg:tw-table-cell">
+            {{ "controlledAccess" | i18n }}
+          </th>
+        }
         <th
           bitCell
           class="tw-text-right"
@@ -88,6 +93,7 @@
             [showGroups]="showGroups"
             [organizations]="allOrganizations"
             [showPermissionsColumn]="showPermissionsColumn"
+            [showControlledAccess]="showControlledAccess"
             [groups]="allGroups"
             [canDeleteCollection]="canDeleteCollection(item.collection)"
             [canEditCollection]="canEditCollection(item.collection)"
@@ -111,6 +117,7 @@
             [showOwner]="showOwner"
             [showCollections]="showCollections"
             [showGroups]="showGroups"
+            [showControlledAccess]="showControlledAccess"
             [useEvents]="useEvents"
             [viewingOrgVault]="viewingOrgVault"
             [cloneable]="canClone$(item) | async"

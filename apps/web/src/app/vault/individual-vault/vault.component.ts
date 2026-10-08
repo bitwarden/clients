@@ -423,8 +423,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         }),
       );
 
+    // The vault list is the only surface that renders PAM-gated ("partial") rows.
     const _ciphers = this.cipherService
-      .cipherListViews$(activeUserId)
+      .cipherListViewsWithPartials$(activeUserId)
       .pipe(filter((c) => c !== null));
 
     /**
