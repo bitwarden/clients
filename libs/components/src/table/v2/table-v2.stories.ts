@@ -1,5 +1,13 @@
 import { NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormRecord, ReactiveFormsModule } from "@angular/forms";
 import { NavigationEnd, Router } from "@angular/router";
@@ -25,7 +33,7 @@ import { IconTileComponent, type IconTileVariant } from "../../icon-tile/icon-ti
 import { InputModule } from "../../input/input.module";
 import { LayoutComponent, PageComponent } from "../../layout";
 import { mockLayoutI18n } from "../../layout/mocks";
-import { PopoverModule } from "../../popover";
+import { PopoverComponent, PopoverModule, PopoverRef, PopoverService } from "../../popover";
 import { SearchModule } from "../../search";
 import { SkeletonTextComponent } from "../../skeleton";
 import { positionFixedWrapperDecorator } from "../../stories/storybook-decorators";
@@ -443,12 +451,11 @@ class DemoFilterableTableComponent {
     <div class="tw-flex tw-flex-col" style="width: 380px; height: 600px">
       <bit-table-v2 [tableDef]="table" [filter]="filter" presentation="list" height="fill">
         <bit-table-toolbar
-          #toolbar
           [(filterDialogOpen)]="filterDialogOpen"
           (filterDialogOpenChange)="$event || endTour()"
         >
           <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
-          <button bitButton buttonType="primary" type="button" slot="end" (click)="step.set(1)">
+          <button bitButton buttonType="primary" type="button" slot="end" (click)="start()">
             Start tour
           </button>
 
@@ -496,21 +503,6 @@ class DemoFilterableTableComponent {
       </bit-table-v2>
     </div>
 
-    <ng-container
-      [bitPopoverAnchorFor]="filtersCoachmark"
-      [anchor]="toolbar.filterButton"
-      [popoverOpen]="step() === 1"
-      [spotlight]="true"
-      [position]="'below-end'"
-    />
-    <ng-container
-      [bitPopoverAnchorFor]="vaultRowCoachmark"
-      [anchor]="toolbar.filterRow('vault')"
-      [popoverOpen]="step() === 2"
-      [spotlight]="true"
-      [position]="'above-center'"
-    />
-
     <bit-popover [title]="'Filters'" (closed)="endTour()" #filtersCoachmark>
       <div>Narrow the list by type or vault.</div>
       <div class="tw-mt-4">
@@ -526,17 +518,35 @@ class DemoFilterableTableComponent {
   `,
 })
 class DemoFilterCoachmarkTableComponent extends DemoFilterableTableComponent {
-  protected readonly step = signal<0 | 1 | 2>(0);
+  private readonly popoverService = inject(PopoverService);
+  private readonly toolbar = viewChild.required(BitTableToolbarComponent);
+  private readonly filtersCoachmark = viewChild.required<PopoverComponent>("filtersCoachmark");
+  private readonly vaultRowCoachmark = viewChild.required<PopoverComponent>("vaultRowCoachmark");
+  private ref?: PopoverRef;
+
   protected readonly filterDialogOpen = signal(false);
 
+  protected start(): void {
+    this.ref?.close();
+    this.ref = this.popoverService.open(this.filtersCoachmark(), this.toolbar().filterButton, {
+      spotlight: true,
+      position: "below-end",
+    });
+  }
+
   protected next(): void {
-    // The second coachmark waits for the dialog row to render.
+    this.ref?.close();
     this.filterDialogOpen.set(true);
-    this.step.set(2);
+    // Waits for the dialog row to render and finish animating in.
+    this.ref = this.popoverService.open(
+      this.vaultRowCoachmark(),
+      this.toolbar().filterRow("vault"),
+      { spotlight: true, position: "above-center" },
+    );
   }
 
   protected endTour(): void {
-    this.step.set(0);
+    this.ref?.close();
     this.filterDialogOpen.set(false);
   }
 }
