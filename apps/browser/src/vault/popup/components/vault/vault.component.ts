@@ -65,10 +65,13 @@ import {
   TypographyModule,
   CalloutModule,
 } from "@bitwarden/components";
+import { StateProvider } from "@bitwarden/state";
 import {
   ALL_ITEMS_SCOPE,
+  CoachmarkService,
   DecryptionFailureDialogComponent,
   DefaultVaultItemsTransferService,
+  NewExperienceDialogResult,
   NewExperienceDialogService,
   resolveVaultScope,
   type VaultScope,
@@ -90,6 +93,7 @@ import { VaultPopupListTableFiltersService } from "../../services/vault-popup-li
 import { VaultPopupListTableService } from "../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
+import { extensionVaultTour } from "../../tours/extension-vault-tour";
 import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-password-callout.component";
 import { VaultFadeInOutComponent } from "../vault-fade-in-out/vault-fade-in-out.component";
 import { VaultFadeInOutSkeletonComponent } from "../vault-fade-in-out-skeleton/vault-fade-in-out-skeleton.component";
@@ -301,6 +305,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly vaultNavService = inject(VaultNavService);
   private readonly newExperienceDialogService = inject(NewExperienceDialogService);
+  private readonly stateProvider = inject(StateProvider);
+  private readonly coachmark = inject(CoachmarkService);
 
   /** The account's vaults; `undefined` until they load. */
   private readonly vaultNav = toSignal(
@@ -499,7 +505,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Opens the new experience dialog once, for accounts that predate the GA release.
+   * Opens the new experience dialog once, for accounts that predate the GA release, and tours the
+   * redesigned vault when the user chooses to explore it.
    *
    * Gated on the intro carousel — the extension's onboarding welcome — so a user who has not yet
    * been introduced to the product is not told what changed about it. The remaining rules are
@@ -510,10 +517,16 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.newExperienceDialogService.conditionallyOpen(userId, {
+    const result = await this.newExperienceDialogService.conditionallyOpen(userId, {
       lightImgSrc: NEW_EXPERIENCE_LIGHT_IMG,
       darkImgSrc: NEW_EXPERIENCE_DARK_IMG,
     });
+    if (result !== NewExperienceDialogResult.Explore) {
+      return;
+    }
+
+    const nav = await firstValueFrom(this.vaultNavService.viewModel$(userId));
+    await this.coachmark.startTour(extensionVaultTour(this.stateProvider, nav.vaults.length > 1));
   }
 
   ngOnDestroy() {

@@ -38,6 +38,7 @@ import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
 import {
+  CoachmarkService,
   DecryptionFailureDialogComponent,
   DefaultVaultItemsTransferService,
   NewExperienceDialogComponent,
@@ -275,6 +276,8 @@ describe("VaultComponent", () => {
     openSimpleDialog: jest.fn().mockResolvedValue(false),
   } as Partial<DialogService>;
 
+  const coachmarkSvc = mock<CoachmarkService>();
+
   const introCarouselState$ = new BehaviorSubject<boolean>(true);
 
   const introSvc = {
@@ -389,6 +392,7 @@ describe("VaultComponent", () => {
         },
         { provide: TaskService, useValue: mock<TaskService>() },
         { provide: StateProvider, useValue: mock<StateProvider>() },
+        { provide: CoachmarkService, useValue: coachmarkSvc },
         {
           provide: ConfigService,
           useValue: configSvc,
@@ -1264,6 +1268,7 @@ describe("VaultComponent", () => {
     }
 
     beforeEach(() => {
+      coachmarkSvc.startTour.mockClear();
       newExperienceDialogSpy.mockClear();
       newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Dismissed);
       nudgesSvc.showNudgeSpotlight$.mockImplementation((type: NudgeType) =>
@@ -1335,6 +1340,53 @@ describe("VaultComponent", () => {
       initVault();
 
       expect(newExperienceDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("starts the vault tour when the user chooses to explore", fakeAsync(() => {
+      newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Explore);
+      vaultNav$.next({ vaults: [{ id: "user-1" }, { id: "org-1" }] });
+
+      initVault();
+
+      expect(coachmarkSvc.startTour).toHaveBeenCalledWith(
+        expect.objectContaining({
+          steps: [
+            expect.objectContaining({ id: "switchVaults" }),
+            expect.objectContaining({ id: "mixAndMatchFilters" }),
+            expect.objectContaining({ id: "newDashboard" }),
+          ],
+        }),
+      );
+    }));
+
+    it("skips the vault switcher step when the account has a single vault", fakeAsync(() => {
+      newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Explore);
+      vaultNav$.next({ vaults: [{ id: "user-1" }] });
+
+      initVault();
+
+      expect(coachmarkSvc.startTour).toHaveBeenCalledWith(
+        expect.objectContaining({
+          steps: [
+            expect.objectContaining({ id: "mixAndMatchFilters" }),
+            expect.objectContaining({ id: "newDashboard" }),
+          ],
+        }),
+      );
+    }));
+
+    it("does not start the vault tour when the dialog is dismissed", fakeAsync(() => {
+      initVault();
+
+      expect(coachmarkSvc.startTour).not.toHaveBeenCalled();
+    }));
+
+    it("does not start the vault tour when the dialog never opens", fakeAsync(() => {
+      introCarouselState$.next(false);
+
+      initVault();
+
+      expect(coachmarkSvc.startTour).not.toHaveBeenCalled();
     }));
 
     it("leaves the nudge undismissed when the dialog never opens", fakeAsync(() => {

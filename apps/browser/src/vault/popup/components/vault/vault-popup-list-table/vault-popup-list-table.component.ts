@@ -8,8 +8,11 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   Injector,
+  signal,
+  untracked,
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
@@ -50,6 +53,7 @@ import {
   FilterOptionNode,
   IconButtonModule,
   IconComponent,
+  PopoverService,
   ScrollCollapseSourceDirective,
   SearchModule,
   StatusLockupComponent,
@@ -59,6 +63,8 @@ import {
 import {
   cipherInScope,
   collectionInScope,
+  CoachmarkComponent,
+  CoachmarkService,
   EmptyVaultComponent,
   hasMultipleVaults,
   idString,
@@ -130,6 +136,7 @@ const VAULT_SCOPED_FILTER_KEYS = ["organization", "collection", "folder"];
     BitCellDefDirective,
     BitRowGroupComponent,
     BitTableToolbarComponent,
+    CoachmarkComponent,
     ScrollCollapseSourceDirective,
     CollapseOnScrollDirective,
     FilterMenuModule,
@@ -160,6 +167,8 @@ export class VaultPopupListTableComponent {
   private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
   private readonly accountService = inject(AccountService);
   private readonly vaultNavService = inject(VaultNavService);
+  private readonly coachmark = inject(CoachmarkService);
+  private readonly popoverService = inject(PopoverService);
   /** Whether the page is narrowed to a single vault, which drops the organization chip. */
   protected readonly vaultSelected = computed(
     () => this.listTableService.vaultScope().type !== VaultScopeType.AllItems,
@@ -172,6 +181,70 @@ export class VaultPopupListTableComponent {
 
   /** The projected `bit-table-v2`, used to seed and observe chip selections. */
   private readonly tableEl = viewChild(BitTableV2Component);
+
+  private readonly toolbar = viewChild(BitTableToolbarComponent);
+  private readonly filtersCoachmark = viewChild.required<CoachmarkComponent>("filtersCoachmark");
+  private readonly sharedFoldersCoachmark =
+    viewChild.required<CoachmarkComponent>("sharedFoldersCoachmark");
+
+  /**
+   * Anchors the tour's filter steps inside the toolbar: the filter button, then the Shared folders
+   * row of the filter dialog it opens. Both live in the toolbar's own template, so the popovers
+   * open from code rather than from `[bitPopoverAnchorFor]`.
+   */
+  private readonly showFilterCoachmarks = effect((onCleanup) => {
+    const toolbar = this.toolbar();
+    if (!toolbar) {
+      return;
+    }
+
+    if (this.coachmark.isStepActive("mixAndMatchFilters")) {
+      const ref = this.popoverService.open(
+        this.filtersCoachmark().popover(),
+        toolbar.filterButton,
+        {
+          position: this.coachmark.getStepPosition("mixAndMatchFilters"),
+          spotlight: true,
+        },
+      );
+      onCleanup(() => ref.close());
+      return;
+    }
+
+    if (this.coachmark.isStepActive("newDashboard")) {
+      untracked(() => {
+        this.filterDialogOpen.set(true);
+        this.tourOpenedFilterDialog.set(true);
+      });
+      const ref = this.popoverService.open(
+        this.sharedFoldersCoachmark().popover(),
+        toolbar.filterRow("collection"),
+        {
+          position: this.coachmark.getStepPosition("newDashboard"),
+          spotlight: true,
+        },
+      );
+      onCleanup(() => {
+        ref.close();
+        // Cleared before the dialog closes, so moving off the step doesn't read as the user closing it.
+        this.tourOpenedFilterDialog.set(false);
+        this.filterDialogOpen.set(false);
+      });
+    }
+  });
+
+  /** Whether the tour opened the filter dialog for its dashboard step and it's still up. */
+  private readonly tourOpenedFilterDialog = signal(false);
+
+  /** Closing the dialog takes the dashboard step's anchor with it, so it ends the tour. */
+  private readonly endTourOnFilterDialogClose = effect(() => {
+    if (this.tourOpenedFilterDialog() && !this.filterDialogOpen()) {
+      untracked(() => {
+        this.tourOpenedFilterDialog.set(false);
+        void this.coachmark.completeTour();
+      });
+    }
+  });
 
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
 
