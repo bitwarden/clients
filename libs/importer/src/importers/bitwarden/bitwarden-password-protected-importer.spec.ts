@@ -13,6 +13,7 @@ import { KeyService } from "@bitwarden/key-management";
 import { EncryptService, KdfType, KeyGenerationService } from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
+import { ImportResultErrorKey } from "../../models/import-result";
 import { emptyAccountEncrypted } from "../spec-data/bitwarden-json/account-encrypted.json";
 import {
   emptyUnencryptedExport,
@@ -213,6 +214,7 @@ describe("BitwardenPasswordProtectedImporter", () => {
 
       expect(result.success).toBe(false);
       expect(result.errorMessage).toBe("invalidFilePassword");
+      expect(result.errorKey).toBe(ImportResultErrorKey.InvalidFilePassword);
     });
   });
 });

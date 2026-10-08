@@ -121,7 +121,8 @@ const options: Record<string, ImportOption> = {
     name: "KeePass 2 (xml)",
     acceptedFileTypes: ["xml"],
     pasteFormats: ["xml"],
-    instructionKey: "importKeepass2Instructions",
+    sourceName: "KeePass",
+    instructionLink: "https://bitwarden.com/help/import-from-keepass/",
   }),
   keepasskdbx: buildOption({
     id: "keepasskdbx",
@@ -138,7 +139,8 @@ const options: Record<string, ImportOption> = {
     name: "KeePassX (csv)",
     acceptedFileTypes: ["csv"],
     pasteFormats: ["csv"],
-    instructionKey: "importKeepassxInstructions",
+    sourceName: "KeePass",
+    instructionLink: "https://bitwarden.com/help/import-from-keepass/",
   }),
 };
 
@@ -328,10 +330,6 @@ function decoratorsFor(
                 'Log in to Dashlane, click on "My Account" → "Settings" → "Export file" and select "Export as a CSV file". This will download a zip archive containing various CSV files. Unzip the archive and import each CSV file individually.',
               importDashlaneJsonInstructions:
                 "Dashlane no longer supports the JSON format. Only use this if you have an existing JSON for import. Use the CSV importer when creating new exports.",
-              importKeepass2Instructions:
-                'Using the KeePass 2 desktop application, navigate to "File" → "Export" and select the "KeePass XML (2.x)" option.',
-              importKeepassxInstructions:
-                'Using the KeePassX desktop application, navigate to "Database" → "Export to CSV file" and save the CSV file.',
               importAcceptedFormats: (formats?: string) => `Accepted: ${formats}`,
               importVendorFileType: (vendor?: string) => `${vendor} file type`,
               fastest: "Fastest",

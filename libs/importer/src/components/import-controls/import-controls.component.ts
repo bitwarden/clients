@@ -26,7 +26,6 @@ import { BitSvg } from "@bitwarden/assets/svg";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -55,6 +54,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { isPasswordProtected } from "@bitwarden/vault-export-core";
 
 import { KeeperRegion } from "../../importers/keeper/access";
 import { Loader } from "../../metadata";
@@ -63,6 +63,8 @@ import {
   ImportOption,
   ImportRecordError,
   ImportResult,
+  ImportResultError,
+  ImportResultErrorKey,
   ImportType,
   SdkImportCredentials,
   SdkImportSummary,
@@ -103,21 +105,22 @@ import {
   vendorSupportsPasteShapeNarrowing,
 } from "./paste-content-shape";
 
-/** How import data will be provided: direct uses a vendor-specific direct importer,
- * chromium will use our Chromium importer, manual will use either a file or pasted text. */
+/** How import data is provided: vendor direct importer, Chromium importer, or file/paste. */
 type ImportStrategy = "direct" | "chromium" | "manual";
 
 /** The current phase of a direct importer flow */
 type DirectStep = "intro" | "credentials";
 
-/** Real discriminated union of distinct `kind`s. `cancelled` means feedback was already shown
- *  (toast, inline error, dismissed dialog) — the caller does nothing further. */
+/** `cancelled`: feedback already shown, caller does nothing further. */
 type ImportOutcome =
   | { kind: "imported"; result: ImportResult }
   | { kind: "importedWithSdk"; sdkSummary: SdkImportSummary }
   | { kind: "cancelled" };
 
 const dedupe = (values: readonly string[]): readonly string[] => Array.from(new Set(values));
+
+const toHint = (picked: readonly string[] | undefined, union: readonly string[]): string =>
+  (picked?.length ? picked : union).map((type) => `.${type}`).join(", ");
 
 function setEnabled(control: FormControl<unknown>, enabled: boolean): void {
   if (enabled && control.disabled) {
@@ -168,28 +171,23 @@ export class ImportControlsComponent {
   private readonly policyService = inject(PolicyService);
   private readonly accountService = inject(AccountService);
   private readonly syncService = inject(SyncService);
-  // Lazy (see runKeeperDirectImport/runLastPassDirectImport): both are root singletons with
-  // constructor side effects, so eager injection would run those on every mount, incl. Web.
   private readonly injector = inject(Injector);
   private readonly importService = inject(ImportServiceAbstraction);
   private readonly importMetadataService = inject(ImportMetadataServiceAbstraction);
   private readonly themingService = inject(AbstractThemingService);
 
-  /** The vendor chosen in step 1 — the picker's canonical `ImportType` for that vendor's card. */
+  /** The vendor chosen in step 1. */
   readonly importType = input.required<ImportType>();
 
-  /** Fires once the import actually succeeds, not on button click, so the parent navigates only
-   *  when there's something to see. */
+  /** Fires once the import succeeds, not on button click. */
   readonly continue = output<void>();
 
-  /** Tells the parent component the user clicked back so that it can react.  */
+  /** Fires when the user clicks Back. */
   readonly back = output<void>();
 
   private readonly clientType = this.platformUtilsService.getClientType();
 
-  /** The vendor's canonical `ImportOption` — the source for every vendor-level concern (heading,
-   *  `hasDirectImporter`/`isBrowser`) except format-specific instructions, for these
-   *  see `activeInstructions`. */
+  /** The vendor's `ImportOption`; format-specific instructions come from `activeInstructions`. */
   protected readonly vendor = computed<ImportOption>(() =>
     this.importService.getImportOption(this.importType())!,
   );
@@ -197,8 +195,7 @@ export class ImportControlsComponent {
   /** The vendor name to interpolate. */
   protected readonly vendorName = computed(() => pickerDisplayNameFor(this.importType()));
 
-  /** A handful of vendor marks are a single fixed color and need a swapped variant against a dark
-   *  background — see `PickerVendorIcon.darkIcon`. Mirrors import-source-select.component.ts. */
+  /** Some vendor marks need a dark-theme variant (`PickerVendorIcon.darkIcon`). */
   private readonly isDarkTheme = toSignal(
     this.themingService.theme$.pipe(map((theme) => theme === ThemeTypes.Dark)),
     { initialValue: false },
@@ -230,36 +227,26 @@ export class ImportControlsComponent {
   );
 
   protected readonly acceptedFileTypesHint = computed(() =>
-    this.acceptedFileTypes()
-      .map((type) => `.${type}`)
-      .join(", "),
+    toHint(this.userPickedFormat()?.acceptedFileTypes, this.acceptedFileTypes()),
   );
   protected readonly pasteFormatsHint = computed(() =>
-    this.pasteFormats()
-      .map((type) => `.${type}`)
-      .join(", "),
+    toHint(this.userPickedFormat()?.pasteFormats, this.pasteFormats()),
   );
 
   private readonly importType$ = toObservable(this.importType);
 
-  // Waits for init() before subscribing to metadata$ — on Desktop that's what discovers real
-  // browsers, so subscribing earlier would miss chromium availability.
-  //
-  // { resolved, value } instead of bare value: lets capabilitiesPending tell "still loading" apart
-  // from "failed, no capabilities" — both would otherwise look like value: undefined.
+  // Subscribes after init(), which discovers browsers on Desktop. `resolved` separates loading from failed.
   private readonly capabilities = toSignal(
     defer(() => this.importMetadataService.init()).pipe(
       switchMap(() => this.importMetadataService.metadata$(this.importType$)),
-      // Without this, a rejected init() would make toSignal rethrow on every read — crashing the
-      // whole template, since primaryMode() (read at the top level) depends on this.
+      // A rejected init() would make toSignal rethrow on every read and crash the template.
       catchError(() => of(undefined)),
       map((value) => ({ resolved: true, value })),
     ),
     { initialValue: { resolved: false, value: undefined } },
   );
 
-  // Guards against the previous vendor's loaders being read during the window between a live
-  // importType() change and metadata$ re-emitting for the new vendor
+  // Ignores the previous vendor's loaders until metadata$ re-emits after an importType() change.
   protected readonly isChromiumAvailable = computed(() => {
     const capabilities = this.capabilities().value;
     return (
@@ -267,8 +254,7 @@ export class ImportControlsComponent {
     );
   });
 
-  // Only browser-family vendors can hit "unresolved" — this avoids flashing the manual
-  // (file/paste) UI while NAPI capabilities call completes.
+  // Avoids flashing the manual UI for browser vendors while capabilities load.
   protected readonly capabilitiesPending = computed(
     () => this.vendor().isBrowser && !this.capabilities().resolved,
   );
@@ -349,38 +335,80 @@ export class ImportControlsComponent {
 
   protected readonly profiles = computed(() => this.profilesResult().profiles);
   protected readonly profilesError = computed(() => this.profilesResult().error);
-  // requestBrowserAccess can block indefinitely on a native OS permission prompt (sandboxed
-  // macOS builds) — without this, the select renders empty during that wait, indistinguishable
-  // from "this vendor genuinely has no profiles."
+  // requestBrowserAccess can block on an OS permission prompt; avoids an empty select meanwhile.
   protected readonly profilesPending = computed(
     () => this.primaryMode() === "chromium" && !this.profilesResult().resolved,
   );
 
   protected readonly directStep = signal<DirectStep>("intro");
 
+  // No initialValue: Continue stays blocked until this resolves. "error" (null account or failed
+  // lookup) fails closed without blaming the org policy.
+  private readonly personalOwnershipPolicyApplies = toSignal(
+    this.accountService.activeAccount$.pipe(
+      switchMap((account) => {
+        if (account == null) {
+          return of("error" as const);
+        }
+        return this.policyService
+          .policyAppliesToUser$(PolicyType.OrganizationDataOwnership, account.id)
+          .pipe(
+            catchError((error: unknown) => {
+              this.logService.error("Error checking personal ownership policy:", error);
+              return of("error" as const);
+            }),
+          );
+      }),
+    ),
+  );
+
+  protected readonly personalOwnershipPolicyPending = computed(
+    () => this.personalOwnershipPolicyApplies() === undefined,
+  );
+
+  // Single source for submit()'s gate and the button's [disabled].
+  protected readonly continueBlocked = computed(
+    () =>
+      this.capabilitiesPending() ||
+      this.profilesPending() ||
+      this.personalOwnershipPolicyPending() ||
+      this.filePasswordCheckPending(),
+  );
+
   protected readonly isKeeper = computed(() => this.importType() === "keeper");
   protected readonly isLastPass = computed(() => this.importType() === "lastpasscsv");
 
   protected readonly keeperRegions = KEEPER_REGION_OPTIONS;
 
-  /** Shows `kdbxPasswordRequired` instead of the generic required message, per design review. */
+  /** Replaces the generic required message. */
   private readonly masterPasswordRequiredValidator: ValidatorFn = (control) =>
     (control.value ?? "").length > 0
       ? null
       : { kdbxPasswordRequired: { message: this.i18nService.t("kdbxPasswordRequired") } };
+
+  /** Replaces the generic required message. */
+  private readonly filePasswordRequiredValidator: ValidatorFn = (control) =>
+    (control.value ?? "").length > 0
+      ? null
+      : { filePasswordRequired: { message: this.i18nService.t("filePasswordRequired") } };
 
   protected readonly formGroup = this.formBuilder.group({
     keeperEmail: [{ value: "", disabled: true }, [Validators.required, Validators.email]],
     keeperRegion: this.formBuilder.nonNullable.control<KeeperRegion>(KeeperRegion.Us),
     lastPassEmail: [{ value: "", disabled: true }, [Validators.required, Validators.email]],
     includeSharedFolders: [false],
-    // Validators.required listed second: compose() preserves order, so the custom validator's
-    // "password is required" message wins over the generic one.
+    // Custom validator first so its message wins.
     kdbxPassword: [
       { value: "", disabled: true },
       [this.masterPasswordRequiredValidator, Validators.required],
     ],
     keyFile: [{ value: null as File | null, disabled: true }],
+
+    // Only for password-protected Bitwarden JSON.
+    filePassword: [
+      { value: "", disabled: true },
+      [this.filePasswordRequiredValidator, Validators.required],
+    ],
 
     profile: [{ value: "", disabled: true }, Validators.required],
 
@@ -388,8 +416,7 @@ export class ImportControlsComponent {
     file: [null as File | null],
     fileContents: this.formBuilder.nonNullable.control(""),
 
-    // Active on a genuine extension collision (1Password's Windows vs. Mac csv) or for a vendor
-    // that always prompts regardless of collision (KeePass, 1Password) — see showFormatChoice().
+    // See showFormatChoice().
     formatChoice: [{ value: null as ImportType | null, disabled: true }, Validators.required],
   });
 
@@ -422,8 +449,7 @@ export class ImportControlsComponent {
       return narrowed.length > 0 ? narrowed : candidates;
     }
 
-    // chosenFile(), not chosenFileName(): a same-named re-pick is a new File object but an
-    // unchanged name string, which chosenFileName()'s dedup would never mark dirty.
+    // chosenFile(), not chosenFileName(): a same-named re-pick must still recompute.
     const extension = this.chosenFile()?.name.split(".").pop()?.toLowerCase();
     return extension
       ? this.formatOptions().filter((option) => option.acceptedFileTypes.includes(extension))
@@ -436,30 +462,25 @@ export class ImportControlsComponent {
     pickerAlwaysPromptsFormat(this.importType()),
   );
 
-  /** Whether the format picker renders: a genuine extension collision, or a vendor that always
-   *  prompts regardless (KeePass's formats never collide; 1Password's wincsv/maccsv do, but
-   *  `alwaysPromptFormat` also shows the control before a file narrows it down). */
+  /** Shown on an extension collision, or always for always-prompt vendors. */
   protected readonly showFormatChoice = computed(
     () => this.needsFormatDisambiguation() || this.alwaysPromptFormat(),
   );
 
-  /** Options to list: the real candidates once any exist, else every sibling format — so an
-   *  always-prompt vendor's picker isn't empty before a file/paste narrows it down. */
+  /** Candidates once any exist, else every sibling format. */
   protected readonly formatChoiceOptions = computed<ImportOption[]>(() => {
     const candidates = this.candidateFormats();
     if (candidates.length > 0) {
       return candidates;
     }
-    // Pre-content fallback: don't list a format the accepted-formats hint above it excludes.
+    // Pre-content: paste mode excludes formats that can't be pasted.
     const options = this.formatOptions();
     return this.method() === "paste"
       ? options.filter((option) => option.pasteFormats.length > 0)
       : options;
   });
 
-  /** Every extension this candidate accepts, joined (".1pux, .json") — or the full descriptive
-   *  name if any of them collides with another listed option's (e.g. Windows vs. Mac csv). Reads
-   *  pasteFormats in paste mode; there's no file extension to show there. */
+  /** Primary extension (".1pux"), or the full name if it collides with another option's. */
   protected formatChoiceLabel(candidate: ImportOption): string {
     const extensionsFor = (option: ImportOption) =>
       this.method() === "paste" ? option.pasteFormats : option.acceptedFileTypes;
@@ -473,25 +494,33 @@ export class ImportControlsComponent {
         (option) => option.id !== candidate.id && extensionsFor(option).includes(extension),
       ),
     );
-    return sharesAnyExtension
-      ? candidate.name
-      : extensions.map((extension) => `.${extension}`).join(", ");
+    return sharesAnyExtension ? candidate.name : `.${extensions[0]}`;
   }
 
   private readonly formatChoice = toSignal(this.formGroup.controls.formatChoice.valueChanges, {
     initialValue: this.formGroup.controls.formatChoice.value,
   });
 
-  /** Whether the user has actually chosen a file or typed/pasted content yet, independent of
-   *  whether it resolved to anything — distinguishes "nothing selected yet" from "selected
-   *  something that matches zero formats" for resolvedFormat()'s 0-candidate case below. */
+  // Dirty only after a real pick: the seeded default uses setValue(), which leaves it pristine.
+  private readonly formatChoiceDirty = toSignal(
+    this.formGroup.controls.formatChoice.events.pipe(
+      map(() => this.formGroup.controls.formatChoice.dirty),
+    ),
+    { initialValue: false },
+  );
+
+  private readonly userPickedFormat = computed<ImportOption | undefined>(() =>
+    this.formatChoiceActive() && this.formatChoiceDirty()
+      ? this.formatOptions().find((option) => option.id === this.formatChoice())
+      : undefined,
+  );
+
+  /** Distinguishes "nothing chosen yet" from "chose something matching no format". */
   private readonly hasAttemptedContent = computed(() =>
     this.method() === "paste" ? this.pastedContent().trim().length > 0 : this.chosenFile() != null,
   );
 
-  /** Whether the format control should be shown/enabled at all. Written by the effect below (not
-   *  a computed(): the template must use the exact same value the effect acted on, not its own
-   *  independently-derived copy, or the control can render visible-but-dead). */
+  /** Set by the effect below so the template and the control's enabled state can't diverge. */
   protected readonly formatChoiceActive = signal(false);
 
   protected readonly resolvedFormat = computed<ImportType | undefined>(() => {
@@ -502,8 +531,7 @@ export class ImportControlsComponent {
     if (candidates.length > 1) {
       return this.formatChoice() ?? undefined;
     }
-    // 0 candidates: only an always-prompt vendor's own pre-file dropdown pick counts, and only
-    // before anything's been attempted — once something's chosen, 0 candidates means unsupported.
+    // 0 candidates: only a pre-file pick counts; once content is chosen it's unsupported.
     if (this.alwaysPromptFormat() && !this.hasAttemptedContent()) {
       return this.formatChoice() ?? undefined;
     }
@@ -522,22 +550,64 @@ export class ImportControlsComponent {
     return option;
   });
 
-  // kdbx can't be pasted (keepasskdbx.pasteFormats is empty), so this only resolves via file method.
+  // kdbx can't be pasted, so this only resolves in file mode.
   protected readonly needsKdbxCredentials = computed(() => this.resolvedFormat() === "keepasskdbx");
 
   // Starts hidden behind an "Add key file" link — most kdbx imports don't need it.
   protected readonly showKeyFile = signal(false);
 
+  // Peeks a chosen bitwardenjson file to detect password protection before Continue. "pending"
+  // holds Continue until the read settles.
+  private readonly filePasswordCheck = toSignal(
+    toObservable(this.chosenFile).pipe(
+      switchMap((file) => {
+        // resolvedFormat(), not importType(): the Bitwarden card also covers CSV, which can't be JSON-parsed.
+        if (this.resolvedFormat() !== "bitwardenjson" || file == null) {
+          return of("not-protected" as const);
+        }
+        return defer(() => readImportFileContents("bitwardenjson", file)).pipe(
+          map((contents) =>
+            isPasswordProtected(JSON.parse(contents))
+              ? ("protected" as const)
+              : ("not-protected" as const),
+          ),
+          startWith("pending" as const),
+          catchError((error: unknown) => {
+            // Name only: JSON.parse's message embeds file content.
+            this.logService.error(
+              "Error peeking at chosen file for password protection:",
+              error instanceof Error ? error.name : "unknown error",
+            );
+            return of("not-protected" as const);
+          }),
+        );
+      }),
+    ),
+    { initialValue: "not-protected" as const },
+  );
+
+  protected readonly filePasswordCheckPending = computed(
+    () => this.filePasswordCheck() === "pending",
+  );
+
+  // File mode only: a method switch keeps the chosen file, so without this check the field would
+  // stay enabled but unrendered in paste mode and block submit.
+  protected readonly needsFilePassword = computed(
+    () =>
+      this.method() === "file" &&
+      this.resolvedFormat() === "bitwardenjson" &&
+      this.filePasswordCheck() === "protected",
+  );
+
   constructor() {
     this.formGroup.controls.method.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       this.formGroup.controls.formatChoice.reset(null);
-      // Not reset(): the value (chosen file, typed paste content) must survive the switch.
+      // Not reset(): the file and pasted content survive the switch.
       this.formGroup.controls.file.markAsUntouched();
       this.formGroup.controls.fileContents.markAsUntouched();
     });
 
-    // previousFile: null means the first-ever pick (preserve a still-valid pre-file answer);
-    // non-null means replacing a file (always re-opens disambiguation, even if still valid).
+    // First pick keeps a still-valid pre-file answer; replacing a file always resets it.
     let previousFile: File | null = null;
     this.formGroup.controls.file.valueChanges.pipe(takeUntilDestroyed()).subscribe((file) => {
       const current = this.formGroup.controls.formatChoice.value;
@@ -547,21 +617,17 @@ export class ImportControlsComponent {
         this.formGroup.controls.formatChoice.reset(null);
       }
       if (previousFile != null && previousFile !== file) {
-        // reset() also clears touched, so a new kdbx file doesn't show the old one's stale error.
-        // Identity check, not just non-null: file.valueChanges can re-emit the same File object
-        // (e.g. updateValueAndValidity() on a method change), which isn't a real replacement.
+        // Identity check: valueChanges can re-emit the same File. reset() also clears stale errors.
         this.formGroup.controls.kdbxPassword.reset("");
         this.formGroup.controls.keyFile.setValue(null);
         this.showKeyFile.set(false);
+        this.formGroup.controls.filePassword.reset("");
       }
       previousFile = file;
     });
 
-    // Resets only when the candidate *set* changes (not on every ambiguous keystroke or an
-    // identical re-paste). Unlike the file subscriber below, never preserves a pre-content pick:
-    // 1Password's paste-mode set is always either empty or the same full 4 items, so a cosmetic
-    // default would always look "still valid" and silently answer the disambiguation it's meant
-    // to stay unforced against.
+    // Resets only when the candidate set changes. Never keeps a pre-content pick, which would
+    // always look valid and silently answer the disambiguation.
     let previousCandidateIds: string | null = null;
     this.formGroup.controls.fileContents.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       const currentCandidateIds = this.candidateFormats()
@@ -612,8 +678,7 @@ export class ImportControlsComponent {
       this.formGroup.controls.file.updateValueAndValidity();
     });
 
-    // Validators.required kept alongside requiredTrimmedValidator so hasValidator(Validators.
-    // required) still matches (drives the asterisk/required attribute).
+    // Validators.required kept so the required asterisk still renders.
     effect(() => {
       const pasteRequired = this.method() === "paste";
       this.formGroup.controls.fileContents.setValidators(
@@ -630,6 +695,21 @@ export class ImportControlsComponent {
         this.showKeyFile.set(false);
         this.formGroup.controls.kdbxPassword.reset("");
         this.formGroup.controls.keyFile.setValue(null);
+      }
+    });
+
+    effect(() => {
+      const active = this.needsFilePassword();
+      setEnabled(this.formGroup.controls.filePassword, active);
+      if (!active) {
+        this.formGroup.controls.filePassword.reset("");
+      }
+    });
+
+    // "polite": informational, unlike profilesError.
+    effect(() => {
+      if (this.needsFilePassword()) {
+        void this.liveAnnouncer.announce(this.i18nService.t("filePassword"), "polite");
       }
     });
 
@@ -656,12 +736,12 @@ export class ImportControlsComponent {
         fileContents: "",
         kdbxPassword: "",
         keyFile: null,
+        filePassword: "",
         formatChoice: null,
       });
     });
 
-    // Declared last so a live importType() switch always seeds against the vendor-reset effect's
-    // post-reset state, not the other way around (effects run in creation order within a flush).
+    // Declared last so it seeds after the importType() reset effect.
     effect(() => {
       const genuinelyUnsupported =
         this.candidateFormats().length === 0 && this.hasAttemptedContent();
@@ -673,8 +753,7 @@ export class ImportControlsComponent {
         this.formGroup.controls.formatChoice.reset(null);
         return;
       }
-      // Outside genuine disambiguation: with one candidate, resolvedFormat() ignores this value
-      // anyway; with zero (always-prompt, nothing chosen yet), resolvedFormat() does read it.
+      // Seeds a default only outside disambiguation.
       if (this.needsFormatDisambiguation()) {
         return;
       }
@@ -692,7 +771,7 @@ export class ImportControlsComponent {
   protected toggleToManual(): void {
     this.primaryModeOverride.set("manual");
     this.directStep.set("intro");
-    // touched survives disable/enable; clear it so a prior blocked submit doesn't flash here.
+    // touched survives disable/enable; clear it to avoid a stale error.
     this.formGroup.controls.file.markAsUntouched();
     this.formGroup.controls.fileContents.markAsUntouched();
   }
@@ -704,7 +783,7 @@ export class ImportControlsComponent {
   }
 
   protected continueFromIntro(): void {
-    // touched survives disable/enable, so a stale error would otherwise flash on re-entry.
+    // touched survives disable/enable; clear it to avoid a stale error.
     this.formGroup.controls.keeperEmail.markAsUntouched();
     this.formGroup.controls.lastPassEmail.markAsUntouched();
     this.directStep.set("credentials");
@@ -715,7 +794,7 @@ export class ImportControlsComponent {
   }
 
   protected async onContinue(): Promise<void> {
-    if (await this.blockedByPersonalOwnershipPolicy()) {
+    if (this.blockedByPersonalOwnershipPolicy()) {
       return;
     }
 
@@ -732,12 +811,11 @@ export class ImportControlsComponent {
       return;
     }
 
-    // Before the dialog, not after: keeps Continue's spinner (not the dialog) up during the
-    // wait. Failures are only logged — the import already succeeded, so this shouldn't block.
+    // Before the dialog so Continue's spinner covers the wait. Failures are only logged.
     try {
       const synced = await this.syncService.fullSync(true);
       if (!synced) {
-        // fullSync(true) sets forceSync only, so an ordinary failure resolves false, not throws.
+        // An ordinary failure resolves false rather than throwing.
         this.logService.warning("Post-import sync did not complete");
       }
     } catch (error) {
@@ -760,19 +838,19 @@ export class ImportControlsComponent {
     this.continue.emit();
   }
 
-  private async blockedByPersonalOwnershipPolicy(): Promise<boolean> {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    const policyApplies = await firstValueFrom(
-      this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
-    );
-    if (!policyApplies) {
+  // Pending and "error" both block, without blaming the org policy.
+  private blockedByPersonalOwnershipPolicy(): boolean {
+    const policyApplies = this.personalOwnershipPolicyApplies();
+    if (policyApplies === false) {
       return false;
     }
 
     this.toastService.showToast({
       variant: "error",
       title: undefined,
-      message: this.i18nService.t("personalOwnershipPolicyInEffectImports"),
+      message: this.i18nService.t(
+        policyApplies === true ? "personalOwnershipPolicyInEffectImports" : "errorOccurred",
+      ),
     });
     return true;
   }
@@ -785,7 +863,7 @@ export class ImportControlsComponent {
       if (this.isLastPass()) {
         return this.runLastPassDirectImport();
       }
-      // Reaching here means a direct vendor was added with no handler wired up — fail loudly.
+      // Direct vendor with no handler wired up.
       throw new Error(`No direct-import handler is wired up for vendor: ${this.importType()}`);
     }
     if (this.primaryMode() === "chromium") {
@@ -894,21 +972,75 @@ export class ImportControlsComponent {
       return { kind: "cancelled" };
     }
 
+    if (this.filePasswordCheckPending()) {
+      // Defensive: submit() already gates on continueBlocked().
+      return { kind: "cancelled" };
+    }
+
     if (this.importService.getImportOption(format)?.sdk != null) {
       return this.runSdkImport(format);
     }
 
+    // Read before the await: the peek can resolve mid-await and reset filePassword.
+    const needsPassword = this.needsFilePassword();
+    const password = this.formGroup.controls.filePassword.value ?? "";
+
     const contents =
       this.method() === "paste" ? this.pastedContent() : await this.readChosenFileContents(format);
 
-    return { kind: "imported", result: await this.runGenericImport(format, contents) };
+    if (needsPassword) {
+      return this.runFilePasswordProtectedImport(format, contents, password);
+    }
+
+    try {
+      return { kind: "imported", result: await this.runGenericImport(format, contents) };
+    } catch (error) {
+      // Set only by BitwardenEncryptedJsonImporter; shown as a toast, not the error dialog.
+      if (
+        error instanceof ImportResultError &&
+        error.errorKey === ImportResultErrorKey.AccountMismatch
+      ) {
+        this.toastService.showToast({
+          variant: "error",
+          title: undefined,
+          message: this.i18nService.t("importAccountMismatchError"),
+        });
+        return { kind: "cancelled" };
+      }
+      throw error;
+    }
+  }
+
+  /** Uses the inline password; a wrong one is shown inline, not in the error dialog. */
+  private async runFilePasswordProtectedImport(
+    format: ImportType,
+    contents: string,
+    password: string,
+  ): Promise<ImportOutcome> {
+    try {
+      const result = await this.runGenericImport(format, contents, () => Promise.resolve(password));
+      return { kind: "imported", result };
+    } catch (error) {
+      if (
+        error instanceof ImportResultError &&
+        error.errorKey === ImportResultErrorKey.InvalidFilePassword
+      ) {
+        this.formGroup.controls.filePassword.setErrors({
+          invalidFilePassword: { message: this.i18nService.t("filePasswordInvalid") },
+        });
+        this.formGroup.controls.filePassword.markAsTouched();
+        return { kind: "cancelled" };
+      }
+      throw error;
+    }
   }
 
   // Caller guarantees a chosen file exists here; empty/unreadable content throws errorReadingFile.
   private async readChosenFileContents(format: ImportType): Promise<string> {
+    const file = this.chosenFile()!;
     let contents: string;
     try {
-      contents = await readImportFileContents(format, this.chosenFile()!);
+      contents = await readImportFileContents(format, file);
     } catch (error) {
       this.logService.error(error);
       throw new Error(this.i18nService.t("errorReadingFile"));
@@ -933,7 +1065,7 @@ export class ImportControlsComponent {
 
     const fileBytes = new Uint8Array(await file.arrayBuffer());
     if (fileBytes.length === 0) {
-      // A file was chosen — this is a bad-file error, not "nothing selected".
+      // A file was chosen, so this is a bad-file error.
       throw new Error(this.i18nService.t("errorReadingFile"));
     }
 
@@ -956,9 +1088,17 @@ export class ImportControlsComponent {
       );
       return { kind: "importedWithSdk", sdkSummary };
     } catch (error) {
-      // Mirrors legacy's SDK error mapping — else a wrong kdbx password shows the raw SDK string.
+      // Mirrors legacy's SDK error mapping.
       this.logService.error("SDK importer error:", error);
       const messageKey = this.importService.sdkErrorMessageKey(format, error);
+      if (messageKey === "invalidFilePassword") {
+        // Only the kdbx importer maps to this key; shown inline.
+        this.formGroup.controls.kdbxPassword.setErrors({
+          kdbxPasswordInvalid: { message: this.i18nService.t("kdbxPasswordInvalid") },
+        });
+        this.formGroup.controls.kdbxPassword.markAsTouched();
+        return { kind: "cancelled" };
+      }
       throw messageKey != null ? new Error(this.i18nService.t(messageKey)) : error;
     }
   }
@@ -983,7 +1123,7 @@ export class ImportControlsComponent {
         };
       }
       default:
-        // A new SDK credential kind was declared with no collector wired up — fail loudly.
+        // SDK credential kind with no collector wired up.
         throw new Error(`No SDK credential collector is wired up for kind: ${kind}`);
     }
   }
@@ -995,12 +1135,12 @@ export class ImportControlsComponent {
     return (await firstValueFrom(dialog.closed)) ?? "";
   }
 
-  private async runGenericImport(format: ImportType, contents: string): Promise<ImportResult> {
-    const importer = this.importService.getImporter(
-      format,
-      () => this.promptForPassword(),
-      undefined,
-    );
+  private async runGenericImport(
+    format: ImportType,
+    contents: string,
+    promptForPassword_callback: () => Promise<string> = () => this.promptForPassword(),
+  ): Promise<ImportResult> {
+    const importer = this.importService.getImporter(format, promptForPassword_callback, undefined);
     if (importer == null) {
       throw new Error(this.i18nService.t("selectFormat"));
     }
@@ -1009,7 +1149,7 @@ export class ImportControlsComponent {
   }
 
   protected readonly submit = async (): Promise<void> => {
-    if (this.capabilitiesPending() || this.profilesPending()) {
+    if (this.continueBlocked()) {
       return;
     }
     if (this.primaryMode() === "direct" && this.directStep() === "intro") {
@@ -1017,8 +1157,7 @@ export class ImportControlsComponent {
       return;
     }
 
-    // Clears a stale login-failure error before revalidating; updateValueAndValidity() (not
-    // setErrors(null)) re-runs real validators too, so a genuinely invalid email still blocks.
+    // Clears a stale login-failure error while still re-running the real validators.
     this.formGroup.controls.keeperEmail.updateValueAndValidity();
     this.formGroup.controls.lastPassEmail.updateValueAndValidity();
 

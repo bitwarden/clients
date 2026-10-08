@@ -176,15 +176,17 @@
           </bit-callout>
         }
 
-        <bit-radio-group formControlName="method" [block]="true">
-          <bit-label>{{ "method" | i18n }}</bit-label>
-          <bit-radio-button class="tw-block" value="file" id="importer-controls_radio_file">
-            <bit-label>{{ "uploadFile" | i18n }}</bit-label>
-          </bit-radio-button>
-          <bit-radio-button class="tw-block" value="paste" id="importer-controls_radio_paste">
-            <bit-label>{{ "pasteAsPlainText" | i18n }}</bit-label>
-          </bit-radio-button>
-        </bit-radio-group>
+        @if (!needsFilePassword()) {
+          <bit-radio-group formControlName="method" [block]="true">
+            <bit-label>{{ "method" | i18n }}</bit-label>
+            <bit-radio-button class="tw-block" value="file" id="importer-controls_radio_file">
+              <bit-label>{{ "uploadFile" | i18n }}</bit-label>
+            </bit-radio-button>
+            <bit-radio-button class="tw-block" value="paste" id="importer-controls_radio_paste">
+              <bit-label>{{ "pasteAsPlainText" | i18n }}</bit-label>
+            </bit-radio-button>
+          </bit-radio-group>
+        }
 
         @if (formatChoiceActive()) {
           <bit-form-field class="tw-mt-4 tw-max-w-sm">
@@ -228,15 +230,30 @@
         }
 
         @if (method() === "file") {
-          <bit-file-upload
-            formControlName="file"
-            id="importer-controls_input_file"
-            [accept]="fileAccept()"
-            class="[&_bit-form-field]:!tw-mb-0"
-          >
-            <bit-label>{{ "uploadFile" | i18n }}</bit-label>
-            <bit-hint>{{ "importAcceptedFormats" | i18n: acceptedFileTypesHint() }}</bit-hint>
-          </bit-file-upload>
+          <!-- Replacing the upload control with no filename/re-pick affordance is confirmed-intentional, matches Figma. -->
+          @if (needsFilePassword()) {
+            <bit-form-field>
+              <bit-label>{{ "filePassword" | i18n }}</bit-label>
+              <input
+                bitInput
+                type="password"
+                formControlName="filePassword"
+                id="importer-controls_input_file-password"
+              />
+              <button type="button" bitSuffix bitIconButton bitPasswordInputToggle></button>
+              <bit-hint>{{ "filePasswordProtectedHint" | i18n }}</bit-hint>
+            </bit-form-field>
+          } @else {
+            <bit-file-upload
+              formControlName="file"
+              id="importer-controls_input_file"
+              [accept]="fileAccept()"
+              class="[&_bit-form-field]:!tw-mb-0"
+            >
+              <bit-label>{{ "uploadFile" | i18n }}</bit-label>
+              <bit-hint>{{ "importAcceptedFormats" | i18n: acceptedFileTypesHint() }}</bit-hint>
+            </bit-file-upload>
+          }
         } @else {
           <bit-form-field disableMargin>
             <bit-label>{{ "plainText" | i18n }}</bit-label>
@@ -295,7 +312,7 @@
             bitButton
             bitFormButton
             buttonType="primary"
-            [disabled]="capabilitiesPending() || profilesPending()"
+            [disabled]="continueBlocked()"
             id="importer-controls_button_continue"
           >
             {{ "continue" | i18n }}

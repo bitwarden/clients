@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { Validators } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
-import { map, of } from "rxjs";
+import { map, of, Subject, throwError } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -18,7 +18,14 @@ import { DialogService, ToastService } from "@bitwarden/components";
 
 import { KeeperAuthError, KeeperAuthErrorCode } from "../../importers/keeper/access";
 import { Loader } from "../../metadata";
-import { CredentialKind, ImportOption, ImportResult, ImportType } from "../../models";
+import {
+  CredentialKind,
+  ImportOption,
+  ImportResult,
+  ImportResultError,
+  ImportResultErrorKey,
+  ImportType,
+} from "../../models";
 import {
   ImporterCapabilities,
   ImportMetadataServiceAbstraction,
@@ -51,6 +58,19 @@ describe("ImportControlsComponent", () => {
 
   const component = () => fixture.componentInstance as any;
   const byId = (id: string) => fixture.debugElement.query(By.css(`#${id}`));
+  // jsdom's FileReader callback isn't tracked by Zone, so fixture.whenStable() won't wait for it.
+  // Polls the actual condition (filePasswordCheckPending() leaving "pending") and returns as soon
+  // as it settles, instead of racing a fixed-duration wait against variable scheduling.
+  const flushFileRead = async () => {
+    for (let i = 0; i < 40; i++) {
+      if (!(component().filePasswordCheckPending() as boolean)) {
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 5));
+      fixture.detectChanges();
+    }
+    throw new Error("flushFileRead: filePasswordCheckPending() never settled after 40 polls");
+  };
 
   const baseProviders = () => [
     { provide: ImportServiceAbstraction, useValue: importService },
@@ -221,6 +241,18 @@ describe("ImportControlsComponent", () => {
       delineacsv: buildOption({
         id: "delineacsv",
         name: "Delinea (csv)",
+      }),
+      bitwardenjson: buildOption({
+        id: "bitwardenjson",
+        name: "Bitwarden (json)",
+        acceptedFileTypes: ["json"],
+        pasteFormats: ["json"],
+      }),
+      bitwardencsv: buildOption({
+        id: "bitwardencsv",
+        name: "Bitwarden (csv)",
+        acceptedFileTypes: ["csv"],
+        pasteFormats: ["csv"],
       }),
     };
     importService = mock<ImportServiceAbstraction>();
@@ -661,6 +693,105 @@ describe("ImportControlsComponent", () => {
       expect(component().pasteFormatsHint()).toBe(".csv, .json");
     });
 
+    // A user pick marks the control dirty (the select's view-to-model change); setValue() alone
+    // is how the component seeds its default, so tests mark dirty to simulate a real pick.
+    const pickFormat = (id: ImportType) => {
+      component().formGroup.controls.formatChoice.setValue(id);
+      component().formGroup.controls.formatChoice.markAsDirty();
+      fixture.detectChanges();
+    };
+
+    it("shows the full sibling union for a format dropdown vendor (KeePass) until the user picks", async () => {
+      await setup("keepass2xml", ClientType.Web);
+      fixture.detectChanges();
+      expect(component().acceptedFileTypesHint()).toBe(".xml, .kdbx, .csv");
+
+      // Seeded without a user pick: must not narrow.
+      component().formGroup.controls.formatChoice.setValue("keepasskdbx");
+      fixture.detectChanges();
+      expect(component().acceptedFileTypesHint()).toBe(".xml, .kdbx, .csv");
+    });
+
+    it("narrows the hint to the format the user picked from the dropdown (KeePass)", async () => {
+      await setup("keepass2xml", ClientType.Web);
+      pickFormat("keepasskdbx");
+      expect(component().acceptedFileTypesHint()).toBe(".kdbx");
+
+      pickFormat("keepassxcsv");
+      expect(component().acceptedFileTypesHint()).toBe(".csv");
+    });
+
+    it("narrows 1Password's hint after a user pick, and keeps the union before it", async () => {
+      await setup("1password1pux", ClientType.Web);
+      fixture.detectChanges();
+      expect(component().acceptedFileTypesHint()).toBe(".1pux, .json, .1pif, .csv");
+
+      component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
+      fixture.detectChanges();
+      expect(component().acceptedFileTypesHint()).toBe(".1pux, .json, .1pif, .csv");
+
+      pickFormat("1passwordmaccsv");
+      expect(component().acceptedFileTypesHint()).toBe(".csv");
+    });
+
+    it("narrows the paste hint to the picked format's pasteFormats", async () => {
+      await setup("keepass2xml", ClientType.Web);
+      component().formGroup.controls.method.setValue("paste");
+      fixture.detectChanges();
+      expect(component().pasteFormatsHint()).toBe(".xml, .csv");
+
+      pickFormat("keepassxcsv");
+      expect(component().pasteFormatsHint()).toBe(".csv");
+    });
+
+    it("reverts the hint to the union when the method changes", async () => {
+      await setup("keepass2xml", ClientType.Web);
+      pickFormat("keepasskdbx");
+      expect(component().acceptedFileTypesHint()).toBe(".kdbx");
+
+      component().formGroup.controls.method.setValue("paste");
+      fixture.detectChanges();
+      expect(component().pasteFormatsHint()).toBe(".xml, .csv");
+    });
+
+    it("reverts the hint to the union when a different file replaces the chosen one", async () => {
+      await setup("1password1pux", ClientType.Web);
+      component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
+      pickFormat("1passwordmaccsv");
+      expect(component().acceptedFileTypesHint()).toBe(".csv");
+
+      component().formGroup.controls.file.setValue({ name: "other.csv" } as File);
+      fixture.detectChanges();
+      expect(component().acceptedFileTypesHint()).toBe(".1pux, .json, .1pif, .csv");
+    });
+
+    it("keeps fileAccept() as the full union for a vendor with no format dropdown", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+      expect(component().fileAccept()).toBe(".csv,.json");
+    });
+
+    it("keeps fileAccept() as the full sibling union for a vendor with a format dropdown (KeePass), matching the hint", async () => {
+      await setup("keepass2xml", ClientType.Web);
+      component().formGroup.controls.formatChoice.setValue("keepasskdbx");
+      fixture.detectChanges();
+      expect(component().fileAccept()).toBe(".xml,.kdbx,.csv");
+
+      component().formGroup.controls.formatChoice.setValue("keepassxcsv");
+      fixture.detectChanges();
+      expect(component().fileAccept()).toBe(".xml,.kdbx,.csv");
+    });
+
+    it("keeps fileAccept() as the full sibling union for 1Password too, matching the hint", async () => {
+      await setup("1password1pux", ClientType.Web);
+      fixture.detectChanges();
+      expect(component().fileAccept()).toBe(".1pux,.json,.1pif,.csv");
+
+      component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
+      component().formGroup.controls.formatChoice.setValue("1passwordmaccsv");
+      fixture.detectChanges();
+      expect(component().fileAccept()).toBe(".1pux,.json,.1pif,.csv");
+    });
+
     it("binds the method radio group's block input to true, so it actually renders stacked vertically", async () => {
       await setup("dashlanecsv", ClientType.Web);
       const radioGroup = fixture.debugElement.query(By.css("bit-radio-group"));
@@ -717,15 +848,16 @@ describe("ImportControlsComponent", () => {
         .formatChoiceOptions()
         .map((candidate: ImportOption) => component().formatChoiceLabel(candidate));
       expect(labels).toEqual([
-        // 1password1pux accepts both — neither collides with any sibling's own extension(s).
-        ".1pux, .json",
+        // 1password1pux's label is its own primary extension only — its secondary .json
+        // acceptance is for the file picker/hint, not this identifier.
+        ".1pux",
         ".1pif",
         "1Password 6 and 7 Windows (csv)",
         "1Password 6 and 7 Mac (csv)",
       ]);
     });
 
-    it("still shows both of 1password1pux's accepted extensions once a real .json file resolves it, not just the first-declared .1pux", async () => {
+    it("keeps the primary-extension label for 1password1pux even once a real .json file resolves it, not switching to .json", async () => {
       await setup("1password1pux", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.json" } as File);
       fixture.detectChanges();
@@ -733,7 +865,7 @@ describe("ImportControlsComponent", () => {
       expect(component().resolvedFormat()).toBe("1password1pux");
       const [candidate] = component().formatChoiceOptions();
       expect(candidate.id).toBe("1password1pux");
-      expect(component().formatChoiceLabel(candidate)).toBe(".1pux, .json");
+      expect(component().formatChoiceLabel(candidate)).toBe(".1pux");
     });
 
     it("keeps a pre-file dropdown pick when it's still valid for the first file chosen, instead of discarding it", async () => {
@@ -1645,6 +1777,375 @@ describe("ImportControlsComponent", () => {
     });
   });
 
+  describe("Bitwarden file password", () => {
+    const accountEncrypted = JSON.stringify({
+      encrypted: true,
+      encKeyValidation_DO_NOT_EDIT: "enc-key-validation",
+      items: [],
+      folders: [],
+    });
+    const passwordProtected = JSON.stringify({
+      encrypted: true,
+      passwordProtected: true,
+      salt: "salt",
+      kdfIterations: 600000,
+      kdfType: 0,
+      encKeyValidation_DO_NOT_EDIT: "enc-key-validation",
+      data: "encrypted-data",
+    });
+
+    it("needs no password for an account-encrypted export", async () => {
+      await setup("bitwardenjson", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File([accountEncrypted], "export.json"));
+      fixture.detectChanges();
+      await flushFileRead();
+      fixture.detectChanges();
+
+      expect(component().needsFilePassword()).toBe(false);
+      expect(component().formGroup.controls.filePassword.disabled).toBe(true);
+      expect(byId("importer-controls_input_file")).toBeTruthy();
+      expect(byId("importer-controls_input_file-password")).toBeFalsy();
+    });
+
+    it("shows a toast, not the generic error dialog, when an account-encrypted export can't be decrypted by the current account", async () => {
+      await setup("bitwardenjson", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File([accountEncrypted], "export.json"));
+      fixture.detectChanges();
+      await flushFileRead();
+      fixture.detectChanges();
+
+      importService.getImporter.mockReturnValue({} as any);
+      importService.import.mockRejectedValue(
+        new ImportResultError("importEncKeyError", ImportResultErrorKey.AccountMismatch),
+      );
+
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+      await component().onContinue();
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ message: "importAccountMismatchError" }),
+      );
+      expect(dialogService.open).not.toHaveBeenCalledWith(
+        ImportErrorDialogComponent,
+        expect.anything(),
+      );
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("shows the generic error dialog, not a toast, for a malformed export with no errorKey", async () => {
+      // A blank encKeyValidation_DO_NOT_EDIT or a missing decryption key are real failures, but
+      // neither is specifically an account mismatch — BitwardenEncryptedJsonImporter throws a
+      // plain ImportResultError (no errorKey) for both, which must fall through to the generic
+      // dialog rather than the account-mismatch toast.
+      await setup("bitwardenjson", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File([accountEncrypted], "export.json"));
+      fixture.detectChanges();
+      await flushFileRead();
+      fixture.detectChanges();
+
+      importService.getImporter.mockReturnValue({} as any);
+      importService.import.mockRejectedValue(new ImportResultError("importEncKeyError"));
+
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+      await component().onContinue();
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        ImportErrorDialogComponent,
+        expect.anything(),
+      );
+      expect(toastService.showToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ message: "importAccountMismatchError" }),
+      );
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("skips the password-protection peek entirely for a Bitwarden CSV file, not just failing it silently", async () => {
+      // The Bitwarden picker card covers both bitwardenjson and bitwardencsv — the peek must key
+      // off the resolved sub-format, not the picker card's importType(), or a CSV pick triggers a
+      // doomed read+parse attempt on every file selection.
+      await setup("bitwardenjson", ClientType.Web);
+      component().formGroup.controls.file.setValue(
+        new File(["url,username,password\nhttps://example.com,me,hunter2"], "export.csv"),
+      );
+      fixture.detectChanges();
+      await flushFileRead();
+      fixture.detectChanges();
+
+      expect(component().resolvedFormat()).toBe("bitwardencsv");
+      expect(component().needsFilePassword()).toBe(false);
+      expect(logService.error).not.toHaveBeenCalled();
+    });
+
+    it("never logs the raw parse error when a chosen .json file isn't valid JSON — it can embed a fragment of the file's own content", async () => {
+      // V8's JSON.parse SyntaxError embeds the first ~12 characters of the input in its message
+      // (e.g. `Unexpected token 's', "secret-can"... is not valid JSON`) — logging the raw error
+      // would put real file content in the log. Only a safe, content-free descriptor may be logged.
+      const fileContent = "secret-canary-value and some more text that is not json";
+      let parseErrorMessage = "";
+      try {
+        JSON.parse(fileContent);
+      } catch (error) {
+        parseErrorMessage = (error as Error).message;
+      }
+      // Guards the test itself: if this ever stops reproducing a real leak (e.g. a V8 change),
+      // fail loudly here instead of silently passing for the wrong reason.
+      expect(parseErrorMessage).toContain(fileContent.slice(0, 10));
+
+      await setup("bitwardenjson", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File([fileContent], "export.json"));
+      fixture.detectChanges();
+      await flushFileRead();
+      fixture.detectChanges();
+
+      expect(logService.error).toHaveBeenCalledTimes(1);
+      const loggedArgs = logService.error.mock.calls[0];
+      for (const arg of loggedArgs) {
+        expect(String(arg)).not.toContain(fileContent.slice(0, 10));
+      }
+      expect(component().needsFilePassword()).toBe(false);
+    });
+
+    it("blocks submit() and disables Continue while the password-protection peek hasn't resolved yet", async () => {
+      await setup("bitwardenjson", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
+      fixture.detectChanges();
+
+      expect(component().filePasswordCheckPending()).toBe(true);
+      expect(
+        byId("importer-controls_button_continue").nativeElement.getAttribute("aria-disabled"),
+      ).toBe("true");
+
+      importService.getImporter.mockReturnValue({} as any);
+      importService.import.mockResolvedValue(new ImportResult());
+      await component().submit();
+      expect(importService.getImporter).not.toHaveBeenCalled();
+
+      await flushFileRead();
+      fixture.detectChanges();
+
+      expect(component().filePasswordCheckPending()).toBe(false);
+      expect(
+        byId("importer-controls_button_continue").nativeElement.getAttribute("aria-disabled"),
+      ).not.toBe("true");
+
+      // Unblocked, but the (now-required) password field is still empty — fill it in to confirm
+      // submit() actually proceeds once everything is satisfied, not just that it stops blocking.
+      component().formGroup.controls.filePassword.setValue("hunter2");
+      await component().submit();
+      expect(importService.getImporter).toHaveBeenCalled();
+    });
+
+    it("doesn't submit an empty password when Continue is called directly while the peek is still pending", async () => {
+      // The race finding 1 closes: without a pending gate, needsFilePassword() is read after an
+      // await, so the peek can flip from false to true mid-submit and the empty inline field value
+      // gets submitted as the password instead of being blocked outright.
+      await setup("bitwardenjson", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
+      fixture.detectChanges();
+      expect(component().filePasswordCheckPending()).toBe(true);
+
+      importService.getImporter.mockReturnValue({} as any);
+      importService.import.mockResolvedValue(new ImportResult());
+
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+      await component().onContinue();
+
+      expect(importService.getImporter).not.toHaveBeenCalled();
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("replaces the upload control with an inline password field for a password-protected export", async () => {
+      await setup("bitwardenjson", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
+      fixture.detectChanges();
+      await flushFileRead();
+      fixture.detectChanges();
+
+      expect(component().needsFilePassword()).toBe(true);
+      expect(component().formGroup.controls.filePassword.disabled).toBe(false);
+      expect(byId("importer-controls_input_file-password")).toBeTruthy();
+      expect(byId("importer-controls_input_file")).toBeFalsy();
+    });
+
+    it("shows the password-protected hint under the inline password field", async () => {
+      await setup("bitwardenjson", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
+      fixture.detectChanges();
+      await flushFileRead();
+      fixture.detectChanges();
+
+      const hints = fixture.debugElement.queryAll(By.css("bit-hint"));
+      expect(hints.length).toBe(1);
+      expect(hints[0].nativeElement.textContent).toContain("filePasswordProtectedHint");
+    });
+
+    it("announces the upload-to-password-field swap for screen readers, politely rather than interrupting", async () => {
+      await setup("bitwardenjson", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
+      fixture.detectChanges();
+      await flushFileRead();
+      fixture.detectChanges();
+
+      expect(liveAnnouncer.announce).toHaveBeenCalledWith("filePassword", "polite");
+    });
+
+    it("hides the method radio group once the inline password field appears, per Figma — only heading, callout, the field, and Back/Continue remain", async () => {
+      await setup("bitwardenjson", ClientType.Web);
+      expect(byId("importer-controls_radio_file")).toBeTruthy();
+
+      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
+      fixture.detectChanges();
+      await flushFileRead();
+      fixture.detectChanges();
+
+      expect(byId("importer-controls_radio_file")).toBeFalsy();
+      expect(byId("importer-controls_radio_paste")).toBeFalsy();
+    });
+
+    it("shows the specific 'file password is required' error, not the generic required message, on an empty submit", async () => {
+      await setup("bitwardenjson", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
+      fixture.detectChanges();
+      await flushFileRead();
+      fixture.detectChanges();
+
+      await component().submit();
+      fixture.detectChanges();
+      // A second flush: the password field only existed from the async peek a moment earlier, so
+      // its error-display subscription (set up in ngAfterViewInit) needs one more tick to settle
+      // before it reflects submit()'s touched/invalid state.
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const bitErrors = fixture.debugElement.queryAll(By.css("bit-error"));
+      expect(bitErrors.length).toBe(1);
+      expect(bitErrors[0].nativeElement.textContent).toContain("filePasswordRequired");
+      expect(bitErrors[0].nativeElement.textContent).not.toContain("inputRequired");
+    });
+
+    it("resets the password field and re-shows the upload control once a non-protected file replaces the protected one", async () => {
+      await setup("bitwardenjson", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
+      fixture.detectChanges();
+      await flushFileRead();
+      fixture.detectChanges();
+      component().formGroup.controls.filePassword.setValue("hunter2");
+
+      component().formGroup.controls.file.setValue(new File([accountEncrypted], "export2.json"));
+      fixture.detectChanges();
+      await flushFileRead();
+      fixture.detectChanges();
+
+      expect(component().needsFilePassword()).toBe(false);
+      expect(component().formGroup.controls.filePassword.value).toBe("");
+    });
+
+    it("passes the inline field's value directly to the importer, not the dialog-based prompt", async () => {
+      await setup("bitwardenjson", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
+      fixture.detectChanges();
+      await flushFileRead();
+      fixture.detectChanges();
+      component().formGroup.controls.filePassword.setValue("hunter2");
+
+      importService.getImporter.mockReturnValue({} as any);
+      importService.import.mockResolvedValue(new ImportResult());
+
+      await component().onContinue();
+
+      expect(dialogService.open).not.toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ ariaModal: true }),
+      );
+      const [, passwordCallback] = importService.getImporter.mock.calls[0];
+      await expect(passwordCallback()).resolves.toBe("hunter2");
+    });
+
+    it("shows an inline error and doesn't open the generic error dialog when the password is wrong", async () => {
+      await setup("bitwardenjson", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
+      fixture.detectChanges();
+      await flushFileRead();
+      fixture.detectChanges();
+      component().formGroup.controls.filePassword.setValue("wrong-password");
+
+      importService.getImporter.mockReturnValue({} as any);
+      importService.import.mockRejectedValue(
+        new ImportResultError("invalidFilePassword", ImportResultErrorKey.InvalidFilePassword),
+      );
+
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+      await component().onContinue();
+      fixture.detectChanges();
+
+      expect(component().formGroup.controls.filePassword.hasError("invalidFilePassword")).toBe(
+        true,
+      );
+      // The displayed text is filePasswordInvalid's short wording, not the longer pre-existing
+      // invalidFilePassword message (which is still used as errorMessage on the thrown error for
+      // other consumers, but must not be what's shown inline here).
+      expect(
+        component().formGroup.controls.filePassword.getError("invalidFilePassword").message,
+      ).toBe("filePasswordInvalid");
+      expect(dialogService.open).not.toHaveBeenCalledWith(
+        ImportErrorDialogComponent,
+        expect.anything(),
+      );
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("distinguishes a wrong password by errorKey, not by matching errorMessage text", async () => {
+      // A same-message but keyless error (the realistic shape every OTHER importer's errorMessage
+      // produces) must NOT be treated as a wrong password — proves the check is structural
+      // (ImportResultError.errorKey), not a coincidental string match against translated text.
+      await setup("bitwardenjson", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
+      fixture.detectChanges();
+      await flushFileRead();
+      fixture.detectChanges();
+      component().formGroup.controls.filePassword.setValue("hunter2");
+
+      importService.getImporter.mockReturnValue({} as any);
+      importService.import.mockRejectedValue(new ImportResultError("invalidFilePassword"));
+
+      await component().onContinue();
+
+      expect(component().formGroup.controls.filePassword.hasError("invalidFilePassword")).toBe(
+        false,
+      );
+      expect(dialogService.open).toHaveBeenCalledWith(
+        ImportErrorDialogComponent,
+        expect.anything(),
+      );
+    });
+
+    it("doesn't stay stuck wanting a password field that's never rendered after switching to paste", async () => {
+      // needsFilePassword() depends on filePasswordProtected(), which tracks chosenFile() — and
+      // method-switching deliberately preserves the chosen file. Without also checking method(),
+      // the signal stays true after switching to paste, enabling a required field that the
+      // template never renders in paste mode — permanently deadlocking submit() with zero
+      // feedback, since markAllAsTouched() has nothing in the DOM to show an error on.
+      await setup("bitwardenjson", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
+      fixture.detectChanges();
+      await flushFileRead();
+      fixture.detectChanges();
+      expect(component().needsFilePassword()).toBe(true);
+
+      component().formGroup.controls.method.setValue("paste");
+      component().formGroup.controls.fileContents.setValue(passwordProtected);
+      fixture.detectChanges();
+
+      expect(component().needsFilePassword()).toBe(false);
+      expect(component().formGroup.controls.filePassword.disabled).toBe(true);
+      expect(component().formGroup.valid).toBe(true);
+    });
+  });
+
   describe("changing importType on a live instance", () => {
     it("resets the manual footer override, the direct sub-step, and every form value to a new vendor's defaults", async () => {
       await setup("keeper", ClientType.Desktop);
@@ -1929,6 +2430,140 @@ describe("ImportControlsComponent", () => {
       expect(continueSpy).not.toHaveBeenCalled();
     });
 
+    it("picks up the policy check from a stream that only emits once, proving it's subscribed from construction, not cold-subscribed inside onContinue()", async () => {
+      // A Subject never replays to a late subscriber — if onContinue() subscribed fresh here
+      // instead of reading an already-warm signal, this emission would be missed entirely and
+      // the real bug (Continue spins forever, since nothing ever emits again) would reproduce.
+      const policyApplies$ = new Subject<boolean>();
+      policyService.policyAppliesToUser$.mockReturnValue(policyApplies$);
+      await setup("dashlanecsv", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+
+      policyApplies$.next(true);
+      fixture.detectChanges();
+
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+      await component().onContinue();
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ message: "personalOwnershipPolicyInEffectImports" }),
+      );
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("blocks submit() and disables Continue while the policy check hasn't resolved yet, rather than defaulting to 'not blocked'", async () => {
+      const policyApplies$ = new Subject<boolean>();
+      policyService.policyAppliesToUser$.mockReturnValue(policyApplies$);
+      await setup("dashlanecsv", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      fixture.detectChanges();
+
+      expect(component().personalOwnershipPolicyPending()).toBe(true);
+      expect(
+        byId("importer-controls_button_continue").nativeElement.getAttribute("aria-disabled"),
+      ).toBe("true");
+
+      await component().submit();
+
+      expect(importService.getImporter).not.toHaveBeenCalled();
+
+      policyApplies$.next(false);
+      fixture.detectChanges();
+
+      expect(component().personalOwnershipPolicyPending()).toBe(false);
+      expect(
+        byId("importer-controls_button_continue").nativeElement.getAttribute("aria-disabled"),
+      ).not.toBe("true");
+
+      // Proves the gate actually unblocks, not just that the signal/attribute look right.
+      importService.getImporter.mockReturnValue({} as any);
+      importService.import.mockResolvedValue(new ImportResult());
+      await component().submit();
+
+      expect(importService.getImporter).toHaveBeenCalled();
+    });
+
+    it("fails closed, not open, for a null account at mount (no logged-in user to check a policy against)", async () => {
+      // A null account is a recognized, handled state (not a thrown error) — blocking (fail
+      // closed) is still the safe default for a security gate, with an honest "something is
+      // unresolved" message rather than falsely blaming the org policy.
+      accountService.activeAccount$ = of(null as unknown as Account);
+      await setup("dashlanecsv", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      fixture.detectChanges();
+
+      expect(component().personalOwnershipPolicyPending()).toBe(false);
+
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+      await component().onContinue();
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ message: "errorOccurred" }),
+      );
+      expect(importService.getImporter).not.toHaveBeenCalled();
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("fails closed, with an honest message (not the policy message), when policyAppliesToUser$ itself errors", async () => {
+      policyService.policyAppliesToUser$.mockReturnValue(throwError(() => new Error("boom")));
+      await setup("dashlanecsv", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      fixture.detectChanges();
+
+      await component().onContinue();
+
+      expect(logService.error).toHaveBeenCalledWith(
+        "Error checking personal ownership policy:",
+        expect.anything(),
+      );
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ message: "errorOccurred" }),
+      );
+      expect(importService.getImporter).not.toHaveBeenCalled();
+    });
+
+    it("recovers once a real account re-emits after going null mid-session, instead of staying blocked forever", async () => {
+      // The realistic shape the fix targets: a logout/account-switch while mounted (account goes
+      // null, then a real account follows) must not be a dead end — the old design's catchError
+      // sat on the outer pipe, so once it fired, the subscription was gone for good and a later
+      // valid account would never be seen again.
+      const activeAccount$ = new Subject<Account>();
+      accountService.activeAccount$ = activeAccount$;
+      await setup("dashlanecsv", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+
+      activeAccount$.next({ id: "test-user-id" } as unknown as Account);
+      fixture.detectChanges();
+      expect(component().personalOwnershipPolicyPending()).toBe(false);
+
+      activeAccount$.next(null as unknown as Account);
+      fixture.detectChanges();
+
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+      await component().onContinue();
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ message: "errorOccurred" }),
+      );
+      expect(importService.getImporter).not.toHaveBeenCalled();
+      expect(continueSpy).not.toHaveBeenCalled();
+
+      // Login completes / account switch resolves: a real account re-emits.
+      activeAccount$.next({ id: "test-user-id-2" } as unknown as Account);
+      fixture.detectChanges();
+
+      expect(component().personalOwnershipPolicyPending()).toBe(false);
+      importService.getImporter.mockReturnValue({} as any);
+      importService.import.mockResolvedValue(new ImportResult());
+      await component().onContinue();
+
+      expect(importService.getImporter).toHaveBeenCalled();
+      expect(continueSpy).toHaveBeenCalled();
+    });
+
     it("opens the generic error dialog and does not emit continue when the import throws", async () => {
       await setup("dashlanecsv", ClientType.Web);
       component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
@@ -2053,6 +2688,36 @@ describe("ImportControlsComponent", () => {
     });
 
     it("maps a kdbx SDK error through sdkErrorMessageKey instead of showing the raw SDK message", async () => {
+      // kdbxWrongFileType, not invalidFilePassword — the wrong-password case is dedicated inline
+      // behavior now, covered by its own test below; every other mapped SDK error still goes
+      // through the generic dialog.
+      await setup("keepass2xml", ClientType.Web);
+      component().formGroup.controls.file.setValue({
+        name: "export.kdbx",
+        arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
+      } as unknown as File);
+      component().formGroup.controls.kdbxPassword.setValue("some-password");
+      importService.importWithSdk.mockRejectedValue(new Error("raw sdk error"));
+      importService.sdkErrorMessageKey.mockReturnValue("kdbxWrongFileType");
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(importService.sdkErrorMessageKey).toHaveBeenCalledWith(
+        "keepasskdbx",
+        expect.any(Error),
+      );
+      expect(dialogService.open).toHaveBeenCalledWith(
+        ImportErrorDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({ message: "kdbxWrongFileType" }),
+        }),
+      );
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("shows an inline error on the kdbx password field, not the generic dialog, when the kdbx password is wrong", async () => {
       await setup("keepass2xml", ClientType.Web);
       component().formGroup.controls.file.setValue({
         name: "export.kdbx",
@@ -2066,15 +2731,12 @@ describe("ImportControlsComponent", () => {
 
       await component().onContinue();
 
-      expect(importService.sdkErrorMessageKey).toHaveBeenCalledWith(
-        "keepasskdbx",
-        expect.any(Error),
-      );
-      expect(dialogService.open).toHaveBeenCalledWith(
+      expect(
+        component().formGroup.controls.kdbxPassword.getError("kdbxPasswordInvalid").message,
+      ).toBe("kdbxPasswordInvalid");
+      expect(dialogService.open).not.toHaveBeenCalledWith(
         ImportErrorDialogComponent,
-        expect.objectContaining({
-          data: expect.objectContaining({ message: "invalidFilePassword" }),
-        }),
+        expect.anything(),
       );
       expect(continueSpy).not.toHaveBeenCalled();
     });

@@ -6,6 +6,6 @@ export {
   HIDDEN_IMPORT_TYPE_IDS,
 } from "./import-options";
 export { chromiumBrowserNameFor } from "./chromium-browser-name";
-export { ImportResult } from "./import-result";
+export { ImportResult, ImportResultError, ImportResultErrorKey } from "./import-result";
 export { ImportRecordError, ImportRecordErrorReason } from "./import-record-error";
 export { CredentialKind, SdkImportCredentials, SdkImportSummary } from "../sdk";

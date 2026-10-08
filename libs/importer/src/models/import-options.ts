@@ -133,7 +133,8 @@ export const importOptionsById = deepFreeze({
     pasteFormats: ["xml"],
     hasDirectImporter: false,
     loaders: [Loader.file],
-    instructionKey: "importKeepass2Instructions",
+    sourceName: "KeePass",
+    instructionLink: "https://bitwarden.com/help/import-from-keepass/",
   },
   // Keeper and LastPass (below) each also have a "direct" import mode — authenticate to the
   // vendor's own API, fetch, decrypt client-side in memory — gated by a standalone ClientType
@@ -207,7 +208,8 @@ export const importOptionsById = deepFreeze({
     pasteFormats: ["csv"],
     hasDirectImporter: false,
     loaders: [Loader.file],
-    instructionKey: "importKeepassxInstructions",
+    sourceName: "KeePass",
+    instructionLink: "https://bitwarden.com/help/import-from-keepass/",
   },
   "1password1pif": {
     name: "1Password (1pif)",

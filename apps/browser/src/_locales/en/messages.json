@@ -5582,6 +5582,21 @@
   "kdbxPasswordRequired": {
     "message": "Password is required."
   },
+  "filePasswordRequired": {
+    "message": "File password is required."
+  },
+  "filePasswordInvalid": {
+    "message": "Enter a valid file password."
+  },
+  "filePasswordProtectedHint": {
+    "message": "The file uploaded is password protected"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Enter a valid password."
+  },
+  "importAccountMismatchError": {
+    "message": "This file can only be imported into the account it was exported from."
+  },
   "addKeyFile": {
     "message": "Add key file"
   },
