@@ -96,12 +96,15 @@ export class DefaultAccountSwitcherService implements AccountSwitcherService {
   }
 
   private toEntries$(usableAccounts: UsableAccount[]): Observable<AccountSwitcherEntries> {
-    const activeUsableAccts = usableAccounts.find((usableAccount) => usableAccount.isActive);
-    const inactiveUsableAccts = usableAccounts.filter((usableAccount) => !usableAccount.isActive);
+    const activeUsableAccount = usableAccounts.find((usableAccount) => usableAccount.isActive);
+    const inactiveUsableAccounts = usableAccounts.filter(
+      (usableAccount) => !usableAccount.isActive,
+    );
 
-    const activeEntry$ = activeUsableAccts == null ? of(null) : this.toEntry$(activeUsableAccts);
+    const activeEntry$ =
+      activeUsableAccount == null ? of(null) : this.toEntry$(activeUsableAccount);
     const inactiveEntries$ = combineLatest(
-      inactiveUsableAccts.map((activeUsableAccount) => this.toEntry$(activeUsableAccount)),
+      inactiveUsableAccounts.map((inactiveUsableAccount) => this.toEntry$(inactiveUsableAccount)),
     ).pipe(
       // With no inactive accounts, combineLatest completes without a value. The combined result
       // below needs a value from every source before it emits.
