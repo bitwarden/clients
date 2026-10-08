@@ -1,5 +1,13 @@
 import { NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormRecord, ReactiveFormsModule } from "@angular/forms";
 import { NavigationEnd, Router } from "@angular/router";
@@ -25,6 +33,7 @@ import { IconTileComponent, type IconTileVariant } from "../../icon-tile/icon-ti
 import { InputModule } from "../../input/input.module";
 import { LayoutComponent, PageComponent } from "../../layout";
 import { mockLayoutI18n } from "../../layout/mocks";
+import { PopoverComponent, PopoverModule, PopoverRef, PopoverService } from "../../popover";
 import { SearchModule } from "../../search";
 import { SkeletonTextComponent } from "../../skeleton";
 import { positionFixedWrapperDecorator } from "../../stories/storybook-decorators";
@@ -420,6 +429,126 @@ class DemoFilterableTableComponent {
   }
 
   protected readonly typeName = typeLabel;
+}
+
+@Component({
+  selector: "demo-filter-coachmark-table",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    BitTableV2Component,
+    BitColumnComponent,
+    BitCellDefDirective,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    BitTableToolbarComponent,
+    FilterMenuModule,
+    SearchModule,
+    ButtonModule,
+    PopoverModule,
+  ],
+  template: `
+    <!-- Popup-sized: the chips can't fit, so the toolbar shows the filter button at any viewport. -->
+    <div class="tw-flex tw-flex-col" style="width: 380px; height: 600px">
+      <bit-table-v2 [tableDef]="table" [filter]="filter" presentation="list" height="fill">
+        <bit-table-toolbar
+          [(filterDialogOpen)]="filterDialogOpen"
+          (filterDialogOpenChange)="$event || endTour()"
+        >
+          <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
+          <button bitButton buttonType="primary" type="button" slot="end" (click)="start()">
+            Start tour
+          </button>
+
+          <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
+            @for (option of typeOptions; track option.value) {
+              <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+            }
+          </bit-filter-menu>
+
+          <bit-filter-menu icon="bwi-vault" key="vault" placeholderText="Vault" multiple>
+            @for (option of vaultOptions; track option.value) {
+              <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+            }
+          </bit-filter-menu>
+
+          <bit-filter-menu
+            icon="bwi-collection"
+            key="collection"
+            placeholderText="Collections"
+            multiple
+          >
+            @for (org of collectionOrgs; track org.name) {
+              <bit-filter-section [label]="org.name">
+                @for (collection of org.collections; track collection.id) {
+                  <bit-filter-option [value]="collection.id">{{
+                    collection.name
+                  }}</bit-filter-option>
+                }
+              </bit-filter-section>
+            }
+          </bit-filter-menu>
+
+          <bit-filter-toggle
+            key="favorite"
+            label="Favorites"
+            icon="bwi-star"
+            iconActive="bwi-star-f"
+          ></bit-filter-toggle>
+        </bit-table-toolbar>
+
+        <bit-column sortable defaultSort="asc">
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+      </bit-table-v2>
+    </div>
+
+    <bit-popover [title]="'Filters'" (closed)="endTour()" #filtersCoachmark>
+      <div>Narrow the list by type or vault.</div>
+      <div class="tw-mt-4">
+        <button type="button" bitButton buttonType="primary" (click)="next()">Next</button>
+      </div>
+    </bit-popover>
+    <bit-popover [title]="'Vaults'" (closed)="endTour()" #vaultRowCoachmark>
+      <div>Show items from one vault at a time.</div>
+      <div class="tw-mt-4">
+        <button type="button" bitButton buttonType="primary" (click)="endTour()">Done</button>
+      </div>
+    </bit-popover>
+  `,
+})
+class DemoFilterCoachmarkTableComponent extends DemoFilterableTableComponent {
+  private readonly popoverService = inject(PopoverService);
+  private readonly toolbar = viewChild.required(BitTableToolbarComponent);
+  private readonly filtersCoachmark = viewChild.required<PopoverComponent>("filtersCoachmark");
+  private readonly vaultRowCoachmark = viewChild.required<PopoverComponent>("vaultRowCoachmark");
+  private ref?: PopoverRef;
+
+  protected readonly filterDialogOpen = signal(false);
+
+  protected start(): void {
+    this.ref?.close();
+    this.ref = this.popoverService.open(this.filtersCoachmark(), this.toolbar().filterButton, {
+      spotlight: true,
+      position: "below-end",
+    });
+  }
+
+  protected next(): void {
+    this.ref?.close();
+    this.filterDialogOpen.set(true);
+    // Waits for the dialog row to render and finish animating in.
+    this.ref = this.popoverService.open(
+      this.vaultRowCoachmark(),
+      this.toolbar().filterRow("vault"),
+      { spotlight: true, position: "above-center" },
+    );
+  }
+
+  protected endTour(): void {
+    this.ref?.close();
+    this.filterDialogOpen.set(false);
+  }
 }
 
 @Component({
@@ -1016,6 +1145,7 @@ export default {
         SkeletonTextComponent,
         DemoStatusColumnComponent,
         DemoFilterableTableComponent,
+        DemoFilterCoachmarkTableComponent,
         DemoKitchenSinkTableComponent,
         DemoLongLabelFiltersTableComponent,
         DemoSearchableTableComponent,
@@ -1765,6 +1895,20 @@ export const Filterable: Story = {
   render: () => ({
     template: `<demo-filterable-table></demo-filterable-table>`,
   }),
+};
+
+/**
+ * Coachmarks pointing into the toolbar: the filter button, then a row inside the filter
+ * dialog, spotlit above the dialog.
+ */
+export const FilterCoachmarkTour: Story = {
+  render: () => ({
+    template: `<demo-filter-coachmark-table></demo-filter-coachmark-table>`,
+  }),
+  parameters: {
+    // Popover positioning is flaky in snapshots, see CL-822
+    chromatic: { disableSnapshot: true },
+  },
 };
 
 /** The open filter surface — the chip's popover, or the responsive dialog. */
