@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testin
 import { FormControl, FormGroup } from "@angular/forms";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, mockReset } from "jest-mock-extended";
-import { BehaviorSubject, NEVER, of } from "rxjs";
+import { BehaviorSubject, NEVER, of, Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -13,9 +13,12 @@ import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-
 import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
 import {
   PersonalSubscriptionPricingTier,
+  PersonalSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ToastService } from "@bitwarden/components";
@@ -31,6 +34,8 @@ import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
 } from "../../../payment/components";
+import { NonTokenizablePaymentMethods } from "../../../payment/types";
+import { InvoicePreviewService } from "../../../services/invoice-preview.service";
 import { SubscriptionDiscountService } from "../../../services/subscription-discount.service";
 
 import { UpgradePaymentService } from "./services/upgrade-payment.service";
@@ -52,6 +57,7 @@ describe("UpgradePaymentComponent", () => {
   let component: UpgradePaymentComponent;
   let fixture: ComponentFixture<UpgradePaymentComponent>;
   let discountSubject$: BehaviorSubject<SubscriptionDiscount[]>;
+  let previewDrivenCartFlag$: BehaviorSubject<boolean>;
 
   const mockSubscriptionPricingService = mock<SubscriptionPricingServiceAbstraction>();
   const mockToastService = mock<ToastService>();
@@ -60,6 +66,8 @@ describe("UpgradePaymentComponent", () => {
   const mockUpgradePaymentService = mock<UpgradePaymentService>();
   const mockSubscriberBillingClient = mock<SubscriberBillingClient>();
   const mockAccountService = mock<AccountService>();
+  const mockConfigService = mock<ConfigService>();
+  const mockInvoicePreviewService = mock<InvoicePreviewService>();
   const mockI18nService = { t: jest.fn((key: string) => key) };
 
   const mockPremiumTier: PersonalSubscriptionPricingTier = {
@@ -70,6 +78,20 @@ describe("UpgradePaymentComponent", () => {
     passwordManager: {
       type: "standalone",
       annualPrice: 10,
+      annualPricePerAdditionalStorageGB: 4,
+      features: [],
+    },
+  };
+
+  const mockFamiliesTier: PersonalSubscriptionPricingTier = {
+    id: PersonalSubscriptionPricingTierIds.Families,
+    name: "Families",
+    description: "Families plan",
+    availableCadences: ["annually"],
+    passwordManager: {
+      type: "packaged",
+      users: 6,
+      annualPrice: 40,
       annualPricePerAdditionalStorageGB: 4,
       features: [],
     },
@@ -99,10 +121,15 @@ describe("UpgradePaymentComponent", () => {
     mockReset(mockUpgradePaymentService);
     mockReset(mockSubscriberBillingClient);
     mockReset(mockAccountService);
+    mockReset(mockConfigService);
+    mockReset(mockInvoicePreviewService);
 
     discountSubject$ = new BehaviorSubject<SubscriptionDiscount[]>([]);
+    previewDrivenCartFlag$ = new BehaviorSubject<boolean>(false);
+    mockConfigService.getFeatureFlag$.mockImplementation(((flag: FeatureFlag) =>
+      flag === FeatureFlag.PM36631_PreviewDrivenCart ? previewDrivenCartFlag$ : of(false)) as any);
     mockSubscriptionPricingService.getPersonalSubscriptionPricingTiers$.mockReturnValue(
-      of([mockPremiumTier]),
+      of([mockPremiumTier, mockFamiliesTier]),
     );
     mockAccountService.activeAccount$ = of(mockAccount);
     mockUpgradePaymentService.userIsOwnerOfFreeOrg$ = of(false);
@@ -162,6 +189,8 @@ describe("UpgradePaymentComponent", () => {
           useValue: mock<OrganizationBillingServiceAbstraction>(),
         },
         { provide: SyncService, useValue: { fullSync: jest.fn().mockResolvedValue(true) } },
+        { provide: ConfigService, useValue: mockConfigService },
+        { provide: InvoicePreviewService, useValue: mockInvoicePreviewService },
       ],
     })
       .overrideComponent(UpgradePaymentComponent, {
@@ -338,6 +367,325 @@ describe("UpgradePaymentComponent", () => {
 
       const cart: Cart = component["cart"]();
       expect(cart.discounts).toBeUndefined();
+    }));
+  });
+
+  describe("preview-driven cart (PM36631_PreviewDrivenCart)", () => {
+    const billingAddress = {
+      country: "US",
+      postalCode: "12345",
+      line1: null,
+      line2: null,
+      city: null,
+      state: null,
+      taxId: null,
+    };
+
+    const premiumCart: Cart = {
+      passwordManager: {
+        seats: { translationKey: "premiumMembership", cost: 10, quantity: 1 },
+      },
+      cadence: "annually",
+      discounts: [{ type: DiscountTypes.PercentOff, value: 20, amount: 2, label: "SERVER20" }],
+      estimatedTax: 0.64,
+      total: 8.64,
+    };
+
+    const familiesCart: Cart = {
+      passwordManager: {
+        seats: { translationKey: "familiesMembership", cost: 40, quantity: 1 },
+      },
+      cadence: "annually",
+      estimatedTax: 3.2,
+      total: 43.2,
+    };
+
+    const createFixture = (
+      planId: PersonalSubscriptionPricingTierId = PersonalSubscriptionPricingTierIds.Premium,
+    ) => {
+      fixture.destroy();
+      fixture = TestBed.createComponent(UpgradePaymentComponent);
+      component = fixture.componentInstance;
+      fixture.componentRef.setInput("selectedPlanId", planId);
+      fixture.componentRef.setInput("account", mockAccount);
+      jest.spyOn(component as any, "isFormValid").mockReturnValue(false);
+      fixture.detectChanges();
+    };
+
+    const host = (): HTMLElement => fixture.nativeElement;
+
+    const expectFailureState = () => {
+      expect(component["previewFailed"]()).toBe(true);
+      expect(component["previewCart"]()).toBeNull();
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "invoicePreviewErrorMessage",
+      });
+      expect(mockLogService.error).toHaveBeenCalled();
+
+      fixture.detectChanges();
+      expect(host().querySelector('[data-testid="invoice-preview-error"]')).not.toBeNull();
+      expect(host().querySelector("billing-cart-summary")?.classList).toContain("tw-hidden");
+    };
+
+    beforeEach(() => {
+      previewDrivenCartFlag$.next(true);
+      mockUpgradePaymentService.calculateEstimatedTax.mockResolvedValue(3);
+      mockInvoicePreviewService.previewPremiumPurchaseCart.mockResolvedValue(premiumCart);
+      mockInvoicePreviewService.previewFamiliesPurchaseCart.mockResolvedValue(familiesCart);
+    });
+
+    it("previews Premium through the purchase preview service without the legacy tax call", fakeAsync(() => {
+      createFixture();
+      tick(1001);
+
+      expect(mockInvoicePreviewService.previewPremiumPurchaseCart).toHaveBeenCalledTimes(1);
+      expect(mockInvoicePreviewService.previewPremiumPurchaseCart).toHaveBeenCalledWith({
+        additionalStorage: 0,
+        billingAddress: { country: "US", postalCode: "12345" },
+      });
+      expect(mockInvoicePreviewService.previewFamiliesPurchaseCart).not.toHaveBeenCalled();
+      expect(mockUpgradePaymentService.calculateEstimatedTax).not.toHaveBeenCalled();
+    }));
+
+    it("previews Families with the organization purchase request before an organization name is entered", fakeAsync(() => {
+      createFixture(PersonalSubscriptionPricingTierIds.Families);
+      tick(1001);
+
+      expect(mockInvoicePreviewService.previewFamiliesPurchaseCart).toHaveBeenCalledTimes(1);
+      expect(mockInvoicePreviewService.previewFamiliesPurchaseCart).toHaveBeenCalledWith({
+        purchase: {
+          tier: "families",
+          cadence: "annually",
+          passwordManager: { seats: 1, additionalStorage: 0, sponsored: false },
+        },
+        billingAddress,
+      });
+      expect(component["cart"]()).toBe(familiesCart);
+      expect(mockInvoicePreviewService.previewPremiumPurchaseCart).not.toHaveBeenCalled();
+      expect(mockUpgradePaymentService.calculateEstimatedTax).not.toHaveBeenCalled();
+    }));
+
+    it("forwards eligible coupon ids once the debounce elapses", fakeAsync(() => {
+      createFixture();
+      tick(1001);
+      mockInvoicePreviewService.previewPremiumPurchaseCart.mockClear();
+
+      discountSubject$.next([mockDiscount]);
+      tick(1001);
+
+      expect(mockInvoicePreviewService.previewPremiumPurchaseCart).toHaveBeenCalledTimes(1);
+      expect(mockInvoicePreviewService.previewPremiumPurchaseCart).toHaveBeenCalledWith({
+        additionalStorage: 0,
+        billingAddress: { country: "US", postalCode: "12345" },
+        coupons: ["coupon-abc"],
+      });
+    }));
+
+    it("forwards eligible coupon ids inside the Families purchase", fakeAsync(() => {
+      createFixture(PersonalSubscriptionPricingTierIds.Families);
+      tick(1001);
+      mockInvoicePreviewService.previewFamiliesPurchaseCart.mockClear();
+
+      discountSubject$.next([mockDiscount]);
+      tick(1001);
+
+      expect(mockInvoicePreviewService.previewFamiliesPurchaseCart).toHaveBeenCalledTimes(1);
+      expect(mockInvoicePreviewService.previewFamiliesPurchaseCart).toHaveBeenCalledWith({
+        purchase: {
+          tier: "families",
+          cadence: "annually",
+          passwordManager: { seats: 1, additionalStorage: 0, sponsored: false },
+          coupons: ["coupon-abc"],
+        },
+        billingAddress,
+      });
+    }));
+
+    it("gates account-credit submission on the server cart total", fakeAsync(() => {
+      const credit$ = new Subject<number>();
+      mockUpgradePaymentService.accountCredit$ = credit$;
+      createFixture();
+      component.formGroup.controls.paymentForm.patchValue({
+        type: NonTokenizablePaymentMethods.accountCredit,
+      });
+      tick(1001);
+      fixture.detectChanges();
+      tick();
+
+      let hasEnough: boolean | undefined;
+      const subscription = component["hasEnoughAccountCredit$"].subscribe((value) => {
+        hasEnough = value;
+      });
+      credit$.next(8);
+      expect(hasEnough).toBe(false);
+
+      credit$.next(9);
+      expect(hasEnough).toBe(true);
+      subscription.unsubscribe();
+    }));
+
+    it("clears the failure state when the billing address becomes incomplete", fakeAsync(() => {
+      mockInvoicePreviewService.previewPremiumPurchaseCart.mockRejectedValueOnce(
+        new Error("preview failed"),
+      );
+      createFixture();
+      tick(1001);
+      expect(component["previewFailed"]()).toBe(true);
+
+      component.formGroup.controls.billingAddress.patchValue({ postalCode: "" });
+      tick(1001);
+      fixture.detectChanges();
+
+      expect(component["previewFailed"]()).toBe(false);
+      expect(mockInvoicePreviewService.previewPremiumPurchaseCart).toHaveBeenCalledTimes(1);
+      expect(host().querySelector('[data-testid="invoice-preview-error"]')).toBeNull();
+      expect(host().querySelector("billing-cart-summary")?.classList).not.toContain("tw-hidden");
+    }));
+
+    it("renders the server cart verbatim without merging client-side discounts", fakeAsync(() => {
+      mockSubscriptionDiscountService.mapToCartDiscount.mockReturnValue(mockUiDiscount);
+      discountSubject$.next([mockDiscount]);
+
+      createFixture();
+      tick(1001);
+
+      const cart: Cart = component["cart"]();
+      expect(cart).toBe(premiumCart);
+      expect(cart.discounts).toEqual(premiumCart.discounts);
+      expect(cart.discounts).not.toContainEqual(mockUiDiscount);
+    }));
+
+    it.each([
+      ["404 flag off or route not deployed", new ErrorResponse({ Message: "Not Found" }, 404)],
+      ["404 missing Premium plan", new ErrorResponse({ Message: "Plan not found" }, 404)],
+      [
+        "409 catalog fault",
+        new ErrorResponse(
+          {
+            Message: "The plan could not be previewed. Please contact support for assistance.",
+          },
+          409,
+        ),
+      ],
+      [
+        "400 keyed field",
+        new ErrorResponse(
+          { Message: "Invalid", ValidationErrors: { PostalCode: ["Postal code is required."] } },
+          400,
+        ),
+      ],
+      ["network error", new Error("Failed to fetch")],
+    ])("takes the same failure path for a %s", (_, error) =>
+      fakeAsync(() => {
+        mockInvoicePreviewService.previewPremiumPurchaseCart.mockRejectedValue(error);
+
+        createFixture();
+        tick(1001);
+
+        expectFailureState();
+      })(),
+    );
+
+    it("toasts once per failed preview", fakeAsync(() => {
+      mockInvoicePreviewService.previewPremiumPurchaseCart.mockRejectedValue(
+        new Error("preview failed"),
+      );
+
+      createFixture();
+      tick(1001);
+      component.formGroup.controls.billingAddress.patchValue({ postalCode: "54321" });
+      tick(1001);
+
+      expect(mockInvoicePreviewService.previewPremiumPurchaseCart).toHaveBeenCalledTimes(2);
+      expect(mockToastService.showToast).toHaveBeenCalledTimes(2);
+      expect(mockToastService.showToast).toHaveBeenNthCalledWith(2, {
+        variant: "error",
+        message: "invoicePreviewErrorMessage",
+      });
+    }));
+
+    it("clears the failure state once a later preview succeeds", fakeAsync(() => {
+      mockInvoicePreviewService.previewPremiumPurchaseCart
+        .mockRejectedValueOnce(new Error("preview failed"))
+        .mockResolvedValue(premiumCart);
+
+      createFixture();
+      tick(1001);
+      expect(component["previewFailed"]()).toBe(true);
+
+      component.formGroup.controls.billingAddress.patchValue({ postalCode: "54321" });
+      tick(1001);
+
+      expect(component["previewFailed"]()).toBe(false);
+      expect(component["previewCart"]()).toBe(premiumCart);
+
+      fixture.detectChanges();
+      expect(host().querySelector('[data-testid="invoice-preview-error"]')).toBeNull();
+      expect(host().querySelector("billing-cart-summary")?.classList).not.toContain("tw-hidden");
+    }));
+
+    it("ignores a stale preview that resolves after a newer one", fakeAsync(() => {
+      const staleCart: Cart = { ...premiumCart, total: 1 };
+      let resolveFirst!: (cart: Cart) => void;
+      mockInvoicePreviewService.previewPremiumPurchaseCart
+        .mockImplementationOnce(() => new Promise<Cart>((resolve) => (resolveFirst = resolve)))
+        .mockResolvedValue(premiumCart);
+
+      createFixture();
+      tick(1001);
+
+      component.formGroup.controls.billingAddress.patchValue({ postalCode: "54321" });
+      tick(1001);
+      expect(component["previewCart"]()).toBe(premiumCart);
+
+      resolveFirst(staleCart);
+      tick();
+
+      expect(component["previewCart"]()).toBe(premiumCart);
+    }));
+
+    it("clears the server cart while the billing address is incomplete", fakeAsync(() => {
+      createFixture();
+      tick(1001);
+      expect(component["previewCart"]()).toBe(premiumCart);
+
+      component.formGroup.controls.billingAddress.patchValue({ postalCode: "" });
+      tick(1001);
+
+      expect(mockInvoicePreviewService.previewPremiumPurchaseCart).toHaveBeenCalledTimes(1);
+      expect(component["previewCart"]()).toBeNull();
+      expect(component["previewFailed"]()).toBe(false);
+    }));
+
+    it("falls back to the legacy tax call when the flag turns off at runtime", fakeAsync(() => {
+      createFixture();
+      tick(1001);
+      expect(component["previewCart"]()).toBe(premiumCart);
+
+      previewDrivenCartFlag$.next(false);
+      tick(1001);
+
+      expect(component["previewCart"]()).toBeNull();
+      expect(component["previewFailed"]()).toBe(false);
+      expect(mockUpgradePaymentService.calculateEstimatedTax).toHaveBeenCalledTimes(1);
+    }));
+
+    it("never calls the preview service with the flag off and keeps the legacy tax call", fakeAsync(() => {
+      previewDrivenCartFlag$.next(false);
+
+      createFixture();
+      tick(1001);
+
+      expect(mockInvoicePreviewService.previewPremiumPurchaseCart).not.toHaveBeenCalled();
+      expect(mockInvoicePreviewService.previewFamiliesPurchaseCart).not.toHaveBeenCalled();
+      expect(mockUpgradePaymentService.calculateEstimatedTax).toHaveBeenCalledTimes(1);
+      expect(mockUpgradePaymentService.calculateEstimatedTax).toHaveBeenCalledWith(
+        { tier: PersonalSubscriptionPricingTierIds.Premium, details: mockPremiumTier },
+        billingAddress,
+        [],
+      );
+      expect(component["cart"]().estimatedTax).toBe(3);
     }));
   });
 });
