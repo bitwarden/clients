@@ -392,7 +392,7 @@ export class Main {
         // autostart is enabled.
         const showWindow = !isAutostart;
 
-        // Main-process bitwarden-ipc handlers must be registered after `ipcService.init()` and
+        // Main-process bitwarden-ipc handlers should be registered after `ipcService.init()` and
         // before `windowMain.init()`, so the renderer always finds main's IPC client and handlers ready.
         await this.sdkLoadService.loadAndInit();
         await this.ipcService.init();
