@@ -190,13 +190,13 @@ impl super::BiometricTrait for BiometricLockSystem {
             .map_err(|e| anyhow!("Failed to parse user key: {e}"))?;
 
         // Reuse the Windows Hello challenge and key from the last prompt, so re-enrolling right
-        // after a biometric unlock does not prompt again. Otherwise derive a new one, which prompts.
+        // after a biometric unlock does not prompt again. Otherwise derive new ones (prompts).
         let windows_hello_challenge_and_key =
             match self.cached_windows_hello_challenge_and_key(user_id).await {
                 Some(key) => key,
                 None => {
-                    // Each enrollment (per user) has a unique challenge, so that the windows-hello prf
-                    // is unique
+                    // Each enrollment (per user) has a unique challenge, so that the windows-hello
+                    // prf is unique
                     let challenge = Challenge::make();
 
                     // This prf is unique to the challenge
@@ -616,8 +616,9 @@ mod tests {
             .unwrap());
     }
 
-    // Re-enrolling after a biometric unlock (e.g. after a user key rotation) must reuse the Windows
-    // Hello challenge and key from the unlock. Expect 3 prompts: enroll, unlock, final unlock. Not 4.
+    // Re-enrolling after a biometric unlock (e.g. after a user key rotation) must reuse the
+    // Windows Hello challenge and key from the unlock. Expect 3 prompts: enroll, unlock, final
+    // unlock. Not 4.
     #[tokio::test]
     #[ignore]
     async fn test_enroll_after_unlock_reuses_windows_hello_challenge_and_key() {
