@@ -1703,6 +1703,15 @@ describe("CipherViewBannerComponent", () => {
 
       expect(component["requestError"]()).toBe("requestAccessModalGenericError");
     });
+
+    it("announces a network failure without the SDK's transport text", async () => {
+      await submitAndFail("error in reqwest-middleware: error sending request");
+      fixture.detectChanges();
+
+      const error = query('[data-testid="request-error"]');
+      expect(error?.getAttribute("role")).toBe("alert");
+      expect(error?.textContent?.trim()).toBe("requestAccessModalGenericError");
+    });
   });
 
   describe("lifecycle actions", () => {
