@@ -277,6 +277,17 @@ describe("BitTableToolbarComponent active filter chips", () => {
     expect(chipLabels()).toEqual(["Login", "Card"]);
   });
 
+  it("counts each selected option toward the trigger's berry", () => {
+    const toolbar = fixture.debugElement.query(By.directive(BitTableToolbarComponent))
+      .componentInstance as BitTableToolbarComponent;
+
+    host.type().setValue(["login", "card"]);
+    host.vault().setValue("mine");
+    fixture.detectChanges();
+
+    expect(toolbar.appliedCount()).toBe(3);
+  });
+
   it("leads each chip with the filter's icon", () => {
     host.type().setValue(["login"]);
     fixture.detectChanges();
