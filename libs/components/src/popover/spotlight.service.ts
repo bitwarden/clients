@@ -2,7 +2,7 @@ import { Overlay, OverlayRef } from "@angular/cdk/overlay";
 import { DomPortal } from "@angular/cdk/portal";
 import { ElementRef, Injectable, inject } from "@angular/core";
 
-import type { PopoverAnchorForDirective } from "./popover-anchor-for.directive";
+import type { PopoverRef } from "./popover-ref";
 
 /**
  * Service that coordinates spotlight effects across multiple popover instances.
@@ -12,31 +12,17 @@ import type { PopoverAnchorForDirective } from "./popover-anchor-for.directive";
 @Injectable({ providedIn: "root" })
 export class SpotlightService {
   private readonly overlay = inject(Overlay);
-  private readonly backdropElement: HTMLElement;
   private readonly borderElement: HTMLElement;
   private currentTarget: HTMLElement | null = null;
   private borderOverlayRef: OverlayRef | null = null;
   private resizeObserver: ResizeObserver | null = null;
   private windowResizeListener: (() => void) | null = null;
   private hideTimeout: number | null = null;
-  private activePopover: PopoverAnchorForDirective | null = null;
+  private activePopover: PopoverRef | null = null;
 
   private readonly padding: number = 8;
 
   constructor() {
-    // Create backdrop element (initially hidden)
-    this.backdropElement = document.createElement("div");
-    this.backdropElement.style.cssText = `
-      position: fixed;
-      inset: 0;
-      background: transparent;
-      z-index: 999;
-      pointer-events: auto;
-      display: none;
-    `;
-    this.backdropElement.setAttribute("data-spotlight-backdrop", "true");
-    document.body.appendChild(this.backdropElement);
-
     // Create border element — attached to a CDK overlay pane when spotlight is active.
     // Must be appended to the DOM so DomPortal has a parent node to detach it from.
     this.borderElement = document.createElement("div");
@@ -76,18 +62,12 @@ export class SpotlightService {
       resolvedTarget.scrollIntoView({ block: "center", inline: "nearest" });
     }
 
-    this.backdropElement.style.display = "block";
-
     // Recreate the CDK border overlay for the new target
     this.disposeBorderOverlay();
     this.createBorderOverlay(resolvedTarget);
   }
 
-  /**
-   * The CDK overlay pane element for the active spotlight border.
-   * Used by PopoverAnchorForDirective as the popover origin when spotlight is enabled,
-   * so the popover naturally attaches to the outer edge of the highlighted area.
-   */
+  /** The active spotlight's overlay pane; popovers attach to its outer edge. */
   get overlayElement(): HTMLElement | null {
     return this.borderOverlayRef?.overlayElement ?? null;
   }
@@ -96,18 +76,18 @@ export class SpotlightService {
    * Registers a popover as the active spotlight popover.
    * Closes any other active spotlight popover.
    */
-  register(directive: PopoverAnchorForDirective): void {
-    if (this.activePopover && this.activePopover !== directive) {
-      this.activePopover.closePopover();
+  register(popover: PopoverRef): void {
+    if (this.activePopover && this.activePopover !== popover) {
+      this.activePopover.close();
     }
-    this.activePopover = directive;
+    this.activePopover = popover;
   }
 
   /**
    * Unregisters a popover when it closes.
    */
-  unregister(directive: PopoverAnchorForDirective): void {
-    if (this.activePopover === directive) {
+  unregister(popover: PopoverRef): void {
+    if (this.activePopover === popover) {
       this.activePopover = null;
     }
   }
@@ -118,7 +98,6 @@ export class SpotlightService {
    */
   hideSpotlight(): void {
     this.hideTimeout = window.setTimeout(() => {
-      this.backdropElement.style.display = "none";
       this.disposeBorderOverlay();
       this.currentTarget = null;
       this.hideTimeout = null;
@@ -155,6 +134,10 @@ export class SpotlightService {
       .withPush(false);
 
     this.borderOverlayRef = this.overlay.create({
+      // Blocks clicks in the top layer, above any earlier overlay such as a dialog. The base
+      // backdrop is invisible and catches clicks at once; the transparent class waits a frame.
+      hasBackdrop: true,
+      backdropClass: "bit-spotlight-backdrop",
       positionStrategy,
       scrollStrategy: this.overlay.scrollStrategies.reposition(),
       width: target.offsetWidth + this.padding * 2,
