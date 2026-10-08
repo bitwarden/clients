@@ -12,6 +12,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -205,9 +206,10 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin enabled when RemoveUnlockWithPin policy is disabled", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = false;
+    const policy = new Policy({
+      type: PolicyType.RemoveUnlockWithPin,
+      enabled: false,
+    } as unknown as PolicyData);
 
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
@@ -223,9 +225,10 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin disabled when RemoveUnlockWithPin policy is enabled", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = true;
+    const policy = new Policy({
+      type: PolicyType.RemoveUnlockWithPin,
+      enabled: true,
+    } as unknown as PolicyData);
 
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
@@ -252,9 +255,10 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin visible when RemoveUnlockWithPin policy is disabled", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = false;
+    const policy = new Policy({
+      type: PolicyType.RemoveUnlockWithPin,
+      enabled: false,
+    } as unknown as PolicyData);
 
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
@@ -267,9 +271,10 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin visible when RemoveUnlockWithPin policy is enabled and pin set", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = true;
+    const policy = new Policy({
+      type: PolicyType.RemoveUnlockWithPin,
+      enabled: true,
+    } as unknown as PolicyData);
 
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
@@ -284,9 +289,10 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin not visible when RemoveUnlockWithPin policy is enabled", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = true;
+    const policy = new Policy({
+      type: PolicyType.RemoveUnlockWithPin,
+      enabled: true,
+    } as unknown as PolicyData);
 
     policyService.policiesByType$.mockReturnValue(of([policy]));
 

@@ -11,6 +11,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
@@ -45,7 +46,7 @@ const GROUP_ID = "group-1";
 const USER_ID = "user-1" as UserId;
 
 function mockOrganization(overrides: Partial<Organization> = {}): Organization {
-  return Object.assign(new Organization(), {
+  return new Organization({
     id: ORG_ID,
     name: "Acme Corp",
     useGroups: true,
@@ -55,7 +56,7 @@ function mockOrganization(overrides: Partial<Organization> = {}): Organization {
     permissions: new PermissionsApi(),
     productTierType: ProductTierType.Teams,
     ...overrides,
-  });
+  } as unknown as OrganizationData);
 }
 
 const mockCollections: CollectionAdminView[] = [

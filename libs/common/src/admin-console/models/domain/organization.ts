@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { MemberDecryptionType } from "../../../auth/enums/sso";
@@ -104,11 +102,7 @@ export class Organization {
   useMyItems: boolean;
   useInviteLinks: boolean;
 
-  constructor(obj?: OrganizationData) {
-    if (obj == null) {
-      return;
-    }
-
+  constructor(obj: OrganizationData) {
     this.id = obj.id as OrganizationId;
     this.name = obj.name;
     this.status = obj.status;
@@ -196,7 +190,7 @@ export class Organization {
   }
 
   get canAccessEventLogs() {
-    return (this.isAdmin || this.permissions.accessEventLogs) && this.useEvents;
+    return (this.isAdmin || (this.permissions.accessEventLogs ?? false)) && this.useEvents;
   }
 
   /**
@@ -209,7 +203,7 @@ export class Organization {
       this.isProviderUser ||
       this.type === OrganizationUserType.Owner ||
       this.type === OrganizationUserType.Admin ||
-      this.permissions.accessImportExport
+      (this.permissions.accessImportExport ?? false)
     );
   }
 
@@ -218,16 +212,20 @@ export class Organization {
       this.isMember &&
       (this.type === OrganizationUserType.Owner ||
         this.type === OrganizationUserType.Admin ||
-        this.permissions.accessImportExport)
+        (this.permissions.accessImportExport ?? false))
     );
   }
 
   get canAccessReports() {
-    return this.isAdmin || this.permissions.accessReports;
+    return this.isAdmin || (this.permissions.accessReports ?? false);
   }
 
   get canCreateNewCollections() {
-    return !this.limitCollectionCreation || this.isAdmin || this.permissions.createNewCollections;
+    return (
+      !this.limitCollectionCreation ||
+      this.isAdmin ||
+      (this.permissions.createNewCollections ?? false)
+    );
   }
 
   get canEditAnyCollection() {
@@ -235,7 +233,8 @@ export class Organization {
     // Providers and custom users with canEditAnyCollection are not affected by allowAdminAccessToAllCollectionItems flag
     return (
       this.isProviderUser ||
-      (this.type === OrganizationUserType.Custom && this.permissions.editAnyCollection) ||
+      (this.type === OrganizationUserType.Custom &&
+        (this.permissions.editAnyCollection ?? false)) ||
       (this.allowAdminAccessToAllCollectionItems && this.isAdmin)
     );
   }
@@ -249,20 +248,20 @@ export class Organization {
   get canAssignAccessToAnyCollection() {
     return (
       this.canEditAnyCollection ||
-      (this.permissions.manageGroups && this.allowAdminAccessToAllCollectionItems)
+      ((this.permissions.manageGroups ?? false) && this.allowAdminAccessToAllCollectionItems)
     );
   }
 
   get canEditUnmanagedCollections() {
     // Any admin or custom user with editAnyCollection permission can edit unmanaged collections
-    return this.isAdmin || this.permissions.editAnyCollection;
+    return this.isAdmin || (this.permissions.editAnyCollection ?? false);
   }
 
   get canEditUnassignedCiphers() {
     return (
       this.type === OrganizationUserType.Admin ||
       this.type === OrganizationUserType.Owner ||
-      this.permissions.editAnyCollection
+      (this.permissions.editAnyCollection ?? false)
     );
   }
 
@@ -270,7 +269,8 @@ export class Organization {
     // The allowAdminAccessToAllCollectionItems flag can restrict admins
     // Custom users with canEditAnyCollection are not affected by allowAdminAccessToAllCollectionItems flag
     return (
-      (this.type === OrganizationUserType.Custom && this.permissions.editAnyCollection) ||
+      (this.type === OrganizationUserType.Custom &&
+        (this.permissions.editAnyCollection ?? false)) ||
       (this.allowAdminAccessToAllCollectionItems &&
         (this.type === OrganizationUserType.Admin || this.type === OrganizationUserType.Owner))
     );
@@ -281,7 +281,7 @@ export class Organization {
    */
   get canDeleteAnyCollection() {
     // Providers and Users with DeleteAnyCollection permission can always delete collections
-    if (this.isProviderUser || this.permissions.deleteAnyCollection) {
+    if (this.isProviderUser || (this.permissions.deleteAnyCollection ?? false)) {
       return true;
     }
 
@@ -301,28 +301,30 @@ export class Organization {
   get canViewAllCollections() {
     // Admins can always see all collections even if collection management settings prevent them from editing them or seeing items
     return (
-      this.isAdmin || this.permissions.editAnyCollection || this.permissions.deleteAnyCollection
+      this.isAdmin ||
+      (this.permissions.editAnyCollection ?? false) ||
+      (this.permissions.deleteAnyCollection ?? false)
     );
   }
 
   get canManageGroups() {
-    return (this.isAdmin || this.permissions.manageGroups) && this.useGroups;
+    return (this.isAdmin || (this.permissions.manageGroups ?? false)) && this.useGroups;
   }
 
   get canManageSso() {
-    return (this.isAdmin || this.permissions.manageSso) && this.useSso;
+    return (this.isAdmin || (this.permissions.manageSso ?? false)) && this.useSso;
   }
 
   get canManageDomainVerification() {
-    return (this.isAdmin || this.permissions.manageSso) && this.useOrganizationDomains;
+    return (this.isAdmin || (this.permissions.manageSso ?? false)) && this.useOrganizationDomains;
   }
 
   get canManageScim() {
-    return (this.isAdmin || this.permissions.manageScim) && this.useScim;
+    return (this.isAdmin || (this.permissions.manageScim ?? false)) && this.useScim;
   }
 
   get canManagePolicies() {
-    return (this.isAdmin || this.permissions.managePolicies) && this.usePolicies;
+    return (this.isAdmin || (this.permissions.managePolicies ?? false)) && this.usePolicies;
   }
 
   get canManageAccessRules() {
@@ -330,11 +332,11 @@ export class Organization {
   }
 
   get canManageUsers() {
-    return this.isAdmin || this.permissions.manageUsers;
+    return this.isAdmin || (this.permissions.manageUsers ?? false);
   }
 
   get canManageUsersPassword() {
-    return this.isAdmin || this.permissions.manageResetPassword;
+    return this.isAdmin || (this.permissions.manageResetPassword ?? false);
   }
 
   get canEnableAutoConfirmPolicy() {
@@ -347,7 +349,7 @@ export class Organization {
 
   get canManageDeviceApprovals() {
     return (
-      (this.isAdmin || this.permissions.manageResetPassword) &&
+      (this.isAdmin || (this.permissions.manageResetPassword ?? false)) &&
       this.useSso &&
       this.ssoEnabled &&
       this.ssoMemberDecryptionType === MemberDecryptionType.TrustedDeviceEncryption
@@ -418,10 +420,19 @@ export class Organization {
       return null;
     }
 
-    return Object.assign(new Organization(), json, {
-      familySponsorshipLastSyncDate: new Date(json.familySponsorshipLastSyncDate),
-      familySponsorshipValidUntil: new Date(json.familySponsorshipValidUntil),
-    });
+    const data: OrganizationData = {
+      ...json,
+      familySponsorshipLastSyncDate:
+        json.familySponsorshipLastSyncDate == null
+          ? undefined
+          : new Date(json.familySponsorshipLastSyncDate),
+      familySponsorshipValidUntil:
+        json.familySponsorshipValidUntil == null
+          ? undefined
+          : new Date(json.familySponsorshipValidUntil),
+      permissions: json.permissions as PermissionsApi,
+    };
+    return new Organization(data);
   }
 
   get canAccessIntegrations() {
@@ -429,9 +440,9 @@ export class Organization {
       (this.productTierType === ProductTierType.Teams ||
         this.productTierType === ProductTierType.Enterprise) &&
       (this.isAdmin ||
-        this.permissions.manageUsers ||
-        this.permissions.manageGroups ||
-        this.permissions.accessEventLogs)
+        (this.permissions.manageUsers ?? false) ||
+        (this.permissions.manageGroups ?? false) ||
+        (this.permissions.accessEventLogs ?? false))
     );
   }
 

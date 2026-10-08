@@ -7,6 +7,7 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -185,9 +186,10 @@ const inOrganization = (
   cipher.organizationId = organizationId;
   cipher.collectionIds = collectionNames.map(() => crypto.randomUUID());
 
-  const organization = new Organization();
-  organization.id = organizationId;
-  organization.productTierType = productTierType;
+  const organization = new Organization({
+    id: organizationId,
+    productTierType,
+  } as unknown as OrganizationData);
 
   const collections = collectionNames.map(
     (name, i) =>

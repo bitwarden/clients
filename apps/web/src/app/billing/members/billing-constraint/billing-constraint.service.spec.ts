@@ -2,6 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { of } from "rxjs";
 
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
@@ -30,10 +31,11 @@ describe("BillingConstraintService", () => {
   const mockOrganizationId = "org-123" as OrganizationId;
 
   const createMockOrganization = (overrides: Partial<Organization> = {}): Organization => {
-    const org = new Organization();
-    org.id = mockOrganizationId;
-    org.seats = 10;
-    org.productTierType = ProductTierType.Teams;
+    const org = new Organization({
+      id: mockOrganizationId,
+      seats: 10,
+      productTierType: ProductTierType.Teams,
+    } as unknown as OrganizationData);
 
     Object.defineProperty(org, "hasReseller", {
       value: false,

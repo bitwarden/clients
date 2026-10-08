@@ -17,6 +17,8 @@ import {
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
+import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -205,9 +207,10 @@ const inOrganization = (
   cipher.organizationId = organizationId;
   cipher.collectionIds = collectionNames.map(() => nextId());
 
-  const organization = new Organization();
-  organization.id = organizationId;
-  organization.productTierType = productTierType;
+  const organization = new Organization({
+    id: organizationId,
+    productTierType,
+  } as unknown as OrganizationData);
 
   const collections = collectionNames.map(
     (name, i) =>
@@ -337,19 +340,20 @@ const buildNotificationPolicies = (args: StoryArgs) => {
     return [];
   }
 
-  const policy = new Policy();
-  policy.id = "00000000-0000-4000-8000-0000000000fd" as PolicyId;
-  policy.organizationId = STORY_ORG_ID;
-  policy.type = PolicyType.OrganizationUserNotification;
-  policy.enabled = true;
-  policy.revisionDate = FIXED_REVISION_DATE;
-  policy.data = {
-    header: "Scheduled maintenance",
-    description:
-      "Your organization will be unavailable Saturday from 02:00-04:00 UTC while we upgrade.",
-    buttonText: "Learn more",
-    showAfterEveryLogin: false,
-  };
+  const policy = new Policy({
+    id: "00000000-0000-4000-8000-0000000000fd" as PolicyId,
+    organizationId: STORY_ORG_ID,
+    type: PolicyType.OrganizationUserNotification,
+    enabled: true,
+    revisionDate: FIXED_REVISION_DATE.toISOString(),
+    data: {
+      header: "Scheduled maintenance",
+      description:
+        "Your organization will be unavailable Saturday from 02:00-04:00 UTC while we upgrade.",
+      buttonText: "Learn more",
+      showAfterEveryLogin: false,
+    },
+  } as unknown as PolicyData);
   return [policy];
 };
 

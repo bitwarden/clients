@@ -25,6 +25,7 @@ import {
   CollectionView,
   CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { cloneCollection } from "@bitwarden/common/admin-console/utils/collection-utils";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -290,13 +291,13 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
   }
 
   protected getOrganizationFilterHead(): TreeNode<OrganizationFilter> {
-    const head = new Organization() as OrganizationFilter;
+    const head = new Organization({} as unknown as OrganizationData) as OrganizationFilter;
     head.enabled = true;
     return new TreeNode<OrganizationFilter>(head, null, "allVaults", "AllVaults");
   }
 
   protected getOrganizationFilterMyVault(): TreeNode<OrganizationFilter> {
-    const myVault = new Organization() as OrganizationFilter;
+    const myVault = new Organization({} as unknown as OrganizationData) as OrganizationFilter;
     myVault.id = "MyVault" as OrganizationId;
     myVault.icon = "bwi-user";
     myVault.enabled = true;
