@@ -1,4 +1,5 @@
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import {
   OrganizationUserAcceptInitRequest,
@@ -168,10 +169,12 @@ export abstract class OrganizationUserApiService {
    * Retrieve a list of the specified users' public keys
    * @param organizationId - Identifier for the organization to accept
    * @param ids - A list of organization user identifiers to retrieve public keys for
+   * @param userId - The user making the request
    */
   abstract postOrganizationUsersPublicKey(
     organizationId: string,
     ids: string[],
+    userId: UserId,
   ): Promise<ListResponse<OrganizationUserBulkPublicKeyResponse>>;
 
   /**
@@ -327,9 +330,11 @@ export abstract class OrganizationUserApiService {
    * Used by the bulk auto-confirm on login sweep to find users that were not confirmed
    * while the admin was offline.
    * @param organizationId - Identifier for the organization
+   * @param userId - The user making the request
    */
   abstract getPendingAutoConfirmUsers(
     organizationId: string,
+    userId: UserId,
   ): Promise<ListResponse<OrganizationUserPendingAutoConfirmResponse>>;
 
   /**
@@ -337,10 +342,12 @@ export abstract class OrganizationUserApiService {
    * Used by the bulk auto-confirm on login sweep.
    * @param organizationId - Identifier for the organization
    * @param request - Bulk request with encrypted org keys per user
+   * @param userId - The user making the request
    * @return Per-user results indicating success or failure
    */
   abstract postBulkOrganizationUserAutoConfirm(
     organizationId: string,
     request: OrganizationUserBulkConfirmRequest,
+    userId: UserId,
   ): Promise<ListResponse<OrganizationUserBulkResponse>>;
 }

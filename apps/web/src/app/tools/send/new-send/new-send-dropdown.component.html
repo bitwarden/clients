@@ -1,7 +1,7 @@
 @if (allowedSendTypes().length === 1) {
   <button
     bitButton
-    [buttonType]="hideIcon && btnTextAddCreateFeatureFlag() ? 'secondary' : 'primary'"
+    [buttonType]="hideIcon ? 'secondary' : 'primary'"
     type="button"
     [startIcon]="!hideIcon ? 'bwi-plus' : null"
     (click)="onRestrictedClick()"
@@ -12,7 +12,7 @@
   <button
     bitButton
     [bitMenuTriggerFor]="itemOptions"
-    [buttonType]="hideIcon && btnTextAddCreateFeatureFlag() ? 'secondary' : 'primary'"
+    [buttonType]="hideIcon ? 'secondary' : 'primary'"
     type="button"
     [startIcon]="!hideIcon ? 'bwi-plus' : null"
   >

@@ -17,11 +17,6 @@ export abstract class VaultSettingsService {
    */
   abstract showIdentitiesCurrentTab$: Observable<boolean>;
   /**
-   * An observable monitoring the state of the click items on the Vault view
-   * for Autofill suggestions.
-   */
-  abstract clickItemsToAutofillVaultView$: Observable<boolean>;
-  /**
    * An observable monitoring the state of the visibility of at-risk password
    * notifications.
    *
@@ -46,12 +41,6 @@ export abstract class VaultSettingsService {
    * @param value The new value for the show identities on tab page setting.
    */
   abstract setShowIdentitiesCurrentTab(value: boolean): Promise<void>;
-  /**
-   * Saves the click items on vault View for Autofill suggestions to disk.
-   * @param value The new value for the click items on vault View for
-   * Autofill suggestions setting.
-   */
-  abstract setClickItemsToAutofillVaultView(value: boolean): Promise<void>;
   /**
    * Saves the visibility state of at-risk password notifications to disk.
    * @param value The new value for the visibility of at-risk password notifications.

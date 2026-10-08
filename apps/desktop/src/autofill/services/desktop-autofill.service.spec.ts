@@ -53,6 +53,100 @@ describe("DesktopAutofillService", () => {
     );
   });
 
+  describe("enabling native autofill", () => {
+    let featureFlag$: BehaviorSubject<boolean>;
+    let desktopAutofillIpc: {
+      setEnabled: jest.Mock;
+      getPasskeyProviderState: jest.Mock;
+      listenerReady: jest.Mock;
+    };
+
+    const registered = { registered: true, enabled: true };
+    const unregistered = { registered: false, enabled: false };
+
+    beforeEach(() => {
+      featureFlag$ = new BehaviorSubject<boolean>(true);
+      configService.getFeatureFlag$.mockReturnValue(featureFlag$);
+      configService.getFeatureFlag.mockImplementation(async () => featureFlag$.value);
+      accountService.activeAccount$ = new BehaviorSubject(null);
+
+      desktopAutofillIpc = {
+        setEnabled: jest.fn().mockResolvedValue(true),
+        getPasskeyProviderState: jest.fn().mockResolvedValue(registered),
+        listenerReady: jest.fn(),
+      };
+      // `listenIpc` binds a handler to each `listen*` channel.
+      const ipcProxy = new Proxy(desktopAutofillIpc, {
+        get: (target, prop: string) => (target as any)[prop] ?? jest.fn(),
+      });
+      (global as any).ipc = { autofill: { desktopAutofill: ipcProxy } };
+    });
+
+    afterEach(() => {
+      service.ngOnDestroy();
+      delete (global as any).ipc;
+    });
+
+    it("does not enable when the feature flag is off", async () => {
+      featureFlag$.next(false);
+
+      await expect(service.refreshPasskeyProviderState()).resolves.toEqual(unregistered);
+      expect(desktopAutofillIpc.setEnabled).not.toHaveBeenCalled();
+    });
+
+    it("does not enable on Linux", async () => {
+      platformUtilsService.getDevice.mockReturnValue(DeviceType.LinuxDesktop);
+      service = new DesktopAutofillService(
+        logService,
+        cipherService,
+        configService,
+        fido2AuthenticatorService,
+        accountService,
+        authService,
+        platformUtilsService,
+      );
+
+      await expect(service.refreshPasskeyProviderState()).resolves.toEqual(unregistered);
+      expect(desktopAutofillIpc.setEnabled).not.toHaveBeenCalled();
+    });
+
+    it("reports the passkey provider state from the OS", async () => {
+      const state = { registered: true, enabled: false };
+      desktopAutofillIpc.getPasskeyProviderState.mockResolvedValue(state);
+
+      await expect(service.refreshPasskeyProviderState()).resolves.toEqual(state);
+      expect(desktopAutofillIpc.setEnabled).toHaveBeenCalledWith(true);
+    });
+
+    it("re-submits registration on every call but only starts listening once", async () => {
+      await expect(service.refreshPasskeyProviderState()).resolves.toEqual(registered);
+      await expect(service.refreshPasskeyProviderState()).resolves.toEqual(registered);
+
+      expect(desktopAutofillIpc.setEnabled).toHaveBeenCalledTimes(2);
+      expect(desktopAutofillIpc.listenerReady).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not start listening when the main process fails to enable", async () => {
+      desktopAutofillIpc.setEnabled.mockResolvedValue(false);
+
+      await expect(service.refreshPasskeyProviderState()).resolves.toEqual(unregistered);
+      expect(desktopAutofillIpc.listenerReady).not.toHaveBeenCalled();
+      expect(desktopAutofillIpc.getPasskeyProviderState).not.toHaveBeenCalled();
+    });
+
+    it("enables when the feature flag turns on after init", async () => {
+      featureFlag$.next(false);
+      await service.init();
+      expect(desktopAutofillIpc.setEnabled).not.toHaveBeenCalled();
+
+      featureFlag$.next(true);
+      await new Promise(process.nextTick);
+
+      expect(desktopAutofillIpc.setEnabled).toHaveBeenCalledWith(true);
+      expect(desktopAutofillIpc.listenerReady).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe("doLockStatus", () => {
     it("reports unlocked when the active account status is Unlocked", async () => {
       activeAccountStatus$.next(AuthenticationStatus.Unlocked);
