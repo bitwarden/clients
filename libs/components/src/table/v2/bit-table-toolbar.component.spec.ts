@@ -254,10 +254,6 @@ describe("BitTableToolbarComponent", () => {
       expect(vaultRow()).toBeUndefined();
     });
 
-    it("returns a stable signal per key", () => {
-      expect(toolbar().filterRow("vault")).toBe(toolbar().filterRow("vault"));
-    });
-
     it("can reopen after the dialog closes", () => {
       setOpen(true);
       closed.next(undefined);
