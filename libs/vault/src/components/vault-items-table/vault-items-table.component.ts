@@ -814,7 +814,13 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     }
 
     const teardown = batchBar.registerSelection({
-      selected: computed(() => model.selected().map((cipher): VaultItem<C> => ({ cipher }))),
+      selected: computed(() => {
+        const visibleIds = new Set(model.selectable().map((c) => String(c.id)));
+        return model
+          .selected()
+          .filter((cipher) => visibleIds.has(String(cipher.id)))
+          .map((cipher): VaultItem<C> => ({ cipher }));
+      }),
       clear: () => model.clear(),
     });
 
