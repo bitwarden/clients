@@ -18,7 +18,7 @@ type UpdateAutofillDataAttributeParams = {
 interface CollectAutofillContentService extends AutofillMonitor {
   autofillFormElements: AutofillFormElements;
   getPageDetails(): Promise<AutofillPageDetails>;
-  prepareForExplicitCollection(force?: boolean): void;
+  prepareForExplicitCollection(): void;
   getAutofillFieldElementByOpid(opid: string): HTMLElement | null;
   applyExternalTargetedFields(
     targetedFields: { selector: string; fieldType: string }[],

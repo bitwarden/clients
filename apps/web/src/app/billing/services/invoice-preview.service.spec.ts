@@ -71,7 +71,10 @@ describe("InvoicePreviewService", () => {
     it("should bake the personal-checkout flow context", async () => {
       mockClient.previewPremiumPurchase.mockResolvedValue(preview("premium") as never);
 
-      const cart = await sut.previewPremiumPurchaseCart({ additionalStorage: 0 });
+      const cart = await sut.previewPremiumPurchaseCart({
+        additionalStorage: 0,
+        billingAddress: { country: "US", postalCode: "12345" },
+      });
 
       expect(cart.passwordManager.seats.translationKey).toBe("premiumMembership");
       expect(mockLogService.error).not.toHaveBeenCalled();
@@ -84,7 +87,10 @@ describe("InvoicePreviewService", () => {
         amountDue: 200,
       } as never);
 
-      const cart = await sut.previewPremiumPurchaseCart({ additionalStorage: 0 });
+      const cart = await sut.previewPremiumPurchaseCart({
+        additionalStorage: 0,
+        billingAddress: { country: "US", postalCode: "12345" },
+      });
 
       expect(cart.total).toBe(259.6);
       expect(cart.amountDue).toBe(200);
@@ -208,9 +214,12 @@ describe("InvoicePreviewService", () => {
     it("should let client errors propagate", async () => {
       mockClient.previewPremiumPurchase.mockRejectedValue(new Error("404 Not Found"));
 
-      await expect(sut.previewPremiumPurchaseCart({ additionalStorage: 0 })).rejects.toThrow(
-        "404 Not Found",
-      );
+      await expect(
+        sut.previewPremiumPurchaseCart({
+          additionalStorage: 0,
+          billingAddress: { country: "US", postalCode: "12345" },
+        }),
+      ).rejects.toThrow("404 Not Found");
     });
   });
 });
