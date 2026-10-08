@@ -121,13 +121,13 @@ pub fn path(name: &str) -> std::path::PathBuf {
         // If the app is sanboxed, we need to use the App Group directory
         if let Some(position) = containers_position {
             // We want to use App Groups in /Users/<user>/Library/Group
-            // Containers/LTZ2PFU5D6.com.bitwarden.desktop, so we need to remove all the
+            // Containers/group.com.bitwarden.desktop, so we need to remove all the
             // components after the user. We can use the previous position to do this.
             while home.components().count() > position - 1 {
                 home.pop();
             }
 
-            let tmp = home.join("Library/Group Containers/LTZ2PFU5D6.com.bitwarden.desktop");
+            let tmp = home.join("Library/Group Containers/group.com.bitwarden.desktop");
 
             // The tmp directory might not exist, so create it
             let _ = std::fs::create_dir_all(&tmp);

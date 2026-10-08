@@ -10,8 +10,16 @@ import { AutomationCapability } from "./automation-capability";
 export class AutomationDriver {
   private readonly capabilities = new Map<string, AutomationCapability>();
 
-  constructor(@Inject(AutomationCapability) capabilities: AutomationCapability[]) {
+  /**
+   * @param capabilities - Every registered capability. A provider factory returns `null` for a
+   *   capability that is unavailable in the running build, and the driver skips it.
+   */
+  constructor(@Inject(AutomationCapability) capabilities: (AutomationCapability | null)[]) {
     for (const capability of capabilities) {
+      if (capability == null) {
+        continue;
+      }
+
       const name = capability.automationName;
 
       if (this.capabilities.has(name)) {

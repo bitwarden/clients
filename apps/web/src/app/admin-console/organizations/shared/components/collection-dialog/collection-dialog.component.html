@@ -10,10 +10,7 @@
       }
     }
     @if (!editMode) {
-      {{
-        (btnTextAddCreateFeatureFlag() ? "addCollection" : "newCollection")
-          | vfo1I18n: (btnTextAddCreateFeatureFlag() ? "addSharedFolder" : "newSharedFolder")
-      }}
+      {{ "addCollection" | vfo1I18n: "addSharedFolder" }}
     }
   </span>
   <div bitDialogContent>

@@ -621,6 +621,16 @@ describe("sharedFolderNameForScope", () => {
     expect(sharedFolderNameForScope(scope, [collection])).toBe(collection.name);
   });
 
+  it("names a nested shared folder by its own name, without its parent path", () => {
+    const nested = new CollectionView({
+      id: collectionId,
+      organizationId,
+      name: "Engineering/Backend",
+    });
+
+    expect(sharedFolderNameForScope(sharedFolderScope, [nested])).toBe("Backend");
+  });
+
   it("names none for a scope naming no collection the list can resolve", () => {
     expect(sharedFolderNameForScope(sharedFolderScope, [])).toBeUndefined();
     expect(sharedFolderNameForScope(sharedFolderScope, [collection])).toBeUndefined();
