@@ -280,6 +280,28 @@
           <bit-select formControlName="locale" [items]="localeOptions" />
           <bit-hint>{{ "languageDesc" | i18n }}</bit-hint>
         </bit-form-field>
+
+        @if (showPasskeyProviderSetting()) {
+          <bit-item>
+            <button
+              type="button"
+              bit-item-content
+              [truncate]="false"
+              (click)="managePasskeyProvider()"
+            >
+              {{ "passkeyProvider" | i18n }}
+              <span slot="secondary">{{ "passkeyProviderDesc" | i18n }}</span>
+              <span slot="end" class="tw-flex tw-items-center tw-gap-2">
+                @if (passkeyProviderState()?.enabled) {
+                  <span bitBadge variant="success">{{ "turnedOn" | i18n }}</span>
+                } @else {
+                  <span bitBadge variant="subtle">{{ "turnedOff" | i18n }}</span>
+                }
+                <bit-icon name="bwi-external-link" />
+              </span>
+            </button>
+          </bit-item>
+        }
       </bit-tab>
     </bit-tab-group>
   </ng-container>
