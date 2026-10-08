@@ -399,10 +399,12 @@
         @if (requestError(); as error) {
           <p
             bitTypography="helper"
-            class="tw-mb-0 tw-mt-3 tw-text-danger"
+            role="alert"
+            class="tw-mb-0 tw-mt-3 tw-flex tw-items-start tw-gap-2 tw-text-danger"
             data-testid="request-error"
           >
-            {{ error }}
+            <bit-icon name="bwi-error" class="tw-mt-0.5" />
+            <span>{{ error }}</span>
           </p>
         }
 
