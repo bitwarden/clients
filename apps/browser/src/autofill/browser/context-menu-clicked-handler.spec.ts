@@ -44,6 +44,7 @@ import {
   CopyToClipboardOptions,
   GeneratePasswordToClipboardAction,
   AutofillAction,
+  CollectAutofillTriageAction,
 } from "./context-menu-clicked-handler";
 
 describe("ContextMenuClickedHandler", () => {
@@ -84,6 +85,7 @@ describe("ContextMenuClickedHandler", () => {
   let copyToClipboard: CopyToClipboardAction;
   let generatePasswordToClipboard: GeneratePasswordToClipboardAction;
   let autofill: AutofillAction;
+  let collectAutofillTriage: jest.Mock<ReturnType<CollectAutofillTriageAction>, [number, number?]>;
   let authService: MockProxy<AuthService>;
   let cipherService: MockProxy<CipherService>;
   let accountService: FakeAccountService;
@@ -100,6 +102,7 @@ describe("ContextMenuClickedHandler", () => {
     copyToClipboard = jest.fn<void, [CopyToClipboardOptions]>();
     generatePasswordToClipboard = jest.fn<Promise<void>, [tab: chrome.tabs.Tab]>();
     autofill = jest.fn<Promise<void>, [tab: chrome.tabs.Tab, cipher: CipherView]>();
+    collectAutofillTriage = jest.fn<ReturnType<CollectAutofillTriageAction>, [number, number?]>();
     authService = mock();
     cipherService = mock();
     accountService = mockAccountServiceWith(mockUserId as UserId);
@@ -114,6 +117,7 @@ describe("ContextMenuClickedHandler", () => {
       copyToClipboard,
       generatePasswordToClipboard,
       autofill,
+      collectAutofillTriage,
       authService,
       cipherService,
       totpService,
@@ -360,11 +364,7 @@ describe("ContextMenuClickedHandler", () => {
       };
 
       beforeEach(() => {
-        jest
-          .spyOn(BrowserApi, "sendTabsMessage")
-          .mockImplementation((_tabId, _message, _options, callback?: (response: any) => void) => {
-            callback?.({ pageDetails: mockPageDetails });
-          });
+        collectAutofillTriage.mockResolvedValue({ pageDetails: mockPageDetails } as any);
         jest.spyOn(BrowserPopupUtils, "openPopout").mockResolvedValue(undefined);
         jest.spyOn(BrowserApi, "setSidePanelOptions").mockResolvedValue(undefined);
         jest.spyOn(BrowserApi, "openSidePanel").mockResolvedValue(undefined);
@@ -380,15 +380,10 @@ describe("ContextMenuClickedHandler", () => {
         };
       });
 
-      it("sends collectAutofillTriage to the tab and stores the result", async () => {
+      it("collects triage through the orchestrator and stores the result", async () => {
         await sut.run(createData(AUTOFILL_TRIAGE_ID), mockTab);
 
-        expect(BrowserApi.sendTabsMessage).toHaveBeenCalledWith(
-          mockTab.id,
-          { command: "collectAutofillTriage", targetElementId: undefined },
-          { frameId: undefined },
-          expect.any(Function),
-        );
+        expect(collectAutofillTriage).toHaveBeenCalledWith(mockTab.id, undefined);
         expect(sut.triageResult).not.toBeUndefined();
         expect(sut.triageResult?.tabId).toBe(mockTab.id);
         expect(sut.triageResult?.pageUrl).toBe(mockTab.url);
@@ -440,11 +435,7 @@ describe("ContextMenuClickedHandler", () => {
 
       it("sends triageResultReady when page details collection fails so the component exits the loading state", async () => {
         const sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage").mockResolvedValue(undefined);
-        jest
-          .spyOn(BrowserApi, "sendTabsMessage")
-          .mockImplementation((_tabId, _message, _options, callback?: (response: any) => void) => {
-            callback?.(null);
-          });
+        collectAutofillTriage.mockResolvedValue(undefined);
 
         await sut.run(createData(AUTOFILL_TRIAGE_ID), mockTab);
 
