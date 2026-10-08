@@ -97,6 +97,28 @@ fn app_group_container() -> Option<std::path::PathBuf> {
     desktop_objc::app_group_container_path(&group_id).map(std::path::PathBuf::from)
 }
 
+/// The directory under the user's cache directory that holds the sockets when no App Group
+/// container is used.
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+fn cache_dir_name() -> String {
+    #[cfg(target_os = "macos")]
+    {
+        // A packaged Bitwarden bundle -- one that declares its App Group in its Info.plist --
+        // is named after its own bundle identifier, so beta and stable do not share a socket.
+        // Anything else, such as an `npm start` dev build running inside Electron.app or a dev
+        // proxy outside any bundle, keeps the stable name so the dev app and dev proxy still
+        // find each other.
+        let is_packaged = desktop_objc::app_group_id().is_some();
+        if is_packaged {
+            if let Some(bundle_id) = desktop_objc::bundle_identifier() {
+                return bundle_id;
+            }
+        }
+    }
+
+    "com.bitwarden.desktop".to_owned()
+}
+
 /// The main path to the IPC socket.
 pub fn path(name: &str) -> std::path::PathBuf {
     if let Some(dir) = socket_dir_override() {
@@ -146,7 +168,7 @@ pub fn path(name: &str) -> std::path::PathBuf {
     {
         // On Linux and unsandboxed Mac, we use the user's cache directory.
         let home = dirs::cache_dir().expect("Could not find user cache directory");
-        let path_dir = home.join("com.bitwarden.desktop");
+        let path_dir = home.join(cache_dir_name());
 
         // The cache directory might not exist, so create it
         let _ = std::fs::create_dir_all(&path_dir);

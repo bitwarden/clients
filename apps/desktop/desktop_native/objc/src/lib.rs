@@ -75,6 +75,7 @@ mod objc {
         pub unsafe fn freeObjCString(value: &ObjCString);
         pub unsafe fn appGroupId() -> ObjCString;
         pub unsafe fn appGroupContainerPath(group_id: *const c_char) -> ObjCString;
+        pub unsafe fn appBundleIdentifier() -> ObjCString;
     }
 
     /// This function is called from the ObjC code to return the output of the command
@@ -128,6 +129,17 @@ pub fn app_group_container_path(group_id: &str) -> Option<String> {
     let objc_string = unsafe { objc::appGroupContainerPath(c_group_id.as_ptr()) };
     let path = String::try_from(objc_string).ok()?;
     (!path.is_empty()).then_some(path)
+}
+
+/// Returns the bundle identifier of the app this process belongs to -- the enclosing .app,
+/// for a helper such as desktop_proxy -- or `None` when it has none (e.g. a binary that is
+/// not inside a bundle).
+pub fn bundle_identifier() -> Option<String> {
+    // SAFETY: `appBundleIdentifier` returns a freshly allocated ObjCString whose Drop
+    // frees it; it reads only process-global bundle state.
+    let objc_string = unsafe { objc::appBundleIdentifier() };
+    let id = String::try_from(objc_string).ok()?;
+    (!id.is_empty()).then_some(id)
 }
 
 pub async fn run_command(input: String) -> Result<String> {

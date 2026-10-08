@@ -39,3 +39,8 @@ struct ObjCString appGroupContainerPath(const char *groupId) {
       containerURLForSecurityApplicationGroupIdentifier:group];
   return nsStringToObjCString(containerURL ? containerURL.path : @"");
 }
+
+struct ObjCString appBundleIdentifier(void) {
+  id bundleId = hostInfoDictionary()[@"CFBundleIdentifier"];
+  return nsStringToObjCString([bundleId isKindOfClass:[NSString class]] && [bundleId length] > 0 ? bundleId : @"");
+}
