@@ -141,9 +141,6 @@ export class TrayMain {
       await this.windowMain.createWindow();
       this.windowMain.win.show();
     } else {
-      if (this.windowMain.win.isMinimized()) {
-        this.windowMain.win.restore();
-      }
       this.windowMain.show();
       this.windowMain.win.focus();
     }
