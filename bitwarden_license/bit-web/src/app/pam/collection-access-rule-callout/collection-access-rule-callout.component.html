@@ -1,0 +1,22 @@
+@if (governingRules().length > 0) {
+  <bit-callout
+    type="info"
+    [title]="'pamCollectionAccessRuleCalloutTitle' | i18n"
+    data-testid="collection-access-rule-callout"
+  >
+    <span>{{ "pamCollectionAccessRuleCalloutBody" | i18n }}</span>
+    @for (rule of governingRules(); track rule.id) {
+      <span class="tw-ms-1" [attr.data-testid]="'collection-access-rule-' + rule.id">
+        <a
+          bitLink
+          linkType="primary"
+          [routerLink]="['/organizations', organizationId(), 'pam', 'access-rules', rule.id]"
+          (click)="closeDialog()"
+          >{{ rule.name }}</a
+        >
+        <span class="tw-ms-1 tw-text-muted">&middot;</span>
+        <span class="tw-ms-1 tw-text-muted">{{ summaryFor(rule) }}</span>
+      </span>
+    }
+  </bit-callout>
+}

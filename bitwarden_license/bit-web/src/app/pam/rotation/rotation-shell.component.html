@@ -1,0 +1,55 @@
+<app-header [title]="'pamRotationTitle' | i18n">
+  <div slot="subtitle">{{ "pamRotationSubtitle" | i18n }}</div>
+  @switch (activeTab()) {
+    @case ("access-connectors") {
+      @if (!vfo1Enabled() && hasAccessConnectors()) {
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          [bitAction]="registerAccessConnector"
+          id="rotation-shell_button_new-access-connector"
+        >
+          {{ "pamAccessConnectorNew" | i18n }}
+        </button>
+      }
+    }
+    @case ("target-systems") {
+      @if (!vfo1Enabled() && hasTargetSystems()) {
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          [bitAction]="createTargetSystem"
+          id="rotation-shell_button_new-target-system"
+        >
+          {{ "pamTargetSystemNew" | i18n }}
+        </button>
+      }
+    }
+    @case ("managed-credentials") {
+      @if (!vfo1Enabled() && hasConfigs()) {
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          [bitAction]="createManagedCredential"
+          id="rotation-shell_button_new-managed-credential"
+        >
+          {{ "pamRotationConfigNew" | i18n }}
+        </button>
+      }
+    }
+  }
+  <bit-tab-nav-bar slot="tabs" [label]="'pamRotationTitle' | i18n">
+    <bit-tab-link route="access-connectors">{{
+      "pamRotationTabAccessConnectors" | i18n
+    }}</bit-tab-link>
+    <bit-tab-link route="target-systems">{{ "pamRotationTabTargetSystems" | i18n }}</bit-tab-link>
+    <bit-tab-link route="managed-credentials" [berryValue]="awaitingManualCount()">{{
+      "pamRotationTabManagedCredentials" | i18n
+    }}</bit-tab-link>
+  </bit-tab-nav-bar>
+</app-header>
+
+<router-outlet></router-outlet>

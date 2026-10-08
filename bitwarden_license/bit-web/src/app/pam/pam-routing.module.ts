@@ -4,9 +4,16 @@ import { RouterModule, Routes } from "@angular/router";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { organizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-permissions.guard";
+import { organizationRedirectGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-redirect.guard";
 
-import { AccessRuleEditComponent } from "./access-rules/access-rule-edit/access-rule-edit.component";
+import { AccessAuditComponent } from "./access-audit/access-audit.component";
+import { AccessNameResolverService } from "./access-requests/access-name-resolver.service";
+import {
+  AccessRuleEditComponent,
+  accessRuleEditDiscardGuard,
+} from "./access-rules/access-rule-edit/access-rule-edit.component";
 import { AccessRulesComponent } from "./access-rules/access-rules.component";
+import { pamLandingRoute } from "./pam-landing-route";
 
 const routes: Routes = [
   {
@@ -16,7 +23,26 @@ const routes: Routes = [
       {
         path: "",
         pathMatch: "full",
-        redirectTo: "access-rules",
+        canActivate: [organizationRedirectGuard(pamLandingRoute)],
+        // Required to make the auto redirect work, as on the organization route itself.
+        children: [],
+      },
+      {
+        path: "audit",
+        canActivate: [organizationPermissionsGuard((org) => org.usePam && org.canAccessEventLogs)],
+        component: AccessAuditComponent,
+        // Route-provided, as on the access requests shell; resolves names from local vault state.
+        providers: [AccessNameResolverService],
+        data: { titleId: "pamAuditLog" },
+      },
+      {
+        path: "rotation",
+        canActivate: [
+          canAccessFeature(FeatureFlag.PamAccessConnector),
+          organizationPermissionsGuard((org) => org.canManageRotation),
+        ],
+        data: { titleId: "pamRotationTitle" },
+        loadChildren: () => import("./rotation/rotation.routes").then((m) => m.rotationRoutes),
       },
       {
         path: "access-rules",
@@ -31,11 +57,13 @@ const routes: Routes = [
           {
             path: "new",
             component: AccessRuleEditComponent,
+            canDeactivate: [accessRuleEditDiscardGuard],
             data: { titleId: "pamAccessRuleCreateTitle" },
           },
           {
             path: ":accessRuleId",
             component: AccessRuleEditComponent,
+            canDeactivate: [accessRuleEditDiscardGuard],
             data: { titleId: "pamAccessRuleEditTitle" },
           },
         ],

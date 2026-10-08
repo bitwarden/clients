@@ -1,5 +1,5 @@
 import { inject, NgModule } from "@angular/core";
-import { Route, Router, RouterModule, Routes } from "@angular/router";
+import { LoadChildrenCallback, Route, Router, RouterModule, Routes } from "@angular/router";
 import { map, switchMap } from "rxjs";
 
 import { organizationPolicyGuard } from "@bitwarden/angular/admin-console/guards";
@@ -91,6 +91,7 @@ import { DataRecoveryComponent } from "./key-management/data-recovery/data-recov
 import { ConfirmKeyConnectorDomainComponent } from "./key-management/key-connector/confirm-key-connector-domain.component";
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
 import { UserLayoutComponent } from "./layouts/user-layout.component";
+import { PAM_ROUTES } from "./pam/pam-routes.token";
 import { RequestSMAccessComponent } from "./secrets-manager/secrets-manager-landing/request-sm-access.component";
 import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm-landing.component";
 import { AppearanceComponent } from "./settings/appearance.component";
@@ -683,6 +684,15 @@ const routes: Routes = [
         path: "vault",
         canActivate: [premiumInterestRedirectGuard, setupExtensionRedirectGuard],
         loadChildren: () => VaultModule,
+      },
+      {
+        // A child of the shared user shell, since a second layout instance would re-base the side
+        // nav's relative routerLinks.
+        path: "pam",
+        canMatch: [() => inject(PAM_ROUTES, { optional: true }) != null],
+        canActivate: [canAccessFeature(FeatureFlag.Pam)],
+        // inject() infers `unknown` from a SafeInjectionToken, hence the explicit type argument.
+        loadChildren: () => inject<LoadChildrenCallback>(PAM_ROUTES)(),
       },
       {
         path: "sends",

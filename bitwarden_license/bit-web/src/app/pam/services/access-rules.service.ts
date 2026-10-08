@@ -8,23 +8,23 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import { AccessRuleSdkService, AccessRuleView, accessRuleToRequest } from "..";
+import {
+  AccessRuleSdkService,
+  AccessRuleView,
+  accessRuleToCopyRequest,
+  accessRuleToRequest,
+  rulesChangingEnabled,
+} from "..";
 
-/**
- * Page-level data service for the access rules table: owns the org's rule list and
- * collections, loads them, and performs the CRUD mutations (enable/disable, delete,
- * and their bulk variants). Rules are exposed as raw {@link AccessRuleView}s — the
- * view derives sorting, badges, and collection names from them directly.
- *
- * Provided at the component level so each `AccessRulesComponent` gets its own
- * instance. View concerns (toasts, confirm dialogs, selection, routing) stay in
- * the component; this service just owns state and the API round-trips.
- */
+import { GovernedCollectionsService } from "./governed-collections.service";
+
+/** Data service for the access rules table, provided per `AccessRulesComponent`. */
 @Injectable()
 export class AccessRulesService {
   private readonly pamApi = inject(AccessRuleSdkService);
   private readonly accountService = inject(AccountService);
   private readonly collectionAdminService = inject(CollectionAdminService);
+  private readonly governedCollections = inject(GovernedCollectionsService);
 
   /** Set by {@link load}; the org all subsequent mutations target. */
   private organizationId: OrganizationId | null = null;
@@ -34,11 +34,9 @@ export class AccessRulesService {
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
 
   readonly rules$: Observable<AccessRuleView[]> = this._rules$.asObservable();
-  /** The org's collections; the view resolves rule collection ids to names against these. */
   readonly collections$: Observable<CollectionAdminView[]> = this._collections$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
 
-  /** Fetch the org's rules and collections, replacing local state. */
   async load(organizationId: OrganizationId): Promise<void> {
     this.organizationId = organizationId;
     this._loading$.next(true);
@@ -55,39 +53,56 @@ export class AccessRulesService {
     }
   }
 
-  /** The currently-loaded rule with the given id, if any. */
   getRule(id: string): AccessRuleView | undefined {
     return this._rules$.value.find((r) => uuidAsString(r.id) === id);
   }
 
-  /** Toggle a single rule's enabled flag, patching local state with the result. */
-  async setEnabled(rule: AccessRuleView, enabled: boolean): Promise<void> {
-    const updated = await this.pamApi.updateAccessRule(
+  /**
+   * Persists immediately, so `name` must already be collision-free (see {@link copyRuleName}). The
+   * copy governs no collections, so the governed-collections cache stays valid.
+   */
+  async copy(rule: AccessRuleView, name: string): Promise<AccessRuleView> {
+    const created = await this.pamApi.createAccessRule(
       this.requireOrganizationId(),
-      rule.id,
-      accessRuleToRequest(rule, enabled),
+      accessRuleToCopyRequest(rule, name),
     );
-    this._rules$.next(this._rules$.value.map((r) => (r.id === rule.id ? updated : r)));
+    this._rules$.next([...this._rules$.value, created]);
+    return created;
   }
 
   /**
-   * Enable/disable many rules at once, skipping rules already in the target state.
-   * Returns the number of rules actually changed (0 when none needed updating).
+   * Invalidates the governed-collections cache, since `rulesGoverningCollection` filters its cached
+   * rules on `enabled`.
    */
+  async setEnabled(rule: AccessRuleView, enabled: boolean): Promise<void> {
+    const organizationId = this.requireOrganizationId();
+    const updated = await this.pamApi.updateAccessRule(
+      organizationId,
+      rule.id,
+      accessRuleToRequest(rule, enabled),
+    );
+    this.governedCollections.invalidate(organizationId);
+    this._rules$.next(this._rules$.value.map((r) => (r.id === rule.id ? updated : r)));
+  }
+
+  /** Returns how many rules changed; a no-op returns early without invalidating the cache. */
   async setManyEnabled(rules: AccessRuleView[], enabled: boolean): Promise<number> {
-    const targets = rules.filter((r) => r.enabled !== enabled);
+    const targets = rulesChangingEnabled(rules, enabled);
     if (targets.length === 0) {
       return 0;
     }
-    const updated = await Promise.all(
-      targets.map((rule) =>
-        this.pamApi.updateAccessRule(
-          this.requireOrganizationId(),
-          rule.id,
-          accessRuleToRequest(rule, enabled),
+    const organizationId = this.requireOrganizationId();
+    let updated;
+    try {
+      updated = await Promise.all(
+        targets.map((rule) =>
+          this.pamApi.updateAccessRule(organizationId, rule.id, accessRuleToRequest(rule, enabled)),
         ),
-      ),
-    );
+      );
+    } finally {
+      // A partial toggle still changed what `rulesGoverningCollection` reports.
+      this.governedCollections.invalidate(organizationId);
+    }
     const byId = new Map(
       updated.map((r: AccessRuleView): [string, AccessRuleView] => [uuidAsString(r.id), r]),
     );
@@ -95,17 +110,25 @@ export class AccessRulesService {
     return updated.length;
   }
 
-  /** Delete a single rule, dropping it from local state. */
+  /** Invalidates the governed-collections cache so the freed collections reappear in the picker. */
   async delete(rule: AccessRuleView): Promise<void> {
-    await this.pamApi.deleteAccessRule(this.requireOrganizationId(), rule.id);
+    const organizationId = this.requireOrganizationId();
+    await this.pamApi.deleteAccessRule(organizationId, rule.id);
+    this.governedCollections.invalidate(organizationId);
     this._rules$.next(this._rules$.value.filter((r) => r.id !== rule.id));
   }
 
-  /** Delete many rules at once, dropping them all from local state. */
+  /**
+   * Invalidates whatever the outcome, since `Promise.all` rejects on the first failure while its
+   * siblings still land server-side.
+   */
   async deleteMany(rules: AccessRuleView[]): Promise<void> {
-    await Promise.all(
-      rules.map((rule) => this.pamApi.deleteAccessRule(this.requireOrganizationId(), rule.id)),
-    );
+    const organizationId = this.requireOrganizationId();
+    try {
+      await Promise.all(rules.map((rule) => this.pamApi.deleteAccessRule(organizationId, rule.id)));
+    } finally {
+      this.governedCollections.invalidate(organizationId);
+    }
     const removed = new Set(rules.map((r) => r.id));
     this._rules$.next(this._rules$.value.filter((r) => !removed.has(r.id)));
   }

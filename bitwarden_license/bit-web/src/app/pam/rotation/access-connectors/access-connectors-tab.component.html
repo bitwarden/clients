@@ -1,0 +1,527 @@
+<pam-rotation-loading-announcer
+  [loading]="loading()"
+  [failed]="loadError() != null"
+  loadedKey="pamAccessConnectorsLoaded"
+/>
+
+@if (loadError()) {
+  <pam-rotation-load-error [focusRetry]="retried()" (retry)="retryLoad()" />
+} @else if (loadingVisible()) {
+  <div aria-hidden="true" data-testid="access-connectors-loading">
+    @if (!vfo1Enabled()) {
+      <!-- remove this branch when the VFO1 flag is removed -->
+      <div class="tw-mb-4 tw-flex tw-h-10 tw-flex-wrap tw-items-center tw-gap-3">
+        @if (showSkeleton()) {
+          <bit-skeleton class="tw-h-10 tw-w-full tw-max-w-md"></bit-skeleton>
+          <bit-skeleton class="tw-h-10 tw-w-24"></bit-skeleton>
+          <bit-skeleton class="tw-h-10 tw-w-32"></bit-skeleton>
+        }
+      </div>
+    }
+
+    @if (vfo1Enabled()) {
+      <bit-table-v2
+        [tableDef]="loadingTable"
+        [loading]="showSkeleton()"
+        [loadingRows]="skeletonRows.length"
+      >
+        <!-- The real toolbar, disabled, so the header row sits where it will once rows land. -->
+        <bit-table-toolbar inert [countLabel]="blankCountLabel">
+          <bit-search
+            class="tw-flex-1"
+            [placeholder]="'pamAccessConnectorSearch' | i18n"
+            [disabled]="true"
+          ></bit-search>
+          <bit-filter-menu
+            key="status"
+            [placeholderText]="'status' | i18n"
+            [unsetLabel]="'all' | i18n"
+            [disabled]="true"
+          ></bit-filter-menu>
+          <bit-filter-menu
+            key="connection"
+            [placeholderText]="'pamAccessConnectorConnection' | i18n"
+            [unsetLabel]="'all' | i18n"
+            [disabled]="true"
+          ></bit-filter-menu>
+        </bit-table-toolbar>
+        <div slot="empty"></div>
+        <bit-column width="minmax(12rem, 2fr)">
+          <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
+          <bit-cell *bitCellDef="loadingTable.columns.name"></bit-cell>
+          <bit-cell *bitCellLoading
+            ><bit-skeleton-text class="tw-w-40"></bit-skeleton-text
+          ></bit-cell>
+        </bit-column>
+        <bit-column>
+          <bit-header-cell>{{ "status" | i18n }}</bit-header-cell>
+          <bit-cell *bitCellDef="loadingTable.columns.statusLabelKey"></bit-cell>
+          <bit-cell *bitCellLoading>
+            <bit-skeleton class="tw-h-6 tw-w-16" edgeShape="circle"></bit-skeleton>
+          </bit-cell>
+        </bit-column>
+        <bit-column>
+          <bit-header-cell>{{ "pamAccessConnectorConnection" | i18n }}</bit-header-cell>
+          <bit-cell *bitCellDef="loadingTable.columns.isConnected"></bit-cell>
+          <bit-cell *bitCellLoading>
+            <bit-skeleton class="tw-h-6 tw-w-24" edgeShape="circle"></bit-skeleton>
+          </bit-cell>
+        </bit-column>
+        <bit-column>
+          <bit-header-cell>{{ "pamAccessConnectorAssignments" | i18n }}</bit-header-cell>
+          <bit-cell *bitCellDef="loadingTable.columns.assignmentNames"></bit-cell>
+          <bit-cell *bitCellLoading
+            ><bit-skeleton-text class="tw-w-24"></bit-skeleton-text
+          ></bit-cell>
+        </bit-column>
+        <bit-column width="72px">
+          <bit-header-cell></bit-header-cell>
+          <bit-cell *bitCellDef="loadingTable.columns.actions"></bit-cell>
+          <bit-cell *bitCellLoading></bit-cell>
+        </bit-column>
+      </bit-table-v2>
+    } @else {
+      <!-- remove this @else branch when the VFO1 flag is removed -->
+      <bit-table>
+        <ng-container header>
+          <tr>
+            <th bitCell>{{ "name" | i18n }}</th>
+            <th bitCell>{{ "status" | i18n }}</th>
+            <th bitCell>{{ "pamAccessConnectorConnection" | i18n }}</th>
+            <th bitCell>{{ "pamAccessConnectorAssignments" | i18n }}</th>
+            <th bitCell class="tw-w-0"></th>
+          </tr>
+        </ng-container>
+        <ng-template body>
+          @if (showSkeleton()) {
+            @for (skeletonRow of skeletonRows; track skeletonRow) {
+              <tr bitRow>
+                <td bitCell><bit-skeleton-text class="tw-w-40"></bit-skeleton-text></td>
+                <td bitCell>
+                  <bit-skeleton class="tw-h-6 tw-w-16" edgeShape="circle"></bit-skeleton>
+                </td>
+                <td bitCell>
+                  <bit-skeleton class="tw-h-6 tw-w-24" edgeShape="circle"></bit-skeleton>
+                </td>
+                <td bitCell><bit-skeleton-text class="tw-w-24"></bit-skeleton-text></td>
+                <td bitCell></td>
+              </tr>
+            }
+          }
+        </ng-template>
+      </bit-table>
+    }
+  </div>
+} @else if (totalRows() === 0) {
+  <bit-status-lockup>
+    <bit-svg slot="graphic" [content]="noItemsIcon"></bit-svg>
+    <span slot="title">{{ "pamAccessConnectorEmptyStateTitle" | i18n }}</span>
+    <span slot="description">{{ "pamAccessConnectorEmptyStateDescription" | i18n }}</span>
+    <button
+      slot="button"
+      type="button"
+      bitButton
+      buttonType="primary"
+      [bitAction]="registerAccessConnector"
+      id="access-connectors-tab_button_register-empty"
+    >
+      {{ "pamAccessConnectorNew" | i18n }}
+    </button>
+  </bit-status-lockup>
+} @else {
+  @if (vfo1Enabled()) {
+    <bit-table-v2 [tableDef]="table" [filter]="rowMatchesFilter">
+      <bit-table-toolbar>
+        <bit-search
+          class="tw-flex-1"
+          [placeholder]="'pamAccessConnectorSearch' | i18n"
+          [formControl]="searchControl"
+        ></bit-search>
+        <button
+          slot="end"
+          type="button"
+          bitButton
+          buttonType="primary"
+          [bitAction]="registerAccessConnector"
+          id="rotation-shell_button_new-access-connector"
+        >
+          {{ "pamAccessConnectorNew" | i18n }}
+        </button>
+        @if (statusOptions().length > 0) {
+          <bit-filter-menu
+            #statusFilter
+            key="status"
+            [placeholderText]="'status' | i18n"
+            [unsetLabel]="'all' | i18n"
+          >
+            @for (option of statusOptions(); track option.value) {
+              <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+            }
+          </bit-filter-menu>
+        }
+        @if (connectionOptions().length > 0) {
+          <bit-filter-menu
+            #connectionFilter
+            key="connection"
+            [placeholderText]="'pamAccessConnectorConnection' | i18n"
+            [unsetLabel]="'all' | i18n"
+          >
+            @for (option of connectionOptions(); track option.value) {
+              <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+            }
+          </bit-filter-menu>
+        }
+      </bit-table-toolbar>
+
+      <div slot="empty" class="tw-py-6 tw-text-center tw-text-muted">
+        {{ "pamAccessConnectorNoResults" | i18n }}
+      </div>
+
+      <bit-column sortable width="minmax(12rem, 2fr)">
+        <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.name; let r" [truncate]="false">
+          <button
+            type="button"
+            bitLink
+            linkType="primary"
+            (click)="openDetail(r)"
+            id="access-connectors-tab_button_detail-{{ r.id }}"
+          >
+            {{ r.name }}
+          </button>
+        </bit-cell>
+      </bit-column>
+
+      <bit-column>
+        <bit-header-cell>{{ "status" | i18n }}</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.statusLabelKey; let r" [truncate]="false">
+          @if (r.enabled) {
+            <span bitBadge variant="success">{{ r.statusLabelKey | i18n }}</span>
+          } @else {
+            <span bitBadge variant="secondary">{{ r.statusLabelKey | i18n }}</span>
+          }
+        </bit-cell>
+      </bit-column>
+
+      <bit-column>
+        <bit-header-cell>{{ "pamAccessConnectorConnection" | i18n }}</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.isConnected; let r" [truncate]="false">
+          <span bitBadge [variant]="r.isConnected ? 'success' : 'secondary'">{{
+            (r.isConnected ? "pamAccessConnectorConnected" : "pamAccessConnectorDisconnected")
+              | i18n
+          }}</span>
+        </bit-cell>
+      </bit-column>
+
+      <bit-column>
+        <bit-header-cell>{{ "pamAccessConnectorAssignments" | i18n }}</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.assignmentNames; let r" [truncate]="false">
+          @if (r.assignmentNames.length === 0) {
+            <span class="tw-text-muted">{{ "pamAccessConnectorAssignmentsNone" | i18n }}</span>
+          } @else {
+            <button
+              type="button"
+              bit-chip-action
+              variant="primary"
+              startIcon="bwi-desktop"
+              [label]="
+                (r.assignmentNames.length === 1
+                  ? 'pamAccessConnectorAssignmentCountSingular'
+                  : 'pamAccessConnectorAssignmentCount'
+                ) | i18n: r.assignmentNames.length
+              "
+              [bitPopoverTriggerFor]="assignmentsPopover"
+              position="below-start"
+              id="access-connectors-tab_button_assignments-{{ r.id }}"
+            ></button>
+            <bit-popover #assignmentsPopover [title]="'pamAccessConnectorAssignments' | i18n">
+              <div class="tw-flex tw-flex-wrap tw-gap-1">
+                @for (name of r.assignmentNames; track $index) {
+                  <span bitBadge variant="subtle">{{ name }}</span>
+                }
+              </div>
+            </bit-popover>
+          }
+        </bit-cell>
+      </bit-column>
+
+      <bit-column width="72px">
+        <bit-header-cell>
+          <span class="tw-sr-only">{{ "options" | i18n }}</span>
+        </bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.actions; let r">
+          <button
+            slot="end"
+            type="button"
+            bitIconButton="bwi-ellipsis-h"
+            [bitMenuTriggerFor]="rowMenu"
+            label="{{ 'options' | i18n }}"
+            id="access-connectors-tab_button_menu-{{ r.id }}"
+          ></button>
+          <bit-menu #rowMenu>
+            <button type="button" bitMenuItem (click)="openDetail(r)">
+              <bit-icon name="bwi-eye" class="tw-text-muted"></bit-icon>
+              {{ "pamAccessConnectorViewDetails" | i18n }}
+            </button>
+            @if (r.assignTargetsBlockedKey; as blockedKey) {
+              <button
+                type="button"
+                bitMenuItem
+                [attr.aria-disabled]="true"
+                [bitTooltip]="blockedKey | i18n"
+                [addTooltipToDescribedby]="true"
+                (click)="$event.stopPropagation()"
+                id="access-connectors-tab_button_assign-locked-{{ r.id }}"
+              >
+                <bit-icon name="bwi-plus-circle" class="tw-text-muted"></bit-icon>
+                {{ "pamAccessConnectorAssignTargets" | i18n }}
+              </button>
+            } @else {
+              <button
+                type="button"
+                bitMenuItem
+                [disabled]="isRowBusy(r.id)"
+                (click)="openAssignDialog(r)"
+                id="access-connectors-tab_button_assign-{{ r.id }}"
+              >
+                <bit-icon name="bwi-plus-circle" class="tw-text-muted"></bit-icon>
+                {{ "pamAccessConnectorAssignTargets" | i18n }}
+              </button>
+            }
+            @for (
+              assignmentId of r.accessConnector.assignedTargetSystemIds;
+              track assignmentId;
+              let i = $index
+            ) {
+              <button
+                type="button"
+                bitMenuItem
+                [disabled]="isRowBusy(r.id)"
+                (click)="unassign(r, assignmentId, r.assignmentNames[i])"
+              >
+                <bit-icon name="bwi-close" class="tw-text-muted"></bit-icon>
+                {{ "pamAccessConnectorUnassign" | i18n: r.assignmentNames[i] }}
+              </button>
+            }
+            @if (r.enabled) {
+              <button type="button" bitMenuItem [disabled]="isRowBusy(r.id)" (click)="disable(r)">
+                <bit-icon name="bwi-minus-circle" class="tw-text-muted"></bit-icon>
+                {{ "pamAccessConnectorDeactivate" | i18n }}
+              </button>
+            } @else {
+              <button type="button" bitMenuItem [disabled]="isRowBusy(r.id)" (click)="enable(r)">
+                <bit-icon name="bwi-check-circle" class="tw-text-muted"></bit-icon>
+                {{ "pamAccessConnectorActivate" | i18n }}
+              </button>
+            }
+            <bit-menu-divider />
+            <button
+              type="button"
+              bitMenuItem
+              [disabled]="isRowBusy(r.id)"
+              (click)="confirmDelete(r)"
+            >
+              <bit-icon name="bwi-trash" class="tw-text-danger"></bit-icon>
+              <span class="tw-text-danger">{{
+                "pamAccessConnectorDeleteAccessConnector" | i18n
+              }}</span>
+            </button>
+          </bit-menu>
+        </bit-cell>
+      </bit-column>
+    </bit-table-v2>
+  } @else {
+    <!-- remove this @else branch when the VFO1 flag is removed -->
+    <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
+      <bit-search
+        class="tw-grow tw-max-w-md"
+        [placeholder]="'pamAccessConnectorSearch' | i18n"
+        [formControl]="searchControl"
+      ></bit-search>
+      @if (statusOptions().length > 0) {
+        <bit-filter-menu
+          #statusFilter
+          key="status"
+          [placeholderText]="'status' | i18n"
+          [unsetLabel]="'all' | i18n"
+        >
+          @for (option of statusOptions(); track option.value) {
+            <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+          }
+        </bit-filter-menu>
+      }
+      @if (connectionOptions().length > 0) {
+        <bit-filter-menu
+          #connectionFilter
+          key="connection"
+          [placeholderText]="'pamAccessConnectorConnection' | i18n"
+          [unsetLabel]="'all' | i18n"
+        >
+          @for (option of connectionOptions(); track option.value) {
+            <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+          }
+        </bit-filter-menu>
+      }
+    </div>
+
+    <bit-table [dataSource]="dataSource">
+      <ng-container header>
+        <tr>
+          <th bitCell bitSortable="name">{{ "name" | i18n }}</th>
+          <th bitCell>{{ "status" | i18n }}</th>
+          <th bitCell>{{ "pamAccessConnectorConnection" | i18n }}</th>
+          <th bitCell>{{ "pamAccessConnectorAssignments" | i18n }}</th>
+          <th bitCell class="tw-w-0"></th>
+        </tr>
+      </ng-container>
+      <ng-template body let-rows$>
+        <tr bitRow *ngFor="let r of rows$ | async">
+          <td bitCell>
+            <button
+              type="button"
+              bitLink
+              linkType="primary"
+              (click)="openDetail(r)"
+              id="access-connectors-tab_button_detail-{{ r.id }}"
+            >
+              {{ r.name }}
+            </button>
+          </td>
+
+          <td bitCell>
+            @if (r.enabled) {
+              <span bitBadge variant="success">{{ r.statusLabelKey | i18n }}</span>
+            } @else {
+              <span bitBadge variant="secondary">{{ r.statusLabelKey | i18n }}</span>
+            }
+          </td>
+
+          <td bitCell>
+            <span bitBadge [variant]="r.isConnected ? 'success' : 'secondary'">{{
+              (r.isConnected ? "pamAccessConnectorConnected" : "pamAccessConnectorDisconnected")
+                | i18n
+            }}</span>
+          </td>
+
+          <td bitCell>
+            @if (r.assignmentNames.length === 0) {
+              <span class="tw-text-muted">{{ "pamAccessConnectorAssignmentsNone" | i18n }}</span>
+            } @else {
+              <button
+                type="button"
+                bit-chip-action
+                variant="primary"
+                startIcon="bwi-desktop"
+                [label]="
+                  (r.assignmentNames.length === 1
+                    ? 'pamAccessConnectorAssignmentCountSingular'
+                    : 'pamAccessConnectorAssignmentCount'
+                  ) | i18n: r.assignmentNames.length
+                "
+                [bitPopoverTriggerFor]="assignmentsPopover"
+                position="below-start"
+                id="access-connectors-tab_button_assignments-{{ r.id }}"
+              ></button>
+              <bit-popover #assignmentsPopover [title]="'pamAccessConnectorAssignments' | i18n">
+                <div class="tw-flex tw-flex-wrap tw-gap-1">
+                  @for (name of r.assignmentNames; track $index) {
+                    <span bitBadge variant="subtle">{{ name }}</span>
+                  }
+                </div>
+              </bit-popover>
+            }
+          </td>
+
+          <td bitCell>
+            <button
+              type="button"
+              bitIconButton="bwi-ellipsis-h"
+              [bitMenuTriggerFor]="rowMenu"
+              label="{{ 'options' | i18n }}"
+              id="access-connectors-tab_button_menu-{{ r.id }}"
+            ></button>
+            <bit-menu #rowMenu>
+              <button type="button" bitMenuItem (click)="openDetail(r)">
+                <bit-icon name="bwi-eye" class="tw-text-muted"></bit-icon>
+                {{ "pamAccessConnectorViewDetails" | i18n }}
+              </button>
+              @if (r.assignTargetsBlockedKey; as blockedKey) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  [attr.aria-disabled]="true"
+                  [bitTooltip]="blockedKey | i18n"
+                  [addTooltipToDescribedby]="true"
+                  (click)="$event.stopPropagation()"
+                  id="access-connectors-tab_button_assign-locked-{{ r.id }}"
+                >
+                  <bit-icon name="bwi-plus-circle" class="tw-text-muted"></bit-icon>
+                  {{ "pamAccessConnectorAssignTargets" | i18n }}
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  bitMenuItem
+                  [disabled]="isRowBusy(r.id)"
+                  (click)="openAssignDialog(r)"
+                  id="access-connectors-tab_button_assign-{{ r.id }}"
+                >
+                  <bit-icon name="bwi-plus-circle" class="tw-text-muted"></bit-icon>
+                  {{ "pamAccessConnectorAssignTargets" | i18n }}
+                </button>
+              }
+              @if (r.accessConnector.assignedTargetSystemIds.length > 0) {
+                @for (
+                  assignmentId of r.accessConnector.assignedTargetSystemIds;
+                  track assignmentId;
+                  let i = $index
+                ) {
+                  <button
+                    type="button"
+                    bitMenuItem
+                    [disabled]="isRowBusy(r.id)"
+                    (click)="unassign(r, assignmentId, r.assignmentNames[i])"
+                  >
+                    <bit-icon name="bwi-close" class="tw-text-muted"></bit-icon>
+                    {{ "pamAccessConnectorUnassign" | i18n: r.assignmentNames[i] }}
+                  </button>
+                }
+              }
+              @if (r.enabled) {
+                <button type="button" bitMenuItem [disabled]="isRowBusy(r.id)" (click)="disable(r)">
+                  <bit-icon name="bwi-minus-circle" class="tw-text-muted"></bit-icon>
+                  {{ "pamAccessConnectorDeactivate" | i18n }}
+                </button>
+              } @else {
+                <button type="button" bitMenuItem [disabled]="isRowBusy(r.id)" (click)="enable(r)">
+                  <bit-icon name="bwi-check-circle" class="tw-text-muted"></bit-icon>
+                  {{ "pamAccessConnectorActivate" | i18n }}
+                </button>
+              }
+              <bit-menu-divider />
+              <button
+                type="button"
+                bitMenuItem
+                [disabled]="isRowBusy(r.id)"
+                (click)="confirmDelete(r)"
+              >
+                <bit-icon name="bwi-trash" class="tw-text-danger"></bit-icon>
+                <span class="tw-text-danger">{{
+                  "pamAccessConnectorDeleteAccessConnector" | i18n
+                }}</span>
+              </button>
+            </bit-menu>
+          </td>
+        </tr>
+
+        @if (dataSource.filteredData.length === 0) {
+          <tr bitRow>
+            <td bitCell colspan="5" class="tw-py-6 tw-text-center tw-text-muted">
+              {{ "pamAccessConnectorNoResults" | i18n }}
+            </td>
+          </tr>
+        }
+      </ng-template>
+    </bit-table>
+  }
+}

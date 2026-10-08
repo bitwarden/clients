@@ -41,8 +41,20 @@ export function queryForAutofocusDescendents(el: Document | Element) {
 export class AutofocusDirective implements AfterContentChecked {
   readonly appAutofocus = input(undefined, { transform: booleanAttribute });
 
+  /**
+   * Also select the focused element's contents, for a prefilled value the user types over. No-op
+   * on an element without `select()`.
+   */
+  readonly appAutofocusSelect = input(false, { transform: booleanAttribute });
+
   // Track if we have already focused the element.
   private focused = false;
+
+  /**
+   * Separate from {@link focused}, which stays false through the Safari focus handoff so focusing
+   * can retry. Selecting must not retry, or it could select text the user has typed since.
+   */
+  private selected = false;
 
   constructor(
     private el: ElementRef,
@@ -86,6 +98,10 @@ export class AutofocusDirective implements AfterContentChecked {
     if (el) {
       if (document.activeElement !== el) {
         el.focus();
+        if (this.appAutofocusSelect() && !this.selected) {
+          this.selected = true;
+          selectContents(el);
+        }
       }
 
       /**
@@ -105,5 +121,11 @@ export class AutofocusDirective implements AfterContentChecked {
     }
 
     return this.el.nativeElement;
+  }
+}
+
+function selectContents(el: HTMLElement): void {
+  if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+    el.select();
   }
 }

@@ -36,6 +36,12 @@ import { SecureNote } from "./secure-note";
 import { SshKey } from "./ssh-key";
 
 /**
+ * `SdkCipher` plus the PAM `partialData` envelope, bridged so the SDK mappers round-trip it until
+ * the published `sdk-internal` declares it. Optional, so a plain `SdkCipher` stays assignable.
+ */
+type SdkCipherWithPartialData = SdkCipher & { partialData?: string };
+
+/**
  * Encrypted cipher, as stored and synced.
  *
  * Only metadata fields (ids, `key`, `type`, flags, permissions, dates, `attachments`,
@@ -94,7 +100,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   key?: EncString;
   /** @deprecated Opaque sealed blob (blob format only), not public API. Never parse or construct it. See {@link Cipher}. */
   data?: string;
-  /** Raw JSON-string partial-data envelope for PAM-gated rows; see {@link CipherData.partialData}. */
+  /** Raw JSON partial-data envelope for PAM-gated rows; see {@link CipherData.partialData}. */
   partialData?: string;
 
   constructor(obj?: CipherData, localData?: LocalData) {
@@ -495,10 +501,10 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   /**
    * Maps Cipher to SDK format.
    *
-   * @returns {SdkCipher} The SDK cipher object.
+   * @returns {SdkCipherWithPartialData} The SDK cipher object.
    */
-  toSdkCipher(): SdkCipher {
-    const sdkCipher: SdkCipher = {
+  toSdkCipher(): SdkCipherWithPartialData {
+    const sdkCipher: SdkCipherWithPartialData = {
       id: this.id ? asUuid(this.id) : undefined,
       organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
       folderId: this.folderId ? asUuid(this.folderId) : undefined,
@@ -591,7 +597,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
    * Maps an SDK Cipher object to a Cipher
    * @param sdkCipher - The SDK Cipher object
    */
-  static fromSdkCipher(sdkCipher?: SdkCipher): Cipher | undefined {
+  static fromSdkCipher(sdkCipher?: SdkCipherWithPartialData): Cipher | undefined {
     if (sdkCipher == null) {
       return undefined;
     }

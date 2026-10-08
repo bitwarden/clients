@@ -234,7 +234,10 @@ export class VaultBatchBarService<C extends CipherViewLike> {
 
   readonly barVisible = computed(() => this.selectedCount() > 0);
 
-  /** Selected items that are ciphers, excluding gated ("partial") rows, which are read-only. */
+  /**
+   * Selected items that are ciphers, excluding partial (PAM-gated) rows. The list already makes
+   * partials unselectable; this guards bulk actions if one reaches the selection another way.
+   */
   readonly selectedCiphers = computed(() =>
     this.selected()
       .filter((i) => i.cipher !== undefined && !CipherViewLikeUtils.isPartial(i.cipher))

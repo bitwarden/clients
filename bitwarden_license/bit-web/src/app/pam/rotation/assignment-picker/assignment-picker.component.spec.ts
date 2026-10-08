@@ -1,0 +1,720 @@
+import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
+import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
+
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import {
+  BitCellComponent,
+  SelectItemView,
+  TableModule,
+  TooltipDirective,
+} from "@bitwarden/components";
+
+import {
+  AssignmentPickerColumn,
+  AssignmentPickerComponent,
+  AssignmentPickerHints,
+  AssignmentPickerRow,
+} from "./assignment-picker.component";
+
+/** Echoes the key and its first placeholder. */
+const i18nFake: Pick<I18nService, "t" | "translate"> = {
+  t: (id: string, p1?: string | number) => (p1 == null ? id : `${id}:${p1}`),
+  translate: (id: string) => id,
+};
+
+interface TestRow extends AssignmentPickerRow {
+  readonly kind: string;
+}
+
+const HINTS: AssignmentPickerHints = {
+  default: "hintDefault",
+  disabled: "hintDisabled",
+  noneEligible: "hintNoneEligible",
+  loadError: "hintLoadError",
+};
+
+const COLUMNS: AssignmentPickerColumn[] = [
+  { headerKey: "colName" },
+  { headerKey: "colKind", headerClass: "tw-text-muted" },
+];
+
+function vfo1ConfigService(enabled: boolean): ReturnType<typeof mock<ConfigService>> {
+  const configService = mock<ConfigService>();
+  configService.getFeatureFlag$.mockReturnValue(of(enabled));
+  return configService;
+}
+
+function option(id: string, name: string): SelectItemView {
+  return { id, listName: name, labelName: name };
+}
+
+function row(id: string, label: string, kind = "kindEntra"): TestRow {
+  return { id, label, kind };
+}
+
+@Component({
+  selector: "app-assignment-picker-host",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [AssignmentPickerComponent, BitCellComponent, TableModule],
+  template: `
+    <pam-assignment-picker
+      idPrefix="host"
+      headingKey="heading"
+      selectLabelKey="selectLabel"
+      unassignLabelKey="unassignLabel"
+      emptyKey="emptyRow"
+      [options]="options"
+      [assignments]="assignments"
+      [columns]="columns"
+      [rowTemplate]="rowTemplate"
+      [hints]="hints"
+      [disabled]="disabled"
+      [disabledTooltipKey]="disabledTooltipKey"
+      [assign]="assign"
+      [unassign]="unassign"
+      [loadError]="loadError"
+      [noneEligible]="noneEligible"
+      [goToRoute]="goToRoute"
+      [goToLabelKey]="goToLabelKey"
+    />
+    <ng-template #rowTemplate let-row let-vfo1="vfo1">
+      @if (vfo1) {
+        <bit-cell data-testid="cell-label">{{ row.label }}</bit-cell>
+        <bit-cell data-testid="cell-kind">{{ row.kind }}</bit-cell>
+      } @else {
+        <td bitCell data-testid="cell-label">{{ row.label }}</td>
+        <td bitCell data-testid="cell-kind">{{ row.kind }}</td>
+      }
+    </ng-template>
+  `,
+})
+class AssignmentPickerHostComponent {
+  options: SelectItemView[] = [option("opt-1", "Prod Entra")];
+  assignments: TestRow[] = [row("row-1", "Prod MSSQL", "kindMssql")];
+  columns = COLUMNS;
+  hints = HINTS;
+  disabled = false;
+  disabledTooltipKey: string | null = null;
+  loadError = false;
+  noneEligible = false;
+  goToRoute: unknown[] | null = null;
+  goToLabelKey: string | null = null;
+
+  assign: (selected: SelectItemView[]) => Promise<readonly string[] | void> = jest.fn(() =>
+    Promise.resolve(),
+  );
+  unassign: (row: TestRow) => Promise<boolean | void> = jest.fn(() => Promise.resolve());
+}
+
+type PickerApi = {
+  pendingSelection: { (): SelectItemView[]; set(items: SelectItemView[]): void };
+  hintKey: () => string;
+  canAssign: () => boolean;
+  canSelect: () => boolean;
+};
+
+/**
+ * How bit-multi-select reports a selection: its value accessor hears every change, while a
+ * confirmed pick is announced only when the dropdown closes, and never for an empty selection.
+ */
+type ControlApi = {
+  onChange(items: SelectItemView[]): void;
+  onDropdownClosed(): void;
+  /** What the control itself shows as selected. */
+  selectedItems(): SelectItemView[] | null;
+};
+
+describe("AssignmentPickerComponent", () => {
+  let fixture: ComponentFixture<AssignmentPickerHostComponent>;
+  let host: AssignmentPickerHostComponent;
+
+  async function render(): Promise<PickerApi> {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    return fixture.debugElement.query(By.directive(AssignmentPickerComponent))
+      .componentInstance as unknown as PickerApi;
+  }
+
+  function el<T extends HTMLElement>(selector: string): T | null {
+    return (fixture.nativeElement as HTMLElement).querySelector<T>(selector);
+  }
+
+  function control(): ControlApi {
+    return fixture.debugElement.query(By.css("bit-multi-select"))
+      .componentInstance as unknown as ControlApi;
+  }
+
+  function assignTooltip(): TooltipDirective {
+    return fixture.debugElement.query(By.css("#host_button_assign")).injector.get(TooltipDirective);
+  }
+
+  function textOf(selector: string): string {
+    return el(selector)?.textContent?.trim() ?? "";
+  }
+
+  /**
+   * Lets the `[ngModel]` writeback land, a microtask after the selection handler returns. Without
+   * it, an assertion on the control's selection passes either way.
+   */
+  async function settle(): Promise<void> {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
+  async function click(selector: string): Promise<void> {
+    el<HTMLElement>(selector)?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [AssignmentPickerHostComponent, NoopAnimationsModule],
+      providers: [
+        provideRouter([]),
+        { provide: I18nService, useValue: i18nFake },
+        { provide: ConfigService, useValue: vfo1ConfigService(false) },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(AssignmentPickerHostComponent);
+    host = fixture.componentInstance;
+  });
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  describe("the assigned table", () => {
+    it("renders the caller's cells for every assigned row", async () => {
+      host.assignments = [row("row-1", "Prod MSSQL", "kindMssql"), row("row-2", "Staging Entra")];
+      await render();
+
+      const labels = (fixture.nativeElement as HTMLElement).querySelectorAll(
+        '[data-testid="cell-label"]',
+      );
+      const kinds = (fixture.nativeElement as HTMLElement).querySelectorAll(
+        '[data-testid="cell-kind"]',
+      );
+
+      expect([...labels].map((c) => c.textContent?.trim())).toEqual([
+        "Prod MSSQL",
+        "Staging Entra",
+      ]);
+      expect([...kinds].map((c) => c.textContent?.trim())).toEqual(["kindMssql", "kindEntra"]);
+    });
+
+    it("names the row in the remove control, which is all a screen reader gets", async () => {
+      await render();
+
+      expect(el("#host_button_unassign-row-1")?.getAttribute("aria-label")).toBe(
+        "unassignLabel:Prod MSSQL",
+      );
+    });
+
+    it("stands an empty row in for no assignments, spanning every column", async () => {
+      host.assignments = [];
+      await render();
+
+      const empty = el("bit-table td");
+      expect(empty?.textContent?.trim()).toBe("emptyRow");
+      // The caller's two columns plus the options column the picker appends.
+      expect(empty?.getAttribute("colspan")).toBe("3");
+      expect(el("#host_button_unassign-row-1")).toBeNull();
+    });
+  });
+
+  describe("the pending selection", () => {
+    it("takes the pick the control confirms when its dropdown closes", async () => {
+      const picker = await render();
+
+      control().onChange([option("opt-1", "Prod Entra"), option("opt-2", "Staging")]);
+      control().onDropdownClosed();
+      fixture.detectChanges();
+
+      expect(picker.pendingSelection()).toEqual([
+        option("opt-1", "Prod Entra"),
+        option("opt-2", "Staging"),
+      ]);
+      expect(picker.canAssign()).toBe(true);
+    });
+
+    it("drops an option the control reports gone, such as a dismissed chip", async () => {
+      const picker = await render();
+      control().onChange([option("opt-1", "Prod Entra"), option("opt-2", "Staging")]);
+      control().onDropdownClosed();
+      fixture.detectChanges();
+
+      control().onChange([option("opt-2", "Staging")]);
+      fixture.detectChanges();
+
+      expect(picker.pendingSelection()).toEqual([option("opt-2", "Staging")]);
+    });
+
+    it("disarms Assign once the last chip is dismissed, which the control never confirms", async () => {
+      const picker = await render();
+      control().onChange([option("opt-1", "Prod Entra")]);
+      control().onDropdownClosed();
+      fixture.detectChanges();
+
+      control().onChange([]);
+      fixture.detectChanges();
+
+      expect(picker.pendingSelection()).toEqual([]);
+      expect(picker.canAssign()).toBe(false);
+
+      await click("#host_button_assign");
+
+      expect(host.assign).not.toHaveBeenCalled();
+    });
+
+    it("leaves an unconfirmed pick unarmed, so an abandoned dropdown assigns nothing", async () => {
+      const picker = await render();
+
+      control().onChange([option("opt-1", "Prod Entra")]);
+      fixture.detectChanges();
+
+      expect(picker.pendingSelection()).toEqual([]);
+      expect(picker.canAssign()).toBe(false);
+    });
+
+    it("leaves that pick standing in the control rather than writing an empty mirror over it", async () => {
+      const picker = await render();
+
+      control().onChange([option("opt-1", "Prod Entra")]);
+      await settle();
+
+      // Unarmed until the dropdown closes, but the pick stays selected in the control.
+      expect(control().selectedItems()).toEqual([option("opt-1", "Prod Entra")]);
+      expect(picker.pendingSelection()).toEqual([]);
+
+      control().onDropdownClosed();
+      await settle();
+
+      expect(picker.pendingSelection()).toEqual([option("opt-1", "Prod Entra")]);
+      expect(picker.canAssign()).toBe(true);
+    });
+
+    it("keeps an unconfirmed pick when a confirmed chip beside it is dismissed", async () => {
+      const picker = await render();
+      control().onChange([option("opt-1", "Prod Entra")]);
+      control().onDropdownClosed();
+      await settle();
+
+      // A second option picked with the dropdown still open, then the confirmed chip dismissed
+      // from under it. Only the dismissed one goes.
+      control().onChange([option("opt-1", "Prod Entra"), option("opt-2", "Staging")]);
+      await settle();
+      control().onChange([option("opt-2", "Staging")]);
+      await settle();
+
+      expect(control().selectedItems()).toEqual([option("opt-2", "Staging")]);
+      expect(picker.pendingSelection()).toEqual([option("opt-2", "Staging")]);
+      expect(picker.canAssign()).toBe(true);
+    });
+  });
+
+  describe("assigning", () => {
+    it("hands the pending selection to the caller and empties the picker", async () => {
+      const picker = await render();
+      picker.pendingSelection.set([option("opt-1", "Prod Entra")]);
+      fixture.detectChanges();
+
+      await click("#host_button_assign");
+
+      expect(host.assign).toHaveBeenCalledWith([option("opt-1", "Prod Entra")]);
+      expect(picker.pendingSelection()).toEqual([]);
+    });
+
+    it("keeps what the caller could not assign, for a retry without reselecting", async () => {
+      host.assign = jest.fn(() => Promise.resolve(["opt-1"]));
+      const picker = await render();
+      picker.pendingSelection.set([option("opt-1", "Prod Entra"), option("opt-2", "Staging")]);
+      fixture.detectChanges();
+
+      await click("#host_button_assign");
+
+      expect(picker.pendingSelection()).toEqual([option("opt-2", "Staging")]);
+    });
+
+    it("keeps an option picked while the assign was in flight", async () => {
+      let release: (assigned: readonly string[]) => void = () => {};
+      host.assign = jest.fn(
+        () =>
+          new Promise<readonly string[]>((resolve) => {
+            release = resolve;
+          }),
+      );
+      const picker = await render();
+      picker.pendingSelection.set([option("opt-1", "Prod Entra")]);
+      fixture.detectChanges();
+
+      el<HTMLElement>("#host_button_assign")?.click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      // The multi-select stays live while the call is out.
+      picker.pendingSelection.set([option("opt-1", "Prod Entra"), option("opt-2", "Staging")]);
+
+      release(["opt-1"]);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(host.assign).toHaveBeenCalledWith([option("opt-1", "Prod Entra")]);
+      expect(picker.pendingSelection()).toEqual([option("opt-2", "Staging")]);
+    });
+
+    it("does not assign an empty selection, and says so without taking focus away", async () => {
+      const picker = await render();
+
+      expect(picker.canAssign()).toBe(false);
+      expect(el("#host_button_assign")?.getAttribute("aria-disabled")).toBe("true");
+
+      el<HTMLElement>("#host_button_assign")?.focus();
+      expect(document.activeElement).toBe(el("#host_button_assign"));
+
+      await click("#host_button_assign");
+
+      expect(host.assign).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("unassigning", () => {
+    it("hands the row to the caller and returns focus to Assign", async () => {
+      await render();
+
+      await click("#host_button_unassign-row-1");
+
+      expect(host.unassign).toHaveBeenCalledWith(row("row-1", "Prod MSSQL", "kindMssql"));
+      expect(document.activeElement).toBe(el("#host_button_assign"));
+    });
+
+    it("leaves focus alone when the caller reports nothing was removed", async () => {
+      host.unassign = jest.fn(() => Promise.resolve(false));
+      await render();
+
+      await click("#host_button_unassign-row-1");
+
+      expect(document.activeElement).not.toBe(el("#host_button_assign"));
+    });
+
+    it("holds every remove control while one removal is in flight", async () => {
+      let release: () => void = () => {};
+      host.unassign = jest.fn(
+        () =>
+          new Promise<void>((resolve) => {
+            release = resolve;
+          }),
+      );
+      host.assignments = [row("row-1", "Prod MSSQL"), row("row-2", "Staging Entra")];
+      await render();
+
+      el<HTMLElement>("#host_button_unassign-row-1")?.click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(el("#host_button_unassign-row-2")?.getAttribute("aria-disabled")).toBe("true");
+      el<HTMLElement>("#host_button_unassign-row-2")?.click();
+      expect(host.unassign).toHaveBeenCalledTimes(1);
+
+      release();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(el("#host_button_unassign-row-2")?.hasAttribute("aria-disabled")).toBe(false);
+    });
+  });
+
+  describe("the hint", () => {
+    it("explains what can be assigned while there is something to pick", async () => {
+      const picker = await render();
+
+      expect(picker.hintKey()).toBe("hintDefault");
+      expect(textOf("bit-hint")).toBe("hintDefault");
+    });
+
+    it("does not assign while the record is blocked", async () => {
+      host.disabled = true;
+      const picker = await render();
+      picker.pendingSelection.set([option("opt-1", "Prod Entra")]);
+      fixture.detectChanges();
+
+      await click("#host_button_assign");
+
+      expect(host.assign).not.toHaveBeenCalled();
+      expect(picker.canSelect()).toBe(false);
+    });
+
+    it("describes a blocked Assign through a tooltip that stays reachable", async () => {
+      host.disabled = true;
+      host.disabledTooltipKey = "blockedTooltip";
+      await render();
+
+      const tooltip = assignTooltip();
+
+      expect(tooltip.tooltipContent()).toBe("blockedTooltip");
+      expect(tooltip.addTooltipToDescribedby()).toBe(true);
+    });
+
+    it("closes the picker when the record is blocked, not merely when it runs out of options", async () => {
+      host.disabled = true;
+      host.options = [];
+      await render();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const select = el("#host_multi-select_options");
+
+      expect(select?.querySelector("ng-select")?.classList).toContain("ng-select-disabled");
+    });
+
+    it("leaves the picker open on an exhausted list, so it can say so itself", async () => {
+      host.options = [];
+      await render();
+
+      const select = el("#host_multi-select_options");
+
+      expect(select?.querySelector("ng-select")?.classList).not.toContain("ng-select-disabled");
+    });
+
+    it("answers a blocked record first, since nothing else is actionable until it is", async () => {
+      host.disabled = true;
+      host.loadError = true;
+      const picker = await render();
+
+      expect(picker.hintKey()).toBe("hintDisabled");
+    });
+
+    it("falls through to the other states when the caller gives no blocked hint", async () => {
+      host.hints = { ...HINTS, disabled: undefined };
+      host.disabled = true;
+      host.loadError = true;
+      const picker = await render();
+
+      expect(picker.hintKey()).toBe("hintLoadError");
+    });
+
+    it("keeps the standing hint when the options run out, since the list says so itself", async () => {
+      host.options = [];
+      const picker = await render();
+
+      expect(picker.hintKey()).toBe("hintDefault");
+    });
+
+    it("distinguishes having nothing eligible from having assigned it all", async () => {
+      host.options = [];
+      host.noneEligible = true;
+      const picker = await render();
+
+      expect(picker.hintKey()).toBe("hintNoneEligible");
+    });
+
+    it("says the list could not be read rather than that there is nothing to assign", async () => {
+      host.options = [];
+      host.noneEligible = true;
+      host.loadError = true;
+      const picker = await render();
+
+      expect(picker.hintKey()).toBe("hintLoadError");
+    });
+  });
+
+  describe("the escape hatch", () => {
+    it("offers the caller's link when there is nothing eligible to assign", async () => {
+      host.noneEligible = true;
+      host.goToRoute = ["/somewhere"];
+      host.goToLabelKey = "goToLabel";
+      await render();
+
+      expect(textOf("#host_anchor_go-to")).toBe("goToLabel");
+    });
+
+    it("stays hidden while something is still eligible", async () => {
+      host.goToRoute = ["/somewhere"];
+      host.goToLabelKey = "goToLabel";
+      await render();
+
+      expect(el("#host_anchor_go-to")).toBeNull();
+    });
+
+    it("stays hidden when the caller offers nowhere to go", async () => {
+      host.noneEligible = true;
+      await render();
+
+      expect(el("#host_anchor_go-to")).toBeNull();
+    });
+
+    it("stays hidden when the list is empty because its read failed", async () => {
+      host.noneEligible = true;
+      host.loadError = true;
+      host.goToRoute = ["/somewhere"];
+      host.goToLabelKey = "goToLabel";
+      const picker = await render();
+
+      expect(picker.hintKey()).toBe("hintLoadError");
+      expect(el("#host_anchor_go-to")).toBeNull();
+    });
+  });
+});
+
+describe("AssignmentPickerComponent with the VFO1 flag on", () => {
+  let fixture: ComponentFixture<AssignmentPickerHostComponent>;
+  let host: AssignmentPickerHostComponent;
+
+  async function render(): Promise<void> {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
+  function root(): HTMLElement {
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  function el<T extends HTMLElement>(selector: string): T | null {
+    return root().querySelector<T>(selector);
+  }
+
+  function texts(selector: string): string[] {
+    return [...root().querySelectorAll(selector)].map((node) => node.textContent?.trim() ?? "");
+  }
+
+  async function click(selector: string): Promise<void> {
+    el<HTMLElement>(selector)?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [AssignmentPickerHostComponent, NoopAnimationsModule],
+      providers: [
+        provideRouter([]),
+        { provide: I18nService, useValue: i18nFake },
+        { provide: ConfigService, useValue: vfo1ConfigService(true) },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(AssignmentPickerHostComponent);
+    host = fixture.componentInstance;
+  });
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it("draws the assigned rows with bit-table-v2 instead of bit-table", async () => {
+    await render();
+
+    expect(el("bit-table-v2")).not.toBeNull();
+    expect(el("bit-table")).toBeNull();
+  });
+
+  it("heads the table with the caller's columns in order, then the options column", async () => {
+    await render();
+
+    expect(texts("bit-table-v2 [role=columnheader]")).toEqual(["colName", "colKind", "options"]);
+    expect(el("bit-table-v2 [role=columnheader] .tw-sr-only")?.textContent?.trim()).toBe("options");
+  });
+
+  it("carries a column's header classes alongside the header cell's own", async () => {
+    await render();
+
+    const kindHeader = root().querySelectorAll("bit-table-v2 bit-header-cell")[1];
+
+    expect(kindHeader.classList).toContain("tw-text-muted");
+    expect(kindHeader.classList).toContain("tw-contents");
+  });
+
+  it("renders the caller's cells for every assigned row", async () => {
+    host.assignments = [row("row-1", "Prod MSSQL", "kindMssql"), row("row-2", "Staging Entra")];
+    await render();
+
+    expect(root().querySelectorAll("bit-table-v2 bit-row")).toHaveLength(2);
+    expect(texts('bit-table-v2 [data-testid="cell-label"]')).toEqual([
+      "Prod MSSQL",
+      "Staging Entra",
+    ]);
+    expect(texts('bit-table-v2 [data-testid="cell-kind"]')).toEqual(["kindMssql", "kindEntra"]);
+  });
+
+  it("exposes every cell of an assigned row as a cell, the caller's included", async () => {
+    host.assignments = [row("row-1", "Prod MSSQL", "kindMssql"), row("row-2", "Staging Entra")];
+    await render();
+
+    const rows = [...root().querySelectorAll("bit-table-v2 bit-row")];
+    expect(rows).toHaveLength(2);
+    for (const bitRow of rows) {
+      expect(bitRow.querySelectorAll("[role=cell]")).toHaveLength(COLUMNS.length + 1);
+      expect(bitRow.querySelectorAll("td")).toHaveLength(0);
+    }
+  });
+
+  it("names the row in the remove control, which is all a screen reader gets", async () => {
+    await render();
+
+    expect(el("#host_button_unassign-row-1")?.getAttribute("aria-label")).toBe(
+      "unassignLabel:Prod MSSQL",
+    );
+    expect(el("bit-table-v2 bit-row [role=cell] #host_button_unassign-row-1")).not.toBeNull();
+  });
+
+  it("stands an empty row in for no assignments, spanning every column", async () => {
+    host.assignments = [];
+    await render();
+
+    const empty = el("bit-table-v2 bit-row [role=cell]");
+    expect(root().querySelectorAll("bit-table-v2 bit-row")).toHaveLength(1);
+    expect(empty?.textContent?.trim()).toBe("emptyRow");
+    expect(empty?.getAttribute("aria-colspan")).toBe("3");
+    expect(el("#host_button_unassign-row-1")).toBeNull();
+  });
+
+  it("hands the row to the caller and returns focus to Assign", async () => {
+    await render();
+
+    await click("#host_button_unassign-row-1");
+
+    expect(host.unassign).toHaveBeenCalledWith(row("row-1", "Prod MSSQL", "kindMssql"));
+    expect(document.activeElement).toBe(el("#host_button_assign"));
+  });
+
+  it("leaves focus alone when the caller reports nothing was removed", async () => {
+    host.unassign = jest.fn(() => Promise.resolve(false));
+    await render();
+
+    await click("#host_button_unassign-row-1");
+
+    expect(document.activeElement).not.toBe(el("#host_button_assign"));
+  });
+
+  it("holds every remove control while one removal is in flight", async () => {
+    let release: () => void = () => {};
+    host.unassign = jest.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          release = resolve;
+        }),
+    );
+    host.assignments = [row("row-1", "Prod MSSQL"), row("row-2", "Staging Entra")];
+    await render();
+
+    el<HTMLElement>("#host_button_unassign-row-1")?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(el("#host_button_unassign-row-2")?.getAttribute("aria-disabled")).toBe("true");
+    el<HTMLElement>("#host_button_unassign-row-2")?.click();
+    expect(host.unassign).toHaveBeenCalledTimes(1);
+
+    release();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(el("#host_button_unassign-row-2")?.hasAttribute("aria-disabled")).toBe(false);
+  });
+});

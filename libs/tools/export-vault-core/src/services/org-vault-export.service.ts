@@ -223,6 +223,51 @@ export class OrganizationVaultExportService
     return this.BuildEncryptedExport(userId, organizationId, collections, ciphers);
   }
 
+  /**
+   * The collections the caller manages in `organizationId`, and every exportable cipher in them.
+   * Keeps PAM-gated ("partial") rows; callers split on `partialData` into the export and the
+   * excluded count.
+   */
+  private async getManagedExportScope(
+    activeUserId: UserId,
+    organizationId: OrganizationId,
+  ): Promise<{ collections: Collection[]; ciphers: Cipher[] }> {
+    const [allCiphers, collections, restrictions] = await Promise.all([
+      this.cipherService.getAll(activeUserId),
+      firstValueFrom(
+        this.collectionService.encryptedCollections$(activeUserId).pipe(
+          map((collections) => collections ?? []),
+          map((collections) =>
+            collections.filter((c) => c.organizationId == organizationId && c.manage),
+          ),
+        ),
+      ),
+      firstValueFrom(this.restrictedItemTypesService.restricted$),
+    ]);
+
+    const ciphers = allCiphers.filter(
+      (f) =>
+        f.deletedDate == null &&
+        f.organizationId == organizationId &&
+        collections.some((eC) => f.collectionIds.some((cId) => eC.id === cId)) &&
+        !this.restrictedItemTypesService.isCipherRestricted(f, restrictions),
+    );
+
+    return { collections, ciphers };
+  }
+
+  /**
+   * Counts the PAM-gated ("partial") ciphers a managed-collections export leaves out, so callers
+   * can warn first. Reads encrypted rows, since `getAllDecrypted` already drops partials.
+   */
+  async getManagedExportGatedItemCount(
+    activeUserId: UserId,
+    organizationId: OrganizationId,
+  ): Promise<number> {
+    const { ciphers } = await this.getManagedExportScope(activeUserId, organizationId);
+    return ciphers.filter((f) => f.partialData != null).length;
+  }
+
   private async getDecryptedManagedExport(
     activeUserId: UserId,
     organizationId: OrganizationId,
@@ -269,40 +314,12 @@ export class OrganizationVaultExportService
     activeUserId: UserId,
     organizationId: OrganizationId,
   ): Promise<string> {
-    let encCiphers: Cipher[] = [];
-    let allCiphers: Cipher[] = [];
-    const promises = [];
+    const { collections, ciphers } = await this.getManagedExportScope(activeUserId, organizationId);
 
-    promises.push(
-      this.cipherService.getAll(activeUserId).then((ciphers) => {
-        allCiphers = ciphers;
-      }),
-    );
+    // Gated ("partial") rows have no sensitive fields; they would export as blanks.
+    const encCiphers = ciphers.filter((f) => !f.isPartial);
 
-    await Promise.all(promises);
-
-    const encCollections: Collection[] = await firstValueFrom(
-      this.collectionService.encryptedCollections$(activeUserId).pipe(
-        map((collections) => collections ?? []),
-        map((collections) =>
-          collections.filter((c) => c.organizationId == organizationId && c.manage),
-        ),
-      ),
-    );
-
-    const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
-
-    encCiphers = allCiphers.filter(
-      (f) =>
-        // Gated ("partial") rows have no sensitive fields; they would export as blanks.
-        !f.isPartial &&
-        f.deletedDate == null &&
-        f.organizationId == organizationId &&
-        encCollections.some((eC) => f.collectionIds.some((cId) => eC.id === cId)) &&
-        !this.restrictedItemTypesService.isCipherRestricted(f, restrictions),
-    );
-
-    return this.BuildEncryptedExport(activeUserId, organizationId, encCollections, encCiphers);
+    return this.BuildEncryptedExport(activeUserId, organizationId, collections, encCiphers);
   }
 
   private async BuildEncryptedExport(

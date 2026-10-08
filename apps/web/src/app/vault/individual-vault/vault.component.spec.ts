@@ -1,10 +1,17 @@
 import { SelectionModel } from "@angular/cdk/collections";
-import { ElementRef, NO_ERRORS_SCHEMA, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  input,
+  NO_ERRORS_SCHEMA,
+  signal,
+} from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, convertToParamMap, Params, provideRouter, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, EMPTY, of, Subject } from "rxjs";
+import { BehaviorSubject, EMPTY, firstValueFrom, of, Subject } from "rxjs";
 import { map } from "rxjs/operators";
 
 import {
@@ -37,7 +44,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -62,8 +69,10 @@ import {
   BulkDeleteDialogRef,
   BulkDeleteDialogResult,
   DefaultCipherFormConfigService,
+  MY_REQUESTS_FILTER_ID,
   PasswordRepromptService,
   RoutedVaultFilterBridgeService,
+  RoutedVaultFilterModel,
   RoutedVaultFilterService,
   VaultBatchBarService,
   VaultCopyButtonsService,
@@ -84,8 +93,24 @@ import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 import { WelcomeDialogService } from "../services/welcome-dialog.service";
 
 import { VaultBannersService } from "./vault-banners/services/vault-banners.service";
+import {
+  VaultGatedCollectionBanner,
+  VAULT_GATED_COLLECTION_BANNER,
+} from "./vault-gated-collection-banner.token";
 import { VaultOnboardingService } from "./vault-onboarding/services/abstraction/vault-onboarding.service";
 import { VaultComponent } from "./vault.component";
+
+@Component({
+  selector: "app-test-gated-collection-banner",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `<span data-testid="gated-collection-banner"
+    >{{ organizationId() }}/{{ collectionId() }}</span
+  >`,
+})
+class TestGatedCollectionBannerComponent implements VaultGatedCollectionBanner {
+  readonly organizationId = input<OrganizationId | undefined>(undefined);
+  readonly collectionId = input<CollectionId | undefined>(undefined);
+}
 
 const TEST_CIPHER_ID = "test-cipher-id";
 const TEST_USER_ID = "test-user-id" as UserId;
@@ -94,12 +119,14 @@ describe("VaultComponent", () => {
   let component: VaultComponent<any>;
   let fixture: ComponentFixture<VaultComponent<any>>;
   let queryParamsSubject: BehaviorSubject<Params>;
+  let routedFilterSubject: BehaviorSubject<RoutedVaultFilterModel>;
 
   let mockCipher: Cipher;
   let openVaultItemDialogSpy: jest.SpyInstance;
 
   beforeEach(async () => {
     queryParamsSubject = new BehaviorSubject<Params>({});
+    routedFilterSubject = new BehaviorSubject<RoutedVaultFilterModel>({});
     openVaultItemDialogSpy = jest.spyOn(VaultItemDialogComponent, "open").mockReturnValue({
       closed: new Subject<VaultItemDialogResult>(),
     } as unknown as DialogRef<VaultItemDialogResult, unknown>);
@@ -115,6 +142,7 @@ describe("VaultComponent", () => {
 
     const cipherServiceMock = mock<CipherService>();
     cipherServiceMock.get.mockResolvedValue(mockCipher);
+    // The vault list reads the partials-inclusive stream; other consumers read `cipherListViews$`.
     cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(of([]));
     cipherServiceMock.cipherListViews$.mockReturnValue(of([]));
     cipherServiceMock.failedToDecryptCiphers$.mockReturnValue(of([]));
@@ -149,6 +177,10 @@ describe("VaultComponent", () => {
         // The coachmark tour opens the side nav for its nav-anchored steps, so CoachmarkService
         // resolves SideNavService, which reads its width from global state.
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
+        {
+          provide: VAULT_GATED_COLLECTION_BANNER,
+          useValue: TestGatedCollectionBannerComponent,
+        },
         { provide: MessagingService, useValue: mock<MessagingService>() },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: BroadcasterService, useValue: mock<BroadcasterService>() },
@@ -276,7 +308,7 @@ describe("VaultComponent", () => {
           providers: [
             {
               provide: RoutedVaultFilterService,
-              useValue: { filter$: of({}) },
+              useValue: { filter$: routedFilterSubject },
             },
             {
               provide: RoutedVaultFilterBridgeService,
@@ -455,6 +487,132 @@ describe("VaultComponent", () => {
           });
         });
       });
+    });
+  });
+
+  describe("gated collection banner", () => {
+    function banner(): HTMLElement | null {
+      return fixture.nativeElement.querySelector("[data-testid='gated-collection-banner']");
+    }
+
+    function selectCollection(node: TreeNode<any> | undefined): void {
+      (component as any).selectedCollection = node;
+      fixture.detectChanges();
+    }
+
+    it("mounts the host's banner with the selected collection's organization and id", () => {
+      // `canEdit`/`canDelete` are here only because the same node feeds `app-vault-header` too.
+      selectCollection(
+        new TreeNode(
+          {
+            id: "collection-1",
+            organizationId: "org-1",
+            canEdit: () => false,
+            canDelete: () => false,
+          } as any,
+          null,
+        ),
+      );
+
+      expect(banner()?.textContent).toBe("org-1/collection-1");
+    });
+
+    it("mounts nothing while no single collection is the active filter", () => {
+      selectCollection(undefined);
+
+      expect(banner()).toBeNull();
+    });
+  });
+
+  describe("emptyState$", () => {
+    async function emptyState() {
+      return await firstValueFrom((component as any).emptyState$);
+    }
+
+    it("shows the My requests empty state, without Add item, for the My requests filter", async () => {
+      routedFilterSubject.next({ controlledAccess: MY_REQUESTS_FILTER_ID });
+
+      expect(await emptyState()).toEqual({
+        title: "pamMyRequestsEmptyTitle",
+        description: "pamMyRequestsEmptyDescription",
+        icon: (component as any).userLockIcon,
+      });
+      expect((component as any).showAddCipherBtn).toBe(false);
+    });
+
+    it("falls back to the generic vault state for another controlled-access filter", async () => {
+      routedFilterSubject.next({ controlledAccess: "privileged" });
+
+      expect(await emptyState()).toEqual(expect.objectContaining({ title: "noItemsInVault" }));
+      expect((component as any).showAddCipherBtn).toBe(true);
+    });
+
+    it("still resolves a type filter's empty state", async () => {
+      routedFilterSubject.next({ type: "trash" });
+
+      expect(await emptyState()).toEqual(expect.objectContaining({ title: "noItemsInTrash" }));
+    });
+
+    it("ignores an inherited object key smuggled in through the URL", async () => {
+      routedFilterSubject.next({ controlledAccess: "constructor" });
+
+      expect(await emptyState()).toEqual(expect.objectContaining({ title: "noItemsInVault" }));
+      expect((component as any).showAddCipherBtn).toBe(true);
+    });
+
+    it("lets an active search win over the My requests empty state", async () => {
+      routedFilterSubject.next({ controlledAccess: MY_REQUESTS_FILTER_ID });
+      queryParamsSubject.next({ search: "prod" });
+
+      expect(await emptyState()).toEqual(expect.objectContaining({ title: "noSearchResults" }));
+    });
+  });
+
+  describe("deleteCipher", () => {
+    let toastSpy: jest.SpyInstance;
+    let translateSpy: jest.SpyInstance;
+
+    function cipher(overrides: Record<string, unknown> = {}): any {
+      return { id: TEST_CIPHER_ID, edit: true, reprompt: 0, ...overrides };
+    }
+
+    beforeEach(() => {
+      // The component resolves its own DialogService, so patch the field as other suites here do.
+      (component as any).dialogService = { openSimpleDialog: jest.fn().mockResolvedValue(true) };
+      toastSpy = jest.spyOn((component as any).toastService, "showToast");
+      translateSpy = jest.spyOn((component as any).i18nService, "t");
+    });
+
+    it("shows an error toast when the delete is refused", async () => {
+      const cipherService = TestBed.inject(CipherService);
+      (cipherService.softDeleteWithServer as jest.Mock).mockRejectedValue(new Error("not found"));
+
+      await component.deleteCipher(cipher());
+
+      expect(translateSpy).toHaveBeenCalledWith("deleteItemError");
+      expect(toastSpy).toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+      expect(toastSpy).not.toHaveBeenCalledWith(expect.objectContaining({ variant: "success" }));
+    });
+
+    it("names the reason when a PAM-gated cipher's delete is refused", async () => {
+      const cipherService = TestBed.inject(CipherService);
+      (cipherService.softDeleteWithServer as jest.Mock).mockRejectedValue(new Error("not found"));
+
+      await component.deleteCipher(cipher({ partial: true }));
+
+      expect(translateSpy).toHaveBeenCalledWith("pamDeleteRequiresAccess");
+      expect(toastSpy).toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+    });
+
+    it("reports success when the delete lands", async () => {
+      const cipherService = TestBed.inject(CipherService);
+      (cipherService.softDeleteWithServer as jest.Mock).mockResolvedValue(undefined);
+
+      await component.deleteCipher(cipher());
+
+      expect(translateSpy).toHaveBeenCalledWith("deletedItem");
+      expect(toastSpy).toHaveBeenCalledWith(expect.objectContaining({ variant: "success" }));
+      expect(toastSpy).not.toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
     });
   });
 

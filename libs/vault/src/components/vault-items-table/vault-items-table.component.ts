@@ -1,3 +1,4 @@
+import { NgComponentOutlet } from "@angular/common";
 import {
   booleanAttribute,
   ChangeDetectionStrategy,
@@ -8,12 +9,24 @@ import {
   input,
   output,
   signal,
+  Signal,
   TrackByFunction,
+  Type,
   untracked,
   viewChild,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { map, of, switchMap } from "rxjs";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import {
+  asapScheduler,
+  combineLatest,
+  map,
+  Observable,
+  observeOn,
+  of,
+  Subject,
+  switchMap,
+  take,
+} from "rxjs";
 
 import { IconComponent as VaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -66,6 +79,11 @@ import { orgIconTile, personalIconTile } from "../../models/vault-icon-tile";
 import { VaultScope, VaultScopeType } from "../../models/vault-scope";
 import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
 import { sharedFolderName } from "../../utils/shared-folder-name";
+import {
+  ControlledAccessFilterOption,
+  VAULT_CONTROLLED_ACCESS_FILTER,
+  VaultControlledAccessFilter,
+} from "../../tokens/vault-controlled-access-filter.token";
 import {
   idString,
   matchesFavorite,
@@ -136,6 +154,7 @@ export const VAULT_COLUMNS = Object.freeze([
   "vault",
   "sharedFolders",
   "myFolders",
+  "controlledAccess",
   "actions",
 ] as const);
 
@@ -243,6 +262,7 @@ function chipItem(id: string, label: string, startIcon: BitwardenIcon): ChipGrou
     IconModule,
     IconTileComponent,
     LinkModule,
+    NgComponentOutlet,
     SearchModule,
     SkeletonTextComponent,
     VaultIconComponent,
@@ -299,6 +319,12 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   /** How the built-in Copy quick action presents itself. */
   readonly copyPresentation = input<VaultItemsTableCopyPresentation>(DEFAULT_COPY_PRESENTATION);
+
+  /**
+   * Optional per-row badge for the Controlled access column, rendered with the row as its
+   * `cipher` input. Unset, the column is absent; the host alone decides when the column applies.
+   */
+  readonly controlledAccessBadge = input<Type<unknown> | null>(null);
 
   /** Folders used to resolve the My folders column and chip. */
   readonly folders = input<FolderView[]>([]);
@@ -446,6 +472,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * The relevant columns to be displayed based on the current ciphers provided.
    *  - Vault is omitted if all ciphers belong to the same Vault
    *  - Shared Folders is omitted if all ciphers are individually owned
+   *  - Controlled access is omitted unless a host supplies {@link controlledAccessBadge}
    */
   protected readonly visibleColumns = computed<VaultItemsTableColumn[]>(() => {
     const hidden = new Set<VaultItemsTableColumn>();
@@ -454,6 +481,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     }
     if (!this.showSharedFolders()) {
       hidden.add("sharedFolders");
+    }
+    if (this.controlledAccessBadge() == null) {
+      hidden.add("controlledAccess");
     }
     return this.displayedColumns().filter((column) => !hidden.has(column));
   });
@@ -887,6 +917,79 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     this.scopedOrganizationId,
   );
 
+  /** Host contribution behind the Controlled access chip. Unprovided, the chip is absent. */
+  private readonly controlledAccessFilter: VaultControlledAccessFilter | null = inject(
+    VAULT_CONTROLLED_ACCESS_FILTER,
+    { optional: true },
+  );
+
+  /** The chip's options, already localized by the host. Empty hides the chip. */
+  protected readonly controlledAccessOptions = toSignal(
+    this.controlledAccessFilter?.options$ ?? of<ControlledAccessFilterOption[]>([]),
+    { initialValue: [] as ControlledAccessFilterOption[] },
+  );
+
+  /**
+   * Icon tile per Controlled access option, so each option's binding keeps a stable identity
+   * across change detection.
+   */
+  protected readonly controlledAccessTiles = computed(() => {
+    const tiles = new Map<string, IconTileOptions>();
+    for (const option of this.controlledAccessOptions()) {
+      tiles.set(option.id, { icon: option.icon });
+    }
+    return tiles;
+  });
+
+  /**
+   * Turns true the first time the predicate is asked about an option, so a vault that never
+   * touches the chip makes no `narrow$` calls. Delivered on a microtask, since writing a signal
+   * inside `bit-table-v2`'s computeds throws.
+   */
+  private readonly controlledAccessRequests = new Subject<void>();
+  private readonly controlledAccessRequested = toSignal(
+    this.controlledAccessRequests.pipe(
+      take(1),
+      observeOn(asapScheduler),
+      map(() => true),
+    ),
+    { initialValue: false },
+  );
+
+  /**
+   * Row ids each offered option admits, resolved for every option since `bit-table-v2` re-runs the
+   * predicate per option for its counts. A change keeps the old map until the new one lands, so
+   * the table stays narrowed meanwhile.
+   */
+  private readonly controlledAccessMatches: Signal<Map<string, Set<string>> | undefined> = toSignal(
+    toObservable(
+      computed(() => ({
+        requested: this.controlledAccessRequested(),
+        options: this.controlledAccessOptions(),
+        ciphers: this.ciphers(),
+      })),
+    ).pipe(
+      switchMap(({ requested, options, ciphers }) => {
+        const provider = this.controlledAccessFilter;
+        if (!requested || provider == null || options.length === 0) {
+          return of<Map<string, Set<string>> | undefined>(undefined);
+        }
+
+        const perOption: Record<string, Observable<Set<string>>> = {};
+        for (const option of options) {
+          perOption[option.id] = provider
+            .narrow$(option.id, ciphers)
+            .pipe(map((matched) => new Set(matched.map((cipher) => String(cipher.id)))));
+        }
+
+        return combineLatest(perOption).pipe(
+          map((byOption) => new Map<string, Set<string>>(Object.entries(byOption))),
+        );
+      }),
+    ),
+    { initialValue: undefined },
+  );
+
   /**
    * The single client-side predicate `bit-table-v2` derives everything from: the visible rows,
    * the toolbar's item count, the select-all scope, each chip option's faceted count, and the
@@ -906,7 +1009,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     matchesVault(cipher, values.vault) &&
     matchesMyItems(cipher, values.myItems, this.defaultCollectionId()) &&
     matchesSharedFolder(cipher, values.sharedFolder) &&
-    matchesFolder(cipher, values.folder);
+    matchesFolder(cipher, values.folder) &&
+    this.matchesControlledAccess(cipher, values.controlledAccess);
 
   /**
    * Whether the cipher is among the active search's matches. `undefined` matches means no
@@ -914,6 +1018,20 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    */
   private matchesSearch(cipher: C): boolean {
     const matches = this.searchMatches();
+    return matches === undefined || matches.has(String(cipher.id));
+  }
+
+  /**
+   * Whether the cipher is among the selected Controlled access option's matches. Unresolved
+   * matches let every row pass, as in {@link matchesSearch}, and so does a stale option id from a
+   * bookmarked link.
+   */
+  private matchesControlledAccess(cipher: C, optionId: string | undefined): boolean {
+    if (optionId == null) {
+      return true;
+    }
+    this.controlledAccessRequests.next();
+    const matches = this.controlledAccessMatches()?.get(optionId);
     return matches === undefined || matches.has(String(cipher.id));
   }
 

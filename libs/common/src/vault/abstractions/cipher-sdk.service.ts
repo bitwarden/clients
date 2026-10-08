@@ -49,6 +49,8 @@ export abstract class CipherSdkService {
    * @param userId The user ID to use for SDK client
    * @param originalCipherView The original cipher view before changes (optional, used for admin operations)
    * @param orgAdmin Whether this is an organization admin operation
+   * @param leaseGated Whether `originalCipherView` is a PAM-gated cipher revealed under a lease,
+   * so the save takes the SDK's gated path
    * @returns A promise that resolves to the updated cipher view
    */
   abstract updateWithServer(
@@ -56,6 +58,7 @@ export abstract class CipherSdkService {
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
+    leaseGated?: boolean,
   ): Promise<CipherView | undefined>;
 
   /**

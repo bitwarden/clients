@@ -7,6 +7,7 @@ import {
   NgZone,
   OnDestroy,
   OnInit,
+  Type,
   viewChild,
 } from "@angular/core";
 import { ActivatedRoute, NavigationExtras, Params, Router } from "@angular/router";
@@ -24,6 +25,7 @@ import {
   take,
   takeUntil,
   tap,
+  withLatestFrom,
 } from "rxjs/operators";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -34,6 +36,7 @@ import {
   EmptyTrash,
   FavoritesIcon,
   ItemTypes,
+  UserLockIcon,
   BitSvg,
 } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -124,6 +127,8 @@ import {
   VaultOrganizationUserNotificationsComponent,
   Vfo1TerminologyService,
   VAULT_RENDERED_MARK,
+  deleteFailureMessageKey,
+  MY_REQUESTS_FILTER_ID,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
@@ -143,14 +148,22 @@ import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 import { openBulkDeleteDialog } from "./bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
 import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
+import {
+  VAULT_CONTROLLED_ACCESS_FILTER,
+  VaultControlledAccessFilter,
+} from "./vault-controlled-access-filter.token";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
+import {
+  VaultGatedCollectionBanner,
+  VAULT_GATED_COLLECTION_BANNER,
+} from "./vault-gated-collection-banner.token";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
 
 const BroadcasterSubscriptionId = "VaultComponent";
 
-type EmptyStateType = "trash" | "favorites" | "archive";
+type EmptyStateType = "trash" | "favorites" | "archive" | typeof MY_REQUESTS_FILTER_ID;
 
 type EmptyStateItem = {
   title: string;
@@ -159,6 +172,11 @@ type EmptyStateItem = {
 };
 
 type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
+
+/** Own keys only: `controlledAccess` comes straight off the URL, so `constructor` must not match. */
+function isEmptyStateType(map: EmptyStateMap, key: string | undefined): key is EmptyStateType {
+  return key != null && Object.prototype.hasOwnProperty.call(map, key);
+}
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -190,6 +208,16 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
   private readonly injector = inject(Injector);
 
+  protected readonly gatedCollectionBanner: Type<VaultGatedCollectionBanner> | null = inject(
+    VAULT_GATED_COLLECTION_BANNER,
+    { optional: true },
+  );
+
+  private readonly controlledAccessFilter: VaultControlledAccessFilter | null = inject(
+    VAULT_CONTROLLED_ACCESS_FILTER,
+    { optional: true },
+  );
+
   readonly filterComponent = viewChild(VaultFilterComponent);
   readonly vaultItemsComponent = viewChild(VaultItemsComponent);
 
@@ -201,6 +229,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected favoritesIcon = FavoritesIcon;
   protected itemTypesIcon = ItemTypes;
   protected noResultsIcon = NoResults;
+  protected userLockIcon = UserLockIcon;
   protected performingInitialLoad = true;
   protected refreshing = false;
   protected processingEvent = false;
@@ -270,11 +299,19 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           description: "noItemsInArchiveDesc",
           icon: this.itemTypesIcon,
         },
+        [MY_REQUESTS_FILTER_ID]: {
+          title: "pamMyRequestsEmptyTitle",
+          description: "pamMyRequestsEmptyDescription",
+          icon: this.userLockIcon,
+        },
       };
 
-      if (filter?.type && filter.type in emptyStateMap) {
+      // Selecting a controlled-access child clears `type` and vice versa
+      // (`RoutedVaultFilterBridge`), so at most one is set.
+      const emptyStateKey = filter?.controlledAccess ?? filter?.type;
+      if (isEmptyStateType(emptyStateMap, emptyStateKey)) {
         this.showAddCipherBtn = false;
-        return emptyStateMap[filter.type as EmptyStateType];
+        return emptyStateMap[emptyStateKey];
       }
 
       this.showAddCipherBtn = true;
@@ -423,7 +460,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         }),
       );
 
-    // The vault list is the only surface that renders PAM-gated ("partial") rows.
+    // The vault list is the only surface rendering PAM-gated ("partial") rows; other consumers
+    // use `cipherListViews$`, which excludes them.
     const _ciphers = this.cipherService
       .cipherListViewsWithPartials$(activeUserId)
       .pipe(filter((c) => c !== null));
@@ -442,7 +480,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       ),
     );
 
-    const ciphers$ = combineLatest([allowedCiphers$, filter$, this.currentSearchText$]).pipe(
+    const filteredCiphers$ = combineLatest([
+      allowedCiphers$,
+      filter$,
+      this.currentSearchText$,
+    ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
       concatMap(async ([ciphers, filter, searchText]) => {
         const failedCiphers =
@@ -463,6 +505,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
         return allCiphers.filter(filterFunction) as C[];
       }),
+      shareReplay({ refCount: true, bufferSize: 1 }),
+    );
+
+    // Take the filter from the emission that already carries it; re-combining with filter$ would
+    // let the two race and narrow against a stale cipher array.
+    const ciphers$ = filteredCiphers$.pipe(
+      withLatestFrom(filter$),
+      switchMap(([ciphers, filter]) => this.narrowToControlledAccess(ciphers, filter)),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
@@ -1509,6 +1559,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       this.refresh();
     } catch (e) {
       this.logService.error(e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t(deleteFailureMessageKey(c, this.allCollections)),
+      });
     }
   }
 
@@ -1654,6 +1708,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     const notProtected = !ciphers.find((cipher) => cipher.reprompt !== CipherRepromptType.None);
 
     return notProtected || (await this.passwordRepromptService.showPasswordPrompt());
+  }
+
+  private narrowToControlledAccess(ciphers: C[], filter: RoutedVaultFilterModel): Observable<C[]> {
+    if (this.controlledAccessFilter == null || filter.controlledAccess == null) {
+      return of(ciphers);
+    }
+    return this.controlledAccessFilter.narrow$(filter.controlledAccess, ciphers);
   }
 
   private refresh() {

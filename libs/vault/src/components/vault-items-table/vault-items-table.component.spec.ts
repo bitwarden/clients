@@ -1,9 +1,9 @@
 import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
-import { ChangeDetectionStrategy, Component, computed, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, signal } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
+import { of, Subject } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -37,6 +37,7 @@ import {
   FilterMenuComponent,
   FilterOptionRow,
   FilterSectionComponent,
+  MenuTriggerForDirective,
   SelectionConfig,
 } from "@bitwarden/components";
 import { Measurement } from "@bitwarden/logging";
@@ -45,6 +46,11 @@ import { CipherListView } from "@bitwarden/sdk-internal";
 import { VaultScopeType } from "../../models/vault-scope";
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
 import { VaultBatchBarService, VaultSelectionSource } from "../../services/vault-batch-bar.service";
+import {
+  ControlledAccessFilterOption,
+  VAULT_CONTROLLED_ACCESS_FILTER,
+  VaultControlledAccessFilter,
+} from "../../tokens/vault-controlled-access-filter.token";
 import { MY_VAULT, NO_FOLDER } from "../../utils/vault-filter-predicates";
 
 import {
@@ -125,6 +131,56 @@ class WrappedToolbarHostComponent {
 })
 class BareToolbarHostComponent {
   readonly show = signal(true);
+}
+
+/**
+ * Stub for a host's Controlled access badge, rendering its row's name so a test can tell which
+ * row each instance received.
+ */
+@Component({
+  selector: "test-controlled-access-badge",
+  template: `<span>{{ cipher()?.name }}</span>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class ControlledAccessBadgeStubComponent {
+  readonly cipher = input<CipherViewLike | null>(null);
+}
+
+/**
+ * The Controlled access contribution the host under test provides. Read lazily by
+ * {@link ControlledAccessHostComponent}'s factory, so a test can set it before creating the host.
+ */
+let controlledAccessFilter: VaultControlledAccessFilter | undefined;
+
+/** A contribution offering `options`, admitting the cipher ids listed against each option id. */
+function controlledAccessDouble(
+  options: ControlledAccessFilterOption[],
+  admits: Record<string, string[]>,
+): VaultControlledAccessFilter {
+  return {
+    options$: of(options),
+    narrow$<C extends CipherViewLike>(optionId: string, ciphers: C[]) {
+      const admitted = admits[optionId];
+      // An id no longer offered yields the input unchanged, as the token's contract requires.
+      return of(
+        admitted == null ? ciphers : ciphers.filter((c) => admitted.includes(String(c.id))),
+      );
+    },
+  };
+}
+
+/** Hosts the table beneath a node injector carrying the optional Controlled access contribution. */
+@Component({
+  selector: "test-controlled-access-host",
+  template: `<vault-items-table [ciphers]="ciphers()"></vault-items-table>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [VaultItemsTableComponent],
+  providers: [
+    { provide: VAULT_CONTROLLED_ACCESS_FILTER, useFactory: () => controlledAccessFilter },
+  ],
+})
+class ControlledAccessHostComponent {
+  readonly ciphers = signal<CipherViewLike[]>([]);
 }
 
 function batchBarDouble() {
@@ -1024,6 +1080,7 @@ describe("VaultItemsTableComponent", () => {
           cipherView({ id: "a", organizationId: undefined }),
           cipherView({ id: "b", organizationId: "org-1" as never }),
         ]);
+        fixture.componentRef.setInput("controlledAccessBadge", ControlledAccessBadgeStubComponent);
 
         expect(component["visibleColumns"]()).toEqual(component["displayedColumns"]());
       });
@@ -1073,6 +1130,72 @@ describe("VaultItemsTableComponent", () => {
       fixture.componentRef.setInput("ciphers", []);
 
       expect(component["showSharedFolders"]()).toBe(false);
+    });
+  });
+
+  describe("controlled access column", () => {
+    /** Two rows, so a per-row badge can be told apart from a single table-wide one. */
+    function renderRows() {
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Bank" }),
+      ]);
+      fixture.detectChanges();
+    }
+
+    /** The badge instances the column stamped, in row order. */
+    function badges(): HTMLElement[] {
+      return Array.from(fixture.nativeElement.querySelectorAll("test-controlled-access-badge"));
+    }
+
+    /** Every column header's text, in display order. The i18n double echoes the key. */
+    function headers(): string[] {
+      return Array.from(fixture.nativeElement.querySelectorAll('[role="columnheader"]')).map(
+        (header) => (header as HTMLElement).textContent?.trim() ?? "",
+      );
+    }
+
+    it("leaves the column out when no badge is provided", () => {
+      renderRows();
+
+      expect(component["visibleColumns"]()).not.toContain("controlledAccess");
+      expect(headers()).not.toContain("controlledAccess");
+      expect(badges()).toHaveLength(0);
+    });
+
+    it("adds the column when a badge is provided", () => {
+      fixture.componentRef.setInput("controlledAccessBadge", ControlledAccessBadgeStubComponent);
+      renderRows();
+
+      expect(component["visibleColumns"]()).toContain("controlledAccess");
+      expect(headers()).toContain("controlledAccess");
+    });
+
+    it("renders the badge once per row, bound to that row", () => {
+      fixture.componentRef.setInput("controlledAccessBadge", ControlledAccessBadgeStubComponent);
+      renderRows();
+
+      expect(badges().map((badge) => badge.textContent?.trim())).toEqual(["Amazon", "Bank"]);
+    });
+
+    it("sits last among the data columns, ahead of the actions column", () => {
+      fixture.componentRef.setInput("controlledAccessBadge", ControlledAccessBadgeStubComponent);
+      renderRows();
+
+      const columns = component["visibleColumns"]();
+      expect(columns.indexOf("controlledAccess")).toBe(columns.indexOf("actions") - 1);
+    });
+
+    it("drops the column again when the badge is withdrawn", () => {
+      fixture.componentRef.setInput("controlledAccessBadge", ControlledAccessBadgeStubComponent);
+      renderRows();
+      expect(badges()).toHaveLength(2);
+
+      fixture.componentRef.setInput("controlledAccessBadge", null);
+      fixture.detectChanges();
+
+      expect(component["visibleColumns"]()).not.toContain("controlledAccess");
+      expect(badges()).toHaveLength(0);
     });
   });
 
@@ -2230,6 +2353,188 @@ describe("VaultItemsTableComponent", () => {
       fixture.destroy();
 
       expect(batchBar.source()).toBeUndefined();
+    });
+  });
+
+  describe("controlled access (VAULT_CONTROLLED_ACCESS_FILTER)", () => {
+    /** Mirrors the option set the licensed host offers: one per state group, already localized. */
+    const OPTIONS: ControlledAccessFilterOption[] = [
+      { id: "my-requests", name: "pamTabMyRequests", icon: "bwi-lock-encrypted" },
+      { id: "privileged", name: "pamAccessBadgePrivileged", icon: "bwi-key" },
+    ];
+
+    const ROWS = () => [
+      cipherView({ id: "a", name: "Amazon" }),
+      cipherView({ id: "b", name: "Bank" }),
+      cipherView({ id: "c", name: "Cloud" }),
+    ];
+
+    let hostFixture: ComponentFixture<ControlledAccessHostComponent>;
+    let narrow: jest.SpyInstance;
+
+    afterEach(() => {
+      controlledAccessFilter = undefined;
+    });
+
+    function hostTable(): BitTableV2Component<
+      CipherViewLike,
+      VaultItemsTableColumn,
+      VaultItemsTableFilters
+    > {
+      return hostFixture.debugElement.query(By.directive(BitTableV2Component)).componentInstance;
+    }
+
+    function hostControl(key: string): FilterControl | undefined {
+      return hostTable()
+        .filterControls()
+        .find((c) => c.key() === key);
+    }
+
+    function hostNames(): string[] {
+      return hostTable()
+        .filtered()
+        .map((cipher) => cipher.name);
+    }
+
+    /** Renders the host with the contribution in place and the rows loaded. */
+    function renderHost(): void {
+      controlledAccessFilter = controlledAccessDouble(OPTIONS, {
+        privileged: ["a"],
+        "my-requests": ["b", "c"],
+      });
+      narrow = jest.spyOn(controlledAccessFilter, "narrow$");
+      hostFixture = TestBed.createComponent(ControlledAccessHostComponent);
+      hostFixture.componentInstance.ciphers.set(ROWS());
+      hostFixture.detectChanges();
+      hostFixture.detectChanges();
+    }
+
+    it("offers no chip when nothing provides the filter", () => {
+      fixture.componentRef.setInput("ciphers", ROWS());
+      fixture.detectChanges();
+
+      expect(
+        bitTable()
+          .filterControls()
+          .map((c) => c.key()),
+      ).not.toContain("controlledAccess");
+      expect(fixture.nativeElement.textContent).not.toContain("controlledAccess");
+    });
+
+    it("leaves the rows alone when nothing provides the filter", () => {
+      fixture.componentRef.setInput("ciphers", ROWS());
+      fixture.detectChanges();
+
+      expect(filteredNames()).toEqual(["Amazon", "Bank", "Cloud"]);
+    });
+
+    /**
+     * Lets a pending resolution land: the request is delivered on a microtask, and the narrowing
+     * resolves through `toObservable`, which flushes on the pass after.
+     */
+    async function settle(): Promise<void> {
+      hostFixture.detectChanges();
+      await Promise.resolve();
+      hostFixture.detectChanges();
+      hostFixture.detectChanges();
+    }
+
+    it("renders a chip carrying the host's options once one is provided", () => {
+      renderHost();
+
+      expect(hostControl("controlledAccess")).toBeDefined();
+      expect(hostFixture.nativeElement.textContent).toContain("controlledAccess");
+      expect(hostNames()).toEqual(["Amazon", "Bank", "Cloud"]);
+    });
+
+    it("asks the host nothing while the chip is untouched", async () => {
+      renderHost();
+      await settle();
+
+      hostFixture.componentInstance.ciphers.set(ROWS());
+      await settle();
+
+      expect(narrow).not.toHaveBeenCalled();
+    });
+
+    it("narrows the rows to the selected option", async () => {
+      renderHost();
+
+      hostControl("controlledAccess")!.setValue("privileged");
+      await settle();
+
+      expect(hostNames()).toEqual(["Amazon"]);
+    });
+
+    it("resolves every option's count once the chip's menu is opened", async () => {
+      renderHost();
+      const chip = hostFixture.debugElement
+        .queryAll(By.directive(FilterMenuComponent))
+        .find((menu) => menu.componentInstance.key() === "controlledAccess")!;
+
+      chip.query(By.directive(MenuTriggerForDirective)).nativeElement.click();
+      await settle();
+
+      expect(narrow).toHaveBeenCalledWith("privileged", expect.anything());
+      expect(narrow).toHaveBeenCalledWith("my-requests", expect.anything());
+      expect(hostTable().optionCount("controlledAccess", "privileged")).toBe(1);
+      expect(hostTable().optionCount("controlledAccess", "my-requests")).toBe(2);
+    });
+
+    it("keeps resolving on new rows once requested", async () => {
+      renderHost();
+      hostControl("controlledAccess")!.setValue("privileged");
+      await settle();
+      narrow.mockClear();
+
+      hostFixture.componentInstance.ciphers.set(ROWS());
+      await settle();
+
+      expect(narrow).toHaveBeenCalledTimes(OPTIONS.length);
+    });
+
+    it("keeps the rows narrowed while new rows are still resolving", async () => {
+      renderHost();
+      hostControl("controlledAccess")!.setValue("privileged");
+      await settle();
+      expect(hostNames()).toEqual(["Amazon"]);
+
+      const pending = new Subject<CipherViewLike[]>();
+      narrow.mockReturnValue(pending);
+      const rows = ROWS();
+      hostFixture.componentInstance.ciphers.set(rows);
+      await settle();
+
+      expect(hostNames()).toEqual(["Amazon"]);
+
+      pending.next([rows[1]]);
+      hostFixture.detectChanges();
+
+      expect(hostNames()).toEqual(["Bank"]);
+    });
+
+    it("keeps every row for an option the host no longer offers", async () => {
+      renderHost();
+
+      hostControl("controlledAccess")!.setValue("retired");
+      await settle();
+
+      expect(hostNames()).toEqual(["Amazon", "Bank", "Cloud"]);
+    });
+
+    it("resets when Clear all is clicked", async () => {
+      renderHost();
+      hostControl("controlledAccess")!.setValue("privileged");
+      await settle();
+      expect(hostNames()).toEqual(["Amazon"]);
+
+      (hostFixture.nativeElement as HTMLElement)
+        .querySelector<HTMLButtonElement>("#bit-table-toolbar_button_clear-all")!
+        .click();
+      hostFixture.detectChanges();
+
+      expect(hostControl("controlledAccess")!.value()).toBeNull();
+      expect(hostNames()).toEqual(["Amazon", "Bank", "Cloud"]);
     });
   });
 });

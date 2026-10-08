@@ -1,0 +1,271 @@
+import { NO_ERRORS_SCHEMA } from "@angular/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { DefaultUrlSerializer, Navigation, NavigationExtras, Router } from "@angular/router";
+import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject, Subject } from "rxjs";
+
+import { DialogRef, DialogService } from "@bitwarden/components";
+
+import { ApprovalsTabComponent } from "../approvals-tab.component";
+import { HistoryTabComponent } from "../history-tab.component";
+import { MyRequestsTabComponent } from "../my-requests-tab.component";
+
+import { AccessRequestDetailService, AccessRequestViewer } from "./access-request-detail.service";
+import { AccessRequestDialogComponent } from "./access-request-dialog.component";
+import { AccessRequestRouteComponent } from "./access-request-route.component";
+
+describe("AccessRequestRouteComponent", () => {
+  let fixture: ComponentFixture<AccessRequestRouteComponent>;
+  let dialogService: MockProxy<DialogService>;
+  let router: MockProxy<Router>;
+  let detail: AccessRequestDetailService;
+  let viewer$: BehaviorSubject<AccessRequestViewer | null>;
+  let loading$: BehaviorSubject<boolean>;
+  let closed$: Subject<void>;
+  let close: jest.Mock;
+
+  /** The origin tab is read during construction, off the navigation the router is still running. */
+  function create(previousNavigation: Navigation | null): void {
+    router.getCurrentNavigation.mockReturnValue({ previousNavigation } as Navigation);
+    fixture = TestBed.createComponent(AccessRequestRouteComponent);
+    fixture.detectChanges();
+  }
+
+  function cameFrom(path: string): Navigation {
+    return { finalUrl: new DefaultUrlSerializer().parse(path) } as Navigation;
+  }
+
+  /** A browser history stand-in: a navigation pushes unless replacing; Back stops at the bottom. */
+  class BrowserHistory {
+    readonly entries: string[];
+    private index: number;
+
+    constructor(...entries: string[]) {
+      this.entries = entries;
+      this.index = entries.length - 1;
+    }
+
+    get url(): string {
+      return this.entries[this.index];
+    }
+
+    navigate(url: string, replaceUrl: boolean): void {
+      if (replaceUrl) {
+        this.entries[this.index] = url;
+        return;
+      }
+      this.entries.length = this.index + 1;
+      this.entries.push(url);
+      this.index += 1;
+    }
+
+    back(): void {
+      this.index = Math.max(0, this.index - 1);
+    }
+  }
+
+  /** Drives `history` off the component's own navigation, the way the browser would. */
+  function trackHistory(history: BrowserHistory): void {
+    router.navigate.mockImplementation((commands: readonly any[], extras?: NavigationExtras) => {
+      history.navigate(commands.join("/"), extras?.replaceUrl === true);
+      return Promise.resolve(true);
+    });
+  }
+
+  beforeEach(async () => {
+    closed$ = new Subject<void>();
+    // The real ref emits `closed` however it closes, so the stub does too.
+    close = jest.fn(() => closed$.next());
+    dialogService = mock<DialogService>();
+    dialogService.open.mockReturnValue({
+      closed: closed$,
+      close,
+    } as unknown as DialogRef<unknown, unknown>);
+    router = mock<Router>();
+    viewer$ = new BehaviorSubject<AccessRequestViewer | null>(null);
+    loading$ = new BehaviorSubject<boolean>(true);
+    detail = { viewer$, loading$ } as unknown as AccessRequestDetailService;
+
+    await TestBed.configureTestingModule({
+      imports: [AccessRequestRouteComponent],
+      providers: [
+        { provide: DialogService, useValue: dialogService },
+        { provide: Router, useValue: router },
+      ],
+    })
+      // The component provides the detail service itself, so the stub replaces it there.
+      .overrideComponent(AccessRequestRouteComponent, {
+        remove: {
+          imports: [ApprovalsTabComponent, HistoryTabComponent, MyRequestsTabComponent],
+          providers: [AccessRequestDetailService],
+        },
+        add: {
+          schemas: [NO_ERRORS_SCHEMA],
+          providers: [{ provide: AccessRequestDetailService, useValue: detail }],
+        },
+      })
+      .compileComponents();
+  });
+
+  it("opens the detail dialog over the shell, handing it the route-scoped detail service", () => {
+    create(null);
+
+    expect(dialogService.open).toHaveBeenCalledWith(AccessRequestDialogComponent, {
+      data: { detail },
+      closeOnNavigation: false,
+    });
+  });
+
+  it.each([
+    ["/pam/approvals", "pam-approvals-tab"],
+    ["/pam/history", "pam-history-tab"],
+    ["/pam/my-requests", "pam-my-requests-tab"],
+  ])("renders the tab the caller came from (%s) behind the dialog", (path, selector) => {
+    create(cameFrom(path));
+
+    expect(fixture.nativeElement.querySelector(selector)).not.toBeNull();
+  });
+
+  // Ends on the same segment as the PAM History tab; must not be mistaken for it.
+  it.each(["/vault", "/organizations/orgId/billing/history"])(
+    "follows the viewer, as on a cold load, when the caller arrived from outside the tabs (%s)",
+    (path) => {
+      viewer$.next("requester");
+      create(cameFrom(path));
+
+      expect(fixture.nativeElement.querySelector("pam-my-requests-tab")).not.toBeNull();
+    },
+  );
+
+  describe("opened cold", () => {
+    const tabs = ["pam-approvals-tab", "pam-history-tab", "pam-my-requests-tab"];
+
+    function renderedTabs(): string[] {
+      return tabs.filter((tab) => fixture.nativeElement.querySelector(tab) != null);
+    }
+
+    it("renders no tab behind the dialog while the viewer is unknown", () => {
+      create(null);
+
+      expect(renderedTabs()).toEqual([]);
+    });
+
+    it("renders Approvals once the viewer resolves to an approver, never My requests before it", () => {
+      create(null);
+      const whileLoading = renderedTabs();
+
+      viewer$.next("approver");
+      fixture.detectChanges();
+
+      expect(whileLoading).toEqual([]);
+      expect(renderedTabs()).toEqual(["pam-approvals-tab"]);
+    });
+
+    it("renders My requests for the requester", () => {
+      viewer$.next("requester");
+      create(null);
+
+      expect(renderedTabs()).toEqual(["pam-my-requests-tab"]);
+    });
+
+    it("renders My requests when the load settles without a request to show", () => {
+      create(null);
+
+      loading$.next(false);
+      fixture.detectChanges();
+
+      expect(renderedTabs()).toEqual(["pam-my-requests-tab"]);
+    });
+
+    it("returns to My requests when closed before the viewer is known", () => {
+      create(null);
+
+      closed$.next();
+
+      expect(router.navigate).toHaveBeenCalledWith(["/pam", "my-requests"], { replaceUrl: true });
+    });
+  });
+
+  it.each([
+    ["/pam/approvals", "approvals"],
+    ["/pam/history", "history"],
+    ["/pam/my-requests", "my-requests"],
+  ])("replaces the dialog URL with the tab it rendered behind (%s)", (path, tab) => {
+    create(cameFrom(path));
+
+    closed$.next();
+
+    expect(router.navigate).toHaveBeenCalledWith(["/pam", tab], { replaceUrl: true });
+  });
+
+  describe("opened cold by an approver, from the decision email", () => {
+    beforeEach(() => viewer$.next("approver"));
+
+    it("renders the Approvals inbox behind the dialog", () => {
+      create(null);
+
+      expect(fixture.nativeElement.querySelector("pam-approvals-tab")).not.toBeNull();
+    });
+
+    it("returns to the Approvals inbox on close", () => {
+      create(null);
+
+      closed$.next();
+
+      expect(router.navigate).toHaveBeenCalledWith(["/pam", "approvals"], { replaceUrl: true });
+    });
+
+    it("still keeps the tab they came from when there is one", () => {
+      create(cameFrom("/pam/history"));
+
+      expect(fixture.nativeElement.querySelector("pam-history-tab")).not.toBeNull();
+    });
+  });
+
+  it("consumes the dialog URL rather than stacking the tab on top of it", () => {
+    const history = new BrowserHistory("/pam/requests/A");
+    trackHistory(history);
+    create(null);
+
+    closed$.next();
+
+    expect(history.entries).toEqual(["/pam/my-requests"]);
+  });
+
+  it("never leaves the caller stranded on the dialog URL", () => {
+    const detailUrl = "/pam/requests/A";
+    const history = new BrowserHistory(detailUrl);
+    trackHistory(history);
+
+    // A pasted link opened in a fresh tab has nothing behind it in history.
+    create(null);
+    // The caller closes the dialog; the navigation that follows tears the route down.
+    closed$.next();
+    fixture.destroy();
+    // If close had pushed instead of replaced, this would land back on the dialog.
+    history.back();
+    create(cameFrom("/pam/my-requests"));
+    closed$.next();
+
+    expect(history.url).not.toBe(detailUrl);
+  });
+
+  it("closes the dialog without navigating when the route is left by other means", () => {
+    create(cameFrom("/pam/my-requests"));
+
+    fixture.destroy();
+
+    expect(close).toHaveBeenCalled();
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it("navigates once when the dismissal itself tears the route down", () => {
+    create(cameFrom("/pam/history"));
+
+    closed$.next();
+    fixture.destroy();
+
+    expect(close).toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledTimes(1);
+  });
+});

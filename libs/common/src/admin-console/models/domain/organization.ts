@@ -38,6 +38,11 @@ export class Organization {
   useSecretsManager: boolean;
   usePasswordManager: boolean;
   usePam: boolean;
+  /**
+   * This member's own PAM seat, drawn against the organization's {@link usePam} subscription.
+   * Acting on a governed item needs both; see {@link canAccessPrivilegedAccess}.
+   */
+  accessPam: boolean;
   useActivateAutofillPolicy: boolean;
   useAutomaticUserConfirmation: boolean;
   selfHost: boolean;
@@ -130,6 +135,7 @@ export class Organization {
     this.useSecretsManager = obj.useSecretsManager;
     this.usePasswordManager = obj.usePasswordManager;
     this.usePam = obj.usePam;
+    this.accessPam = obj.accessPam;
     this.useActivateAutofillPolicy = obj.useActivateAutofillPolicy;
     this.useAutomaticUserConfirmation = obj.useAutomaticUserConfirmation;
     this.selfHost = obj.selfHost;
@@ -325,8 +331,24 @@ export class Organization {
     return (this.isAdmin || this.permissions.managePolicies) && this.usePolicies;
   }
 
+  /**
+   * Whether the member may author access rules. Mirrors the server's
+   * `ManageAccessRulesRequirement`, which admits no provider, though {@link isAdmin} counts one as
+   * an Owner.
+   */
   get canManageAccessRules() {
-    return this.isAdmin && this.usePam;
+    return (
+      (this.isAdmin || this.permissions.manageAccessRules) && this.usePam && !this.isProviderUser
+    );
+  }
+
+  /**
+   * Whether the member may administer access connectors, their target systems and rotation
+   * configs. Mirrors the server's `ManageAccessConnectorRequirement`, which also admits no
+   * provider.
+   */
+  get canManageRotation() {
+    return (this.isAdmin || this.permissions.manageRotation) && this.usePam && !this.isProviderUser;
   }
 
   get canManageUsers() {
@@ -391,6 +413,13 @@ export class Organization {
 
   get hasReseller() {
     return this.hasProvider && this.providerType === ProviderType.Reseller;
+  }
+  /**
+   * Whether this member may use PAM. Mirrors the server's `CurrentContextOrganization.AccessPam`.
+   * An admin without a seat can manage PAM but not use it.
+   */
+  get canAccessPrivilegedAccess() {
+    return this.usePam && this.accessPam;
   }
 
   get canAccessSecretsManager() {

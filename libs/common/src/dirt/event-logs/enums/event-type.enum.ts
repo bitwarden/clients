@@ -169,4 +169,20 @@ export enum EventType {
   Send_Deleted_File = 2509,
   Send_Accessed_Text = 2510,
   Send_Accessed_File = 2511,
+
+  // PAM events reported organization-wide, a subset of PAM's own audit trail. Keep in sync with
+  // the server's EventType.
+  Pam_AccessRequest_Submitted = 2600,
+  Pam_AccessRequest_Approved = 2601,
+  Pam_AccessRequest_Denied = 2602,
+  Pam_AccessLease_Activated = 2603,
+  Pam_AccessLease_Revoked = 2604,
+  Pam_AccessRequest_Cancelled = 2605,
+  Pam_AccessLease_Extended = 2606,
+  Pam_AccessLease_Expired = 2607,
+  Pam_AccessLease_ActivationRejected = 2608,
+  // Rule events carry no subject id: a rule spans collections and the event has no column for it.
+  Pam_AccessRule_Created = 2609,
+  Pam_AccessRule_Updated = 2610,
+  Pam_AccessRule_Deleted = 2611,
 }

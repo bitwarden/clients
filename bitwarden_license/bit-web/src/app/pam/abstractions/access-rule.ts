@@ -1,21 +1,19 @@
-import type { AccessCondition } from "@bitwarden/sdk-internal";
+import type { AccessCondition, AccessRuleError } from "@bitwarden/sdk-internal";
 
-// `export type` is REQUIRED (not `export`) — these are type-only re-exports of the
-// wasm SDK's shapes. Because they carry no runtime value, this line is erased by the
-// compiler, so jest never resolves the wasm package while running this directory's unit tests.
+import { apiErrorBodyMessage } from "./api-error";
+
+// `export type`, so the compiler erases this line and jest never resolves the wasm package.
 export type {
   AccessCondition,
   AccessRuleAddEditRequest,
+  AccessRuleError,
   AccessRuleId,
   AccessRuleView,
 } from "@bitwarden/sdk-internal";
 
 /**
- * The subset of {@link AccessCondition} this client version knows how to render.
- * The SDK passes unrecognised condition kinds through unchanged (a server-side rule
- * can carry a condition newer than this client), so UI code that matches on `kind`
- * should narrow to this type first via {@link isKnownAccessCondition} and skip
- * anything else rather than rendering nothing or crashing.
+ * The conditions this client can render. The SDK passes newer kinds through unchanged, so narrow
+ * with {@link isKnownAccessCondition} and skip the rest.
  */
 export type KnownAccessCondition = Extract<
   AccessCondition,
@@ -27,55 +25,34 @@ const KNOWN_ACCESS_CONDITION_KINDS: ReadonlyArray<KnownAccessCondition["kind"]> 
   "ip_allowlist",
 ];
 
-/**
- * Type guard for a condition kind this client understands. See
- * {@link KnownAccessCondition}.
- */
 export function isKnownAccessCondition(
   condition: AccessCondition,
 ): condition is KnownAccessCondition {
   return (KNOWN_ACCESS_CONDITION_KINDS as readonly string[]).includes(condition.kind);
 }
 
-/** Type guard for the `human_approval` condition variant. */
 export function isHumanApproval(
   condition: AccessCondition,
 ): condition is Extract<AccessCondition, { kind: "human_approval" }> {
   return condition.kind === "human_approval";
 }
 
-/** Type guard for the `ip_allowlist` condition variant. */
 export function isIpAllowlist(
   condition: AccessCondition,
 ): condition is Extract<AccessCondition, { kind: "ip_allowlist" }> {
   return condition.kind === "ip_allowlist";
 }
 
-/** The `variant` values the SDK's access-rule operations can throw. */
-export type AccessRuleErrorVariant =
-  | "BadRequest"
-  | "NotFound"
-  | "Validation"
-  | "InvalidConditions"
-  | "MissingField"
-  | "Chrono"
-  | "Api";
+/**
+ * Adds `NotFound`, which the Rust SDK throws but no published `sdk-internal` declares yet. Collapse
+ * once the bump lands.
+ */
+export type AccessRuleErrorVariant = AccessRuleError["variant"] | "NotFound";
 
 /**
- * The flat error shape thrown by the SDK's access-rule CRUD calls
- * (`commercial().pam().access_rules()`). Hand-written rather than imported: the SDK
- * does not yet publish an `AccessRuleError` type or an `isAccessRuleError` guard for
- * it (unlike e.g. `CryptoError`/`isCryptoError`, already generated for other domains
- * in `@bitwarden/sdk-internal`) — this mirrors that same wasm-bindgen convention (a
- * `name`-tagged `Error` subclass with a `variant` discriminant) so this file can be
- * swapped to the SDK's own export once it lands, with no change to callers of
- * {@link accessRuleErrorMessage} / {@link isAccessRuleNotFound}.
+ * Not the SDK's own `isAccessRuleError`, which is a runtime wasm import; this directory stays
+ * type-only.
  */
-export interface AccessRuleError extends Error {
-  name: "AccessRuleError";
-  variant: AccessRuleErrorVariant;
-}
-
 function isAccessRuleError(e: unknown): e is AccessRuleError {
   return (
     e instanceof Error &&
@@ -85,14 +62,21 @@ function isAccessRuleError(e: unknown): e is AccessRuleError {
 }
 
 /**
- * The toastable message carried by the SDK's `AccessRuleError`, or `undefined` when
- * `e` isn't that shape — callers fall back to a generic error message in that case.
+ * The toastable message of an `AccessRuleError`, or `undefined` for any other error or an
+ * unparsable `Api` body.
  */
 export function accessRuleErrorMessage(e: unknown): string | undefined {
-  return isAccessRuleError(e) ? e.message : undefined;
+  if (!isAccessRuleError(e)) {
+    return undefined;
+  }
+  return e.variant === "Api" ? apiErrorBodyMessage(e.message) : e.message;
 }
 
-/** True when `e` is the SDK's `AccessRuleError` with the `NotFound` variant. */
+/** True when `e` is the SDK reporting a rule that no longer exists. */
 export function isAccessRuleNotFound(e: unknown): boolean {
-  return isAccessRuleError(e) && e.variant === "NotFound";
+  if (!isAccessRuleError(e)) {
+    return false;
+  }
+  // Cast at the comparison, since a widened `const` would narrow back to its initializer's type.
+  return (e.variant as AccessRuleErrorVariant) === "NotFound";
 }
