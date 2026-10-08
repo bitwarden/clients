@@ -1,4 +1,5 @@
-//! Signer lookup by pid via the dynamic SecCode API (the running process, not the file on disk).
+//! Process table via libproc, which works inside the App Store sandbox and across users, and
+//! signer lookup via the dynamic SecCode API (the running process, not the file on disk).
 
 use std::ffi::c_void;
 
@@ -15,7 +16,7 @@ use security_framework::{
 };
 use security_framework_sys::code_signing::{SecCodeCheckValidity, SecCodeRef};
 
-use super::{Signer, SignerInfo, SignerKind};
+use super::{ProcessEntry, Signer, SignerInfo, SignerKind};
 
 // Missing from security-framework-sys. The keys are immutable framework constants.
 #[link(name = "Security", kind = "framework")]
@@ -33,6 +34,8 @@ unsafe extern "C" {
 
 /// `kSecCSSigningInformation`.
 const SIGNING_INFORMATION: u32 = 1 << 1;
+/// `errSecCSReqFailed`: the signature is valid but doesn't meet the requirement.
+const REQ_FAILED: i32 = -67050;
 const DEVELOPER_ID: &str =
     "anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] \
      exists and certificate leaf[field.1.2.840.113635.100.6.1.13] exists";
@@ -74,23 +77,26 @@ pub(super) fn signer(pid: u32) -> Option<SignerInfo> {
             Some(get::<CFString>(plist.as_ref()?, key.as_concrete_TypeRef())?.to_string())
         });
 
-    // SAFETY: `code` is live; a null requirement checks only the signature itself.
-    let status = unsafe {
-        SecCodeCheckValidity(
-            code.as_concrete_TypeRef(),
-            Flags::NONE.bits(),
-            std::ptr::null_mut(),
-        )
+    // Each check also validates the signature, so most processes need only one.
+    let check = |req: &str| {
+        let req = req.parse::<SecRequirement>().map_err(|e| e.code())?;
+        code.check_validity(Flags::NONE, &req).map_err(|e| e.code())
     };
-    let satisfies = |req: &str| {
-        req.parse::<SecRequirement>()
-            .is_ok_and(|req| code.check_validity(Flags::NONE, &req).is_ok())
-    };
-    let kind = match summary {
-        None => SignerKind::AdHoc,
-        Some(_) if satisfies(DEVELOPER_ID) => SignerKind::DeveloperId,
-        Some(_) if satisfies("anchor apple") => SignerKind::Platform,
-        Some(_) => SignerKind::Other,
+    let (kind, valid) = match summary {
+        // SAFETY: `code` is live; a null requirement checks only the signature itself.
+        None => (SignerKind::AdHoc, unsafe {
+            SecCodeCheckValidity(
+                code.as_concrete_TypeRef(),
+                Flags::NONE.bits(),
+                std::ptr::null_mut(),
+            ) == 0
+        }),
+        Some(_) => match check(DEVELOPER_ID) {
+            Ok(()) => (SignerKind::DeveloperId, true),
+            Err(REQ_FAILED) if check("anchor apple").is_ok() => (SignerKind::Platform, true),
+            Err(REQ_FAILED) => (SignerKind::Other, true),
+            Err(_) => (SignerKind::Other, false),
+        },
     };
     let (id, organization) = match kind {
         SignerKind::DeveloperId => (team, summary.as_deref().and_then(organization)),
@@ -98,7 +104,6 @@ pub(super) fn signer(pid: u32) -> Option<SignerInfo> {
         // A self-signed subject and team id are whatever the signer typed.
         SignerKind::AdHoc | SignerKind::Other => (None, None),
     };
-    let valid = status == 0;
     let signer = Signer {
         kind,
         id,
@@ -112,17 +117,33 @@ pub(super) fn signer(pid: u32) -> Option<SignerInfo> {
     })
 }
 
-/// sysinfo's `PROC_PIDTBSDINFO` is same-user only, so it loses the parent of setuid `login`;
-/// `PROC_PIDT_SHORTBSDINFO` is not.
-pub(super) fn ppid(pid: u32) -> Option<u32> {
+/// `PROC_PIDT_SHORTBSDINFO`, unlike sysinfo's `PROC_PIDTBSDINFO`, also reads setuid `login`.
+pub(super) fn process(pid: u32) -> Option<ProcessEntry> {
     const PROC_PIDT_SHORTBSDINFO: i32 = 13;
-    // `struct proc_bsdshortinfo`: 64 bytes, `pbsi_ppid` second.
-    let mut info = [0u32; 16];
+    // `struct proc_bsdshortinfo`: `pbsi_ppid` at 4, `pbsi_comm[16]` at 16.
+    let mut info = [0u8; 64];
     let pid = i32::try_from(pid).ok()?;
     // SAFETY: `info` is exactly the 64 bytes the call is told it may write.
     let written =
         unsafe { libc::proc_pidinfo(pid, PROC_PIDT_SHORTBSDINFO, 0, info.as_mut_ptr().cast(), 64) };
-    (written == 64 && info[1] > 0).then_some(info[1])
+    if written != 64 {
+        return None;
+    }
+    let ppid = u32::from_ne_bytes(info[4..8].try_into().ok()?);
+    let comm = info[16..32].split(|&b| b == 0).next()?;
+    Some(ProcessEntry {
+        ppid: (ppid > 0).then_some(ppid),
+        name: String::from_utf8_lossy(comm).into_owned(),
+        exe: exe(pid),
+    })
+}
+
+fn exe(pid: i32) -> Option<String> {
+    let mut path = vec![0u8; libc::PROC_PIDPATHINFO_MAXSIZE as usize];
+    // SAFETY: `path` holds the `PROC_PIDPATHINFO_MAXSIZE` bytes the call may write.
+    let written = unsafe { libc::proc_pidpath(pid, path.as_mut_ptr().cast(), path.len() as u32) };
+    path.truncate(usize::try_from(written).ok().filter(|&n| n > 0)?);
+    String::from_utf8(path).ok()
 }
 
 /// `Developer ID Application: Anthropic PBC (Q6L2SF6YDW)` → `Anthropic PBC`.
@@ -181,6 +202,14 @@ mod tests {
         for (summary, expected) in cases {
             assert_eq!(organization(summary).as_deref(), expected, "{summary:?}");
         }
+    }
+
+    #[test]
+    fn process_reads_this_process() {
+        let entry = process(std::process::id()).expect("entry");
+        let exe = std::env::current_exe().unwrap();
+        assert_eq!(entry.exe.as_deref(), exe.to_str());
+        assert_eq!(entry.ppid, Some(std::os::unix::process::parent_id()));
     }
 
     #[test]

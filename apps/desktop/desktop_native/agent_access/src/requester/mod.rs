@@ -6,13 +6,14 @@ mod macos;
 
 use std::{fs, path::Path};
 
+#[cfg(not(target_os = "macos"))]
 use sysinfo::{Pid, ProcessRefreshKind, ProcessesToUpdate, System, UpdateKind};
 
 const MAX_HOPS: usize = 8;
 const BITWARDEN_TEAM_ID: &str = "LTZ2PFU5D6";
-const TRANSPARENT: &str =
-    "sh bash zsh fish dash ksh mksh tcsh csh nu pwsh powershell cmd env login sudo doas npx uvx \
-     bw-access";
+/// Walked past by name alone, without a signer lookup; nothing shows their signer.
+const SHELLS: &str =
+    "sh bash zsh fish dash ksh mksh tcsh csh nu pwsh powershell cmd env login sudo doas npx uvx";
 
 /// Who is asking, as far as the OS can tell. Best effort: same-user processes can lie by racing
 /// or injecting.
@@ -91,14 +92,17 @@ fn walk(table: &impl ProcessTable, peer_pid: u32) -> Requester {
         let Some(entry) = table.process(pid) else {
             break;
         };
-        let info = table.signer(pid, entry.exe.as_deref());
         let name = entry
             .exe
             .as_deref()
-            .and_then(|e| Path::new(e).file_name()?.to_str());
+            .and_then(|e| Path::new(e).file_name()?.to_str())
+            .map_or(entry.name, str::to_string);
+        let info = (!is_shell(&name))
+            .then(|| table.signer(pid, entry.exe.as_deref()))
+            .flatten();
         let hop = Hop {
             pid,
-            name: name.map_or(entry.name, str::to_string),
+            name,
             exe: entry.exe,
             signer: info.as_ref().map(|i| i.signer.clone()),
         };
@@ -158,11 +162,21 @@ fn is_developer_id(hop: &Hop, also: impl Fn(&Signer) -> bool) -> bool {
 }
 
 fn is_transparent(hop: &Hop) -> bool {
-    let name = hop.name.to_ascii_lowercase();
-    let name = name.strip_prefix('-').unwrap_or(&name);
-    let name = name.strip_suffix(".exe").unwrap_or(name);
-    TRANSPARENT.split_whitespace().any(|t| t == name)
+    is_shell(&hop.name)
+        || base_name(&hop.name) == "bw-access"
         || is_developer_id(hop, |s| s.id.as_deref() == Some(BITWARDEN_TEAM_ID))
+}
+
+fn is_shell(name: &str) -> bool {
+    let name = base_name(name);
+    SHELLS.split_whitespace().any(|shell| shell == name)
+}
+
+/// `-zsh` (login) and `ZSH.EXE` → `zsh`.
+fn base_name(name: &str) -> String {
+    let name = name.to_ascii_lowercase();
+    let name = name.strip_prefix('-').unwrap_or(&name);
+    name.strip_suffix(".exe").unwrap_or(name).to_string()
 }
 
 /// Only an Apple-anchored signature vouches for the bundle name; anyone can write an Info.plist.
@@ -205,6 +219,12 @@ fn humanize(identifier: &str) -> Option<String> {
 struct OsTable;
 
 impl ProcessTable for OsTable {
+    #[cfg(target_os = "macos")]
+    fn process(&self, pid: u32) -> Option<ProcessEntry> {
+        macos::process(pid)
+    }
+
+    #[cfg(not(target_os = "macos"))]
     fn process(&self, pid: u32) -> Option<ProcessEntry> {
         let pid = Pid::from_u32(pid);
         let mut system = System::new();
@@ -214,11 +234,8 @@ impl ProcessTable for OsTable {
             ProcessRefreshKind::nothing().with_exe(UpdateKind::Always),
         );
         let process = system.process(pid)?;
-        let ppid = process.parent().map(Pid::as_u32);
-        #[cfg(target_os = "macos")]
-        let ppid = ppid.or_else(|| macos::ppid(pid.as_u32()));
         Some(ProcessEntry {
-            ppid,
+            ppid: process.parent().map(Pid::as_u32),
             name: process.name().to_string_lossy().into_owned(),
             exe: process.exe().and_then(Path::to_str).map(str::to_string),
         })
@@ -435,6 +452,33 @@ mod tests {
             assert!(peer(BUNDLED, None));
             assert!(!peer("/tmp/bw-access", None));
         }
+    }
+
+    #[test]
+    fn shells_get_no_signer_lookup() {
+        struct Counting(Fake, std::cell::RefCell<Vec<u32>>);
+        impl ProcessTable for Counting {
+            fn process(&self, pid: u32) -> Option<ProcessEntry> {
+                self.0.process(pid)
+            }
+            fn signer(&self, pid: u32, exe: Option<&str>) -> Option<SignerInfo> {
+                self.1.borrow_mut().push(pid);
+                self.0.signer(pid, exe)
+            }
+            fn is_bundled_cli(&self, exe: &str) -> bool {
+                self.0.is_bundled_cli(exe)
+            }
+        }
+        let t = Counting(
+            Fake(vec![
+                (60, 50, "bw-access", None),
+                (50, 40, "-zsh", apple("com.apple.zsh")),
+                (40, 30, "claude", claude()),
+            ]),
+            Default::default(),
+        );
+        assert_eq!(walk(&t, 60).app.pid, 40);
+        assert_eq!(*t.1.borrow(), [60, 40]);
     }
 
     #[test]

@@ -10,7 +10,6 @@ anyhow = { workspace = true }
 async-trait = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
-sysinfo = { workspace = true }
 tokio = { workspace = true, features = ["io-util", "macros", "net", "rt", "sync", "time"] }
 tokio-util = { workspace = true }
 tracing = { workspace = true }
@@ -23,6 +22,9 @@ libc = { workspace = true }
 core-foundation = { workspace = true }
 security-framework = { workspace = true }
 security-framework-sys = { workspace = true }
+
+[target.'cfg(not(target_os = "macos"))'.dependencies]
+sysinfo = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
 windows = { workspace = true, features = [
