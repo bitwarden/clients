@@ -318,6 +318,102 @@ describe("DefaultAccountSwitcherService", () => {
 
       expect(result).toEqual({ active: null, inactive: [], canAddAccount: true });
     });
+
+    it("emits the active entry alone when every other account is logged out", async () => {
+      setup({
+        [userA]: AuthenticationStatus.Unlocked,
+        [userB]: AuthenticationStatus.LoggedOut,
+        [userC]: AuthenticationStatus.LoggedOut,
+      });
+
+      const result = await firstValueFrom(sut.entries$);
+
+      expect(idsOf(result)).toEqual({ active: userA, inactive: [] });
+      expect(result.canAddAccount).toBe(true);
+    });
+
+    it("emits again when the active account's avatar color changes", async () => {
+      setup({
+        [userA]: AuthenticationStatus.Unlocked,
+        [userB]: AuthenticationStatus.Locked,
+        [userC]: AuthenticationStatus.LoggedOut,
+      });
+      const emissions: (string | null)[] = [];
+      const subscription = sut.entries$.subscribe((entries) =>
+        emissions.push(entries.active?.avatarColor ?? null),
+      );
+
+      avatarColors[userA].next("#654321");
+      subscription.unsubscribe();
+
+      expect(emissions).toEqual(["#aaaaaa", "#654321"]);
+    });
+
+    it("keeps emitting after every account logs out and an account becomes usable again", async () => {
+      setup({
+        [userA]: AuthenticationStatus.Unlocked,
+        [userB]: AuthenticationStatus.LoggedOut,
+        [userC]: AuthenticationStatus.LoggedOut,
+      });
+      const emissions: AccountSwitcherEntries[] = [];
+      const subscription = sut.entries$.subscribe((entries) => emissions.push(entries));
+
+      authStatuses$.next({
+        [userA]: AuthenticationStatus.LoggedOut,
+        [userB]: AuthenticationStatus.LoggedOut,
+        [userC]: AuthenticationStatus.LoggedOut,
+      });
+      authStatuses$.next({
+        [userA]: AuthenticationStatus.LoggedOut,
+        [userB]: AuthenticationStatus.Locked,
+        [userC]: AuthenticationStatus.LoggedOut,
+      });
+      subscription.unsubscribe();
+
+      expect(emissions.map(idsOf)).toEqual([
+        { active: userA, inactive: [] },
+        { active: null, inactive: [] },
+        { active: null, inactive: [userB] },
+      ]);
+    });
+
+    it("passes through a missing avatar color and a missing environment", async () => {
+      setup({
+        [userA]: AuthenticationStatus.Unlocked,
+        [userB]: AuthenticationStatus.LoggedOut,
+        [userC]: AuthenticationStatus.Locked,
+      });
+      environments[userC].next(null as unknown as Environment);
+
+      const result = await firstValueFrom(sut.entries$);
+
+      expect(result.inactive).toEqual([
+        expect.objectContaining({ id: userC, avatarColor: null, serverHostname: undefined }),
+      ]);
+    });
+
+    it("stops emitting for avatar or environment changes of an account that logs out", async () => {
+      setup({
+        [userA]: AuthenticationStatus.Unlocked,
+        [userB]: AuthenticationStatus.Locked,
+        [userC]: AuthenticationStatus.LoggedOut,
+      });
+      const emissions: AccountSwitcherEntries[] = [];
+      const subscription = sut.entries$.subscribe((entries) => emissions.push(entries));
+
+      authStatuses$.next({
+        [userA]: AuthenticationStatus.Unlocked,
+        [userB]: AuthenticationStatus.LoggedOut,
+        [userC]: AuthenticationStatus.LoggedOut,
+      });
+      const emissionCountAfterLogout = emissions.length;
+      avatarColors[userB].next("#123456");
+      environments[userB].next(environmentWithHost("self-hosted.example.com"));
+      subscription.unsubscribe();
+
+      expect(emissions).toHaveLength(emissionCountAfterLogout);
+      expect(idsOf(emissions.at(-1)!)).toEqual({ active: userA, inactive: [] });
+    });
   });
 
   describe("account limit", () => {
