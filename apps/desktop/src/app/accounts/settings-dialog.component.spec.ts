@@ -580,6 +580,29 @@ describe("SettingsDialogComponent", () => {
           },
         );
 
+        // Without a master password, the persistent key is the only unlock method after restart
+        // once the PIN is gone. A failed enrollment (e.g. cancelled Windows Hello) must keep the PIN.
+        it("keeps the PIN when persistent biometric enrollment fails", async () => {
+          desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
+          desktopBiometricsService.enrollPersistent.mockRejectedValue(
+            new Error("Windows Hello cancelled"),
+          );
+
+          await component.ngOnInit();
+          (component as any).form.controls.pin.setValue(false, { emitEvent: false });
+          (component as any).isWindows = true;
+          (component as any).form.value.requireMasterPasswordOnAppRestart = true;
+          (component as any).userHasMasterPassword.set(false);
+          (component as any).supportsBiometric.set(true);
+          (component as any).form.value.biometric = true;
+
+          await (component as any).updatePinHandler(false);
+
+          expect(pinServiceAbstraction.unsetPin).not.toHaveBeenCalled();
+          expect((component as any).form.controls.pin.value).toBe(true);
+          expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
+        });
+
         test.each([
           {
             userHasMasterPassword: true,

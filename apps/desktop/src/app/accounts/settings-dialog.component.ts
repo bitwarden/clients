@@ -452,7 +452,11 @@ export class SettingsDialogComponent implements OnInit {
         !this.userHasMasterPassword()
       ) {
         // Allow biometric unlock on app restart so the user doesn't get into a bad state.
-        await this.enrollPersistentBiometricIfNeeded(userId);
+        // Keep the PIN if that fails, otherwise nothing unlocks the vault after restart.
+        if (!(await this.enrollPersistentBiometricIfNeeded(userId))) {
+          this.form.controls.pin.setValue(true, { emitEvent: false });
+          return;
+        }
       }
       await this.pinService.unsetPin(userId);
     }
@@ -562,7 +566,7 @@ export class SettingsDialogComponent implements OnInit {
   /**
    * Persists the user key so biometrics alone can unlock the vault after an app restart.
    */
-  private async enrollPersistentBiometricIfNeeded(userId: UserId): Promise<void> {
+  private async enrollPersistentBiometricIfNeeded(userId: UserId): Promise<boolean> {
     try {
       if (!(await this.biometricsService.hasPersistentKey(userId))) {
         const userKey = await firstValueFrom(this.keyService.userKey$(userId));
@@ -571,9 +575,11 @@ export class SettingsDialogComponent implements OnInit {
           emitEvent: false,
         });
       }
+      return true;
     } catch (error) {
       this.logService.error("Error enrolling persistent biometric unlock: ", error);
       this.validationService.showError(error);
+      return false;
     }
   }
 
