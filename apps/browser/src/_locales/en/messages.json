@@ -8220,6 +8220,37 @@
     "message": "Explore the new vault",
     "description": "Button that closes the dialog introducing the redesigned vault."
   },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "coachmarkSwitchVaultsTitle": {
+    "message": "Switch between vaults"
+  },
+  "coachmarkSwitchVaultsDescription": {
+    "message": "With the new vault switcher, you can quickly see your private vault or a vault you share with others."
+  },
+  "coachmarkMixAndMatchFiltersTitle": {
+    "message": "Mix and match filters"
+  },
+  "coachmarkMixAndMatchFiltersDescription": {
+    "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
+  },
+  "coachmarkNewDashboardTitle": {
+    "message": "We've just released a new dashboard"
+  },
+  "coachmarkNewDashboardDescription": {
+    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
+  },
   "customize": {
     "message": "Customize"
   },
