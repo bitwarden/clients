@@ -118,9 +118,6 @@ export class AppComponent implements OnDestroy, OnInit {
             await this.lockService.lock(userId, LockSource.Manual);
             break;
           }
-          case "locked":
-            await this.router.navigate(["/"]);
-            break;
           case "lockedUrl":
             break;
           case "syncStarted":
