@@ -720,15 +720,57 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: ./scripts/validate-chromium-importer-thumbprint.ps1
 
+      # The Appx built above keeps the Microsoft-assigned publisher and stays unsigned,
+      # which is what the Store requires.
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          Copy-Item "./dist/Bitwarden-$env:_PACKAGE_VERSION-ia32.appx" `
-            -Destination "./dist/Bitwarden-$env:_PACKAGE_VERSION-ia32-store.appx"
-          Copy-Item "./dist/Bitwarden-$env:_PACKAGE_VERSION-x64.appx" `
-            -Destination "./dist/Bitwarden-$env:_PACKAGE_VERSION-x64-store.appx"
-          Copy-Item "./dist/Bitwarden-$env:_PACKAGE_VERSION-arm64.appx" `
-            -Destination "./dist/Bitwarden-$env:_PACKAGE_VERSION-arm64-store.appx"
+          Rename-Item -Path "./dist/Bitwarden-$env:_PACKAGE_VERSION-ia32.appx" `
+            -NewName "Bitwarden-$env:_PACKAGE_VERSION-ia32-store.appx"
+          Rename-Item -Path "./dist/Bitwarden-$env:_PACKAGE_VERSION-x64.appx" `
+            -NewName "Bitwarden-$env:_PACKAGE_VERSION-x64-store.appx"
+          Rename-Item -Path "./dist/Bitwarden-$env:_PACKAGE_VERSION-arm64.appx" `
+            -NewName "Bitwarden-$env:_PACKAGE_VERSION-arm64-store.appx"
+
+      # An Appx can only be signed when its manifest publisher matches the certificate
+      # subject, so read the subject from the signed binary.
+      - name: Read signing certificate subject
+        id: cert-subject
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        run: |
+          $signature = Get-AuthenticodeSignature "./dist/win-unpacked/Bitwarden.exe"
+          if ($null -eq $signature.SignerCertificate) {
+            Write-Error "Expected a signed exe, got status '$($signature.Status)': $($signature.StatusMessage)"
+            exit 1
+          }
+          $subject = $signature.SignerCertificate.Subject
+          Write-Host "Signing certificate subject: $subject"
+          "publisher=$subject" >> $env:GITHUB_OUTPUT
+
+      # Packs and signs the Appx with the CI signing certificate and publisher.
+      # Reuses the compiled Rust and webpack builds from above, so we only need
+      # to swap out the manifest, recompress and sign.
+      - name: Pack & sign appx for direct download
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        env:
+          ELECTRON_BUILDER_SIGN: 1
+          ELECTRON_BUILDER_SIGN_APPX: 1
+          SIGNING_VAULT_URL: ${{ steps.retrieve-secrets.outputs.code-signing-vault-url }}
+          SIGNING_CLIENT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-client-id }}
+          SIGNING_TENANT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-tenant-id }}
+          SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
+          SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
+          _APPX_PUBLISHER: ${{ steps.cert-subject.outputs.publisher }}
+        run: node ./scripts/pack-signed-appx.mts --config electron-builder.json --publisher $env:_APPX_PUBLISHER
+
+      # A signed Store package is rejected at ingestion and an unsigned direct download
+      # installs for nobody, so confirm each package ended up as intended before we
+      # upload any of them.
+      - name: Verify appx signing state and publishers
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        env:
+          _APPX_PUBLISHER: ${{ steps.cert-subject.outputs.publisher }}
+        run: ./scripts/validate-appx-signatures.ps1 -Config electron-builder.json -SignedPublisher $env:_APPX_PUBLISHER
 
       - name: Package for Chocolatey
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -1317,13 +1359,13 @@ jobs:
           mkdir -p "$HOME/secrets"
 
           az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
-            --name bitwarden_desktop_appstore.provisionprofile \
-            --file "$HOME/secrets/bitwarden_desktop_appstore.provisionprofile" \
+            --name bitwarden_stable_desktop_appstore.provisionprofile \
+            --file "$HOME/secrets/bitwarden_stable_desktop_appstore.provisionprofile" \
             --output none
 
           az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
-            --name bitwarden_desktop_autofill_app_store_2024.provisionprofile \
-            --file "$HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile" \
+            --name bitwarden_stable_desktop_autofill_appstore.provisionprofile \
+            --file "$HOME/secrets/bitwarden_stable_desktop_autofill_appstore.provisionprofile" \
             --output none
 
       - name: Get certificates
@@ -1380,16 +1422,16 @@ jobs:
       - name: Set up provisioning profiles
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          cp "$HOME/secrets/bitwarden_desktop_appstore.provisionprofile" \
-            "$GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile"
+          cp "$HOME/secrets/bitwarden_stable_desktop_appstore.provisionprofile" \
+            "$GITHUB_WORKSPACE/apps/desktop/bitwarden_stable_desktop_appstore.provisionprofile"
 
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          APP_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_desktop_appstore.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
-          AUTOFILL_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
+          APP_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_stable_desktop_appstore.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
+          AUTOFILL_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_stable_desktop_autofill_appstore.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
 
-          cp "$HOME/secrets/bitwarden_desktop_appstore.provisionprofile" \
+          cp "$HOME/secrets/bitwarden_stable_desktop_appstore.provisionprofile" \
             "$HOME/Library/MobileDevice/Provisioning Profiles/$APP_UUID.provisionprofile"
-          cp "$HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile" \
+          cp "$HOME/secrets/bitwarden_stable_desktop_autofill_appstore.provisionprofile" \
             "$HOME/Library/MobileDevice/Provisioning Profiles/$AUTOFILL_UUID.provisionprofile"
 
       - name: Increment version
@@ -1484,9 +1526,11 @@ jobs:
           - variant: oss
             license_type: oss
             artifact_prefix: ""
+            browser_artifact_prefix: ""
           - variant: bit
             license_type: commercial
             artifact_prefix: "commercial-"
+            browser_artifact_prefix: "bit-"
     runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     needs:
@@ -1578,13 +1622,13 @@ jobs:
           mkdir -p "$HOME/secrets"
 
           az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
-            --name bitwarden_desktop_developer_id.provisionprofile \
-            --file "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" \
+            --name bitwarden_stable_desktop_developer_id.provisionprofile \
+            --file "$HOME/secrets/bitwarden_stable_desktop_developer_id.provisionprofile" \
             --output none
 
           az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
-            --name bitwarden_desktop_autofill_developer_id.provisionprofile \
-            --file "$HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile" \
+            --name bitwarden_stable_desktop_autofill_developer_id.provisionprofile \
+            --file "$HOME/secrets/bitwarden_stable_desktop_autofill_developer_id.provisionprofile" \
             --output none
 
       - name: Get certificates
@@ -1625,16 +1669,16 @@ jobs:
 
       - name: Set up provisioning profiles
         run: |
-          cp "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" \
-            "$GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_developer_id.provisionprofile"
+          cp "$HOME/secrets/bitwarden_stable_desktop_developer_id.provisionprofile" \
+            "$GITHUB_WORKSPACE/apps/desktop/bitwarden_stable_desktop_developer_id.provisionprofile"
 
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          APP_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
-          AUTOFILL_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
+          APP_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_stable_desktop_developer_id.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
+          AUTOFILL_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_stable_desktop_autofill_developer_id.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
 
-          cp "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" \
+          cp "$HOME/secrets/bitwarden_stable_desktop_developer_id.provisionprofile" \
             "$HOME/Library/MobileDevice/Provisioning Profiles/$APP_UUID.provisionprofile"
-          cp "$HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile" \
+          cp "$HOME/secrets/bitwarden_stable_desktop_autofill_developer_id.provisionprofile" \
             "$HOME/Library/MobileDevice/Provisioning Profiles/$AUTOFILL_UUID.provisionprofile"
 
       - name: Increment version
@@ -1716,10 +1760,12 @@ jobs:
           path: ${{ github.workspace }}/browser-build-artifacts
 
       - name: Unzip Safari artifact
+        env:
+          _BROWSER_ARTIFACT_PREFIX: ${{ matrix.browser_artifact_prefix }}
         run: |
-          SAFARI_DIR=$(find "$GITHUB_WORKSPACE/browser-build-artifacts" -name 'dist-safari-*.zip')
+          SAFARI_DIR=$(find "$GITHUB_WORKSPACE/browser-build-artifacts" -name "${_BROWSER_ARTIFACT_PREFIX}dist-safari-*.zip")
           echo "$SAFARI_DIR"
-          unzip "$SAFARI_DIR/dist-safari.zip" -d "$GITHUB_WORKSPACE/browser-build-artifacts"
+          unzip "$SAFARI_DIR/${_BROWSER_ARTIFACT_PREFIX}dist-safari.zip" -d "$GITHUB_WORKSPACE/browser-build-artifacts"
 
       - name: Load Safari extension for .dmg
         run: |
@@ -1861,13 +1907,13 @@ jobs:
           mkdir -p "$HOME/secrets"
 
           az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
-            --name bitwarden_desktop_developer_id.provisionprofile \
-            --file "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" \
+            --name bitwarden_beta_desktop_developer_id.provisionprofile \
+            --file "$HOME/secrets/bitwarden_beta_desktop_developer_id.provisionprofile" \
             --output none
 
           az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
-            --name bitwarden_desktop_autofill_developer_id.provisionprofile \
-            --file "$HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile" \
+            --name bitwarden_beta_desktop_autofill_developer_id.provisionprofile \
+            --file "$HOME/secrets/bitwarden_beta_desktop_autofill_developer_id.provisionprofile" \
             --output none
 
       - name: Get certificates
@@ -1902,16 +1948,16 @@ jobs:
 
       - name: Set up provisioning profiles
         run: |
-          cp "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" \
-            "$GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_developer_id.provisionprofile"
+          cp "$HOME/secrets/bitwarden_beta_desktop_developer_id.provisionprofile" \
+            "$GITHUB_WORKSPACE/apps/desktop/bitwarden_beta_desktop_developer_id.provisionprofile"
 
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          APP_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
-          AUTOFILL_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
+          APP_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_beta_desktop_developer_id.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
+          AUTOFILL_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_beta_desktop_autofill_developer_id.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
 
-          cp "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" \
+          cp "$HOME/secrets/bitwarden_beta_desktop_developer_id.provisionprofile" \
             "$HOME/Library/MobileDevice/Provisioning Profiles/$APP_UUID.provisionprofile"
-          cp "$HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile" \
+          cp "$HOME/secrets/bitwarden_beta_desktop_autofill_developer_id.provisionprofile" \
             "$HOME/Library/MobileDevice/Provisioning Profiles/$AUTOFILL_UUID.provisionprofile"
 
       - name: Install Node dependencies
@@ -2032,9 +2078,11 @@ jobs:
           - variant: oss
             license_type: oss
             artifact_prefix: ""
+            browser_artifact_prefix: ""
           - variant: bit
             license_type: commercial
             artifact_prefix: "commercial-"
+            browser_artifact_prefix: "bit-"
     runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     needs:
@@ -2133,13 +2181,13 @@ jobs:
           mkdir -p "$HOME/secrets"
 
           az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
-            --name bitwarden_desktop_appstore.provisionprofile \
-            --file "$HOME/secrets/bitwarden_desktop_appstore.provisionprofile" \
+            --name bitwarden_stable_desktop_appstore.provisionprofile \
+            --file "$HOME/secrets/bitwarden_stable_desktop_appstore.provisionprofile" \
             --output none
 
           az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
-            --name bitwarden_desktop_autofill_app_store_2024.provisionprofile \
-            --file "$HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile" \
+            --name bitwarden_stable_desktop_autofill_appstore.provisionprofile \
+            --file "$HOME/secrets/bitwarden_stable_desktop_autofill_appstore.provisionprofile" \
             --output none
 
       - name: Get certificates
@@ -2180,16 +2228,16 @@ jobs:
 
       - name: Set up provisioning profiles
         run: |
-          cp "$HOME/secrets/bitwarden_desktop_appstore.provisionprofile" \
-            "$GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile"
+          cp "$HOME/secrets/bitwarden_stable_desktop_appstore.provisionprofile" \
+            "$GITHUB_WORKSPACE/apps/desktop/bitwarden_stable_desktop_appstore.provisionprofile"
 
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          APP_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_desktop_appstore.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
-          AUTOFILL_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
+          APP_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_stable_desktop_appstore.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
+          AUTOFILL_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_stable_desktop_autofill_appstore.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
 
-          cp "$HOME/secrets/bitwarden_desktop_appstore.provisionprofile" \
+          cp "$HOME/secrets/bitwarden_stable_desktop_appstore.provisionprofile" \
             "$HOME/Library/MobileDevice/Provisioning Profiles/$APP_UUID.provisionprofile"
-          cp "$HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile" \
+          cp "$HOME/secrets/bitwarden_stable_desktop_autofill_appstore.provisionprofile" \
             "$HOME/Library/MobileDevice/Provisioning Profiles/$AUTOFILL_UUID.provisionprofile"
 
       - name: Increment version
@@ -2272,10 +2320,12 @@ jobs:
           path: ${{ github.workspace }}/browser-build-artifacts
 
       - name: Unzip Safari artifact
+        env:
+          _BROWSER_ARTIFACT_PREFIX: ${{ matrix.browser_artifact_prefix }}
         run: |
-          SAFARI_DIR=$(find "$GITHUB_WORKSPACE/browser-build-artifacts" -name 'dist-safari-*.zip')
+          SAFARI_DIR=$(find "$GITHUB_WORKSPACE/browser-build-artifacts" -name "${_BROWSER_ARTIFACT_PREFIX}dist-safari-*.zip")
           echo "$SAFARI_DIR"
-          unzip "$SAFARI_DIR/dist-safari.zip" -d "$GITHUB_WORKSPACE/browser-build-artifacts"
+          unzip "$SAFARI_DIR/${_BROWSER_ARTIFACT_PREFIX}dist-safari.zip" -d "$GITHUB_WORKSPACE/browser-build-artifacts"
 
       - name: Load Safari extension for App Store
         run: |

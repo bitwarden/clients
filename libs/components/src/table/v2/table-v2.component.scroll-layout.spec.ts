@@ -1,5 +1,7 @@
+import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
 import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -35,6 +37,7 @@ const mockI18nService = { t: (key: string) => key };
       height="fill"
       [virtualRowHeight]="56"
       [scrollLayoutHost]="host()"
+      [loading]="loading()"
     >
       <bit-column name="name">
         <bit-header-cell>Name</bit-header-cell>
@@ -45,41 +48,67 @@ const mockI18nService = { t: (key: string) => key };
 })
 class TestHostComponent {
   readonly host = signal(false);
+  readonly loading = signal(false);
   readonly rows = signal<Row[]>([{ id: 1, name: "one" }]);
   readonly table = defineTable<Row>(this.rows);
 }
 
-describe("BitTableV2Component scroll layout host", () => {
-  let scrollLayout: ScrollLayoutService;
+class FakeResizeObserver {
+  static instances: FakeResizeObserver[] = [];
+  observed: Element[] = [];
+  disconnected = false;
 
-  async function render(host: boolean) {
-    await TestBed.configureTestingModule({
-      imports: [TestHostComponent],
-      providers: [
-        { provide: I18nService, useValue: mockI18nService },
-        { provide: DialogService, useValue: {} },
-      ],
-    }).compileComponents();
-
-    scrollLayout = TestBed.inject(ScrollLayoutService);
-
-    const fixture = TestBed.createComponent(TestHostComponent);
-    fixture.componentInstance.host.set(host);
-    fixture.detectChanges();
-
-    return fixture;
+  constructor(readonly callback: ResizeObserverCallback) {
+    FakeResizeObserver.instances.push(this);
   }
+  observe(element: Element) {
+    this.observed.push(element);
+  }
+  disconnect() {
+    this.disconnected = true;
+  }
+}
+
+const originalResizeObserver = globalThis.ResizeObserver;
+
+beforeEach(() => {
+  FakeResizeObserver.instances = [];
+  globalThis.ResizeObserver = FakeResizeObserver as unknown as typeof ResizeObserver;
+});
+
+afterEach(() => {
+  globalThis.ResizeObserver = originalResizeObserver;
+});
+
+async function render(host = false) {
+  await TestBed.configureTestingModule({
+    imports: [TestHostComponent],
+    providers: [
+      { provide: I18nService, useValue: mockI18nService },
+      { provide: DialogService, useValue: {} },
+    ],
+  }).compileComponents();
+
+  const fixture = TestBed.createComponent(TestHostComponent);
+  fixture.componentInstance.host.set(host);
+  fixture.detectChanges();
+
+  return fixture;
+}
+
+describe("BitTableV2Component scroll layout host", () => {
+  const scrollLayout = () => TestBed.inject(ScrollLayoutService);
 
   it("does not claim the scroll region by default", async () => {
     await render(false);
 
-    expect(scrollLayout.scrollableRef()).toBeNull();
+    expect(scrollLayout().scrollableRef()).toBeNull();
   });
 
   it("registers its scrolling body as the scroll region when opted in", async () => {
     await render(true);
 
-    const registered = scrollLayout.scrollableRef();
+    const registered = scrollLayout().scrollableRef();
 
     expect(registered).not.toBeNull();
     // The body the rows scroll in, not the table's own host element.
@@ -89,10 +118,37 @@ describe("BitTableV2Component scroll layout host", () => {
   it("hands the region back when the table is destroyed", async () => {
     const fixture = await render(true);
 
-    expect(scrollLayout.scrollableRef()).not.toBeNull();
+    expect(scrollLayout().scrollableRef()).not.toBeNull();
 
     fixture.destroy();
 
-    expect(scrollLayout.scrollableRef()).toBeNull();
+    expect(scrollLayout().scrollableRef()).toBeNull();
+  });
+});
+
+describe("BitTableV2Component virtual viewport resize", () => {
+  it("re-measures the viewport when its element resizes", async () => {
+    const fixture = await render();
+    const viewport = fixture.debugElement
+      .query(By.directive(CdkVirtualScrollViewport))
+      .injector.get(CdkVirtualScrollViewport);
+    const checkViewportSize = jest.spyOn(viewport, "checkViewportSize");
+
+    const [observer] = FakeResizeObserver.instances;
+    expect(observer.observed).toEqual([viewport.elementRef.nativeElement]);
+
+    observer.callback([], observer as unknown as ResizeObserver);
+
+    expect(checkViewportSize).toHaveBeenCalled();
+  });
+
+  it("stops observing when the viewport leaves", async () => {
+    const fixture = await render();
+    const [observer] = FakeResizeObserver.instances;
+
+    fixture.componentInstance.loading.set(true);
+    fixture.detectChanges();
+
+    expect(observer.disconnected).toBe(true);
   });
 });
