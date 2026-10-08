@@ -52,6 +52,7 @@ modules:
       - cp -r ./* /app/bin/
       - mkdir -p ${FLATPAK_DEST}/share/applications/
       - cp com.bitwarden.desktop.desktop ${FLATPAK_DEST}/share/applications/
+      - install -Dm644 com.bitwarden.desktop.metainfo.xml ${FLATPAK_DEST}/share/metainfo/com.bitwarden.desktop.metainfo.xml
       - install bitwarden.sh /app/bin/bitwarden.sh
       - desktop-file-edit --set-key=Exec --set-value="bitwarden.sh %U" ${FLATPAK_DEST}/share/applications/com.bitwarden.desktop.desktop
       - for s in 16 32 64 128 256 512; do install -Dm644 icons/${s}x${s}.png ${FLATPAK_DEST}/share/icons/hicolor/${s}x${s}/apps/com.bitwarden.desktop.png; done
@@ -64,9 +65,19 @@ modules:
         path: ../dist/linux-arm64-unpacked
       - type: file
         path: ./com.bitwarden.desktop.desktop
+      - type: file
+        path: ./com.bitwarden.desktop.metainfo.xml
       - type: dir
         path: ./icons
         dest: icons
       - type: file
         path: ./linux-wrapper.sh
         dest-filename: bitwarden.sh
+  - name: mtls-helper
+    buildsystem: simple
+    build-commands:
+      - cc -O2 -std=c11 -Wall -Wextra -Werror $(pkg-config --cflags nss) mtls_helper.c -o mtls_helper $(pkg-config --libs nss)
+      - install -Dm755 mtls_helper /app/bin/mtls_helper
+    sources:
+      - type: file
+        path: ../desktop_native/mtls_helper/mtls_helper.c

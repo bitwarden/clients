@@ -17,7 +17,7 @@ import { WindowMain } from "./window.main";
 export class TrayMain {
   contextMenu: Menu;
 
-  private appName: string;
+  private appName = "Bitwarden";
   private tray: Tray;
   private icon: string | Electron.NativeImage;
   private pressedIcon: Electron.NativeImage;
@@ -96,6 +96,10 @@ export class TrayMain {
       }
 
       if (await firstValueFrom(this.desktopSettingsService.runInBackground$)) {
+        // A quit can begin while the setting is being read.
+        if (this.windowMain.isQuitting) {
+          return;
+        }
         // Keep running in the background: closing the window hides it to the tray.
         e.preventDefault();
         this.hideToTray();

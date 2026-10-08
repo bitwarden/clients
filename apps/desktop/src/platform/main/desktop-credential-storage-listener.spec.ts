@@ -94,4 +94,30 @@ describe("DesktopCredentialStorageListener", () => {
       expect(passwords.getPassword).toHaveBeenCalledWith("Bitwarden Beta", "user-id");
     });
   });
+
+  describe("mTLS secret IPC gate", () => {
+    it.each(["mtls", "MTLS", "foo_mtls", "_mtls", "mtls/other"])(
+      "blocks every renderer action for reserved suffix %s",
+      async (keySuffix) => {
+        const handler = captureKeytarHandler("Bitwarden Beta");
+
+        for (const action of ["getPassword", "hasPassword", "setPassword", "deletePassword"]) {
+          expect(
+            await handler(null, { action, key: "nss/store", keySuffix, value: "secret" }),
+          ).toBeUndefined();
+        }
+        expect(passwords.getPassword).not.toHaveBeenCalled();
+        expect(passwords.setPassword).not.toHaveBeenCalled();
+        expect(passwords.deletePassword).not.toHaveBeenCalled();
+      },
+    );
+
+    it("rejects invalid payloads without touching the secret store", async () => {
+      const handler = captureKeytarHandler("Bitwarden");
+      expect(
+        await handler(null, { action: "getPassword", key: "secret", keySuffix: 1 }),
+      ).toBeUndefined();
+      expect(passwords.getPassword).not.toHaveBeenCalled();
+    });
+  });
 });

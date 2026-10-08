@@ -2,7 +2,9 @@ import * as fs from "fs";
 import { pathToFileURL } from "node:url";
 import * as path from "path";
 
+import { app, session } from "electron";
 import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
@@ -15,12 +17,16 @@ import { DesktopSettingsService } from "../platform/services/desktop-settings.se
 // requires the electron runtime. Mock the surface the module touches on
 // import so it can be loaded in Jest.
 jest.mock("electron", () => ({
-  app: {},
+  app: {
+    on: jest.fn(),
+    whenReady: jest.fn(() => new Promise<void>(() => {})),
+    requestSingleInstanceLock: jest.fn(() => true),
+  },
   BrowserWindow: jest.fn(),
   ipcMain: { on: jest.fn() },
   nativeTheme: {},
   screen: {},
-  session: {},
+  session: { fromPartition: jest.fn() },
   protocol: { registerSchemesAsPrivileged: jest.fn() },
   net: {},
 }));
@@ -35,10 +41,162 @@ jest.mock("@bitwarden/desktop-napi", () => ({
   },
 }));
 
+jest.mock("../utils", () => ({ ...jest.requireActual("../utils"), isDev: () => true }));
+
 import { isSnapStore } from "./platform-utils.main";
 import { isConfinedSnap, WindowMain } from "./window.main";
 
 describe("WindowMain", () => {
+  it("initializes the managed session and window when Electron is already ready", async () => {
+    jest.mocked(app.whenReady).mockResolvedValueOnce(undefined);
+    const managedSession = { protocol: { handle: jest.fn() } };
+    jest
+      .mocked(session.fromPartition)
+      .mockReturnValueOnce(managedSession as unknown as Electron.Session);
+    const settings = mock<DesktopSettingsService>();
+    settings.modalMode$ = of({ isModalModeActive: false });
+    settings.preventScreenshots$ = of(false);
+    const startupOrder: string[] = [];
+    const sut = new WindowMain(
+      mock<BiometricStateService>(),
+      mock<LogService>(),
+      mock<AbstractStorageService>(),
+      settings,
+      mock<SafeShell>(),
+      null,
+      () => {},
+      null,
+      async () => {
+        expect(sut.session).toBe(managedSession);
+        startupOrder.push("reconcile");
+      },
+    );
+    const createWindow = jest.spyOn(sut, "createWindow").mockImplementation(async () => {
+      expect(sut.session).toBe(managedSession);
+      startupOrder.push("window");
+    });
+    await sut.init();
+    expect(session.fromPartition).toHaveBeenCalledWith("persist:bitwarden", { cache: false });
+    expect(createWindow).toHaveBeenCalledWith("full-app", true);
+    expect(startupOrder).toEqual(["reconcile", "window"]);
+  });
+
+  it("rejects initialization if readiness fails instead of hanging bootstrap", async () => {
+    const error = new Error("readiness failed");
+    jest.mocked(app.whenReady).mockRejectedValueOnce(error);
+    const settings = mock<DesktopSettingsService>();
+    settings.modalMode$ = of({ isModalModeActive: false });
+    settings.preventScreenshots$ = of(false);
+    const sut = new WindowMain(
+      mock<BiometricStateService>(),
+      mock<LogService>(),
+      mock<AbstractStorageService>(),
+      settings,
+      mock<SafeShell>(),
+      null,
+      () => {},
+      null,
+    );
+    await expect(sut.init()).rejects.toBe(error);
+  });
+  it("owns only its live local renderer ID and the session attached to that window", () => {
+    const sut = new WindowMain(
+      mock<BiometricStateService>(),
+      mock<LogService>(),
+      mock<AbstractStorageService>(),
+      mock<DesktopSettingsService>(),
+      mock<SafeShell>(),
+      null,
+      () => {},
+      null,
+    );
+    const actualSession = {};
+    const mainContents = {
+      id: 7,
+      session: actualSession,
+      isDestroyed: () => false,
+      getURL: () => pathToFileURL(path.join(__dirname, "/index.html")).toString(),
+    };
+    sut.win = { webContents: mainContents } as unknown as Electron.BrowserWindow;
+    sut.session = {} as Electron.Session;
+    const request = { ...mainContents } as unknown as Electron.WebContents;
+    expect(sut.ownsMtlsContents(request)).toBe(true);
+    expect(sut.ownsMtlsContents({ ...request, id: 8 } as Electron.WebContents)).toBe(false);
+    expect(sut.ownsMtlsContents({ ...request, session: {} } as Electron.WebContents)).toBe(false);
+    expect(
+      sut.ownsMtlsContents({
+        ...request,
+        getURL: () => "https://evil.example",
+      } as Electron.WebContents),
+    ).toBe(false);
+    mainContents.isDestroyed = () => true;
+    expect(sut.ownsMtlsContents(request)).toBe(false);
+    mainContents.isDestroyed = () => false;
+    sut.win = null;
+    expect(sut.ownsMtlsContents(request)).toBe(false);
+  });
+  it("marks shutdown before Electron closes windows, without waiting for biometric reset", async () => {
+    jest.mocked(app.on).mockClear();
+    const biometrics = mock<BiometricStateService>();
+    let finishReset: () => void;
+    biometrics.resetAllPromptCancelled.mockReturnValue(
+      new Promise<void>((resolve) => (finishReset = resolve)),
+    );
+    const settings = mock<DesktopSettingsService>();
+    settings.modalMode$ = of({ isModalModeActive: false });
+    settings.preventScreenshots$ = of(false);
+    const sut = new WindowMain(
+      biometrics,
+      mock<LogService>(),
+      mock<AbstractStorageService>(),
+      settings,
+      mock<SafeShell>(),
+      null,
+      () => {},
+      null,
+    );
+    void sut.init();
+    const beforeQuit = jest
+      .mocked(app.on)
+      .mock.calls.find(([event]) => event === "before-quit")[1] as () => Promise<void>;
+    const reset = beforeQuit();
+    expect(sut.isQuitting).toBe(true);
+    finishReset();
+    await reset;
+  });
+
+  it("accepts mTLS IPC only from the main frame of its local application window", () => {
+    const sut = new WindowMain(
+      mock<BiometricStateService>(),
+      mock<LogService>(),
+      mock<AbstractStorageService>(),
+      mock<DesktopSettingsService>(),
+      mock<SafeShell>(),
+      null,
+      () => {},
+      null,
+    );
+    const frame = { url: pathToFileURL(path.join(__dirname, "/index.html")).toString() };
+    const webContents = { mainFrame: frame };
+    sut.win = { webContents } as Electron.BrowserWindow;
+
+    expect(
+      sut.isTrustedIpcSender({
+        sender: webContents,
+        senderFrame: frame,
+      } as Electron.IpcMainInvokeEvent),
+    ).toBe(true);
+    expect(
+      sut.isTrustedIpcSender({
+        sender: webContents,
+        senderFrame: { url: "https://evil.example" },
+      } as Electron.IpcMainInvokeEvent),
+    ).toBe(false);
+    expect(
+      sut.isTrustedIpcSender({ sender: {}, senderFrame: frame } as Electron.IpcMainInvokeEvent),
+    ).toBe(false);
+  });
+
   describe("isLocalBundleUrl", () => {
     let sut: WindowMain;
     // Access the private method under test without widening its visibility

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.bitwarden.desktop</id>
+  <launchable type="desktop-id">com.bitwarden.desktop.desktop</launchable>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0</project_license>
+  <name>Bitwarden</name>
+  <summary>A secure and free password manager for all of your devices</summary>
+  <description>
+    <p>Bitwarden stores your passwords and other sensitive information in an encrypted vault that syncs across your devices.</p>
+  </description>
+  <url type="homepage">https://bitwarden.com/</url>
+  <categories>
+    <category>Utility</category>
+  </categories>
+</component>

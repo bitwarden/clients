@@ -26,6 +26,7 @@ import {
 } from "../models/native-messaging";
 import { isDev } from "../utils";
 
+import { IdentityMetadata, MtlsResult, MtlsStatus, MtlsView } from "./models/mtls";
 import { ClipboardWriteMessage } from "./types/clipboard";
 
 type MessagingServiceMessage = PlatformMessage<Record<string, unknown>>;
@@ -55,6 +56,45 @@ const passwords = {
 const clipboard = {
   read: (): Promise<string> => ipcRenderer.invoke("clipboard.read"),
   write: (message: ClipboardWriteMessage) => ipcRenderer.invoke("clipboard.write", message),
+};
+
+const mtls = {
+  status: (): Promise<MtlsResult<MtlsStatus>> => ipcRenderer.invoke("mtls.status"),
+  list: (): Promise<MtlsResult<MtlsView>> => ipcRenderer.invoke("mtls.list"),
+  chooseFile: (): Promise<MtlsResult<{ selectionId: string; fileName: string }>> =>
+    ipcRenderer.invoke("mtls.chooseFile"),
+  inspect: (
+    selectionId: string,
+    password: string,
+  ): Promise<MtlsResult<{ draftId: string; identity: IdentityMetadata }>> =>
+    ipcRenderer.invoke("mtls.inspect", selectionId, password),
+  commit: (request: {
+    draftId: string;
+    expectedRevision: number;
+    endpointUrls: string[];
+    replaceExisting: boolean;
+  }): Promise<MtlsResult<{ revision: number; restartRequired: true }>> =>
+    ipcRenderer.invoke("mtls.commit", request),
+  cancelDraft: (draftId: string): Promise<MtlsResult<void>> =>
+    ipcRenderer.invoke("mtls.cancelDraft", draftId),
+  restart: (): Promise<MtlsResult<void>> => ipcRenderer.invoke("mtls.restart"),
+  bind: (request: {
+    fingerprint: string;
+    endpointUrls: string[];
+    expectedRevision: number;
+    replaceExisting: boolean;
+  }): Promise<MtlsResult<{ revision: number; restartRequired: true }>> =>
+    ipcRenderer.invoke("mtls.bind", request),
+  unbind: (
+    endpointUrl: string,
+    expectedRevision: number,
+  ): Promise<MtlsResult<{ revision: number; restartRequired: true }>> =>
+    ipcRenderer.invoke("mtls.unbind", { endpointUrl, expectedRevision }),
+  remove: (
+    fingerprint: string,
+    expectedRevision: number,
+  ): Promise<MtlsResult<{ revision: number; restartRequired: true }>> =>
+    ipcRenderer.invoke("mtls.remove", { fingerprint, expectedRevision }),
 };
 
 const powermonitor = {
@@ -183,6 +223,7 @@ export default {
   storage,
   passwords,
   clipboard,
+  mtls,
   powermonitor,
   nativeMessaging,
   crypto,

@@ -7,6 +7,8 @@ import { RouterModule } from "@angular/router";
 import { BehaviorSubject, EMPTY, firstValueFrom, from, fromEvent } from "rxjs";
 import { catchError, concatMap, map, switchMap, timeout } from "rxjs/operators";
 
+import { ClientCertificateManagerComponent } from "@bitwarden/angular/auth/client-certificate-manager/client-certificate-manager.component";
+import { ClientCertificateSettingsService } from "@bitwarden/angular/auth/services/client-certificate-settings.service";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { AutotypeShortcutComponent } from "@bitwarden/angular/desktop-native/components/autotype-shortcut.component";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -131,6 +133,11 @@ export class SettingsDialogComponent implements OnInit {
   private readonly themeStateService = inject(ThemeStateService);
   private readonly domainSettingsService = inject(DomainSettingsService);
   private readonly dialogService = inject(DialogService);
+  protected readonly clientCertificates = inject(ClientCertificateSettingsService);
+
+  protected openClientCertificateManager(): void {
+    ClientCertificateManagerComponent.open(this.dialogService, [], true);
+  }
   private readonly userVerificationService = inject(UserVerificationServiceAbstraction);
   private readonly desktopSettingsService = inject(DesktopSettingsService);
   private readonly desktopAutotypeMvpService = inject(DesktopAutotypeMvpService);

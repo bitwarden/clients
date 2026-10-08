@@ -7,6 +7,21 @@
   <ng-container bitDialogContent>
     <bit-tab-group>
       <bit-tab [label]="'security' | i18n">
+        @if (clientCertificates.supported()) {
+          <bit-section disableMargin>
+            <bit-section-header>
+              <h2 bitTypography="h6">{{ "mtlsManagerTitle" | i18n }}</h2>
+            </bit-section-header>
+            <button
+              bitButton
+              type="button"
+              buttonType="secondary"
+              (click)="openClientCertificateManager()"
+            >
+              {{ "mtlsManage" | i18n }}
+            </button>
+          </bit-section>
+        }
         <bit-section disableMargin>
           <bit-section-header>
             <h2 bitTypography="h6">{{ "sessionTimeoutHeader" | i18n }}</h2>
