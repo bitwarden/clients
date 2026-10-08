@@ -6,6 +6,7 @@ import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/va
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { Measurement } from "@bitwarden/logging";
 import { LockService } from "@bitwarden/unlock";
 import { ProductSwitcherService } from "@bitwarden/web-vault/app/layouts/product-switcher/shared/product-switcher.service";
 
@@ -133,6 +134,7 @@ export function provideStoryLogService() {
       enableRecorder: noop,
       measure: () => ({}) as PerformanceMeasure,
       mark: () => ({}) as PerformanceMark,
+      startMeasurement: () => new Measurement(() => ({}) as PerformanceMeasure),
     } satisfies LogService,
   };
 }
