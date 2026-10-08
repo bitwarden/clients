@@ -99,7 +99,7 @@ export class VaultPopupListTableFiltersService {
   private readonly _cachedVaultScopeId = this.viewCacheService.signal<string | null>({
     key: "vault-scope-id",
     initialValue: null,
-    deserializer: (v) => v,
+    deserializer: (v: string | null) => v,
     persistNavigation: true,
   });
 
