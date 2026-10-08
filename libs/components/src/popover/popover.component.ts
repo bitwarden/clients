@@ -7,6 +7,8 @@ import {
   output,
   TemplateRef,
   viewChild,
+  ViewContainerRef,
+  inject,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -31,6 +33,9 @@ import { PopoverHeaderComponent } from "./popover-header.component";
 export class PopoverComponent {
   /** Reference to the popover content template */
   readonly templateRef = viewChild.required(TemplateRef);
+
+  /** Where `PopoverService` renders the content by default. */
+  readonly viewContainerRef = inject(ViewContainerRef);
 
   /** Title displayed in the popover header */
   readonly title = input("");

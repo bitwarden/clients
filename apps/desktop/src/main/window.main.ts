@@ -254,7 +254,8 @@ export class WindowMain {
         // This method will be called when Electron has finished
         // initialization and is ready to create browser windows.
         // Some APIs can only be used after this event occurs.
-        app.on("ready", async () => {
+        // `whenReady()` also covers callers that run after the `ready` event has already fired.
+        void app.whenReady().then(async () => {
           this.session = session.fromPartition("persist:bitwarden", { cache: false });
           this.setupAppProtocol();
 
@@ -335,7 +336,7 @@ export class WindowMain {
   private getWindowUrl(partial: Partial<url.UrlObject> = {}): string {
     // TODO(PM-33211): The custom file scheme only works on servers that support it for CORS (>=2026.3.0).
     // We have it disabled by default until self-hosted users are updated to maintain compatibility.
-    // When removing this, remember to disable the [FuseV1Options.GrantFileProtocolExtraPrivileges] fuse in scripts/electron-fuses.js.
+    // When removing this, remember to disable the [FuseV1Options.GrantFileProtocolExtraPrivileges] fuse in after-pack.js.
     if (process.env.BITWARDEN_USE_CUSTOM_FILE_SCHEME !== "true") {
       return url.format({
         protocol: "file:",

@@ -47,7 +47,7 @@ describe("LunrSearchService", () => {
   const mockLogService = {
     error: jest.fn(),
     info: jest.fn(),
-    measure: jest.fn(),
+    startMeasurement: jest.fn(() => ({ finish: jest.fn() })),
   };
 
   beforeEach(() => {
