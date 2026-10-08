@@ -18725,7 +18725,7 @@
     "message": "Approvers will see this reason when reviewing your request."
   },
   "requestAccessModalGenericError": {
-    "message": "Could not request access."
+    "message": "Could not request access. Try again."
   },
   "requestAccessModalAlreadyActive": {
     "message": "You already have active access to this item."
