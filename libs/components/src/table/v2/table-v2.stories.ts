@@ -1756,6 +1756,48 @@ export const FillPage: Story = {
 };
 
 /**
+ * A `fill` table whose viewport grows without the window resizing: hiding the block above it hands
+ * its height to the table. Rows must still reach the bottom edge afterwards.
+ */
+export const FillPageResizedViewport: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
+  render: () => ({
+    props: {
+      table: largeTable,
+      trackBy: (_: number, item: DemoRow) => item.id,
+      blockShown: signal(true),
+    },
+    template: `
+      <bit-layout>
+        <bit-page>
+          <div class="tw-mb-4 tw-flex tw-items-center tw-gap-4">
+            <h1 bitTypography="h1" class="tw-mb-0">Members</h1>
+            <button type="button" bitButton (click)="blockShown.set(!blockShown())">
+              {{ blockShown() ? "Hide" : "Show" }} block
+            </button>
+          </div>
+          @if (blockShown()) {
+            <div class="tw-mb-4 tw-flex tw-h-96 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-xl tw-bg-bg-secondary">
+              Content above the table
+            </div>
+          }
+          <bit-table-v2 [tableDef]="table" [virtualRowHeight]="64" [trackBy]="trackBy" height="fill">
+            <bit-column>
+              <bit-header-cell>Id</bit-header-cell>
+              <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+            </bit-column>
+            <bit-column>
+              <bit-header-cell>Name</bit-header-cell>
+              <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+            </bit-column>
+          </bit-table-v2>
+        </bit-page>
+      </bit-layout>
+    `,
+  }),
+};
+
+/**
  * Filtering with projected filter chips. A radio chip and a toggle chip register
  * with the table automatically when projected in; the table composes their
  * predicates into the rendered rows and shows a "no matching items" state when

@@ -824,6 +824,17 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     });
   });
 
+  /** CDK re-measures only on window resize; this viewport also resizes with its surrounding layout. */
+  private readonly _viewportResizeEffect = effect((onCleanup) => {
+    const body = this.scrollBody();
+    if (!(body instanceof CdkVirtualScrollViewport)) {
+      return;
+    }
+    const observer = new ResizeObserver(() => body.checkViewportSize());
+    observer.observe(body.elementRef.nativeElement);
+    onCleanup(() => observer.disconnect());
+  });
+
   protected readonly isList = computed(() => this.presentation() === "list");
 
   protected readonly listInset = computed(() => (this.isList() ? "tw-mx-3" : ""));
