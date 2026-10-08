@@ -24,8 +24,11 @@ export default class AutofillScript {
   properties: AutofillScriptProperties = {};
   /** Non-null asserted. */
   autosubmit!: string[] | null; // Appears to be unused, read but not written
-  /** Non-null asserted. */
-  savedUrls!: string[];
+  /**
+   * Whether the user must confirm the fill because the page is served over HTTP while the
+   * cipher holds an HTTPS URI that applies to it.
+   */
+  requiresInsecurePageConfirmation = false;
   /** Non-null asserted. */
   untrustedIframe!: boolean;
   /** Non-null asserted. */

@@ -21,7 +21,10 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { EventType } from "@bitwarden/common/dirt/event-logs";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs/services/event-collection.service";
 import { FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
-import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
+import {
+  UriMatchStrategy,
+  UriMatchStrategySetting,
+} from "@bitwarden/common/models/domain/domain-service";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
@@ -895,7 +898,7 @@ describe("AutofillService", () => {
             properties: {
               delay_between_operations: 20,
             },
-            savedUrls: [],
+            requiresInsecurePageConfirmation: false,
             script: [
               ["click_on_opid", "username-field"],
               ["focus_by_opid", "username-field"],
@@ -1450,6 +1453,7 @@ describe("AutofillService", () => {
       expect(autofillService["generateLoginFillScript"]).toHaveBeenCalledWith(
         {
           properties: {},
+          requiresInsecurePageConfirmation: false,
           script: [
             ["click_on_opid", "username-field"],
             ["focus_by_opid", "username-field"],
@@ -1487,6 +1491,7 @@ describe("AutofillService", () => {
       expect(autofillService["generateCardFillScript"]).toHaveBeenCalledWith(
         {
           properties: {},
+          requiresInsecurePageConfirmation: false,
           script: [
             ["click_on_opid", "username-field"],
             ["focus_by_opid", "username-field"],
@@ -1524,6 +1529,7 @@ describe("AutofillService", () => {
       expect(autofillService["generateIdentityFillScript"]).toHaveBeenCalledWith(
         {
           properties: {},
+          requiresInsecurePageConfirmation: false,
           script: [
             ["click_on_opid", "username-field"],
             ["focus_by_opid", "username-field"],
@@ -2004,63 +2010,23 @@ describe("AutofillService", () => {
       expect(value).toBeNull();
     });
 
-    describe("given a list of login uri views", () => {
-      it("returns an empty array of saved login uri views if the login cipher has no login uri views", async () => {
-        options.cipher.login.uris = [];
+    it("sets whether the fill requires insecure page confirmation within the fill script", async () => {
+      jest
+        .spyOn(autofillService as any, "requiresInsecurePageConfirmation")
+        .mockResolvedValue(true);
 
-        const value = await autofillService["generateLoginFillScript"](
-          fillScript,
-          pageDetails,
-          filledFields,
-          options,
-        );
+      const value = await autofillService["generateLoginFillScript"](
+        fillScript,
+        pageDetails,
+        filledFields,
+        options,
+      );
 
-        expect(value.savedUrls).toStrictEqual([]);
-      });
-
-      it("returns a list of saved login uri views within the fill script", async () => {
-        const secondUriView = mock<LoginUriView>({
-          uri: "https://www.second-example.com",
-        });
-        const thirdUriView = mock<LoginUriView>({
-          uri: "https://www.third-example.com",
-        });
-        options.cipher.login.uris = [defaultLoginUriView, secondUriView, thirdUriView];
-
-        const value = await autofillService["generateLoginFillScript"](
-          fillScript,
-          pageDetails,
-          filledFields,
-          options,
-        );
-
-        expect(value.savedUrls).toStrictEqual([
-          defaultLoginUriView.uri,
-          secondUriView.uri,
-          thirdUriView.uri,
-        ]);
-      });
-
-      it("skips adding any login uri views that have a UriMatchStrategySetting of Never to the list of saved urls", async () => {
-        const secondUriView = mock<LoginUriView>({
-          uri: "https://www.second-example.com",
-        });
-        const thirdUriView = mock<LoginUriView>({
-          uri: "https://www.third-example.com",
-          match: UriMatchStrategy.Never,
-        });
-        options.cipher.login.uris = [defaultLoginUriView, secondUriView, thirdUriView];
-
-        const value = await autofillService["generateLoginFillScript"](
-          fillScript,
-          pageDetails,
-          filledFields,
-          options,
-        );
-
-        expect(value.savedUrls).toStrictEqual([defaultLoginUriView.uri, secondUriView.uri]);
-        expect(value.savedUrls).not.toContain(thirdUriView.uri);
-      });
+      expect(autofillService["requiresInsecurePageConfirmation"]).toHaveBeenCalledWith(
+        pageDetails.url,
+        options,
+      );
+      expect(value.requiresInsecurePageConfirmation).toBe(true);
     });
 
     describe("given a valid set of page details and autofill options", () => {
@@ -2893,7 +2859,7 @@ describe("AutofillService", () => {
           autosubmit: null,
           itemType: "",
           properties: { delay_between_operations: 20 },
-          savedUrls: ["https://www.example.com"],
+          requiresInsecurePageConfirmation: false,
           script: [
             ["click_on_opid", "default-field"],
             ["focus_by_opid", "default-field"],
@@ -3118,7 +3084,7 @@ describe("AutofillService", () => {
         autosubmit: null,
         itemType: "",
         properties: { delay_between_operations: 20 },
-        savedUrls: [],
+        requiresInsecurePageConfirmation: false,
         script: [],
         untrustedIframe: false,
       };
@@ -3309,7 +3275,7 @@ describe("AutofillService", () => {
           properties: {
             delay_between_operations: 20,
           },
-          savedUrls: [],
+          requiresInsecurePageConfirmation: false,
           script: [
             ["click_on_opid", "cardholderName"],
             ["focus_by_opid", "cardholderName"],
@@ -3757,6 +3723,163 @@ describe("AutofillService", () => {
         generateFillScriptOptions.defaultUriMatch,
       );
       expect(result).toBe(true);
+    });
+  });
+
+  describe("requiresInsecurePageConfirmation", () => {
+    let generateFillScriptOptions: GenerateFillScriptOptions;
+
+    function createLoginUriView(uri: string, match?: UriMatchStrategySetting): LoginUriView {
+      const loginUriView = new LoginUriView();
+      loginUriView.uri = uri;
+      loginUriView.match = match;
+      return loginUriView;
+    }
+
+    function setLoginUris(loginUriViews: LoginUriView[]) {
+      const loginView = new LoginView();
+      loginView.uris = loginUriViews;
+      generateFillScriptOptions.cipher.login = loginView;
+    }
+
+    beforeEach(() => {
+      generateFillScriptOptions = createGenerateFillScriptOptionsMock();
+    });
+
+    describe("returns true when the page is served over http and...", () => {
+      it.each([
+        ["an identically spelled https uri", "https://example.com", "http://example.com/login"],
+        ["a unicode IDN https uri", "https://测试.com", "http://xn--0zwm56d.com/login"],
+        ["a punycode IDN https uri", "https://xn--0zwm56d.com", "http://xn--0zwm56d.com/login"],
+        ["an uppercase hostname https uri", "https://EXAMPLE.com", "http://example.com/login"],
+        ["an uppercase scheme https uri", "HTTPS://example.com", "http://example.com/login"],
+        ["an https uri with a port", "https://example.com:8764", "http://example.com:8764/login"],
+        [
+          "an https uri for the parent domain of the page",
+          "https://example.com",
+          "http://login.example.com/",
+        ],
+      ])("the cipher has %s", async (_description, savedUri, pageUrl) => {
+        setLoginUris([createLoginUriView(savedUri)]);
+
+        const result = await autofillService["requiresInsecurePageConfirmation"](
+          pageUrl,
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBe(true);
+      });
+
+      it("the cipher has an https uri on the page's host whose match strategy does not match the page", async () => {
+        setLoginUris([
+          createLoginUriView("https://example.com/other-path", UriMatchStrategy.Exact),
+        ]);
+
+        const result = await autofillService["requiresInsecurePageConfirmation"](
+          "http://example.com/login",
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBe(true);
+      });
+
+      it("the cipher has a host match https uri on the page's hostname with a different port", async () => {
+        setLoginUris([createLoginUriView("https://example.com:8443", UriMatchStrategy.Host)]);
+
+        const result = await autofillService["requiresInsecurePageConfirmation"](
+          "http://example.com:8080/login",
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBe(true);
+      });
+
+      it("the cipher has an exact match https uri for the https version of the page", async () => {
+        setLoginUris([createLoginUriView("https://example.com/login", UriMatchStrategy.Exact)]);
+
+        const result = await autofillService["requiresInsecurePageConfirmation"](
+          "http://example.com/login",
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBe(true);
+      });
+    });
+
+    describe("returns false when...", () => {
+      it("the page is served over https", async () => {
+        setLoginUris([createLoginUriView("https://example.com")]);
+
+        const result = await autofillService["requiresInsecurePageConfirmation"](
+          "https://example.com/login",
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBe(false);
+      });
+
+      it("the cipher has no login data", async () => {
+        generateFillScriptOptions.cipher.login = undefined;
+
+        const result = await autofillService["requiresInsecurePageConfirmation"](
+          "http://example.com/login",
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBe(false);
+      });
+
+      it("the cipher only has http uris", async () => {
+        setLoginUris([createLoginUriView("http://example.com")]);
+
+        const result = await autofillService["requiresInsecurePageConfirmation"](
+          "http://example.com/login",
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBe(false);
+      });
+
+      it("the cipher's only https uri for the page has a match strategy of Never", async () => {
+        setLoginUris([
+          createLoginUriView("http://example.com"),
+          createLoginUriView("https://example.com", UriMatchStrategy.Never),
+        ]);
+
+        const result = await autofillService["requiresInsecurePageConfirmation"](
+          "http://example.com/login",
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBe(false);
+      });
+
+      it("the cipher's https uris do not apply to the page", async () => {
+        setLoginUris([
+          createLoginUriView("http://example.com"),
+          createLoginUriView("https://some-other-uri.com"),
+        ]);
+
+        const result = await autofillService["requiresInsecurePageConfirmation"](
+          "http://example.com/login",
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBe(false);
+      });
+
+      it("the cipher has a regular expression uri that cannot be parsed as a url", async () => {
+        setLoginUris([
+          createLoginUriView("^https://example\\.com/.*$", UriMatchStrategy.RegularExpression),
+        ]);
+
+        const result = await autofillService["requiresInsecurePageConfirmation"](
+          "http://example.com/login",
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBe(false);
+      });
     });
   });
 
