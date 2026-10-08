@@ -1,4 +1,7 @@
 {
+  "appLogoLabel": {
+    "message": "Bitwarden logo"
+  },
   "bitwarden": {
     "message": "Bitwarden"
   },
@@ -2099,6 +2102,18 @@
   },
   "languageDesc": {
     "message": "Change the language used by the application. Restart is required."
+  },
+  "passkeyProvider": {
+    "message": "Passkey provider"
+  },
+  "passkeyProviderDesc": {
+    "message": "Use Bitwarden to save and sign in with passkeys in other apps."
+  },
+  "turnedOn": {
+    "message": "On"
+  },
+  "turnedOff": {
+    "message": "Off"
   },
   "theme": {
     "message": "Theme"
@@ -5547,6 +5562,12 @@
   },
   "savePasskey": {
     "message": "Save passkey"
+  },
+  "chooseCipherForPasskeySave": {
+    "message": "Choose a login to save this passkey to"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "Choose a passkey to log in with"
   },
   "saveNewPasskey": {
     "message": "Save as new login"

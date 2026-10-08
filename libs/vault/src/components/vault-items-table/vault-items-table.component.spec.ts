@@ -2186,6 +2186,31 @@ describe("VaultItemsTableComponent", () => {
       expect(host().style.marginBottom).toBe("0px");
     });
 
+    it("excludes a selected item from the batch bar when a filter hides it", () => {
+      const favorited = cipherView({ id: "a", name: "Amazon", favorite: true });
+      const notFavorited = cipherView({ id: "b", name: "Apple ID", favorite: false });
+      fixture.componentRef.setInput("ciphers", [favorited, notFavorited]);
+      fixture.detectChanges();
+
+      // Select the favorited item.
+      selectionModel().select(bitTable().filtered()[0]);
+      fixture.detectChanges();
+      expect(batchBarIds()).toEqual(["a"]);
+
+      // Activate the Favorites chip — "Apple ID" is now filtered out of the visible rows.
+      filterControl("favorites").setValue(true);
+      fixture.detectChanges();
+
+      // Simulate unfavoriting: the item's `favorite` flips to false in the ciphers input,
+      // which causes it to be filtered out of the visible rows.
+      const unfavorited = cipherView({ id: "a", name: "Amazon", favorite: false });
+      fixture.componentRef.setInput("ciphers", [unfavorited, notFavorited]);
+      fixture.detectChanges();
+
+      // The item is no longer visible, so the batch bar must not count it.
+      expect(batchBarIds()).toEqual([]);
+    });
+
     it("deregisters its source when the table is destroyed", () => {
       fixture.detectChanges();
       expect(batchBar.source()).toBeDefined();

@@ -9,6 +9,7 @@ import {
   inject,
   signal,
   viewChild,
+  viewChildren,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -61,7 +62,16 @@ export class FilterDialogComponent {
 
   private readonly doneButtonEl = viewChild("doneButton", { read: ElementRef<HTMLElement> });
 
+  /** The list page's rows, in `filters` order. Empty while drilled into a filter. */
+  private readonly rowEls = viewChildren("row", { read: ElementRef<HTMLElement> });
+
   protected readonly filters = inject<FilterDialogParams>(DIALOG_DATA).filters;
+
+  /** The list page's row for filter `key`, for anchoring a popover. */
+  row(key: string): ElementRef<HTMLElement> | undefined {
+    const index = this.filters().findIndex((filter) => filter.key() === key);
+    return this.rowEls()[index];
+  }
 
   /** The filter being drilled into, or `undefined` on the list page. */
   protected readonly activeFilter = signal<FilterPresenter | undefined>(undefined);
