@@ -55,6 +55,7 @@
   @if (showItemCreation()) {
     <vault-new-cipher-menu
       slot="empty-add-item"
+      [coachmarkEnabled]="false"
       [canCreateCipher]="true"
       [canCreateSshKey]="true"
       [canCreateFolder]="false"

@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, input, output } from "@angular/core";
+import { Component, computed, inject, input, output } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, map, shareReplay } from "rxjs";
 
@@ -60,6 +60,9 @@ export class NewCipherMenuComponent {
    */
   readonly disabled = input(false);
 
+  /** Set to `false` on all but one menu when several render the same page. */
+  readonly coachmarkEnabled = input(true);
+
   folderAdded = output();
   collectionAdded = output();
   cipherAdded = output<CipherType>();
@@ -67,6 +70,10 @@ export class NewCipherMenuComponent {
 
   private readonly terminology = inject(Vfo1TerminologyService);
   protected readonly coachmark = inject(CoachmarkService);
+
+  protected readonly coachmarkActive = computed(
+    () => this.coachmarkEnabled() && this.coachmark.isStepActive("addItem"),
+  );
 
   protected readonly useNewItemDialog = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),

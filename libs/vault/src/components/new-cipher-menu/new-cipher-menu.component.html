@@ -9,9 +9,9 @@
     [appA11yTitle]="getButtonLabel() | i18n"
     [bitTooltip]="disabled() ? ('organizationIsSuspended' | i18n) : ''"
     [bitPopoverAnchorFor]="addItemCoachmark.popover()"
-    [popoverOpen]="coachmark.isStepActive('addItem')"
+    [popoverOpen]="coachmarkActive()"
     [position]="coachmark.getStepPosition('addItem')"
-    [spotlight]="coachmark.isStepActive('addItem')"
+    [spotlight]="coachmarkActive()"
     [startIcon]="icon()"
   >
     {{ getButtonLabel() | i18n }}
@@ -29,9 +29,9 @@
       [appA11yTitle]="getButtonLabel() | i18n"
       [bitTooltip]="disabled() ? ('organizationIsSuspended' | i18n) : ''"
       [bitPopoverAnchorFor]="addItemCoachmark.popover()"
-      [popoverOpen]="coachmark.isStepActive('addItem')"
+      [popoverOpen]="coachmarkActive()"
       [position]="coachmark.getStepPosition('addItem')"
-      [spotlight]="coachmark.isStepActive('addItem')"
+      [spotlight]="coachmarkActive()"
       [closeOnBackdropClick]="false"
       [startIcon]="icon()"
     >
