@@ -56,8 +56,7 @@ export class Fido2ExcludedCiphersComponent implements OnDestroy {
   async closeModal(): Promise<void> {
     if (this.session) {
       // Clean up session state
-      this.session.notifyConfirmCreateCredential(false);
-      this.session.confirmChosenCipher(undefined);
+      this.session.cancel();
 
       // The session knows whether this ceremony showed any UI, so let it decide
       // whether the window needs to be reset and navigated away from.

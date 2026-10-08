@@ -178,6 +178,7 @@ import { DesktopLoginComponentService } from "../../auth/login/desktop-login-com
 import { DesktopAuthRequestAnsweringService } from "../../auth/services/auth-request-answering/desktop-auth-request-answering.service";
 import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
+import { DesktopAutofillUiService } from "../../autofill/services/desktop-autofill-ui.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopAutotypeDefaultSettingPolicy } from "../../autofill/services/desktop-autotype-policy.service";
@@ -503,6 +504,11 @@ const safeProviders: SafeProvider[] = [
     deps: [PlatformUtilsServiceAbstraction, I18nServiceAbstraction, LogServiceAbstraction],
   }),
   safeProvider({
+    provide: DesktopAutofillUiService,
+    useClass: DesktopAutofillUiService,
+    deps: [],
+  }),
+  safeProvider({
     provide: DesktopFido2UserInterfaceService,
     useClass: DesktopFido2UserInterfaceService,
     deps: [
@@ -516,6 +522,7 @@ const safeProviders: SafeProvider[] = [
       DesktopFido2UserVerificationService,
       PasswordRepromptService,
       DomainSettingsService,
+      DesktopAutofillUiService,
     ],
   }),
   safeProvider({

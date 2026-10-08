@@ -75,8 +75,7 @@ describe("Fido2ExcludedCiphersComponent", () => {
     it("should close modal and notify session when session exists", async () => {
       await component.closeModal();
 
-      expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
-      expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(undefined);
+      expect(mockSession.cancel).toHaveBeenCalled();
       expect(mockSession.hideUi).toHaveBeenCalled();
 
       // The session owns this teardown; the component must not duplicate it.

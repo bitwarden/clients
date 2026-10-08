@@ -179,8 +179,7 @@ describe("Fido2VaultComponent", () => {
       await component.closeModal();
 
       expect(mockRouter.navigate).not.toHaveBeenCalled();
-      expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
-      expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(undefined);
+      expect(mockSession.cancel).toHaveBeenCalled();
     });
   });
 });
