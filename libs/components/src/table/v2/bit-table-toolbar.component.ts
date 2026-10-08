@@ -4,6 +4,7 @@ import {
   DestroyRef,
   ElementRef,
   Injector,
+  Signal,
   computed,
   contentChildren,
   effect,
@@ -30,6 +31,7 @@ import {
   FILTER_PRESENTER,
   FilterPresenter,
   FilterSelection,
+  selectionCount,
 } from "../../filter-menu/filter-tokens";
 import { IconButtonModule } from "../../icon-button";
 import { CollapseOnScrollDirective } from "../../layout/collapse-on-scroll.directive";
@@ -80,6 +82,21 @@ export class BitTableToolbarComponent {
     undefined,
   );
 
+  private readonly filterRows = new Map<string, Signal<ElementRef<HTMLElement> | undefined>>();
+
+  /** The small-screen filter button, for anchoring a popover. `undefined` while chips show inline. */
+  readonly filterButton = viewChild("filterButton", { read: ElementRef<HTMLElement> });
+
+  /** The filter dialog's list-page row for `key`. `undefined` while closed or drilled in. */
+  filterRow(key: string): Signal<ElementRef<HTMLElement> | undefined> {
+    let row = this.filterRows.get(key);
+    if (!row) {
+      row = computed(() => this.dialogRef()?.componentInstance?.row(key));
+      this.filterRows.set(key, row);
+    }
+    return row;
+  }
+
   /** The table this toolbar is projected into; the source of the item count. */
   protected readonly table = inject(BitTableV2Component, { optional: true });
 
@@ -92,8 +109,10 @@ export class BitTableToolbarComponent {
   /** Whether any filter chips are projected — false for a search-only toolbar. */
   protected readonly hasFilters = computed(() => this.filters().length > 0);
 
-  /** How many projected filters currently have a selection — the trigger's berry count. */
-  readonly appliedCount = computed(() => this.filters().filter((f) => f.active()).length);
+  /** How many options are selected across the projected filters — the trigger's berry count. */
+  readonly appliedCount = computed(() =>
+    this.filters().reduce((total, filter) => total + selectionCount(filter), 0),
+  );
 
   /** The filters with a selection — shown as dismissible chips on the small-screen filter row. */
   protected readonly activeFilters = computed(() => this.filters().filter((f) => f.active()));
@@ -302,6 +321,15 @@ export class BitTableToolbarComponent {
       this.dialogRef.set(undefined);
       this.filterDialogOpen.set(false);
     });
+  }
+
+  /** Whether to offer column customization. */
+  protected readonly canCustomizeColumns = computed(
+    () => this.table?.canCustomizeColumns() ?? false,
+  );
+
+  protected openCustomizeColumns(): void {
+    this.table?.openCustomizeColumns();
   }
 
   /** Reset every projected filter's selection. Excludes search. */
