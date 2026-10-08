@@ -109,7 +109,11 @@ export class BitwardenEncryptedJsonImporter extends BitwardenJsonImporter implem
       // A null private key can't be defaulted to anything valid — the SDK's SshKey.privateKey
       // is a required field, and feeding it null panics the decrypt call. Skip before any
       // folder/collection bookkeeping runs for this item, so there's nothing to roll back.
-      if (c.type === CipherType.SshKey && this.isNullOrWhitespace(c.sshKey?.privateKey)) {
+      if (
+        c.type === CipherType.SshKey &&
+        c.data == null && // don't consider V2 ciphers here, only V1
+        this.isNullOrWhitespace(c.sshKey?.privateKey)
+      ) {
         result.errors.push(new ImportRecordError(c.id, ImportRecordErrorReason.SshKeyParseFailed));
         this.logService.warning(
           `Bitwarden encrypted import skipped an SSH key item with no private key (id: ${c.id}).`,

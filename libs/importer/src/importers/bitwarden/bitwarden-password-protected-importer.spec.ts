@@ -168,6 +168,32 @@ describe("BitwardenPasswordProtectedImporter", () => {
         ),
       ]);
     });
+
+    it("doesn't skip a V2 (blob) SSH key item, which has no top-level sshKey field at all", async () => {
+      // V2 ciphers seal all content in `data`; a valid V2 SSH key item never carries a top-level
+      // sshKey property, so sshKey?.privateKey is always undefined there. Only c.data == null
+      // (V1, field-level) items should be checked for a missing private key.
+      const exportWithV2SshKey = JSON.stringify({
+        encrypted: true,
+        encKeyValidation_DO_NOT_EDIT: "2.iv|data|mac=",
+        folders: [],
+        items: [
+          {
+            id: "33333333-3333-3333-3333-333333333333",
+            type: CipherType.SshKey,
+            name: "",
+            data: "2.iv|blob|mac=",
+          },
+        ],
+      });
+
+      const result = await importer.parse(exportWithV2SshKey);
+
+      expect(result.success).toBe(true);
+      expect(result.ciphers).toHaveLength(1);
+      expect(cipherService.decrypt).toHaveBeenCalledTimes(1);
+      expect(result.errors).toEqual([]);
+    });
   });
 
   describe("Password protected", () => {
