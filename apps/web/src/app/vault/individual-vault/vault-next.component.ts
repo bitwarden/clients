@@ -270,8 +270,9 @@ export class VaultNextComponent implements OnInit {
   private readonly allCiphers$ = this.userId$.pipe(
     switchMap((userId) =>
       combineLatest([
-        // Emits null until the first decrypt completes.
-        this.cipherService.cipherListViews$(userId).pipe(filterOutNullish()),
+        // Emits null until the first decrypt completes. Reads the with-partials stream so
+        // PAM-gated rows stay listed — a member has to see the item to request access to it.
+        this.cipherService.cipherListViewsWithPartials$(userId).pipe(filterOutNullish()),
         this.restrictedItemTypesService.restricted$,
       ]),
     ),

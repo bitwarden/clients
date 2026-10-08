@@ -132,7 +132,7 @@ const withVault: Decorator = (storyFn, context) => {
     providers: [
       { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" as UserId }) } },
       { provide: CollectionService, useValue: { decryptedCollections$: () => of(collections) } },
-      { provide: CipherService, useValue: { cipherListViews$: () => of(ciphers) } },
+      { provide: CipherService, useValue: { cipherListViewsWithPartials$: () => of(ciphers) } },
       { provide: OrganizationService, useValue: { organizations$: () => of(organizations) } },
     ],
   })(storyFn, context);

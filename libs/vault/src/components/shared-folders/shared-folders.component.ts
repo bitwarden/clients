@@ -228,7 +228,7 @@ export class SharedFoldersComponent {
         combineLatest([
           this.collectionService.decryptedCollections$(userId),
           // Emits null until the first decrypt completes.
-          this.cipherService.cipherListViews$(userId).pipe(filterOutNullish()),
+          this.cipherService.cipherListViewsWithPartials$(userId).pipe(filterOutNullish()),
           this.organizationService.organizations$(userId),
         ]),
       ),
