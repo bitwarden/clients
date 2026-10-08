@@ -557,6 +557,32 @@ describe("VaultItemsTableComponent", () => {
     });
   });
 
+  describe("option counts", () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ type: CipherType.Login, folderId: "folder-1" as never }),
+        cipherView({ type: CipherType.Login, folderId: "folder-2" as never }),
+        cipherView({ type: CipherType.Card, folderId: "folder-2" as never }),
+      ]);
+      fixture.detectChanges();
+    });
+
+    it("counts each option against the other active filters", () => {
+      expect(bitTable().optionCount("type", CipherType.Card)).toBe(1);
+
+      filterControl("folder").setValue(["folder-1"]);
+
+      expect(bitTable().optionCount("type", CipherType.Card)).toBe(0);
+      expect(bitTable().optionCount("type", CipherType.Login)).toBe(1);
+    });
+
+    it("ignores the chip's own selection when counting its options", () => {
+      filterControl("folder").setValue(["folder-1"]);
+
+      expect(bitTable().optionCount("folder", ["folder-2"])).toBe(2);
+    });
+  });
+
   /**
    * Search is the one filter the predicate doesn't answer itself — it defers to `SearchService`,
    * asynchronously. These drive the real service through the search box rather than the predicate,
