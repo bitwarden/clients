@@ -6,6 +6,7 @@ import {
   firstValueFrom,
   map,
   NEVER,
+  Observable,
   of,
   race,
   skip,
@@ -29,10 +30,13 @@ import { DialogRef, ToastService } from "@bitwarden/components";
 
 export type AgentGateRequest<T> = {
   label: string; // logs only
-  enabled: boolean; // false refuses without touching the vault
-  unlock: { requiredMessage: string; timeoutMessage?: string; timeoutMs: number }; // i18n keys; no timeoutMessage = silent timeout
+  requestId?: number; // main's broker id; a re-send is ignored while the first is in flight
+  enabled: Observable<boolean>; // waits for the first value; false refuses without touching the vault
+  deadline: number; // epoch ms; bounds the unlock wait
+  unlock: { requiredMessage: string; timeoutMessage?: string }; // i18n keys; no timeoutMessage = silent timeout
   refused: T; // disabled, failures, account gone after unlock
-  locked?: T; // still locked at timeout; defaults to refused
+  locked?: T; // still locked at the deadline; defaults to refused
+  expired?: T; // deadline passed before handle(); defaults to refused
   exclusive?: boolean; // default true: one handle() at a time across all requests, so dialogs never stack
   handle: (userId: UserId) => Promise<T>;
   respond: (answer: T) => Promise<void>; // called exactly once per request
@@ -46,6 +50,7 @@ export class AgentRequestGate implements OnDestroy {
     new Set<string>();
 
   private exclusiveQueue: Promise<unknown> = Promise.resolve();
+  private inFlight = new Set<number>();
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -89,6 +94,13 @@ export class AgentRequestGate implements OnDestroy {
   }
 
   async run<T>(request: AgentGateRequest<T>): Promise<void> {
+    const { requestId } = request;
+    if (requestId != null) {
+      if (this.inFlight.has(requestId)) {
+        return;
+      }
+      this.inFlight.add(requestId);
+    }
     let answer = request.refused;
     try {
       answer = await this.answer(request);
@@ -99,6 +111,10 @@ export class AgentRequestGate implements OnDestroy {
       await request.respond(answer);
     } catch (error: unknown) {
       this.logService.error(`${request.label}: failed to respond`, error);
+    } finally {
+      if (requestId != null) {
+        this.inFlight.delete(requestId);
+      }
     }
   }
 
@@ -116,13 +132,16 @@ export class AgentRequestGate implements OnDestroy {
   }
 
   private async answer<T>(request: AgentGateRequest<T>): Promise<T> {
-    if (!request.enabled) {
+    const enabled = await firstValueFrom(request.enabled.pipe(takeUntil(this.destroy$)), {
+      defaultValue: false,
+    });
+    if (!enabled) {
       return request.refused;
     }
 
     let userId: UserId | undefined;
     try {
-      userId = await this.unlockedUserId(request.unlock);
+      userId = await this.unlockedUserId(request.unlock, request.deadline);
     } catch (error: unknown) {
       if (!(error instanceof TimeoutError)) {
         throw error;
@@ -140,14 +159,18 @@ export class AgentRequestGate implements OnDestroy {
       this.logService.error(`${request.label}: no active account after unlock; refusing`);
       return request.refused;
     }
-    if (request.exclusive === false) {
-      return request.handle(userId);
-    }
-    return this.exclusively(() => request.handle(userId));
+    // A request queued past its deadline has no one waiting: don't decrypt or open a dialog.
+    const handle = async () =>
+      Date.now() >= request.deadline
+        ? (request.expired ?? request.refused)
+        : request.handle(userId);
+    return request.exclusive === false ? handle() : this.exclusively(handle);
   }
 
-  // One observable, so the timeout is armed synchronously within run().
-  private unlockedUserId(unlock: AgentGateRequest<unknown>["unlock"]): Promise<UserId | undefined> {
+  private unlockedUserId(
+    unlock: AgentGateRequest<unknown>["unlock"],
+    deadline: number,
+  ): Promise<UserId | undefined> {
     return firstValueFrom(
       combineLatest([
         this.authService.activeAccountStatus$,
@@ -167,7 +190,7 @@ export class AgentRequestGate implements OnDestroy {
             filter((s) => s === AuthenticationStatus.Unlocked),
             // First unlock only, or a later unlock replays an answered request.
             take(1),
-            timeout({ first: unlock.timeoutMs }),
+            timeout({ first: new Date(deadline) }),
             // The active account may have switched during unlock.
             switchMap(() => this.accountService.activeAccount$.pipe(take(1))),
             map((a) => a?.id),

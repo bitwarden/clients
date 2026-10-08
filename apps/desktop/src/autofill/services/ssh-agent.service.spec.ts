@@ -1133,8 +1133,8 @@ describe("SshAgentService – list keys request", () => {
 
       sendListRequest();
 
-      // Advance past the 50ms timeout so RxJS fires the TimeoutError synchronously.
-      jest.advanceTimersByTime(100);
+      // Advance past the 50ms deadline; async, since the gate arms the timeout after reading the setting.
+      await jest.advanceTimersByTimeAsync(100);
 
       // Drain microtasks: the catchError calls the IPC mock (a resolved promise),
       // then switchMap(() => EMPTY) completes the inner observable.

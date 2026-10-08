@@ -99,4 +99,14 @@ describe("AgentRequestBroker", () => {
 
     await expect(Promise.all([a, b])).resolves.toEqual(["denied", "denied"]);
   });
+
+  it("settles only the pending requests the filter picks", async () => {
+    const a = broker.request({ q: "a" }, inAMinute());
+    const b = broker.request({ q: "b" }, inAMinute());
+
+    broker.settleAll("denied", (request) => request.q === "a");
+    broker.answer(2, "approved");
+
+    await expect(Promise.all([a, b])).resolves.toEqual(["denied", "approved"]);
+  });
 });

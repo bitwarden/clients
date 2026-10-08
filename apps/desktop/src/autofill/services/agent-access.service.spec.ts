@@ -1,6 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, EMPTY, of, Subject } from "rxjs";
+import { BehaviorSubject, EMPTY, Observable, of, Subject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -47,6 +47,7 @@ function login(id: string, overrides: Partial<CipherView> = {}): CipherView {
 describe("AgentAccessService", () => {
   let requests: Subject<AgentRequest>;
   let enabled: BehaviorSubject<boolean>;
+  let settings: { agentAccessEnabled$: Observable<boolean>; agentAccessPromptBehavior$: unknown };
   let prompt: BehaviorSubject<AgentAccessPromptType>;
   let ciphers: CipherView[];
   let dialogResult: ApproveAgentRequestResult | undefined;
@@ -81,6 +82,7 @@ describe("AgentAccessService", () => {
     requests = new Subject();
     enabled = new BehaviorSubject(true);
     prompt = new BehaviorSubject<AgentAccessPromptType>(AgentAccessPromptType.Always);
+    settings = { agentAccessEnabled$: enabled, agentAccessPromptBehavior$: prompt };
     ciphers = [login("c1")];
     dialogResult = { approved: true, cipherId: "c1" };
     respond = jest.fn().mockResolvedValue(undefined);
@@ -134,17 +136,17 @@ describe("AgentAccessService", () => {
               def.command === AGENT_ACCESS_IPC_CHANNELS.REQUEST ? requests : EMPTY,
           },
         },
-        {
-          provide: DesktopSettingsService,
-          useValue: { agentAccessEnabled$: enabled, agentAccessPromptBehavior$: prompt },
-        },
+        { provide: DesktopSettingsService, useValue: settings },
       ],
     });
     service = TestBed.inject(AgentAccessService);
     await service.init();
   });
 
-  afterEach(() => service.ngOnDestroy());
+  afterEach(() => {
+    service.ngOnDestroy();
+    jest.useRealTimers();
+  });
 
   it("releases the payload the dialog showed once the user authorizes", async () => {
     send(github);
@@ -300,6 +302,40 @@ describe("AgentAccessService", () => {
     send(github, Date.now() - 1);
     await flush();
     expect(answer()).toEqual({ status: "timeout" });
+  });
+
+  it("answers a request that arrives before the setting loads", async () => {
+    const loading = new Subject<boolean>();
+    settings.agentAccessEnabled$ = loading;
+    service.ngOnDestroy();
+    service = TestBed.runInInjectionContext(() => new AgentAccessService());
+    await service.init();
+
+    send(github);
+    await flush();
+    expect(respond).not.toHaveBeenCalled();
+
+    loading.next(true);
+    await flush();
+    expect(answer().status).toBe("approved");
+  });
+
+  it("times out without releasing or remembering when the reprompt outlasts the deadline", async () => {
+    jest.useFakeTimers();
+    prompt.next(AgentAccessPromptType.RememberUntilLock);
+    dialogResult = { approved: true, cipherId: "c1", remember: true };
+    const deadline = Date.now() + 60_000;
+    reprompt.passwordRepromptCheck.mockImplementationOnce(async () => {
+      jest.setSystemTime(deadline);
+      return true;
+    });
+    send(github, deadline);
+    await jest.advanceTimersByTimeAsync(0);
+    expect(answer()).toEqual({ status: "timeout" });
+
+    send(github);
+    await jest.advanceTimersByTimeAsync(0);
+    expect(dialogService.open).toHaveBeenCalledTimes(2);
   });
 
   it("answers an approval request with the user's choice", async () => {

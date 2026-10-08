@@ -57,9 +57,11 @@ export class AgentRequestBroker<TRequest extends object, TAnswer> {
     }
   }
 
-  settleAll(answer: TAnswer) {
-    for (const requestId of [...this.pending.keys()]) {
-      this.answer(requestId, answer);
+  settleAll(answer: TAnswer, which: (request: TRequest) => boolean = () => true) {
+    for (const [requestId, { request }] of [...this.pending]) {
+      if (which(request)) {
+        this.answer(requestId, answer);
+      }
     }
   }
 

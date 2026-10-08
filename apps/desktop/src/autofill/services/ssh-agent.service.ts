@@ -12,10 +12,10 @@ import {
   from,
   map,
   mergeMap,
+  of,
   Subject,
   switchMap,
   takeUntil,
-  withLatestFrom,
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -76,16 +76,16 @@ export class SshAgentService implements OnDestroy {
       .messages$(new CommandDefinition<AgentRequest>(AGENT_ACCESS_IPC_CHANNELS.REQUEST))
       .pipe(
         filter((request): request is AgentRequest<AgentSshSign> => request.kind.type === "sshSign"),
-        withLatestFrom(this.desktopSettingsService.sshAgentEnabled$),
         // Keys are retained in the agent's keystore across vault lock, so the agent can serve a sign request while the vault is locked without ever firing the list callback.
-        mergeMap(([request, enabled]) =>
+        mergeMap((request) =>
           this.gate.run({
             label: "SSH sign request",
-            enabled,
+            requestId: request.requestId,
+            enabled: this.desktopSettingsService.sshAgentEnabled$,
+            deadline: request.deadline,
             unlock: {
               requiredMessage: "sshAgentUnlockRequired",
               timeoutMessage: "sshAgentUnlockTimeout",
-              timeoutMs: Math.max(0, request.deadline - Date.now()),
             },
             refused: false,
             handle: async (userId) =>
@@ -113,11 +113,9 @@ export class SshAgentService implements OnDestroy {
         mergeMap((message) =>
           this.gate.run({
             label: "SSH list keys request",
-            enabled: true,
-            unlock: {
-              requiredMessage: "sshAgentUnlockRequired",
-              timeoutMs: this.SSH_VAULT_UNLOCK_REQUEST_TIMEOUT,
-            },
+            enabled: of(true),
+            deadline: Date.now() + this.SSH_VAULT_UNLOCK_REQUEST_TIMEOUT,
+            unlock: { requiredMessage: "sshAgentUnlockRequired" },
             refused: false,
             exclusive: false,
             // A failed push throws, so the gate refuses rather than leaving the SSH client waiting.

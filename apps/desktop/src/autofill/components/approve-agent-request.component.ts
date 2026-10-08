@@ -25,6 +25,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
   AgentCredentialField,
+  AgentProcess,
   AgentPurpose,
   AgentRequester,
   verifiedSigner,
@@ -97,7 +98,7 @@ const KIND_STYLES = Object.freeze({
 } satisfies Record<string, KindStyle>);
 type Kind = keyof typeof KIND_STYLES;
 
-const SHELLS = new Set(["sh", "bash", "zsh", "fish", "dash"]);
+const SHELLS = new Set(["sh", "bash", "zsh", "fish", "dash", "pwsh", "powershell", "cmd"]);
 
 @Component({
   selector: "app-approve-agent-request",
@@ -193,11 +194,16 @@ function leavesLine(kind: Kind, { chain }: AgentRequester): [string, string?] {
   if (kind !== "share") {
     return [KIND_STYLES[kind].leaves];
   }
-  const hop = chain[0]?.name === "bw-access" ? chain[1] : chain[0];
-  const name = hop?.name.replace(/^-/, "");
-  return name && !SHELLS.has(name)
+  const hop = baseName(chain[0])?.toLowerCase() === "bw-access" ? chain[1] : chain[0];
+  const name = baseName(hop);
+  return name && !SHELLS.has(name.toLowerCase())
     ? ["agentAccessLeavesShare", name]
     : ["agentAccessLeavesShareApp"];
+}
+
+/** `-zsh` (login) → `zsh`, `Code.exe` → `Code`; compared lowercased, as the native walk does. */
+function baseName(hop: AgentProcess | undefined): string | undefined {
+  return hop?.name.replace(/^-/, "").replace(/\.exe$/i, "");
 }
 
 /** The app is named only with what the OS verified; the hops it went through are shown below. */

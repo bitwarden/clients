@@ -9,7 +9,6 @@ import {
   mergeMap,
   Subject,
   takeUntil,
-  withLatestFrom,
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -75,18 +74,19 @@ export class AgentAccessService implements OnDestroy {
       .messages$(new CommandDefinition<AgentRequest>(AGENT_ACCESS_IPC_CHANNELS.REQUEST))
       .pipe(
         filter((request): request is AccessRequest => request.kind.type !== "sshSign"),
-        withLatestFrom(this.settings.agentAccessEnabled$),
-        mergeMap(([request, enabled]) =>
+        mergeMap((request) =>
           this.gate.run<AgentOutcome>({
             label: `agent ${request.kind.type} request`,
-            enabled,
+            requestId: request.requestId,
+            enabled: this.settings.agentAccessEnabled$,
+            deadline: request.deadline,
             unlock: {
               requiredMessage: "agentAccessUnlockRequired",
               timeoutMessage: "agentAccessUnlockTimeout",
-              timeoutMs: Math.max(0, request.deadline - Date.now()),
             },
             refused: { status: AgentOutcomeStatus.Denied },
             locked: { status: AgentOutcomeStatus.Locked },
+            expired: { status: AgentOutcomeStatus.Timeout },
             handle: (userId) => this.handle(request, userId),
             respond: (outcome) => ipc.autofill.agentAccess.respond(request.requestId, outcome),
           }),
@@ -177,6 +177,10 @@ export class AgentAccessService implements OnDestroy {
     }
     if (!(await this.passwordRepromptService.passwordRepromptCheck(chosen.cipher))) {
       return { status: AgentOutcomeStatus.Denied };
+    }
+    // The reprompt has no deadline; past it, no one would receive the credential.
+    if (Date.now() >= deadline) {
+      return { status: AgentOutcomeStatus.Timeout };
     }
     if (scope != null && result.remember && chosen.cipher.reprompt === CipherRepromptType.None) {
       this.gate.remembered.add(`${scope}:${chosen.cipher.id}`);
