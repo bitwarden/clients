@@ -76,7 +76,6 @@ impl Challenge {
         &self.0
     }
 
-    #[cfg(test)]
     pub(crate) fn from_bytes(bytes: [u8; CHALLENGE_LENGTH]) -> Self {
         Self(bytes)
     }
@@ -102,7 +101,6 @@ impl WindowsHelloPrf {
         Self(Sha256::digest(signature).into())
     }
 
-    #[cfg(test)]
     pub(crate) fn from_bytes(bytes: [u8; PSEUDORANDOM_WINDOWS_HELLO_OUTPUT_LENGTH]) -> Self {
         Self(bytes)
     }
@@ -111,6 +109,37 @@ impl WindowsHelloPrf {
 impl HighEntropySecretSource for WindowsHelloPrf {
     fn provide_high_entropy_bytes(&self) -> SensitiveSlice<'_> {
         Sensitive::from(self.0.as_slice())
+    }
+}
+
+/// A [`Challenge`] and the [`WindowsHelloPrf`] derived from it. Held in secure memory after a
+/// Windows Hello prompt, so re-enrollment can seal a new user key without prompting again.
+pub(super) struct WindowsHelloKey {
+    pub(super) challenge: Challenge,
+    pub(super) prf: WindowsHelloPrf,
+}
+
+impl WindowsHelloKey {
+    pub(super) const LENGTH: usize = CHALLENGE_LENGTH + PSEUDORANDOM_WINDOWS_HELLO_OUTPUT_LENGTH;
+
+    /// Serializes as `challenge || prf`.
+    pub(super) fn to_bytes(&self) -> [u8; Self::LENGTH] {
+        let mut bytes = [0u8; Self::LENGTH];
+        bytes[..CHALLENGE_LENGTH].copy_from_slice(self.challenge.as_bytes());
+        bytes[CHALLENGE_LENGTH..].copy_from_slice(self.prf.as_bytes());
+        bytes
+    }
+
+    pub(super) fn from_bytes(bytes: &[u8]) -> Result<Self> {
+        if bytes.len() != Self::LENGTH {
+            return Err(anyhow!("Invalid Windows Hello key length"));
+        }
+
+        let (challenge, prf) = bytes.split_at(CHALLENGE_LENGTH);
+        Ok(Self {
+            challenge: Challenge::from_bytes(challenge.try_into()?),
+            prf: WindowsHelloPrf::from_bytes(prf.try_into()?),
+        })
     }
 }
 
@@ -223,7 +252,7 @@ mod tests {
     use chacha20poly1305::{aead::Aead, KeyInit, XChaCha20Poly1305, XNonce};
 
     use super::{
-        Challenge, WindowsHelloKeychainEntry, WindowsHelloKeychainEntryV1,
+        Challenge, WindowsHelloKey, WindowsHelloKeychainEntry, WindowsHelloKeychainEntryV1,
         WindowsHelloKeychainEntryV2, WindowsHelloPrf, CHALLENGE_LENGTH,
         PSEUDORANDOM_WINDOWS_HELLO_OUTPUT_LENGTH, XCHACHA20POLY1305_NONCE_LENGTH,
     };
@@ -450,5 +479,23 @@ mod tests {
                 [7u8; PSEUDORANDOM_WINDOWS_HELLO_OUTPUT_LENGTH]
             ))
             .is_err());
+    }
+
+    #[test]
+    fn test_windows_hello_key_round_trip() {
+        let key = WindowsHelloKey {
+            challenge: Challenge::from_bytes(TEST_VECTOR_CHALLENGE),
+            prf: WindowsHelloPrf::from_bytes(TEST_VECTOR_WINDOWS_HELLO_KEY),
+        };
+
+        let parsed = WindowsHelloKey::from_bytes(&key.to_bytes()).unwrap();
+
+        assert_eq!(parsed.challenge.as_bytes(), &TEST_VECTOR_CHALLENGE);
+        assert_eq!(parsed.prf.as_bytes(), &TEST_VECTOR_WINDOWS_HELLO_KEY);
+    }
+
+    #[test]
+    fn test_windows_hello_key_rejects_invalid_length() {
+        assert!(WindowsHelloKey::from_bytes(&[0u8; WindowsHelloKey::LENGTH - 1]).is_err());
     }
 }

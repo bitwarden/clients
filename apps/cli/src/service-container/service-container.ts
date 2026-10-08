@@ -1220,6 +1220,7 @@ export class ServiceContainer {
       this.cipherService,
       this.sdkService,
       this.stateProvider,
+      this.i18nService,
     );
   }
 
