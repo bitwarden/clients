@@ -48,6 +48,7 @@ import {
   VaultOrganizationUserNotificationsComponent,
 } from "@bitwarden/vault";
 
+import { AgentFillPendingBannerComponent } from "../../../../autofill/popup/agent-fill-pending-banner/agent-fill-pending-banner.component";
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../platform/browser/browser-popup-utils";
 import { ImportUpgradeNavigationService } from "../../../../tools/popup/settings/import/import-upgrade-navigation.service";
@@ -141,6 +142,14 @@ class BlockedInjectionBannerStubComponent {}
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class FillAssistActiveBannerStubComponent {}
+
+@Component({
+  selector: "agent-fill-pending-banner",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class AgentFillPendingBannerStubComponent {}
 
 @Component({
   selector: "vault-at-risk-password-callout",
@@ -432,6 +441,7 @@ describe("VaultComponent", () => {
           PopOutComponent,
           BlockedInjectionBanner,
           FillAssistActiveBannerComponent,
+          AgentFillPendingBannerComponent,
           AtRiskPasswordCalloutComponent,
           AutofillVaultListItemsComponent,
           VaultListItemsContainerComponent,
@@ -452,6 +462,7 @@ describe("VaultComponent", () => {
           PopOutStubComponent,
           BlockedInjectionBannerStubComponent,
           FillAssistActiveBannerStubComponent,
+          AgentFillPendingBannerStubComponent,
           VaultAtRiskCalloutStubComponent,
           AutofillVaultListItemsStubComponent,
           VaultListItemsContainerStubComponent,

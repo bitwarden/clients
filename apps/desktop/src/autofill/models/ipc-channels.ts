@@ -18,9 +18,13 @@ export const SSH_AGENT_IPC_CHANNELS = {
   LIST_KEYS_RESPONSE: "sshagent.listkeysresponse",
 } as const;
 
-// PROTOTYPE: agent autofill with approval.
 export const AGENT_FILL_IPC_CHANNELS = {
   APPROVAL_REQUEST: "agentFill.approvalRequest",
   APPROVAL_CANCEL: "agentFill.approvalCancel",
   APPROVAL_RESPONSE: "agentFill.approvalResponse",
+  CONNECTIONS_LIST: "agentFill.connections.list",
+  CONNECTIONS_CREATE: "agentFill.connections.create",
+  CONNECTIONS_PAUSE: "agentFill.connections.pause",
+  CONNECTIONS_RESUME: "agentFill.connections.resume",
+  CONNECTIONS_REMOVE: "agentFill.connections.remove",
 } as const;

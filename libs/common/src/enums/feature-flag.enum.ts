@@ -35,6 +35,8 @@ export enum FeatureFlag {
   // Note: This flag gates security risks and should not be turned on without
   // changes to the underlying experience
   EnableBasicAuthResponse = "enable-basic-auth-response",
+  // AI-137: agentic autofill with desktop approval. Demo environments only.
+  AgentFill = "ai-137-agent-fill",
 
   /* Desktop Native */
   MacOsNativeCredentialSync = "macos-native-credential-sync",
@@ -143,6 +145,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.LitInlineMenuComponents]: FALSE,
   [FeatureFlag.EnableBasicAuthResponse]: FALSE,
+  [FeatureFlag.AgentFill]: FALSE,
 
   /* Desktop Native */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,

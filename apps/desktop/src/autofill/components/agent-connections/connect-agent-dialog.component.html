@@ -1,0 +1,99 @@
+<form [bitSubmit]="submit" [formGroup]="form" bit-dialog>
+  <span bitDialogTitle>{{ "connectAgent" | i18n }}</span>
+  <div bitDialogContent>
+    @if (stage() === Stage.Key) {
+      <p bitTypography="body1">{{ "agentConnectionKeyDesc" | i18n }}</p>
+      <bit-form-field>
+        <bit-label>{{ "agentConnectionKey" | i18n }}</bit-label>
+        <input
+          id="connect-agent_input_key"
+          class="tw-font-mono"
+          bitInput
+          type="text"
+          readonly
+          [value]="connectionKey()"
+        />
+        <button
+          id="connect-agent_button_copy"
+          type="button"
+          bitIconButton="bwi-clone"
+          bitSuffix
+          [bitAction]="copyKey"
+          [label]="'copyValue' | i18n"
+        ></button>
+      </bit-form-field>
+      <bit-callout type="warning">{{ "agentConnectionKeyShownOnce" | i18n }}</bit-callout>
+    } @else {
+      <p bitTypography="body1">{{ "connectAgentDesc" | i18n }}</p>
+      <bit-form-field>
+        <bit-label>{{ "agentConnectionName" | i18n }}</bit-label>
+        <input
+          id="connect-agent_input_name"
+          bitInput
+          type="text"
+          formControlName="name"
+          [maxlength]="maxNameLength"
+          [readOnly]="stage() === Stage.MasterPassword"
+        />
+        <bit-hint>{{ "agentConnectionNameHint" | i18n }}</bit-hint>
+      </bit-form-field>
+
+      @switch (stage()) {
+        @case (Stage.MasterPassword) {
+          <bit-form-field>
+            <bit-label>{{ "masterPass" | i18n }}</bit-label>
+            <input
+              id="connect-agent_input_master-password"
+              bitInput
+              type="password"
+              formControlName="masterPassword"
+              autocomplete="current-password"
+            />
+            <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+            <bit-hint>{{ "agentFillVerifyWithMasterPassword" | i18n }}</bit-hint>
+          </bit-form-field>
+        }
+        @case (Stage.Unavailable) {
+          <bit-callout type="warning">{{ "agentFillCannotVerifyConnect" | i18n }}</bit-callout>
+        }
+      }
+      @if (verificationError(); as error) {
+        <bit-callout type="danger" role="alert">{{ error | i18n }}</bit-callout>
+      }
+    }
+  </div>
+  <ng-container bitDialogFooter>
+    @if (stage() === Stage.Key) {
+      <button
+        id="connect-agent_button_done"
+        type="button"
+        bitButton
+        buttonType="primary"
+        (click)="done()"
+      >
+        {{ "done" | i18n }}
+      </button>
+    } @else {
+      <button
+        id="connect-agent_button_continue"
+        type="submit"
+        bitButton
+        bitFormButton
+        buttonType="primary"
+        [disabled]="stage() === Stage.Unavailable"
+      >
+        {{ "continue" | i18n }}
+      </button>
+      <button
+        id="connect-agent_button_cancel"
+        type="button"
+        bitButton
+        bitFormButton
+        buttonType="secondary"
+        (click)="cancel()"
+      >
+        {{ "cancel" | i18n }}
+      </button>
+    }
+  </ng-container>
+</form>

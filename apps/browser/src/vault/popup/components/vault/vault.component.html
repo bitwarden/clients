@@ -65,6 +65,8 @@
     <fill-assist-active-banner slot="full-width-notice"></fill-assist-active-banner>
   }
 
+  <agent-fill-pending-banner slot="full-width-notice"></agent-fill-pending-banner>
+
   @if (vfo1Enabled() && vaultState !== VaultStateEnum.Empty) {
     <ng-container slot="full-width-notice">
       <vault-at-risk-password-callout></vault-at-risk-password-callout>

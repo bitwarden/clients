@@ -6,6 +6,8 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { AgentFillFailureReason } from "@bitwarden/common/autofill/agent-fill/agent-fill-ipc";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -29,8 +31,6 @@ const APPROVAL_CANCEL = new CommandDefinition<{ requestId: string }>(
 );
 
 /**
- * PROTOTYPE: agent autofill with approval.
- *
  * Renderer half of the approval: matches items in the desktop app's own vault against the tab's
  * domain, shows the approval dialog, and answers the main process with the decision and display
  * fields only (item name, username or card last four).
@@ -41,6 +41,7 @@ export class AgentFillService implements OnDestroy {
   private readonly accountService = inject(AccountService);
   private readonly authService = inject(AuthService);
   private readonly cipherService = inject(CipherService);
+  private readonly configService = inject(ConfigService);
   private readonly dialogService = inject(DialogService);
   private readonly logService = inject(LogService);
 
@@ -75,6 +76,15 @@ export class AgentFillService implements OnDestroy {
   }
 
   private async handle(request: AgentFillApprovalRequest): Promise<AgentFillApprovalResponse> {
+    // Every approval passes through here, so this gate also covers the main-process hub.
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.AgentFill))) {
+      return {
+        decision: "failed",
+        reason: AgentFillFailureReason.Error,
+        message: "Agent fill is not enabled.",
+      };
+    }
+
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getOptionalUserId));
     const status =
       userId != null ? await firstValueFrom(this.authService.authStatusFor$(userId)) : null;

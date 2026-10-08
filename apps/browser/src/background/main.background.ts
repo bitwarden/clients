@@ -365,6 +365,7 @@ import {
 } from "../autofill/fido2/services/browser-fido2-user-interface.service";
 import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService as AutofillServiceAbstraction } from "../autofill/services/abstractions/autofill.service";
+import { AgentFillPendingRequestService } from "../autofill/services/agent-fill-pending-request.service";
 import { AgentFillSettingsService } from "../autofill/services/agent-fill-settings.service";
 import { AutofillBadgeUpdaterService } from "../autofill/services/autofill-badge-updater.service";
 import { DefaultAutofillLifecycleService } from "../autofill/services/autofill-lifecycle.service";
@@ -1378,7 +1379,6 @@ export default class MainBackground {
       () => this.updateOverlayCiphers(),
       this.logService,
     );
-    // PROTOTYPE: agent autofill with approval.
     this.agentFillBackground = new AgentFillBackground(
       this.ipcService,
       this.autofillService,
@@ -1388,6 +1388,8 @@ export default class MainBackground {
       this.platformUtilsService,
       this.logService,
       new AgentFillSettingsService(this.stateProvider),
+      new AgentFillPendingRequestService(this.stateProvider),
+      this.configService,
       this.ipcService.desktopConnected$,
     );
     this.auditService = new AuditService(

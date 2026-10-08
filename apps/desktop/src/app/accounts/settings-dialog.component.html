@@ -280,6 +280,10 @@
           <bit-select formControlName="locale" [items]="localeOptions" />
           <bit-hint>{{ "languageDesc" | i18n }}</bit-hint>
         </bit-form-field>
+
+        @if (showAgentConnections()) {
+          <app-agent-connections />
+        }
       </bit-tab>
     </bit-tab-group>
   </ng-container>

@@ -27,7 +27,7 @@ export class NativeMessagingMain {
   private _messages$ = new Subject<ipc.IpcMessage>();
   readonly messages$ = this._messages$.asObservable();
 
-  // PROTOTYPE (agent autofill): lets IPC consumers prune state for closed connections.
+  // Lets IPC consumers prune state for closed connections.
   private _disconnected$ = new Subject<number>();
   readonly disconnected$ = this._disconnected$.asObservable();
 

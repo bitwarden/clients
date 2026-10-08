@@ -2,6 +2,10 @@ import { ipcRenderer } from "electron";
 
 import { DesktopAutofillPreload } from "./desktop-autofill.preload";
 import { AgentFillApprovalResponse } from "./models/agent-fill-approval";
+import {
+  AgentFillConnectionView,
+  CreatedAgentFillConnection,
+} from "./models/agent-fill-connection";
 import { AutotypeConfig } from "./models/autotype-config";
 import { AutotypeMatchError } from "./models/autotype-errors";
 import { AutotypeVaultData } from "./models/autotype-vault-data";
@@ -29,10 +33,21 @@ const sshAgent = {
   stop: async () => ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.STOP),
 };
 
-// PROTOTYPE: agent autofill with approval.
 const agentFill = {
   approvalResponse: (requestId: string, response: AgentFillApprovalResponse): Promise<void> =>
     ipcRenderer.invoke(AGENT_FILL_IPC_CHANNELS.APPROVAL_RESPONSE, { requestId, response }),
+  connections: {
+    list: (): Promise<AgentFillConnectionView[]> =>
+      ipcRenderer.invoke(AGENT_FILL_IPC_CHANNELS.CONNECTIONS_LIST),
+    create: (name: string): Promise<CreatedAgentFillConnection> =>
+      ipcRenderer.invoke(AGENT_FILL_IPC_CHANNELS.CONNECTIONS_CREATE, name),
+    pause: (id: string): Promise<void> =>
+      ipcRenderer.invoke(AGENT_FILL_IPC_CHANNELS.CONNECTIONS_PAUSE, id),
+    resume: (id: string): Promise<void> =>
+      ipcRenderer.invoke(AGENT_FILL_IPC_CHANNELS.CONNECTIONS_RESUME, id),
+    remove: (id: string): Promise<void> =>
+      ipcRenderer.invoke(AGENT_FILL_IPC_CHANNELS.CONNECTIONS_REMOVE, id),
+  },
 };
 
 // MVP, delete with PM-41067

@@ -1150,6 +1150,9 @@ describe("SettingsDialogComponent", () => {
           if (flag === FeatureFlag.WindowsDesktopAutotype) {
             return of(mvpEnabled);
           }
+          if (flag === FeatureFlag.AgentFill) {
+            return of(false);
+          }
           throw new Error(`Unexpected feature flag requested in test: ${flag}`);
         });
       }

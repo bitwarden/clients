@@ -56,7 +56,7 @@ export class DesktopIpcTransport {
     private client: IpcClient,
     private logService: LogService,
     private receive: (message: IncomingMessage) => void,
-    /** PROTOTYPE (agent autofill): called after each successful handshake with the desktop app. */
+    /** Called after each successful handshake with the desktop app. */
     private onConnected: () => void = () => {},
   ) {}
 

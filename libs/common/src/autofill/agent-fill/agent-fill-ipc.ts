@@ -1,10 +1,11 @@
 import { CipherType } from "../../vault/enums";
 
 /**
- * PROTOTYPE: agent autofill with approval.
+ * JSON messages exchanged between the desktop app and the browser extension over SDK IPC, as
+ * defined by the AI-137 agent fill contract. No message carries a password, TOTP code or seed, card
+ * number, or security code.
  *
- * JSON messages exchanged between the desktop app and the browser extension over SDK IPC. The
- * extension announces itself with {@link AgentFillTopic.Hello} to `DesktopMain`. The desktop app
+ * The extension announces itself with {@link AgentFillTopic.Hello} to `DesktopMain`. The desktop app
  * sends requests to one connected browser (`BrowserBackground`) and the extension answers on
  * {@link AgentFillTopic.Response} with the same `requestId`.
  *
@@ -15,21 +16,27 @@ export const AgentFillTopic = Object.freeze({
   Hello: "agent-fill.hello",
   PrepareFill: "agent-fill.prepare-fill",
   FillItem: "agent-fill.fill-item",
+  RequestClosed: "agent-fill.request-closed",
   Response: "agent-fill.response",
 } as const);
 export type AgentFillTopic = (typeof AgentFillTopic)[keyof typeof AgentFillTopic];
 
 /** Short failure reasons returned to the agent. Never contain vault data. */
 export const AgentFillFailureReason = Object.freeze({
+  // User-facing reasons
   Denied: "denied",
   DeniedWrongAccount: "denied_wrong_account",
   DeniedNotRequested: "denied_not_requested",
   Expired: "expired",
   NoOpenTab: "no_open_tab",
   NoMatchingItem: "no_matching_item",
+  WrongSite: "wrong_site",
   FormNotFound: "form_not_found",
-  ConnectionKeyInvalid: "connection_key_invalid",
+  ConnectionPaused: "connection_paused",
+  // Operational reasons: they tell the agent what the user has to fix
   Locked: "locked",
+  ConnectionKeyInvalid: "connection_key_invalid",
+  DesktopUnreachable: "desktop_unreachable",
   BrowserUnreachable: "browser_unreachable",
   NoAllowedBrowser: "no_allowed_browser",
   Busy: "busy",
@@ -71,10 +78,14 @@ export type AgentFillHello = {
 
 export type PrepareFillRequest = {
   requestId: string;
+  /** Local to one fill call and the same from prepare to fill. Drives the popup banner. */
+  approvalId: string;
   /** The desktop app's active account. The extension serves only its own active account. */
   userId: string;
   /** The URL the agent passed to the tool. Only its origin is used to find tabs. */
   url: string;
+  /** The connection's name, shown in the popup's pending-request banner. */
+  connectionName: string;
 };
 
 export type PrepareFillSuccess = {
@@ -94,13 +105,21 @@ export type PrepareFillResponse = PrepareFillSuccess | AgentFillFailure;
 
 export type FillItemRequest = {
   requestId: string;
+  approvalId: string;
   userId: string;
   tabId: number;
+  /** The domain shown in the approval dialog. */
   expectedDomain: string;
   cipherId: string;
   cipherType: AgentFillCipherType;
 };
 
 export type FillItemResponse = { requestId: string; ok: true } | AgentFillFailure;
+
+/**
+ * Sent when an approval ends without a fill (denied, expired or cancelled), so the extension can
+ * clear the popup banner. Has no response.
+ */
+export type RequestClosedMessage = { approvalId: string };
 
 export type AgentFillResponse = PrepareFillResponse | FillItemResponse;

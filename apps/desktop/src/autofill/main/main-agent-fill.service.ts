@@ -1,4 +1,4 @@
-import { createHash, randomUUID, timingSafeEqual } from "crypto";
+import { randomUUID } from "crypto";
 import { existsSync, promises as fs } from "fs";
 import { createServer, Server, Socket } from "net";
 import { homedir } from "os";
@@ -20,33 +20,31 @@ import {
   PrepareFillRequest,
   PrepareFillResponse,
   PrepareFillSuccess,
+  RequestClosedMessage,
 } from "@bitwarden/common/autofill/agent-fill/agent-fill-ipc";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Endpoint, OutgoingMessage, Source } from "@bitwarden/sdk-internal";
 
+import { NativeMessagingMain } from "../../main/native-messaging.main";
 import { WindowMain } from "../../main/window.main";
-import { IpcMainService } from "../../platform/services/ipc.main.service";
-import { isDev } from "../../utils";
 import {
   AgentFillApprovalRequest,
   AgentFillApprovalResponse,
   AgentFillDenyReason,
 } from "../models/agent-fill-approval";
+import { AgentFillConnectionView } from "../models/agent-fill-connection";
 import { AGENT_FILL_IPC_CHANNELS } from "../models/ipc-channels";
 
-/**
- * PROTOTYPE ONLY. SHA-256 of the throwaway test connection key pasted into the spike connector
- * (prefix 450c5af0). Used only in dev builds when `BW_AGENT_FILL_KEY_SHA256` is not set. The real
- * design issues a key per connection after the user names it.
- */
-const DEV_TEST_KEY_SHA256 = "450c5af05de7c3ed9238e59bd927a99516f40a8c0bfa4f46701432f72d2a888c";
-const DEFAULT_CONNECTION_NAME = "Claude Desktop";
+import { AgentFillBrowserRegistry } from "./agent-fill-browser-registry";
+import { AgentFillConnectionsService } from "./agent-fill-connections.service";
 
 const PREPARE_FILL_TIMEOUT_MS = 10_000;
 const FILL_ITEM_TIMEOUT_MS = 20_000;
-const DEFAULT_APPROVAL_TIMEOUT_MS = 240_000;
+/** A request left unanswered this long expires. */
+const DEFAULT_APPROVAL_TIMEOUT_MS = 300_000;
 const MAX_LINE_BYTES = 64 * 1024;
 
 const FillTool = Object.freeze({ Login: "fill_login", Card: "fill_card" } as const);
@@ -55,7 +53,7 @@ type FillTool = (typeof FillTool)[keyof typeof FillTool];
 /** One JSON line from the connector. */
 type ConnectorRequest = {
   id?: string | number;
-  type?: "fill" | "ping";
+  type?: "fill";
   key?: string;
   tool?: FillTool;
   url?: string;
@@ -86,21 +84,21 @@ export function agentFillSocketPath(): string {
 }
 
 /**
- * PROTOTYPE: agent autofill with approval.
+ * The agent fill hub. Listens on a local socket for fill requests from the Bitwarden connector,
+ * finds the calling connection by its key, asks the connected extension to locate the tab, shows
+ * the approval dialog in the renderer, and on approval tells the extension to fill. Only the item
+ * name and username (or card last four) go back to the connector.
  *
- * Listens on a local socket for fill requests from the Bitwarden connector, validates the
- * connection key, asks the connected extension to locate the tab, shows the approval dialog in
- * the renderer, and on approval tells the extension to fill. Only the item name and username (or
- * card last four) go back to the connector.
+ * All agent fill state lives here: Platform's {@link IpcService} and {@link NativeMessagingMain}
+ * only provide generic message and disconnect events.
  */
 export class MainAgentFillService {
   private server?: Server;
-  private keyHash?: Buffer;
-  private connectionName = DEFAULT_CONNECTION_NAME;
   private approvalTimeoutMs = DEFAULT_APPROVAL_TIMEOUT_MS;
   private busy = false;
 
-  private responseSubscription?: Subscription;
+  private readonly browserRegistry = new AgentFillBrowserRegistry();
+  private subscriptions: Subscription[] = [];
   private pendingBrowserResponses = new Map<
     string,
     { clientId: number; resolve: (response: AgentFillResponse) => void }
@@ -110,9 +108,11 @@ export class MainAgentFillService {
   constructor(
     private logService: LogService,
     private messagingService: MessageSender,
-    private ipcService: IpcMainService,
+    private ipcService: IpcService,
+    private nativeMessaging: NativeMessagingMain,
     private windowMain: WindowMain,
     private accountService: AccountService,
+    private connectionsService: AgentFillConnectionsService,
   ) {
     ipcMain.handle(
       AGENT_FILL_IPC_CHANNELS.APPROVAL_RESPONSE,
@@ -126,23 +126,15 @@ export class MainAgentFillService {
     );
   }
 
-  /** Must run after {@link IpcMainService.init}. */
+  /** Must run after {@link IpcService.init}. */
   async init() {
-    const configuredHash =
-      process.env.BW_AGENT_FILL_KEY_SHA256 ?? (isDev() ? DEV_TEST_KEY_SHA256 : undefined);
-    if (!configuredHash || !/^[0-9a-f]{64}$/i.test(configuredHash)) {
-      this.logService.info("[AgentFill] No connection key configured, socket not started");
-      return;
-    }
-    this.keyHash = Buffer.from(configuredHash, "hex");
-    this.connectionName = process.env.BW_AGENT_FILL_CONNECTION_NAME || DEFAULT_CONNECTION_NAME;
     const timeoutSeconds = Number(process.env.BW_AGENT_FILL_APPROVAL_TIMEOUT_SECONDS);
     if (Number.isFinite(timeoutSeconds) && timeoutSeconds > 0) {
       this.approvalTimeoutMs = timeoutSeconds * 1000;
     }
 
     try {
-      this.subscribeToBrowserResponses();
+      this.subscribeToBrowsers();
       await this.listen(agentFillSocketPath());
     } catch (e) {
       this.logService.error("[AgentFill] Failed to start", e);
@@ -151,7 +143,8 @@ export class MainAgentFillService {
 
   stop() {
     this.server?.close();
-    this.responseSubscription?.unsubscribe();
+    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
+    this.subscriptions = [];
   }
 
   private async listen(socketPath: string) {
@@ -169,9 +162,7 @@ export class MainAgentFillService {
       await fs.chmod(socketPath, 0o600);
     }
     this.server.on("error", (e) => this.logService.error("[AgentFill] Socket error", e));
-    this.logService.info(
-      `[AgentFill] Listening at ${socketPath} for connection "${this.connectionName}"`,
-    );
+    this.logService.info(`[AgentFill] Listening at ${socketPath}`);
   }
 
   private onConnection(socket: Socket) {
@@ -182,7 +173,7 @@ export class MainAgentFillService {
     socket.setEncoding("utf8");
     socket.on("data", (chunk: string) => {
       buffer += chunk;
-      if (buffer.length > MAX_LINE_BYTES) {
+      if (Buffer.byteLength(buffer) > MAX_LINE_BYTES) {
         socket.destroy();
         return;
       }
@@ -207,33 +198,23 @@ export class MainAgentFillService {
       return;
     }
 
-    const id = request.id ?? null;
+    const id = request?.id ?? null;
     try {
-      if (!this.keyValid(request.key)) {
+      const connection = await this.connectionsService.findByKey(request?.key);
+      if (connection == null) {
         throw new AgentFillError(
           AgentFillFailureReason.ConnectionKeyInvalid,
           "Connection key invalid.",
         );
       }
-
-      if (request.type === "ping") {
-        const userId = await firstValueFrom(
-          this.accountService.activeAccount$.pipe(getOptionalUserId),
+      if (connection.paused) {
+        throw new AgentFillError(
+          AgentFillFailureReason.ConnectionPaused,
+          "The user paused this connection in the Bitwarden desktop app.",
         );
-        this.write(socket, {
-          id,
-          ok: true,
-          result: {
-            connectionName: this.connectionName,
-            browsersConnected: this.ipcService.browserClients.length,
-            browsersAllowingAgentFill:
-              userId != null ? this.ipcService.browserRegistry.allowedFor(userId).length : 0,
-          },
-        });
-        return;
       }
 
-      const result = await this.fill(request, closed);
+      const result = await this.fill(connection, request, closed);
       this.write(socket, { id, ok: true, result });
     } catch (e) {
       const error =
@@ -248,26 +229,22 @@ export class MainAgentFillService {
     }
   }
 
-  private keyValid(key: unknown): boolean {
-    if (typeof key !== "string" || key.length === 0 || this.keyHash == null) {
-      return false;
-    }
-    const digest = createHash("sha256").update(key, "utf8").digest();
-    return timingSafeEqual(digest, this.keyHash);
-  }
-
-  private async fill(request: ConnectorRequest, closed: AbortSignal): Promise<ConnectorResult> {
+  private async fill(
+    connection: AgentFillConnectionView,
+    request: ConnectorRequest,
+    closed: AbortSignal,
+  ): Promise<ConnectorResult> {
     const cipherType: AgentFillCipherType | undefined =
-      request.tool === FillTool.Login
+      request.type === "fill" && request.tool === FillTool.Login
         ? CipherType.Login
-        : request.tool === FillTool.Card
+        : request.type === "fill" && request.tool === FillTool.Card
           ? CipherType.Card
           : undefined;
     if (cipherType == null || typeof request.url !== "string") {
       throw new AgentFillError(AgentFillFailureReason.Error, "Unknown tool or missing url.");
     }
 
-    // PROTOTYPE: one approval at a time.
+    // One approval at a time.
     if (this.busy) {
       throw new AgentFillError(
         AgentFillFailureReason.Busy,
@@ -275,9 +252,12 @@ export class MainAgentFillService {
       );
     }
     this.busy = true;
+
+    const approvalId = randomUUID();
+    // Browsers that may now show this request as pending in their popup.
+    let asked: number[] = [];
     try {
-      const requestId = randomUUID();
-      this.logService.info(`[AgentFill] ${request.tool} request ${requestId}`);
+      this.logService.info(`[AgentFill] ${request.tool} request ${approvalId}`);
 
       // The request's user is the desktop app's active account.
       const userId = await firstValueFrom(
@@ -290,7 +270,13 @@ export class MainAgentFillService {
         );
       }
 
-      const { clientId, prepared } = await this.prepareFill(request.url, userId);
+      asked = this.browserRegistry.allowedFor(userId);
+      const { clientId, prepared } = await this.prepareFill(
+        approvalId,
+        connection,
+        request.url,
+        userId,
+      );
       if (!prepared.unlocked) {
         throw new AgentFillError(
           AgentFillFailureReason.Locked,
@@ -300,8 +286,8 @@ export class MainAgentFillService {
 
       const approval = await this.requestApproval(
         {
-          requestId,
-          connectionName: this.connectionName,
+          requestId: approvalId,
+          connectionName: connection.name,
           domain: prepared.domain,
           tabUrl: prepared.tabUrl,
           browser: displayBrowser(prepared.browser),
@@ -314,6 +300,11 @@ export class MainAgentFillService {
         throw new AgentFillError(approval.reason, approval.message);
       }
       if (approval.decision === "denied") {
+        if (approval.reason === AgentFillDenyReason.NotRequested) {
+          // The user did not ask for this: stop the connection before telling the agent.
+          await this.connectionsService.setPaused(connection.id, true);
+          this.logService.info(`[AgentFill] Connection ${connection.id} paused by the user`);
+        }
         throw deniedError(approval.reason);
       }
 
@@ -322,6 +313,7 @@ export class MainAgentFillService {
         AgentFillTopic.FillItem,
         {
           requestId: randomUUID(),
+          approvalId,
           userId,
           tabId: prepared.tabId,
           expectedDomain: prepared.domain,
@@ -334,11 +326,13 @@ export class MainAgentFillService {
         throw new AgentFillError(filled.reason, filled.message);
       }
 
-      this.logService.info(`[AgentFill] Request ${requestId} filled`);
+      this.logService.info(`[AgentFill] Request ${approvalId} filled`);
       return cipherType === CipherType.Card
         ? { status: "filled", item: approval.itemName, last_four: approval.lastFour ?? null }
         : { status: "filled", item: approval.itemName, username: approval.username ?? null };
     } finally {
+      // However the request ended, no browser should keep showing it as pending.
+      await Promise.all(asked.map((clientId) => this.sendRequestClosed(clientId, approvalId)));
       this.busy = false;
     }
   }
@@ -348,17 +342,18 @@ export class MainAgentFillService {
    * the tab, and uses the first that finds one.
    */
   private async prepareFill(
+    approvalId: string,
+    connection: AgentFillConnectionView,
     url: string,
     userId: string,
   ): Promise<{ clientId: number; prepared: PrepareFillSuccess }> {
-    const registry = this.ipcService.browserRegistry;
-    if (registry.list().length === 0) {
+    if (this.browserRegistry.list().length === 0) {
       throw new AgentFillError(
         AgentFillFailureReason.BrowserUnreachable,
         "No Bitwarden browser extension is connected to the desktop app.",
       );
     }
-    const clients = registry.allowedFor(userId);
+    const clients = this.browserRegistry.allowedFor(userId);
     if (clients.length === 0) {
       throw new AgentFillError(
         AgentFillFailureReason.NoAllowedBrowser,
@@ -372,7 +367,7 @@ export class MainAgentFillService {
           const response = await this.sendToBrowser<PrepareFillRequest, PrepareFillResponse>(
             clientId,
             AgentFillTopic.PrepareFill,
-            { requestId: randomUUID(), userId, url },
+            { requestId: randomUUID(), approvalId, userId, url, connectionName: connection.name },
             PREPARE_FILL_TIMEOUT_MS,
           );
           return { clientId, response };
@@ -402,6 +397,14 @@ export class MainAgentFillService {
     request: AgentFillApprovalRequest,
     closed: AbortSignal,
   ): Promise<AgentFillApprovalResponse> {
+    if (closed.aborted) {
+      return Promise.resolve({
+        decision: "failed",
+        reason: AgentFillFailureReason.Expired,
+        message: "The agent stopped waiting for approval.",
+      });
+    }
+
     this.bringWindowToFront();
     return new Promise((resolve) => {
       const expire = (message: string) => {
@@ -443,24 +446,63 @@ export class MainAgentFillService {
     }
   }
 
-  private subscribeToBrowserResponses() {
-    this.responseSubscription = this.ipcService.messages$
-      .pipe(filter((message) => message.topic === AgentFillTopic.Response))
-      .subscribe((message) => {
-        const clientId = browserClientId(message.source);
-        let response: AgentFillResponse;
-        try {
-          response = message.parse_payload_as_json();
-        } catch {
-          return;
+  private subscribeToBrowsers() {
+    this.subscriptions.push(
+      this.ipcService.messages$
+        .pipe(filter((message) => message.topic === AgentFillTopic.Hello))
+        .subscribe((message) => {
+          try {
+            const clientId = this.browserRegistry.hello(
+              message.source,
+              message.parse_payload_as_json(),
+            );
+            if (clientId != null) {
+              this.logService.info(`[AgentFill] Hello from browser client ${clientId}`);
+            }
+          } catch (e) {
+            this.logService.warning("[AgentFill] Ignoring a malformed Hello", e);
+          }
+        }),
+      this.ipcService.messages$
+        .pipe(filter((message) => message.topic === AgentFillTopic.Response))
+        .subscribe((message) => {
+          const clientId = browserClientId(message.source);
+          let response: AgentFillResponse;
+          try {
+            response = message.parse_payload_as_json();
+          } catch {
+            return;
+          }
+          const pending = this.pendingBrowserResponses.get(response?.requestId);
+          if (pending == null || pending.clientId !== clientId) {
+            return;
+          }
+          this.pendingBrowserResponses.delete(response.requestId);
+          pending.resolve(response);
+        }),
+      this.nativeMessaging.disconnected$.subscribe((clientId) => {
+        if (this.browserRegistry.remove(clientId)) {
+          this.logService.info(`[AgentFill] Browser client ${clientId} disconnected`);
         }
-        const pending = this.pendingBrowserResponses.get(response?.requestId);
-        if (pending == null || pending.clientId !== clientId) {
-          return;
-        }
-        this.pendingBrowserResponses.delete(response.requestId);
-        pending.resolve(response);
-      });
+      }),
+    );
+  }
+
+  private async sendRequestClosed(clientId: number, approvalId: string) {
+    try {
+      await this.ipcService.send(
+        OutgoingMessage.new_json_payload(
+          { approvalId } satisfies RequestClosedMessage,
+          { BrowserBackground: { id: { Id: clientId } } } satisfies Endpoint,
+          AgentFillTopic.RequestClosed,
+        ),
+      );
+    } catch (e) {
+      this.logService.warning(
+        `[AgentFill] Could not close request on browser client ${clientId}`,
+        e,
+      );
+    }
   }
 
   private async sendToBrowser<TRequest extends { requestId: string }, TResponse>(

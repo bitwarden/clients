@@ -48,6 +48,7 @@
   },
   "workspaces": [
     "apps/*",
+    "!apps/agent-fill-connector",
     "apps/desktop/desktop_native/napi",
     "libs/**/*"
   ],

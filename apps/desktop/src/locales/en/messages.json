@@ -6985,6 +6985,69 @@
       }
     }
   },
+  "agentFillVerifyWithMasterPassword": {
+    "message": "Touch ID did not verify you. Enter your master password to approve."
+  },
+  "agentFillVerificationFailed": {
+    "message": "Verification failed. Try again."
+  },
+  "agentFillCannotVerify": {
+    "message": "Touch ID isn't available and this account has no master password, so this request can't be approved. Deny it instead."
+  },
+  "agentFillCannotVerifyConnect": {
+    "message": "Touch ID isn't available and this account has no master password, so a connection can't be added."
+  },
+  "agentConnections": {
+    "message": "Agent connections"
+  },
+  "agentConnectionsDesc": {
+    "message": "Let AI agents, such as Claude Desktop, ask to fill your logins and cards. You approve every request in this app."
+  },
+  "agentConnectionsEmpty": {
+    "message": "No agents are connected."
+  },
+  "connectAgent": {
+    "message": "Connect an agent"
+  },
+  "connectAgentDesc": {
+    "message": "Name this connection, then confirm it's you. Bitwarden then shows a connection key to paste into the Bitwarden connector in Claude Desktop."
+  },
+  "agentConnectionName": {
+    "message": "Connection name"
+  },
+  "agentConnectionNameHint": {
+    "message": "For example, Claude Desktop. Shown in approval requests."
+  },
+  "agentConnectionKey": {
+    "message": "Connection key"
+  },
+  "agentConnectionKeyDesc": {
+    "message": "Paste this key into the Bitwarden connector's settings in Claude Desktop."
+  },
+  "agentConnectionKeyShownOnce": {
+    "message": "This key is shown only once. If you lose it, remove this connection and connect again."
+  },
+  "agentConnectionPaused": {
+    "message": "Paused. Requests from this agent are refused."
+  },
+  "pauseAgentConnection": {
+    "message": "Pause"
+  },
+  "resumeAgentConnection": {
+    "message": "Resume"
+  },
+  "removeAgentConnection": {
+    "message": "Remove connection"
+  },
+  "removeAgentConnectionConfirm": {
+    "message": "Remove $NAME$? This agent stops working until you connect it again.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Claude Desktop"
+      }
+    }
+  },
   "agentFillChooseItem": {
     "message": "Item to fill"
   },

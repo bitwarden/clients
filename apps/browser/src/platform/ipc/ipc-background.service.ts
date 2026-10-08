@@ -21,7 +21,7 @@ export class IpcBackgroundService extends IpcService {
 
   private _desktopConnected$ = new ReplaySubject<void>(1);
   /**
-   * PROTOTYPE (agent autofill): emits each time the connection to the desktop app is established
+   * Emits each time the connection to the desktop app is established
    * or re-established, after the discover handshake. Replays the latest connection to late
    * subscribers.
    */

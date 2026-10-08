@@ -29,6 +29,29 @@
       </bit-radio-group>
     }
 
+    @switch (step()) {
+      @case (VerificationStep.MasterPassword) {
+        <bit-form-field>
+          <bit-label>{{ "masterPass" | i18n }}</bit-label>
+          <input
+            id="agent-fill-approval_input_master-password"
+            bitInput
+            type="password"
+            formControlName="masterPassword"
+            autocomplete="current-password"
+          />
+          <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+          <bit-hint>{{ "agentFillVerifyWithMasterPassword" | i18n }}</bit-hint>
+        </bit-form-field>
+      }
+      @case (VerificationStep.Unavailable) {
+        <bit-callout type="warning">{{ "agentFillCannotVerify" | i18n }}</bit-callout>
+      }
+    }
+    @if (verificationError(); as error) {
+      <bit-callout type="danger" role="alert">{{ error | i18n }}</bit-callout>
+    }
+
     <bit-radio-group formControlName="denyReason" [block]="true">
       <bit-label>{{ "agentFillDenyReasonLabel" | i18n }}</bit-label>
       <bit-radio-button
@@ -52,6 +75,7 @@
       bitButton
       bitFormButton
       buttonType="primary"
+      [disabled]="step() === VerificationStep.Unavailable"
     >
       {{ "approve" | i18n }}
     </button>

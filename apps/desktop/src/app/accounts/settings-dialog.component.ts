@@ -23,6 +23,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { AutotypeFeatureFlagState } from "@bitwarden/common/desktop-native/enums/autotype-feature-flag-state.enum";
 import { autotypeFeatureFlagState$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -66,6 +67,7 @@ import {
 } from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
+import { AgentConnectionsComponent } from "../../autofill/components/agent-connections/agent-connections.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
@@ -108,6 +110,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     PermitCipherDetailsPopoverComponent,
     PremiumBadgeComponent,
     ShowQuickCopyActionsDetailsPopoverComponent,
+    AgentConnectionsComponent,
   ],
 })
 export class SettingsDialogComponent implements OnInit {
@@ -155,6 +158,7 @@ export class SettingsDialogComponent implements OnInit {
   protected readonly runInBackgroundDescText: string;
 
   protected readonly supportsBiometric = signal(false);
+  protected readonly showAgentConnections = signal(false);
   protected readonly showEnableAutotype = signal(false);
   protected readonly showEnableAutotypeGa = signal(false);
   private readonly activeAccount = toSignal(this.accountService.activeAccount$, {
@@ -267,6 +271,11 @@ export class SettingsDialogComponent implements OnInit {
   }
 
   async ngOnInit() {
+    this.configService
+      .getFeatureFlag$(FeatureFlag.AgentFill)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((enabled) => this.showAgentConnections.set(enabled));
+
     // Autotype is for Windows initially
     if (this.isWindows) {
       autotypeFeatureFlagState$(this.configService)

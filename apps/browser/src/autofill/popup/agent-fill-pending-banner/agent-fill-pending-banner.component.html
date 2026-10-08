@@ -1,0 +1,6 @@
+@if (pendingRequest(); as request) {
+  <!-- No dismiss output is bound, so the banner has no close control either. -->
+  <bit-banner variant="primary" [useAlertRole]="true">
+    {{ "agentFillPendingRequest" | i18n: request.connectionName : request.domain }}
+  </bit-banner>
+}

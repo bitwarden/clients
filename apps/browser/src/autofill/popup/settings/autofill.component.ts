@@ -133,6 +133,9 @@ export class AutofillComponent implements OnInit {
   protected showClipboardNotification$: Observable<boolean> =
     this.autofillSettingsService.showClipboardSettingUpdateNotification$;
   protected showClipboardNotificationThisSession = false;
+  protected agentFillFeatureEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
+    FeatureFlag.AgentFill,
+  );
   protected fillAssistFeatureEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
     FeatureFlag.FillAssistTargetingRules,
   );
@@ -404,7 +407,7 @@ export class AutofillComponent implements OnInit {
         void this.autofillSettingsService.setEnableBasicAuthResponse(value);
       });
 
-    // PROTOTYPE: agent autofill opt-in, per account.
+    // Agent fill opt-in, per account.
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );

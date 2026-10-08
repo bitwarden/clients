@@ -3,7 +3,7 @@ import {
   AgentFillFailureReason,
 } from "@bitwarden/common/autofill/agent-fill/agent-fill-ipc";
 
-/** PROTOTYPE: agent autofill. Sent from the main process to the renderer to show the dialog. */
+/** Sent from the main process to the renderer to show the dialog. */
 export type AgentFillApprovalRequest = {
   requestId: string;
   connectionName: string;
@@ -20,7 +20,7 @@ export const AgentFillDenyReason = Object.freeze({
 export type AgentFillDenyReason = (typeof AgentFillDenyReason)[keyof typeof AgentFillDenyReason];
 
 /**
- * PROTOTYPE: agent autofill. The renderer's answer. Carries only what the agent may see (item name,
+ * The renderer's answer. Carries only what the agent may see (item name,
  * username or card last four), never a secret.
  */
 export type AgentFillApprovalResponse =

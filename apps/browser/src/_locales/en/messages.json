@@ -8232,6 +8232,20 @@
   "resetToDefault": {
     "message": "Reset to default"
   },
+  "agentFillPendingRequest": {
+    "message": "$CONNECTION$ is waiting for your approval in the Bitwarden desktop app for $DOMAIN$",
+    "description": "Shown in the popup while an AI agent's request to fill a login or card is waiting for the user to approve it in the desktop app.",
+    "placeholders": {
+      "connection": {
+        "content": "$1",
+        "example": "Claude Desktop"
+      },
+      "domain": {
+        "content": "$2",
+        "example": "delta.com"
+      }
+    }
+  },
   "allowAgentFill": {
     "message": "Allow agents to fill in this browser"
   },

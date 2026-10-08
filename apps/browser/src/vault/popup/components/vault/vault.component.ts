@@ -79,6 +79,7 @@ import {
 } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
+import { AgentFillPendingBannerComponent } from "../../../../autofill/popup/agent-fill-pending-banner/agent-fill-pending-banner.component";
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
@@ -128,6 +129,7 @@ const NEW_EXPERIENCE_DARK_IMG = "../../../../images/new-experience/new-experienc
   imports: [
     BlockedInjectionBanner,
     FillAssistActiveBannerComponent,
+    AgentFillPendingBannerComponent,
     PopupPageComponent,
     PopupHeaderComponent,
     PopOutComponent,

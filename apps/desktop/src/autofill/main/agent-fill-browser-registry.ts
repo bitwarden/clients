@@ -1,33 +1,19 @@
 import { AgentFillHello } from "@bitwarden/common/autofill/agent-fill/agent-fill-ipc";
 import { Source } from "@bitwarden/sdk-internal";
 
-export type AgentFillBrowserConnection = { clientId: number; hello: AgentFillHello | null };
+export type AgentFillBrowserConnection = { clientId: number; hello: AgentFillHello };
 
 /**
- * PROTOTYPE: agent autofill. Connected extensions keyed by native messaging client id, with the
- * latest Hello each one sent (null until the first). A browser reconnect gets a fresh client id
- * (new proxy process), so entries are pruned on disconnect.
+ * Connected extensions keyed by native messaging client id, with the latest Hello each one sent.
+ * A browser reconnect gets a fresh client id (new proxy process), so entries are pruned on
+ * disconnect. A connection is only known once it has sent a Hello.
  */
 export class AgentFillBrowserRegistry {
-  private connections = new Map<number, AgentFillHello | null>();
-
-  /** Records a client id that has spoken SDK IPC. Returns true if it is new. */
-  seen(clientId: number): boolean {
-    if (this.connections.has(clientId)) {
-      return false;
-    }
-    this.connections.set(clientId, null);
-    return true;
-  }
-
-  /** Forgets a closed connection. Returns true if it was known. */
-  remove(clientId: number): boolean {
-    return this.connections.delete(clientId);
-  }
+  private connections = new Map<number, AgentFillHello>();
 
   /**
    * Stores the Hello for the connection it came from. Ignores Hellos from anything other than a
-   * known browser connection. Returns the client id it was stored under, or null.
+   * browser background page. Returns the client id it was stored under, or null.
    */
   hello(source: Source, hello: Partial<AgentFillHello> | null | undefined): number | null {
     const clientId =
@@ -36,7 +22,7 @@ export class AgentFillBrowserRegistry {
       typeof source.BrowserBackground.id === "object"
         ? source.BrowserBackground.id.Id
         : null;
-    if (clientId == null || !this.connections.has(clientId) || hello == null) {
+    if (clientId == null || hello == null) {
       return null;
     }
     this.connections.set(clientId, {
@@ -53,6 +39,11 @@ export class AgentFillBrowserRegistry {
     return clientId;
   }
 
+  /** Forgets a closed connection. Returns true if it was known. */
+  remove(clientId: number): boolean {
+    return this.connections.delete(clientId);
+  }
+
   list(): AgentFillBrowserConnection[] {
     return [...this.connections].map(([clientId, hello]) => ({ clientId, hello }));
   }
@@ -60,7 +51,7 @@ export class AgentFillBrowserRegistry {
   /** Connections whose latest Hello allows agent fills for the user. */
   allowedFor(userId: string): number[] {
     return this.list()
-      .filter(({ hello }) => hello?.accounts.some((a) => a.userId === userId && a.agentFillAllowed))
+      .filter(({ hello }) => hello.accounts.some((a) => a.userId === userId && a.agentFillAllowed))
       .map(({ clientId }) => clientId);
   }
 }

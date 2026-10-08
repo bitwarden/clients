@@ -81,7 +81,6 @@ export class InitService {
       await this.ipcService.init();
       await this.biometricsService.setUnlockService(this.unlockService);
       await this.sshAgentService.init();
-      // PROTOTYPE: agent autofill with approval.
       this.agentFillService.init();
       this.nativeMessagingService.init();
       await this.migrationRunner.waitForCompletion(); // Desktop will run migrations in the main process

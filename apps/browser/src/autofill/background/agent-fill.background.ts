@@ -29,7 +29,10 @@ import {
   FillItemResponse,
   PrepareFillRequest,
   PrepareFillResponse,
+  RequestClosedMessage,
 } from "@bitwarden/common/autofill/agent-fill/agent-fill-ipc";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
@@ -41,6 +44,7 @@ import { IncomingMessage, OutgoingMessage, Source } from "@bitwarden/sdk-interna
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
+import { AgentFillPendingRequestService } from "../services/agent-fill-pending-request.service";
 import { AgentFillSettingsService } from "../services/agent-fill-settings.service";
 
 /** How long to wait for the tab's frames to report page details before filling. */
@@ -48,13 +52,12 @@ const PAGE_DETAILS_SETTLE_MS = 200;
 const PAGE_DETAILS_TIMEOUT_MS = 3_000;
 
 /**
- * PROTOTYPE: agent autofill with approval.
- *
  * Announces this browser to the desktop app with `Hello`, and answers `PrepareFill` and `FillItem`
  * requests from it over SDK IPC. The desktop app owns the approval; this class locates the tab,
  * then, after approval, re-checks the chosen item against the tab and fills it through the
  * existing autofill service. Requests are served only for the active account, and only while
- * that account allows agent fills in this browser. Credentials never leave the extension.
+ * that account allows agent fills in this browser, and while the agent fill feature flag is on.
+ * Credentials never leave the extension.
  */
 export class AgentFillBackground {
   private subscription?: Subscription;
@@ -69,6 +72,8 @@ export class AgentFillBackground {
     private platformUtilsService: PlatformUtilsService,
     private logService: LogService,
     private agentFillSettingsService: AgentFillSettingsService,
+    private pendingRequestService: AgentFillPendingRequestService,
+    private configService: ConfigService,
     /** Emits each time the desktop connection is (re-)established. */
     private desktopConnected$: Observable<void>,
   ) {}
@@ -93,7 +98,8 @@ export class AgentFillBackground {
         filter(
           (message) =>
             message.topic === AgentFillTopic.PrepareFill ||
-            message.topic === AgentFillTopic.FillItem,
+            message.topic === AgentFillTopic.FillItem ||
+            message.topic === AgentFillTopic.RequestClosed,
         ),
         // Only the desktop app may drive fills. Other local processes can reach only the desktop.
         filter((message) => {
@@ -157,8 +163,12 @@ export class AgentFillBackground {
   }
 
   private startHello() {
-    this.helloSubscription = combineLatest([this.hello$(), this.desktopConnected$])
+    const enabled$ = this.configService.getFeatureFlag$(FeatureFlag.AgentFill);
+    // While the flag is off the desktop app never learns about this browser. Turning it on sends a
+    // fresh Hello.
+    this.helloSubscription = combineLatest([this.hello$(), this.desktopConnected$, enabled$])
       .pipe(
+        filter(([, , enabled]) => enabled),
         concatMap(async ([hello]) => {
           try {
             await this.ipcService.send(
@@ -181,12 +191,19 @@ export class AgentFillBackground {
 
   private async handle(message: IncomingMessage) {
     const source = message.source as "DesktopMain" | "DesktopRenderer";
+
+    if (message.topic === AgentFillTopic.RequestClosed) {
+      await this.handleRequestClosed(message);
+      return;
+    }
+
     let requestId = "";
     let response: AgentFillResponse;
     try {
       const payload = message.parse_payload_as_json();
       requestId = String(payload?.requestId ?? "");
       response =
+        (await this.checkEnabled(requestId)) ??
         (await this.checkAllowed(requestId, payload?.userId)) ??
         (message.topic === AgentFillTopic.PrepareFill
           ? await this.prepareFill(payload as PrepareFillRequest)
@@ -203,6 +220,25 @@ export class AgentFillBackground {
     } catch (e) {
       this.logService.error("[AgentFill] Failed to send response", e);
     }
+  }
+
+  /** The approval ended without a fill, so the popup stops showing it as waiting. */
+  private async handleRequestClosed(message: IncomingMessage) {
+    try {
+      const { approvalId } = message.parse_payload_as_json() as Partial<RequestClosedMessage>;
+      if (typeof approvalId === "string") {
+        await this.pendingRequestService.clear(approvalId);
+      }
+    } catch (e) {
+      this.logService.warning("[AgentFill] Ignoring a malformed request-closed message", e);
+    }
+  }
+
+  private async checkEnabled(requestId: string): Promise<AgentFillFailure | null> {
+    if (await this.configService.getFeatureFlag(FeatureFlag.AgentFill)) {
+      return null;
+    }
+    return failure(requestId, AgentFillFailureReason.Error, "Agent fill is not enabled.");
   }
 
   /**
@@ -239,19 +275,27 @@ export class AgentFillBackground {
       return failure(request.requestId, AgentFillFailureReason.NoOpenTab, "Invalid URL.");
     }
 
-    const tabs = (await BrowserApi.tabsQuery({})).filter(
-      (tab) => tab.id != null && safeOrigin(tab.url) === origin,
-    );
+    const allTabs = await BrowserApi.tabsQuery({});
+    const tabs = allTabs.filter((tab) => tab.id != null && safeOrigin(tab.url) === origin);
+    const focused = await BrowserApi.tabsQuery({ active: true, lastFocusedWindow: true });
 
     let tab: chrome.tabs.Tab | undefined;
     if (tabs.length === 1) {
       tab = tabs[0];
     } else if (tabs.length > 1) {
-      const focused = await BrowserApi.tabsQuery({ active: true, lastFocusedWindow: true });
+      // Several tabs on the site: the active tab of the most recently focused window.
       tab = tabs.find((t) => focused.some((f) => f.id === t.id));
     }
 
     if (tab?.id == null || tab.url == null) {
+      if (tabs.length === 0 && focused.some((f) => safeOrigin(f.url) != null)) {
+        // The user is looking at a different site than the one the agent named.
+        return failure(
+          request.requestId,
+          AgentFillFailureReason.WrongSite,
+          "The page in front is not on the site the agent asked for.",
+        );
+      }
       return failure(
         request.requestId,
         AgentFillFailureReason.NoOpenTab,
@@ -261,6 +305,16 @@ export class AgentFillBackground {
       );
     }
 
+    const unlocked = (await this.activeUnlockedUserId()) != null;
+    if (unlocked) {
+      // Show the user in the popup that a request is waiting. The popup cannot approve it.
+      await this.pendingRequestService.setPending({
+        approvalId: request.approvalId,
+        domain: Utils.getHostname(tab.url),
+        connectionName: request.connectionName,
+      });
+    }
+
     return {
       requestId: request.requestId,
       ok: true,
@@ -268,11 +322,20 @@ export class AgentFillBackground {
       domain: Utils.getHostname(tab.url),
       tabUrl: tab.url,
       browser: this.platformUtilsService.getDeviceString(),
-      unlocked: (await this.activeUnlockedUserId()) != null,
+      unlocked,
     };
   }
 
   private async fillItem(request: FillItemRequest): Promise<FillItemResponse> {
+    try {
+      return await this.checkAndFill(request);
+    } finally {
+      // The request has been acted on, whatever the outcome.
+      await this.pendingRequestService.clear(request.approvalId);
+    }
+  }
+
+  private async checkAndFill(request: FillItemRequest): Promise<FillItemResponse> {
     const { requestId } = request;
 
     const userId = await this.activeUnlockedUserId();
@@ -285,7 +348,7 @@ export class AgentFillBackground {
     if (tab?.url == null || Utils.getHostname(tab.url) !== request.expectedDomain) {
       return failure(
         requestId,
-        AgentFillFailureReason.NoOpenTab,
+        AgentFillFailureReason.WrongSite,
         "The tab closed or left the approved site.",
       );
     }
@@ -299,19 +362,20 @@ export class AgentFillBackground {
       );
     }
 
-    // Cards carry no URIs; logins must match the tab with the user's normal URI match rules.
+    // Cards carry no URIs, so for them the approved-domain check above is the site check. Logins
+    // must also match the tab with the user's normal URI match rules.
     if (cipher.type === CipherType.Login) {
       const matches = await this.cipherService.filterCiphersForUrl([cipher], tab.url);
       if (matches.length === 0) {
         return failure(
           requestId,
-          AgentFillFailureReason.NoMatchingItem,
+          AgentFillFailureReason.WrongSite,
           "The approved item's saved URIs do not match the tab.",
         );
       }
     }
 
-    // PROTOTYPE: items that require a master password re-prompt are not filled for agents.
+    // Items that require a master password re-prompt are not filled for agents.
     if (cipher.reprompt !== CipherRepromptType.None) {
       return failure(
         requestId,

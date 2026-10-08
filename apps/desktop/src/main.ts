@@ -43,6 +43,7 @@ import {
 import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitwarden/storage-core";
 
 import { SSOLocalhostCallbackService } from "./auth/services/sso-localhost-callback.service";
+import { AgentFillConnectionsService } from "./autofill/main/agent-fill-connections.service";
 import { MainAgentFillService } from "./autofill/main/main-agent-fill.service";
 import { DesktopAutofillMain } from "./autofill/main/main-desktop-autofill.service";
 import { MainDesktopAutotypeMvpService } from "./autofill/main/main-desktop-autotype-mvp.service";
@@ -109,6 +110,7 @@ export class Main {
   versionMain: VersionMain;
   shell: SafeShell;
   sshAgentService: MainSshAgentService;
+  agentFillConnectionsService: AgentFillConnectionsService;
   agentFillService: MainAgentFillService;
   sdkLoadService: SdkLoadService;
   mainDesktopAutotypeMvpService: MainDesktopAutotypeMvpService;
@@ -332,13 +334,12 @@ export class Main {
       app.getAppPath(),
     );
 
-    const ipcMainService = new IpcMainService(
+    this.ipcService = new IpcMainService(
       this.logService,
       app,
       this.nativeMessagingMain,
       this.windowMain,
     );
-    this.ipcService = ipcMainService;
 
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
 
@@ -347,13 +348,15 @@ export class Main {
 
     this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
 
-    // PROTOTYPE: agent autofill with approval.
+    this.agentFillConnectionsService = new AgentFillConnectionsService(stateProvider);
     this.agentFillService = new MainAgentFillService(
       this.logService,
       this.messagingService,
-      ipcMainService,
+      this.ipcService,
+      this.nativeMessagingMain,
       this.windowMain,
       accountService,
+      this.agentFillConnectionsService,
     );
 
     new EphemeralValueStorageService();

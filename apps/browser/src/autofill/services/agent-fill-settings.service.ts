@@ -16,7 +16,7 @@ const AGENT_FILL_ALLOWED = new UserKeyDefinition<boolean>(
 const DEFAULT_AGENT_FILL_ALLOWED = false;
 
 /**
- * PROTOTYPE: agent autofill. The per-account "Allow agents to fill in this browser" setting. It
+ * The per-account "Allow agents to fill in this browser" setting. It
  * marks this browser as one that fills for the account; the extension reports it to the desktop
  * app in its Hello message and refuses agent fills while it is off.
  */
