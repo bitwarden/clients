@@ -26,17 +26,12 @@ import {
 import { TooltipDirective } from "../tooltip";
 import { focusAfterRender } from "../utils/focus-after-render";
 
-import { FilterPresenter } from "./filter-tokens";
+import { FilterPresenter, selectionCount } from "./filter-tokens";
 
 /** Data passed to {@link FilterDialogComponent} when the toolbar opens it. */
 export interface FilterDialogParams {
   /** The toolbar's projected filters, in row order. */
   readonly filters: Signal<readonly FilterPresenter[]>;
-}
-
-/** A toggle reports no labels, so its `active` state stands in for its one selection. */
-function optionCount(filter: FilterPresenter): number {
-  return Math.max(filter.selections().length, filter.active() ? 1 : 0);
 }
 
 /** The small-screen filter view. Opened by `bit-table-toolbar`. */
@@ -78,13 +73,13 @@ export class FilterDialogComponent {
 
   /** How many options are selected across every filter — shown in the list page's footer. */
   protected readonly selectedCount = computed(() =>
-    this.filters().reduce((total, filter) => total + optionCount(filter), 0),
+    this.filters().reduce((total, filter) => total + selectionCount(filter), 0),
   );
 
   /** The same count for the filter being drilled into. */
   protected readonly activeSelectedCount = computed(() => {
     const filter = this.activeFilter();
-    return filter ? optionCount(filter) : 0;
+    return filter ? selectionCount(filter) : 0;
   });
 
   /** Whichever count the footer is showing — the drilled-into filter's, or every filter's. */

@@ -31,6 +31,7 @@ import {
   FILTER_PRESENTER,
   FilterPresenter,
   FilterSelection,
+  selectionCount,
 } from "../../filter-menu/filter-tokens";
 import { IconButtonModule } from "../../icon-button";
 import { CollapseOnScrollDirective } from "../../layout/collapse-on-scroll.directive";
@@ -108,8 +109,10 @@ export class BitTableToolbarComponent {
   /** Whether any filter chips are projected — false for a search-only toolbar. */
   protected readonly hasFilters = computed(() => this.filters().length > 0);
 
-  /** How many projected filters currently have a selection — the trigger's berry count. */
-  readonly appliedCount = computed(() => this.filters().filter((f) => f.active()).length);
+  /** How many options are selected across the projected filters — the trigger's berry count. */
+  readonly appliedCount = computed(() =>
+    this.filters().reduce((total, filter) => total + selectionCount(filter), 0),
+  );
 
   /** The filters with a selection — shown as dismissible chips on the small-screen filter row. */
   protected readonly activeFilters = computed(() => this.filters().filter((f) => f.active()));
