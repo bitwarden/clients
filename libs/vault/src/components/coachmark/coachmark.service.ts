@@ -1,28 +1,20 @@
-import { computed, inject, Injectable, signal } from "@angular/core";
+import { computed, effect, inject, Injectable, signal } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { map } from "rxjs/operators";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SideNavService } from "@bitwarden/components";
-import { StateProvider, UserKeyDefinition, VAULT_WELCOME_DIALOG_DISK } from "@bitwarden/state";
-import { Vfo1TerminologyService } from "@bitwarden/vault";
 
-import { CoachmarkStep, CoachmarkStepId, COACHMARK_STEPS } from "./coachmark-step";
+import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
-/** State key for tracking coachmark tour completion */
-const COACHMARK_TOUR_COMPLETED_KEY = new UserKeyDefinition<boolean>(
-  VAULT_WELCOME_DIALOG_DISK,
-  "coachmarkTourCompleted",
-  {
-    deserializer: (value) => value ?? false,
-    clearOn: [],
-  },
-);
+import { CoachmarkStep, CoachmarkStepId } from "./coachmark-step";
+import { CoachmarkTour } from "./coachmark-tour";
 
 @Injectable({
   providedIn: "root",
@@ -50,18 +42,23 @@ export class CoachmarkService {
   /** The applicable steps for the current user (filtered by organization membership and collection access) */
   private readonly applicableSteps = signal<CoachmarkStep[]>([]);
 
-  private readonly sideNavService = inject(SideNavService);
+  private readonly activeTour = signal<CoachmarkTour | null>(null);
 
-  constructor(
-    private accountService: AccountService,
-    private organizationService: OrganizationService,
-    private stateProvider: StateProvider,
-    private i18nService: I18nService,
-    private router: Router,
-    private configService: ConfigService,
-    private vfo1TerminologyService: Vfo1TerminologyService,
-    private collectionService: CollectionService,
-  ) {}
+  private readonly sideNavService = inject(SideNavService);
+  private readonly accountService = inject(AccountService);
+  private readonly organizationService = inject(OrganizationService);
+  private readonly i18nService = inject(I18nService);
+  private readonly router = inject(Router);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+  private readonly collectionService = inject(CollectionService);
+
+  constructor() {
+    effect(() => {
+      if (this.activeTour()?.lockSideNav && !this.sideNavService.open()) {
+        this.sideNavService.open.set(true);
+      }
+    });
+  }
 
   /** Whether the named step is the one the tour is on. */
   isStepActive(stepId: CoachmarkStepId): boolean {
@@ -72,7 +69,7 @@ export class CoachmarkService {
    * Gets the configuration for a specific step.
    */
   getStepConfig(stepId: CoachmarkStepId): CoachmarkStep | undefined {
-    return COACHMARK_STEPS.find((s) => s.id === stepId);
+    return this.activeTour()?.steps.find((s) => s.id === stepId);
   }
 
   /**
@@ -122,17 +119,12 @@ export class CoachmarkService {
   }
 
   /**
-   * Starts the coachmark tour if it hasn't been completed yet.
+   * Starts the given tour if the user hasn't completed it and no other tour is running.
    * The tour will display steps the user can reach, based on organization membership
    * and whether they have any collections.
    */
-  async startTour(): Promise<void> {
+  async startTour(tour: CoachmarkTour): Promise<void> {
     if (this.isRunning()) {
-      return;
-    }
-
-    const serverSettings = await firstValueFrom(this.configService.serverSettings$);
-    if (serverSettings?.suppressOnboardingInterstitials) {
       return;
     }
 
@@ -141,13 +133,7 @@ export class CoachmarkService {
       return;
     }
 
-    const completed = await firstValueFrom(
-      this.stateProvider
-        .getUserState$(COACHMARK_TOUR_COMPLETED_KEY, account.id)
-        .pipe(map((v) => v ?? false)),
-    );
-
-    if (completed) {
+    if (await tour.completed(account.id)) {
       return;
     }
 
@@ -160,7 +146,7 @@ export class CoachmarkService {
       ),
     ]);
 
-    const steps = COACHMARK_STEPS.filter(
+    const steps = tour.steps.filter(
       (step) =>
         (!step.requiresOrganization || hasOrganizations) &&
         (!step.requiresCollections || hasCollections),
@@ -170,6 +156,7 @@ export class CoachmarkService {
       return;
     }
 
+    this.activeTour.set(tour);
     this.applicableSteps.set(steps);
     await this.navigateToStep(steps[0]);
   }
@@ -179,7 +166,7 @@ export class CoachmarkService {
    */
   private async navigateToStep(step: CoachmarkStep): Promise<void> {
     // Before the navigation, so the anchored entry mounts in an earlier change detection cycle
-    // than the one that opens the popover — see `VaultNavSectionComponent.coachmarkTourRunning`.
+    // than the one that opens the popover — see `VaultNavSectionComponent.coachmarkExpands`.
     if (step.opensSideNav) {
       this.sideNavService.open.set(true);
     }
@@ -230,18 +217,25 @@ export class CoachmarkService {
   }
 
   /**
-   * Completes the tour, persists the completion state, and navigates back to the vault
-   * so users are reminded to add items via the checklist and empty state UX.
+   * Completes the tour, persists the completion state, and navigates to the tour's end route.
    */
   async completeTour(): Promise<void> {
+    const tour = this.activeTour();
     this.activeStepId.set(null);
     this.applicableSteps.set([]);
+    this.activeTour.set(null);
+
+    if (!tour) {
+      return;
+    }
 
     const account = await firstValueFrom(this.accountService.activeAccount$);
     if (account) {
-      await this.stateProvider.setUserState(COACHMARK_TOUR_COMPLETED_KEY, true, account.id);
+      await tour.markCompleted(account.id);
     }
 
-    await this.router.navigate(["/vault"]);
+    if (tour.endRoute) {
+      await this.router.navigate([tour.endRoute]);
+    }
   }
 }
