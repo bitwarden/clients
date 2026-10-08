@@ -1,3 +1,4 @@
+@let showSingleOrgWarning = showSingleOrgWarning$ | async;
 @if (organizationId$ | async; as organizationId) {
   <app-header>
     @if (!loading()) {
@@ -5,7 +6,7 @@
         type="button"
         buttonType="primary"
         bitButton
-        (click)="addDomain(organizationId)"
+        (click)="addDomain(organizationId, showSingleOrgWarning)"
         startIcon="bwi-plus"
       >
         {{ "addDomain" | i18n }}
@@ -123,7 +124,7 @@
               type="button"
               buttonType="secondary"
               bitButton
-              (click)="addDomain(organizationId)"
+              (click)="addDomain(organizationId, showSingleOrgWarning)"
             >
               {{ "addDomain" | i18n }}
             </button>

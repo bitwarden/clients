@@ -10,7 +10,6 @@ import {
   Observable,
   shareReplay,
   switchMap,
-  withLatestFrom,
 } from "rxjs";
 
 import { DomainIcon } from "@bitwarden/assets/svg";
@@ -92,13 +91,29 @@ export class DomainVerificationComponent implements OnInit {
 
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
-  private readonly singleOrgPolicyEnabled$ = this.userId$.pipe(
+  private readonly policies$ = this.userId$.pipe(
     switchMap((userId) => this.policyService.policies$(userId)),
-    withLatestFrom(this.organizationId$),
+  );
+
+  private readonly singleOrgPolicyEnabled$ = combineLatest([
+    this.policies$,
+    this.organizationId$,
+  ]).pipe(
     map(
       ([policies, organizationId]) =>
         policies.find((p) => p.type === PolicyType.SingleOrg && p.organizationId === organizationId)
           ?.enabled ?? false,
+    ),
+  );
+
+  protected readonly showSingleOrgWarning$ = combineLatest([
+    this.orgDomains$,
+    this.singleOrgPolicyEnabled$,
+  ]).pipe(
+    map(
+      ([organizationDomains, singleOrgPolicyEnabled]) =>
+        !singleOrgPolicyEnabled &&
+        organizationDomains.every((domain) => domain.verifiedDate === null),
     ),
   );
 
@@ -113,22 +128,12 @@ export class DomainVerificationComponent implements OnInit {
       .subscribe(() => this.loading.set(false));
   }
 
-  async addDomain(organizationId: OrganizationId) {
+  async addDomain(organizationId: OrganizationId, showSingleOrgWarning: boolean) {
     const domainAddEditDialogData: DomainAddEditDialogData = {
       organizationId: organizationId,
       orgDomain: undefined,
       existingDomainNames: await this.getExistingDomainNames(),
     };
-
-    const showSingleOrgWarning = await firstValueFrom(
-      combineLatest([this.orgDomains$, this.singleOrgPolicyEnabled$]).pipe(
-        map(
-          ([organizationDomains, singleOrgPolicyEnabled]) =>
-            !singleOrgPolicyEnabled &&
-            organizationDomains.every((domain) => domain.verifiedDate === null),
-        ),
-      ),
-    );
 
     if (showSingleOrgWarning) {
       await this.dialogService.openSimpleDialog({
