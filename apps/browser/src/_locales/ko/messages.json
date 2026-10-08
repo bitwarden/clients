@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "보관함 보기에서 항목을 클릭하여 자동 완성"
   },
-  "clickToAutofill": {
-    "message": "자동 완성 제안에서 항목 클릭으로 채우기"
-  },
   "clearClipboard": {
     "message": "클립보드 비우기",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1539,6 +1536,40 @@
   "importVerb": {
     "message": "가져오기",
     "description": "The verb form of the word Import"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "importItems": {
     "message": "Import items"
@@ -5144,6 +5175,10 @@
   "selectImportSharedFolder": {
     "message": "Select a shared folder"
   },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "가져온 파일의 내용을 컬렉션으로 이동하려면 이 옵션을 선택하세요"
   },
@@ -5643,6 +5678,15 @@
   },
   "lastPassYubikeyDesc": {
     "message": "LastPass 계정과 연결된 YubiKey를 컴퓨터의 USB 포트에 삽입한 다음 버튼을 누릅니다."
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Keeper 이메일"
@@ -7207,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "위험한 비밀번호 변경"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "이 로그인 정보는 위험에 노출되어 있고 웹사이트가 누락되어 있습니다. 웹사이트를 추가하고 비밀번호를 변경하여 보안을 강화하세요."
-  },
   "vulnerablePassword": {
     "message": "취약한 비밀번호입니다."
   },
   "changeNow": {
     "message": "지금 변경"
-  },
-  "missingWebsite": {
-    "message": "누락된 웹사이트"
   },
   "settingsVaultOptions": {
     "message": "보관함 설정"
@@ -7249,11 +7284,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "You have no folders."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "Bitwarden 사용을 환영합니다"

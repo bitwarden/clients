@@ -43,6 +43,10 @@ export class MemberDialogManagerService {
   private deleteManagedMemberWarningService = inject(DeleteManagedMemberWarningService);
   private vfo1TerminologyService = inject(Vfo1TerminologyService);
 
+  // TODO(guided-tour removal): drop the `showCoachMarks` parameter (and the `showCoachMarks,`
+  // line in the `data` object below) along with the rest of the guided tour. See the header
+  // comment in invite-members-dialog/by-link-tab-tour.component.ts for the full removal
+  // checklist.
   async openInviteDialog(
     organization: Organization,
     billingMetadata: OrganizationBillingMetadataResponse,

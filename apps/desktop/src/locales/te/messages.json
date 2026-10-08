@@ -4629,6 +4629,10 @@
   "selectImportSharedFolder": {
     "message": "Select a shared folder"
   },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "దిగుమతి చేసిన ఫైల్ విషయాలను సేకరణకు తరలించాలనుకుంటే ఈ ఎంపికను ఎంచుకోండి"
   },
@@ -5105,6 +5109,15 @@
   },
   "lastPassYubikeyDesc": {
     "message": "మీ LastPass ఖాతాతో అనుబంధించబడిన YubiKeyని మీ కంప్యూటర్ యొక్క USB పోర్ట్‌లోకి చొప్పించండి, ఆపై దాని బటన్‌ను తాకండి."
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Keeper ఇమెయిల్"
@@ -5617,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "మీరు ఉపయోగిస్తున్న బ్రౌజర్ పొడిగింపు పాతది. దయచేసి దాన్ని నవీకరించండి లేదా డెస్క్‌టాప్ యాప్ సెట్టింగ్‌లలో బ్రౌజర్ ఇంటిగ్రేషన్ వేలిముద్ర ధృవీకరణను నిలిపివేయండి."
   },
-  "changeAtRiskPassword": {
-    "message": "ప్రమాదంలో ఉన్న పాస్‌వర్డ్‌ను మార్చండి"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "ఈ లాగిన్ ప్రమాదంలో ఉంది మరియు వెబ్‌సైట్ లేదు. బలమైన భద్రత కోసం వెబ్‌సైట్‌ను జోడించి పాస్‌వర్డ్‌ను మార్చండి."
-  },
   "vulnerablePassword": {
     "message": "హాని కలిగించే పాస్‌వర్డ్."
   },
   "changeNow": {
     "message": "ఇప్పుడే మార్చండి"
-  },
-  "missingWebsite": {
-    "message": "వెబ్‌సైట్ లేదు"
   },
   "missingPermissions": {
     "message": "ఈ చర్యను నిర్వహించడానికి మీకు అవసరమైన అనుమతులు లేవు."
@@ -6407,11 +6411,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "మీకు ఫోల్డర్‌లు లేవు."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "వాల్ట్ అంశాలను నిర్వహించడానికి ఫోల్డర్‌లను ఉపయోగించండి. అవి మీ కోసం మాత్రమే — వేరే ఎవరూ వాటిని చూడరు లేదా ఉపయోగించరు."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "emptyVaultsDescription": {
     "message": "ప్రారంభించడానికి లాగిన్‌లు, IDలు, కార్డ్‌లు మరియు ఇతర అంశాలను జోడించండి."

@@ -2,7 +2,9 @@ import * as fs from "fs";
 import { pathToFileURL } from "node:url";
 import * as path from "path";
 
+import { app, session } from "electron";
 import { mock } from "jest-mock-extended";
+import { NEVER } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
@@ -106,6 +108,52 @@ describe("WindowMain", () => {
 
     it("returns false for an unparseable string without throwing", () => {
       expect(isLocalBundleUrl("not a url")).toBe(false);
+    });
+  });
+
+  describe("init", () => {
+    let sut: WindowMain;
+    let createWindow: jest.SpyInstance;
+
+    beforeEach(() => {
+      // Development mode skips process isolation, which is not under test here.
+      (global as any).BIT_ENVIRONMENT = "development";
+
+      // `on` never emits, so `ready` behaves as if it fired before `init()` was called.
+      Object.assign(app, {
+        requestSingleInstanceLock: jest.fn().mockReturnValue(true),
+        on: jest.fn(),
+        whenReady: jest.fn().mockResolvedValue(undefined),
+      });
+      Object.assign(session, { fromPartition: jest.fn() });
+
+      const desktopSettingsService = mock<DesktopSettingsService>();
+      Object.assign(desktopSettingsService, { modalMode$: NEVER, preventScreenshots$: NEVER });
+
+      sut = new WindowMain(
+        mock<BiometricStateService>(),
+        mock<LogService>(),
+        mock<AbstractStorageService>(),
+        desktopSettingsService,
+        mock<SafeShell>(),
+        null,
+        () => {},
+        null,
+      );
+
+      jest.spyOn(sut as any, "setupAppProtocol").mockImplementation(() => {});
+      createWindow = jest.spyOn(sut, "createWindow").mockResolvedValue(undefined);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+      delete (global as any).BIT_ENVIRONMENT;
+    });
+
+    it("creates the window when the ready event has already fired", async () => {
+      await sut.init(true);
+
+      expect(createWindow).toHaveBeenCalledWith("full-app", true);
     });
   });
 });

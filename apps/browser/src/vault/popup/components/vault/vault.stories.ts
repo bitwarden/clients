@@ -44,7 +44,6 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
-import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -493,6 +492,7 @@ const buildProviders = (args: StoryArgs) => {
         saveFilters: () => {},
         cachedFilters: signal({}),
         clearVaultScopedFilters: () => {},
+        filterDialogOpen: signal(false),
         vaultScopedFiltersCleared$: NEVER,
         suspended$: () => of(false),
         selectedFilters$: of({
@@ -558,8 +558,13 @@ const buildProviders = (args: StoryArgs) => {
     // would announce into a detached node.
     { provide: LiveAnnouncer, useValue: { announce: () => Promise.resolve(), clear: () => {} } },
     {
+      // `false` keeps the new experience dialog shut, so stories render the vault itself rather
+      // than an onboarding bottom sheet over it.
       provide: IntroCarouselService,
-      useValue: { setIntroCarouselDismissed: () => Promise.resolve() },
+      useValue: {
+        introCarouselState$: of(false),
+        setIntroCarouselDismissed: () => Promise.resolve(),
+      },
     },
     {
       provide: VaultPopupAutofillService,
@@ -581,7 +586,6 @@ const buildProviders = (args: StoryArgs) => {
     },
     { provide: VaultCopyButtonsService, useValue: { showQuickCopyActions$: of(false) } },
     { provide: CompactModeService, useValue: { enabled$: of(false) } },
-    { provide: VaultSettingsService, useValue: { clickItemsToAutofillVaultView$: of(true) } },
     {
       provide: PolicyService,
       useValue: { policiesByType$: () => of(buildNotificationPolicies(args)) },
@@ -590,9 +594,14 @@ const buildProviders = (args: StoryArgs) => {
       // Both the org-notifications and at-risk services read state through `getUser`, keyed by
       // their own `UserKeyDefinition`. Everything defaults to `null` (nothing dismissed); only the
       // at-risk key carries a value, since its success banner is gated on prior interaction.
+      // The simplified-autofill info icon reads `getUserState$` and is marked dismissed to keep it
+      // out of snapshots.
       provide: StateProvider,
       useValue: {
-        getUserState$: () => of(null),
+        getUserState$: (key: { key: string }) =>
+          key?.key === "vaultAutofillSimplifiedIcon"
+            ? of({ hasSeen: true, hasDismissed: true })
+            : of(null),
         // Matched on the literal key: `@bitwarden/vault` doesn't re-export
         // `AT_RISK_PASSWORD_CALLOUT_KEY`, and widening its public API for a story isn't worth it.
         getUser: (_userId: UserId, key: { key: string }) => ({
@@ -646,7 +655,6 @@ const buildProviders = (args: StoryArgs) => {
     {
       provide: PlatformUtilsService,
       useValue: {
-        getAutofillKeyboardShortcut: () => Promise.resolve("Ctrl+Shift+L"),
         isSafari: () => false,
         isChrome: () => true,
         isFirefox: () => false,

@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Кликните элементы для автозаполнения в режиме просмотра хранилища"
   },
-  "clickToAutofill": {
-    "message": "Выберите элементы в предложении автозаполнения для вставки"
-  },
   "clearClipboard": {
     "message": "Очистить буфер обмена",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1539,6 +1536,40 @@
   "importVerb": {
     "message": "Импортировать",
     "description": "The verb form of the word Import"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Выберите источник"
+  },
+  "importSourceSelectTitle": {
+    "message": "Выберите источник"
+  },
+  "importSourceSelectDescription": {
+    "message": "Выберите менеджер паролей или браузер, из которого вы выполняете импорт."
+  },
+  "importSourceBrowsers": {
+    "message": "Браузеры"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Менеджеры паролей"
+  },
+  "importSourceShowAll": {
+    "message": "Показать все"
+  },
+  "importSourceShowLess": {
+    "message": "Меньше"
+  },
+  "importSourceStepCount": {
+    "message": "Шаг $CURRENT$ из $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "importItems": {
     "message": "Импорт элементов"
@@ -5142,7 +5173,11 @@
     "message": "Выберите коллекцию"
   },
   "selectImportSharedFolder": {
-    "message": "Select a shared folder"
+    "message": "Выберите общую папку"
+  },
+  "importTargetMyFolder": {
+    "message": "Моя папка",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в коллекцию"
@@ -5151,7 +5186,7 @@
     "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в папку"
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в общую папку"
   },
   "importUnassignedItemsError": {
     "message": "Файл содержит неназначенные элементы."
@@ -5643,6 +5678,15 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Вставьте YubiKey, связанный с аккаунтом LastPass, в USB-порт компьютера и нажмите на его кнопку."
+  },
+  "secretKey": {
+    "message": "Секретный ключ"
+  },
+  "secretKeyAndPassword": {
+    "message": "Секретный ключ и пароль"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Ваш аккаунт защищен секретным ключом и паролем. Для продолжения необходимо ввести и то, и другое."
   },
   "keeperEmail": {
     "message": "Адрес email Keeper"
@@ -7207,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Изменить пароль, подверженный риску"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Этот логин подвержен риску и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
-  },
   "vulnerablePassword": {
     "message": "Уязвимый пароль."
   },
   "changeNow": {
     "message": "Изменить сейчас"
-  },
-  "missingWebsite": {
-    "message": "Отсутствует сайт"
   },
   "settingsVaultOptions": {
     "message": "Настройки хранилища"
@@ -7249,11 +7284,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "У вас нет папок."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Используйте папки для организации хранилищ. Они только для вас: никто больше не увидит и не будет их использовать."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "Добро пожаловать в Bitwarden"

@@ -6,6 +6,7 @@
     [title]="'sharedFoldersInParent' | i18n: parentName()"
     variant="subtle"
     [open]="open()"
+    height="auto"
   >
     @let countText = countSegments();
     <span bitTypography="body2" class="tw-shrink-0 tw-text-muted" slot="end"
@@ -52,7 +53,8 @@
 
 <ng-template #card let-folder>
   <li>
-    <bit-item size="lg" class="!tw-mb-0">
+    <!-- Fills its grid cell, so a card without a subtitle matches the height of one with. -->
+    <bit-item size="lg" class="!tw-mb-0 tw-h-full">
       <a
         #cardLink
         bit-item-content
@@ -61,6 +63,15 @@
       >
         <bit-icon-tile slot="start" icon="bwi-shared-folder"></bit-icon-tile>
         {{ folder.name }}
+        @if (folder.nestedSharedFolders > 0) {
+          <span slot="secondary">
+            {{
+              folder.nestedSharedFolders === 1
+                ? ("nestedSharedFolderSingular" | i18n)
+                : ("nestedSharedFolderCount" | i18n: folder.nestedSharedFolders)
+            }}
+          </span>
+        }
         <bit-icon slot="end" name="bwi-angle-right" class="tw-text-2xl" />
       </a>
     </bit-item>
