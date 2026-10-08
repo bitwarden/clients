@@ -381,6 +381,31 @@ describe("ImportControlsComponent", () => {
       expect(byId("importer-controls_select_profile")).toBeTruthy();
     });
 
+    it("renders the Chrome view per the desktop spec: 4px title gap, no callout period, capped select with its own placeholder, subtle manual-import button", async () => {
+      importMetadataService.metadata$.mockReturnValue(
+        of<ImporterCapabilities>({ type: "bravecsv", loaders: [Loader.file, Loader.chromium] }),
+      );
+      importMetadataService.getAvailableProfiles.mockResolvedValue([
+        { id: "Default", name: "Default" },
+      ]);
+      await setup("bravecsv", ClientType.Desktop);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(root.querySelector("h2")?.classList).toContain("tw-mb-1");
+      const callout = root.querySelector("bit-callout");
+      expect(callout).toBeTruthy();
+      expect(callout?.textContent?.trim().endsWith(".")).toBe(false);
+      expect(root.querySelector("bit-form-field")?.classList).toContain("tw-max-w-sm");
+      expect(root.querySelector("bit-select")?.textContent).toContain("selectProfile");
+      expect(
+        byId("importer-controls_button_import-manually-instead").nativeElement.getAttribute(
+          "buttonType",
+        ),
+      ).toBe("subtleGhost");
+    });
+
     it("does not fetch profiles for a vendor that never resolves to chromium mode", async () => {
       await setup("keeper", ClientType.Desktop);
 

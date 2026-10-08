@@ -5091,6 +5091,9 @@
   "filePasswordProtectedHint": {
     "message": "The file uploaded is password protected"
   },
+  "selectProfile": {
+    "message": "Select profile"
+  },
   "kdbxPasswordInvalid": {
     "message": "Enter a valid password."
   },

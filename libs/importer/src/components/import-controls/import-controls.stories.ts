@@ -281,6 +281,7 @@ function decoratorsFor(
               // bit-select resolves this as its default placeholder — hit by the Chromium story's
               // profile select.
               selectPlaceholder: "-- Select --",
+              selectProfile: "Select profile",
               // bitPasswordInputToggle resolves this unconditionally at construction — hit by
               // KdbxCredentials' master-password field. inputRequired is bit-form-field's default
               // "required" validation message, resolved on blur of any empty required field

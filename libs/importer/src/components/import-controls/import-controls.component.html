@@ -111,13 +111,13 @@
           }
         }
       } @else if (primaryMode() === "chromium") {
-        <h2 bitTypography="h2" noMargin>{{ "importDataTitle" | i18n }}</h2>
+        <h2 bitTypography="h2" noMargin class="tw-mb-1">{{ "importDataTitle" | i18n }}</h2>
         <p bitTypography="body1" class="tw-text-fg-body-subtle">
           {{ "importDataChromiumSubtitle" | i18n }}
         </p>
 
         @if (vendor().instructionKey || vendor().instructionLink) {
-          <bit-callout type="info">
+          <bit-callout type="info" class="[&_aside]:!tw-py-1">
             @if (vendor().instructionKey; as key) {
               {{ key | i18n }}
             }
@@ -131,7 +131,7 @@
                 [href]="link"
                 endIcon="bwi-external-link"
                 >{{ "importHelpCenterLinkText" | i18n }}</a
-              >.
+              >
             }
           </bit-callout>
         }
@@ -142,9 +142,13 @@
           }}</bit-callout>
         }
 
-        <bit-form-field>
+        <bit-form-field class="tw-max-w-sm">
           <bit-label>{{ "profile" | i18n }}</bit-label>
-          <bit-select formControlName="profile" id="importer-controls_select_profile">
+          <bit-select
+            formControlName="profile"
+            id="importer-controls_select_profile"
+            [placeholder]="'selectProfile' | i18n"
+          >
             @for (profile of profiles(); track profile.id) {
               <bit-option [value]="profile.id" [label]="profile.name" />
             }
@@ -285,7 +289,7 @@
             <button
               type="button"
               bitButton
-              buttonType="primaryGhost"
+              buttonType="subtleGhost"
               (click)="toggleToManual()"
               id="importer-controls_button_import-manually-instead"
             >
