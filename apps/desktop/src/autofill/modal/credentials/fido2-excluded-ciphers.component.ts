@@ -1,18 +1,9 @@
-import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, OnDestroy, inject } from "@angular/core";
-import { RouterModule, Router } from "@angular/router";
+import { Router } from "@angular/router";
 
 import { NoResults } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import {
-  BadgeModule,
-  ButtonModule,
-  DialogModule,
-  ItemModule,
-  StatusLockupComponent,
-  SvgComponent,
-  TableModule,
-} from "@bitwarden/components";
+import { ButtonModule, StatusLockupComponent, SvgComponent } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
@@ -24,16 +15,10 @@ import { Fido2ModalPageComponent } from "./fido2-modal-page.component";
 @Component({
   standalone: true,
   imports: [
-    CommonModule,
-    RouterModule,
-    TableModule,
     I18nPipe,
     StatusLockupComponent,
     SvgComponent,
     ButtonModule,
-    DialogModule,
-    ItemModule,
-    BadgeModule,
     Fido2ModalHeaderComponent,
     Fido2ModalPageComponent,
   ],
