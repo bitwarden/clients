@@ -273,7 +273,7 @@ describe("UserLayoutComponent", () => {
       expect(coachmarkAnchors()).toEqual({ reports: "position-for-monitorSecurity" });
     });
 
-    it("anchors the shared folders step on the vaults nav section", () => {
+    it("anchors the vault list and shared folders steps on the vaults nav section", () => {
       viewModel$.next({
         vaults: [
           { id: "org-a", label: "Acme corporation", icon: "bwi-business", type: "organization" },
@@ -284,6 +284,7 @@ describe("UserLayoutComponent", () => {
       expandGroup("Acme corporation");
 
       expect(coachmarkAnchors()).toEqual({
+        div: "position-for-vaultList",
         reports: "position-for-monitorSecurity",
         sharedFolders: "position-for-shareWithCollections",
       });
