@@ -686,6 +686,12 @@ export class EventService {
       case EventType.Organization_InviteLinkConfirmDisabled:
         msg = humanReadableMsg = this.i18nService.t("inviteLinkEventConfirmDisabled");
         break;
+      case EventType.Organization_ScopedApiKeyCreated:
+        msg = humanReadableMsg = this.i18nService.t("scopedApiKeyEventCreated");
+        break;
+      case EventType.Organization_ScopedApiKeyRevoked:
+        msg = humanReadableMsg = this.i18nService.t("scopedApiKeyEventRevoked");
+        break;
 
       // Policies
       case EventType.Policy_Updated: {

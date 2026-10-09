@@ -17995,5 +17995,88 @@
   },
   "resetToDefault": {
     "message": "Reset to default"
+  },
+  "scopedApiKeys": {
+    "message": "Scoped API keys"
+  },
+  "scopedApiKeysDesc": {
+    "message": "Scoped API keys can only use the parts of the Bitwarden public API you choose. They can only manage members with the User role."
+  },
+  "createScopedApiKey": {
+    "message": "Create scoped API key"
+  },
+  "noScopedApiKeys": {
+    "message": "No scoped API keys"
+  },
+  "scopedApiKeyScopes": {
+    "message": "Scopes"
+  },
+  "scopedApiKeyScopesDesc": {
+    "message": "Choose what this key can do. Write access doesn't include read access."
+  },
+  "scopedApiKeyScopeRead": {
+    "message": "Read"
+  },
+  "scopedApiKeyScopeWrite": {
+    "message": "Write (create, edit and delete)"
+  },
+  "scopedApiKeyScopeLabel": {
+    "message": "$RESOURCE$: $ACCESS$",
+    "description": "A scope shown in the scoped API key list, for example 'Members: Read'.",
+    "placeholders": {
+      "resource": {
+        "content": "$1",
+        "example": "Members"
+      },
+      "access": {
+        "content": "$2",
+        "example": "Read"
+      }
+    }
+  },
+  "scopedApiKeyCollectionAccessWarning": {
+    "message": "Can give members access to collections."
+  },
+  "scopedApiKeyBillingWarning": {
+    "message": "Can change the organization's subscription and billing."
+  },
+  "scopedApiKeyScopesRequired": {
+    "message": "Select at least one scope."
+  },
+  "scopedApiKeyExpirationHint": {
+    "message": "Leave blank for a key that doesn't expire."
+  },
+  "scopedApiKeyExpirationInPast": {
+    "message": "Expiration date must be in the future."
+  },
+  "scopedApiKeyCreated": {
+    "message": "Scoped API key created"
+  },
+  "scopedApiKeySecretShownOnce": {
+    "message": "Copy the client secret now. It won't be shown again after you close this dialog."
+  },
+  "revokeScopedApiKey": {
+    "message": "Revoke scoped API key"
+  },
+  "revokeScopedApiKeyConfirmation": {
+    "message": "Revoke $NAME$? Apps using this key will lose access. Access tokens already issued can keep working for up to one hour.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Directory sync"
+      }
+    }
+  },
+  "scopedApiKeyRevoked": {
+    "message": "Scoped API key revoked"
+  },
+  "scopedApiKeyEventCreated": {
+    "message": "Created scoped API key"
+  },
+  "scopedApiKeyEventRevoked": {
+    "message": "Revoked scoped API key"
+  },
+  "scopedApiKeyScopeParamHint": {
+    "message": "Optional. Leave scope out of the token request to get all of this key's scopes."
   }
 }
