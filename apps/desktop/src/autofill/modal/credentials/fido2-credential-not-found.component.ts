@@ -4,18 +4,14 @@ import { RouterModule, Router } from "@angular/router";
 
 import { NoResults } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import {
-  ButtonModule,
-  SectionComponent,
-  StatusLockupComponent,
-  SvgComponent,
-} from "@bitwarden/components";
+import { ButtonModule, StatusLockupComponent, SvgComponent } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
 import { DesktopFido2UserInterfaceService } from "../../services/desktop-fido2-user-interface.service";
 
 import { Fido2ModalHeaderComponent } from "./fido2-modal-header.component";
+import { Fido2ModalPageComponent } from "./fido2-modal-page.component";
 
 @Component({
   standalone: true,
@@ -26,8 +22,8 @@ import { Fido2ModalHeaderComponent } from "./fido2-modal-header.component";
     StatusLockupComponent,
     SvgComponent,
     ButtonModule,
-    SectionComponent,
     Fido2ModalHeaderComponent,
+    Fido2ModalPageComponent,
   ],
   templateUrl: "fido2-credential-not-found.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
