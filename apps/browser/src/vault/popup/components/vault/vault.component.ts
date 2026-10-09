@@ -368,6 +368,12 @@ export class VaultComponent implements OnInit, OnDestroy {
     private scrollLayoutService: ScrollLayoutService,
     private collectionService: CollectionService,
   ) {
+    this.activatedRoute.paramMap
+      .pipe(takeUntilDestroyed())
+      .subscribe((params) =>
+        this.vaultPopupListTableFiltersService.setCachedVaultScopeId(params.get("vaultId")),
+      );
+
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
       this.vaultPopupItemsService.noFilteredResults$,
