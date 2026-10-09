@@ -15,7 +15,7 @@ import {
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
-import { combineLatest, firstValueFrom, map, switchMap } from "rxjs";
+import { combineLatest, map, switchMap } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -42,12 +42,10 @@ import {
   defineTable,
   FilterControl,
   FilterMenuModule,
-  IconButtonModule,
   IconModule,
   IconTileComponent,
   LayoutFooterService,
   LinkModule,
-  MenuModule,
   SearchModule,
   SelectionConfig,
   SkeletonTextComponent,
@@ -55,7 +53,6 @@ import {
   StatusLockupComponent,
   SvgComponent,
   TableSelectionModel,
-  ToastService,
   TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -67,11 +64,8 @@ import {
   BULK_EDIT_COLLECTION_ACCESS_DIALOG,
   BulkEditCollectionAccessDialogRef,
 } from "../../tokens/bulk-edit-collection-access-dialog.token";
-import {
-  COLLECTION_DIALOG,
-  CollectionDialogRef,
-  CollectionDialogTab,
-} from "../../tokens/collection-dialog.token";
+import { COLLECTION_DIALOG, CollectionDialogRef } from "../../tokens/collection-dialog.token";
+import { CollectionOptionsMenuComponent } from "../collection-options-menu";
 import {
   BULK_BAR_CLEARANCE,
   VAULT_TABLE_MIN_HEIGHT,
@@ -128,9 +122,10 @@ export type SharedFoldersTableFilters = {
 
 /**
  * The top-level shared folders of one organization vault: name (with a count of the folders nested
- * inside), permissions, item count, and a per-row Options menu, with a search field, a Permissions
- * filter chip, an Add button, and a bulk actions bar. Self-contained — it reads the route, loads
- * the folders, and owns its dialogs. Project the client's page header into the default slot:
+ * inside), permissions, item count, and a per-row Options menu, with a search field, a Pinned
+ * toggle, a Permissions filter chip, an Add button, and a bulk actions bar. Self-contained — it
+ * reads the route, loads the folders, and owns its dialogs. Project the client's page header into
+ * the default slot:
  *
  * ```html
  * <vault-shared-folders><app-header /></vault-shared-folders>
@@ -142,12 +137,8 @@ export type SharedFoldersTableFilters = {
  *
  * Every write goes through a dialog the client supplies as a token, so a client that provides none
  * offers no write action it can't carry out — see {@link COLLECTION_DIALOG},
- * {@link BULK_DELETE_DIALOG}, and {@link BULK_EDIT_COLLECTION_ACCESS_DIALOG}. `COLLECTION_DIALOG`
- * gates the single-folder Edit, Access, and Delete items as a set, so a client without it (desktop)
- * gets none of them even if it provides `BULK_DELETE_DIALOG`, which only the bulk actions bar
- * uses. The Options menu itself is always there: Pin to sidebar and Unpin from sidebar are stored
- * on the device, need no dialog, and are offered on every row whatever the member may edit or
- * delete.
+ * {@link BULK_DELETE_DIALOG}, and {@link BULK_EDIT_COLLECTION_ACCESS_DIALOG}. Pin/Unpin needs no
+ * dialog and is always offered, regardless of what else the row menu can do.
  *
  * Each folder's name links to its organization's vault, drilled into that folder.
  */
@@ -173,13 +164,12 @@ export type SharedFoldersTableFilters = {
     BulkActionComponent,
     BulkActionsBarComponent,
     ButtonModule,
+    CollectionOptionsMenuComponent,
     FilterMenuModule,
     I18nPipe,
-    IconButtonModule,
     IconModule,
     IconTileComponent,
     LinkModule,
-    MenuModule,
     RouterLink,
     SearchModule,
     SkeletonTextComponent,
@@ -195,7 +185,6 @@ export class SharedFoldersComponent {
   private readonly organizationService = inject(OrganizationService);
   private readonly pinnedSharedFolders = inject(PinnedSharedFoldersService);
   private readonly i18nService = inject(I18nService);
-  private readonly toastService = inject(ToastService);
   private readonly layoutFooter = inject(LayoutFooterService);
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly destroyRef = inject(DestroyRef);
@@ -249,9 +238,7 @@ export class SharedFoldersComponent {
     { initialValue: new Set<string>() },
   );
 
-  /**
-   * Whether the Pinned chip has nothing to offer.
-   */
+  /** Whether the Pinned chip has nothing to offer. */
   protected readonly noPinned = computed(() => {
     const pinned = this.pinnedIds();
     return !this.sharedFolders().some((row) => pinned.has(row.id));
@@ -263,7 +250,7 @@ export class SharedFoldersComponent {
 
   protected readonly loading = computed(() => this.loaded() === undefined);
 
-  private readonly organization = computed<Organization | undefined>(() =>
+  protected readonly organization = computed<Organization | undefined>(() =>
     this.loaded()?.organizations.find((organization) => organization.id === this.organizationId()),
   );
 
@@ -307,22 +294,16 @@ export class SharedFoldersComponent {
   );
 
   /**
-   * Whether the client can manage folders at all: it gates the Add button and, as a set, the row
-   * menu's Edit, Access, and Delete items. Pin to sidebar needs no dialog, so the Options column
-   * itself is always there — always present rather than per-row, so filtering can't make the column
-   * come and go and resize every other column with it.
-   */
-  protected readonly hasCollectionDialog = this.collectionDialog != null;
-
-  /**
    * Whether the toolbar offers its Add button, on the organization's own collection creation
-   * permission — so this page and the organization vault's Add agree on who may add a folder.
-   * `false` while the organization list loads, and for a `:vaultId` that resolves to nothing:
-   * either way the dialog would have no organization to save to.
+   * permission. `false` while the organization list loads, or for a `:vaultId` that resolves to
+   * nothing — either way there's no organization to save to.
    */
   protected readonly canAdd = computed(
-    () => this.hasCollectionDialog && (this.organization()?.canCreateNewCollections ?? false),
+    () => this.collectionDialog != null && (this.organization()?.canCreateNewCollections ?? false),
   );
+
+  /** Always true: Pin needs no dialog, so the row menu always has something to offer. */
+  protected readonly showRowMenu = true;
 
   /**
    * Whether the bulk actions bar offers Edit access. Left out entirely when the member can edit
@@ -408,7 +389,7 @@ export class SharedFoldersComponent {
   protected readonly sortByPermission: SortFn = (a: SharedFolderRow, b: SharedFolderRow) =>
     sharedFolderPermissionOrder(a.permissions) - sharedFolderPermissionOrder(b.permissions);
 
-  /** Whether the user pinned the folder, for the Name cell's pin icon and the row menu's item. */
+  /** Whether the user pinned the folder, for the Name cell's pin icon. */
   protected isPinned(row: SharedFolderRow): boolean {
     return this.pinnedIds().has(row.id);
   }
@@ -454,55 +435,6 @@ export class SharedFoldersComponent {
     }
 
     await this.collectionDialog?.open({ organizationId });
-  }
-
-  /**
-   * Pins the folder to the side nav, or takes it off if it is already there, then confirms with a
-   * toast. The toast waits for the state update, so it never reports a change that didn't land.
-   */
-  protected async togglePin(row: SharedFolderRow): Promise<void> {
-    const userId = await firstValueFrom(this.userId$);
-    if (this.isPinned(row)) {
-      await this.pinnedSharedFolders.unpin(userId, row.id);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("folderUnpinnedFromSidebar", row.name),
-      });
-    } else {
-      await this.pinnedSharedFolders.pin(userId, row.id);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("folderPinnedToSidebar", row.name),
-      });
-    }
-  }
-
-  protected async editSharedFolder(row: SharedFolderRow): Promise<void> {
-    await this.openSharedFolder(row, CollectionDialogTab.Info);
-  }
-
-  protected async editSharedFolderAccess(row: SharedFolderRow): Promise<void> {
-    await this.openSharedFolder(row, CollectionDialogTab.Access);
-  }
-
-  private async openSharedFolder(
-    row: SharedFolderRow,
-    initialTab: CollectionDialogTab,
-  ): Promise<void> {
-    await this.collectionDialog?.open({
-      organizationId: row.organizationId,
-      collectionId: row.id,
-      initialTab,
-    });
-  }
-
-  /**
-   * Deletes one folder through the shared bulk delete dialog, which owns the whole sequence —
-   * confirmation, requests, resync, and toast. It clears the deleted folder from
-   * `CollectionService`, so the table's stream re-emits without it.
-   */
-  protected async deleteSharedFolder(row: SharedFolderRow): Promise<void> {
-    await this.deleteSharedFolders([row.collection]);
   }
 
   /**

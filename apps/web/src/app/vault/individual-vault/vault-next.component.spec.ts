@@ -5,7 +5,8 @@ jest.mock("../../admin-console/organizations/shared/components/collection-dialog
 }));
 
 import { NO_ERRORS_SCHEMA, signal, WritableSignal } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { ActivatedRoute, convertToParamMap, Data, ParamMap, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Observable, of, Subject } from "rxjs";
@@ -15,7 +16,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import {
   CollectionDetailsResponse,
-  CollectionTypes,
   CollectionView,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -45,6 +45,7 @@ import {
   CollectionDialogOutcome,
   CollectionDialogRef,
   CollectionDialogTab,
+  CollectionOptionsMenuComponent,
   DecryptionFailureDialogComponent,
   ARCHIVE_ROUTE,
   MY_ITEMS_ROUTE,
@@ -369,11 +370,13 @@ describe("VaultNextComponent", () => {
           // `VaultRemountOnDirective` the table's template would never be instantiated.
           // `CoachmarkComponent` stays for the same reason the pipes do: the toolbar reads
           // `#importCoachmark.popover()`, which a schema-stubbed element cannot answer.
+          // `CollectionOptionsMenuComponent` stays too, so one test below can exercise the real child.
           imports: [
             I18nPipe,
             Vfo1I18nPipe,
             VaultRemountOnDirective,
             CoachmarkComponent,
+            CollectionOptionsMenuComponent,
             PopoverModule,
           ],
           schemas: [NO_ERRORS_SCHEMA],
@@ -831,172 +834,120 @@ describe("VaultNextComponent", () => {
         expect(component().headerTile()).toBeUndefined();
       });
 
-      describe("the collection menu", () => {
+      describe("the collection options menu", () => {
         const manageableFolder = () =>
           Object.assign(buildCollection(engineeringId, organizationId), { manage: true });
 
-        it("is hidden when the member cannot manage the folder", () => {
-          collections$.next([buildCollection(engineeringId, organizationId)]);
-          fixture.detectChanges();
+        // Menu visibility and Edit/Delete behavior are `CollectionOptionsMenuComponent`'s own —
+        // see its spec. This page just resolves the right folder/organization and reacts to results.
 
-          expect(component().showCollectionMenu()).toBe(false);
-        });
-
-        it("offers edit and delete when the member can manage the folder", () => {
+        it("resolves the viewed folder and its organization for the menu", () => {
           collections$.next([manageableFolder()]);
           fixture.detectChanges();
 
-          expect(component().showEditActions()).toBe(true);
-          expect(component().showDeleteAction()).toBe(true);
+          expect(component().currentCollection()?.id).toBe(engineeringId);
+          expect(component().currentOrganization()?.id).toBe(organizationId);
         });
 
-        it("stays hidden for the organization's default My items collection even with manage", () => {
-          collections$.next([
-            Object.assign(buildCollection(engineeringId, organizationId), {
-              manage: true,
-              type: CollectionTypes.DefaultUserCollection,
-            }),
-          ]);
-          fixture.detectChanges();
-
-          expect(component().showCollectionMenu()).toBe(false);
-        });
-
-        it("opens the collection dialog on the Info tab for Edit info", async () => {
-          collections$.next([manageableFolder()]);
-          fixture.detectChanges();
-
-          await component().editCollectionInfo();
-
-          expect(collectionDialog.open).toHaveBeenCalledWith({
-            organizationId,
-            collectionId: engineeringId,
-            initialTab: CollectionDialogTab.Info,
-          });
-        });
-
-        it("opens the collection dialog on the Access tab for Edit access", async () => {
-          collections$.next([manageableFolder()]);
-          fixture.detectChanges();
-
-          await component().editCollectionAccess();
-
-          expect(collectionDialog.open).toHaveBeenCalledWith({
-            organizationId,
-            collectionId: engineeringId,
-            initialTab: CollectionDialogTab.Access,
-          });
-        });
-
-        it("opens the bulk delete dialog for just the folder in view on Delete", async () => {
-          const folder = manageableFolder();
-          collections$.next([folder]);
-          fixture.detectChanges();
-
-          await component().deleteCurrentCollection();
-
-          expect(bulkDeleteDialog.open).toHaveBeenCalledWith({
-            organization: expect.objectContaining({ id: organizationId }),
-            collections: [folder],
-          });
-        });
-
-        describe("navigating away after a delete", () => {
-          it("goes to the organization's shared folders list when the Info tab deletes the folder", async () => {
-            collectionDialog.open.mockResolvedValue(CollectionDialogOutcome.Deleted);
+        describe("navigating away after a result", () => {
+          it("goes to the organization's shared folders list on a deleted result", async () => {
             collections$.next([manageableFolder()]);
             fixture.detectChanges();
 
-            await component().editCollectionInfo();
+            await component().onCollectionActionResult({
+              deleted: true,
+              organizationId,
+              collectionId: engineeringId,
+            });
 
             expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
               replaceUrl: true,
             });
           });
 
-          it("goes to the organization's shared folders list when the Access tab deletes the folder", async () => {
-            collectionDialog.open.mockResolvedValue(CollectionDialogOutcome.Deleted);
+          it("stays put when the result isn't a delete and the folder is still there", async () => {
             collections$.next([manageableFolder()]);
             fixture.detectChanges();
 
-            await component().editCollectionAccess();
+            await component().onCollectionActionResult({
+              deleted: false,
+              organizationId,
+              collectionId: engineeringId,
+            });
+
+            expect(router.navigate).not.toHaveBeenCalled();
+          });
+
+          it("goes to the organization's shared folders list when a non-delete result left the folder gone (the member's own self-unassignment)", async () => {
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+            collections$.next([]);
+
+            await component().onCollectionActionResult({
+              deleted: false,
+              organizationId,
+              collectionId: engineeringId,
+            });
 
             expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
               replaceUrl: true,
             });
           });
 
-          it("stays put when the collection dialog only saves", async () => {
-            collectionDialog.open.mockResolvedValue(CollectionDialogOutcome.Saved);
+          it("does nothing if the viewer has since moved to a different folder (a stale result from a dialog left open through Back/Forward)", async () => {
             collections$.next([manageableFolder()]);
             fixture.detectChanges();
 
-            await component().editCollectionInfo();
+            await component().onCollectionActionResult({
+              deleted: true,
+              organizationId,
+              collectionId: designId,
+            });
+            await component().onCollectionActionResult({
+              deleted: true,
+              organizationId: otherOrganizationId,
+              collectionId: engineeringId,
+            });
 
             expect(router.navigate).not.toHaveBeenCalled();
           });
 
-          it("stays put when an Access-tab save keeps the member's own assignment", async () => {
-            collectionDialog.open.mockResolvedValue(CollectionDialogOutcome.Saved);
+          it("navigates through the real child component, exercising the dialog-close-vs-collections-update interleaving end to end", fakeAsync(() => {
             collections$.next([manageableFolder()]);
             fixture.detectChanges();
 
-            await component().editCollectionAccess();
-
-            expect(router.navigate).not.toHaveBeenCalled();
-          });
-
-          it("goes to the organization's shared folders list when an Access-tab save drops the member's own assignment", async () => {
             collectionDialog.open.mockImplementation(async () => {
+              // Simulates the self-unassignment case: the local store updates before the dialog closes.
               collections$.next([]);
               return CollectionDialogOutcome.Saved;
             });
-            collections$.next([manageableFolder()]);
-            fixture.detectChanges();
 
-            await component().editCollectionAccess();
+            // The real child, so the `(actionResult)` template binding gets exercised too.
+            const menu = fixture.debugElement.query(By.directive(CollectionOptionsMenuComponent))
+              .componentInstance as CollectionOptionsMenuComponent;
+            void menu["editCollection"](CollectionDialogTab.Info);
+            tick();
 
             expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
               replaceUrl: true,
             });
-          });
+          }));
 
-          it("goes to the organization's shared folders list when Delete succeeds", async () => {
+          it("navigates through the real child component's delete(), not just a synthetic call to the parent's handler", fakeAsync(() => {
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
             bulkDeleteDialog.open.mockResolvedValue(BulkDeleteDialogResult.Deleted);
-            collections$.next([manageableFolder()]);
-            fixture.detectChanges();
 
-            await component().deleteCurrentCollection();
-
-            expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
-              replaceUrl: true,
-            });
-          });
-
-          it("stays put when Delete is canceled", async () => {
-            bulkDeleteDialog.open.mockResolvedValue(BulkDeleteDialogResult.Canceled);
-            collections$.next([manageableFolder()]);
-            fixture.detectChanges();
-
-            await component().deleteCurrentCollection();
-
-            expect(router.navigate).not.toHaveBeenCalled();
-          });
-
-          it("goes to the organization's shared folders list if the folder is gone even when Delete is canceled", async () => {
-            bulkDeleteDialog.open.mockImplementation(async () => {
-              collections$.next([]);
-              return BulkDeleteDialogResult.Canceled;
-            });
-            collections$.next([manageableFolder()]);
-            fixture.detectChanges();
-
-            await component().deleteCurrentCollection();
+            const menu = fixture.debugElement.query(By.directive(CollectionOptionsMenuComponent))
+              .componentInstance as CollectionOptionsMenuComponent;
+            void menu["delete"]();
+            tick();
 
             expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
               replaceUrl: true,
             });
-          });
+          }));
         });
       });
     });

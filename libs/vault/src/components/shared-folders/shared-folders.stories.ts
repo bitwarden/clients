@@ -320,8 +320,7 @@ export default {
               selectAllRows: "Select all rows",
               selectRow: "Select row",
               // Row actions
-              edit: "Edit",
-              access: "Access",
+              editInfo: "Edit info",
               delete: "Delete",
               pinToSidebar: "Pin to sidebar",
               unpinFromSidebar: "Unpin from sidebar",
