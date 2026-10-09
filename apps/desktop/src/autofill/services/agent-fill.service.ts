@@ -1,6 +1,7 @@
 import { inject, Injectable, OnDestroy } from "@angular/core";
 import {
   concatMap,
+  concatWith,
   filter,
   firstValueFrom,
   map,
@@ -201,6 +202,9 @@ export class AgentFillService implements OnDestroy {
       // A result of handledElsewhere means a phone answered; that branch carries the outcome.
       filter((result) => result == null || !("handledElsewhere" in result)),
       map((result) => (result ?? { decision: "denied" }) as AgentFillApprovalOutcome),
+      // `closed` completes after it emits. Left alone, that would complete the race before the
+      // phone's outcome is delivered, because phoneAnswer$ closes the dialog first.
+      concatWith(NEVER),
     );
 
     let outcome: AgentFillApprovalOutcome;

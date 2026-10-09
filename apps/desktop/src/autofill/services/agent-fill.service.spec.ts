@@ -107,7 +107,11 @@ describe("AgentFillService", () => {
     cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher as any]);
 
     dialogClosed$ = new Subject();
-    dialogClose = jest.fn((result) => dialogClosed$.next(result));
+    // Like the real dialog ref, `closed` completes after it emits.
+    dialogClose = jest.fn((result) => {
+      dialogClosed$.next(result);
+      dialogClosed$.complete();
+    });
     mockDialogOpen.mockImplementation((_dialogService, params) => {
       dialogParams = params;
       return { closed: dialogClosed$, close: dialogClose };
