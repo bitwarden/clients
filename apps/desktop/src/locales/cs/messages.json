@@ -1,4 +1,7 @@
 {
+  "appLogoLabel": {
+    "message": "Logo Bitwardenu"
+  },
   "bitwarden": {
     "message": "Bitwarden"
   },
@@ -160,6 +163,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ vnořených sdílených složek",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 vnořená sdílená složka",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "Moje složka"
   },
@@ -177,9 +194,6 @@
   },
   "addSharedFolder": {
     "message": "Přidat sdílenou složku"
-  },
-  "newSharedFolder": {
-    "message": "Nová sdílená složka"
   },
   "searchSharedFolder": {
     "message": "Prohledat sdílenou složku"
@@ -340,58 +354,6 @@
   "addItemHeaderPassport": {
     "message": "Přidat pas",
     "description": "Header for new passport item type"
-  },
-  "newItemHeaderLogin": {
-    "message": "Nové přihlášení",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Nová karta",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nová identita",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nová poznámka",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nová bezpečná poznámka",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nový SSH klíč",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nový bankovní účet",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nová licence",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Nový pas",
-    "description": "Header for new passport item type"
-  },
-  "editItemHeaderLogin": {
-    "message": "Upravit přihlášení",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Upravit kartu",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Upravit identitu",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Upravit poznámku",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Upravit bezpečnou poznámku",
@@ -2138,6 +2100,18 @@
   "languageDesc": {
     "message": "Změní jazyk používaný aplikací. Je vyžadován restart."
   },
+  "passkeyProvider": {
+    "message": "Poskytovatel přístupového klíče"
+  },
+  "passkeyProviderDesc": {
+    "message": "Použije Bitwarden pro uložení a přihlášení s přístupovými klíči v jiných aplikacích."
+  },
+  "turnedOn": {
+    "message": "Zapnuto"
+  },
+  "turnedOff": {
+    "message": "Vypnuto"
+  },
   "theme": {
     "message": "Motiv"
   },
@@ -2786,6 +2760,12 @@
   },
   "requireMasterPasswordOnAppRestart": {
     "message": "Vyžadovat hlavní heslo při restartu aplikace"
+  },
+  "requireMasterPasswordOnAppRestartDesc": {
+    "message": "Toto nastavení poskytuje další vrstvu ochrany tím, že pomáhá jiným aplikacím na Vašem počítači zabránit v odemknutí Bitwardenu."
+  },
+  "requireMasterPasswordOnAppRestartWarning": {
+    "message": "Odškrtnutí znamená, že bude moci jakákoli aplikace ve Vašem počítači odemknout Bitwarden a získat přístup ke všem Vašim uloženým heslům."
   },
   "deleteAccount": {
     "message": "Smazat účet"
@@ -4629,10 +4609,6 @@
   "selectImportSharedFolder": {
     "message": "Vybrat sdílenou složku"
   },
-  "importTargetMyFolder": {
-    "message": "Moje složka",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Pokud chcete obsah importovaného souboru přesunout do sbírky, vyberte tuto volbu"
   },
@@ -5580,6 +5556,12 @@
   },
   "savePasskey": {
     "message": "Uložit přístupový klíč"
+  },
+  "chooseCipherForPasskeySave": {
+    "message": "Vyberte přihlášení pro uložení tohoto přístupového klíče"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "Vyberte přístupový klíč, kterým se chcete přihlásit"
   },
   "saveNewPasskey": {
     "message": "Uložit jako nové přihlašovací údaje"
@@ -6968,5 +6950,73 @@
   },
   "unknownCipher": {
     "message": "Neznámá položka, možná budete muset požádat o oprávnění pro přístup k této položce."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden má nový vzhled",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Lepší uživatelský zážitek, stejná osvědčená bezpečnost. Trezor Bitwarden byl přepracován na základě Vašich připomínek, takže vše najdete snáze a funguje přesně tak, jak byste očekávali.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Náhled přepracovaného trezoru Bitwarden.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Prozkoumat nový trezor",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Přizpůsobit"
+  },
+  "customizeYourView": {
+    "message": "Přizpůsobit zobrazení"
+  },
+  "showColumns": {
+    "message": "Zobrazit sloupce"
+  },
+  "resetToDefault": {
+    "message": "Obnovit výchozí"
+  },
+  "coachmarkImportTitle": {
+    "message": "Quickly import your passwords"
+  },
+  "coachmarkImportDescription": {
+    "message": "Did you have a password manager before? You can import a CSV of existing logins and other data into your vault."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Add an item"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Add new passwords, notes, and other info to your vault. Everything is protected with end-to-end encryption."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Safely share items with others"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "By moving an item into a collection, you can securely share it with other people in your organization."
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "By moving an item into a shared folder, you can securely share it with other vault members."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Monitor your password security"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
+  },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
   }
 }

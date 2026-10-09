@@ -1,4 +1,7 @@
 {
+  "appLogoLabel": {
+    "message": "Logótipo do Bitwarden"
+  },
   "bitwarden": {
     "message": "Bitwarden"
   },
@@ -160,6 +163,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ pastas partilhadas aninhadas",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 pasta partilhada aninhada",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "A minha pasta"
   },
@@ -177,9 +194,6 @@
   },
   "addSharedFolder": {
     "message": "Adicionar pasta partilhada"
-  },
-  "newSharedFolder": {
-    "message": "Nova pasta partilhada"
   },
   "searchSharedFolder": {
     "message": "Pesquisar pasta partilhada"
@@ -340,58 +354,6 @@
   "addItemHeaderPassport": {
     "message": "Adicionar passaporte",
     "description": "Header for new passport item type"
-  },
-  "newItemHeaderLogin": {
-    "message": "Nova credencial",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Novo cartão",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nova identidade",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nova nota",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nova nota segura",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nova chave SSH",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nova conta bancária",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nova licença",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Novo passaporte",
-    "description": "Header for new passport item type"
-  },
-  "editItemHeaderLogin": {
-    "message": "Editar credencial",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Editar cartão",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Editar identidade",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Editar nota",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Editar nota segura",
@@ -2138,6 +2100,18 @@
   "languageDesc": {
     "message": "Altere o idioma utilizado pela aplicação. É necessário reiniciar."
   },
+  "passkeyProvider": {
+    "message": "Fornecedor de chaves de acesso"
+  },
+  "passkeyProviderDesc": {
+    "message": "Utilize o Bitwarden para guardar chaves de acesso e iniciar sessão com elas noutras apps."
+  },
+  "turnedOn": {
+    "message": "Ativado"
+  },
+  "turnedOff": {
+    "message": "Desativado"
+  },
   "theme": {
     "message": "Tema"
   },
@@ -2786,6 +2760,12 @@
   },
   "requireMasterPasswordOnAppRestart": {
     "message": "Exigir a palavra-passe mestra ao reiniciar a app"
+  },
+  "requireMasterPasswordOnAppRestartDesc": {
+    "message": "Esta definição proporciona uma camada adicional de proteção, ajudando a impedir que outras aplicações no seu computador desbloqueiem o Bitwarden."
+  },
+  "requireMasterPasswordOnAppRestartWarning": {
+    "message": "Ao desmarcar esta opção, qualquer aplicação no seu computador poderá desbloquear o Bitwarden e aceder a todas as suas palavras-passe guardadas."
   },
   "deleteAccount": {
     "message": "Eliminar conta"
@@ -4629,10 +4609,6 @@
   "selectImportSharedFolder": {
     "message": "Selecionar uma pasta partilhada"
   },
-  "importTargetMyFolder": {
-    "message": "A minha pasta",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma coleção"
   },
@@ -5111,13 +5087,13 @@
     "message": "Insira a YubiKey associada à sua conta LastPass na porta USB do seu computador e, em seguida, toque no respetivo botão."
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "Chave secreta"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "Chave secreta e palavra-passe"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "A sua conta está protegida por uma chave secreta e uma palavra-passe. Terá de introduzir ambas para continuar."
   },
   "keeperEmail": {
     "message": "E-mail do Keeper"
@@ -5580,6 +5556,12 @@
   },
   "savePasskey": {
     "message": "Guardar chave de acesso"
+  },
+  "chooseCipherForPasskeySave": {
+    "message": "Escolha uma credencial para guardar esta chave de acesso"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "Escolha uma chave de acesso para iniciar sessão"
   },
   "saveNewPasskey": {
     "message": "Guardar como nova credencial"
@@ -6968,5 +6950,73 @@
   },
   "unknownCipher": {
     "message": "Item desconhecido. Poderá ter de pedir permissão para aceder a este item."
+  },
+  "newExperienceDialogTitle": {
+    "message": "O Bitwarden tem um novo visual",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Uma experiência melhor, a mesma segurança em que confia. O cofre do Bitwarden foi redesenhado com base no seu feedback, para que seja mais fácil encontrar o que procura e tudo funcione como espera.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Uma pré-visualização do cofre do Bitwarden redesenhado.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explorar o novo cofre",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Personalizar"
+  },
+  "customizeYourView": {
+    "message": "Personalizar a sua vista"
+  },
+  "showColumns": {
+    "message": "Mostrar colunas"
+  },
+  "resetToDefault": {
+    "message": "Repor predefinições"
+  },
+  "coachmarkImportTitle": {
+    "message": "Importe rapidamente as suas palavras-passe"
+  },
+  "coachmarkImportDescription": {
+    "message": "Utilizou um gestor de palavras-passe anteriormente? Pode importar um ficheiro CSV com as credenciais e outros dados existentes para o seu cofre."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Adicionar um item"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Adicione novas palavras-passe, notas e outras informações ao seu cofre. Tudo é protegido com encriptação de ponta a ponta."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Partilhe itens com outras pessoas em segurança"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "Ao mover um item para uma coleção, pode partilhá-lo em segurança com outras pessoas na sua organização."
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "Ao mover um item para uma pasta partilhada, pode partilhá-lo de forma segura com outros membros do cofre."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Monitorize a segurança das suas palavras-passe"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Mantenha a segurança dos itens do seu cofre elevada ao consultar relatórios para detetar vulnerabilidades."
+  },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ de $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
   }
 }
