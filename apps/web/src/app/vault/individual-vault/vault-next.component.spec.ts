@@ -370,6 +370,7 @@ describe("VaultNextComponent", () => {
           // `VaultRemountOnDirective` the table's template would never be instantiated.
           // `CoachmarkComponent` stays for the same reason the pipes do: the toolbar reads
           // `#importCoachmark.popover()`, which a schema-stubbed element cannot answer.
+          // `CollectionOptionsMenuComponent` stays too, so one test below can exercise the real child.
           imports: [
             I18nPipe,
             Vfo1I18nPipe,
@@ -913,10 +914,12 @@ describe("VaultNextComponent", () => {
             fixture.detectChanges();
 
             collectionDialog.open.mockImplementation(async () => {
+              // Simulates the self-unassignment case: the local store updates before the dialog closes.
               collections$.next([]);
               return CollectionDialogOutcome.Saved;
             });
 
+            // The real child, so the `(actionResult)` template binding gets exercised too.
             const menu = fixture.debugElement.query(By.directive(CollectionOptionsMenuComponent))
               .componentInstance as CollectionOptionsMenuComponent;
             void menu["editCollection"](CollectionDialogTab.Info);

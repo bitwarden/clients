@@ -64,6 +64,7 @@ function organization(overrides: Partial<Organization> = {}): Organization {
 type SetupOptions = {
   collection?: CollectionView;
   organization?: Organization;
+  /** Which dialogs the client provides — omitting one is how desktop looks today. */
   dialogs?: { collection?: boolean; bulkDelete?: boolean };
 };
 

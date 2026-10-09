@@ -704,7 +704,11 @@ export class VaultNextComponent implements OnInit {
     }
   }
 
-  /** Navigates away if the shared folder is no longer available. */
+  /**
+   * Navigates away whenever the folder is now gone — not just on an explicit delete, since saving
+   * Access can itself drop the member's own assignment. No-ops if the viewer has since moved to a
+   * different folder (e.g. Back/Forward while the dialog was open), since the result is stale.
+   */
   protected async onCollectionActionResult({
     deleted,
     organizationId,
