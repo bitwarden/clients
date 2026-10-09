@@ -2,10 +2,8 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
@@ -14,11 +12,11 @@ import {
   DesktopFido2UserInterfaceSession,
 } from "../../services/desktop-fido2-user-interface.service";
 
-import { Fido2ExcludedCiphersComponent } from "./fido2-excluded-ciphers.component";
+import { Fido2CredentialNotFoundComponent } from "./fido2-credential-not-found.component";
 
-describe("Fido2ExcludedCiphersComponent", () => {
-  let component: Fido2ExcludedCiphersComponent;
-  let fixture: ComponentFixture<Fido2ExcludedCiphersComponent>;
+describe("Fido2CredentialNotFoundComponent", () => {
+  let component: Fido2CredentialNotFoundComponent;
+  let fixture: ComponentFixture<Fido2CredentialNotFoundComponent>;
   let mockDesktopSettingsService: MockProxy<DesktopSettingsService>;
   let mockFido2UserInterfaceService: MockProxy<DesktopFido2UserInterfaceService>;
   let mockAccountService: MockProxy<AccountService>;
@@ -37,17 +35,13 @@ describe("Fido2ExcludedCiphersComponent", () => {
     mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(mockSession);
 
     await TestBed.configureTestingModule({
-      imports: [Fido2ExcludedCiphersComponent],
+      imports: [Fido2CredentialNotFoundComponent],
       providers: [
         { provide: DesktopSettingsService, useValue: mockDesktopSettingsService },
         { provide: DesktopFido2UserInterfaceService, useValue: mockFido2UserInterfaceService },
         { provide: AccountService, useValue: mockAccountService },
         { provide: Router, useValue: mockRouter },
         { provide: I18nService, useValue: mockI18nService },
-        {
-          provide: ConfigService,
-          useValue: mock<ConfigService>({ getFeatureFlag$: () => of(false) }),
-        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -56,7 +50,7 @@ describe("Fido2ExcludedCiphersComponent", () => {
   });
 
   function createComponent(): void {
-    fixture = TestBed.createComponent(Fido2ExcludedCiphersComponent);
+    fixture = TestBed.createComponent(Fido2CredentialNotFoundComponent);
     component = fixture.componentInstance;
   }
 
@@ -64,19 +58,11 @@ describe("Fido2ExcludedCiphersComponent", () => {
     jest.restoreAllMocks();
   });
 
-  describe("session", () => {
-    it("uses the current session", () => {
-      expect(mockFido2UserInterfaceService.getCurrentSession).toHaveBeenCalled();
-      expect(component.session).toBe(mockSession);
-    });
-  });
-
   describe("closeModal", () => {
-    it("should close modal and notify session when session exists", async () => {
+    it("notifies the session of the dismissal when a session exists", async () => {
       await component.closeModal();
 
-      expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
-      expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(undefined);
+      expect(mockSession.notifyCredentialNotFoundDismissed).toHaveBeenCalled();
 
       // The session owns this teardown; the component must not duplicate it.
       expect(mockDesktopSettingsService.setModalMode).not.toHaveBeenCalled();
@@ -84,7 +70,7 @@ describe("Fido2ExcludedCiphersComponent", () => {
       expect(mockRouter.navigate).not.toHaveBeenCalled();
     });
 
-    it("should reset the window itself when there is no session to hand off to", async () => {
+    it("resets the window itself when there is no session to hand off to", async () => {
       mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(undefined);
       createComponent();
 
