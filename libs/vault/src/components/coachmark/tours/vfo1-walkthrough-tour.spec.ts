@@ -1,0 +1,51 @@
+import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
+
+import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
+import { UserId } from "@bitwarden/common/types/guid";
+
+import {
+  VFO1_SHARED_FOLDERS_STEP,
+  VFO1_SWITCH_PRODUCTS_STEP,
+  VFO1_VAULT_LIST_STEP,
+  vfo1WalkthroughTour,
+} from "./vfo1-walkthrough-tour";
+
+describe("vfo1WalkthroughTour", () => {
+  const userId = "user-id" as UserId;
+  const nudgesService = mock<NudgesService>();
+
+  const tour = () => vfo1WalkthroughTour(nudgesService, []);
+
+  it("is completed once the walkthrough nudge is no longer shown", async () => {
+    nudgesService.showNudgeSpotlight$.mockReturnValue(of(false));
+
+    expect(await tour().completed(userId)).toBe(true);
+    expect(nudgesService.showNudgeSpotlight$).toHaveBeenCalledWith(
+      NudgeType.Vfo1Walkthrough,
+      userId,
+    );
+  });
+
+  it("is not completed while the walkthrough nudge is shown", async () => {
+    nudgesService.showNudgeSpotlight$.mockReturnValue(of(true));
+
+    expect(await tour().completed(userId)).toBe(false);
+  });
+
+  it("dismisses the walkthrough nudge when completed", async () => {
+    await tour().markCompleted(userId);
+
+    expect(nudgesService.dismissNudge).toHaveBeenCalledWith(NudgeType.Vfo1Walkthrough, userId);
+  });
+
+  it("keeps the side nav open", () => {
+    expect(tour().lockSideNav).toBe(true);
+  });
+
+  it("routes the steps anchored in the vault nav to the vault, but not the product switcher", () => {
+    expect(VFO1_VAULT_LIST_STEP.route).toBe("/vault");
+    expect(VFO1_SHARED_FOLDERS_STEP.route).toBe("/vault");
+    expect(VFO1_SWITCH_PRODUCTS_STEP.route).toBeUndefined();
+  });
+});

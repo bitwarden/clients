@@ -5,6 +5,7 @@ import { combineLatest, map, Observable } from "rxjs";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { UserId } from "@bitwarden/common/types/guid";
 
+import { CoachmarkStep } from "../components/coachmark/coachmark-step";
 import { CoachmarkService } from "../components/coachmark/coachmark.service";
 import {
   VFO1_WALKTHROUGH_STEPS,
@@ -15,7 +16,7 @@ import {
 export class Vfo1TourCalloutService {
   private readonly nudgesService = inject(NudgesService);
   private readonly coachmarkService = inject(CoachmarkService);
-  private readonly steps = inject(VFO1_WALKTHROUGH_STEPS);
+  private readonly steps = inject<CoachmarkStep[]>(VFO1_WALKTHROUGH_STEPS);
   private readonly tourRunning$ = toObservable(this.coachmarkService.isRunning);
 
   /** Whether the tour callout owns the callout slot: walkthrough pending and new-look dialog dismissed */
