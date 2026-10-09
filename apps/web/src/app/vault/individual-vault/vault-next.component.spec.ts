@@ -30,7 +30,7 @@ import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { DialogRef, DialogService, PopoverModule } from "@bitwarden/components";
+import { DialogRef, DialogService, PopoverModule, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   AddEditFolderDialogComponent,
@@ -63,6 +63,7 @@ import {
   Vfo1I18nPipe,
   CoachmarkComponent,
   CoachmarkService,
+  PinnedSharedFoldersService,
 } from "@bitwarden/vault";
 
 import {
@@ -386,6 +387,12 @@ describe("VaultNextComponent", () => {
             { provide: VaultBatchBarService, useValue: batchBarService },
             { provide: COLLECTION_DIALOG, useValue: collectionDialog },
             { provide: BULK_DELETE_DIALOG, useValue: bulkDeleteDialog },
+            // Needed by `CollectionOptionsMenuComponent`, kept as a real child above.
+            {
+              provide: PinnedSharedFoldersService,
+              useValue: mock<PinnedSharedFoldersService>({ pinnedIds$: () => of([]) }),
+            },
+            { provide: ToastService, useValue: mock<ToastService>() },
           ],
         },
       })
