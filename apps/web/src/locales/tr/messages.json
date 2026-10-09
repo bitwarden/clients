@@ -1252,6 +1252,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "iç içe $COUNT$ paylaşılan klasör",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "iç içe 1 paylaşılan klasör",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "Klasörüm"
   },
@@ -1269,9 +1283,6 @@
   },
   "addSharedFolder": {
     "message": "Paylaşılan klasör ekle"
-  },
-  "newSharedFolder": {
-    "message": "Yeni paylaşılan klasör"
   },
   "searchSharedFolder": {
     "message": "Paylaşılan klasörde ara"
@@ -1464,42 +1475,6 @@
     "message": "Pasaport ekle",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Yeni hesap",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Yeni kart",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Yeni kimlik",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Yeni not",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Yeni güvenli not",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Yeni SSH anahtarı",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Yeni banka hesabı",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Yeni ehliyet",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Yeni pasaport",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Yeni metin",
     "description": "Header for new text send"
@@ -1507,22 +1482,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Yeni dosya",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Hesabı düzenle",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Kartı düzenle",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Kimliği düzenle",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Notu düzenle",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Güvenli notu düzenle",
@@ -3461,10 +3420,6 @@
   "selectImportSharedFolder": {
     "message": "Paylaşılan bir klasör seçin"
   },
-  "importTargetMyFolder": {
-    "message": "Klasörüm",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "İçe aktarılan dosya içeriklerinin bir koleksiyona taşınmasını istiyorsanız bu seçeneği seçin"
   },
@@ -3881,9 +3836,6 @@
   },
   "customize": {
     "message": "Özelleştir"
-  },
-  "newCustomDomain": {
-    "message": "Yeni özel alan adı"
   },
   "addCustomDomain": {
     "message": "Özel alan adı ekle"
@@ -5400,9 +5352,6 @@
   "groups": {
     "message": "Gruplar"
   },
-  "newGroup": {
-    "message": "Yeni grup"
-  },
   "addGroup": {
     "message": "Grup ekle"
   },
@@ -5457,9 +5406,6 @@
   },
   "readOnly": {
     "message": "Salt okunur"
-  },
-  "newCollection": {
-    "message": "Yeni koleksiyon"
   },
   "addCollection": {
     "message": "Koleksiyon ekle"
@@ -7573,20 +7519,14 @@
   "setYourAllowedDomainsCoachMarkBody": {
     "message": "Add allowed email domains (e.g. acme.com) so only users with matching emails can use this invite link. You can update this anytime."
   },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "You're in tour preview, so these domains are only examples."
+  },
   "adjustTheLink": {
     "message": "Adjust the link"
   },
   "adjustTheLinkCoachMarkBody": {
     "message": "Your needs change, and the link can change with you. <strong>Regenerate</strong> the link to invalidate the old link and create a new one."
-  },
-  "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "Your needs change, and the link can change with you."
-  },
-  "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>Regenerate</strong> the link to invalidate the old link and create a new one."
-  },
-  "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>Require admin confirmation</strong> to approve new members before they can join the organization."
   },
   "shareTheLinkAnywhere": {
     "message": "Share the link anywhere"
@@ -8968,17 +8908,43 @@
     "message": "Doldurma yardımcısını etkinleştir",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
+  "fillAssistPolicyV2": {
+    "message": "Doldurma yardımcısını etkinleştir",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
   "fillAssistPolicyDesc": {
     "message": "Turn on fill assist by default for all members. This feature uses reviewed, site-specific instructions to improve autofill accuracy on websites known to be difficult to autofill."
+  },
+  "fillAssistRuleSource": {
+    "message": "Autofill rule set"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "Varsayılan"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "Use the Bitwarden-reviewed autofill rule set."
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "Özel"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "Enter your own custom rule set."
   },
   "fillAssistRulesUrl": {
     "message": "Custom autofill rule set"
   },
-  "fillAssistRulesUrlHint": {
-    "message": "By default, fill assist uses Bitwarden's curated rule set. Enter a URL here to override it with your own."
+  "fillAssistRulesUrlV2": {
+    "message": "Custom rule set"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "Learn more about custom rules"
   },
   "invalidFillAssistRulesUrl": {
     "message": "Enter a valid URL",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "Enter a valid URL for a custom rule set.",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
@@ -11876,9 +11842,6 @@
   "domainVerification": {
     "message": "Alan adı doğrulama"
   },
-  "newDomain": {
-    "message": "Yeni alan adı"
-  },
   "addDomain": {
     "message": "Alan adı ekle"
   },
@@ -12247,9 +12210,6 @@
   },
   "groupSlashUser": {
     "message": "Grup/Kullanıcı"
-  },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "Devam ettiğinizde tüm aktif oturumlardan çıkış yapacaksınız. Tekrar oturum açmanız ve varsa iki aşamalı oturum açma işlemini tamamlamanız gerekecektir. Veri kaybını önlemek için şifreleme ayarlarınızı değiştirmeden önce kasayı dışa aktarmanızı öneririz."
   },
   "secretsManager": {
     "message": "Sır Yöneticisi"
@@ -13867,10 +13827,6 @@
     "message": "Makine hesapları",
     "description": "The title for the section that deals with machine accounts."
   },
-  "newMachineAccount": {
-    "message": "Yeni makine hesabı",
-    "description": "Title for creating a new machine account."
-  },
   "addMachineAccount": {
     "message": "Makine hesabı ekle",
     "description": "Title for creating a new machine account."
@@ -14500,6 +14456,40 @@
   },
   "billingPreviewInvoiceError": {
     "message": "Fatura önizlenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin."
+  },
+  "billingPreviewInvalidAddressError": {
+    "message": "Please check your billing details and try again."
+  },
+  "planChangeTrialIncluded": {
+    "message": "This upgrade includes a $DAYS$-day trial. The total above is what you will be charged at the end of the trial.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "You have 1 day left in your trial. You will be charged the total above on $DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "You have $DAYS$ days left in your trial. You will be charged the total above on $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
   },
   "unverified": {
     "message": "Doğrulanmadı"
@@ -16811,8 +16801,8 @@
   "premiumSubscriptionCredit": {
     "message": "Premium abonelik kredisi"
   },
-  "appliedSubscriptionCredits": {
-    "message": "Abonelik kredisi uygulandı"
+  "appliedProrationCredits": {
+    "message": "Applied proration credit"
   },
   "enterpriseMembership": {
     "message": "Kurumsal üyelik"
@@ -17837,6 +17827,9 @@
   "inviteLinkCalloutBody": {
     "message": "Anyone with a company email can use the invite link to join your organization. Drop it in onboarding resources so new hires can join when they're ready."
   },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "The tour uses sample data. Nothing in your organization will change."
+  },
   "inviteLinkCalloutImageAlt": {
     "message": "Invite members dialog preview showing the new by-link tab"
   },
@@ -17977,5 +17970,30 @@
   },
   "serviceAccountsProratedCharge": {
     "message": "Service accounts prorated charge"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden'ın tasarımı güncellendi",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Daha iyi bir deneyim, aynı üstün güvenlik. Bitwarden kasası sizden gelen yorumlara göre yeniden tasarlandı. Artık aradıklarınızı daha kolay bulabilirsiniz.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Yeni Bitwarden kasası tasarımının ön izlemesi.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Yeni kasayı keşfedin",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "Görünümünüzü özelleştirin"
+  },
+  "showColumns": {
+    "message": "Sütunları göster"
+  },
+  "resetToDefault": {
+    "message": "Varsayılanı geri yükle"
   }
 }

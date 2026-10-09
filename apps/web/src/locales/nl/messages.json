@@ -1252,6 +1252,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ geneste gedeelde mappen",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 geneste gedeelde map",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "Mijn map"
   },
@@ -1269,9 +1283,6 @@
   },
   "addSharedFolder": {
     "message": "Gedeelde map toevoegen"
-  },
-  "newSharedFolder": {
-    "message": "Nieuwe gedeelde map"
   },
   "searchSharedFolder": {
     "message": "Gedeelde map doorzoeken"
@@ -1464,42 +1475,6 @@
     "message": "Paspoort toevoegen",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Nieuwe login",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Nieuwe kaart",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nieuwe identiteit",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nieuwe notitie",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nieuwe veilige notitie",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nieuwe SSH-sleutel",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nieuwe bankrekening",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nieuw rijbewijs",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Nieuw paspoort",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Nieuwe tekst",
     "description": "Header for new text send"
@@ -1507,22 +1482,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Nieuw bestand",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Login bewerken",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Kaart bewerken",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Identiteit bewerken",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Notitie bewerken",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Veilige notitie bewerken",
@@ -3461,10 +3420,6 @@
   "selectImportSharedFolder": {
     "message": "Gedeelde map selecteren"
   },
-  "importTargetMyFolder": {
-    "message": "Mijn map",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een collectie wilt verplaatsen"
   },
@@ -3881,9 +3836,6 @@
   },
   "customize": {
     "message": "Personaliseren"
-  },
-  "newCustomDomain": {
-    "message": "Nieuw aangepast domein"
   },
   "addCustomDomain": {
     "message": "Eigen domeinnaam toevoegen"
@@ -5400,9 +5352,6 @@
   "groups": {
     "message": "Groepen"
   },
-  "newGroup": {
-    "message": "Nieuwe groep"
-  },
   "addGroup": {
     "message": "Groep toevoegen"
   },
@@ -5457,9 +5406,6 @@
   },
   "readOnly": {
     "message": "Alleen-lezen"
-  },
-  "newCollection": {
-    "message": "Nieuwe verzameling"
   },
   "addCollection": {
     "message": "Verzameling toevoegen"
@@ -7573,20 +7519,14 @@
   "setYourAllowedDomainsCoachMarkBody": {
     "message": "Toegestane e-maildomeinen toevoegen (bijv. acme.com) zodat alleen gebruikers met bijbehorende e-mailadressen deze uitnodigingslink kunnen gebruiken. Je kunt dit op elk gewenst moment bijwerken."
   },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "Je zit in de rondleiding, dus deze domeinen zijn slechts voorbeelden."
+  },
   "adjustTheLink": {
     "message": "Koppeling aanpassen"
   },
   "adjustTheLinkCoachMarkBody": {
     "message": "Je wensen veranderen, en de link kan met jou veranderen. <strong>Regenereer</strong> de link om de oude link te ongeldig te maken en een nieuwe te maken."
-  },
-  "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "Je wensen veranderen, en de link kan met jou veranderen."
-  },
-  "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>Regenereer</strong> de link om de oude link ongeldig te maken en een nieuwe aan te maken."
-  },
-  "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>Vereis admin bevestiging</strong> om nieuwe leden goed te keuren voordat ze lid kunnen worden van de organisatie."
   },
   "shareTheLinkAnywhere": {
     "message": "De link overal delen"
@@ -8968,17 +8908,43 @@
     "message": "Invulassistent activeren",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
+  "fillAssistPolicyV2": {
+    "message": "Invulassistent inschakelen",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
   "fillAssistPolicyDesc": {
     "message": "Invulassistentie standaard voor alle leden inschakelen. Deze functionaliteit maakt gebruik van geverifieerde, site-specifieke instructies om de nauwkeurigheid van het automatisch invullen op websites waarvan bekend is dat ze moeilijk in te vullen zijn te verbeteren."
+  },
+  "fillAssistRuleSource": {
+    "message": "Automatisch aanvullen regelset"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "Standaard"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "De door Bitwarden beoordeelde regelset voor automatisch invullen gebruiken."
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "Aangepast"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "Je eigen aangepaste regelset invoeren."
   },
   "fillAssistRulesUrl": {
     "message": "Maatwerk set aan regels"
   },
-  "fillAssistRulesUrlHint": {
-    "message": "Standaard gebruikt de invulassistent Bitwarden's set aan regels. Voer hier een URL in om deze te overschrijven met je eigen."
+  "fillAssistRulesUrlV2": {
+    "message": "Aangepaste regelset"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "Lees meer over aangepaste regels"
   },
   "invalidFillAssistRulesUrl": {
     "message": "Vul een geldige URL in",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "Voer een geldige URL in voor een aangepaste regelset",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
@@ -11876,9 +11842,6 @@
   "domainVerification": {
     "message": "Domeinverificatie"
   },
-  "newDomain": {
-    "message": "Nieuw domein"
-  },
   "addDomain": {
     "message": "Domein toevoegen"
   },
@@ -12247,9 +12210,6 @@
   },
   "groupSlashUser": {
     "message": "Groep/Gebruiker"
-  },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "Als je doorgaat, log je uit van alle actieve sessies. Je zult opnieuw moeten inloggen en, indien van toepassing, tweestapsverificatie moeten voltooien. We raden aan om je kluis te exporteren voordat je je versleutelingsinstellingen wijzigt om gegevensverlies te voorkomen."
   },
   "secretsManager": {
     "message": "Secrets Manager"
@@ -13867,10 +13827,6 @@
     "message": "Machine-accounts",
     "description": "The title for the section that deals with machine accounts."
   },
-  "newMachineAccount": {
-    "message": "Nieuw machine-account",
-    "description": "Title for creating a new machine account."
-  },
   "addMachineAccount": {
     "message": "Machine-account toevoegen",
     "description": "Title for creating a new machine account."
@@ -14500,6 +14456,40 @@
   },
   "billingPreviewInvoiceError": {
     "message": "Er is een fout opgetreden met het weergeven van de factuur. Probeer het later nog eens."
+  },
+  "billingPreviewInvalidAddressError": {
+    "message": "Controleer je factuurgegevens en probeer het opnieuw."
+  },
+  "planChangeTrialIncluded": {
+    "message": "Deze upgrade omvat een proefperiode van $DAYS$ dagen. Het totaal hierboven is wat je aan het einde van de proefperiode in rekening zal worden gebracht.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "Je heeft nog 1 dag over in je proefperiode. Het bedrag hierboven wordt in rekening gebracht op $DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "Je hebt $DAYS$ dagen over in je proefperiode. Het bovenstaande totale bedrag wordt op $DATE$ in rekening gebracht.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
   },
   "unverified": {
     "message": "Niet-geverifieerd"
@@ -16811,8 +16801,8 @@
   "premiumSubscriptionCredit": {
     "message": "Krediet Premium-abonnement"
   },
-  "appliedSubscriptionCredits": {
-    "message": "Abonnementscredits toegepast"
+  "appliedProrationCredits": {
+    "message": "Pro-rato krediet toegepast"
   },
   "enterpriseMembership": {
     "message": "Enterprise-lidmaatschap"
@@ -17837,6 +17827,9 @@
   "inviteLinkCalloutBody": {
     "message": "Iedereen met een bedrijfse-mailadres kan de uitnodigingslink gebruiken om voor deelname aan je organisatie. Sleep het neer in onboarding bronnen, zodat nieuwe medewerkers kunnen deelnemen wanneer ze klaar zijn."
   },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "De rondleiding gebruikt voorbeeldgegevens. Er verandert niets in je organisatie."
+  },
   "inviteLinkCalloutImageAlt": {
     "message": "Preview van het dialoogvenster voor het uitnodigen van leden met het nieuwe tabblad"
   },
@@ -17977,5 +17970,30 @@
   },
   "serviceAccountsProratedCharge": {
     "message": "Pro-rata-kosten service-accounts"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden heeft een nieuw uiterlijk",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Betere ervaring, dezelfde vertrouwde veiligheid. De Bitwarden-kluis is opnieuw ontworpen op basis van jullie feedback, het is dus makkelijker om te vinden en te werken zoals je zou verwachten.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Een voorbeeld van de herontworpen Bitwarden-kluis.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "De nieuwe kluis verkennen",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "Je weergave aanpassen"
+  },
+  "showColumns": {
+    "message": "Kolommen weergeven"
+  },
+  "resetToDefault": {
+    "message": "Standaardinstellingen herstellen"
   }
 }

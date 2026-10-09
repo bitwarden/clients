@@ -1252,6 +1252,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ nested shared folders",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 nested shared folder",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "எனது கோப்புறை"
   },
@@ -1269,9 +1283,6 @@
   },
   "addSharedFolder": {
     "message": "பகிர்ந்த கோப்புறையைச் சேர்க்கவும்"
-  },
-  "newSharedFolder": {
-    "message": "புதிய பகிர்ந்த கோப்புறை"
   },
   "searchSharedFolder": {
     "message": "பகிர்ந்த கோப்புறையைத் தேடவும்"
@@ -1464,42 +1475,6 @@
     "message": "கடவுச்சீட்டைச் சேர்க்கவும்",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "புதிய உள்நுழைவு",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "புதிய அட்டை",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "புதிய அடையாளம்",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "புதிய குறிப்பு",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "புதிய பாதுகாப்பான குறிப்பு",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "புதிய SSH விசை",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "புதிய வங்கி கணக்கு",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "புதிய உரிமம்",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "புதிய கடவுச்சீட்டு",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "புதிய உரை",
     "description": "Header for new text send"
@@ -1507,22 +1482,6 @@
   "newItemHeaderFileSendV2": {
     "message": "புதிய கோப்பு",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "உள்நுழைவைத் திருத்தவும்",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "அட்டையைத் திருத்தவும்",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "அடையாளத்தைத் திருத்தவும்",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "குறிப்பைத் திருத்தவும்",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "பாதுகாப்பான குறிப்பைத் திருத்தவும்",
@@ -3461,10 +3420,6 @@
   "selectImportSharedFolder": {
     "message": "Select a shared folder"
   },
-  "importTargetMyFolder": {
-    "message": "My Folder",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "இம்போர்ட் செய்யப்பட்ட கோப்பு உள்ளடக்கங்களை ஒரு கலெக்ஷனுக்கு மாற்ற விரும்பினால் இந்த விருப்பத்தைத் தேர்ந்தெடுக்கவும்"
   },
@@ -3881,9 +3836,6 @@
   },
   "customize": {
     "message": "தனிப்பயனாக்கு"
-  },
-  "newCustomDomain": {
-    "message": "புதிய தனிப்பயன் டொமைன்"
   },
   "addCustomDomain": {
     "message": "தனிப்பயன் டொமைனைச் சேர்க்கவும்"
@@ -5400,9 +5352,6 @@
   "groups": {
     "message": "குழுக்கள்"
   },
-  "newGroup": {
-    "message": "புதிய குழு"
-  },
   "addGroup": {
     "message": "குழுவைச் சேர்"
   },
@@ -5457,9 +5406,6 @@
   },
   "readOnly": {
     "message": "படிக்க மட்டும்"
-  },
-  "newCollection": {
-    "message": "புதிய சேகரிப்பு"
   },
   "addCollection": {
     "message": "சேகரிப்பைச் சேர்"
@@ -7573,20 +7519,14 @@
   "setYourAllowedDomainsCoachMarkBody": {
     "message": "Add allowed email domains (e.g. acme.com) so only users with matching emails can use this invite link. You can update this anytime."
   },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "You're in tour preview, so these domains are only examples."
+  },
   "adjustTheLink": {
     "message": "Adjust the link"
   },
   "adjustTheLinkCoachMarkBody": {
     "message": "Your needs change, and the link can change with you. <strong>Regenerate</strong> the link to invalidate the old link and create a new one."
-  },
-  "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "Your needs change, and the link can change with you."
-  },
-  "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>Regenerate</strong> the link to invalidate the old link and create a new one."
-  },
-  "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>Require admin confirmation</strong> to approve new members before they can join the organization."
   },
   "shareTheLinkAnywhere": {
     "message": "Share the link anywhere"
@@ -8968,17 +8908,43 @@
     "message": "Fill assist-ஐச் செயல்படுத்தவும்",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
+  "fillAssistPolicyV2": {
+    "message": "Enable fill assist",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
   "fillAssistPolicyDesc": {
     "message": "அனைத்து உறுப்பினர்களுக்கும் இயல்புநிலையாக Fill assist-ஐ இயக்கவும். தானாக நிரப்புவதற்கு கடினமான வலைத்தளங்களில் தானாக நிரப்பும் துல்லியத்தை மேம்படுத்த இந்த அம்சம் மதிப்பாய்வு செய்யப்பட்ட, தளத்திற்குரிய வழிமுறைகளைப் பயன்படுத்துகிறது."
+  },
+  "fillAssistRuleSource": {
+    "message": "Autofill rule set"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "Default"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "Use the Bitwarden-reviewed autofill rule set."
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "Custom"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "Enter your own custom rule set."
   },
   "fillAssistRulesUrl": {
     "message": "பிரத்தியேக தானாக நிரப்பும் விதித் தொகுப்பு"
   },
-  "fillAssistRulesUrlHint": {
-    "message": "இயல்புநிலையாக, Fill assist ஆனது Bitwarden-இன் தேர்ந்தெடுக்கப்பட்ட விதித் தொகுப்பைப் பயன்படுத்துகிறது. அதை உங்களுடைய விதியைக் கொண்டு மாற்றியமைக்க இங்கே ஒரு URL-ஐ உள்ளிடவும்."
+  "fillAssistRulesUrlV2": {
+    "message": "Custom rule set"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "Learn more about custom rules"
   },
   "invalidFillAssistRulesUrl": {
     "message": "சரியான URL-ஐ உள்ளிடவும்",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "Enter a valid URL for a custom rule set.",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
@@ -11876,9 +11842,6 @@
   "domainVerification": {
     "message": "களச் சரிபார்ப்பு"
   },
-  "newDomain": {
-    "message": "புதிய களம்"
-  },
   "addDomain": {
     "message": "டொமைனைச் சேர்க்கவும்"
   },
@@ -12247,9 +12210,6 @@
   },
   "groupSlashUser": {
     "message": "குழு/பயனர்"
-  },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "தொடர்வது அனைத்து செயலில் உள்ள அமர்வுகளிலிருந்தும் உங்களை வெளியேற்றும். நீங்கள் மீண்டும் உள்நுழைய வேண்டும் மற்றும் இரண்டு-படி உள்நுழைவை முடிக்க வேண்டும், ஏதேனும் இருந்தால். தரவு இழப்பைத் தடுக்க உங்கள் குறியாக்க அமைப்புகளை மாற்றுவதற்கு முன் உங்கள் பெட்டகத்தை ஏற்றுமதி செய்யுமாறு பரிந்துரைக்கிறோம்."
   },
   "secretsManager": {
     "message": "ரகசியங்களின் மேலாளர்"
@@ -13867,10 +13827,6 @@
     "message": "இயந்திரக் கணக்குகள்",
     "description": "The title for the section that deals with machine accounts."
   },
-  "newMachineAccount": {
-    "message": "புதிய இயந்திரக் கணக்கு",
-    "description": "Title for creating a new machine account."
-  },
   "addMachineAccount": {
     "message": "இயந்திரக் கணக்கைச் சேர்க்கவும்",
     "description": "Title for creating a new machine account."
@@ -14500,6 +14456,40 @@
   },
   "billingPreviewInvoiceError": {
     "message": "இன்வாய்ஸை முன்னோட்டமாகப் பார்க்கும்போது பிழை ஏற்பட்டது. பின்னர் மீண்டும் முயற்சிக்கவும்."
+  },
+  "billingPreviewInvalidAddressError": {
+    "message": "Please check your billing details and try again."
+  },
+  "planChangeTrialIncluded": {
+    "message": "This upgrade includes a $DAYS$-day trial. The total above is what you will be charged at the end of the trial.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "You have 1 day left in your trial. You will be charged the total above on $DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "You have $DAYS$ days left in your trial. You will be charged the total above on $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
   },
   "unverified": {
     "message": "சரிபார்க்கப்படவில்லை"
@@ -16811,8 +16801,8 @@
   "premiumSubscriptionCredit": {
     "message": "Premium சந்தா கிரெடிட்"
   },
-  "appliedSubscriptionCredits": {
-    "message": "பயன்படுத்தப்பட்ட சந்தா கிரெடிட்கள்"
+  "appliedProrationCredits": {
+    "message": "Applied proration credit"
   },
   "enterpriseMembership": {
     "message": "Enterprise உறுப்பினர் உரிமை"
@@ -17837,6 +17827,9 @@
   "inviteLinkCalloutBody": {
     "message": "Anyone with a company email can use the invite link to join your organization. Drop it in onboarding resources so new hires can join when they're ready."
   },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "The tour uses sample data. Nothing in your organization will change."
+  },
   "inviteLinkCalloutImageAlt": {
     "message": "Invite members dialog preview showing the new by-link tab"
   },
@@ -17977,5 +17970,30 @@
   },
   "serviceAccountsProratedCharge": {
     "message": "Service accounts prorated charge"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden has a new look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explore the new vault",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "Customize your view"
+  },
+  "showColumns": {
+    "message": "Show columns"
+  },
+  "resetToDefault": {
+    "message": "Reset to default"
   }
 }

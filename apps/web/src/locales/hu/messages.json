@@ -1252,6 +1252,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ beágyazott megosztott mappa",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 beágyazott megosztott mappa",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "Saját mappa"
   },
@@ -1269,9 +1283,6 @@
   },
   "addSharedFolder": {
     "message": "Megosztott mappa hozzadása"
-  },
-  "newSharedFolder": {
-    "message": "Új megosztott mappa"
   },
   "searchSharedFolder": {
     "message": "Új megosztott mappa"
@@ -1464,42 +1475,6 @@
     "message": "Útlevél hozzáadása",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Új bejelentkezés",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Új kártya",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Új személyazonosság",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Új jegyzet",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Új biztonságos jegyzet",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Új SSH kulcs",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Új bankszámla",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Új licensz",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Új útlevél",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Új szöveg",
     "description": "Header for new text send"
@@ -1507,22 +1482,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Új fájl",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Bejelentkezés szerkesztése",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Kártya szerkesztése",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Személyazonossság szerkesztése",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Jegyzet szerkesztése",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Biztonságos jegyzet szerkesztése",
@@ -3461,10 +3420,6 @@
   "selectImportSharedFolder": {
     "message": "Megosztott mappa kiválasztása"
   },
-  "importTargetMyFolder": {
-    "message": "Saját mappa",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy gyűjteménybe kerüljön."
   },
@@ -3881,9 +3836,6 @@
   },
   "customize": {
     "message": "Testreszabás"
-  },
-  "newCustomDomain": {
-    "message": "Új egyedi domain"
   },
   "addCustomDomain": {
     "message": "Egyedi tartomány hozzáadása"
@@ -5400,9 +5352,6 @@
   "groups": {
     "message": "Csoportok"
   },
-  "newGroup": {
-    "message": "Új csoport"
-  },
   "addGroup": {
     "message": "Csoport hozzáadása"
   },
@@ -5457,9 +5406,6 @@
   },
   "readOnly": {
     "message": "Csak olvasható"
-  },
-  "newCollection": {
-    "message": "Új gyűjtemény"
   },
   "addCollection": {
     "message": "Gyűjtemény hozzáadása"
@@ -7573,20 +7519,14 @@
   "setYourAllowedDomainsCoachMarkBody": {
     "message": "Engedélyezett email tartományok hozzáadása (például acme.com), így csak az egyező emailekkel rendelkező felhasználók használhatják ezt a meghívó hivatkozást. Ez bármikor frissíthető."
   },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "A bemutató előnézetben vagyunk, így ezek a tartományok csak példák."
+  },
   "adjustTheLink": {
     "message": "Hivatkozás beállítása"
   },
   "adjustTheLinkCoachMarkBody": {
     "message": "Az igények változnak és a hivatkozás ezzel együtt változhat. A hivatkozás <strong>újragenerálása</strong> érvényteleníteni a régi hivatkozást és egy újat hoz létre."
-  },
-  "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "Az igények változnak és a hivatkozás ezzel együtt változhat."
-  },
-  "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>Generáljuk újra</strong> a hivatkozást a régi hivatkozás érvénytelenítéséhez és egy új létrehozásához."
-  },
-  "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>Szükséges az adminisztrátori megerősítés</strong> az új tagok jóváhagyásához a szervezethez csatlakozásuk előtt."
   },
   "shareTheLinkAnywhere": {
     "message": "Osszuk meg a hivatkozást bárhol."
@@ -8968,17 +8908,43 @@
     "message": "A kitöltési segédről",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
+  "fillAssistPolicyV2": {
+    "message": "Kitöltési segédlet használata",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
   "fillAssistPolicyDesc": {
     "message": "Alapértelmezés szerint kapcsoljuk be a kitöltési segédletet az összes tagnál. Ez a funkció áttekintett, helyspecifikus utasításokat használ az automatikus kitöltési pontosság javítására azokon a webhelyeken, amelyekről ismert, hogy nehéz automatikusan kitölteni."
+  },
+  "fillAssistRuleSource": {
+    "message": "Automatikus kitöltési szabály készlet"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "Alapértelmezett"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "Használjuk a Bitwarden által felülvizsgált automatikus kitöltési szabály készletet."
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "Egyedi"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "Adjuk meg saját egyedi szabály készletet."
   },
   "fillAssistRulesUrl": {
     "message": "Egyedi automatikus kitöltési szabálykészlet"
   },
-  "fillAssistRulesUrlHint": {
-    "message": "Alapértelmezés szerint a kitöltési segédlet a Bitwarden által összeállított szabálykészletet használja. Írjunk be ide egy webcímet, hogy felülírjuk a sajáttal."
+  "fillAssistRulesUrlV2": {
+    "message": "Egyedi szabály készlet"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "További információ az egyedi szabályokról"
   },
   "invalidFillAssistRulesUrl": {
     "message": "Adjon meg érvényes webcímet.",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "Adjunk meg egy érvényes webcímet egy egyedi szabály készlethez.",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
@@ -11876,9 +11842,6 @@
   "domainVerification": {
     "message": "Domain ellenőrzés"
   },
-  "newDomain": {
-    "message": "Új domain"
-  },
   "addDomain": {
     "message": "Tartomány hozzáadása"
   },
@@ -12247,9 +12210,6 @@
   },
   "groupSlashUser": {
     "message": "Csoport/Felhasználó"
-  },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "A folytatás kijelentkeztet az összes aktív munkamenetből. Újra be kell jelentkezni és kétlépcsős bejelentkezést kell végrehajtani, ha van ilyen. Célszerű a titkosítási beállítások módosítása előtt a széf exportálása az adatvesztés elkerülése érdekében."
   },
   "secretsManager": {
     "message": "Titkos kód kezelő"
@@ -13867,10 +13827,6 @@
     "message": "Gépi fiókok",
     "description": "The title for the section that deals with machine accounts."
   },
-  "newMachineAccount": {
-    "message": "Új gépi fiók",
-    "description": "Title for creating a new machine account."
-  },
   "addMachineAccount": {
     "message": "Gépi fiók hozzáadása",
     "description": "Title for creating a new machine account."
@@ -14500,6 +14456,40 @@
   },
   "billingPreviewInvoiceError": {
     "message": "Hiba történt a számla előnézete közben. Próbáljuk újra később."
+  },
+  "billingPreviewInvalidAddressError": {
+    "message": "Ellenőrizzük a számlázási adatokat és próbáljuk újra."
+  },
+  "planChangeTrialIncluded": {
+    "message": "Ez a frissítés tartalmaz egy $DAYS$ napos próbaverziót. A fenti összeg az, ami a próbaidőszak végén terhelésre kerül.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "Még 1 nap van vissza a próbaidőszakból. A fenti összeg $DATE$ dátummal esedékes.",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "Még $DAYS$ nap van vissza a próbaidőszakból. A fenti összeg $DATE$ dátummal esedékes.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
   },
   "unverified": {
     "message": "Nem ellenőrzött"
@@ -16811,8 +16801,8 @@
   "premiumSubscriptionCredit": {
     "message": "Prémium előfizetés jóváírás"
   },
-  "appliedSubscriptionCredits": {
-    "message": "Alkalmazott előfizetési kreditek"
+  "appliedProrationCredits": {
+    "message": "Alkalmazott előfizetési kredit"
   },
   "enterpriseMembership": {
     "message": "Vállalati tagság"
@@ -17034,13 +17024,13 @@
     }
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "Titkos kulcs"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "Titkos kulcs és jelszó"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "A fók titkos kulccsal és jelszóval van biztosítva. A folytatáshoz mindkettőt be kell írni."
   },
   "keeperEmail": {
     "message": "Keeper email cím"
@@ -17837,6 +17827,9 @@
   "inviteLinkCalloutBody": {
     "message": "Bárki, aki rendelkezik vállalati email címmel, használhatja a meghívó hivatkozást, hogy csatlakozzon szervezethez. Dobjuk be a beépített erőforrásokba, hogy az új alkalmazottak csatlakozhassanak, amikor készen állnak."
   },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "A bemutató mintaadatokat használ. A szervezetben semmi sem fog változni."
+  },
   "inviteLinkCalloutImageAlt": {
     "message": "A tagok meghívása párbeszédpanel előnézete, amely az új hivatkozási fület mutatja."
   },
@@ -17977,5 +17970,30 @@
   },
   "serviceAccountsProratedCharge": {
     "message": "Szolgáltatás fiókok arányos díj"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden has a new look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explore the new vault",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "Nézet testreszabása"
+  },
+  "showColumns": {
+    "message": "Oszlopok megjelenítése"
+  },
+  "resetToDefault": {
+    "message": "Visszaállítás alaphelyzetbe"
   }
 }
