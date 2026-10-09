@@ -64,19 +64,24 @@ describe("Vfo1TourCalloutService", () => {
     });
   });
 
-  describe("walkthroughPending$", () => {
-    it("stays true while the tour runs and the new-look dialog is pending", async () => {
+  describe("claimsSlot$", () => {
+    it("stays true while a tour runs", async () => {
       running.set(true);
-      newExperiencePending.next(true);
       TestBed.tick();
 
-      expect(await firstValueFrom(service.walkthroughPending$(userId))).toBe(true);
+      expect(await firstValueFrom(service.claimsSlot$(userId))).toBe(true);
+    });
+
+    it("is false while the new-look dialog is still pending", async () => {
+      newExperiencePending.next(true);
+
+      expect(await firstValueFrom(service.claimsSlot$(userId))).toBe(false);
     });
 
     it("is false once the walkthrough is dismissed", async () => {
       walkthroughPending.next(false);
 
-      expect(await firstValueFrom(service.walkthroughPending$(userId))).toBe(false);
+      expect(await firstValueFrom(service.claimsSlot$(userId))).toBe(false);
     });
   });
 

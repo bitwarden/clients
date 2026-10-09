@@ -18,21 +18,22 @@ export class Vfo1TourCalloutService {
   private readonly steps = inject(VFO1_WALKTHROUGH_STEPS);
   private readonly tourRunning$ = toObservable(this.coachmarkService.isRunning);
 
-  /** Whether the walkthrough has yet to be completed or dismissed */
-  walkthroughPending$(userId: UserId): Observable<boolean> {
-    return this.nudgesService.showNudgeSpotlight$(NudgeType.Vfo1Walkthrough, userId);
+  /** Whether the tour callout owns the callout slot: walkthrough pending and new-look dialog dismissed */
+  claimsSlot$(userId: UserId): Observable<boolean> {
+    return combineLatest([
+      this.nudgesService.showNudgeSpotlight$(NudgeType.Vfo1Walkthrough, userId),
+      this.nudgesService.showNudgeSpotlight$(NudgeType.Vfo1NewExperience, userId),
+    ]).pipe(
+      map(([walkthroughPending, newExperiencePending]) => {
+        return walkthroughPending && !newExperiencePending;
+      }),
+    );
   }
 
-  /** Whether the tour callout shows: walkthrough pending, new-look dialog dismissed, no tour running */
+  /** Whether the tour callout shows: it claims the slot and no tour is running */
   show$(userId: UserId): Observable<boolean> {
-    return combineLatest([
-      this.walkthroughPending$(userId),
-      this.nudgesService.showNudgeSpotlight$(NudgeType.Vfo1NewExperience, userId),
-      this.tourRunning$,
-    ]).pipe(
-      map(([walkthroughPending, newExperiencePending, running]) => {
-        return walkthroughPending && !newExperiencePending && !running;
-      }),
+    return combineLatest([this.claimsSlot$(userId), this.tourRunning$]).pipe(
+      map(([claimsSlot, running]) => claimsSlot && !running),
     );
   }
 

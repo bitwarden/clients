@@ -49,10 +49,10 @@ export class WebSideNavComponent {
     { initialValue: false },
   );
 
-  protected readonly walkthroughPending = toSignal(
+  protected readonly tourCalloutClaimsSlot = toSignal(
     this.accountService.activeAccount$.pipe(
       getUserId,
-      switchMap((userId) => this.tourCalloutService.walkthroughPending$(userId)),
+      switchMap((userId) => this.tourCalloutService.claimsSlot$(userId)),
     ),
     { initialValue: false },
   );
