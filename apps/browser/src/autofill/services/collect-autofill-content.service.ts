@@ -232,11 +232,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.pendingOverlaySetup.forEach((timeout) => globalThis.clearTimeout(timeout));
     this.pendingOverlaySetup.clear();
     this.mutationObserver.disconnect();
-    this.intersectionObserver.disconnect();
-    this._autofillFormElements.clear();
-    this.autofillFieldElements.clear();
-    this.autofillFieldsByOpid.clear();
-    this.elementInitializingIntersectionObserver.clear();
+    this.clearFieldCache();
     // Shadow-host tracking is monitoring-scoped; clear it so restart drops stale deadlines.
     this.shadowTracker.reset();
     this.noFieldsFound = false;
@@ -250,13 +246,31 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   // Only refresh the latch when a fresh walk will consume it. Both arms are load-bearing; see
   // ShadowHostHydrationTracker.hasHostsAwaitingShadowRoot for why parked hosts don't count.
-  prepareForExplicitCollection = () => {
-    if (this.noFieldsFound || this.shadowTracker.hasHostsAwaitingShadowRoot()) {
+  // `discardFieldCache` is the automatic login case: a later step must not reuse the previous one's fields.
+  prepareForExplicitCollection = (discardFieldCache = false) => {
+    if (
+      discardFieldCache ||
+      this.noFieldsFound ||
+      this.shadowTracker.hasHostsAwaitingShadowRoot()
+    ) {
       this.domQueryService.refreshShadowDomStateForUserRequest();
       this.noFieldsFound = false;
       this.domRecentlyMutated = true;
     }
+
+    if (discardFieldCache) {
+      this.clearFieldCache();
+    }
   };
+
+  /** Clears the field cache. */
+  private clearFieldCache() {
+    this.intersectionObserver.disconnect();
+    this._autofillFormElements.clear();
+    this.autofillFieldElements.clear();
+    this.autofillFieldsByOpid.clear();
+    this.elementInitializingIntersectionObserver.clear();
+  }
 
   /**
    * Builds the data for all forms and fields found within the page DOM.

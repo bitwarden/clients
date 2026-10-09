@@ -147,7 +147,7 @@ class AutofillInit implements AutofillInitInterface {
     sendDetailsInResponse = false,
   ): Promise<AutofillPageDetails | void> {
     // Explicit request must not depend on passive shadow DOM discovery.
-    this.collectAutofillContentService.prepareForExplicitCollection();
+    this.collectAutofillContentService.prepareForExplicitCollection(message.discardFieldCache);
     const pageDetails: AutofillPageDetails =
       await this.collectAutofillContentService.getPageDetails();
     if (sendDetailsInResponse) {
