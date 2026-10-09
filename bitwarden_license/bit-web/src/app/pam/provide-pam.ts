@@ -7,6 +7,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
+import { CipherLeaseStateService } from "@bitwarden/common/vault/abstractions/cipher-lease-state.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
 import {
@@ -44,6 +45,7 @@ import { DefaultAccessRefreshService } from "./services/default-access-refresh.s
 import { DefaultLeasingErrorService } from "./services/default-leasing-error.service";
 import { GovernedCollectionsService } from "./services/governed-collections.service";
 import { MyLeasesService } from "./services/my-leases.service";
+import { PamCipherLeaseStateService } from "./services/pam-cipher-lease-state.service";
 import { PamGatedCipherReloader } from "./services/pam-gated-cipher-reloader.service";
 import { DefaultPamNavBadgeService } from "./services/pam-nav-badge.service";
 import { DefaultVaultRowAccessActionsService } from "./services/vault-row-access-actions.service";
@@ -92,6 +94,11 @@ export function providePam(): SafeProvider[] {
       provide: AccessLeaseSdkService,
       useClass: AccessLeasesSdkService,
       deps: [SdkService, AccountService, LogService],
+    }),
+    safeProvider({
+      provide: CipherLeaseStateService,
+      useClass: PamCipherLeaseStateService,
+      deps: [AccessRequestSdkService, LogService],
     }),
     safeProvider({
       provide: ApprovalSdkService,
