@@ -29,6 +29,7 @@ import {
 } from "../../models/vault-scope";
 import { EXACT_PATH } from "../../routing/exact-path";
 import { VaultNavService } from "../../services/vault-nav.service";
+import { CoachmarkStep } from "../coachmark/coachmark-step";
 import { CoachmarkComponent } from "../coachmark/coachmark.component";
 import { CoachmarkService } from "../coachmark/coachmark.service";
 
@@ -187,7 +188,16 @@ export class VaultNavSectionComponent {
   /** Whether the tour's popover anchors to this vault's Shared folders entry. */
   protected coachmarkTargets(vault: VaultNavItemViewModel): boolean {
     return (
-      this.coachmark.isStepActive("shareWithCollections") && vault.id === this.coachmarkVaultId()
+      (this.coachmark.isStepActive("shareWithCollections") ||
+        this.coachmark.isStepActive("sharedFolders")) &&
+      vault.id === this.coachmarkVaultId()
+    );
+  }
+
+  /** Where the popover sits, which depends on which tour's Shared folders step is active. */
+  protected coachmarkPosition(): CoachmarkStep["position"] | undefined {
+    return this.coachmark.getStepPosition(
+      this.coachmark.isStepActive("sharedFolders") ? "sharedFolders" : "shareWithCollections",
     );
   }
 
