@@ -37,11 +37,8 @@ import {
   ButtonModule,
   CalloutModule,
   DialogService,
-  IconButtonModule,
-  IconModule,
   IconTileComponent,
   LinkModule,
-  MenuModule,
   PopoverModule,
 } from "@bitwarden/components";
 import { isGuid } from "@bitwarden/guid";
@@ -53,14 +50,11 @@ import {
   AddItemDialogResult,
   ASSIGN_COLLECTIONS_DIALOG,
   BULK_DELETE_DIALOG,
-  BulkDeleteDialogRef,
-  BulkDeleteDialogResult,
   CipherRowMenuHandlers,
   CipherRowMenuService,
   COLLECTION_DIALOG,
-  CollectionDialogOutcome,
-  CollectionDialogRef,
-  CollectionDialogTab,
+  CollectionActionResult,
+  CollectionOptionsMenuComponent,
   copyPresentation$,
   DecryptionFailureDialogComponent,
   DEFAULT_COPY_PRESENTATION,
@@ -143,10 +137,8 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     VaultBannersComponent,
     VaultBatchActionComponent,
     VaultBreadcrumbsComponent,
-    IconButtonModule,
-    IconModule,
+    CollectionOptionsMenuComponent,
     IconTileComponent,
-    MenuModule,
     VaultItemsTableComponent,
     VaultOnboardingComponent,
     VaultOrganizationUserNotificationsComponent,
@@ -178,12 +170,6 @@ export class VaultNextComponent implements OnInit {
   private readonly folderService = inject(FolderService);
   private readonly itemActions = inject(WebVaultItemActionsService);
   private readonly organizationService = inject(OrganizationService);
-  private readonly collectionDialog = inject<CollectionDialogRef>(COLLECTION_DIALOG, {
-    optional: true,
-  });
-  private readonly bulkDeleteDialog = inject<BulkDeleteDialogRef>(BULK_DELETE_DIALOG, {
-    optional: true,
-  });
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly vaultNavService = inject(VaultNavService);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -419,36 +405,16 @@ export class VaultNextComponent implements OnInit {
       : undefined;
   });
 
-  /** The shared folder in view, for the three-dot menu next to the header title. */
+  /** The shared folder in view, for the collection options menu next to the header title. */
   protected readonly currentCollection = computed(() => {
     const id = this.scopedCollectionId();
     return id == null ? undefined : this.scopedCollections().find((c) => c.id === id);
   });
 
-  private readonly currentOrganization = computed(() => {
+  protected readonly currentOrganization = computed(() => {
     const orgId = this.scopedOrganizationId();
     return orgId == null ? undefined : this.organizations().find((o) => o.id === orgId);
   });
-
-  /**
-   * `canEdit`/`canDelete` already require `.manage` and already exclude the organization's "My
-   * items" collection, so no extra page-type check is needed here.
-   */
-  protected readonly showEditActions = computed(
-    () =>
-      this.collectionDialog != null &&
-      (this.currentCollection()?.canEdit(this.currentOrganization()) ?? false),
-  );
-
-  protected readonly showDeleteAction = computed(
-    () =>
-      this.bulkDeleteDialog != null &&
-      (this.currentCollection()?.canDelete(this.currentOrganization()) ?? false),
-  );
-
-  protected readonly showCollectionMenu = computed(
-    () => this.showEditActions() || this.showDeleteAction(),
-  );
 
   /**
    * The vault-scope display-name facts {@link EmptyVaultComponent} needs for its copy, relayed
@@ -733,36 +699,22 @@ export class VaultNextComponent implements OnInit {
     }
   }
 
-  protected async editCollectionInfo(): Promise<void> {
-    await this.openCollectionDialog(CollectionDialogTab.Info);
-  }
-
-  protected async editCollectionAccess(): Promise<void> {
-    await this.openCollectionDialog(CollectionDialogTab.Access);
-  }
-
-  private async openCollectionDialog(initialTab: CollectionDialogTab): Promise<void> {
-    const organizationId = this.scopedOrganizationId();
-    const collectionId = this.currentCollection()?.id;
-    if (organizationId == null || collectionId == null) {
-      return;
-    }
-    const outcome = await this.collectionDialog?.open({ organizationId, collectionId, initialTab });
-
-    if (outcome === CollectionDialogOutcome.Deleted || this.currentCollection() == null) {
+  /**
+   * Navigates away whenever the folder is now gone — not just on an explicit delete, since saving
+   * Access can itself drop the member's own assignment. No-ops if the viewer has since moved to a
+   * different folder (e.g. Back/Forward while the dialog was open), since the result is stale.
+   */
+  protected async onCollectionActionResult({
+    deleted,
+    organizationId,
+    collectionId,
+  }: CollectionActionResult): Promise<void> {
+    if (
+      this.scopedOrganizationId() === organizationId &&
+      this.scopedCollectionId() === collectionId &&
+      (deleted || this.currentCollection() == null)
+    ) {
       await this.navigateToSharedFolders(organizationId);
-    }
-  }
-
-  protected async deleteCurrentCollection(): Promise<void> {
-    const organization = this.currentOrganization();
-    const collection = this.currentCollection();
-    if (organization == null || collection == null) {
-      return;
-    }
-    const result = await this.bulkDeleteDialog?.open({ organization, collections: [collection] });
-    if (result === BulkDeleteDialogResult.Deleted || this.currentCollection() == null) {
-      await this.navigateToSharedFolders(organization.id);
     }
   }
 

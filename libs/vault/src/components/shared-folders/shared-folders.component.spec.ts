@@ -31,11 +31,8 @@ import {
   BULK_EDIT_COLLECTION_ACCESS_DIALOG,
   BulkEditCollectionAccessDialogRef,
 } from "../../tokens/bulk-edit-collection-access-dialog.token";
-import {
-  COLLECTION_DIALOG,
-  CollectionDialogRef,
-  CollectionDialogTab,
-} from "../../tokens/collection-dialog.token";
+import { COLLECTION_DIALOG, CollectionDialogRef } from "../../tokens/collection-dialog.token";
+import { CollectionOptionsMenuComponent } from "../collection-options-menu";
 
 import { SharedFolderPermission } from "./shared-folder-permission";
 import { SharedFolderRow } from "./shared-folder-rows";
@@ -603,8 +600,11 @@ describe("SharedFoldersComponent", () => {
       );
     }
 
-    it("drops the options column entirely for a client with no collection dialog", async () => {
-      await setup({ collections: [collection()], dialogs: { collection: false } });
+    it("drops the options column entirely for a client with neither dialog", async () => {
+      await setup({
+        collections: [collection()],
+        dialogs: { collection: false, bulkDelete: false },
+      });
       fixture.detectChanges();
 
       expect(
@@ -617,19 +617,53 @@ describe("SharedFoldersComponent", () => {
     });
 
     it("gives the items column the flexible track while the options column is dropped", async () => {
-      await setup({ collections: [collection()], dialogs: { collection: false } });
+      await setup({
+        collections: [collection()],
+        dialogs: { collection: false, bulkDelete: false },
+      });
       fixture.detectChanges();
 
       expect(bitTable().gridTemplateColumns()).toContain("minmax(100px, 1fr)");
     });
 
-    it("keeps the options column narrow once the collection dialog is provided", async () => {
+    it("keeps the options column narrow once either dialog is provided", async () => {
       await setup({ collections: [collection()] });
       fixture.detectChanges();
 
       expect(bitTable().gridTemplateColumns()).toContain("minmax(100px, 160px)");
       expect(bitTable().gridTemplateColumns()).toContain("minmax(80px, 1fr)");
       expect(menuTriggers()).toHaveLength(1);
+    });
+
+    it("keeps the options column for a client with only a bulk delete dialog, Delete-only", async () => {
+      await setup({ collections: [collection()], dialogs: { collection: false } });
+      fixture.detectChanges();
+
+      expect(menuTriggers()).toHaveLength(1);
+    });
+
+    it("binds each row's menu to that row's own collection, not another row's", async () => {
+      const folderA = collection({ id: "col-a", name: "Alpha" });
+      const folderB = collection({ id: "col-b", name: "Bravo" });
+      await setup({ collections: [folderA, folderB] });
+      fixture.detectChanges();
+
+      const menus = fixture.debugElement
+        .queryAll(By.directive(CollectionOptionsMenuComponent))
+        .map((debugEl) => debugEl.componentInstance as CollectionOptionsMenuComponent);
+      expect(menus).toHaveLength(2);
+
+      const menuForB = menus.find((menu) => menu.collection().id === "col-b");
+      if (!menuForB) {
+        throw new Error("No menu instance bound to col-b");
+      }
+
+      await menuForB["delete"]();
+
+      expect(bulkDeleteDialog.open).toHaveBeenCalledWith({
+        organization: expect.objectContaining({ id: ORGANIZATION_ID }),
+        collections: [folderB],
+      });
     });
 
     it("offers no menu at all for a folder the member can neither edit nor delete", async () => {
@@ -641,44 +675,16 @@ describe("SharedFoldersComponent", () => {
       expect(menuTriggers()).toHaveLength(0);
     });
 
-    it("opens the collection dialog on the info tab to edit a folder", async () => {
-      await setup({ collections: [collection({ id: "col-a" })] });
+    it("projects nothing into the cell's end slot for a folder the member can neither edit nor delete", async () => {
+      // Scoped to `bit-row`, not the whole fixture — the toolbar's Add button also uses `slot="end"`.
+      await setup({ collections: [collectionWith(SharedFolderPermission.View)] });
       fixture.detectChanges();
 
-      await component["editSharedFolder"](row("col-a"));
-
-      expect(collectionDialog.open).toHaveBeenCalledWith({
-        organizationId: ORGANIZATION_ID,
-        collectionId: "col-a",
-        initialTab: CollectionDialogTab.Info,
-      });
+      const rowElement = fixture.debugElement.query(By.css("bit-row")).nativeElement as HTMLElement;
+      expect(rowElement.querySelector("[slot=end]")).toBeNull();
     });
 
-    it("opens the collection dialog on the access tab to edit a folder's access", async () => {
-      await setup({ collections: [collection({ id: "col-a" })] });
-      fixture.detectChanges();
-
-      await component["editSharedFolderAccess"](row("col-a"));
-
-      expect(collectionDialog.open).toHaveBeenCalledWith({
-        organizationId: ORGANIZATION_ID,
-        collectionId: "col-a",
-        initialTab: CollectionDialogTab.Access,
-      });
-    });
-
-    it("deletes a folder through the bulk delete dialog, which owns the confirmation", async () => {
-      const folder = collection({ id: "col-a" });
-      await setup({ collections: [folder] });
-      fixture.detectChanges();
-
-      await component["deleteSharedFolder"](row("col-a"));
-
-      expect(bulkDeleteDialog.open).toHaveBeenCalledWith({
-        organization: expect.objectContaining({ id: ORGANIZATION_ID }),
-        collections: [folder],
-      });
-    });
+    // Edit/Delete behavior is `CollectionOptionsMenuComponent`'s own now — see its spec.
   });
 
   describe("the Add button", () => {

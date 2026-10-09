@@ -63,6 +63,7 @@ export {
   OrganizationUserNotificationBannerData,
 } from "./services/vault-organization-user-notifications.service";
 export { VaultItemEvent } from "./components/vault-item-event";
+export * from "./components/collection-options-menu";
 export * from "./components/shared-folders";
 export * from "./components/empty-vault";
 export * from "./components/vault-items-table";
