@@ -239,6 +239,15 @@ describe("SharedFolderCardGridComponent", () => {
       ).toEqual(["nestedSharedFolderCount:2", "nestedSharedFolderSingular", undefined]);
     });
 
+    it("names a child whose intermediate parent is missing by its own name, not its path", () => {
+      createComponent([
+        collection(PARENT.id, PARENT.name),
+        collection("deepest", `${PARENT.name}/Next/Deeper/Deepest`),
+      ]);
+
+      expect(cards().map((card) => card.textContent?.trim())).toEqual(["Deepest"]);
+    });
+
     it("caps the grid at three columns, each at least 240px wide, with 12px spacing", () => {
       createComponent(children(3));
 

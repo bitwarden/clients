@@ -12,6 +12,11 @@ import { AutotypeFeatureFlagState } from "@bitwarden/common/desktop-native/enums
 import { autotypeFeatureFlagState$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
+/**
+ * Autotype MVP only: this policy must only be used within the Autotype MVP scope
+ * (`AutotypeFeatureFlagState.Mvp`, MVP feature flag on and GA feature flag off). The Autotype
+ * GA implementation must not consume it.
+ */
 @Injectable({ providedIn: "root" })
 export class DesktopAutotypeDefaultSettingPolicy {
   constructor(
@@ -22,17 +27,17 @@ export class DesktopAutotypeDefaultSettingPolicy {
   ) {}
 
   /**
-   * Emits the autotype policy enabled status when account is unlocked and the
-   * Autotype implementation is feature-flagged on.
+   * Emits the autotype policy enabled status when account is unlocked and the resolved
+   * Autotype feature flag state is `AutotypeFeatureFlagState.Mvp`.
    * - true: autotype policy applies to the user (enabled and the user is not exempt, e.g. an Owner)
-   * - null: the resolved Autotype feature flag state is `AutotypeFeatureFlagState.Off`, no autotype
+   * - null: the resolved Autotype feature flag state is not `AutotypeFeatureFlagState.Mvp`, no autotype
    *   policy applies to the user's organization, or the user is exempt from it
    */
   readonly autotypeDefaultSetting$: Observable<boolean | null> = autotypeFeatureFlagState$(
     this.configService,
   ).pipe(
     switchMap((autotypeFeatureFlagState) => {
-      if (autotypeFeatureFlagState === AutotypeFeatureFlagState.Off) {
+      if (autotypeFeatureFlagState !== AutotypeFeatureFlagState.Mvp) {
         return of(null);
       }
 

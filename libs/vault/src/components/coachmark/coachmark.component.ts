@@ -22,11 +22,11 @@ import { CoachmarkService } from "./coachmark.service";
  * <div [bitPopoverAnchorFor]="myCoachmark.popover()" [popoverOpen]="isOpen()">
  *   Highlighted element
  * </div>
- * <app-coachmark #myCoachmark stepId="importData" />
+ * <vault-coachmark #myCoachmark stepId="importData" />
  * ```
  */
 @Component({
-  selector: "app-coachmark",
+  selector: "vault-coachmark",
   standalone: true,
   imports: [CommonModule, ButtonModule, I18nPipe, LinkModule, PopoverModule, TypographyModule],
   templateUrl: "coachmark.component.html",
