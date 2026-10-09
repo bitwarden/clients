@@ -1149,6 +1149,7 @@ export default class MainBackground {
       this.policyService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.configService,
     );
 
     this.ssoLoginService = new SsoLoginService(
@@ -1507,7 +1508,6 @@ export default class MainBackground {
       this.authService,
       this.webPushConnectionService,
       this.authRequestAnsweringService,
-      this.configService,
       this.autoConfirmService,
       this.billingAccountProfileStateService,
     );
@@ -1770,7 +1770,6 @@ export default class MainBackground {
         this.authService,
         this.accountService,
         chrome.webRequest,
-        this.configService,
         this.autofillSettingsService,
       );
     }

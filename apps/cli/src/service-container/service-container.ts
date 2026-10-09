@@ -973,6 +973,7 @@ export class ServiceContainer {
       this.policyService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.configService,
     );
 
     this.cipherEncryptionService = new DefaultCipherEncryptionService(
