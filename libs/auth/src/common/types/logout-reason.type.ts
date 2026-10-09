@@ -5,7 +5,6 @@ export type LogoutReason =
   | "emailChanged"
   | "invalidAccessToken"
   | "invalidSecurityStamp"
-  | "kdfChanged"
   | "keyConnectorError"
   | "logoutNotification"
   | "masterPasswordPolicyEnforcement"
