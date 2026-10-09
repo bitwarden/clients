@@ -9,28 +9,25 @@ import {
   SectionComponent,
   StatusLockupComponent,
   SvgComponent,
-  SectionHeaderComponent,
-  BitIconButtonComponent,
-  TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
 import { DesktopFido2UserInterfaceService } from "../../services/desktop-fido2-user-interface.service";
 
+import { Fido2ModalHeaderComponent } from "./fido2-modal-header.component";
+
 @Component({
   standalone: true,
   imports: [
     CommonModule,
     RouterModule,
-    SectionHeaderComponent,
-    BitIconButtonComponent,
     I18nPipe,
     StatusLockupComponent,
     SvgComponent,
     ButtonModule,
     SectionComponent,
-    TypographyModule,
+    Fido2ModalHeaderComponent,
   ],
   templateUrl: "fido2-credential-not-found.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
