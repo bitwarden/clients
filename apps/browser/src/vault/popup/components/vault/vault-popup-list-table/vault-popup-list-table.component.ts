@@ -85,6 +85,7 @@ import {
   VaultTableRow,
 } from "../../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
+import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
@@ -160,6 +161,10 @@ export class VaultPopupListTableComponent {
   private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
   private readonly accountService = inject(AccountService);
   private readonly vaultNavService = inject(VaultNavService);
+
+  /** Focusing the search inside a restored collapse would hold it open (`bitCollapseOnScroll`). */
+  protected readonly autofocusSearch = !inject(VaultPopupScrollPositionService).restoresCollapse();
+
   /** Whether the page is narrowed to a single vault, which drops the organization chip. */
   protected readonly vaultSelected = computed(
     () => this.listTableService.vaultScope().type !== VaultScopeType.AllItems,

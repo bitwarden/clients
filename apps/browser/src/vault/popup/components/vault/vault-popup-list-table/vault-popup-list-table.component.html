@@ -22,7 +22,7 @@
       [placeholder]="'search' | i18n"
       [(ngModel)]="searchText"
       (ngModelChange)="onSearchTextChanged()"
-      appAutofocus
+      [appAutofocus]="autofocusSearch"
     ></bit-search>
 
     <bit-filter-menu

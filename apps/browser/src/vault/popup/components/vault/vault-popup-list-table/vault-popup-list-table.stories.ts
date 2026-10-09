@@ -1,7 +1,28 @@
-import { computed, inject, provideEnvironmentInitializer, signal } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  importProvidersFrom,
+  inject,
+  OnDestroy,
+  provideEnvironmentInitializer,
+  signal,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, Router, RouterModule, RouterOutlet } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
-import { BehaviorSubject, NEVER, of } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  defer,
+  distinctUntilChanged,
+  filter,
+  map,
+  NEVER,
+  of,
+  startWith,
+  timer,
+} from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
@@ -34,6 +55,7 @@ import {
   CompactModeService,
   DialogService,
   I18nMockService,
+  ScrollLayoutService,
   ToastService,
 } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
@@ -43,6 +65,7 @@ import {
   orgIconTile,
   PasswordRepromptService,
   personalIconTile,
+  VAULT_BASE_ROUTE,
   VaultCopyButtonsService,
   VaultNavItemType,
   VaultNavService,
@@ -63,6 +86,7 @@ import {
   VaultSection,
 } from "../../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
+import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 
@@ -594,7 +618,7 @@ const buildProviders = (args: StoryArgs) => {
       useValue: { restricted$: of([]) },
     },
     { provide: CipherService, useValue: {} },
-    { provide: PasswordRepromptService, useValue: {} },
+    { provide: PasswordRepromptService, useValue: { passwordRepromptCheck: async () => true } },
     { provide: ToastService, useValue: {} },
     { provide: DialogService, useValue: {} },
     { provide: OrganizationService, useValue: { hasOrganizations: () => of(false) } },
@@ -618,6 +642,7 @@ const buildProviders = (args: StoryArgs) => {
       useValue: { hasPremiumFromAnySource$: () => of(true) },
     },
     { provide: Router, useValue: { navigate: () => Promise.resolve(true) } },
+    { provide: VaultPopupScrollPositionService, useValue: { restoresCollapse: () => false } },
     {
       provide: ActivatedRoute,
       useValue: { snapshot: { queryParams: {}, paramMap: new Map() }, queryParams: of({}) },
@@ -884,4 +909,98 @@ export const BlockedUri: Story = {
   render: () => ({
     template: `<div class="tw-flex tw-flex-col" style="height: 500px"><app-vault-popup-list-table></app-vault-popup-list-table></div>`,
   }),
+};
+
+/** Attaches the real scroll restore the way `VaultComponent` does: once loaded, onto the live region. */
+@Component({
+  selector: "story-restore-vault-page",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [PopupPageComponent, PopupHeaderComponent, VaultPopupListTableComponent],
+  template: /* HTML */ `
+    <div class="tw-border tw-border-solid tw-border-secondary-300" style="height: 600px">
+      <popup-page [collapseAboveScrollArea]="true">
+        <popup-header slot="header" pageTitle="Vault"></popup-header>
+        <div class="tw-flex tw-flex-col tw-justify-center tw-h-full">
+          <app-vault-popup-list-table></app-vault-popup-list-table>
+        </div>
+      </popup-page>
+    </div>
+  `,
+})
+class StoryRestoreVaultPageComponent implements OnDestroy {
+  private readonly scrollPosition = inject(VaultPopupScrollPositionService);
+
+  constructor() {
+    combineLatest([
+      inject(ScrollLayoutService).scrollableRef$,
+      inject(VaultPopupLoadingService).loading$,
+    ])
+      .pipe(
+        filter(([ref, loading]) => !!ref?.nativeElement && !loading),
+        map(([ref]) => ref!.nativeElement),
+        distinctUntilChanged(),
+        takeUntilDestroyed(),
+      )
+      .subscribe((element) => this.scrollPosition.start(element));
+  }
+
+  ngOnDestroy() {
+    this.scrollPosition.stop();
+  }
+}
+
+@Component({
+  selector: "story-item-page",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterModule],
+  template: `<a routerLink="/tabs/vault">Back to vault</a>`,
+})
+class StoryItemPageComponent {}
+
+/** Stubs the real scroll restore and router would collide with. */
+const RESTORE_STUBBED = [Router, VaultPopupScrollPositionService];
+
+/**
+ * Scroll down, open an item, then go back: the collapsing regions should arrive collapsed and stay
+ * that way. Each arrival loads for 150ms, as the popup does.
+ */
+export const RestoreScrollPosition: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
+  decorators: [
+    applicationConfig({
+      providers: [
+        ...buildProviders({
+          autoFillCiphers: AUTOFILL_CIPHERS,
+          favoriteCiphers: FAVORITE_CIPHERS,
+          filteredCiphers: [...AUTOFILL_CIPHERS, ...FAVORITE_CIPHERS, ...ALL_ITEM_CIPHERS],
+          loading: false,
+          vfo1Enabled: true,
+        }).filter((provider) => !RESTORE_STUBBED.includes((provider as { provide?: any }).provide)),
+        {
+          provide: VaultPopupLoadingService,
+          useValue: {
+            loading$: defer(() =>
+              timer(150).pipe(
+                map(() => false),
+                startWith(true),
+              ),
+            ),
+          },
+        },
+        { provide: VAULT_BASE_ROUTE, useValue: "/tabs/vault" },
+        importProvidersFrom(
+          RouterModule.forRoot(
+            [
+              { path: "tabs/vault", component: StoryRestoreVaultPageComponent },
+              { path: "view-cipher", component: StoryItemPageComponent },
+              { path: "**", redirectTo: "tabs/vault" },
+            ],
+            { useHash: true },
+          ),
+        ),
+      ],
+    }),
+    moduleMetadata({ imports: [RouterOutlet] }),
+  ],
+  render: () => ({ template: `<router-outlet></router-outlet>` }),
 };
