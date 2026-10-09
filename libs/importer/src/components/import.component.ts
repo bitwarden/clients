@@ -87,6 +87,7 @@ import {
   ImportResult,
   ImportType,
   SdkImportCredentials,
+  VENDOR_ONLY_IMPORT_TYPE_IDS,
 } from "../models";
 import {
   ImporterCapabilities,
@@ -902,7 +903,8 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     this.featuredImportSources = sources.filter((s) => s.featured);
 
     const visibleRegularSources = sources.filter(
-      (s) => !s.featured && !HIDDEN_IMPORT_TYPE_IDS.has(s.id),
+      (s) =>
+        !s.featured && !HIDDEN_IMPORT_TYPE_IDS.has(s.id) && !VENDOR_ONLY_IMPORT_TYPE_IDS.has(s.id),
     );
 
     this.importSources = visibleRegularSources.sort((a, b) => {

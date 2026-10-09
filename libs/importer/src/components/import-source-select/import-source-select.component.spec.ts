@@ -35,7 +35,7 @@ jest.mock("../../models", () => {
     importOptions: [
       buildOption({ id: "chromecsv", name: "Chrome", isBrowser: true }),
       buildOption({ id: "firefoxcsv", name: "Firefox (csv)", isBrowser: true }),
-      buildOption({ id: "1password1pux", name: "1Password (1pux/json)" }),
+      buildOption({ id: "1password", name: "1Password" }),
       buildOption({ id: "lastpasscsv", name: "LastPass" }),
       // Squished (no space) on purpose: displayNameFor's real value ("Zoho Vault", with a
       // space) diverges from this raw name — for the search-matches-display-name test below.
@@ -358,7 +358,7 @@ describe("ImportSourceSelectComponent", () => {
   });
 
   it("swaps to the dark-mode icon variant for vendors that have one, and back again", () => {
-    // "1password1pux" is a real id with both an `icon` and a `darkIcon` in the picker metadata.
+    // "1password" is a real id with both an `icon` and a `darkIcon` in the picker metadata.
     const onePasswordIcon = () =>
       fixture.debugElement
         .queryAll(By.css("bit-form-control-card"))

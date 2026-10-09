@@ -4,6 +4,7 @@ export {
   ImportOptionData,
   importOptions,
   HIDDEN_IMPORT_TYPE_IDS,
+  VENDOR_ONLY_IMPORT_TYPE_IDS,
 } from "./import-options";
 export { chromiumBrowserNameFor } from "./chromium-browser-name";
 export { ImportResult, ImportResultError, ImportResultErrorKey } from "./import-result";

@@ -37,12 +37,24 @@ describe("canActivateImportType", () => {
   });
 
   it("redirects for a real ImportType with no picker card of its own", () => {
-    // keepasskdbx is grouped under keepass2xml's card rather than having one of its own — see
+    // keepasskdbx is grouped under keepass's card rather than having one of its own — see
     // PICKER_VENDOR_DATA.
     const result = activate("keepasskdbx");
 
     expect(router.createUrlTree).toHaveBeenCalledWith(["/redirect-here"]);
     expect(result).toBe(redirectTree);
+  });
+
+  it("redirects for a format id that used to double as its vendor's picker id", () => {
+    void activate("keepass2xml");
+    void activate("bitwardenjson");
+
+    expect(router.createUrlTree).toHaveBeenCalledTimes(2);
+  });
+
+  it("allows the vendor ids", () => {
+    expect(activate("keepass")).toBe(true);
+    expect(activate("1password")).toBe(true);
   });
 
   it("redirects for an unrecognized id", () => {

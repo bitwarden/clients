@@ -1,4 +1,4 @@
-import { importOptions } from "../../models";
+import { importOptions, VENDOR_ONLY_IMPORT_TYPE_IDS } from "../../models";
 
 import {
   isPickerVendor,
@@ -41,21 +41,21 @@ describe("pickerFormatsFor", () => {
   });
 
   it("returns every sibling format for a multi-format vendor", () => {
-    expect(pickerFormatsFor("1password1pux")).toEqual([
+    expect(pickerFormatsFor("1password")).toEqual([
       "1password1pux",
       "1password1pif",
       "1passwordwincsv",
       "1passwordmaccsv",
     ]);
-    expect(pickerFormatsFor("bitwardenjson")).toEqual(["bitwardenjson", "bitwardencsv"]);
-    expect(pickerFormatsFor("dashlanecsv")).toEqual(["dashlanecsv", "dashlanejson"]);
-    expect(pickerFormatsFor("enpasscsv")).toEqual(["enpasscsv", "enpassjson"]);
-    expect(pickerFormatsFor("avastcsv")).toEqual(["avastcsv", "avastjson"]);
-    expect(pickerFormatsFor("delineaxml")).toEqual(["delineaxml", "delineacsv"]);
+    expect(pickerFormatsFor("bitwarden")).toEqual(["bitwardenjson", "bitwardencsv"]);
+    expect(pickerFormatsFor("dashlane")).toEqual(["dashlanecsv", "dashlanejson"]);
+    expect(pickerFormatsFor("enpass")).toEqual(["enpasscsv", "enpassjson"]);
+    expect(pickerFormatsFor("avast")).toEqual(["avastcsv", "avastjson"]);
+    expect(pickerFormatsFor("delinea")).toEqual(["delineaxml", "delineacsv"]);
   });
 
   it("groups KeePass's kdbx and KeePassX's csv siblings under one KeePass card", () => {
-    expect(pickerFormatsFor("keepass2xml")).toEqual(["keepass2xml", "keepasskdbx", "keepassxcsv"]);
+    expect(pickerFormatsFor("keepass")).toEqual(["keepasskdbx", "keepass2xml", "keepassxcsv"]);
   });
 
   it("resolves Keeper's manual-mode formats, not the direct-import pseudo-format", () => {
@@ -67,12 +67,44 @@ describe("pickerFormatsFor", () => {
 
 describe("pickerAlwaysPromptsFormat", () => {
   it("is true for KeePass (whose sibling formats never collide on extension) and 1Password (whose wincsv/maccsv siblings do)", () => {
-    expect(pickerAlwaysPromptsFormat("keepass2xml")).toBe(true);
-    expect(pickerAlwaysPromptsFormat("1password1pux")).toBe(true);
+    expect(pickerAlwaysPromptsFormat("keepass")).toBe(true);
+    expect(pickerAlwaysPromptsFormat("1password")).toBe(true);
   });
 
   it("is false for vendors with no entry, or no flag set", () => {
     expect(pickerAlwaysPromptsFormat("chromecsv")).toBe(false);
     expect(pickerAlwaysPromptsFormat("some-unknown-id")).toBe(false);
+  });
+});
+
+describe("picker vendors that group several formats", () => {
+  const entryFor = (id: string) => importOptions.find((option) => option.id === id);
+  const union = (lists: readonly (readonly string[])[]) => Array.from(new Set(lists.flat()));
+  const vendorIds = Array.from(VENDOR_ONLY_IMPORT_TYPE_IDS);
+
+  it("are exactly the vendor-only ids, apart from keeper whose id is already its own entry", () => {
+    const grouped = importOptions
+      .filter((option) => isPickerVendor(option.id) && pickerFormatsFor(option.id).length > 1)
+      .map((option) => option.id)
+      .filter((id) => id !== "keeper");
+
+    expect(grouped.sort()).toEqual([...vendorIds].sort());
+  });
+
+  it.each(vendorIds)("%s lists only formats that exist and are not vendor-only", (id) => {
+    const formats = pickerFormatsFor(id);
+
+    expect(formats.length).toBeGreaterThan(1);
+    for (const format of formats) {
+      expect(entryFor(format)).toBeDefined();
+      expect(VENDOR_ONLY_IMPORT_TYPE_IDS.has(format)).toBe(false);
+    }
+  });
+
+  it.each(vendorIds)("%s's entry carries the union of its formats' file types", (id) => {
+    const formats = pickerFormatsFor(id).map((format) => entryFor(format)!);
+
+    expect(entryFor(id)!.acceptedFileTypes).toEqual(union(formats.map((f) => f.acceptedFileTypes)));
+    expect(entryFor(id)!.pasteFormats).toEqual(union(formats.map((f) => f.pasteFormats)));
   });
 });

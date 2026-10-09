@@ -227,10 +227,10 @@ export class ImportControlsComponent {
   );
 
   protected readonly acceptedFileTypesHint = computed(() =>
-    toHint(this.userPickedFormat()?.acceptedFileTypes, this.acceptedFileTypes()),
+    toHint(this.selectedFormat()?.acceptedFileTypes, this.acceptedFileTypes()),
   );
   protected readonly pasteFormatsHint = computed(() =>
-    toHint(this.userPickedFormat()?.pasteFormats, this.pasteFormats()),
+    toHint(this.selectedFormat()?.pasteFormats, this.pasteFormats()),
   );
 
   private readonly importType$ = toObservable(this.importType);
@@ -504,16 +504,8 @@ export class ImportControlsComponent {
     initialValue: this.formGroup.controls.formatChoice.value,
   });
 
-  // Dirty only after a real pick: the seeded default uses setValue(), which leaves it pristine.
-  private readonly formatChoiceDirty = toSignal(
-    this.formGroup.controls.formatChoice.events.pipe(
-      map(() => this.formGroup.controls.formatChoice.dirty),
-    ),
-    { initialValue: false },
-  );
-
-  private readonly userPickedFormat = computed<ImportOption | undefined>(() =>
-    this.formatChoiceActive() && this.formatChoiceDirty()
+  private readonly selectedFormat = computed<ImportOption | undefined>(() =>
+    this.formatChoiceActive()
       ? this.formatOptions().find((option) => option.id === this.formatChoice())
       : undefined,
   );

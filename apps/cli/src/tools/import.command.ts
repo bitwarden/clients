@@ -18,6 +18,7 @@ import {
   ImportServiceAbstraction,
   ImportType,
   SdkImportCredentials,
+  VENDOR_ONLY_IMPORT_TYPE_IDS,
 } from "@bitwarden/importer-core";
 
 import { Response } from "../models/response";
@@ -242,6 +243,7 @@ export class ImportCommand {
   private async list() {
     const options = this.importService
       .getImportOptions()
+      .filter((option) => !VENDOR_ONLY_IMPORT_TYPE_IDS.has(option.id))
       .sort((a, b) => {
         return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
       })

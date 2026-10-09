@@ -81,17 +81,18 @@ describe("expectedPasteShapeFor", () => {
 });
 
 describe("vendorSupportsPasteShapeNarrowing", () => {
-  it("is true for exactly the six target vendors", () => {
-    expect(vendorSupportsPasteShapeNarrowing("bitwardenjson")).toBe(true);
-    expect(vendorSupportsPasteShapeNarrowing("dashlanecsv")).toBe(true);
+  it("is true for exactly the seven target vendors", () => {
+    expect(vendorSupportsPasteShapeNarrowing("bitwarden")).toBe(true);
+    expect(vendorSupportsPasteShapeNarrowing("dashlane")).toBe(true);
     expect(vendorSupportsPasteShapeNarrowing("keeper")).toBe(true);
-    expect(vendorSupportsPasteShapeNarrowing("enpasscsv")).toBe(true);
-    expect(vendorSupportsPasteShapeNarrowing("avastcsv")).toBe(true);
-    expect(vendorSupportsPasteShapeNarrowing("delineaxml")).toBe(true);
+    expect(vendorSupportsPasteShapeNarrowing("enpass")).toBe(true);
+    expect(vendorSupportsPasteShapeNarrowing("avast")).toBe(true);
+    expect(vendorSupportsPasteShapeNarrowing("delinea")).toBe(true);
+    expect(vendorSupportsPasteShapeNarrowing("keepass")).toBe(true);
   });
 
   it("is false for 1Password, even though its group also has a paste-format collision", () => {
-    expect(vendorSupportsPasteShapeNarrowing("1password1pux")).toBe(false);
+    expect(vendorSupportsPasteShapeNarrowing("1password")).toBe(false);
   });
 
   it("is false for a vendor with no collision at all", () => {

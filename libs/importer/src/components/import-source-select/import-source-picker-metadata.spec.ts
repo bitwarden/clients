@@ -2,8 +2,8 @@ import { pickerIconFor } from "./import-source-picker-metadata";
 
 describe("pickerIconFor", () => {
   it("returns the dark variant for a vendor that has one, when isDark is true", () => {
-    const light = pickerIconFor("1password1pux", false);
-    const dark = pickerIconFor("1password1pux", true);
+    const light = pickerIconFor("1password", false);
+    const dark = pickerIconFor("1password", true);
 
     expect(light).toBeDefined();
     expect(dark).toBeDefined();

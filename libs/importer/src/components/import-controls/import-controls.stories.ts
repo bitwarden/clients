@@ -77,6 +77,14 @@ const options: Record<string, ImportOption> = {
     sourceName: "Chrome",
     instructionLink: "https://bitwarden.com/help/import-from-chrome/",
   }),
+  dashlane: buildOption({
+    id: "dashlane",
+    name: "Dashlane",
+    acceptedFileTypes: ["csv", "json"],
+    pasteFormats: ["csv", "json"],
+    sourceName: "Dashlane",
+    instructionKey: "importDashlaneCsvInstructions",
+  }),
   dashlanecsv: buildOption({
     id: "dashlanecsv",
     name: "Dashlane (csv)",
@@ -89,6 +97,14 @@ const options: Record<string, ImportOption> = {
     acceptedFileTypes: ["json"],
     pasteFormats: ["json"],
     instructionKey: "importDashlaneJsonInstructions",
+  }),
+  "1password": buildOption({
+    id: "1password",
+    name: "1Password",
+    acceptedFileTypes: ["1pux", "json", "1pif", "csv"],
+    pasteFormats: ["json", "1pif", "csv"],
+    sourceName: "1Password",
+    instructionLink: "https://bitwarden.com/help/import-from-1password/",
   }),
   "1password1pux": buildOption({
     id: "1password1pux",
@@ -115,6 +131,14 @@ const options: Record<string, ImportOption> = {
     name: "1Password 6 and 7 Mac (csv)",
     acceptedFileTypes: ["csv"],
     pasteFormats: ["csv"],
+  }),
+  keepass: buildOption({
+    id: "keepass",
+    name: "KeePass",
+    acceptedFileTypes: ["kdbx", "xml", "csv"],
+    pasteFormats: ["xml", "csv"],
+    sourceName: "KeePass",
+    instructionLink: "https://bitwarden.com/help/import-from-keepass/",
   }),
   keepass2xml: buildOption({
     id: "keepass2xml",
@@ -334,8 +358,8 @@ function decoratorsFor(
               importAcceptedFormats: (formats?: string) => `Accepted: ${formats}`,
               importVendorFileType: (vendor?: string) => `${vendor} file type`,
               fastest: "Fastest",
-              keePassMasterPassword: "Master password",
-              keyFileUpload: "Key file",
+              keePassMasterPasswordV2: (vendor?: string) => `${vendor} password`,
+              keyFileUploadV2: "Key file",
               addKeyFile: "Add key file",
             }),
         },
@@ -393,7 +417,7 @@ export const FileOnly: Story = {
   decorators: decoratorsFor(ClientType.Web),
   render: (args) => ({
     props: args,
-    template: `<importer-controls importType="dashlanecsv"></importer-controls>`,
+    template: `<importer-controls importType="dashlane"></importer-controls>`,
   }),
 };
 
@@ -403,7 +427,7 @@ export const VendorFormatGrouping: Story = {
   decorators: decoratorsFor(ClientType.Web),
   render: (args) => ({
     props: args,
-    template: `<importer-controls importType="1password1pux"></importer-controls>`,
+    template: `<importer-controls importType="1password"></importer-controls>`,
   }),
 };
 
@@ -414,6 +438,6 @@ export const KdbxCredentials: Story = {
   decorators: decoratorsFor(ClientType.Web),
   render: (args) => ({
     props: args,
-    template: `<importer-controls importType="keepass2xml"></importer-controls>`,
+    template: `<importer-controls importType="keepass"></importer-controls>`,
   }),
 };

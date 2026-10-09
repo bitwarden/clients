@@ -5579,6 +5579,15 @@
   "keePassMasterPassword": {
     "message": "KeePass master password"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$ password",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
   "kdbxPasswordRequired": {
     "message": "Password is required."
   },
@@ -5595,7 +5604,7 @@
     "message": "Select profile"
   },
   "kdbxPasswordInvalid": {
-    "message": "Enter a valid password."
+    "message": "Enter a valid password"
   },
   "importAccountMismatchError": {
     "message": "This file can only be imported into the account it was exported from."
@@ -5605,6 +5614,9 @@
   },
   "keyFileUpload": {
     "message": "Key file upload"
+  },
+  "keyFileUploadV2": {
+    "message": "Key file"
   },
   "kdbxFileUpload": {
     "message": "KDBX file upload"

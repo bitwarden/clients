@@ -204,8 +204,8 @@
         }
 
         @if (needsKdbxCredentials()) {
-          <bit-form-field>
-            <bit-label>{{ "keePassMasterPassword" | i18n }}</bit-label>
+          <bit-form-field class="tw-max-w-sm">
+            <bit-label>{{ "keePassMasterPasswordV2" | i18n: vendorName() }}</bit-label>
             <input
               bitInput
               type="password"
@@ -217,7 +217,7 @@
 
           @if (showKeyFile()) {
             <bit-file-upload formControlName="keyFile" id="importer-controls_input_key-file">
-              <bit-label>{{ "keyFileUpload" | i18n }}</bit-label>
+              <bit-label>{{ "keyFileUploadV2" | i18n }}</bit-label>
             </bit-file-upload>
           } @else {
             <button

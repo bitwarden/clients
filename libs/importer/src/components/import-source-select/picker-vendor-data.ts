@@ -15,13 +15,13 @@ interface PickerVendorData {
 }
 
 const PICKER_VENDOR_DATA: Partial<Record<ImportType, PickerVendorData>> = {
-  bitwardenjson: { displayName: "Bitwarden", formats: ["bitwardenjson", "bitwardencsv"] },
+  bitwarden: { displayName: "Bitwarden", formats: ["bitwardenjson", "bitwardencsv"] },
   chromecsv: { displayName: "Chrome" },
-  dashlanecsv: { displayName: "Dashlane", formats: ["dashlanecsv", "dashlanejson"] },
+  dashlane: { displayName: "Dashlane", formats: ["dashlanecsv", "dashlanejson"] },
   firefoxcsv: { displayName: "Firefox" },
-  keepass2xml: {
+  keepass: {
     displayName: "KeePass",
-    formats: ["keepass2xml", "keepasskdbx", "keepassxcsv"],
+    formats: ["keepasskdbx", "keepass2xml", "keepassxcsv"],
     alwaysPromptFormat: true,
   },
   // No bare "keeper" entry in this list: that id is the direct-import pseudo-format, not a file
@@ -29,13 +29,13 @@ const PICKER_VENDOR_DATA: Partial<Record<ImportType, PickerVendorData>> = {
   keeper: { displayName: "Keeper", formats: ["keepercsv", "keeperjson"] },
   lastpasscsv: { displayName: "LastPass" },
   safaricsv: { displayName: "Safari" },
-  "1password1pux": {
+  "1password": {
     displayName: "1Password",
     formats: ["1password1pux", "1password1pif", "1passwordwincsv", "1passwordmaccsv"],
     alwaysPromptFormat: true,
   },
   roboformcsv: { displayName: "RoboForm" },
-  enpasscsv: { displayName: "Enpass", formats: ["enpasscsv", "enpassjson"] },
+  enpass: { displayName: "Enpass", formats: ["enpasscsv", "enpassjson"] },
   protonpass: { displayName: "Proton Pass" },
   safeincloudxml: { displayName: "SafeInCloud" },
   pwsafexml: { displayName: "Password Safe" },
@@ -60,7 +60,7 @@ const PICKER_VENDOR_DATA: Partial<Record<ImportType, PickerVendorData>> = {
   passwordagentcsv: { displayName: "Password Agent" },
   passpackcsv: { displayName: "Passpack" },
   passmanjson: { displayName: "Passman" },
-  avastcsv: { displayName: "Avast", formats: ["avastcsv", "avastjson"] },
+  avast: { displayName: "Avast", formats: ["avastcsv", "avastjson"] },
   fsecurefsk: { displayName: "F-Secure" },
   kasperskytxt: { displayName: "Kaspersky" },
   securesafecsv: { displayName: "SecureSafe" },
@@ -74,7 +74,7 @@ const PICKER_VENDOR_DATA: Partial<Record<ImportType, PickerVendorData>> = {
   passwordxpcsv: { displayName: "Password XP" },
   netwrixpasswordsecure: { displayName: "Netwrix" },
   passworddepot17xml: { displayName: "Password Depot" },
-  delineaxml: { displayName: "Delinea", formats: ["delineaxml", "delineacsv"] },
+  delinea: { displayName: "Delinea", formats: ["delineaxml", "delineacsv"] },
   gnomejson: { displayName: "GNOME" },
   blurcsv: { displayName: "Blur" },
   remembearcsv: { displayName: "RememBear" },
@@ -125,9 +125,9 @@ export const PICKER_BROWSER_ORDER: readonly ImportType[] = [
 
 /** Display order for the featured Password managers section */
 export const PICKER_FEATURED_PASSWORD_MANAGER_ORDER: readonly ImportType[] = [
-  "1password1pux",
-  "dashlanecsv",
-  "keepass2xml",
+  "1password",
+  "dashlane",
+  "keepass",
   "keeper",
   "lastpasscsv",
   "protonpass",

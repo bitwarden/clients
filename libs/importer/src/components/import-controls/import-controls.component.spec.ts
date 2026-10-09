@@ -169,6 +169,13 @@ describe("ImportControlsComponent", () => {
         hasDirectImporter: true,
         loaders: [Loader.file],
       }),
+      dashlane: buildOption({
+        id: "dashlane",
+        name: "Dashlane",
+        acceptedFileTypes: ["csv", "json"],
+        pasteFormats: ["csv", "json"],
+        instructionKey: "importDashlaneCsvInstructions",
+      }),
       dashlanecsv: buildOption({
         id: "dashlanecsv",
         name: "Dashlane (csv)",
@@ -180,6 +187,12 @@ describe("ImportControlsComponent", () => {
         acceptedFileTypes: ["json"],
         pasteFormats: ["json"],
         instructionKey: "importDashlaneJsonInstructions",
+      }),
+      "1password": buildOption({
+        id: "1password",
+        name: "1Password",
+        acceptedFileTypes: ["1pux", "json", "1pif", "csv"],
+        pasteFormats: ["json", "1pif", "csv"],
       }),
       "1password1pux": buildOption({
         id: "1password1pux",
@@ -204,6 +217,12 @@ describe("ImportControlsComponent", () => {
         name: "1Password 6 and 7 Mac (csv)",
         acceptedFileTypes: ["csv"],
         pasteFormats: ["csv"],
+      }),
+      keepass: buildOption({
+        id: "keepass",
+        name: "KeePass",
+        acceptedFileTypes: ["kdbx", "xml", "csv"],
+        pasteFormats: ["xml", "csv"],
       }),
       keepass2xml: buildOption({
         id: "keepass2xml",
@@ -232,6 +251,12 @@ describe("ImportControlsComponent", () => {
         instructionKey: "importChromiumAliasPreamble",
         instructionLink: "https://bitwarden.com/help/import-from-chrome/",
       }),
+      delinea: buildOption({
+        id: "delinea",
+        name: "Delinea",
+        acceptedFileTypes: ["xml", "csv"],
+        pasteFormats: ["xml", "csv"],
+      }),
       delineaxml: buildOption({
         id: "delineaxml",
         name: "Delinea (xml)",
@@ -241,6 +266,12 @@ describe("ImportControlsComponent", () => {
       delineacsv: buildOption({
         id: "delineacsv",
         name: "Delinea (csv)",
+      }),
+      bitwarden: buildOption({
+        id: "bitwarden",
+        name: "Bitwarden",
+        acceptedFileTypes: ["json", "csv"],
+        pasteFormats: ["json", "csv"],
       }),
       bitwardenjson: buildOption({
         id: "bitwardenjson",
@@ -354,7 +385,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("defaults to manual for a vendor with no direct importer at all", async () => {
-      await setup("dashlanecsv", ClientType.Desktop);
+      await setup("dashlane", ClientType.Desktop);
       expect(component().primaryMode()).toBe("manual");
     });
   });
@@ -423,7 +454,7 @@ describe("ImportControlsComponent", () => {
       await setup("chromecsv", ClientType.Desktop);
       expect(component().profiles().length).toBe(1);
 
-      fixture.componentRef.setInput("importType", "dashlanecsv");
+      fixture.componentRef.setInput("importType", "dashlane");
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -568,7 +599,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("has no alternate for a file-only vendor", async () => {
-      await setup("dashlanecsv", ClientType.Desktop);
+      await setup("dashlane", ClientType.Desktop);
       expect(component().hasAlternate()).toBe(false);
     });
 
@@ -703,14 +734,14 @@ describe("ImportControlsComponent", () => {
 
   describe("vendor format grouping", () => {
     it("unions accepted file types across every sibling format", async () => {
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
       expect(component().acceptedFileTypes()).toEqual(
         expect.arrayContaining(["1pux", "json", "1pif", "csv"]),
       );
     });
 
     it("prefixes each extension with a dot in the hint text, unlike the raw acceptedFileTypes", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       expect(component().acceptedFileTypesHint()).toBe(".csv, .json");
 
       component().formGroup.controls.method.setValue("paste");
@@ -726,19 +757,18 @@ describe("ImportControlsComponent", () => {
       fixture.detectChanges();
     };
 
-    it("shows the full sibling union for a format dropdown vendor (KeePass) until the user picks", async () => {
-      await setup("keepass2xml", ClientType.Web);
+    it("narrows the hint to the seeded default for a format dropdown vendor (KeePass)", async () => {
+      await setup("keepass", ClientType.Web);
       fixture.detectChanges();
-      expect(component().acceptedFileTypesHint()).toBe(".xml, .kdbx, .csv");
+      expect(component().acceptedFileTypesHint()).toBe(".kdbx");
 
-      // Seeded without a user pick: must not narrow.
-      component().formGroup.controls.formatChoice.setValue("keepasskdbx");
+      component().formGroup.controls.formatChoice.setValue("keepass2xml");
       fixture.detectChanges();
-      expect(component().acceptedFileTypesHint()).toBe(".xml, .kdbx, .csv");
+      expect(component().acceptedFileTypesHint()).toBe(".xml");
     });
 
     it("narrows the hint to the format the user picked from the dropdown (KeePass)", async () => {
-      await setup("keepass2xml", ClientType.Web);
+      await setup("keepass", ClientType.Web);
       pickFormat("keepasskdbx");
       expect(component().acceptedFileTypesHint()).toBe(".kdbx");
 
@@ -746,10 +776,10 @@ describe("ImportControlsComponent", () => {
       expect(component().acceptedFileTypesHint()).toBe(".csv");
     });
 
-    it("narrows 1Password's hint after a user pick, and keeps the union before it", async () => {
-      await setup("1password1pux", ClientType.Web);
+    it("narrows 1Password's hint to the seeded default, and keeps the union while a file collision is unresolved", async () => {
+      await setup("1password", ClientType.Web);
       fixture.detectChanges();
-      expect(component().acceptedFileTypesHint()).toBe(".1pux, .json, .1pif, .csv");
+      expect(component().acceptedFileTypesHint()).toBe(".1pux, .json");
 
       component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
       fixture.detectChanges();
@@ -759,28 +789,29 @@ describe("ImportControlsComponent", () => {
       expect(component().acceptedFileTypesHint()).toBe(".csv");
     });
 
-    it("narrows the paste hint to the picked format's pasteFormats", async () => {
-      await setup("keepass2xml", ClientType.Web);
+    it("narrows the paste hint to the seeded default, then to the picked format's pasteFormats", async () => {
+      await setup("keepass", ClientType.Web);
       component().formGroup.controls.method.setValue("paste");
       fixture.detectChanges();
-      expect(component().pasteFormatsHint()).toBe(".xml, .csv");
+      // kdbx can't be pasted, so the seed skips it.
+      expect(component().pasteFormatsHint()).toBe(".xml");
 
       pickFormat("keepassxcsv");
       expect(component().pasteFormatsHint()).toBe(".csv");
     });
 
-    it("reverts the hint to the union when the method changes", async () => {
-      await setup("keepass2xml", ClientType.Web);
-      pickFormat("keepasskdbx");
-      expect(component().acceptedFileTypesHint()).toBe(".kdbx");
+    it("re-seeds the hint to the default when the method changes", async () => {
+      await setup("keepass", ClientType.Web);
+      pickFormat("keepassxcsv");
+      expect(component().acceptedFileTypesHint()).toBe(".csv");
 
       component().formGroup.controls.method.setValue("paste");
       fixture.detectChanges();
-      expect(component().pasteFormatsHint()).toBe(".xml, .csv");
+      expect(component().pasteFormatsHint()).toBe(".xml");
     });
 
     it("reverts the hint to the union when a different file replaces the chosen one", async () => {
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
       pickFormat("1passwordmaccsv");
       expect(component().acceptedFileTypesHint()).toBe(".csv");
@@ -791,23 +822,23 @@ describe("ImportControlsComponent", () => {
     });
 
     it("keeps fileAccept() as the full union for a vendor with no format dropdown", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       expect(component().fileAccept()).toBe(".csv,.json");
     });
 
-    it("keeps fileAccept() as the full sibling union for a vendor with a format dropdown (KeePass), matching the hint", async () => {
-      await setup("keepass2xml", ClientType.Web);
+    it("keeps fileAccept() as the full sibling union for a vendor with a format dropdown (KeePass), regardless of the hint", async () => {
+      await setup("keepass", ClientType.Web);
       component().formGroup.controls.formatChoice.setValue("keepasskdbx");
       fixture.detectChanges();
-      expect(component().fileAccept()).toBe(".xml,.kdbx,.csv");
+      expect(component().fileAccept()).toBe(".kdbx,.xml,.csv");
 
       component().formGroup.controls.formatChoice.setValue("keepassxcsv");
       fixture.detectChanges();
-      expect(component().fileAccept()).toBe(".xml,.kdbx,.csv");
+      expect(component().fileAccept()).toBe(".kdbx,.xml,.csv");
     });
 
     it("keeps fileAccept() as the full sibling union for 1Password too, matching the hint", async () => {
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
       fixture.detectChanges();
       expect(component().fileAccept()).toBe(".1pux,.json,.1pif,.csv");
 
@@ -818,21 +849,21 @@ describe("ImportControlsComponent", () => {
     });
 
     it("binds the method radio group's block input to true, so it actually renders stacked vertically", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       const radioGroup = fixture.debugElement.query(By.css("bit-radio-group"));
 
       expect((radioGroup.componentInstance as { block: () => boolean }).block()).toBe(true);
     });
 
     it("applies the deep-selector margin override to the file-upload element", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       const fileUpload = fixture.nativeElement.querySelector("bit-file-upload");
 
       expect(fileUpload.className).toContain("[&_bit-form-field]:!tw-mb-0");
     });
 
     it("renders formatChoice as a dropdown, labeled with the vendor name, not a radio group", async () => {
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
       fixture.detectChanges();
 
@@ -842,7 +873,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("labels an unambiguous always-prompt format with a bare extension, not the full descriptive name", async () => {
-      await setup("keepass2xml", ClientType.Web);
+      await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.kdbx" } as File);
       fixture.detectChanges();
 
@@ -853,7 +884,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("keeps the full descriptive label for a genuine collision (Windows vs. Mac csv)", async () => {
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
       fixture.detectChanges();
 
@@ -865,7 +896,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("falls back to the full descriptive label for a shared extension even outside a disambiguation prompt (1Password's wincsv/maccsv, before any file narrows the list)", async () => {
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
       fixture.detectChanges();
 
       expect(component().needsFormatDisambiguation()).toBe(false);
@@ -881,7 +912,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("keeps the .1pux/.json label for 1password1pux even once a real .json file resolves it", async () => {
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.json" } as File);
       fixture.detectChanges();
 
@@ -892,7 +923,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("keeps a pre-file dropdown pick when it's still valid for the first file chosen, instead of discarding it", async () => {
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
       component().formGroup.controls.formatChoice.setValue("1passwordmaccsv");
       fixture.detectChanges();
 
@@ -906,7 +937,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("still forces independent re-confirmation on a SECOND ambiguous file, even if the first file's answer is still technically valid", async () => {
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "first.csv" } as File);
       fixture.detectChanges();
       component().formGroup.controls.formatChoice.setValue("1passwordmaccsv");
@@ -921,7 +952,7 @@ describe("ImportControlsComponent", () => {
     it("does not let a cosmetic pre-file auto-seed survive into the genuine collision the first real file creates", async () => {
       // A cosmetic seed (not a real pick) must still reset correctly — it's only ever preserved
       // because it never coincides with this vendor's real collision set, not because it's "safe".
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
       fixture.detectChanges();
       expect(component().formGroup.controls.formatChoice.value).toBe("1password1pux");
 
@@ -936,7 +967,7 @@ describe("ImportControlsComponent", () => {
     it("falls back to the candidate's name if it declares no accepted file type (file mode) or paste format (paste mode)", async () => {
       // Not reachable with real data today (every entry declares at least one of each) — guards
       // against a future entry that omits one, rather than rendering a bare ".undefined" label.
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       const noFileType = buildOption({ id: "no-file-type", acceptedFileTypes: [] });
       const noPasteFormat = buildOption({ id: "no-paste-format", pasteFormats: [] });
 
@@ -948,7 +979,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("labels by pasteFormats in paste mode, not acceptedFileTypes — there's no file extension to show", async () => {
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
       component().formGroup.controls.method.setValue("paste");
       fixture.detectChanges();
 
@@ -965,7 +996,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("does not need disambiguation for a vendor with no extension collision", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
       fixture.detectChanges();
 
@@ -974,7 +1005,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("never renders the format dropdown for an ordinary vendor, with or without a file chosen", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       fixture.detectChanges();
 
       expect(component().showFormatChoice()).toBe(false);
@@ -988,7 +1019,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("shows the resolved sibling format's own instructions once one resolves, not the vendor default", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       expect(component().activeInstructions().instructionKey).toBe("importDashlaneCsvInstructions");
 
       component().formGroup.controls.file.setValue({ name: "export.json" } as File);
@@ -1024,7 +1055,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("needs disambiguation for 1Password's Windows/Mac csv collision, and resolves once chosen", async () => {
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
       fixture.detectChanges();
 
@@ -1043,7 +1074,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("resolves unambiguous extensions (.1pux, .json, .1pif) without disambiguation", async () => {
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
 
       component().formGroup.controls.file.setValue({ name: "export.1pux" } as File);
       fixture.detectChanges();
@@ -1055,7 +1086,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("resolves an always-prompt vendor's dropdown pick before any file is chosen, instead of leaving it decorative", async () => {
-      await setup("keepass2xml", ClientType.Web);
+      await setup("keepass", ClientType.Web);
       fixture.detectChanges();
 
       expect(component().candidateFormats()).toEqual([]);
@@ -1067,7 +1098,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("re-enables and re-seeds formatChoice after re-selecting a same-named file, instead of leaving it stuck blank", async () => {
-      await setup("keepass2xml", ClientType.Web);
+      await setup("keepass", ClientType.Web);
       const firstFile = { name: "Database.kdbx" } as File;
       component().formGroup.controls.file.setValue(firstFile);
       fixture.detectChanges();
@@ -1088,7 +1119,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("still reports unresolved for an always-prompt vendor once a file is chosen that matches no format", async () => {
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.pdf" } as File);
       fixture.detectChanges();
 
@@ -1102,7 +1133,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("surfaces the real 'unsupported file type' toast on the first submit() for an always-prompt vendor, not a spurious required error", async () => {
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.pdf" } as File);
       fixture.detectChanges();
 
@@ -1114,7 +1145,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("does not resolve an ordinary vendor's empty candidate set from a leftover formatChoice value", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       fixture.detectChanges();
 
       expect(component().candidateFormats()).toEqual([]);
@@ -1122,7 +1153,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("clears a stale format choice when a new file is chosen, resolving unambiguously", async () => {
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
       component().formGroup.controls.formatChoice.setValue("1passwordmaccsv");
 
@@ -1135,7 +1166,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("resolves a second ambiguous file's choice independently of the first (formatChoice reset takes effect)", async () => {
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "first.csv" } as File);
       fixture.detectChanges();
       component().formGroup.controls.formatChoice.setValue("1passwordmaccsv");
@@ -1151,7 +1182,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("re-derives the filename correctly after switching away from file method and back", async () => {
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.1pux" } as File);
       fixture.detectChanges();
       expect(component().resolvedFormat()).toBe("1password1pux");
@@ -1167,7 +1198,7 @@ describe("ImportControlsComponent", () => {
 
     describe("paste method", () => {
       it("offers every paste-capable format once content is present, for a vendor whose siblings aren't shape-narrowable (1Password)", async () => {
-        await setup("1password1pux", ClientType.Web);
+        await setup("1password", ClientType.Web);
         component().formGroup.controls.method.setValue("paste");
         component().formGroup.controls.fileContents.setValue('{"some": "json"}');
         fixture.detectChanges();
@@ -1181,7 +1212,7 @@ describe("ImportControlsComponent", () => {
       });
 
       it("does not default to the first label in the list — requires an explicit choice", async () => {
-        await setup("1password1pux", ClientType.Web);
+        await setup("1password", ClientType.Web);
         component().formGroup.controls.method.setValue("paste");
         component().formGroup.controls.fileContents.setValue(
           "url,username,password\nhttps://example.com,me,hunter2",
@@ -1199,7 +1230,7 @@ describe("ImportControlsComponent", () => {
       it("keeps an explicit choice when the content is edited further without changing the candidate set", async () => {
         // 1Password is never shape-narrowable, so needsFormatDisambiguation() stays true on every
         // keystroke, not just the one that created the collision.
-        await setup("1password1pux", ClientType.Web);
+        await setup("1password", ClientType.Web);
         component().formGroup.controls.method.setValue("paste");
         component().formGroup.controls.fileContents.setValue(
           "url,username,password\nhttps://example.com,me,hunter2",
@@ -1218,7 +1249,7 @@ describe("ImportControlsComponent", () => {
       });
 
       it("does not let a formatChoice seeded while unambiguous survive into a genuine collision the edited content now creates", async () => {
-        await setup("1password1pux", ClientType.Web);
+        await setup("1password", ClientType.Web);
         component().formGroup.controls.method.setValue("paste");
         fixture.detectChanges();
 
@@ -1236,7 +1267,7 @@ describe("ImportControlsComponent", () => {
       });
 
       it("shows no candidates until content is actually present", async () => {
-        await setup("dashlanecsv", ClientType.Web);
+        await setup("dashlane", ClientType.Web);
         component().formGroup.controls.method.setValue("paste");
         fixture.detectChanges();
 
@@ -1244,7 +1275,7 @@ describe("ImportControlsComponent", () => {
       });
 
       it("narrows to the single matching format by content shape for a shape-narrowable vendor, needing no explicit choice", async () => {
-        await setup("dashlanecsv", ClientType.Web);
+        await setup("dashlane", ClientType.Web);
         component().formGroup.controls.method.setValue("paste");
         component().formGroup.controls.fileContents.setValue('{"some": "json"}');
         fixture.detectChanges();
@@ -1254,7 +1285,7 @@ describe("ImportControlsComponent", () => {
       });
 
       it("narrows to the csv sibling for a shape-narrowable vendor when the content doesn't look like json/xml", async () => {
-        await setup("dashlanecsv", ClientType.Web);
+        await setup("dashlane", ClientType.Web);
         component().formGroup.controls.method.setValue("paste");
         component().formGroup.controls.fileContents.setValue(
           "url,username,password\nhttps://example.com,me,hunter2",
@@ -1266,7 +1297,7 @@ describe("ImportControlsComponent", () => {
       });
 
       it("narrows to the xml sibling for a shape-narrowable vendor with an xml/csv pair (Delinea)", async () => {
-        await setup("delineaxml", ClientType.Web);
+        await setup("delinea", ClientType.Web);
         component().formGroup.controls.method.setValue("paste");
         component().formGroup.controls.fileContents.setValue('<?xml version="1.0"?><root></root>');
         fixture.detectChanges();
@@ -1276,7 +1307,7 @@ describe("ImportControlsComponent", () => {
       });
 
       it("doesn't list keepasskdbx in the pre-content fallback, since it can't be pasted", async () => {
-        await setup("keepass2xml", ClientType.Web);
+        await setup("keepass", ClientType.Web);
         component().formGroup.controls.method.setValue("paste");
         fixture.detectChanges();
 
@@ -1288,7 +1319,7 @@ describe("ImportControlsComponent", () => {
       });
 
       it("narrows KeePass's xml/csv pair by shape, now that keepassxcsv joined the same picker card", async () => {
-        await setup("keepass2xml", ClientType.Web);
+        await setup("keepass", ClientType.Web);
         component().formGroup.controls.method.setValue("paste");
         component().formGroup.controls.fileContents.setValue('<?xml version="1.0"?><root></root>');
         fixture.detectChanges();
@@ -1298,7 +1329,7 @@ describe("ImportControlsComponent", () => {
       });
 
       it("narrows to the csv sibling for KeePass when pasted content doesn't look like xml", async () => {
-        await setup("keepass2xml", ClientType.Web);
+        await setup("keepass", ClientType.Web);
         component().formGroup.controls.method.setValue("paste");
         component().formGroup.controls.fileContents.setValue(
           "url,username,password\nhttps://example.com,me,hunter2",
@@ -1312,7 +1343,7 @@ describe("ImportControlsComponent", () => {
       it("stays valid and resolved when an input event re-emits identical pasted content", async () => {
         // pastedContent() dedupes as a toSignal, so this must not leave formatChoice null-and-required
         // with nothing left to re-seed it.
-        await setup("keepass2xml", ClientType.Web);
+        await setup("keepass", ClientType.Web);
         component().formGroup.controls.method.setValue("paste");
         const content = '<?xml version="1.0"?><root></root>';
         component().formGroup.controls.fileContents.setValue(content);
@@ -1327,7 +1358,7 @@ describe("ImportControlsComponent", () => {
       });
 
       it("still requires an explicit choice for 1Password's Windows/Mac csv pair, since content shape can't tell them apart", async () => {
-        await setup("1password1pux", ClientType.Web);
+        await setup("1password", ClientType.Web);
         component().formGroup.controls.method.setValue("paste");
         component().formGroup.controls.fileContents.setValue(
           "url,username,password\nhttps://example.com,me,hunter2",
@@ -1346,7 +1377,7 @@ describe("ImportControlsComponent", () => {
 
   describe("format choice required validation", () => {
     it("marks formatChoice required once enabled by genuine ambiguity, with the correct asterisk/required affordances", async () => {
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
       fixture.detectChanges();
 
@@ -1358,7 +1389,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("blocks submit() with an inline required error, and never reaches onContinue(), when an ambiguous format is unresolved", async () => {
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
       fixture.detectChanges();
       const continueSpy = jest.fn();
@@ -1393,14 +1424,14 @@ describe("ImportControlsComponent", () => {
 
   describe("file required validation", () => {
     it("marks the file control required in file mode", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
 
       expect(component().formGroup.controls.file.hasValidator(Validators.required)).toBe(true);
       expect(component().formGroup.controls.file.invalid).toBe(true);
     });
 
     it("clears the file control's required validator in paste mode", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
 
       component().formGroup.controls.method.setValue("paste");
       fixture.detectChanges();
@@ -1410,7 +1441,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("blocks submit() with an inline required error, and never reaches onContinue(), when no file is chosen in file mode", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       const continueSpy = jest.fn();
       component().continue.subscribe(continueSpy);
 
@@ -1426,7 +1457,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("lets submit() proceed once a file is chosen in file mode", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
       fixture.detectChanges();
       importService.getImporter.mockReturnValue({} as any);
@@ -1442,7 +1473,7 @@ describe("ImportControlsComponent", () => {
 
   describe("paste required validation", () => {
     it("marks the fileContents control required in paste mode", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
 
       component().formGroup.controls.method.setValue("paste");
       fixture.detectChanges();
@@ -1452,7 +1483,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("keeps Validators.required in the mix (not replaced by the trim-aware validator alone), so the field still renders as required before any submit attempt", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
 
       component().formGroup.controls.method.setValue("paste");
       fixture.detectChanges();
@@ -1468,7 +1499,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("also treats whitespace-only paste content as required-but-missing, not just a truly empty string", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
 
       component().formGroup.controls.method.setValue("paste");
       component().formGroup.controls.fileContents.setValue("   \n  ");
@@ -1479,14 +1510,14 @@ describe("ImportControlsComponent", () => {
     });
 
     it("clears the fileContents control's validator in file mode", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
 
       expect(component().formGroup.controls.fileContents.invalid).toBe(false);
       expect(component().formGroup.controls.fileContents.errors).toBeNull();
     });
 
     it("blocks submit() with an inline required error, and never reaches onContinue(), when nothing is pasted in paste mode", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.method.setValue("paste");
       fixture.detectChanges();
       const continueSpy = jest.fn();
@@ -1506,7 +1537,7 @@ describe("ImportControlsComponent", () => {
 
     it("checks the required validator before the personal ownership policy, so a policy-restricted user still sees the real problem first", async () => {
       policyService.policyAppliesToUser$.mockReturnValue(of(true));
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.method.setValue("paste");
       fixture.detectChanges();
       const continueSpy = jest.fn();
@@ -1522,7 +1553,7 @@ describe("ImportControlsComponent", () => {
 
     it("also blocks submit() inline for whitespace-only paste content, before the personal ownership policy check", async () => {
       policyService.policyAppliesToUser$.mockReturnValue(of(true));
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.method.setValue("paste");
       component().formGroup.controls.fileContents.setValue("   ");
       fixture.detectChanges();
@@ -1536,7 +1567,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("lets submit() proceed once content is pasted in paste mode", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.method.setValue("paste");
       component().formGroup.controls.fileContents.setValue("a,b");
       fixture.detectChanges();
@@ -1553,7 +1584,7 @@ describe("ImportControlsComponent", () => {
 
   describe("touched state across method switches", () => {
     it("does not show a stale required error on fileContents after switching from a blocked file-mode submit to paste", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
 
       // markAllAsTouched() touches every control, enabled or not.
       await component().submit();
@@ -1568,7 +1599,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("does not show a stale required error on file after switching from a blocked paste-mode submit to file", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.method.setValue("paste");
       fixture.detectChanges();
 
@@ -1658,7 +1689,7 @@ describe("ImportControlsComponent", () => {
 
   describe("kdbx credentials", () => {
     it("stays disabled for a non-kdbx resolved format", async () => {
-      await setup("keepass2xml", ClientType.Web);
+      await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.xml" } as File);
       fixture.detectChanges();
 
@@ -1667,7 +1698,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("enables the master password field once a .kdbx file is chosen", async () => {
-      await setup("keepass2xml", ClientType.Web);
+      await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.kdbx" } as File);
       fixture.detectChanges();
 
@@ -1677,7 +1708,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("reveals and enables the key file input only after addKeyFile()", async () => {
-      await setup("keepass2xml", ClientType.Web);
+      await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.kdbx" } as File);
       fixture.detectChanges();
       expect(component().showKeyFile()).toBe(false);
@@ -1691,7 +1722,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("disables the master password and key file fields again, and hides the key file input, once the format is no longer kdbx", async () => {
-      await setup("keepass2xml", ClientType.Web);
+      await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.kdbx" } as File);
       fixture.detectChanges();
       component().addKeyFile();
@@ -1707,7 +1738,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("clears the master password and key file values, not just disabling them, once the format is no longer kdbx", async () => {
-      await setup("keepass2xml", ClientType.Web);
+      await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.kdbx" } as File);
       fixture.detectChanges();
       component().formGroup.controls.kdbxPassword.setValue("hunter2");
@@ -1728,7 +1759,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("clears the master password and key file when swapping one kdbx database for another, without ever leaving the kdbx branch", async () => {
-      await setup("keepass2xml", ClientType.Web);
+      await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "personal.kdbx" } as File);
       fixture.detectChanges();
       component().formGroup.controls.kdbxPassword.setValue("hunter2");
@@ -1747,7 +1778,7 @@ describe("ImportControlsComponent", () => {
 
     it("does not show a stale 'invalid master password' error on a different kdbx file that hasn't been touched yet", async () => {
       // setValue("") clears the value but not touched, so a stale error would else still show.
-      await setup("keepass2xml", ClientType.Web);
+      await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "personal.kdbx" } as File);
       fixture.detectChanges();
       await component().submit();
@@ -1761,7 +1792,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("keeps Validators.required alongside the custom validator, so the password field still renders as required before any submit attempt", async () => {
-      await setup("keepass2xml", ClientType.Web);
+      await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.kdbx" } as File);
       fixture.detectChanges();
 
@@ -1774,7 +1805,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("shows the specific 'password is required' error, not the generic required message, when both validators fail on an empty value", async () => {
-      await setup("keepass2xml", ClientType.Web);
+      await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.kdbx" } as File);
       fixture.detectChanges();
 
@@ -1790,7 +1821,7 @@ describe("ImportControlsComponent", () => {
     it("renders the format dropdown and kdbx credentials before the file upload control, not after", async () => {
       // The dropdown is the control: picking .kdbx is what makes the password/key-file fields
       // relevant at all, so it (and they) must precede the upload input they gate, not follow it.
-      await setup("keepass2xml", ClientType.Web);
+      await setup("keepass", ClientType.Web);
       component().formGroup.controls.formatChoice.setValue("keepasskdbx");
       fixture.detectChanges();
 
@@ -1825,7 +1856,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("needs no password for an account-encrypted export", async () => {
-      await setup("bitwardenjson", ClientType.Web);
+      await setup("bitwarden", ClientType.Web);
       component().formGroup.controls.file.setValue(new File([accountEncrypted], "export.json"));
       fixture.detectChanges();
       await flushFileRead();
@@ -1838,7 +1869,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("shows a toast, not the generic error dialog, when an account-encrypted export can't be decrypted by the current account", async () => {
-      await setup("bitwardenjson", ClientType.Web);
+      await setup("bitwarden", ClientType.Web);
       component().formGroup.controls.file.setValue(new File([accountEncrypted], "export.json"));
       fixture.detectChanges();
       await flushFileRead();
@@ -1868,7 +1899,7 @@ describe("ImportControlsComponent", () => {
       // neither is specifically an account mismatch — BitwardenEncryptedJsonImporter throws a
       // plain ImportResultError (no errorKey) for both, which must fall through to the generic
       // dialog rather than the account-mismatch toast.
-      await setup("bitwardenjson", ClientType.Web);
+      await setup("bitwarden", ClientType.Web);
       component().formGroup.controls.file.setValue(new File([accountEncrypted], "export.json"));
       fixture.detectChanges();
       await flushFileRead();
@@ -1895,7 +1926,7 @@ describe("ImportControlsComponent", () => {
       // The Bitwarden picker card covers both bitwardenjson and bitwardencsv — the peek must key
       // off the resolved sub-format, not the picker card's importType(), or a CSV pick triggers a
       // doomed read+parse attempt on every file selection.
-      await setup("bitwardenjson", ClientType.Web);
+      await setup("bitwarden", ClientType.Web);
       component().formGroup.controls.file.setValue(
         new File(["url,username,password\nhttps://example.com,me,hunter2"], "export.csv"),
       );
@@ -1923,7 +1954,7 @@ describe("ImportControlsComponent", () => {
       // fail loudly here instead of silently passing for the wrong reason.
       expect(parseErrorMessage).toContain(fileContent.slice(0, 10));
 
-      await setup("bitwardenjson", ClientType.Web);
+      await setup("bitwarden", ClientType.Web);
       component().formGroup.controls.file.setValue(new File([fileContent], "export.json"));
       fixture.detectChanges();
       await flushFileRead();
@@ -1938,7 +1969,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("blocks submit() and disables Continue while the password-protection peek hasn't resolved yet", async () => {
-      await setup("bitwardenjson", ClientType.Web);
+      await setup("bitwarden", ClientType.Web);
       component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
       fixture.detectChanges();
 
@@ -1971,7 +2002,7 @@ describe("ImportControlsComponent", () => {
       // The race finding 1 closes: without a pending gate, needsFilePassword() is read after an
       // await, so the peek can flip from false to true mid-submit and the empty inline field value
       // gets submitted as the password instead of being blocked outright.
-      await setup("bitwardenjson", ClientType.Web);
+      await setup("bitwarden", ClientType.Web);
       component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
       fixture.detectChanges();
       expect(component().filePasswordCheckPending()).toBe(true);
@@ -1988,7 +2019,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("replaces the upload control with an inline password field for a password-protected export", async () => {
-      await setup("bitwardenjson", ClientType.Web);
+      await setup("bitwarden", ClientType.Web);
       component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
       fixture.detectChanges();
       await flushFileRead();
@@ -2001,7 +2032,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("shows the password-protected hint under the inline password field", async () => {
-      await setup("bitwardenjson", ClientType.Web);
+      await setup("bitwarden", ClientType.Web);
       component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
       fixture.detectChanges();
       await flushFileRead();
@@ -2013,7 +2044,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("announces the upload-to-password-field swap for screen readers, politely rather than interrupting", async () => {
-      await setup("bitwardenjson", ClientType.Web);
+      await setup("bitwarden", ClientType.Web);
       component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
       fixture.detectChanges();
       await flushFileRead();
@@ -2023,7 +2054,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("hides the method radio group once the inline password field appears, per Figma — only heading, callout, the field, and Back/Continue remain", async () => {
-      await setup("bitwardenjson", ClientType.Web);
+      await setup("bitwarden", ClientType.Web);
       expect(byId("importer-controls_radio_file")).toBeTruthy();
 
       component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
@@ -2036,7 +2067,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("shows the specific 'file password is required' error, not the generic required message, on an empty submit", async () => {
-      await setup("bitwardenjson", ClientType.Web);
+      await setup("bitwarden", ClientType.Web);
       component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
       fixture.detectChanges();
       await flushFileRead();
@@ -2057,7 +2088,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("resets the password field and re-shows the upload control once a non-protected file replaces the protected one", async () => {
-      await setup("bitwardenjson", ClientType.Web);
+      await setup("bitwarden", ClientType.Web);
       component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
       fixture.detectChanges();
       await flushFileRead();
@@ -2074,7 +2105,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("passes the inline field's value directly to the importer, not the dialog-based prompt", async () => {
-      await setup("bitwardenjson", ClientType.Web);
+      await setup("bitwarden", ClientType.Web);
       component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
       fixture.detectChanges();
       await flushFileRead();
@@ -2095,7 +2126,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("shows an inline error and doesn't open the generic error dialog when the password is wrong", async () => {
-      await setup("bitwardenjson", ClientType.Web);
+      await setup("bitwarden", ClientType.Web);
       component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
       fixture.detectChanges();
       await flushFileRead();
@@ -2132,7 +2163,7 @@ describe("ImportControlsComponent", () => {
       // A same-message but keyless error (the realistic shape every OTHER importer's errorMessage
       // produces) must NOT be treated as a wrong password — proves the check is structural
       // (ImportResultError.errorKey), not a coincidental string match against translated text.
-      await setup("bitwardenjson", ClientType.Web);
+      await setup("bitwarden", ClientType.Web);
       component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
       fixture.detectChanges();
       await flushFileRead();
@@ -2159,7 +2190,7 @@ describe("ImportControlsComponent", () => {
       // the signal stays true after switching to paste, enabling a required field that the
       // template never renders in paste mode — permanently deadlocking submit() with zero
       // feedback, since markAllAsTouched() has nothing in the DOM to show an error on.
-      await setup("bitwardenjson", ClientType.Web);
+      await setup("bitwarden", ClientType.Web);
       component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
       fixture.detectChanges();
       await flushFileRead();
@@ -2185,7 +2216,7 @@ describe("ImportControlsComponent", () => {
       fixture.detectChanges();
       expect(component().primaryMode()).toBe("manual");
 
-      fixture.componentRef.setInput("importType", "dashlanecsv");
+      fixture.componentRef.setInput("importType", "dashlane");
       fixture.detectChanges();
 
       expect(component()["primaryModeOverride"]()).toBeUndefined();
@@ -2196,16 +2227,16 @@ describe("ImportControlsComponent", () => {
 
     it("seeds formatChoice when switching live into an always-prompt vendor, surviving the same-flush vendor-reset", async () => {
       // Both effects dirty on the same importType() change — the seed must run after the reset.
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       fixture.detectChanges();
       expect(component().formGroup.controls.formatChoice.value).toBeNull();
 
-      fixture.componentRef.setInput("importType", "keepass2xml");
+      fixture.componentRef.setInput("importType", "keepass");
       fixture.detectChanges();
 
-      expect(component().formGroup.controls.formatChoice.value).toBe("keepass2xml");
+      expect(component().formGroup.controls.formatChoice.value).toBe("keepasskdbx");
       expect(component().formGroup.controls.formatChoice.valid).toBe(true);
-      expect(component().resolvedFormat()).toBe("keepass2xml");
+      expect(component().resolvedFormat()).toBe("keepasskdbx");
     });
 
     it("does not leak the previous vendor's chromium availability onto a new vendor via a stale capabilities emission", async () => {
@@ -2215,7 +2246,7 @@ describe("ImportControlsComponent", () => {
       await setup("chromecsv", ClientType.Desktop);
       expect(component().primaryMode()).toBe("chromium");
 
-      fixture.componentRef.setInput("importType", "dashlanecsv");
+      fixture.componentRef.setInput("importType", "dashlane");
       fixture.detectChanges();
 
       expect(component().isChromiumAvailable()).toBe(false);
@@ -2260,7 +2291,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("emits continue once a real import actually completes successfully", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
       importService.getImporter.mockReturnValue({} as any);
       importService.import.mockResolvedValue(new ImportResult());
@@ -2276,7 +2307,7 @@ describe("ImportControlsComponent", () => {
 
     it("still emits continue — and logs, rather than throws — when the post-import sync throws", async () => {
       // The import already succeeded — a sync hiccup shouldn't block navigation or scare the user.
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
       importService.getImporter.mockReturnValue({} as any);
       importService.import.mockResolvedValue(new ImportResult());
@@ -2294,7 +2325,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("still emits continue — and logs — when the post-import sync merely resolves false (the real failure shape: fullSync(true) doesn't set allowThrowOnError, so an ordinary sync failure resolves false rather than throwing)", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
       importService.getImporter.mockReturnValue({} as any);
       importService.import.mockResolvedValue(new ImportResult());
@@ -2309,7 +2340,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("does not emit continue — and shows a 'pasteContentRequired' toast, not 'select a file' — when Continue is clicked with nothing pasted", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.method.setValue("paste");
       fixture.detectChanges();
       const continueSpy = jest.fn();
@@ -2324,7 +2355,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("shows a 'select a file' toast in file mode when nothing is chosen (defensive — submit()'s required validator blocks this in the real UI)", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       const continueSpy = jest.fn();
       component().continue.subscribe(continueSpy);
 
@@ -2337,7 +2368,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("shows a 'select a format' toast, not 'select a file', when a chosen file is genuinely ambiguous", async () => {
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
       component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
       fixture.detectChanges();
       expect(component().needsFormatDisambiguation()).toBe(true);
@@ -2353,7 +2384,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("shows a 'selectFileUnsupportedType' toast, not the generic 'select a file', when a chosen file's extension isn't accepted for this vendor", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.pdf" } as File);
       fixture.detectChanges();
       const continueSpy = jest.fn();
@@ -2369,7 +2400,7 @@ describe("ImportControlsComponent", () => {
 
     it("shows the error dialog with errorReadingFile — not a 'select a file' toast — when a chosen file can't be read", async () => {
       // A real File, not a {name} stand-in, so JSZip genuinely fails to parse it.
-      await setup("1password1pux", ClientType.Web);
+      await setup("1password", ClientType.Web);
       component().formGroup.controls.file.setValue(new File(["not a zip"], "export.1pux"));
       fixture.detectChanges();
       const continueSpy = jest.fn();
@@ -2410,7 +2441,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("emits continue when the real Continue button is clicked outside the direct-intro sub-step", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
       importService.getImporter.mockReturnValue({} as any);
       importService.import.mockResolvedValue(new ImportResult());
@@ -2426,7 +2457,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("also submits via the form's native submit event, not just a button click — e.g. pressing Enter in a field", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
       importService.getImporter.mockReturnValue({} as any);
       importService.import.mockResolvedValue(new ImportResult());
@@ -2446,7 +2477,7 @@ describe("ImportControlsComponent", () => {
   describe("executing the import", () => {
     it("blocks the import and shows a toast when the personal ownership policy applies, without calling any import service", async () => {
       policyService.policyAppliesToUser$.mockReturnValue(of(true));
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
       const continueSpy = jest.fn();
       component().continue.subscribe(continueSpy);
@@ -2466,7 +2497,7 @@ describe("ImportControlsComponent", () => {
       // the real bug (Continue spins forever, since nothing ever emits again) would reproduce.
       const policyApplies$ = new Subject<boolean>();
       policyService.policyAppliesToUser$.mockReturnValue(policyApplies$);
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
 
       policyApplies$.next(true);
@@ -2485,7 +2516,7 @@ describe("ImportControlsComponent", () => {
     it("blocks submit() and disables Continue while the policy check hasn't resolved yet, rather than defaulting to 'not blocked'", async () => {
       const policyApplies$ = new Subject<boolean>();
       policyService.policyAppliesToUser$.mockReturnValue(policyApplies$);
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
       fixture.detectChanges();
 
@@ -2519,7 +2550,7 @@ describe("ImportControlsComponent", () => {
       // closed) is still the safe default for a security gate, with an honest "something is
       // unresolved" message rather than falsely blaming the org policy.
       accountService.activeAccount$ = of(null as unknown as Account);
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
       fixture.detectChanges();
 
@@ -2538,7 +2569,7 @@ describe("ImportControlsComponent", () => {
 
     it("fails closed, with an honest message (not the policy message), when policyAppliesToUser$ itself errors", async () => {
       policyService.policyAppliesToUser$.mockReturnValue(throwError(() => new Error("boom")));
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
       fixture.detectChanges();
 
@@ -2561,7 +2592,7 @@ describe("ImportControlsComponent", () => {
       // valid account would never be seen again.
       const activeAccount$ = new Subject<Account>();
       accountService.activeAccount$ = activeAccount$;
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
 
       activeAccount$.next({ id: "test-user-id" } as unknown as Account);
@@ -2595,7 +2626,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("opens the generic error dialog and does not emit continue when the import throws", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
       importService.getImporter.mockReturnValue({} as any);
       importService.import.mockRejectedValue(new Error("server rejected the import"));
@@ -2612,7 +2643,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("opens the skipped-items dialog, not the success dialog, when the import partially succeeds", async () => {
-      await setup("dashlanecsv", ClientType.Web);
+      await setup("dashlane", ClientType.Web);
       component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
       importService.getImporter.mockReturnValue({} as any);
       const result = new ImportResult();
@@ -2631,7 +2662,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("does not attempt an SDK import when the kdbx master password is empty, but does once it's entered", async () => {
-      await setup("keepass2xml", ClientType.Web);
+      await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({
         name: "export.kdbx",
         arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
@@ -2669,7 +2700,7 @@ describe("ImportControlsComponent", () => {
             })
           : realGetImportOption?.(id),
       );
-      await setup("keepass2xml", ClientType.Web);
+      await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({
         name: "export.kdbx",
         arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
@@ -2689,7 +2720,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("runs a kdbx import through the SDK path, not the generic importer path", async () => {
-      await setup("keepass2xml", ClientType.Web);
+      await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({
         name: "export.kdbx",
         arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
@@ -2721,7 +2752,7 @@ describe("ImportControlsComponent", () => {
       // kdbxWrongFileType, not invalidFilePassword — the wrong-password case is dedicated inline
       // behavior now, covered by its own test below; every other mapped SDK error still goes
       // through the generic dialog.
-      await setup("keepass2xml", ClientType.Web);
+      await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({
         name: "export.kdbx",
         arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
@@ -2748,7 +2779,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("shows an inline error on the kdbx password field, not the generic dialog, when the kdbx password is wrong", async () => {
-      await setup("keepass2xml", ClientType.Web);
+      await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({
         name: "export.kdbx",
         arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
@@ -2772,7 +2803,7 @@ describe("ImportControlsComponent", () => {
     });
 
     it("opens the error dialog with errorReadingFile — not a 'select a file' toast — instead of submitting a zero-byte kdbx file to the SDK", async () => {
-      await setup("keepass2xml", ClientType.Web);
+      await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({
         name: "export.kdbx",
         arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
@@ -2797,16 +2828,16 @@ describe("ImportControlsComponent", () => {
     it("throws instead of silently falling through to a manual import when a direct-eligible vendor has no wired-up handler", async () => {
       // A direct-eligible vendor with no wired-up handler must fail loudly, not dead-end silently.
       importService.getImportOption.mockImplementation((id) =>
-        id === "dashlanecsv"
+        id === "dashlane"
           ? buildOption({
-              id: "dashlanecsv",
-              name: "Dashlane (csv)",
+              id: "dashlane",
+              name: "Dashlane",
               hasDirectImporter: true,
               isBrowser: false,
             })
           : undefined,
       );
-      await setup("dashlanecsv", ClientType.Desktop);
+      await setup("dashlane", ClientType.Desktop);
       expect(component().primaryMode()).toBe("direct");
       component().continueFromIntro();
       fixture.detectChanges();

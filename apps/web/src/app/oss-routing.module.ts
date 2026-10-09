@@ -822,6 +822,9 @@ const routes: Routes = [
                   .pipe(map((flagValue) => flagValue === true)),
             ],
             component: ImportShellWebComponent,
+            data: {
+              titleId: "importNoun",
+            } satisfies RouteDataProperties,
             children: [
               {
                 path: "",
