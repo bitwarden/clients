@@ -1152,6 +1152,12 @@ describe("VaultPopupListTableComponent", () => {
     });
 
     it("opens the filter dialog and anchors its Shared folders row for the dashboard step", () => {
+      collections$.next([
+        {
+          value: { id: "col-1", name: "Alpha", organizationId: "org-1" } as CollectionView,
+          label: "Alpha",
+        },
+      ]);
       activeStep.set("newDashboard");
       fixture.detectChanges();
 
@@ -1159,6 +1165,18 @@ describe("VaultPopupListTableComponent", () => {
       expect(openPopover).toHaveBeenCalledWith(
         expect.anything(),
         toolbar.filterRow("collection"),
+        expect.objectContaining({ spotlight: true }),
+      );
+    });
+
+    it("anchors the My folders row for the dashboard step when there are no Shared folders", () => {
+      collections$.next([]);
+      activeStep.set("newDashboard");
+      fixture.detectChanges();
+
+      expect(openPopover).toHaveBeenCalledWith(
+        expect.anything(),
+        toolbar.filterRow("folder"),
         expect.objectContaining({ spotlight: true }),
       );
     });

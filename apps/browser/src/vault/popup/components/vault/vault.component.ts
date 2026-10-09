@@ -108,6 +108,7 @@ import {
 } from "./new-item-dropdown/new-item-dropdown.component";
 import { AppVaultFabComponent } from "./vault-fab/vault-fab.component";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
+import { folderOptionsInScope } from "./vault-popup-list-table/filter-options";
 import { VaultPopupListTableComponent } from "./vault-popup-list-table/vault-popup-list-table.component";
 import { VaultSwitcherComponent } from "./vault-switcher/vault-switcher.component";
 
@@ -526,16 +527,20 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const [nav, collections] = await Promise.all([
+    const [nav, collections, folders, ciphers] = await Promise.all([
       firstValueFrom(this.vaultNavService.viewModel$(userId)),
       firstValueFrom(this.collectionService.decryptedCollections$(userId)),
+      firstValueFrom(this.vaultPopupListTableFiltersService.folders$),
+      firstValueFrom(this.vaultPopupItemsService.activeCiphers$),
     ]);
-    // The popup can be scoped to a single vault here, so check the collections that vault lists.
+    // The popup can be scoped to a single vault here, so check the filters that vault lists.
     const scope = this.vaultScope();
-    const hasCollectionsInScope =
-      scope != null && collections.some((collection) => collectionInScope(collection, scope));
+    const hasFolderFilterInScope =
+      scope != null &&
+      (collections.some((collection) => collectionInScope(collection, scope)) ||
+        folderOptionsInScope(folders, ciphers, scope).length > 0);
     await this.coachmark.startTour(
-      extensionVaultTour(this.stateProvider, nav.vaults.length > 1, hasCollectionsInScope),
+      extensionVaultTour(this.stateProvider, nav.vaults.length > 1, hasFolderFilterInScope),
     );
   }
 

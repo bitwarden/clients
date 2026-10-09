@@ -61,13 +61,11 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import {
-  cipherInScope,
   collectionInScope,
   CoachmarkComponent,
   CoachmarkService,
   EmptyVaultComponent,
   hasMultipleVaults,
-  idString,
   matchesFolder,
   matchesSharedFolder,
   matchesType,
@@ -96,14 +94,7 @@ import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
 
-/**
- * Flattens a `ChipFilterOption` tree depth-first, since scope/org visibility is decided per
- * option, not per branch. Nested rendering rebuilds nesting from the original tree instead of
- * this flat list — see {@link VaultPopupListTableComponent.toFilterOptionNodes}.
- */
-function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOption<T>[] {
-  return options.flatMap((option) => [option, ...flattenOptions(option.children ?? [])]);
-}
+import { flattenOptions, folderOptionsInScope } from "./filter-options";
 
 /** Collects every value in a {@link FilterOptionNode} subtree, depth-first. */
 function subtreeValues(nodes: readonly FilterOptionNode<string>[]): string[] {
@@ -189,7 +180,7 @@ export class VaultPopupListTableComponent {
 
   /**
    * Anchors the tour's filter steps inside the toolbar: the filter button, then the Shared folders
-   * row of the filter dialog it opens. Both live in the toolbar's own template, so the popovers
+   * (or else My folders) row of the filter dialog it opens. Both live in the toolbar's own template, so the popovers
    * open from code rather than from `[bitPopoverAnchorFor]`.
    */
   private readonly showFilterCoachmarks = effect((onCleanup) => {
@@ -212,13 +203,15 @@ export class VaultPopupListTableComponent {
     }
 
     if (this.coachmark.isStepActive("newDashboard")) {
+      // Falls back to My folders when the scoped vault has no Shared folders row to point at.
+      const rowKey = untracked(() => (this.collectionOptions().length ? "collection" : "folder"));
       untracked(() => {
         this.filterDialogOpen.set(true);
         this.tourOpenedFilterDialog.set(true);
       });
       const ref = this.popoverService.open(
         this.sharedFoldersCoachmark().popover(),
-        toolbar.filterRow("collection"),
+        toolbar.filterRow(rowKey),
         {
           position: this.coachmark.getStepPosition("newDashboard"),
           spotlight: true,
@@ -417,22 +410,13 @@ export class VaultPopupListTableComponent {
    * Narrowed like {@link collectionOptions}, against the unsearched list: an option that vanished
    * as the user typed could not widen the results again.
    */
-  protected readonly folderOptions = computed(() => {
-    const options = flattenOptions(this.folderTree());
-    const scope = this.listTableService.vaultScope();
-
-    if (scope.type === VaultScopeType.AllItems) {
-      return options;
-    }
-
-    const inScope = this.activeCiphers().filter((cipher) => cipherInScope(cipher, scope));
-    return options.filter((option) => {
-      const id = option.value?.id;
-      return id
-        ? inScope.some((cipher) => idString(cipher.folderId) === id)
-        : inScope.some((cipher) => cipher.folderId == null);
-    });
-  });
+  protected readonly folderOptions = computed(() =>
+    folderOptionsInScope(
+      this.folderTree(),
+      this.activeCiphers(),
+      this.listTableService.vaultScope(),
+    ),
+  );
 
   /**
    * {@link folderOptions}, nested — pruned from {@link folderTree} rather than rebuilt from names,
