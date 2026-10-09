@@ -12,6 +12,7 @@ import { SharedModule } from "../../../shared";
 
 import { AccountComponent } from "./account.component";
 import { OrganizationSettingsRoutingModule } from "./organization-settings-routing.module";
+import { ScopedApiKeysComponent } from "./scoped-api-keys/scoped-api-keys.component";
 import { TwoFactorSetupComponent } from "./two-factor-setup.component";
 
 @NgModule({
@@ -26,6 +27,7 @@ import { TwoFactorSetupComponent } from "./two-factor-setup.component";
     ItemModule,
     TwoFactorIconComponent,
     Vfo1I18nPipe,
+    ScopedApiKeysComponent,
   ],
   declarations: [AccountComponent, TwoFactorSetupComponent],
 })
