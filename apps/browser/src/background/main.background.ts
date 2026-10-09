@@ -1507,7 +1507,6 @@ export default class MainBackground {
       this.authService,
       this.webPushConnectionService,
       this.authRequestAnsweringService,
-      this.configService,
       this.autoConfirmService,
       this.billingAccountProfileStateService,
     );
