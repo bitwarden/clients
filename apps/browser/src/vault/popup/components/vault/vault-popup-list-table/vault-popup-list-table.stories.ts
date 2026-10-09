@@ -39,6 +39,7 @@ import {
 import { StateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
 import {
+  CoachmarkService,
   MY_VAULT,
   orgIconTile,
   PasswordRepromptService,
@@ -312,6 +313,23 @@ const CIPHER_TYPE_OPTIONS = [
   { value: CipherType.SecureNote, label: "Note" },
 ];
 
+/** Avoids constructing the real service, which needs OrganizationService/CollectionService/etc. */
+const mockCoachmarkService: Partial<CoachmarkService> = {
+  activeStepId: signal(null),
+  currentStepNumber: signal(0),
+  totalSteps: signal(0),
+  isRunning: signal(false),
+  isStepActive: () => false,
+  getStepPosition: () => undefined,
+  getStepTitle: () => "",
+  getStepDescription: () => "",
+  getStepLearnMoreUrl: () => undefined,
+  previousStep: () => Promise.resolve(),
+  nextStep: () => Promise.resolve(),
+  completeTour: () => Promise.resolve(),
+  startTour: () => Promise.resolve(),
+};
+
 const buildProviders = (args: StoryArgs) => {
   const autoFillCiphers$ = new BehaviorSubject(args.autoFillCiphers);
   const favoriteCiphers$ = new BehaviorSubject(args.favoriteCiphers);
@@ -541,6 +559,10 @@ const buildProviders = (args: StoryArgs) => {
           clearAll: "Clear all",
           done: "Done",
           back: "Back",
+          // The tour's coachmarks render their popover templates even when no step is active.
+          learnMore: "Learn more",
+          coachmarkStepsIndicator: "__$1__ of __$2__",
+          next: "Next",
           noMatchingItems: "No matching items",
           noDetailsToCopy: "No details to copy",
           importItems: "Import items",
@@ -613,6 +635,7 @@ const buildProviders = (args: StoryArgs) => {
     },
     { provide: EventCollectionService, useValue: {} },
     { provide: TotpService, useValue: {} },
+    { provide: CoachmarkService, useValue: mockCoachmarkService },
     {
       provide: BillingAccountProfileStateService,
       useValue: { hasPremiumFromAnySource$: () => of(true) },
