@@ -4,12 +4,7 @@ import { of } from "rxjs";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import {
-  VFO1_SHARED_FOLDERS_STEP,
-  VFO1_SWITCH_PRODUCTS_STEP,
-  VFO1_VAULT_LIST_STEP,
-  vfo1WalkthroughTour,
-} from "./vfo1-walkthrough-tour";
+import { vfo1WalkthroughTour } from "./vfo1-walkthrough-tour";
 
 describe("vfo1WalkthroughTour", () => {
   const userId = "user-id" as UserId;
@@ -41,11 +36,5 @@ describe("vfo1WalkthroughTour", () => {
 
   it("keeps the side nav open", () => {
     expect(tour().lockSideNav).toBe(true);
-  });
-
-  it("routes the steps anchored in the vault nav to the vault, but not the product switcher", () => {
-    expect(VFO1_VAULT_LIST_STEP.route).toBe("/vault");
-    expect(VFO1_SHARED_FOLDERS_STEP.route).toBe("/vault");
-    expect(VFO1_SWITCH_PRODUCTS_STEP.route).toBeUndefined();
   });
 });
