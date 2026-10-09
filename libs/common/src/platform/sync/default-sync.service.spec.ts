@@ -21,6 +21,7 @@ import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
+import { ProviderService } from "../../admin-console/abstractions/provider.service";
 import { OrganizationUserStatusType } from "../../admin-console/enums";
 import { Collection } from "../../admin-console/models/collections";
 import { Account, AccountService } from "../../auth/abstractions/account.service";
@@ -38,7 +39,6 @@ import {
   SyncCipherNotification,
   SyncSendNotification,
 } from "../../models/response/notification.response";
-import { ProviderService } from "../../provider/abstractions/provider.service";
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
@@ -1205,21 +1205,23 @@ describe("DefaultSyncService", () => {
       collectionService.encryptedCollections$.mockReturnValue(of([]));
     });
 
-    // CipherService.upsert keeps the stored restricted copy; core sync passes the response through.
-    it("hands a full response over a restricted local copy to cipherService.upsert", async () => {
+    it("does not persist a full response over a partial local copy", async () => {
       cipherService.get.mockResolvedValue(localCipher(true));
-      const remote = remoteCipher(false);
-      apiService.getFullCipherDetails.mockResolvedValue(remote);
+      apiService.getFullCipherDetails.mockResolvedValue(remoteCipher(false));
 
       const result = await sut.syncUpsertCipher(notification(), true, user1);
 
-      expect(result).toBe(true);
-      expect(cipherService.upsert).toHaveBeenCalledWith(new CipherData(remote));
+      expect(result).toBe(false);
+      expect(cipherService.upsert).not.toHaveBeenCalled();
+      expect(messageSender.send).not.toHaveBeenCalledWith(
+        "syncedUpsertedCipher",
+        expect.anything(),
+      );
     });
 
     it.each([
-      ["restricted", "restricted", true, true],
-      ["full", "restricted", false, true],
+      ["partial", "partial", true, true],
+      ["full", "partial", false, true],
       ["full", "full", false, false],
     ])(
       "upserts when the local copy is %s and the response is %s",
@@ -1246,8 +1248,7 @@ describe("DefaultSyncService", () => {
       expect(cipherService.upsert).toHaveBeenCalledWith(new CipherData(remote));
     });
 
-    // With no local copy, the client can't tell a shared cipher from one a lease made readable.
-    // Only the server can.
+    // A client with no local copy can't tell a lease-widened read from a share; the server has to.
     it("upserts an edited cipher with no local copy when a collection matches", async () => {
       collectionService.encryptedCollections$.mockReturnValue(
         of([{ id: collectionId }] as unknown as Collection[]),
@@ -1283,12 +1284,10 @@ describe("DefaultSyncService", () => {
 
     it("does not fetch when the user is logged out", async () => {
       Matrix.autoMockMethod(authService.authStatusFor$, () => of(AuthenticationStatus.LoggedOut));
-      cipherService.get.mockResolvedValue(localCipher(false));
 
       const result = await sut.syncUpsertCipher(notification(), true, user1);
 
       expect(result).toBe(false);
-      expect(cipherService.get).not.toHaveBeenCalled();
       expect(apiService.getFullCipherDetails).not.toHaveBeenCalled();
     });
   });

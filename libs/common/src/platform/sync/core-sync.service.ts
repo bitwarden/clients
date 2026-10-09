@@ -197,6 +197,10 @@ export abstract class CoreSyncService implements SyncService {
         if (shouldUpdate) {
           const remoteCipher = await this.apiService.getFullCipherDetails(notification.id);
           if (remoteCipher != null) {
+            if (localCipher?.isPartial && remoteCipher.partialData == null) {
+              // Full only because of a PAM lease: never persist it over the gated copy.
+              return this.syncCompleted(false, userId);
+            }
             await this.cipherService.upsert(new CipherData(remoteCipher));
             this.messageSender.send("syncedUpsertedCipher", { cipherId: notification.id });
             return this.syncCompleted(true, userId);
