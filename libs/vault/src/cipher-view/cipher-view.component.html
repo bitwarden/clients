@@ -98,5 +98,7 @@
   }
 
   <!-- ITEM HISTORY SECTION -->
-  <app-item-history-v2 [cipher]="cipher()"> </app-item-history-v2>
+  @if (!hideItemHistory()) {
+    <app-item-history-v2 [cipher]="cipher()"> </app-item-history-v2>
+  }
 }
