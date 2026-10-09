@@ -5,6 +5,7 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
@@ -38,6 +39,7 @@ describe("WebRequestBackground", () => {
   let authService: ReturnType<typeof mock<AuthService>>;
   let accountService: ReturnType<typeof mock<AccountService>>;
   let autofillSettingsService: ReturnType<typeof mock<AutofillSettingsServiceAbstraction>>;
+  let eventCollectionService: ReturnType<typeof mock<EventCollectionService>>;
   let activeAccount$: BehaviorSubject<Account | null>;
   let resolvedSetting$: BehaviorSubject<boolean>;
   let webRequest: {
@@ -55,6 +57,7 @@ describe("WebRequestBackground", () => {
       accountService,
       webRequest as unknown as typeof chrome.webRequest,
       autofillSettingsService,
+      eventCollectionService,
     );
 
   const expectListenersRegistered = (timesRegistered: number) => {
@@ -84,6 +87,9 @@ describe("WebRequestBackground", () => {
     resolvedSetting$ = new BehaviorSubject<boolean>(true);
     autofillSettingsService = mock<AutofillSettingsServiceAbstraction>();
     autofillSettingsService.resolvedEnableBasicAuthResponse$ = resolvedSetting$;
+
+    eventCollectionService = mock<EventCollectionService>();
+    eventCollectionService.collect.mockResolvedValue(undefined);
 
     webRequest = {
       onAuthRequired: createWebRequestEventMock(),
@@ -254,8 +260,8 @@ describe("WebRequestBackground", () => {
     const url = "https://example.com/protected";
     let callback: jest.Mock;
 
-    const createCipher = (username: string | null, password: string | null) =>
-      ({ login: { username, password } }) as unknown as CipherView;
+    const createCipher = (username: string | null, password: string | null, id = "cipher-id") =>
+      ({ id, login: { username, password } }) as unknown as CipherView;
 
     const triggerAuthRequired = async (
       requestId = "request-1",
@@ -292,6 +298,37 @@ describe("WebRequestBackground", () => {
       });
     });
 
+    it("records a release event for the released login before responding", async () => {
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+        createCipher("jane.doe@example.com", "fake-password", "released-cipher-id"),
+      ]);
+      eventCollectionService.collect.mockImplementation(async () => {
+        expect(callback).not.toHaveBeenCalled();
+      });
+
+      await triggerAuthRequired();
+
+      expect(eventCollectionService.collect).toHaveBeenCalledTimes(1);
+      expect(eventCollectionService.collect).toHaveBeenCalledWith(
+        EventType.Cipher_ClientHttpAuthReleased,
+        "released-cipher-id",
+      );
+      expect(callback).toHaveBeenCalledWith({
+        authCredentials: { username: "jane.doe@example.com", password: "fake-password" },
+      });
+    });
+
+    it("does not respond with credentials when recording the release event fails", async () => {
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+        createCipher("jane.doe@example.com", "fake-password"),
+      ]);
+      eventCollectionService.collect.mockRejectedValue(new Error("state unavailable"));
+
+      await triggerAuthRequired();
+
+      expect(callback).toHaveBeenCalledWith({});
+    });
+
     it("does not respond with credentials when more than one login matches", async () => {
       cipherService.getAllDecryptedForUrl.mockResolvedValue([
         createCipher("jane.doe@example.com", "fake-password"),
@@ -301,6 +338,7 @@ describe("WebRequestBackground", () => {
       await triggerAuthRequired();
 
       expect(callback).toHaveBeenCalledWith({});
+      expect(eventCollectionService.collect).not.toHaveBeenCalled();
     });
 
     it("does not respond with credentials when the matching login has no password", async () => {
@@ -311,6 +349,7 @@ describe("WebRequestBackground", () => {
       await triggerAuthRequired();
 
       expect(callback).toHaveBeenCalledWith({});
+      expect(eventCollectionService.collect).not.toHaveBeenCalled();
     });
 
     it("does not respond with credentials when the cipher lookup throws", async () => {

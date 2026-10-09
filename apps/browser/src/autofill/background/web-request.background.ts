@@ -13,6 +13,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -216,6 +217,7 @@ export default class WebRequestBackground {
     private accountService: AccountService,
     private readonly webRequest: typeof chrome.webRequest,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
+    private eventCollectionService: EventCollectionService,
   ) {
     this.isFirefox = platformUtilsService.isFirefox();
     this.isSafari = platformUtilsService.isSafari();
@@ -388,12 +390,17 @@ export default class WebRequestBackground {
         return {};
       }
 
-      const username = ciphers[0].login?.username;
-      const password = ciphers[0].login?.password;
+      const cipher = ciphers[0];
+      const username = cipher.login?.username;
+      const password = cipher.login?.password;
 
       if (username == null || password == null) {
         return {};
       }
+
+      // The release is recorded before the credential
+      // leaves the extension; a release that cannot be recorded does not happen.
+      await this.eventCollectionService.collect(EventType.Cipher_ClientHttpAuthReleased, cipher.id);
 
       return {
         authCredentials: {

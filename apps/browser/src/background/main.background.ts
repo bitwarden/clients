@@ -1771,6 +1771,7 @@ export default class MainBackground {
         this.accountService,
         chrome.webRequest,
         this.autofillSettingsService,
+        this.eventCollectionService,
       );
     }
 
