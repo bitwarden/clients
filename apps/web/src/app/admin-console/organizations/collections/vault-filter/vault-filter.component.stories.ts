@@ -14,10 +14,10 @@ import {
   VaultFilter,
   VaultFilterServiceAbstraction,
   Vfo1TerminologyService,
+  CoachmarkService,
 } from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../../../core/tests";
-import { CoachmarkService } from "../../../../vault/components/coachmark";
 
 import { VaultFilterComponent } from "./vault-filter.component";
 

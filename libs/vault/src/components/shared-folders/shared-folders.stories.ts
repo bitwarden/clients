@@ -58,6 +58,22 @@ const folders: FolderFixture[] = [
   { id: "col-6", name: "Sales", permissions: SharedFolderPermission.Manage, items: 12 },
 ];
 
+const nestedFolders: FolderFixture[] = [
+  {
+    id: "col-7",
+    name: "Engineering/Backend",
+    permissions: SharedFolderPermission.Manage,
+    items: 5,
+  },
+  {
+    id: "col-8",
+    name: "Engineering/Frontend",
+    permissions: SharedFolderPermission.Manage,
+    items: 4,
+  },
+  { id: "col-9", name: "Finance/Payroll", permissions: SharedFolderPermission.Edit, items: 2 },
+];
+
 /** The collection flags each permission is resolved from — see `sharedFolderPermission`. */
 const FLAGS: Readonly<
   Record<SharedFolderPermission, { manage: boolean; readOnly: boolean; hidePasswords: boolean }>
@@ -248,6 +264,8 @@ export default {
               editItemsHidePass: "Edit items, hidden passwords",
               manage: "Manage",
               items: "Items",
+              nestedSharedFolderCount: (count) => `${count} nested shared folders`,
+              nestedSharedFolderSingular: "1 nested shared folder",
               options: "Options",
               optionsForItem: (name) => `Options for ${name}`,
               selectAllRows: "Select all rows",
@@ -294,8 +312,13 @@ type Story = StoryObj<StoryProps>;
  *
  * Select Engineering and Sales — the two the member manages — and both bulk actions stay enabled;
  * add any other folder and both disable.
+ *
+ * Only top-level folders are listed: Engineering and Finance count the folders nested inside them
+ * beneath their names instead.
  */
-export const Default: Story = {};
+export const Default: Story = {
+  args: { folders: [...folders, ...nestedFolders] },
+};
 
 /**
  * The Permissions chip is omitted when every folder carries the same permission: with one option it

@@ -18,13 +18,16 @@ import {
   SvgComponent,
   TableModule,
   SectionHeaderComponent,
-  BitIconButtonComponent,
   SimpleDialogOptions,
+  TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
 import { DesktopFido2UserInterfaceService } from "../../services/desktop-fido2-user-interface.service";
+
+import { Fido2ModalHeaderComponent } from "./fido2-modal-header.component";
+import { Fido2ModalPageComponent } from "./fido2-modal-page.component";
 
 @Component({
   standalone: true,
@@ -32,7 +35,6 @@ import { DesktopFido2UserInterfaceService } from "../../services/desktop-fido2-u
     CommonModule,
     RouterModule,
     SectionHeaderComponent,
-    BitIconButtonComponent,
     TableModule,
     I18nPipe,
     StatusLockupComponent,
@@ -43,6 +45,9 @@ import { DesktopFido2UserInterfaceService } from "../../services/desktop-fido2-u
     ItemModule,
     BadgeModule,
     IconComponent,
+    TypographyModule,
+    Fido2ModalHeaderComponent,
+    Fido2ModalPageComponent,
   ],
   templateUrl: "fido2-create.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,

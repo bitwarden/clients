@@ -24,7 +24,7 @@ use windows_core::{IInspectable, Interface};
 
 use super::{
     crypto::OwnedRequestHash, get_operation_signing_public_key, OperationRequest,
-    OperationResponse, PluginAuthenticator, PluginLockStatus,
+    OperationResponse, PluginAuthenticator, PluginError, PluginLockStatus,
 };
 use crate::{
     api::{
@@ -243,7 +243,10 @@ impl PluginAuthenticatorComObject {
                 tracing::debug!("MakeCredential completed successfully");
                 Ok(())
             }
-            Err(_) => Err(E_FAIL.into()),
+            Err(err) => Err(err
+                .downcast_ref::<PluginError>()
+                .map_or(E_FAIL, PluginError::hresult)
+                .into()),
         }
     }
 
@@ -268,7 +271,10 @@ impl PluginAuthenticatorComObject {
                 tracing::debug!("GetAssertion completed successfully");
                 Ok(())
             }
-            Err(_) => Err(E_FAIL.into()),
+            Err(err) => Err(err
+                .downcast_ref::<PluginError>()
+                .map_or(E_FAIL, PluginError::hresult)
+                .into()),
         }
     }
 
