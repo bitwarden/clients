@@ -24,6 +24,7 @@ import { InternalNewPolicyService } from "../../admin-console/abstractions/polic
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "../../admin-console/abstractions/provider.service";
 import { OrganizationUserStatusType } from "../../admin-console/enums";
+import { Collection } from "../../admin-console/models/collections";
 import { Account, AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AvatarService } from "../../auth/abstractions/avatar.service";
@@ -34,7 +35,10 @@ import { BillingAccountProfileStateService } from "../../billing/abstractions";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
-import { SyncSendNotification } from "../../models/response/notification.response";
+import {
+  SyncCipherNotification,
+  SyncSendNotification,
+} from "../../models/response/notification.response";
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
@@ -43,6 +47,9 @@ import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
+import { CipherData } from "../../vault/models/data/cipher.data";
+import { Cipher } from "../../vault/models/domain/cipher";
+import { CipherResponse } from "../../vault/models/response/cipher.response";
 import { ConfigService } from "../abstractions/config/config.service";
 import { LogService } from "../abstractions/log.service";
 import { SdkService } from "../abstractions/sdk/sdk.service";
@@ -946,6 +953,129 @@ describe("DefaultSyncService", () => {
       expect(sendsClient.fetch).not.toHaveBeenCalled();
       expect(sendService.upsert).toHaveBeenCalledWith(new SendData(remoteSend));
       expect(messageSender.send).toHaveBeenCalledWith("syncedUpsertedSend", { sendId: sendGuid });
+    });
+  });
+
+  describe("syncUpsertCipher", () => {
+    const cipherId = Utils.newGuid();
+    const organizationId = Utils.newGuid();
+    const collectionId = Utils.newGuid();
+    const pushRevision = "2025-01-02T00:00:00.000Z";
+
+    const notification = (collectionIds?: string[]) =>
+      new SyncCipherNotification({
+        Id: cipherId,
+        UserId: user1,
+        OrganizationId: collectionIds ? organizationId : undefined,
+        CollectionIds: collectionIds,
+        RevisionDate: pushRevision,
+      });
+
+    const localCipher = (partial: boolean, revisionDate = "2025-01-01T00:00:00.000Z") => {
+      const cipher = new Cipher();
+      cipher.id = cipherId;
+      cipher.revisionDate = new Date(revisionDate);
+      cipher.partialData = partial ? "{}" : undefined;
+      return cipher;
+    };
+
+    const remoteCipher = (partial: boolean) =>
+      new CipherResponse({
+        Id: cipherId,
+        RevisionDate: pushRevision,
+        PartialData: partial ? "{}" : undefined,
+      });
+
+    beforeEach(() => {
+      Matrix.autoMockMethod(authService.authStatusFor$, () => of(AuthenticationStatus.Unlocked));
+      cipherService.get.mockResolvedValue(null);
+      collectionService.encryptedCollections$.mockReturnValue(of([]));
+    });
+
+    it("does not persist a full response over a partial local copy", async () => {
+      cipherService.get.mockResolvedValue(localCipher(true));
+      apiService.getFullCipherDetails.mockResolvedValue(remoteCipher(false));
+
+      const result = await sut.syncUpsertCipher(notification(), true, user1);
+
+      expect(result).toBe(false);
+      expect(cipherService.upsert).not.toHaveBeenCalled();
+      expect(messageSender.send).not.toHaveBeenCalledWith(
+        "syncedUpsertedCipher",
+        expect.anything(),
+      );
+    });
+
+    it.each([
+      ["partial", "partial", true, true],
+      ["full", "partial", false, true],
+      ["full", "full", false, false],
+    ])(
+      "upserts when the local copy is %s and the response is %s",
+      async (_local, _remote, localPartial, remotePartial) => {
+        cipherService.get.mockResolvedValue(localCipher(localPartial));
+        const remote = remoteCipher(remotePartial);
+        apiService.getFullCipherDetails.mockResolvedValue(remote);
+
+        const result = await sut.syncUpsertCipher(notification(), true, user1);
+
+        expect(result).toBe(true);
+        expect(cipherService.upsert).toHaveBeenCalledWith(new CipherData(remote));
+        expect(messageSender.send).toHaveBeenCalledWith("syncedUpsertedCipher", { cipherId });
+      },
+    );
+
+    it("upserts a created cipher with no local copy", async () => {
+      const remote = remoteCipher(false);
+      apiService.getFullCipherDetails.mockResolvedValue(remote);
+
+      const result = await sut.syncUpsertCipher(notification(), false, user1);
+
+      expect(result).toBe(true);
+      expect(cipherService.upsert).toHaveBeenCalledWith(new CipherData(remote));
+    });
+
+    // A client with no local copy can't tell a lease-widened read from a share; the server has to.
+    it("upserts an edited cipher with no local copy when a collection matches", async () => {
+      collectionService.encryptedCollections$.mockReturnValue(
+        of([{ id: collectionId }] as unknown as Collection[]),
+      );
+      const remote = remoteCipher(false);
+      apiService.getFullCipherDetails.mockResolvedValue(remote);
+
+      const result = await sut.syncUpsertCipher(notification([collectionId]), true, user1);
+
+      expect(result).toBe(true);
+      expect(cipherService.upsert).toHaveBeenCalledWith(new CipherData(remote));
+    });
+
+    it("does not fetch when the local copy is already at the pushed revision", async () => {
+      cipherService.get.mockResolvedValue(localCipher(true, pushRevision));
+
+      const result = await sut.syncUpsertCipher(notification(), true, user1);
+
+      expect(result).toBe(false);
+      expect(apiService.getFullCipherDetails).not.toHaveBeenCalled();
+    });
+
+    it("deletes the local copy when an edited cipher is no longer readable", async () => {
+      cipherService.get.mockResolvedValue(localCipher(true));
+      apiService.getFullCipherDetails.mockRejectedValue({ statusCode: 404 });
+
+      const result = await sut.syncUpsertCipher(notification(), true, user1);
+
+      expect(result).toBe(true);
+      expect(cipherService.delete).toHaveBeenCalledWith(cipherId, user1);
+      expect(messageSender.send).toHaveBeenCalledWith("syncedDeletedCipher", { cipherId });
+    });
+
+    it("does not fetch when the user is logged out", async () => {
+      Matrix.autoMockMethod(authService.authStatusFor$, () => of(AuthenticationStatus.LoggedOut));
+
+      const result = await sut.syncUpsertCipher(notification(), true, user1);
+
+      expect(result).toBe(false);
+      expect(apiService.getFullCipherDetails).not.toHaveBeenCalled();
     });
   });
 
