@@ -62,6 +62,7 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
   }
 
   async archiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<CipherData> {
+    await this.cipherService.assertWritable(ids, userId);
     const request = new CipherBulkArchiveRequest(Array.isArray(ids) ? ids : [ids]);
     const r = await this.apiService.send("PUT", "/ciphers/archive", request, true, true);
     const response = new ListResponse(r, CipherResponse);
@@ -76,6 +77,7 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
   }
 
   async unarchiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<CipherData> {
+    await this.cipherService.assertWritable(ids, userId);
     const request = new CipherBulkUnarchiveRequest(Array.isArray(ids) ? ids : [ids]);
     const r = await this.apiService.send("PUT", "/ciphers/unarchive", request, true, true);
     const response = new ListResponse(r, CipherResponse);

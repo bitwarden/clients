@@ -33,6 +33,14 @@ export type EncryptionContext = {
   encryptedByKeyId?: string;
 };
 
+/** A write targeted a PAM-gated cipher the user holds no lease on. */
+export class GatedCipherWriteError extends Error {
+  constructor(readonly cipherIds: string[]) {
+    super("Cannot write to a PAM-gated cipher without an active lease.");
+    this.name = "GatedCipherWriteError";
+  }
+}
+
 export abstract class CipherService implements UserKeyRotationDataProvider<CipherWithIdRequest> {
   abstract cipherViews$(userId: UserId): Observable<CipherView[]>;
   /**
@@ -83,6 +91,11 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    */
   abstract encryptMany(models: CipherView[], userId: UserId): Promise<EncryptionContext[]>;
   abstract get(id: string, userId: UserId): Promise<Cipher>;
+  /**
+   * Throws {@link GatedCipherWriteError} when any stored copy is partial (PAM-gated) and the user
+   * holds no active lease on it. Every write to an existing cipher calls it first.
+   */
+  abstract assertWritable(ids: string | string[], userId: UserId): Promise<void>;
   abstract getAll(userId: UserId): Promise<Cipher[]>;
   abstract getAllDecrypted(userId: UserId): Promise<CipherView[]>;
   abstract getAllDecryptedForGrouping(
