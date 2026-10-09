@@ -246,6 +246,7 @@ import { DefaultCipherSdkService } from "@bitwarden/common/vault/services/cipher
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { DefaultChangeLoginPasswordService } from "@bitwarden/common/vault/services/default-change-login-password.service";
 import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services/default-cipher-encryption.service";
+import { DefaultCipherLeaseStateService } from "@bitwarden/common/vault/services/default-cipher-lease-state.service";
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
@@ -1212,6 +1213,7 @@ export default class MainBackground {
       this.cipherEncryptionService,
       this.messagingService,
       this.cipherSdkService,
+      new DefaultCipherLeaseStateService(),
     );
     this.folderService = new FolderService(
       this.keyService,

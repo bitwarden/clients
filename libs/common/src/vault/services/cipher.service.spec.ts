@@ -33,8 +33,9 @@ import { ContainerService } from "../../platform/services/container.service";
 import { CipherId, UserId, OrganizationId, CollectionId } from "../../types/guid";
 import { OrgKey, UserKey } from "../../types/key";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
+import { CipherLeaseStateService } from "../abstractions/cipher-lease-state.service";
 import { CipherSdkService } from "../abstractions/cipher-sdk.service";
-import { EncryptionContext } from "../abstractions/cipher.service";
+import { EncryptionContext, GatedCipherWriteError } from "../abstractions/cipher.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
 import { FieldType } from "../enums";
 import { CipherRepromptType } from "../enums/cipher-reprompt-type";
@@ -47,6 +48,8 @@ import { CipherPartialRequest } from "../models/request/cipher-partial.request";
 import { CipherRequest } from "../models/request/cipher.request";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
+import { LoginView } from "../models/view/login.view";
+import { PasswordHistoryView } from "../models/view/password-history.view";
 
 import { CipherService } from "./cipher.service";
 import { DECRYPTED_CIPHERS, ENCRYPTED_CIPHERS } from "./key-state/ciphers.state";
@@ -114,6 +117,7 @@ describe("Cipher Service", () => {
   const cipherEncryptionService = mock<CipherEncryptionService>();
   const messageSender = mock<MessageSender>();
   const cipherSdkService = mock<CipherSdkService>();
+  const cipherLeaseStateService = mock<CipherLeaseStateService>();
 
   const userId = "TestUserId" as UserId;
   const orgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
@@ -172,6 +176,7 @@ describe("Cipher Service", () => {
       cipherEncryptionService,
       messageSender,
       cipherSdkService,
+      cipherLeaseStateService,
     );
 
     encryptionContext = { cipher: new Cipher(cipherData), encryptedFor: userId };
@@ -912,6 +917,109 @@ describe("Cipher Service", () => {
       );
 
       expect(result).toEqual([normalCard]);
+    });
+  });
+
+  describe("writes to a PAM-gated cipher", () => {
+    const gatedId = "gated" as CipherId;
+    const plainId = cipherData.id as CipherId;
+
+    beforeEach(() => {
+      stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).nextState({
+        [plainId]: cipherData,
+        [gatedId]: { ...cipherData, id: gatedId, partialData: "{}" } as CipherData,
+      });
+    });
+
+    it("refuses a gated cipher without a lease, before any request", async () => {
+      await expect(cipherService.deleteWithServer(gatedId, userId)).rejects.toThrow(
+        GatedCipherWriteError,
+      );
+
+      expect(apiService.deleteCipher).not.toHaveBeenCalled();
+      expect(cipherSdkService.deleteWithServer).not.toHaveBeenCalled();
+    });
+
+    it("refuses on the SDK path too", async () => {
+      sdkCrudFeatureFlag$.next(true);
+
+      await expect(cipherService.softDeleteWithServer(gatedId, userId)).rejects.toThrow(
+        GatedCipherWriteError,
+      );
+
+      expect(cipherSdkService.softDeleteWithServer).not.toHaveBeenCalled();
+    });
+
+    it("allows a gated cipher under an active lease", async () => {
+      cipherLeaseStateService.hasActiveLease.mockResolvedValue(true);
+
+      await cipherService.deleteWithServer(gatedId, userId);
+
+      expect(cipherLeaseStateService.hasActiveLease).toHaveBeenCalledWith(gatedId);
+      expect(apiService.deleteCipher).toHaveBeenCalledWith(gatedId);
+    });
+
+    it("skips the lease lookup for a cipher that is not gated", async () => {
+      await cipherService.deleteWithServer(plainId, userId);
+
+      expect(cipherLeaseStateService.hasActiveLease).not.toHaveBeenCalled();
+      expect(apiService.deleteCipher).toHaveBeenCalledWith(plainId);
+    });
+
+    it("fails a bulk call as a whole, naming the gated ids", async () => {
+      const result = cipherService.deleteManyWithServer([plainId, gatedId], userId);
+
+      await expect(result).rejects.toThrow(GatedCipherWriteError);
+      await expect(result).rejects.toHaveProperty("cipherIds", [gatedId]);
+      expect(apiService.deleteManyCiphers).not.toHaveBeenCalled();
+    });
+
+    describe("updateWithServer() on the legacy path, under a lease", () => {
+      let model: CipherView;
+      let original: CipherView;
+
+      beforeEach(() => {
+        cipherLeaseStateService.hasActiveLease.mockResolvedValue(true);
+        cipherEncryptionService.encrypt.mockResolvedValue(encryptionContext);
+        apiService.putCipher.mockResolvedValue(encryptionContext.cipher.toCipherData() as any);
+        jest.spyOn(cipherService, "upsert").mockResolvedValue({ [gatedId]: cipherData });
+        jest.spyOn(cipherService, "decrypt").mockResolvedValue(new CipherView());
+        encryptionContext.cipher.edit = true;
+
+        model = new CipherView();
+        model.id = gatedId;
+        model.type = CipherType.Login;
+        model.login = new LoginView();
+        model.login.password = "new";
+
+        const earlier = new PasswordHistoryView();
+        earlier.password = "earliest";
+        original = new CipherView();
+        original.id = gatedId;
+        original.type = CipherType.Login;
+        original.login = new LoginView();
+        original.login.password = "old";
+        original.passwordHistory = [earlier];
+      });
+
+      it("takes password history from the caller's full copy", async () => {
+        await cipherService.updateWithServer(model, userId, original, false, true);
+
+        expect(model.passwordHistory.map((h) => h.password)).toEqual(["old", "earliest"]);
+        expect(cipherEncryptionService.encrypt).toHaveBeenCalledWith(model, userId);
+      });
+
+      it("refuses without a full original, before any request", async () => {
+        original.partial = true;
+
+        await expect(
+          cipherService.updateWithServer(model, userId, original, false, true),
+        ).rejects.toThrow("requires its full original");
+        await expect(cipherService.updateWithServer(model, userId)).rejects.toThrow(
+          "requires its full original",
+        );
+        expect(apiService.putCipher).not.toHaveBeenCalled();
+      });
     });
   });
 

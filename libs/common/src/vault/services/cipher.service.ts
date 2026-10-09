@@ -39,10 +39,12 @@ import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid
 import { OrgKey, UserKey } from "../../types/key";
 import { filterOutNullish, perUserCache$ } from "../../vault/utils/observable-utilities";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
+import { CipherLeaseStateService } from "../abstractions/cipher-lease-state.service";
 import { CipherSdkService, DecryptAllCiphersResult } from "../abstractions/cipher-sdk.service";
 import {
   CipherService as CipherServiceAbstraction,
   EncryptionContext,
+  GatedCipherWriteError,
 } from "../abstractions/cipher.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
 import { FieldType } from "../enums";
@@ -115,6 +117,7 @@ export class CipherService implements CipherServiceAbstraction {
     private cipherEncryptionService: CipherEncryptionService,
     private messageSender: MessageSender,
     private cipherSdkService: CipherSdkService,
+    private cipherLeaseStateService: CipherLeaseStateService,
   ) {}
 
   localData$(userId: UserId): Observable<Record<CipherId, LocalData>> {
@@ -325,7 +328,7 @@ export class CipherService implements CipherServiceAbstraction {
         originalCipher = await this.get(model.id, userId);
       }
       if (originalCipher != null) {
-        await this.updateModelfromExistingCipher(model, originalCipher, userId);
+        this.updateModelfromExistingCipher(model, await this.decrypt(originalCipher, userId));
       }
       this.adjustPasswordHistoryLength(model);
     }
@@ -356,6 +359,18 @@ export class CipherService implements CipherServiceAbstraction {
     const cipherId = id as CipherId;
 
     return new Cipher(ciphers[cipherId], localData ? localData[cipherId] : null);
+  }
+
+  async assertWritable(ids: string | string[], userId: UserId): Promise<void> {
+    const stored = await firstValueFrom(this.ciphers$(userId));
+    const partial = [ids].flat().filter((id) => stored[id as CipherId]?.partialData != null);
+    const leased = await Promise.all(
+      partial.map((id) => this.cipherLeaseStateService.hasActiveLease(id as CipherId)),
+    );
+    const gated = partial.filter((_, i) => !leased[i]);
+    if (gated.length > 0) {
+      throw new GatedCipherWriteError(gated);
+    }
   }
 
   async getAll(userId: UserId): Promise<Cipher[]> {
@@ -948,6 +963,7 @@ export class CipherService implements CipherServiceAbstraction {
     orgAdmin?: boolean,
     leaseGated?: boolean,
   ): Promise<CipherView> {
+    await this.assertWritable(cipherView.id, userId);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
 
     if (useSdk) {
@@ -960,7 +976,7 @@ export class CipherService implements CipherServiceAbstraction {
       );
     }
 
-    const encrypted = await this.encrypt(cipherView, userId);
+    const encrypted = await this.encryptForUpdate(cipherView, userId, originalCipherView);
     const updatedCipher = await this.updateWithServerLegacy(encrypted, orgAdmin);
     const updatedCipherView = await this.decrypt(updatedCipher, userId);
     return updatedCipherView;
@@ -1099,6 +1115,7 @@ export class CipherService implements CipherServiceAbstraction {
     admin = false,
     options?: UploadOptions,
   ): Promise<Cipher> {
+    await this.assertWritable(cipher.id, userId);
     const useSdk = await firstValueFrom(this.sdkCipherAttachmentOpsEnabled$);
 
     // The organization's symmetric key or the user's user key
@@ -1177,6 +1194,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async saveCollectionsWithServer(cipher: Cipher, userId: UserId): Promise<Cipher> {
+    await this.assertWritable(cipher.id, userId);
     await this.clearCache(userId);
     const cipherView = await this.cipherSdkService.saveCollectionsWithServer(
       cipher.id,
@@ -1194,6 +1212,7 @@ export class CipherService implements CipherServiceAbstraction {
 
   async saveCollectionsWithServerAdmin(cipher: Cipher): Promise<Cipher> {
     const userId = await firstValueFrom(this.stateProvider.activeUserId$);
+    await this.assertWritable(cipher.id, userId);
     await this.clearCache(userId);
     const cipherView = await this.cipherSdkService.saveCollectionsWithServerAdmin(
       cipher.id,
@@ -1218,6 +1237,7 @@ export class CipherService implements CipherServiceAbstraction {
     collectionIds: CollectionId[],
     removeCollections: boolean = false,
   ): Promise<void> {
+    await this.assertWritable(cipherIds, userId);
     await this.clearCache(userId);
     await this.cipherSdkService.bulkUpdateCollectionsWithServer(
       orgId,
@@ -1292,6 +1312,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async moveManyWithServer(ids: string[], folderId: string, userId: UserId): Promise<any> {
+    await this.assertWritable(ids, userId);
     await this.clearCache(userId);
     await this.cipherSdkService.moveManyWithServer(ids, folderId, userId);
   }
@@ -1319,6 +1340,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async deleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
+    await this.assertWritable(id, userId);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
@@ -1341,6 +1363,7 @@ export class CipherService implements CipherServiceAbstraction {
     asAdmin = false,
     orgId?: OrganizationId,
   ): Promise<void> {
+    await this.assertWritable(ids, userId);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
@@ -1397,6 +1420,7 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     admin: boolean = false,
   ): Promise<CipherData> {
+    await this.assertWritable(id, userId);
     const useSdk = await firstValueFrom(this.sdkCipherAttachmentOpsEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
@@ -1528,6 +1552,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async softDeleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
+    await this.assertWritable(id, userId);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
@@ -1550,6 +1575,7 @@ export class CipherService implements CipherServiceAbstraction {
     asAdmin = false,
     orgId?: OrganizationId,
   ): Promise<void> {
+    await this.assertWritable(ids, userId);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
@@ -1601,6 +1627,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async restoreWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
+    await this.assertWritable(id, userId);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
@@ -1623,6 +1650,7 @@ export class CipherService implements CipherServiceAbstraction {
    * The Org Vault will pass those ids an array as well as the orgId when calling bulkRestore
    */
   async restoreManyWithServer(ids: string[], userId: UserId, orgId?: string): Promise<void> {
+    await this.assertWritable(ids, userId);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
@@ -1772,12 +1800,25 @@ export class CipherService implements CipherServiceAbstraction {
 
   // Helpers
 
-  private async updateModelfromExistingCipher(
+  /** A gated cipher's stored copy has no secrets, so its history comes from the caller's full copy. */
+  private async encryptForUpdate(
     model: CipherView,
-    originalCipher: Cipher,
     userId: UserId,
-  ): Promise<void> {
-    const existingCipher = await this.decrypt(originalCipher, userId);
+    originalView?: CipherView,
+  ): Promise<EncryptionContext> {
+    const stored = await this.get(model.id, userId);
+    if (!stored?.isPartial) {
+      return await this.encrypt(model, userId, stored);
+    }
+    if (originalView == null || originalView.partial) {
+      throw new Error("Updating a PAM-gated cipher requires its full original.");
+    }
+    this.updateModelfromExistingCipher(model, originalView);
+    this.adjustPasswordHistoryLength(model);
+    return await this.cipherEncryptionService.encrypt(model, userId);
+  }
+
+  private updateModelfromExistingCipher(model: CipherView, existingCipher: CipherView): void {
     model.passwordHistory = existingCipher.passwordHistory || [];
     if (model.type === CipherType.Login && existingCipher.type === CipherType.Login) {
       if (
