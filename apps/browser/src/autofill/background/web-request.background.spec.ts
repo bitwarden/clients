@@ -7,6 +7,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -40,6 +41,7 @@ describe("WebRequestBackground", () => {
   let accountService: ReturnType<typeof mock<AccountService>>;
   let autofillSettingsService: ReturnType<typeof mock<AutofillSettingsServiceAbstraction>>;
   let eventCollectionService: ReturnType<typeof mock<EventCollectionService>>;
+  let logService: ReturnType<typeof mock<LogService>>;
   let activeAccount$: BehaviorSubject<Account | null>;
   let resolvedSetting$: BehaviorSubject<boolean>;
   let webRequest: {
@@ -58,6 +60,7 @@ describe("WebRequestBackground", () => {
       webRequest as unknown as typeof chrome.webRequest,
       autofillSettingsService,
       eventCollectionService,
+      logService,
     );
 
   const expectListenersRegistered = (timesRegistered: number) => {
@@ -90,6 +93,7 @@ describe("WebRequestBackground", () => {
 
     eventCollectionService = mock<EventCollectionService>();
     eventCollectionService.collect.mockResolvedValue(undefined);
+    logService = mock<LogService>();
 
     webRequest = {
       onAuthRequired: createWebRequestEventMock(),
@@ -260,8 +264,12 @@ describe("WebRequestBackground", () => {
     const url = "https://example.com/protected";
     let callback: jest.Mock;
 
-    const createCipher = (username: string | null, password: string | null, id = "cipher-id") =>
-      ({ id, login: { username, password } }) as unknown as CipherView;
+    const createCipher = (
+      username: string | null,
+      password: string | null,
+      id = "cipher-id",
+      organizationId: string | null = "organization-id",
+    ) => ({ id, organizationId, login: { username, password } }) as unknown as CipherView;
 
     const triggerAuthRequired = async (
       requestId = "request-1",
@@ -322,11 +330,30 @@ describe("WebRequestBackground", () => {
       cipherService.getAllDecryptedForUrl.mockResolvedValue([
         createCipher("jane.doe@example.com", "fake-password"),
       ]);
-      eventCollectionService.collect.mockRejectedValue(new Error("state unavailable"));
+      const error = new Error("state unavailable");
+      eventCollectionService.collect.mockRejectedValue(error);
 
       await triggerAuthRequired();
 
       expect(callback).toHaveBeenCalledWith({});
+      expect(logService.error).toHaveBeenCalledWith(
+        "Declined an HTTP auth challenge because the credential release could not be recorded.",
+        error,
+      );
+    });
+
+    it("responds with the credentials of a personal vault login without recording an event", async () => {
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+        createCipher("jane.doe@example.com", "fake-password", "personal-cipher-id", null),
+      ]);
+      eventCollectionService.collect.mockRejectedValue(new Error("state unavailable"));
+
+      await triggerAuthRequired();
+
+      expect(eventCollectionService.collect).not.toHaveBeenCalled();
+      expect(callback).toHaveBeenCalledWith({
+        authCredentials: { username: "jane.doe@example.com", password: "fake-password" },
+      });
     });
 
     it("does not respond with credentials when more than one login matches", async () => {
@@ -353,11 +380,13 @@ describe("WebRequestBackground", () => {
     });
 
     it("does not respond with credentials when the cipher lookup throws", async () => {
-      cipherService.getAllDecryptedForUrl.mockRejectedValue(new Error("lookup failed"));
+      const error = new Error("lookup failed");
+      cipherService.getAllDecryptedForUrl.mockRejectedValue(error);
 
       await triggerAuthRequired();
 
       expect(callback).toHaveBeenCalledWith({});
+      expect(logService.error).toHaveBeenCalledWith(error);
     });
 
     it("does not look up ciphers when the vault is locked", async () => {
