@@ -31,6 +31,11 @@ import { DefaultBiometricStateService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
 import { FlightRecorderLogRecorder } from "@bitwarden/logging";
+import {
+  DefaultManagedSettingsService,
+  DevManagedSettingsService,
+  ManagedSettingsService,
+} from "@bitwarden/managed-settings";
 import { FlightRecorderClient } from "@bitwarden/sdk-internal";
 import {
   DefaultActiveUserStateProvider,
@@ -61,10 +66,11 @@ import { ChromiumImporterService } from "./main/tools/import/chromium-importer.s
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
-import { flagEnabled } from "./platform/flags";
+import { devFlagEnabled, devFlagValue, flagEnabled } from "./platform/flags";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
+import { ManagedSettingsMain, managedSettingsSourceFor } from "./platform/main/managed-settings";
 import { SafeShell } from "./platform/main/safe-shell.main";
 import { CachedBackend } from "./platform/main/storage/cached-backend";
 import { ElectronStoreBackend } from "./platform/main/storage/electron-store-backend";
@@ -113,6 +119,8 @@ export class Main {
   mainDesktopAutotypeService: MainDesktopAutotypeService;
   ssoCookieMain: SsoCookieMain;
   ipcService: IpcService;
+  managedSettingsService: ManagedSettingsService;
+  managedSettingsMain?: ManagedSettingsMain;
 
   constructor() {
     // Set paths for portable builds
@@ -185,6 +193,23 @@ export class Main {
     this.i18nService = new I18nMainService("en", "./locales/", globalStateProvider);
 
     this.sdkLoadService = new MainSdkLoadService();
+
+    if (devFlagEnabled("managedSettingsDevSource")) {
+      // The developer's profile replaces host acquisition, so ManagedSettingsMain is not
+      // constructed and cannot clear it. The renderer receives it through the mirror.
+      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
+      void devManagedSettingsService.pushExplicit(
+        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
+      );
+      this.managedSettingsService = devManagedSettingsService;
+    } else {
+      this.managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
+      this.managedSettingsMain = new ManagedSettingsMain(
+        managedSettingsSourceFor(process.platform, this.logService),
+        this.managedSettingsService,
+        this.logService,
+      );
+    }
 
     this.mainCryptoFunctionService = new NodeCryptoFunctionService();
 
@@ -396,6 +421,7 @@ export class Main {
         // before `windowMain.init()`, so the renderer always finds main's IPC client and handlers ready.
         await this.sdkLoadService.loadAndInit();
         await this.ipcService.init();
+        await this.mirrorManagedSettings();
 
         await this.windowMain.init(showWindow);
         this.ssoCookieMain.init(this.windowMain.session);
@@ -485,6 +511,24 @@ export class Main {
       .forEach((s) => {
         this.messagingService.send("deepLink", { urlString: s });
       });
+  }
+
+  /**
+   * Mirrors the managed-settings profile to the renderer, then starts host acquisition. Runs after
+   * `ipcService.init()` and before `windowMain.init()`, so the request handler exists before the
+   * renderer starts and requests the profile.
+   */
+  private async mirrorManagedSettings(): Promise<void> {
+    try {
+      const client = await firstValueFrom(this.managedSettingsService.client$);
+      await client.mirror_to(this.ipcService.client, "DesktopRenderer");
+    } catch (e) {
+      // Main-process consumers still get managed settings when the renderer cannot.
+      this.logService.error("Managed settings: failed to mirror to the renderer.", e);
+    }
+    // Not awaited, so a slow registry or file read does not delay the window. A renderer that
+    // requests the profile before the first read completes receives the profile in a push.
+    void this.managedSettingsMain?.init();
   }
 
   private async toggleHardwareAcceleration(): Promise<void> {

@@ -1972,7 +1972,9 @@ const safeProviders: SafeProvider[] = [
       }
 
       const service = new DevManagedSettingsService(SdkLoadService.Ready);
-      service.pushExplicit(devFlagValue("managedSettingsDevSource") as Record<string, unknown>);
+      void service.pushExplicit(
+        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
+      );
       return service;
     },
     deps: [],

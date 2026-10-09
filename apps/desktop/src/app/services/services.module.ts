@@ -150,6 +150,7 @@ import {
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
 import { FlightRecorderLogRecorderService } from "@bitwarden/logging-angular";
+import { DefaultManagedSettingsService, ManagedSettingsService } from "@bitwarden/managed-settings";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import {
   SHARE_ITEM_PRESENTER,
@@ -773,6 +774,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: IpcService,
     useClass: IpcRendererService,
+    deps: [],
+  }),
+  // The renderer's profile always comes from the main process through the mirror, including when
+  // the `managedSettingsDevSource` dev flag is set, so the renderer never seeds its own.
+  safeProvider({
+    provide: ManagedSettingsService,
+    useFactory: () => new DefaultManagedSettingsService(SdkLoadService.Ready),
     deps: [],
   }),
   // Sharing and the Vault layer reach each other through tokens rather than imports, because

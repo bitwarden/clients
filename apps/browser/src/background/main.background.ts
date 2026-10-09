@@ -978,7 +978,7 @@ export default class MainBackground {
       // The dev source replaces host acquisition rather than layering on top of it. Left running,
       // the reader would find no policy on the developer's machine and clear the pushed profile.
       const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
-      devManagedSettingsService.pushExplicit(
+      void devManagedSettingsService.pushExplicit(
         devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
       );
       this.managedSettingsService = devManagedSettingsService;
@@ -1852,12 +1852,11 @@ export default class MainBackground {
   async bootstrap() {
     this.containerService.attachToGlobal(self);
 
-    // Acquired first so no consumer can observe an empty profile that acquisition would have
-    // filled. Pushing before the SDK loads is safe: the profile is mirrored into the SDK handle
-    // lazily, once the WASM module is ready. Absent when a dev source supplies the profile instead.
-    await this.managedConfigReader?.init();
-
     await this.sdkLoadService.loadAndInit();
+    // Acquired right after the SDK loads, because the SDK normalizes and holds the profile, and
+    // before anything else so no consumer can observe an empty profile that acquisition would have
+    // filled. Absent when a dev source supplies the profile instead.
+    await this.managedConfigReader?.init();
     // Only the "true" background should run migrations
     await this.migrationRunner.run();
 

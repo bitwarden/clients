@@ -370,6 +370,20 @@ export declare namespace logging {
   }
 }
 
+export declare namespace managed_settings {
+  /**
+   * The host's managed-settings container value, or `null` when the host declares none.
+   * Rejects when the host state cannot be determined, for example because the policy key
+   * exists but cannot be opened.
+   */
+  export function read(): Promise<string | null>
+  /**
+   * Invokes `callback` whenever the host's managed configuration changes. Does nothing on
+   * platforms whose main process watches through other means.
+   */
+  export function watch(callback: ((err: Error | null, ) => any)): Promise<void>
+}
+
 export declare namespace passkey_authenticator {
   /** Gets the app's status as a passkey provider with the OS. */
   export function getState(): Promise<PasskeyProviderState>

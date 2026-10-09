@@ -700,7 +700,7 @@ export class ServiceContainer {
     let managedSettingsService: ManagedSettingsService;
     if (devFlagEnabled("managedSettingsDevSource")) {
       const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
-      devManagedSettingsService.pushExplicit(
+      void devManagedSettingsService.pushExplicit(
         devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
       );
       managedSettingsService = devManagedSettingsService;
