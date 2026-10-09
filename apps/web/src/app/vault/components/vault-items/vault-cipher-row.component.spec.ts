@@ -1,5 +1,7 @@
 import { CommonModule } from "@angular/common";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
@@ -17,16 +19,30 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { IconButtonModule, MenuModule } from "@bitwarden/components";
 import { ShareLinkMenuItemDirective, ShareLinkService } from "@bitwarden/tools-share";
 import {
+  CopyCipherFieldDirective,
   CopyCipherFieldService,
   OrganizationNameBadgeComponent,
   VaultCopyButtonsService,
+  VaultItemCopyActionsComponent,
 } from "@bitwarden/vault";
 
 import { VaultCipherRowComponent } from "./vault-cipher-row.component";
+import { VAULT_ROW_LEASE_BADGE } from "./vault-row-lease-badge.token";
+
+/** Stand-in for a host-provided row badge; captures the cipher the slot passes through. */
+@Component({
+  selector: "test-vault-row-lease-badge",
+  template: "<span data-testid='test-badge'></span>",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class TestLeaseBadgeComponent {
+  readonly cipher = input<CipherViewLike>();
+}
 
 // eslint-disable-next-line no-console
 const originalError = console.error;
@@ -60,6 +76,7 @@ describe("VaultCipherRowComponent", () => {
         OrganizationNameBadgeComponent,
         PremiumBadgeComponent,
         ShareLinkMenuItemDirective,
+        VaultItemCopyActionsComponent,
       ],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
@@ -107,6 +124,52 @@ describe("VaultCipherRowComponent", () => {
     console.error = originalError;
   });
 
+  describe("partial (PAM-gated) row", () => {
+    let cipher: CipherView;
+
+    beforeEach(() => {
+      cipher = new CipherView();
+      cipher.id = "cipher-1";
+      cipher.name = "Gated";
+      cipher.type = CipherType.Login;
+      cipher.login = new LoginView();
+      cipher.organizationId = undefined;
+      cipher.deletedDate = null;
+      cipher.archivedDate = null;
+
+      component.cipher = cipher;
+      component.disabled = false;
+    });
+
+    it("isPartial reflects the cipher's partial flag", () => {
+      cipher.partial = true;
+      expect(component["isPartial"]).toBe(true);
+
+      cipher.partial = false;
+      expect(component["isPartial"]).toBe(false);
+    });
+
+    it("disables the selection checkbox for a partial row so it cannot be selected (or bulk-acted)", () => {
+      cipher.partial = true;
+      fixture.detectChanges();
+
+      const checkbox = fixture.nativeElement.querySelector(
+        'input[type="checkbox"]',
+      ) as HTMLInputElement;
+      expect(checkbox.disabled).toBe(true);
+    });
+
+    it("leaves the selection checkbox enabled for a normal row", () => {
+      cipher.partial = false;
+      fixture.detectChanges();
+
+      const checkbox = fixture.nativeElement.querySelector(
+        'input[type="checkbox"]',
+      ) as HTMLInputElement;
+      expect(checkbox.disabled).toBe(false);
+    });
+  });
+
   describe("showAssignToCollections", () => {
     let archivedCipher: CipherView;
 
@@ -145,6 +208,94 @@ describe("VaultCipherRowComponent", () => {
       component.organizations = [];
 
       expect(component["showAssignToCollections"]).toBeFalsy();
+    });
+  });
+
+  describe("lease badge slot (VAULT_ROW_LEASE_BADGE)", () => {
+    async function setupBadge(provideBadge: boolean): Promise<void> {
+      TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        declarations: [VaultCipherRowComponent],
+        imports: [
+          CommonModule,
+          RouterModule.forRoot([]),
+          MenuModule,
+          IconButtonModule,
+          JslibModule,
+          CopyCipherFieldDirective,
+          OrganizationNameBadgeComponent,
+          PremiumBadgeComponent,
+          ShareLinkMenuItemDirective,
+          TestLeaseBadgeComponent,
+          VaultItemCopyActionsComponent,
+        ],
+        providers: [
+          { provide: I18nService, useValue: { t: (key: string) => key } },
+          {
+            provide: EnvironmentService,
+            useValue: { environment$: new BehaviorSubject({}).asObservable() },
+          },
+          {
+            provide: DomainSettingsService,
+            useValue: { showFavicons$: new BehaviorSubject(false).asObservable() },
+          },
+          { provide: CopyCipherFieldService, useValue: mock<CopyCipherFieldService>() },
+          { provide: AccountService, useValue: mock<AccountService>() },
+          { provide: CipherService, useValue: mock<CipherService>() },
+          { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
+          {
+            provide: ConfigService,
+            useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+          },
+          {
+            provide: BillingAccountProfileStateService,
+            useValue: mock<BillingAccountProfileStateService>(),
+          },
+          { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
+          {
+            provide: ShareLinkService,
+            useValue: { cipherCanBeShared$: () => of(false) },
+          },
+          {
+            provide: VaultCopyButtonsService,
+            useValue: { showQuickCopyActions$: new BehaviorSubject(false).asObservable() },
+          },
+          ...(provideBadge
+            ? [{ provide: VAULT_ROW_LEASE_BADGE, useValue: TestLeaseBadgeComponent }]
+            : []),
+        ],
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(VaultCipherRowComponent);
+      component = fixture.componentInstance;
+
+      const cipher = new CipherView();
+      cipher.id = "cipher-1";
+      cipher.name = "Test Login";
+      cipher.type = CipherType.Login;
+      cipher.login = new LoginView();
+      component.cipher = cipher;
+      component.organizations = [];
+      component.collections = [];
+      // vault-items only shows the column when a badge is provided; mirror that here.
+      component.showControlledAccess = provideBadge;
+      fixture.detectChanges();
+    }
+
+    it("injects null and renders no badge when the host provides none", async () => {
+      await setupBadge(false);
+
+      expect(component["leaseBadge"]).toBeNull();
+      expect(fixture.debugElement.query(By.directive(TestLeaseBadgeComponent))).toBeNull();
+    });
+
+    it("renders the host badge in the Controlled access column with the row's cipher", async () => {
+      await setupBadge(true);
+
+      expect(component["leaseBadge"]).toBe(TestLeaseBadgeComponent);
+      const badge = fixture.debugElement.query(By.directive(TestLeaseBadgeComponent));
+      expect(badge).not.toBeNull();
+      expect((badge.componentInstance as TestLeaseBadgeComponent).cipher()).toBe(component.cipher);
     });
   });
 });
