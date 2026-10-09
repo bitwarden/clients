@@ -306,7 +306,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     }
     const ongoingCipherId = this.ongoingMultiStepLogin(tab.id, activeUserId);
     const cipher = ongoingCipherId
-      ? (await this.cipherService.getAllDecrypted(activeUserId)).find(
+      ? (await this.cipherService.getAllDecryptedForUrl(tab.url, activeUserId)).find(
           (decrypted) => decrypted.id === ongoingCipherId,
         )
       : await this.selectLogin(tab.url, activeUserId, true);
