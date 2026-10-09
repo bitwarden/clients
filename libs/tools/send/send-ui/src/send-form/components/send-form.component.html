@@ -18,20 +18,22 @@
         [cipher]="sendFormService.originalSendView()?.data.data"
         [showEmptyDetails]="false"
       >
-        <button
-          bitButton
-          buttonType="primary"
-          block
-          type="button"
-          slot="button"
-          startIcon="bwi-clone"
-          class="tw-mt-4"
-          [appCopyClick]="sendLink()"
-          showToast
-          [valueLabel]="'sendLink' | i18n"
-        >
-          {{ "copyShareLink" | i18n }}
-        </button>
+        @if (!sendDisabled()) {
+          <button
+            bitButton
+            buttonType="primary"
+            block
+            type="button"
+            slot="button"
+            startIcon="bwi-clone"
+            class="tw-mt-4"
+            [appCopyClick]="sendLink()"
+            showToast
+            [valueLabel]="'sendLink' | i18n"
+          >
+            {{ "copyShareLink" | i18n }}
+          </button>
+        }
         <button
           bitButton
           buttonType="secondary"
