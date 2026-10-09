@@ -738,6 +738,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
   async informCredentialNotFound(): Promise<void> {
     this.logService.debug("informCredentialNotFound");
+    await this.hideUi();
   }
 
   async close() {

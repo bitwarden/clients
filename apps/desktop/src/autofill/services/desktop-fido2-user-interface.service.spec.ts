@@ -73,6 +73,7 @@ describe("DesktopFido2UserInterfaceSession", () => {
   let domainSettingsService: MockProxy<DomainSettingsService>;
 
   let activeAccountStatus$: BehaviorSubject<AuthenticationStatus>;
+  let modalMode$: BehaviorSubject<ModalModeState>;
   let abortController: AbortController;
   // Stands in for the deadline `AbortSignal.timeout(...)` would produce, so tests
   // can fire the timeout deterministically instead of waiting real time.
@@ -118,12 +119,13 @@ describe("DesktopFido2UserInterfaceSession", () => {
     // added to, so the picker is shown unless a test opts out with an empty vault.
     cipherService.getAllDecrypted.mockResolvedValue([matchingLogin()]);
 
-    desktopSettingsService.modalMode$ = new BehaviorSubject<ModalModeState>({
+    modalMode$ = new BehaviorSubject<ModalModeState>({
       isModalModeActive: false,
     });
+    desktopSettingsService.modalMode$ = modalMode$;
     desktopSettingsService.setModalMode.mockImplementation(
       async (isActive, _showTrafficButtons, _modalPosition) => {
-        desktopSettingsService.modalMode$.next({ isModalModeActive: isActive });
+        modalMode$.next({ isModalModeActive: isActive });
       },
     );
 
@@ -533,6 +535,70 @@ describe("DesktopFido2UserInterfaceSession", () => {
     });
   });
 
+  describe("informCredentialNotFound", () => {
+    const unlockVault = async () => {
+      activeAccountStatus$.next(AuthenticationStatus.Locked);
+      const unlocked = session.ensureUnlockedVault();
+      await tick();
+      activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+      await unlocked;
+      jest.clearAllMocks();
+    };
+
+    it("restores the window after unlocking when no credential matches", async () => {
+      await unlockVault();
+
+      await session.informCredentialNotFound();
+
+      expect(modalMode$.value.isModalModeActive).toBe(false);
+      expect(accountService.setShowHeader).toHaveBeenCalledWith(true);
+      expect(router.navigate).toHaveBeenCalledWith(["/"]);
+    });
+
+    it("preserves the user's route when the vault was already unlocked", async () => {
+      await session.ensureUnlockedVault();
+
+      await session.informCredentialNotFound();
+
+      expect(modalMode$.value.isModalModeActive).toBe(false);
+      expect(accountService.setShowHeader).not.toHaveBeenCalled();
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it("waits for UI cleanup before completing the missing-credential response", async () => {
+      await unlockVault();
+      let finishNavigation!: (result: boolean) => void;
+      router.navigate.mockReturnValueOnce(
+        new Promise<boolean>((resolve) => {
+          finishNavigation = resolve;
+        }),
+      );
+      let completed = false;
+
+      const result = session.informCredentialNotFound().then(() => {
+        completed = true;
+      });
+      await tick();
+
+      expect(completed).toBe(false);
+      expect(router.navigate).toHaveBeenCalledWith(["/"]);
+      finishNavigation(true);
+      await result;
+      expect(completed).toBe(true);
+    });
+
+    it("still cleans up when the request is aborted after unlocking", async () => {
+      await unlockVault();
+      abortController.abort("Operation cancelled");
+
+      await session.informCredentialNotFound();
+
+      expect(modalMode$.value.isModalModeActive).toBe(false);
+      expect(accountService.setShowHeader).toHaveBeenCalledWith(true);
+      expect(router.navigate).toHaveBeenCalledWith(["/"]);
+    });
+  });
+
   describe("informExcludedCredential", () => {
     it("shows the excluded credentials UI and returns without waiting for the user", async () => {
       await session.informExcludedCredential(["cipher-1"]);
@@ -550,6 +616,11 @@ describe("DesktopFido2UserInterfaceSession", () => {
 
     it("resets the window when the component displaying the message hides the UI", async () => {
       await session.informExcludedCredential(["cipher-1"]);
+      await session.close();
+
+      expect(modalMode$.value.isModalModeActive).toBe(true);
+      expect(desktopSettingsService.setModalMode).not.toHaveBeenCalledWith(false);
+
       await session.hideUi();
 
       expect(desktopSettingsService.setModalMode).toHaveBeenCalledWith(false);
