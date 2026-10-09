@@ -76,6 +76,10 @@ export class NotificationResponse extends BaseResponse {
       case NotificationType.PremiumStatusChanged:
         this.payload = new PremiumStatusChangedNotification(payload);
         break;
+      case NotificationType.AgentFillApprovalRequest:
+      case NotificationType.AgentFillApprovalResponse:
+        this.payload = new AgentFillApprovalPushNotification(payload);
+        break;
       default:
         break;
     }
@@ -226,5 +230,16 @@ export class PremiumStatusChangedNotification extends BaseResponse {
     super(response);
     this.userId = this.getResponseProperty("UserId");
     this.premium = this.getResponseProperty("Premium");
+  }
+}
+
+export class AgentFillApprovalPushNotification extends BaseResponse {
+  id: string;
+  userId: string;
+
+  constructor(response: any) {
+    super(response);
+    this.id = this.getResponseProperty("Id");
+    this.userId = this.getResponseProperty("UserId");
   }
 }

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
+import { AgentFillFailureReason } from "@bitwarden/common/autofill/agent-fill/agent-fill-ipc";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   AsyncActionsModule,
@@ -31,13 +32,26 @@ export type AgentFillApprovalItem = {
   subtitle?: string;
 };
 
+/** What the user decided in this dialog. */
+export type AgentFillApprovalAnswer =
+  { decision: "approved"; cipherId: string } | { decision: "denied"; reason?: AgentFillDenyReason };
+
+export type AgentFillApprovalDialogResult =
+  | AgentFillApprovalAnswer
+  | { decision: "failed"; reason: AgentFillFailureReason }
+  /** A phone answered first, so the dialog was closed without an answer of its own. */
+  | { handledElsewhere: true };
+
 export type AgentFillApprovalDialogParams = {
   request: AgentFillApprovalRequest;
   items: AgentFillApprovalItem[];
+  /**
+   * Records the user's answer, for example on the server. The dialog shows that the answer is
+   * being recorded and closes with the result, which may differ from the answer if another
+   * device got there first. Without it, the dialog closes with the answer.
+   */
+  recordAnswer?: (answer: AgentFillApprovalAnswer) => Promise<AgentFillApprovalDialogResult>;
 };
-
-export type AgentFillApprovalDialogResult =
-  { decision: "approved"; cipherId: string } | { decision: "denied"; reason?: AgentFillDenyReason };
 
 /** What the dialog asks of the user to approve. */
 const VerificationStep = Object.freeze({
@@ -87,6 +101,8 @@ export class AgentFillApprovalDialogComponent {
   protected readonly step = signal<VerificationStep>(VerificationStep.Biometrics);
   /** An i18n key explaining why the last attempt did not verify the user. */
   protected readonly verificationError = signal<string | null>(null);
+  /** True while {@link AgentFillApprovalDialogParams.recordAnswer} is in flight. */
+  protected readonly recording = signal(false);
 
   protected readonly form = inject(FormBuilder).group({
     cipherId: [this.params.items[0]?.id ?? null],
@@ -103,7 +119,7 @@ export class AgentFillApprovalDialogComponent {
 
   protected readonly approve = async () => {
     const cipherId = this.form.value.cipherId;
-    if (cipherId == null || this.step() === VerificationStep.Unavailable) {
+    if (cipherId == null || this.recording() || this.step() === VerificationStep.Unavailable) {
       return;
     }
 
@@ -115,7 +131,7 @@ export class AgentFillApprovalDialogComponent {
 
     switch (result) {
       case AgentFillVerificationResult.Verified:
-        await this.dialogRef.close({ decision: "approved", cipherId });
+        await this.finish({ decision: "approved", cipherId });
         return;
       case AgentFillVerificationResult.NeedsMasterPassword:
         this.step.set(VerificationStep.MasterPassword);
@@ -135,9 +151,27 @@ export class AgentFillApprovalDialogComponent {
   };
 
   protected readonly deny = async () => {
-    await this.dialogRef.close({
+    if (this.recording()) {
+      return;
+    }
+    await this.finish({
       decision: "denied",
       reason: this.form.value.denyReason ?? undefined,
     });
   };
+
+  private async finish(answer: AgentFillApprovalAnswer) {
+    if (this.params.recordAnswer == null) {
+      await this.dialogRef.close(answer);
+      return;
+    }
+
+    this.recording.set(true);
+    try {
+      await this.dialogRef.close(await this.params.recordAnswer(answer));
+    } catch {
+      // The caller falls back to the dialog's own answer; this is only a safeguard.
+      await this.dialogRef.close(answer);
+    }
+  }
 }

@@ -38,4 +38,7 @@ export enum NotificationType {
   AutoConfirmMember = 26,
 
   PremiumStatusChanged = 27,
+
+  AgentFillApprovalRequest = 28,
+  AgentFillApprovalResponse = 29,
 }

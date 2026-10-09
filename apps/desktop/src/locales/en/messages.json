@@ -7059,5 +7059,8 @@
   },
   "agentFillDenyReasonNotRequested": {
     "message": "I didn't ask for this"
+  },
+  "agentFillRecordingAnswer": {
+    "message": "Recording your answer…"
   }
 }

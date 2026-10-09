@@ -27,6 +27,7 @@ import { BillingAccountProfileStateService } from "../../../billing/abstractions
 import { NotificationType, PushNotificationLogOutReasonType } from "../../../enums";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import {
+  AgentFillApprovalPushNotification,
   LogOutNotification,
   NotificationResponse,
   PremiumStatusChangedNotification,
@@ -348,6 +349,11 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         );
         break;
       }
+      case NotificationType.AgentFillApprovalResponse:
+        this.messagingService.send("agentFillApprovalAnswered", {
+          approvalId: (notification.payload as AgentFillApprovalPushNotification).id,
+        });
+        break;
       default:
         break;
     }

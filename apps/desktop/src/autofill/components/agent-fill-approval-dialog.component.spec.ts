@@ -15,6 +15,7 @@ import {
 import {
   AgentFillApprovalDialogComponent,
   AgentFillApprovalDialogParams,
+  AgentFillApprovalDialogResult,
 } from "./agent-fill-approval-dialog.component";
 
 describe("AgentFillApprovalDialogComponent", () => {
@@ -110,6 +111,29 @@ describe("AgentFillApprovalDialogComponent", () => {
 
     expect(verificationService.verify).toHaveBeenCalledWith(undefined);
     expect(dialogRef.close).toHaveBeenCalledWith({ decision: "approved", cipherId: "c1" });
+  });
+
+  it("shows that the answer is being recorded and closes with the recorded result", async () => {
+    verificationService.verify.mockResolvedValue(AgentFillVerificationResult.Verified);
+    let finishRecording!: (result: AgentFillApprovalDialogResult) => void;
+    const recordAnswer = jest.fn(
+      () => new Promise<AgentFillApprovalDialogResult>((resolve) => (finishRecording = resolve)),
+    );
+    await create({ ...params(1), recordAnswer });
+
+    await click("agent-fill-approval_button_approve");
+
+    expect(recordAnswer).toHaveBeenCalledWith({ decision: "approved", cipherId: "c1" });
+    expect(text()).toContain("agentFillRecordingAnswer");
+    expect(dialogRef.close).not.toHaveBeenCalled();
+
+    finishRecording({ decision: "denied", reason: AgentFillDenyReason.WrongAccount });
+    await fixture.whenStable();
+
+    expect(dialogRef.close).toHaveBeenCalledWith({
+      decision: "denied",
+      reason: AgentFillDenyReason.WrongAccount,
+    });
   });
 
   it("stays open and asks for the master password when Touch ID does not verify", async () => {

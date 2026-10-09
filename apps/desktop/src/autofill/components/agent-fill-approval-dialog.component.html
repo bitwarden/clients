@@ -48,6 +48,9 @@
         <bit-callout type="warning">{{ "agentFillCannotVerify" | i18n }}</bit-callout>
       }
     }
+    @if (recording()) {
+      <bit-callout type="info" role="status">{{ "agentFillRecordingAnswer" | i18n }}</bit-callout>
+    }
     @if (verificationError(); as error) {
       <bit-callout type="danger" role="alert">{{ error | i18n }}</bit-callout>
     }
@@ -75,7 +78,7 @@
       bitButton
       bitFormButton
       buttonType="primary"
-      [disabled]="step() === VerificationStep.Unavailable"
+      [disabled]="step() === VerificationStep.Unavailable || recording()"
     >
       {{ "approve" | i18n }}
     </button>
@@ -86,6 +89,7 @@
       bitFormButton
       buttonType="secondary"
       [bitAction]="deny"
+      [disabled]="recording()"
     >
       {{ "deny" | i18n }}
     </button>

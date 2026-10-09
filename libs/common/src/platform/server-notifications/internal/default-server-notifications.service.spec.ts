@@ -667,5 +667,33 @@ describe("NotificationsService", () => {
         expect(syncService.fullSync).not.toHaveBeenCalled();
       });
     });
+
+    describe("NotificationType.AgentFillApprovalResponse", () => {
+      it("should send agentFillApprovalAnswered with the approval id", async () => {
+        const notification = new NotificationResponse({
+          type: NotificationType.AgentFillApprovalResponse,
+          payload: { UserId: mockUser1, Id: "approval-123" },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(messagingService.send).toHaveBeenCalledWith("agentFillApprovalAnswered", {
+          approvalId: "approval-123",
+        });
+      });
+
+      it("should not trigger a full sync", async () => {
+        const notification = new NotificationResponse({
+          type: NotificationType.AgentFillApprovalResponse,
+          payload: { UserId: mockUser1, Id: "approval-123" },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(syncService.fullSync).not.toHaveBeenCalled();
+      });
+    });
   });
 });
