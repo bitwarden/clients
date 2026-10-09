@@ -457,6 +457,10 @@ const miscObjects = [
     usage: "Indicates the browser extension client.",
   },
   {
+    id: "bwi-rocket",
+    usage: "Indicates a tour, launch, or new feature.",
+  },
+  {
     id: "bwi-shield",
     usage: "Indicates the Bitwarden brand or Bitwarden-branded elements.",
   },
