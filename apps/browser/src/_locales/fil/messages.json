@@ -1485,6 +1485,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Gamitin ang anumang span element na minarkahan ng isang website gamit ang `data-bwautofill` attribute."
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "Autofill browser login prompts",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Respond to basic HTTP authentication prompts when a login item in your vault matches the website."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "Ipakita ang mga opsyon ng menu ng konteksto"
   },
@@ -1641,9 +1652,6 @@
   },
   "addSharedFolder": {
     "message": "Magdagdag ng shared folder"
-  },
-  "newSharedFolder": {
-    "message": "Bagong shared folder"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Ang Bitwarden for Business ay nagbibigay-daan sa iyo na ibahagi ang iyong mga vault item sa iba sa pamamagitan ng paggamit ng isang organisasyon. Matuto pa sa website ng bitwarden.com."
@@ -2548,42 +2556,6 @@
     "message": "Magdagdag ng pasaporte",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Bagong Login",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Bagong Card",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Bagong Identity",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Bagong Tala",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Bagong secure note",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Bagong SSH key",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Bagong bank account",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Bagong lisensya",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Bagong pasaporte",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Bagong text",
     "description": "Header for new text send"
@@ -2591,22 +2563,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Bagong file",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "I-edit ang Login",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "I-edit ang Card",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "I-edit ang Identity",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "I-edit ang Tala",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "I-edit ang secure note",
@@ -5174,10 +5130,6 @@
   },
   "selectImportSharedFolder": {
     "message": "Pumili ng shared folder"
-  },
-  "importTargetMyFolder": {
-    "message": "My Folder",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Piliin ang opsyon na ito kung gusto mong ilipat ang mga nilalaman ng na-import na file sa isang collection"
@@ -8251,5 +8203,33 @@
   },
   "unknownCipher": {
     "message": "Hindi kilalang item, maaaring kailangan mong humiling ng pahintulot upang ma-access ang item na ito."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden has a new look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explore the new vault",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Customize"
+  },
+  "customizeYourView": {
+    "message": "Customize your view"
+  },
+  "showColumns": {
+    "message": "Show columns"
+  },
+  "resetToDefault": {
+    "message": "Reset to default"
   }
 }

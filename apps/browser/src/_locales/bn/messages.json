@@ -1485,6 +1485,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "একটি ওয়েবসাইট `data-bwautofill` অ্যাট্রিবিউট দিয়ে চিহ্নিত যেকোনো span উপাদান ব্যবহার করুন।"
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "Autofill browser login prompts",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Respond to basic HTTP authentication prompts when a login item in your vault matches the website."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "প্রসঙ্গ মেনু বিকল্প দেখান"
   },
@@ -1641,9 +1652,6 @@
   },
   "addSharedFolder": {
     "message": "শেয়ার করা ফোল্ডার যোগ করুন"
-  },
-  "newSharedFolder": {
-    "message": "নতুন শেয়ার করা ফোল্ডার"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden for Business আপনাকে একটি সংস্থা ব্যবহার করে আপনার ভল্ট আইটেম অন্যদের সাথে শেয়ার করতে দেয়। bitwarden.com ওয়েবসাইটে আরও জানুন।"
@@ -2548,42 +2556,6 @@
     "message": "পাসপোর্ট যোগ করুন",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "নতুন লগইন",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "নতুন কার্ড",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "নতুন পরিচয়",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "নতুন নোট",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "নতুন সুরক্ষিত নোট",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "নতুন SSH কী",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "নতুন ব্যাঙ্ক অ্যাকাউন্ট",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "নতুন লাইসেন্স",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "নতুন পাসপোর্ট",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "নতুন টেক্সট",
     "description": "Header for new text send"
@@ -2591,22 +2563,6 @@
   "newItemHeaderFileSendV2": {
     "message": "নতুন ফাইল",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "লগইন সম্পাদনা করুন",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "কার্ড সম্পাদনা করুন",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "পরিচয় সম্পাদনা করুন",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "নোট সম্পাদনা করুন",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "সুরক্ষিত নোট সম্পাদনা করুন",
@@ -5174,10 +5130,6 @@
   },
   "selectImportSharedFolder": {
     "message": "একটি শেয়ার করা ফোল্ডার নির্বাচন করুন"
-  },
-  "importTargetMyFolder": {
-    "message": "My Folder",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "আমদানি করা ফাইলের বিষয়বস্তু একটি সংগ্রহে সরাতে চাইলে এই বিকল্পটি নির্বাচন করুন"
@@ -8251,5 +8203,33 @@
   },
   "unknownCipher": {
     "message": "অজানা আইটেম, এই আইটেম অ্যাক্সেস করতে আপনাকে অনুমতি অনুরোধ করতে হতে পারে।"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden has a new look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explore the new vault",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Customize"
+  },
+  "customizeYourView": {
+    "message": "Customize your view"
+  },
+  "showColumns": {
+    "message": "Show columns"
+  },
+  "resetToDefault": {
+    "message": "Reset to default"
   }
 }

@@ -1485,6 +1485,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Použiť všetky prvky typu span, ktoré webová stránka označuje atribútom `data-bwautofill`."
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "Automatické vyplňovanie prihlasovacích údajov v prehliadači",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Reaguje na výzvy na základné HTTP overenie, keď sa položka prihlásenia vo vašom trezore zhoduje s webovou stránkou."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Webstránky môžu tieto výzvy spúšťať bez vášho vedomia, čo môže viesť k prezradeniu vašich prihlasovacích údajov.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "Zobraziť možnosti kontextovej ponuky"
   },
@@ -1641,9 +1652,6 @@
   },
   "addSharedFolder": {
     "message": "Pridať zdieľaný priečinok"
-  },
-  "newSharedFolder": {
-    "message": "Nový zdieľaný priečinok"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden pre podniky vám umožňuje zdieľať položky trezoru s ostatnými pomocou organizácie. Viac informácií nájdete na webovej stránke bitwarden.com."
@@ -2548,42 +2556,6 @@
     "message": "Pridať pas",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Nové prihlásenie",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Nová karta",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nová identita",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nová poznámka",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nová zabezpečená poznámka",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nový kľúč SSH",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nový bankový účet",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nový vodičský preukaz",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Nový pas",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Nový text",
     "description": "Header for new text send"
@@ -2591,22 +2563,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Nový súbor",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Upraviť prihlásenie",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Upraviť kartu",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Upraviť identitu",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Upraviť poznámku",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Upraviť zabezpečenú poznámku",
@@ -5175,10 +5131,6 @@
   "selectImportSharedFolder": {
     "message": "Vyberte zdieľaný priečinok"
   },
-  "importTargetMyFolder": {
-    "message": "Môj priečinok",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do zbierky"
   },
@@ -5680,13 +5632,13 @@
     "message": "Vložte kľúč YubiKey priradený k vášmu účtu LastPass do USB portu počítača a potom sa dotknite jeho tlačidla."
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "Tajný kľúč"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "Tajný kľúč a heslo"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "Váš účet je zabezpečený tajným kľúčom a heslom. Ak chcete pokračovať, budete musieť zadať obe."
   },
   "keeperEmail": {
     "message": "E-mail pre Keeper"
@@ -8251,5 +8203,33 @@
   },
   "unknownCipher": {
     "message": "Neznáma položka, možno budete musieť požiadať o povolenie na prístup k tejto položke."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden má nový vzhľad",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Lepší používateľský zážitok, rovnaká spoľahlivá bezpečnosť. Trezor Bitwarden bol na základe vašich pripomienok prepracovaný, takže v ňom ľahšie nájdete, čo hľadáte, a všetko funguje tak, ako by ste očakávali.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Ukážka prepracovaného trezoru Bitwarden.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Preskúmať nový trezor",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Prispôsobiť"
+  },
+  "customizeYourView": {
+    "message": "Prispôsobte si zobrazenie"
+  },
+  "showColumns": {
+    "message": "Zobraziť stĺpce"
+  },
+  "resetToDefault": {
+    "message": "Obnoviť na predvolené"
   }
 }

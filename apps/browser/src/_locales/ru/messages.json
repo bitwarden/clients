@@ -1485,6 +1485,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Use any span elements that a website marks with the `data-bwautofill` attribute."
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "Автозаполнение логинов в браузере",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Отвечать на базовую HTTP-аутентификацию, когда логин в хранилище соответствует сайту."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Сайты могут запускать эти запросы без вашего ведома, что может привести к раскрытию ваших учетных данных.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "Показать опции контекстного меню"
   },
@@ -1641,9 +1652,6 @@
   },
   "addSharedFolder": {
     "message": "Добавить общую папку"
-  },
-  "newSharedFolder": {
-    "message": "Новая общая папка"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden для Бизнеса позволяет предоставлять доступ к элементам вашего хранилища другим пользователям с помощью организации. Более подробную информацию можно найти на сайте bitwarden.com."
@@ -2548,42 +2556,6 @@
     "message": "Добавить паспорт",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Новый логин",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Новая карта",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Новая личная информация",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Новая заметка",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Новая защищенная заметка",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Новый ключ SSH",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Новый банковский счет",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Новое водительское удостоверение",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Новый паспорт",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Новый текст",
     "description": "Header for new text send"
@@ -2591,22 +2563,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Новый файл",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Изменить логин",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Редактировать карту",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Редактировать личную информацию",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Редактировать заметку",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Изменить защищенную заметку",
@@ -5174,10 +5130,6 @@
   },
   "selectImportSharedFolder": {
     "message": "Выберите общую папку"
-  },
-  "importTargetMyFolder": {
-    "message": "Моя папка",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в коллекцию"
@@ -8251,5 +8203,33 @@
   },
   "unknownCipher": {
     "message": "Неизвестный элемент. Вам может потребоваться запросить разрешение на доступ к этому элементу."
+  },
+  "newExperienceDialogTitle": {
+    "message": "У Bitwarden новый облик!",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Улучшенный интерфейс, та же надежная защита. Хранилище Bitwarden было переработано с учетом ваших отзывов, поэтому теперь в нем стало проще находить нужные элементы и все работает так, как вы ожидаете.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Познакомиться с обновленным хранилищем Bitwarden.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Исследуйте новое хранилище",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Настроить"
+  },
+  "customizeYourView": {
+    "message": "Настроить вид"
+  },
+  "showColumns": {
+    "message": "Показать столбцы"
+  },
+  "resetToDefault": {
+    "message": "Сбросить по умолчанию"
   }
 }

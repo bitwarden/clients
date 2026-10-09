@@ -1485,6 +1485,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "ウェブサイトが「data-bwautofill」属性でマークしたすべての span 要素を使用します。"
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "ブラウザーのログインプロンプトの自動入力",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "保管庫のログインアイテムがウェブサイトと一致したとき、HTTP Basic 認証プロンプトに応答します。"
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "ウェブサイトはあなたへの確認なしにプロンプトをトリガーできるため、ログイン情報を予期せず漏洩する可能性があります。",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "コンテキストメニューオプションを表示"
   },
@@ -1641,9 +1652,6 @@
   },
   "addSharedFolder": {
     "message": "共有フォルダーを追加"
-  },
-  "newSharedFolder": {
-    "message": "新しい共有フォルダー"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden for Business は組織を使って保管庫アイテムを他の人と共有することができます。詳細は bitwarden.com ウェブサイトをご覧ください。"
@@ -2548,42 +2556,6 @@
     "message": "パスポートを追加",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "新規ログイン",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "新規カード",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "新規身分証",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "新規メモ",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "新しいセキュアメモ",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "新しい SSH キー",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "新しい銀行口座",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "新しい免許証",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "新しいパスポート",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "新規テキスト",
     "description": "Header for new text send"
@@ -2591,22 +2563,6 @@
   "newItemHeaderFileSendV2": {
     "message": "新規ファイル",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "ログインを編集",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "カードを編集",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "ID を編集",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "メモを編集",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "セキュアメモを編集",
@@ -5174,10 +5130,6 @@
   },
   "selectImportSharedFolder": {
     "message": "共有フォルダーを選択"
-  },
-  "importTargetMyFolder": {
-    "message": "マイフォルダー",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "インポートしたファイルコンテンツをコレクションに移動したい場合は、このオプションを選択してください"
@@ -8251,5 +8203,33 @@
   },
   "unknownCipher": {
     "message": "不明なアイテムです。このアイテムにアクセスする権限をリクエストする必要がある場合があります。"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden が新しい見た目になりました",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "信頼できるセキュリティは変わらず、使い勝手を向上。 フィードバックに基づいて再設計された Bitwarden 保管庫で、思い通りの検索や作業を簡単にできます。",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "再設計された Bitwarden 保管庫のプレビューです。",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "新しい保管庫を見てみる",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "カスタマイズ"
+  },
+  "customizeYourView": {
+    "message": "表示のカスタマイズ"
+  },
+  "showColumns": {
+    "message": "列を表示する"
+  },
+  "resetToDefault": {
+    "message": "初期設定に戻す"
   }
 }
