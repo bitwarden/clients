@@ -1,5 +1,6 @@
 import { CipherType } from "../../vault/enums";
 import { Cipher } from "../../vault/models/domain/cipher";
+import { Login } from "../../vault/models/domain/login";
 import { CipherView } from "../../vault/models/view/cipher.view";
 import { conditionalEncString } from "../../vault/utils/domain-utils";
 
@@ -45,7 +46,7 @@ describe("Cipher Export", () => {
 
   // Blob ciphers seal all content in `data`; the legacy per-field properties are undefined.
   describe("blob ciphers", () => {
-    const sealedData = "SEALED_BLOB";
+    const sealedData = JSON.stringify({ format_version: 1, wrapped_cek: "2.iv|cek|mac" });
     const cipherKey = "CIPHER_KEY";
 
     function blobCipher(): Cipher {
@@ -95,6 +96,60 @@ describe("Cipher Export", () => {
 
       expect(domain.name).toBeUndefined();
       expect(domain.login).toBeUndefined();
+    });
+  });
+
+  // The server also sends `data` for legacy ciphers, holding its own copy of the per-field content.
+  // E.g. {"Name":"2.iv|ct|mac","Username":"2.iv|ct|mac"}. It must not be treated as a sealed blob.
+  describe("legacy ciphers with server data", () => {
+    const encName = "2.iv|name|mac";
+    const encUsername = "2.iv|username|mac";
+    const serverData = JSON.stringify({ Name: encName, Username: encUsername });
+
+    function legacyCipher(): Cipher {
+      const cipher = new Cipher();
+      cipher.id = "25c8c414-b446-48e9-a1bd-b10700bbd740";
+      cipher.type = CipherType.Login;
+      cipher.name = conditionalEncString(encName);
+      cipher.login = new Login();
+      cipher.login.username = conditionalEncString(encUsername);
+      cipher.data = serverData;
+      return cipher;
+    }
+
+    it("build exports the legacy content", () => {
+      const exported = new CipherExport();
+      exported.build(legacyCipher());
+
+      expect(exported.login?.username).toBe(encUsername);
+    });
+
+    it("build does not export the server data", () => {
+      const exported = new CipherExport();
+      exported.build(legacyCipher());
+
+      expect(exported.data).toBeUndefined();
+    });
+
+    it("toDomain restores the legacy content when server data is present", () => {
+      const exported = new CipherExport();
+      exported.build(legacyCipher());
+      exported.data = serverData;
+
+      const domain = CipherExport.toDomain(exported);
+
+      expect(domain.name?.encryptedString).toBe(encName);
+      expect(domain.login?.username?.encryptedString).toBe(encUsername);
+    });
+
+    it("toDomain drops the server data", () => {
+      const exported = new CipherExport();
+      exported.build(legacyCipher());
+      exported.data = serverData;
+
+      const domain = CipherExport.toDomain(exported);
+
+      expect(domain.data).toBeUndefined();
     });
   });
 

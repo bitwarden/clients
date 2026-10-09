@@ -133,7 +133,7 @@ export class CipherExport {
   // Blob ciphers seal all content in `data`; their legacy per-field properties stay undefined.
   private static contentToDomain(req: CipherExport, domain: CipherDomain) {
     // V2 encryption export only nedes data & cipher key
-    if (req.data != null) {
+    if (CipherExport.isSealedBlob(req.data)) {
       domain.data = req.data;
       return;
     }
@@ -193,6 +193,21 @@ export class CipherExport {
     }
   }
 
+  // The server also sends `data` for legacy ciphers, holding its own per-field JSON
+  // (e.g. {"Name":"2.iv|ct|mac"}). Only a sealed blob carries `format_version`, matching the SDK.
+  private static isSealedBlob(data: string | undefined): boolean {
+    if (data == null) {
+      return false;
+    }
+
+    try {
+      const parsed = JSON.parse(data);
+      return parsed != null && typeof parsed === "object" && "format_version" in parsed;
+    } catch {
+      return false;
+    }
+  }
+
   type: CipherType = CipherType.Login;
   folderId?: string;
   organizationId?: string;
@@ -246,7 +261,7 @@ export class CipherExport {
 
   // Blob ciphers seal all content in `data`; their legacy per-field properties are undefined.
   private buildContent(o: CipherView | CipherDomain) {
-    if (o instanceof CipherDomain && o.data != null) {
+    if (o instanceof CipherDomain && CipherExport.isSealedBlob(o.data)) {
       this.data = o.data;
       return;
     }

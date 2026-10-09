@@ -253,10 +253,11 @@ describe("VaultExportService", () => {
   });
 
   it("exports the sealed data of blob ciphers in encrypted json", async () => {
+    const sealedData = JSON.stringify({ format_version: 1, wrapped_cek: "2.iv|cek|mac" });
     const blobCipher = generateCipherDomain(false);
     blobCipher.name = undefined;
     blobCipher.login = undefined;
-    blobCipher.data = "SEALED_BLOB";
+    blobCipher.data = sealedData;
     blobCipher.key = new EncString("CIPHER_KEY");
     cipherService.getAll.mockResolvedValue([blobCipher]);
 
@@ -266,7 +267,7 @@ describe("VaultExportService", () => {
     )) as ExportedVaultAsString;
 
     const [item] = JSON.parse(actual.data).items;
-    expect(item.data).toBe("SEALED_BLOB");
+    expect(item.data).toBe(sealedData);
     expect(item.login).toBeUndefined();
     expect(item.key).toBe("CIPHER_KEY");
   });
