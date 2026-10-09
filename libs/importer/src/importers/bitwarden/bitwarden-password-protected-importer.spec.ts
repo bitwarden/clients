@@ -8,11 +8,13 @@ import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { emptyGuid, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey, UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, KdfType, KeyGenerationService } from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
+import { ImportRecordError, ImportRecordErrorReason } from "../../models/import-record-error";
 import { emptyAccountEncrypted } from "../spec-data/bitwarden-json/account-encrypted.json";
 import {
   emptyUnencryptedExport,
@@ -131,6 +133,92 @@ describe("BitwardenPasswordProtectedImporter", () => {
       expect(BitwardenEncryptedJsonImporter.prototype.parse).toHaveBeenCalledWith(
         emptyAccountEncrypted,
       );
+    });
+
+    it("skips an SSH key item with a null private key instead of hanging, and still imports everything else", async () => {
+      const exportWithMalformedSshKey = JSON.stringify({
+        encrypted: true,
+        encKeyValidation_DO_NOT_EDIT: "2.iv|data|mac=",
+        folders: [],
+        items: [
+          {
+            id: "11111111-1111-1111-1111-111111111111",
+            type: CipherType.Login,
+            name: "2.iv|name|mac=",
+            login: { username: "2.iv|user|mac=", password: "2.iv|pass|mac=" },
+          },
+          {
+            id: "22222222-2222-2222-2222-222222222222",
+            type: CipherType.SshKey,
+            name: "2.iv|name|mac=",
+            sshKey: { privateKey: null, publicKey: null, keyFingerprint: null },
+          },
+        ],
+      });
+
+      const result = await importer.parse(exportWithMalformedSshKey);
+
+      expect(result.success).toBe(true);
+      expect(result.ciphers).toHaveLength(1);
+      expect(cipherService.decrypt).toHaveBeenCalledTimes(1);
+      expect(result.errors).toEqual([
+        new ImportRecordError(
+          "22222222-2222-2222-2222-222222222222",
+          ImportRecordErrorReason.SshKeyParseFailed,
+        ),
+      ]);
+    });
+
+    it("skips a legacy SSH key item that only carries server data, as in exports affected by PM-44643", async () => {
+      const exportWithServerDataSshKey = JSON.stringify({
+        encrypted: true,
+        encKeyValidation_DO_NOT_EDIT: "2.iv|data|mac=",
+        folders: [],
+        items: [
+          {
+            id: "44444444-4444-4444-4444-444444444444",
+            type: CipherType.SshKey,
+            name: "2.iv|name|mac=",
+            data: JSON.stringify({ PrivateKey: "2.iv|pk|mac=", Name: "2.iv|name|mac=" }),
+          },
+        ],
+      });
+
+      const result = await importer.parse(exportWithServerDataSshKey);
+
+      expect(cipherService.decrypt).not.toHaveBeenCalled();
+      expect(result.errors).toEqual([
+        new ImportRecordError(
+          "44444444-4444-4444-4444-444444444444",
+          ImportRecordErrorReason.SshKeyParseFailed,
+        ),
+      ]);
+    });
+
+    it("doesn't skip a V2 (blob) SSH key item, which has no top-level sshKey field at all", async () => {
+      // V2 ciphers seal all content in `data`; a valid V2 SSH key item never carries a top-level
+      // sshKey property, so sshKey?.privateKey is always undefined there. Only c.data == null
+      // (V1, field-level) items should be checked for a missing private key.
+      const exportWithV2SshKey = JSON.stringify({
+        encrypted: true,
+        encKeyValidation_DO_NOT_EDIT: "2.iv|data|mac=",
+        folders: [],
+        items: [
+          {
+            id: "33333333-3333-3333-3333-333333333333",
+            type: CipherType.SshKey,
+            name: "",
+            data: JSON.stringify({ format_version: 1, wrapped_cek: "2.iv|cek|mac=" }),
+          },
+        ],
+      });
+
+      const result = await importer.parse(exportWithV2SshKey);
+
+      expect(result.success).toBe(true);
+      expect(result.ciphers).toHaveLength(1);
+      expect(cipherService.decrypt).toHaveBeenCalledTimes(1);
+      expect(result.errors).toEqual([]);
     });
   });
 

@@ -12,6 +12,7 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrgKey, UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
@@ -28,6 +29,7 @@ import {
   isUnencrypted,
 } from "@bitwarden/vault-export-core";
 
+import { ImportRecordError, ImportRecordErrorReason } from "../../models/import-record-error";
 import { ImportResult } from "../../models/import-result";
 import { Importer } from "../importer";
 
@@ -105,6 +107,23 @@ export class BitwardenEncryptedJsonImporter extends BitwardenJsonImporter implem
 
     for (const c of data.items) {
       const cipher = CipherWithIdExport.toDomain(c);
+
+      // A null private key can't be defaulted to anything valid — the SDK's SshKey.privateKey
+      // is a required field, and feeding it null hangs the SDK call. Skip before any
+      // folder/collection bookkeeping runs for this item, so there's nothing to roll back.
+      // toDomain only keeps `data` for sealed blobs, so `cipher.data == null` means legacy.
+      if (
+        cipher.type === CipherType.SshKey &&
+        cipher.data == null &&
+        this.isNullOrWhitespace(c.sshKey?.privateKey)
+      ) {
+        result.errors.push(new ImportRecordError(c.id, ImportRecordErrorReason.SshKeyParseFailed));
+        this.logService.warning(
+          `Bitwarden encrypted import skipped an SSH key item with no private key (id: ${c.id}).`,
+        );
+        continue;
+      }
+
       // reset ids in case they were set for some reason
       cipher.id = null;
       cipher.organizationId = this.organizationId;
