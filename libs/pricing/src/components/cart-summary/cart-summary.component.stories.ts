@@ -65,6 +65,8 @@ export default {
                   return "Account credit";
                 case "appliedSubscriptionCredits":
                   return "Applied subscription credits";
+                case "appliedProrationCredits":
+                  return "Applied proration credits";
                 case "passwordManagerProratedCharge":
                   return "Password Manager prorated charge";
                 case "discount":
@@ -740,7 +742,7 @@ export const AllProrationInvoice: Story = {
       },
       cadence: "annually",
       credit: {
-        translationKey: "appliedSubscriptionCredits",
+        translationKey: "appliedProrationCredits",
         value: 37.64,
       },
       estimatedTax: 12.05,
@@ -776,7 +778,7 @@ export const RecurringWithProration: Story = {
       },
       cadence: "annually",
       credit: {
-        translationKey: "appliedSubscriptionCredits",
+        translationKey: "appliedProrationCredits",
         value: 9.02,
       },
       estimatedTax: 0.36,

@@ -6,8 +6,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
-
-import { CoachmarkService } from "../coachmark/coachmark.service";
+import { CoachmarkService } from "@bitwarden/vault";
 
 import {
   VaultWelcomeDialogComponent,
@@ -85,7 +84,12 @@ describe("VaultWelcomeDialogComponent", () => {
 
       await component["onPrimaryCta"]();
 
-      expect(startTour).toHaveBeenCalled();
+      expect(startTour).toHaveBeenCalledWith(
+        expect.objectContaining({
+          steps: expect.arrayContaining([expect.objectContaining({ id: "importData" })]),
+          endRoute: "/vault",
+        }),
+      );
     });
 
     it("should not start the coachmark tour on dismiss", async () => {

@@ -2626,11 +2626,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Não tem pastas."
+  "youHaveNoFoldersV2": {
+    "message": "Não tem pastas"
   },
-  "emptyFoldersDescription": {
-    "message": "Utilize pastas para organizar os itens do cofre. São apenas para si — mais ninguém as verá ou utilizará."
+  "emptyFoldersDescriptionV2": {
+    "message": "Utilize pastas para organizar os itens do cofre. São apenas para si. Mais ninguém as verá ou utilizará."
   },
   "emptyVaultsDescription": {
     "message": "Adicione credenciais, identificações, cartões e outros itens para começar."
@@ -3460,6 +3460,10 @@
   },
   "selectImportSharedFolder": {
     "message": "Selecionar uma pasta partilhada"
+  },
+  "importTargetMyFolder": {
+    "message": "A minha pasta",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma coleção"
@@ -15596,20 +15600,11 @@
   "atRiskPassword": {
     "message": "Palavra-passe em risco"
   },
-  "changeAtRiskPassword": {
-    "message": "Alterar palavra-passe em risco"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Esta credencial está em risco e não tem um site. Adicione um site e altere a palavra-passe para uma segurança mais forte."
-  },
   "vulnerablePassword": {
     "message": "Palavra-passe vulnerável."
   },
   "changeNow": {
     "message": "Alterar agora"
-  },
-  "missingWebsite": {
-    "message": "Site em falta"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remover o desbloqueio com PIN"
@@ -17038,6 +17033,15 @@
       }
     }
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "E-mail do Keeper"
   },
@@ -17492,6 +17496,9 @@
   },
   "pam": {
     "message": "PAM"
+  },
+  "pamAccessRequestsTitle": {
+    "message": "Pedidos de acesso"
   },
   "pamAccessRules": {
     "message": "Regras de acesso"

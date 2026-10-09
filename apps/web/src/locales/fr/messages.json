@@ -2626,11 +2626,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Vous n'avez pas de dossier."
+  "youHaveNoFoldersV2": {
+    "message": "Vous n'avez aucun dossier"
   },
-  "emptyFoldersDescription": {
-    "message": "Utilisez des dossiers pour organiser les éléments du coffre. Ils sont juste pour vous, personne d'autre ne les verra ou ne les utilisera."
+  "emptyFoldersDescriptionV2": {
+    "message": "Utilisez des dossiers pour organiser les éléments du coffre. Ils sont juste pour vous. Personne d'autre ne les verra ou les utilisera."
   },
   "emptyVaultsDescription": {
     "message": "Ajoutez des identifiants, des ID, des cartes et d'autres éléments pour commencer."
@@ -3460,6 +3460,10 @@
   },
   "selectImportSharedFolder": {
     "message": "Sélectionnez un dossier partagé"
+  },
+  "importTargetMyFolder": {
+    "message": "Mon dossier",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Sélectionnez cette option si vous voulez que le contenu du fichier importé soit déplacé vers une collection"
@@ -4507,11 +4511,11 @@
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
   },
   "appliedBalance": {
-    "message": "Applied balance",
+    "message": "Solde appliqué",
     "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
   },
   "amountDue": {
-    "message": "Amount due",
+    "message": "Montant dû",
     "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
   },
   "accountBalance": {
@@ -9934,7 +9938,7 @@
     "message": "Activer le paramètre de saisie automatique au chargement de la page dans l'extension de navigateur pour tous les membres existants et nouveaux. Sachez que les sites web compromis ou peu fiables peuvent"
   },
   "activateAutofillPolicyDescV3": {
-    "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Once this policy is on, members must adjust their personal settings to turn on autofill. Be aware that compromised or untrustworthy websites can"
+    "message": "Activer le remplissage automatique lors du chargement de la page dans l'extension du navigateur pour tous les membres existants et nouveaux. Une fois cette politique activée, les membres doivent ajuster leurs paramètres personnels pour activer le remplissage automatique. Sachez que les sites Web compromis ou peu fiables peuvent"
   },
   "exploitAutofillOnPageLoad": {
     "message": "exploiter la saisie automatique lors du chargement de la page"
@@ -15596,20 +15600,11 @@
   "atRiskPassword": {
     "message": "Mot de passe à risque"
   },
-  "changeAtRiskPassword": {
-    "message": "Changer le mot de passe à risque"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Cet identifiant est à risques et manque un site web. Ajoutez un site web et changez le mot de passe pour une meilleure sécurité."
-  },
   "vulnerablePassword": {
     "message": "Mot de passe vulnérable."
   },
   "changeNow": {
     "message": "Changer maintenant"
-  },
-  "missingWebsite": {
-    "message": "Site Web manquant"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Supprimer Déverrouiller avec un NIP"
@@ -17038,6 +17033,15 @@
       }
     }
   },
+  "secretKey": {
+    "message": "Clé secrète"
+  },
+  "secretKeyAndPassword": {
+    "message": "Clé secrète et mot de passe"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Votre compte est sécurisé avec une clé secrète et un mot de passe. Vous devrez entrer les deux pour continuer."
+  },
   "keeperEmail": {
     "message": "Courriel de Keeper"
   },
@@ -17492,6 +17496,9 @@
   },
   "pam": {
     "message": "PAM"
+  },
+  "pamAccessRequestsTitle": {
+    "message": "Demandes d'accès"
   },
   "pamAccessRules": {
     "message": "Règles d'accès"

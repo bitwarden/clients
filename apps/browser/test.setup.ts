@@ -61,6 +61,18 @@ const tabs = {
     addListener: jest.fn(),
     removeListener: jest.fn(),
   },
+  onCreated: {
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+  },
+  onAttached: {
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+  },
+  onDetached: {
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+  },
   onReplaced: {
     addListener: jest.fn(),
     removeListener: jest.fn(),
@@ -88,7 +100,12 @@ const windows = {
   getCurrent: jest.fn(),
   update: jest.fn(),
   remove: jest.fn(),
+  WINDOW_ID_NONE: -1,
   onFocusChanged: {
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+  },
+  onRemoved: {
     addListener: jest.fn(),
     removeListener: jest.fn(),
   },
