@@ -115,6 +115,8 @@ function throwOnAbort<T>(signal: AbortSignal): MonoTypeOperatorFunction<T> {
     );
 }
 
+type UiOperation = "show" | "update" | "hide";
+
 export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServiceAbstraction<NativeWindowObject> {
   constructor(
     private authService: AuthService,
@@ -129,9 +131,15 @@ export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServi
     private domainSettingsService: DomainSettingsService,
   ) {}
   private currentSession: any;
+  // Retain the last owner after hiding, so still older sessions cannot reclaim
+  // the window when a newer ceremony has already finished.
+  private uiOwner: DesktopFido2UserInterfaceSession | undefined;
+  private pendingUiOperation: Promise<void> = Promise.resolve();
 
   getCurrentSession(): DesktopFido2UserInterfaceSession | undefined {
-    return this.currentSession;
+    // Modal components bind to this during navigation. A queued replacement
+    // must not become their session until it actually takes over the window.
+    return this.uiOwner ?? this.currentSession;
   }
 
   async newSession(
@@ -147,7 +155,7 @@ export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServi
     if (!abortController) {
       throw new Error("No AbortController passed to desktop");
     }
-    const session = new DesktopFido2UserInterfaceSession(
+    const session: DesktopFido2UserInterfaceSession = new DesktopFido2UserInterfaceSession(
       this.authService,
       this.cipherService,
       this.accountService,
@@ -159,10 +167,44 @@ export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServi
       this.userVerificationService,
       this.passwordRepromptService,
       this.domainSettingsService,
+      (action, operation) =>
+        this.runUiOperation(session, abortController.signal, action, operation),
     );
 
     this.currentSession = session;
     return session;
+  }
+
+  private runUiOperation(
+    session: DesktopFido2UserInterfaceSession,
+    signal: AbortSignal,
+    action: UiOperation,
+    operation: () => Promise<void>,
+  ): Promise<void> {
+    // Cancellation can return to the native caller before the renderer finishes
+    // the old request. Serialize window changes so its in-flight cleanup cannot
+    // overwrite a newer ceremony, and only let the UI's owner update or hide it.
+    const result = this.pendingUiOperation.then(async () => {
+      if (action === "show") {
+        signal.throwIfAborted();
+        if (this.uiOwner !== undefined && this.uiOwner !== session) {
+          // Modal components capture their session on creation. Leave the old
+          // route first, since Angular otherwise reuses it for the same URL.
+          await this.router.navigate(["/"]);
+          signal.throwIfAborted();
+        }
+        this.uiOwner = session;
+      } else if (this.uiOwner !== session) {
+        if (this.uiOwner !== undefined || action === "update") {
+          return;
+        }
+      }
+
+      await operation();
+    });
+    // A failed operation still rejects its caller, without blocking later UI.
+    this.pendingUiOperation = result.catch(() => {});
+    return result;
   }
 }
 
@@ -179,6 +221,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     private userVerificationService: DesktopFido2UserVerificationService,
     private passwordRepromptService: PasswordRepromptService,
     private domainSettingsService: DomainSettingsService,
+    private runUiOperation: (action: UiOperation, operation: () => Promise<void>) => Promise<void>,
   ) {}
 
   private confirmCredentialSubject = new Subject<boolean>();
@@ -585,21 +628,23 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
    * calls this when the user dismisses it. Safe to call more than once.
    */
   async hideUi(): Promise<void> {
-    // Always clear modal mode so the app can never get stuck in it. The main
-    // process only restyles the window on the modal -> standard transition, so
-    // this is inert when the ceremony never entered modal mode.
-    await this.desktopSettingsService.setModalMode(false);
+    await this.runUiOperation("hide", async () => {
+      // Clear modal mode only if this ceremony still owns the window (or no
+      // ceremony owns it). Never tear down a newer ceremony's UI.
+      await this.desktopSettingsService.setModalMode(false);
 
-    // The ceremony completed without showing UI, so there is nothing of ours to
-    // tear down. The user may have had a window open the whole time; leave it
-    // where they left it.
-    if (!this.uiShown) {
-      return;
-    }
+      // The ceremony completed without showing UI, so there is nothing of ours to
+      // tear down. The user may have had a window open the whole time; leave it
+      // where they left it.
+      if (!this.uiShown) {
+        return;
+      }
 
-    // Reset to standard UI.
-    await this.accountService.setShowHeader(true);
-    await this.router.navigate(["/"]);
+      // Reset to standard UI.
+      await this.accountService.setShowHeader(true);
+      await this.router.navigate(["/"]);
+      this.uiShown = false;
+    });
   }
 
   private async showUi(
@@ -608,16 +653,19 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     showTrafficButtons: boolean = false,
     disableRedirect?: boolean,
   ): Promise<void> {
-    // Load the UI:
-    await this.desktopSettingsService.setModalMode(true, showTrafficButtons, position);
-    await this.accountService.setShowHeader(showTrafficButtons);
-    await this.router.navigate([
-      route,
-      {
-        "disable-redirect": disableRedirect || null,
-      },
-    ]);
-    this.uiShown = true;
+    await this.runUiOperation("show", async () => {
+      // Claim the window before changing it so cleanup also covers a partial
+      // failure while showing the ceremony.
+      this.uiShown = true;
+      await this.desktopSettingsService.setModalMode(true, showTrafficButtons, position);
+      await this.accountService.setShowHeader(showTrafficButtons);
+      await this.router.navigate([
+        route,
+        {
+          "disable-redirect": disableRedirect || null,
+        },
+      ]);
+    });
   }
 
   /**
@@ -718,7 +766,11 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       // TODO: Navigate straight to the next modal screen instead of home. The
       // caller shows its own route immediately afterwards, so routing through
       // "/" flashes the main vault screen in between.
-      await this.router.navigate(["/"]);
+      await this.runUiOperation("update", async () => {
+        if (this.uiShown) {
+          await this.router.navigate(["/"]);
+        }
+      });
     }
   }
 

@@ -1,4 +1,7 @@
-import { Router } from "@angular/router";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { TestBed } from "@angular/core/testing";
+import { Router, provideRouter } from "@angular/router";
+import { RouterTestingHarness } from "@angular/router/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
@@ -8,6 +11,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { Fido2AuthenticatorErrorCode } from "@bitwarden/common/platform/abstractions/fido2/fido2-authenticator.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
@@ -19,8 +23,12 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { ModalModeState } from "../../platform/models/domain/window-state";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
+import { Fido2ExcludedCiphersComponent } from "../modal/credentials/fido2-excluded-ciphers.component";
 
-import { DesktopFido2UserInterfaceSession } from "./desktop-fido2-user-interface.service";
+import {
+  DesktopFido2UserInterfaceService,
+  DesktopFido2UserInterfaceSession,
+} from "./desktop-fido2-user-interface.service";
 import {
   DesktopFido2UserVerificationService,
   UserVerificationCanceled,
@@ -45,6 +53,13 @@ const matchingLogin = () =>
 
 /** The user handle for the ceremony, matching `windowObject.userHandle` below. */
 const userHandle = Fido2Utils.arrayToString(new Uint8Array([1, 2, 3]));
+
+@Component({
+  template: "",
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class CeremonyHomeComponent {}
 
 /**
  * A login whose URI does NOT match the RP but that already holds a passkey for
@@ -80,6 +95,21 @@ describe("DesktopFido2UserInterfaceSession", () => {
   let deadlineController: AbortController;
 
   let session: DesktopFido2UserInterfaceSession;
+  let userInterfaceService: DesktopFido2UserInterfaceService;
+  const nativeWindow = {
+    rpId: "example.com",
+    requestContext: "request-context",
+    windowXy: { x: 0, y: 0 },
+    appWindowHandle: new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]),
+    clientWindowHandle: new Uint8Array([8, 7, 6, 5, 4, 3, 2, 1]),
+    userHandle: [1, 2, 3],
+  };
+  const newSession = () =>
+    userInterfaceService.newSession(
+      false,
+      { ...nativeWindow, requestContext: "new-request" },
+      new AbortController(),
+    );
 
   // The desktop test environment runs on jest-environment-jsdom's bundled
   // jsdom@20, which predates the `AbortSignal.timeout`/`AbortSignal.any` statics
@@ -91,7 +121,7 @@ describe("DesktopFido2UserInterfaceSession", () => {
   const originalAny = (AbortSignal as any).any;
   const originalThrowIfAborted = (AbortSignal.prototype as any).throwIfAborted;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     authService = mock<AuthService>();
     cipherService = mock<CipherService>();
     accountService = mock<AccountService>();
@@ -150,26 +180,19 @@ describe("DesktopFido2UserInterfaceSession", () => {
       }
     };
 
-    session = new DesktopFido2UserInterfaceSession(
+    userInterfaceService = new DesktopFido2UserInterfaceService(
       authService,
       cipherService,
       accountService,
       logService,
+      mock<MessagingService>(),
       router,
       desktopSettingsService,
-      abortController,
-      {
-        rpId: "example.com",
-        requestContext: "request-context",
-        windowXy: { x: 0, y: 0 },
-        appWindowHandle: new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]),
-        clientWindowHandle: new Uint8Array([8, 7, 6, 5, 4, 3, 2, 1]),
-        userHandle: [1, 2, 3],
-      },
       userVerificationService,
       passwordRepromptService,
       domainSettingsService,
     );
+    session = await userInterfaceService.newSession(false, nativeWindow, abortController);
   });
 
   afterEach(() => {
@@ -466,6 +489,38 @@ describe("DesktopFido2UserInterfaceSession", () => {
   });
 
   describe("ensureUnlockedVault", () => {
+    it("finishes unlock navigation before showing a newer ceremony", async () => {
+      activeAccountStatus$.next(AuthenticationStatus.Locked);
+      const unlocked = session.ensureUnlockedVault();
+      await tick();
+      let finishNavigation!: (result: boolean) => void;
+      router.navigate.mockReturnValueOnce(
+        new Promise<boolean>((resolve) => {
+          finishNavigation = resolve;
+        }),
+      );
+      activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+      await tick();
+      abortController.abort("Operation cancelled");
+
+      const replacement = await newSession();
+      let shown = false;
+      const showing = replacement.informExcludedCredential(["new-cipher"]).then(() => {
+        shown = true;
+      });
+      await tick();
+      expect(shown).toBe(false);
+
+      finishNavigation(true);
+      await Promise.all([unlocked, showing]);
+
+      expect(modalMode$.value.isModalModeActive).toBe(true);
+      expect(router.navigate).toHaveBeenLastCalledWith([
+        "/fido2-excluded",
+        { "disable-redirect": null },
+      ]);
+    });
+
     it("returns without showing the lock UI when the vault is already unlocked", async () => {
       activeAccountStatus$.next(AuthenticationStatus.Unlocked);
 
@@ -597,9 +652,218 @@ describe("DesktopFido2UserInterfaceSession", () => {
       expect(accountService.setShowHeader).toHaveBeenCalledWith(true);
       expect(router.navigate).toHaveBeenCalledWith(["/"]);
     });
+
+    it("leaves a newer ceremony open when a cancelled request completes late", async () => {
+      await unlockVault();
+
+      // Cancellation returns to the native caller while vault sync can still
+      // be pending in the renderer. Complete that old no-match response later.
+      let finishOldRequest!: () => void;
+      const oldResult = new Promise<void>((resolve) => {
+        finishOldRequest = resolve;
+      }).then(() => session.informCredentialNotFound());
+      abortController.abort("Operation cancelled");
+
+      const replacement = await newSession();
+      await replacement.informExcludedCredential(["new-cipher"]);
+      jest.clearAllMocks();
+
+      finishOldRequest();
+      await oldResult;
+
+      expect(userInterfaceService.getCurrentSession()).toBe(replacement);
+      expect(modalMode$.value.isModalModeActive).toBe(true);
+      expect(desktopSettingsService.setModalMode).not.toHaveBeenCalled();
+      expect(accountService.setShowHeader).not.toHaveBeenCalled();
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it("finishes an in-flight cleanup before showing a newer ceremony", async () => {
+      await unlockVault();
+      abortController.abort("Operation cancelled");
+      let finishModalUpdate!: () => void;
+      desktopSettingsService.setModalMode.mockImplementationOnce(async (isActive) => {
+        await new Promise<void>((resolve) => {
+          finishModalUpdate = resolve;
+        });
+        modalMode$.next({ isModalModeActive: isActive });
+      });
+      const cleanup = session.informCredentialNotFound();
+      await tick();
+
+      const replacement = await newSession();
+      let shown = false;
+      const showing = replacement.informExcludedCredential(["new-cipher"]).then(() => {
+        shown = true;
+      });
+      await tick();
+      expect(shown).toBe(false);
+
+      finishModalUpdate();
+      await Promise.all([cleanup, showing]);
+
+      expect(modalMode$.value.isModalModeActive).toBe(true);
+      expect(accountService.setShowHeader).toHaveBeenLastCalledWith(false);
+      expect(router.navigate).toHaveBeenLastCalledWith([
+        "/fido2-excluded",
+        { "disable-redirect": null },
+      ]);
+    });
+
+    it("does not show a cancelled ceremony queued behind cleanup", async () => {
+      await unlockVault();
+      let finishModalUpdate!: () => void;
+      desktopSettingsService.setModalMode.mockImplementationOnce(async (isActive) => {
+        await new Promise<void>((resolve) => {
+          finishModalUpdate = resolve;
+        });
+        modalMode$.next({ isModalModeActive: isActive });
+      });
+      const cleanup = session.informCredentialNotFound();
+      await tick();
+
+      const replacementAbort = new AbortController();
+      const replacement = await userInterfaceService.newSession(
+        false,
+        { ...nativeWindow, requestContext: "new-request" },
+        replacementAbort,
+      );
+      const showing = replacement.informExcludedCredential(["new-cipher"]);
+      const rejected = expect(showing).rejects.toBe("Replacement cancelled");
+      replacementAbort.abort("Replacement cancelled");
+
+      finishModalUpdate();
+      await Promise.all([cleanup, rejected]);
+
+      expect(modalMode$.value.isModalModeActive).toBe(false);
+      expect(accountService.setShowHeader).toHaveBeenLastCalledWith(true);
+      expect(router.navigate).toHaveBeenLastCalledWith(["/"]);
+    });
+
+    it("cleans up the old window when its replacement never shows UI", async () => {
+      await unlockVault();
+      abortController.abort("Operation cancelled");
+      const replacement = await newSession();
+      await replacement.ensureUnlockedVault();
+      await replacement.informCredentialNotFound();
+      expect(modalMode$.value.isModalModeActive).toBe(true);
+      jest.clearAllMocks();
+
+      await session.informCredentialNotFound();
+
+      expect(modalMode$.value.isModalModeActive).toBe(false);
+      expect(accountService.setShowHeader).toHaveBeenCalledWith(true);
+      expect(router.navigate).toHaveBeenCalledWith(["/"]);
+    });
+
+    it("allows the next ceremony to show UI after a cleanup failure", async () => {
+      await unlockVault();
+      desktopSettingsService.setModalMode.mockRejectedValueOnce(new Error("Window update failed"));
+      await expect(session.informCredentialNotFound()).rejects.toThrow("Window update failed");
+
+      const replacement = await newSession();
+      await replacement.informExcludedCredential(["new-cipher"]);
+
+      expect(modalMode$.value.isModalModeActive).toBe(true);
+      expect(router.navigate).toHaveBeenLastCalledWith([
+        "/fido2-excluded",
+        { "disable-redirect": null },
+      ]);
+    });
+
+    it("does not reclaim the window after a newer ceremony has already hidden it", async () => {
+      await unlockVault();
+      abortController.abort("Operation cancelled");
+      const replacement = await newSession();
+      await replacement.informExcludedCredential(["new-cipher"]);
+      await replacement.hideUi();
+      jest.clearAllMocks();
+
+      await session.informCredentialNotFound();
+
+      expect(desktopSettingsService.setModalMode).not.toHaveBeenCalled();
+      expect(accountService.setShowHeader).not.toHaveBeenCalled();
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
   });
 
   describe("informExcludedCredential", () => {
+    it("binds the modal route to its UI owner while another session is queued", async () => {
+      let finishModalUpdate!: () => void;
+      desktopSettingsService.setModalMode.mockImplementationOnce(async (isActive) => {
+        await new Promise<void>((resolve) => {
+          finishModalUpdate = resolve;
+        });
+        modalMode$.next({ isModalModeActive: isActive });
+      });
+      const showing = session.informExcludedCredential(["old-cipher"]);
+      await tick();
+      const replacement = await newSession();
+      const boundSessions: (DesktopFido2UserInterfaceSession | undefined)[] = [];
+      // Modal components capture getCurrentSession() when their route loads.
+      router.navigate.mockImplementation(async (commands) => {
+        if (commands[0] === "/fido2-excluded") {
+          boundSessions.push(userInterfaceService.getCurrentSession());
+        }
+        return true;
+      });
+
+      finishModalUpdate();
+      await showing;
+      await replacement.informExcludedCredential(["new-cipher"]);
+
+      expect(boundSessions[0] === session).toBe(true);
+      expect(boundSessions[1] === replacement).toBe(true);
+    });
+
+    it("creates a fresh modal component when a newer ceremony uses the same route", async () => {
+      await TestBed.configureTestingModule({
+        imports: [CeremonyHomeComponent, Fido2ExcludedCiphersComponent],
+        providers: [
+          provideRouter([
+            { path: "", component: CeremonyHomeComponent },
+            { path: "fido2-excluded", component: Fido2ExcludedCiphersComponent },
+          ]),
+          { provide: AccountService, useValue: accountService },
+          { provide: DesktopSettingsService, useValue: desktopSettingsService },
+          { provide: DesktopFido2UserInterfaceService, useFactory: () => userInterfaceService },
+        ],
+      })
+        .overrideComponent(Fido2ExcludedCiphersComponent, {
+          set: { imports: [], template: "" },
+        })
+        .compileComponents();
+      const angularRouter = TestBed.inject(Router);
+      userInterfaceService = new DesktopFido2UserInterfaceService(
+        authService,
+        cipherService,
+        accountService,
+        logService,
+        mock<MessagingService>(),
+        angularRouter,
+        desktopSettingsService,
+        userVerificationService,
+        passwordRepromptService,
+        domainSettingsService,
+      );
+      const harness = await RouterTestingHarness.create();
+      const original = await userInterfaceService.newSession(false, nativeWindow, abortController);
+      await original.informExcludedCredential(["old-cipher"]);
+      const firstComponent = harness.routeDebugElement?.componentInstance;
+      expect(firstComponent.session === original).toBe(true);
+      abortController.abort("Operation cancelled");
+
+      const replacement = await newSession();
+      await replacement.informExcludedCredential(["new-cipher"]);
+      const secondComponent = harness.routeDebugElement?.componentInstance;
+
+      expect(secondComponent === firstComponent).toBe(false);
+      expect(secondComponent.session === replacement).toBe(true);
+      expect(modalMode$.value.isModalModeActive).toBe(true);
+      await secondComponent.closeModal();
+      expect(modalMode$.value.isModalModeActive).toBe(false);
+    });
+
     it("shows the excluded credentials UI and returns without waiting for the user", async () => {
       await session.informExcludedCredential(["cipher-1"]);
 
