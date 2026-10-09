@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { isActive, IsActiveMatchOptions, QueryParamsHandling, Router } from "@angular/router";
 import { switchMap } from "rxjs";
@@ -13,9 +13,7 @@ import {
   IconTileComponent,
   IconTileOptions,
   NavigationModule,
-  PopoverComponent,
   PopoverModule,
-  PositionIdentifier,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -31,6 +29,8 @@ import {
 } from "../../models/vault-scope";
 import { EXACT_PATH } from "../../routing/exact-path";
 import { VaultNavService } from "../../services/vault-nav.service";
+import { CoachmarkComponent } from "../coachmark/coachmark.component";
+import { CoachmarkService } from "../coachmark/coachmark.service";
 import { VaultPinnedNavComponent } from "../vault-pinned-nav/vault-pinned-nav.component";
 
 /**
@@ -50,27 +50,16 @@ import { VaultPinnedNavComponent } from "../vault-pinned-nav/vault-pinned-nav.co
     A11yTitleDirective,
     PopoverModule,
     VaultPinnedNavComponent,
+    CoachmarkComponent,
   ],
 })
 export class VaultNavSectionComponent {
   protected readonly VaultNavItemType = VaultNavItemType;
 
-  /** Optional popover to anchor to the first organization's Shared folders entry, for coachmark tours */
-  readonly coachmarkPopover = input<PopoverComponent>();
-  readonly coachmarkPopoverOpen = input(false);
-  /** Position of the coachmark popover relative to the entry */
-  readonly coachmarkPosition = input<PositionIdentifier>();
-  /**
-   * Whether a coachmark tour is running. Expands the anchored organization for the whole tour
-   * rather than only for its own step: a collapsed group has no entry to anchor, and one that
-   * mounts in the same change detection cycle the popover opens in leaves `TemplatePortal` with no
-   * root nodes to move, so the popover renders inline in the nav instead of in its overlay.
-   */
-  readonly coachmarkTourRunning = input(false);
-
   private readonly vaultNavService = inject(VaultNavService);
   private readonly accountService = inject(AccountService);
   private readonly router = inject(Router);
+  protected readonly coachmark = inject(CoachmarkService);
 
   protected readonly vaultNav = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -226,12 +215,20 @@ export class VaultNavSectionComponent {
 
   /** Whether the tour's popover anchors to this vault's Shared folders entry. */
   protected coachmarkTargets(vault: VaultNavItemViewModel): boolean {
-    return this.coachmarkPopoverOpen() && vault.id === this.coachmarkVaultId();
+    return (
+      this.coachmark.isStepActive("shareWithCollections") && vault.id === this.coachmarkVaultId()
+    );
   }
 
-  /** Whether this vault's group has to stay open for the tour to reach its Shared folders entry. */
+  /**
+   * Whether this vault's group has to stay open for the tour to reach its Shared folders entry.
+   * Held for the whole tour rather than only for its own step: a collapsed group has no entry to
+   * anchor, and one that mounts in the same change detection cycle the popover opens in leaves
+   * `TemplatePortal` with no root nodes to move, so the popover renders inline in the nav instead
+   * of in its overlay.
+   */
   protected coachmarkExpands(vault: VaultNavItemViewModel): boolean {
-    return this.coachmarkTourRunning() && vault.id === this.coachmarkVaultId();
+    return this.coachmark.isRunning() && vault.id === this.coachmarkVaultId();
   }
 
   protected myItemsRoute(vault: VaultNavItemViewModel): string[] | undefined {

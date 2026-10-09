@@ -25,6 +25,7 @@ import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
 import {
   PinnedSharedFoldersService,
+  CoachmarkService,
   VaultNavItemType,
   VaultNavService,
   VaultsNavViewModel,
@@ -176,6 +177,19 @@ describe("DesktopLayoutComponent", () => {
         { provide: CipherArchiveService, useValue: cipherArchiveService },
         { provide: PremiumUpgradePromptService, useValue: premiumUpgradePromptService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
+        {
+          provide: CoachmarkService,
+          useValue: {
+            isStepActive: () => false,
+            isRunning: () => false,
+            getStepPosition: () => "right-center",
+            getStepTitle: () => "",
+            getStepDescription: () => "",
+            getStepLearnMoreUrl: (): string | undefined => undefined,
+            currentStepNumber: () => 0,
+            totalSteps: () => 0,
+          },
+        },
       ],
     })
       .overrideComponent(DesktopLayoutComponent, {

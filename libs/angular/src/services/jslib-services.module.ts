@@ -66,6 +66,7 @@ import {
   FeatureFlagsCapability,
   LockCapability,
   LoggingCapability,
+  SdkCapability,
   StateCapability,
 } from "@bitwarden/automation-driver";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
@@ -80,6 +81,7 @@ import {
   OrgDomainInternalServiceAbstraction,
   OrgDomainServiceAbstraction,
 } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain.service.abstraction";
+import { OrganizationDomainsService } from "@bitwarden/common/admin-console/abstractions/organization-domain/organization-domains.service";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -91,6 +93,7 @@ import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/a
 import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
+import { DefaultOrganizationDomainsService } from "@bitwarden/common/admin-console/services/organization-domain/default-organization-domains.service";
 import { OrgDomainApiService } from "@bitwarden/common/admin-console/services/organization-domain/org-domain-api.service";
 import { OrgDomainService } from "@bitwarden/common/admin-console/services/organization-domain/org-domain.service";
 import { DefaultOrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/services/organization-management-preferences/default-organization-management-preferences.service";
@@ -223,8 +226,6 @@ import { MasterPasswordService } from "@bitwarden/common/key-management/master-p
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
-import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
-import { DefaultSecurityStateService } from "@bitwarden/common/key-management/security-state/services/security-state.service";
 import {
   DefaultSendPasswordService,
   SendPasswordService,
@@ -775,6 +776,7 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       CipherServiceAbstraction,
       StateProvider,
+      LogService,
     ],
   }),
   safeProvider({
@@ -820,7 +822,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CollectionEncryptionService,
     useClass: DefaultCollectionEncryptionService,
-    deps: [SdkService, LogService],
+    deps: [SdkService, LogService, ConfigService],
   }),
   safeProvider({
     provide: CollectionService,
@@ -831,6 +833,7 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       StateProvider,
       CollectionEncryptionService,
+      LogService,
     ],
   }),
   safeProvider({
@@ -910,11 +913,6 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       KeyService,
     ],
-  }),
-  safeProvider({
-    provide: SecurityStateService,
-    useClass: DefaultSecurityStateService,
-    deps: [AccountCryptographicStateService],
   }),
   safeProvider({
     provide: RestrictedItemTypesService,
@@ -1271,7 +1269,6 @@ const safeProviders: SafeProvider[] = [
       AuthServiceAbstraction,
       WebPushConnectionService,
       AuthRequestAnsweringService,
-      ConfigService,
       AutomaticUserConfirmationService,
       BillingAccountProfileStateService,
     ],
@@ -1442,7 +1439,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: OrganizationInviteLinkService,
     useClass: DefaultOrganizationInviteLinkService,
-    deps: [OrganizationInviteLinkApiService, StateProvider, EnvironmentService, SdkService],
+    deps: [StateProvider, EnvironmentService, SdkService],
   }),
   safeProvider({
     provide: PasswordResetEnrollmentServiceAbstraction,
@@ -1555,6 +1552,11 @@ const safeProviders: SafeProvider[] = [
     deps: [OrgDomainInternalServiceAbstraction, ApiServiceAbstraction],
   }),
   safeProvider({
+    provide: OrganizationDomainsService,
+    useClass: DefaultOrganizationDomainsService,
+    deps: [SdkService],
+  }),
+  safeProvider({
     provide: DevicesApiServiceAbstraction,
     useClass: DevicesApiServiceImplementation,
     deps: [ApiServiceAbstraction],
@@ -1640,7 +1642,7 @@ const safeProviders: SafeProvider[] = [
     useClass: AutomationDriver,
     // The driver takes the whole array; `deps` cannot express that a multi-provider token resolves
     // to one, so the token is cast to the shape the constructor actually receives.
-    deps: [AutomationCapability as unknown as SafeInjectionToken<AutomationCapability[]>],
+    deps: [AutomationCapability as unknown as SafeInjectionToken<(AutomationCapability | null)[]>],
   }),
   // Automation capabilities every Angular client supports. Client-specific ones are registered
   // in that client's own provider module.
@@ -1673,6 +1675,14 @@ const safeProviders: SafeProvider[] = [
     provide: AutomationCapability,
     useFactory: (flightRecorder: FlightRecorderService) => new LoggingCapability(flightRecorder),
     deps: [FlightRecorderService],
+    multi: true,
+  }),
+  safeProvider({
+    provide: AutomationCapability,
+    // Hands out a user's unlocked SDK client, so it exists only in development builds.
+    useFactory: (platformUtilsService: PlatformUtilsServiceAbstraction, sdkService: SdkService) =>
+      platformUtilsService.isDev() ? new SdkCapability(sdkService) : null,
+    deps: [PlatformUtilsServiceAbstraction, SdkService],
     multi: true,
   }),
   safeProvider({
@@ -1737,7 +1747,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AutofillSettingsServiceAbstraction,
     useClass: AutofillSettingsService,
-    deps: [StateProvider, PolicyServiceAbstraction, AccountService, RestrictedItemTypesService],
+    deps: [
+      StateProvider,
+      PolicyServiceAbstraction,
+      AccountService,
+      RestrictedItemTypesService,
+      ConfigService,
+    ],
   }),
   safeProvider({
     provide: BadgeSettingsServiceAbstraction,
@@ -1951,6 +1967,7 @@ const safeProviders: SafeProvider[] = [
       V2UpgradeTokenStateService,
       ManagedSettingsService,
       AppIdServiceAbstraction,
+      LogService,
     ],
   }),
   safeProvider({

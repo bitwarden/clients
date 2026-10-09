@@ -39,6 +39,7 @@ import {
   FilterSectionComponent,
   SelectionConfig,
 } from "@bitwarden/components";
+import { Measurement } from "@bitwarden/logging";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { VaultScopeType } from "../../models/vault-scope";
@@ -185,9 +186,12 @@ describe("VaultItemsTableComponent", () => {
     const configService = mock<ConfigService>();
     configService.getFeatureFlag$.mockReturnValue(of(false));
 
-    searchService = new DefaultSearchService(mock<LogService>(), {
-      locale$: of("en"),
-    } as I18nService);
+    searchService = new DefaultSearchService(
+      mock<LogService>({ startMeasurement: () => mock<Measurement>() }),
+      {
+        locale$: of("en"),
+      } as I18nService,
+    );
 
     await TestBed.configureTestingModule({
       imports: [VaultItemsTableComponent],
@@ -1134,6 +1138,18 @@ describe("VaultItemsTableComponent", () => {
       ]);
     });
 
+    it("labels a nested shared folder chip by its own name, without its parent path", () => {
+      fixture.componentRef.setInput("collections", [
+        { id: "col-3", name: "Engineering/Backend" } as CollectionView,
+      ]);
+      const cipher = cipherView({
+        organizationId: "org-1" as never,
+        collectionIds: ["col-3"] as never,
+      });
+
+      expect(chipsFor(cipher).sharedFolders.map((chip) => chip.label)).toEqual(["Backend"]);
+    });
+
     it("resolves the folder as a single-entry chip list", () => {
       expect(chipsFor(cipherView({ folderId: "folder-1" as never })).folders).toEqual([
         { id: "folder-1", label: "Work", variant: "subtle", startIcon: "bwi-folder" },
@@ -1424,11 +1440,11 @@ describe("VaultItemsTableComponent", () => {
       ]);
     });
 
-    it("keeps a nested collection's full path as its name when its parent is unavailable", () => {
+    it("labels a nested collection by its own name when its parent is unavailable", () => {
       const collection = { id: "child", name: "Engineering/Backend" } as CollectionView;
 
       expect(component["buildNestedSharedFolders"]([collection])).toEqual([
-        { value: "child", label: "Engineering/Backend", options: [] },
+        { value: "child", label: "Backend", options: [] },
       ]);
     });
 
@@ -1446,7 +1462,7 @@ describe("VaultItemsTableComponent", () => {
           options: [
             {
               value: "descendant",
-              label: "Backend/Infrastructure",
+              label: "Infrastructure",
               options: [],
             },
           ],
@@ -1468,7 +1484,7 @@ describe("VaultItemsTableComponent", () => {
 
       expect(component["buildNestedSharedFolders"]([orgAParent, orgBChild])).toEqual([
         { value: "org-a-parent", label: "Finance", options: [] },
-        { value: "org-b-child", label: "Finance/Reports", options: [] },
+        { value: "org-b-child", label: "Reports", options: [] },
       ]);
     });
 
@@ -2180,6 +2196,31 @@ describe("VaultItemsTableComponent", () => {
       fixture.detectChanges();
 
       expect(host().style.marginBottom).toBe("0px");
+    });
+
+    it("excludes a selected item from the batch bar when a filter hides it", () => {
+      const favorited = cipherView({ id: "a", name: "Amazon", favorite: true });
+      const notFavorited = cipherView({ id: "b", name: "Apple ID", favorite: false });
+      fixture.componentRef.setInput("ciphers", [favorited, notFavorited]);
+      fixture.detectChanges();
+
+      // Select the favorited item.
+      selectionModel().select(bitTable().filtered()[0]);
+      fixture.detectChanges();
+      expect(batchBarIds()).toEqual(["a"]);
+
+      // Activate the Favorites chip — "Apple ID" is now filtered out of the visible rows.
+      filterControl("favorites").setValue(true);
+      fixture.detectChanges();
+
+      // Simulate unfavoriting: the item's `favorite` flips to false in the ciphers input,
+      // which causes it to be filtered out of the visible rows.
+      const unfavorited = cipherView({ id: "a", name: "Amazon", favorite: false });
+      fixture.componentRef.setInput("ciphers", [unfavorited, notFavorited]);
+      fixture.detectChanges();
+
+      // The item is no longer visible, so the batch bar must not count it.
+      expect(batchBarIds()).toEqual([]);
     });
 
     it("deregisters its source when the table is destroyed", () => {
