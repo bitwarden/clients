@@ -1,4 +1,7 @@
 {
+  "appLogoLabel": {
+    "message": "Bitwarden logo"
+  },
   "bitwarden": {
     "message": "Bitwarden"
   },
@@ -5560,6 +5563,12 @@
   "savePasskey": {
     "message": "Save passkey"
   },
+  "chooseCipherForPasskeySave": {
+    "message": "Choose a login to save this passkey to"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "Choose a passkey to log in with"
+  },
   "saveNewPasskey": {
     "message": "Save as new login"
   },
@@ -6948,6 +6957,22 @@
   "unknownCipher": {
     "message": "Unknown item, you may need to request permission to access this item."
   },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden has a new look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explore the new vault",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
   "customize": {
     "message": "Customize"
   },
@@ -6959,5 +6984,45 @@
   },
   "resetToDefault": {
     "message": "Reset to default"
+  },
+  "coachmarkImportTitle": {
+    "message": "Quickly import your passwords"
+  },
+  "coachmarkImportDescription": {
+    "message": "Did you have a password manager before? You can import a CSV of existing logins and other data into your vault."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Add an item"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Add new passwords, notes, and other info to your vault. Everything is protected with end-to-end encryption."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Safely share items with others"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "By moving an item into a collection, you can securely share it with other people in your organization."
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "By moving an item into a shared folder, you can securely share it with other vault members."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Monitor your password security"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
+  },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
   }
 }

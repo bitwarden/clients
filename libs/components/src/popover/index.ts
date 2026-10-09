@@ -5,4 +5,6 @@ export * from "./popover-footer.component";
 export * from "./popover-header.component";
 export * from "./popover-trigger-for.directive";
 export * from "./popover.component";
+export { PopoverAnchorRef, PopoverOptions, PopoverService } from "./popover.service";
+export * from "./popover-ref";
 export * from "./spotlight.service";

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, importProvidersFrom } from "@angular/core";
+import { ChangeDetectionStrategy, Component, importProvidersFrom, signal } from "@angular/core";
 import { provideRouter, withHashLocation } from "@angular/router";
 import { applicationConfig, Decorator, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
@@ -24,7 +24,7 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { DialogService } from "@bitwarden/components";
 import { enabledFlags } from "@bitwarden/storybook";
 import { LockService } from "@bitwarden/unlock";
-import { RoutedVaultFilterModel } from "@bitwarden/vault";
+import { CoachmarkService, RoutedVaultFilterModel } from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../../../core/tests";
 
@@ -160,6 +160,22 @@ const render: StoryObj<StoryArgs>["render"] = (args) => ({
   `,
 });
 
+/** Avoids constructing the real service, which needs OrganizationService/CollectionService/etc. */
+const mockCoachmarkService: Partial<CoachmarkService> = {
+  activeStepId: signal(null),
+  currentStepNumber: signal(0),
+  totalSteps: signal(0),
+  isRunning: signal(false),
+  isStepActive: () => false,
+  getStepPosition: () => undefined,
+  getStepTitle: () => "",
+  getStepDescription: () => "",
+  getStepLearnMoreUrl: () => undefined,
+  previousStep: () => Promise.resolve(),
+  nextStep: () => Promise.resolve(),
+  completeTour: () => Promise.resolve(),
+};
+
 export default {
   title: "Admin Console/Organizations/Collections/Vault Header",
   component: VaultHeaderComponent,
@@ -178,6 +194,7 @@ export default {
         { provide: CollectionAdminService, useValue: mockCollectionAdminService },
         { provide: DialogService, useValue: mockDialogService },
         { provide: RestrictedItemTypesService, useValue: mockRestrictedItemTypesService },
+        { provide: CoachmarkService, useValue: mockCoachmarkService },
       ],
     }),
     applicationConfig({
