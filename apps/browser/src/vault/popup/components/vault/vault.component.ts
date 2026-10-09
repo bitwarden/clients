@@ -69,6 +69,7 @@ import { StateProvider } from "@bitwarden/state";
 import {
   ALL_ITEMS_SCOPE,
   CoachmarkService,
+  collectionInScope,
   DecryptionFailureDialogComponent,
   DefaultVaultItemsTransferService,
   NewExperienceDialogResult,
@@ -525,8 +526,17 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const nav = await firstValueFrom(this.vaultNavService.viewModel$(userId));
-    await this.coachmark.startTour(extensionVaultTour(this.stateProvider, nav.vaults.length > 1));
+    const [nav, collections] = await Promise.all([
+      firstValueFrom(this.vaultNavService.viewModel$(userId)),
+      firstValueFrom(this.collectionService.decryptedCollections$(userId)),
+    ]);
+    // The popup can be scoped to a single vault here, so check the collections that vault lists.
+    const scope = this.vaultScope();
+    const hasCollectionsInScope =
+      scope != null && collections.some((collection) => collectionInScope(collection, scope));
+    await this.coachmark.startTour(
+      extensionVaultTour(this.stateProvider, nav.vaults.length > 1, hasCollectionsInScope),
+    );
   }
 
   ngOnDestroy() {

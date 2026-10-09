@@ -246,6 +246,7 @@ describe("VaultComponent", () => {
 
   /** The account's vaults, as the header reads them to decide whether to show a page title. */
   const vaultNav$ = new BehaviorSubject<any>({ vaults: [], organizationDataOwnership: false });
+  const collections$ = new BehaviorSubject<any[]>([]);
 
   const filtersSvc: any = {
     allFilters$: new Subject<any>(),
@@ -420,7 +421,7 @@ describe("VaultComponent", () => {
         { provide: PremiumUpsellService, useValue: premiumUpsellSvc },
         {
           provide: CollectionService,
-          useValue: { decryptedCollections$: jest.fn().mockReturnValue(of([])) },
+          useValue: { decryptedCollections$: jest.fn().mockReturnValue(collections$) },
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -1279,9 +1280,12 @@ describe("VaultComponent", () => {
       );
       introCarouselState$.next(true);
       serverSettings$.next(new ServerSettings());
+      collections$.next([{ id: "collection-1", organizationId: "org-1" }]);
     });
 
     afterEach(() => {
+      collections$.next([]);
+      vaultNav$.next({ vaults: [], organizationDataOwnership: false });
       nudgesSvc.showNudgeSpotlight$.mockImplementation((_type: NudgeType) => of(false));
       configSvc.getFeatureFlag$.mockImplementation((_flag: string) => of(false));
     });
@@ -1361,7 +1365,8 @@ describe("VaultComponent", () => {
 
     it("skips the vault switcher step when the account has a single vault", fakeAsync(() => {
       newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Explore);
-      vaultNav$.next({ vaults: [{ id: "user-1" }] });
+      // Data ownership keeps a lone vault unscoped, so its collections stay listed.
+      vaultNav$.next({ vaults: [{ id: "user-1" }], organizationDataOwnership: true });
 
       initVault();
 
@@ -1371,6 +1376,37 @@ describe("VaultComponent", () => {
             expect.objectContaining({ id: "mixAndMatchFilters" }),
             expect.objectContaining({ id: "newDashboard" }),
           ],
+        }),
+      );
+    }));
+
+    it("skips the dashboard step when the account has no collections", fakeAsync(() => {
+      newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Explore);
+      vaultNav$.next({ vaults: [{ id: "user-1" }, { id: "org-1" }] });
+      collections$.next([]);
+
+      initVault();
+
+      expect(coachmarkSvc.startTour).toHaveBeenCalledWith(
+        expect.objectContaining({
+          steps: [
+            expect.objectContaining({ id: "switchVaults" }),
+            expect.objectContaining({ id: "mixAndMatchFilters" }),
+          ],
+        }),
+      );
+    }));
+
+    it("skips the dashboard step when the vault is scoped to My vault", fakeAsync(() => {
+      newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Explore);
+      // A lone personal vault resolves the unscoped route to My vault, which lists no collections.
+      vaultNav$.next({ vaults: [{ id: "user-1" }], organizationDataOwnership: false });
+
+      initVault();
+
+      expect(coachmarkSvc.startTour).toHaveBeenCalledWith(
+        expect.objectContaining({
+          steps: [expect.objectContaining({ id: "mixAndMatchFilters" })],
         }),
       );
     }));

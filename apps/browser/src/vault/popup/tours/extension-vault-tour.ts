@@ -32,8 +32,6 @@ const EXTENSION_VAULT_TOUR_STEPS: CoachmarkStep[] = [
     titleKey: "coachmarkNewDashboardTitle",
     descriptionKey: "coachmarkNewDashboardDescription",
     position: "above-center",
-    // Anchors the Shared folders row of the filter dialog, which only lists it for collections.
-    requiresCollections: true,
   },
 ];
 
@@ -42,14 +40,20 @@ const EXTENSION_VAULT_TOUR_STEPS: CoachmarkStep[] = [
  *
  * @param hasMultipleVaults whether the vault switcher renders; it is hidden for a lone vault, so
  * its step is dropped rather than left with nothing to anchor to.
+ * @param hasCollectionsInScope whether the scoped vault has any collections. The dashboard step
+ * anchors the filter dialog's Shared folders row, which only renders for those, so it is dropped
+ * otherwise. The engine's `requiresCollections` is account-wide and can't tell.
  */
 export function extensionVaultTour(
   stateProvider: StateProvider,
   hasMultipleVaults: boolean,
+  hasCollectionsInScope: boolean,
 ): CoachmarkTour {
   return {
     steps: EXTENSION_VAULT_TOUR_STEPS.filter(
-      (step) => hasMultipleVaults || step.id !== "switchVaults",
+      (step) =>
+        (hasMultipleVaults || step.id !== "switchVaults") &&
+        (hasCollectionsInScope || step.id !== "newDashboard"),
     ),
     completed: async (userId: UserId) =>
       (await firstValueFrom(
