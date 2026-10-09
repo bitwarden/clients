@@ -246,7 +246,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   // Only refresh the latch when a fresh walk will consume it. Both arms are load-bearing; see
   // ShadowHostHydrationTracker.hasHostsAwaitingShadowRoot for why parked hosts don't count.
-  // `discardFieldCache` is the automatic login case: a later step must not reuse the previous one's fields.
   prepareForExplicitCollection = (discardFieldCache = false) => {
     if (
       discardFieldCache ||
