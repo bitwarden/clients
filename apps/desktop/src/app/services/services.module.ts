@@ -171,6 +171,9 @@ import {
   Vfo1TerminologyService,
   PasswordRepromptService,
   SHARE_ITEM_ENTRY_POINT,
+  VFO1_SHARED_FOLDERS_STEP,
+  VFO1_VAULT_LIST_STEP,
+  VFO1_WALKTHROUGH_STEPS,
 } from "@bitwarden/vault";
 
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
@@ -231,6 +234,10 @@ import { DesktopSetInitialPasswordService } from "./set-initial-password/desktop
  */
 const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
+  safeProvider({
+    provide: VFO1_WALKTHROUGH_STEPS,
+    useValue: [VFO1_VAULT_LIST_STEP, VFO1_SHARED_FOLDERS_STEP],
+  }),
   safeProvider({
     provide: CipherFormGenerationService,
     useClass: DesktopCredentialGenerationService,

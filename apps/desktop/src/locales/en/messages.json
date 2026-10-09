@@ -7021,6 +7021,18 @@
   "takeTheTour": {
     "message": "Take the tour"
   },
+  "coachmarkVaultListTitle": {
+    "message": "All your vaults in one place"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Personal, family, and business vaults are listed here now."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Collections and folders have new names"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ of $TOTAL$",
     "placeholders": {
