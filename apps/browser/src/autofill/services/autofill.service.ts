@@ -2632,7 +2632,7 @@ export default class AutofillService implements AutofillServiceInterface {
     // Removes all whitespace, _ and - characters
     const cleanedValue = value.toLowerCase().replace(/[\s_-]/g, "");
 
-    if (cleanedValue.indexOf("password") < 0) {
+    if (!AutoFillConstants.PasswordFieldNameTokens.some((t) => cleanedValue.indexOf(t) > -1)) {
       return false;
     }
 

@@ -359,11 +359,26 @@ describe("InlineMenuFieldQualificationService", () => {
           },
         );
 
+        it("has a type of `text` with an htmlName matching the `passwd` token", () => {
+          // Gmail-style name attribute. Catches the Gmail case without
+          // relying on the English-language aria-label signal.
+          const field = mock<AutofillField>({
+            type: "text",
+            htmlID: null,
+            htmlName: "Passwd",
+            placeholder: "",
+            autoCompleteType: "",
+          });
+
+          expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
+            true,
+          );
+        });
+
         it("qualifies a Gmail-shaped password input with Show-password checked", () => {
           // Gmail's password input with "Show password" checked: type flips
-          // to text and autocomplete goes to "off". aria-label and name
-          // are stable, but name="Passwd" doesn't normalize to contain
-          // "password", so recognition relies on label-aria.
+          // to text and autocomplete goes to "off", but aria-label and
+          // name="Passwd" are stable signals.
           const field = mock<AutofillField>({
             type: "text",
             htmlID: null,

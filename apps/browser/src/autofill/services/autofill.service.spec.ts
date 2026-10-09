@@ -4992,11 +4992,21 @@ describe("AutofillService", () => {
         },
       );
 
+      it("returns the field in an array when htmlName matches the `passwd` token", () => {
+        // Gmail-style name attribute. Catches the Gmail case without relying
+        // on the English-language aria-label signal.
+        passwordField.htmlName = "Passwd";
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual([passwordField]);
+      });
+
       it("returns the field in an array for a Gmail-shaped password input with Show-password checked", () => {
         // Gmail's password input with "Show password" checked: type flips
-        // to text and autocomplete goes to "off". aria-label and name are
-        // stable, but name="Passwd" doesn't normalize to contain
-        // "password", so recognition relies on label-aria.
+        // to text and autocomplete goes to "off", but aria-label and
+        // name="Passwd" are stable signals.
         passwordField.htmlName = "Passwd";
         passwordField.autoCompleteType = "off";
         passwordField["label-aria"] = "Enter your password";

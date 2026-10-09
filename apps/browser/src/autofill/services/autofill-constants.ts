@@ -198,6 +198,9 @@ export class AutoFillConstants {
 
   static readonly FieldIgnoreList: string[] = ["captcha", "findanything", "forgot"];
 
+  /** Normalized substring tokens that identify a field as password-like. */
+  static readonly PasswordFieldNameTokens: string[] = ["password", "passwd"];
+
   static readonly PasswordFieldExcludeList: string[] = [
     "hint",
     ...AutoFillConstants.FieldIgnoreList,
