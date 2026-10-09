@@ -42,6 +42,7 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
     }
 
     await this.performLogoutsForVaultTimeoutLogoutUsers();
+    await this.awaitSharedUnlockMessages();
     await this.performProcessReload();
   }
 
@@ -101,5 +102,11 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
    */
   protected async performProcessReload(): Promise<void> {
     this.messagingService.send("reloadProcess");
+  }
+
+  private async awaitSharedUnlockMessages(): Promise<void> {
+    // Block by 500 msec to ensure shared-unlock messages are sent out.
+    // Later on we will make this more robust by just waiting for a reply by each of the peersn
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
 }
