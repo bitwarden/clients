@@ -259,7 +259,7 @@
 				BITWARDEN_APP_ID = "com.bitwarden.desktop";
 				BITWARDEN_APP_GROUP = "group.$(BITWARDEN_APP_ID)";
 				BITWARDEN_PRODUCT_NAME = Bitwarden;
-				CODE_SIGN_ENTITLEMENTS = "autofill-extension/autofill_extension_enabled.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "autofill-extension/autofill_extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				CODE_SIGN_STYLE = Manual;
@@ -415,7 +415,7 @@
 				BITWARDEN_APP_ID = "com.bitwarden.desktop";
 				BITWARDEN_APP_GROUP = "group.$(BITWARDEN_APP_ID)";
 				BITWARDEN_PRODUCT_NAME = Bitwarden;
-				CODE_SIGN_ENTITLEMENTS = "autofill-extension/autofill_extension_enabled.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "autofill-extension/autofill_extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				CODE_SIGN_STYLE = Manual;

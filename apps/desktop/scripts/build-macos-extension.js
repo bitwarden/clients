@@ -20,7 +20,7 @@ const paths = {
 /// identifier, App Group and display name from `appId` and `productName`.
 ///
 /// Stable signs with the entitlements the Xcode project names for each configuration; beta passes
-/// its own copies, which differ only in naming beta's App Group.
+/// its own copy, which differs only in naming beta's App Group.
 const channels = {
   stable: {
     appId: "com.bitwarden.desktop",
@@ -40,11 +40,7 @@ const channels = {
       mac: "PM Beta Desktop-ExtAutofill Distrib",
     },
     // Relative to the Xcode project, as the project's own CODE_SIGN_ENTITLEMENTS are.
-    entitlements: {
-      "mas-dev": "autofill-extension/autofill_extension_enabled.beta.entitlements",
-      mas: "autofill-extension/autofill_extension.beta.entitlements",
-      mac: "autofill-extension/autofill_extension_enabled.beta.entitlements",
-    },
+    entitlements: "autofill-extension/autofill_extension.beta.entitlements",
   },
 };
 
@@ -114,9 +110,7 @@ async function buildMacOs() {
     // what retargets the whole extension at the channel's app.
     `BITWARDEN_APP_ID=${channel.appId}`,
     `BITWARDEN_PRODUCT_NAME=${channel.productName}`,
-    ...(channel.entitlements
-      ? [`CODE_SIGN_ENTITLEMENTS=${channel.entitlements[configurationArgument]}`]
-      : []),
+    ...(channel.entitlements ? [`CODE_SIGN_ENTITLEMENTS=${channel.entitlements}`] : []),
   ]);
   stdOutProc(proc);
   await new Promise((resolve, reject) =>

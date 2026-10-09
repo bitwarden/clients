@@ -239,22 +239,12 @@ async function addElectronFuses(context) {
 }
 
 function copyMacOsAutofillExtension(context) {
-  // The autofill extension ships in beta builds first; stable distribution builds leave it out
-  // until it is released there. Local App Store development builds always include it.
-  const isMasDevBuild =
-    context.electronPlatformName === "mas" && context.targets.at(0)?.name === "mas-dev";
-  const isBetaBuild = context.packager.appInfo.id === "com.bitwarden.beta.desktop";
-  if (!isMasDevBuild && !isBetaBuild) {
-    console.log("### Autofill extension: not shipped in this build. Skipping.");
-    return;
-  }
-
   const extensionPath = path.join(__dirname, "../macos/dist/autofill-extension.appex");
-  // Every beta build ships the extension, so a missing one is a broken build rather than a
+  // Every macOS build ships the extension, so a missing one is a broken build rather than a
   // configuration that leaves it out.
-  if (isBetaBuild && !fse.existsSync(extensionPath)) {
+  if (!fse.existsSync(extensionPath)) {
     throw new Error(
-      `Autofill extension not found at ${extensionPath}; beta builds must include it. Build it first with "npm run build:macos-extension:beta:mac".`,
+      `Autofill extension not found at ${extensionPath}; macOS builds must include it. Build it first with one of the "build:macos-extension:*" npm scripts.`,
     );
   }
   copyMacOsPlugin(context, "Autofill extension", extensionPath);
