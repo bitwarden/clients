@@ -1004,7 +1004,7 @@ describe("DefaultSyncService", () => {
         "syncedUpsertedCipher",
         expect.anything(),
       );
-      expect(logService.info).toHaveBeenCalledWith(expect.stringContaining(cipherId));
+      expect(logService.debug).toHaveBeenCalledWith(expect.stringContaining(cipherId));
     });
 
     it.each([
