@@ -10,6 +10,7 @@ export type AutofillExtensionMessage = {
   command: string;
   tab?: chrome.tabs.Tab;
   sender?: string;
+  discardFieldCache?: boolean;
   fillScript?: AutofillScript;
   url?: string;
   subFrameUrl?: string;
