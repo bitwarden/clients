@@ -1764,9 +1764,7 @@ jobs:
         env:
           _BROWSER_ARTIFACT_PREFIX: ${{ matrix.browser_artifact_prefix }}
         run: |
-          SAFARI_DIR=$(find "$GITHUB_WORKSPACE/browser-build-artifacts" -name "${_BROWSER_ARTIFACT_PREFIX}dist-safari-*.zip")
-          echo "$SAFARI_DIR"
-          unzip "$SAFARI_DIR/${_BROWSER_ARTIFACT_PREFIX}dist-safari.zip" -d "$GITHUB_WORKSPACE/browser-build-artifacts"
+          unzip "$GITHUB_WORKSPACE/browser-build-artifacts/${_BROWSER_ARTIFACT_PREFIX}dist-safari.zip" -d "$GITHUB_WORKSPACE/browser-build-artifacts"
 
       - name: Load Safari extension for .dmg
         run: |
@@ -2325,9 +2323,7 @@ jobs:
         env:
           _BROWSER_ARTIFACT_PREFIX: ${{ matrix.browser_artifact_prefix }}
         run: |
-          SAFARI_DIR=$(find "$GITHUB_WORKSPACE/browser-build-artifacts" -name "${_BROWSER_ARTIFACT_PREFIX}dist-safari-*.zip")
-          echo "$SAFARI_DIR"
-          unzip "$SAFARI_DIR/${_BROWSER_ARTIFACT_PREFIX}dist-safari.zip" -d "$GITHUB_WORKSPACE/browser-build-artifacts"
+          unzip "$GITHUB_WORKSPACE/browser-build-artifacts/${_BROWSER_ARTIFACT_PREFIX}dist-safari.zip" -d "$GITHUB_WORKSPACE/browser-build-artifacts"
 
       - name: Load Safari extension for App Store
         run: |
