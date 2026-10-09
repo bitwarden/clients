@@ -6101,6 +6101,15 @@
       }
     }
   },
+  "httpAuthReleasedItemId": {
+    "message": "Answered an HTTP authentication request with item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "createdCollectionId": {
     "message": "Created collection $ID$.",
     "placeholders": {
