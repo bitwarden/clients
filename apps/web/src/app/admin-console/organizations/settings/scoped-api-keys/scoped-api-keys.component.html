@@ -47,6 +47,11 @@
               <td bitCell class="tw-whitespace-nowrap">{{ key.creationDate | date: "medium" }}</td>
               <td bitCell class="tw-whitespace-nowrap">
                 {{ key.expireAt ? (key.expireAt | date: "medium") : ("never" | i18n) }}
+                @if (key.expired) {
+                  <bit-badge variant="danger" size="small" class="tw-ms-2">{{
+                    "expired" | i18n
+                  }}</bit-badge>
+                }
               </td>
               <td bitCell>
                 <button

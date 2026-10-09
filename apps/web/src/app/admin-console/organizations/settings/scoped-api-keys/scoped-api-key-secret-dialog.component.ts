@@ -8,6 +8,7 @@ export type ScopedApiKeySecretDialogData = {
   name: string;
   clientId: string;
   clientSecret: string;
+  scope: string;
 };
 
 @Component({
@@ -17,6 +18,7 @@ export type ScopedApiKeySecretDialogData = {
 })
 export class ScopedApiKeySecretDialogComponent {
   protected readonly data = inject<ScopedApiKeySecretDialogData>(DIALOG_DATA);
+  protected readonly grantType = "client_credentials";
 
   static open(dialogService: DialogService, config: DialogConfig<ScopedApiKeySecretDialogData>) {
     return dialogService.open<unknown, ScopedApiKeySecretDialogData>(

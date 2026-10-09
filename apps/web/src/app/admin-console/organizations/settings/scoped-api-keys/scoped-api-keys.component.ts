@@ -26,7 +26,10 @@ import { ScopedApiKeyCreateDialogComponent } from "./scoped-api-key-create-dialo
 import { ScopedApiKeyScopeGroups } from "./scoped-api-key-scopes";
 import { ScopedApiKeySecretDialogComponent } from "./scoped-api-key-secret-dialog.component";
 
-type ScopedApiKeyRow = OrganizationScopedApiKeyResponse & { scopeLabels: string[] };
+type ScopedApiKeyRow = OrganizationScopedApiKeyResponse & {
+  scopeLabels: string[];
+  expired: boolean;
+};
 
 @Component({
   selector: "app-org-scoped-api-keys",
@@ -76,6 +79,7 @@ export class ScopedApiKeysComponent {
           name: created.name,
           clientId: created.clientId,
           clientSecret: created.clientSecret,
+          scope: created.scopes.join(" "),
         },
       }).closed,
     );
@@ -125,6 +129,7 @@ export class ScopedApiKeysComponent {
       }
       return value;
     });
-    return Object.assign(key, { scopeLabels });
+    const expired = key.expireAt != null && new Date(key.expireAt).getTime() <= Date.now();
+    return Object.assign(key, { scopeLabels, expired });
   }
 }

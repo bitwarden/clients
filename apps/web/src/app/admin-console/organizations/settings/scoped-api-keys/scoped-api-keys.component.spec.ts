@@ -19,13 +19,18 @@ import { ScopedApiKeysComponent } from "./scoped-api-keys.component";
 
 const organizationId = "org-id";
 
-const keyResponse = (id: string, name: string, scopes: string[]) => ({
+const keyResponse = (
+  id: string,
+  name: string,
+  scopes: string[],
+  expireAt: string | null = null,
+) => ({
   object: "scopedApiKey",
   id,
   clientId: `organization.${organizationId}.${id}`,
   name,
   scopes,
-  expireAt: null,
+  expireAt,
   creationDate: "2026-10-01T12:00:00Z",
 });
 
@@ -99,6 +104,26 @@ describe("ScopedApiKeysComponent", () => {
     expect(text()).toContain("scopedApiKeyScopeLabel(members,scopedApiKeyScopeRead)");
   });
 
+  it("marks keys whose expiration has passed as expired", async () => {
+    organizationApiService.getScopedApiKeys.mockResolvedValue(
+      listOf(keyResponse("key-1", "Old key", [], "2000-01-01T00:00:00Z")),
+    );
+
+    await render();
+
+    expect(text()).toContain("expired");
+  });
+
+  it("doesn't mark keys that haven't expired yet", async () => {
+    organizationApiService.getScopedApiKeys.mockResolvedValue(
+      listOf(keyResponse("key-1", "New key", [], "2099-01-01T00:00:00Z")),
+    );
+
+    await render();
+
+    expect(text()).not.toContain("expired");
+  });
+
   describe("revoke", () => {
     const revokeButton = () =>
       (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
@@ -142,7 +167,10 @@ describe("ScopedApiKeysComponent", () => {
 
   describe("create", () => {
     const created = new OrganizationScopedApiKeyCreatedResponse({
-      ...keyResponse("key-2", "SIEM", ["api.organization.events.read"]),
+      ...keyResponse("key-2", "SIEM", [
+        "api.organization.events.read",
+        "api.organization.members.read",
+      ]),
       object: "scopedApiKeyCreated",
       clientSecret: "the-client-secret",
     });
@@ -164,7 +192,7 @@ describe("ScopedApiKeysComponent", () => {
       fixture.detectChanges();
     });
 
-    it("shows the new client ID and secret in a dialog that can't be dismissed by accident", () => {
+    it("shows the new client ID, secret and scope in a dialog that can't be dismissed by accident", () => {
       expect(dialogService.open).toHaveBeenLastCalledWith(
         ScopedApiKeySecretDialogComponent,
         expect.objectContaining({
@@ -172,6 +200,7 @@ describe("ScopedApiKeysComponent", () => {
             name: "SIEM",
             clientId: `organization.${organizationId}.key-2`,
             clientSecret: "the-client-secret",
+            scope: "api.organization.events.read api.organization.members.read",
           },
           disableClose: true,
         }),
