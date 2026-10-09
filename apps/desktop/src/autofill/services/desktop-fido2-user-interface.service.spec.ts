@@ -608,8 +608,69 @@ describe("DesktopFido2UserInterfaceSession", () => {
   });
 
   describe("informCredentialNotFound", () => {
-    it("rejects without showing any UI", async () => {
-      await expect(session.informCredentialNotFound()).rejects.toBeInstanceOf(CredentialNotFound);
+    it("shows the credential not found UI and waits for the user to dismiss it", async () => {
+      const result = session.informCredentialNotFound();
+      const settled = jest.fn();
+      result.catch(settled);
+      await tick();
+
+      expect(desktopSettingsService.setModalMode).toHaveBeenCalledWith(true, false, {
+        x: 0,
+        y: 0,
+      });
+      expect(accountService.setShowHeader).toHaveBeenCalledWith(false);
+      expect(router.navigate).toHaveBeenCalledWith([
+        "/fido2-credential-not-found",
+        { "disable-redirect": null },
+      ]);
+      expect(settled).not.toHaveBeenCalled();
+
+      session.notifyCredentialNotFoundDismissed();
+      await expect(result).rejects.toBeInstanceOf(CredentialNotFound);
+    });
+
+    it("resets the window before reporting the missing credential", async () => {
+      const result = session.informCredentialNotFound();
+      await tick();
+
+      session.notifyCredentialNotFoundDismissed();
+
+      await expect(result).rejects.toBeInstanceOf(CredentialNotFound);
+      expect(desktopSettingsService.setModalMode).toHaveBeenLastCalledWith(false);
+      expect(accountService.setShowHeader).toHaveBeenLastCalledWith(true);
+      expect(router.navigate).toHaveBeenLastCalledWith(["/"]);
+    });
+
+    it("still reports the missing credential, and logs a timeout, when the user doesn't dismiss the message in time", async () => {
+      const result = session.informCredentialNotFound();
+      await tick();
+
+      deadlineController.abort(timeoutReason());
+
+      await expect(result).rejects.toBeInstanceOf(CredentialNotFound);
+      expect(desktopSettingsService.setModalMode).toHaveBeenLastCalledWith(false);
+      expect(logService.warning).toHaveBeenCalledWith(
+        "Timeout: User did not dismiss the message within the allowed time",
+      );
+    });
+
+    it("reports the cancellation instead of the missing credential, and hides the UI, when the request is aborted", async () => {
+      const result = session.informCredentialNotFound();
+      await tick();
+
+      abortController.abort("Operation cancelled");
+
+      await expect(result).rejects.toBe("Operation cancelled");
+      expect(desktopSettingsService.setModalMode).toHaveBeenLastCalledWith(false);
+      expect(logService.warning).toHaveBeenCalledWith(
+        "Request was cancelled before the user dismissed the message",
+      );
+    });
+
+    it("does not show the UI when already aborted on entry", async () => {
+      abortController.abort("Operation cancelled");
+
+      await expect(session.informCredentialNotFound()).rejects.toBe("Operation cancelled");
       expect(router.navigate).not.toHaveBeenCalled();
     });
   });
