@@ -304,9 +304,6 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     if (pageDetails.length === 0) {
       return;
     }
-
-    // A later step fills the first step's cipher even when the host changed. Auto-submit only
-    // runs on hosts the policy approved.
     const ongoingCipherId = this.ongoingMultiStepLogin(tab.id, activeUserId);
     const cipher = ongoingCipherId
       ? (await this.cipherService.getAllDecrypted(activeUserId)).find(
@@ -347,7 +344,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     }
   }
 
-  /** The cipher id of this tab's multi-step login, if it is still current; drops it otherwise. */
+  /** The cipher id of this tab's multi-step login, if it is still current, otherwise it returns undefined. */
   private ongoingMultiStepLogin(tabId: number, userId: UserId): string | undefined {
     const ongoing = this.multiStepLogin.get(tabId);
     if (ongoing?.userId === userId && this.now() - ongoing.startedAt < MULTI_STEP_LOGIN_WINDOW_MS) {
