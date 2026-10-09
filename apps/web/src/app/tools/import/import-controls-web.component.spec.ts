@@ -62,12 +62,14 @@ describe("ImportControlsWebComponent", () => {
     expect(stub.importType()).toBe("keeper");
   });
 
-  it("navigates back to Select source when the controls component emits back", async () => {
+  it("navigates back to Select source with the vendor preselected when the controls component emits back", async () => {
     await setup("keeper");
 
     fixture.debugElement.query(By.css("importer-controls")).triggerEventHandler("back", undefined);
 
-    expect(router.navigate).toHaveBeenCalledWith(["/tools/import"]);
+    expect(router.navigate).toHaveBeenCalledWith(["/tools/import"], {
+      queryParams: { source: "keeper" },
+    });
   });
 
   it("navigates to the vault when the controls component emits continue", async () => {

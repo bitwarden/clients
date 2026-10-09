@@ -281,6 +281,47 @@ describe("ImportSourceSelectComponent", () => {
     expect(emitted).toEqual(["chromecsv"]);
   });
 
+  describe("initialSource", () => {
+    function renderWith(source?: ImportType): ComponentFixture<ImportSourceSelectComponent> {
+      const seeded = TestBed.createComponent(ImportSourceSelectComponent);
+      if (source) {
+        seeded.componentRef.setInput("initialSource", source);
+      }
+      seeded.detectChanges();
+      return seeded;
+    }
+
+    const checkedCards = (seeded: ComponentFixture<ImportSourceSelectComponent>) =>
+      seeded.debugElement
+        .queryAll(By.css("input[type=radio]"))
+        .map((el) => el.nativeElement as HTMLInputElement)
+        .filter((radio) => radio.checked)
+        .map((radio) => (radio.closest("bit-form-control-card")?.textContent ?? "").trim());
+
+    it("preselects nothing without it", () => {
+      expect(checkedCards(renderWith())).toEqual([]);
+    });
+
+    it("preselects a featured vendor and enables Continue", () => {
+      const seeded = renderWith("lastpasscsv" as ImportType);
+      const continueButton = seeded.debugElement.query(By.css("button[bitButton]"))
+        .nativeElement as HTMLButtonElement;
+      const emitted: ImportType[] = [];
+      seeded.componentInstance.continue.subscribe((id) => emitted.push(id));
+
+      expect(checkedCards(seeded)).toEqual([expect.stringContaining("LastPass")]);
+      expect(continueButton.getAttribute("aria-disabled")).toBeNull();
+      continueButton.click();
+      expect(emitted).toEqual(["lastpasscsv"]);
+    });
+
+    it("opens Show all and preselects a vendor from the remaining list", () => {
+      const seeded = renderWith("zohovaultcsv" as ImportType);
+
+      expect(checkedCards(seeded)).toEqual([expect.stringContaining("Zoho Vault")]);
+    });
+  });
+
   it("re-disables Continue when the selected card is filtered out by search", () => {
     const continueButton = fixture.debugElement.query(By.css("button[bitButton]"))
       .nativeElement as HTMLButtonElement;

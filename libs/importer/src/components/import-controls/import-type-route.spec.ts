@@ -3,7 +3,11 @@ import { ActivatedRouteSnapshot, convertToParamMap, Router, UrlTree } from "@ang
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
-import { canActivateImportType, importTypeFromRoute } from "./import-type-route";
+import {
+  canActivateImportType,
+  importSourceFromQuery,
+  importTypeFromRoute,
+} from "./import-type-route";
 
 describe("canActivateImportType", () => {
   let router: MockProxy<Router>;
@@ -60,6 +64,32 @@ describe("canActivateImportType", () => {
     void activate(null);
 
     expect(router.createUrlTree).toHaveBeenCalledWith(["/redirect-here"]);
+  });
+});
+
+describe("importSourceFromQuery", () => {
+  const fromQuery = (query: Record<string, string>) =>
+    importSourceFromQuery({ snapshot: { queryParamMap: convertToParamMap(query) } } as any);
+
+  it("returns a real picker vendor", () => {
+    expect(fromQuery({ source: "keeper" })).toBe("keeper");
+  });
+
+  it("drops a real ImportType with no picker card of its own", () => {
+    expect(fromQuery({ source: "keepasskdbx" })).toBeUndefined();
+  });
+
+  it("drops an unrecognized id", () => {
+    expect(fromQuery({ source: "not-a-real-vendor" })).toBeUndefined();
+  });
+
+  it("drops Object.prototype property names", () => {
+    expect(fromQuery({ source: "constructor" })).toBeUndefined();
+    expect(fromQuery({ source: "toString" })).toBeUndefined();
+  });
+
+  it("returns undefined when there's no param", () => {
+    expect(fromQuery({})).toBeUndefined();
   });
 });
 

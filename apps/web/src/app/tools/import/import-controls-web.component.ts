@@ -33,7 +33,7 @@ export class ImportControlsWebComponent {
   protected readonly importType = importTypeFromRoute(this.route);
 
   protected onBack(): void {
-    void this.router.navigate(["/tools/import"]);
+    void this.router.navigate(["/tools/import"], { queryParams: { source: this.importType() } });
   }
 
   protected onContinue(): void {

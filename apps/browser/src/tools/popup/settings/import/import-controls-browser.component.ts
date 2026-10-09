@@ -33,7 +33,9 @@ export class ImportControlsBrowserComponent {
   protected readonly importType = importTypeFromRoute(this.route);
 
   protected onBack(): void {
-    void this.router.navigate(["/import-source-select"]);
+    void this.router.navigate(["/import-source-select"], {
+      queryParams: { source: this.importType() },
+    });
   }
 
   protected onContinue(): void {

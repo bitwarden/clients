@@ -4,7 +4,9 @@ import {
   Component,
   computed,
   inject,
+  input,
   linkedSignal,
+  OnInit,
   output,
   untracked,
 } from "@angular/core";
@@ -64,7 +66,7 @@ import {
     TypographyModule,
   ],
 })
-export class ImportSourceSelectComponent {
+export class ImportSourceSelectComponent implements OnInit {
   private readonly i18nService = inject(I18nService);
   private readonly themingService = inject(AbstractThemingService);
 
@@ -77,6 +79,9 @@ export class ImportSourceSelectComponent {
 
   /** Emits the chosen import format when Continue is pressed. */
   readonly continue = output<ImportType>();
+
+  /** Preselects a source, e.g. when Back returns from step 2. Read once on init. */
+  readonly initialSource = input<ImportType>();
 
   protected readonly sourceControl = new FormControl<ImportType | null>(null);
   protected readonly selectedSource = toSignal(this.sourceControl.valueChanges, {
@@ -179,6 +184,14 @@ export class ImportSourceSelectComponent {
     const selected = this.selectedSource();
     return selected != null && this.visibleOptions().some((option) => option.id === selected);
   });
+
+  // Not an effect: must land before the template first reads disclosureOpen.
+  ngOnInit(): void {
+    const source = this.initialSource();
+    if (source) {
+      this.sourceControl.setValue(source);
+    }
+  }
 
   protected iconFor(id: string): BitSvg | undefined {
     return pickerIconFor(id, this.isDarkTheme());

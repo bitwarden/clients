@@ -33,7 +33,7 @@ export class ImportControlsDesktopComponent {
   protected readonly importType = importTypeFromRoute(this.route);
 
   protected onBack(): void {
-    void this.router.navigate(["/import"]);
+    void this.router.navigate(["/import"], { queryParams: { source: this.importType() } });
   }
 
   protected onContinue(): void {
