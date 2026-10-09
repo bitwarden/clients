@@ -1820,6 +1820,7 @@ export default class MainBackground {
       this.sharedUnlockSettingsService,
       this.unlockService,
       this.configService,
+      this.stateProvider,
     );
 
     this.endUserNotificationService = new DefaultEndUserNotificationService(
