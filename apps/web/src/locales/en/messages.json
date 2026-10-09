@@ -18075,5 +18075,8 @@
   },
   "scopedApiKeyEventRevoked": {
     "message": "Revoked scoped API key"
+  },
+  "scopedApiKeyScopeParamHint": {
+    "message": "Optional. Leave scope out of the token request to get all of this key's scopes."
   }
 }
