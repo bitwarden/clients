@@ -333,7 +333,7 @@ describe("SharedFoldersComponent", () => {
         fixture.nativeElement.querySelectorAll("bit-cell [slot=secondary]") as NodeListOf<Element>,
         (element) => element.textContent?.trim(),
       );
-      expect(subtitles).toEqual(["nestedSharedFolderCount", "nestedSharedFolderSingular"]);
+      expect(subtitles).toEqual(["nestedSharedFolderCount:2", "nestedSharedFolderSingular"]);
     });
 
     it("lists nothing for a vaultId that names no organization", async () => {
