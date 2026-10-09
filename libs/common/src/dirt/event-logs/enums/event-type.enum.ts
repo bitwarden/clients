@@ -117,6 +117,8 @@ export enum EventType {
   Organization_InviteLinkRefreshed = 1628,
   Organization_InviteLinkConfirmEnabled = 1629,
   Organization_InviteLinkConfirmDisabled = 1630,
+  Organization_ScopedApiKeyCreated = 1631,
+  Organization_ScopedApiKeyRevoked = 1632,
 
   Policy_Updated = 1700,
 

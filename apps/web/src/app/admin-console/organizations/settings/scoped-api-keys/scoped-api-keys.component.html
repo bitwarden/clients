@@ -1,0 +1,67 @@
+@if (enabled()) {
+  <section>
+    <h2 bitTypography="h2" class="tw-mt-8 tw-pb-2">{{ "scopedApiKeys" | i18n }}</h2>
+    <p bitTypography="body1">{{ "scopedApiKeysDesc" | i18n }}</p>
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      startIcon="bwi-plus"
+      id="scoped-api-keys_button_create"
+      [bitAction]="create"
+    >
+      {{ "createScopedApiKey" | i18n }}
+    </button>
+
+    @let rows = keys();
+    @if (rows === undefined) {
+      <div class="tw-mt-4">
+        <bit-icon
+          name="bwi-spinner"
+          class="bwi-spin tw-text-muted"
+          [ariaLabel]="'loading' | i18n"
+        ></bit-icon>
+      </div>
+    } @else if (rows.length === 0) {
+      <p bitTypography="body2" class="tw-mt-4 tw-text-muted">{{ "noScopedApiKeys" | i18n }}</p>
+    } @else {
+      <bit-table class="tw-mt-4">
+        <ng-container header>
+          <tr>
+            <th bitCell>{{ "name" | i18n }}</th>
+            <th bitCell>{{ "scopedApiKeyScopes" | i18n }}</th>
+            <th bitCell>{{ "dateCreated" | i18n }}</th>
+            <th bitCell>{{ "expires" | i18n }}</th>
+            <th bitCell class="tw-w-12">
+              <span class="tw-sr-only">{{ "options" | i18n }}</span>
+            </th>
+          </tr>
+        </ng-container>
+        <ng-template body>
+          @for (key of rows; track key.id) {
+            <tr bitRow>
+              <td bitCell class="tw-break-all">{{ key.name }}</td>
+              <td bitCell>
+                <bit-badge-list [items]="key.scopeLabels" [maxItems]="3"></bit-badge-list>
+              </td>
+              <td bitCell class="tw-whitespace-nowrap">{{ key.creationDate | date: "medium" }}</td>
+              <td bitCell class="tw-whitespace-nowrap">
+                {{ key.expireAt ? (key.expireAt | date: "medium") : ("never" | i18n) }}
+              </td>
+              <td bitCell>
+                <button
+                  type="button"
+                  bitIconButton="bwi-trash"
+                  buttonType="dangerGhost"
+                  [id]="'scoped-api-keys_button_revoke-' + key.id"
+                  [label]="'revoke' | i18n"
+                  (click)="revoke(key)"
+                ></button>
+              </td>
+            </tr>
+          }
+        </ng-template>
+      </bit-table>
+    }
+  </section>
+}

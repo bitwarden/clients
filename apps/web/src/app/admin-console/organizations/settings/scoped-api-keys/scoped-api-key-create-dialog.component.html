@@ -1,0 +1,84 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit" bit-dialog dialogSize="large">
+  <span bitDialogTitle>{{ "createScopedApiKey" | i18n }}</span>
+  <div bitDialogContent>
+    <bit-form-field>
+      <bit-label>{{ "name" | i18n }}</bit-label>
+      <input
+        bitInput
+        id="scoped-api-key-create-dialog_input_name"
+        type="text"
+        formControlName="name"
+      />
+    </bit-form-field>
+
+    <fieldset formGroupName="scopes" class="tw-mb-6">
+      <legend bitTypography="h6">{{ "scopedApiKeyScopes" | i18n }}</legend>
+      <p bitTypography="body2" class="tw-text-muted">{{ "scopedApiKeyScopesDesc" | i18n }}</p>
+      @for (group of scopeGroups; track group.labelKey) {
+        <div class="tw-mb-3">
+          <p bitTypography="body1" class="tw-mb-1 tw-font-medium">{{ group.labelKey | i18n }}</p>
+          @for (scope of group.scopes; track scope.value) {
+            <bit-form-control>
+              <input
+                type="checkbox"
+                bitCheckbox
+                [id]="'scoped-api-key-create-dialog_input_' + scope.controlName"
+                [formControlName]="scope.controlName"
+              />
+              <bit-label>{{ scope.labelKey | i18n }}</bit-label>
+              <bit-hint>
+                <code>{{ scope.value }}</code>
+                @if (scope.warningKey) {
+                  <span class="tw-block tw-text-warning">
+                    <bit-icon name="bwi-exclamation-triangle"></bit-icon>
+                    {{ scope.warningKey | i18n }}
+                  </span>
+                }
+              </bit-hint>
+            </bit-form-control>
+          }
+        </div>
+      }
+      @if (formGroup.controls.scopes.touched && formGroup.controls.scopes.errors?.scopesRequired) {
+        <bit-error
+          [error]="['scopesRequired', formGroup.controls.scopes.errors?.scopesRequired]"
+        ></bit-error>
+      }
+    </fieldset>
+
+    <bit-form-field>
+      <bit-label>{{ "expirationDate" | i18n }}</bit-label>
+      <input
+        bitInput
+        id="scoped-api-key-create-dialog_input_expiration"
+        type="datetime-local"
+        formControlName="expireAt"
+      />
+      <bit-hint>{{ "scopedApiKeyExpirationHint" | i18n }}</bit-hint>
+    </bit-form-field>
+
+    <app-user-verification-form-input formControlName="verification">
+    </app-user-verification-form-input>
+  </div>
+  <ng-container bitDialogFooter>
+    <button
+      type="submit"
+      bitButton
+      bitFormButton
+      buttonType="primary"
+      id="scoped-api-key-create-dialog_button_create"
+    >
+      {{ "createScopedApiKey" | i18n }}
+    </button>
+    <button
+      type="button"
+      bitButton
+      bitFormButton
+      buttonType="secondary"
+      bitDialogClose
+      id="scoped-api-key-create-dialog_button_cancel"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</form>

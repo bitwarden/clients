@@ -19,12 +19,15 @@ import { OrganizationApiKeyType } from "../../enums";
 import { OrganizationCollectionManagementUpdateRequest } from "../../models/request/organization-collection-management-update.request";
 import { OrganizationCreateRequest } from "../../models/request/organization-create.request";
 import { OrganizationKeysRequest } from "../../models/request/organization-keys.request";
+import { OrganizationScopedApiKeyCreateRequest } from "../../models/request/organization-scoped-api-key-create.request";
 import { OrganizationUpdateRequest } from "../../models/request/organization-update.request";
 import { OrganizationUpgradeRequest } from "../../models/request/organization-upgrade.request";
 import { OrganizationVerifyDeleteRecoverRequest } from "../../models/request/organization-verify-delete-recover.request";
 import { OrganizationApiKeyInformationResponse } from "../../models/response/organization-api-key-information.response";
 import { OrganizationAutoEnrollStatusResponse } from "../../models/response/organization-auto-enroll-status.response";
 import { OrganizationKeysResponse } from "../../models/response/organization-keys.response";
+import { OrganizationScopedApiKeyCreatedResponse } from "../../models/response/organization-scoped-api-key-created.response";
+import { OrganizationScopedApiKeyResponse } from "../../models/response/organization-scoped-api-key.response";
 import { OrganizationResponse } from "../../models/response/organization.response";
 import { ProfileOrganizationResponse } from "../../models/response/profile-organization.response";
 
@@ -70,6 +73,12 @@ export abstract class OrganizationApiServiceAbstraction {
     organizationApiKeyType?: OrganizationApiKeyType,
   ): Promise<ListResponse<OrganizationApiKeyInformationResponse>>;
   abstract rotateApiKey(id: string, request: OrganizationApiKeyRequest): Promise<ApiKeyResponse>;
+  abstract getScopedApiKeys(id: string): Promise<ListResponse<OrganizationScopedApiKeyResponse>>;
+  abstract createScopedApiKey(
+    id: string,
+    request: OrganizationScopedApiKeyCreateRequest,
+  ): Promise<OrganizationScopedApiKeyCreatedResponse>;
+  abstract revokeScopedApiKey(id: string, keyId: string): Promise<void>;
   abstract getKeys(id: string): Promise<OrganizationKeysResponse>;
   abstract updateKeys(
     id: string,

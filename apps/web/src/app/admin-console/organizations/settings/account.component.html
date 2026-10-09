@@ -61,6 +61,7 @@
         {{ "rotateApiKey" | i18n }}
       </button>
     </div>
+    <app-org-scoped-api-keys [organizationId]="organizationId"></app-org-scoped-api-keys>
   </ng-container>
   <form
     *ngIf="org && !loading"
