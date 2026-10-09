@@ -1632,6 +1632,13 @@ describe("ImportControlsComponent", () => {
       );
     });
 
+    it("ends the manual-mode callout at the help link, with no trailing period", async () => {
+      await setup("bravecsv", ClientType.Web);
+
+      const callout = fixture.debugElement.query(By.css("bit-callout"));
+      expect(callout.nativeElement.textContent.trim().endsWith(".")).toBe(false);
+    });
+
     it("renders both the alias preamble and the help link for a Chromium-alias vendor in chromium mode", async () => {
       importMetadataService.metadata$.mockReturnValue(
         of<ImporterCapabilities>({ type: "bravecsv", loaders: [Loader.file, Loader.chromium] }),
