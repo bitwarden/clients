@@ -4070,6 +4070,129 @@ describe("AutofillService", () => {
             ]);
           });
 
+          it("will fill the full address into a generic address field whose placeholder mentions other address parts", async () => {
+            const fullAddressField = createAutofillFieldMock({
+              opid: "fullAddress",
+              htmlName: "address",
+              placeholder: "Street, City, ZIP",
+            });
+            pageDetails.fields = [fullAddressField];
+            const address1 = "123 Main St.";
+            options.cipher.identity.address1 = address1;
+            options.cipher.identity.address2 = "";
+            options.cipher.identity.address3 = "";
+            options.cipher.identity.postalCode = "12345";
+            options.cipher.identity.city = "City";
+
+            await autofillService["generateIdentityFillScript"](
+              fillScript,
+              pageDetails,
+              filledFields,
+              options,
+            );
+
+            expect(autofillService["makeScriptActionWithValue"]).toHaveBeenCalledWith(
+              fillScript,
+              address1,
+              fullAddressField,
+              filledFields,
+            );
+          });
+
+          it("will not fill the street into postal code, city, phone or country fields whose names carry a billing address prefix", async () => {
+            // Mirrors the Shopware 6 storefront address form (bitwarden/clients#23356).
+            const streetField = createAutofillFieldMock({
+              opid: "street",
+              htmlName: "billingAddress[street]",
+              htmlID: "billingAddressAddressStreet",
+              autoCompleteType: "billing address-line1",
+            });
+            const postalCodeField = createAutofillFieldMock({
+              opid: "zipcode",
+              htmlName: "billingAddress[zipcode]",
+              htmlID: "billingAddressAddressZipcode",
+              autoCompleteType: "billing postal-code",
+            });
+            const cityField = createAutofillFieldMock({
+              opid: "city",
+              htmlName: "billingAddress[city]",
+              htmlID: "billingAddressAddressCity",
+              autoCompleteType: "billing address-level2",
+            });
+            const phoneField = createAutofillFieldMock({
+              opid: "phone",
+              htmlName: "billingAddress[phoneNumber]",
+              htmlID: "billingAddressAddressPhoneNumber",
+              autoCompleteType: "billing tel",
+            });
+            const countryField = createAutofillFieldMock({
+              opid: "country",
+              htmlName: "billingAddress[countryId]",
+              htmlID: "billingAddressAddressCountry",
+              autoCompleteType: "billing country",
+            });
+            pageDetails.fields = [
+              streetField,
+              postalCodeField,
+              cityField,
+              phoneField,
+              countryField,
+            ];
+            const address1 = "123 Main St.";
+            options.cipher.identity.address1 = address1;
+            options.cipher.identity.postalCode = "12345";
+            options.cipher.identity.city = "City";
+            options.cipher.identity.phone = "555-555-5555";
+            options.cipher.identity.country = "US";
+            jest.spyOn(autofillService as any, "makeIdentityCountryFillScript");
+
+            await autofillService["generateIdentityFillScript"](
+              fillScript,
+              pageDetails,
+              filledFields,
+              options,
+            );
+
+            expect(autofillService["makeScriptActionWithValue"]).toHaveBeenCalledWith(
+              fillScript,
+              address1,
+              streetField,
+              filledFields,
+            );
+            expect(autofillService["makeScriptActionWithValue"]).toHaveBeenCalledWith(
+              fillScript,
+              options.cipher.identity.postalCode,
+              postalCodeField,
+              filledFields,
+            );
+            expect(autofillService["makeScriptActionWithValue"]).toHaveBeenCalledWith(
+              fillScript,
+              options.cipher.identity.city,
+              cityField,
+              filledFields,
+            );
+            expect(autofillService["makeScriptActionWithValue"]).toHaveBeenCalledWith(
+              fillScript,
+              options.cipher.identity.phone,
+              phoneField,
+              filledFields,
+            );
+            expect(autofillService["makeIdentityCountryFillScript"]).toHaveBeenCalledWith(
+              fillScript,
+              filledFields,
+              countryField,
+              options.cipher.identity,
+            );
+            for (const field of [postalCodeField, cityField, phoneField, countryField]) {
+              expect(autofillService["makeScriptActionWithValue"]).not.toHaveBeenCalledWith(
+                fillScript,
+                address1,
+                field,
+                filledFields,
+              );
+            }
+          });
+
           it("will match address1, address2, address3, postalCode, city, state, country, phone, username, and company fields to their corresponding vault item identity values", async () => {
             const address1Field = createAutofillFieldMock({
               opid: "address1",

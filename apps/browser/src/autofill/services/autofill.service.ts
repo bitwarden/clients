@@ -2135,14 +2135,32 @@ export default class AutofillService implements AutofillServiceInterface {
   ): boolean {
     return (
       !filledFields.address &&
-      keywords.some((keyword) =>
-        AutofillService.isFieldMatch(
-          keyword,
-          IdentityAutoFillConstants.AddressFieldNames,
-          IdentityAutoFillConstants.AddressFieldNameValues,
-        ),
+      keywords.some(
+        (keyword) =>
+          AutofillService.isFieldMatch(
+            keyword,
+            IdentityAutoFillConstants.AddressFieldNames,
+            IdentityAutoFillConstants.AddressFieldNameValues,
+          ) && !this.isSpecificAddressPartKeyword(keyword),
       )
     );
+  }
+
+  /**
+   * Identifies if a keyword names a specific part of an address (postal code, city,
+   * state, country or phone). Such keywords can still contain a generic address prefix,
+   * e.g. `billingAddress[zipcode]`, and must not be filled with the full street address.
+   *
+   * @param keyword - A single normalized keyword from the field
+   */
+  private isSpecificAddressPartKeyword(keyword: string): boolean {
+    return [
+      IdentityAutoFillConstants.PostalCodeFieldNames,
+      IdentityAutoFillConstants.CityFieldNames,
+      IdentityAutoFillConstants.StateFieldNames,
+      IdentityAutoFillConstants.CountryFieldNames,
+      IdentityAutoFillConstants.PhoneFieldNames,
+    ].some((fieldNames) => AutofillService.isFieldMatch(keyword, fieldNames));
   }
 
   /**
