@@ -63,7 +63,9 @@ describe("NewExperienceDialogService", () => {
   });
 
   it("opens the dialog with the caller's screenshots and the account", async () => {
-    await expect(service.conditionallyOpen(userId, params)).resolves.toBe(true);
+    await expect(service.conditionallyOpen(userId, params)).resolves.toBe(
+      NewExperienceDialogResult.Dismissed,
+    );
 
     expect(openSpy).toHaveBeenCalledWith(dialogService, { ...params, userId });
   });
@@ -85,7 +87,7 @@ describe("NewExperienceDialogService", () => {
 
   describe("when the dialog should not open", () => {
     const expectSkipped = async () => {
-      await expect(service.conditionallyOpen(userId, params)).resolves.toBe(false);
+      await expect(service.conditionallyOpen(userId, params)).resolves.toBeNull();
 
       expect(openSpy).not.toHaveBeenCalled();
       expect(nudgesService.dismissNudge).not.toHaveBeenCalled();

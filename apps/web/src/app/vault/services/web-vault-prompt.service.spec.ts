@@ -13,7 +13,11 @@ import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { NewExperienceDialogService, VaultItemsTransferService } from "@bitwarden/vault";
+import {
+  NewExperienceDialogResult,
+  NewExperienceDialogService,
+  VaultItemsTransferService,
+} from "@bitwarden/vault";
 
 import {
   AutoConfirmPolicy,
@@ -46,7 +50,7 @@ describe("WebVaultPromptService", () => {
   const conditionallyShowWelcomeDialog = jest.fn().mockResolvedValue(false);
   const logError = jest.fn();
   const conditionallyPromptUserForExtension = jest.fn().mockResolvedValue(false);
-  const conditionallyOpenNewExperience = jest.fn().mockResolvedValue(false);
+  const conditionallyOpenNewExperience = jest.fn().mockResolvedValue(null);
 
   let serverSettings$: BehaviorSubject<ServerSettings | null>;
   let activeAccount$: BehaviorSubject<Account | null>;
@@ -155,7 +159,7 @@ describe("WebVaultPromptService", () => {
     });
 
     it("holds back the extension prompt when it opened, so the two do not stack", async () => {
-      conditionallyOpenNewExperience.mockResolvedValueOnce(true);
+      conditionallyOpenNewExperience.mockResolvedValueOnce(NewExperienceDialogResult.Explore);
 
       await service.conditionallyPromptUser();
 

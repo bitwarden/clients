@@ -32,17 +32,22 @@ import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cip
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import {
+  BitTableToolbarComponent,
   ChipFilterOption,
   CompactModeService,
   DialogService,
   FilterMenuComponent,
   FilterOptionRow,
   FilterSectionComponent,
+  PopoverRef,
+  PopoverService,
   ToastService,
 } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
 import {
+  CoachmarkService,
+  CoachmarkStepId,
   NO_FOLDER,
   PasswordRepromptService,
   VaultCopyButtonsService,
@@ -212,8 +217,15 @@ describe("VaultPopupListTableComponent", () => {
     viewModel$: jest.fn().mockReturnValue(nav$.asObservable()),
   };
 
+  /** The tour's active step, read through the signal so the component's effects track it. */
+  const activeStep = signal<CoachmarkStepId | null>(null);
+  const coachmarkService = mock<CoachmarkService>({
+    isStepActive: (stepId: CoachmarkStepId) => activeStep() === stepId,
+  });
+
   beforeEach(async () => {
     jest.clearAllMocks();
+    activeStep.set(null);
     // `clearAllMocks` resets calls but not implementations, so restore the default open state.
     vaultPopupSectionService.getOpenDisplayStateForSection.mockReturnValue(() => true);
     configService.getFeatureFlag.mockResolvedValue(false);
@@ -243,6 +255,7 @@ describe("VaultPopupListTableComponent", () => {
     await TestBed.configureTestingModule({
       imports: [VaultPopupListTableComponent, NoopAnimationsModule, RouterTestingModule],
       providers: [
+        { provide: CoachmarkService, useValue: coachmarkService },
         { provide: WINDOW, useValue: window },
         {
           provide: ViewCacheService,
@@ -1101,6 +1114,93 @@ describe("VaultPopupListTableComponent", () => {
       // Navigating back rebuilds the page: `NoRouteReuseStrategy` never reuses it.
       TestBed.createComponent(VaultPopupListTableComponent).detectChanges();
       expect(open).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("tour coachmarks", () => {
+    let openPopover: jest.SpyInstance;
+    let popoverRef: PopoverRef;
+    let toolbar: BitTableToolbarComponent;
+
+    beforeEach(() => {
+      popoverRef = new PopoverRef(() => {});
+      jest.spyOn(popoverRef, "close");
+      openPopover = jest.spyOn(TestBed.inject(PopoverService), "open").mockReturnValue(popoverRef);
+      // The toolbar's own dialog is not under test; the tour drives it through `filterDialogOpen`.
+      jest.spyOn(DialogService.prototype, "open").mockReturnValue({
+        closed: new Subject(),
+        close: jest.fn(),
+      } as any);
+
+      fixture.detectChanges();
+      toolbar = fixture.debugElement.query(
+        By.directive(BitTableToolbarComponent),
+      ).componentInstance;
+    });
+
+    afterEach(() => jest.restoreAllMocks());
+
+    it("anchors the filters step to the toolbar's filter button", () => {
+      activeStep.set("mixAndMatchFilters");
+      fixture.detectChanges();
+
+      expect(openPopover).toHaveBeenCalledWith(
+        expect.anything(),
+        toolbar.filterButton,
+        expect.objectContaining({ spotlight: true }),
+      );
+    });
+
+    it("opens the filter dialog and anchors its Shared folders row for the dashboard step", () => {
+      collections$.next([
+        {
+          value: { id: "col-1", name: "Alpha", organizationId: "org-1" } as CollectionView,
+          label: "Alpha",
+        },
+      ]);
+      activeStep.set("newDashboard");
+      fixture.detectChanges();
+
+      expect(vaultPopupListTableFiltersService.filterDialogOpen()).toBe(true);
+      expect(openPopover).toHaveBeenCalledWith(
+        expect.anything(),
+        toolbar.filterRow("collection"),
+        expect.objectContaining({ spotlight: true }),
+      );
+    });
+
+    it("anchors the My folders row for the dashboard step when there are no Shared folders", () => {
+      collections$.next([]);
+      activeStep.set("newDashboard");
+      fixture.detectChanges();
+
+      expect(openPopover).toHaveBeenCalledWith(
+        expect.anything(),
+        toolbar.filterRow("folder"),
+        expect.objectContaining({ spotlight: true }),
+      );
+    });
+
+    it("closes the filter dialog when the tour leaves the dashboard step", () => {
+      activeStep.set("newDashboard");
+      fixture.detectChanges();
+
+      activeStep.set("mixAndMatchFilters");
+      fixture.detectChanges();
+
+      expect(popoverRef.close).toHaveBeenCalled();
+      expect(vaultPopupListTableFiltersService.filterDialogOpen()).toBe(false);
+      expect(coachmarkService.completeTour).not.toHaveBeenCalled();
+    });
+
+    it("ends the tour when the user closes the filter dialog during the dashboard step", () => {
+      activeStep.set("newDashboard");
+      fixture.detectChanges();
+
+      vaultPopupListTableFiltersService.filterDialogOpen.set(false);
+      fixture.detectChanges();
+
+      expect(coachmarkService.completeTour).toHaveBeenCalled();
     });
   });
 

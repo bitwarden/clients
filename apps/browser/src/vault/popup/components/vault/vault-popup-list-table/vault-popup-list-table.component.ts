@@ -8,8 +8,11 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   Injector,
+  signal,
+  untracked,
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
@@ -50,6 +53,7 @@ import {
   FilterOptionNode,
   IconButtonModule,
   IconComponent,
+  PopoverService,
   ScrollCollapseSourceDirective,
   SearchModule,
   StatusLockupComponent,
@@ -57,11 +61,11 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import {
-  cipherInScope,
   collectionInScope,
+  CoachmarkComponent,
+  CoachmarkService,
   EmptyVaultComponent,
   hasMultipleVaults,
-  idString,
   matchesFolder,
   matchesSharedFolder,
   matchesType,
@@ -90,14 +94,7 @@ import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
 
-/**
- * Flattens a `ChipFilterOption` tree depth-first, since scope/org visibility is decided per
- * option, not per branch. Nested rendering rebuilds nesting from the original tree instead of
- * this flat list — see {@link VaultPopupListTableComponent.toFilterOptionNodes}.
- */
-function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOption<T>[] {
-  return options.flatMap((option) => [option, ...flattenOptions(option.children ?? [])]);
-}
+import { flattenOptions, folderOptionsInScope } from "./filter-options";
 
 /** Collects every value in a {@link FilterOptionNode} subtree, depth-first. */
 function subtreeValues(nodes: readonly FilterOptionNode<string>[]): string[] {
@@ -130,6 +127,7 @@ const VAULT_SCOPED_FILTER_KEYS = ["organization", "collection", "folder"];
     BitCellDefDirective,
     BitRowGroupComponent,
     BitTableToolbarComponent,
+    CoachmarkComponent,
     ScrollCollapseSourceDirective,
     CollapseOnScrollDirective,
     FilterMenuModule,
@@ -160,6 +158,8 @@ export class VaultPopupListTableComponent {
   private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
   private readonly accountService = inject(AccountService);
   private readonly vaultNavService = inject(VaultNavService);
+  private readonly coachmark = inject(CoachmarkService);
+  private readonly popoverService = inject(PopoverService);
   /** Whether the page is narrowed to a single vault, which drops the organization chip. */
   protected readonly vaultSelected = computed(
     () => this.listTableService.vaultScope().type !== VaultScopeType.AllItems,
@@ -172,6 +172,72 @@ export class VaultPopupListTableComponent {
 
   /** The projected `bit-table-v2`, used to seed and observe chip selections. */
   private readonly tableEl = viewChild(BitTableV2Component);
+
+  private readonly toolbar = viewChild(BitTableToolbarComponent);
+  private readonly filtersCoachmark = viewChild.required<CoachmarkComponent>("filtersCoachmark");
+  private readonly sharedFoldersCoachmark =
+    viewChild.required<CoachmarkComponent>("sharedFoldersCoachmark");
+
+  /**
+   * Anchors the tour's filter steps inside the toolbar: the filter button, then the Shared folders
+   * (or else My folders) row of the filter dialog it opens. Both live in the toolbar's own template, so the popovers
+   * open from code rather than from `[bitPopoverAnchorFor]`.
+   */
+  private readonly showFilterCoachmarks = effect((onCleanup) => {
+    const toolbar = this.toolbar();
+    if (!toolbar) {
+      return;
+    }
+
+    if (this.coachmark.isStepActive("mixAndMatchFilters")) {
+      const ref = this.popoverService.open(
+        this.filtersCoachmark().popover(),
+        toolbar.filterButton,
+        {
+          position: this.coachmark.getStepPosition("mixAndMatchFilters"),
+          spotlight: true,
+        },
+      );
+      onCleanup(() => ref.close());
+      return;
+    }
+
+    if (this.coachmark.isStepActive("newDashboard")) {
+      // Falls back to My folders when the scoped vault has no Shared folders row to point at.
+      const rowKey = untracked(() => (this.collectionOptions().length ? "collection" : "folder"));
+      untracked(() => {
+        this.filterDialogOpen.set(true);
+        this.tourOpenedFilterDialog.set(true);
+      });
+      const ref = this.popoverService.open(
+        this.sharedFoldersCoachmark().popover(),
+        toolbar.filterRow(rowKey),
+        {
+          position: this.coachmark.getStepPosition("newDashboard"),
+          spotlight: true,
+        },
+      );
+      onCleanup(() => {
+        ref.close();
+        // Cleared before the dialog closes, so moving off the step doesn't read as the user closing it.
+        this.tourOpenedFilterDialog.set(false);
+        this.filterDialogOpen.set(false);
+      });
+    }
+  });
+
+  /** Whether the tour opened the filter dialog for its dashboard step and it's still up. */
+  private readonly tourOpenedFilterDialog = signal(false);
+
+  /** Closing the dialog takes the dashboard step's anchor with it, so it ends the tour. */
+  private readonly endTourOnFilterDialogClose = effect(() => {
+    if (this.tourOpenedFilterDialog() && !this.filterDialogOpen()) {
+      untracked(() => {
+        this.tourOpenedFilterDialog.set(false);
+        void this.coachmark.completeTour();
+      });
+    }
+  });
 
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
 
@@ -344,22 +410,13 @@ export class VaultPopupListTableComponent {
    * Narrowed like {@link collectionOptions}, against the unsearched list: an option that vanished
    * as the user typed could not widen the results again.
    */
-  protected readonly folderOptions = computed(() => {
-    const options = flattenOptions(this.folderTree());
-    const scope = this.listTableService.vaultScope();
-
-    if (scope.type === VaultScopeType.AllItems) {
-      return options;
-    }
-
-    const inScope = this.activeCiphers().filter((cipher) => cipherInScope(cipher, scope));
-    return options.filter((option) => {
-      const id = option.value?.id;
-      return id
-        ? inScope.some((cipher) => idString(cipher.folderId) === id)
-        : inScope.some((cipher) => cipher.folderId == null);
-    });
-  });
+  protected readonly folderOptions = computed(() =>
+    folderOptionsInScope(
+      this.folderTree(),
+      this.activeCiphers(),
+      this.listTableService.vaultScope(),
+    ),
+  );
 
   /**
    * {@link folderOptions}, nested — pruned from {@link folderTree} rather than rebuilt from names,

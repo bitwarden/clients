@@ -38,6 +38,7 @@ import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
 import {
+  CoachmarkService,
   DecryptionFailureDialogComponent,
   DefaultVaultItemsTransferService,
   NewExperienceDialogComponent,
@@ -237,6 +238,7 @@ describe("VaultComponent", () => {
     filteredCiphers$: new BehaviorSubject<any[]>([]),
     cipherCount$: new BehaviorSubject<number>(0),
     hasSearchText$: new BehaviorSubject<boolean>(false),
+    activeCiphers$: new BehaviorSubject<any[]>([]),
   } as Partial<VaultPopupItemsService>;
 
   /** Rows as the list table service builds them; the header counts the `allItems` section. */
@@ -245,6 +247,9 @@ describe("VaultComponent", () => {
 
   /** The account's vaults, as the header reads them to decide whether to show a page title. */
   const vaultNav$ = new BehaviorSubject<any>({ vaults: [], organizationDataOwnership: false });
+  const collections$ = new BehaviorSubject<any[]>([]);
+  /** Folder filter options, as the list table's My folders chip reads them. */
+  const folders$ = new BehaviorSubject<any[]>([]);
 
   const filtersSvc: any = {
     allFilters$: new Subject<any>(),
@@ -274,6 +279,8 @@ describe("VaultComponent", () => {
   const dialogSvc = {
     openSimpleDialog: jest.fn().mockResolvedValue(false),
   } as Partial<DialogService>;
+
+  const coachmarkSvc = mock<CoachmarkService>();
 
   const introCarouselState$ = new BehaviorSubject<boolean>(true);
 
@@ -376,7 +383,7 @@ describe("VaultComponent", () => {
         { provide: RestrictedItemTypesService, useValue: { restricted$: new BehaviorSubject([]) } },
         {
           provide: VaultPopupListTableFiltersService,
-          useValue: { cachedFilters: jest.fn().mockReturnValue({}) },
+          useValue: { cachedFilters: jest.fn().mockReturnValue({}), folders$ },
         },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: AvatarService, useValue: mock<AvatarService>() },
@@ -389,6 +396,7 @@ describe("VaultComponent", () => {
         },
         { provide: TaskService, useValue: mock<TaskService>() },
         { provide: StateProvider, useValue: mock<StateProvider>() },
+        { provide: CoachmarkService, useValue: coachmarkSvc },
         {
           provide: ConfigService,
           useValue: configSvc,
@@ -416,7 +424,7 @@ describe("VaultComponent", () => {
         { provide: PremiumUpsellService, useValue: premiumUpsellSvc },
         {
           provide: CollectionService,
-          useValue: { decryptedCollections$: jest.fn().mockReturnValue(of([])) },
+          useValue: { decryptedCollections$: jest.fn().mockReturnValue(collections$) },
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -1264,6 +1272,7 @@ describe("VaultComponent", () => {
     }
 
     beforeEach(() => {
+      coachmarkSvc.startTour.mockClear();
       newExperienceDialogSpy.mockClear();
       newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Dismissed);
       nudgesSvc.showNudgeSpotlight$.mockImplementation((type: NudgeType) =>
@@ -1274,9 +1283,13 @@ describe("VaultComponent", () => {
       );
       introCarouselState$.next(true);
       serverSettings$.next(new ServerSettings());
+      collections$.next([{ id: "collection-1", organizationId: "org-1" }]);
     });
 
     afterEach(() => {
+      collections$.next([]);
+      folders$.next([]);
+      vaultNav$.next({ vaults: [], organizationDataOwnership: false });
       nudgesSvc.showNudgeSpotlight$.mockImplementation((_type: NudgeType) => of(false));
       configSvc.getFeatureFlag$.mockImplementation((_flag: string) => of(false));
     });
@@ -1335,6 +1348,108 @@ describe("VaultComponent", () => {
       initVault();
 
       expect(newExperienceDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("starts the vault tour when the user chooses to explore", fakeAsync(() => {
+      newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Explore);
+      vaultNav$.next({ vaults: [{ id: "user-1" }, { id: "org-1" }] });
+
+      initVault();
+
+      expect(coachmarkSvc.startTour).toHaveBeenCalledWith(
+        expect.objectContaining({
+          steps: [
+            expect.objectContaining({ id: "switchVaults" }),
+            expect.objectContaining({ id: "mixAndMatchFilters" }),
+            expect.objectContaining({ id: "newDashboard" }),
+          ],
+        }),
+      );
+    }));
+
+    it("skips the vault switcher step when the account has a single vault", fakeAsync(() => {
+      newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Explore);
+      // Data ownership keeps a lone vault unscoped, so its collections stay listed.
+      vaultNav$.next({ vaults: [{ id: "user-1" }], organizationDataOwnership: true });
+
+      initVault();
+
+      expect(coachmarkSvc.startTour).toHaveBeenCalledWith(
+        expect.objectContaining({
+          steps: [
+            expect.objectContaining({ id: "mixAndMatchFilters" }),
+            expect.objectContaining({ id: "newDashboard" }),
+          ],
+        }),
+      );
+    }));
+
+    it("skips the dashboard step when the account has no collections", fakeAsync(() => {
+      newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Explore);
+      vaultNav$.next({ vaults: [{ id: "user-1" }, { id: "org-1" }] });
+      collections$.next([]);
+
+      initVault();
+
+      expect(coachmarkSvc.startTour).toHaveBeenCalledWith(
+        expect.objectContaining({
+          steps: [
+            expect.objectContaining({ id: "switchVaults" }),
+            expect.objectContaining({ id: "mixAndMatchFilters" }),
+          ],
+        }),
+      );
+    }));
+
+    it("keeps the dashboard step when only My folders is listed", fakeAsync(() => {
+      newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Explore);
+      // A lone personal vault resolves the unscoped route to My vault, which lists no collections.
+      vaultNav$.next({ vaults: [{ id: "user-1" }], organizationDataOwnership: false });
+      folders$.next([{ value: { id: "folder-1" }, label: "Personal" }]);
+      itemsSvc.activeCiphers$.next([
+        { id: "cipher-1", organizationId: null, folderId: "folder-1" },
+      ]);
+
+      initVault();
+
+      expect(coachmarkSvc.startTour).toHaveBeenCalledWith(
+        expect.objectContaining({
+          steps: [
+            expect.objectContaining({ id: "mixAndMatchFilters" }),
+            expect.objectContaining({ id: "newDashboard" }),
+          ],
+        }),
+      );
+
+      itemsSvc.activeCiphers$.next([]);
+    }));
+
+    it("skips the dashboard step when the vault is scoped to My vault", fakeAsync(() => {
+      newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Explore);
+      // A lone personal vault resolves the unscoped route to My vault, which lists no collections.
+      vaultNav$.next({ vaults: [{ id: "user-1" }], organizationDataOwnership: false });
+
+      initVault();
+
+      expect(coachmarkSvc.startTour).toHaveBeenCalledWith(
+        expect.objectContaining({
+          steps: [expect.objectContaining({ id: "mixAndMatchFilters" })],
+        }),
+      );
+    }));
+
+    it("does not start the vault tour when the dialog is dismissed", fakeAsync(() => {
+      initVault();
+
+      expect(coachmarkSvc.startTour).not.toHaveBeenCalled();
+    }));
+
+    it("does not start the vault tour when the dialog never opens", fakeAsync(() => {
+      introCarouselState$.next(false);
+
+      initVault();
+
+      expect(coachmarkSvc.startTour).not.toHaveBeenCalled();
     }));
 
     it("leaves the nudge undismissed when the dialog never opens", fakeAsync(() => {

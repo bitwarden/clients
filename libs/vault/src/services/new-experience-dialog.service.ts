@@ -10,6 +10,7 @@ import { DialogService } from "@bitwarden/components";
 import {
   NewExperienceDialogComponent,
   NewExperienceDialogParams,
+  NewExperienceDialogResult,
 } from "../components/new-experience-dialog/new-experience-dialog.component";
 
 /**
@@ -31,23 +32,23 @@ export class NewExperienceDialogService {
    * The dialog dismisses the nudge itself, and only from one of its actions, so leaving it any
    * other way shows it again next time.
    *
-   * @returns whether the dialog opened.
+   * @returns how the dialog was closed, or `null` when it did not open.
    */
   async conditionallyOpen(
     userId: UserId,
     params: Omit<NewExperienceDialogParams, "userId">,
-  ): Promise<boolean> {
+  ): Promise<NewExperienceDialogResult | undefined | null> {
     const vfo1Enabled = await firstValueFrom(
       this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
     );
     if (!vfo1Enabled) {
-      return false;
+      return null;
     }
 
     // This dialog opens without a click, so a server that suppresses onboarding suppresses it.
     const serverSettings = await firstValueFrom(this.configService.serverSettings$);
     if (serverSettings?.suppressOnboardingInterstitials) {
-      return false;
+      return null;
     }
 
     // Vfo1OnboardingNudgeService reports dismissed for accounts created on or after GA, so those
@@ -56,11 +57,9 @@ export class NewExperienceDialogService {
       this.nudgesService.showNudgeSpotlight$(NudgeType.Vfo1NewExperience, userId),
     );
     if (!showDialog) {
-      return false;
+      return null;
     }
 
-    await NewExperienceDialogComponent.open(this.dialogService, { ...params, userId });
-
-    return true;
+    return await NewExperienceDialogComponent.open(this.dialogService, { ...params, userId });
   }
 }
