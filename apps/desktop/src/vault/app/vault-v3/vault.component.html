@@ -20,6 +20,17 @@
           aria-hidden="true"
         />
       }
+      @if (collectionMenu; as menu) {
+        <vault-collection-options-menu
+          slot="title-suffix"
+          [collection]="menu.collection"
+          [organization]="menu.organization"
+          [showPin]="true"
+          [showDelete]="false"
+          triggerIcon="bwi-angle-down"
+          idPrefix="vault-v3"
+        />
+      }
       @if (!vfo1Foundation()) {
         <vault-new-cipher-menu
           [canCreateCipher]="(canCreateCipher$ | async) ?? true"

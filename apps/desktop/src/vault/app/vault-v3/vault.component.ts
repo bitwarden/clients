@@ -140,6 +140,7 @@ import {
   resolveVaultScope,
   scopeKey,
   scopedCollectionSegment,
+  scopedSharedFolderId,
   SharedFolderCardGridComponent,
   VaultBreadcrumbsComponent,
   VaultRemountOnDirective,
@@ -151,6 +152,7 @@ import {
   VaultScopeType,
   defaultUserCollectionId,
   VAULT_RENDERED_MARK,
+  CollectionOptionsMenuComponent,
 } from "@bitwarden/vault";
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
@@ -200,6 +202,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     AutofocusDirective,
     SharedFolderCardGridComponent,
     VaultBreadcrumbsComponent,
+    CollectionOptionsMenuComponent,
     IconTileComponent,
     VaultRemountOnDirective,
   ],
@@ -458,6 +461,41 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
     return defaultUserCollectionId(scope.organizationId, this.vaultNav());
   });
+
+  /**
+   * The folder and organization the header's collection options menu acts on — `undefined` unless
+   * the new vault foundation is on and the scope names a real, non-default shared folder.
+   * Pin/Unpin only, for now — collection management isn't part of desktop yet (a future epic);
+   * the template's `[showDelete]="false"` suppresses Delete despite desktop already providing
+   * `BULK_DELETE_DIALOG`, since that token is for the existing bulk-select batch bar, not this menu.
+   *
+   * Getter, not `computed()`: `scopedCollections`/`allOrganizations` are plain fields the `refresh$`
+   * subscription assigns imperatively, not signals, so a `computed()` here would never see them
+   * update. Change detection re-evaluates this on its own each pass.
+   */
+  protected get collectionMenu():
+    { collection: CollectionView; organization: Organization | undefined } | undefined {
+    if (!this.vfo1Foundation()) {
+      return undefined;
+    }
+    const scope = this.vaultScope();
+    const collectionId = scopedSharedFolderId(scope);
+    if (
+      collectionId == null ||
+      !isGuid(collectionId) ||
+      scope.type !== VaultScopeType.Organization
+    ) {
+      return undefined;
+    }
+    const collection = this.scopedCollections.find((c) => c.id === collectionId);
+    if (collection == null || collection.isDefaultCollection) {
+      return undefined;
+    }
+    return {
+      collection,
+      organization: this.allOrganizations.find((o) => o.id === scope.organizationId),
+    };
+  }
 
   protected readonly showAddCipherBtn$ = combineLatest([
     this.vfo1Foundation$,

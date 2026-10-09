@@ -8,6 +8,19 @@
     [attr.id]="idPrefix() + '_button_options-' + collection().id"
   ></button>
   <bit-menu #menu>
+    <!-- First, and independent of what the member may edit or delete: anyone who can see a folder
+         can pin it. -->
+    @if (showPinAction()) {
+      <button
+        type="button"
+        bitMenuItem
+        [attr.id]="idPrefix() + '_menu-item_pin-' + collection().id"
+        (click)="togglePin()"
+      >
+        <bit-icon slot="start" fixedWidth [name]="isPinned() ? 'bwi-unpin' : 'bwi-pin'" />
+        {{ (isPinned() ? "unpinFromSidebar" : "pinToSidebar") | i18n }}
+      </button>
+    }
     @if (showEditActions()) {
       <button
         type="button"
