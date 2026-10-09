@@ -20,12 +20,20 @@ import {
   GetSendAccessTokenError,
   SendAccessDomainCredentials,
   TryGetSendAccessTokenError,
+  normalizeSendAccessTokenError,
+  toSdkSendAccessCredentials,
 } from "@bitwarden/common/auth/send-access";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { toSdkDevice } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { InsecureUrlNotAllowedError } from "@bitwarden/common/services/api-errors";
+import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SEND_KDF_ITERATIONS } from "@bitwarden/common/tools/send/send-kdf";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
@@ -39,6 +47,11 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { NodeUtils } from "@bitwarden/node/node-utils";
+import {
+  SendReceiveClient,
+  isAccessSendError,
+  isGetFileDownloadDataError,
+} from "@bitwarden/sdk-internal";
 
 import { DownloadCommand } from "../../../commands/download.command";
 import { Response } from "../../../models/response";
@@ -58,9 +71,28 @@ type SendServer = {
   isConfiguredServer: boolean;
 };
 
+/**
+ * The network and cryptographic steps of receiving a Send, bound to the server that hosts it.
+ * Prompting, retries, and output handling are the same whichever implementation is in use.
+ */
+type SendReceiver = {
+  /** Requests an access token for the Send, with `credentials` when the Send is protected. */
+  requestToken(
+    sendId: string,
+    credentials?: SendAccessDomainCredentials,
+  ): Promise<SendAccessToken | TryGetSendAccessTokenError>;
+  /** Derives the credential a password-protected Send's token request carries. */
+  hashPassword(password: string): Promise<SendHashedPasswordB64>;
+  /** Accesses the Send and decrypts it. */
+  access(accessToken: SendAccessToken): Promise<SendAccessView>;
+  /** Resolves where a file Send's encrypted contents can be downloaded from. */
+  getFileDownloadUrl(send: SendAccessView, accessToken: SendAccessToken): Promise<string>;
+  /** Decrypts a file Send's downloaded contents. Only valid after {@link access} resolves. */
+  decryptFile(response: globalThis.Response): Promise<Uint8Array>;
+};
+
 export class SendReceiveCommand extends DownloadCommand {
   private canInteract: boolean;
-  private decKey: SymmetricCryptoKey;
 
   constructor(
     encryptService: EncryptService,
@@ -72,6 +104,8 @@ export class SendReceiveCommand extends DownloadCommand {
     private sendTokenService: SendTokenService,
     private sendDecryptionService: SendDecryptionService,
     private appIdService: AppIdService,
+    private configService: ConfigService,
+    private userAgent: string,
   ) {
     super(encryptService, apiService);
   }
@@ -108,7 +142,23 @@ export class SendReceiveCommand extends DownloadCommand {
 
     const keyArray = Utils.fromUrlB64ToArray(key);
 
-    return await this.attemptAccess(sendServer, id, keyArray, options);
+    let receiveClient: SendReceiveClient | null;
+    try {
+      receiveClient = await this.createSendReceiveClient(sendServer);
+    } catch (e) {
+      return Response.error(e);
+    }
+    // One client serves the whole receive — token, access, and download — and is released after.
+    try {
+      const receiver =
+        receiveClient != null
+          ? this.sdkReceiver(receiveClient, sendServer, keyArray)
+          : this.legacyReceiver(sendServer, keyArray);
+
+      return await this.attemptAccess(receiver, id, options);
+    } finally {
+      receiveClient?.[Symbol.dispose]();
+    }
   }
 
   private getIdAndKey(url: URL): [string, string] {
@@ -204,17 +254,16 @@ export class SendReceiveCommand extends DownloadCommand {
   }
 
   private async attemptAccess(
-    sendServer: SendServer,
+    receiver: SendReceiver,
     id: string,
-    keyArray: Uint8Array,
     options: OptionValues,
   ): Promise<Response> {
     let authType: AuthType = AuthType.None;
 
-    const currentResponse = await this.getTokenWithRetry(sendServer, id);
+    const currentResponse = await this.getTokenWithRetry(receiver, id);
 
     if (currentResponse instanceof SendAccessToken) {
-      return await this.accessSendWithToken(currentResponse, keyArray, sendServer.apiUrl, options);
+      return await this.accessSendWithToken(currentResponse, receiver, options);
     }
 
     if (currentResponse.kind === "expected_server") {
@@ -236,9 +285,9 @@ export class SendReceiveCommand extends DownloadCommand {
       if (!this.canInteract) {
         return Response.badRequest("Email verification required. Run in interactive mode.");
       }
-      return await this.handleEmailOtpAuth(id, keyArray, sendServer, options);
+      return await this.handleEmailOtpAuth(id, receiver, options);
     } else if (authType === AuthType.Password) {
-      return await this.handlePasswordAuth(id, keyArray, sendServer, options);
+      return await this.handlePasswordAuth(id, receiver, options);
     }
 
     // The auth layer will immediately return a token for Sends with AuthType.None
@@ -251,14 +300,14 @@ export class SendReceiveCommand extends DownloadCommand {
   }
 
   private async getTokenWithRetry(
-    sendServer: SendServer,
+    receiver: SendReceiver,
     sendId: string,
     credentials?: SendAccessDomainCredentials,
   ): Promise<SendAccessToken | GetSendAccessTokenError> {
     let expiredAttempts = 0;
 
     while (expiredAttempts < 3) {
-      const response = await this.requestToken(sendServer, sendId, credentials);
+      const response = await receiver.requestToken(sendId, credentials);
 
       if (response instanceof SendAccessToken) {
         return response;
@@ -281,10 +330,10 @@ export class SendReceiveCommand extends DownloadCommand {
   }
 
   /**
-   * SendTokenService always mints against the configured environment. For a Send hosted elsewhere
-   * that would authenticate at one server and spend the token at another, so those mints are done
-   * here against the Send's own server instead. This applies to other Bitwarden regions too, not
-   * only untrusted hosts.
+   * Legacy token minting. SendTokenService always mints against the configured environment. For a
+   * Send hosted elsewhere that would authenticate at one server and spend the token at another, so
+   * those mints are done here against the Send's own server instead. This applies to other
+   * Bitwarden regions too, not only untrusted hosts.
    */
   private async requestToken(
     sendServer: SendServer,
@@ -312,11 +361,9 @@ export class SendReceiveCommand extends DownloadCommand {
   ): Promise<SendAccessToken | GetSendAccessTokenError> {
     // nativeFetch is the raw transport and skips the https-only check in ApiService.fetch. The form
     // body below carries the Send credentials, so enforce it here rather than sending them in clear.
-    if (!identityUrl.startsWith("https://") && !this.platformUtilsService.isDev()) {
-      return {
-        kind: "unknown",
-        error: `Send access requires https, but the url was ${identityUrl}`,
-      };
+    const insecure = this.insecureTokenUrlError(identityUrl);
+    if (insecure != null) {
+      return insecure;
     }
 
     // Defined in SendAccessConstants.TokenRequest in the server repo.
@@ -392,6 +439,25 @@ export class SendReceiveCommand extends DownloadCommand {
     };
   }
 
+  /**
+   * The token request carries the Send's credentials, so it must not go out in clear. Neither raw
+   * transport used to mint cross-instance tokens (nativeFetch, the SDK's HTTP client) enforces
+   * https the way ApiService.fetch does.
+   */
+  private insecureTokenUrlError(identityUrl: string): GetSendAccessTokenError | null {
+    if (this.isInsecureUrl(identityUrl)) {
+      return {
+        kind: "unknown",
+        error: `Send access requires https, but the url was ${identityUrl}`,
+      };
+    }
+    return null;
+  }
+
+  private isInsecureUrl(url: string): boolean {
+    return !url.startsWith("https://") && !this.platformUtilsService.isDev();
+  }
+
   private handleError(error: GetSendAccessTokenError): Response {
     if (error.kind === "unexpected_server") {
       return Response.error("Server error: " + JSON.stringify(error.error));
@@ -426,13 +492,12 @@ export class SendReceiveCommand extends DownloadCommand {
 
   private async handleEmailOtpAuth(
     sendId: string,
-    keyArray: Uint8Array,
-    sendServer: SendServer,
+    receiver: SendReceiver,
     options: OptionValues,
   ): Promise<Response> {
     const email = await this.promptForEmail();
 
-    const emailResponse = await this.getTokenWithRetry(sendServer, sendId, {
+    const emailResponse = await this.getTokenWithRetry(receiver, sendId, {
       kind: "email",
       email: email,
     });
@@ -454,14 +519,14 @@ export class SendReceiveCommand extends DownloadCommand {
         const promptResponse = await this.promptForOtp(sendId, email);
 
         // Use retry helper for expired token handling
-        const otpResponse = await this.getTokenWithRetry(sendServer, sendId, {
+        const otpResponse = await this.getTokenWithRetry(receiver, sendId, {
           kind: "email_otp",
           email: email,
           otp: promptResponse,
         });
 
         if (otpResponse instanceof SendAccessToken) {
-          return await this.accessSendWithToken(otpResponse, keyArray, sendServer.apiUrl, options);
+          return await this.accessSendWithToken(otpResponse, receiver, options);
         }
 
         if (otpResponse.kind === "expected_server") {
@@ -478,8 +543,7 @@ export class SendReceiveCommand extends DownloadCommand {
 
   private async handlePasswordAuth(
     sendId: string,
-    keyArray: Uint8Array,
-    sendServer: SendServer,
+    receiver: SendReceiver,
     options: OptionValues,
   ): Promise<Response> {
     let password = options.password;
@@ -505,16 +569,21 @@ export class SendReceiveCommand extends DownloadCommand {
       return Response.badRequest("Password required");
     }
 
-    const passwordHashB64 = await this.getUnlockedPassword(password, keyArray);
+    let passwordHashB64: SendHashedPasswordB64;
+    try {
+      passwordHashB64 = await receiver.hashPassword(password);
+    } catch (e) {
+      return Response.error(e);
+    }
 
     // Use retry helper for expired token handling
-    const response = await this.getTokenWithRetry(sendServer, sendId, {
+    const response = await this.getTokenWithRetry(receiver, sendId, {
       kind: "password",
-      passwordHashB64: passwordHashB64 as SendHashedPasswordB64,
+      passwordHashB64,
     });
 
     if (response instanceof SendAccessToken) {
-      return await this.accessSendWithToken(response, keyArray, sendServer.apiUrl, options);
+      return await this.accessSendWithToken(response, receiver, options);
     }
 
     if (response.kind === "expected_server") {
@@ -534,18 +603,11 @@ export class SendReceiveCommand extends DownloadCommand {
 
   private async accessSendWithToken(
     accessToken: SendAccessToken,
-    keyArray: Uint8Array,
-    apiUrl: string,
+    receiver: SendReceiver,
     options: OptionValues,
   ): Promise<Response> {
     try {
-      const sendResponse = await this.sendApiService.postSendAccess(accessToken, apiUrl);
-
-      const [decryptedView, decKey] = await this.sendDecryptionService.decryptSendAccess(
-        sendResponse,
-        keyArray,
-      );
-      this.decKey = decKey;
+      const decryptedView = await receiver.access(accessToken);
 
       if (options.obj != null) {
         return Response.success(new SendAccessResponse(decryptedView));
@@ -557,21 +619,12 @@ export class SendReceiveCommand extends DownloadCommand {
           return Response.success();
 
         case SendType.File: {
-          const downloadData = await this.sendApiService.getSendFileDownloadData(
-            decryptedView,
-            accessToken,
-            apiUrl,
-          );
-
-          const decryptBufferFn = async (resp: globalThis.Response) => {
-            const encBuf = await EncArrayBuffer.fromResponse(resp);
-            return this.encryptService.decryptFileData(encBuf, this.decKey);
-          };
+          const downloadUrl = await receiver.getFileDownloadUrl(decryptedView, accessToken);
 
           return await this.saveAttachmentToFile(
-            downloadData.url,
+            downloadUrl,
             path.basename(decryptedView?.file?.fileName ?? `BitwardenSendFile-${Date.now()}`),
-            decryptBufferFn,
+            (resp) => receiver.decryptFile(resp),
             options.output,
           );
         }
@@ -580,12 +633,122 @@ export class SendReceiveCommand extends DownloadCommand {
           return Response.success(new SendAccessResponse(decryptedView));
       }
     } catch (e) {
-      if (e instanceof ErrorResponse) {
-        if (e.statusCode === 404) {
-          return Response.notFound();
-        }
+      if (this.isNotFound(e)) {
+        return Response.notFound();
       }
       return Response.error(e);
     }
+  }
+
+  /**
+   * Builds a receive-scoped SDK client pointed at the server that hosts a cross-instance Send, so
+   * the access token is minted and spent at that server and nothing about the receive — the
+   * password hash included — reaches the signed-in instance.
+   *
+   * Returns null — keeping SendTokenService and {@link SendApiService} — for a Send on the
+   * configured server, which needs no client of its own, and while the SDK Sends flag is off.
+   */
+  private async createSendReceiveClient(sendServer: SendServer): Promise<SendReceiveClient | null> {
+    if (sendServer.isConfiguredServer) {
+      return null;
+    }
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi))) {
+      return null;
+    }
+
+    await SdkLoadService.Ready;
+    return new SendReceiveClient({
+      apiUrl: sendServer.apiUrl,
+      identityUrl: sendServer.identityUrl,
+      userAgent: this.userAgent,
+      deviceType: toSdkDevice(this.platformUtilsService.getDevice()),
+      // Sent as the Device-Identifier header on every request, the token request included.
+      deviceIdentifier: await this.appIdService.getAppId(),
+      bitwardenClientVersion: await this.platformUtilsService.getApplicationVersionNumber(),
+    });
+  }
+
+  /**
+   * Receives through SendTokenService (configured server) or a direct token request (any other
+   * server), then {@link SendApiService}, spending the token at the Send's own API.
+   */
+  private legacyReceiver(sendServer: SendServer, keyArray: Uint8Array): SendReceiver {
+    const apiUrl = sendServer.apiUrl;
+    let decKey: SymmetricCryptoKey;
+    return {
+      requestToken: (sendId, credentials) => this.requestToken(sendServer, sendId, credentials),
+      hashPassword: async (password) =>
+        (await this.getUnlockedPassword(password, keyArray)) as SendHashedPasswordB64,
+      access: async (accessToken) => {
+        const sendResponse = await this.sendApiService.postSendAccess(accessToken, apiUrl);
+        const [view, key] = await this.sendDecryptionService.decryptSendAccess(
+          sendResponse,
+          keyArray,
+        );
+        decKey = key;
+        return view;
+      },
+      getFileDownloadUrl: async (send, accessToken) =>
+        (await this.sendApiService.getSendFileDownloadData(send, accessToken, apiUrl)).url,
+      decryptFile: async (resp) => {
+        const encBuf = await EncArrayBuffer.fromResponse(resp);
+        return this.encryptService.decryptFileData(encBuf, decKey);
+      },
+    };
+  }
+
+  /**
+   * Receives through a {@link SendReceiveClient}. Every request — token included — goes to the
+   * server the client was built for, and hashing and decryption happen in the SDK using the key
+   * from the Send url. Tokens are not cached, as with the legacy cross-instance mint.
+   */
+  private sdkReceiver(
+    client: SendReceiveClient,
+    sendServer: SendServer,
+    keyArray: Uint8Array,
+  ): SendReceiver {
+    const keyB64 = Utils.fromArrayToUrlB64(keyArray);
+    return {
+      requestToken: async (sendId, credentials) => {
+        const insecure = this.insecureTokenUrlError(sendServer.identityUrl);
+        if (insecure != null) {
+          return insecure;
+        }
+        try {
+          const response = await client.request_send_access_token({
+            sendId,
+            sendAccessCredentials: toSdkSendAccessCredentials(credentials),
+          });
+          return SendAccessToken.fromSendAccessTokenResponse(response);
+        } catch (e) {
+          return normalizeSendAccessTokenError(e);
+        }
+      },
+      hashPassword: async (password) =>
+        client.hash_send_password(keyB64, password) as SendHashedPasswordB64,
+      access: async (accessToken) => {
+        // ApiService.fetch refuses non-https urls; the SDK's HTTP client does not.
+        if (this.isInsecureUrl(sendServer.apiUrl)) {
+          throw new InsecureUrlNotAllowedError(sendServer.apiUrl);
+        }
+        const response = await client.access_send(accessToken.token);
+        return SendAccessView.fromSdk(client.decrypt_send_access(keyB64, response));
+      },
+      getFileDownloadUrl: async (send, accessToken) =>
+        (await client.get_file_download_data(accessToken.token, send.file.id)).url,
+      decryptFile: async (resp) =>
+        client.decrypt_send_access_file(keyB64, new Uint8Array(await resp.arrayBuffer())),
+    };
+  }
+
+  /**
+   * SendApiService surfaces a missing Send as an {@link ErrorResponse}; the SDK surfaces it as the
+   * NotFound variant of its access and file download data errors.
+   */
+  private isNotFound(e: unknown): boolean {
+    if (e instanceof ErrorResponse) {
+      return e.statusCode === 404;
+    }
+    return (isAccessSendError(e) || isGetFileDownloadDataError(e)) && e.variant === "NotFound";
   }
 }
