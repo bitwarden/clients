@@ -12,7 +12,6 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule } from "@angular/forms";
-import { Router } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -96,6 +95,9 @@ export class SendFormComponent implements AfterViewInit {
   /** Event emitted when the user requests to open the password generator. */
   readonly openPasswordGenerator = output<void>();
 
+  /** Event emitted when the user requests to view the item of an item-type Send. Outputs the cipher ID */
+  readonly onGoToItem = output<string>();
+
   readonly sendDetailsComponent = viewChild(SendDetailsComponent);
 
   protected loading: boolean = true;
@@ -116,7 +118,6 @@ export class SendFormComponent implements AfterViewInit {
     private i18nService: I18nService,
     private destroyRef: DestroyRef,
     private envService: EnvironmentService,
-    private router: Router,
   ) {
     // We need to reinitialize the form any time the config input changes
     effect(() => {
@@ -174,7 +175,8 @@ export class SendFormComponent implements AfterViewInit {
         message: this.i18nService.t("unableToDetermineItemId"),
         variant: "error",
       });
+      return;
     }
-    await this.router.navigate(["/vault"], { queryParams: { itemId: cipher.id, action: "view" } });
+    this.onGoToItem.emit(cipher.id);
   }
 }
