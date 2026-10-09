@@ -199,7 +199,7 @@ export abstract class CoreSyncService implements SyncService {
           if (remoteCipher != null) {
             if (localCipher?.isPartial && remoteCipher.partialData == null) {
               // Full only because of a PAM lease: never persist it over the gated copy.
-              this.logService.info(
+              this.logService.debug(
                 `Sync: kept the gated copy of cipher ${notification.id}; did not save the full response.`,
               );
               return this.syncCompleted(false, userId);
