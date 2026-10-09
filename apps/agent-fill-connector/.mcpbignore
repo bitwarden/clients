@@ -1,8 +1,0 @@
-smoke-test.mjs
-make-test-key.mjs
-README.md
-CLAUDE.md
-.gitignore
-*.mcpb
-*.zip
-*.log
