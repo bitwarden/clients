@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom, Observable, map, BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
@@ -22,52 +20,61 @@ import { CacheData } from "../services/login-strategies/login-strategy.state";
 import { LoginStrategyData, LoginStrategy } from "./login.strategy";
 
 export class SsoLoginStrategyData implements LoginStrategyData {
-  tokenRequest: SsoTokenRequest;
+  readonly tokenRequest: SsoTokenRequest;
   /**
    * User's entered email obtained pre-login. Present in most SSO flows, but not CLI + SSO Flow.
    */
-  userEnteredEmail?: string;
+  readonly userEnteredEmail?: string;
   /**
    * User email address. Only available after authentication.
    */
-  email?: string;
+  readonly email?: string;
   /**
    * The organization ID that the user is logging into. Used for Key Connector
    * purposes after authentication.
    */
-  orgId: string;
+  readonly orgId: string;
   /**
    * A token provided by the server as an authentication factor for sending
    * email OTPs to the user's configured 2FA email address. This is required
    * as we don't have a master password hash or other verifiable secret when using SSO.
    */
-  ssoEmail2FaSessionToken?: string;
+  readonly ssoEmail2FaSessionToken?: string;
+
+  constructor(fields: SsoLoginStrategyData) {
+    this.tokenRequest = fields.tokenRequest;
+    this.userEnteredEmail = fields.userEnteredEmail;
+    this.email = fields.email;
+    this.orgId = fields.orgId;
+    this.ssoEmail2FaSessionToken = fields.ssoEmail2FaSessionToken;
+  }
 
   static fromJSON(obj: Jsonify<SsoLoginStrategyData>): SsoLoginStrategyData {
-    return Object.assign(new SsoLoginStrategyData(), obj, {
+    return new SsoLoginStrategyData({
+      ...obj,
       tokenRequest: SsoTokenRequest.fromJSON(obj.tokenRequest),
     });
   }
 }
 
-export class SsoLoginStrategy extends LoginStrategy {
+export class SsoLoginStrategy extends LoginStrategy<SsoLoginStrategyData> {
   /**
    * @see {@link SsoLoginStrategyData.email}
    */
-  email$: Observable<string | null>;
+  email$: Observable<string | undefined>;
   /**
    * @see {@link SsoLoginStrategyData.orgId}
    */
-  orgId$: Observable<string>;
+  orgId$: Observable<string | undefined>;
   /**
    * @see {@link SsoLoginStrategyData.ssoEmail2FaSessionToken}
    */
-  ssoEmail2FaSessionToken$: Observable<string | null>;
+  ssoEmail2FaSessionToken$: Observable<string | undefined>;
 
-  protected cache: BehaviorSubject<SsoLoginStrategyData>;
+  protected cache: BehaviorSubject<SsoLoginStrategyData | undefined>;
 
   constructor(
-    data: SsoLoginStrategyData,
+    data: SsoLoginStrategyData | undefined,
     private keyConnectorService: KeyConnectorService,
     private unlockService: UnlockService,
     private deviceTrustService: DeviceTrustServiceAbstraction,
@@ -77,22 +84,17 @@ export class SsoLoginStrategy extends LoginStrategy {
     super(...sharedDeps);
 
     this.cache = new BehaviorSubject(data);
-    this.email$ = this.cache.pipe(map((state) => state.email));
-    this.orgId$ = this.cache.pipe(map((state) => state.orgId));
-    this.ssoEmail2FaSessionToken$ = this.cache.pipe(map((state) => state.ssoEmail2FaSessionToken));
+    this.email$ = this.cache.pipe(map((state) => state?.email));
+    this.orgId$ = this.cache.pipe(map((state) => state?.orgId));
+    this.ssoEmail2FaSessionToken$ = this.cache.pipe(map((state) => state?.ssoEmail2FaSessionToken));
   }
 
   async logIn(credentials: SsoLoginCredentials): Promise<AuthResult> {
-    const data = new SsoLoginStrategyData();
-    data.orgId = credentials.orgId;
-
-    data.userEnteredEmail = credentials.email;
-
     const deviceRequest = await this.buildDeviceRequest();
 
     this.logService.info("Logging in with appId %s.", deviceRequest.identifier);
 
-    data.tokenRequest = new SsoTokenRequest(
+    const tokenRequest = new SsoTokenRequest(
       credentials.code,
       credentials.codeVerifier,
       credentials.redirectUrl,
@@ -100,40 +102,45 @@ export class SsoLoginStrategy extends LoginStrategy {
       deviceRequest,
     );
 
-    this.cache.next(data);
+    this.cache.next(
+      new SsoLoginStrategyData({
+        tokenRequest,
+        userEnteredEmail: credentials.email,
+        orgId: credentials.orgId,
+      }),
+    );
 
     const [ssoAuthResult] = await this.startLogIn();
 
     const email = ssoAuthResult.email;
     const ssoEmail2FaSessionToken = ssoAuthResult.ssoEmail2FaSessionToken;
 
-    this.cache.next({
-      ...this.cache.value,
-      email,
-      ssoEmail2FaSessionToken,
-    });
+    this.cache.next(
+      new SsoLoginStrategyData({
+        ...this.getLoginStrategyDataOrThrow(),
+        email,
+        ssoEmail2FaSessionToken,
+      }),
+    );
 
     return ssoAuthResult;
   }
 
-  private isKeyConnectorAvailable(tokenResponse: IdentityTokenResponse): boolean {
-    return tokenResponse?.userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl != null;
-  }
-
-  private needsKeyConnectorEnrollmentForNewUser(tokenResponse: IdentityTokenResponse): boolean {
+  /**
+   * Returns the key connector URL when the user is a brand-new SSO user who must enroll in
+   * key connector; otherwise `undefined`.
+   */
+  private getNewUserKeyConnectorEnrollmentUrl(
+    tokenResponse: IdentityTokenResponse,
+  ): string | undefined {
     // A key connector URL alone is not enough: it is also present for an existing master-password
     // user in an org that has just enabled key connector, who must be converted rather than
     // enrolled. Only a brand-new SSO user has neither a master password nor a wrapped user key.
-    return (
-      this.isKeyConnectorAvailable(tokenResponse) &&
-      tokenResponse.userDecryptionOptions?.hasMasterPassword === false &&
-      tokenResponse.key == null
-    );
-  }
-
-  private getKeyConnectorUrl(tokenResponse: IdentityTokenResponse): string {
-    const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
-    return userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl;
+    const userDecryptionOptions = tokenResponse.userDecryptionOptions;
+    if (userDecryptionOptions?.hasMasterPassword !== false || tokenResponse.key != null) {
+      return undefined;
+    }
+    return userDecryptionOptions.keyConnectorOption?.keyConnectorUrl;
   }
 
   // TODO: future passkey login strategy will need to support setting user key (decrypting via TDE or admin approval request)
@@ -145,13 +152,15 @@ export class SsoLoginStrategy extends LoginStrategy {
     // Note: Ideally we would refactor this to classify into distinct states based on the token response
     // with a return enum "mainUnlockMethod". This work is currently not tracked.
 
-    if (this.needsKeyConnectorEnrollmentForNewUser(tokenResponse)) {
+    const newUserKeyConnectorUrl = this.getNewUserKeyConnectorEnrollmentUrl(tokenResponse);
+
+    if (newUserKeyConnectorUrl != null) {
       // Not for existing users that need to be converted!
       await this.keyConnectorService.setNewSsoUserKeyConnectorConversionData(
         {
           kdfConfig: tokenResponse.kdfConfig,
-          keyConnectorUrl: this.getKeyConnectorUrl(tokenResponse),
-          organizationId: this.cache.value.orgId,
+          keyConnectorUrl: newUserKeyConnectorUrl,
+          organizationId: this.getLoginStrategyDataOrThrow().orgId,
         },
         userId,
       );

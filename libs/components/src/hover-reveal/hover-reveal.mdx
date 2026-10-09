@@ -1,0 +1,82 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./hover-reveal.stories";
+
+<Meta of={stories} />
+
+```ts
+import {
+  HoverRevealBoundaryDirective,
+  HoverRevealContainerDirective,
+  HoverRevealDirective,
+} from "@bitwarden/components";
+```
+
+# Hover Reveal
+
+`bitHoverReveal` hides an element until its nearest `bitHoverRevealContainer` is hovered or contains
+keyboard focus.
+
+```html
+<div bitHoverRevealContainer>
+  <span>Row content</span>
+  <button type="button" bitHoverReveal bitIconButton="bwi-pencil-square" label="Edit"></button>
+</div>
+```
+
+<Canvas of={stories.Default} />
+
+## Behavior
+
+- The element is hidden with opacity, so it stays in the tab order and tabbing to it reveals it.
+- It stays visible while it, or a control inside it, has `aria-expanded="true"` (e.g. an open menu).
+- It's always visible on touch devices, which can't hover.
+- Containers can nest; each one only reveals its own content.
+
+<Canvas of={stories.WithMenu} />
+<Canvas of={stories.Nested} />
+
+## Example: nav group actions
+
+To show a nav group's end slot action only on hover or focus, put the container on `bit-nav-group`
+and the reveal on the action. Hovering or focusing the group's expanded children doesn't reveal it.
+
+```html
+<bit-nav-group text="Shared folder" bitHoverRevealContainer>
+  <button
+    type="button"
+    slot="end"
+    bitHoverReveal
+    bitIconButton="bwi-ellipsis-v"
+    buttonType="side-nav"
+    size="xsmall"
+    label="Options"
+    [bitMenuTriggerFor]="menu"
+  ></button>
+  <bit-nav-item text="Child"></bit-nav-item>
+</bit-nav-group>
+```
+
+## Boundaries
+
+A container matches `:hover` whenever the pointer is over any of its descendants. To exclude part of
+a container, such as a list of child rows, add `bitHoverRevealBoundary` to that region. Hover or
+keyboard focus inside a boundary doesn't reveal the container's content.
+
+```html
+<div bitHoverRevealContainer>
+  <div class="tw-flex">
+    <span>Parent row</span>
+    <button type="button" bitHoverReveal bitIconButton="bwi-pencil-square" label="Edit"></button>
+  </div>
+  <ul bitHoverRevealBoundary>
+    <li>Hovering here doesn't reveal "Edit"</li>
+  </ul>
+</div>
+```
+
+<Canvas of={stories.Boundary} />
+
+## Accessibility
+
+Revealed controls are still focusable while hidden, so always give them an accessible `label`.
