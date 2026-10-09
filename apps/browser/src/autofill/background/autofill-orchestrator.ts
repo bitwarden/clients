@@ -33,9 +33,10 @@ import {
 } from "../services/abstractions/autofill-lifecycle.service";
 import {
   AutoFillOptions,
-  AutofillService,
+  AutofillService as AutofillServiceAbstraction,
   PageDetail,
 } from "../services/abstractions/autofill.service";
+import AutofillService from "../services/autofill.service";
 import { AutofillTriageResponse } from "../types/autofill-triage";
 import {
   AUTOFILL_ABSENT,
@@ -151,7 +152,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
 
   constructor(
     private lifecycleService: AutofillLifecycleService,
-    private autofillService: AutofillService,
+    private autofillService: AutofillServiceAbstraction,
     private cipherService: CipherService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private accountService: AccountService,
@@ -327,8 +328,9 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
       return;
     }
 
-    const isPasswordStep = pageDetails.some(({ details }) =>
-      details.fields.some((field) => field.type === "password"),
+    const isPasswordStep = pageDetails.some(
+      ({ details }) =>
+        AutofillService.loadPasswordFields(details, false, false, false, true).length > 0,
     );
     if (isPasswordStep) {
       this.multiStepLogin.delete(tab.id);
