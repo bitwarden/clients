@@ -9,7 +9,6 @@ import {
   ButtonModule,
   DialogModule,
   ItemModule,
-  SectionComponent,
   StatusLockupComponent,
   SvgComponent,
   TableModule,
@@ -20,6 +19,7 @@ import { DesktopSettingsService } from "../../../platform/services/desktop-setti
 import { DesktopFido2UserInterfaceService } from "../../services/desktop-fido2-user-interface.service";
 
 import { Fido2ModalHeaderComponent } from "./fido2-modal-header.component";
+import { Fido2ModalPageComponent } from "./fido2-modal-page.component";
 
 @Component({
   standalone: true,
@@ -32,10 +32,10 @@ import { Fido2ModalHeaderComponent } from "./fido2-modal-header.component";
     SvgComponent,
     ButtonModule,
     DialogModule,
-    SectionComponent,
     ItemModule,
     BadgeModule,
     Fido2ModalHeaderComponent,
+    Fido2ModalPageComponent,
   ],
   templateUrl: "fido2-excluded-ciphers.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
