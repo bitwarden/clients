@@ -5621,6 +5621,9 @@
   "applicationDoesNotSupportDuplicates": {
     "message": "This application does not support duplicates."
   },
+  "noPasskeysFoundForThisApplication": {
+    "message": "No passkeys found for this application."
+  },
   "closeThisWindow": {
     "message": "Close this window"
   },
