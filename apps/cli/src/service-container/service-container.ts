@@ -1042,7 +1042,7 @@ export class ServiceContainer {
       this.masterPasswordUnlockService,
     );
 
-    const logoutService = new DefaultLogoutService(this.messagingService);
+    const logoutService = new DefaultLogoutService(this.messagingService, this.logService);
     const processReloadService = new CliProcessReloadService();
     const systemService = new CliSystemService();
     this.lockService = new DefaultLockService(
