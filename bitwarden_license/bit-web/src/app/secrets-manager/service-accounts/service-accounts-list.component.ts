@@ -21,6 +21,7 @@ import {
   ServiceAccountSecretsDetailsView,
   ServiceAccountView,
 } from "../models/view/service-account.view";
+import { fuzzySearchFilter } from "../shared/search/fuzzy-search";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -52,7 +53,10 @@ export class ServiceAccountsListComponent implements OnDestroy, OnInit {
   @Input()
   set search(search: string) {
     this.selection.clear();
-    this.dataSource.filter = search;
+    this.dataSource.filter = fuzzySearchFilter<ServiceAccountSecretsDetailsView>(
+      search,
+      (serviceAccount) => [serviceAccount.name],
+    );
   }
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
