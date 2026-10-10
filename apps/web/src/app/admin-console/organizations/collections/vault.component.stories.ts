@@ -56,11 +56,14 @@ import { MessageListener, MessageSender } from "@bitwarden/messaging";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
 import { LockService } from "@bitwarden/unlock";
-import { PasswordRepromptService, Vfo1TerminologyService } from "@bitwarden/vault";
+import {
+  PasswordRepromptService,
+  Vfo1TerminologyService,
+  CoachmarkService,
+} from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
-import { CoachmarkService } from "../../../vault/components/coachmark";
 import { GroupApiService, GroupView } from "../core";
 
 import { VaultComponent } from "./vault.component";

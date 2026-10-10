@@ -23,7 +23,12 @@ import {
 } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
-import { VaultNavItemType, VaultNavService, VaultsNavViewModel } from "@bitwarden/vault";
+import {
+  CoachmarkService,
+  VaultNavItemType,
+  VaultNavService,
+  VaultsNavViewModel,
+} from "@bitwarden/vault";
 
 import { AccountSwitcherV2Component } from "../../auth/components/account-switcher/account-switcher-v2.component";
 import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
@@ -177,6 +182,19 @@ describe("DesktopLayoutComponent", () => {
         { provide: CipherArchiveService, useValue: cipherArchiveService },
         { provide: PremiumUpgradePromptService, useValue: premiumUpgradePromptService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
+        {
+          provide: CoachmarkService,
+          useValue: {
+            isStepActive: () => false,
+            isRunning: () => false,
+            getStepPosition: () => "right-center",
+            getStepTitle: () => "",
+            getStepDescription: () => "",
+            getStepLearnMoreUrl: (): string | undefined => undefined,
+            currentStepNumber: () => 0,
+            totalSteps: () => 0,
+          },
+        },
       ],
     })
       .overrideComponent(DesktopLayoutComponent, {

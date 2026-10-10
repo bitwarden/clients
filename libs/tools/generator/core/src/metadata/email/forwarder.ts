@@ -56,6 +56,7 @@ export function toForwarderMetadata(
             baseUrl: "",
             domain: "",
             prefix: "",
+            allowUnsafeUrlFor: "",
           },
           options: {
             deserializer: (value) => value,

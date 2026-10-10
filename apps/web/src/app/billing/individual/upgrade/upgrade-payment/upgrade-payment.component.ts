@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  inject,
   input,
   OnInit,
   output,
@@ -16,6 +17,7 @@ import {
   combineLatest,
   debounceTime,
   defer,
+  distinctUntilChanged,
   from,
   map,
   merge,
@@ -24,6 +26,7 @@ import {
   shareReplay,
   startWith,
   switchMap,
+  tap,
 } from "rxjs";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
@@ -35,6 +38,8 @@ import {
   PersonalSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { ButtonModule, DialogModule, ToastService } from "@bitwarden/components";
@@ -56,6 +61,7 @@ import {
   TokenizedPaymentMethod,
 } from "../../../payment/types";
 import { BillingServicesModule } from "../../../services";
+import { InvoicePreviewService } from "../../../services/invoice-preview.service";
 import { SubscriptionDiscountService } from "../../../services/subscription-discount.service";
 import { BitwardenSubscriber } from "../../../types";
 
@@ -139,6 +145,17 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     this.isFamiliesPlan() ? DiscountTierType.Families : DiscountTierType.Premium,
   );
 
+  private readonly configService = inject(ConfigService);
+  private readonly invoicePreviewService = inject(InvoicePreviewService);
+
+  private readonly previewDrivenCart$ = this.configService
+    .getFeatureFlag$(FeatureFlag.PM36631_PreviewDrivenCart)
+    .pipe(distinctUntilChanged());
+
+  private readonly previewCart = signal<Cart | null>(null);
+
+  protected readonly previewFailed = signal(false);
+
   private readonly eligibleDiscounts$ = toObservable(this.discountTierType).pipe(
     switchMap((tier) =>
       this.subscriptionDiscountService
@@ -162,14 +179,24 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
 
   // Use defer to lazily create the observable when subscribed to
   protected estimatedTax$ = defer(() =>
-    merge(
-      this.formGroup.controls.billingAddress.valueChanges.pipe(
-        startWith(this.formGroup.controls.billingAddress.value),
+    combineLatest([
+      merge(
+        this.formGroup.controls.billingAddress.valueChanges.pipe(
+          startWith(this.formGroup.controls.billingAddress.value),
+        ),
+        this.eligibleDiscounts$,
       ),
-      this.eligibleDiscounts$,
-    ).pipe(
+      this.previewDrivenCart$,
+    ]).pipe(
       debounceTime(1000),
-      switchMap(() => this.refreshSalesTax$()),
+      switchMap(([, previewDrivenCart]) => {
+        if (!previewDrivenCart) {
+          this.previewCart.set(null);
+          this.previewFailed.set(false);
+          return this.refreshSalesTax$();
+        }
+        return this.refreshPreviewCart$();
+      }),
     ),
   );
 
@@ -180,6 +207,11 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
 
   // Cart Summary data
   protected readonly cart = computed<Cart>(() => {
+    const previewCart = this.previewCart();
+    if (previewCart) {
+      return previewCart;
+    }
+
     if (!this.selectedPlan()) {
       return {
         passwordManager: {
@@ -414,6 +446,57 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     }
 
     return await this.paymentComponent().tokenize();
+  }
+
+  private refreshPreviewCart$(): Observable<number> {
+    const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
+    if (
+      this.formGroup.controls.billingAddress.invalid ||
+      !billingAddress.country ||
+      !billingAddress.postalCode
+    ) {
+      this.previewCart.set(null);
+      this.previewFailed.set(false);
+      return of(this.INITIAL_TAX_VALUE);
+    }
+
+    const coupons = this.eligibleCouponIds();
+    return defer(() =>
+      this.isFamiliesPlan()
+        ? this.invoicePreviewService.previewFamiliesPurchaseCart({
+            purchase: {
+              tier: "families",
+              cadence: "annually",
+              passwordManager: { seats: 1, additionalStorage: 0, sponsored: false },
+              ...(coupons.length ? { coupons } : {}),
+            },
+            billingAddress,
+          })
+        : this.invoicePreviewService.previewPremiumPurchaseCart({
+            additionalStorage: 0,
+            billingAddress: {
+              country: billingAddress.country,
+              postalCode: billingAddress.postalCode,
+            },
+            ...(coupons.length ? { coupons } : {}),
+          }),
+    ).pipe(
+      tap((cart) => {
+        this.previewCart.set(cart);
+        this.previewFailed.set(false);
+      }),
+      map(() => this.INITIAL_TAX_VALUE),
+      catchError((error: unknown) => {
+        this.logService.error("Invoice preview failed:", error);
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("invoicePreviewErrorMessage"),
+        });
+        this.previewCart.set(null);
+        this.previewFailed.set(true);
+        return of(this.INITIAL_TAX_VALUE);
+      }),
+    );
   }
 
   // Create an observable for tax calculation

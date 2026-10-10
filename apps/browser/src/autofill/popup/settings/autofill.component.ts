@@ -9,6 +9,7 @@ import {
   firstValueFrom,
   map,
   Observable,
+  of,
   pairwise,
   shareReplay,
   startWith,
@@ -135,8 +136,11 @@ export class AutofillComponent implements OnInit {
   protected fillAssistFeatureEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
     FeatureFlag.FillAssistTargetingRules,
   );
+  /** Safari cannot answer HTTP auth challenges from an extension, so the setting is never offered there. */
   protected basicAuthResponseSettingIsAvailable$: Observable<boolean> =
-    this.configService.getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse);
+    this.platformUtilsService.isSafari()
+      ? of(false)
+      : this.configService.getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse);
 
   protected autofillOnPageLoadForm = new FormGroup({
     autofillOnPageLoad: new FormControl(),

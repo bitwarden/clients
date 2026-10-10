@@ -108,6 +108,15 @@
       >
         {{ row.name }}
       </a>
+      @if (row.nestedSharedFolders > 0) {
+        <span slot="secondary">
+          {{
+            row.nestedSharedFolders === 1
+              ? ("nestedSharedFolderSingular" | i18n)
+              : ("nestedSharedFolderCount" | i18n: row.nestedSharedFolders)
+          }}
+        </span>
+      }
     </bit-cell>
   </bit-column>
 

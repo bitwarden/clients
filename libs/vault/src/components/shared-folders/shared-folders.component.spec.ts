@@ -289,6 +289,32 @@ describe("SharedFoldersComponent", () => {
       ).toEqual(["mine"]);
     });
 
+    it("lists only top-level folders, with a nested folder count beneath each that has any", async () => {
+      await setup({
+        collections: [
+          collection({ id: "eng", name: "Engineering" }),
+          collection({ id: "backend", name: "Engineering/Backend" }),
+          collection({ id: "frontend", name: "Engineering/Frontend" }),
+          collection({ id: "finance", name: "Finance" }),
+          collection({ id: "payroll", name: "Finance/Payroll" }),
+          collection({ id: "sales", name: "Sales" }),
+        ],
+      });
+      fixture.detectChanges();
+
+      expect(
+        bitTable()
+          .filtered()
+          .map((r) => r.id),
+      ).toEqual(["eng", "finance", "sales"]);
+
+      const subtitles = Array.from(
+        fixture.nativeElement.querySelectorAll("bit-cell [slot=secondary]") as NodeListOf<Element>,
+        (element) => element.textContent?.trim(),
+      );
+      expect(subtitles).toEqual(["nestedSharedFolderCount", "nestedSharedFolderSingular"]);
+    });
+
     it("lists nothing for a vaultId that names no organization", async () => {
       await setup({ collections: [collection({ id: "a" })], vaultId: "my-vault" });
       fixture.detectChanges();
