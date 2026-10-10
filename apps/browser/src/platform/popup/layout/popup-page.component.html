@@ -62,11 +62,10 @@
   >
     <ng-content></ng-content>
   </div>
-  <span
-    class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-text-main"
-    [ngClass]="{ 'tw-invisible': !loading() }"
-  >
-    <bit-icon name="bwi-spinner" class="bwi-lg bwi-spin" [ariaLabel]="loadingText()"></bit-icon>
-  </span>
+  @if (loading()) {
+    <span class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-text-main">
+      <bit-icon name="bwi-spinner" class="bwi-lg bwi-spin" [ariaLabel]="loadingText()"></bit-icon>
+    </span>
+  }
 </main>
 <ng-content select="[slot=footer]"></ng-content>
