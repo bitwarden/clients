@@ -4,8 +4,13 @@ import { join, resolve } from "path";
 import {
   TEAM_ID,
   autofillExtensionEntitlements,
+  desktopProxyEntitlements,
+  desktopProxyInheritEntitlements,
   macAppEntitlements,
+  macAppInheritEntitlements,
   masAppEntitlements,
+  masAppInheritEntitlements,
+  masLoginHelperEntitlements,
   serializePlist,
 } from "./entitlements.mts";
 
@@ -46,6 +51,44 @@ describe("reproducing the checked-in entitlements", () => {
     const generated = masAppEntitlements({ bundleId: BUNDLE_ID, autofill: false });
 
     expect(serializePlist(generated)).toBe(checkedIn("resources/entitlements.mas.plist"));
+  });
+
+  it("matches entitlements.mac.inherit.plist", () => {
+    expect(serializePlist(macAppInheritEntitlements())).toBe(
+      checkedIn("resources/entitlements.mac.inherit.plist"),
+    );
+  });
+
+  it("matches entitlements.mas.inherit.plist", () => {
+    expect(serializePlist(masAppInheritEntitlements())).toBe(
+      checkedIn("resources/entitlements.mas.inherit.plist"),
+    );
+  });
+
+  /// The only one of these that a person indented by hand: it uses four spaces and indents the
+  /// <dict> as well. Whitespace is not part of a plist, so this compares the content.
+  it("matches entitlements.mas.loginhelper.plist apart from its indentation", () => {
+    const unindented = (plist: string) =>
+      plist
+        .split("\n")
+        .map((line) => line.trim())
+        .join("\n");
+
+    expect(unindented(serializePlist(masLoginHelperEntitlements()))).toBe(
+      unindented(checkedIn("resources/entitlements.mas.loginhelper.plist")),
+    );
+  });
+
+  it("matches entitlements.desktop_proxy.plist", () => {
+    expect(serializePlist(desktopProxyEntitlements({ bundleId: BUNDLE_ID, autofill: false }))).toBe(
+      checkedIn("resources/entitlements.desktop_proxy.plist"),
+    );
+  });
+
+  it("matches entitlements.desktop_proxy.inherit.plist", () => {
+    expect(serializePlist(desktopProxyInheritEntitlements())).toBe(
+      checkedIn("resources/entitlements.desktop_proxy.inherit.plist"),
+    );
   });
 
   /// Not byte-identical on purpose. The checked-in file lists the Helium directory as
