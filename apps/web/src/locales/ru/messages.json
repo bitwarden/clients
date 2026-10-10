@@ -1252,6 +1252,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "Общие вложенные папки: $COUNT$",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 вложенная общая папка",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "Моя папка"
   },
@@ -1269,9 +1283,6 @@
   },
   "addSharedFolder": {
     "message": "Добавить общую папку"
-  },
-  "newSharedFolder": {
-    "message": "Новая общая папка"
   },
   "searchSharedFolder": {
     "message": "Поиск в общей папке"
@@ -1464,42 +1475,6 @@
     "message": "Добавить паспорт",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Новый логин",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Новая карта",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Новая личная информация",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Новая заметка",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Новая защищенная заметка",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Новый ключ SSH",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Новый банковский счет",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Новое водительское удостоверение",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Новый паспорт",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Новый текст",
     "description": "Header for new text send"
@@ -1507,22 +1482,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Новый файл",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Изменить логин",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Редактировать карту",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Редактировать личную информацию",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Редактировать заметку",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Изменить защищенную заметку",
@@ -3461,10 +3420,6 @@
   "selectImportSharedFolder": {
     "message": "Выберите общую папку"
   },
-  "importTargetMyFolder": {
-    "message": "Моя папка",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в коллекцию"
   },
@@ -3881,9 +3836,6 @@
   },
   "customize": {
     "message": "Настроить"
-  },
-  "newCustomDomain": {
-    "message": "Новый пользовательский домен"
   },
   "addCustomDomain": {
     "message": "Добавить пользовательский домен"
@@ -5400,9 +5352,6 @@
   "groups": {
     "message": "Группы"
   },
-  "newGroup": {
-    "message": "Новая группа"
-  },
   "addGroup": {
     "message": "Добавить группу"
   },
@@ -5457,9 +5406,6 @@
   },
   "readOnly": {
     "message": "Только чтение"
-  },
-  "newCollection": {
-    "message": "Новая коллекция"
   },
   "addCollection": {
     "message": "Добавить коллекцию"
@@ -7573,20 +7519,14 @@
   "setYourAllowedDomainsCoachMarkBody": {
     "message": "Добавьте разрешенные почтовые домены (например, acme.com), чтобы ссылкой для приглашения могли воспользоваться только пользователи с соответствующими адресами email. Вы можете изменить эти настройки в любое время."
   },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "Вы находитесь в режиме предварительного просмотра тура, поэтому эти домены приведены лишь в качестве примеров."
+  },
   "adjustTheLink": {
     "message": "Настроить ссылку"
   },
   "adjustTheLinkCoachMarkBody": {
     "message": "Ваши потребности меняются, и ссылка может меняться вместе с ними. <strong>Сгенерируйте заново</strong> ссылку, чтобы аннулировать старую и создать новую."
-  },
-  "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "Ваши потребности меняются, и ссылка может измениться с вами."
-  },
-  "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>Обновите</strong> ссылку, чтобы аннулировать старую и создать новую."
-  },
-  "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>Требуется подтверждение администратора</strong>, чтобы одобрить новых пользователей до того, как они смогут присоединиться к организации."
   },
   "shareTheLinkAnywhere": {
     "message": "Поделитесь ссылкой где угодно"
@@ -8968,17 +8908,43 @@
     "message": "Активировать помощника по заполнению",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
+  "fillAssistPolicyV2": {
+    "message": "Включить помощник по заполнению",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
   "fillAssistPolicyDesc": {
     "message": "Включите помощника по заполнению по умолчанию для всех участников. Эта функция использует специфичные инструкции для повышения точности на сайтах, на которых зачастую возникают сложности с автозаполнением."
+  },
+  "fillAssistRuleSource": {
+    "message": "Набор правил автозаполнения"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "По умолчанию"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "Использовать набор правил автозаполнения, проверенный Bitwarden."
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "Пользовательский"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "Введите свой собственный набор правил."
   },
   "fillAssistRulesUrl": {
     "message": "Пользовательские правила автозаполнения"
   },
-  "fillAssistRulesUrlHint": {
-    "message": "По умолчанию помощник по заполнению использует набор правил, отобранных Bitwarden. Введите здесь URL, чтобы заменить его своим собственным."
+  "fillAssistRulesUrlV2": {
+    "message": "Пользовательский набор правил"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "Узнать больше о пользовательских правилах"
   },
   "invalidFillAssistRulesUrl": {
     "message": "Введите корректный URL",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "Введите корректный URL для пользовательского набора.",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
@@ -11876,9 +11842,6 @@
   "domainVerification": {
     "message": "Верификация домена"
   },
-  "newDomain": {
-    "message": "Новый домен"
-  },
   "addDomain": {
     "message": "Добавить домен"
   },
@@ -12247,9 +12210,6 @@
   },
   "groupSlashUser": {
     "message": "Группа/Пользователь"
-  },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "При продолжении все активные сессии будут завершены. Вам потребуется авторизоваться повторно и выполнить двухэтапную аутентификацию, если она включена. Мы рекомендуем экспортировать хранилище перед изменением настроек шифрования, чтобы предотвратить потерю данных."
   },
   "secretsManager": {
     "message": "Менеджер секретов"
@@ -13867,10 +13827,6 @@
     "message": "Аккаунты компьютеров",
     "description": "The title for the section that deals with machine accounts."
   },
-  "newMachineAccount": {
-    "message": "Новый аккаунт компьютера",
-    "description": "Title for creating a new machine account."
-  },
   "addMachineAccount": {
     "message": "Добавить аккаунт компьютера",
     "description": "Title for creating a new machine account."
@@ -14500,6 +14456,40 @@
   },
   "billingPreviewInvoiceError": {
     "message": "При подготовке счета произошла ошибка. Пожалуйста, повторите попытку позже."
+  },
+  "billingPreviewInvalidAddressError": {
+    "message": "Пожалуйста, проверьте свои платежные данные и попробуйте еще раз."
+  },
+  "planChangeTrialIncluded": {
+    "message": "Данное обновление включает пробный период продолжительностью $DAYS$ дней. Указанная выше общая сумма будет списана с вас по окончании пробного периода.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "У вас остался 1 день пробного периода. Сумма, указанная выше, будет списана с вашего счета $DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "У вас осталось $DAYS$ дн. пробного периода. Сумма, указанная выше, будет списана с вашего счета $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
   },
   "unverified": {
     "message": "Неверифицирован"
@@ -16811,8 +16801,8 @@
   "premiumSubscriptionCredit": {
     "message": "Кредит на Премиум"
   },
-  "appliedSubscriptionCredits": {
-    "message": "Примененные кредиты на подписку"
+  "appliedProrationCredits": {
+    "message": "Кредит, рассчитанный по методу пропорционального распределения"
   },
   "enterpriseMembership": {
     "message": "Членство в организации"
@@ -17837,6 +17827,9 @@
   "inviteLinkCalloutBody": {
     "message": "Любой, у кого есть корпоративный адрес email, может воспользоваться ссылкой с приглашением, чтобы присоединиться к вашей организации. Добавьте эту ссылку в материалы для адаптации новых сотрудников, чтобы они могли присоединиться, когда будут готовы."
   },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "В туре используются данные примеров. Ничего в вашей организации не изменится."
+  },
   "inviteLinkCalloutImageAlt": {
     "message": "Invite members dialog preview showing the new by-link tab"
   },
@@ -17977,5 +17970,30 @@
   },
   "serviceAccountsProratedCharge": {
     "message": "Пропорциональная оплата за сервисные аккаунты"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden has a new look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explore the new vault",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "Настроить вид"
+  },
+  "showColumns": {
+    "message": "Показать столбцы"
+  },
+  "resetToDefault": {
+    "message": "Сбросить по умолчанию"
   }
 }

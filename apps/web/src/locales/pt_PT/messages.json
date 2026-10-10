@@ -1252,6 +1252,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ pastas partilhadas aninhadas",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 pasta partilhada aninhada",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "A minha pasta"
   },
@@ -1269,9 +1283,6 @@
   },
   "addSharedFolder": {
     "message": "Adicionar pasta partilhada"
-  },
-  "newSharedFolder": {
-    "message": "Nova pasta partilhada"
   },
   "searchSharedFolder": {
     "message": "Pesquisar pasta partilhada"
@@ -1464,42 +1475,6 @@
     "message": "Adicionar passaporte",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Nova credencial",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Novo cartão",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nova identidade",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nova nota",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nova nota segura",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nova chave SSH",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nova conta bancária",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nova licença",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Novo passaporte",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Novo texto",
     "description": "Header for new text send"
@@ -1507,22 +1482,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Novo ficheiro",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Editar credencial",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Editar cartão",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Editar identidade",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Editar nota",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Editar nota segura",
@@ -3461,10 +3420,6 @@
   "selectImportSharedFolder": {
     "message": "Selecionar uma pasta partilhada"
   },
-  "importTargetMyFolder": {
-    "message": "A minha pasta",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma coleção"
   },
@@ -3881,9 +3836,6 @@
   },
   "customize": {
     "message": "Personalizar"
-  },
-  "newCustomDomain": {
-    "message": "Novo domínio personalizado"
   },
   "addCustomDomain": {
     "message": "Adicionar domínio personalizado"
@@ -5400,9 +5352,6 @@
   "groups": {
     "message": "Grupos"
   },
-  "newGroup": {
-    "message": "Novo grupo"
-  },
   "addGroup": {
     "message": "Adicionar grupo"
   },
@@ -5457,9 +5406,6 @@
   },
   "readOnly": {
     "message": "Só de leitura"
-  },
-  "newCollection": {
-    "message": "Nova coleção"
   },
   "addCollection": {
     "message": "Adicionar coleção"
@@ -7573,20 +7519,14 @@
   "setYourAllowedDomainsCoachMarkBody": {
     "message": "Adicione domínios de e-mail permitidos (ex.: acme.com) para que apenas utilizadores com endereços de e-mail correspondentes possam utilizar este link de convite. Pode atualizar esta definição a qualquer momento."
   },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "Está na pré-visualização do tour, por isso estes domínios são apenas exemplos."
+  },
   "adjustTheLink": {
     "message": "Ajustar o link"
   },
   "adjustTheLinkCoachMarkBody": {
     "message": "As suas necessidades mudam, e o link pode mudar consigo. <strong>Gere novamente</strong> o link para invalidar o antigo e criar um novo."
-  },
-  "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "As suas necessidades mudam, e o link pode mudar consigo."
-  },
-  "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>Gere novamente</strong> o link para invalidar o antigo e criar um novo."
-  },
-  "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>Exija a confirmação de um administrador</strong> para aprovar novos membros antes de poderem aderir à organização."
   },
   "shareTheLinkAnywhere": {
     "message": "Partilhe o link em qualquer lugar"
@@ -8968,17 +8908,43 @@
     "message": "Ativar Fill assist",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
+  "fillAssistPolicyV2": {
+    "message": "Ativar o Fill assist",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
   "fillAssistPolicyDesc": {
     "message": "Ativar o Fill assist por predefinição para todos os membros. Esta funcionalidade utiliza instruções específicas para cada site, revistas pelo Bitwarden, para melhorar a precisão do preenchimento automático em sites que são conhecidos por apresentarem dificuldades com o preenchimento automático."
+  },
+  "fillAssistRuleSource": {
+    "message": "Conjunto de regras de preenchimento automático"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "Predefinido"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "Utilizar o conjunto de regras de preenchimento automático revisto pelo Bitwarden."
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "Personalizado"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "Introduza o seu próprio conjunto de regras personalizado."
   },
   "fillAssistRulesUrl": {
     "message": "Conjunto de regras de preenchimento automático personalizado"
   },
-  "fillAssistRulesUrlHint": {
-    "message": "Por predefinição, o Fill assist utiliza o conjunto de regras selecionado pelo Bitwarden. Introduza aqui um URL para o substituir pelo seu próprio conjunto de regras."
+  "fillAssistRulesUrlV2": {
+    "message": "Conjunto de regras personalizado"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "Saiba mais sobre as regras personalizadas"
   },
   "invalidFillAssistRulesUrl": {
     "message": "Introduza um URL válido",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "Introduza um URL válido para um conjunto de regras personalizado.",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
@@ -11876,9 +11842,6 @@
   "domainVerification": {
     "message": "Verificação do domínio"
   },
-  "newDomain": {
-    "message": "Novo domínio"
-  },
   "addDomain": {
     "message": "Adicionar domínio"
   },
@@ -12247,9 +12210,6 @@
   },
   "groupSlashUser": {
     "message": "Grupo/Utilizador"
-  },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "Ao prosseguir, sairá de todas as sessões ativas. Terá de voltar a iniciar sessão e concluir a verificação de dois passos, caso exista. Recomendamos que exporte o seu cofre antes de alterar as definições de encriptação para evitar a perda de dados."
   },
   "secretsManager": {
     "message": "Gestor de Segredos"
@@ -13867,10 +13827,6 @@
     "message": "Contas de máquina",
     "description": "The title for the section that deals with machine accounts."
   },
-  "newMachineAccount": {
-    "message": "Nova conta de máquina",
-    "description": "Title for creating a new machine account."
-  },
   "addMachineAccount": {
     "message": "Adicionar conta de máquina",
     "description": "Title for creating a new machine account."
@@ -14500,6 +14456,40 @@
   },
   "billingPreviewInvoiceError": {
     "message": "Ocorreu um erro ao pré-visualizar a fatura. Tente novamente mais tarde."
+  },
+  "billingPreviewInvalidAddressError": {
+    "message": "Verifique os seus dados de faturação e tente novamente."
+  },
+  "planChangeTrialIncluded": {
+    "message": "Esta atualização inclui um período experimental de $DAYS$ dias. O total acima é o valor que lhe será cobrado no final do período experimental.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "Falta 1 dia para terminar o seu período experimental. Será cobrado o total acima em $DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "Falta $DAYS$ dias para terminar o seu período experimental. Será cobrado o total acima em $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
   },
   "unverified": {
     "message": "Não verificado"
@@ -16811,8 +16801,8 @@
   "premiumSubscriptionCredit": {
     "message": "Crédito de subscrição Premium"
   },
-  "appliedSubscriptionCredits": {
-    "message": "Créditos de subscrição aplicados"
+  "appliedProrationCredits": {
+    "message": "Crédito proporcional aplicado"
   },
   "enterpriseMembership": {
     "message": "Adesão Empresarial"
@@ -17034,13 +17024,13 @@
     }
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "Chave secreta"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "Chave secreta e palavra-passe"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "A sua conta está protegida por uma chave secreta e uma palavra-passe. Terá de introduzir ambas para continuar."
   },
   "keeperEmail": {
     "message": "E-mail do Keeper"
@@ -17837,6 +17827,9 @@
   "inviteLinkCalloutBody": {
     "message": "Qualquer pessoa com um e-mail da empresa pode utilizar o link de convite para aderir à sua organização. Adicione-o aos recursos de onboarding para que os novos colaboradores possam aderir quando estiverem prontos."
   },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "O tour utiliza dados de exemplo. Nada na sua organização será alterado."
+  },
   "inviteLinkCalloutImageAlt": {
     "message": "Pré-visualização da janela de convite de membros com o novo separador por link"
   },
@@ -17977,5 +17970,30 @@
   },
   "serviceAccountsProratedCharge": {
     "message": "Encargo proporcional das contas de serviço"
+  },
+  "newExperienceDialogTitle": {
+    "message": "O Bitwarden tem um novo visual",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Uma experiência melhor, a mesma segurança em que confia. O cofre do Bitwarden foi redesenhado com base no seu feedback, para que seja mais fácil encontrar o que procura e tudo funcione como espera.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Uma pré-visualização do cofre do Bitwarden redesenhado.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explorar o novo cofre",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "Personalizar a sua vista"
+  },
+  "showColumns": {
+    "message": "Mostrar colunas"
+  },
+  "resetToDefault": {
+    "message": "Repor predefinições"
   }
 }

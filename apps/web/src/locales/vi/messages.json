@@ -1252,6 +1252,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ nested shared folders",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 nested shared folder",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "Thư mục của tôi"
   },
@@ -1269,9 +1283,6 @@
   },
   "addSharedFolder": {
     "message": "Thêm thư mục chia sẻ"
-  },
-  "newSharedFolder": {
-    "message": "Thư mục chia sẻ mới"
   },
   "searchSharedFolder": {
     "message": "Tìm kiếm thư mục chia sẻ"
@@ -1464,42 +1475,6 @@
     "message": "Thêm hộ chiếu",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Đăng nhập mới",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Thẻ mới",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Danh tính mới",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Ghi chú mới",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Ghi chú bảo mật mới",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Khóa SSH mới",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Tài khoản ngân hàng mới",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Giấy phép mới",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Hộ chiếu mới",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Văn bản mới",
     "description": "Header for new text send"
@@ -1507,22 +1482,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Tệp mới",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Chỉnh sửa đăng nhập",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Chỉnh sửa thẻ",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Chỉnh sửa danh tính",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Chỉnh sửa ghi chú",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Chỉnh sửa ghi chú bảo mật",
@@ -3461,10 +3420,6 @@
   "selectImportSharedFolder": {
     "message": "Select a shared folder"
   },
-  "importTargetMyFolder": {
-    "message": "My Folder",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Chọn tùy chọn này nếu bạn muốn nội dung tệp đã nhập được chuyển vào một bộ sưu tập"
   },
@@ -3881,9 +3836,6 @@
   },
   "customize": {
     "message": "Tùy biến"
-  },
-  "newCustomDomain": {
-    "message": "Tên miền tùy biến mới"
   },
   "addCustomDomain": {
     "message": "Thêm miền tùy chỉnh"
@@ -5400,9 +5352,6 @@
   "groups": {
     "message": "Nhóm"
   },
-  "newGroup": {
-    "message": "Nhóm mới"
-  },
   "addGroup": {
     "message": "Thêm nhóm"
   },
@@ -5457,9 +5406,6 @@
   },
   "readOnly": {
     "message": "Chỉ đọc"
-  },
-  "newCollection": {
-    "message": "Bộ sưu tập mới"
   },
   "addCollection": {
     "message": "Thêm bộ sưu tập"
@@ -7573,20 +7519,14 @@
   "setYourAllowedDomainsCoachMarkBody": {
     "message": "Add allowed email domains (e.g. acme.com) so only users with matching emails can use this invite link. You can update this anytime."
   },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "You're in tour preview, so these domains are only examples."
+  },
   "adjustTheLink": {
     "message": "Adjust the link"
   },
   "adjustTheLinkCoachMarkBody": {
     "message": "Your needs change, and the link can change with you. <strong>Regenerate</strong> the link to invalidate the old link and create a new one."
-  },
-  "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "Your needs change, and the link can change with you."
-  },
-  "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>Regenerate</strong> the link to invalidate the old link and create a new one."
-  },
-  "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>Require admin confirmation</strong> to approve new members before they can join the organization."
   },
   "shareTheLinkAnywhere": {
     "message": "Share the link anywhere"
@@ -8968,17 +8908,43 @@
     "message": "Kích hoạt hỗ trợ điền",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
+  "fillAssistPolicyV2": {
+    "message": "Enable fill assist",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
   "fillAssistPolicyDesc": {
     "message": "Bật hỗ trợ điền theo mặc định cho tất cả thành viên. Tính năng này sử dụng các hướng dẫn dành riêng cho từng trang web đã được xem xét để cải thiện độ chính xác của tính năng tự động điền trên những trang web được biết là khó tự động điền."
+  },
+  "fillAssistRuleSource": {
+    "message": "Autofill rule set"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "Default"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "Use the Bitwarden-reviewed autofill rule set."
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "Custom"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "Enter your own custom rule set."
   },
   "fillAssistRulesUrl": {
     "message": "Bộ quy tắc tự động điền tùy chỉnh"
   },
-  "fillAssistRulesUrlHint": {
-    "message": "Theo mặc định, hỗ trợ điền sử dụng bộ quy tắc được Bitwarden tuyển chọn. Nhập URL tại đây để ghi đè bằng bộ quy tắc của riêng bạn."
+  "fillAssistRulesUrlV2": {
+    "message": "Custom rule set"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "Learn more about custom rules"
   },
   "invalidFillAssistRulesUrl": {
     "message": "Nhập URL hợp lệ",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "Enter a valid URL for a custom rule set.",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
@@ -11876,9 +11842,6 @@
   "domainVerification": {
     "message": "Xác minh tên miền"
   },
-  "newDomain": {
-    "message": "Tên miền mới"
-  },
   "addDomain": {
     "message": "Thêm miền"
   },
@@ -12247,9 +12210,6 @@
   },
   "groupSlashUser": {
     "message": "Nhóm/Người dùng"
-  },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "Tiếp tục sẽ đăng xuất bạn khỏi tất cả các phiên hoạt động. Bạn sẽ cần đăng nhập lại và hoàn tất đăng nhập hai bước (nếu có). Chúng tôi khuyến nghị xuất kho mật khẩu của bạn trước khi thay đổi cài đặt mã hóa để tránh mất dữ liệu."
   },
   "secretsManager": {
     "message": "Trình quản lý Bí mật"
@@ -13867,10 +13827,6 @@
     "message": "Tài khoản máy",
     "description": "The title for the section that deals with machine accounts."
   },
-  "newMachineAccount": {
-    "message": "Tài khoản máy mới",
-    "description": "Title for creating a new machine account."
-  },
   "addMachineAccount": {
     "message": "Thêm tài khoản máy",
     "description": "Title for creating a new machine account."
@@ -14500,6 +14456,40 @@
   },
   "billingPreviewInvoiceError": {
     "message": "Đã xảy ra lỗi khi xem trước hóa đơn. Vui lòng thử lại sau."
+  },
+  "billingPreviewInvalidAddressError": {
+    "message": "Please check your billing details and try again."
+  },
+  "planChangeTrialIncluded": {
+    "message": "This upgrade includes a $DAYS$-day trial. The total above is what you will be charged at the end of the trial.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "You have 1 day left in your trial. You will be charged the total above on $DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "You have $DAYS$ days left in your trial. You will be charged the total above on $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
   },
   "unverified": {
     "message": "Chưa xác minh"
@@ -16811,8 +16801,8 @@
   "premiumSubscriptionCredit": {
     "message": "Tiền thưởng đăng ký gói Cao cấp"
   },
-  "appliedSubscriptionCredits": {
-    "message": "Applied subscription credits"
+  "appliedProrationCredits": {
+    "message": "Applied proration credit"
   },
   "enterpriseMembership": {
     "message": "Thành viên gói Doanh nghiệp"
@@ -17837,6 +17827,9 @@
   "inviteLinkCalloutBody": {
     "message": "Anyone with a company email can use the invite link to join your organization. Drop it in onboarding resources so new hires can join when they're ready."
   },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "The tour uses sample data. Nothing in your organization will change."
+  },
   "inviteLinkCalloutImageAlt": {
     "message": "Invite members dialog preview showing the new by-link tab"
   },
@@ -17977,5 +17970,30 @@
   },
   "serviceAccountsProratedCharge": {
     "message": "Service accounts prorated charge"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden has a new look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explore the new vault",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "Customize your view"
+  },
+  "showColumns": {
+    "message": "Show columns"
+  },
+  "resetToDefault": {
+    "message": "Reset to default"
   }
 }

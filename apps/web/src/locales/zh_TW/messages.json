@@ -1252,6 +1252,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ 個多層共用資料夾",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "一個多層共用資料夾",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "我的資料夾"
   },
@@ -1268,9 +1282,6 @@
     "message": "新增項目至共用資料夾以在此篩選。"
   },
   "addSharedFolder": {
-    "message": "新增共享資料夾"
-  },
-  "newSharedFolder": {
     "message": "新增共享資料夾"
   },
   "searchSharedFolder": {
@@ -1464,42 +1475,6 @@
     "message": "新增護照",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "新增登入資訊",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "新增付款卡",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "新增身分",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "新增備註",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "新增安全筆記",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "新增 SSH 金鑰",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "新增銀行帳戶",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "新增駕照",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "新增護照",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "新增文字",
     "description": "Header for new text send"
@@ -1507,22 +1482,6 @@
   "newItemHeaderFileSendV2": {
     "message": "新增檔案",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "編輯登入資訊",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "編輯付款卡",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "編輯身分",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "編輯備註",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "編輯安全筆記",
@@ -3461,10 +3420,6 @@
   "selectImportSharedFolder": {
     "message": "選擇共用資料夾"
   },
-  "importTargetMyFolder": {
-    "message": "我的資料夾",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "若你希望將匯入檔案的內容移至集合，請選擇此選項"
   },
@@ -3881,9 +3836,6 @@
   },
   "customize": {
     "message": "自訂"
-  },
-  "newCustomDomain": {
-    "message": "新增自訂網域"
   },
   "addCustomDomain": {
     "message": "新增自訂網域"
@@ -5400,9 +5352,6 @@
   "groups": {
     "message": "群組"
   },
-  "newGroup": {
-    "message": "新增群組"
-  },
   "addGroup": {
     "message": "新增群組"
   },
@@ -5457,9 +5406,6 @@
   },
   "readOnly": {
     "message": "唯讀"
-  },
-  "newCollection": {
-    "message": "新增集合"
   },
   "addCollection": {
     "message": "新增集合"
@@ -7573,20 +7519,14 @@
   "setYourAllowedDomainsCoachMarkBody": {
     "message": "新增允許的電子郵件網域（例如 acme.com），只有使用符合網域之電子郵件地址的使用者才能使用此邀請連結。您可以隨時更新。"
   },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "您目前在遊覽預覽狀態，因此這些網域均為範例。"
+  },
   "adjustTheLink": {
     "message": "調整連結"
   },
   "adjustTheLinkCoachMarkBody": {
     "message": "您的需求會改變，連結也能隨之調整。<strong>重新產生</strong>連結即可使舊連結失效並建立新連結。"
-  },
-  "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "您的需求會改變，連結也能隨之調整。"
-  },
-  "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>重新產生</strong>連結即可使舊連結失效並建立新連結。"
-  },
-  "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>要求管理員確認</strong>，以便在新成員加入組織前進行核准。"
   },
   "shareTheLinkAnywhere": {
     "message": "隨處分享連結"
@@ -8968,17 +8908,43 @@
     "message": "啟用 fill assist",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
+  "fillAssistPolicyV2": {
+    "message": "啟用填寫輔助",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
   "fillAssistPolicyDesc": {
     "message": "預設為所有成員開啟 fill assist。此功能使用經過審查、針對特定網站的指示，以提升在難以自動填入之網站上的自動填入準確度。"
+  },
+  "fillAssistRuleSource": {
+    "message": "自動填寫規則集"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "預設"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "使用已經Bitwarden審查的自動填寫規則集。"
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "自訂"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "輸入您個人的自訂規則集。"
   },
   "fillAssistRulesUrl": {
     "message": "自訂自動填入規則集"
   },
-  "fillAssistRulesUrlHint": {
-    "message": "fill assist 預設使用 Bitwarden 精選的規則集。在此輸入 URL 即可改用您自己的規則集。"
+  "fillAssistRulesUrlV2": {
+    "message": "自訂規則集"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "了解更多有關自訂規則"
   },
   "invalidFillAssistRulesUrl": {
     "message": "請輸入有效的 URL",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "輸入有效網址以用於自訂規則集。",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
@@ -11876,9 +11842,6 @@
   "domainVerification": {
     "message": "網域驗證"
   },
-  "newDomain": {
-    "message": "新增網域"
-  },
   "addDomain": {
     "message": "新增網域"
   },
@@ -12247,9 +12210,6 @@
   },
   "groupSlashUser": {
     "message": "群組/使用者"
-  },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "繼續操作會登出您所有活動工作階段。您需要重新登入並完成兩步驟登入設定。 我們建議在變更加密設定之前匯出您的密碼庫，以防止資料遺失。"
   },
   "secretsManager": {
     "message": "機密管理員"
@@ -13867,10 +13827,6 @@
     "message": "機器帳戶",
     "description": "The title for the section that deals with machine accounts."
   },
-  "newMachineAccount": {
-    "message": "新增機器帳號",
-    "description": "Title for creating a new machine account."
-  },
   "addMachineAccount": {
     "message": "新增機器帳戶",
     "description": "Title for creating a new machine account."
@@ -14500,6 +14456,40 @@
   },
   "billingPreviewInvoiceError": {
     "message": "預覽發票時發生錯誤。請稍後再試。"
+  },
+  "billingPreviewInvalidAddressError": {
+    "message": "請您確認帳單資訊並再重試。"
+  },
+  "planChangeTrialIncluded": {
+    "message": "此升級包含了$DAYS$天試用期。",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "您的試用期還剩下一天。您將於$DATE$被收取上述總額。",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "您的試用期還剩下$DAYS$天。您將於$DATE$被收取上述總額。",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
   },
   "unverified": {
     "message": "未驗證"
@@ -16811,8 +16801,8 @@
   "premiumSubscriptionCredit": {
     "message": "Premium 訂閱抵扣金額"
   },
-  "appliedSubscriptionCredits": {
-    "message": "已套用的訂閱抵用額"
+  "appliedProrationCredits": {
+    "message": "Applied proration credit"
   },
   "enterpriseMembership": {
     "message": "Enterprise 會籍"
@@ -17034,13 +17024,13 @@
     }
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "金鑰"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "金鑰及密碼"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "您的帳號已受金鑰及密碼保護。您需要輸入兩者才能繼續。"
   },
   "keeperEmail": {
     "message": "Keeper 電子郵件"
@@ -17837,6 +17827,9 @@
   "inviteLinkCalloutBody": {
     "message": "任何使用公司電子郵件地址的人都能使用邀請連結加入您的組織。將連結放在新人到職資源中，讓新進員工準備好時即可加入。"
   },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "導覽使用了範例數據。您組織裡的資料不會受影響。"
+  },
   "inviteLinkCalloutImageAlt": {
     "message": "顯示新「透過連結」分頁的邀請成員對話方塊預覽"
   },
@@ -17977,5 +17970,30 @@
   },
   "serviceAccountsProratedCharge": {
     "message": "服務帳戶按比例計算的費用"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden has a new look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explore the new vault",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "自訂您的介面檢視"
+  },
+  "showColumns": {
+    "message": "顯示直欄"
+  },
+  "resetToDefault": {
+    "message": "重設至預設值"
   }
 }
