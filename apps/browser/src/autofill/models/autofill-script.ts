@@ -22,8 +22,8 @@ export type AutofillInsertActions = {
 export default class AutofillScript {
   script: FillScript[] = [];
   properties: AutofillScriptProperties = {};
-  /** Non-null asserted. */
-  autosubmit!: string[] | null; // Appears to be unused, read but not written
+  /** `null` skips submit. A list of form opids submits those forms. `[null]` submits when the filled fields are not in a form. */
+  autosubmit!: string[] | [null] | null;
   /** Non-null asserted. */
   savedUrls!: string[];
   /** Non-null asserted. */

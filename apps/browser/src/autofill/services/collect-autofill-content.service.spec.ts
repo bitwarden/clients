@@ -3228,6 +3228,20 @@ describe("CollectAutofillContentService", () => {
         expect(collectAutofillContentService["domRecentlyMutated"]).toBe(true);
       });
 
+      it("discards a populated field cache when explicit collection asks for a fresh walk", () => {
+        const field = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+        collectAutofillContentService["domRecentlyMutated"] = false;
+        collectAutofillContentService["autofillFieldElements"].set(
+          field,
+          createAutofillFieldMock(),
+        );
+
+        collectAutofillContentService.prepareForExplicitCollection(true);
+
+        expect(collectAutofillContentService["autofillFieldElements"].size).toBe(0);
+        expect(collectAutofillContentService["domRecentlyMutated"]).toBe(true);
+      });
+
       it("serves the populated cache on explicit collection without an O(document) shadow scan", () => {
         jest.spyOn(domQueryService, "refreshShadowDomStateForUserRequest");
         collectAutofillContentService["noFieldsFound"] = false;
