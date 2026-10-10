@@ -409,10 +409,13 @@ export class ViewComponent {
       this.domainSettingsService.resolvedDefaultUriMatchStrategy$,
     );
 
+    const regexMatcher = await this.cipherService.getUriRegexMatcher();
+
     return CipherViewLikeUtils.matchesUri(
       this.cipher,
       currentTab?.url,
       equivalentDomains,
+      regexMatcher,
       defaultMatch,
     );
   }
