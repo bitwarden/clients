@@ -150,7 +150,7 @@ export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
 
             if (selectedRegion !== Region.SelfHosted) {
               this.selectedRegionChange.emit(selectedRegion);
-              return from(this.environmentService.setEnvironment(selectedRegion.key));
+              return from(this.environmentService.setGlobalEnvironment(selectedRegion.key));
             }
 
             return of(null);

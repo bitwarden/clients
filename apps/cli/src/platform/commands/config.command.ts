@@ -53,7 +53,7 @@ export class ConfigCommand {
     }
 
     url = url === "null" || url === "bitwarden.com" || url === "https://bitwarden.com" ? null : url;
-    await this.environmentService.setEnvironment(Region.SelfHosted, {
+    await this.environmentService.setGlobalEnvironment(Region.SelfHosted, {
       base: url,
       webVault: options.webVault || null,
       api: options.api || null,

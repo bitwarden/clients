@@ -189,7 +189,7 @@ describe("EnvironmentService", () => {
         // User clicks EU in the environment selector → setEnvironment(EU) → writes GLOBAL
         // Without fix: environment$ watches USER state (which is null and defaults to US) and ignores GLOBAL write and the value stays US
         // With fix: environment$ falls back to GLOBAL, so setEnvironment(EU) updates GLOBAL and emits EU
-        await sut.setEnvironment(Region.EU);
+        await sut.setGlobalEnvironment(Region.EU);
         await awaitAsync();
 
         const env = await firstValueFrom(sut.environment$);
@@ -358,9 +358,9 @@ describe("EnvironmentService", () => {
     });
   });
 
-  describe("setEnvironment", () => {
+  describe("setGlobalEnvironment", () => {
     it("self-hosted with base-url", async () => {
-      await sut.setEnvironment(Region.SelfHosted, {
+      await sut.setGlobalEnvironment(Region.SelfHosted, {
         base: "base.example.com",
       });
       await awaitAsync();
@@ -386,7 +386,7 @@ describe("EnvironmentService", () => {
       let env = await firstValueFrom(sut.environment$);
       expect(env.getScimUrl()).toBe("https://scim.bitwarden.com/v2");
 
-      await sut.setEnvironment(Region.SelfHosted, {
+      await sut.setGlobalEnvironment(Region.SelfHosted, {
         base: "base.example.com",
         api: "api.example.com",
         identity: "identity.example.com",
@@ -415,7 +415,7 @@ describe("EnvironmentService", () => {
     });
 
     it("sets the region", async () => {
-      await sut.setEnvironment(Region.US);
+      await sut.setGlobalEnvironment(Region.US);
 
       const data = await firstValueFrom(sut.environment$);
 
@@ -423,7 +423,7 @@ describe("EnvironmentService", () => {
     });
 
     it("normalizes a blank send url to null", async () => {
-      await sut.setEnvironment(Region.SelfHosted, {
+      await sut.setGlobalEnvironment(Region.SelfHosted, {
         base: "base.example.com",
         send: "", // empty string from the dialog — should be normalized to null
       });
@@ -436,7 +436,7 @@ describe("EnvironmentService", () => {
     });
   });
 
-  describe("getEnvironment$", () => {
+  describe("userEnvironment$", () => {
     it.each([
       { region: Region.US, expectedHost: "bitwarden.com" },
       { region: Region.EU, expectedHost: "bitwarden.eu" },
@@ -446,7 +446,7 @@ describe("EnvironmentService", () => {
 
       await switchUser(testUser);
 
-      const env = await firstValueFrom(sut.getEnvironment$(alternateTestUser));
+      const env = await firstValueFrom(sut.userEnvironment$(alternateTestUser));
       expect(env?.getHostname()).toBe(expectedHost);
     });
 
@@ -459,31 +459,7 @@ describe("EnvironmentService", () => {
 
       await switchUser(testUser);
 
-      const env = await firstValueFrom(sut.getEnvironment$(alternateTestUser));
-      expect(env?.getHostname()).toBe("base.example.com");
-    });
-  });
-
-  describe("getEnvironment (deprecated)", () => {
-    it("gets self hosted env from active user when no user passed in", async () => {
-      const selfHostUserUrls = new EnvironmentUrls();
-      selfHostUserUrls.base = "https://base.example.com";
-      setUserData(Region.SelfHosted, selfHostUserUrls);
-
-      await switchUser(testUser);
-
-      const env = await sut.getEnvironment();
-      expect(env?.getHostname()).toBe("base.example.com");
-    });
-
-    it("gets self hosted env from passed in user", async () => {
-      const selfHostUserUrls = new EnvironmentUrls();
-      selfHostUserUrls.base = "https://base.example.com";
-      setUserData(Region.SelfHosted, selfHostUserUrls);
-
-      await switchUser(testUser);
-
-      const env = await sut.getEnvironment(testUser);
+      const env = await firstValueFrom(sut.userEnvironment$(alternateTestUser));
       expect(env?.getHostname()).toBe("base.example.com");
     });
   });

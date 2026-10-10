@@ -72,9 +72,9 @@ export class WebEnvironmentService extends DefaultEnvironmentService {
   }
 
   // Web setting env means navigating to a new location
-  async setEnvironment(region: Region | string, urls?: Urls): Promise<Urls> {
+  async setGlobalEnvironment(region: Region | string, urls?: Urls): Promise<Urls> {
     if (region === Region.SelfHosted) {
-      throw new Error("setEnvironment does not work in web for self-hosted.");
+      throw new Error("setGlobalEnvironment does not work in web for self-hosted.");
     }
 
     // Find the region
@@ -109,7 +109,7 @@ export class WebEnvironmentService extends DefaultEnvironmentService {
     return chosenRegionConfig.urls;
   }
 
-  getEnvironment$(userId: UserId): Observable<Environment> {
+  userEnvironment$(userId: UserId): Observable<Environment> {
     // Web does not support account switching, and even if it did, you'd be required to be the environment of where the application
     // is running.
     return this._environmentSubject.asObservable();

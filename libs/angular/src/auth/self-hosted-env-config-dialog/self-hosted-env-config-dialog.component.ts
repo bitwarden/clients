@@ -206,7 +206,7 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.environmentService.setEnvironment(Region.SelfHosted, {
+    await this.environmentService.setGlobalEnvironment(Region.SelfHosted, {
       base: this.baseUrl.value,
       api: this.apiUrl.value,
       identity: this.identityUrl.value,

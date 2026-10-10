@@ -134,7 +134,7 @@ describe("ConvertToKeyConnectorCommand", () => {
         organization.keyConnectorUrl,
         userId,
       );
-      expect(environmentService.setEnvironment).toHaveBeenCalledWith(Region.SelfHosted, {
+      expect(environmentService.setGlobalEnvironment).toHaveBeenCalledWith(Region.SelfHosted, {
         keyConnector: organization.keyConnectorUrl,
       } as Urls);
     });
