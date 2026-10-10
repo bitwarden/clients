@@ -10,7 +10,9 @@
       {{ (organizationId ? "purgeOrgVaultDesc" : "purgeVaultDesc") | i18n }}
     </p>
     <bit-callout type="warning">{{ "purgeVaultWarning" | i18n }}</bit-callout>
-    <app-user-verification formControlName="masterPassword"></app-user-verification>
+    <app-user-verification-form-input
+      formControlName="masterPassword"
+    ></app-user-verification-form-input>
   </ng-container>
   <ng-container bitDialogFooter>
     <button bitButton bitFormButton type="submit" buttonType="danger">
