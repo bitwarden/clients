@@ -7,6 +7,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 
 import { ForegroundUnlockService } from "../../key-management/unlock/foreground-unlock.service";
@@ -29,6 +30,7 @@ export class InitService {
     private viewCacheService: PopupViewCacheService,
     private readonly migrationRunner: MigrationRunner,
     private readonly unlockService: ForegroundUnlockService,
+    private readonly ipcService: IpcService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
@@ -36,6 +38,7 @@ export class InitService {
     return async () => {
       await this.sdkLoadService.loadAndInit();
       this.unlockService.init();
+      await this.ipcService.init();
       await this.migrationRunner.waitForCompletion(); // Browser background is responsible for migrations
       await this.i18nService.init();
       this.twoFactorService.init();

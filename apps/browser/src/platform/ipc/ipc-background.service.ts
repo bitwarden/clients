@@ -1,7 +1,7 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { IpcService } from "@bitwarden/common/platform/ipc";
+import { InMemoryIpcSessionRepository, IpcService } from "@bitwarden/common/platform/ipc";
 import {
   IpcCommunicationBackend,
   IncomingMessage,
@@ -10,18 +10,23 @@ import {
   IpcClient,
 } from "@bitwarden/sdk-internal";
 
-import { DesktopIpcTransport, WebIpcTransport } from "./transports";
+import { DesktopIpcTransport, ForegroundIpcTransport, WebIpcTransport } from "./transports";
 
 export class IpcBackgroundService extends IpcService {
   private communicationBackend?: IpcCommunicationBackend;
   private webTransport?: WebIpcTransport;
   private desktopTransport?: DesktopIpcTransport;
+  private sessionRepository = new InMemoryIpcSessionRepository();
+  private foregroundTransport: ForegroundIpcTransport;
 
   constructor(
     private platformUtilsService: PlatformUtilsService,
     private logService: LogService,
   ) {
     super();
+
+    this.foregroundTransport = new ForegroundIpcTransport(this.logService, this.sessionRepository);
+    this.foregroundTransport.listen();
   }
 
   override async init() {
@@ -50,6 +55,14 @@ export class IpcBackgroundService extends IpcService {
             return;
           }
 
+          if (
+            typeof message.destination === "object" &&
+            "BrowserForeground" in message.destination
+          ) {
+            await this.foregroundTransport.send(message);
+            return;
+          }
+
           throw new Error("Destination not supported.");
         },
       });
@@ -59,7 +72,10 @@ export class IpcBackgroundService extends IpcService {
         this.webTransport.init();
       }
 
-      await super.initWithClient(IpcClient.newWithSdkInMemorySessions(this.communicationBackend));
+      await super.initWithClient(
+        IpcClient.newWithClientManagedSessions(this.communicationBackend, this.sessionRepository),
+      );
+      this.foregroundTransport.start(receive);
 
       await ipcRegisterDiscoverHandler(this.client, {
         version: await this.platformUtilsService.getApplicationVersion(),
