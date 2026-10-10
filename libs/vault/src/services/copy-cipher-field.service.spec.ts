@@ -83,10 +83,22 @@ describe("CopyCipherFieldService", () => {
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
         message: "Username copied",
-        title: "",
       });
       expect(i18nService.t).toHaveBeenCalledWith("username");
       expect(i18nService.t).toHaveBeenCalledWith("valueCopied", "Username");
+    });
+
+    it("should propagate clean status message for password copy actions", async () => {
+      i18nService.t.mockReturnValueOnce("Password").mockReturnValueOnce("Password copied");
+      const result = await service.copy("my-secret-pw", "password", cipher, true);
+      expect(result).toBeTruthy();
+      expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("my-secret-pw");
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "Password copied",
+      });
+      expect(i18nService.t).toHaveBeenCalledWith("password");
+      expect(i18nService.t).toHaveBeenCalledWith("valueCopied", "Password");
     });
 
     describe("password reprompt", () => {

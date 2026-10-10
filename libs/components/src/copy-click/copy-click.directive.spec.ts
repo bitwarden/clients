@@ -1,3 +1,4 @@
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { Component, ElementRef, ViewChild } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
@@ -16,6 +17,13 @@ import { CopyClickDirective } from "./copy-click.directive";
     <!-- FIXME: Test buttons need accessible content -->
     <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
     <button type="button" appCopyClick="no toast shown" #noToast></button>
+    <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
+    <button
+      type="button"
+      appCopyClick="no toast with label"
+      valueLabel="Username"
+      #noToastWithLabel
+    ></button>
     <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
     <button type="button" appCopyClick="info toast shown" showToast="info" #infoToast></button>
     <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
@@ -37,6 +45,9 @@ class TestCopyClickComponent {
   @ViewChild("noToast") noToastButton!: ElementRef<HTMLButtonElement>;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
+  @ViewChild("noToastWithLabel") noToastWithLabelButton!: ElementRef<HTMLButtonElement>;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("infoToast") infoToastButton!: ElementRef<HTMLButtonElement>;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -51,11 +62,13 @@ describe("CopyClickDirective", () => {
   const copyToClipboard = jest.fn();
   const showToast = jest.fn();
   const copyClickListener = mock<CopyClickListener>();
+  const liveAnnouncer = mock<LiveAnnouncer>();
 
   beforeEach(async () => {
     copyToClipboard.mockClear();
     showToast.mockClear();
     copyClickListener.onCopy.mockClear();
+    liveAnnouncer.announce.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [TestCopyClickComponent],
@@ -74,6 +87,7 @@ describe("CopyClickDirective", () => {
         { provide: PlatformUtilsService, useValue: { copyToClipboard } },
         { provide: ToastService, useValue: { showToast } },
         { provide: COPY_CLICK_LISTENER, useValue: copyClickListener },
+        { provide: LiveAnnouncer, useValue: liveAnnouncer },
       ],
     }).compileComponents();
 
@@ -103,6 +117,15 @@ describe("CopyClickDirective", () => {
 
     noToastButton.click();
     expect(showToast).not.toHaveBeenCalled();
+    expect(liveAnnouncer.announce).toHaveBeenCalledWith("copySuccessful", "polite");
+  });
+
+  it("announces via LiveAnnouncer with valueLabel when showToast is not present", () => {
+    const noToastWithLabelButton = fixture.componentInstance.noToastWithLabelButton.nativeElement;
+
+    noToastWithLabelButton.click();
+    expect(showToast).not.toHaveBeenCalled();
+    expect(liveAnnouncer.announce).toHaveBeenCalledWith("valueCopied Username", "polite");
   });
 
   it("shows a success toast when showToast is present", () => {

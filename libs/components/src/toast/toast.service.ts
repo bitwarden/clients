@@ -1,4 +1,5 @@
-import { Injectable } from "@angular/core";
+import { LiveAnnouncer } from "@angular/cdk/a11y";
+import { Injectable, Optional } from "@angular/core";
 import { IndividualConfig, ToastrService } from "ngx-toastr";
 
 import type { ToastComponent } from "./toast.component";
@@ -15,11 +16,14 @@ export type ToastOptions = {
 };
 
 /**
- * Presents toast notifications
+ * Presents toast notifications visually and announces them to screen readers.
  **/
 @Injectable({ providedIn: "root" })
 export class ToastService {
-  constructor(private toastrService: ToastrService) {}
+  constructor(
+    private toastrService: ToastrService,
+    @Optional() private liveAnnouncer?: LiveAnnouncer,
+  ) {}
 
   showToast(options: ToastOptions): void {
     const toastrConfig: Partial<IndividualConfig> = {
@@ -35,6 +39,21 @@ export class ToastService {
     };
 
     this.toastrService.show(undefined, options.title, toastrConfig);
+
+    const messageText = Array.isArray(options.message)
+      ? options.message.filter(Boolean).join(" ")
+      : (options.message ?? "");
+    const titleText = options.title?.trim();
+    const fullAnnouncement = titleText
+      ? messageText
+        ? `${titleText}: ${messageText}`
+        : titleText
+      : messageText;
+
+    if (fullAnnouncement?.trim() && this.liveAnnouncer) {
+      const politeness = options.variant === "error" ? "assertive" : "polite";
+      void this.liveAnnouncer.announce(fullAnnouncement.trim(), politeness);
+    }
   }
 
   /**

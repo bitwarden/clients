@@ -22,7 +22,10 @@ export class I18nMockService implements Pick<I18nService, "t" | "translate"> {
 
       return value;
     }
-    return value(p1, p2, p3);
+    if (typeof value === "function") {
+      return value(p1, p2, p3);
+    }
+    return "";
   }
 
   translate(id: string, p1?: string, p2?: string, p3?: string) {

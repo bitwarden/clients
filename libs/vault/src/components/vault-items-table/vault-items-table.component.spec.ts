@@ -1,8 +1,9 @@
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
 import { ChangeDetectionStrategy, Component, computed, signal } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -151,6 +152,7 @@ describe("VaultItemsTableComponent", () => {
   let component: VaultItemsTableComponent<CipherViewLike>;
   let searchService: DefaultSearchService;
   let batchBar: ReturnType<typeof batchBarDouble>;
+  let liveAnnouncer: MockProxy<LiveAnnouncer>;
 
   // CDK's CdkVirtualScrollViewport.ngOnInit() defers initialization in a Promise.resolve().then(),
   // which never resolves during synchronous fixture.detectChanges() calls in JSDOM. Patch it to
@@ -169,6 +171,7 @@ describe("VaultItemsTableComponent", () => {
 
   beforeEach(async () => {
     batchBar = batchBarDouble();
+    liveAnnouncer = mock<LiveAnnouncer>();
     const accountService = mock<AccountService>();
     accountService.activeAccount$ = of({ id: "user-1" } as Account);
 
@@ -196,7 +199,13 @@ describe("VaultItemsTableComponent", () => {
     await TestBed.configureTestingModule({
       imports: [VaultItemsTableComponent],
       providers: [
-        { provide: I18nService, useValue: { t: (key: string) => key } },
+        {
+          provide: I18nService,
+          useValue: {
+            t: (key: string, p1?: unknown) => (p1 !== undefined ? `${key} ${p1}` : key),
+          },
+        },
+        { provide: LiveAnnouncer, useValue: liveAnnouncer },
         { provide: AccountService, useValue: accountService },
         { provide: AvatarService, useValue: avatarService },
         // The real search service, not a double — the table's contract is that its search matches
@@ -585,6 +594,36 @@ describe("VaultItemsTableComponent", () => {
       search("amaz");
 
       expect(filteredNames()).toEqual(["Amazon"]);
+    }));
+
+    it("announces matching result count to screen reader after debounce", fakeAsync(() => {
+      withCiphers([
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Netflix" }),
+      ]);
+
+      search("amaz");
+      tick(400);
+      fixture.detectChanges();
+
+      expect(liveAnnouncer.announce).toHaveBeenCalledWith("itemCount 1", "polite");
+      const liveRegion = fixture.debugElement.query(By.css('[role="status"]'));
+      expect(liveRegion.nativeElement.textContent.trim()).toBe("itemCount 1");
+    }));
+
+    it("announces no matching items when search yields zero results", fakeAsync(() => {
+      withCiphers([
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Netflix" }),
+      ]);
+
+      search("unknown-term");
+      tick(400);
+      fixture.detectChanges();
+
+      expect(liveAnnouncer.announce).toHaveBeenCalledWith("noMatchingItems", "polite");
+      const liveRegion = fixture.debugElement.query(By.css('[role="status"]'));
+      expect(liveRegion.nativeElement.textContent.trim()).toBe("noMatchingItems");
     }));
 
     it("matches on a login URI hostname", fakeAsync(() => {
