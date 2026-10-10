@@ -1,7 +1,7 @@
 import { PortalModule } from "@angular/cdk/portal";
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
-import { of } from "rxjs";
+import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { BehaviorSubject, of } from "rxjs";
 import { action } from "storybook/actions";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -36,6 +36,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { ConsoleLogService } from "@bitwarden/logging";
+import { StateProvider } from "@bitwarden/state";
 
 import { VaultScope, VaultScopeType } from "../../models/vault-scope";
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
@@ -528,13 +529,8 @@ export default {
   render: (args) => ({ props: args, template }),
   args: baseProps,
   decorators: [
-    moduleMetadata({
-      imports: [
-        ButtonModule,
-        TypographyModule,
-        VaultBatchActionComponent,
-        StoryLayoutFooterComponent,
-      ],
+    // App-level so root services and dialogs opened through DialogService can resolve these.
+    applicationConfig({
       providers: [
         {
           provide: I18nService,
@@ -566,6 +562,11 @@ export default {
               clearAll: "Clear all",
               filtersSelected: (count) => `${count} selected`,
               removeItem: (name) => `Remove ${name}`,
+              // Column picker
+              customize: "Customize",
+              customizeYourView: "Customize your view",
+              showColumns: "Show columns",
+              resetToDefault: "Reset to default",
               // Cipher types, for the Type chip
               typeLogin: "Login",
               typeCard: "Card",
@@ -661,6 +662,30 @@ export default {
                 "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
             }),
         },
+        // In-memory column preferences, so Customize toggles persist for the session.
+        {
+          provide: StateProvider,
+          useFactory: () => {
+            const prefs = new BehaviorSubject<unknown>(null);
+            return {
+              getActive: () => ({
+                state$: prefs.asObservable(),
+                update: async (configure: (state: unknown) => unknown) =>
+                  prefs.next(configure(prefs.value)),
+              }),
+            };
+          },
+        },
+      ],
+    }),
+    moduleMetadata({
+      imports: [
+        ButtonModule,
+        TypographyModule,
+        VaultBatchActionComponent,
+        StoryLayoutFooterComponent,
+      ],
+      providers: [
         {
           provide: AccountService,
           useValue: { activeAccount$: of({ id: "user-1" }) },
