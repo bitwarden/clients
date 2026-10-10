@@ -11,8 +11,14 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
+import { AutofillIpcErrorKind } from "../models/autofill-ipc-channels";
+
 import { DesktopAutofillService } from "./desktop-autofill.service";
-import { NativeWindowObject } from "./desktop-fido2-user-interface.service";
+import {
+  CredentialNotFound,
+  ExcludedCredentialMatched,
+  NativeWindowObject,
+} from "./desktop-fido2-user-interface.service";
 
 describe("DesktopAutofillService", () => {
   let logService: MockProxy<LogService>;
@@ -263,6 +269,42 @@ describe("DesktopAutofillService", () => {
 
       expect(completeCallback).toHaveBeenCalledWith(expect.any(Error), null);
       expect((service as any).inFlightRequests[context]).toBeUndefined();
+    });
+
+    it("tags an excluded credential match so the OS can report it to the relying party", async () => {
+      const completeCallback = jest.fn();
+      const error = new ExcludedCredentialMatched();
+
+      const requestListener = registerListener<{ context: string }>(
+        () => Promise.reject(error),
+        (request) => request.context,
+      );
+
+      await requestListener(1, 2, { context: "txn-4" }, completeCallback);
+
+      expect(completeCallback).toHaveBeenCalledWith(
+        error,
+        null,
+        AutofillIpcErrorKind.ExcludedCredentialMatched,
+      );
+    });
+
+    it("tags a missing credential so the OS can drop its stale credential identity", async () => {
+      const completeCallback = jest.fn();
+      const error = new CredentialNotFound();
+
+      const requestListener = registerListener<{ context: string }>(
+        () => Promise.reject(error),
+        (request) => request.context,
+      );
+
+      await requestListener(1, 2, { context: "txn-5" }, completeCallback);
+
+      expect(completeCallback).toHaveBeenCalledWith(
+        error,
+        null,
+        AutofillIpcErrorKind.CredentialNotFound,
+      );
     });
   });
 });
