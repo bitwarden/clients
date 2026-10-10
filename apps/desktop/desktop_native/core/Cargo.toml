@@ -52,7 +52,7 @@ security-framework-sys = { workspace = true, optional = true }
 scopeguard = { workspace = true }
 secmem-proc = { workspace = true }
 serde_with = { workspace = true, features = ["base64"] }
-sha2 = "=0.10.9"
+sha2 = "=0.11.0"
 widestring = { workspace = true, optional = true }
 win_webauthn = { path = "../win_webauthn" }
 windows = { workspace = true, features = [
