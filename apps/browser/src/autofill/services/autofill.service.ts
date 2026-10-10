@@ -34,6 +34,7 @@ import {
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -763,10 +764,10 @@ export default class AutofillService implements AutofillServiceInterface {
     const isPasswordGeneration =
       options.inlineMenuFillType === InlineMenuFillTypes.PasswordGeneration;
 
-    fillScript.savedUrls =
-      cipher.login?.uris
-        ?.filter((u) => u.match != UriMatchStrategy.Never && u.uri != null)
-        .map((u) => u.uri!) ?? [];
+    fillScript.requiresInsecurePageConfirmation = await this.requiresInsecurePageConfirmation(
+      pageDetails.url,
+      options,
+    );
 
     const isLoginCipher = cipher.type === CipherType.Login;
 
@@ -975,13 +976,10 @@ export default class AutofillService implements AutofillServiceInterface {
     let totp: AutofillField | null = null;
     const login = options.cipher.login;
     const totpToFill = options.allowTotpAutofill && options.canAccessTotp ? login?.totp : undefined;
-    const loginURIs = login?.uris ?? [];
-    fillScript.savedUrls = loginURIs.reduce<string[]>((acc, savedURI) => {
-      if (savedURI.match != UriMatchStrategy.Never && savedURI.uri != null) {
-        acc.push(savedURI.uri);
-      }
-      return acc;
-    }, []);
+    fillScript.requiresInsecurePageConfirmation = await this.requiresInsecurePageConfirmation(
+      pageDetails.url,
+      options,
+    );
 
     fillScript.untrustedIframe = await this.inUntrustedIframe(pageDetails.url, options);
 
@@ -1526,6 +1524,51 @@ export default class AutofillService implements AutofillServiceInterface {
       options.defaultUriMatch,
     );
     return !matchesUri;
+  }
+
+  /**
+   * Determines whether filling the page requires the user to confirm an insecure fill. This is
+   * the case when the page is served over HTTP and the cipher holds an HTTPS URI that applies to
+   * the HTTPS version of the page, either under the URI's match strategy or by sharing the page's
+   * hostname. Hostnames are compared in their parsed (lowercase, punycode) form so that
+   * equivalent spellings of a saved URI (e.g. unicode IDNs, uppercase hosts) are treated alike.
+   * @param {string} pageUrl The url of the page/iframe, usually from AutofillPageDetails
+   * @param {GenerateFillScriptOptions} options The GenerateFillScript options
+   * @returns {boolean} `true` if the user should confirm the fill, `false` otherwise
+   * @private
+   */
+  private async requiresInsecurePageConfirmation(
+    pageUrl: string,
+    options: GenerateFillScriptOptions,
+  ): Promise<boolean> {
+    const parsedPageUrl = Utils.getUrl(pageUrl);
+
+    if (parsedPageUrl?.protocol !== "http:") {
+      return false;
+    }
+
+    const secureUris =
+      options.cipher.login?.uris?.filter(
+        (loginUri) =>
+          loginUri.match !== UriMatchStrategy.Never &&
+          Utils.getUrl(loginUri.uri)?.protocol === "https:",
+      ) ?? [];
+
+    if (!secureUris.length) {
+      return false;
+    }
+
+    const securePageUrl = new URL(parsedPageUrl.href);
+    securePageUrl.protocol = "https:";
+    const equivalentDomains = await firstValueFrom(
+      this.domainSettingsService.getUrlEquivalentDomains(securePageUrl.href),
+    );
+
+    return secureUris.some(
+      (loginUri) =>
+        Utils.getUrl(loginUri.uri)?.hostname === parsedPageUrl.hostname ||
+        loginUri.matchesUri(securePageUrl.href, equivalentDomains, options.defaultUriMatch),
+    );
   }
 
   /**
