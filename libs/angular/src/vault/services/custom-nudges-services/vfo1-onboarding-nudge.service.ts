@@ -15,6 +15,18 @@ export const VFO1_GA_RELEASE_DATE = new Date("2026-11-02T00:00:00.000Z");
 /** How long after GA the VFO1 onboarding messages stay eligible to show. */
 export const VFO1_ONBOARDING_WINDOW_MONTHS = 6;
 
+/** The walkthrough is for long-term users, so accounts created in the 30 days before GA are excluded. */
+export const VFO1_WALKTHROUGH_ACCOUNT_AGE_DAYS = 30;
+
+function accountCutoff(nudgeType: NudgeType): number {
+  if (nudgeType !== NudgeType.Vfo1Walkthrough) {
+    return VFO1_GA_RELEASE_DATE.getTime();
+  }
+  const cutoff = new Date(VFO1_GA_RELEASE_DATE);
+  cutoff.setDate(cutoff.getDate() - VFO1_WALKTHROUGH_ACCOUNT_AGE_DAYS);
+  return cutoff.getTime();
+}
+
 function onboardingWindowEnd(): number {
   const end = new Date(VFO1_GA_RELEASE_DATE);
   end.setMonth(end.getMonth() + VFO1_ONBOARDING_WINDOW_MONTHS);
@@ -49,10 +61,9 @@ export class Vfo1OnboardingNudgeService extends DefaultSingleNudgeService {
 
     return combineLatest([profileDate$, this.getNudgeStatus$(nudgeType, userId)]).pipe(
       map(([profileCreationDate, status]) => {
-        const accountCreatedAfterGa =
-          profileCreationDate.getTime() >= VFO1_GA_RELEASE_DATE.getTime();
+        const accountTooNew = profileCreationDate.getTime() >= accountCutoff(nudgeType);
         const windowClosed = Date.now() > onboardingWindowEnd();
-        const autoDismiss = accountCreatedAfterGa || windowClosed;
+        const autoDismiss = accountTooNew || windowClosed;
 
         return {
           hasBadgeDismissed: status.hasBadgeDismissed || autoDismiss,

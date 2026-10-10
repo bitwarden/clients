@@ -91,6 +91,7 @@ import {
   SearchModule,
   AutofocusDirective,
   IconTileComponent,
+  SideNavService,
 } from "@bitwarden/components";
 import { isGuid } from "@bitwarden/guid";
 import {
@@ -251,6 +252,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private destroyRef = inject(DestroyRef);
   private cipherFormConfigService = inject(CipherFormConfigService);
   private newExperienceDialogService = inject(NewExperienceDialogService);
+  private sideNavService = inject(SideNavService);
   private vaultBatchBarService = inject(VaultBatchBarService);
   private activeDrawerRef?: DialogRef<VaultItemDialogResult>;
 
@@ -872,10 +874,16 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     await this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
 
     // Desktop has no prompt service to sequence onboarding, so the page opens this itself.
-    await this.newExperienceDialogService.conditionallyOpen(activeUserId, {
-      lightImgSrc: NEW_EXPERIENCE_LIGHT_IMG,
-      darkImgSrc: NEW_EXPERIENCE_DARK_IMG,
-    });
+    const openedNewExperience = await this.newExperienceDialogService.conditionallyOpen(
+      activeUserId,
+      {
+        lightImgSrc: NEW_EXPERIENCE_LIGHT_IMG,
+        darkImgSrc: NEW_EXPERIENCE_DARK_IMG,
+      },
+    );
+    if (openedNewExperience) {
+      this.sideNavService.open.set(true);
+    }
   }
 
   ngOnDestroy() {
