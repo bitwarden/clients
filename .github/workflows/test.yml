@@ -124,7 +124,7 @@ jobs:
           JEST_JUNIT_OUTPUT_NAME: ${{ matrix.test-group.junit }}
 
       - name: Report test results
-        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2 # v3.0.0
+        uses: dorny/test-reporter@d1b5dff021aa968b288b02285a8bf47471c5928a # v3.2.0
         # This will skip the job if it's a pull request from a fork, because that won't have permission to upload test results.
         # PRs from the repository and all other events are OK.
         if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository) && !cancelled()
@@ -135,7 +135,7 @@ jobs:
           fail-on-error: true
 
       - name: Upload results to codecov.io
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           report_type: test_results
 
@@ -247,7 +247,7 @@ jobs:
           components: llvm-tools
 
       - name: Cache cargo registry
-        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         with:
           workspaces: "apps/desktop/desktop_native -> target"
 
@@ -316,7 +316,7 @@ jobs:
           path: ./apps/desktop/desktop_native
 
       - name: Upload coverage to codecov.io
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: |
             ./jest-coverage-browser/lcov.info
