@@ -859,9 +859,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     const existingAutofillField = this.autofillFieldElements.get(element);
     if (index >= 0 && existingAutofillField) {
+      // Remove the cache entry under the element's old opid
+      if (this.autofillFieldsByOpid.get(existingAutofillField.opid) === element) {
+        this.autofillFieldsByOpid.delete(existingAutofillField.opid);
+      }
+
       existingAutofillField.opid = element.opid;
       existingAutofillField.elementNumber = index;
       this.autofillFieldElements.set(element, existingAutofillField);
+      this.autofillFieldsByOpid.set(element.opid, element);
 
       return existingAutofillField;
     }

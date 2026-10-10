@@ -114,6 +114,47 @@ describe("CollectAutofillContentService", () => {
         });
     });
 
+    it("still returns previously collected fields after new fields are inserted before them", async () => {
+      document.body.innerHTML = `
+        <form>
+          <input type="email" id="email" />
+          <input type="password" id="password" />
+        </form>
+      `;
+      const emailInput = document.getElementById("email") as ElementWithOpId<FormFieldElement>;
+      const passwordInput = document.getElementById(
+        "password",
+      ) as ElementWithOpId<FormFieldElement>;
+      jest
+        .spyOn(collectAutofillContentService["domElementVisibilityService"], "isElementViewable")
+        .mockResolvedValue(true);
+      await collectAutofillContentService.getPageDetails();
+      const firstInsertedInput = Object.assign(document.createElement("input"), {
+        type: "text",
+        id: "firstInserted",
+      });
+      const secondInsertedInput = Object.assign(document.createElement("input"), {
+        type: "text",
+        id: "secondInserted",
+      });
+      document.body.prepend(firstInsertedInput, secondInsertedInput);
+      collectAutofillContentService["domRecentlyMutated"] = true;
+      await collectAutofillContentService.getPageDetails();
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      expect(pageDetails.fields.map((field) => [field.opid, field.htmlID])).toEqual([
+        ["__0", "firstInserted"],
+        ["__1", "secondInserted"],
+        ["__2", "email"],
+        ["__3", "password"],
+      ]);
+      expect(collectAutofillContentService.getAutofillFieldElementByOpid("__2")).toBe(emailInput);
+      expect(collectAutofillContentService.getAutofillFieldElementByOpid("__3")).toBe(
+        passwordInput,
+      );
+    });
+
     it("returns an object with empty forms and fields if no fields were found on a previous iteration", async () => {
       collectAutofillContentService["domRecentlyMutated"] = false;
       collectAutofillContentService["noFieldsFound"] = true;
