@@ -771,6 +771,10 @@ describe("VaultNextComponent", () => {
         expect(component().showBreadcrumbs()).toBe(false);
         expect(component().headerTile()).toBeDefined();
       });
+
+      it("still counts the account's active My vault items for the Vault chip", () => {
+        expect(component().myVaultItemCount()).toBe(1);
+      });
     });
 
     describe("scoped to an organization's My items", () => {

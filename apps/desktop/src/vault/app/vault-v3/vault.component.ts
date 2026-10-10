@@ -351,6 +351,24 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     { initialValue: scopeKey(ALL_ITEMS_SCOPE) },
   );
 
+  /** The account's active My vault items, for the Vault chip's My vault count on an org page. */
+  protected readonly myVaultItemCount = toSignal(
+    combineLatest([
+      this.userId$.pipe(switchMap((userId) => this.cipherService.cipherListViews$(userId))),
+      this.restrictedItemTypesService.restricted$,
+    ]).pipe(
+      map(
+        ([ciphers, restrictedTypes]) =>
+          (ciphers ?? []).filter(
+            (cipher) =>
+              cipherInScope(cipher, { type: VaultScopeType.MyVault }) &&
+              !this.restrictedItemTypesService.isCipherRestricted(cipher, restrictedTypes),
+          ).length,
+      ),
+    ),
+    { initialValue: 0 },
+  );
+
   /** {@link vaultNav$} as a signal for use in computed properties. */
   private readonly vaultNav = toSignal(this.vaultNav$);
 
