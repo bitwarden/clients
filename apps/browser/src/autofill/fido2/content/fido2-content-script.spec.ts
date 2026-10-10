@@ -21,7 +21,7 @@ jest.mock("../../../autofill/utils", () => ({
 // implement `querySelectorAll`. The reporter has its own dedicated tests; stub
 // it out here so this spec stays focused on FIDO2 message routing.
 jest.mock("./iframe-allow-reporter", () => ({
-  reportIframeAttributesWhenReady: jest.fn(),
+  reportIframeAttributesWhenReady: jest.fn(() => jest.fn()),
   PERMISSIONS_POLICY_REPORT_COMMAND: "permissionsPolicyReportFrameAttributes",
 }));
 
