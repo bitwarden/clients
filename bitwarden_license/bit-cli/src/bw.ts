@@ -4,12 +4,15 @@ import { program } from "commander";
 
 import { registerOssPrograms } from "@bitwarden/cli/register-oss-programs";
 import { ServeProgram } from "@bitwarden/cli/serve.program";
+import { applyEarlyProcessEnvFlags } from "@bitwarden/cli/utils";
 
 import { BitServeConfigurator } from "./bit-serve-configurator";
 import { registerBitPrograms } from "./register-bit-programs";
 import { ServiceContainer } from "./service-container";
 
 async function main() {
+  applyEarlyProcessEnvFlags(process.argv.slice(2));
+
   const serviceContainer = new ServiceContainer();
   await serviceContainer.init();
 
