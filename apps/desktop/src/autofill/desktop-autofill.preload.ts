@@ -9,6 +9,7 @@ import {
   AutofillIpcChannelIncoming,
   AutofillIpcChannelOutgoing,
   AutofillIpcDefinitionMap,
+  AutofillIpcErrorKind,
   AutofillIpcRequest,
   AutofillIpcResponse,
 } from "./models/autofill-ipc-channels";
@@ -86,12 +87,13 @@ function makeListener<K extends AutofillIpcChannelIncoming>(
         const { clientId, sequenceNumber, request } = data;
         const completeCallback: CompletionCallback<AutofillIpcResponse<K>> | undefined =
           outgoingChannel
-            ? (error, response) => {
+            ? (error, response, kind?: AutofillIpcErrorKind) => {
                 if (error) {
                   ipcRenderer.send(AutofillIpcChannelOutgoing.Error, {
                     clientId,
                     sequenceNumber,
                     error: error.message,
+                    kind,
                   });
                   return;
                 }

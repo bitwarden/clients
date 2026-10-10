@@ -10,6 +10,7 @@ import {
   AutofillIpcChannelIncoming,
   AutofillIpcChannelOutgoing,
   AutofillIpcDefinitionMap,
+  AutofillIpcErrorKind,
   AutofillIpcRequest,
   AutofillIpcResponse,
 } from "../models/autofill-ipc-channels";
@@ -191,8 +192,14 @@ export class DesktopAutofillMain {
 
     ipcMain.on(AutofillIpcChannelOutgoing.Error, (_event, data) => {
       this.logService.debug("[DesktopAutofillMain]", AutofillIpcChannelOutgoing.Error, data);
-      const { clientId, sequenceNumber, error } = data;
-      this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
+      const { clientId, sequenceNumber, error, kind } = data;
+      if (kind === AutofillIpcErrorKind.ExcludedCredentialMatched) {
+        this.ipcServer?.completeExcludedCredentialMatched(clientId, sequenceNumber);
+      } else if (kind === AutofillIpcErrorKind.CredentialNotFound) {
+        this.ipcServer?.completeCredentialNotFound(clientId, sequenceNumber);
+      } else {
+        this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
+      }
     });
 
     this.enabled = true;
