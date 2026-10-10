@@ -55,6 +55,7 @@ export class ExpirationOptionsComponent
   }
 
   currentDate = new Date();
+  maxDate = new Date(9999, 11, 31, 23, 59);
 
   protected form = new FormGroup({
     expires: new FormControl("never", [Validators.required]),
@@ -128,18 +129,19 @@ export class ExpirationOptionsComponent
   }
 
   expiresInFutureValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const enteredDate = new Date(control.value);
+    // Only accept a normal 4-digit year in the format: YYYY-MM-DDTHH:MM
+    const dateTimeLocalPattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+    const invalidResult: ValidationErrors = {
+      ValidationError: { message: this.i18nService.t("expirationDateError") },
+    };
 
-      if (enteredDate > new Date()) {
-        return null;
-      } else {
-        return {
-          ValidationError: {
-            message: this.i18nService.t("expirationDateError"),
-          },
-        };
+    return (control: AbstractControl): ValidationErrors | null => {
+      const value = control.value;
+      if (typeof value !== "string" || !dateTimeLocalPattern.test(value)) {
+        return invalidResult;
       }
+
+      return new Date(value) > new Date() ? null : invalidResult;
     };
   }
 }
