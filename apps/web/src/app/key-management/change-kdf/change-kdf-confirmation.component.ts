@@ -1,13 +1,10 @@
 import { Component, Inject } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { firstValueFrom, Observable } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
-import { LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { withPasswordManagerSdk } from "@bitwarden/common/key-management/utils";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
@@ -30,22 +27,15 @@ export class ChangeKdfConfirmationComponent {
   showPassword = false;
   loading = false;
 
-  noLogoutOnKdfChangeFeatureFlag$: Observable<boolean>;
-
   constructor(
     private i18nService: I18nService,
-    private logoutService: LogoutService,
     @Inject(DIALOG_DATA) params: { kdf: KdfType; kdfConfig: KdfConfig },
     private accountService: AccountService,
     private toastService: ToastService,
     private sdkService: SdkService,
     private dialogRef: DialogRef<ChangeKdfConfirmationComponent>,
-    configService: ConfigService,
   ) {
     this.kdfConfig = params.kdfConfig;
-    this.noLogoutOnKdfChangeFeatureFlag$ = configService.getFeatureFlag$(
-      FeatureFlag.NoLogoutOnKdfChange,
-    );
   }
 
   submit = async () => {
@@ -54,21 +44,11 @@ export class ChangeKdfConfirmationComponent {
     }
     this.loading = true;
     await this.makeKeyAndSave();
-    if (await firstValueFrom(this.noLogoutOnKdfChangeFeatureFlag$)) {
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("encKeySettingsChanged"),
-      });
-      await this.dialogRef.close();
-    } else {
-      this.toastService.showToast({
-        variant: "success",
-        title: this.i18nService.t("encKeySettingsChanged"),
-        message: this.i18nService.t("logBackIn"),
-      });
-      const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-      await this.logoutService.logout(userId, "kdfChanged");
-    }
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("encKeySettingsChanged"),
+    });
+    await this.dialogRef.close();
     this.loading = false;
   };
 

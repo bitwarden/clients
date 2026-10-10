@@ -3,7 +3,6 @@ import { FormControl } from "@angular/forms";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
@@ -11,7 +10,6 @@ import {
   MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -30,10 +28,8 @@ describe("ChangeKdfConfirmationComponent", () => {
 
   // Mock Services
   let mockI18nService: MockProxy<I18nService>;
-  let mockLogoutService: MockProxy<LogoutService>;
   let mockToastService: MockProxy<ToastService>;
   let mockDialogRef: MockProxy<DialogRef<ChangeKdfConfirmationComponent>>;
-  let mockConfigService: MockProxy<ConfigService>;
   let accountService: FakeAccountService;
   let mockSdkService: MockProxy<SdkService>;
   let mockMasterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
@@ -65,10 +61,8 @@ describe("ChangeKdfConfirmationComponent", () => {
 
   beforeEach(() => {
     mockI18nService = mock<I18nService>();
-    mockLogoutService = mock<LogoutService>();
     mockToastService = mock<ToastService>();
     mockDialogRef = mock<DialogRef<ChangeKdfConfirmationComponent>>();
-    mockConfigService = mock<ConfigService>();
     accountService = mockAccountServiceWith(mockUserId, { email: mockEmail });
     mockSdkService = mock<SdkService>();
     mockMasterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
@@ -77,9 +71,6 @@ describe("ChangeKdfConfirmationComponent", () => {
 
     mockSdkService.userClient$ = jest.fn(() => of(mockSdk)) as any;
     mockMasterPasswordService.masterPasswordUnlockData$ = jest.fn(() => of(mockUnlockData)) as any;
-
-    // Mock config service feature flag
-    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
     mockDialogData.mockReturnValue({
       kdf: KdfType.PBKDF2_SHA256,
@@ -91,11 +82,9 @@ describe("ChangeKdfConfirmationComponent", () => {
       imports: [SharedModule],
       providers: [
         { provide: I18nService, useValue: mockI18nService },
-        { provide: LogoutService, useValue: mockLogoutService },
         { provide: AccountService, useValue: accountService },
         { provide: ToastService, useValue: mockToastService },
         { provide: DialogRef, useValue: mockDialogRef },
-        { provide: ConfigService, useValue: mockConfigService },
         { provide: SdkService, useValue: mockSdkService },
         {
           provide: InternalMasterPasswordServiceAbstraction,
@@ -227,10 +216,8 @@ describe("ChangeKdfConfirmationComponent", () => {
         expect(component.loading).toBe(false);
       });
 
-      it("doesn't logout and closes the dialog when feature flag is enabled", async () => {
+      it("shows a success toast and closes the dialog without logging out", async () => {
         // Arrange
-        mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
-
         const fixture = TestBed.createComponent(ChangeKdfConfirmationComponent);
         const component = fixture.componentInstance;
 
@@ -246,28 +233,6 @@ describe("ChangeKdfConfirmationComponent", () => {
           message: "encKeySettingsChanged-used-i18n",
         });
         expect(mockDialogRef.close).toHaveBeenCalled();
-        expect(mockLogoutService.logout).not.toHaveBeenCalled();
-      });
-
-      it("sends a logout and displays a log back in toast when feature flag is disabled", async () => {
-        // Arrange
-        const fixture = TestBed.createComponent(ChangeKdfConfirmationComponent);
-        const component = fixture.componentInstance;
-
-        component.form.controls.masterPassword.setValue(mockMasterPassword);
-
-        // Act
-        await component.submit();
-
-        // Assert
-        expect(changeKdf).toHaveBeenCalledWith(mockMasterPassword, kdfConfig.toSdkConfig());
-        expect(mockToastService.showToast).toHaveBeenCalledWith({
-          variant: "success",
-          title: "encKeySettingsChanged-used-i18n",
-          message: "logBackIn-used-i18n",
-        });
-        expect(mockLogoutService.logout).toHaveBeenCalledWith(mockUserId, "kdfChanged");
-        expect(mockDialogRef.close).not.toHaveBeenCalled();
       });
     });
   });

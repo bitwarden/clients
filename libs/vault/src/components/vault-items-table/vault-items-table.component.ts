@@ -65,6 +65,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { orgIconTile, personalIconTile } from "../../models/vault-icon-tile";
 import { VaultScope, VaultScopeType } from "../../models/vault-scope";
 import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
+import { sharedFolderName } from "../../utils/shared-folder-name";
 import {
   idString,
   matchesFavorite,
@@ -102,6 +103,26 @@ export const MAX_SELECTION_COUNT = 500;
  * `position: fixed`, so without this the last row sits underneath it and is unreachable.
  */
 const BULK_BAR_CLEARANCE = 53;
+
+/** Fixed height (px) of a row. The table virtualizes, so rows can't size to their content. */
+const ROW_HEIGHT = 56;
+
+/** Rows the table stays tall enough to show. */
+const MIN_ROWS = 5;
+
+/**
+ * Height (px) of the chrome above the rows: the toolbar's search row (a 40px field plus `py-5`)
+ * and its 60px filter row, then the 48px header row. Approximate by design — it only backs a
+ * minimum, so chrome that grows later costs a fraction of a row rather than breaking the layout.
+ */
+const TABLE_CHROME_HEIGHT = 188;
+
+/**
+ * Floor (px) for the table's height. Content above it on the page — the shared folder card grid
+ * most of all — takes its natural height, so without a floor the table is what gives way, down to
+ * a row or two on a short viewport. Below this the page scrolls instead.
+ */
+const MIN_TABLE_HEIGHT = MIN_ROWS * ROW_HEIGHT + TABLE_CHROME_HEIGHT;
 
 export { VAULT_FILTER_KEYS, type VaultItemsTableFilters } from "./vault-items-table-filter-keys";
 
@@ -201,6 +222,9 @@ function chipItem(id: string, label: string, startIcon: BitwardenIcon): ChipGrou
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: "tw-flex tw-flex-col tw-flex-1 tw-min-h-0",
+    // Inline rather than a `tw-min-h-*` utility: it has to beat the `tw-min-h-0` above, which
+    // otherwise lets the flex parent shrink the table to nothing.
+    "[style.minHeight.px]": "minTableHeight",
     "[style.marginBottom.px]": "bulkBarClearance()",
   },
   imports: [
@@ -256,6 +280,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   protected readonly filterNamespace = VAULT_FILTER_NAMESPACE;
   protected readonly filterKeys = VAULT_FILTER_KEYS;
+  protected readonly rowHeight = ROW_HEIGHT;
+  protected readonly minTableHeight = MIN_TABLE_HEIGHT;
 
   /** Bottom margin held while the bulk-actions bar is up. */
   protected readonly bulkBarClearance = computed(() =>
@@ -504,7 +530,15 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   private readonly folderNames = computed(() => this.nameMap(this.folders()));
 
-  private readonly collectionNames = computed(() => this.nameMap(this.collections()));
+  /** Each collection's own name, without its parent path — see {@link sharedFolderName}. */
+  private readonly collectionNames = computed(() =>
+    this.nameMap(
+      this.collections().map((collection) => ({
+        id: collection.id,
+        name: sharedFolderName(collection),
+      })),
+    ),
+  );
 
   private readonly organizationNames = computed(() => this.nameMap(this.organizations()));
 
@@ -789,7 +823,13 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     }
 
     const teardown = batchBar.registerSelection({
-      selected: computed(() => model.selected().map((cipher): VaultItem<C> => ({ cipher }))),
+      selected: computed(() => {
+        const visibleIds = new Set(model.selectable().map((c) => String(c.id)));
+        return model
+          .selected()
+          .filter((cipher) => visibleIds.has(String(cipher.id)))
+          .map((cipher): VaultItem<C> => ({ cipher }));
+      }),
       clear: () => model.clear(),
     });
 
@@ -936,7 +976,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   ): FilterOptionNode<CollectionId>[] {
     const toNode = (node: TreeNode<CollectionView>): FilterOptionNode<CollectionId> => ({
       value: node.node.id,
-      label: node.node.name,
+      label: sharedFolderName(node.node),
       options: node.children.map(toNode),
     });
     return getNestedCollectionTree([...sharedFolders])
