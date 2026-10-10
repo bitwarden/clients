@@ -177,6 +177,41 @@ describe("ImportCommand", () => {
     });
   });
 
+  describe("direct-only formats", () => {
+    const directOption = (): ImportOption => ({
+      id: "onepassword",
+      name: "1Password (direct)",
+      featuredImporter: true,
+      isBrowser: false,
+      acceptedFileTypes: [],
+      pasteFormats: [],
+      hasDirectImporter: true,
+      loaders: [],
+    });
+
+    it("rejects one before asking for a file", async () => {
+      importService.getImportOption.mockImplementation((id) =>
+        id === "onepassword" ? directOption() : undefined,
+      );
+      i18nService.t.mockImplementation((key, ...args) => [key, ...args].join(": "));
+
+      const response = await command.run("onepassword", undefined, {});
+
+      expect(response.success).toBe(false);
+      expect(response.message).toBe("importDirectOnlyError: 1Password (direct)");
+      expect(importService.getImporter).not.toHaveBeenCalled();
+      expect(importService.importWithSdk).not.toHaveBeenCalled();
+    });
+
+    it("leaves them out of the supported formats", async () => {
+      importService.getImportOptions.mockReturnValue([kdbxOption(), directOption()]);
+
+      const response = await command.run(undefined, undefined, { formats: true });
+
+      expect((response.data as MessageResponse).raw).toBe("keepasskdbx");
+    });
+  });
+
   it("leaves non-sdk formats on the standard importer path", async () => {
     const readFileSpy = jest.spyOn(CliUtils, "readFile").mockResolvedValue("name,login\n");
     importService.getImporter.mockReturnValue(importerStub());

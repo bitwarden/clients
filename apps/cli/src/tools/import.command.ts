@@ -74,12 +74,17 @@ export class ImportCommand {
     if (format == null) {
       return Response.badRequest("`format` was not provided.");
     }
+    const importOption = this.importService.getImportOption(format);
+    // A format without file types signs in to the vendor instead, which only the apps can do.
+    if (importOption != null && importOption.acceptedFileTypes.length === 0) {
+      return Response.badRequest(this.i18nService.t("importDirectOnlyError", importOption.name));
+    }
     if (filepath == null || filepath === "") {
       return Response.badRequest("`filepath` was not provided.");
     }
 
     // SDK-backed importers parse/encrypt/submit entirely in the SDK.
-    if (this.importService.getImportOption(format)?.sdk != null) {
+    if (importOption?.sdk != null) {
       return await this.importWithSdk(format, filepath, organizationId, options);
     }
 
@@ -242,6 +247,8 @@ export class ImportCommand {
   private async list() {
     const options = this.importService
       .getImportOptions()
+      // The CLI imports from a file, so a direct-only format has no route here to advertise.
+      .filter((option) => option.acceptedFileTypes.length > 0)
       .sort((a, b) => {
         return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
       })

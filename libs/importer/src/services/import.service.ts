@@ -17,7 +17,7 @@ import { KvpRequest } from "@bitwarden/common/models/request/kvp.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -110,10 +110,15 @@ import {
 import { CollectionRelationship, FolderRelationship, ImportResult } from "../models/import-result";
 import {
   buildSdkImporterRegistry,
+  OnePasswordImportRequest,
+  OnePasswordImportSummary,
+  resolveSdkImportTargets,
   SdkImportCredentials,
   SdkImporterRegistry,
   SdkImportSummary,
 } from "../sdk";
+import { toSdkCipherType } from "../sdk/sdk-cipher-type";
+import { toSdkCollectionType } from "../sdk/sdk-collection-type";
 import { ImportApiServiceAbstraction } from "../services/import-api.service.abstraction";
 import { ImportServiceAbstraction } from "../services/import.service.abstraction";
 
@@ -300,6 +305,61 @@ export class ImportService implements ImportServiceAbstraction {
             selectedImportTarget: selectedImportTarget ?? undefined,
             restrictedTypes,
           });
+        }),
+      ),
+    );
+  }
+
+  /**
+   * Signs in to 1Password through the SDK and imports the account. Unlike {@link importWithSdk}
+   * there is no file: the SDK downloads and decrypts the vaults itself, asking `twoFactorUi` for a
+   * code when the account requires one.
+   */
+  async importOnePassword(
+    request: OnePasswordImportRequest,
+    organizationId: OrganizationId = null,
+    selectedImportTarget: FolderView | CollectionView = null,
+    canAccessImportExport: boolean = false,
+  ): Promise<OnePasswordImportSummary> {
+    // Mirror the pipeline's guard: an org import with no target collection leaves every item
+    // unassigned, which is only allowed with import/export permission.
+    if (organizationId && !selectedImportTarget && !canAccessImportExport) {
+      throw new Error(this.i18nService.t("importUnassignedItemsError"));
+    }
+
+    const restrictedTypes = await firstValueFrom(
+      this.restrictedItemTypesService.restricted$.pipe(
+        map((restricted) => restricted.map((r) => r.cipherType)),
+      ),
+    );
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          const { folder, collection } = resolveSdkImportTargets({
+            organizationId: organizationId ?? undefined,
+            selectedImportTarget: selectedImportTarget ?? undefined,
+            restrictedTypes,
+          });
+          return await ref.value
+            .importers()
+            .import_onepassword(request.credentials, request.twoFactorUi, {
+              organization_id: organizationId ? asUuid(organizationId) : undefined,
+              target_folder: folder ? { id: asUuid(folder.id), name: folder.name } : undefined,
+              target_collection: collection
+                ? {
+                    id: asUuid(collection.id),
+                    name: collection.name,
+                    type: toSdkCollectionType(collection.type),
+                  }
+                : undefined,
+              restricted_types: restrictedTypes.map(toSdkCipherType),
+            });
         }),
       ),
     );
