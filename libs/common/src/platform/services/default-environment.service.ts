@@ -38,6 +38,7 @@ export class EnvironmentUrls {
 class EnvironmentState {
   region: Region;
   urls: EnvironmentUrls;
+  ssoOnly?: boolean;
 
   static fromJSON(obj: Jsonify<EnvironmentState>): EnvironmentState {
     return Object.assign(new EnvironmentState(), obj);
@@ -153,6 +154,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
   environment$: Observable<Environment>;
   globalEnvironment$: Observable<Environment>;
   cloudWebVaultUrl$: Observable<string>;
+  ssoOnly$: Observable<boolean>;
 
   constructor(
     private stateProvider: StateProvider,
@@ -170,6 +172,11 @@ export class DefaultEnvironmentService implements EnvironmentService {
     this.globalEnvironment$ = this.stateProvider
       .getGlobal(GLOBAL_ENVIRONMENT_KEY)
       .state$.pipe(map((state) => this.buildEnvironment(state?.region, state?.urls)));
+
+    this.ssoOnly$ = this.globalState.state$.pipe(
+      map((state) => state?.ssoOnly ?? false),
+      distinctUntilChanged(),
+    );
 
     // The current environment emitted by environment$ can come from two sources: the "global" environment,
     // which represents the environment used by the application before a user authenticates, and the "user" environment,
@@ -278,6 +285,15 @@ export class DefaultEnvironmentService implements EnvironmentService {
 
       return urls;
     }
+  }
+
+  async setSsoOnly(ssoOnly: boolean): Promise<void> {
+    // Merge onto the existing global state rather than replacing it, so region/urls are preserved.
+    // setEnvironment replaces the whole state, so this flag is intentionally reset on region change.
+    await this.globalState.update((state) => ({
+      ...state,
+      ssoOnly,
+    }));
   }
 
   /**
