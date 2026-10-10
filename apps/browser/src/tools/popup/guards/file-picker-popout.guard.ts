@@ -9,6 +9,8 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 
+import { SendPopoutType } from "../utils/send-popout-window";
+
 /**
  * Composite guard that handles file picker popout requirements for all browsers.
  * Forces a popout window when file pickers could be exposed on browsers that require it.
@@ -94,8 +96,16 @@ export function filePickerPopoutGuard(): CanActivateFn {
 
     // Open popout if needed
     if (needsPopout) {
-      // Don't add autoClosePopout for file picker scenarios - user should manually close
-      await BrowserPopupUtils.openPopout(`popup/index.html#${state.url}`);
+      // A popout opened here was created for the user in response to a prompt, not popped out by
+      // them. Tagging the Send one lets the created-Send view close the window when the user is
+      // done, instead of stranding them on the Send list inside a window they never asked for.
+      // `forceCloseExistingWindows` keeps that tag from redirecting this navigation into a stale
+      // popout left sitting on the created-Send view; without it `openPopout` would focus that
+      // window and never route to `/add-send`.
+      const popoutOptions = isAddSendRoute(state.url)
+        ? { singleActionKey: SendPopoutType.addFileSend, forceCloseExistingWindows: true }
+        : {};
+      await BrowserPopupUtils.openPopout(`popup/index.html#${state.url}`, popoutOptions);
 
       // Close the original popup window
       BrowserApi.closePopup(window);
@@ -120,6 +130,14 @@ function isTextSendRoute(url: string): boolean {
     return false;
   }
   return new URLSearchParams(url.substring(queryStart + 1)).get("type") === String(SendType.Text);
+}
+
+/**
+ * Returns true when the route creates a Send. Text Sends have already returned above, so a route
+ * reaching the popout branch is always a File Send.
+ */
+function isAddSendRoute(url: string): boolean {
+  return url.includes("/add-send");
 }
 
 function isImportRoute(url: string): boolean {
