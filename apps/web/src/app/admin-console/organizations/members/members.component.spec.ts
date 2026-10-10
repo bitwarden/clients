@@ -581,7 +581,10 @@ describe("MembersComponent", () => {
       await component.bulkReinvite(mockOrg);
 
       expect(mockMemberActionsService.bulkReinvite).toHaveBeenCalledWith(mockOrg, [invitedUser]);
-      expect(mockMemberDialogManager.openBulkStatusDialog).toHaveBeenCalled();
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "reinviteSuccessToast",
+      });
     });
 
     it("should show error when no invited users selected", async () => {
@@ -615,6 +618,30 @@ describe("MembersComponent", () => {
       await component.bulkReinvite(mockOrg);
 
       expect(mockValidationService.showError).toHaveBeenCalledWith(error);
+      expect(mockToastService.showToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success" }),
+      );
+    });
+
+    it("should show success toast based on successful count when some reinvites fail", async () => {
+      const invitedUsers = [
+        { ...mockUser, id: "user-1" as UserId, status: OrganizationUserStatusType.Invited },
+        { ...mockUser, id: "user-2" as UserId, status: OrganizationUserStatusType.Invited },
+      ];
+      jest.spyOn(component["dataSource"](), "isIncreasedBulkLimitEnabled").mockReturnValue(false);
+      jest.spyOn(component["dataSource"](), "getCheckedUsers").mockReturnValue(invitedUsers);
+      const error = new Error("Bulk reinvite partially failed");
+      mockMemberActionsService.bulkReinvite.mockResolvedValue({
+        successful: [{}],
+        failed: error,
+      });
+
+      await component.bulkReinvite(mockOrg);
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "reinviteSuccessToast",
+      });
     });
   });
 
