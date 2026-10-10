@@ -709,15 +709,16 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       return;
     }
 
-    if (!this.buttonElement) {
+    const buttonElement = this.buttonElement;
+    if (!buttonElement) {
       return;
     }
 
     const lastChild = containerElement.lastElementChild;
     const secondToLastChild = lastChild?.previousElementSibling;
     const lastChildIsInlineMenuList = lastChild === this.listElement;
-    const lastChildIsInlineMenuButton = lastChild === this.buttonElement;
-    const secondToLastChildIsInlineMenuButton = secondToLastChild === this.buttonElement;
+    const lastChildIsInlineMenuButton = lastChild === buttonElement;
+    const secondToLastChildIsInlineMenuButton = secondToLastChild === buttonElement;
 
     if (!lastChild) {
       return;
@@ -751,12 +752,39 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       if (!this.listElement) {
         return;
       }
-      containerElement.insertBefore(this.buttonElement, this.listElement);
+      this.insertBeforeConnectedReference(containerElement, buttonElement, this.listElement);
       return;
     }
 
-    containerElement.insertBefore(lastChild, this.buttonElement);
+    this.insertBeforeConnectedReference(containerElement, lastChild, buttonElement);
   };
+
+  /**
+   * Inserts `node` before `reference` when `reference` is still a child of `parent`.
+   *
+   * The handler awaits before reordering. During that gap Firefox can move an open
+   * `popover="manual"` menu element into the top layer, so it is no longer a child of
+   * the container. `insertBefore` then throws NotFoundError ("Child to insert before is
+   * not a child of this node") and the inline menu never fills the field. Re-attach any
+   * detached menu elements instead.
+   */
+  private insertBeforeConnectedReference(
+    parent: HTMLElement,
+    node: Node,
+    reference: Node | null,
+  ) {
+    if (reference?.parentNode === parent) {
+      parent.insertBefore(node, reference);
+      return;
+    }
+
+    if (this.buttonElement && this.buttonElement.parentNode !== parent) {
+      parent.appendChild(this.buttonElement);
+    }
+    if (this.listElement && this.listElement.parentNode !== parent) {
+      parent.appendChild(this.listElement);
+    }
+  }
 
   /**
    * Handles the behavior of a persistent child element that is forcing itself to
