@@ -1,0 +1,15 @@
+@if (nodes().length > 0) {
+  <bit-nav-section [label]="'pinned' | i18n" icon="bwi-pin">
+    @for (node of nodes(); track node.id) {
+      <vault-pinned-nav-node [node]="node" [routes]="routes()" />
+    }
+  </bit-nav-section>
+} @else if (!emptyStateDismissed()) {
+  <bit-nav-section [label]="'pinned' | i18n" icon="bwi-pin">
+    <bit-nav-section-empty (dismiss)="dismissEmptyState()">
+      {{ "pinnedEmptyStatePrefix" | i18n }}
+      <strong>{{ "pinToSidebar" | i18n }}</strong>
+      {{ "pinnedEmptyStateSuffix" | i18n }}
+    </bit-nav-section-empty>
+  </bit-nav-section>
+}
