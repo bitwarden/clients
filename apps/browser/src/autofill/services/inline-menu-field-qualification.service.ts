@@ -35,7 +35,6 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
     this.emailAutocompleteValue,
     this.webAuthnAutocompleteValue,
   ]);
-  private fieldIgnoreListString = AutoFillConstants.FieldIgnoreList.join(",");
   private currentPasswordAutocompleteValue = "current-password";
   private newPasswordAutoCompleteValue = "new-password";
   private submitButtonKeywordsMap: SubmitButtonKeywordsMap = new WeakMap();
@@ -1174,7 +1173,10 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       const checkedAttributeValue = checkedAttributeValues[i];
       const cleanedValue = checkedAttributeValue?.toLowerCase().replace(/[\s_-]/g, "");
 
-      if (cleanedValue && this.fieldIgnoreListString.indexOf(cleanedValue) > -1) {
+      if (
+        cleanedValue &&
+        AutoFillConstants.FieldIgnoreList.some((i) => cleanedValue.indexOf(i) > -1)
+      ) {
         return true;
       }
     }
