@@ -854,12 +854,26 @@ export class RiskInsightsOrchestratorService {
     );
     const passwordUseMap = buildPasswordUseMap(validCiphers);
 
+    // Pre-build member lookup map for O(1) access instead of O(n) filter per cipher
+    const membersByCipherId = new Map<string, MemberDetails[]>();
+    for (const member of memberDetails) {
+      const existing = membersByCipherId.get(member.cipherId);
+      if (existing) {
+        existing.push(member);
+      } else {
+        membersByCipherId.set(member.cipherId, [member]);
+      }
+    }
+
     // Check for exposed passwords and map to cipher health report
     return this.passwordHealthService.auditPasswordLeaks$(validCiphers).pipe(
       map((exposedDetails) => {
+        // Pre-build exposed password lookup map for O(1) access
+        const exposedByCipherId = new Map(exposedDetails.map((x) => [x.cipherId, x]));
+
         return validCiphers.map((cipher) => {
-          const exposedPasswordDetail = exposedDetails.find((x) => x?.cipherId === cipher.id);
-          const cipherMembers = memberDetails.filter((x) => x.cipherId === cipher.id);
+          const exposedPasswordDetail = exposedByCipherId.get(cipher.id);
+          const cipherMembers = membersByCipherId.get(cipher.id) ?? [];
           const applications = getTrimmedCipherUris(cipher);
           const weakPasswordDetail = this.passwordHealthService.findWeakPasswordDetails(cipher);
           const reusedPasswordCount = passwordUseMap.get(cipher.login.password!) ?? 0;
