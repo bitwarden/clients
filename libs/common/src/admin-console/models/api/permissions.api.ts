@@ -1,21 +1,19 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { BaseResponse } from "../../../models/response/base.response";
 
 export class PermissionsApi extends BaseResponse {
-  accessEventLogs: boolean;
-  accessImportExport: boolean;
-  accessReports: boolean;
-  createNewCollections: boolean;
-  editAnyCollection: boolean;
-  deleteAnyCollection: boolean;
-  manageCiphers: boolean;
-  manageGroups: boolean;
-  manageSso: boolean;
-  managePolicies: boolean;
-  manageUsers: boolean;
-  manageResetPassword: boolean;
-  manageScim: boolean;
+  accessEventLogs?: boolean;
+  accessImportExport?: boolean;
+  accessReports?: boolean;
+  createNewCollections?: boolean;
+  editAnyCollection?: boolean;
+  deleteAnyCollection?: boolean;
+  manageCiphers?: boolean;
+  manageGroups?: boolean;
+  manageSso?: boolean;
+  managePolicies?: boolean;
+  manageUsers?: boolean;
+  manageResetPassword?: boolean;
+  manageScim?: boolean;
 
   constructor(data: any = null) {
     super(data);

@@ -8,6 +8,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
@@ -26,12 +27,12 @@ function makeOrg(
   productTierType: ProductTierType,
   enabled: boolean = true,
 ): Organization {
-  const org = new Organization();
-  org.id = newGuid() as OrganizationId;
-  org.name = name;
-  org.productTierType = productTierType;
-  org.enabled = enabled;
-  return org;
+  return new Organization({
+    id: newGuid() as OrganizationId,
+    name,
+    productTierType,
+    enabled,
+  } as unknown as OrganizationData);
 }
 
 describe("DefaultVaultNavService", () => {
