@@ -76,7 +76,7 @@ export class SendListComponent {
 
   readonly editSend = output<SendView>();
   readonly copySend = output<SendView>();
-  readonly removePassword = output<SendView>();
+  readonly removeAuth = output<SendView>();
   readonly deleteSend = output<SendView>();
 
   protected onEditSend(send: SendView): void {
@@ -87,8 +87,8 @@ export class SendListComponent {
     this.copySend.emit(send);
   }
 
-  protected onRemovePassword(send: SendView): void {
-    this.removePassword.emit(send);
+  protected onRemoveAuth(send: SendView): void {
+    this.removeAuth.emit(send);
   }
 
   protected onDeleteSend(send: SendView): void {

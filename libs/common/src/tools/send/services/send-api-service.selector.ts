@@ -24,7 +24,7 @@ import { SendSdkApiService } from "./send-sdk-api.service";
  * `pm-30110-sdk-sends-api` feature flag.
  *
  * Methods whose return type is a wire-encrypted shape the SDK cannot produce (`getSend`,
- * `getSends`, `putSendRemovePassword`) always route to legacy. Mutations are flag-controlled;
+ * `getSends`, `putSendRemoveAuth`) always route to legacy. Mutations are flag-controlled;
  * the SDK service refetches the encrypted form via legacy after mutations to keep
  * `InternalSendService` coherent.
  *
@@ -91,8 +91,8 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
     return (await this.getService()).delete(id);
   }
 
-  async removePassword(id: string): Promise<any> {
-    return (await this.getService()).removePassword(id);
+  async removeAuth(id: string): Promise<any> {
+    return (await this.getService()).removeAuth(id);
   }
 
   /**
@@ -124,12 +124,12 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
   }
 
   /**
-   * Always routed to legacy. The selector's `removePassword` is the higher-level flow that
+   * Always routed to legacy. The selector's `removeAuth` is the higher-level flow that
    * also refreshes local state; this lower-level method returns a wire-encrypted
    * `SendResponse` the SDK cannot produce.
    */
-  async putSendRemovePassword(id: string): Promise<SendResponse> {
-    return this.sendApiService.putSendRemovePassword(id);
+  async putSendRemoveAuth(id: string): Promise<SendResponse> {
+    return this.sendApiService.putSendRemoveAuth(id);
   }
 
   async deleteSend(id: string): Promise<any> {

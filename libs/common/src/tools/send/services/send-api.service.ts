@@ -78,7 +78,7 @@ export class SendApiService implements SendApiServiceAbstraction {
     return new ListResponse(r, SendResponse);
   }
 
-  async putSendRemovePassword(id: string): Promise<SendResponse> {
+  async putSendRemoveAuth(id: string): Promise<SendResponse> {
     const r = await this.apiService.send(
       "PUT",
       "/sends/" + id + "/remove-password",
@@ -127,8 +127,8 @@ export class SendApiService implements SendApiServiceAbstraction {
     await this.sendService.delete(id);
   }
 
-  async removePassword(id: string): Promise<any> {
-    const response = await this.putSendRemovePassword(id);
+  async removeAuth(id: string): Promise<any> {
+    const response = await this.putSendRemoveAuth(id);
     const data = new SendData(response);
     await this.sendService.upsert(data);
   }

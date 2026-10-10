@@ -85,7 +85,7 @@ export default {
               expired: "Expired",
               pendingDeletion: "Pending deletion",
               copySendLink: "Copy Send link",
-              removePassword: "Remove password",
+              removeAuth: "Remove password or email verification",
               delete: "Delete",
               loading: "Loading",
             });
@@ -101,7 +101,7 @@ export default {
   argTypes: {
     editSend: { action: "editSend" },
     copySend: { action: "copySend" },
-    removePassword: { action: "removePassword" },
+    removeAuth: { action: "removeAuth" },
     deleteSend: { action: "deleteSend" },
   },
 } as Meta<SendTableComponent>;
