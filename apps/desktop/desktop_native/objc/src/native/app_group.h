@@ -14,4 +14,9 @@ struct ObjCString appGroupId(void);
 /// entitled to the group).
 struct ObjCString appGroupContainerPath(const char *groupId);
 
+/// [Callable from Rust]
+/// Returns the bundle identifier of the app this process belongs to (see `hostInfoDictionary`), or
+/// an empty string when it has none (for example a binary that is not inside a bundle).
+struct ObjCString appBundleIdentifier(void);
+
 #endif

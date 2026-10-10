@@ -97,6 +97,28 @@ fn app_group_container() -> Option<std::path::PathBuf> {
     desktop_objc::app_group_container_path(&group_id).map(std::path::PathBuf::from)
 }
 
+/// The directory under the user's cache directory that holds the sockets when no App Group
+/// container is used.
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+fn cache_dir_name() -> String {
+    #[cfg(target_os = "macos")]
+    {
+        // A packaged Bitwarden bundle -- one that declares its App Group in its Info.plist --
+        // is named after its own bundle identifier, so beta and stable do not share a socket.
+        // Anything else, such as an `npm start` dev build running inside Electron.app or a dev
+        // proxy outside any bundle, keeps the stable name so the dev app and dev proxy still
+        // find each other.
+        let is_packaged = desktop_objc::app_group_id().is_some();
+        if is_packaged {
+            if let Some(bundle_id) = desktop_objc::bundle_identifier() {
+                return bundle_id;
+            }
+        }
+    }
+
+    "com.bitwarden.desktop".to_owned()
+}
+
 /// The main path to the IPC socket.
 pub fn path(name: &str) -> std::path::PathBuf {
     if let Some(dir) = socket_dir_override() {
@@ -121,32 +143,29 @@ pub fn path(name: &str) -> std::path::PathBuf {
 
     #[cfg(target_os = "macos")]
     {
-        // When running in an unsandboxed environment, path is: /Users/<user>/
-        // While running sandboxed, it's different:
-        // /Users/<user>/Library/Containers/com.bitwarden.desktop/Data
-        let home = dirs::home_dir().expect("Could not find user home directory");
-
-        // Check if the app is sandboxed by looking for the Containers directory
-        let sandboxed = home.components().any(|c| c.as_os_str() == "Containers");
-
-        // If the app is sandboxed, its own container is not reachable from the other side
-        // of the socket, so we need to use the shared App Group container instead.
-        if sandboxed {
-            match app_group_container() {
-                Some(container) => return container.join(format!("s.{name}")),
-                None => tracing::error!(
-                    "Sandboxed build could not resolve its App Group container; falling back \
-                     to the cache directory, which peers outside the sandbox cannot reach"
-                ),
+        // Every socket lives in the shared App Group container, sandboxed or not. The
+        // autofill extension is always sandboxed and can only reach sockets there, and
+        // routing the desktop proxy through the same container keeps a single socket path
+        // per channel instead of one per sandbox status.
+        //
+        // The container may not exist yet if this process is the first to look it up, so
+        // create it rather than assume the OS already has. A process that cannot create
+        // or reach it (an unsigned dev build, which is not entitled to the group) falls
+        // through to the cache directory below.
+        if let Some(container) = app_group_container() {
+            let _ = std::fs::create_dir_all(&container);
+            if container.exists() {
+                return container.join(format!("s.{name}"));
             }
         }
     }
 
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     {
-        // On Linux and unsandboxed Mac, we use the user's cache directory.
+        // On Linux, and on Mac when no App Group container is available (unsigned dev
+        // builds), we use the user's cache directory.
         let home = dirs::cache_dir().expect("Could not find user cache directory");
-        let path_dir = home.join("com.bitwarden.desktop");
+        let path_dir = home.join(cache_dir_name());
 
         // The cache directory might not exist, so create it
         let _ = std::fs::create_dir_all(&path_dir);
