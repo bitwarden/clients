@@ -39,11 +39,3 @@
     </a>
   </bit-banner>
 }
-
-@if (visibleBanners.includes(VisibleVaultBanner.VerifyEmail)) {
-  <app-verify-email
-    id="verify-email-banner"
-    (onDismiss)="dismissBanner(VisibleVaultBanner.VerifyEmail)"
-    (onVerified)="dismissBanner(VisibleVaultBanner.VerifyEmail)"
-  ></app-verify-email>
-}
