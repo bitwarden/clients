@@ -73,6 +73,9 @@ mod objc {
     unsafe extern "C" {
         pub unsafe fn runCommand(context: *mut c_void, value: *const c_char);
         pub unsafe fn freeObjCString(value: &ObjCString);
+        pub unsafe fn appGroupId() -> ObjCString;
+        pub unsafe fn appGroupContainerPath(group_id: *const c_char) -> ObjCString;
+        pub unsafe fn appBundleIdentifier() -> ObjCString;
     }
 
     /// This function is called from the ObjC code to return the output of the command
@@ -103,6 +106,40 @@ mod objc {
 
         true
     }
+}
+
+/// Returns the App Group identifier declared in the Info.plist of the app this process
+/// belongs to -- the enclosing .app, for a helper such as desktop_proxy -- or `None` when
+/// the key is absent (e.g. an unsigned dev build). The identifier is stamped per
+/// build variant so a single native binary serves both production and beta.
+pub fn app_group_id() -> Option<String> {
+    // SAFETY: `appGroupId` returns a freshly allocated ObjCString whose Drop frees it;
+    // it reads only process-global bundle state.
+    let objc_string = unsafe { objc::appGroupId() };
+    let id = String::try_from(objc_string).ok()?;
+    (!id.is_empty()).then_some(id)
+}
+
+/// Returns the filesystem path to the shared App Group container for `group_id`, or
+/// `None` when it cannot be resolved (e.g. the process is not entitled to the group).
+pub fn app_group_container_path(group_id: &str) -> Option<String> {
+    let c_group_id = CString::new(group_id).ok()?;
+    // SAFETY: `appGroupContainerPath` borrows the C string only for the duration of the
+    // call and returns a freshly allocated ObjCString whose Drop frees it.
+    let objc_string = unsafe { objc::appGroupContainerPath(c_group_id.as_ptr()) };
+    let path = String::try_from(objc_string).ok()?;
+    (!path.is_empty()).then_some(path)
+}
+
+/// Returns the bundle identifier of the app this process belongs to -- the enclosing .app,
+/// for a helper such as desktop_proxy -- or `None` when it has none (e.g. a binary that is
+/// not inside a bundle).
+pub fn bundle_identifier() -> Option<String> {
+    // SAFETY: `appBundleIdentifier` returns a freshly allocated ObjCString whose Drop
+    // frees it; it reads only process-global bundle state.
+    let objc_string = unsafe { objc::appBundleIdentifier() };
+    let id = String::try_from(objc_string).ok()?;
+    (!id.is_empty()).then_some(id)
 }
 
 pub async fn run_command(input: String) -> Result<String> {

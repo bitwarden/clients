@@ -40,6 +40,19 @@ export type AutofillIpcChannelOutgoing =
   (typeof AutofillIpcChannelOutgoing)[keyof typeof AutofillIpcChannelOutgoing];
 
 /**
+ * Errors with a specific meaning to the OS, sent alongside the message on
+ * {@link AutofillIpcChannelOutgoing.Error}. Any other error is reported to the
+ * OS as an internal error.
+ */
+export const AutofillIpcErrorKind = Object.freeze({
+  /** The vault holds a credential the relying party asked to exclude. */
+  ExcludedCredentialMatched: "excludedCredentialMatched",
+  /** The vault holds none of the credentials the request asked for. */
+  CredentialNotFound: "credentialNotFound",
+} as const);
+export type AutofillIpcErrorKind = (typeof AutofillIpcErrorKind)[keyof typeof AutofillIpcErrorKind];
+
+/**
  * Correlates each incoming Autofill IPC channel with its outgoing (completion) channel and the
  * request/response payload types. Channels are named from the **renderer's** perspective: the
  * renderer listens on the incoming channel and replies on the outgoing channel, while the main

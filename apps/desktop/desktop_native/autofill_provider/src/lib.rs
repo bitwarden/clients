@@ -58,6 +58,10 @@ static INIT: Once = Once::new();
 pub enum BitwardenError {
     Internal(String),
     Disconnected,
+    /// The vault holds a credential the relying party asked to exclude.
+    ExcludedCredentialMatched,
+    /// The vault holds none of the credentials the request asked for.
+    CredentialNotFound,
 }
 
 impl Display for BitwardenError {
@@ -66,6 +70,15 @@ impl Display for BitwardenError {
             Self::Internal(msg) => write!(f, "Internal error occurred: {msg}"),
             Self::Disconnected => {
                 write!(f, "Client is disconnected from autofill IPC service")
+            }
+            Self::ExcludedCredentialMatched => {
+                write!(
+                    f,
+                    "The vault holds a credential the relying party asked to exclude"
+                )
+            }
+            Self::CredentialNotFound => {
+                write!(f, "The vault holds none of the requested credentials")
             }
         }
     }

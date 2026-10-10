@@ -1,5 +1,6 @@
+import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, OnDestroy, inject } from "@angular/core";
-import { Router } from "@angular/router";
+import { RouterModule, Router } from "@angular/router";
 
 import { NoResults } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -15,6 +16,8 @@ import { Fido2ModalPageComponent } from "./fido2-modal-page.component";
 @Component({
   standalone: true,
   imports: [
+    CommonModule,
+    RouterModule,
     I18nPipe,
     StatusLockupComponent,
     SvgComponent,
@@ -22,10 +25,10 @@ import { Fido2ModalPageComponent } from "./fido2-modal-page.component";
     Fido2ModalHeaderComponent,
     Fido2ModalPageComponent,
   ],
-  templateUrl: "fido2-excluded-ciphers.component.html",
+  templateUrl: "fido2-credential-not-found.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Fido2ExcludedCiphersComponent implements OnDestroy {
+export class Fido2CredentialNotFoundComponent implements OnDestroy {
   private readonly desktopSettingsService = inject(DesktopSettingsService);
   private readonly fido2UserInterfaceService = inject(DesktopFido2UserInterfaceService);
   private readonly accountService = inject(AccountService);
@@ -41,8 +44,7 @@ export class Fido2ExcludedCiphersComponent implements OnDestroy {
   async closeModal(): Promise<void> {
     if (this.session) {
       // Let the session clean up the modal.
-      this.session.notifyConfirmCreateCredential(false);
-      this.session.confirmChosenCipher(undefined);
+      this.session.notifyCredentialNotFoundDismissed();
     } else {
       // There is no session to hand this off to, so reset the window here.
       await this.desktopSettingsService.setModalMode(false);

@@ -65,6 +65,7 @@ import { AccountSwitcherV2Component } from "../auth/components/account-switcher/
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
 import { reactiveUnlockVaultGuard } from "../autofill/guards/reactive-vault-guard";
 import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create.component";
+import { Fido2CredentialNotFoundComponent } from "../autofill/modal/credentials/fido2-credential-not-found.component";
 import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
 import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
 import { MyFoldersComponent } from "../vault/app/my-folders/my-folders.component";
@@ -145,6 +146,10 @@ export const routes: Routes = [
   {
     path: "fido2-excluded",
     component: Fido2ExcludedCiphersComponent,
+  },
+  {
+    path: "fido2-credential-not-found",
+    component: Fido2CredentialNotFoundComponent,
   },
   {
     path: "",
