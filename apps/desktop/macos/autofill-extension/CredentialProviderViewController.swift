@@ -17,8 +17,8 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     // The IPC client to communicate with the Bitwarden desktop app
     private var client: AutofillProviderClient?
 
-    // Timer for checking connection status
-    private var connectionMonitorTimer: Timer?
+    // Task for checking connection status
+    private var connectionMonitorTask: Task<Void, Never>?
     private var lastConnectionStatus: ConnectionStatus = .disconnected
 
     // Correlation ID for the request currently being handled by the desktop app,
@@ -27,11 +27,12 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     // Guarded by `requestLock` because host callbacks fire on foreign threads
     // while the view lifecycle runs on the main thread.
     private let requestLock = NSLock()
-    private var inFlightRequestContext: String?
+    // Safe to access off the main actor: every read and write below holds `requestLock`.
+    private nonisolated(unsafe) var inFlightRequestContext: String?
 
     // Records that a request has been sent to the desktop app so that teardown
     // can cancel it if it hasn't completed yet.
-    private func beginRequest(_ context: String) {
+    private nonisolated func beginRequest(_ context: String) {
         requestLock.lock()
         inFlightRequestContext = context
         requestLock.unlock()
@@ -39,7 +40,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
     // Marks the in-flight request as finished so teardown won't cancel it.
     // Called from the completion/error callbacks.
-    private func finishRequest() {
+    private nonisolated func finishRequest() {
         requestLock.lock()
         inFlightRequestContext = nil
         requestLock.unlock()
@@ -47,7 +48,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
     // Atomically clears and returns the in-flight context, if any, so that the
     // caller can cancel it exactly once.
-    private func takeInFlightContext() -> String? {
+    private nonisolated func takeInFlightContext() -> String? {
         requestLock.lock()
         defer { requestLock.unlock() }
         let context = inFlightRequestContext
@@ -136,18 +137,19 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         return newClient!
     }
 
-    // Setup the connection monitoring timer
+    // Setup the connection monitoring task
     private func setupConnectionMonitoring() {
-        // Check connection status every 1 second
-        connectionMonitorTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            self?.checkConnectionStatus()
-        }
-
-        // Make sure timer runs even when UI is busy
-        RunLoop.current.add(connectionMonitorTimer!, forMode: .common)
-
         // Initial check
         checkConnectionStatus()
+
+        // Check connection status every 1 second
+        connectionMonitorTask = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(1))
+                guard let self else { return }
+                self.checkConnectionStatus()
+            }
+        }
     }
 
     // Check the connection status by calling into Rust
@@ -199,9 +201,8 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     deinit {
         logger.log("[autofill-extension] deinitializing extension")
 
-        // Stop the connection monitor timer
-        connectionMonitorTimer?.invalidate()
-        connectionMonitorTimer = nil
+        // Stop the connection monitor task
+        connectionMonitorTask?.cancel()
     }
 
     private func getWindowDetails() async -> WindowDetails {
@@ -323,47 +324,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
                 logger.log("[autofill-extension] prepareInterfaceToProvideCredential (passkey) called \(request)")
 
-                class CallbackImpl: PreparePasskeyAssertionCallback {
-                    let ctx: ASCredentialProviderExtensionContext
-                    let logger: Logger
-                    let timeoutTimer: DispatchWorkItem
-                    let onFinish: () -> Void
-                    required init(_ ctx: ASCredentialProviderExtensionContext,_ logger: Logger, _ timeoutTimer: DispatchWorkItem, _ onFinish: @escaping () -> Void) {
-                        self.ctx = ctx
-                        self.logger = logger
-                        self.timeoutTimer = timeoutTimer
-                        self.onFinish = onFinish
-                    }
-
-                    func onComplete(credential: PasskeyAssertionResponse) {
-                        self.onFinish()
-                        self.timeoutTimer.cancel()
-                        ctx.completeAssertionRequest(using: ASPasskeyAssertionCredential(
-                            userHandle: credential.userHandle,
-                            relyingParty: credential.rpId,
-                            signature: credential.signature,
-                            clientDataHash: credential.clientDataHash,
-                            authenticatorData: credential.authenticatorData,
-                            credentialID: credential.credentialId
-                        ))
-                    }
-
-                    func onError(error: BitwardenError) {
-                        self.onFinish()
-                        logger.error("[autofill-extension] OnError called, cancelling the request \(error)")
-                        self.timeoutTimer.cancel()
-                        ctx.cancelRequest(withError: error)
-                    }
-                }
-
-                let userVerification = switch request.userVerificationPreference {
-                case .preferred:
-                    UserVerification.preferred
-                case .required:
-                    UserVerification.required
-                default:
-                    UserVerification.discouraged
-                }
+                let userVerification = UserVerification(request.userVerificationPreference)
 
                 /*
                     We're still using the old request type here, because we're sending the same data, we're expecting a single credential to be used
@@ -385,7 +346,63 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
                     let client = await getClient()
                     self.beginRequest(context)
-                    client.preparePasskeyAssertionWithoutUserInterface(request: req, callback: CallbackImpl(self.extensionContext, self.logger, timeoutTimer, { [weak self] in self?.finishRequest() }))
+                    client.preparePasskeyAssertionWithoutUserInterface(request: req, callback: AssertionCallback(self.hostRequest(timeoutTimer: timeoutTimer)))
+                }
+                return
+            }
+        }
+
+        if let request = credentialRequest as? ASPasswordCredentialRequest {
+            if let passwordIdentity = request.credentialIdentity as? ASPasswordCredentialIdentity {
+
+                logger.log("[autofill-extension] prepareInterfaceToProvideCredential (password) called \(request)")
+
+                let displayName: String? = if #available(macOS 26.2, *) {
+                    passwordIdentity.serviceIdentifier.displayName
+                } else {
+                    nil
+                }
+
+                Task {
+                    let clientWindow = await self.getWindowDetails()
+                    let context = UUID().uuidString
+                    let req = PasswordAutofillRequest(
+                        userName: passwordIdentity.user,
+                        displayName: displayName,
+                        serviceIdentifiers: [passwordIdentity.serviceIdentifier.identifier],
+                        recordIdentifier: passwordIdentity.recordIdentifier,
+                        clientWindow: clientWindow,
+                        context: context
+                    )
+
+                    let client = await getClient()
+                    self.beginRequest(context)
+                    client.preparePassword(request: req, callback: PasswordCallback(self.hostRequest(timeoutTimer: timeoutTimer)))
+                }
+                return
+            }
+        }
+
+        if #available(macOS 15.0, *), let request = credentialRequest as? ASOneTimeCodeCredentialRequest {
+            if let otpIdentity = request.credentialIdentity as? ASOneTimeCodeCredentialIdentity {
+
+                logger.log("[autofill-extension] prepareInterfaceToProvideCredential (one-time code) called \(request)")
+
+                Task {
+                    let clientWindow = await self.getWindowDetails()
+                    let context = UUID().uuidString
+                    let req = OtpAutofillRequest(
+                        userName: otpIdentity.user,
+                        displayName: otpIdentity.label,
+                        serviceIdentifiers: [otpIdentity.serviceIdentifier.identifier],
+                        recordIdentifier: otpIdentity.recordIdentifier,
+                        clientWindow: clientWindow,
+                        context: context
+                    )
+
+                    let client = await getClient()
+                    self.beginRequest(context)
+                    client.prepareOtp(request: req, callback: OtpCallback(self.hostRequest(timeoutTimer: timeoutTimer)))
                 }
                 return
             }
@@ -420,46 +437,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             if let passkeyIdentity = registrationRequest.credentialIdentity as? ASPasskeyCredentialIdentity {
                 logger.log("[autofill-extension] prepareInterface(passkey) called \(request)")
 
-                class CallbackImpl: PreparePasskeyRegistrationCallback {
-                    let ctx: ASCredentialProviderExtensionContext
-                    let timeoutTimer: DispatchWorkItem
-                    let logger: Logger
-                    let onFinish: () -> Void
-
-                    required init(_ ctx: ASCredentialProviderExtensionContext, _ logger: Logger,_ timeoutTimer: DispatchWorkItem, _ onFinish: @escaping () -> Void) {
-                        self.ctx = ctx
-                        self.logger = logger
-                        self.timeoutTimer = timeoutTimer
-                        self.onFinish = onFinish
-                    }
-
-                    func onComplete(credential: PasskeyRegistrationResponse) {
-                        self.onFinish()
-                        self.timeoutTimer.cancel()
-                        ctx.completeRegistrationRequest(using: ASPasskeyRegistrationCredential(
-                            relyingParty: credential.rpId,
-                            clientDataHash: credential.clientDataHash,
-                            credentialID: credential.credentialId,
-                            attestationObject: credential.attestationObject
-                        ))
-                    }
-
-                    func onError(error: BitwardenError) {
-                        self.onFinish()
-                        logger.error("[autofill-extension] OnError called, cancelling the request \(error)")
-                        self.timeoutTimer.cancel()
-                        ctx.cancelRequest(withError: error)
-                    }
-                }
-
-                let userVerification = switch request.userVerificationPreference {
-                case .preferred:
-                    UserVerification.preferred
-                case .required:
-                    UserVerification.required
-                default:
-                    UserVerification.discouraged
-                }
+                let userVerification = UserVerification(request.userVerificationPreference)
 
                 // Convert excluded credentials to an array of credential IDs
                 var excludedCredentialIds: [Data] = []
@@ -488,7 +466,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
                     let client = await getClient()
                     self.beginRequest(context)
-                    client.preparePasskeyRegistration(request: req, callback: CallbackImpl(self.extensionContext, self.logger, timeoutTimer, { [weak self] in self?.finishRequest() }))
+                    client.preparePasskeyRegistration(request: req, callback: RegistrationCallback(self.hostRequest(timeoutTimer: timeoutTimer)))
                 }
                 return
             }
@@ -504,47 +482,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     override func prepareCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier], requestParameters: ASPasskeyCredentialRequestParameters) {
         logger.log("[autofill-extension] prepareCredentialList(passkey) for serviceIdentifiers: \(serviceIdentifiers.count)")
 
-        class CallbackImpl: PreparePasskeyAssertionCallback {
-            let ctx: ASCredentialProviderExtensionContext
-            let timeoutTimer: DispatchWorkItem
-            let logger: Logger
-            let onFinish: () -> Void
-            required init(_ ctx: ASCredentialProviderExtensionContext,_ logger: Logger, _ timeoutTimer: DispatchWorkItem, _ onFinish: @escaping () -> Void) {
-                self.ctx = ctx
-                self.logger = logger
-                self.timeoutTimer = timeoutTimer
-                self.onFinish = onFinish
-            }
-
-            func onComplete(credential: PasskeyAssertionResponse) {
-                self.onFinish()
-                self.timeoutTimer.cancel()
-                ctx.completeAssertionRequest(using: ASPasskeyAssertionCredential(
-                    userHandle: credential.userHandle,
-                    relyingParty: credential.rpId,
-                    signature: credential.signature,
-                    clientDataHash: credential.clientDataHash,
-                    authenticatorData: credential.authenticatorData,
-                    credentialID: credential.credentialId
-                ))
-            }
-
-            func onError(error: BitwardenError) {
-                self.onFinish()
-                logger.error("[autofill-extension] OnError called, cancelling the request \(error)")
-                self.timeoutTimer.cancel()
-                ctx.cancelRequest(withError: error)
-            }
-        }
-
-        let userVerification = switch requestParameters.userVerificationPreference {
-        case .preferred:
-            UserVerification.preferred
-        case .required:
-            UserVerification.required
-        default:
-            UserVerification.discouraged
-        }
+        let userVerification = UserVerification(requestParameters.userVerificationPreference)
 
         let timeoutTimer = createTimer()
 
@@ -562,8 +500,223 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
             let client = await getClient()
             self.beginRequest(context)
-            client.preparePasskeyAssertion(request: req, callback: CallbackImpl(self.extensionContext, self.logger, timeoutTimer, { [weak self] in self?.finishRequest() }))
+            client.preparePasskeyAssertion(request: req, callback: AssertionCallback(self.hostRequest(timeoutTimer: timeoutTimer)))
         }
         return
+    }
+
+    /*
+     Called when the user picks "Bitwarden…" on a password field to browse their
+     credentials rather than take one of the system's suggestions. Unlike
+     prepareInterfaceToProvideCredential, no identity has been chosen yet, so the
+     desktop app shows its own picker for the given services.
+     */
+    override func prepareCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
+        logger.log("[autofill-extension] prepareCredentialList(password) for serviceIdentifiers: \(serviceIdentifiers.count)")
+
+        let timeoutTimer = createTimer()
+
+        Task {
+            let clientWindow = await self.getWindowDetails()
+            let context = UUID().uuidString
+            let req = PasswordAutofillRequest(
+                // The user hasn't chosen an identity yet; the desktop picker is
+                // what establishes which credential to fill.
+                userName: nil,
+                displayName: nil,
+                serviceIdentifiers: serviceIdentifiers.map { $0.identifier },
+                recordIdentifier: nil,
+                clientWindow: clientWindow,
+                context: context
+            )
+
+            let client = await getClient()
+            self.beginRequest(context)
+            client.preparePassword(request: req, callback: PasswordCallback(self.hostRequest(timeoutTimer: timeoutTimer)))
+        }
+    }
+
+    /*
+     The one-time-code counterpart of prepareCredentialList(for:). One-time codes
+     arrived in macOS 15, which is newer than the deployment target, so the whole
+     override is gated.
+     */
+    @available(macOS 15.0, *)
+    override func prepareOneTimeCodeCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
+        logger.log("[autofill-extension] prepareOneTimeCodeCredentialList for serviceIdentifiers: \(serviceIdentifiers.count)")
+
+        let timeoutTimer = createTimer()
+
+        Task {
+            let clientWindow = await self.getWindowDetails()
+            let context = UUID().uuidString
+            let req = OtpAutofillRequest(
+                userName: nil,
+                displayName: nil,
+                serviceIdentifiers: serviceIdentifiers.map { $0.identifier },
+                recordIdentifier: nil,
+                clientWindow: clientWindow,
+                context: context
+            )
+
+            let client = await getClient()
+            self.beginRequest(context)
+            client.prepareOtp(request: req, callback: OtpCallback(self.hostRequest(timeoutTimer: timeoutTimer)))
+        }
+    }
+
+    // Bundles the state an IPC callback needs to settle the pending host request.
+    private func hostRequest(timeoutTimer: DispatchWorkItem) -> HostRequest {
+        HostRequest(
+            ctx: self.extensionContext,
+            logger: self.logger,
+            timeoutTimer: timeoutTimer,
+            onFinish: { [weak self] in self?.finishRequest() }
+        )
+    }
+}
+
+private extension UserVerification {
+    init(_ preference: ASAuthorizationPublicKeyCredentialUserVerificationPreference) {
+        self = switch preference {
+        case .preferred: .preferred
+        case .required: .required
+        // TODO: We should default this to preferred to match WebAuthn.
+        default: .discouraged
+        }
+    }
+}
+
+// A handle to the host request that is in flight, safe to settle from the IPC layer's threads.
+//
+// The generated UniFFI callback protocols require `Sendable`, but `ASCredentialProviderExtensionContext`
+// and `DispatchWorkItem` are not so they are isolated to the main actor. `logger` and `onFinish` are
+// `Sendable`, so they run immediately on the calling thread.
+@MainActor
+private final class HostRequest {
+    private let ctx: ASCredentialProviderExtensionContext
+    private let timeoutTimer: DispatchWorkItem
+    private nonisolated let logger: Logger
+    private nonisolated let onFinish: @Sendable () -> Void
+
+    init(
+        ctx: ASCredentialProviderExtensionContext,
+        logger: Logger,
+        timeoutTimer: DispatchWorkItem,
+        onFinish: @escaping @Sendable () -> Void
+    ) {
+        self.ctx = ctx
+        self.logger = logger
+        self.timeoutTimer = timeoutTimer
+        self.onFinish = onFinish
+    }
+
+    // Marks the request as no longer in flight, stops the timeout, then hands the extension
+    // context to `settle` on the main actor.
+    nonisolated func complete(
+        _ settle: @escaping @Sendable @MainActor (ASCredentialProviderExtensionContext) -> Void
+    ) {
+        onFinish()
+        Task { @MainActor in
+            self.timeoutTimer.cancel()
+            settle(self.ctx)
+        }
+    }
+
+    nonisolated func cancel(with error: BitwardenError) {
+        logger.error("[autofill-extension] OnError called, cancelling the request \(error)")
+        complete { $0.cancelRequest(withError: error) }
+    }
+}
+
+// Forwards a passkey assertion result from the IPC layer to the host request.
+private final class AssertionCallback: PreparePasskeyAssertionCallback {
+    private let request: HostRequest
+
+    init(_ request: HostRequest) {
+        self.request = request
+    }
+
+    func onComplete(credential: PasskeyAssertionResponse) {
+        request.complete { ctx in
+            ctx.completeAssertionRequest(using: ASPasskeyAssertionCredential(
+                userHandle: credential.userHandle,
+                relyingParty: credential.rpId,
+                signature: credential.signature,
+                clientDataHash: credential.clientDataHash,
+                authenticatorData: credential.authenticatorData,
+                credentialID: credential.credentialId
+            ))
+        }
+    }
+
+    func onError(error: BitwardenError) {
+        request.cancel(with: error)
+    }
+}
+
+// Forwards a passkey registration result from the IPC layer to the host request.
+private final class RegistrationCallback: PreparePasskeyRegistrationCallback {
+    private let request: HostRequest
+
+    init(_ request: HostRequest) {
+        self.request = request
+    }
+
+    func onComplete(credential: PasskeyRegistrationResponse) {
+        request.complete { ctx in
+            ctx.completeRegistrationRequest(using: ASPasskeyRegistrationCredential(
+                relyingParty: credential.rpId,
+                clientDataHash: credential.clientDataHash,
+                credentialID: credential.credentialId,
+                attestationObject: credential.attestationObject
+            ))
+        }
+    }
+
+    func onError(error: BitwardenError) {
+        request.cancel(with: error)
+    }
+}
+
+// Forwards a password autofill result from the IPC layer to the host request.
+private final class PasswordCallback: PreparePasswordAutofillCallback {
+    private let request: HostRequest
+
+    init(_ request: HostRequest) {
+        self.request = request
+    }
+
+    func onComplete(credential: PasswordAutofillResponse) {
+        request.complete { ctx in
+            ctx.completeRequest(withSelectedCredential: ASPasswordCredential(
+                user: credential.username,
+                password: credential.password
+            ))
+        }
+    }
+
+    func onError(error: BitwardenError) {
+        request.cancel(with: error)
+    }
+}
+
+// Forwards a one-time code autofill result from the IPC layer to the host request.
+@available(macOS 15.0, *)
+private final class OtpCallback: PrepareOtpAutofillCallback {
+    private let request: HostRequest
+
+    init(_ request: HostRequest) {
+        self.request = request
+    }
+
+    func onComplete(credential: OtpAutofillResponse) {
+        request.complete { ctx in
+            ctx.completeOneTimeCodeRequest(using: ASOneTimeCodeCredential(code: credential.code))
+        }
+    }
+
+    func onError(error: BitwardenError) {
+        request.cancel(with: error)
     }
 }

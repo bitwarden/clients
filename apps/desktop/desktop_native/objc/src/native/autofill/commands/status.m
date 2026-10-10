@@ -23,6 +23,14 @@ BOOL fido2Supported() {
   }
 }
 
+BOOL otpSupported() {
+  if (@available(macos 15, *)) {
+    return YES;
+  } else {
+    return NO;
+  }
+}
+
 BOOL passwordSupported() {
   if (@available(macos 11, *)) {
     return YES;
@@ -45,6 +53,7 @@ void status(void* context, __attribute__((unused)) NSDictionary *params) {
       _success(@{
         @"support": @{
           @"fido2": @(fido2Supported()),
+          @"otp": @(otpSupported()),
           @"password": @(passwordSupported()),
           @"incrementalUpdates": @(supportsIncremental),
         },

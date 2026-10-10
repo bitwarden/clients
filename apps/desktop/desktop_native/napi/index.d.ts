@@ -14,6 +14,44 @@ export declare namespace autofill {
     key: string
     value: string
   }
+  /** Request to retrieve a one-time code credential. */
+  export interface OtpAutofillRequest {
+    /**
+     * User the OS already picked, when the request came from a suggestion.
+     * Absent when the user asked to browse their credentials instead.
+     */
+    userName?: string
+    displayName?: string
+    /**
+     * The services a credential is being requested for, most specific first
+     * (e.g. `["m.example.com", "example.com"]`). May be empty, which asks for
+     * every credential the user could fill.
+     */
+    serviceIdentifiers: Array<string>
+    /**
+     * Identifier of the credential the OS already picked, when the request came
+     * from a suggestion. Absent when the user asked to browse their
+     * credentials instead, in which case a picker has to be shown.
+     */
+    recordIdentifier?: string
+    /** Details about the window of the application requesting the code. */
+    clientWindow: WindowDetails
+    /**
+     * Native context required for callbacks to the OS. Format differs by OS.
+     * # Operating System Differences
+     *
+     * ## macOS
+     * A UUID representing the request.
+     *
+     * ## Windows
+     * Not implemented
+     */
+    context: string
+  }
+  /** Response for a one-time code autofill request. */
+  export interface OtpAutofillResponse {
+    code: string
+  }
   /** Request to assert a credential. */
   export interface PasskeyAssertionRequest {
     /** Relying Party ID for the request. */
@@ -135,6 +173,46 @@ export declare namespace autofill {
     /** WebAuthn attestation object. */
     attestationObject: Array<number>
   }
+  /** Request to retrieve a password credential. */
+  export interface PasswordAutofillRequest {
+    /**
+     * User the OS already picked, when the request came from a suggestion.
+     * Absent when the user asked to browse their credentials instead.
+     */
+    userName?: string
+    displayName?: string
+    /**
+     * The services a credential is being requested for, most specific first
+     * (e.g. `["m.example.com", "example.com"]`). May be empty, which asks for
+     * every credential the user could fill.
+     */
+    serviceIdentifiers: Array<string>
+    /**
+     * Identifier of the credential the OS already picked, when the request came
+     * from a suggestion. Absent when the user asked to browse their
+     * credentials instead, in which case a picker has to be shown.
+     */
+    recordIdentifier?: string
+    /** Details about the window of the application requesting the password. */
+    clientWindow: WindowDetails
+    /**
+     * Native context required for callbacks to the OS. Format differs by OS.
+     * # Operating System Differences
+     *
+     * ## macOS
+     * A UUID representing the request.
+     *
+     * ## Windows
+     * Not implemented
+     */
+    context: string
+  }
+  /** Response for a password autofill request. */
+  export interface PasswordAutofillResponse {
+    /** Username of the account */
+    username: string
+    password: string
+  }
   /** Coordinates representing a point on the screen. */
   export interface Position {
     x: number
@@ -209,6 +287,8 @@ export declare namespace autofill {
     stop(): void
     completeRegistration(clientId: number, sequenceNumber: number, response: PasskeyRegistrationResponse): number
     completeAssertion(clientId: number, sequenceNumber: number, response: PasskeyAssertionResponse): number
+    completeOtpAutofill(clientId: number, sequenceNumber: number, response: OtpAutofillResponse): number
+    completePasswordAutofill(clientId: number, sequenceNumber: number, response: PasswordAutofillResponse): number
     completeLockStatus(clientId: number, sequenceNumber: number, response: LockStatusResponse): number
     completeWindowHandleQuery(clientId: number, sequenceNumber: number, response: WindowHandleQueryResponse): number
     completeError(clientId: number, sequenceNumber: number, error: string): number
@@ -247,6 +327,20 @@ export declare namespace autofill {
    * string that was passed on the initial request.
    */
   cancelRequestCallback: { (error: null, clientId: number, sequenceNumber: number, message: string): void; (error: Error, clientId: number, sequenceNumber: number, message: null): void; }
+  /**
+   * Function to execute when a password autofill request is received.
+   *
+   * The `context` field should be stored, as the cancel_request_callback
+   * will use the same value to identify the request to be cancelled.
+   */
+  passwordAutofillCallback: { (error: null, clientId: number, sequenceNumber: number, message: PasswordAutofillRequest): void; (error: Error, clientId: number, sequenceNumber: number, message: null): void; }
+  /**
+   * Function to execute when a one-time code autofill request is received.
+   *
+   * The `context` field should be stored, as the cancel_request_callback
+   * will use the same value to identify the request to be cancelled.
+   */
+  otpAutofillCallback: { (error: null, clientId: number, sequenceNumber: number, message: OtpAutofillRequest): void; (error: Error, clientId: number, sequenceNumber: number, message: null): void; }
   }
   export function runCommand(value: string): Promise<string>
 }

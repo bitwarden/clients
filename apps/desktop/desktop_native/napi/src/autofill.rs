@@ -2,9 +2,10 @@
 pub mod autofill {
     use autofill_provider::{
         BitwardenError, ExtensionRequest, ExtensionRequestMessage, LockStatusResponse,
-        NativeStatus, PasskeyAssertionRequest, PasskeyAssertionResponse,
-        PasskeyAssertionWithoutUserInterfaceRequest, PasskeyRegistrationRequest,
-        PasskeyRegistrationResponse, WindowHandleQueryResponse,
+        NativeStatus, OtpAutofillRequest, OtpAutofillResponse, PasskeyAssertionRequest,
+        PasskeyAssertionResponse, PasskeyAssertionWithoutUserInterfaceRequest,
+        PasskeyRegistrationRequest, PasskeyRegistrationResponse, PasswordAutofillRequest,
+        PasswordAutofillResponse, WindowHandleQueryResponse,
     };
     use desktop_core::ipc::server::{Message, MessageType};
     use napi::{
@@ -96,6 +97,27 @@ pub mod autofill {
             (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
         }")]
         pub cancel_request_callback: ThreadsafeFunction<FnArgs<(u32, u32, String)>>,
+
+        /// Function to execute when a password autofill request is received.
+        ///
+        /// The `context` field should be stored, as the cancel_request_callback
+        /// will use the same value to identify the request to be cancelled.
+        #[napi(ts_type = "{ \
+                    (error: null, clientId: number, sequenceNumber: number, message: PasswordAutofillRequest): void; \
+                    (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+                }")]
+        pub password_autofill_callback:
+            ThreadsafeFunction<FnArgs<(u32, u32, PasswordAutofillRequest)>>,
+
+        /// Function to execute when a one-time code autofill request is received.
+        ///
+        /// The `context` field should be stored, as the cancel_request_callback
+        /// will use the same value to identify the request to be cancelled.
+        #[napi(ts_type = "{ \
+                    (error: null, clientId: number, sequenceNumber: number, message: OtpAutofillRequest): void; \
+                    (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+                }")]
+        pub otp_autofill_callback: ThreadsafeFunction<FnArgs<(u32, u32, OtpAutofillRequest)>>,
     }
 
     // FIXME: Remove unwraps! They panic and terminate the whole application.
@@ -166,6 +188,20 @@ pub mod autofill {
                                     let params =
                                         (client_id, msg.sequence_number, assertion_request);
                                     callbacks.assertion_callback.call(
+                                        Ok(params.into()),
+                                        ThreadsafeFunctionCallMode::NonBlocking,
+                                    );
+                                }
+                                ExtensionRequest::Otp(otp_request) => {
+                                    let params = (client_id, msg.sequence_number, otp_request);
+                                    callbacks.otp_autofill_callback.call(
+                                        Ok(params.into()),
+                                        ThreadsafeFunctionCallMode::NonBlocking,
+                                    );
+                                }
+                                ExtensionRequest::Password(password_request) => {
+                                    let params = (client_id, msg.sequence_number, password_request);
+                                    callbacks.password_autofill_callback.call(
                                         Ok(params.into()),
                                         ThreadsafeFunctionCallMode::NonBlocking,
                                     );
@@ -250,6 +286,34 @@ pub mod autofill {
             client_id: u32,
             sequence_number: u32,
             response: PasskeyAssertionResponse,
+        ) -> napi::Result<u32> {
+            let message = PasskeyMessage {
+                sequence_number,
+                value: Ok(response),
+            };
+            self.send(client_id, serde_json::to_string(&message).unwrap())
+        }
+
+        #[napi]
+        pub fn complete_otp_autofill(
+            &self,
+            client_id: u32,
+            sequence_number: u32,
+            response: OtpAutofillResponse,
+        ) -> napi::Result<u32> {
+            let message = PasskeyMessage {
+                sequence_number,
+                value: Ok(response),
+            };
+            self.send(client_id, serde_json::to_string(&message).unwrap())
+        }
+
+        #[napi]
+        pub fn complete_password_autofill(
+            &self,
+            client_id: u32,
+            sequence_number: u32,
+            response: PasswordAutofillResponse,
         ) -> napi::Result<u32> {
             let message = PasskeyMessage {
                 sequence_number,

@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -10,7 +10,13 @@ import { Fido2AuthenticatorService as Fido2AuthenticatorServiceAbstraction } fro
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
+import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
+import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
+import { DesktopAutofillUiService, DesktopAutofillUiSession } from "./desktop-autofill-ui.service";
 import { DesktopAutofillService } from "./desktop-autofill.service";
 import { NativeWindowObject } from "./desktop-fido2-user-interface.service";
 
@@ -23,6 +29,9 @@ describe("DesktopAutofillService", () => {
   >;
   let accountService: MockProxy<AccountService>;
   let authService: MockProxy<AuthService>;
+  let totpService: MockProxy<TotpService>;
+  let autofillUiService: MockProxy<DesktopAutofillUiService>;
+  let autofillUiSession: MockProxy<DesktopAutofillUiSession>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
 
   let activeAccountStatus$: BehaviorSubject<AuthenticationStatus>;
@@ -35,6 +44,10 @@ describe("DesktopAutofillService", () => {
     fido2AuthenticatorService = mock<Fido2AuthenticatorServiceAbstraction<NativeWindowObject>>();
     accountService = mock<AccountService>();
     authService = mock<AuthService>();
+    totpService = mock<TotpService>();
+    autofillUiService = mock<DesktopAutofillUiService>();
+    autofillUiSession = mock<DesktopAutofillUiSession>();
+    autofillUiService.newSession.mockReturnValue(autofillUiSession);
     platformUtilsService = mock<PlatformUtilsService>();
 
     activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
@@ -49,6 +62,8 @@ describe("DesktopAutofillService", () => {
       fido2AuthenticatorService,
       accountService,
       authService,
+      totpService,
+      autofillUiService,
       platformUtilsService,
     );
   });
@@ -103,6 +118,8 @@ describe("DesktopAutofillService", () => {
         fido2AuthenticatorService,
         accountService,
         authService,
+        totpService,
+        autofillUiService,
         platformUtilsService,
       );
 
@@ -164,6 +181,153 @@ describe("DesktopAutofillService", () => {
       activeAccountStatus$.next(AuthenticationStatus.LoggedOut);
 
       await expect(service.doLockStatus()).resolves.toEqual({ isUnlocked: false });
+    });
+  });
+
+  describe("plain fills", () => {
+    /** A request shaped like the one macOS sends for a chosen suggestion. */
+    const suggestionRequest = (recordIdentifier: string) => ({
+      userName: "user@example.com",
+      displayName: undefined,
+      serviceIdentifiers: ["example.com"],
+      recordIdentifier,
+      clientWindow: { position: { x: 1, y: 2 }, handle: undefined },
+      context: "ctx-1",
+    });
+
+    /** A request shaped like the one macOS sends when the user browses instead. */
+    const browseRequest = () => ({
+      userName: undefined,
+      displayName: undefined,
+      serviceIdentifiers: ["m.example.com", "example.com"],
+      recordIdentifier: undefined,
+      clientWindow: { position: { x: 1, y: 2 }, handle: undefined },
+      context: "ctx-1",
+    });
+
+    const login = (overrides: Record<string, unknown> = {}) =>
+      Object.assign(new CipherView(), {
+        id: "cipher-1",
+        type: CipherType.Login,
+        reprompt: CipherRepromptType.None,
+        deletedDate: null,
+        login: Object.assign(new LoginView(), {
+          username: "user@example.com",
+          password: "hunter2",
+          totp: "otpauth://totp/example",
+          uris: [Object.assign(new LoginUriView(), { uri: "https://example.com" })],
+        }),
+        ...overrides,
+      });
+
+    beforeEach(() => {
+      // The window object a ceremony is given includes the app's own window
+      // handle, which is fetched over IPC.
+      (global as any).ipc = {
+        autofill: { desktopAutofill: { getAppWindowHandle: jest.fn().mockResolvedValue(null) } },
+      };
+
+      accountService.activeAccount$ = new BehaviorSubject({ id: "user-1" } as any);
+      cipherService.cipherView$.mockReturnValue(of(login()));
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([login()]);
+      totpService.getCode$.mockReturnValue(of({ code: "123456" } as any));
+    });
+
+    it("unlocks the vault before reading any credential", async () => {
+      await service.doPasswordAutofill(suggestionRequest("cipher-1") as any, new AbortController());
+
+      expect(autofillUiSession.ensureUnlockedVault).toHaveBeenCalled();
+    });
+
+    it("fills the suggestion the OS chose without showing a picker", async () => {
+      await expect(
+        service.doPasswordAutofill(suggestionRequest("cipher-1") as any, new AbortController()),
+      ).resolves.toEqual({ username: "user@example.com", password: "hunter2" });
+
+      expect(autofillUiSession.pickCipher).not.toHaveBeenCalled();
+    });
+
+    it("shows the password picker over URL-matched logins when the user browses", async () => {
+      autofillUiSession.pickCipher.mockResolvedValue(login());
+
+      await expect(
+        service.doPasswordAutofill(browseRequest() as any, new AbortController()),
+      ).resolves.toEqual({ username: "user@example.com", password: "hunter2" });
+
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
+        "https://m.example.com",
+        "user-1",
+      );
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
+        "https://example.com",
+        "user-1",
+      );
+      expect(autofillUiSession.pickCipher).toHaveBeenCalledWith(["cipher-1"], "/password-autofill");
+    });
+
+    it("offers the OTP picker only logins that carry a TOTP secret", async () => {
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+        login(),
+        login({
+          id: "cipher-2",
+          login: Object.assign(new LoginView(), { ...login().login, totp: undefined }),
+        }),
+      ]);
+      autofillUiSession.pickCipher.mockResolvedValue(login());
+
+      await expect(
+        service.doOtpAutofill(browseRequest() as any, new AbortController()),
+      ).resolves.toEqual({ code: "123456" });
+
+      expect(autofillUiSession.pickCipher).toHaveBeenCalledWith(["cipher-1"], "/otp-autofill");
+    });
+
+    it("shows the picker for a reprompt-protected suggestion, since its prompt needs a window", async () => {
+      cipherService.cipherView$.mockReturnValue(
+        of(login({ reprompt: CipherRepromptType.Password })),
+      );
+      autofillUiSession.pickCipher.mockResolvedValue(login());
+
+      await service.doPasswordAutofill(suggestionRequest("cipher-1") as any, new AbortController());
+
+      expect(autofillUiSession.pickCipher).toHaveBeenCalled();
+    });
+
+    it("fails the request when the user picks nothing", async () => {
+      autofillUiSession.pickCipher.mockResolvedValue(undefined);
+
+      await expect(
+        service.doPasswordAutofill(browseRequest() as any, new AbortController()),
+      ).rejects.toThrow("No credential was selected");
+    });
+
+    it("closes the session even when the fill fails", async () => {
+      autofillUiSession.pickCipher.mockResolvedValue(undefined);
+
+      await expect(
+        service.doPasswordAutofill(browseRequest() as any, new AbortController()),
+      ).rejects.toThrow();
+      expect(autofillUiSession.close).toHaveBeenCalled();
+    });
+
+    it("leaves no UI behind when a suggestion fill follows an unlock", async () => {
+      // The suggestion path never reaches the picker, so nothing else would tear
+      // down the lock screen `ensureUnlockedVault` put on screen.
+      await service.doPasswordAutofill(suggestionRequest("cipher-1") as any, new AbortController());
+
+      expect(autofillUiSession.hideUi).toHaveBeenCalled();
+    });
+
+    it("gives the session the abort controller, so a cancel reaches the picker", async () => {
+      const abortController = new AbortController();
+      autofillUiSession.pickCipher.mockResolvedValue(login());
+
+      await service.doPasswordAutofill(browseRequest() as any, abortController);
+
+      expect(autofillUiService.newSession).toHaveBeenCalledWith(
+        expect.objectContaining({ requestContext: "ctx-1" }),
+        abortController,
+      );
     });
   });
 

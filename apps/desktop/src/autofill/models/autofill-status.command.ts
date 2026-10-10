@@ -11,6 +11,7 @@ export type AutofillStatusParams = Record<string, never>;
 export type AutofillStatusResult = AutofillCommandOutput<{
   support: {
     fido2: boolean;
+    otp: boolean;
     password: boolean;
     incrementalUpdates: boolean;
   };

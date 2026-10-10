@@ -64,9 +64,12 @@ import {
 import { AccountSwitcherV2Component } from "../auth/components/account-switcher/account-switcher-v2.component";
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
 import { reactiveUnlockVaultGuard } from "../autofill/guards/reactive-vault-guard";
+import {
+  AutofillVaultComponent,
+  AutofillVaultRouteData,
+} from "../autofill/modal/credentials/autofill-vault.component";
 import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create.component";
 import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
-import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
 import { MyFoldersComponent } from "../vault/app/my-folders/my-folders.component";
 import { SharedFoldersComponent } from "../vault/app/shared-folders/shared-folders.component";
 import { VaultComponent } from "../vault/app/vault-v3/vault.component";
@@ -134,9 +137,25 @@ export const routes: Routes = [
       },
     } satisfies RouteDataProperties & AnonLayoutWrapperData,
   },
+  // The credential picker is shared by every autofill flow; only the title
+  // differs, so each flow gets its own path into the same component.
   {
     path: "fido2-assertion",
-    component: Fido2VaultComponent,
+    component: AutofillVaultComponent,
+    data: {
+      titleKey: "passkeyLogin2",
+      headingKey: "chooseCipherForPasskeyAuth",
+    } satisfies AutofillVaultRouteData,
+  },
+  {
+    path: "password-autofill",
+    component: AutofillVaultComponent,
+    data: { titleKey: "autofillPassword" } satisfies AutofillVaultRouteData,
+  },
+  {
+    path: "otp-autofill",
+    component: AutofillVaultComponent,
+    data: { titleKey: "autofillVerificationCode" } satisfies AutofillVaultRouteData,
   },
   {
     path: "fido2-creation",

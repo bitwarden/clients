@@ -124,6 +124,7 @@ import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/s
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { COPY_CLICK_LISTENER, DialogService, ToastService } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
@@ -177,6 +178,7 @@ import { DesktopLoginComponentService } from "../../auth/login/desktop-login-com
 import { DesktopAuthRequestAnsweringService } from "../../auth/services/auth-request-answering/desktop-auth-request-answering.service";
 import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
+import { DesktopAutofillUiService } from "../../autofill/services/desktop-autofill-ui.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopAutotypeDefaultSettingPolicy } from "../../autofill/services/desktop-autotype-policy.service";
@@ -480,6 +482,8 @@ const safeProviders: SafeProvider[] = [
       Fido2AuthenticatorServiceAbstraction,
       AccountService,
       AuthService,
+      TotpServiceAbstraction,
+      DesktopAutofillUiService,
       PlatformUtilsService,
     ],
   }),
@@ -502,6 +506,18 @@ const safeProviders: SafeProvider[] = [
     deps: [PlatformUtilsServiceAbstraction, I18nServiceAbstraction, LogServiceAbstraction],
   }),
   safeProvider({
+    provide: DesktopAutofillUiService,
+    useClass: DesktopAutofillUiService,
+    deps: [
+      AuthServiceAbstraction,
+      AccountService,
+      LogService,
+      Router,
+      DesktopSettingsService,
+      PasswordRepromptService,
+    ],
+  }),
+  safeProvider({
     provide: DesktopFido2UserInterfaceService,
     useClass: DesktopFido2UserInterfaceService,
     deps: [
@@ -515,6 +531,7 @@ const safeProviders: SafeProvider[] = [
       DesktopFido2UserVerificationService,
       PasswordRepromptService,
       DomainSettingsService,
+      DesktopAutofillUiService,
     ],
   }),
   safeProvider({

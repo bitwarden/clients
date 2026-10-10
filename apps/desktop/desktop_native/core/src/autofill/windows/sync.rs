@@ -94,6 +94,8 @@ pub(super) struct SyncParameters {
 #[serde(rename_all = "camelCase")]
 enum SyncCredential {
     // Currently Windows only supports syncing passkeys, so this is unused.
+    Otp,
+    // Currently Windows only supports syncing passkeys, so this is unused.
     Password,
     Fido2(SyncFido2Credential),
 }

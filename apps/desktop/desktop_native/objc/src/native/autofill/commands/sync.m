@@ -2,6 +2,7 @@
 #import <AuthenticationServices/ASCredentialIdentityStore.h>
 #import <AuthenticationServices/ASCredentialIdentityStoreState.h>
 #import <AuthenticationServices/ASCredentialServiceIdentifier.h>
+#import <AuthenticationServices/ASOneTimeCodeCredentialIdentity.h>
 #import <AuthenticationServices/ASPasswordCredentialIdentity.h>
 #import <AuthenticationServices/ASPasskeyCredentialIdentity.h>
 #import "../../utils.h"
@@ -37,11 +38,11 @@ void runSync(void* context, NSDictionary *params) {
 
         [mappedCredentials addObject:passwordIdentity];
       } 
-      else if (@available(macos 14, *)) {
-        // Fido2CredentialView uses `userName` (camelCase) while Login uses `username`.
-        // This is intentional. Fido2 fields are flattened from the FIDO2 spec's nested structure
-        // (user.name -> userName, rp.id -> rpId) to maintain a clear distinction between these fields.
-        if ([type isEqualToString:@"fido2"]) {
+      else if ([type isEqualToString:@"fido2"]) {
+        if (@available(macos 14, *)) {
+          // Fido2CredentialView uses `userName` (camelCase) while Login uses `username`.
+          // This is intentional. Fido2 fields are flattened from the FIDO2 spec's nested structure
+          // (user.name -> userName, rp.id -> rpId) to maintain a clear distinction between these fields.
           NSString *cipherId = credential[@"cipherId"];
           NSString *rpId = credential[@"rpId"];
           NSString *userName = credential[@"userName"];
@@ -64,6 +65,27 @@ void runSync(void* context, NSDictionary *params) {
             recordIdentifier:cipherId];
 
           [mappedCredentials addObject:passkeyIdentity];
+        }
+      }
+      else if ([type isEqualToString:@"otp"]) {
+        if (@available(macos 15, *)) {
+          NSString *cipherId = credential[@"cipherId"];
+          NSString *uri = credential[@"uri"];
+          NSString *username = credential[@"username"];
+
+          // Skip credentials with null username since MacOS crashes if we send credentials with empty labels
+          if ([username isKindOfClass:[NSNull class]] || username.length == 0) {
+              NSLog(@"Skipping credential, username is empty: %@", credential);
+            continue;
+          }
+
+          ASCredentialServiceIdentifier *serviceId = [[ASCredentialServiceIdentifier alloc]
+            initWithIdentifier:uri type:ASCredentialServiceIdentifierTypeURL];
+          Class oneTimeCodeCredentialIdentityClass = NSClassFromString(@"ASOneTimeCodeCredentialIdentity");
+          id oneTimeCodeIdentity = [[oneTimeCodeCredentialIdentityClass alloc]
+            initWithServiceIdentifier:serviceId label:username recordIdentifier:cipherId];
+
+          [mappedCredentials addObject:oneTimeCodeIdentity];
         }
       }
     } @catch (NSException *exception) {

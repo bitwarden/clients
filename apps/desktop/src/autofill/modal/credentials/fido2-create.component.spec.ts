@@ -190,8 +190,7 @@ describe("Fido2CreateComponent", () => {
     it("should close modal and notify session", async () => {
       await component.closeModal();
 
-      expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
-      expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(undefined);
+      expect(mockSession.cancel).toHaveBeenCalled();
     });
   });
 });

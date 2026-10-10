@@ -156,6 +156,19 @@ export class DesktopAutofillMain {
       AutofillIpcChannelOutgoing.PasskeyAssertion,
       AutofillIpcServer.prototype.completeAssertion,
     );
+
+    const passwordAutofillCallback = this.makeListener(
+      AutofillIpcChannelIncoming.PasswordAutofill,
+      AutofillIpcChannelOutgoing.PasswordAutofill,
+      AutofillIpcServer.prototype.completePasswordAutofill,
+    );
+
+    const otpAutofillCallback = this.makeListener(
+      AutofillIpcChannelIncoming.OtpAutofill,
+      AutofillIpcChannelOutgoing.OtpAutofill,
+      AutofillIpcServer.prototype.completeOtpAutofill,
+    );
+
     const nativeStatusCallback = this.makeListener(AutofillIpcChannelIncoming.NativeStatus);
 
     const lockStatusCallback = this.makeListener(
@@ -179,6 +192,8 @@ export class DesktopAutofillMain {
       lockStatusCallback,
       windowHandleQueryCallback,
       cancelRequestCallback,
+      passwordAutofillCallback,
+      otpAutofillCallback,
     });
 
     ipcMain.on(AutofillIpcChannelControl.ListenerReady, () => {

@@ -11,6 +11,7 @@ pub(super) fn handle_status_request() -> Result<StatusResponse> {
         return Ok(StatusResponse {
             support: StatusSupport {
                 fido2: false,
+                otp: false,
                 password: false,
                 incremental_updates: false,
             },
@@ -27,6 +28,7 @@ pub(super) fn handle_status_request() -> Result<StatusResponse> {
     Ok(StatusResponse {
         support: StatusSupport {
             fido2: fido_enabled,
+            otp: false,
             password: false,
             incremental_updates: false,
         },
@@ -45,6 +47,7 @@ pub(super) struct StatusResponse {
 #[serde(rename_all = "camelCase")]
 struct StatusSupport {
     fido2: bool,
+    otp: bool,
     password: bool,
     incremental_updates: bool,
 }

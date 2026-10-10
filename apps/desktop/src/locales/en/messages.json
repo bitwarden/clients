@@ -5581,6 +5581,12 @@
   "passkeyLogin2": {
     "message": "Log in with passkey"
   },
+  "autofillPassword": {
+    "message": "Autofill password"
+  },
+  "autofillVerificationCode": {
+    "message": "Autofill verification code"
+  },
   "savePasskeyQuestion": {
     "message": "Save passkey?"
   },

@@ -131,8 +131,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   async closeModal(): Promise<void> {
     // Let the session clean up the modal, if present.
     if (this.session) {
-      this.session.notifyConfirmCreateCredential(false);
-      this.session.confirmChosenCipher(undefined);
+      this.session.cancel();
     } else {
       await this.desktopSettingsService.setModalMode(false);
       await this.accountService.setShowHeader(true);
