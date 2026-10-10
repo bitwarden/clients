@@ -57,7 +57,11 @@ import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
 import { AUTOFILL_DENIED, FillOccurred, FillResult } from "../types/fill-result";
-import { fieldContainsKeyword, isNonLoginUsernameField } from "../utils/qualification";
+import {
+  fieldContainsKeyword,
+  isNonLoginUsernameField,
+  KeywordMatchMode,
+} from "../utils/qualification";
 
 import { AutofillLifecycleService } from "./abstractions/autofill-lifecycle.service";
 import {
@@ -1183,6 +1187,14 @@ export default class AutofillService implements AutofillServiceInterface {
           (fieldContainsKeyword(field, AutoFillConstants.TotpFieldNames) ||
             field.autoCompleteType === "one-time-code");
 
+        const isAbbreviatedTotpField =
+          isTotpCandidate &&
+          fieldContainsKeyword(
+            field,
+            AutoFillConstants.AbbreviatedTotpFieldNames,
+            KeywordMatchMode.MatchesToken,
+          );
+
         const maybeTotpField =
           isTotpCandidate && fieldContainsKeyword(field, AutoFillConstants.AmbiguousTotpFieldNames);
 
@@ -1192,9 +1204,21 @@ export default class AutofillService implements AutofillServiceInterface {
           fieldContainsKeyword(field, AutoFillConstants.UsernameFieldNames) &&
           !isNonLoginUsernameField(field, pageDetails);
 
-        // Reliable TOTP signals win unconditionally; username wins over ambiguous TOTP signals.
+        const isUnambiguousUsernameField =
+          isUsernameField &&
+          fieldContainsKeyword(field, AutoFillConstants.UnambiguousUsernameFieldNames);
+
+        // Classify by signal strength: reliable TOTP, then unambiguous username, then a whole-token
+        // TOTP abbreviation (e.g. name="2fa"), then ambiguous username (e.g. "login"), then
+        // ambiguous TOTP.
         switch (true) {
           case isTotpField:
+            totps.push(field);
+            return;
+          case isUnambiguousUsernameField:
+            usernames.set(field.opid, field);
+            return;
+          case isAbbreviatedTotpField:
             totps.push(field);
             return;
           case isUsernameField:

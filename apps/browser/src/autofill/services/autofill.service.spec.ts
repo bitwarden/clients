@@ -2805,6 +2805,126 @@ describe("AutofillService", () => {
           );
         });
 
+        it("classifies a field as TOTP when a TOTP abbreviation is a whole token and the only username signal is ambiguous", async () => {
+          const totpCode = "123456";
+          options.allowTotpAutofill = true;
+          totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
+          const emailField = createAutofillFieldMock({
+            opid: "__0",
+            type: "email",
+            form: "validFormId",
+            htmlID: "login-email-input",
+            htmlName: "email",
+            autoCompleteType: "email",
+            elementNumber: 0,
+          });
+          const twoFactorField = createAutofillFieldMock({
+            opid: "__2",
+            type: "text",
+            form: "validFormId",
+            htmlID: "login-2fa-input",
+            htmlName: "2fa",
+            title: "",
+            placeholder: "",
+            autoCompleteType: "off",
+            elementNumber: 2,
+          });
+          pageDetails.fields = [emailField, twoFactorField];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            emailField,
+            options.cipher.login.username,
+          );
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            twoFactorField,
+            totpCode,
+          );
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            twoFactorField,
+            options.cipher.login.username,
+          );
+        });
+
+        it("classifies a field as TOTP when an ambiguous username keyword is a whole token and a TOTP abbreviation is a whole token", async () => {
+          const totpCode = "123456";
+          options.allowTotpAutofill = true;
+          totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
+          const field = createAutofillFieldMock({
+            opid: "login-name-2fa-label",
+            type: "text",
+            form: "validFormId",
+            htmlID: "login",
+            htmlName: "login",
+            "label-left": "2FA",
+            elementNumber: 5,
+          });
+          pageDetails.fields = [field];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledTimes(1);
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(fillScript, field, totpCode);
+        });
+
+        it.each([
+          {
+            scenario: "an unambiguous username keyword outranks a whole-token TOTP abbreviation",
+            attributes: { htmlID: "username", htmlName: "username", "label-left": "2fa" },
+          },
+          {
+            scenario: "an ambiguous username keyword outranks ambiguous TOTP substrings",
+            attributes: { htmlID: "logincodeinput", htmlName: "logincodeinput" },
+          },
+          {
+            scenario:
+              "a whole-token `code` stays ambiguous and loses to an ambiguous username keyword",
+            attributes: { htmlID: "login-code", htmlName: "code" },
+          },
+          {
+            scenario: "a TOTP abbreviation within a larger token stays ambiguous",
+            attributes: { htmlID: "loginotpinput", htmlName: "loginotpinput" },
+          },
+        ])("classifies a field as username when $scenario", async ({ attributes }) => {
+          options.allowTotpAutofill = true;
+          const field = createAutofillFieldMock({
+            opid: "username-classified-field",
+            type: "text",
+            form: "validFormId",
+            elementNumber: 5,
+            ...attributes,
+          });
+          pageDetails.fields = [field];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledTimes(1);
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            field,
+            options.cipher.login.username,
+          );
+        });
+
         it("classifies a field with autocomplete=one-time-code as TOTP", async () => {
           const totpCode = "123456";
           options.allowTotpAutofill = true;
