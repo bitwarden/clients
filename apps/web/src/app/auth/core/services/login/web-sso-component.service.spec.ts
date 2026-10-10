@@ -23,14 +23,26 @@ describe("WebSsoComponentService", () => {
   });
 
   describe("setDocumentCookies", () => {
-    it("sets ssoHandOffMessage cookie with translated message", () => {
+    it("sets ssoHandOffMessage cookie with the translated message, URI-encoded", () => {
       const mockMessage = "Test SSO Message";
       i18nService.t.mockReturnValue(mockMessage);
 
       service.setDocumentCookies?.();
 
-      expect(document.cookie).toContain(`ssoHandOffMessage=${mockMessage}`);
+      expect(document.cookie).toContain(`ssoHandOffMessage=${encodeURIComponent(mockMessage)}`);
       expect(i18nService.t).toHaveBeenCalledWith("ssoHandOff");
+    });
+
+    it("encodes characters that are not valid in a cookie value", () => {
+      // German "ssoHandOff" translation contains an "ß", which is not a valid cookie-value
+      // character per RFC 6265 and gets stripped/mangled by some proxies if left unencoded.
+      const mockMessage = "Du kannst diesen Tab nun schließen und in der Erweiterung fortfahren.";
+      i18nService.t.mockReturnValue(mockMessage);
+
+      service.setDocumentCookies?.();
+
+      expect(document.cookie).toContain(`ssoHandOffMessage=${encodeURIComponent(mockMessage)}`);
+      expect(document.cookie).not.toContain("ß");
     });
   });
 });
