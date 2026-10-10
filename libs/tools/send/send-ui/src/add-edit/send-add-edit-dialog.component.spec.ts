@@ -1,5 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { FormBuilder } from "@angular/forms";
+import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of, Subject } from "rxjs";
 
@@ -154,6 +155,7 @@ describe("SendAddEditDialogComponent + DefaultSendFormService integration", () =
           mock<DialogService>(),
           sendFormService,
           mock<SendPolicyService>(),
+          mock<Router>(),
         ),
     );
   };
