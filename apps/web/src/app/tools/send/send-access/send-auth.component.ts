@@ -47,12 +47,19 @@ export class SendAuthComponent implements OnInit {
 
   private expiredAuthAttempts = 0;
   private otpSubmitted = false;
+  private openSelected = false;
 
   readonly loading = signal<boolean>(false);
   readonly error = signal<boolean>(false);
   readonly unavailable = signal<boolean>(false);
   readonly sendAuthType = signal<AuthType>(AuthType.None);
   readonly enterOtp = signal<boolean>(false);
+  /**
+   * Token of a Send with no password or email, held until the user selects Open. Loading the
+   * Send counts a view, so a link scanner or preview that renders this page would otherwise use
+   * up a Send with limited views before the recipient sees it.
+   */
+  readonly pendingAccessToken = signal<SendAccessToken | null>(null);
 
   sendAccessForm = this.formBuilder.group<{ password?: string; email?: string; otp?: string }>({});
 
@@ -78,6 +85,17 @@ export class SendAuthComponent implements OnInit {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  onOpen() {
+    const accessToken = this.pendingAccessToken();
+    this.pendingAccessToken.set(null);
+    this.openSelected = true;
+    if (accessToken == null || accessToken.isExpired()) {
+      void this.onSubmit();
+      return;
+    }
+    this.accessGranted.emit({ accessToken });
   }
 
   onBackToEmail() {
@@ -110,6 +128,10 @@ export class SendAuthComponent implements OnInit {
 
     if (response instanceof SendAccessToken) {
       this.expiredAuthAttempts = 0;
+      if (!sendAccessCreds && !this.openSelected) {
+        this.pendingAccessToken.set(response);
+        return;
+      }
       this.accessGranted.emit({ accessToken: response });
     } else if (response.kind === "expired") {
       if (this.expiredAuthAttempts > 2) {

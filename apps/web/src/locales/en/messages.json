@@ -8407,6 +8407,10 @@
     "message": "The Send you are trying to access does not exist or is no longer available.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendOpenToView": {
+    "message": "Select Open when you're ready to view this Send. It may have a limited number of views.",
+    "description": "Shown before a Send with no password or email is loaded. 'Open' is the button below. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "missingSendFile": {
     "message": "The file associated with this Send could not be found.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
