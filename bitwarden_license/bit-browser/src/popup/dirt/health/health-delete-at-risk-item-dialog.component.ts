@@ -1,5 +1,5 @@
 import { DIALOG_DATA } from "@angular/cdk/dialog";
-import { Component, ChangeDetectionStrategy, inject, computed } from "@angular/core";
+import { Component, ChangeDetectionStrategy, inject } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
@@ -12,14 +12,12 @@ import {
   ButtonModule,
   DialogRef,
   ToastService,
-  SectionComponent,
-  SectionHeaderComponent,
-  IconTileComponent,
-  CardComponent,
   TypographyModule,
   AsyncActionsModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { HealthAdditionalRisksComponent } from "./health-additional-risks.component";
 
 export interface HealthDeleteAtRiskItemDialogData {
   currentCategory: RiskCategory;
@@ -33,10 +31,7 @@ export interface HealthDeleteAtRiskItemDialogData {
   imports: [
     DialogModule,
     ButtonModule,
-    SectionComponent,
-    SectionHeaderComponent,
-    IconTileComponent,
-    CardComponent,
+    HealthAdditionalRisksComponent,
     I18nPipe,
     AsyncActionsModule,
     TypographyModule,
@@ -52,19 +47,6 @@ export class HealthDeleteAtRiskItemDialogComponent {
 
   readonly item = this.inputData.item;
   readonly currentCategory = this.inputData.currentCategory;
-
-  readonly additionalRisks = computed<{ showWeak: boolean; showReused: boolean }>(() => {
-    // only show additional risk categories when the item currently being viewed also falls into lower risk categories
-    switch (this.currentCategory) {
-      case RiskCategory.Exposed:
-        return { showWeak: this.item.hasWeakPassword, showReused: this.item.hasReusedPassword };
-      case RiskCategory.Weak:
-        return { showWeak: false, showReused: this.item.hasReusedPassword };
-      case RiskCategory.Reused:
-      default:
-        return { showWeak: false, showReused: false };
-    }
-  });
 
   readonly onDeleteItem = async () => {
     const user = await firstValueFrom(this.accountService.activeAccount$);

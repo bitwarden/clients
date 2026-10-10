@@ -8108,6 +8108,15 @@
   "passwordHasAdditionalRisks": {
     "message": "This password has additional risks:"
   },
+  "excludeFromList": {
+    "message": "Exclude from list"
+  },
+  "excludeFromListDesc": {
+    "message": "Excluding doesn't fix the risk to your password. To protect your account, change your password first."
+  },
+  "excludeAnyway": {
+    "message": "Exclude anyway"
+  },
   "reused": {
     "message": "Reused",
     "description": "ex. A password that is reused across multiple logins."
