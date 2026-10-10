@@ -311,7 +311,7 @@ async fn windows_hello_authenticate_with_crypto(challenge: &Challenge) -> Result
     let _ = std::thread::spawn(move || loop {
         if !stop_focusing_clone.load(std::sync::atomic::Ordering::Relaxed) {
             focus_security_prompt();
-            std::thread::sleep(std::time::Duration::from_millis(500));
+            std::thread::sleep(std::time::Duration::from_millis(100));
         } else {
             break;
         }
