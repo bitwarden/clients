@@ -1485,6 +1485,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Gebruik alle span-elementen die een website met het `data-bwautofill` attribuut markeert."
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "Inlogverzoeken webbrowser automatisch invullen",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Reageer op basis HTTP-authenticatieverzoeken als een inlogitem in je kluis overeenkomt met de website."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Websites kunnen deze verzoeken doen zonder dat je het door hebt, wat je inloggegevens kan blootleggen.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "Contextmenu-opties weergeven"
   },
@@ -1641,9 +1652,6 @@
   },
   "addSharedFolder": {
     "message": "Gedeelde map toevoegen"
-  },
-  "newSharedFolder": {
-    "message": "Nieuwe gedeelde map"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Met Bitwarden voor Business kun je je kluis-items met anderen delen door gebruik te maken van een organisatie. Lees meer op de website bitwarden.com."
@@ -2548,42 +2556,6 @@
     "message": "Paspoort toevoegen",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Nieuwe login",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Nieuwe kaart",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nieuwe identiteit",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nieuwe notitie",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nieuwe veilige notitie",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nieuwe SSH-sleutel",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nieuwe bankrekening",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nieuw rijbewijs",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Nieuw paspoort",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Nieuwe tekst",
     "description": "Header for new text send"
@@ -2591,22 +2563,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Nieuw bestand",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Login bewerken",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Kaart bewerken",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Identiteit bewerken",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Notitie bewerken",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Veilige notitie bewerken",
@@ -5174,10 +5130,6 @@
   },
   "selectImportSharedFolder": {
     "message": "Gedeelde map selecteren"
-  },
-  "importTargetMyFolder": {
-    "message": "Mijn map",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een collectie wilt verplaatsen"
@@ -8251,5 +8203,33 @@
   },
   "unknownCipher": {
     "message": "Onbekend item, je moet misschien inloggen met een andere account om dit item te kunnen opvragen."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden heeft een nieuw uiterlijk",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Betere ervaring, dezelfde vertrouwde veiligheid. De Bitwarden-kluis is opnieuw ontworpen op basis van jullie feedback, het is dus makkelijker om te vinden en te werken zoals je zou verwachten.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Een voorbeeld van de herontworpen Bitwarden-kluis.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "De nieuwe kluis verkennen",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Personaliseren"
+  },
+  "customizeYourView": {
+    "message": "Je weergave aanpassen"
+  },
+  "showColumns": {
+    "message": "Kolommen weergeven"
+  },
+  "resetToDefault": {
+    "message": "Standaardinstellingen herstellen"
   }
 }

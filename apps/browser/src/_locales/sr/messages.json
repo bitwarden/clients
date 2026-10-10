@@ -1485,6 +1485,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Користи све span елементе које веб-сајт означи атрибутом `data-bwautofill`."
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "Autofill browser login prompts",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Respond to basic HTTP authentication prompts when a login item in your vault matches the website."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "Прикажи контекстни мени"
   },
@@ -1641,9 +1652,6 @@
   },
   "addSharedFolder": {
     "message": "Додај дељену фасциклу"
-  },
-  "newSharedFolder": {
-    "message": "Нова дељена фасцикла"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden for Business вам омогућава да делите ставке сефа са другима користећи организацију. Сазнајте више на веб локацију bitwarden.com."
@@ -2548,42 +2556,6 @@
     "message": "Додај пасош",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Ново пријављивање",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Нова картица",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Нови идентитет",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Нова белешка",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Нова безбедна белешка",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Нов SSH кљич",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Нови банковни рачун",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Нова дозвола",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Нови пасош",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Нови текст",
     "description": "Header for new text send"
@@ -2591,22 +2563,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Нова датотека",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Уреди пријаву",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Уреди картицу",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Уреди идентитет",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Уреди белешку",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Уреди безбедну белешку",
@@ -5174,10 +5130,6 @@
   },
   "selectImportSharedFolder": {
     "message": "Изаберите дељену фасциклу"
-  },
-  "importTargetMyFolder": {
-    "message": "My Folder",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Изаберите ову опцију ако желите да се садржај увезене датотеке пребацио у колекцију"
@@ -8251,5 +8203,33 @@
   },
   "unknownCipher": {
     "message": "Непозната ставка, можда ћете морати да затражите дозволу за приступ овој ставци."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden has a new look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explore the new vault",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Customize"
+  },
+  "customizeYourView": {
+    "message": "Customize your view"
+  },
+  "showColumns": {
+    "message": "Show columns"
+  },
+  "resetToDefault": {
+    "message": "Reset to default"
   }
 }

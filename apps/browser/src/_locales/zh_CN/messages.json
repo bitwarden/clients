@@ -1485,6 +1485,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "使用网站上标记有 `data-bwautofill` 属性的任何 span 元素。"
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "浏览器自动填充登录弹窗",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "当密码库中的登录项目与网站匹配时，响应基础 HTTP 身份验证提示。"
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "网站可能在你不知情的情况下弹出这些提示，这有可能暴露你的身份凭证。",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "显示上下文菜单选项"
   },
@@ -1641,9 +1652,6 @@
   },
   "addSharedFolder": {
     "message": "添加共享文件夹"
-  },
-  "newSharedFolder": {
-    "message": "新增共享文件夹"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden 商业版允许您使用组织与他人共享您的密码库项目。访问 bitwarden.com 网站了解更多信息。"
@@ -2548,42 +2556,6 @@
     "message": "添加护照",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "新增登录",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "新增支付卡",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "新增身份",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "新增笔记",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "新增安全笔记",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "新增 SSH 密钥",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "新增银行账户",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "新增驾驶证",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "新增护照",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "新增文本 Send",
     "description": "Header for new text send"
@@ -2591,22 +2563,6 @@
   "newItemHeaderFileSendV2": {
     "message": "新增文件 Send",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "编辑登录",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "编辑支付卡",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "编辑身份",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "编辑笔记",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "编辑安全笔记",
@@ -5175,10 +5131,6 @@
   "selectImportSharedFolder": {
     "message": "选择共享文件夹"
   },
-  "importTargetMyFolder": {
-    "message": "我的文件夹",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "如果希望将导入的文件内容移动到集合中，请选择此选项"
   },
@@ -5680,13 +5632,13 @@
     "message": "将与您的 LastPass 账户关联的 YubiKey 插入计算机的 USB 端口，然后触摸其按钮。"
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "安全密钥"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "安全密钥和密码"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "您的帐户已经被安全密钥和密码加密。您需要同时输入两者才能继续。"
   },
   "keeperEmail": {
     "message": "Keeper 电子邮箱"
@@ -8251,5 +8203,33 @@
   },
   "unknownCipher": {
     "message": "未知的项目，您可能需要请求权限才能访问此项目。"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden 拥有一个新的外观",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "体验升级，安全依旧可靠。Bitwarden 密码库根据用户反馈完成重新设计，查找内容更便捷，使用体验符合你的预期。",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "重新设计后的 Bitwarden 密码库预览。",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "探索新的密码库",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "自定义"
+  },
+  "customizeYourView": {
+    "message": "自定义您的视图"
+  },
+  "showColumns": {
+    "message": "显示列"
+  },
+  "resetToDefault": {
+    "message": "恢复默认设置"
   }
 }

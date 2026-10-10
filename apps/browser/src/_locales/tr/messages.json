@@ -1485,6 +1485,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Bir web sitesinin `data-bwautofill` özelliğiyle işaretlediği yayılma öğelerini kullanın."
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "Tarayıcının oturum açma isteklerini otomatik doldur",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Respond to basic HTTP authentication prompts when a login item in your vault matches the website."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "Bağlam menüsü seçeneklerini göster"
   },
@@ -1641,9 +1652,6 @@
   },
   "addSharedFolder": {
     "message": "Paylaşılan klasör ekle"
-  },
-  "newSharedFolder": {
-    "message": "Yeni paylaşılan klasör"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "İşletmeler için Bitwarden'ı kullanarak kasanızdaki kayıtları başkalarıyla paylaşabilirsiniz. Daha fazla bilgi için bitwarden.com sitesini ziyaret edin."
@@ -2548,42 +2556,6 @@
     "message": "Pasaport ekle",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Yeni hesap",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Yeni kart",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Yeni kimlik",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Yeni not",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Yeni güvenli not",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Yeni SSH anahtarı",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Yeni banka hesabı",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Yeni ehliyet",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Yeni pasaport",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Yeni metin",
     "description": "Header for new text send"
@@ -2591,22 +2563,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Yeni dosya",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Hesabı düzenle",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Kartı düzenle",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Kimliği düzenle",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Notu düzenle",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Güvenli notu düzenle",
@@ -5174,10 +5130,6 @@
   },
   "selectImportSharedFolder": {
     "message": "Paylaşılan bir klasör seçin"
-  },
-  "importTargetMyFolder": {
-    "message": "Klasörüm",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "İçe aktarılan dosya içeriklerinin bir koleksiyona taşınmasını istiyorsanız bu seçeneği seçin"
@@ -8251,5 +8203,33 @@
   },
   "unknownCipher": {
     "message": "Bilinmeyen öğe, bu öğeye erişmek için izin istemeniz gerekebilir."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden'ın tasarımı güncellendi",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Daha iyi bir deneyim, aynı üstün güvenlik. Bitwarden kasası sizden gelen yorumlara göre yeniden tasarlandı. Artık aradıklarınızı daha kolay bulabilirsiniz.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Yeni Bitwarden kasası tasarımının ön izlemesi.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Yeni kasayı keşfedin",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Özelleştir"
+  },
+  "customizeYourView": {
+    "message": "Görünümünüzü özelleştirin"
+  },
+  "showColumns": {
+    "message": "Sütunları göster"
+  },
+  "resetToDefault": {
+    "message": "Varsayılanı geri yükle"
   }
 }

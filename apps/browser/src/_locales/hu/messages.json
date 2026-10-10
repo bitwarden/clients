@@ -1485,6 +1485,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Használjunk minden olyan span elemet, amelyet a webhely `data-bwautofill` attribútummal jelöl meg."
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "Böngésző bejelentkezési felszólítások automatikus kitöltése",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Válaszoljunk az alapvető HTTP hitelesítési felszólításokra, ha a széf bejelentkezési eleme megegyezik a webhellyel."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "A webhelyek tudtunk nélkül is elindíthatják ezeket a felszólításokat, amelyek felfedhetik hitelesítő adatait.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "Helyi menü opciók megjelenítése"
   },
@@ -1641,9 +1652,6 @@
   },
   "addSharedFolder": {
     "message": "Megosztott mappa hozzadása"
-  },
-  "newSharedFolder": {
-    "message": "Új megosztott mappa"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "A Bitwarden for Business lehetővé teszi a széf elemeinek megosztását másokkal egy szervezet használatával. További információ a bitwarden.com webhelyen."
@@ -2548,42 +2556,6 @@
     "message": "Útlevél hozzáadása",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Új bejelentkezés",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Új kártya",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Új személyazonosság",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Új jegyzet",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Új biztonságos jegyzet",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Új SSH kulcs",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Új bankszámla",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Új licensz",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Új útlevél",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Új szöveg",
     "description": "Header for new text send"
@@ -2591,22 +2563,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Új fájl",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Bejelentkezés szerkesztése",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Kártya szerkesztése",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Személyazonossság szerkesztése",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Jegyzet szerkesztése",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Biztonságos jegyzet szerkesztése",
@@ -5175,10 +5131,6 @@
   "selectImportSharedFolder": {
     "message": "Megosztott mappa kiválasztása"
   },
-  "importTargetMyFolder": {
-    "message": "Saját mappa",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy gyűjteménybe kerüljön."
   },
@@ -5680,13 +5632,13 @@
     "message": "Illesszük be a LastPass-fiókhoz társított YubiKey eszközt a számítógép USB portjába, majd érintsük meg annak gombját."
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "Titkos kulcs"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "Titkos kulcs és jelszó"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "A fók titkos kulccsal és jelszóval van biztosítva. A folytatáshoz mindkettőt be kell írni."
   },
   "keeperEmail": {
     "message": "Keeper email cím"
@@ -8251,5 +8203,33 @@
   },
   "unknownCipher": {
     "message": "Ismeretlen elem, lehet hogy egy másik fiókkal kell bejelentkezni az elem eléréséhez."
+  },
+  "newExperienceDialogTitle": {
+    "message": "A Bitwarden új külsővel rendelkezik.",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Jobb élmény, ugyanaz a megbízható biztonság. A Bitwarden széf a visszajelzések alapján újratervezésre került, így a dolgok könnyebben megtalálhatók és úgy működnek, ahogy az elvárható.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Az újratervezett Bitwarden széf előnézete.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Fedezzük fel az új széfet.",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Testreszabás"
+  },
+  "customizeYourView": {
+    "message": "Nézet testreszabása"
+  },
+  "showColumns": {
+    "message": "Oszlopok megjelenítése"
+  },
+  "resetToDefault": {
+    "message": "Visszaállítás alaphelyzetbe"
   }
 }

@@ -1485,6 +1485,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Utilizar quaisquer elementos span que um site marque com o atributo `data-bwautofill`."
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "Preencher automaticamente os pedidos de início de sessão do navegador",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Responder a pedidos de autenticação HTTP básica quando uma credencial no seu cofre corresponder ao site."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Os sites podem apresentar estes pedidos sem o seu conhecimento, o que pode expor as suas credenciais.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "Mostrar opções do menu de contexto"
   },
@@ -1641,9 +1652,6 @@
   },
   "addSharedFolder": {
     "message": "Adicionar pasta partilhada"
-  },
-  "newSharedFolder": {
-    "message": "Nova pasta partilhada"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "O Bitwarden para Empresas permite-lhe partilhar os seus itens do cofre com outras pessoas através da utilização de uma organização. Saiba mais no site bitwarden.com."
@@ -2548,42 +2556,6 @@
     "message": "Adicionar passaporte",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Nova credencial",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Novo cartão",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nova identidade",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nova nota",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nova nota segura",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nova chave SSH",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nova conta bancária",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nova licença",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Novo passaporte",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Novo texto",
     "description": "Header for new text send"
@@ -2591,22 +2563,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Novo ficheiro",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Editar credencial",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Editar cartão",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Editar identidade",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Editar nota",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Editar nota segura",
@@ -5175,10 +5131,6 @@
   "selectImportSharedFolder": {
     "message": "Selecionar uma pasta partilhada"
   },
-  "importTargetMyFolder": {
-    "message": "A minha pasta",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma coleção"
   },
@@ -5680,13 +5632,13 @@
     "message": "Insira a YubiKey associada à sua conta LastPass na porta USB do seu computador e, em seguida, toque no respetivo botão."
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "Chave secreta"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "Chave secreta e palavra-passe"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "A sua conta está protegida por uma chave secreta e uma palavra-passe. Terá de introduzir ambas para continuar."
   },
   "keeperEmail": {
     "message": "E-mail do Keeper"
@@ -8251,5 +8203,33 @@
   },
   "unknownCipher": {
     "message": "Item desconhecido. Poderá ter de pedir permissão para aceder a este item."
+  },
+  "newExperienceDialogTitle": {
+    "message": "O Bitwarden tem um novo visual",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Uma experiência melhor, a mesma segurança em que confia. O cofre do Bitwarden foi redesenhado com base no seu feedback, para que seja mais fácil encontrar o que procura e tudo funcione como espera.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Uma pré-visualização do cofre do Bitwarden redesenhado.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explorar o novo cofre",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Personalizar"
+  },
+  "customizeYourView": {
+    "message": "Personalizar a sua vista"
+  },
+  "showColumns": {
+    "message": "Mostrar colunas"
+  },
+  "resetToDefault": {
+    "message": "Repor predefinições"
   }
 }

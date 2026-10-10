@@ -1485,6 +1485,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Použije všechny prvky typu \"span\", které webová stránka označuje atributem \"data-bwautofill\"."
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "Automaticky vyplňovat výzvy k přihlášení do prohlížeče",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Reaguje na výzvy k základnímu ověření HTTP, pokud se položka pro přihlášení ve Vašem úložišti shoduje s danou webovou stránkou."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Webové stránky mohou spustit tyto výzvy bez Vašich znalostí, které mohou odhalit Vaše přihlašovací údaje.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "Zobrazit volby v kontextovém menu"
   },
@@ -1641,9 +1652,6 @@
   },
   "addSharedFolder": {
     "message": "Přidat sdílenou složku"
-  },
-  "newSharedFolder": {
-    "message": "Nová sdílená složka"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden pro podnikání Vám umožňuje sdílet položky v trezoru s ostatními prostřednictvím organizace. Více informací naleznete na bitwarden.com."
@@ -2548,42 +2556,6 @@
     "message": "Přidat pas",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Nové přihlášení",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Nová karta",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nová identita",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nová poznámka",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nová bezpečná poznámka",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nový SSH klíč",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nový bankovní účet",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nová licence",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Nový pas",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Nový text",
     "description": "Header for new text send"
@@ -2591,22 +2563,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Nový soubor",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Upravit přihlášení",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Upravit kartu",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Upravit identitu",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Upravit poznámku",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Upravit bezpečnou poznámku",
@@ -5174,10 +5130,6 @@
   },
   "selectImportSharedFolder": {
     "message": "Vybrat sdílenou složku"
-  },
-  "importTargetMyFolder": {
-    "message": "Moje složka",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Pokud chcete obsah importovaného souboru přesunout do sbírky, vyberte tuto volbu."
@@ -8251,5 +8203,33 @@
   },
   "unknownCipher": {
     "message": "Neznámá položka, možná budete muset požádat o oprávnění pro přístup k této položce."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden má nový vzhled",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Lepší uživatelský zážitek, stejná osvědčená bezpečnost. Trezor Bitwarden byl přepracován na základě Vašich připomínek, takže vše najdete snáze a funguje přesně tak, jak byste očekávali.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Náhled přepracovaného trezoru Bitwarden.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Prozkoumat nový trezor",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Přizpůsobit"
+  },
+  "customizeYourView": {
+    "message": "Přizpůsobit zobrazení"
+  },
+  "showColumns": {
+    "message": "Zobrazit sloupce"
+  },
+  "resetToDefault": {
+    "message": "Obnovit výchozí"
   }
 }

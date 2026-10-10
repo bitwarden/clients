@@ -1485,6 +1485,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Usa qualsiasi elemento span che un sito web contrassegna con l'attributo `data-bwautofill`."
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "Autofill browser login prompts",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Respond to basic HTTP authentication prompts when a login item in your vault matches the website."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "Mostra opzioni nel menu contestuale"
   },
@@ -1641,9 +1652,6 @@
   },
   "addSharedFolder": {
     "message": "Aggiungi cartella condivisa"
-  },
-  "newSharedFolder": {
-    "message": "Nuova cartella condivisa"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden for Business ti consente di condividere gli elementi della tua cassaforte con altri usando un'organizzazione. Scopri di più su bitwarden.com."
@@ -2548,42 +2556,6 @@
     "message": "Aggiungi passaporto",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Nuovo Login",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Nuova Carta",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nuova Identità",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nuova Nota",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nuova nota sicura",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nuova chiave SSH",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nuovo conto bancario",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nuova patente",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Nuovo passaporto",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Nuovo testo",
     "description": "Header for new text send"
@@ -2591,22 +2563,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Nuovo file",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Modifica Login",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Modifica Carta",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Modifica Identità",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Modifica Nota",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Modifica nota sicura",
@@ -5174,10 +5130,6 @@
   },
   "selectImportSharedFolder": {
     "message": "Seleziona una cartella condivisa"
-  },
-  "importTargetMyFolder": {
-    "message": "My Folder",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Seleziona questa opzione se vuoi che i contenuti dell'importazione siano salvati in una raccolta"
@@ -8251,5 +8203,33 @@
   },
   "unknownCipher": {
     "message": "Elemento sconosciuto, potresti dover richiedere l'autorizzazione per accedere a questo elemento."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden has a new look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explore the new vault",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Customize"
+  },
+  "customizeYourView": {
+    "message": "Customize your view"
+  },
+  "showColumns": {
+    "message": "Show columns"
+  },
+  "resetToDefault": {
+    "message": "Reset to default"
   }
 }

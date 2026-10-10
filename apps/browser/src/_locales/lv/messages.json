@@ -1485,6 +1485,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Izmantot jebkuru span elementu, kuru tīmekļvietne atzīmē ar attribūtu `data-bwautofill`."
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "Autofill browser login prompts",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Respond to basic HTTP authentication prompts when a login item in your vault matches the website."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "Rādīt konteksta izvēlnes iespējas"
   },
@@ -1641,9 +1652,6 @@
   },
   "addSharedFolder": {
     "message": "Pievienot kopīgotu mapi"
-  },
-  "newSharedFolder": {
-    "message": "Jauna kopīgota mape"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden uzņēmējdarbībai nodrošina iespēju kopīgot savas glabātavas vienumus ar citiem, kad tiek izmantota apvienība. Vairāk var uzzināt tīmekļvietnē bitwarden.com."
@@ -2548,42 +2556,6 @@
     "message": "Pievienot pasi",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Jauns pieteikšanās vienums",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Jauna karte",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Jauna identitāte",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Jauna piezīme",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Jauna drošā piezīme",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Jauna SSH atslēga",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Jauns bankas konts",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Jauna licence",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Jauna pase",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Jauns teksts",
     "description": "Header for new text send"
@@ -2591,22 +2563,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Jauna datne",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Labot pieteikšanās vienumu",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Labot karti",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Labot identitāti",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Labot piezīmi",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Labot drošo piezīmi",
@@ -5174,10 +5130,6 @@
   },
   "selectImportSharedFolder": {
     "message": "Atlasīt koplietoto mapi"
-  },
-  "importTargetMyFolder": {
-    "message": "My Folder",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Šī iespēja jāatlasa, ja ir vēlēšanās ievietotās datnes saturu ievietot krājumā"
@@ -8251,5 +8203,33 @@
   },
   "unknownCipher": {
     "message": "Nezināms vienums; iespējams, jums ir jāpieprasa atļauja, lai piekļūtu šim vienumam."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden has a new look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explore the new vault",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Customize"
+  },
+  "customizeYourView": {
+    "message": "Customize your view"
+  },
+  "showColumns": {
+    "message": "Show columns"
+  },
+  "resetToDefault": {
+    "message": "Reset to default"
   }
 }

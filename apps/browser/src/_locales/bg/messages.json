@@ -1485,6 +1485,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Използване на елементите „span“, които са отбелязани от уеб сайтовете с атрибута `data-bwautofill`."
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "Автоматично попълване при заявките за вписване от браузъра",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Отговаряне на простите заявки за удостоверяване по HTTP, когато запис за вписване от трезора съвпада с уеб сайта."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Уеб сайтовете могат да изпратят тези заявки без Ваше знание, което може да разкрие данните Ви.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "Показване на опции в контекстното меню"
   },
@@ -1641,9 +1652,6 @@
   },
   "addSharedFolder": {
     "message": "Добавяне на споделена папка"
-  },
-  "newSharedFolder": {
-    "message": "Нова споделена папка"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Битуорден за бизнеса позволява да споделяте части от трезора си чрез използването на организация. Научете повече в уеб сайта bitwarden.com."
@@ -2548,42 +2556,6 @@
     "message": "Добавяне на паспорт",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Нов елемент за вписване",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Нова карта",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Нова самоличност",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Нова бележка",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Нова защитена бележка",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Нов SSH ключ",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Нова банкова сметка",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Нов лиценз",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Нов паспорт",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Нов текст",
     "description": "Header for new text send"
@@ -2591,22 +2563,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Нов файл",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Редактиране на елемента за вписване",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Редактиране на картата",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Редактиране на самоличността",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Редактиране на бележката",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Редактиране на защитената бележка",
@@ -5175,10 +5131,6 @@
   "selectImportSharedFolder": {
     "message": "Изберете споделена папка"
   },
-  "importTargetMyFolder": {
-    "message": "Моята папка",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в колекция"
   },
@@ -5680,13 +5632,13 @@
     "message": "Поставете устройството на YubiKey, което е свързано с регистрацията Ви в LastPass, в USB порт и натиснете бутона на устройството."
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "Таен ключ"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "Таен ключ и парола"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "Акаунтът Ви е защитен с таен ключ и парола. Трябва да въведете и двете, за да продължите."
   },
   "keeperEmail": {
     "message": "Е-поща за Keeper"
@@ -8251,5 +8203,33 @@
   },
   "unknownCipher": {
     "message": "Неизвестен запис. Може да се нуждаете от правомощие за достъп до този запис."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Биуорден има нов облик",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Повече удобство със същата защита, на която можете да разчитате. Трезорът на Битуорден е с нов дизайн отразяващ Вашите коментари, така че нещата са по-лесни за намиране и работят така, както очаквате.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Преглед на новия облик на трезора в Битуорден.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Разгледайте новия трезор",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Персонализиране"
+  },
+  "customizeYourView": {
+    "message": "Персонализирайте изгледа си"
+  },
+  "showColumns": {
+    "message": "Показване на колони"
+  },
+  "resetToDefault": {
+    "message": "Връщане на настройките по подразбиране"
   }
 }

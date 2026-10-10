@@ -1485,6 +1485,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Naudokite visus svetainės elementus, pažymėtus atributu `data-bwautofill`."
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "Autofill browser login prompts",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Respond to basic HTTP authentication prompts when a login item in your vault matches the website."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "Rodyti kontekstinio meniu pasririnkimus"
   },
@@ -1641,9 +1652,6 @@
   },
   "addSharedFolder": {
     "message": "Pridėti bendrinamą aplanką"
-  },
-  "newSharedFolder": {
-    "message": "Naujas bendrinamas aplankas"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "„Bitwarden for Business“ leidžia bendrinti saugyklos elementus su kitais naudojant organizaciją. Sužinokite daugiau bitwarden.com svetainėje."
@@ -2548,42 +2556,6 @@
     "message": "Pridėti pasą",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Naujas prisijungimas",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Nauja kortelė",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nauja tapatybė",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nauja pastaba",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nauja apsaugota pastaba",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Naujas SSH raktas",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nauja banko sąskaita",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Naujas pažymėjimas",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Naujas pasas",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Naujas tekstas",
     "description": "Header for new text send"
@@ -2591,22 +2563,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Naujas failas",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Redaguoti prisijungimą",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Redaguoti kortelę",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Redaguoti tapatybę",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Redaguoti pastabą",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Redaguoti apsaugotą pastabą",
@@ -5174,10 +5130,6 @@
   },
   "selectImportSharedFolder": {
     "message": "Pasirinkite bendrinamą aplanką"
-  },
-  "importTargetMyFolder": {
-    "message": "My Folder",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Pasirinkite šią parinktį, jei norite importuoto failo turinį perkelti į kolekciją"
@@ -8251,5 +8203,33 @@
   },
   "unknownCipher": {
     "message": "Nežinomas elementas, gali reikėti paprašyti leidimo pasiekti šį elementą."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden has a new look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explore the new vault",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Customize"
+  },
+  "customizeYourView": {
+    "message": "Customize your view"
+  },
+  "showColumns": {
+    "message": "Show columns"
+  },
+  "resetToDefault": {
+    "message": "Reset to default"
   }
 }
