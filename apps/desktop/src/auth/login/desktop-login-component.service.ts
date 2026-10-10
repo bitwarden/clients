@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { catchError, firstValueFrom, of } from "rxjs";
 
 import { DefaultLoginComponentService, LoginComponentService } from "@bitwarden/auth/angular";
 import { DESKTOP_SSO_CALLBACK, SsoUrlService } from "@bitwarden/auth/common";
@@ -9,10 +9,13 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 // eslint-disable-next-line no-restricted-imports
 import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
+
+import { ServerCommunicationConfigService } from "../../platform/services/server-communication-config/server-communication-config.service";
 
 @Injectable()
 export class DesktopLoginComponentService
@@ -28,6 +31,7 @@ export class DesktopLoginComponentService
     protected i18nService: I18nService,
     protected toastService: ToastService,
     protected ssoUrlService: SsoUrlService,
+    protected serverCommunicationConfigService: ServerCommunicationConfigService,
   ) {
     super(
       cryptoFunctionService,
@@ -51,25 +55,56 @@ export class DesktopLoginComponentService
     codeChallenge: string,
     orgSsoIdentifier?: string,
   ): Promise<void> {
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const webVaultUrl = env.getWebVaultUrl();
+
+    // A server that requires bootstrap sits behind a pre-authenticating reverse proxy. In that case
+    // SSO must be started via the launch connector so the launch URL is a real path + query that
+    // survives the proxy's sign-in roundtrip; a direct `/#/sso?...` fragment URL would be dropped,
+    // because the proxy only ever sees `GET /` on the wire. Every other server uses the direct URL,
+    // so this adds no connector dependency for non-proxied deployments. Both callback mechanisms
+    // below (custom-scheme and localhost) share this decision, since it concerns the launch leg.
+    // Fail safe to the direct URL: if bootstrap detection errors (e.g. the SDK client call rejects,
+    // or `Utils.getHostname` returns null for a host `tldts` cannot parse), fall back to `false` so
+    // the SSO launch proceeds via the direct URL instead of aborting the whole flow.
+    const useSsoLaunchConnector = await firstValueFrom(
+      this.serverCommunicationConfigService
+        .needsBootstrap$(Utils.getHostname(webVaultUrl))
+        .pipe(catchError(() => of(false))),
+    );
+
     // For platforms that cannot support a protocol-based (e.g. bitwarden://) callback, we use a localhost callback
     // Otherwise, we launch the SSO component in a browser window and wait for the callback
     if (ipc.platform.isAppImage || ipc.platform.isDev) {
-      await this.initiateSsoThroughLocalhostCallback(email, state, codeChallenge, orgSsoIdentifier);
-    } else {
-      const env = await firstValueFrom(this.environmentService.environment$);
-      const webVaultUrl = env.getWebVaultUrl();
-
-      const redirectUri = DESKTOP_SSO_CALLBACK;
-
-      const ssoWebAppUrl = this.ssoUrlService.buildSsoUrl(
-        webVaultUrl,
-        this.clientType,
-        redirectUri,
+      await this.initiateSsoThroughLocalhostCallback(
+        email,
         state,
         codeChallenge,
-        email,
+        useSsoLaunchConnector,
         orgSsoIdentifier,
       );
+    } else {
+      const redirectUri = DESKTOP_SSO_CALLBACK;
+
+      const ssoWebAppUrl = useSsoLaunchConnector
+        ? this.ssoUrlService.buildSsoLaunchConnectorUrl(
+            webVaultUrl,
+            this.clientType,
+            redirectUri,
+            state,
+            codeChallenge,
+            email,
+            orgSsoIdentifier,
+          )
+        : this.ssoUrlService.buildSsoUrl(
+            webVaultUrl,
+            this.clientType,
+            redirectUri,
+            state,
+            codeChallenge,
+            email,
+            orgSsoIdentifier,
+          );
 
       this.platformUtilsService.launchUri(ssoWebAppUrl);
     }
@@ -79,6 +114,7 @@ export class DesktopLoginComponentService
     email: string,
     state: string,
     challenge: string,
+    useSsoLaunchConnector: boolean,
     orgSsoIdentifier?: string,
   ): Promise<void> {
     try {
@@ -86,6 +122,7 @@ export class DesktopLoginComponentService
         challenge,
         state,
         email,
+        useSsoLaunchConnector,
         orgSsoIdentifier,
       );
       // FIXME: Remove when updating file. Eslint update
