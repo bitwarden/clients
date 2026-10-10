@@ -1027,26 +1027,42 @@ export default class AutofillService implements AutofillServiceInterface {
         focusedField.autoCompleteType === "one-time-code") &&
       !fieldContainsKeyword(focusedField, [...AutoFillConstants.RecoveryCodeFieldNames]);
 
+    // If the heuristic flagged this field as a password, do not treat it
+    // as a username candidate. A show password toggle can set type="text"
+    // on the real password input.
+    const focusedFieldIsPassword =
+      focusedField != null && passwordFields.some((pf) => pf.opid === focusedField.opid);
+
     const focusedUsernameField =
       focusedField &&
       !isFocusedTotpField &&
+      !focusedFieldIsPassword &&
       login.username &&
       (focusedField.type === "text" ||
         focusedField.type === "email" ||
         focusedField.type === "tel") &&
       focusedField;
 
-    const passwordMatchesFocused = (pf: AutofillField): boolean =>
-      !focusedField
-        ? true
-        : focusedForm != null
-          ? pf.form === focusedForm
-          : !!(
-              focusedUsernameField &&
-              pf.form == null &&
-              this.findUsernameField(pageDetails, pf, false, false, true)?.opid ===
-                focusedUsernameField.opid
-            );
+    const passwordMatchesFocused = (pf: AutofillField): boolean => {
+      if (!focusedField) {
+        return true;
+      }
+      // Match when the focused field is this password field. Needed when
+      // the page has no form, where neither form membership nor username
+      // equivalence would otherwise match.
+      if (pf.opid === focusedField.opid) {
+        return true;
+      }
+      if (focusedForm != null) {
+        return pf.form === focusedForm;
+      }
+      return !!(
+        focusedUsernameField &&
+        pf.form == null &&
+        this.findUsernameField(pageDetails, pf, false, false, true)?.opid ===
+          focusedUsernameField.opid
+      );
+    };
 
     const getUsernameForPassword = (
       pf: AutofillField,
@@ -2616,7 +2632,7 @@ export default class AutofillService implements AutofillServiceInterface {
     // Removes all whitespace, _ and - characters
     const cleanedValue = value.toLowerCase().replace(/[\s_-]/g, "");
 
-    if (cleanedValue.indexOf("password") < 0) {
+    if (!AutoFillConstants.PasswordFieldNameTokens.some((t) => cleanedValue.indexOf(t) > -1)) {
       return false;
     }
 
@@ -2727,7 +2743,30 @@ export default class AutofillService implements AutofillServiceInterface {
           return false;
         }
 
-        const testedValues = [f.htmlID, f.htmlName, f.placeholder];
+        // WHATWG autofill tokens. Catches sites with a show password toggle
+        // that flips the type to text while preserving autocomplete. The
+        // downstream fillNewPassword guard still filters new-password fields.
+        if (
+          AutofillService.autoCompleteTypeIncludesToken(
+            f.autoCompleteType,
+            AutoFillConstants.AutocompleteCurrentPassword,
+          ) ||
+          AutofillService.autoCompleteTypeIncludesToken(
+            f.autoCompleteType,
+            AutoFillConstants.AutocompleteNewPassword,
+          )
+        ) {
+          return true;
+        }
+
+        const testedValues = [
+          f.htmlID,
+          f.htmlName,
+          f.placeholder,
+          f["label-aria"],
+          f["label-tag"],
+          f["label-top"],
+        ];
         for (let i = 0; i < testedValues.length; i++) {
           const value = testedValues[i];
           if (value != null && AutofillService.valueIsLikePassword(value)) {
