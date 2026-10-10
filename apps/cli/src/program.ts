@@ -64,6 +64,21 @@ export class Program extends BaseProgram {
     });
 
     program.on("option:session", (key) => {
+      // Session keys are 64 random bytes encoded as standard base64 (88 chars,
+      // ending with two `=` padding chars). Rejecting obvious garbage here
+      // surfaces the mistake immediately instead of letting it silently shadow
+      // a valid stored session on commands that don't use it (e.g. `sync`).
+      // See #18353.
+      if (typeof key !== "string" || !/^[A-Za-z0-9+/]{86}==$/.test(key)) {
+        writeLn(
+          chalk.redBright(
+            "Invalid --session value: expected a base64-encoded 64-byte session key.",
+          ),
+          true,
+          true,
+        );
+        process.exit(1);
+      }
       process.env.BW_SESSION = key;
     });
 
