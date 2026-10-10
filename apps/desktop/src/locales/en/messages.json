@@ -5445,6 +5445,9 @@
     "message": "to create a strong unique password",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "biometricUnlockOnRestartTurnedOff": {
+    "message": "Biometric unlock on app restart was turned off. Turn it on again in settings."
+  },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
   },

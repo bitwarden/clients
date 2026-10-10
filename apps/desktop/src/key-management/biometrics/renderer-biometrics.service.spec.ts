@@ -115,8 +115,24 @@ describe("renderer biometrics service tests", function () {
       );
       expect(biometricStateService.setBiometricEnrolledKeyId).toHaveBeenCalledWith(
         testUserId,
-        Utils.fromBufferToB64(mockKeyId),
+        Utils.fromArrayToHex(mockKeyId),
       );
+    });
+
+    // A failed enrollment must not record the key id; otherwise the biometric re-enrollment
+    // migration sees matching key ids and never retries.
+    it("does not store the enrolled key id when enrollment fails", async () => {
+      const enrollmentError = new Error("Failed to parse user key");
+      (global as any).ipc.keyManagement.biometric.enrollPersistent.mockRejectedValue(
+        enrollmentError,
+      );
+      const service = new RendererBiometricsService(tokenService, biometricStateService);
+      getKeyIdMock().mockReturnValue(mockKeyId);
+
+      await expect(service.enrollPersistent(testUserId, mockUserKey)).rejects.toThrow(
+        enrollmentError,
+      );
+      expect(biometricStateService.setBiometricEnrolledKeyId).not.toHaveBeenCalled();
     });
 
     it("clears the enrolled key id when the SDK returns no key id", async () => {

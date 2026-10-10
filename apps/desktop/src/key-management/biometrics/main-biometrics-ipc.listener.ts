@@ -64,6 +64,12 @@ export class MainBiometricsIPCListener {
         }
       } catch (e) {
         this.logService.error("[Main Biometrics IPC Listener] %s failed", message.action, e);
+
+        // The renderer records the enrolled key id once enrollment resolves. Surface the failure,
+        // so a failed enrollment is not recorded and the re-enrollment migration retries it.
+        if (message.action === BiometricAction.EnrollPersistent) {
+          throw e;
+        }
       }
     });
   }

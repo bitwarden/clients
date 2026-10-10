@@ -452,7 +452,11 @@ export class SettingsDialogComponent implements OnInit {
         !this.userHasMasterPassword()
       ) {
         // Allow biometric unlock on app restart so the user doesn't get into a bad state.
-        await this.enrollPersistentBiometricIfNeeded(userId);
+        // Keep the PIN if that fails, otherwise nothing unlocks the vault after restart.
+        if (!(await this.enrollPersistentBiometricIfNeeded(userId))) {
+          this.form.controls.pin.setValue(true, { emitEvent: false });
+          return;
+        }
       }
       await this.pinService.unsetPin(userId);
     }
@@ -502,6 +506,10 @@ export class SettingsDialogComponent implements OnInit {
     }
 
     await this.biometricStateService.setBiometricUnlockEnabled(true, activeUserId);
+    // Stored first, so biometric unlock works even if the persistent enrollment below fails.
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
+    await this.biometricsService.setBiometricProtectedUnlockKeyForUser(activeUserId, userKey);
+
     if (this.isWindows || this.isLinux) {
       // Recommended settings for Windows Hello and Linux system authentication
       this.form.controls.autoPromptBiometrics.setValue(false);
@@ -510,13 +518,18 @@ export class SettingsDialogComponent implements OnInit {
       // If the user doesn't have a MP or PIN then they have to use biometrics on app restart.
       if (!this.userHasMasterPassword() && !this.userHasPinSet()) {
         // Allow biometric unlock on app restart so the user doesn't get into a bad state.
+        // A failed enrollment (e.g. cancelled Windows Hello prompt) is not fatal: the key stored
+        // above still allows biometric unlock.
         await this.enrollPersistentBiometricIfNeeded(activeUserId);
       } else {
         this.form.controls.requireMasterPasswordOnAppRestart.setValue(true);
       }
+    } else if (this.isMac) {
+      // Touch ID always persists the key. Enrolling records the enrolled key id, so the
+      // re-enrollment migration detects a key rotation.
+      await this.biometricsService.enrollPersistent(activeUserId, userKey);
     }
-    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
-    await this.biometricsService.setBiometricProtectedUnlockKeyForUser(activeUserId, userKey);
+
     await this.autoUnlockService.refreshAutoUnlockKey(activeUserId);
 
     // Validate the key is stored in case biometrics fail.
@@ -553,13 +566,20 @@ export class SettingsDialogComponent implements OnInit {
   /**
    * Persists the user key so biometrics alone can unlock the vault after an app restart.
    */
-  private async enrollPersistentBiometricIfNeeded(userId: UserId): Promise<void> {
-    if (!(await this.biometricsService.hasPersistentKey(userId))) {
-      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-      await this.biometricsService.enrollPersistent(userId, userKey);
-      this.form.controls.requireMasterPasswordOnAppRestart.setValue(false, {
-        emitEvent: false,
-      });
+  private async enrollPersistentBiometricIfNeeded(userId: UserId): Promise<boolean> {
+    try {
+      if (!(await this.biometricsService.hasPersistentKey(userId))) {
+        const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+        await this.biometricsService.enrollPersistent(userId, userKey);
+        this.form.controls.requireMasterPasswordOnAppRestart.setValue(false, {
+          emitEvent: false,
+        });
+      }
+      return true;
+    } catch (error) {
+      this.logService.error("Error enrolling persistent biometric unlock: ", error);
+      this.validationService.showError(error);
+      return false;
     }
   }
 
