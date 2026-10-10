@@ -15,6 +15,35 @@
       aria-hidden="true"
     />
   }
+  @if (showCollectionMenu()) {
+    <ng-container slot="title-suffix">
+      <button
+        bitIconButton="bwi-angle-down"
+        size="small"
+        type="button"
+        [bitMenuTriggerFor]="collectionMenu"
+        [label]="'optionsForItem' | i18n: currentCollection()?.name"
+      ></button>
+      <bit-menu #collectionMenu>
+        @if (showEditActions()) {
+          <button type="button" bitMenuItem (click)="editCollectionInfo()">
+            <bit-icon slot="start" fixedWidth name="bwi-pencil-square" />
+            {{ "editInfo" | i18n }}
+          </button>
+          <button type="button" bitMenuItem (click)="editCollectionAccess()">
+            <bit-icon slot="start" fixedWidth name="bwi-users" />
+            {{ "editAccess" | i18n }}
+          </button>
+        }
+        @if (showDeleteAction()) {
+          <button type="button" bitMenuItem variant="danger" (click)="deleteCurrentCollection()">
+            <bit-icon slot="start" fixedWidth name="bwi-trash" />
+            {{ "delete" | i18n }}
+          </button>
+        }
+      </bit-menu>
+    </ng-container>
+  }
 </app-header>
 
 @if (showSubscriptionEndedMessaging()) {
