@@ -8,6 +8,7 @@ import { credentialsData_otpUrl } from "../spec-data/dashlane-csv/credentials-ot
 import { credentialsData } from "../spec-data/dashlane-csv/credentials.csv";
 import { identityData } from "../spec-data/dashlane-csv/id.csv";
 import { multiplePersonalInfoData } from "../spec-data/dashlane-csv/multiple-personal-info.csv";
+import { paymentsPaymentCardData } from "../spec-data/dashlane-csv/payments-payment-card.csv";
 import { paymentsData } from "../spec-data/dashlane-csv/payments.csv";
 import { personalInfoData } from "../spec-data/dashlane-csv/personal-info.csv";
 import { secureNoteData } from "../spec-data/dashlane-csv/securenotes.csv";
@@ -100,6 +101,27 @@ describe("Dashlane CSV Importer", () => {
 
       assertCustomFieldsStructure(cipher2.fields, [
         ["type", "credit_card"],
+        ["country", "US"],
+      ]);
+    });
+
+    it("parses the current payment_card export format", async () => {
+      const result = await getImportResult(paymentsPaymentCardData);
+
+      expect(result.ciphers.length).toEqual(1);
+
+      const cipher = result.ciphers[0];
+      expect(cipher.type).toEqual(CipherType.Card);
+      expect(cipher.name).toEqual("Work Visa");
+      expect(cipher.card.brand).toEqual("Visa");
+      expect(cipher.card.cardholderName).toEqual("Jane M Doe");
+      expect(cipher.card.number).toEqual("41111111111111111");
+      expect(cipher.card.code).toEqual("123");
+      expect(cipher.card.expMonth).toEqual("1");
+      expect(cipher.card.expYear).toEqual("2030");
+
+      assertCustomFieldsStructure(cipher.fields, [
+        ["type", "payment_card"],
         ["country", "US"],
       ]);
     });
