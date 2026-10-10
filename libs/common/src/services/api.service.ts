@@ -583,13 +583,20 @@ export class ApiService implements ApiServiceAbstraction {
       const userId = await this.getActiveUser();
       const environment = await firstValueFrom(this.environmentService.getEnvironment$(userId));
       const apiUrl = environment.getApiUrl();
+      if (!apiUrl.startsWith("https://") && !this.platformUtilsService.isDev()) {
+        throw new InsecureUrlNotAllowedError();
+      }
       const headers = await this.buildRequestHeaders();
       const request = new Request(`${apiUrl}/ciphers/${id}/attachment/${attachmentId}`, {
         method: "POST",
         body: data,
         headers,
       });
-      return this.nativeXMLHttpRequest(request, options.onProgress);
+      const response = await this.nativeXMLHttpRequest(request, options.onProgress);
+      if (response.status !== HttpStatusCode.Ok && response.status !== HttpStatusCode.Created) {
+        throw await this.handleApiRequestError(response, true);
+      }
+      return response;
     }
 
     return this.send("POST", "/ciphers/" + id + "/attachment/" + attachmentId, data, true, false);
@@ -1312,7 +1319,21 @@ export class ApiService implements ApiServiceAbstraction {
           onProgress(Math.round((e.loaded / e.total) * 100));
         }
       };
-      xhr.onload = () => resolve(new Response(xhr.response, { status: xhr.status }));
+      xhr.onload = () => {
+        const headers = new Headers();
+        xhr
+          .getAllResponseHeaders()
+          .trim()
+          .split(/[\r\n]+/)
+          .filter(Boolean)
+          .forEach((line) => {
+            const separatorIndex = line.indexOf(":");
+            const name = line.slice(0, separatorIndex).trim();
+            const value = line.slice(separatorIndex + 1).trim();
+            headers.append(name, value);
+          });
+        resolve(new Response(xhr.response, { status: xhr.status, headers }));
+      };
       xhr.onerror = () => reject(new Error("Network error during upload"));
       void request
         .arrayBuffer()
