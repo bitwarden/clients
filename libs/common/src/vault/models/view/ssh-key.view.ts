@@ -4,6 +4,8 @@ import { SshKeyView as SdkSshKeyView } from "@bitwarden/sdk-internal";
 
 import { ItemView } from "./item.view";
 
+// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/ssh_key.rs).
+// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class SshKeyView extends ItemView {
   privateKey!: string;
   publicKey!: string;

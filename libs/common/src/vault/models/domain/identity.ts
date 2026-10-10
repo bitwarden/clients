@@ -9,6 +9,8 @@ import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { IdentityData } from "../data/identity.data";
 import { IdentityView } from "../view/identity.view";
 
+// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/identity.rs).
+// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class Identity extends Domain {
   title?: EncString;
   firstName?: EncString;

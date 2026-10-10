@@ -3,6 +3,8 @@ import {
   LocalData as SdkLocalData,
 } from "@bitwarden/sdk-internal";
 
+// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/local_data.rs).
+// Field changes here must also be made there, along with fromSdkLocalData/toSdkLocalData.
 export type LocalData = {
   lastUsedDate?: number;
   lastLaunched?: number;

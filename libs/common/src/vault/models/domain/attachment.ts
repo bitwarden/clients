@@ -10,6 +10,8 @@ import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { AttachmentData } from "../data/attachment.data";
 import { AttachmentView } from "../view/attachment.view";
 
+// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/attachment.rs).
+// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class Attachment extends Domain {
   id?: string;
   url?: string;

@@ -9,6 +9,8 @@ import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { Fido2CredentialData } from "../data/fido2-credential.data";
 import { Fido2CredentialView } from "../view/fido2-credential.view";
 
+// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/login.rs).
+// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class Fido2Credential extends Domain {
   credentialId!: EncString;
   keyType!: EncString;

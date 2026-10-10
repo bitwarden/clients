@@ -9,6 +9,8 @@ import { SafeUrls, UrlType } from "../../../platform/misc/safe-urls";
 import { Utils } from "../../../platform/misc/utils";
 import { LoginUri } from "../domain/login-uri";
 
+// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/login.rs).
+// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class LoginUriView implements View {
   match?: UriMatchStrategySetting;
 

@@ -4,6 +4,8 @@ import { PassportView as SdkPassportView } from "@bitwarden/sdk-internal";
 
 import { ItemView } from "./item.view";
 
+// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/passport.rs).
+// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class PassportView extends ItemView implements SdkPassportView {
   surname: string | undefined;
   givenName: string | undefined;

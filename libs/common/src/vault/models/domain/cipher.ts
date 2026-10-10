@@ -35,6 +35,8 @@ import { Password } from "./password";
 import { SecureNote } from "./secure-note";
 import { SshKey } from "./ssh-key";
 
+// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/cipher.rs).
+// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 /**
  * Encrypted cipher, as stored and synced.
  *

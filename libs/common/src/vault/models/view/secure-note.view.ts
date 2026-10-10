@@ -7,6 +7,8 @@ import { SecureNote } from "../domain/secure-note";
 
 import { ItemView } from "./item.view";
 
+// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/secure_note.rs).
+// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class SecureNoteView extends ItemView implements SdkSecureNoteView {
   type: SecureNoteType = SecureNoteType.Generic;
 

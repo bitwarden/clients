@@ -9,6 +9,8 @@ import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { PassportData } from "../data/passport.data";
 import { PassportView } from "../view/passport.view";
 
+// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/passport.rs).
+// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class Passport extends Domain {
   surname?: EncString;
   givenName?: EncString;

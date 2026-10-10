@@ -7,6 +7,8 @@ import { PasswordHistoryView as SdkPasswordHistoryView } from "@bitwarden/sdk-in
 import { View } from "../../../models/view/view";
 import { Password } from "../domain/password";
 
+// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/password_history.rs).
+// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class PasswordHistoryView implements View {
   password: string = null;
   lastUsedDate: Date = null;

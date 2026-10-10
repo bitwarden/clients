@@ -11,6 +11,8 @@ import { Fido2CredentialView } from "./fido2-credential.view";
 import { ItemView } from "./item.view";
 import { LoginUriView } from "./login-uri.view";
 
+// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/login.rs).
+// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class LoginView extends ItemView {
   @linkedFieldOption(LinkedId.Username, { sortPosition: 0 })
   username: string | undefined;

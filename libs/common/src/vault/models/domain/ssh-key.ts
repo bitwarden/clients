@@ -8,6 +8,8 @@ import Domain from "../../../platform/models/domain/domain-base";
 import { SshKeyData } from "../data/ssh-key.data";
 import { SshKeyView } from "../view/ssh-key.view";
 
+// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/ssh_key.rs).
+// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class SshKey extends Domain {
   privateKey!: EncString;
   /** Derivable from the private key, so may be absent at rest. */
