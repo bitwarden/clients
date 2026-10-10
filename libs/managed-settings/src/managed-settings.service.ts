@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 
-import { ManagedSettingsClient, ManagementProfile } from "@bitwarden/sdk-internal";
+import { ManagedSettingsClient } from "@bitwarden/sdk-internal";
 
 /**
  * Read access to the settings an administrator forces onto this client through the operating
@@ -19,14 +19,17 @@ import { ManagedSettingsClient, ManagementProfile } from "@bitwarden/sdk-interna
  * the conflict itself.
  *
  * Acquisition is asynchronous on every platform, so a profile may arrive after startup and a
- * consumer may not immediately observe a managed setting.
+ * consumer may not immediately observe a managed setting. The SDK holds the profile, so until the
+ * SDK has loaded, {@link get} returns `undefined` and {@link isManaged} returns `false` for every key.
+ * Consumers that run at startup should use {@link get$}.
  */
 export abstract class ManagedSettingsService {
   /**
    * The shared SDK handle, available once the SDK WASM module has loaded.
    *
-   * Hand this to the SDK client so the SDK reads the same profile pushed through
-   * {@link updateProfile}.
+   * The handle holds the active profile. Hand it to the SDK client so the SDK reads the same
+   * profile. A client's host acquisition code passes the administrator's raw settings to its
+   * `update_from_json`; feature code never updates the profile.
    */
   abstract client$: Observable<ManagedSettingsClient>;
 
@@ -47,11 +50,4 @@ export abstract class ManagedSettingsService {
    * Whether `key` is present in the active profile. Presence implies the value is forced.
    */
   abstract isManaged(key: string): boolean;
-
-  /**
-   * Replace the active Unified Endpoint Management profile, or clear it with `undefined`.
-   *
-   * Only a client's host acquisition code calls this. Feature code never pushes a profile.
-   */
-  abstract updateProfile(profile: ManagementProfile | undefined): void;
 }

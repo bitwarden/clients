@@ -1,7 +1,9 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { LogService } from "@bitwarden/logging";
 import { ManagedSettingsService } from "@bitwarden/managed-settings";
+import { ManagedSettingsClient } from "@bitwarden/sdk-internal";
 
 import { BrowserApi } from "../browser/browser-api";
 
@@ -11,13 +13,18 @@ type StorageChangeListener = Parameters<typeof BrowserApi.storageChangeListener>
 
 describe("BrowserManagedConfigReader", () => {
   let managedSettingsService: MockProxy<ManagedSettingsService>;
+  let client: MockProxy<ManagedSettingsClient>;
   let logService: MockProxy<LogService>;
   let getManagedStorage: jest.SpyInstance;
   let listener: StorageChangeListener;
   let reader: BrowserManagedConfigReader;
 
   beforeEach(() => {
+    client = mock<ManagedSettingsClient>();
+    client.update_from_json.mockResolvedValue(undefined);
+    // Assigned after construction; see mockManagedSettingsService in @bitwarden/common/spec.
     managedSettingsService = mock<ManagedSettingsService>();
+    managedSettingsService.client$ = new BehaviorSubject(client);
     logService = mock<LogService>();
 
     getManagedStorage = jest.spyOn(BrowserApi, "getManagedStorage").mockResolvedValue({});
@@ -32,16 +39,14 @@ describe("BrowserManagedConfigReader", () => {
     jest.restoreAllMocks();
   });
 
-  it("pushes a profile flattened from managed storage on init", async () => {
+  it("passes managed storage to the SDK as JSON on init", async () => {
     getManagedStorage.mockResolvedValue({ environment: { base: "https://vault.example.com" } });
 
     await reader.init();
 
-    expect(managedSettingsService.updateProfile).toHaveBeenCalledWith({
-      version: 1,
-      updatedAt: expect.any(Number),
-      settings: new Map([["environment.base", '"https://vault.example.com"']]),
-    });
+    expect(client.update_from_json).toHaveBeenCalledWith(
+      '{"environment":{"base":"https://vault.example.com"}}',
+    );
   });
 
   it("reads managed storage exactly once on init", async () => {
@@ -50,20 +55,7 @@ describe("BrowserManagedConfigReader", () => {
     expect(getManagedStorage).toHaveBeenCalledTimes(1);
   });
 
-  it("stamps the profile with the current time in seconds", async () => {
-    jest.useFakeTimers().setSystemTime(new Date("2026-09-01T00:00:00.000Z"));
-    getManagedStorage.mockResolvedValue({ environment: { base: "https://vault.example.com" } });
-
-    await reader.init();
-
-    expect(managedSettingsService.updateProfile).toHaveBeenCalledWith(
-      expect.objectContaining({ updatedAt: 1788220800 }),
-    );
-
-    jest.useRealTimers();
-  });
-
-  it("re-reads and pushes when a storage change reports the managed area", async () => {
+  it("re-reads and passes managed storage when a storage change reports the managed area", async () => {
     await reader.init();
     getManagedStorage.mockResolvedValue({ environment: { base: "https://vault.example.com" } });
 
@@ -71,10 +63,8 @@ describe("BrowserManagedConfigReader", () => {
     await flushPromises();
 
     expect(getManagedStorage).toHaveBeenCalledTimes(2);
-    expect(managedSettingsService.updateProfile).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        settings: new Map([["environment.base", '"https://vault.example.com"']]),
-      }),
+    expect(client.update_from_json).toHaveBeenLastCalledWith(
+      '{"environment":{"base":"https://vault.example.com"}}',
     );
   });
 
@@ -82,30 +72,30 @@ describe("BrowserManagedConfigReader", () => {
     "ignores a storage change for the %s area",
     async (area) => {
       await reader.init();
-      managedSettingsService.updateProfile.mockClear();
+      client.update_from_json.mockClear();
 
       listener({}, area);
       await flushPromises();
 
       expect(getManagedStorage).toHaveBeenCalledTimes(1);
-      expect(managedSettingsService.updateProfile).not.toHaveBeenCalled();
+      expect(client.update_from_json).not.toHaveBeenCalled();
     },
   );
 
-  it("clears the profile when managed storage holds no keys", async () => {
+  it("passes an empty managed storage area to the SDK", async () => {
     getManagedStorage.mockResolvedValue({});
 
     await reader.init();
 
-    expect(managedSettingsService.updateProfile).toHaveBeenCalledWith(undefined);
+    expect(client.update_from_json).toHaveBeenCalledWith("{}");
   });
 
-  it("does not push a profile when the browser has no managed storage area", async () => {
+  it("does not update the SDK when the browser has no managed storage area", async () => {
     getManagedStorage.mockResolvedValue(undefined);
 
     await reader.init();
 
-    expect(managedSettingsService.updateProfile).not.toHaveBeenCalled();
+    expect(client.update_from_json).not.toHaveBeenCalled();
   });
 
   it("keeps the previous profile when a read fails", async () => {
@@ -113,7 +103,7 @@ describe("BrowserManagedConfigReader", () => {
 
     await reader.init();
 
-    expect(managedSettingsService.updateProfile).not.toHaveBeenCalled();
+    expect(client.update_from_json).not.toHaveBeenCalled();
   });
 
   it("resolves init when a read fails", async () => {
@@ -122,16 +112,14 @@ describe("BrowserManagedConfigReader", () => {
     await expect(reader.init()).resolves.toBeUndefined();
   });
 
-  it("logs the managed setting count and key names", async () => {
-    getManagedStorage.mockResolvedValue({
-      environment: { base: "https://vault.example.com", api: "https://api.example.com" },
-    });
+  it("logs a value the SDK rejects", async () => {
+    client.update_from_json.mockRejectedValue(new Error("top level is not an object"));
 
     await reader.init();
 
-    expect(logService.info).toHaveBeenCalledWith(
-      "Managed configuration: applied 2 managed setting(s).",
-      ["environment.api", "environment.base"],
+    expect(logService.error).toHaveBeenCalledWith(
+      "Managed configuration: the managed storage area was rejected.",
+      "top level is not an object",
     );
   });
 

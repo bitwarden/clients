@@ -23,6 +23,7 @@ import { BiometricsService, KeyService as KeyServiceAbstraction } from "@bitward
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
+import { ManagedSettingsService } from "@bitwarden/managed-settings";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
@@ -71,12 +72,14 @@ export class InitService {
     private updateRestartService: UpdateRestartService,
     private logService: LogService,
     private automationDriver: AutomationDriver,
+    private managedSettingsService: ManagedSettingsService,
   ) {}
 
   init() {
     return async () => {
       await this.sdkLoadService.loadAndInit();
       await this.ipcService.init();
+      await this.mirrorManagedSettings();
       await this.biometricsService.setUnlockService(this.unlockService);
       await this.sshAgentService.init();
       this.nativeMessagingService.init();
@@ -127,5 +130,18 @@ export class InitService {
       await this.autotypeMvpService.init();
       await this.autotypeService.init();
     };
+  }
+
+  /**
+   * Keeps the renderer's managed-settings profile in sync with the main process, which is the only
+   * process that acquires one.
+   */
+  private async mirrorManagedSettings(): Promise<void> {
+    try {
+      const client = await firstValueFrom(this.managedSettingsService.client$);
+      await client.mirror_from(this.ipcService.client, "DesktopMain");
+    } catch (e) {
+      this.logService.error("Managed settings: failed to mirror from the main process.", e);
+    }
   }
 }
