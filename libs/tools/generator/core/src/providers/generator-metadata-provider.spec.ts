@@ -11,7 +11,7 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/legacy-encryptor-provider";
-import { UserEncryptor } from "@bitwarden/common/tools/cryptography/user-encryptor.abstraction";
+import { SubjectKeyEncryptor } from "@bitwarden/common/tools/cryptography/subject-key-encryptor.abstraction";
 import {
   ExtensionMetadata,
   ExtensionSite,
@@ -55,8 +55,9 @@ const SomeAccount = {
 };
 const SomeAccount$ = new BehaviorSubject<Account>(SomeAccount);
 
-const SomeEncryptor: UserEncryptor = {
+const SomeEncryptor: SubjectKeyEncryptor = {
   userId: SomeUser,
+  subjectId: "generator/profile",
 
   encrypt(secret) {
     const tmp: any = secret;
@@ -77,8 +78,11 @@ const SomeStateProvider = new FakeStateProvider(SomeAccountService);
 
 const SystemProvider = {
   encryptor: {
-    userEncryptor$: () => {
+    subjectEncryptor$: () => {
       return new BehaviorSubject({ encryptor: SomeEncryptor, userId: SomeUser }).asObservable();
+    },
+    userEncryptor$() {
+      throw new Error("`userEncryptor$` should never be invoked.");
     },
     organizationEncryptor$() {
       throw new Error("`organizationEncryptor$` should never be invoked.");
