@@ -43,6 +43,9 @@ export const NudgeType = {
   AutoConfirmNudge: "auto-confirm-nudge",
   PremiumUpgrade: "premium-upgrade",
   Vfo1NewExperience: "vfo1-new-experience",
+  Vfo1VaultChanges: "vfo1-vault-changes",
+  Vfo1FilterChanges: "vfo1-filter-changes",
+  Vfo1SharedFolders: "vfo1-shared-folders",
 } as const;
 
 export type NudgeType = UnionOfValues<typeof NudgeType>;
@@ -97,6 +100,9 @@ export class NudgesService {
     [NudgeType.NewSshItemStatus]: this.newItemNudgeService,
     [NudgeType.AutoConfirmNudge]: this.autoConfirmNudgeService ?? this.noOpNudgeService,
     [NudgeType.Vfo1NewExperience]: this.vfo1OnboardingNudgeService,
+    [NudgeType.Vfo1VaultChanges]: this.vfo1OnboardingNudgeService,
+    [NudgeType.Vfo1FilterChanges]: this.vfo1OnboardingNudgeService,
+    [NudgeType.Vfo1SharedFolders]: this.vfo1OnboardingNudgeService,
   };
 
   /**
