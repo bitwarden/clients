@@ -23,6 +23,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { AutotypeFeatureFlagState } from "@bitwarden/common/desktop-native/enums/autotype-feature-flag-state.enum";
 import { autotypeFeatureFlagState$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -78,6 +79,7 @@ import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype
 import { DesktopPremiumUpgradePromptService } from "../../billing/services/desktop-premium-upgrade-prompt.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
+import { SshAgentSetupDialogComponent } from "../components/ssh-agent-setup-dialog.component";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
 
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -161,6 +163,8 @@ export class SettingsDialogComponent implements OnInit {
   protected readonly runInBackgroundText: string;
   protected readonly runInBackgroundDescText: string;
 
+  /** Whether SSH clients on this machine already reach the agent. */
+  protected readonly sshAgentConfigured = signal(false);
   protected readonly supportsBiometric = signal(false);
   protected readonly showEnableAutotype = signal(false);
   protected readonly showEnableAutotypeGa = signal(false);
@@ -175,6 +179,12 @@ export class SettingsDialogComponent implements OnInit {
   protected readonly currentUserId = computed(() => this.activeAccount().id);
   protected readonly userHasMasterPassword = signal(false);
   protected readonly userHasPinSet = signal(false);
+
+  /** Controls whether the SSH agent setup dialog and its entry point are shown */
+  protected readonly showSshAgentSetupDialog = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.SSHAgentSetupDialog),
+    { initialValue: false },
+  );
 
   protected readonly pinEnabled = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -338,6 +348,10 @@ export class SettingsDialogComponent implements OnInit {
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
     this.form.setValue(initialValues, { emitEvent: false });
+
+    // Kept off the critical render path: it shells out on Windows.
+    // Not awaited; the method swallows its own errors.
+    void this.refreshSshAgentConfigured();
 
     if (this.isWindows) {
       this.billingAccountProfileStateService
@@ -698,6 +712,45 @@ export class SettingsDialogComponent implements OnInit {
 
   protected async saveSshAgent() {
     await this.desktopSettingsService.setSshAgentEnabled(this.form.value.enableSshAgent);
+
+    if (!this.form.value.enableSshAgent || !this.showSshAgentSetupDialog()) {
+      return;
+    }
+
+    // Machines that already reach the agent need no instructions.
+    await this.refreshSshAgentConfigured();
+    if (this.sshAgentConfigured()) {
+      return;
+    }
+
+    await this.openSshAgentSetupDialog();
+  }
+
+  protected async openSshAgentSetupDialog() {
+    const socketAddress = await ipc.autofill.sshAgent.getSocketAddress();
+    const dialogRef = SshAgentSetupDialogComponent.open(this.dialogService, { socketAddress });
+
+    // The dialog can configure the machine itself, so re-check once it is gone.
+    await firstValueFrom(dialogRef.closed);
+    await this.refreshSshAgentConfigured();
+  }
+
+  /**
+   * The native check reads shell profiles / queries a Windows service, so it is
+   * fallible. A failure must not take the rest of the dialog down with it; falling
+   * back to "not configured" only means the setup link stays visible.
+   */
+  private async refreshSshAgentConfigured() {
+    if (!this.showSshAgentSetupDialog()) {
+      return;
+    }
+
+    try {
+      this.sshAgentConfigured.set(await ipc.autofill.sshAgent.isConfigured());
+    } catch (e) {
+      this.logService.error("Could not determine SSH agent configuration state", e);
+      this.sshAgentConfigured.set(false);
+    }
   }
 
   private async saveSshAgentPromptBehavior(newValue: SshAgentPromptType) {
