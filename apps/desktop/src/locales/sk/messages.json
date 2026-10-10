@@ -1,4 +1,7 @@
 {
+  "appLogoLabel": {
+    "message": "Logo Bitwarden"
+  },
   "bitwarden": {
     "message": "Bitwarden"
   },
@@ -160,6 +163,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "Vnorené zdieľané priečinky: $COUNT$",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 vnorený zdieľaný priečinok",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "Môj priečinok"
   },
@@ -177,9 +194,6 @@
   },
   "addSharedFolder": {
     "message": "Pridať zdieľaný priečinok"
-  },
-  "newSharedFolder": {
-    "message": "Nový zdieľaný priečinok"
   },
   "searchSharedFolder": {
     "message": "Hľadať v zdieľanom priečinku"
@@ -340,58 +354,6 @@
   "addItemHeaderPassport": {
     "message": "Pridať pas",
     "description": "Header for new passport item type"
-  },
-  "newItemHeaderLogin": {
-    "message": "Nové prihlásenie",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Nová karta",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nová identita",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nová poznámka",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nová zabezpečená poznámka",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nový kľúč SSH",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nový bankový účet",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nový vodičský preukaz",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Nový pas",
-    "description": "Header for new passport item type"
-  },
-  "editItemHeaderLogin": {
-    "message": "Upraviť prihlásenie",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Upraviť kartu",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Upraviť identitu",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Upraviť poznámku",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Upraviť zabezpečenú poznámku",
@@ -2138,6 +2100,18 @@
   "languageDesc": {
     "message": "Zmeňte jazyk aplikácie. Vyžaduje reštart."
   },
+  "passkeyProvider": {
+    "message": "Poskytovateľ prístupových kľúčov"
+  },
+  "passkeyProviderDesc": {
+    "message": "Použite Bitwarden na ukladanie a prihlásenie sa pomocou prístupových kľúčov v iných aplikáciách."
+  },
+  "turnedOn": {
+    "message": "Zapnuté"
+  },
+  "turnedOff": {
+    "message": "Vypnuté"
+  },
   "theme": {
     "message": "Motív"
   },
@@ -2786,6 +2760,12 @@
   },
   "requireMasterPasswordOnAppRestart": {
     "message": "Pri reštarte aplikácie vyžadovať hlavné heslo"
+  },
+  "requireMasterPasswordOnAppRestartDesc": {
+    "message": "Toto nastavenie poskytuje dodatočnú úroveň ochrany tým, že zabraňuje iným aplikáciám vo vašom počítači odomknúť Bitwarden."
+  },
+  "requireMasterPasswordOnAppRestartWarning": {
+    "message": "Ak túto možnosť odznačíte, znamená to, že akákoľvek aplikácia vo vašom počítači môže odomknúť Bitwarden a získať prístup ku všetkým vašim uloženým heslám."
   },
   "deleteAccount": {
     "message": "Odstrániť účet"
@@ -4629,10 +4609,6 @@
   "selectImportSharedFolder": {
     "message": "Vyberte zdieľaný priečinok"
   },
-  "importTargetMyFolder": {
-    "message": "Môj priečinok",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do zbierky"
   },
@@ -5111,13 +5087,13 @@
     "message": "Vložte kľúč YubiKey priradený k vášmu účtu LastPass do USB portu počítača a potom sa dotknite jeho tlačidla."
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "Tajný kľúč"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "Tajný kľúč a heslo"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "Váš účet je zabezpečený tajným kľúčom a heslom. Ak chcete pokračovať, budete musieť zadať obe."
   },
   "keeperEmail": {
     "message": "E-mail pre Keeper"
@@ -5580,6 +5556,12 @@
   },
   "savePasskey": {
     "message": "Uložiť prístupový kľúč"
+  },
+  "chooseCipherForPasskeySave": {
+    "message": "Vyberte prihlasovacie údaje, do ktorých chcete uložiť prístupový kľúč"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "Vyberte prístupový kľúč, pomocou ktorého sa chcete prihlásiť"
   },
   "saveNewPasskey": {
     "message": "Uložiť ako nové prihlasovacie údaje"
@@ -6968,5 +6950,73 @@
   },
   "unknownCipher": {
     "message": "Neznáma položka, možno budete musieť požiadať o povolenie na prístup k tejto položke."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden má nový vzhľad",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Lepší používateľský zážitok, rovnaká spoľahlivá bezpečnosť. Trezor Bitwarden bol na základe vašich pripomienok prepracovaný, takže v ňom ľahšie nájdete, čo hľadáte, a všetko funguje tak, ako by ste očakávali.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Ukážka prepracovaného trezoru Bitwarden.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Preskúmať nový trezor",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Prispôsobiť"
+  },
+  "customizeYourView": {
+    "message": "Prispôsobte si zobrazenie"
+  },
+  "showColumns": {
+    "message": "Zobraziť stĺpce"
+  },
+  "resetToDefault": {
+    "message": "Obnoviť na predvolené"
+  },
+  "coachmarkImportTitle": {
+    "message": "Quickly import your passwords"
+  },
+  "coachmarkImportDescription": {
+    "message": "Did you have a password manager before? You can import a CSV of existing logins and other data into your vault."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Add an item"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Add new passwords, notes, and other info to your vault. Everything is protected with end-to-end encryption."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Safely share items with others"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "By moving an item into a collection, you can securely share it with other people in your organization."
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "By moving an item into a shared folder, you can securely share it with other vault members."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Monitor your password security"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
+  },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
   }
 }

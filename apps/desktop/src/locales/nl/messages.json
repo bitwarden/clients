@@ -1,4 +1,7 @@
 {
+  "appLogoLabel": {
+    "message": "Bitwarden logo"
+  },
   "bitwarden": {
     "message": "Bitwarden"
   },
@@ -160,6 +163,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ geneste gedeelde mappen",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 geneste gedeelde map",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "Mijn map"
   },
@@ -177,9 +194,6 @@
   },
   "addSharedFolder": {
     "message": "Gedeelde map toevoegen"
-  },
-  "newSharedFolder": {
-    "message": "Nieuwe gedeelde map"
   },
   "searchSharedFolder": {
     "message": "Door gedeelde map zoeken"
@@ -340,58 +354,6 @@
   "addItemHeaderPassport": {
     "message": "Paspoort toevoegen",
     "description": "Header for new passport item type"
-  },
-  "newItemHeaderLogin": {
-    "message": "Nieuwe login",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Nieuwe kaart",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nieuwe identiteit",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nieuwe notitie",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nieuwe veilige notitie",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nieuwe SSH-sleutel",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nieuwe bankrekening",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nieuw rijbewijs",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Nieuw paspoort",
-    "description": "Header for new passport item type"
-  },
-  "editItemHeaderLogin": {
-    "message": "Login bewerken",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Kaart bewerken",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Identiteit bewerken",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Notitie bewerken",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Veilige notitie bewerken",
@@ -2138,6 +2100,18 @@
   "languageDesc": {
     "message": "De taal van de applicatie wijzigen. Werkt pas na herstarten."
   },
+  "passkeyProvider": {
+    "message": "Passkey-provider"
+  },
+  "passkeyProviderDesc": {
+    "message": "Gebruik Bitwarden voor het opslaan van en inloggen met passkeys in andere apps."
+  },
+  "turnedOn": {
+    "message": "Aan"
+  },
+  "turnedOff": {
+    "message": "Uit"
+  },
   "theme": {
     "message": "Thema"
   },
@@ -2786,6 +2760,12 @@
   },
   "requireMasterPasswordOnAppRestart": {
     "message": "Hoofdwachtwoord vereisen bij herstart van de app"
+  },
+  "requireMasterPasswordOnAppRestartDesc": {
+    "message": "Deze instelling biedt een extra laag van bescherming door te voorkomen dat andere applicaties op je computer Bitwarden ontgrendelen."
+  },
+  "requireMasterPasswordOnAppRestartWarning": {
+    "message": "Als je dit uitschakelt, kan elke toepassing op je computer Bitwarden ontgrendelen en al je opgeslagen wachtwoorden gebruiken."
   },
   "deleteAccount": {
     "message": "Account verwijderen"
@@ -4629,10 +4609,6 @@
   "selectImportSharedFolder": {
     "message": "Select a shared folder"
   },
-  "importTargetMyFolder": {
-    "message": "Mijn map",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een collectie wilt verplaatsen"
   },
@@ -5580,6 +5556,12 @@
   },
   "savePasskey": {
     "message": "Passkey opslaan"
+  },
+  "chooseCipherForPasskeySave": {
+    "message": "Kies een login om deze passkey bij op te slaan"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "Kies een passkey om mee in te loggen"
   },
   "saveNewPasskey": {
     "message": "Opslaan als nieuwe login"
@@ -6968,5 +6950,73 @@
   },
   "unknownCipher": {
     "message": "Onbekend item, je moet misschien inloggen met een andere account om dit item te kunnen opvragen."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden heeft een nieuw uiterlijk",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Betere ervaring, dezelfde vertrouwde veiligheid. De Bitwarden-kluis is opnieuw ontworpen op basis van jullie feedback, het is dus makkelijker om te vinden en te werken zoals je zou verwachten.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Een voorbeeld van de herontworpen Bitwarden-kluis.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "De nieuwe kluis verkennen",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Personaliseren"
+  },
+  "customizeYourView": {
+    "message": "Je weergave aanpassen"
+  },
+  "showColumns": {
+    "message": "Kolommen weergeven"
+  },
+  "resetToDefault": {
+    "message": "Standaardinstellingen herstellen"
+  },
+  "coachmarkImportTitle": {
+    "message": "Quickly import your passwords"
+  },
+  "coachmarkImportDescription": {
+    "message": "Did you have a password manager before? You can import a CSV of existing logins and other data into your vault."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Add an item"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Add new passwords, notes, and other info to your vault. Everything is protected with end-to-end encryption."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Safely share items with others"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "By moving an item into a collection, you can securely share it with other people in your organization."
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "By moving an item into a shared folder, you can securely share it with other vault members."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Monitor your password security"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
+  },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
   }
 }

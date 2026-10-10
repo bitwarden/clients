@@ -1,4 +1,7 @@
 {
+  "appLogoLabel": {
+    "message": "Лого на Битуорден"
+  },
   "bitwarden": {
     "message": "Bitwarden"
   },
@@ -160,6 +163,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ вложени споделени папки",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 вложена споделена папка",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "Моята папка"
   },
@@ -177,9 +194,6 @@
   },
   "addSharedFolder": {
     "message": "Добавяне на споделена папка"
-  },
-  "newSharedFolder": {
-    "message": "Нова споделена папка"
   },
   "searchSharedFolder": {
     "message": "Търсене в споделената папка"
@@ -340,58 +354,6 @@
   "addItemHeaderPassport": {
     "message": "Добавяне на паспорт",
     "description": "Header for new passport item type"
-  },
-  "newItemHeaderLogin": {
-    "message": "Нов елемент за вписване",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Нова карта",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Нова самоличност",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Нова бележка",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Нова защитена бележка",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Нов SSH ключ",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Нова банкова сметка",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Нов лиценз",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Нов паспорт",
-    "description": "Header for new passport item type"
-  },
-  "editItemHeaderLogin": {
-    "message": "Редактиране на елемента за вписване",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Редактиране на картата",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Редактиране на самоличността",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Редактиране на бележката",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Редактиране на защитената бележка",
@@ -2138,6 +2100,18 @@
   "languageDesc": {
     "message": "Смяна на езика на интерфейса. Ще трябва да пуснете програмата повторно."
   },
+  "passkeyProvider": {
+    "message": "Доставчик на секретен ключ"
+  },
+  "passkeyProviderDesc": {
+    "message": "Използвайте Битуорден, за да запазвате секретни ключове и да се вписвате с тях в други приложения."
+  },
+  "turnedOn": {
+    "message": "Включено"
+  },
+  "turnedOff": {
+    "message": "Изключено"
+  },
   "theme": {
     "message": "Облик"
   },
@@ -2786,6 +2760,12 @@
   },
   "requireMasterPasswordOnAppRestart": {
     "message": "Изискване на главната парола при повторно пускане на приложението"
+  },
+  "requireMasterPasswordOnAppRestartDesc": {
+    "message": "Тази настройка създава допълнителен защитен слой като не позволява на останалите приложения на компютъра да отключват Битуорден."
+  },
+  "requireMasterPasswordOnAppRestartWarning": {
+    "message": "Премахването на тази отметка означава, че всяко приложение на компютъра ще може да отключва Битуорден и да има достъп до всички съхранявани пароли."
   },
   "deleteAccount": {
     "message": "Изтриване на регистрацията"
@@ -4629,10 +4609,6 @@
   "selectImportSharedFolder": {
     "message": "Изберете споделена папка"
   },
-  "importTargetMyFolder": {
-    "message": "Моята папка",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в колекция"
   },
@@ -5111,13 +5087,13 @@
     "message": "Поставете устройството на YubiKey, което е свързано с регистрацията Ви в LastPass, в USB порт и натиснете бутона на устройството."
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "Таен ключ"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "Таен ключ и парола"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "Акаунтът Ви е защитен с таен ключ и парола. Трябва да въведете и двете, за да продължите."
   },
   "keeperEmail": {
     "message": "Е-поща за Keeper"
@@ -5580,6 +5556,12 @@
   },
   "savePasskey": {
     "message": "Запазване на секретния ключ"
+  },
+  "chooseCipherForPasskeySave": {
+    "message": "Изберете елемент, в който да запазите този секретен ключ"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "Изберете секретен ключ, с който да се впишете"
   },
   "saveNewPasskey": {
     "message": "Запазване като нов елемент за вписване"
@@ -6968,5 +6950,73 @@
   },
   "unknownCipher": {
     "message": "Неизвестен запис. Може да се нуждаете от правомощие за достъп до този запис."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden has a new look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explore the new vault",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Персонализиране"
+  },
+  "customizeYourView": {
+    "message": "Персонализирайте изгледа си"
+  },
+  "showColumns": {
+    "message": "Показване на колони"
+  },
+  "resetToDefault": {
+    "message": "Връщане на настройките по подразбиране"
+  },
+  "coachmarkImportTitle": {
+    "message": "Quickly import your passwords"
+  },
+  "coachmarkImportDescription": {
+    "message": "Did you have a password manager before? You can import a CSV of existing logins and other data into your vault."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Add an item"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Add new passwords, notes, and other info to your vault. Everything is protected with end-to-end encryption."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Safely share items with others"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "By moving an item into a collection, you can securely share it with other people in your organization."
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "By moving an item into a shared folder, you can securely share it with other vault members."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Monitor your password security"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
+  },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
   }
 }
