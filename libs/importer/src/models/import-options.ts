@@ -268,7 +268,7 @@ export const importOptionsById = deepFreeze({
     instructionLink: "https://bitwarden.com/help/import-from-1password/",
   },
   "1passwordwincsv": {
-    name: "1Password 6 and 7 Windows (csv)",
+    name: "1Password 6 and 7 Windows .csv",
     featuredImporter: false,
     isBrowser: false,
     acceptedFileTypes: ["csv"],
@@ -279,7 +279,7 @@ export const importOptionsById = deepFreeze({
     instructionLink: "https://bitwarden.com/help/import-from-1password/",
   },
   "1passwordmaccsv": {
-    name: "1Password 6 and 7 Mac (csv)",
+    name: "1Password 6 and 7 Mac .csv",
     featuredImporter: false,
     isBrowser: false,
     acceptedFileTypes: ["csv"],

@@ -31,7 +31,7 @@ const PICKER_VENDOR_DATA: Partial<Record<ImportType, PickerVendorData>> = {
   safaricsv: { displayName: "Safari" },
   "1password": {
     displayName: "1Password",
-    formats: ["1password1pux", "1password1pif", "1passwordwincsv", "1passwordmaccsv"],
+    formats: ["1password1pux", "1password1pif", "1passwordmaccsv", "1passwordwincsv"],
     alwaysPromptFormat: true,
   },
   roboformcsv: { displayName: "RoboForm" },

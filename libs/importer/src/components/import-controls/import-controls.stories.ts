@@ -122,13 +122,13 @@ const options: Record<string, ImportOption> = {
   }),
   "1passwordwincsv": buildOption({
     id: "1passwordwincsv",
-    name: "1Password 6 and 7 Windows (csv)",
+    name: "1Password 6 and 7 Windows .csv",
     acceptedFileTypes: ["csv"],
     pasteFormats: ["csv"],
   }),
   "1passwordmaccsv": buildOption({
     id: "1passwordmaccsv",
-    name: "1Password 6 and 7 Mac (csv)",
+    name: "1Password 6 and 7 Mac .csv",
     acceptedFileTypes: ["csv"],
     pasteFormats: ["csv"],
   }),

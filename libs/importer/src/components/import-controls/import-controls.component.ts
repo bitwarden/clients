@@ -226,9 +226,11 @@ export class ImportControlsComponent {
       .join(","),
   );
 
-  protected readonly acceptedFileTypesHint = computed(() =>
-    toHint(this.selectedFormat()?.acceptedFileTypes, this.acceptedFileTypes()),
-  );
+  protected readonly acceptedFileTypesHint = computed(() => {
+    const selected = this.selectedFormat();
+    const types = selected?.id === "1password1pux" ? ["1pux"] : selected?.acceptedFileTypes;
+    return toHint(types, this.acceptedFileTypes());
+  });
   protected readonly pasteFormatsHint = computed(() =>
     toHint(this.selectedFormat()?.pasteFormats, this.pasteFormats()),
   );

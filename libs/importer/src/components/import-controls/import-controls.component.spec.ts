@@ -208,13 +208,13 @@ describe("ImportControlsComponent", () => {
       }),
       "1passwordwincsv": buildOption({
         id: "1passwordwincsv",
-        name: "1Password 6 and 7 Windows (csv)",
+        name: "1Password 6 and 7 Windows .csv",
         acceptedFileTypes: ["csv"],
         pasteFormats: ["csv"],
       }),
       "1passwordmaccsv": buildOption({
         id: "1passwordmaccsv",
-        name: "1Password 6 and 7 Mac (csv)",
+        name: "1Password 6 and 7 Mac .csv",
         acceptedFileTypes: ["csv"],
         pasteFormats: ["csv"],
       }),
@@ -776,10 +776,20 @@ describe("ImportControlsComponent", () => {
       expect(component().acceptedFileTypesHint()).toBe(".csv");
     });
 
+    it("advertises only .1pux for a 1Password upload and .json for paste, while the file input still accepts .json", async () => {
+      await setup("1password", ClientType.Web);
+      expect(component().acceptedFileTypesHint()).toBe(".1pux");
+      expect(component().fileAccept()).toContain(".json");
+
+      component().formGroup.controls.method.setValue("paste");
+      fixture.detectChanges();
+      expect(component().pasteFormatsHint()).toBe(".json");
+    });
+
     it("narrows 1Password's hint to the seeded default, and keeps the union while a file collision is unresolved", async () => {
       await setup("1password", ClientType.Web);
       fixture.detectChanges();
-      expect(component().acceptedFileTypesHint()).toBe(".1pux, .json");
+      expect(component().acceptedFileTypesHint()).toBe(".1pux");
 
       component().formGroup.controls.file.setValue({ name: "export.csv" } as File);
       fixture.detectChanges();
@@ -892,7 +902,7 @@ describe("ImportControlsComponent", () => {
       const labels = component()
         .formatChoiceOptions()
         .map((candidate: ImportOption) => component().formatChoiceLabel(candidate));
-      expect(labels).toEqual(["1Password 6 and 7 Windows (csv)", "1Password 6 and 7 Mac (csv)"]);
+      expect(labels).toEqual(["1Password 6 and 7 Mac .csv", "1Password 6 and 7 Windows .csv"]);
     });
 
     it("falls back to the full descriptive label for a shared extension even outside a disambiguation prompt (1Password's wincsv/maccsv, before any file narrows the list)", async () => {
@@ -906,8 +916,8 @@ describe("ImportControlsComponent", () => {
       expect(labels).toEqual([
         ".1pux/.json",
         ".1pif",
-        "1Password 6 and 7 Windows (csv)",
-        "1Password 6 and 7 Mac (csv)",
+        "1Password 6 and 7 Mac .csv",
+        "1Password 6 and 7 Windows .csv",
       ]);
     });
 
@@ -990,8 +1000,8 @@ describe("ImportControlsComponent", () => {
       expect(labels).toEqual([
         ".1pux/.json",
         ".1pif",
-        "1Password 6 and 7 Windows (csv)",
-        "1Password 6 and 7 Mac (csv)",
+        "1Password 6 and 7 Mac .csv",
+        "1Password 6 and 7 Windows .csv",
       ]);
     });
 
@@ -1064,7 +1074,7 @@ describe("ImportControlsComponent", () => {
         component()
           .candidateFormats()
           .map((option: ImportOption) => option.id),
-      ).toEqual(["1passwordwincsv", "1passwordmaccsv"]);
+      ).toEqual(["1passwordmaccsv", "1passwordwincsv"]);
       expect(component().resolvedFormat()).toBeUndefined();
 
       component().formGroup.controls.formatChoice.setValue("1passwordmaccsv");
@@ -1207,7 +1217,7 @@ describe("ImportControlsComponent", () => {
           component()
             .candidateFormats()
             .map((o: ImportOption) => o.id),
-        ).toEqual(["1password1pux", "1password1pif", "1passwordwincsv", "1passwordmaccsv"]);
+        ).toEqual(["1password1pux", "1password1pif", "1passwordmaccsv", "1passwordwincsv"]);
         expect(component().needsFormatDisambiguation()).toBe(true);
       });
 
@@ -1369,7 +1379,7 @@ describe("ImportControlsComponent", () => {
           component()
             .candidateFormats()
             .map((o: ImportOption) => o.id),
-        ).toEqual(["1password1pux", "1password1pif", "1passwordwincsv", "1passwordmaccsv"]);
+        ).toEqual(["1password1pux", "1password1pif", "1passwordmaccsv", "1passwordwincsv"]);
         expect(component().needsFormatDisambiguation()).toBe(true);
       });
     });
