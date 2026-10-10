@@ -306,5 +306,70 @@ describe("BaseImporter class", () => {
       const result = importer.parseXml(xml);
       expect(result).toBe(null);
     });
+
+    it("parse XML should reject DOCTYPE with external SYSTEM DTD reference", async () => {
+      const xml = `<?xml version="1.0" encoding="ISO-8859-1"?>
+        <!DOCTYPE passwordsafe SYSTEM "http://evil.example.com/evil.dtd">
+        <passwordsafe delimiter=";">
+        <entry><title>PoC</title></entry>
+        </passwordsafe>`;
+      const result = importer.parseXml(xml);
+      expect(result).toBe(null);
+    });
+
+    // PUBLIC carries a URL just like SYSTEM does, so it has to be rejected too. XHTML exports go
+    // through parseHtml now, so nothing legitimate breaks.
+    it.each([
+      [
+        "http URL",
+        `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://evil.example.com/evil.dtd">`,
+      ],
+      ["file URL", `<!DOCTYPE passwordsafe PUBLIC "-//x//y//EN" "file:///etc/passwd">`],
+    ])("parse XML should reject DOCTYPE with external PUBLIC DTD reference (%s)", (_, doctype) => {
+      const xml = `<?xml version="1.0" encoding="ISO-8859-1"?>
+        ${doctype}
+        <passwordsafe delimiter=";"><entry><title>PoC</title></entry></passwordsafe>`;
+
+      expect(importer.parseXml(xml)).toBe(null);
+    });
+
+    // Padding before the keyword is legal XML, so the guard can't cap how far it scans.
+    it("parse XML should reject an external DTD reference padded with whitespace", () => {
+      const xml = `<!DOCTYPE passwordsafe ${" ".repeat(300)}SYSTEM "http://evil.example.com/evil.dtd">
+        <passwordsafe delimiter=";"><entry><title>PoC</title></entry></passwordsafe>`;
+
+      expect(importer.parseXml(xml)).toBe(null);
+    });
+
+    // Regression: checking only the first DOCTYPE would let the real one below slip through.
+    it("parse XML should reject a malicious DOCTYPE preceded by a decoy", () => {
+      const xml = `<!-- <!DOCTYPE decoy> -->
+        <!DOCTYPE passwordsafe SYSTEM "http://evil.example.com/evil.dtd">
+        <passwordsafe delimiter=";"><entry><title>PoC</title></entry></passwordsafe>`;
+
+      expect(importer.parseXml(xml)).toBe(null);
+    });
+
+    // Regression: the old pattern backtracked quadratically here, and parseXml runs on the UI
+    // thread with no size cap — 1.5MB used to freeze it for ~109 seconds.
+    it("parse XML should reject a pathological DOCTYPE payload without stalling", () => {
+      const xml = "<!DOCTYPE ".repeat(150_000);
+
+      const start = Date.now();
+      const result = importer.parseXml(xml);
+
+      expect(result).toBe(null);
+      expect(Date.now() - start).toBeLessThan(1000);
+    });
+
+    it("parse XML should accept DOCTYPE with internal subset only", async () => {
+      const xml = `<?xml version="1.0"?>
+        <!DOCTYPE passwordsafe [<!ELEMENT passwordsafe ANY>]>
+        <passwordsafe delimiter=";">
+        <entry><title>Safe</title></entry>
+        </passwordsafe>`;
+      const result = importer.parseXml(xml);
+      expect(result).not.toBe(null);
+    });
   });
 });
