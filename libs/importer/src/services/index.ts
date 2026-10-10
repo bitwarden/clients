@@ -7,7 +7,11 @@ export { ImportService } from "./import.service";
 export {
   ImportMetadataServiceAbstraction,
   ImporterCapabilities,
+  ImporterLoginResult,
+  ImporterProfile,
 } from "./import-metadata.service.abstraction";
 export { DefaultImportMetadataService } from "./default-import-metadata.service";
 
 export { ImportCollectionServiceAbstraction } from "./import-collection.service.abstraction";
+
+export { readImportFileContents } from "./read-import-file-contents";

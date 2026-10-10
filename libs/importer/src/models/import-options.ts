@@ -67,6 +67,17 @@ const chromeImportHelp = "https://bitwarden.com/help/import-from-chrome/";
  *  `ImportType` is derived from its keys, and `importOptions` (the ordered array the dropdown
  *  and CLI use) is derived from its entries. */
 export const importOptionsById = deepFreeze({
+  bitwarden: {
+    name: "Bitwarden",
+    featuredImporter: false,
+    isBrowser: false,
+    acceptedFileTypes: ["json", "csv"],
+    pasteFormats: ["json", "csv"],
+    hasDirectImporter: false,
+    loaders: [Loader.file],
+    sourceName: "Bitwarden",
+    instructionLink: bitwardenExportHelp,
+  },
   bitwardenjson: {
     name: "Bitwarden (json)",
     featuredImporter: true,
@@ -104,6 +115,16 @@ export const importOptionsById = deepFreeze({
     sourceName: "Chrome",
     instructionLink: chromeImportHelp,
   },
+  dashlane: {
+    name: "Dashlane",
+    featuredImporter: false,
+    isBrowser: false,
+    acceptedFileTypes: ["csv", "json"],
+    pasteFormats: ["csv", "json"],
+    hasDirectImporter: false,
+    loaders: [Loader.file],
+    instructionKey: "importDashlaneCsvInstructions",
+  },
   dashlanecsv: {
     name: "Dashlane (csv)",
     featuredImporter: true,
@@ -125,6 +146,18 @@ export const importOptionsById = deepFreeze({
     sourceName: "Firefox",
     instructionLink: "https://bitwarden.com/help/import-from-firefox/",
   },
+  // Vendor entry for the picker; the formats below stay as the importable ids (CLI).
+  keepass: {
+    name: "KeePass",
+    featuredImporter: false,
+    isBrowser: false,
+    acceptedFileTypes: ["kdbx", "xml", "csv"],
+    pasteFormats: ["xml", "csv"],
+    hasDirectImporter: false,
+    loaders: [Loader.file],
+    sourceName: "KeePass",
+    instructionLink: "https://bitwarden.com/help/import-from-keepass/",
+  },
   keepass2xml: {
     name: "KeePass 2 (xml)",
     featuredImporter: true,
@@ -133,7 +166,8 @@ export const importOptionsById = deepFreeze({
     pasteFormats: ["xml"],
     hasDirectImporter: false,
     loaders: [Loader.file],
-    instructionKey: "importKeepass2Instructions",
+    sourceName: "KeePass",
+    instructionLink: "https://bitwarden.com/help/import-from-keepass/",
   },
   // Keeper and LastPass (below) each also have a "direct" import mode — authenticate to the
   // vendor's own API, fetch, decrypt client-side in memory — gated by a standalone ClientType
@@ -156,8 +190,7 @@ export const importOptionsById = deepFreeze({
     name: "LastPass",
     featuredImporter: true,
     isBrowser: false,
-    // LastPass can also export as an HTML file; import.component.ts's getFileContents extracts
-    // the CSV data from a <pre> tag when the uploaded file is text/html.
+    // LastPass can also export HTML; read-import-file-contents.ts extracts the <pre> CSV data.
     acceptedFileTypes: ["csv", "html"],
     pasteFormats: ["csv"],
     hasDirectImporter: true,
@@ -176,14 +209,22 @@ export const importOptionsById = deepFreeze({
     sourceName: "Safari",
     instructionLink: "https://bitwarden.com/help/import-from-safari/",
   },
+  "1password": {
+    name: "1Password",
+    featuredImporter: false,
+    isBrowser: false,
+    acceptedFileTypes: ["1pux", "json", "1pif", "csv"],
+    pasteFormats: ["json", "1pif", "csv"],
+    hasDirectImporter: false,
+    loaders: [Loader.file],
+    sourceName: "1Password",
+    instructionLink: "https://bitwarden.com/help/import-from-1password/",
+  },
   "1password1pux": {
     name: "1Password (1pux/json)",
     featuredImporter: true,
     isBrowser: false,
-    // .1pux is a zip container, unzipped to json before parsing — but import.component.ts's
-    // getFileContents only unzips when the file is actually a .1pux; a plain .json export for
-    // this format falls through untouched to parse(), so json is a real accepted/pasteable
-    // input too.
+    // .1pux is a zip, unzipped to json before parsing; a plain .json export is also accepted as-is.
     acceptedFileTypes: ["1pux", "json"],
     pasteFormats: ["json"],
     hasDirectImporter: false,
@@ -211,7 +252,8 @@ export const importOptionsById = deepFreeze({
     pasteFormats: ["csv"],
     hasDirectImporter: false,
     loaders: [Loader.file],
-    instructionKey: "importKeepassxInstructions",
+    sourceName: "KeePass",
+    instructionLink: "https://bitwarden.com/help/import-from-keepass/",
   },
   "1password1pif": {
     name: "1Password (1pif)",
@@ -226,7 +268,7 @@ export const importOptionsById = deepFreeze({
     instructionLink: "https://bitwarden.com/help/import-from-1password/",
   },
   "1passwordwincsv": {
-    name: "1Password 6 and 7 Windows (csv)",
+    name: "1Password 6 and 7 Windows .csv",
     featuredImporter: false,
     isBrowser: false,
     acceptedFileTypes: ["csv"],
@@ -237,7 +279,7 @@ export const importOptionsById = deepFreeze({
     instructionLink: "https://bitwarden.com/help/import-from-1password/",
   },
   "1passwordmaccsv": {
-    name: "1Password 6 and 7 Mac (csv)",
+    name: "1Password 6 and 7 Mac .csv",
     featuredImporter: false,
     isBrowser: false,
     acceptedFileTypes: ["csv"],
@@ -287,6 +329,16 @@ export const importOptionsById = deepFreeze({
     hasDirectImporter: false,
     loaders: [Loader.file],
   },
+  enpass: {
+    name: "Enpass",
+    featuredImporter: false,
+    isBrowser: false,
+    acceptedFileTypes: ["csv", "json"],
+    pasteFormats: ["csv", "json"],
+    hasDirectImporter: false,
+    loaders: [Loader.file],
+    instructionKey: "importEnpassCsvInstructions",
+  },
   enpasscsv: {
     name: "Enpass (csv)",
     featuredImporter: false,
@@ -311,9 +363,7 @@ export const importOptionsById = deepFreeze({
     name: "ProtonPass (zip/json)",
     featuredImporter: false,
     isBrowser: false,
-    // .zip is unzipped to json before parsing, but import.component.ts's getFileContents only
-    // unzips when the file is actually a zip; a plain .json export falls through untouched to
-    // parse(), so json is a real accepted/pasteable input too.
+    // .zip is unzipped to json before parsing; a plain .json export is also accepted as-is.
     acceptedFileTypes: ["zip", "json"],
     pasteFormats: ["json"],
     hasDirectImporter: false,
@@ -619,6 +669,16 @@ export const importOptionsById = deepFreeze({
     loaders: [Loader.file],
     instructionKey: "importPassmanInstructions",
   },
+  avast: {
+    name: "Avast",
+    featuredImporter: false,
+    isBrowser: false,
+    acceptedFileTypes: ["csv", "json"],
+    pasteFormats: ["csv", "json"],
+    hasDirectImporter: false,
+    loaders: [Loader.file],
+    instructionKey: "importAvastCsvInstructions",
+  },
   avastcsv: {
     name: "Avast Passwords (csv)",
     featuredImporter: false,
@@ -819,6 +879,16 @@ export const importOptionsById = deepFreeze({
     loaders: [Loader.file],
     instructionKey: "importPassworddepot17Instructions",
   },
+  delinea: {
+    name: "Delinea",
+    featuredImporter: false,
+    isBrowser: false,
+    acceptedFileTypes: ["xml", "csv"],
+    pasteFormats: ["xml", "csv"],
+    hasDirectImporter: false,
+    loaders: [Loader.file],
+    instructionKey: "importDelineaInstructions",
+  },
   delineaxml: {
     name: "Delinea (xml)",
     featuredImporter: false,
@@ -859,4 +929,16 @@ export const importOptions: readonly ImportOption[] = Object.entries(importOptio
 export const HIDDEN_IMPORT_TYPE_IDS: ReadonlySet<string> = new Set<ImportType>([
   "keepercsv",
   "keeperjson",
+]);
+
+/** Picker vendor entries. Not importable themselves, so the legacy dropdown and the CLI format
+ *  list skip them and show their formats instead. */
+export const VENDOR_ONLY_IMPORT_TYPE_IDS: ReadonlySet<string> = new Set<ImportType>([
+  "keepass",
+  "bitwarden",
+  "dashlane",
+  "1password",
+  "enpass",
+  "avast",
+  "delinea",
 ]);

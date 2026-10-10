@@ -1,12 +1,21 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 
-import { ImportSourceSelectComponent } from "@bitwarden/importer-ui";
-
-import { HeaderModule } from "../../layouts/header/header.module";
+import { ImportType } from "@bitwarden/importer-core";
+import { ImportSourceSelectComponent, importSourceFromQuery } from "@bitwarden/importer-ui";
 
 @Component({
   templateUrl: "import-source-select-web.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ImportSourceSelectComponent, HeaderModule],
+  imports: [ImportSourceSelectComponent],
 })
-export class ImportSourceSelectWebComponent {}
+export class ImportSourceSelectWebComponent {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+
+  protected readonly initialSource = importSourceFromQuery(this.route);
+
+  protected onContinue(importType: ImportType): void {
+    void this.router.navigate(["/tools/import", importType]);
+  }
+}

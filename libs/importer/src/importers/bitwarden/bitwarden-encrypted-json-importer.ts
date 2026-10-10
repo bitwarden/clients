@@ -28,7 +28,7 @@ import {
   isUnencrypted,
 } from "@bitwarden/vault-export-core";
 
-import { ImportResult } from "../../models/import-result";
+import { ImportResult, ImportResultErrorKey } from "../../models/import-result";
 import { Importer } from "../importer";
 
 import { BitwardenJsonImporter } from "./bitwarden-json-importer";
@@ -93,6 +93,7 @@ export class BitwardenEncryptedJsonImporter extends BitwardenJsonImporter implem
     } catch {
       result.success = false;
       result.errorMessage = this.i18nService.t("importEncKeyError");
+      result.errorKey = ImportResultErrorKey.AccountMismatch;
       return result;
     }
 

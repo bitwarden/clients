@@ -18,6 +18,8 @@ import {
 } from "@bitwarden/importer-ui";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 
+import { loadChromiumLogins } from "./chromium-login-loader";
+import { loadChromiumProfiles } from "./chromium-profile-loader";
 import { DesktopImportMetadataService } from "./desktop-import-metadata.service";
 
 interface ImportDesktopDialogData {
@@ -44,7 +46,7 @@ interface ImportDesktopDialogData {
     safeProvider({
       provide: ImportMetadataServiceAbstraction,
       useClass: DesktopImportMetadataService,
-      deps: [SYSTEM_SERVICE_PROVIDER],
+      deps: [SYSTEM_SERVICE_PROVIDER, I18nService],
     }),
   ],
 })
@@ -71,54 +73,13 @@ export class ImportDesktopComponent {
   private async _onLoadProfilesFromBrowser(
     browser: string,
   ): Promise<chromium_importer.ProfileInfo[]> {
-    // Strings shown by the native NSOpenPanel are resolved here, where the i18n
-    // service lives, and threaded through to ObjC via IPC. The native side only
-    // injects the resolved filesystem path it computes on its own.
-    const pickerStrings: chromium_importer.PickerStrings = {
-      message: this.i18nService.t("chromiumImporterPickerMessage", browser),
-      expectedLocationLabel: this.i18nService.t("chromiumImporterPickerExpectedLocation"),
-      prompt: this.i18nService.t("chromiumImporterPickerPrompt"),
-    };
-
-    try {
-      // Request browser access (required for sandboxed builds, no-op otherwise)
-      await ipc.tools.chromiumImporter.requestBrowserAccess(browser, pickerStrings);
-    } catch (error) {
-      const rawMessage = error instanceof Error ? error.message : "";
-
-      // Check verbose error chain for specific i18n key indicating browser not installed
-      const browserNotInstalledMatch = rawMessage.match(
-        /chromiumImporterBrowserNotInstalled:([^:]+)/,
-      );
-      let message: string;
-
-      if (browserNotInstalledMatch) {
-        message = this.i18nService.t(
-          "chromiumImporterBrowserNotInstalled",
-          browserNotInstalledMatch[1],
-        );
-      } else {
-        // Invalid folder, explicit permission denial, or system error
-        message = this.i18nService.t("browserAccessDenied");
-      }
-
-      throw new Error(message);
-    }
-    try {
-      return await ipc.tools.chromiumImporter.getAvailableProfiles(browser);
-    } catch {
-      throw new Error(this.i18nService.t("errorOccurred"));
-    }
+    return loadChromiumProfiles(browser, this.i18nService);
   }
 
   private async _onImportFromBrowser(
     browser: string,
     profile: string,
   ): Promise<chromium_importer.LoginImportResult[]> {
-    try {
-      return await ipc.tools.chromiumImporter.importLogins(browser, profile);
-    } catch {
-      throw new Error(this.i18nService.t("errorOccurred"));
-    }
+    return loadChromiumLogins(browser, profile, this.i18nService);
   }
 }

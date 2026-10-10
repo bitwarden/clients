@@ -24,6 +24,7 @@ import {
 } from "@bitwarden/components";
 
 import { LastPassDirectImportService } from "./lastpass-direct-import.service";
+import { lastPassValidationErrorI18nKey } from "./lastpass-validation-error";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -101,33 +102,10 @@ export class ImportLastPassComponent implements OnInit, OnDestroy {
         this.logService.error(`LP importer error: ${error}`);
         return {
           errors: {
-            message: this.i18nService.t(this.getValidationErrorI18nKey(error)),
+            message: this.i18nService.t(lastPassValidationErrorI18nKey(error)),
           },
         };
       }
     };
-  }
-
-  private getValidationErrorI18nKey(error: any): string {
-    const message = typeof error === "string" ? error : error?.message;
-    switch (message) {
-      case "SSO auth cancelled":
-      case "Second factor step is canceled by the user":
-      case "Out of band step is canceled by the user":
-        return "multifactorAuthenticationCancelled";
-      case "No accounts to transform":
-      case "Vault has not opened any accounts.":
-        return "noLastPassDataFound";
-      case "Invalid username":
-      case "Invalid password":
-        return "incorrectUsernameOrPassword";
-      case "Second factor code is incorrect":
-      case "Out of band authentication failed":
-        return "multifactorAuthenticationFailed";
-      case "unifiedloginresult":
-        return "lastPassTryAgainCheckEmail";
-      default:
-        return "errorOccurred";
-    }
   }
 }

@@ -34,7 +34,7 @@ import { EncryptService, EncString, KeyGenerationService } from "@bitwarden/lega
 import { BitwardenPasswordProtectedImporter } from "../importers";
 import { Importer } from "../importers/importer";
 import { ImportType } from "../models/import-options";
-import { ImportResult } from "../models/import-result";
+import { ImportResult, ImportResultError, ImportResultErrorKey } from "../models/import-result";
 import { buildSdkImporterRegistry, SdkImportCredentials } from "../sdk";
 import { toSdkCollectionType } from "../sdk/sdk-collection-type";
 
@@ -395,6 +395,42 @@ describe("ImportService", () => {
       expect(importResult.folders[1].name).toEqual(mockCollection2.name);
       expect(importResult.targetCollectionIncluded).toBe(true);
       expect(importResult.targetFolderIncluded).toBe(false);
+    });
+  });
+
+  describe("importImportResult", () => {
+    it("throws an ImportResultError carrying errorKey, not a plain Error, when the result failed with one", async () => {
+      const importResult = new ImportResult();
+      importResult.success = false;
+      importResult.errorMessage = "invalidFilePassword";
+      importResult.errorKey = ImportResultErrorKey.InvalidFilePassword;
+
+      let thrown: unknown;
+      try {
+        await importService.importImportResult(importResult);
+      } catch (error) {
+        thrown = error;
+      }
+
+      expect(thrown).toBeInstanceOf(ImportResultError);
+      expect((thrown as ImportResultError).message).toBe("invalidFilePassword");
+      expect((thrown as ImportResultError).errorKey).toBe(ImportResultErrorKey.InvalidFilePassword);
+    });
+
+    it("throws with an undefined errorKey when the failed result didn't set one", async () => {
+      const importResult = new ImportResult();
+      importResult.success = false;
+      importResult.errorMessage = "Missing `database` node.";
+
+      let thrown: unknown;
+      try {
+        await importService.importImportResult(importResult);
+      } catch (error) {
+        thrown = error;
+      }
+
+      expect(thrown).toBeInstanceOf(ImportResultError);
+      expect((thrown as ImportResultError).errorKey).toBeUndefined();
     });
   });
 

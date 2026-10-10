@@ -35,12 +35,11 @@ jest.mock("../../models", () => {
     importOptions: [
       buildOption({ id: "chromecsv", name: "Chrome", isBrowser: true }),
       buildOption({ id: "firefoxcsv", name: "Firefox (csv)", isBrowser: true }),
-      buildOption({ id: "1password1pux", name: "1Password (1pux/json)" }),
+      buildOption({ id: "1password", name: "1Password" }),
       buildOption({ id: "lastpasscsv", name: "LastPass" }),
       // Squished (no space) on purpose: displayNameFor's real value ("Zoho Vault", with a
       // space) diverges from this raw name — for the search-matches-display-name test below.
       buildOption({ id: "zohovaultcsv", name: "ZohoVault" }),
-      buildOption({ id: "keepassxcsv", name: "KeePassX (csv)" }),
       buildOption({ id: "keepercsv", name: "Keeper (csv)" }),
       buildOption({ id: "keeperjson", name: "Keeper (json)" }),
       // Real id with a real picker vendor-metadata entry that has no icon — for the
@@ -131,10 +130,6 @@ describe("ImportSourceSelectComponent", () => {
     expect(emitted).toEqual(["chromecsv"]);
   });
 
-  it("renders the breadcrumb label above the card", () => {
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain("importSourceBreadcrumb");
-  });
-
   it("renders every browser, regardless of featured-password-manager status", () => {
     expect(cardLabels()).toEqual(expect.arrayContaining(["Chrome", "Firefox"]));
   });
@@ -143,7 +138,7 @@ describe("ImportSourceSelectComponent", () => {
     const labels = cardLabels();
     expect(labels).toEqual(expect.arrayContaining(["1Password", "LastPass"]));
     expect(labels).not.toContain("Zoho Vault");
-    expect(labels).not.toContain("KeePassX");
+    expect(labels).not.toContain("Password Dragon");
   });
 
   it("shows a clean vendor display name, not ImportOption.name's format suffix", () => {
@@ -175,7 +170,7 @@ describe("ImportSourceSelectComponent", () => {
     showAllButton.nativeElement.click();
     fixture.detectChanges();
 
-    expect(cardLabels()).toEqual(expect.arrayContaining(["Zoho Vault", "KeePassX"]));
+    expect(cardLabels()).toEqual(expect.arrayContaining(["Zoho Vault", "Password Dragon"]));
   });
 
   it("relabels Show all to Show less once the disclosure is open, and back again", () => {
@@ -286,6 +281,47 @@ describe("ImportSourceSelectComponent", () => {
     expect(emitted).toEqual(["chromecsv"]);
   });
 
+  describe("initialSource", () => {
+    function renderWith(source?: ImportType): ComponentFixture<ImportSourceSelectComponent> {
+      const seeded = TestBed.createComponent(ImportSourceSelectComponent);
+      if (source) {
+        seeded.componentRef.setInput("initialSource", source);
+      }
+      seeded.detectChanges();
+      return seeded;
+    }
+
+    const checkedCards = (seeded: ComponentFixture<ImportSourceSelectComponent>) =>
+      seeded.debugElement
+        .queryAll(By.css("input[type=radio]"))
+        .map((el) => el.nativeElement as HTMLInputElement)
+        .filter((radio) => radio.checked)
+        .map((radio) => (radio.closest("bit-form-control-card")?.textContent ?? "").trim());
+
+    it("preselects nothing without it", () => {
+      expect(checkedCards(renderWith())).toEqual([]);
+    });
+
+    it("preselects a featured vendor and enables Continue", () => {
+      const seeded = renderWith("lastpasscsv" as ImportType);
+      const continueButton = seeded.debugElement.query(By.css("button[bitButton]"))
+        .nativeElement as HTMLButtonElement;
+      const emitted: ImportType[] = [];
+      seeded.componentInstance.continue.subscribe((id) => emitted.push(id));
+
+      expect(checkedCards(seeded)).toEqual([expect.stringContaining("LastPass")]);
+      expect(continueButton.getAttribute("aria-disabled")).toBeNull();
+      continueButton.click();
+      expect(emitted).toEqual(["lastpasscsv"]);
+    });
+
+    it("opens Show all and preselects a vendor from the remaining list", () => {
+      const seeded = renderWith("zohovaultcsv" as ImportType);
+
+      expect(checkedCards(seeded)).toEqual([expect.stringContaining("Zoho Vault")]);
+    });
+  });
+
   it("re-disables Continue when the selected card is filtered out by search", () => {
     const continueButton = fixture.debugElement.query(By.css("button[bitButton]"))
       .nativeElement as HTMLButtonElement;
@@ -322,7 +358,7 @@ describe("ImportSourceSelectComponent", () => {
   });
 
   it("swaps to the dark-mode icon variant for vendors that have one, and back again", () => {
-    // "1password1pux" is a real id with both an `icon` and a `darkIcon` in the picker metadata.
+    // "1password" is a real id with both an `icon` and a `darkIcon` in the picker metadata.
     const onePasswordIcon = () =>
       fixture.debugElement
         .queryAll(By.css("bit-form-control-card"))

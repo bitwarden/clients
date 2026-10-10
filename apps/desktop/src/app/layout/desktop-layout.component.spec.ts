@@ -7,6 +7,7 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -82,6 +83,7 @@ describe("DesktopLayoutComponent", () => {
   const fakeGlobalStateProvider = new FakeGlobalStateProvider();
 
   const flag$ = new BehaviorSubject<boolean>(false);
+  const importUpgradeFlag$ = new BehaviorSubject<boolean>(false);
   const viewModel$ = new BehaviorSubject<VaultsNavViewModel>({
     vaults: [
       {
@@ -135,14 +137,31 @@ describe("DesktopLayoutComponent", () => {
       })
       .filter((text) => text !== undefined);
 
+  /** The "Import" bit-nav-item, found by rendered text since NavItemComponent isn't part of
+   *  @bitwarden/components' public barrel. Throws on no match instead of a TypeError in callers. */
+  const importNavItem = (): HTMLElement => {
+    const element = Array.from(fixture.nativeElement.querySelectorAll("bit-nav-item")).find(
+      (el) => (el as HTMLElement).textContent?.trim().split("\n")[0].trim() === "importNoun",
+    ) as HTMLElement | undefined;
+    if (!element) {
+      throw new Error(
+        'No bit-nav-item found with first-line text "importNoun" — check the i18n mock or the rendered nav text.',
+      );
+    }
+    return element;
+  };
+
   beforeEach(async () => {
     jest.clearAllMocks();
     flag$.next(false);
+    importUpgradeFlag$.next(false);
     canArchive$.next(true);
     archivedCiphers$.next([]);
 
     const configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(flag$);
+    configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
+      flag === FeatureFlag.ImportUpgrade ? importUpgradeFlag$ : flag$,
+    );
 
     i18nService.t.mockImplementation((key: string) => key);
     platformUtilsService.getDevice.mockReturnValue(DeviceType.MacOsDesktop);
@@ -274,30 +293,54 @@ describe("DesktopLayoutComponent", () => {
   });
 
   describe("openImport", () => {
-    it("opens the legacy import dialog when the import upgrade flag is off", async () => {
-      const configService = TestBed.inject(ConfigService);
-      jest.spyOn(configService, "getFeatureFlag").mockResolvedValue(false);
+    it("opens the legacy import dialog when the import upgrade flag is off", () => {
       const dialogService = TestBed.inject(DialogService);
       const router = TestBed.inject(Router);
       jest.spyOn(router, "navigate");
 
-      await component["openImport"]();
+      component["openImport"]();
 
       expect(dialogService.open).toHaveBeenCalledWith(ImportDesktopComponent);
       expect(router.navigate).not.toHaveBeenCalled();
     });
 
-    it("navigates to the new import source picker page when the import upgrade flag is on", async () => {
-      const configService = TestBed.inject(ConfigService);
-      jest.spyOn(configService, "getFeatureFlag").mockResolvedValue(true);
+    it("does nothing when the import upgrade flag is on, leaving navigation to the nav item's own route binding", () => {
+      importUpgradeFlag$.next(true);
+      fixture.detectChanges();
       const dialogService = TestBed.inject(DialogService);
       const router = TestBed.inject(Router);
-      jest.spyOn(router, "navigate").mockResolvedValue(true);
+      jest.spyOn(router, "navigate");
 
-      await component["openImport"]();
+      component["openImport"]();
 
-      expect(router.navigate).toHaveBeenCalledWith(["/import"]);
+      expect(router.navigate).not.toHaveBeenCalled();
       expect(dialogService.open).not.toHaveBeenCalled();
+    });
+
+    it("never disagrees with the nav item's own route binding about whether the flag is on", () => {
+      expect(component["importUpgradeEnabled"]()).toBe(false);
+      expect(importNavItem().querySelector("a")).toBeNull();
+
+      importUpgradeFlag$.next(true);
+      fixture.detectChanges();
+
+      expect(component["importUpgradeEnabled"]()).toBe(true);
+      expect(importNavItem().querySelector("a")).toBeTruthy();
+    });
+  });
+
+  describe("import nav item active-state wiring", () => {
+    it("renders as a plain button, with no route to be active against, when the import upgrade flag is off", () => {
+      expect(importNavItem().querySelector("a")).toBeNull();
+      expect(importNavItem().querySelector("button")).toBeTruthy();
+    });
+
+    it("renders as a routed link, so routerLinkActive can highlight it, when the import upgrade flag is on", () => {
+      importUpgradeFlag$.next(true);
+      fixture.detectChanges();
+
+      expect(importNavItem().querySelector("a")).toBeTruthy();
+      expect(importNavItem().querySelector("button")).toBeNull();
     });
   });
 });

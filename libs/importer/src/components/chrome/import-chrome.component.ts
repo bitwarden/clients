@@ -10,12 +10,10 @@ import {
   ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
-import * as papa from "papaparse";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   CalloutModule,
   CheckboxModule,
@@ -25,26 +23,12 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-import { ImportType } from "../../models";
+import { chromiumBrowserNameFor, ImportType } from "../../models";
+
+import { chromiumLoginsToCsv, ChromiumLoginImportResult } from "./chromium-login-csv";
 
 type ProfileOption = { id: string; name: string };
-
-type Login = {
-  url: string;
-  username: string;
-  password: string;
-  note: string;
-};
-type LoginImportFailure = {
-  url: string;
-  username: string;
-  error: string;
-};
-
-type LoginImportResult = {
-  login?: Login;
-  failure?: LoginImportFailure;
-};
+type LoginImportResult = ChromiumLoginImportResult;
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -140,33 +124,19 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
           this.formGroup.controls.profile.value,
         );
 
-        // If any of the login items has a failure return a generic error message
-        // Introduced because we ran into a new type of V3 encryption added on Chrome that we don't yet support
-        if (logins.some((l) => l.failure != null)) {
-          const error = logins.find((l) => l.failure != null);
-          this.logService.error("Chromium importer failure:", error.failure.error);
+        const result = chromiumLoginsToCsv(logins);
+        if ("errorKey" in result) {
+          if (result.errorKey === "errorOccurred") {
+            this.logService.error("Chromium importer failure:", result.failureDetail);
+          }
           return {
             errors: {
-              message: this.i18nService.t("errorOccurred"),
+              message: this.i18nService.t(result.errorKey),
             },
           };
         }
 
-        if (logins.length === 0) {
-          return {
-            errors: {
-              message: this.i18nService.t("importNothingError"),
-            },
-          };
-        }
-        const chromeLogins: ChromeLogin[] = [];
-        for (const l of logins) {
-          if (l.login != null) {
-            chromeLogins.push(new ChromeLogin(l.login));
-          }
-        }
-        const csvData = papa.unparse(chromeLogins);
-        this.csvDataLoaded.emit(csvData);
+        this.csvDataLoaded.emit(result.csv);
         return null;
       } catch (error) {
         this.logService.error(`Chromium importer error: ${error}`);
@@ -190,39 +160,6 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
   }
 
   private getBrowserName(format: ImportType): string {
-    if (format === "edgecsv") {
-      return "Microsoft Edge";
-    } else if (format === "operacsv") {
-      return "Opera";
-    } else if (format === "bravecsv") {
-      return "Brave";
-    } else if (format === "vivaldicsv") {
-      return "Vivaldi";
-    } else if (format === "arccsv") {
-      return "Arc";
-    }
-    return "Chrome";
-  }
-}
-
-class ChromeLogin {
-  name: string;
-  url: string;
-  username: string;
-  password: string;
-  note: string;
-
-  constructor(login: any) {
-    const url = Utils.getUrl(login?.url);
-    if (url != null) {
-      this.name = new URL(url).hostname;
-    }
-    if (this.name == null) {
-      this.name = login.url;
-    }
-    this.url = login.url;
-    this.username = login.username;
-    this.password = login.password;
-    this.note = login.note;
+    return chromiumBrowserNameFor(format);
   }
 }

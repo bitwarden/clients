@@ -119,4 +119,16 @@ describe("ImportMetadataService", () => {
       );
     });
   });
+
+  describe("getAvailableProfiles", () => {
+    it("returns no profiles — chromium mode isn't reachable on non-Desktop clients", async () => {
+      await expect(sut.getAvailableProfiles("bravecsv")).resolves.toEqual([]);
+    });
+  });
+
+  describe("getChromiumLogins", () => {
+    it("returns no logins — chromium mode isn't reachable on non-Desktop clients", async () => {
+      await expect(sut.getChromiumLogins("bravecsv", "Default")).resolves.toEqual([]);
+    });
+  });
 });

@@ -9,9 +9,19 @@ import { ImportRecordError } from "./import-record-error";
 export type FolderRelationship = [cipherIndex: number, folderIndex: number];
 export type CollectionRelationship = [cipherIndex: number, collectionIndex: number];
 
+/** Stable identifiers for errorMessage's cause, for callers that need to branch on it (e.g. a
+ *  wrong file password) without matching against the localized message text. */
+export const ImportResultErrorKey = Object.freeze({
+  InvalidFilePassword: "invalidFilePassword",
+  AccountMismatch: "importEncKeyError",
+} as const);
+export type ImportResultErrorKey = (typeof ImportResultErrorKey)[keyof typeof ImportResultErrorKey];
+
 export class ImportResult {
   success = false;
   errorMessage: string;
+  /** Optional: most importers' errorMessage has no caller that needs to distinguish its cause. */
+  errorKey?: ImportResultErrorKey;
   ciphers: CipherView[] = [];
   folders: FolderView[] = [];
   folderRelationships: FolderRelationship[] = [];
@@ -26,4 +36,16 @@ export class ImportResult {
    * valid items were still imported; the UI/CLI surface these to the user.
    */
   errors: ImportRecordError[] = [];
+}
+
+/** Thrown by ImportService when an ImportResult's success is false — carries errorKey alongside
+ *  the localized message so a caller can branch on the cause without string-matching errorMessage. */
+export class ImportResultError extends Error {
+  constructor(
+    message: string,
+    readonly errorKey?: ImportResultErrorKey,
+  ) {
+    super(message);
+    this.name = "ImportResultError";
+  }
 }

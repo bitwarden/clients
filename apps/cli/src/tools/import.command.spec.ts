@@ -10,11 +10,13 @@ import {
   CredentialKind,
   Importer,
   ImportOption,
+  importOptions,
   ImportRecordError,
   ImportRecordErrorReason,
   ImportResult,
   ImportServiceAbstraction,
   SdkImportSummary,
+  VENDOR_ONLY_IMPORT_TYPE_IDS,
 } from "@bitwarden/importer-core";
 
 import { Response } from "../models/response";
@@ -204,5 +206,22 @@ describe("ImportCommand", () => {
     expect(message).toContain("1 item(s) could not be imported and were skipped");
     expect(message).toContain("ssh-key-uuid");
     expect(message).toContain("SSH key could not be imported");
+  });
+
+  describe("--formats", () => {
+    it("lists importable formats and leaves out the picker's vendor-only ids", async () => {
+      importService.getImportOptions.mockReturnValue([...importOptions]);
+
+      const response = await command.run(undefined, undefined, { formats: true });
+
+      expect(response.success).toBe(true);
+      const ids = ((response.data as MessageResponse).message as string).split("\n");
+      expect(ids).toEqual(
+        expect.arrayContaining(["keepass2xml", "keepasskdbx", "keepercsv", "1password1pux"]),
+      );
+      for (const vendorId of VENDOR_ONLY_IMPORT_TYPE_IDS) {
+        expect(ids).not.toContain(vendorId);
+      }
+    });
   });
 });

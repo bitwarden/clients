@@ -1,6 +1,6 @@
 import { Component, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { Router, RouterModule } from "@angular/router";
+import { RouterModule } from "@angular/router";
 import { map } from "rxjs";
 
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
@@ -43,7 +43,6 @@ export class DesktopLayoutComponent {
   private sendPolicyService = inject(SendPolicyService);
   private configService = inject(ConfigService);
   private platformUtilsService = inject(PlatformUtilsService);
-  private router = inject(Router);
 
   protected readonly logo = PasswordManagerLogo;
 
@@ -57,15 +56,19 @@ export class DesktopLayoutComponent {
     { initialValue: false },
   );
 
+  protected readonly importUpgradeEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.ImportUpgrade),
+    { initialValue: false },
+  );
+
   protected readonly isMacOs = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
 
   protected openGenerator() {
     this.dialogService.open(CredentialGeneratorComponent);
   }
 
-  protected async openImport() {
-    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
-      await this.router.navigate(["/import"]);
+  protected openImport() {
+    if (this.importUpgradeEnabled()) {
       return;
     }
     this.dialogService.open(ImportDesktopComponent);
