@@ -13,6 +13,7 @@ import {
   OnDestroy,
   OnInit,
   signal,
+  AfterViewInit,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
@@ -210,7 +211,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     { provide: BULK_DELETE_DIALOG, useClass: BulkDeleteDialogDesktopAdapter },
   ],
 })
-export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
+export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy, AfterViewInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private i18nService = inject(I18nService);
@@ -875,6 +876,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     await this.newExperienceDialogService.conditionallyOpen(activeUserId, {
       lightImgSrc: NEW_EXPERIENCE_LIGHT_IMG,
       darkImgSrc: NEW_EXPERIENCE_DARK_IMG,
+    });
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      const input = document.querySelector<HTMLInputElement>("bit-search input");
+      input?.focus();
     });
   }
 
