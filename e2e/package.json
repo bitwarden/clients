@@ -1,0 +1,15 @@
+{
+  "name": "@bitwarden/e2e",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Playwright end-to-end suites for the web, browser extension and desktop clients.",
+  "license": "GPL-3.0",
+  "scripts": {
+    "test:web": "playwright test -c playwright.web.config.ts",
+    "test:browser": "playwright test -c playwright.browser.config.ts",
+    "test:desktop": "playwright test -c playwright.desktop.config.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.59.1"
+  }
+}
