@@ -1,4 +1,4 @@
-import { makeEncString, mockContainerService, mockEnc } from "../../../../spec";
+import { makeEncString, mockContainerService } from "../../../../spec";
 import { BankAccountApi } from "../api/bank-account.api";
 import { BankAccountData } from "../data/bank-account.data";
 
@@ -86,36 +86,6 @@ describe("BankAccount", () => {
   it("toBankAccountData", () => {
     const bankAccount = new BankAccount(data);
     expect(bankAccount.toBankAccountData()).toEqual(data);
-  });
-
-  it("Decrypt", async () => {
-    const bankAccount = Object.assign(new BankAccount(), {
-      bankName: mockEnc("bankName"),
-      nameOnAccount: mockEnc("nameOnAccount"),
-      accountType: mockEnc("accountType"),
-      accountNumber: mockEnc("accountNumber"),
-      routingNumber: mockEnc("routingNumber"),
-      branchNumber: mockEnc("branchNumber"),
-      pin: mockEnc("pin"),
-      swiftCode: mockEnc("swiftCode"),
-      iban: mockEnc("iban"),
-      bankContactPhone: mockEnc("bankContactPhone"),
-    });
-    const expectedView = {
-      bankName: "bankName",
-      nameOnAccount: "nameOnAccount",
-      accountType: "accountType",
-      accountNumber: "accountNumber",
-      routingNumber: "routingNumber",
-      branchNumber: "branchNumber",
-      pin: "pin",
-      swiftCode: "swiftCode",
-      iban: "iban",
-      bankContactPhone: "bankContactPhone",
-    };
-
-    const view = await bankAccount.decrypt(null);
-    expect(view).toEqual(expectedView);
   });
 
   describe("fromJSON", () => {

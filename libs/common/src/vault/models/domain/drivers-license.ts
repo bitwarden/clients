@@ -1,13 +1,12 @@
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/legacy-crypto";
 import { DriversLicense as SdkDriversLicense } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
 import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { DriversLicenseData } from "../data/drivers-license.data";
-import { DriversLicenseView } from "../view/drivers-license.view";
 
 export class DriversLicense extends Domain {
   firstName?: EncString;
@@ -39,28 +38,6 @@ export class DriversLicense extends Domain {
     this.expirationDate = conditionalEncString(obj.expirationDate);
     this.issuingAuthority = conditionalEncString(obj.issuingAuthority);
     this.licenseClass = conditionalEncString(obj.licenseClass);
-  }
-
-  decrypt(encKey: SymmetricCryptoKey, context = "No Cipher Context"): Promise<DriversLicenseView> {
-    return this.decryptObj<DriversLicense, DriversLicenseView>(
-      this,
-      new DriversLicenseView(),
-      [
-        "firstName",
-        "middleName",
-        "lastName",
-        "dateOfBirth",
-        "licenseNumber",
-        "issuingCountry",
-        "issuingState",
-        "issueDate",
-        "expirationDate",
-        "issuingAuthority",
-        "licenseClass",
-      ],
-      encKey,
-      "DomainType: DriversLicense; " + context,
-    );
   }
 
   toDriversLicenseData(): DriversLicenseData {

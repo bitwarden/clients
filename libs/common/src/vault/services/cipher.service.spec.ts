@@ -45,6 +45,7 @@ import { Cipher } from "../models/domain/cipher";
 import { CipherCreateRequest } from "../models/request/cipher-create.request";
 import { CipherPartialRequest } from "../models/request/cipher-partial.request";
 import { CipherRequest } from "../models/request/cipher.request";
+import { CipherResponse } from "../models/response/cipher.response";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 
@@ -1458,6 +1459,29 @@ describe("Cipher Service", () => {
       await cipherService.getAllFromApiForOrganization(testOrgId);
 
       expect(apiSpy).toHaveBeenCalledWith(testOrgId, undefined);
+    });
+
+    it("should decrypt API ciphers via the SDK, keeping failures, when feature flag is disabled", async () => {
+      sdkCrudFeatureFlag$.next(false);
+
+      const decrypted = new CipherView();
+      decrypted.name = "b";
+      const failed = new CipherView();
+      failed.name = "a";
+      failed.decryptionFailure = true;
+
+      jest
+        .spyOn(apiService, "getCiphersOrganization")
+        .mockResolvedValue({ data: [new CipherResponse(cipherData)] } as any);
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[decrypted], [failed]]);
+
+      const result = await cipherService.getAllFromApiForOrganization(testOrgId);
+
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
+        [expect.any(Cipher)],
+        mockUserId,
+      );
+      expect(result).toEqual([failed, decrypted]);
     });
 
     it("should use SDK to list organization ciphers when feature flag is enabled", async () => {
