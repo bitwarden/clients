@@ -368,6 +368,25 @@ describe("VaultNavSectionComponent", () => {
       expect(openAnchors()).toEqual(["Acme corporation/bit-nav-item"]);
     });
 
+    it("opens on the first organization's Shared folders entry for the walkthrough step too", () => {
+      activeStepId.set("sharedFolders");
+      fixture.detectChanges();
+
+      expect(openAnchors()).toEqual(["Acme corporation/bit-nav-item"]);
+    });
+
+    it("opens on the vault list wrapper when the vault list step is active", () => {
+      activeStepId.set("vaultList");
+      fixture.detectChanges();
+
+      const open = fixture.debugElement
+        .queryAll(By.directive(PopoverAnchorForDirective))
+        .filter((el) => el.injector.get(PopoverAnchorForDirective).popoverOpen());
+
+      expect(open.map((el) => el.name)).toEqual(["div"]);
+      expect(open[0].nativeElement.textContent).toContain("Acme corporation");
+    });
+
     it("stays closed while the step is not active", () => {
       expect(openAnchors()).toEqual([]);
     });
