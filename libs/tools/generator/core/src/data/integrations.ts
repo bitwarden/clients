@@ -11,6 +11,7 @@ import { Fastmail } from "../integration/fastmail";
 import { FirefoxRelay } from "../integration/firefox-relay";
 import { ForwardEmail } from "../integration/forward-email";
 import { SimpleLogin } from "../integration/simple-login";
+import { Skudo } from "../integration/skudo";
 
 /** Fixed list of integrations available to the application
  *  @example
@@ -26,6 +27,7 @@ export const Integrations = Object.freeze({
   FirefoxRelay,
   ForwardEmail,
   SimpleLogin,
+  Skudo,
 } as const);
 
 const integrations = new Map(Object.values(Integrations).map((i) => [i.id, i]));
