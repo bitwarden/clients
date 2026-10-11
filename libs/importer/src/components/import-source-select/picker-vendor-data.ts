@@ -15,7 +15,7 @@ interface PickerVendorData {
 }
 
 const PICKER_VENDOR_DATA: Partial<Record<ImportType, PickerVendorData>> = {
-  bitwarden: { displayName: "Bitwarden", formats: ["bitwardenjson", "bitwardencsv"] },
+  bitwarden: { displayName: "Bitwarden", formats: ["bitwardencsv", "bitwardenjson"] },
   chromecsv: { displayName: "Chrome" },
   dashlane: { displayName: "Dashlane", formats: ["dashlanecsv", "dashlanejson"] },
   firefoxcsv: { displayName: "Firefox" },

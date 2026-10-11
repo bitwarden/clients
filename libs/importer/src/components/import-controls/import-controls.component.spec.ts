@@ -740,6 +740,11 @@ describe("ImportControlsComponent", () => {
       );
     });
 
+    it("lists Bitwarden's accepted types as .csv, .json, matching the acceptance criteria", async () => {
+      await setup("bitwarden", ClientType.Web);
+      expect(component().acceptedFileTypesHint()).toBe(".csv, .json");
+    });
+
     it("prefixes each extension with a dot in the hint text, unlike the raw acceptedFileTypes", async () => {
       await setup("dashlane", ClientType.Web);
       expect(component().acceptedFileTypesHint()).toBe(".csv, .json");
@@ -1865,6 +1870,16 @@ describe("ImportControlsComponent", () => {
       data: "encrypted-data",
     });
 
+    // The password card appears on Continue, not when the file is picked.
+    const chooseProtectedFileAndContinue = async () => {
+      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
+      fixture.detectChanges();
+      await flushFileRead();
+      fixture.detectChanges();
+      await component().submit();
+      fixture.detectChanges();
+    };
+
     it("needs no password for an account-encrypted export", async () => {
       await setup("bitwarden", ClientType.Web);
       component().formGroup.controls.file.setValue(new File([accountEncrypted], "export.json"));
@@ -2001,8 +2016,12 @@ describe("ImportControlsComponent", () => {
         byId("importer-controls_button_continue").nativeElement.getAttribute("aria-disabled"),
       ).not.toBe("true");
 
-      // Unblocked, but the (now-required) password field is still empty — fill it in to confirm
-      // submit() actually proceeds once everything is satisfied, not just that it stops blocking.
+      // Unblocked: Continue only brings up the password card, it doesn't import yet.
+      await component().submit();
+      expect(component().needsFilePassword()).toBe(true);
+      expect(importService.getImporter).not.toHaveBeenCalled();
+
+      // Fill in the now-required password to confirm submit() proceeds once satisfied.
       component().formGroup.controls.filePassword.setValue("hunter2");
       await component().submit();
       expect(importService.getImporter).toHaveBeenCalled();
@@ -2028,37 +2047,47 @@ describe("ImportControlsComponent", () => {
       expect(continueSpy).not.toHaveBeenCalled();
     });
 
-    it("replaces the upload control with an inline password field for a password-protected export", async () => {
+    it("keeps the upload control when a protected file is picked, then replaces it with an inline password field on Continue", async () => {
       await setup("bitwarden", ClientType.Web);
       component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
       fixture.detectChanges();
       await flushFileRead();
+      fixture.detectChanges();
+
+      expect(component().needsFilePassword()).toBe(false);
+      expect(byId("importer-controls_input_file")).toBeTruthy();
+      expect(byId("importer-controls_input_file-password")).toBeFalsy();
+
+      await component().submit();
       fixture.detectChanges();
 
       expect(component().needsFilePassword()).toBe(true);
       expect(component().formGroup.controls.filePassword.disabled).toBe(false);
       expect(byId("importer-controls_input_file-password")).toBeTruthy();
       expect(byId("importer-controls_input_file")).toBeFalsy();
+      expect(importService.getImporter).not.toHaveBeenCalled();
     });
 
-    it("shows the password-protected hint under the inline password field", async () => {
+    it("swaps the subtitle on the password card and shows no hint under the field", async () => {
       await setup("bitwarden", ClientType.Web);
+      const subtitle = () =>
+        fixture.debugElement.query(By.css('p[bitTypography="body1"]')).nativeElement.textContent;
       component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
       fixture.detectChanges();
       await flushFileRead();
       fixture.detectChanges();
+      expect(subtitle()).toContain("importDataManualSubtitle");
 
-      const hints = fixture.debugElement.queryAll(By.css("bit-hint"));
-      expect(hints.length).toBe(1);
-      expect(hints[0].nativeElement.textContent).toContain("filePasswordProtectedHint");
+      await component().submit();
+      fixture.detectChanges();
+
+      expect(subtitle()).toContain("filePasswordProtectedSubtitle");
+      expect(fixture.debugElement.queryAll(By.css("bit-hint")).length).toBe(0);
     });
 
     it("announces the upload-to-password-field swap for screen readers, politely rather than interrupting", async () => {
       await setup("bitwarden", ClientType.Web);
-      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
-      fixture.detectChanges();
-      await flushFileRead();
-      fixture.detectChanges();
+      await chooseProtectedFileAndContinue();
 
       expect(liveAnnouncer.announce).toHaveBeenCalledWith("filePassword", "polite");
     });
@@ -2067,21 +2096,36 @@ describe("ImportControlsComponent", () => {
       await setup("bitwarden", ClientType.Web);
       expect(byId("importer-controls_radio_file")).toBeTruthy();
 
-      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
-      fixture.detectChanges();
-      await flushFileRead();
-      fixture.detectChanges();
+      await chooseProtectedFileAndContinue();
 
       expect(byId("importer-controls_radio_file")).toBeFalsy();
       expect(byId("importer-controls_radio_paste")).toBeFalsy();
     });
 
+    it("returns to the upload screen, not step 1, when Back is pressed on the password card", async () => {
+      await setup("bitwarden", ClientType.Web);
+      const backSpy = jest.fn();
+      component().back.subscribe(backSpy);
+      await chooseProtectedFileAndContinue();
+      component().formGroup.controls.filePassword.setValue("hunter2");
+
+      component().onBack();
+      fixture.detectChanges();
+
+      expect(backSpy).not.toHaveBeenCalled();
+      expect(component().needsFilePassword()).toBe(false);
+      expect(component().formGroup.controls.file.value).toBeNull();
+      expect(component().formGroup.controls.filePassword.value).toBe("");
+      expect(byId("importer-controls_input_file")).toBeTruthy();
+      expect(byId("importer-controls_input_file-password")).toBeFalsy();
+
+      component().onBack();
+      expect(backSpy).toHaveBeenCalledTimes(1);
+    });
+
     it("shows the specific 'file password is required' error, not the generic required message, on an empty submit", async () => {
       await setup("bitwarden", ClientType.Web);
-      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
-      fixture.detectChanges();
-      await flushFileRead();
-      fixture.detectChanges();
+      await chooseProtectedFileAndContinue();
 
       await component().submit();
       fixture.detectChanges();
@@ -2099,10 +2143,7 @@ describe("ImportControlsComponent", () => {
 
     it("resets the password field and re-shows the upload control once a non-protected file replaces the protected one", async () => {
       await setup("bitwarden", ClientType.Web);
-      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
-      fixture.detectChanges();
-      await flushFileRead();
-      fixture.detectChanges();
+      await chooseProtectedFileAndContinue();
       component().formGroup.controls.filePassword.setValue("hunter2");
 
       component().formGroup.controls.file.setValue(new File([accountEncrypted], "export2.json"));
@@ -2112,14 +2153,12 @@ describe("ImportControlsComponent", () => {
 
       expect(component().needsFilePassword()).toBe(false);
       expect(component().formGroup.controls.filePassword.value).toBe("");
+      expect(byId("importer-controls_input_file")).toBeTruthy();
     });
 
     it("passes the inline field's value directly to the importer, not the dialog-based prompt", async () => {
       await setup("bitwarden", ClientType.Web);
-      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
-      fixture.detectChanges();
-      await flushFileRead();
-      fixture.detectChanges();
+      await chooseProtectedFileAndContinue();
       component().formGroup.controls.filePassword.setValue("hunter2");
 
       importService.getImporter.mockReturnValue({} as any);
@@ -2137,10 +2176,7 @@ describe("ImportControlsComponent", () => {
 
     it("shows an inline error and doesn't open the generic error dialog when the password is wrong", async () => {
       await setup("bitwarden", ClientType.Web);
-      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
-      fixture.detectChanges();
-      await flushFileRead();
-      fixture.detectChanges();
+      await chooseProtectedFileAndContinue();
       component().formGroup.controls.filePassword.setValue("wrong-password");
 
       importService.getImporter.mockReturnValue({} as any);
@@ -2174,10 +2210,7 @@ describe("ImportControlsComponent", () => {
       // produces) must NOT be treated as a wrong password — proves the check is structural
       // (ImportResultError.errorKey), not a coincidental string match against translated text.
       await setup("bitwarden", ClientType.Web);
-      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
-      fixture.detectChanges();
-      await flushFileRead();
-      fixture.detectChanges();
+      await chooseProtectedFileAndContinue();
       component().formGroup.controls.filePassword.setValue("hunter2");
 
       importService.getImporter.mockReturnValue({} as any);
@@ -2201,10 +2234,7 @@ describe("ImportControlsComponent", () => {
       // template never renders in paste mode — permanently deadlocking submit() with zero
       // feedback, since markAllAsTouched() has nothing in the DOM to show an error on.
       await setup("bitwarden", ClientType.Web);
-      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
-      fixture.detectChanges();
-      await flushFileRead();
-      fixture.detectChanges();
+      await chooseProtectedFileAndContinue();
       expect(component().needsFilePassword()).toBe(true);
 
       component().formGroup.controls.method.setValue("paste");

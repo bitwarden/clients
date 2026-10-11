@@ -5092,13 +5092,13 @@
     "message": "Password is required."
   },
   "filePasswordRequired": {
-    "message": "File password is required."
+    "message": "File password is required"
   },
   "filePasswordInvalid": {
     "message": "Enter a valid file password."
   },
-  "filePasswordProtectedHint": {
-    "message": "The file uploaded is password protected"
+  "filePasswordProtectedSubtitle": {
+    "message": "The file uploaded is password protected. Enter the password to continue."
   },
   "selectProfile": {
     "message": "Select profile"

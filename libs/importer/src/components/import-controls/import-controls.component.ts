@@ -589,15 +589,23 @@ export class ImportControlsComponent {
 
   // File mode only: a method switch keeps the chosen file, so without this check the field would
   // stay enabled but unrendered in paste mode and block submit.
-  protected readonly needsFilePassword = computed(
+  private readonly isFilePasswordProtected = computed(
     () =>
       this.method() === "file" &&
       this.resolvedFormat() === "bitwardenjson" &&
       this.filePasswordCheck() === "protected",
   );
 
+  // Set by Continue, so the password card replaces the upload card then and not on file pick.
+  private readonly filePasswordRequested = signal(false);
+
+  protected readonly needsFilePassword = computed(
+    () => this.isFilePasswordProtected() && this.filePasswordRequested(),
+  );
+
   constructor() {
     this.formGroup.controls.method.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.filePasswordRequested.set(false);
       this.formGroup.controls.formatChoice.reset(null);
       // Not reset(): the file and pasted content survive the switch.
       this.formGroup.controls.file.markAsUntouched();
@@ -607,6 +615,7 @@ export class ImportControlsComponent {
     // First pick keeps a still-valid pre-file answer; replacing a file always resets it.
     let previousFile: File | null = null;
     this.formGroup.controls.file.valueChanges.pipe(takeUntilDestroyed()).subscribe((file) => {
+      this.filePasswordRequested.set(false);
       const current = this.formGroup.controls.formatChoice.value;
       const keepCurrent =
         previousFile == null && this.candidateFormats().some((option) => option.id === current);
@@ -762,6 +771,11 @@ export class ImportControlsComponent {
     });
   }
   protected onBack(): void {
+    if (this.needsFilePassword()) {
+      // Back from the password card returns to upload; clearing the file also drops the card.
+      this.formGroup.controls.file.reset(null);
+      return;
+    }
     this.back.emit();
   }
 
@@ -1160,6 +1174,10 @@ export class ImportControlsComponent {
 
     if (this.formGroup.invalid) {
       this.formGroup.markAllAsTouched();
+      return;
+    }
+    if (this.isFilePasswordProtected() && !this.filePasswordRequested()) {
+      this.filePasswordRequested.set(true);
       return;
     }
     await this.onContinue();

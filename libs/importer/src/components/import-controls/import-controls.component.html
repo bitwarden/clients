@@ -157,7 +157,11 @@
       } @else {
         <h2 bitTypography="h2" noMargin class="tw-mb-1">{{ "importDataTitle" | i18n }}</h2>
         <p bitTypography="body1" class="tw-text-fg-body-subtle">
-          {{ "importDataManualSubtitle" | i18n: vendorName() }}
+          @if (needsFilePassword()) {
+            {{ "filePasswordProtectedSubtitle" | i18n }}
+          } @else {
+            {{ "importDataManualSubtitle" | i18n: vendorName() }}
+          }
         </p>
 
         @if (activeInstructions().instructionKey || activeInstructions().instructionLink) {
@@ -225,6 +229,7 @@
               bitLink
               linkType="primary"
               startIcon="bwi-plus"
+              class="tw-block tw-mb-4"
               (click)="addKeyFile()"
               id="importer-controls_button_add-key-file"
             >
@@ -236,7 +241,7 @@
         @if (method() === "file") {
           <!-- Replacing the upload control with no filename/re-pick affordance is confirmed-intentional, matches Figma. -->
           @if (needsFilePassword()) {
-            <bit-form-field>
+            <bit-form-field class="tw-max-w-sm">
               <bit-label>{{ "filePassword" | i18n }}</bit-label>
               <input
                 bitInput
@@ -245,7 +250,6 @@
                 id="importer-controls_input_file-password"
               />
               <button type="button" bitSuffix bitIconButton bitPasswordInputToggle></button>
-              <bit-hint>{{ "filePasswordProtectedHint" | i18n }}</bit-hint>
             </bit-form-field>
           } @else {
             <bit-file-upload

@@ -47,7 +47,7 @@ describe("pickerFormatsFor", () => {
       "1passwordmaccsv",
       "1passwordwincsv",
     ]);
-    expect(pickerFormatsFor("bitwarden")).toEqual(["bitwardenjson", "bitwardencsv"]);
+    expect(pickerFormatsFor("bitwarden")).toEqual(["bitwardencsv", "bitwardenjson"]);
     expect(pickerFormatsFor("dashlane")).toEqual(["dashlanecsv", "dashlanejson"]);
     expect(pickerFormatsFor("enpass")).toEqual(["enpasscsv", "enpassjson"]);
     expect(pickerFormatsFor("avast")).toEqual(["avastcsv", "avastjson"]);
