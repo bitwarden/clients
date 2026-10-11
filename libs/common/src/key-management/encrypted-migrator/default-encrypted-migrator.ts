@@ -61,7 +61,6 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
         kdfConfigService,
         sdkService,
         logService,
-        configService,
         masterPasswordService,
         syncService,
       ),
