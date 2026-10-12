@@ -36,7 +36,7 @@
   @if (vfo1Foundation()) {
     <!--
       Padded to the page gutters rather than the table's own container, so it lines up with the
-      header above it. Renders nothing outside a shared folder, leaving no gap in its place.
+      header above it. Renders nothing outside a folder, leaving no gap in its place.
 
       Kept at its natural height: the grid is uncapped — its accordion is `height="auto"`, so
       "Show all" grows it without bound — and shrinking it would clip cards. The table below
@@ -46,6 +46,7 @@
     <vault-card-grid
       class="tw-block tw-shrink-0 tw-px-8"
       [collections]="scopedCollections"
+      [folders]="folders()"
       [scope]="vaultScope()"
     ></vault-card-grid>
     <!-- Remounted per scope: the table reads its filters from the URL once, at mount. -->

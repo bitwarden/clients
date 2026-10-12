@@ -28,7 +28,11 @@
 
 <app-vault-onboarding [ciphers]="activeCiphers()"></app-vault-onboarding>
 
-<vault-card-grid [collections]="scopedCollections()" [scope]="vaultScope()"></vault-card-grid>
+<vault-card-grid
+  [collections]="scopedCollections()"
+  [folders]="folders()"
+  [scope]="vaultScope()"
+></vault-card-grid>
 
 <!-- Remounted per scope: the table reads its filters from the URL once, at mount. -->
 <vault-items-table
