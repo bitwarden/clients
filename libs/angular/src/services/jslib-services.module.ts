@@ -1269,7 +1269,6 @@ const safeProviders: SafeProvider[] = [
       AuthServiceAbstraction,
       WebPushConnectionService,
       AuthRequestAnsweringService,
-      ConfigService,
       AutomaticUserConfirmationService,
       BillingAccountProfileStateService,
     ],
@@ -1748,7 +1747,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AutofillSettingsServiceAbstraction,
     useClass: AutofillSettingsService,
-    deps: [StateProvider, PolicyServiceAbstraction, AccountService, RestrictedItemTypesService],
+    deps: [
+      StateProvider,
+      PolicyServiceAbstraction,
+      AccountService,
+      RestrictedItemTypesService,
+      ConfigService,
+    ],
   }),
   safeProvider({
     provide: BadgeSettingsServiceAbstraction,

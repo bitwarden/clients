@@ -1138,6 +1138,18 @@ describe("VaultItemsTableComponent", () => {
       ]);
     });
 
+    it("labels a nested shared folder chip by its own name, without its parent path", () => {
+      fixture.componentRef.setInput("collections", [
+        { id: "col-3", name: "Engineering/Backend" } as CollectionView,
+      ]);
+      const cipher = cipherView({
+        organizationId: "org-1" as never,
+        collectionIds: ["col-3"] as never,
+      });
+
+      expect(chipsFor(cipher).sharedFolders.map((chip) => chip.label)).toEqual(["Backend"]);
+    });
+
     it("resolves the folder as a single-entry chip list", () => {
       expect(chipsFor(cipherView({ folderId: "folder-1" as never })).folders).toEqual([
         { id: "folder-1", label: "Work", variant: "subtle", startIcon: "bwi-folder" },
@@ -1428,11 +1440,11 @@ describe("VaultItemsTableComponent", () => {
       ]);
     });
 
-    it("keeps a nested collection's full path as its name when its parent is unavailable", () => {
+    it("labels a nested collection by its own name when its parent is unavailable", () => {
       const collection = { id: "child", name: "Engineering/Backend" } as CollectionView;
 
       expect(component["buildNestedSharedFolders"]([collection])).toEqual([
-        { value: "child", label: "Engineering/Backend", options: [] },
+        { value: "child", label: "Backend", options: [] },
       ]);
     });
 
@@ -1450,7 +1462,7 @@ describe("VaultItemsTableComponent", () => {
           options: [
             {
               value: "descendant",
-              label: "Backend/Infrastructure",
+              label: "Infrastructure",
               options: [],
             },
           ],
@@ -1472,7 +1484,7 @@ describe("VaultItemsTableComponent", () => {
 
       expect(component["buildNestedSharedFolders"]([orgAParent, orgBChild])).toEqual([
         { value: "org-a-parent", label: "Finance", options: [] },
-        { value: "org-b-child", label: "Finance/Reports", options: [] },
+        { value: "org-b-child", label: "Reports", options: [] },
       ]);
     });
 

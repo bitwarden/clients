@@ -517,6 +517,7 @@ const safeProviders: SafeProvider[] = [
       SharedUnlockSettingsService,
       UnlockService,
       ConfigService,
+      StateProvider,
     ],
   }),
   safeProvider({

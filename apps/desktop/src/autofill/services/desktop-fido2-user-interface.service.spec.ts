@@ -20,7 +20,11 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 import { ModalModeState } from "../../platform/models/domain/window-state";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 
-import { DesktopFido2UserInterfaceSession } from "./desktop-fido2-user-interface.service";
+import {
+  DesktopFido2UserInterfaceSession,
+  CredentialNotFound,
+  ExcludedCredentialMatched,
+} from "./desktop-fido2-user-interface.service";
 import {
   DesktopFido2UserVerificationService,
   UserVerificationCanceled,
@@ -534,8 +538,11 @@ describe("DesktopFido2UserInterfaceSession", () => {
   });
 
   describe("informExcludedCredential", () => {
-    it("shows the excluded credentials UI and returns without waiting for the user", async () => {
-      await session.informExcludedCredential(["cipher-1"]);
+    it("shows the excluded credentials UI and waits for the user to dismiss it", async () => {
+      const result = session.informExcludedCredential(["cipher-1"]);
+      const settled = jest.fn();
+      result.catch(settled);
+      await tick();
 
       expect(desktopSettingsService.setModalMode).toHaveBeenCalledWith(true, false, {
         x: 0,
@@ -546,15 +553,64 @@ describe("DesktopFido2UserInterfaceSession", () => {
         "/fido2-excluded",
         { "disable-redirect": null },
       ]);
+      expect(settled).not.toHaveBeenCalled();
+
+      session.notifyConfirmCreateCredential(false);
+      await expect(result).rejects.toBeInstanceOf(ExcludedCredentialMatched);
     });
 
-    it("resets the window when the component displaying the message hides the UI", async () => {
-      await session.informExcludedCredential(["cipher-1"]);
-      await session.hideUi();
+    it("resets the window before reporting the match", async () => {
+      const result = session.informExcludedCredential(["cipher-1"]);
+      await tick();
 
-      expect(desktopSettingsService.setModalMode).toHaveBeenCalledWith(false);
-      expect(accountService.setShowHeader).toHaveBeenCalledWith(true);
-      expect(router.navigate).toHaveBeenCalledWith(["/"]);
+      session.notifyConfirmCreateCredential(false);
+
+      await expect(result).rejects.toBeInstanceOf(ExcludedCredentialMatched);
+      expect(desktopSettingsService.setModalMode).toHaveBeenLastCalledWith(false);
+      expect(accountService.setShowHeader).toHaveBeenLastCalledWith(true);
+      expect(router.navigate).toHaveBeenLastCalledWith(["/"]);
+    });
+
+    it("still reports the match, and logs a timeout, when the user doesn't dismiss the message in time", async () => {
+      const result = session.informExcludedCredential(["cipher-1"]);
+      await tick();
+
+      deadlineController.abort(timeoutReason());
+
+      await expect(result).rejects.toBeInstanceOf(ExcludedCredentialMatched);
+      expect(desktopSettingsService.setModalMode).toHaveBeenLastCalledWith(false);
+      expect(logService.warning).toHaveBeenCalledWith(
+        "Timeout: User did not dismiss the message within the allowed time",
+      );
+    });
+
+    it("reports the cancellation instead of the match, and hides the UI, when the request is aborted", async () => {
+      const result = session.informExcludedCredential(["cipher-1"]);
+      await tick();
+
+      abortController.abort("Operation cancelled");
+
+      await expect(result).rejects.toBe("Operation cancelled");
+      expect(desktopSettingsService.setModalMode).toHaveBeenLastCalledWith(false);
+      expect(logService.warning).toHaveBeenCalledWith(
+        "Request was cancelled before the user dismissed the message",
+      );
+    });
+
+    it("does not show the UI when already aborted on entry", async () => {
+      abortController.abort("Operation cancelled");
+
+      await expect(session.informExcludedCredential(["cipher-1"])).rejects.toBe(
+        "Operation cancelled",
+      );
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("informCredentialNotFound", () => {
+    it("rejects without showing any UI", async () => {
+      await expect(session.informCredentialNotFound()).rejects.toBeInstanceOf(CredentialNotFound);
+      expect(router.navigate).not.toHaveBeenCalled();
     });
   });
 

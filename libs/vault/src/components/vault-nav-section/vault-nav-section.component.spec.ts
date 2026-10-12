@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, Type } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, signal, Type } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideRouter, Router } from "@angular/router";
@@ -13,7 +13,6 @@ import {
   HoverRevealDirective,
   NavigationModule,
   PopoverAnchorForDirective,
-  PopoverComponent,
   SideNavService,
 } from "@bitwarden/components";
 import { GlobalStateProvider } from "@bitwarden/state";
@@ -28,6 +27,8 @@ import {
   VAULT_NAV_ORGANIZATION_OPTIONS,
   VaultNavOrganizationOptions,
 } from "../../tokens/vault-nav-organization-options.token";
+import { CoachmarkStepId } from "../coachmark/coachmark-step";
+import { CoachmarkService } from "../coachmark/coachmark.service";
 
 import { VaultNavSectionComponent } from "./vault-nav-section.component";
 
@@ -176,8 +177,21 @@ describe("VaultNavSectionComponent", () => {
     fixture.detectChanges();
   };
 
+  const activeStepId = signal<CoachmarkStepId | null>(null);
+  const coachmarkService = {
+    isStepActive: (stepId: CoachmarkStepId) => activeStepId() === stepId,
+    isRunning: () => activeStepId() !== null,
+    getStepPosition: () => "right-center",
+    getStepTitle: () => "",
+    getStepDescription: () => "",
+    getStepLearnMoreUrl: (): string | undefined => undefined,
+    currentStepNumber: () => 1,
+    totalSteps: () => 1,
+  };
+
   beforeEach(async () => {
     jest.clearAllMocks();
+    activeStepId.set(null);
     viewModel$.next(personalOnly);
 
     i18nService.t.mockImplementation((key: string) => key);
@@ -191,6 +205,7 @@ describe("VaultNavSectionComponent", () => {
         { provide: AccountService, useValue: accountService },
         { provide: I18nService, useValue: i18nService },
         { provide: VAULT_NAV_ORGANIZATION_OPTIONS, useFactory: () => organizationOptions },
+        { provide: CoachmarkService, useValue: coachmarkService },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
         provideRouter(routes),
       ],
@@ -355,24 +370,19 @@ describe("VaultNavSectionComponent", () => {
 
     beforeEach(() => {
       viewModel$.next(withOrgs);
-      // A real popover, so the anchor that opens can build its overlay from a template ref.
-      const popover = TestBed.createComponent(PopoverComponent);
-      popover.detectChanges();
-
-      fixture.componentRef.setInput("coachmarkPopover", popover.componentInstance);
-      fixture.componentRef.setInput("coachmarkTourRunning", true);
+      activeStepId.set("addItem");
       fixture.detectChanges();
     });
 
     it("opens the first organization's group for the whole tour", () => {
-      // Groups collapse by default. See the `coachmarkTourRunning` input for why the tour needs
+      // Groups collapse by default. See `coachmarkExpands` for why the tour needs
       // this one open for its whole run.
       expect(navGroup("Acme corporation").componentInstance.open()).toBe(true);
       expect(navGroup("Smith family").componentInstance.open()).toBe(false);
     });
 
     it("opens on the first organization's Shared folders entry only", () => {
-      fixture.componentRef.setInput("coachmarkPopoverOpen", true);
+      activeStepId.set("shareWithCollections");
       fixture.detectChanges();
 
       // One Shared folders entry per organization, and a single popover to place.

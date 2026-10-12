@@ -51,6 +51,8 @@ import {
   VaultRemountOnDirective,
   VaultsNavViewModel,
   Vfo1I18nPipe,
+  CoachmarkComponent,
+  CoachmarkService,
 } from "@bitwarden/vault";
 
 import {
@@ -59,7 +61,6 @@ import {
   openCollectionDialog,
 } from "../../admin-console/organizations/shared/components/collection-dialog";
 import { ImportDialogComponent } from "../../tools/import/import-dialog.component";
-import { CoachmarkComponent, CoachmarkService } from "../components/coachmark";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 
