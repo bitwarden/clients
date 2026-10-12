@@ -16,7 +16,7 @@ import { AccessConnectorsService } from "../access-connectors/access-connectors.
 import {
   AccessConnectorStatus,
   type AccessConnector,
-  type TargetSystem,
+  type TargetSystemView,
   type TargetSystemId,
 } from "../rotation";
 import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus } from "../rotation";
@@ -25,8 +25,11 @@ import {
   accessConnector,
   connectorId,
   ORGANIZATION_ID,
+  pendingTargetSystem,
   sysId,
   targetSystem,
+  targetSystemSealedFields,
+  unverifiableTargetSystem,
 } from "../testing/rotation-builders";
 
 import { TargetSystemRow, TargetSystemsTabComponent } from "./target-systems-tab.component";
@@ -38,8 +41,8 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
   translate: (id: string) => id,
 };
 
-function makeSystem(overrides: Partial<TargetSystem> = {}): TargetSystem {
-  return targetSystem({ id: sysId("sys-1"), passwordPolicy: undefined, ...overrides });
+function makeSystem(overrides: Partial<TargetSystemView> = {}): TargetSystemView {
+  return targetSystem({ id: sysId("sys-1"), ...overrides });
 }
 
 function vfo1ConfigService(enabled: boolean): ReturnType<typeof mock<ConfigService>> {
@@ -54,9 +57,9 @@ describe("TargetSystemsTabComponent", () => {
   let targetSystemsService: {
     loading$: BehaviorSubject<boolean>;
     loadError$: BehaviorSubject<unknown | null>;
-    systems$: BehaviorSubject<TargetSystem[]>;
-    systemById$: BehaviorSubject<Map<string, TargetSystem>>;
-    automaticSystems$: BehaviorSubject<TargetSystem[]>;
+    systems$: BehaviorSubject<TargetSystemView[]>;
+    systemById$: BehaviorSubject<Map<string, TargetSystemView>>;
+    automaticSystems$: BehaviorSubject<TargetSystemView[]>;
     load: jest.Mock;
     setEnabled: jest.Mock;
     delete: jest.Mock;
@@ -112,9 +115,9 @@ describe("TargetSystemsTabComponent", () => {
     targetSystemsService = {
       loading$: new BehaviorSubject<boolean>(false),
       loadError$: new BehaviorSubject<unknown | null>(null),
-      systems$: new BehaviorSubject<TargetSystem[]>([]),
+      systems$: new BehaviorSubject<TargetSystemView[]>([]),
       systemById$: new BehaviorSubject(new Map()),
-      automaticSystems$: new BehaviorSubject<TargetSystem[]>([]),
+      automaticSystems$: new BehaviorSubject<TargetSystemView[]>([]),
       load: jest.fn().mockResolvedValue(undefined),
       setEnabled: jest.fn().mockResolvedValue(undefined),
       delete: jest.fn().mockResolvedValue(undefined),
@@ -162,9 +165,9 @@ describe("TargetSystemsTabComponent", () => {
   it("navigates to edit page on openEdit", async () => {
     const sys = makeSystem({ id: sysId("sys-edit") });
     const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
-    await (component as unknown as { openEdit: (s: TargetSystem) => Promise<boolean> }).openEdit(
-      sys,
-    );
+    await (
+      component as unknown as { openEdit: (s: TargetSystemView) => Promise<boolean> }
+    ).openEdit(sys);
     expect(navigateSpy).toHaveBeenCalledWith(
       ["..", "target-systems", sysId("sys-edit")],
       expect.objectContaining({ relativeTo: expect.anything() }),
@@ -177,7 +180,7 @@ describe("TargetSystemsTabComponent", () => {
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
       const comp = component as unknown as {
-        disable: (s: TargetSystem) => Promise<void>;
+        disable: (s: TargetSystemView) => Promise<void>;
       };
       void comp.disable(sys);
       tick();
@@ -190,7 +193,7 @@ describe("TargetSystemsTabComponent", () => {
       dialogService.openSimpleDialog.mockResolvedValue(false);
 
       const comp = component as unknown as {
-        disable: (s: TargetSystem) => Promise<void>;
+        disable: (s: TargetSystemView) => Promise<void>;
       };
       void comp.disable(sys);
       flushMicrotasks();
@@ -203,7 +206,7 @@ describe("TargetSystemsTabComponent", () => {
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
       const comp = component as unknown as {
-        disable: (s: TargetSystem) => Promise<void>;
+        disable: (s: TargetSystemView) => Promise<void>;
       };
       void comp.disable(sys);
       flushMicrotasks();
@@ -219,7 +222,7 @@ describe("TargetSystemsTabComponent", () => {
       const sys = makeSystem({ id: sysId("sys-1"), status: TargetSystemStatus.Disabled });
 
       const comp = component as unknown as {
-        enable: (s: TargetSystem) => Promise<void>;
+        enable: (s: TargetSystemView) => Promise<void>;
       };
       await comp.enable(sys);
 
@@ -230,7 +233,7 @@ describe("TargetSystemsTabComponent", () => {
       const sys = makeSystem({ id: sysId("sys-1"), status: TargetSystemStatus.Disabled });
 
       const comp = component as unknown as {
-        enable: (s: TargetSystem) => Promise<void>;
+        enable: (s: TargetSystemView) => Promise<void>;
       };
       await comp.enable(sys);
 
@@ -241,7 +244,7 @@ describe("TargetSystemsTabComponent", () => {
   });
 
   describe("delete action", () => {
-    type DeleteComp = { confirmDelete: (s: TargetSystem) => Promise<void> };
+    type DeleteComp = { confirmDelete: (s: TargetSystemView) => Promise<void> };
 
     it("deletes after confirmation and shows a success toast", fakeAsync(() => {
       const sys = makeSystem({ id: sysId("sys-1") });
@@ -428,10 +431,10 @@ describe("TargetSystemsTabComponent", () => {
 
   describe("in-flight row guard", () => {
     type Guarded = {
-      disable: (s: TargetSystem) => Promise<void>;
-      enable: (s: TargetSystem) => Promise<void>;
-      confirmDelete: (s: TargetSystem) => Promise<void>;
-      openAssignConnectorDialog: (s: TargetSystem) => Promise<void>;
+      disable: (s: TargetSystemView) => Promise<void>;
+      enable: (s: TargetSystemView) => Promise<void>;
+      confirmDelete: (s: TargetSystemView) => Promise<void>;
+      openAssignConnectorDialog: (s: TargetSystemView) => Promise<void>;
       isRowBusy: (rowId: TargetSystemId) => boolean;
     };
 
@@ -628,9 +631,9 @@ describe("TargetSystemsTabComponent", () => {
   });
 
   describe("session termination column", () => {
-    async function terminationCell(supportsSessionTermination: boolean): Promise<HTMLElement> {
+    async function terminationCell(system: Partial<TargetSystemView>): Promise<HTMLElement> {
       TestBed.resetTestingModule();
-      targetSystemsService.systems$.next([makeSystem({ supportsSessionTermination })]);
+      targetSystemsService.systems$.next([makeSystem(system)]);
       await createComponent({ renderTemplate: true });
 
       return (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
@@ -639,15 +642,26 @@ describe("TargetSystemsTabComponent", () => {
     }
 
     it("badges a system that supports termination", async () => {
-      const cell = await terminationCell(true);
+      const cell = await terminationCell({
+        sealed: targetSystemSealedFields({ supportsSessionTermination: true }),
+      });
 
       expect(cell.textContent).toContain("pamTargetSystemSessionTerminationYes");
     });
 
     it("names the negative state rather than leaving the cell empty", async () => {
-      const cell = await terminationCell(false);
+      const cell = await terminationCell({
+        sealed: targetSystemSealedFields({ supportsSessionTermination: false }),
+      });
 
       expect(cell.textContent).toContain("pamTargetSystemSessionTerminationNo");
+    });
+
+    it("names the unknown state for a target with no verified sealed fields", async () => {
+      const cell = await terminationCell({ sealed: undefined });
+
+      expect(cell.textContent).toContain("pamTargetSystemSessionTerminationUnknown");
+      expect(cell.textContent).not.toContain("pamTargetSystemSessionTerminationNo");
     });
   });
 
@@ -684,6 +698,55 @@ describe("TargetSystemsTabComponent", () => {
       expect(rows.find((r) => r.id === sysId("sys-active-manual"))?.canAssignConnectors).toBe(
         false,
       );
+    });
+  });
+
+  describe("sealed-state row flags", () => {
+    function rowFor(id: TargetSystemId): TargetSystemRow | undefined {
+      return (
+        component as unknown as { dataSource: { data: TargetSystemRow[] } }
+      ).dataSource.data.find((r) => r.id === id);
+    }
+
+    it("flags a pending_seal row by status, not by integrityCheckFailed", () => {
+      const pendingId = sysId("sys-pending");
+      targetSystemsService.systems$.next([
+        pendingTargetSystem({ id: pendingId, name: "Staging Entra" }),
+      ]);
+      fixture.detectChanges();
+
+      const row = rowFor(pendingId);
+      expect(row?.status).toBe("pendingSeal");
+      expect(row?.statusLabelKey).toBe("pamTargetSystemStatusPendingSeal");
+      expect(row?.integrityCheckFailed).toBe(false);
+      expect(row?.activationBlockedKey).toBe("pamTargetSystemActivationBlockedPendingSeal");
+      expect(row?.kind).toBeNull();
+      expect(row?.sessionTermination).toBe("unknown");
+    });
+
+    it("flags an active-but-unverifiable row with integrityCheckFailed, not pendingSeal", () => {
+      const unverifiableId = sysId("sys-unverifiable");
+      targetSystemsService.systems$.next([
+        unverifiableTargetSystem({ id: unverifiableId, name: "Finance SQL" }),
+      ]);
+      fixture.detectChanges();
+
+      const row = rowFor(unverifiableId);
+      expect(row?.status).toBe("active");
+      expect(row?.integrityCheckFailed).toBe(true);
+      expect(row?.activationBlockedKey).toBeNull();
+      expect(row?.sessionTermination).toBe("unknown");
+    });
+
+    it("leaves a verified, active row with neither flag", () => {
+      const id = sysId("sys-verified");
+      targetSystemsService.systems$.next([makeSystem({ id, status: TargetSystemStatus.Active })]);
+      fixture.detectChanges();
+
+      const row = rowFor(id);
+      expect(row?.status).toBe("active");
+      expect(row?.integrityCheckFailed).toBe(false);
+      expect(row?.activationBlockedKey).toBeNull();
     });
   });
 
@@ -822,6 +885,100 @@ describe("TargetSystemsTabComponent", () => {
     });
   });
 
+  describe("activate/deactivate availability for a pending_seal row", () => {
+    async function openRowMenu(system: TargetSystemView): Promise<HTMLElement> {
+      TestBed.resetTestingModule();
+      targetSystemsService.systems$.next([system]);
+      await createComponent({ renderTemplate: true });
+
+      (fixture.nativeElement as HTMLElement)
+        .querySelector<HTMLButtonElement>('td button[bitIconButton="bwi-ellipsis-h"]')!
+        .click();
+      fixture.detectChanges();
+
+      return document.querySelector<HTMLElement>(".bit-menu-panel")!;
+    }
+
+    it("disables Activate, with a tooltip, and offers no Deactivate", async () => {
+      const menu = await openRowMenu(pendingTargetSystem({ id: sysId("sys-pending") }));
+
+      const activate = menu.querySelector<HTMLButtonElement>(
+        '[id^="target-systems-tab_button_activate-locked-"]',
+      )!;
+      expect(activate).not.toBeNull();
+      expect(activate.getAttribute("aria-disabled")).toBe("true");
+      expect(activate.getAttribute("aria-describedby")).toMatch(/^bit-tooltip-\d+$/);
+      expect(menu.querySelector('[id^="target-systems-tab_button_deactivate-"]')).toBeNull();
+      // Not the live, clickable Activate item.
+      expect(menu.querySelector('[id^="target-systems-tab_button_activate-"]')).toBe(activate);
+    });
+
+    it("opens no confirmation when the locked Activate item is clicked", async () => {
+      const menu = await openRowMenu(pendingTargetSystem({ id: sysId("sys-pending") }));
+
+      menu
+        .querySelector<HTMLButtonElement>('[id^="target-systems-tab_button_activate-locked-"]')!
+        .click();
+      await fixture.whenStable();
+
+      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+      expect(targetSystemsService.setEnabled).not.toHaveBeenCalled();
+    });
+
+    it("leaves Activate/Deactivate live for an active, verified row", async () => {
+      const menu = await openRowMenu(
+        makeSystem({ id: sysId("sys-active"), status: TargetSystemStatus.Active }),
+      );
+
+      expect(menu.querySelector('[id^="target-systems-tab_button_activate-locked-"]')).toBeNull();
+      const deactivate = menu.querySelector<HTMLButtonElement>(
+        '[id^="target-systems-tab_button_deactivate-"]',
+      )!;
+      expect(deactivate).not.toBeNull();
+      expect(deactivate.hasAttribute("aria-disabled")).toBe(false);
+    });
+  });
+
+  describe("integrity-check-failed indicator", () => {
+    // Scoped to the name cell: a pendingSeal row's own "warning" status badge renders the same
+    // warning-triangle icon, which would otherwise collide with a page-wide query.
+    function nameCellIcon(): Element | null {
+      return (fixture.nativeElement as HTMLElement).querySelector(
+        "tbody tr td:first-child .bwi-exclamation-triangle",
+      );
+    }
+
+    it("marks an active-but-unverifiable row's name with a warning icon and tooltip", async () => {
+      TestBed.resetTestingModule();
+      targetSystemsService.systems$.next([
+        unverifiableTargetSystem({ id: sysId("sys-unverifiable"), name: "Finance SQL" }),
+      ]);
+      await createComponent({ renderTemplate: true });
+
+      const icon = nameCellIcon();
+      expect(icon).not.toBeNull();
+      expect(icon!.closest("td")?.textContent).toContain("Finance SQL");
+    });
+
+    it("does not mark a pending_seal row, which has its own status badge", async () => {
+      TestBed.resetTestingModule();
+      targetSystemsService.systems$.next([
+        pendingTargetSystem({ id: sysId("sys-pending"), name: "Staging Entra" }),
+      ]);
+      await createComponent({ renderTemplate: true });
+
+      expect(nameCellIcon()).toBeNull();
+    });
+
+    it("does not mark a verified row", async () => {
+      TestBed.resetTestingModule();
+      targetSystemsService.systems$.next([makeSystem({ id: sysId("sys-verified") })]);
+      await createComponent({ renderTemplate: true });
+
+      expect(nameCellIcon()).toBeNull();
+    });
+  });
+
   describe("copy system id", () => {
     it("hands the clipboard the whole id, which is what a connector's config keys on", async () => {
       TestBed.resetTestingModule();
@@ -912,7 +1069,7 @@ describe("TargetSystemsTabComponent", () => {
 
       await (
         component as unknown as {
-          openCreateManagedCredential: (s: TargetSystem) => Promise<boolean>;
+          openCreateManagedCredential: (s: TargetSystemView) => Promise<boolean>;
         }
       ).openCreateManagedCredential(sys);
 
@@ -927,7 +1084,7 @@ describe("TargetSystemsTabComponent", () => {
   });
 
   describe("openAssignConnectorDialog", () => {
-    type AssignComp = { openAssignConnectorDialog: (s: TargetSystem) => Promise<void> };
+    type AssignComp = { openAssignConnectorDialog: (s: TargetSystemView) => Promise<void> };
 
     it("assigns the selected connector and shows a success toast", fakeAsync(() => {
       const sys = makeSystem({ id: sysId("sys-1") });
@@ -1294,26 +1451,26 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
     id: sysId("1"),
     name: "Prod Entra",
     method: TargetSystemMethod.Automatic,
-    kind: TargetSystemKind.Entra,
+    sealed: targetSystemSealedFields({ kind: TargetSystemKind.Entra }),
     status: TargetSystemStatus.Active,
   });
   const scriptDisabled = makeSystem({
     id: sysId("2"),
     name: "Prod SQL reporting",
     method: TargetSystemMethod.Automatic,
-    kind: TargetSystemKind.CustomScript,
+    sealed: targetSystemSealedFields({ kind: TargetSystemKind.CustomScript }),
     status: TargetSystemStatus.Disabled,
   });
   const manualActive = makeSystem({
     id: sysId("3"),
     name: "Mainframe payroll",
     method: TargetSystemMethod.Manual,
-    kind: undefined,
+    sealed: undefined,
     status: TargetSystemStatus.Active,
   });
 
   /** Renders the real template. */
-  function setup(systems: TargetSystem[]) {
+  function setup(systems: TargetSystemView[]) {
     TestBed.configureTestingModule({
       imports: [TargetSystemsTabComponent, ReactiveFormsModule, NoopAnimationsModule],
       providers: [
@@ -1323,9 +1480,9 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
           useValue: {
             loading$: new BehaviorSubject<boolean>(false),
             loadError$: new BehaviorSubject<unknown | null>(null),
-            systems$: new BehaviorSubject<TargetSystem[]>(systems),
+            systems$: new BehaviorSubject<TargetSystemView[]>(systems),
             systemById$: new BehaviorSubject(new Map()),
-            automaticSystems$: new BehaviorSubject<TargetSystem[]>([]),
+            automaticSystems$: new BehaviorSubject<TargetSystemView[]>([]),
             load: jest.fn().mockResolvedValue(undefined),
             setEnabled: jest.fn().mockResolvedValue(undefined),
             delete: jest.fn().mockResolvedValue(undefined),
@@ -1406,7 +1563,7 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
         id: sysId("4"),
         name: "Newer server thing",
         method: TargetSystemMethod.Automatic,
-        kind: TargetSystemKind.Unknown,
+        sealed: targetSystemSealedFields({ kind: TargetSystemKind.Unknown }),
         status: TargetSystemStatus.Active,
       }),
     ]);
@@ -1423,7 +1580,7 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
         id: sysId("5"),
         name: "Newer server rotation",
         method: TargetSystemMethod.Unknown,
-        kind: TargetSystemKind.Entra,
+        sealed: targetSystemSealedFields({ kind: TargetSystemKind.Entra }),
         status: TargetSystemStatus.Active,
       }),
     ]);
@@ -1440,7 +1597,7 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
         id: sysId("6"),
         name: "Newer server status",
         method: TargetSystemMethod.Automatic,
-        kind: TargetSystemKind.Entra,
+        sealed: targetSystemSealedFields({ kind: TargetSystemKind.Entra }),
         status: TargetSystemStatus.Unknown,
       }),
     ]);
@@ -1502,27 +1659,32 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
     id: sysId("1"),
     name: "Prod Entra",
     method: TargetSystemMethod.Automatic,
-    kind: TargetSystemKind.Entra,
+    sealed: targetSystemSealedFields({ kind: TargetSystemKind.Entra }),
     status: TargetSystemStatus.Active,
   });
   const scriptDisabled = makeSystem({
     id: sysId("2"),
     name: "Billing script",
     method: TargetSystemMethod.Automatic,
-    kind: TargetSystemKind.CustomScript,
+    sealed: targetSystemSealedFields({
+      kind: TargetSystemKind.CustomScript,
+      supportsSessionTermination: false,
+    }),
     status: TargetSystemStatus.Disabled,
-    supportsSessionTermination: false,
   });
   const manualActive = makeSystem({
     id: sysId("3"),
     name: "Mainframe payroll",
     method: TargetSystemMethod.Manual,
-    kind: undefined,
+    sealed: undefined,
     status: TargetSystemStatus.Active,
   });
   const SYSTEMS = [entraActive, scriptDisabled, manualActive];
 
-  async function render(vfo1: boolean, systems: TargetSystem[] = SYSTEMS): Promise<HTMLElement> {
+  async function render(
+    vfo1: boolean,
+    systems: TargetSystemView[] = SYSTEMS,
+  ): Promise<HTMLElement> {
     TestBed.resetTestingModule();
     loading$ = new BehaviorSubject<boolean>(false);
     dialogService = mock<DialogService>();
@@ -1537,9 +1699,9 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
           useValue: {
             loading$,
             loadError$: new BehaviorSubject<unknown | null>(null),
-            systems$: new BehaviorSubject<TargetSystem[]>(systems),
+            systems$: new BehaviorSubject<TargetSystemView[]>(systems),
             systemById$: new BehaviorSubject(new Map()),
-            automaticSystems$: new BehaviorSubject<TargetSystem[]>([]),
+            automaticSystems$: new BehaviorSubject<TargetSystemView[]>([]),
             load: jest.fn().mockResolvedValue(undefined),
             setEnabled: jest.fn().mockResolvedValue(undefined),
             delete: jest.fn().mockResolvedValue(undefined),
@@ -1855,37 +2017,37 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
 
 describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
   let fixture: ComponentFixture<TargetSystemsTabComponent>;
-  let systems$: BehaviorSubject<TargetSystem[]>;
+  let systems$: BehaviorSubject<TargetSystemView[]>;
 
   const entraActive = makeSystem({
     id: sysId("1"),
     name: "Prod Entra",
     method: TargetSystemMethod.Automatic,
-    kind: TargetSystemKind.Entra,
+    sealed: targetSystemSealedFields({ kind: TargetSystemKind.Entra }),
     status: TargetSystemStatus.Active,
   });
   const scriptDisabled = makeSystem({
     id: sysId("2"),
     name: "Billing script",
     method: TargetSystemMethod.Automatic,
-    kind: TargetSystemKind.CustomScript,
+    sealed: targetSystemSealedFields({ kind: TargetSystemKind.CustomScript }),
     status: TargetSystemStatus.Disabled,
   });
   const manualActive = makeSystem({
     id: sysId("3"),
     name: "Mainframe payroll",
     method: TargetSystemMethod.Manual,
-    kind: undefined,
+    sealed: undefined,
     status: TargetSystemStatus.Active,
   });
   const SYSTEMS = [entraActive, scriptDisabled, manualActive];
 
   async function render(
     vfo1: boolean,
-    systems: TargetSystem[] = SYSTEMS,
+    systems: TargetSystemView[] = SYSTEMS,
   ): Promise<ComponentFixture<TargetSystemsTabComponent>> {
     TestBed.resetTestingModule();
-    systems$ = new BehaviorSubject<TargetSystem[]>(systems);
+    systems$ = new BehaviorSubject<TargetSystemView[]>(systems);
     await TestBed.configureTestingModule({
       imports: [TargetSystemsTabComponent, ReactiveFormsModule, NoopAnimationsModule],
       providers: [
@@ -1897,7 +2059,7 @@ describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
             loadError$: new BehaviorSubject<unknown | null>(null),
             systems$,
             systemById$: new BehaviorSubject(new Map()),
-            automaticSystems$: new BehaviorSubject<TargetSystem[]>([]),
+            automaticSystems$: new BehaviorSubject<TargetSystemView[]>([]),
             load: jest.fn().mockResolvedValue(undefined),
             setEnabled: jest.fn().mockResolvedValue(undefined),
             delete: jest.fn().mockResolvedValue(undefined),

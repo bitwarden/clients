@@ -15,13 +15,13 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { AccessConnector, TargetSystem } from "../rotation";
+import { AccessConnector, TargetSystemView } from "../rotation";
 import { ROTATION_TABS, rotationLink } from "../rotation-links";
 
 export type AssignTargetDialogParams = {
   accessConnector: AccessConnector;
   /** The automatic target systems not yet assigned to this access connector, disabled included. */
-  options: TargetSystem[];
+  options: TargetSystemView[];
   /**
    * True when the organization has no automatic target system at all, rather than all of them
    * being assigned already. Status is not considered.

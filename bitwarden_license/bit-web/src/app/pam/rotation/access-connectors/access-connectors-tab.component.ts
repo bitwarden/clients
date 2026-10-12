@@ -60,7 +60,7 @@ import {
 } from "../../helpers/access-connector-confirm";
 import { assignableTargetSystems } from "../assignable";
 import { filterOptions } from "../filter-options";
-import { AccessConnectorId, TargetSystemId, TargetSystem } from "../rotation";
+import { AccessConnectorId, TargetSystemId, TargetSystemView } from "../rotation";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
 import { RowBusyTracker } from "../row-busy-tracker";
@@ -150,7 +150,7 @@ export class AccessConnectorsTabComponent {
     initialValue: [] as AccessConnectorRow[],
   });
   private readonly automaticSystems = toSignal(this.targetSystemsService.automaticSystems$, {
-    initialValue: [] as TargetSystem[],
+    initialValue: [] as TargetSystemView[],
   });
   private readonly targetSystemsLoading = toSignal(this.targetSystemsService.loading$, {
     initialValue: true,
@@ -260,7 +260,7 @@ export class AccessConnectorsTabComponent {
 
   private assignTargetsBlockedKey(
     row: AccessConnectorRow,
-    eligible: readonly TargetSystem[],
+    eligible: readonly TargetSystemView[],
     targetSystemsKnown: boolean,
   ): string | null {
     if (!row.canAssign) {
