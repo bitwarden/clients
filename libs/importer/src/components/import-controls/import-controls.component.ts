@@ -34,24 +34,12 @@ import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import {
   AsyncActionsModule,
-  BadgeModule,
   ButtonModule,
-  CalloutModule,
   CardContentComponent,
-  CheckboxModule,
   DialogService,
-  FileUploadComponent,
-  FormFieldModule,
-  IconButtonModule,
-  IconComponent,
-  LinkModule,
-  RadioButtonModule,
   SegmentedCardComponent,
-  SelectModule,
   SpinnerComponent,
-  SvgModule,
   ToastService,
-  TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { isPasswordProtected } from "@bitwarden/vault-export-core";
@@ -61,13 +49,11 @@ import { Loader } from "../../metadata";
 import {
   CredentialKind,
   ImportOption,
-  ImportRecordError,
   ImportResult,
   ImportResultError,
   ImportResultErrorKey,
   ImportType,
   SdkImportCredentials,
-  SdkImportSummary,
 } from "../../models";
 import {
   ImporterProfile,
@@ -88,17 +74,13 @@ import {
   pickerDisplayNameFor,
   pickerFormatsFor,
 } from "../import-source-select/picker-vendor-data";
-import { KeeperDirectImportService } from "../keeper/keeper-direct-import.service";
-import { keeperImportGate, shouldSubmitAfterDialog } from "../keeper/keeper-import-gate";
-import { KEEPER_REGION_OPTIONS } from "../keeper/keeper-region-options";
-import { keeperValidationErrorI18nKey } from "../keeper/keeper-validation-error";
-import {
-  PartialImportDialogComponent,
-  PartialImportDialogData,
-} from "../keeper/partial-import-dialog.component";
-import { LastPassDirectImportService } from "../lastpass/lastpass-direct-import.service";
-import { lastPassValidationErrorI18nKey } from "../lastpass/lastpass-validation-error";
 
+import { KeeperDirectImportRunner } from "./direct/keeper-direct-import-runner";
+import { LastPassDirectImportRunner } from "./direct/lastpass-direct-import-runner";
+import { ImportControlsChromiumComponent } from "./import-controls-chromium.component";
+import { DirectStep, ImportControlsDirectComponent } from "./import-controls-direct.component";
+import { ImportControlsManualComponent } from "./import-controls-manual.component";
+import { ImportOutcome } from "./import-outcome";
 import {
   detectPasteContentShape,
   expectedPasteShapeFor,
@@ -107,15 +89,6 @@ import {
 
 /** How import data is provided: vendor direct importer, Chromium importer, or file/paste. */
 type ImportStrategy = "direct" | "chromium" | "manual";
-
-/** The current phase of a direct importer flow */
-type DirectStep = "intro" | "credentials";
-
-/** `cancelled`: feedback already shown, caller does nothing further. */
-type ImportOutcome =
-  | { kind: "imported"; result: ImportResult }
-  | { kind: "importedWithSdk"; sdkSummary: SdkImportSummary }
-  | { kind: "cancelled" };
 
 const dedupe = (values: readonly string[]): readonly string[] => Array.from(new Set(values));
 
@@ -140,24 +113,15 @@ const requiredTrimmedValidator: ValidatorFn = (control: AbstractControl<string>)
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AsyncActionsModule,
-    BadgeModule,
     ButtonModule,
-    CalloutModule,
     CardContentComponent,
-    CheckboxModule,
-    FileUploadComponent,
-    FormFieldModule,
     I18nPipe,
-    IconButtonModule,
-    IconComponent,
-    LinkModule,
+    ImportControlsChromiumComponent,
+    ImportControlsDirectComponent,
+    ImportControlsManualComponent,
     ReactiveFormsModule,
-    RadioButtonModule,
     SegmentedCardComponent,
-    SelectModule,
     SpinnerComponent,
-    SvgModule,
-    TypographyModule,
   ],
 })
 export class ImportControlsComponent {
@@ -380,8 +344,6 @@ export class ImportControlsComponent {
   protected readonly isKeeper = computed(() => this.importType() === "keeper");
   protected readonly isLastPass = computed(() => this.importType() === "lastpasscsv");
 
-  protected readonly keeperRegions = KEEPER_REGION_OPTIONS;
-
   /** Replaces the generic required message. */
   private readonly masterPasswordRequiredValidator: ValidatorFn = (control) =>
     (control.value ?? "").length > 0
@@ -501,6 +463,13 @@ export class ImportControlsComponent {
     );
     return sharesAnyExtension ? candidate.name : `.${extensions[0]}`;
   }
+
+  protected readonly formatChoiceItems = computed(() =>
+    this.formatChoiceOptions().map((candidate) => ({
+      id: candidate.id,
+      label: this.formatChoiceLabel(candidate),
+    })),
+  );
 
   private readonly formatChoice = toSignal(this.formGroup.controls.formatChoice.valueChanges, {
     initialValue: this.formGroup.controls.formatChoice.value,
@@ -869,10 +838,18 @@ export class ImportControlsComponent {
   private async runImport(): Promise<ImportOutcome> {
     if (this.primaryMode() === "direct") {
       if (this.isKeeper()) {
-        return this.runKeeperDirectImport();
+        return this.injector
+          .get(KeeperDirectImportRunner)
+          .run(this.formGroup.controls.keeperEmail, this.formGroup.controls.keeperRegion);
       }
       if (this.isLastPass()) {
-        return this.runLastPassDirectImport();
+        return this.injector
+          .get(LastPassDirectImportRunner)
+          .run(
+            this.formGroup.controls.lastPassEmail,
+            this.formGroup.controls.includeSharedFolders,
+            (csv) => this.runGenericImport("lastpasscsv", csv),
+          );
       }
       // Direct vendor with no handler wired up.
       throw new Error(`No direct-import handler is wired up for vendor: ${this.importType()}`);
@@ -881,65 +858,6 @@ export class ImportControlsComponent {
       return this.runChromiumImport();
     }
     return this.runManualImport();
-  }
-
-  private async runKeeperDirectImport(): Promise<ImportOutcome> {
-    let handled: { result: ImportResult; errors: ImportRecordError[] };
-    try {
-      handled = await this.injector
-        .get(KeeperDirectImportService)
-        .handleImport(
-          this.formGroup.controls.keeperEmail.value!,
-          this.formGroup.controls.keeperRegion.value,
-          undefined,
-        );
-    } catch (error) {
-      this.logService.error(`Keeper importer error: ${error}`);
-      this.formGroup.controls.keeperEmail.setErrors({
-        errors: { message: this.i18nService.t(keeperValidationErrorI18nKey(error)) },
-      });
-      this.formGroup.controls.keeperEmail.markAsTouched();
-      return { kind: "cancelled" };
-    }
-
-    const { result, errors } = handled;
-    const { needsConfirmation, canImport } = keeperImportGate(result, errors);
-    if (needsConfirmation) {
-      const dialog = this.dialogService.open<boolean, PartialImportDialogData>(
-        PartialImportDialogComponent,
-        { data: { errors, canImport } },
-      );
-      const confirmed = await firstValueFrom(dialog.closed);
-      if (!shouldSubmitAfterDialog(canImport, confirmed)) {
-        return { kind: "cancelled" };
-      }
-    }
-
-    return {
-      kind: "imported",
-      result: await this.importService.importImportResult(result, undefined, undefined, false),
-    };
-  }
-
-  private async runLastPassDirectImport(): Promise<ImportOutcome> {
-    let csv: string;
-    try {
-      csv = await this.injector
-        .get(LastPassDirectImportService)
-        .handleImport(
-          this.formGroup.controls.lastPassEmail.value!,
-          this.formGroup.controls.includeSharedFolders.value ?? false,
-        );
-    } catch (error) {
-      this.logService.error(`LP importer error: ${error}`);
-      this.formGroup.controls.lastPassEmail.setErrors({
-        errors: { message: this.i18nService.t(lastPassValidationErrorI18nKey(error)) },
-      });
-      this.formGroup.controls.lastPassEmail.markAsTouched();
-      return { kind: "cancelled" };
-    }
-
-    return { kind: "imported", result: await this.runGenericImport("lastpasscsv", csv) };
   }
 
   private async runChromiumImport(): Promise<ImportOutcome> {
