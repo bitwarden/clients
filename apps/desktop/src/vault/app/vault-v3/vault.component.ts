@@ -464,14 +464,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   /**
    * The folder and organization the header's collection options menu acts on — `undefined` unless
-   * the new vault foundation is on and the scope names a real, non-default shared folder.
-   * Pin/Unpin only, for now — collection management isn't part of desktop yet (a future epic);
-   * the template's `[showDelete]="false"` suppresses Delete despite desktop already providing
-   * `BULK_DELETE_DIALOG`, since that token is for the existing bulk-select batch bar, not this menu.
-   *
-   * Getter, not `computed()`: `scopedCollections`/`allOrganizations` are plain fields the `refresh$`
-   * subscription assigns imperatively, not signals, so a `computed()` here would never see them
-   * update. Change detection re-evaluates this on its own each pass.
+   * the scope names a real, non-default shared folder. A getter, not `computed()`, since
+   * `scopedCollections`/`allOrganizations` are plain fields assigned imperatively, not signals.
    */
   protected get collectionMenu():
     { collection: CollectionView; organization: Organization | undefined } | undefined {

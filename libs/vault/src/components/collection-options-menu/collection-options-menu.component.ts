@@ -24,11 +24,7 @@ import {
   CollectionDialogTab,
 } from "../../tokens/collection-dialog.token";
 
-/**
- * What `editCollection()`/`delete()` did, plus which folder it did it to — a caller that reacts by
- * navigating needs the id the action actually targeted, not whatever it's currently showing: the
- * two can disagree if the viewer moved on before the dialog closed.
- */
+/** What `editCollection()`/`delete()` did, and which folder it targeted. */
 export type CollectionActionResult = {
   deleted: boolean;
   organizationId: OrganizationId;
@@ -36,20 +32,12 @@ export type CollectionActionResult = {
 };
 
 /**
- * The Pin/Unpin, Edit info / Edit access / Delete menu for one shared folder, shared by every
- * place a client offers those actions on a single collection — the vault's breadcrumb header and
- * the shared folders table's per-row menu today.
+ * Pin/Unpin, Edit info, Edit access, and Delete menu for one shared folder.
  *
- * Edit info, Edit access, and Delete each go through a token the client supplies — see
- * {@link COLLECTION_DIALOG} and {@link BULK_DELETE_DIALOG}. Pin/Unpin needs no token — see
- * {@link showPin} — it's plain device-local state any client can offer. A client that provides
- * neither dialog and doesn't opt into `showPin` renders nothing at all: there is no half-working
- * menu to hide.
- *
- * Renders an empty host element even then, though: a caller relying on CSS to collapse an empty
- * wrapper around it (e.g. a table cell's `empty:tw-hidden`) needs its own `@if` around this
- * component, not just around the menu items inside it — see `showMenu` and
- * `SharedFoldersComponent.showRowMenu`.
+ * Edit/Delete each need a token the client supplies — {@link COLLECTION_DIALOG},
+ * {@link BULK_DELETE_DIALOG}. Pin needs neither. A caller collapsing this component's wrapper via
+ * CSS (e.g. `empty:tw-hidden`) must gate it with its own `@if`, not rely on this component — see
+ * `showMenu`.
  */
 @Component({
   selector: "vault-collection-options-menu",
@@ -77,32 +65,17 @@ export class CollectionOptionsMenuComponent {
   /** `undefined` while the organization list is still loading. */
   readonly organization = input<Organization | undefined>(undefined);
 
-  /** The trigger button's icon — callers differ: a header's current-item control reads
-   * differently from a table row's generic one. */
   readonly triggerIcon = input.required<string>();
 
-  /**
-   * Distinguishes this menu's ids from another instance's on the same page — e.g. `vault-next` or
-   * `shared-folders` — since every id must be unique across tables of similar menus.
-   */
+  /** Prefix for this instance's element ids, so multiple menus on one page don't collide. */
   readonly idPrefix = input.required<string>();
 
-  /** Whether the menu offers Pin/Unpin. Off by default, since it's an opt-in capability not every
-   * consumer wants. */
   readonly showPin = input<boolean>(false);
 
-  /**
-   * Whether Delete may appear here at all, independent of `BULK_DELETE_DIALOG`'s presence. On by
-   * default. Desktop's header menu sets this `false`: it already provides that token for the
-   * existing bulk-select batch bar, which has nothing to do with this single-folder menu — without
-   * this override, Delete would appear there too, which isn't the intended "Pin only" behavior for
-   * that specific usage.
-   */
+  /** Whether Delete may appear, independent of `BULK_DELETE_DIALOG`'s presence. Desktop's header
+   * menu sets this `false` since it already provides that token for an unrelated bulk-select bar. */
   readonly showDelete = input<boolean>(true);
 
-  /** What `editCollection()` or `delete()` did — a single output since every caller today reacts
-   * to both the same way, and it's whichever folder {@link collection} names, not which action
-   * fired, that a caller needs to decide anything. */
   readonly actionResult = output<CollectionActionResult>();
 
   /** Exposed so the template can name a tab by member rather than a bare string. */
@@ -125,8 +98,7 @@ export class CollectionOptionsMenuComponent {
       this.collection().canDelete(this.organization()),
   );
 
-  /** `canEdit`/`canDelete` already exclude the organization's default collection; Pin needs the
-   * same exclusion applied explicitly, since it isn't gated by a permission check. */
+  /** Pin isn't permission-gated like Edit/Delete, so the default collection needs excluding here. */
   protected readonly showPinAction = computed(
     () => this.showPin() && !this.collection().isDefaultCollection,
   );
@@ -138,10 +110,7 @@ export class CollectionOptionsMenuComponent {
   /** Whether the viewed folder is pinned, for the Pin/Unpin item's label and icon. */
   protected readonly isPinned = computed(() => this.pinnedIds().includes(this.collection().id));
 
-  /**
-   * Pins the folder to the side nav, or takes it off if it is already there, then confirms with a
-   * toast. The toast waits for the state update, so it never reports a change that didn't land.
-   */
+  /** Toasts only after the pin/unpin write resolves, so it never reports a change that didn't land. */
   protected async togglePin(): Promise<void> {
     const collection = this.collection();
     const userId = await firstValueFrom(this.userId$);
