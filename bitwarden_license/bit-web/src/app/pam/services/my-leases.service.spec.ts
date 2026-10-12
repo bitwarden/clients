@@ -69,6 +69,14 @@ describe("MyLeasesService", () => {
     expect(logService.error).toHaveBeenCalled();
   });
 
+  it("retries after a failed read rather than serving it from the cache", async () => {
+    leasesApi.listMyLeases.mockRejectedValueOnce(new Error("boom"));
+
+    expect(await firstValueFrom(sut.hasActiveLease$("cipher-1"))).toBe(false);
+    expect(await firstValueFrom(sut.hasActiveLease$("cipher-1"))).toBe(true);
+    expect(leasesApi.listMyLeases).toHaveBeenCalledTimes(2);
+  });
+
   describe("leasedCipherIds", () => {
     const live = new Date(Date.now() + 60_000).toISOString();
 

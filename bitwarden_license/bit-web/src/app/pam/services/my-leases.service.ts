@@ -17,7 +17,7 @@ type CacheEntry = { fetchedAt: number; leases$: Observable<readonly AccessLeaseV
 /**
  * One cached `listMyLeases` read, for an item that became reachable through a rule-less collection
  * after its lease was minted, and for `CipherService`'s write gate. A failed read resolves to no
- * leases, so both gates stay shut.
+ * leases, so both gates stay shut, and isn't cached, so the next read retries.
  */
 @Injectable()
 export class MyLeasesService implements CipherLeaseStateService {
@@ -38,6 +38,9 @@ export class MyLeasesService implements CipherLeaseStateService {
     const leases$ = defer(() => this.accessLeaseSdkService.listMyLeases()).pipe(
       catchError((error: unknown) => {
         this.logService.error(error);
+        if (this.cache?.leases$ === leases$) {
+          this.cache = null;
+        }
         return of<AccessLeaseView[]>([]);
       }),
       shareReplay({ bufferSize: 1, refCount: false }),
