@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Klik på emner for at autoudfylde i Boks-visning"
   },
-  "clickToAutofill": {
-    "message": "Klik på elementer i autofuldførelsesforslag for at udfylde"
-  },
   "clearClipboard": {
     "message": "Ryd udklipsholder",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Indsæt den til LastPass-kontoen tilknyttede YubiKey i computers USB-port, og tryk dernæst på dens knap."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper-e-mail"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Skift adgangskode i fare"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Dette login er i fare og mangler et websted. Tilføj et websted, og skift adgangskoden for bedre sikkerhed."
-  },
   "vulnerablePassword": {
     "message": "Sårbar adgangskode."
   },
   "changeNow": {
     "message": "Skift nu"
-  },
-  "missingWebsite": {
-    "message": "Manglende websted"
   },
   "settingsVaultOptions": {
     "message": "Boksindstillinger"

@@ -12,6 +12,7 @@ import {
   LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
+import { Measurement } from "@bitwarden/logging";
 import { MessageSender } from "@bitwarden/messaging";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
@@ -108,7 +109,7 @@ describe("Cipher Service", () => {
   const encryptService = mock<EncryptService>();
   const configService = mock<ConfigService>();
   accountService = mockAccountServiceWith(mockUserId);
-  const logService = mock<LogService>();
+  const logService = mock<LogService>({ startMeasurement: () => mock<Measurement>() });
   const stateProvider = new FakeStateProvider(accountService);
   const cipherEncryptionService = mock<CipherEncryptionService>();
   const messageSender = mock<MessageSender>();
@@ -1556,6 +1557,41 @@ describe("Cipher Service", () => {
       const result = await cipherService.getManyFromApiForOrganization(testOrgId);
 
       expect(result).toEqual([]);
+    });
+  });
+
+  describe("getCiphersOrganizationLogins()", () => {
+    const testOrgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
+
+    it("should return sorted successes and failures from the SDK", async () => {
+      const cipherViewB = new CipherView();
+      cipherViewB.name = "B Login";
+      const cipherViewA = new CipherView();
+      cipherViewA.name = "A Login";
+      const failedCipherView = new CipherView();
+      failedCipherView.decryptionFailure = true;
+
+      const sdkServiceSpy = jest
+        .spyOn(cipherSdkService, "getOrganizationLoginCiphers")
+        .mockResolvedValue({ successes: [cipherViewB, cipherViewA], failures: [failedCipherView] });
+      const apiSpy = jest.spyOn(apiService, "send");
+
+      const result = await cipherService.getCiphersOrganizationLogins(testOrgId);
+
+      expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId);
+      expect(apiSpy).not.toHaveBeenCalled();
+      expect(result.successes.map((c) => c.name)).toEqual(["A Login", "B Login"]);
+      expect(result.failures).toEqual([failedCipherView]);
+    });
+
+    it("should propagate SDK errors", async () => {
+      jest
+        .spyOn(cipherSdkService, "getOrganizationLoginCiphers")
+        .mockRejectedValue(new Error("SDK error"));
+
+      await expect(cipherService.getCiphersOrganizationLogins(testOrgId)).rejects.toThrow(
+        "SDK error",
+      );
     });
   });
 

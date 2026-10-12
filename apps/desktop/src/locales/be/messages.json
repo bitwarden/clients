@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "Устаўце YubiKey, звязаны з вашым рахункам LastPass, у USB-порт камп'ютара, затым націсніце яго кнопку."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Email Keeper"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Пашырэнне браўзера, якое вы выкарыстоўваеце, састарэла. Калі ласка, абнавіце яго або адключыце праверку адбіткаў інтэграцыі з браўзерам у наладах настольнай праграмы."
   },
-  "changeAtRiskPassword": {
-    "message": "Змяніць пароль пад рызыкай"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Гэты ўваход знаходзіцца пад рызыкай і не мае вэб-сайта. Дадайце вэб-сайт і змяніце пароль для павышэння бяспекі."
-  },
   "vulnerablePassword": {
     "message": "Уразлівы пароль."
   },
   "changeNow": {
     "message": "Змяніць зараз"
-  },
-  "missingWebsite": {
-    "message": "Адсутнічае вэб-сайт"
   },
   "missingPermissions": {
     "message": "У вас няма неабходных дазволаў для выканання гэтага дзеяння."

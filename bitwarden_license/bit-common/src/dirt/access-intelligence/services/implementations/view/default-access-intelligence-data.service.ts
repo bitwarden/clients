@@ -469,7 +469,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
   }
 
   private loadCiphersOnly$(orgId: OrganizationId): Observable<CipherView[]> {
-    return this.fetchOrgCiphers$(orgId, "page open").pipe(
+    return this.fetchOrgLogins$(orgId, "page open").pipe(
       catchError((err: unknown) => {
         this.logService.error("[DefaultAccessIntelligenceDataService] Cipher load failed", err);
         return of([] as CipherView[]);
@@ -477,22 +477,37 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     );
   }
 
-  private fetchOrgCiphers$(
+  private fetchOrgLogins$(
     orgId: OrganizationId,
     trigger: "page open" | "generate",
   ): Observable<CipherView[]> {
-    return this.configService.getFeatureFlag$(FeatureFlag.PM27632_SdkCipherCrudOperations).pipe(
-      first(),
-      switchMap((useSdk) =>
-        from(this.cipherService.getAllFromApiForOrganization(orgId, true)).pipe(
-          measureFlowStep(
-            this.logService,
-            `Load: org ciphers fetched (${trigger}, ${useSdk ? "sdk" : "legacy"})`,
-            (ciphers) => [["itemCount", ciphers.length]],
-          ),
-        ),
-      ),
-    );
+    return this.configService
+      .getFeatureFlag$(FeatureFlag.AccessIntelligencePerformanceAtScale)
+      .pipe(
+        first(),
+        switchMap((useLoginOnlyEndpoint) => {
+          const ciphers$ = useLoginOnlyEndpoint
+            ? from(this.cipherService.getCiphersOrganizationLogins(orgId)).pipe(
+                map(({ successes, failures }) => {
+                  if (failures.length > 0) {
+                    this.logService.error(
+                      `[DefaultAccessIntelligenceDataService] ${failures.length} ciphers failed to decrypt`,
+                    );
+                  }
+                  return successes;
+                }),
+              )
+            : from(this.cipherService.getAllFromApiForOrganization(orgId, true));
+
+          return ciphers$.pipe(
+            measureFlowStep(
+              this.logService,
+              `Load: org ciphers fetched (${trigger}, ${useLoginOnlyEndpoint ? "logins-only" : "legacy"})`,
+              (ciphers) => [["itemCount", ciphers.length]],
+            ),
+          );
+        }),
+      );
   }
   /**
    * Load organization data in parallel (ciphers and users with collections/groups)
@@ -503,7 +518,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     collections: ListResponse<CollectionAccessDetailsResponse>;
   }> {
     return forkJoin({
-      ciphers: this.fetchOrgCiphers$(orgId, "generate"),
+      ciphers: this.fetchOrgLogins$(orgId, "generate"),
       apiUsers: from(
         this.organizationUserApiService.getAllUsers(orgId, {
           includeGroups: true,

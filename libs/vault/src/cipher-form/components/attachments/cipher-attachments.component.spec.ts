@@ -93,7 +93,6 @@ describe("CipherAttachmentsComponent", () => {
             organization,
             get: cipherServiceGet,
             saveAttachmentWithServer,
-            getKeyForCipherKeyDecryption: () => Promise.resolve(null),
             decrypt: cipherServiceDecrypt,
           },
         },

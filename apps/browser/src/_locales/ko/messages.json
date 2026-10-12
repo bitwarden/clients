@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "보관함 보기에서 항목을 클릭하여 자동 완성"
   },
-  "clickToAutofill": {
-    "message": "자동 완성 제안에서 항목 클릭으로 채우기"
-  },
   "clearClipboard": {
     "message": "클립보드 비우기",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "LastPass 계정과 연결된 YubiKey를 컴퓨터의 USB 포트에 삽입한 다음 버튼을 누릅니다."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper 이메일"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "위험한 비밀번호 변경"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "이 로그인 정보는 위험에 노출되어 있고 웹사이트가 누락되어 있습니다. 웹사이트를 추가하고 비밀번호를 변경하여 보안을 강화하세요."
-  },
   "vulnerablePassword": {
     "message": "취약한 비밀번호입니다."
   },
   "changeNow": {
     "message": "지금 변경"
-  },
-  "missingWebsite": {
-    "message": "누락된 웹사이트"
   },
   "settingsVaultOptions": {
     "message": "보관함 설정"

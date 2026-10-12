@@ -15600,20 +15600,11 @@
   "atRiskPassword": {
     "message": "Парола в риск"
   },
-  "changeAtRiskPassword": {
-    "message": "Промяна на парола в риск"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Този елемент за вписване е в риск и в него липсва уеб сайт. Добавете уеб сайт и сменете паролата, за по-добра сигурност."
-  },
   "vulnerablePassword": {
     "message": "Уязвима парола."
   },
   "changeNow": {
     "message": "Промяна сега"
-  },
-  "missingWebsite": {
-    "message": "Липсващ уеб сайт"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Премахване на отключването чрез ПИН"
@@ -17041,6 +17032,15 @@
         "example": "4"
       }
     }
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Е-поща за Keeper"

@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "Поставете устройството на YubiKey, което е свързано с регистрацията Ви в LastPass, в USB порт и натиснете бутона на устройството."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Е-поща за Keeper"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Добавката за браузъра, която използвате, е остаряла. Моля, обновете я или изключете интеграцията за проверка на пръстов отпечатък в браузъра от настройките на самостоятелното приложение."
   },
-  "changeAtRiskPassword": {
-    "message": "Промяна на парола в риск"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Този елемент за вписване е в риск и в него липсва уеб сайт. Добавете уеб сайт и сменете паролата, за по-добра сигурност."
-  },
   "vulnerablePassword": {
     "message": "Уязвима парола."
   },
   "changeNow": {
     "message": "Промяна сега"
-  },
-  "missingWebsite": {
-    "message": "Липсващ уеб сайт"
   },
   "missingPermissions": {
     "message": "Нямате нужните правомощия да извършите това действие."

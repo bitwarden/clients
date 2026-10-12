@@ -37,6 +37,11 @@ const statusIndicators = [
 
 const bitwardenObjects = [
   {
+    id: "bwi-access-connector",
+    usage:
+      "Indicates an access connector — a daemon running inside a customer's network that performs credential rotation against target systems in the Privileged Controls rotation flows.",
+  },
+  {
     id: "bwi-admin-console",
     usage: "Admin console icon",
   },
@@ -87,6 +92,11 @@ const bitwardenObjects = [
     usage: "Indicates an identity item type.",
   },
   {
+    id: "bwi-managed-credential",
+    usage:
+      "Indicates a managed credential — a vault item configured for scheduled or on-demand rotation in Privileged Controls.",
+  },
+  {
     id: "bwi-passport",
     usage: "Indicates a passport item type.",
   },
@@ -102,6 +112,11 @@ const bitwardenObjects = [
   {
     id: "bwi-sticky-note",
     usage: "Indicates a secure note item type.",
+  },
+  {
+    id: "bwi-target-system",
+    usage:
+      "Indicates a target system — the external system (Entra, SQL Server, custom script, etc.) where a managed credential's password lives and is rotated.",
   },
   {
     id: "bwi-users",

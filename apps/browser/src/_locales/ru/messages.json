@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Кликните элементы для автозаполнения в режиме просмотра хранилища"
   },
-  "clickToAutofill": {
-    "message": "Выберите элементы в предложении автозаполнения для вставки"
-  },
   "clearClipboard": {
     "message": "Очистить буфер обмена",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Вставьте YubiKey, связанный с аккаунтом LastPass, в USB-порт компьютера и нажмите на его кнопку."
   },
+  "secretKey": {
+    "message": "Секретный ключ"
+  },
+  "secretKeyAndPassword": {
+    "message": "Секретный ключ и пароль"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Ваш аккаунт защищен секретным ключом и паролем. Для продолжения необходимо ввести и то, и другое."
+  },
   "keeperEmail": {
     "message": "Адрес email Keeper"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Изменить пароль, подверженный риску"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Этот логин подвержен риску и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
-  },
   "vulnerablePassword": {
     "message": "Уязвимый пароль."
   },
   "changeNow": {
     "message": "Изменить сейчас"
-  },
-  "missingWebsite": {
-    "message": "Отсутствует сайт"
   },
   "settingsVaultOptions": {
     "message": "Настройки хранилища"

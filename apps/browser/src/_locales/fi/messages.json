@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Täytä kohteet Holvi-näkymästä klikkaamalla niitä"
   },
-  "clickToAutofill": {
-    "message": "Täytä automaattitäytön ehdotus napsauttamalla sitä"
-  },
   "clearClipboard": {
     "message": "Tyhjennä leikepöytä",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Kytke LastPass-tiliisi liitetty YubiKey tietokoneen USB-porttiin ja kosketa sen painiketta."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper-sähköposti"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Vaihda vaarantunut salasana"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Tämä kirjautuminen on riskialtis ja siitä puuttuu verkkosivusto. Lisää verkkosivusto ja vaihda salasana vahvemman turvallisuuden vuoksi."
-  },
   "vulnerablePassword": {
     "message": "Heikko salasana"
   },
   "changeNow": {
     "message": "Vaihda nyt"
-  },
-  "missingWebsite": {
-    "message": "Verkkosivusto puuttuu"
   },
   "settingsVaultOptions": {
     "message": "Holvin asetukset"

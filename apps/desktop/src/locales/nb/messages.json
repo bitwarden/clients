@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "Sett inn YubiKey-en som er tilknyttet LastPass-kontoen din i datamaskinens USB-port, og trykk deretter på knappen."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "E-post for Keeper"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Nettleserutvidelsen du bruker er utdatert. Vennligst oppdater den, eller deaktiver validering av fingeravtrykk for nettleserintegrasjon i skrivebordsappens innstillinger."
   },
-  "changeAtRiskPassword": {
-    "message": "Endre passord som er utsatt"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Denne påloggingen er utsatt og mangler et nettsted. Legg til et nettsted og endre passordet for bedre sikkerhet."
-  },
   "vulnerablePassword": {
     "message": "Sårbart passord."
   },
   "changeNow": {
     "message": "Endre nå"
-  },
-  "missingWebsite": {
-    "message": "Mangler nettsted"
   },
   "missingPermissions": {
     "message": "Du mangler de nødvendige tillatelsene for å utføre denne handlingen."

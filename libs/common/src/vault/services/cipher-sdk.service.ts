@@ -7,6 +7,7 @@ import {
   CipherView as SdkCipherView,
   CreateAttachmentRequest,
   CreatedAttachment,
+  DecryptCipherResult,
   isEditCipherError,
 } from "@bitwarden/sdk-internal";
 
@@ -465,18 +466,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
 
           const decryptResult = await sdkCiphersClient.get_all();
 
-          const successes = [...(decryptResult.successes ?? [])]
-            .map((sdkCipherView: any) => CipherView.fromSdkCipherView(sdkCipherView))
-            .filter((v): v is CipherView => v !== undefined);
-
-          const failures: CipherView[] = [...(decryptResult.failures ?? [])].map((failure: any) => {
-            const cipherView = new CipherView(Cipher.fromSdkCipher(failure));
-            cipherView.name = DECRYPT_ERROR;
-            cipherView.decryptionFailure = true;
-            return cipherView;
-          });
-
-          return { successes, failures };
+          return this.toDecryptAllCiphersResult(decryptResult);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to list and decrypt ciphers: ${error}`);
@@ -539,6 +529,31 @@ export class DefaultCipherSdkService implements CipherSdkService {
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to list assigned organization ciphers: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async getOrganizationLoginCiphers(
+    organizationId: string,
+    userId: UserId,
+  ): Promise<DecryptAllCiphersResult> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+
+          const decryptResult = await ref.value
+            .vault()
+            .ciphers()
+            .admin()
+            .list_org_login_ciphers(asUuid(organizationId));
+
+          return this.toDecryptAllCiphersResult(decryptResult);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to list organization login ciphers: ${error}`);
           throw error;
         }),
       ),
@@ -650,5 +665,20 @@ export class DefaultCipherSdkService implements CipherSdkService {
         }),
       ),
     );
+  }
+
+  private toDecryptAllCiphersResult(decryptResult: DecryptCipherResult): DecryptAllCiphersResult {
+    const successes = [...(decryptResult.successes ?? [])]
+      .map((sdkCipherView) => CipherView.fromSdkCipherView(sdkCipherView))
+      .filter((v): v is CipherView => v !== undefined);
+
+    const failures: CipherView[] = [...(decryptResult.failures ?? [])].map((failure) => {
+      const cipherView = new CipherView(Cipher.fromSdkCipher(failure));
+      cipherView.name = DECRYPT_ERROR;
+      cipherView.decryptionFailure = true;
+      return cipherView;
+    });
+
+    return { successes, failures };
   }
 }

@@ -17,7 +17,7 @@ use tokio::{
 use tokio_util::sync::CancellationToken;
 use tracing::{error, info};
 
-use super::MESSAGE_CHANNEL_BUFFER;
+use super::{announcement::ClientAnnouncement, MESSAGE_CHANNEL_BUFFER};
 
 /// Message received from or sent to an IPC client.
 #[derive(Debug)]
@@ -26,7 +26,8 @@ pub struct Message {
     pub client_id: u32,
     /// Type of message.
     pub kind: MessageType,
-    /// Message payload (Some for MessageType::Message, None otherwise).
+    /// Message payload: for MessageType::Message, the message; for MessageType::Connected, the
+    /// client's [`ClientAnnouncement`] JSON; None for MessageType::Disconnected.
     pub message: Option<String>,
 }
 
@@ -214,6 +215,24 @@ async fn handle_connection(
     client_id: u32,
     client_senders: ClientSenders,
 ) -> Result<(), Box<dyn Error>> {
+    let mut client_stream = crate::ipc::internal_ipc_codec(client_stream);
+
+    // A client announces itself in its first frame, so `Connected` can say who connected. The
+    // server only learns of the client once that frame arrives.
+    let first_frame = tokio::select! {
+        _ = cancel_token.cancelled() => return Ok(()),
+        frame = client_stream.next() => match frame {
+            Some(frame) => String::from_utf8(frame?.to_vec())?,
+            None => return Ok(()),
+        },
+    };
+
+    // Every client connects through `client::connect`, which always announces.
+    if let Err(error) = ClientAnnouncement::from_string(&first_frame) {
+        error!(client_id, %error, "Client did not announce itself, dropping connection.");
+        return Ok(());
+    }
+
     // Create a per-client channel for targeted messages
     let (targeted_send, mut targeted_recv) = mpsc::channel::<String>(MESSAGE_CHANNEL_BUFFER);
 
@@ -227,11 +246,9 @@ async fn handle_connection(
         .send(Message {
             client_id,
             kind: MessageType::Connected,
-            message: None,
+            message: Some(first_frame),
         })
         .await?;
-
-    let mut client_stream = crate::ipc::internal_ipc_codec(client_stream);
 
     loop {
         tokio::select! {
@@ -313,4 +330,38 @@ async fn handle_connection(
     }
 
     Ok(())
+}
+
+#[cfg(all(test, unix))]
+mod tests {
+    use futures::SinkExt;
+    use interprocess::local_socket::{tokio::Stream, GenericFilePath, ToFsName};
+
+    use super::*;
+
+    #[tokio::test]
+    async fn drops_a_client_that_does_not_announce() {
+        let path =
+            std::env::temp_dir().join(format!("bw-ipc-server-test-{}.sock", std::process::id()));
+        let (server_send, mut server_recv) = mpsc::channel(MESSAGE_CHANNEL_BUFFER);
+        let server = Server::start(vec![path.clone()], server_send).expect("server start");
+
+        let name = path
+            .as_os_str()
+            .to_fs_name::<GenericFilePath>()
+            .expect("name");
+        let stream = Stream::connect(name).await.expect("connect");
+        let mut stream = crate::ipc::internal_ipc_codec(stream);
+        stream
+            .send(r#"{"command":"hello"}"#.into())
+            .await
+            .expect("send");
+
+        // The server closes the connection without reporting the client.
+        assert!(stream.next().await.is_none());
+        assert!(server_recv.try_recv().is_err());
+
+        server.stop();
+        let _ = std::fs::remove_file(path);
+    }
 }

@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "Illesszük be a LastPass fiókhoz társított YubiKey eszközt a számítógép USB portjába, majd érintsük meg annak gombját."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper email cím"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Al használt böngésző bővítmény elavult. Frissítsük vagy tiltsuk le a böngésző integráció ujjlenyomat ellenőrzését az asztali alkalmazás beállításainál."
   },
-  "changeAtRiskPassword": {
-    "message": "Kockázatos jelszó megváltoztatása"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Ez a bejelentkezés veszélyben van és hiányzik egy webhely. Adjunk hozzá egy webhelyet és módosítsuk a jelszót az erősebb biztonság érdekében."
-  },
   "vulnerablePassword": {
     "message": "A jelszó sérülékeny."
   },
   "changeNow": {
     "message": "Módosítás most"
-  },
-  "missingWebsite": {
-    "message": "Hiányzó webhely"
   },
   "missingPermissions": {
     "message": "Nincs megfelelő jogosultság a művelet végrehajtásához."

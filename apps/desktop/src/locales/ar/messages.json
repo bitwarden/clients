@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "أدخل YubiKey المرتبط بحسابك LastPass في منفذ USB بجهاز الكمبيوتر، ثم اضغط على زره."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "البريد الإلكتروني لـ Keeper"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "إضافة المتصفح المستخدمة غير محدّثة. يرجى تحديثها أو تعطيل التحقق من بصمة الإصبع في إعدادات تطبيق سطح المكتب."
   },
-  "changeAtRiskPassword": {
-    "message": "تغيير كلمة المرور المعرضة للخطر"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "حساب الدخول هذا معرض للخطر ولا يرتبط بأي موقع إلكتروني. أضف موقعا إلكترونيا و استبدل كلمة المرور لتعزيز الأمان."
-  },
   "vulnerablePassword": {
     "message": "كلمة مرور ضعيفة."
   },
   "changeNow": {
     "message": "تغيير الآن"
-  },
-  "missingWebsite": {
-    "message": "ينقص موقع ويب"
   },
   "missingPermissions": {
     "message": "لا تملك الصلاحيات اللازمة لتنفيذ هذا الإجراء."

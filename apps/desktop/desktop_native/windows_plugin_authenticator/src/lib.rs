@@ -1,7 +1,8 @@
 #![cfg(target_os = "windows")]
 use std::collections::HashSet;
 
-use desktop_core::autofill::{read_plugin_config_file, read_plugin_logo};
+use desktop_core::autofill::{read_plugin_config_file, read_plugin_logos};
+pub use win_webauthn::plugin::AuthenticatorState;
 use win_webauthn::{
     plugin::{Clsid, PluginAddAuthenticatorOptions, WebAuthnPlugin},
     AuthenticatorInfo, CtapVersion, PublicKeyCredentialParameters,
@@ -10,31 +11,46 @@ use win_webauthn::{
 pub const AAGUID: &str = "d548826e-79b4-db40-a3d8-11116f7e8349";
 pub const RPID: &str = "bitwarden.com";
 
-pub fn register() -> Result<(), String> {
+/// Errors returned by [register].
+#[derive(Debug)]
+pub enum RegisterError {
+    /// The app is not packaged for the plugin authenticator, so there is nothing to register.
+    NotSupported,
+    /// The app is packaged for the plugin authenticator, but registration failed.
+    Failed(String),
+}
+
+pub fn register() -> Result<(), RegisterError> {
     tracing::debug!("register() called...");
-    let Some(config) = read_plugin_config_file()
-        .map_err(|err| format!("Could not read the plugin authenticator config file: {err:#}"))?
+    let Some(config) = read_plugin_config_file().map_err(|err| {
+        RegisterError::Failed(format!(
+            "Could not read the plugin authenticator config file: {err:#}"
+        ))
+    })?
     else {
         tracing::debug!(
             "Not running from an Appx package, so there is no plugin authenticator to register."
         );
-        return Ok(());
+        return Err(RegisterError::NotSupported);
     };
-    let logo = read_plugin_logo()
-        .map_err(|err| format!("Could not read the plugin authenticator logo: {err:#}"))?;
+    let (light_logo, dark_logo) = read_plugin_logos().map_err(|err| {
+        RegisterError::Failed(format!(
+            "Could not read the plugin authenticator logos: {err:#}"
+        ))
+    })?;
 
     let aaguid = AAGUID
         .try_into()
-        .map_err(|err| format!("Invalid AAGUID `{AAGUID}`: {err}"))?;
+        .map_err(|err| RegisterError::Failed(format!("Invalid AAGUID `{AAGUID}`: {err}")))?;
     let clsid = Clsid::try_from(format!("{{{}}}", config.clsid).as_ref())
-        .map_err(|_| format!("invalid CLSID string: {}", config.clsid))?;
+        .map_err(|_| RegisterError::Failed(format!("invalid CLSID string: {}", config.clsid)))?;
 
     let options = PluginAddAuthenticatorOptions {
         authenticator_name: config.name.clone(),
         clsid,
         rp_id: Some(RPID.to_string()),
-        light_theme_logo_svg: Some(logo.to_string()),
-        dark_theme_logo_svg: Some(logo.to_string()),
+        light_theme_logo_svg: Some(light_logo),
+        dark_theme_logo_svg: Some(dark_logo),
         authenticator_info: AuthenticatorInfo {
             versions: HashSet::from([CtapVersion::Fido2_0, CtapVersion::Fido2_1]),
             aaguid,
@@ -55,13 +71,38 @@ pub fn register() -> Result<(), String> {
         supported_rp_ids: None,
     };
     let response = WebAuthnPlugin::add_authenticator(&options)
-        .map_err(|err| format!("Failed to add the authenticator: {err}"))?;
+        .map_err(|err| RegisterError::Failed(format!("Failed to add the authenticator: {err}")))?;
     // We already registered before, so update the details.
     if response.is_none() {
         let update_options = options.into();
-        WebAuthnPlugin::update_authenticator_details(&update_options)
-            .map_err(|err| format!("Failed to update the authenticator: {err}"))?;
+        WebAuthnPlugin::update_authenticator_details(&update_options).map_err(|err| {
+            RegisterError::Failed(format!("Failed to update the authenticator: {err}"))
+        })?;
     }
     tracing::debug!("Added the authenticator: {response:?}");
     Ok(())
+}
+
+/// The state of the plugin authenticator, or `None` if it is not registered with Windows.
+pub fn authenticator_state() -> Option<AuthenticatorState> {
+    let config = match read_plugin_config_file() {
+        Ok(Some(config)) => config,
+        Ok(None) => return None,
+        Err(err) => {
+            tracing::warn!("Could not read the plugin authenticator config file: {err:#}");
+            return None;
+        }
+    };
+    let Ok(clsid) = Clsid::try_from(format!("{{{}}}", config.clsid).as_ref()) else {
+        tracing::warn!("invalid CLSID string: {}", config.clsid);
+        return None;
+    };
+    // Windows fails the lookup for an authenticator that is not registered.
+    match WebAuthnPlugin::new(clsid).get_authenticator_state() {
+        Ok(state) => Some(state),
+        Err(err) => {
+            tracing::debug!("Plugin authenticator is not registered: {err}");
+            None
+        }
+    }
 }

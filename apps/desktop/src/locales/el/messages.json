@@ -16,7 +16,7 @@
     "message": "All vault items"
   },
   "myItemsV2": {
-    "message": "My items"
+    "message": "Τα στοιχεία μου"
   },
   "vaults": {
     "message": "Vaults"
@@ -25,7 +25,7 @@
     "message": "Εργαλεία"
   },
   "manage": {
-    "message": "Manage"
+    "message": "Διαχείριση"
   },
   "favorites": {
     "message": "Αγαπημένα"
@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "Εισάγετε το YubiKey που σχετίζεται με τον λογαριασμό LastPass στη θύρα USB του υπολογιστή σας και στη συνέχεια αγγίξτε το κουμπί του."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Email Keeper"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Η επέκταση περιηγητή που χρησιμοποιείτε είναι ξεπερασμένη. Παρακαλούμε ενημερώστε την ή απενεργοποιήστε την επικύρωση δακτυλικών αποτυπωμάτων του προγράμματος περιήγησης στις ρυθμίσεις της εφαρμογής για την επιφάνεια εργασίας."
   },
-  "changeAtRiskPassword": {
-    "message": "Αλλαγή συνθηματικού που διατρέχει κίνδυνο"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Αυτή η σύνδεση διατρέχει κίνδυνο και της λείπει ένας ιστότοπος. Προσθέστε έναν ιστότοπο και αλλάξτε το συνθηματικό για ισχυρότερη ασφάλεια."
-  },
   "vulnerablePassword": {
     "message": "Ευάλωτος κωδικός πρόσβασης."
   },
   "changeNow": {
     "message": "Αλλαγή τώρα"
-  },
-  "missingWebsite": {
-    "message": "Λείπει ιστότοπος"
   },
   "missingPermissions": {
     "message": "Δεν διαθέτετε τα απαραίτητα δικαιώματα για να εκτελέσετε αυτήν την ενέργεια."

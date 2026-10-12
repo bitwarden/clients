@@ -578,7 +578,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AutofillSettingsServiceAbstraction,
     useClass: AutofillSettingsService,
-    deps: [StateProvider, PolicyService, AccountService, RestrictedItemTypesService],
+    deps: [StateProvider, PolicyService, AccountService, RestrictedItemTypesService, ConfigService],
   }),
   safeProvider({
     provide: UserNotificationSettingsServiceAbstraction,

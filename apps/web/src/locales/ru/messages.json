@@ -15600,20 +15600,11 @@
   "atRiskPassword": {
     "message": "Пароль, подверженный риску"
   },
-  "changeAtRiskPassword": {
-    "message": "Изменить пароль, подверженный риску"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Этот логин подвержен риску и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
-  },
   "vulnerablePassword": {
     "message": "Уязвимый пароль."
   },
   "changeNow": {
     "message": "Изменить сейчас"
-  },
-  "missingWebsite": {
-    "message": "Отсутствует сайт"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Отключить разблокировку PIN-кодом"
@@ -17041,6 +17032,15 @@
         "example": "4"
       }
     }
+  },
+  "secretKey": {
+    "message": "Секретный ключ"
+  },
+  "secretKeyAndPassword": {
+    "message": "Секретный ключ и пароль"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Ваш аккаунт защищен секретным ключом и паролем. Для продолжения необходимо ввести и то, и другое."
   },
   "keeperEmail": {
     "message": "Адрес email Keeper"

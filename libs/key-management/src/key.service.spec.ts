@@ -37,6 +37,7 @@ import {
   SymmetricCryptoKey,
   UnsignedPublicKey,
 } from "@bitwarden/legacy-crypto";
+import { Measurement } from "@bitwarden/logging";
 import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
 import { BiometricsService } from "./biometrics/biometric.service";
@@ -48,7 +49,7 @@ describe("keyService", () => {
   const cryptoFunctionService = mock<CryptoFunctionService>();
   const encryptService = mock<EncryptService>();
   const platformUtilService = mock<PlatformUtilsService>();
-  const logService = mock<LogService>();
+  const logService = mock<LogService>({ startMeasurement: () => mock<Measurement>() });
   const stateService = mock<StateService>();
   const accountCryptographicStateService = mock<AccountCryptographicStateService>();
   const biometricsService = mock<BiometricsService>();
