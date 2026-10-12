@@ -15,11 +15,9 @@ import type {
   RotationConfigCreateRequest,
   RotationConfigDetail,
   RotationConfigId,
-  RotationConfigUpdateRequest,
   RotationConfig,
   TargetSystemCreateRequest,
   TargetSystemId,
-  TargetSystemUpdateRequest,
   TargetSystem,
 } from "./rotation";
 import { QuartzSchedulePreset, TargetSystemStatus } from "./rotation";
@@ -145,7 +143,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
   async updateTargetSystem(
     organizationId: OrganizationId,
     id: TargetSystemId,
-    request: TargetSystemUpdateRequest,
+    request: TargetSystemCreateRequest,
   ): Promise<void> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     await this.withRotationClient("update a target system", (rotation) =>
@@ -204,7 +202,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
   async updateConfig(
     organizationId: OrganizationId,
     id: RotationConfigId,
-    request: RotationConfigUpdateRequest,
+    request: RotationConfigCreateRequest,
   ): Promise<RotationConfigDetail> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     return this.withRotationClient("update a rotation config", (rotation) =>

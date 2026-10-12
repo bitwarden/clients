@@ -9,11 +9,9 @@ import type {
   RotationConfigCreateRequest,
   RotationConfigDetail,
   RotationConfigId,
-  RotationConfigUpdateRequest,
   RotationConfig,
   TargetSystemCreateRequest,
   TargetSystemId,
-  TargetSystemUpdateRequest,
   TargetSystem,
 } from "./rotation";
 import { QuartzSchedulePreset, TargetSystemStatus } from "./rotation";
@@ -74,20 +72,32 @@ export abstract class RotationSdkService {
 
   abstract listTargetSystems(organizationId: OrganizationId): Promise<TargetSystem[]>;
 
+  /**
+   * Registers and seals a target system in two server calls. If the second fails, the row is left
+   * in `pending_seal` rather than rolled back; the thrown error's `TargetSystemsClient::create`
+   * (SDK side) carries that row's id so the caller can route the operator to finish setup via
+   * {@link updateTargetSystem} — see `targetSystemCreatePendingId` in `./rotation-error`.
+   */
   abstract createTargetSystem(
     organizationId: OrganizationId,
     request: TargetSystemCreateRequest,
   ): Promise<TargetSystem>;
 
   /**
-   * Writes name, password policy and session-termination capability together, so a caller
-   * changing one still sends the others. The server answers with no content; re-read through
-   * {@link listTargetSystems} to render the result.
+   * Re-seals and replaces a target system's blob wholesale, so every sealed field has to be
+   * resupplied every time, not just the ones being edited — including `method` and (for an
+   * automatic target) `kind`, neither of which can actually change: the server rejects a
+   * different `method` than the row's own, and, once the existing blob is verified, a different
+   * `kind` than its own. Pass the target's current values back unchanged (read them from a prior
+   * {@link listTargetSystems}). This is also the only transition out of `pending_seal` — calling
+   * it with the same request that `createTargetSystem` used is how an operator finishes a target
+   * left incomplete by a failed create; there is no separate "finish setup" method. The server
+   * answers with no content; re-read through {@link listTargetSystems} to render the result.
    */
   abstract updateTargetSystem(
     organizationId: OrganizationId,
     id: TargetSystemId,
-    request: TargetSystemUpdateRequest,
+    request: TargetSystemCreateRequest,
   ): Promise<void>;
 
   abstract enableTargetSystem(organizationId: OrganizationId, id: TargetSystemId): Promise<void>;
@@ -115,13 +125,16 @@ export abstract class RotationSdkService {
   ): Promise<RotationConfigDetail>;
 
   /**
-   * Writes account identity and schedule together. The server locks the account identity while a
-   * job is in flight; check {@link RotationConfigActions.mutationsLocked} before offering the edit.
+   * Re-seals and replaces a config's blob wholesale, so `cipherId` and `targetSystemId` must be
+   * resupplied unchanged (read them from a prior {@link getConfig}) even though neither can
+   * actually change — the server rejects a request whose values disagree with the config's own.
+   * The server locks the account identity while a job is in flight; check
+   * {@link RotationConfigActions.mutationsLocked} before offering the edit.
    */
   abstract updateConfig(
     organizationId: OrganizationId,
     id: RotationConfigId,
-    request: RotationConfigUpdateRequest,
+    request: RotationConfigCreateRequest,
   ): Promise<RotationConfigDetail>;
 
   /** Pauses a config, so no new rotation jobs are dispatched. */

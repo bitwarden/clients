@@ -25,8 +25,11 @@ import {
   accessConnector,
   connectorId,
   ORGANIZATION_ID,
+  pendingTargetSystem,
   sysId,
   targetSystem,
+  targetSystemSealedFields,
+  unverifiableTargetSystem,
 } from "../testing/rotation-builders";
 
 import { TargetSystemRow, TargetSystemsTabComponent } from "./target-systems-tab.component";
@@ -39,7 +42,7 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
 };
 
 function makeSystem(overrides: Partial<TargetSystem> = {}): TargetSystem {
-  return targetSystem({ id: sysId("sys-1"), passwordPolicy: undefined, ...overrides });
+  return targetSystem({ id: sysId("sys-1"), ...overrides });
 }
 
 function vfo1ConfigService(enabled: boolean): ReturnType<typeof mock<ConfigService>> {
@@ -628,9 +631,9 @@ describe("TargetSystemsTabComponent", () => {
   });
 
   describe("session termination column", () => {
-    async function terminationCell(supportsSessionTermination: boolean): Promise<HTMLElement> {
+    async function terminationCell(system: Partial<TargetSystem>): Promise<HTMLElement> {
       TestBed.resetTestingModule();
-      targetSystemsService.systems$.next([makeSystem({ supportsSessionTermination })]);
+      targetSystemsService.systems$.next([makeSystem(system)]);
       await createComponent({ renderTemplate: true });
 
       return (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
@@ -639,15 +642,26 @@ describe("TargetSystemsTabComponent", () => {
     }
 
     it("badges a system that supports termination", async () => {
-      const cell = await terminationCell(true);
+      const cell = await terminationCell({
+        sealed: targetSystemSealedFields({ supportsSessionTermination: true }),
+      });
 
       expect(cell.textContent).toContain("pamTargetSystemSessionTerminationYes");
     });
 
     it("names the negative state rather than leaving the cell empty", async () => {
-      const cell = await terminationCell(false);
+      const cell = await terminationCell({
+        sealed: targetSystemSealedFields({ supportsSessionTermination: false }),
+      });
 
       expect(cell.textContent).toContain("pamTargetSystemSessionTerminationNo");
+    });
+
+    it("names the unknown state for a target with no verified sealed fields", async () => {
+      const cell = await terminationCell({ sealed: undefined });
+
+      expect(cell.textContent).toContain("pamTargetSystemSessionTerminationUnknown");
+      expect(cell.textContent).not.toContain("pamTargetSystemSessionTerminationNo");
     });
   });
 
@@ -684,6 +698,55 @@ describe("TargetSystemsTabComponent", () => {
       expect(rows.find((r) => r.id === sysId("sys-active-manual"))?.canAssignConnectors).toBe(
         false,
       );
+    });
+  });
+
+  describe("sealed-state row flags", () => {
+    function rowFor(id: TargetSystemId): TargetSystemRow | undefined {
+      return (
+        component as unknown as { dataSource: { data: TargetSystemRow[] } }
+      ).dataSource.data.find((r) => r.id === id);
+    }
+
+    it("flags a pending_seal row by status, not by integrityCheckFailed", () => {
+      const pendingId = sysId("sys-pending");
+      targetSystemsService.systems$.next([
+        pendingTargetSystem({ id: pendingId, name: "Staging Entra" }),
+      ]);
+      fixture.detectChanges();
+
+      const row = rowFor(pendingId);
+      expect(row?.status).toBe("pendingSeal");
+      expect(row?.statusLabelKey).toBe("pamTargetSystemStatusPendingSeal");
+      expect(row?.integrityCheckFailed).toBe(false);
+      expect(row?.activationBlockedKey).toBe("pamTargetSystemActivationBlockedPendingSeal");
+      expect(row?.kind).toBeNull();
+      expect(row?.sessionTermination).toBe("unknown");
+    });
+
+    it("flags an active-but-unverifiable row with integrityCheckFailed, not pendingSeal", () => {
+      const unverifiableId = sysId("sys-unverifiable");
+      targetSystemsService.systems$.next([
+        unverifiableTargetSystem({ id: unverifiableId, name: "Finance SQL" }),
+      ]);
+      fixture.detectChanges();
+
+      const row = rowFor(unverifiableId);
+      expect(row?.status).toBe("active");
+      expect(row?.integrityCheckFailed).toBe(true);
+      expect(row?.activationBlockedKey).toBeNull();
+      expect(row?.sessionTermination).toBe("unknown");
+    });
+
+    it("leaves a verified, active row with neither flag", () => {
+      const id = sysId("sys-verified");
+      targetSystemsService.systems$.next([makeSystem({ id, status: TargetSystemStatus.Active })]);
+      fixture.detectChanges();
+
+      const row = rowFor(id);
+      expect(row?.status).toBe("active");
+      expect(row?.integrityCheckFailed).toBe(false);
+      expect(row?.activationBlockedKey).toBeNull();
     });
   });
 
@@ -819,6 +882,101 @@ describe("TargetSystemsTabComponent", () => {
           )!
           .getAttribute("aria-disabled"),
       ).toBeNull();
+    });
+  });
+
+  describe("activate/deactivate availability for a pending_seal row", () => {
+    async function openRowMenu(system: TargetSystem): Promise<HTMLElement> {
+      TestBed.resetTestingModule();
+      targetSystemsService.systems$.next([system]);
+      await createComponent({ renderTemplate: true });
+
+      (fixture.nativeElement as HTMLElement)
+        .querySelector<HTMLButtonElement>('td button[bitIconButton="bwi-ellipsis-h"]')!
+        .click();
+      fixture.detectChanges();
+
+      return document.querySelector<HTMLElement>(".bit-menu-panel")!;
+    }
+
+    it("disables Activate, with a tooltip, and offers no Deactivate", async () => {
+      const menu = await openRowMenu(pendingTargetSystem({ id: sysId("sys-pending") }));
+
+      const activate = menu.querySelector<HTMLButtonElement>(
+        '[id^="target-systems-tab_button_activate-locked-"]',
+      )!;
+      expect(activate).not.toBeNull();
+      expect(activate.getAttribute("aria-disabled")).toBe("true");
+      expect(activate.getAttribute("aria-describedby")).toMatch(/^bit-tooltip-\d+$/);
+      expect(menu.querySelector('[id^="target-systems-tab_button_deactivate-"]')).toBeNull();
+      // Not the live, clickable Activate item.
+      expect(menu.querySelector('[id^="target-systems-tab_button_activate-"]')).toBe(activate);
+    });
+
+    it("opens no confirmation when the locked Activate item is clicked", async () => {
+      const menu = await openRowMenu(pendingTargetSystem({ id: sysId("sys-pending") }));
+
+      menu
+        .querySelector<HTMLButtonElement>('[id^="target-systems-tab_button_activate-locked-"]')!
+        .click();
+      await fixture.whenStable();
+
+      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+      expect(targetSystemsService.setEnabled).not.toHaveBeenCalled();
+    });
+
+    it("leaves Activate/Deactivate live for an active, verified row", async () => {
+      const menu = await openRowMenu(
+        makeSystem({ id: sysId("sys-active"), status: TargetSystemStatus.Active }),
+      );
+
+      expect(menu.querySelector('[id^="target-systems-tab_button_activate-locked-"]')).toBeNull();
+      const deactivate = menu.querySelector<HTMLButtonElement>(
+        '[id^="target-systems-tab_button_deactivate-"]',
+      )!;
+      expect(deactivate).not.toBeNull();
+      expect(deactivate.hasAttribute("aria-disabled")).toBe(false);
+    });
+  });
+
+  describe("integrity-check-failed indicator", () => {
+    // Scoped to the name cell: the "warning" variant `statusLabel` badge on a `pendingSeal` row
+    // renders its own warning-triangle icon as part of the component library's own styling, which
+    // would otherwise collide with a page-wide `.bwi-exclamation-triangle` query.
+    function nameCellIcon(): Element | null {
+      return (fixture.nativeElement as HTMLElement).querySelector(
+        "tbody tr td:first-child .bwi-exclamation-triangle",
+      );
+    }
+
+    it("marks an active-but-unverifiable row's name with a warning icon and tooltip", async () => {
+      TestBed.resetTestingModule();
+      targetSystemsService.systems$.next([
+        unverifiableTargetSystem({ id: sysId("sys-unverifiable"), name: "Finance SQL" }),
+      ]);
+      await createComponent({ renderTemplate: true });
+
+      const icon = nameCellIcon();
+      expect(icon).not.toBeNull();
+      expect(icon!.closest("td")?.textContent).toContain("Finance SQL");
+    });
+
+    it("does not mark a pending_seal row, which has its own status badge", async () => {
+      TestBed.resetTestingModule();
+      targetSystemsService.systems$.next([
+        pendingTargetSystem({ id: sysId("sys-pending"), name: "Staging Entra" }),
+      ]);
+      await createComponent({ renderTemplate: true });
+
+      expect(nameCellIcon()).toBeNull();
+    });
+
+    it("does not mark a verified row", async () => {
+      TestBed.resetTestingModule();
+      targetSystemsService.systems$.next([makeSystem({ id: sysId("sys-verified") })]);
+      await createComponent({ renderTemplate: true });
+
+      expect(nameCellIcon()).toBeNull();
     });
   });
 
@@ -1294,21 +1452,21 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
     id: sysId("1"),
     name: "Prod Entra",
     method: TargetSystemMethod.Automatic,
-    kind: TargetSystemKind.Entra,
+    sealed: targetSystemSealedFields({ kind: TargetSystemKind.Entra }),
     status: TargetSystemStatus.Active,
   });
   const scriptDisabled = makeSystem({
     id: sysId("2"),
     name: "Prod SQL reporting",
     method: TargetSystemMethod.Automatic,
-    kind: TargetSystemKind.CustomScript,
+    sealed: targetSystemSealedFields({ kind: TargetSystemKind.CustomScript }),
     status: TargetSystemStatus.Disabled,
   });
   const manualActive = makeSystem({
     id: sysId("3"),
     name: "Mainframe payroll",
     method: TargetSystemMethod.Manual,
-    kind: undefined,
+    sealed: undefined,
     status: TargetSystemStatus.Active,
   });
 
@@ -1406,7 +1564,7 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
         id: sysId("4"),
         name: "Newer server thing",
         method: TargetSystemMethod.Automatic,
-        kind: TargetSystemKind.Unknown,
+        sealed: targetSystemSealedFields({ kind: TargetSystemKind.Unknown }),
         status: TargetSystemStatus.Active,
       }),
     ]);
@@ -1423,7 +1581,7 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
         id: sysId("5"),
         name: "Newer server rotation",
         method: TargetSystemMethod.Unknown,
-        kind: TargetSystemKind.Entra,
+        sealed: targetSystemSealedFields({ kind: TargetSystemKind.Entra }),
         status: TargetSystemStatus.Active,
       }),
     ]);
@@ -1440,7 +1598,7 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
         id: sysId("6"),
         name: "Newer server status",
         method: TargetSystemMethod.Automatic,
-        kind: TargetSystemKind.Entra,
+        sealed: targetSystemSealedFields({ kind: TargetSystemKind.Entra }),
         status: TargetSystemStatus.Unknown,
       }),
     ]);
@@ -1502,22 +1660,24 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
     id: sysId("1"),
     name: "Prod Entra",
     method: TargetSystemMethod.Automatic,
-    kind: TargetSystemKind.Entra,
+    sealed: targetSystemSealedFields({ kind: TargetSystemKind.Entra }),
     status: TargetSystemStatus.Active,
   });
   const scriptDisabled = makeSystem({
     id: sysId("2"),
     name: "Billing script",
     method: TargetSystemMethod.Automatic,
-    kind: TargetSystemKind.CustomScript,
+    sealed: targetSystemSealedFields({
+      kind: TargetSystemKind.CustomScript,
+      supportsSessionTermination: false,
+    }),
     status: TargetSystemStatus.Disabled,
-    supportsSessionTermination: false,
   });
   const manualActive = makeSystem({
     id: sysId("3"),
     name: "Mainframe payroll",
     method: TargetSystemMethod.Manual,
-    kind: undefined,
+    sealed: undefined,
     status: TargetSystemStatus.Active,
   });
   const SYSTEMS = [entraActive, scriptDisabled, manualActive];
@@ -1861,21 +2021,21 @@ describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
     id: sysId("1"),
     name: "Prod Entra",
     method: TargetSystemMethod.Automatic,
-    kind: TargetSystemKind.Entra,
+    sealed: targetSystemSealedFields({ kind: TargetSystemKind.Entra }),
     status: TargetSystemStatus.Active,
   });
   const scriptDisabled = makeSystem({
     id: sysId("2"),
     name: "Billing script",
     method: TargetSystemMethod.Automatic,
-    kind: TargetSystemKind.CustomScript,
+    sealed: targetSystemSealedFields({ kind: TargetSystemKind.CustomScript }),
     status: TargetSystemStatus.Disabled,
   });
   const manualActive = makeSystem({
     id: sysId("3"),
     name: "Mainframe payroll",
     method: TargetSystemMethod.Manual,
-    kind: undefined,
+    sealed: undefined,
     status: TargetSystemStatus.Active,
   });
   const SYSTEMS = [entraActive, scriptDisabled, manualActive];

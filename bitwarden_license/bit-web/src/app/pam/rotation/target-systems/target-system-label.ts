@@ -42,14 +42,14 @@ export function targetSystemMethodLabelKey(method: TargetSystemMethod): string |
 /**
  * The i18n key for the detail that tells a target system from a same-named sibling of another kind
  * or method. Siblings sharing both still match, so key off {@link TargetSystemLabel.id} for
- * uniqueness.
+ * uniqueness. `kind` lives under `sealed` now; a target with no verified sealed fields (not yet
+ * sealed, or unverifiable) falls back to the method, same as a manual target always does.
  */
 export function targetSystemQualifierKey(
-  system: Pick<TargetSystem, "kind" | "method">,
+  system: Pick<TargetSystem, "method" | "sealed">,
 ): string | null {
-  return system.kind == null
-    ? targetSystemMethodLabelKey(system.method)
-    : targetSystemKindLabelKey(system.kind);
+  const kind = system.sealed?.kind;
+  return kind == null ? targetSystemMethodLabelKey(system.method) : targetSystemKindLabelKey(kind);
 }
 
 /** Falls back to the raw id while the system is unknown. */

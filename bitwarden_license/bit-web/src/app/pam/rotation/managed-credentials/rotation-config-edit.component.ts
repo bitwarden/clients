@@ -43,11 +43,11 @@ import {
   RotationConfigCreateRequest,
   RotationConfigDetail,
   RotationConfigId,
-  RotationConfigUpdateRequest,
   TargetSystemId,
   TargetSystemMethod,
   TargetSystemStatus,
 } from "../rotation";
+import { classifyRotationError } from "../rotation-error";
 import { ROTATION_TABS, rotationLink } from "../rotation-links";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
@@ -165,6 +165,16 @@ export class RotationConfigEditComponent {
   protected readonly existingConfig = signal<RotationConfigDetail | null>(null);
 
   private readonly config = computed(() => this.existingConfig()?.config ?? null);
+
+  /**
+   * `null` once `existingConfig` has loaded and its blob could not be verified — unlike a target
+   * system, a rotation config always carries a blob, so this always means "something is wrong
+   * with this row" rather than "not set up yet". The edit page banners this rather than silently
+   * showing blank or made-up account/termination values.
+   */
+  protected readonly configSealUnverified = computed(
+    () => this.config() != null && this.config()?.sealed == null,
+  );
 
   protected readonly titleText = computed(() =>
     this.i18nService.t(
@@ -298,24 +308,38 @@ export class RotationConfigEditComponent {
       scheduleCron: detail.config.scheduleCron,
       rotateOnAccessEnd: detail.config.rotateOnAccessEnd,
     });
+    const sealed = detail.config.sealed;
+    if (sealed == null) {
+      // Nothing trustworthy to prefill; the account form keeps its empty defaults, and the
+      // configSealUnverified banner tells the operator why, rather than showing blank or
+      // made-up values as if they were stored.
+      return;
+    }
     this.accountForm.patchValue({
-      accountIdentity: detail.config.accountIdentity,
-      terminateSessions: detail.config.terminateSessions,
+      accountIdentity: sealed.accountIdentity,
+      terminateSessions: sealed.terminateSessions,
     });
   }
 
-  /** The server rejects `terminateSessions` unless the target is automatic and supports it. */
+  /**
+   * Whether the selected target's session-termination capability could not be confirmed — an
+   * automatic target with no verified sealed fields (`pending_seal`, or unverifiable) — so the
+   * checkbox below is disabled for a different reason than "this target doesn't support it".
+   */
+  protected readonly terminateSessionsUnknown = signal(false);
+
+  /** The server rejects `terminateSessions` unless the target is automatic and confirms it. */
   private coupleTerminateSessions(): void {
     const targetControl = this.createForm.controls.targetSystemId;
     const terminateControl = this.createForm.controls.terminateSessions;
 
     targetControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((targetId) => {
       const target = this.activeTargetSystems().find((s) => String(s.id) === targetId);
-      const allowed =
-        target != null &&
-        target.method === TargetSystemMethod.Automatic &&
-        target.supportsSessionTermination === true;
+      const automatic = target != null && target.method === TargetSystemMethod.Automatic;
+      const unknown = automatic && target.sealed == null;
+      this.terminateSessionsUnknown.set(unknown);
 
+      const allowed = automatic && target.sealed?.supportsSessionTermination === true;
       if (!allowed) {
         terminateControl.setValue(false, { emitEvent: false });
         terminateControl.disable({ emitEvent: false });
@@ -352,8 +376,10 @@ export class RotationConfigEditComponent {
   };
 
   /**
-   * Sends the account with the schedule, since the server takes both in one write. The server
-   * rejects the write while a job is in flight.
+   * Sends the account with the schedule, since the server takes both in one write — replacing the
+   * blob wholesale, so `cipherId` and `targetSystemId` are resupplied exactly as loaded even
+   * though neither is editable here; the server rejects a request whose values disagree with the
+   * config's own. The server also rejects the write while a job is in flight.
    */
   protected readonly submitEdit = async (): Promise<void> => {
     this.settingsForm.markAllAsTouched();
@@ -361,9 +387,15 @@ export class RotationConfigEditComponent {
     if (this.settingsForm.invalid || this.accountForm.invalid) {
       return;
     }
+    const existing = this.config();
+    if (existing == null) {
+      return;
+    }
     const settings = this.settingsForm.getRawValue();
     const account = this.accountForm.getRawValue();
-    const request: RotationConfigUpdateRequest = {
+    const request: RotationConfigCreateRequest = {
+      cipherId: existing.cipherId,
+      targetSystemId: existing.targetSystemId,
       accountIdentity: account.accountIdentity,
       terminateSessions: account.terminateSessions,
       scheduleCron: settings.scheduleCron ?? undefined,
@@ -472,11 +504,21 @@ export class RotationConfigEditComponent {
   }
 
   private showError(e: unknown): void {
+    const outcome = classifyRotationError(e);
+    if (outcome.kind === "i18n") {
+      this.toastService.showToast({ variant: "error", message: this.i18nService.t(outcome.key) });
+      return;
+    }
     const message =
-      e instanceof ErrorResponse
-        ? (e.message ?? this.i18nService.t("unexpectedError"))
-        : this.i18nService.t("unexpectedError");
-    this.toastService.showToast({ variant: "error", message });
+      outcome.kind === "message"
+        ? outcome.message
+        : e instanceof ErrorResponse
+          ? e.message
+          : undefined;
+    this.toastService.showToast({
+      variant: "error",
+      message: message ?? this.i18nService.t("unexpectedError"),
+    });
   }
 }
 

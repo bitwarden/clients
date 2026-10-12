@@ -37,6 +37,7 @@ import {
   rotationJob,
   sysId,
   targetSystem,
+  targetSystemSealedFields,
 } from "../testing/rotation-builders";
 
 import {
@@ -94,7 +95,7 @@ function makeOtherSystem(): TargetSystem {
   return targetSystem({
     id: sysId("ts-2"),
     name: "Prod scripted host",
-    kind: TargetSystemKind.CustomScript,
+    sealed: targetSystemSealedFields({ kind: TargetSystemKind.CustomScript }),
   });
 }
 
@@ -103,7 +104,7 @@ function makeSameNamedSystem(): TargetSystem {
   return targetSystem({
     id: sysId("ts-2"),
     name: "Prod Entra",
-    kind: TargetSystemKind.CustomScript,
+    sealed: targetSystemSealedFields({ kind: TargetSystemKind.CustomScript }),
   });
 }
 

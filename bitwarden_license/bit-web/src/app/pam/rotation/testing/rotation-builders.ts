@@ -12,13 +12,15 @@ import type {
   RotationConfigActions,
   RotationConfigDetail,
   RotationConfigId,
+  RotationConfigSealedFields,
   RotationConfig,
   RotationJobId,
   RotationJob,
   TargetSystemId,
+  TargetSystemSealedFields,
   TargetSystem,
 } from "../rotation";
-import { AccessConnectorStatus } from "../rotation";
+import { AccessConnectorStatus, TargetSystemStatus } from "../rotation";
 import type { RotationConfigDescription } from "../rotation-sdk.service";
 
 /**
@@ -60,21 +62,52 @@ export function passwordPolicy(overrides: Partial<PasswordPolicy> = {}): Passwor
   };
 }
 
-/** An active, automatic Entra target, the shape most tests want. */
+/** Defaults to a confirmed Entra integration with a strong policy and session termination. */
+export function targetSystemSealedFields(
+  overrides: Partial<TargetSystemSealedFields> = {},
+): TargetSystemSealedFields {
+  return {
+    kind: "entra",
+    passwordPolicy: passwordPolicy(),
+    supportsSessionTermination: true,
+    ...overrides,
+  };
+}
+
+/** An active, automatic Entra target with verified sealed fields, the shape most tests want. */
 export function targetSystem(overrides: Partial<TargetSystem> = {}): TargetSystem {
   return {
     id: TARGET_SYSTEM_ID,
     organizationId: ORGANIZATION_ID,
     name: "Prod Entra",
     method: "automatic",
-    kind: "entra",
     status: "active",
-    passwordPolicy: passwordPolicy(),
-    supportsSessionTermination: true,
+    sealed: targetSystemSealedFields(),
     creationDate: TIMESTAMP,
     revisionDate: TIMESTAMP,
     ...overrides,
   } as TargetSystem;
+}
+
+/**
+ * A target {@link TargetSystemsClient.create} registered but never finished sealing: no
+ * trustworthy sealed fields, and the `pending_seal` status that says why. An operator finishes it
+ * by re-saving the edit form.
+ */
+export function pendingTargetSystem(overrides: Partial<TargetSystem> = {}): TargetSystem {
+  return targetSystem({
+    status: TargetSystemStatus.PendingSeal,
+    sealed: undefined,
+    ...overrides,
+  });
+}
+
+/**
+ * The rarer counterpart to {@link pendingTargetSystem}: a target whose blob exists but failed to
+ * verify, distinguished from it only by `status` not being `pending_seal`.
+ */
+export function unverifiableTargetSystem(overrides: Partial<TargetSystem> = {}): TargetSystem {
+  return targetSystem({ sealed: undefined, ...overrides });
 }
 
 /** An enabled, connected connector with no assignments. */
@@ -99,7 +132,18 @@ export function accessConnectorDetail(
   return { connector: accessConnector(), jobs: [], ...overrides };
 }
 
-/** An enabled, idle, automatic config, the one shape that offers a rotation. */
+/** Defaults to a non-terminating account, the shape most tests want. */
+export function rotationConfigSealedFields(
+  overrides: Partial<RotationConfigSealedFields> = {},
+): RotationConfigSealedFields {
+  return {
+    accountIdentity: "svc_rotation",
+    terminateSessions: false,
+    ...overrides,
+  };
+}
+
+/** An enabled, idle, automatic config with verified sealed fields, the one shape that rotates. */
 export function rotationConfig(overrides: Partial<RotationConfig> = {}): RotationConfig {
   return {
     id: ROTATION_CONFIG_ID,
@@ -108,8 +152,7 @@ export function rotationConfig(overrides: Partial<RotationConfig> = {}): Rotatio
     targetSystemId: TARGET_SYSTEM_ID,
     targetSystemName: "Prod Entra",
     targetSystemMethod: "automatic",
-    accountIdentity: "svc_rotation",
-    terminateSessions: false,
+    sealed: rotationConfigSealedFields(),
     scheduleCron: undefined,
     rotateOnAccessEnd: false,
     enabled: true,
@@ -121,6 +164,16 @@ export function rotationConfig(overrides: Partial<RotationConfig> = {}): Rotatio
     revisionDate: TIMESTAMP,
     ...overrides,
   } as RotationConfig;
+}
+
+/**
+ * A config whose blob exists but failed to verify. Unlike a target system, a rotation config has
+ * no "not set up yet" state, so this always means "something is wrong with this row".
+ */
+export function unverifiableRotationConfig(
+  overrides: Partial<RotationConfig> = {},
+): RotationConfig {
+  return rotationConfig({ sealed: undefined, ...overrides });
 }
 
 export function rotationConfigDetail(

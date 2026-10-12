@@ -17,29 +17,45 @@ import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests"
 
 import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
 import { AccessConnector, TargetSystem } from "../rotation";
-import { ORGANIZATION_ID, sysId, targetSystem } from "../testing/rotation-builders";
+import {
+  ORGANIZATION_ID,
+  pendingTargetSystem,
+  sysId,
+  targetSystem,
+  targetSystemSealedFields,
+  unverifiableTargetSystem,
+} from "../testing/rotation-builders";
 import { atUrl } from "../testing/story-helpers";
 
 import { TargetSystemsTabComponent } from "./target-systems-tab.component";
 import { TargetSystemsService } from "./target-systems.service";
 
-/** Every method, kind and status the chips can offer. */
+/** Every method, kind, status and seal state the chips and columns can offer. */
 const SYSTEMS: TargetSystem[] = [
-  targetSystem({ id: sysId("1"), name: "Prod Entra", kind: "entra" }),
-  targetSystem({ id: sysId("3"), name: "Billing rotation script", kind: "custom_script" }),
+  targetSystem({
+    id: sysId("1"),
+    name: "Prod Entra",
+    sealed: targetSystemSealedFields({ kind: "entra" }),
+  }),
+  targetSystem({
+    id: sysId("3"),
+    name: "Billing rotation script",
+    sealed: targetSystemSealedFields({ kind: "custom_script" }),
+  }),
   targetSystem({
     id: sysId("4"),
     name: "Retired Entra sandbox",
-    kind: "entra",
+    sealed: targetSystemSealedFields({ kind: "entra" }),
     status: "disabled",
   }),
   targetSystem({
     id: sysId("5"),
     name: "Legacy mainframe",
     method: "manual",
-    kind: undefined,
-    supportsSessionTermination: false,
+    sealed: undefined,
   }),
+  pendingTargetSystem({ id: sysId("6"), name: "Staging Entra (setup incomplete)" }),
+  unverifiableTargetSystem({ id: sysId("7"), name: "Finance SQL (integrity check failed)" }),
 ];
 
 function rotationServices(systems: TargetSystem[]) {

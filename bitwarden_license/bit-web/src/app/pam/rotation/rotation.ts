@@ -25,13 +25,15 @@ export type {
   RotationConfigCreateRequest,
   RotationConfigDetail,
   RotationConfigId,
-  RotationConfigUpdateRequest,
+  RotationConfigSealedFields,
+  RotationError,
   RotationJob,
   RotationJobId,
   TargetSystem,
+  TargetSystemCreateError,
   TargetSystemCreateRequest,
   TargetSystemId,
-  TargetSystemUpdateRequest,
+  TargetSystemSealedFields,
 } from "@bitwarden/sdk-internal";
 
 /**
@@ -54,10 +56,16 @@ export const TargetSystemKind = Object.freeze({
 } as const satisfies Record<string, SdkTargetSystemKind>);
 export type TargetSystemKind = SdkTargetSystemKind;
 
-/** `Disabled` stops new jobs; in-flight jobs finish. */
+/**
+ * `Disabled` stops new jobs; in-flight jobs finish. `PendingSeal` is a target whose creation
+ * registered but whose sealing phase never completed — it has no trustworthy `sealed` fields and
+ * does not dispatch jobs; an operator finishes it by re-saving the edit form, which calls
+ * `update` and moves it to `Active`.
+ */
 export const TargetSystemStatus = Object.freeze({
   Active: "active",
   Disabled: "disabled",
+  PendingSeal: "pending_seal",
   Unknown: "unknown",
 } as const satisfies Record<string, SdkTargetSystemStatus>);
 export type TargetSystemStatus = SdkTargetSystemStatus;

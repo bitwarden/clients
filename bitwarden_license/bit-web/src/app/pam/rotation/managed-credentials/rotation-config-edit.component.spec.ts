@@ -32,7 +32,9 @@ import {
   sysId,
   rotationConfig,
   rotationConfigDetail,
+  rotationConfigSealedFields,
   targetSystem,
+  unverifiableRotationConfig,
 } from "../testing/rotation-builders";
 
 import {
@@ -65,7 +67,7 @@ function loadedConfig(overrides: Partial<RotationConfig> = {}): RotationConfigDe
   return rotationConfigDetail({
     config: rotationConfig({
       id: configId("cfg-1"),
-      accountIdentity: "admin@example.com",
+      sealed: rotationConfigSealedFields({ accountIdentity: "admin@example.com" }),
       scheduleCron: DAILY_CRON,
       ...overrides,
     }),
@@ -322,9 +324,8 @@ describe("RotationConfigEditComponent — CREATE mode", () => {
     const manual = targetSystem({
       id: sysId("sys-manual"),
       method: "manual",
-      kind: undefined,
-      supportsSessionTermination: false,
-    } as Partial<TargetSystem>);
+      sealed: undefined,
+    });
     const { component, rotationSdk, fixture } = setup({ targetSystems: [targetSystem(), manual] });
     await fixture.whenStable();
 
@@ -350,9 +351,8 @@ describe("RotationConfigEditComponent — CREATE mode", () => {
     const manual = targetSystem({
       id: sysId("sys-manual"),
       method: "manual",
-      kind: undefined,
-      supportsSessionTermination: false,
-    } as Partial<TargetSystem>);
+      sealed: undefined,
+    });
     const { component, fixture } = setup({ targetSystems: [targetSystem(), manual] });
     await fixture.whenStable();
 
@@ -360,6 +360,23 @@ describe("RotationConfigEditComponent — CREATE mode", () => {
     component.createForm.controls.targetSystemId.setValue(TARGET_SYSTEM_ID);
 
     expect(component.createForm.controls.terminateSessions.disabled).toBe(false);
+  });
+
+  it("disables termination with an 'unknown' hint for an active target with no verified sealed fields", async () => {
+    // Only an active target reaches the create picker at all, so this is the one shape "no
+    // trustworthy sealed fields" can take here — a `pending_seal` target never appears in it.
+    const unverifiable = targetSystem({
+      id: sysId("sys-unverifiable"),
+      method: "automatic",
+      sealed: undefined,
+    });
+    const { component, fixture } = setup({ targetSystems: [unverifiable] });
+    await fixture.whenStable();
+
+    component.createForm.controls.targetSystemId.setValue(String(unverifiable.id));
+
+    expect(component.createForm.controls.terminateSessions.disabled).toBe(true);
+    expect(component.terminateSessionsUnknown()).toBe(true);
   });
 });
 
@@ -532,6 +549,29 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
     );
   });
 
+  /**
+   * `updateConfig` replaces the blob wholesale, so the immutable `cipherId`/`targetSystemId` must
+   * be resupplied exactly as loaded — neither is editable on this page, so there is no form
+   * control to source them from.
+   */
+  it("resends the loaded config's cipherId and targetSystemId, unedited", async () => {
+    const existingConfig = loadedConfig({ cipherId: CIPHER_ID, targetSystemId: TARGET_SYSTEM_ID });
+    const { component, fixture, rotationSdk } = setup({
+      configId: configId("cfg-1"),
+      existingConfig,
+    });
+    await fixture.whenStable();
+    component.accountForm.controls.accountIdentity.setValue("svc_rotation");
+
+    await component.submitEdit();
+
+    expect(rotationSdk.updateConfig).toHaveBeenCalledWith(
+      ORG_ID,
+      configId("cfg-1"),
+      expect.objectContaining({ cipherId: CIPHER_ID, targetSystemId: TARGET_SYSTEM_ID }),
+    );
+  });
+
   /** Every field on the Configuration tab is part of `editForm`. */
   it("holds a changed schedule and account back until Save", async () => {
     const { component, fixture, rotationSdk } = setup({ configId: configId("cfg-1") });
@@ -567,6 +607,42 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
     const { component, fixture } = setup({ configId: configId("cfg-1"), existingConfig });
     await fixture.whenStable();
     expect(component.accountFormLocked()).toBe(true);
+  });
+
+  describe("an unverifiable config", () => {
+    /** A rotation config always carries a blob, so a missing `sealed` always means "invalid". */
+    function unverifiable(): RotationConfigDetail {
+      return rotationConfigDetail({
+        config: unverifiableRotationConfig({ id: configId("cfg-1") }),
+      });
+    }
+
+    it("flags configSealUnverified and leaves the account form at its defaults", async () => {
+      const { component, fixture } = setup({
+        configId: configId("cfg-1"),
+        existingConfig: unverifiable(),
+      });
+      await fixture.whenStable();
+
+      expect(component.configSealUnverified()).toBe(true);
+      expect(component.accountForm.controls.accountIdentity.value).toBe("");
+      expect(component.accountForm.controls.terminateSessions.value).toBe(false);
+    });
+
+    it("banners the integrity-check-failed content in the rendered page", async () => {
+      const fixture = await renderPage({ existingConfig: unverifiable() });
+
+      expect(fixture.nativeElement.textContent).toContain(
+        "pamRotationConfigIntegrityCheckFailedContent",
+      );
+    });
+
+    it("does not flag a verified config", async () => {
+      const { component, fixture } = setup({ configId: configId("cfg-1") });
+      await fixture.whenStable();
+
+      expect(component.configSealUnverified()).toBe(false);
+    });
   });
 
   describe("load error state", () => {

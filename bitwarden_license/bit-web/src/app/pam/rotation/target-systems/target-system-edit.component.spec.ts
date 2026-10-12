@@ -32,6 +32,7 @@ import {
   rotationConfig,
   sysId,
   targetSystem,
+  targetSystemSealedFields,
 } from "../testing/rotation-builders";
 
 import {
@@ -259,7 +260,7 @@ describe("TargetSystemEditComponent — create mode", () => {
 
   it("calls createTargetSystem with Manual method", async () => {
     rotationSdk.createTargetSystem.mockResolvedValue(
-      makeSystem({ method: TargetSystemMethod.Manual, kind: undefined }),
+      makeSystem({ method: TargetSystemMethod.Manual, sealed: undefined }),
     );
     jest.spyOn(router, "navigate").mockResolvedValue(true);
 
@@ -305,6 +306,82 @@ describe("TargetSystemEditComponent — create mode", () => {
 
     expect(policyForm.errors).toBeNull();
     expect(policyForm.valid).toBe(true);
+  });
+
+  /**
+   * Mirrors `bitwarden_pam_sealed::MIN_PASSWORD_ENTROPY_BITS` (80 bits): a short, digits-only
+   * policy's generated password would fall below it (20 × log2(10) ≈ 66.4 bits).
+   */
+  it("marks the policy invalid when it falls below the shared strength floor", () => {
+    const policyForm = policyFormOf(fixture);
+    policyForm.patchValue({
+      minLength: 5,
+      maxLength: 20,
+      includeUppercase: false,
+      includeLowercase: false,
+      includeDigits: true,
+      includeSymbols: false,
+    });
+
+    expect(policyForm.invalid).toBe(true);
+    expect(policyForm.errors?.["belowStrengthFloor"]).toBe(true);
+  });
+
+  /** The default policy (14-64, every class) is comfortably above the floor. */
+  it("does not flag the default policy as too weak", () => {
+    const policyForm = policyFormOf(fixture);
+
+    expect(policyForm.errors?.["belowStrengthFloor"]).toBeFalsy();
+  });
+
+  it("clears the strength-floor error once the length is raised enough", () => {
+    const policyForm = policyFormOf(fixture);
+    policyForm.patchValue({
+      minLength: 5,
+      maxLength: 20,
+      includeUppercase: false,
+      includeLowercase: false,
+      includeDigits: true,
+      includeSymbols: false,
+    });
+    expect(policyForm.errors?.["belowStrengthFloor"]).toBe(true);
+
+    policyForm.patchValue({ maxLength: 128 });
+
+    expect(policyForm.errors?.["belowStrengthFloor"]).toBeFalsy();
+  });
+
+  it("rejects a length bound outside the generator's 5-128 range", () => {
+    const policyForm = policyFormOf(fixture);
+    policyForm.controls.maxLength.setValue(200);
+
+    expect(policyForm.controls.maxLength.errors?.["max"]).toBeDefined();
+  });
+
+  it("does not create a target system when the policy is below the strength floor", async () => {
+    rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
+    jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    const comp = fixture.componentInstance as unknown as {
+      createForm: { patchValue: (v: unknown) => void };
+      submitCreate: () => Promise<void>;
+    };
+    comp.createForm.patchValue({
+      name: "Weak policy",
+      method: TargetSystemMethod.Automatic,
+      kind: TargetSystemKind.Entra,
+    });
+    policyFormOf(fixture).patchValue({
+      minLength: 5,
+      maxLength: 20,
+      includeUppercase: false,
+      includeLowercase: false,
+      includeDigits: true,
+      includeSymbols: false,
+    });
+    await comp.submitCreate();
+
+    expect(rotationSdk.createTargetSystem).not.toHaveBeenCalled();
   });
 
   it("does not create a target system when every character class is cleared", async () => {
@@ -411,6 +488,73 @@ describe("TargetSystemEditComponent — create mode", () => {
       [".."],
       expect.objectContaining({ relativeTo: expect.anything() }),
     );
+  });
+
+  /**
+   * `TargetSystemsClient.create`'s two-phase registration can fail after the server already
+   * created the row (left in `pending_seal`). The thrown `TargetSystemCreateError` carries that
+   * id, not an `Error` subclass — so this routes to the pending target's edit page (re-saving
+   * finishes sealing) instead of leaving the operator on a create form that cannot retry.
+   */
+  it("routes to the pending target's edit page on a partial create failure", async () => {
+    TestBed.resetTestingModule();
+    const { component, rotationSdk, router } = await setupCreateWithQueryParams({});
+    const pendingId = sysId("sys-pending");
+    rotationSdk.createTargetSystem.mockRejectedValue({
+      id: pendingId,
+      message: "Sealing failed",
+    });
+    const nav = jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    component.createForm.patchValue({
+      name: "Prod Entra",
+      method: TargetSystemMethod.Automatic,
+      kind: TargetSystemKind.Entra,
+    });
+    await component.submitCreate();
+
+    expect(nav).toHaveBeenCalledWith(
+      ["target-systems", pendingId],
+      expect.objectContaining({ relativeTo: ROUTE_PARENT }),
+    );
+  });
+
+  it("shows a distinct toast for a partial create failure, not the generic error", async () => {
+    TestBed.resetTestingModule();
+    const { component, rotationSdk, router } = await setupCreateWithQueryParams({});
+    rotationSdk.createTargetSystem.mockRejectedValue({ id: sysId("sys-pending"), message: "boom" });
+    jest.spyOn(router, "navigate").mockResolvedValue(true);
+    const toast = TestBed.inject(ToastService);
+
+    component.createForm.patchValue({
+      name: "Prod Entra",
+      method: TargetSystemMethod.Automatic,
+      kind: TargetSystemKind.Entra,
+    });
+    await component.submitCreate();
+
+    expect(toast.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variant: "warning",
+        message: "pamTargetSystemCreatePartialFailure",
+      }),
+    );
+  });
+
+  it("does not route anywhere for an ordinary create failure", async () => {
+    TestBed.resetTestingModule();
+    const { component, rotationSdk, router } = await setupCreateWithQueryParams({});
+    rotationSdk.createTargetSystem.mockRejectedValue(new Error("network fail"));
+    const nav = jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    component.createForm.patchValue({
+      name: "Prod Entra",
+      method: TargetSystemMethod.Automatic,
+      kind: TargetSystemKind.Entra,
+    });
+    await component.submitCreate();
+
+    expect(nav).not.toHaveBeenCalled();
   });
 
   it("forces supportsSessionTermination=true for a native integration", async () => {
@@ -741,6 +885,28 @@ describe("TargetSystemEditComponent — edit mode", () => {
     );
   });
 
+  /**
+   * `updateTargetSystem` replaces the blob wholesale, so the immutable `method` and (for an
+   * automatic target) `kind` must be resupplied exactly as stored — read off `existing.sealed`,
+   * not a form control, since the edit page shows them read-only.
+   */
+  it("resends the stored method and kind, unedited, for an automatic target", async () => {
+    rotationSdk.updateTargetSystem.mockResolvedValue(undefined);
+
+    const comp = fixture.componentInstance as unknown as {
+      nameForm: { patchValue: (v: unknown) => void };
+      submitEdit: () => Promise<void>;
+    };
+    comp.nameForm.patchValue({ name: "Renamed" });
+    await comp.submitEdit();
+
+    expect(rotationSdk.updateTargetSystem).toHaveBeenCalledWith(
+      ORG_ID,
+      sysId("sys-1"),
+      expect.objectContaining({ method: "automatic", kind: TargetSystemKind.Entra }),
+    );
+  });
+
   it("does not save when every character class is cleared", async () => {
     rotationSdk.updateTargetSystem.mockResolvedValue(undefined);
 
@@ -783,8 +949,7 @@ describe("TargetSystemEditComponent — edit mode", () => {
     const rotationApiManual = mock<RotationSdkService>();
     const manual = makeSystem({
       method: TargetSystemMethod.Manual,
-      kind: undefined,
-      supportsSessionTermination: undefined,
+      sealed: undefined,
     });
     rotationApiManual.listTargetSystems.mockResolvedValue([manual]);
     rotationApiManual.updateTargetSystem.mockResolvedValue(undefined);
@@ -813,14 +978,19 @@ describe("TargetSystemEditComponent — edit mode", () => {
 
     await (fx.componentInstance as unknown as { submitEdit: () => Promise<void> }).submitEdit();
 
+    // A manual target's update request has no `supportsSessionTermination` at all — the create
+    // request's manual arm carries neither it nor `kind`.
     expect(rotationApiManual.updateTargetSystem).toHaveBeenCalledWith(
       ORG_ID,
       sysId("sys-1"),
       expect.objectContaining({
+        method: "manual",
         passwordPolicy: expect.any(Object),
-        supportsSessionTermination: false,
       }),
     );
+    const [, , request] = rotationApiManual.updateTargetSystem.mock.calls[0];
+    expect(request).not.toHaveProperty("supportsSessionTermination");
+    expect(request).not.toHaveProperty("kind");
   });
 
   it("navigates back when not found", async () => {
@@ -1251,7 +1421,7 @@ describe("TargetSystemEditComponent — assigned access connectors", () => {
     await setup([], { status: TargetSystemStatus.Disabled });
     expect(component.canAssignConnectors()).toBe(true);
 
-    await setup([], { method: TargetSystemMethod.Manual, kind: undefined });
+    await setup([], { method: TargetSystemMethod.Manual, sealed: undefined });
     expect(component.canAssignConnectors()).toBe(false);
 
     await setup([]);
@@ -1702,7 +1872,7 @@ describe("TargetSystemEditComponent — assigned access connectors", () => {
     });
 
     it("hides the picker for a manual target, which never claims a connector", async () => {
-      await setup([], { method: TargetSystemMethod.Manual, kind: undefined }, true);
+      await setup([], { method: TargetSystemMethod.Manual, sealed: undefined }, true);
 
       expect(el().querySelector("pam-assignment-picker")).toBeNull();
       expect(el().textContent).not.toContain("pamTargetSystemConnectorAssignments");
@@ -1848,14 +2018,14 @@ describe("TargetSystemEditComponent — outstanding setup hint", () => {
   });
 
   it("never names the connector step for a manual target, which has no connector to assign", async () => {
-    await setup({ system: { method: TargetSystemMethod.Manual, kind: undefined } });
+    await setup({ system: { method: TargetSystemMethod.Manual, sealed: undefined } });
 
     expect(component.outstandingSetupSteps()).toEqual([CREDENTIAL_STEP]);
   });
 
   it("names nothing for a manual target that already has its credential", async () => {
     await setup({
-      system: { method: TargetSystemMethod.Manual, kind: undefined },
+      system: { method: TargetSystemMethod.Manual, sealed: undefined },
       configs: [credentialHere()],
     });
 
@@ -1980,6 +2150,114 @@ describe("TargetSystemEditComponent — outstanding setup hint", () => {
       const save = el().querySelector("#target-system-edit_button_save") as HTMLButtonElement;
       expect(save).toBeTruthy();
       expect(save.disabled).toBe(false);
+    });
+  });
+});
+
+describe("TargetSystemEditComponent — seal status", () => {
+  const SYSTEM_ID = sysId("sys-1");
+
+  let fixture: ComponentFixture<TargetSystemEditComponent>;
+  let component: {
+    sealIssue: () => "ok" | "pending" | "invalid";
+    showEditKindPicker: () => boolean;
+    editKindControl: { value: TargetSystemKind; setValue: (v: TargetSystemKind) => void };
+  };
+  let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
+
+  async function render(system: Partial<TargetSystem>): Promise<void> {
+    TestBed.resetTestingModule();
+    rotationSdk = mock<RotationSdkService>();
+    rotationSdk.listTargetSystems.mockResolvedValue([makeSystem({ id: SYSTEM_ID, ...system })]);
+    rotationSdk.listConnectors.mockResolvedValue([]);
+    rotationSdk.listConfigs.mockResolvedValue([]);
+    await TestBed.configureTestingModule({
+      imports: [TargetSystemEditComponent, NoopAnimationsModule],
+      providers: [
+        provideRouter([]),
+        { provide: RotationSdkService, useValue: rotationSdk },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { params: { organizationId: ORG_ID, targetSystemId: SYSTEM_ID } } },
+        },
+      ],
+    }).compileComponents();
+    fixture = TestBed.createComponent(TargetSystemEditComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    component = fixture.componentInstance as unknown as typeof component;
+  }
+
+  function el(): HTMLElement {
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  it("reports ok and shows no callout for a verified target", async () => {
+    await render({});
+
+    expect(component.sealIssue()).toBe("ok");
+    expect(el().querySelector("#target-system-edit_callout_seal-issue")).toBeNull();
+  });
+
+  it("reports pending and banners setup-incomplete copy for a pending_seal target", async () => {
+    await render({ status: TargetSystemStatus.PendingSeal, sealed: undefined });
+
+    expect(component.sealIssue()).toBe("pending");
+    const callout = el().querySelector("#target-system-edit_callout_seal-issue");
+    expect(callout).not.toBeNull();
+    expect(callout!.textContent).toContain("pamTargetSystemSetupIncompleteContent");
+  });
+
+  it("reports invalid and banners integrity-check-failed copy for an active-but-unverifiable target", async () => {
+    await render({ status: TargetSystemStatus.Active, sealed: undefined });
+
+    expect(component.sealIssue()).toBe("invalid");
+    const callout = el().querySelector("#target-system-edit_callout_seal-issue");
+    expect(callout).not.toBeNull();
+    expect(callout!.textContent).toContain("pamTargetSystemIntegrityCheckFailedContent");
+  });
+
+  describe("the kind picker", () => {
+    it("is shown, defaulting to Entra, when there is no sealed kind to resend", async () => {
+      await render({ status: TargetSystemStatus.PendingSeal, sealed: undefined });
+
+      expect(component.showEditKindPicker()).toBe(true);
+      expect(component.editKindControl.value).toBe(TargetSystemKind.Entra);
+      expect(el().querySelector("#target-system-edit_select_kind")).not.toBeNull();
+    });
+
+    it("is hidden in favor of the read-only label when the sealed kind is known", async () => {
+      await render({});
+
+      expect(component.showEditKindPicker()).toBe(false);
+      expect(el().querySelector("#target-system-edit_select_kind")).toBeNull();
+    });
+
+    it("is hidden for a manual target, which has no kind to pick", async () => {
+      await render({ method: TargetSystemMethod.Manual, sealed: undefined });
+
+      expect(component.showEditKindPicker()).toBe(false);
+    });
+
+    it("sends the picked kind on save, since there is no sealed value to resend", async () => {
+      await render({ status: TargetSystemStatus.PendingSeal, sealed: undefined });
+      rotationSdk.updateTargetSystem.mockResolvedValue(undefined);
+      component.editKindControl.setValue(TargetSystemKind.CustomScript);
+
+      await (
+        fixture.componentInstance as unknown as { submitEdit: () => Promise<void> }
+      ).submitEdit();
+
+      expect(rotationSdk.updateTargetSystem).toHaveBeenCalledWith(
+        ORG_ID,
+        SYSTEM_ID,
+        expect.objectContaining({ method: "automatic", kind: TargetSystemKind.CustomScript }),
+      );
     });
   });
 });
@@ -2303,15 +2581,17 @@ describe("TargetSystemEditComponent — session termination withdrawal (rendered
 
   const el = () => fixture.nativeElement as HTMLElement;
 
-  async function render(system: Partial<TargetSystem> = {}) {
+  async function render(overrides: Partial<TargetSystem> = {}) {
     TestBed.resetTestingModule();
     const rotationSdk = mock<RotationSdkService>();
     rotationSdk.listTargetSystems.mockResolvedValue([
       makeSystem({
         id: SYSTEM_ID,
-        kind: TargetSystemKind.CustomScript,
-        supportsSessionTermination: true,
-        ...system,
+        sealed: targetSystemSealedFields({
+          kind: TargetSystemKind.CustomScript,
+          supportsSessionTermination: true,
+        }),
+        ...overrides,
       }),
     ]);
     rotationSdk.listConnectors.mockResolvedValue([]);
@@ -2374,7 +2654,14 @@ describe("TargetSystemEditComponent — session termination withdrawal (rendered
   });
 
   it("says nothing for a target that never supported termination", async () => {
-    await render({ supportsSessionTermination: false });
+    // `sealed` replaces the whole object, so `kind` (CustomScript — the non-native integration
+    // that shows this checkbox at all) must be resupplied, not just `supportsSessionTermination`.
+    await render({
+      sealed: targetSystemSealedFields({
+        kind: TargetSystemKind.CustomScript,
+        supportsSessionTermination: false,
+      }),
+    });
 
     terminationCheckbox().click();
     fixture.detectChanges();
@@ -2384,13 +2671,23 @@ describe("TargetSystemEditComponent — session termination withdrawal (rendered
 
   describe("naming the integration", () => {
     it("names a kind it can model", async () => {
-      await render({ kind: TargetSystemKind.Entra, supportsSessionTermination: false });
+      await render({
+        sealed: targetSystemSealedFields({
+          kind: TargetSystemKind.Entra,
+          supportsSessionTermination: false,
+        }),
+      });
 
       expect(el().textContent).toContain("pamTargetSystemTypeEntra");
     });
 
     it("leaves a kind it cannot model unnamed", async () => {
-      await render({ kind: TargetSystemKind.Unknown, supportsSessionTermination: false });
+      await render({
+        sealed: targetSystemSealedFields({
+          kind: TargetSystemKind.Unknown,
+          supportsSessionTermination: false,
+        }),
+      });
 
       expect(el().textContent).toContain("pamTargetSystemMethodAutomatic");
       expect(el().textContent).not.toContain("pamTargetSystemTypeCustomScript");
