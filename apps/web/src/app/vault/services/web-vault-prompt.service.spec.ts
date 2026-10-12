@@ -52,7 +52,7 @@ describe("WebVaultPromptService", () => {
   const conditionallyShowWelcomeDialog = jest.fn().mockResolvedValue(false);
   const logError = jest.fn();
   const conditionallyPromptUserForExtension = jest.fn().mockResolvedValue(false);
-  const conditionallyOpenNewExperience = jest.fn().mockResolvedValue(false);
+  const conditionallyOpenNewExperience = jest.fn().mockResolvedValue(null);
   const tourRunning = signal(false);
 
   let serverSettings$: BehaviorSubject<ServerSettings | null>;
