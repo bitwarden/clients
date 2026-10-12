@@ -145,10 +145,10 @@
               row.cipher.name
             }}</span>
             <div class="tw-flex tw-items-center tw-gap-1.5 tw-shrink-0">
-              @if (row.cipher.organizationId) {
+              @if (row.cipher.organization; as organization) {
                 <i
                   appOrgIcon
-                  [tierType]="row.cipher.organization!.productTierType"
+                  [tierType]="organization.productTierType"
                   [size]="'small'"
                   [appA11yTitle]="orgIconTooltip(row.cipher)"
                 ></i>
