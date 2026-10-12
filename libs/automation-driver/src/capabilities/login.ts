@@ -33,8 +33,7 @@ export interface LoginResult {
  * form, it does not check an organization invite's master password policy.
  *
  * Repeats `LoginComponent`'s result handling, because login has no stream like
- * `UnlockService.unlocked$` for the form to continue from. Consider adding one, so the form and
- * this capability share a single path.
+ * `UnlockService.unlocked$` for the form to continue from.
  */
 export class LoginCapability extends AutomationCapability {
   readonly automationName = "login";
