@@ -157,6 +157,7 @@ export * from "./components/coachmark";
 export { Vfo1TerminologyService } from "./services/vfo1-terminology.service";
 export { Vfo1I18nPipe } from "./pipes/vfo1-i18n.pipe";
 export { Vfo1IconPipe } from "./pipes/vfo1-icon.pipe";
+export { folderScopeGuard } from "./routing/folder-scope.guard";
 export { organizationVaultGuard } from "./routing/organization-vault.guard";
 export { MY_ITEMS_ROUTE_DATA, scopedCollectionSegment } from "./routing/scoped-collection";
 export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-redirect.guard";
