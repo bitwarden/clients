@@ -26,7 +26,6 @@ import {
   BitCellLoadingDirective,
   BitColumnComponent,
   BitHeaderCellComponent,
-  BitTablePaginatorComponent,
   BitTableToolbarComponent,
   BitTableV2Component,
   BulkActionComponent,
@@ -47,7 +46,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { buildFolderRows, FolderTableRow } from "../../models/folder-table-row";
 import { folderCommands } from "../../models/vault-scope";
-import { injectAutoPageSize } from "../../utils/inject-auto-page-size";
 import { AddEditFolderDialogComponent } from "../add-edit-folder-dialog/add-edit-folder-dialog.component";
 import { openDeleteFolderDialog } from "../delete-folder-dialog/delete-folder-dialog.component";
 
@@ -64,16 +62,12 @@ import { EmptyFoldersComponent } from "./empty-folders.component";
   selector: "vault-my-folders",
   templateUrl: "./my-folders.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    class: "tw-flex tw-flex-col tw-h-full tw-min-h-0",
-  },
   imports: [
     BitCellComponent,
     BitCellDefDirective,
     BitCellLoadingDirective,
     BitColumnComponent,
     BitHeaderCellComponent,
-    BitTablePaginatorComponent,
     BitTableToolbarComponent,
     BitTableV2Component,
     BulkActionComponent,
@@ -122,12 +116,6 @@ export class MyFoldersComponent {
   protected readonly hasItems = computed(() => this.rows().length > 0);
 
   protected readonly folderCommands = folderCommands;
-
-  private readonly paging = injectAutoPageSize({ rows: this.rows, loading: this.loading });
-
-  protected readonly autoPageSize = this.paging.autoPageSize;
-
-  protected readonly pageSizeOptions = this.paging.pageSizeOptions;
 
   protected readonly search = computed(
     () => (this.tableRef()?.filterValues() as { search?: string } | undefined)?.search,
