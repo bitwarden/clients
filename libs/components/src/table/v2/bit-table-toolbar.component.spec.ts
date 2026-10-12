@@ -417,6 +417,29 @@ describe("BitTableToolbarComponent active filter chips", () => {
     expect(chipLabels()).toEqual([]);
     expect(host.vault().active()).toBe(false);
   });
+
+  it("moves focus to the previous chip when the focused last chip is dismissed", () => {
+    host.type().setValue(["login", "card"]);
+    fixture.detectChanges();
+
+    dismissButtons()[1].focus();
+    dismiss(1);
+    fixture.detectChanges();
+
+    expect(document.activeElement).toBe(dismissButtons()[0]);
+  });
+
+  it("moves focus to the filter button when the only chip is dismissed", () => {
+    host.vault().setValue("mine");
+    fixture.detectChanges();
+
+    dismissButtons()[0].focus();
+    dismiss(0);
+    fixture.detectChanges();
+
+    const filterButton = fixture.nativeElement.querySelector("button[bitIconButton]");
+    expect(document.activeElement).toBe(filterButton);
+  });
 });
 
 /** A toolbar inside a real table, so the Customize control has a table to ask. */

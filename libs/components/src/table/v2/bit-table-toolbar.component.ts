@@ -1,3 +1,4 @@
+import { DOCUMENT } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -150,6 +151,8 @@ export class BitTableToolbarComponent {
   private readonly overflowList = viewChild(OverflowListDirective);
   private readonly filterRowEl = viewChild<ElementRef<HTMLElement>>("filterRow");
   private readonly injector = inject(Injector);
+  private readonly document = inject(DOCUMENT);
+  private readonly activeChipRow = viewChild<ElementRef<HTMLElement>>("activeChipRow");
 
   /**
    * Whether the filter row is collapsed to the single trigger + dialog. Always below
@@ -295,9 +298,24 @@ export class BitTableToolbarComponent {
   }
 
   protected clearChip(chip: ChipGroupItem): void {
+    const focused = this.document.activeElement;
+    const inRow =
+      focused instanceof HTMLElement && this.activeChipRow()?.nativeElement.contains(focused);
     this.activeChips()
       .find((c) => c.chip.id === chip.id)
       ?.clear();
+    // Removing the last chip drops its element (or the row); popover dismissals restore their own focus.
+    if (inRow) {
+      focusAfterRender(this.injector, () => {
+        if (focused?.isConnected) {
+          return null;
+        }
+        const buttons = this.activeChipRow()?.nativeElement.querySelectorAll<HTMLElement>(
+          "bit-chip:not([hidden]) [bit-chip-dismiss-button]",
+        );
+        return buttons?.[buttons.length - 1] ?? this.filterButton()?.nativeElement;
+      });
+    }
   }
 
   /** Rows matching the active filters — shown as the "N items" count on the filter row. */

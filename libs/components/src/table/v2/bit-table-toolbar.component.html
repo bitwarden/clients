@@ -86,7 +86,7 @@
   </div>
   <!-- Below md, a single row of just the active filters, overflowing behind a "+N" chip. -->
   @if (collapsed() && activeFilters().length) {
-    <div [class]="activeFilterRowClasses()">
+    <div #activeChipRow [class]="activeFilterRowClasses()">
       <bit-chip-group
         class="tw-block"
         dismissible
