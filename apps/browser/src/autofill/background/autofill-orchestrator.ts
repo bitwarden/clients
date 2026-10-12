@@ -507,7 +507,11 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     ) {
       return lastLaunchedCipher;
     }
-    const cipher = await this.cipherService.getLastUsedForUrl(tabUrl, activeUserId, isPageTransition);
+    const cipher = await this.cipherService.getLastUsedForUrl(
+      tabUrl,
+      activeUserId,
+      autofillOnPageLoad,
+    );
     return cipher ?? undefined;
   }
 
