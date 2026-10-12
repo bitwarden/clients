@@ -978,6 +978,21 @@ describe("Cipher Service", () => {
       expect(apiService.deleteManyCiphers).not.toHaveBeenCalled();
     });
 
+    it("lets Admin Console writes through, as the server does", async () => {
+      await cipherService.deleteWithServer(gatedId, userId, true);
+
+      expect(cipherLeaseStateService.leasedCipherIds).not.toHaveBeenCalled();
+      expect(apiService.deleteCipherAdmin).toHaveBeenCalledWith(gatedId);
+    });
+
+    it("treats a bulk restore with an organization as an Admin Console write", async () => {
+      apiService.putRestoreManyCiphersAdmin.mockResolvedValue({ data: [] } as any);
+
+      await cipherService.restoreManyWithServer([gatedId], userId, "org-id");
+
+      expect(apiService.putRestoreManyCiphersAdmin).toHaveBeenCalled();
+    });
+
     it("looks up the leases of a bulk call in one read", async () => {
       cipherLeaseStateService.leasedCipherIds.mockResolvedValue(new Set([gatedId]));
 

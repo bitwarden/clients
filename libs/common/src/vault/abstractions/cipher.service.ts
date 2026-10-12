@@ -93,9 +93,10 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract get(id: string, userId: UserId): Promise<Cipher>;
   /**
    * Throws {@link GatedCipherWriteError} when any stored copy is partial (PAM-gated) and the user
-   * holds no active lease on it. Every write to an existing cipher calls it first.
+   * holds no active lease on it. Every write to an existing cipher calls it first. Admin Console
+   * writes pass `admin` and are exempt, as on the server.
    */
-  abstract assertWritable(ids: string | string[], userId: UserId): Promise<void>;
+  abstract assertWritable(ids: string | string[], userId: UserId, admin?: boolean): Promise<void>;
   abstract getAll(userId: UserId): Promise<Cipher[]>;
   abstract getAllDecrypted(userId: UserId): Promise<CipherView[]>;
   abstract getAllDecryptedForGrouping(

@@ -361,7 +361,10 @@ export class CipherService implements CipherServiceAbstraction {
     return new Cipher(ciphers[cipherId], localData ? localData[cipherId] : null);
   }
 
-  async assertWritable(ids: string | string[], userId: UserId): Promise<void> {
+  async assertWritable(ids: string | string[], userId: UserId, admin = false): Promise<void> {
+    if (admin) {
+      return;
+    }
     const stored = await firstValueFrom(this.ciphers$(userId));
     const partial = ([ids].flat() as CipherId[]).filter((id) => stored[id]?.partialData != null);
     if (partial.length === 0) {
@@ -964,7 +967,7 @@ export class CipherService implements CipherServiceAbstraction {
     orgAdmin?: boolean,
     leaseGated?: boolean,
   ): Promise<CipherView> {
-    await this.assertWritable(cipherView.id, userId);
+    await this.assertWritable(cipherView.id, userId, orgAdmin);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
 
     if (useSdk) {
@@ -1116,7 +1119,7 @@ export class CipherService implements CipherServiceAbstraction {
     admin = false,
     options?: UploadOptions,
   ): Promise<Cipher> {
-    await this.assertWritable(cipher.id, userId);
+    await this.assertWritable(cipher.id, userId, admin);
     const useSdk = await firstValueFrom(this.sdkCipherAttachmentOpsEnabled$);
 
     // The organization's symmetric key or the user's user key
@@ -1213,7 +1216,6 @@ export class CipherService implements CipherServiceAbstraction {
 
   async saveCollectionsWithServerAdmin(cipher: Cipher): Promise<Cipher> {
     const userId = await firstValueFrom(this.stateProvider.activeUserId$);
-    await this.assertWritable(cipher.id, userId);
     await this.clearCache(userId);
     const cipherView = await this.cipherSdkService.saveCollectionsWithServerAdmin(
       cipher.id,
@@ -1341,7 +1343,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async deleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
-    await this.assertWritable(id, userId);
+    await this.assertWritable(id, userId, asAdmin);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
@@ -1364,7 +1366,7 @@ export class CipherService implements CipherServiceAbstraction {
     asAdmin = false,
     orgId?: OrganizationId,
   ): Promise<void> {
-    await this.assertWritable(ids, userId);
+    await this.assertWritable(ids, userId, asAdmin);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
@@ -1421,7 +1423,7 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     admin: boolean = false,
   ): Promise<CipherData> {
-    await this.assertWritable(id, userId);
+    await this.assertWritable(id, userId, admin);
     const useSdk = await firstValueFrom(this.sdkCipherAttachmentOpsEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
@@ -1553,7 +1555,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async softDeleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
-    await this.assertWritable(id, userId);
+    await this.assertWritable(id, userId, asAdmin);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
@@ -1576,7 +1578,7 @@ export class CipherService implements CipherServiceAbstraction {
     asAdmin = false,
     orgId?: OrganizationId,
   ): Promise<void> {
-    await this.assertWritable(ids, userId);
+    await this.assertWritable(ids, userId, asAdmin);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
@@ -1628,7 +1630,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async restoreWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
-    await this.assertWritable(id, userId);
+    await this.assertWritable(id, userId, asAdmin);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
@@ -1651,7 +1653,7 @@ export class CipherService implements CipherServiceAbstraction {
    * The Org Vault will pass those ids an array as well as the orgId when calling bulkRestore
    */
   async restoreManyWithServer(ids: string[], userId: UserId, orgId?: string): Promise<void> {
-    await this.assertWritable(ids, userId);
+    await this.assertWritable(ids, userId, orgId != null);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
