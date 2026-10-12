@@ -181,6 +181,20 @@
     "message": "1 nested shared folder",
     "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
   },
+  "nestedFolderCount": {
+    "message": "$COUNT$ nested folders",
+    "description": "Subtitle under a folder's name in My folders, counting the folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedFolderSingular": {
+    "message": "1 nested folder",
+    "description": "Subtitle under a folder's name in My folders when exactly one folder is directly inside it."
+  },
   "myFolder": {
     "message": "My folder"
   },
