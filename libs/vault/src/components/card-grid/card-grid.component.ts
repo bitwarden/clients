@@ -63,7 +63,7 @@ const GRID_GAP = 12;
  * narrower than 240px.
  *
  * `auto-fill` rather than `auto-fit` so the track count depends only on the container's width, never
- * on how many cards are in the grid — otherwise {@link SharedFolderCardGridComponent.columns}, which
+ * on how many cards are in the grid — otherwise {@link CardGridComponent.columns}, which
  * decides that card count, would be measuring its own output.
  */
 const GRID_TEMPLATE_COLUMNS =
@@ -98,8 +98,8 @@ type SharedFolderCard = {
  * nothing.
  */
 @Component({
-  selector: "vault-shared-folder-card-grid",
-  templateUrl: "./shared-folder-card-grid.component.html",
+  selector: "vault-card-grid",
+  templateUrl: "./card-grid.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     I18nPipe,
@@ -113,7 +113,7 @@ type SharedFolderCard = {
     AccordionComponent,
   ],
 })
-export class SharedFolderCardGridComponent {
+export class CardGridComponent {
   private readonly i18nService = inject(I18nService);
   private readonly injector = inject(Injector);
 
@@ -234,7 +234,7 @@ export class SharedFolderCardGridComponent {
     return node ? sharedFolderName(node) : "";
   });
 
-  protected readonly listId = `shared-folder-card-grid-list-${nextId++}`;
+  protected readonly listId = `card-grid-list-${nextId++}`;
 
   /** Identifies the current set of children, so navigating between folders re-collapses the grid. */
   private readonly folderIds = computed(() =>

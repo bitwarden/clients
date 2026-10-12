@@ -8,7 +8,7 @@ import { I18nMockService } from "@bitwarden/components";
 
 import { VaultScope, VaultScopeType } from "../../models/vault-scope";
 
-import { SharedFolderCardGridComponent } from "./shared-folder-card-grid.component";
+import { CardGridComponent } from "./card-grid.component";
 
 const organizationId = "org-1" as OrganizationId;
 
@@ -84,8 +84,8 @@ const LONG_NAME_FOLDERS = childFolders([
 ]);
 
 export default {
-  title: "Vault/Shared Folder Card Grid",
-  component: SharedFolderCardGridComponent,
+  title: "Vault/Card Grid",
+  component: CardGridComponent,
   decorators: [
     moduleMetadata({
       imports: [RouterTestingModule],
@@ -112,14 +112,14 @@ export default {
     collections: DEFAULT_FOLDERS,
     scope: SCOPE,
   },
-} as Meta<SharedFolderCardGridComponent>;
+} as Meta<CardGridComponent>;
 
 /**
  * Both the accordion's open state and the overflow's are the component's own, but each takes its
  * starting value from an input — so a story renders the state it documents on its first frame
  * rather than painting a default and then clicking its way out of it.
  */
-type Story = StoryObj<SharedFolderCardGridComponent>;
+type Story = StoryObj<CardGridComponent>;
 
 /**
  * Five children — one full row of three plus a partial row, no overflow. Engineering and Design
