@@ -1,4 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+// eslint-disable-next-line no-restricted-imports
 import {
   BiometricStateService,
   BiometricsService,
@@ -49,6 +51,7 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
     sdkService: SdkService,
     stateProvider: StateProvider,
     i18nService: I18nService,
+    userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
   ) {
     // Register migrations here
 
@@ -95,6 +98,7 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
           logService,
           cipherService,
           sdkService,
+          userDecryptionOptionsService,
         ),
       });
     }

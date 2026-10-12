@@ -1,10 +1,13 @@
 import { firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptionType } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
+import { KeyRotationMethod } from "@bitwarden/sdk-internal";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { assertNonNullish } from "../../../auth/utils";
@@ -34,6 +37,7 @@ export class V2KeyRotationMigration implements EncryptedMigration {
     private readonly logService: LogService,
     private readonly cipherService: CipherService,
     private readonly sdkService: SdkService,
+    private readonly userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
   ) {}
 
   async needsMigration(userId: UserId): Promise<MigrationRequirement> {
@@ -77,19 +81,6 @@ export class V2KeyRotationMigration implements EncryptedMigration {
     }
 
     // -- Temporary blocks that will be resolved before release:
-    if (!(await this.masterPasswordService.userHasMasterPassword(userId))) {
-      // KC / TDE not supported in initial PR
-      return "noMigrationNeeded";
-    }
-
-    // Currently not supported for users that have account recovery enabled
-    if (await this.userEnrolledInAccountRecovery(userId)) {
-      this.logService.info(
-        `[V2KeyRotationMigration] User ${userId} is enrolled in account recovery. Skipping.`,
-      );
-      return "noMigrationNeeded";
-    }
-
     // Currently not supported for users that have emergency access enabled
     if (await this.userHasGrantedEmergencyAccess(userId)) {
       this.logService.info(
@@ -98,7 +89,9 @@ export class V2KeyRotationMigration implements EncryptedMigration {
       return "noMigrationNeeded";
     }
 
-    return "needsMigrationWithMasterPassword";
+    return (await this.masterPasswordService.userHasMasterPassword(userId))
+      ? "needsMigrationWithMasterPassword"
+      : "needsMigration";
   }
 
   async runMigrations(userId: UserId, masterPassword: string | null): Promise<void> {
@@ -106,20 +99,27 @@ export class V2KeyRotationMigration implements EncryptedMigration {
 
     this.logService.info(`[V2KeyRotationMigration] Rotating user key for user ${userId}`);
 
+    let keyRotationMethod: KeyRotationMethod | null;
     if (await this.masterPasswordService.userHasMasterPassword(userId)) {
       assertNonNullish(masterPassword, "masterPassword");
-      const success = await this.userKeyRotationService.rotateUserKey(
-        { Password: { password: masterPassword! } },
-        "CreateIfNeeded",
-        userId,
-      );
-      if (!success) {
-        throw new Error("[V2KeyRotationMigration] Rotation aborted by user trust prompt.");
-      }
+      keyRotationMethod = { Password: { password: masterPassword! } };
     } else {
+      keyRotationMethod = await this.getKeyRotationMethodWithoutMasterPassword(userId);
+    }
+
+    if (keyRotationMethod == null) {
       throw new Error(
-        "[V2KeyRotationMigration] Rotation for users without master passwords is not currently supported.",
+        "[V2KeyRotationMigration] Rotation requires a master password, Key Connector, or TDE unlock method.",
       );
+    }
+
+    const success = await this.userKeyRotationService.rotateUserKey(
+      keyRotationMethod,
+      "CreateIfNeeded",
+      userId,
+    );
+    if (!success) {
+      throw new Error("[V2KeyRotationMigration] Rotation aborted by user trust prompt.");
     }
 
     this.logService.info(
@@ -136,13 +136,29 @@ export class V2KeyRotationMigration implements EncryptedMigration {
     return userKey.inner().type === EncryptionType.AesCbc256_HmacSha256_B64;
   }
 
-  private async userEnrolledInAccountRecovery(userId: UserId): Promise<boolean> {
-    return await withPasswordManagerSdk(userId, this.sdkService, async (sdk) => {
-      const organizationV1Memberships = await sdk
-        .user_crypto_management()
-        .get_untrusted_organization_public_keys("CreateIfNeeded");
-      return organizationV1Memberships.length > 0;
-    });
+  /**
+   * Returns the Key Connector or TDE key rotation method for a user without a master password,
+   * or null if the user has neither.
+   */
+  private async getKeyRotationMethodWithoutMasterPassword(
+    userId: UserId,
+  ): Promise<KeyRotationMethod | null> {
+    const userDecryptionOptions = await firstValueFrom(
+      this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
+    );
+
+    // Use the Key Connector URL from the identity response rather than from organization
+    // data, as the organization profile endpoint is a separate trust boundary.
+    const keyConnectorUrl = userDecryptionOptions.keyConnectorOption?.keyConnectorUrl;
+    if (keyConnectorUrl != null) {
+      return { KeyConnector: { key_connector_url: keyConnectorUrl } };
+    }
+
+    if (userDecryptionOptions.trustedDeviceOption != null) {
+      return "Tde";
+    }
+
+    return null;
   }
 
   private async userHasGrantedEmergencyAccess(userId: UserId): Promise<boolean> {
