@@ -28,7 +28,6 @@ export enum FeatureFlag {
   PM4516_DevicesLastActivityDate = "pm-4516-devices-add-last-activity-date",
 
   /* Autofill */
-  UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
   FillAssistTargetingRules = "fill-assist-targeting-rules",
   DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
   LitInlineMenuComponents = "lit-inline-menu-components",
@@ -138,7 +137,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
-  [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.LitInlineMenuComponents]: FALSE,
   [FeatureFlag.EnableBasicAuthResponse]: FALSE,
