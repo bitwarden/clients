@@ -1,3 +1,4 @@
+import { signal } from "@angular/core";
 import { fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { BehaviorSubject, of } from "rxjs";
 
@@ -14,6 +15,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import {
+  CoachmarkService,
   NewExperienceDialogResult,
   NewExperienceDialogService,
   VaultItemsTransferService,
@@ -50,7 +52,8 @@ describe("WebVaultPromptService", () => {
   const conditionallyShowWelcomeDialog = jest.fn().mockResolvedValue(false);
   const logError = jest.fn();
   const conditionallyPromptUserForExtension = jest.fn().mockResolvedValue(false);
-  const conditionallyOpenNewExperience = jest.fn().mockResolvedValue(null);
+  const conditionallyOpenNewExperience = jest.fn().mockResolvedValue(false);
+  const tourRunning = signal(false);
 
   let serverSettings$: BehaviorSubject<ServerSettings | null>;
   let activeAccount$: BehaviorSubject<Account | null>;
@@ -65,6 +68,7 @@ describe("WebVaultPromptService", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    tourRunning.set(false);
 
     activeAccount$ = new BehaviorSubject<Account | null>(createAccount());
     serverSettings$ = new BehaviorSubject<ServerSettings | null>(new ServerSettings());
@@ -96,6 +100,7 @@ describe("WebVaultPromptService", () => {
           provide: NewExperienceDialogService,
           useValue: { conditionallyOpen: conditionallyOpenNewExperience },
         },
+        { provide: CoachmarkService, useValue: { isRunning: tourRunning.asReadonly() } },
       ],
     });
 
@@ -129,6 +134,18 @@ describe("WebVaultPromptService", () => {
 
     it("skips onboarding prompts but not policy flows when suppressOnboardingInterstitials is enabled", async () => {
       serverSettings$.next(new ServerSettings({ suppressOnboardingInterstitials: true }));
+
+      await service.conditionallyPromptUser();
+
+      expect(enforceOrganizationDataOwnership).toHaveBeenCalledWith(mockUserId);
+      expect(displayUpgradePromptConditionally).not.toHaveBeenCalled();
+      expect(conditionallyShowWelcomeDialog).not.toHaveBeenCalled();
+      expect(conditionallyOpenNewExperience).not.toHaveBeenCalled();
+      expect(conditionallyPromptUserForExtension).not.toHaveBeenCalled();
+    });
+
+    it("skips onboarding prompts but not policy flows while a tour is running", async () => {
+      tourRunning.set(true);
 
       await service.conditionallyPromptUser();
 

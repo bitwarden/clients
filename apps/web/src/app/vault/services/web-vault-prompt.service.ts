@@ -11,7 +11,11 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { NewExperienceDialogService, VaultItemsTransferService } from "@bitwarden/vault";
+import {
+  CoachmarkService,
+  NewExperienceDialogService,
+  VaultItemsTransferService,
+} from "@bitwarden/vault";
 
 import {
   AutoConfirmPolicy,
@@ -43,6 +47,7 @@ export class WebVaultPromptService {
   private webVaultExtensionPromptService = inject(WebVaultExtensionPromptService);
   private welcomeDialogService = inject(WelcomeDialogService);
   private newExperienceDialogService = inject(NewExperienceDialogService);
+  private coachmarkService = inject(CoachmarkService);
 
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -64,6 +69,12 @@ export class WebVaultPromptService {
 
     const serverSettings = await firstValueFrom(this.configService.serverSettings$);
     if (serverSettings?.suppressOnboardingInterstitials) {
+      return;
+    }
+
+    // Tour steps navigate between pages, which re-runs this on every return to the vault. Opening
+    // a prompt then would stack it behind the tour.
+    if (this.coachmarkService.isRunning()) {
       return;
     }
 
