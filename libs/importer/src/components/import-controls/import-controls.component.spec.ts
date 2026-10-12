@@ -2924,6 +2924,38 @@ describe("ImportControlsComponent", () => {
       expect(continueSpy).toHaveBeenCalledTimes(1);
     });
 
+    it("runs a Keeper direct import when ImportServiceAbstraction is only provided on the component, as the apps do", async () => {
+      platformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
+      await TestBed.configureTestingModule({
+        imports: [ImportControlsComponent],
+        providers: baseProviders().filter((p) => p.provide !== ImportServiceAbstraction),
+      })
+        .overrideComponent(ImportControlsComponent, {
+          add: { providers: [{ provide: ImportServiceAbstraction, useValue: importService }] },
+        })
+        .compileComponents();
+      fixture = TestBed.createComponent(ImportControlsComponent);
+      fixture.componentRef.setInput("importType", "keeper");
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      component().continueFromIntro();
+      fixture.detectChanges();
+      component().formGroup.controls.keeperEmail.setValue("user@example.com");
+      const result = new ImportResult();
+      keeperDirectImportService.handleImport.mockResolvedValue({ result, errors: [] });
+      importService.importImportResult.mockResolvedValue(result);
+
+      await component().onContinue();
+
+      expect(importService.importImportResult).toHaveBeenCalledWith(
+        result,
+        undefined,
+        undefined,
+        false,
+      );
+    });
+
     it("surfaces a Keeper login failure as an inline email field error, not the generic error dialog", async () => {
       await setup("keeper", ClientType.Desktop);
       component().continueFromIntro();

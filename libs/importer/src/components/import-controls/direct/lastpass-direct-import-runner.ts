@@ -9,7 +9,7 @@ import { LastPassDirectImportService } from "../../lastpass/lastpass-direct-impo
 import { lastPassValidationErrorI18nKey } from "../../lastpass/lastpass-validation-error";
 import { ImportOutcome } from "../import-outcome";
 
-@Injectable({ providedIn: "root" })
+@Injectable()
 export class LastPassDirectImportRunner {
   private readonly lastPassDirectImportService = inject(LastPassDirectImportService);
   private readonly i18nService = inject(I18nService);

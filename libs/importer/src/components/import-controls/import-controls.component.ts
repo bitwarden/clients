@@ -123,6 +123,8 @@ const requiredTrimmedValidator: ValidatorFn = (control: AbstractControl<string>)
     SegmentedCardComponent,
     SpinnerComponent,
   ],
+  // Scoped to the component: they inject ImportServiceAbstraction, which the host components provide.
+  providers: [KeeperDirectImportRunner, LastPassDirectImportRunner],
 })
 export class ImportControlsComponent {
   private readonly formBuilder = inject(FormBuilder);

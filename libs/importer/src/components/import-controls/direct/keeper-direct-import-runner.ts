@@ -18,7 +18,7 @@ import {
 } from "../../keeper/partial-import-dialog.component";
 import { ImportOutcome } from "../import-outcome";
 
-@Injectable({ providedIn: "root" })
+@Injectable()
 export class KeeperDirectImportRunner {
   private readonly keeperDirectImportService = inject(KeeperDirectImportService);
   private readonly importService = inject(ImportServiceAbstraction);
