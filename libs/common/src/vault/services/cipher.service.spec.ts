@@ -922,12 +922,15 @@ describe("Cipher Service", () => {
 
   describe("writes to a PAM-gated cipher", () => {
     const gatedId = "gated" as CipherId;
+    const otherGatedId = "other-gated" as CipherId;
     const plainId = cipherData.id as CipherId;
+    const gated = (id: CipherId) => ({ ...cipherData, id, partialData: "{}" }) as CipherData;
 
     beforeEach(() => {
       stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).nextState({
         [plainId]: cipherData,
-        [gatedId]: { ...cipherData, id: gatedId, partialData: "{}" } as CipherData,
+        [gatedId]: gated(gatedId),
+        [otherGatedId]: gated(otherGatedId),
       });
       cipherLeaseStateService.leasedCipherIds.mockResolvedValue(new Set());
     });
@@ -976,12 +979,6 @@ describe("Cipher Service", () => {
     });
 
     it("looks up the leases of a bulk call in one read", async () => {
-      const otherGatedId = "other-gated" as CipherId;
-      stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).nextState({
-        [plainId]: cipherData,
-        [gatedId]: { ...cipherData, id: gatedId, partialData: "{}" } as CipherData,
-        [otherGatedId]: { ...cipherData, id: otherGatedId, partialData: "{}" } as CipherData,
-      });
       cipherLeaseStateService.leasedCipherIds.mockResolvedValue(new Set([gatedId]));
 
       const result = cipherService.deleteManyWithServer([plainId, gatedId, otherGatedId], userId);

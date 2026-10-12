@@ -7,6 +7,7 @@ import { CipherLeaseStateService } from "@bitwarden/common/vault/abstractions/ci
 
 import type { AccessLeaseView } from "../abstractions/access-lease";
 import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
+import { isLeaseLive } from "../helpers/lease-liveness";
 
 /** How long a cached read serves new consumers, checked lazily on access. */
 const CACHE_TTL_MS = 30_000;
@@ -62,7 +63,7 @@ export class MyLeasesService implements CipherLeaseStateService {
     const nowMs = Date.now();
     return new Set(
       leases
-        .filter((l) => l.status === "active" && Date.parse(l.notAfter) > nowMs)
+        .filter((l) => l.status === "active" && isLeaseLive(l, nowMs))
         .map((l) => uuidAsString(l.cipherId)),
     );
   }
