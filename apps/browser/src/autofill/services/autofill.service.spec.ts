@@ -239,25 +239,8 @@ describe("AutofillService", () => {
           command: AutofillMessageCommand.collectPageDetails,
           sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
           tab,
-          discardFieldCache: false,
         },
         undefined,
-        true,
-      );
-    });
-
-    it("asks the frame to drop its field cache when requested", () => {
-      autofillService.collectPageDetailsFromTab$(tab, 2, true);
-
-      expect(BrowserApi.tabSendMessage).toHaveBeenCalledWith(
-        tab,
-        {
-          command: AutofillMessageCommand.collectPageDetails,
-          sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
-          tab,
-          discardFieldCache: true,
-        },
-        { frameId: 2 },
         true,
       );
     });
@@ -271,7 +254,6 @@ describe("AutofillService", () => {
           command: AutofillMessageCommand.collectPageDetails,
           sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
           tab,
-          discardFieldCache: false,
         },
         { frameId: 2 },
         true,

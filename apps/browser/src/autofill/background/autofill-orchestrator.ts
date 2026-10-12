@@ -33,10 +33,9 @@ import {
 } from "../services/abstractions/autofill-lifecycle.service";
 import {
   AutoFillOptions,
-  AutofillService as AutofillServiceAbstraction,
+  AutofillService,
   PageDetail,
 } from "../services/abstractions/autofill.service";
-import AutofillService from "../services/autofill.service";
 import { AutofillTriageResponse } from "../types/autofill-triage";
 import {
   AUTOFILL_ABSENT,
@@ -97,9 +96,6 @@ export const COLLECT_SETTLE_MS = 50;
  */
 export const LOGIN_LAST_LAUNCHED_WINDOW_MS = 30000;
 
-/** How long a username-only automatic-login step still counts as the same login. */
-export const MULTI_STEP_LOGIN_WINDOW_MS = 30_000;
-
 /**
  * A concrete fill boiled down from a request: the chosen cipher, the rotation key its fillable
  * cipher cycles under (the tab URL for logins, the cipher-type cache key for card/identity), and
@@ -144,15 +140,9 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
   /** Serialized-core input; public methods and the page-load subscription feed it. */
   private readonly fillRequest$ = new Subject<FillRequest>();
 
-  /** Id and owner of a tab's username-only automatic-login step. The cipher is looked up again on the next step. */
-  private readonly multiStepLogin = new Map<
-    number,
-    { startedAt: number; cipherId: string; userId: UserId }
-  >();
-
   constructor(
     private lifecycleService: AutofillLifecycleService,
-    private autofillService: AutofillServiceAbstraction,
+    private autofillService: AutofillService,
     private cipherService: CipherService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private accountService: AccountService,
@@ -298,24 +288,19 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
    */
   private async autoSubmitLoginOnTab(tab: chrome.tabs.Tab, frameId?: number): Promise<void> {
     const activeUserId = await this.activeUserId();
-    if (activeUserId == null || !tab.url || tab.id == null) {
+    if (activeUserId == null || !tab.url) {
       return;
     }
-    const pageDetails = await this.read(tab, frameId, true);
+    const pageDetails = await this.read(tab, frameId);
     if (pageDetails.length === 0) {
       return;
     }
-    const ongoingCipherId = this.ongoingMultiStepLogin(tab.id, activeUserId);
-    const cipher = ongoingCipherId
-      ? (await this.cipherService.getAllDecryptedForUrl(tab.url, activeUserId)).find(
-          (decrypted) => decrypted.id === ongoingCipherId,
-        )
-      : await this.selectLogin(tab.url, activeUserId, true);
+    const cipher = await this.selectLogin(tab.url, activeUserId, false, false);
     if (cipher == null || (await this.resolveReprompt(cipher, tab, true, tab.url))) {
       return;
     }
 
-    const result = await this.commit({
+    await this.commit({
       tab,
       cipher,
       pageDetails,
@@ -324,36 +309,6 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
       allowTotpAutofill: true,
       autoSubmitLogin: true,
     });
-    if (result.outcome !== AutofillOutcome.Filled) {
-      return;
-    }
-
-    const isPasswordStep = pageDetails.some(
-      ({ details }) =>
-        AutofillService.loadPasswordFields(details, false, false, false, true).length > 0,
-    );
-    if (isPasswordStep) {
-      this.multiStepLogin.delete(tab.id);
-    } else if (cipher.id) {
-      this.multiStepLogin.set(tab.id, {
-        startedAt: this.now(),
-        cipherId: cipher.id,
-        userId: activeUserId,
-      });
-    }
-    if (ongoingCipherId == null) {
-      this.cycleFillableCipher(tab.url);
-    }
-  }
-
-  /** The cipher id of this tab's multi-step login, if it is still current, otherwise it returns undefined. */
-  private ongoingMultiStepLogin(tabId: number, userId: UserId): string | undefined {
-    const ongoing = this.multiStepLogin.get(tabId);
-    if (ongoing?.userId === userId && this.now() - ongoing.startedAt < MULTI_STEP_LOGIN_WINDOW_MS) {
-      return ongoing.cipherId;
-    }
-    this.multiStepLogin.delete(tabId);
-    return undefined;
   }
 
   private enqueueUserInitiated(
@@ -444,16 +399,8 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
    * independently and accumulate into one settled result. A frame-scoped collect gets exactly one
    * response, already complete, so it needs no settle.
    */
-  private async read(
-    tab: chrome.tabs.Tab,
-    frameId?: number,
-    discardFieldCache = false,
-  ): Promise<PageDetail[]> {
-    const pageDetails$ = this.autofillService.collectPageDetailsFromTab$(
-      tab,
-      frameId,
-      discardFieldCache,
-    );
+  private async read(tab: chrome.tabs.Tab, frameId?: number): Promise<PageDetail[]> {
+    const pageDetails$ = this.autofillService.collectPageDetailsFromTab$(tab, frameId);
     const pageDetails = await firstValueFrom(
       frameId == null ? pageDetails$.pipe(debounceTime(COLLECT_SETTLE_MS), take(1)) : pageDetails$,
     );
@@ -542,6 +489,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     tabUrl: string,
     activeUserId: UserId,
     fromCommand: boolean,
+    autofillOnPageLoad = true,
   ): Promise<CipherView | undefined> {
     if (fromCommand) {
       return (await this.cipherService.getNextCipherForUrl(tabUrl, activeUserId)) ?? undefined;
@@ -549,7 +497,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     const lastLaunchedCipher = await this.cipherService.getLastLaunchedForUrl(
       tabUrl,
       activeUserId,
-      true,
+      autofillOnPageLoad,
     );
     const lastLaunched = lastLaunchedCipher?.localData?.lastLaunched;
     if (
@@ -559,7 +507,10 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     ) {
       return lastLaunchedCipher;
     }
-    return (await this.cipherService.getLastUsedForUrl(tabUrl, activeUserId, true)) ?? undefined;
+    return (
+      (await this.cipherService.getLastUsedForUrl(tabUrl, activeUserId, autofillOnPageLoad)) ??
+      undefined
+    );
   }
 
   /** Selects the next card or identity cipher and the cache key its rotation index advances under. */

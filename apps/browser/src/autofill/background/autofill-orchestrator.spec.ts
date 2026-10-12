@@ -50,7 +50,6 @@ describe("DefaultAutofillOrchestrator", () => {
   let tabRemovedSubject$: Subject<number>;
   let autofillOnPageLoad$: BehaviorSubject<boolean>;
   let liveTabs$: BehaviorSubject<ReadonlySet<number>>;
-  let activeAccount$: BehaviorSubject<{ id: string }>;
 
   // createChromeTabMock's default url; the live tab and reported frame url share it by default so
   // the fill-time match succeeds unless a test overrides one side.
@@ -182,8 +181,7 @@ describe("DefaultAutofillOrchestrator", () => {
     autofillSettingsService.autofillOnPageLoad$ = autofillOnPageLoad$;
 
     accountService = mock<AccountService>();
-    activeAccount$ = new BehaviorSubject({ id: "user-1" });
-    (accountService as any).activeAccount$ = activeAccount$;
+    (accountService as any).activeAccount$ = new BehaviorSubject({ id: "user-1" });
 
     platformUtilsService = mock<PlatformUtilsService>();
     updateOverlayCiphers = jest.fn().mockResolvedValue(undefined);
@@ -270,7 +268,6 @@ describe("DefaultAutofillOrchestrator", () => {
       expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(
         expect.objectContaining({ id: 1, url }),
         0,
-        false,
       );
       // Selection is by url; a page-load prefers last-used (no recent last-launched by default).
       expect(cipherService.getLastUsedForUrl).toHaveBeenCalledWith(url, "user-1", true);
@@ -383,7 +380,6 @@ describe("DefaultAutofillOrchestrator", () => {
       expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(
         expect.objectContaining({ id: 1 }),
         3,
-        false,
       );
       expect(autofillService.doAutoFill).toHaveBeenCalled();
     });
@@ -586,11 +582,7 @@ describe("DefaultAutofillOrchestrator", () => {
 
       // The orchestrator owns the collect: it asks for every frame (no frame id) rather than
       // being handed a pre-collected page detail.
-      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(
-        pd.tab,
-        undefined,
-        false,
-      );
+      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, undefined);
       // A command selects the next cipher in the url's rotation and fills with command options.
       expect(cipherService.getNextCipherForUrl).toHaveBeenCalledWith(DEFAULT_URL, "user-1");
       expect(accountService.setAccountActivity).toHaveBeenCalledWith("user-1", expect.any(Date));
@@ -1178,30 +1170,23 @@ describe("DefaultAutofillOrchestrator", () => {
   });
 
   describe("autoSubmitLoginOnTab", () => {
-    const loginStep = (tabId: number, type: "text" | "password") => {
-      const page = pageDetail(tabId, 0);
-      page.details.fields = [createAutofillFieldMock({ type })];
-      return page;
-    };
-
-    const autoSubmit = async (page: PageDetail, nextCipher: CipherView) => {
-      cipherService.getNextCipherForUrl.mockResolvedValue(nextCipher);
-      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([page]));
-      autofillService.doAutoFill.mockResolvedValue({ outcome: AutofillOutcome.Filled });
-      await autofillOrchestrator["autoSubmitLoginOnTab"](page.tab, 0);
-    };
-
     it("collects the reporting frame and fills it with the auto-submit script", async () => {
       const pd = pageDetail(1, 0);
       const cipher = makeCipher(CipherType.Login);
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
-      cipherService.getNextCipherForUrl.mockResolvedValue(cipher);
+      cipherService.getLastUsedForUrl.mockResolvedValue(cipher);
 
       autofillService.doAutoFill.mockResolvedValue({ outcome: AutofillOutcome.Filled });
 
       await autofillOrchestrator["autoSubmitLoginOnTab"](pd.tab, 0);
 
-      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, 0, true);
+      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, 0);
+      expect(cipherService.getLastLaunchedForUrl).toHaveBeenCalledWith(
+        DEFAULT_URL,
+        "user-1",
+        false,
+      );
+      expect(cipherService.getLastUsedForUrl).toHaveBeenCalledWith(DEFAULT_URL, "user-1", false);
       expect(autofillService.doAutoFill).toHaveBeenCalledWith(
         expect.objectContaining({
           tab: pd.tab,
@@ -1210,56 +1195,48 @@ describe("DefaultAutofillOrchestrator", () => {
           autoSubmitLogin: true,
         }),
       );
-      expect(cipherService.updateLastUsedIndexForUrl).toHaveBeenCalledWith(pd.tab.url);
     });
 
-    const expectFilled = (cipher: CipherView, cursorAdvances: number) => {
-      expect(autofillService.doAutoFill).toHaveBeenLastCalledWith(
-        expect.objectContaining({ cipher }),
-      );
-      expect(cipherService.updateLastUsedIndexForUrl).toHaveBeenCalledTimes(cursorAdvances);
-    };
+    it("fills the same cipher on each step of a multi-step login", async () => {
+      const first = makeCipher(CipherType.Login, { id: "first-cipher" });
+      const usernameStep = pageDetail(1, 0);
+      const passwordStep = pageDetail(1, 0);
+      cipherService.getLastUsedForUrl.mockResolvedValue(first);
+      autofillService.doAutoFill.mockResolvedValue({ outcome: AutofillOutcome.Filled });
 
-    it("reuses the looked-up cipher when the username page has a hidden password field", async () => {
-      const usernamePage = loginStep(1, "text");
-      usernamePage.details.fields.push(
-        createAutofillFieldMock({ type: "password", viewable: false }),
-      );
-      const lookedUpCipher = makeCipher(CipherType.Login, {
-        id: "first-cipher",
-        name: "looked-up",
-      });
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([lookedUpCipher]);
-      await autoSubmit(usernamePage, makeCipher(CipherType.Login, { id: "first-cipher" }));
-      await autoSubmit(
-        loginStep(1, "password"),
-        makeCipher(CipherType.Login, { id: "next-cipher" }),
-      );
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([usernameStep]));
+      await autofillOrchestrator["autoSubmitLoginOnTab"](usernameStep.tab, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([passwordStep]));
+      await autofillOrchestrator["autoSubmitLoginOnTab"](passwordStep.tab, 0);
 
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(DEFAULT_URL, "user-1");
-      expectFilled(lookedUpCipher, 1);
+      // Selection does not advance the rotation, so both steps resolve to the same cipher.
+      expect(cipherService.getNextCipherForUrl).not.toHaveBeenCalled();
+      expect(cipherService.updateLastUsedIndexForUrl).not.toHaveBeenCalled();
+      expect(autofillService.doAutoFill).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ cipher: first, pageDetails: [usernameStep] }),
+      );
+      expect(autofillService.doAutoFill).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({ cipher: first, pageDetails: [passwordStep] }),
+      );
     });
 
-    it("selects the next cipher when the account changed since the username step", async () => {
-      const otherAccountCipher = makeCipher(CipherType.Login, { id: "other-account-cipher" });
-      await autoSubmit(loginStep(1, "text"), makeCipher(CipherType.Login, { id: "first-cipher" }));
-      activeAccount$.next({ id: "user-2" });
-      await autoSubmit(loginStep(1, "password"), otherAccountCipher);
-
-      expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
-      expectFilled(otherAccountCipher, 2);
-    });
-
-    it("does not fill a password step the remembered cipher does not match", async () => {
-      await autoSubmit(loginStep(1, "text"), makeCipher(CipherType.Login, { id: "first-cipher" }));
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([]);
-      await autoSubmit(
-        loginStep(1, "password"),
-        makeCipher(CipherType.Login, { id: "next-cipher" }),
+    it("cycles past a reprompt cipher and abandons the fill when auto-submit surfaces a reprompt", async () => {
+      const pd = pageDetail(1, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+      cipherService.getLastUsedForUrl.mockResolvedValue(
+        makeCipher(CipherType.Login, { reprompt: CipherRepromptType.Password }),
       );
+      autofillService.isPasswordRepromptRequired.mockResolvedValue(true);
 
-      expect(autofillService.doAutoFill).toHaveBeenCalledTimes(1);
-      expect(autofillOrchestrator["multiStepLogin"].size).toBe(1);
+      await autofillOrchestrator["autoSubmitLoginOnTab"](pd.tab, 0);
+
+      // The popout fills after the master password. This attempt is abandoned, and the rotation
+      // moves so the next selection offers the next cipher.
+      expect(autofillService.isPasswordRepromptRequired).toHaveBeenCalled();
+      expect(cipherService.updateLastUsedIndexForUrl).toHaveBeenCalledWith(DEFAULT_URL);
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
     });
 
     it("does not fill when the frame has no page details to submit", async () => {
@@ -1300,11 +1277,7 @@ describe("DefaultAutofillOrchestrator", () => {
       emitAutomatedLoginStep(pd);
       await flushPromises();
 
-      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(
-        pd.tab,
-        pd.frameId,
-        true,
-      );
+      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, pd.frameId);
       expect(autofillService.doAutoFill).toHaveBeenCalledWith(
         expect.objectContaining({ pageDetails: [pd], autoSubmitLogin: true }),
       );

@@ -132,13 +132,8 @@ export default class AutofillService implements AutofillServiceInterface {
    *
    * @param tab The tab to collect page details from
    * @param frameId When set, collect only this frame; otherwise collect every frame
-   * @param discardFieldCache When set, the frame drops its cached fields before walking the DOM
    */
-  collectPageDetailsFromTab$(
-    tab: chrome.tabs.Tab,
-    frameId?: number,
-    discardFieldCache = false,
-  ): Observable<PageDetail[]> {
+  collectPageDetailsFromTab$(tab: chrome.tabs.Tab, frameId?: number): Observable<PageDetail[]> {
     /** Replay Subject that can be utilized when `messages$` may not emit the page details. */
     const pageDetailsFallback$ = new ReplaySubject<PageDetail[]>(1);
 
@@ -172,7 +167,6 @@ export default class AutofillService implements AutofillServiceInterface {
         tab: tab,
         command: AutofillMessageCommand.collectPageDetails,
         sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
-        discardFieldCache,
       },
       frameId !== undefined ? { frameId } : undefined,
       true,
