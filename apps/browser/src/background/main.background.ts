@@ -225,6 +225,7 @@ import { InternalSendService as InternalSendServiceAbstraction } from "@bitwarde
 import { UserId } from "@bitwarden/common/types/guid";
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
+import { CipherLeaseStateService } from "@bitwarden/common/vault/abstractions/cipher-lease-state.service";
 import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
@@ -449,6 +450,7 @@ export default class MainBackground {
   hibpApiService: HibpApiService;
   environmentService: BrowserEnvironmentService;
   cipherSdkService: CipherSdkService;
+  cipherLeaseStateService: CipherLeaseStateService;
   cipherService: CipherServiceAbstraction;
   folderService: InternalFolderServiceAbstraction;
   userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction;
@@ -1189,6 +1191,7 @@ export default class MainBackground {
     );
 
     this.cipherSdkService = new DefaultCipherSdkService(this.sdkService, this.logService);
+    this.cipherLeaseStateService = new DefaultCipherLeaseStateService();
 
     this.cipherFileUploadService = new CipherFileUploadService(
       this.apiService,
@@ -1213,7 +1216,7 @@ export default class MainBackground {
       this.cipherEncryptionService,
       this.messagingService,
       this.cipherSdkService,
-      new DefaultCipherLeaseStateService(),
+      this.cipherLeaseStateService,
     );
     this.folderService = new FolderService(
       this.keyService,

@@ -161,6 +161,7 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service"
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
+import { CipherLeaseStateService } from "@bitwarden/common/vault/abstractions/cipher-lease-state.service";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -297,6 +298,7 @@ export class ServiceContainer {
   hibpApiService: HibpApiService;
   environmentService: EnvironmentService;
   cipherSdkService: CipherSdkService;
+  cipherLeaseStateService: CipherLeaseStateService;
   cipherService: CipherService;
   cipherRiskService: CipherRiskService;
   folderService: InternalFolderService;
@@ -982,6 +984,7 @@ export class ServiceContainer {
     );
 
     this.cipherSdkService = new DefaultCipherSdkService(this.sdkService, this.logService);
+    this.cipherLeaseStateService = new DefaultCipherLeaseStateService();
 
     this.cipherFileUploadService = new CipherFileUploadService(
       this.apiService,
@@ -1006,7 +1009,7 @@ export class ServiceContainer {
       this.cipherEncryptionService,
       this.messagingService,
       this.cipherSdkService,
-      new DefaultCipherLeaseStateService(),
+      this.cipherLeaseStateService,
     );
 
     this.cipherArchiveService = new DefaultCipherArchiveService(
