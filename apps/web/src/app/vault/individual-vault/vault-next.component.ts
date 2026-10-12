@@ -69,6 +69,8 @@ import {
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
+  FOLDER_ID_PARAM,
+  folderNameForScope,
   hasMultipleVaults,
   organizationNameForScope,
   organizationInScope,
@@ -77,12 +79,14 @@ import {
   parseVaultScope,
   resolveVaultScope,
   scopedCollectionSegment,
+  scopedFolderId,
   vaultScopeHeaderTile,
   vaultScopeTitle,
   scopedSharedFolderId,
   scopeKey,
   MY_ITEMS_ROUTE,
   sharedFolderNameForScope,
+  VaultScope,
   VaultScopeType,
   defaultUserCollectionId,
   DefaultVaultItemsTransferService,
@@ -105,6 +109,16 @@ import { ItemDeepLink, ItemDeepLinkAction, itemDeepLinkFrom } from "../utils/ite
 import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
+
+function selectionScopeDetail(scope: VaultScope): string {
+  if (scope.type === VaultScopeType.Organization) {
+    return scope.organizationId;
+  }
+  if (scope.type === VaultScopeType.Folder) {
+    return scope.folderId;
+  }
+  return "";
+}
 
 /**
  * The web individual vault built on the shared {@link VaultItemsTableComponent}, which owns its own
@@ -199,6 +213,8 @@ export class VaultNextComponent implements OnInit {
     scopedCollectionSegment(this.routeParams(), this.routeData()),
   );
 
+  private readonly folderSegment = computed(() => this.routeParams()?.get(FOLDER_ID_PARAM));
+
   private readonly vaultNav = toSignal(
     this.userId$.pipe(switchMap((userId) => this.vaultNavService.viewModel$(userId))),
   );
@@ -210,8 +226,12 @@ export class VaultNextComponent implements OnInit {
    */
   protected readonly vaultScope = computed(
     () =>
-      resolveVaultScope(this.vaultIdParam(), this.collectionSegment(), this.vaultNav()) ??
-      ALL_ITEMS_SCOPE,
+      resolveVaultScope(
+        this.vaultIdParam(),
+        this.collectionSegment(),
+        this.vaultNav(),
+        this.folderSegment(),
+      ) ?? ALL_ITEMS_SCOPE,
   );
 
   protected readonly defaultCollectionId = computed(() => {
@@ -234,7 +254,9 @@ export class VaultNextComponent implements OnInit {
   );
 
   protected readonly parsedVaultScope = computed(
-    () => parseVaultScope(this.vaultIdParam(), this.collectionSegment()) ?? ALL_ITEMS_SCOPE,
+    () =>
+      parseVaultScope(this.vaultIdParam(), this.collectionSegment(), this.folderSegment()) ??
+      ALL_ITEMS_SCOPE,
   );
 
   /**
@@ -418,6 +440,12 @@ export class VaultNextComponent implements OnInit {
       : undefined,
   );
 
+  protected readonly emptyFolderName = computed(() =>
+    this.showItemCreation() ? folderNameForScope(this.vaultScope(), this.folders()) : undefined,
+  );
+
+  protected readonly scopedFolderId = computed(() => scopedFolderId(this.vaultScope()));
+
   protected readonly canCreateCollections = computed(() => {
     const scope = this.vaultScope();
 
@@ -450,8 +478,10 @@ export class VaultNextComponent implements OnInit {
     () => this.vaultScope().type === VaultScopeType.Archive && this.subscriptionEndedMessaging(),
   );
 
-  protected readonly title = computed(() =>
-    vaultScopeTitle(this.vaultScope(), this.i18nService, this.vaultNav()),
+  protected readonly title = computed(
+    () =>
+      vaultScopeTitle(this.vaultScope(), this.i18nService, this.vaultNav()) ??
+      folderNameForScope(this.vaultScope(), this.folders()),
   );
 
   private readonly configureBatchBar = effect(() => {
@@ -479,7 +509,7 @@ export class VaultNextComponent implements OnInit {
   private readonly clearSelectionOnScopeChange = effect(() => {
     // `resolveVaultScope` builds a fresh object each run, so compare by value, not reference.
     const scope = this.vaultScope();
-    const key = `${scope.type}:${scope.type === VaultScopeType.Organization ? scope.organizationId : ""}`;
+    const key = `${scope.type}:${selectionScopeDetail(scope)}`;
     untracked(() => {
       if (this.lastScopeKey() !== undefined && this.lastScopeKey() !== key) {
         this.batchBarService.clearSelection();
@@ -600,6 +630,7 @@ export class VaultNextComponent implements OnInit {
     await this.itemActions.add(cipherType, {
       organizationId: this.scopedOrganizationId(),
       collectionId: this.scopedCollectionId(),
+      folderId: this.scopedFolderId(),
     });
   }
 
@@ -635,6 +666,7 @@ export class VaultNextComponent implements OnInit {
       await this.itemActions.add(result.cipherType, {
         organizationId: this.scopedOrganizationId(),
         collectionId: this.scopedCollectionId(),
+        folderId: this.scopedFolderId(),
       });
     } else if (result.result === AddItemDialogResult.Folder) {
       this.addFolder();

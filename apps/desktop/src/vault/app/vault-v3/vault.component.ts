@@ -14,7 +14,7 @@ import {
   OnInit,
   signal,
 } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
@@ -130,6 +130,8 @@ import {
   cipherInScope,
   collectionInScope,
   FilterFunction,
+  FOLDER_ID_PARAM,
+  folderNameForScope,
   hasMultipleVaults,
   MY_ITEMS_ROUTE,
   organizationInScope,
@@ -326,6 +328,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
                   params.get("vaultId"),
                   scopedCollectionSegment(params, data),
                   nav,
+                  params.get(FOLDER_ID_PARAM),
                 ) ?? ALL_ITEMS_SCOPE,
             ),
           )
@@ -345,8 +348,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     combineLatest([this.route.paramMap, this.route.data]).pipe(
       map(([params, data]) =>
         scopeKey(
-          parseVaultScope(params.get("vaultId"), scopedCollectionSegment(params, data)) ??
-            ALL_ITEMS_SCOPE,
+          parseVaultScope(
+            params.get("vaultId"),
+            scopedCollectionSegment(params, data),
+            params.get(FOLDER_ID_PARAM),
+          ) ?? ALL_ITEMS_SCOPE,
         ),
       ),
     ),
@@ -392,11 +398,23 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   /** The scope's page title under VFO1; unset otherwise so the header keeps its route title. */
   protected readonly title = toSignal(
-    combineLatest([this.vfo1Foundation$, this.vaultScope$, this.vaultNav$]).pipe(
-      map(([vfo1Foundation, scope, nav]) =>
-        vfo1Foundation ? vaultScopeTitle(scope, this.i18nService, nav) : undefined,
+    combineLatest([
+      this.vfo1Foundation$,
+      this.vaultScope$,
+      this.vaultNav$,
+      toObservable(this.folders),
+    ]).pipe(
+      map(([vfo1Foundation, scope, nav, folders]) =>
+        vfo1Foundation
+          ? (vaultScopeTitle(scope, this.i18nService, nav) ?? folderNameForScope(scope, folders))
+          : undefined,
       ),
     ),
+  );
+
+  /** The folder the scope names, for the empty state. */
+  protected readonly emptyFolderName = computed(() =>
+    folderNameForScope(this.vaultScope(), this.folders()),
   );
 
   /**
@@ -1056,6 +1074,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         if (scope.collectionId != null && scope.collectionId !== MY_ITEMS_ROUTE) {
           collectionIds = [scope.collectionId];
         }
+      } else if (scope.type === VaultScopeType.Folder) {
+        folderId = scope.folderId;
       }
     } else if (activeFilter.collectionId != null) {
       const collection = this.allCollections.find((c) => c.id === activeFilter.collectionId);
