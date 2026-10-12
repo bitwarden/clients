@@ -4,7 +4,7 @@ import {
   VAULT_FILTER_KEYS,
   VAULT_FILTER_NAMESPACE,
 } from "../components/vault-items-table/vault-items-table.component";
-import { parseVaultScope, VaultScope } from "../models/vault-scope";
+import { FOLDER_ID_PARAM, parseVaultScope, VaultScope } from "../models/vault-scope";
 
 import { scopedCollectionSegment } from "./scoped-collection";
 
@@ -62,6 +62,7 @@ export function vaultScopeOf(state: RouterStateSnapshot): VaultScope | null {
   return parseVaultScope(
     route.paramMap.get(VAULT_SCOPE_PARAM),
     scopedCollectionSegment(route.paramMap, route.data),
+    route.paramMap.get(FOLDER_ID_PARAM),
   );
 }
 
