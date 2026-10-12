@@ -12,7 +12,7 @@
   [virtualRowHeight]="rowHeight"
   height="fill"
 >
-  <bit-table-toolbar>
+  <bit-table-toolbar [countLabel]="folderCountLabel">
     <bit-search class="tw-flex-1" [placeholder]="'search' | i18n"></bit-search>
 
     <!-- Hidden rather than removed: projection only matches static top-level nodes, so an `@if`
@@ -111,8 +111,13 @@
             [ariaLabel]="'pinned' | i18n"
           />
         }
-        @if (decoration) {
-          <ng-container *ngComponentOutlet="decoration; inputs: { collection: row.collection }" />
+        @if (row.gated) {
+          <bit-icon
+            class="tw-shrink-0"
+            name="bwi-lock-encrypted"
+            [ariaLabel]="'pamSharedFolderPrivilegedControls' | i18n"
+            [bitTooltip]="'pamSharedFolderPrivilegedControls' | i18n"
+          />
         }
       </span>
       @if (row.nestedSharedFolders > 0) {

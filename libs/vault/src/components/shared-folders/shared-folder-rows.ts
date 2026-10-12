@@ -28,8 +28,7 @@ export type SharedFolderRow = {
   /** How many shared folders sit directly inside this one. */
   nestedSharedFolders: number;
 
-  /** Copied from the collection: whether an access rule applies to it. */
-  hasEnabledAccessRule: boolean;
+  gated: boolean;
 
   canEdit: boolean;
   canDelete: boolean;
@@ -102,7 +101,7 @@ export function sharedFolderRows({
       permissions: sharedFolderPermission(collection, organization),
       items: itemCounts.get(collection.id) ?? 0,
       nestedSharedFolders: nestedCounts.get(collection.id) ?? 0,
-      hasEnabledAccessRule: collection.hasEnabledAccessRule,
+      gated: collection.hasEnabledAccessRule,
       canEdit: collection.canEdit(organization),
       canDelete: collection.canDelete(organization),
       collection,
