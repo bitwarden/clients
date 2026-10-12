@@ -1,10 +1,14 @@
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { getNestedCollectionTree } from "@bitwarden/common/admin-console/utils/collection-utils";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+import { getNestedFolderTree } from "@bitwarden/common/vault/utils/folder-utils";
 import { BitwardenIcon } from "@bitwarden/components";
 
 import {
+  folderCommands,
+  scopedFolderId,
   scopedSharedFolderId,
   VaultScope,
   vaultScopeCommands,
@@ -49,9 +53,14 @@ export type CardGridSource = {
   nestedKeys: CountKeys;
 };
 
-/** The folders the grid draws from: the collections of the vault in view. */
+/**
+ * The folders the grid draws from: the collections of the vault in view for a shared folder's
+ * page, the user's own folders for a My folder's page. Which of the two is read is the scope's
+ * call — see {@link resolveCardGridSource}.
+ */
 export type CardGridData = {
   collections: CollectionView[];
+  folders: FolderView[];
 };
 
 /**
@@ -62,7 +71,14 @@ export function resolveCardGridSource(
   scope: VaultScope,
   data: CardGridData,
 ): CardGridSource | undefined {
-  return sharedFolderSource(scope, data.collections);
+  switch (scope.type) {
+    case VaultScopeType.Organization:
+      return sharedFolderSource(scope, data.collections);
+    case VaultScopeType.Folder:
+      return myFolderSource(scope, data.folders);
+    default:
+      return undefined;
+  }
 }
 
 function sharedFolderSource(
@@ -108,10 +124,38 @@ function sharedFolderRoute(scope: VaultScope, folder: CollectionView): string[] 
   );
 }
 
-function findNode(
-  tree: TreeNode<CollectionView>[],
+function myFolderSource(scope: VaultScope, folders: FolderView[]): CardGridSource | undefined {
+  const folderId = scopedFolderId(scope);
+  if (folderId == null) {
+    return undefined;
+  }
+
+  // A folder with no name has no place in the path tree, so it can neither be drilled into nor
+  // nest anything — the My folders table lists it flat for the same reason.
+  const node = findNode(getNestedFolderTree(folders.filter((folder) => !!folder.name)), folderId);
+  if (node == null) {
+    return undefined;
+  }
+
+  return {
+    parentName: sharedFolderName(node.node),
+    cards: node.children.map(({ node: child, children }) => ({
+      id: child.id,
+      name: sharedFolderName(child),
+      commands: folderCommands(child.id),
+      icon: "bwi-folder",
+      nestedCount: children.length,
+    })),
+    titleKey: "foldersInParent",
+    countKeys: { singular: "folderSingular", plural: "folderCount" },
+    nestedKeys: { singular: "nestedFolderSingular", plural: "nestedFolderCount" },
+  };
+}
+
+function findNode<T extends CollectionView | FolderView>(
+  tree: TreeNode<T>[],
   id: string,
-): TreeNode<CollectionView> | undefined {
+): TreeNode<T> | undefined {
   // Predates strict null checks: a miss comes back as `null` despite the signature.
   return ServiceUtils.getTreeNodeObjectFromList(tree, id) ?? undefined;
 }

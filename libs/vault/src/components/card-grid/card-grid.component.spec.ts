@@ -4,6 +4,7 @@ import { provideRouter } from "@angular/router";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { VaultScope, VaultScopeType } from "../../models/vault-scope";
 
@@ -85,6 +86,27 @@ describe("CardGridComponent", () => {
   /** {@link folderTree} for the default parent, which the default scope drills into. */
   function children(count: number): CollectionView[] {
     return folderTree(PARENT, count);
+  }
+
+  /** One of the user's own folders, flat and nested by name like the folder services hold them. */
+  function folder(id: string, name: string): FolderView {
+    return Object.assign(new FolderView(), { id, name });
+  }
+
+  /** The scope of a My folder's page. */
+  const folderScope = (folderId: string): VaultScope => ({
+    type: VaultScopeType.Folder,
+    folderId,
+  });
+
+  function createFolderComponent(
+    folders: FolderView[],
+    scope: VaultScope = folderScope("banking"),
+  ) {
+    fixture = TestBed.createComponent(CardGridComponent);
+    fixture.componentRef.setInput("folders", folders);
+    fixture.componentRef.setInput("scope", scope);
+    fixture.detectChanges();
   }
 
   function createComponent(
@@ -599,6 +621,79 @@ describe("CardGridComponent", () => {
 
       expect(region.getAttribute("aria-labelledby")).toBe(accordionTrigger.id);
       expect(region.querySelector("a[bit-item-content]")).not.toBeNull();
+    });
+  });
+
+  describe("my folders", () => {
+    const banking = folder("banking", "Banking");
+
+    it("renders the folder's direct children as folder cards", () => {
+      createFolderComponent([
+        banking,
+        folder("checking", "Banking/Checking"),
+        folder("savings", "Banking/Savings"),
+        folder("other", "Other"),
+      ]);
+
+      expect(cards().map((card) => card.textContent?.trim())).toEqual(["Checking", "Savings"]);
+      cards().forEach((card) => {
+        expect(card.querySelector("bit-icon-tile bit-icon")?.classList).toContain("bwi-folder");
+        expect(card.querySelector("bit-icon-tile bit-icon")?.classList).not.toContain(
+          "bwi-shared-folder",
+        );
+      });
+    });
+
+    it("titles and counts the section with the folder messages", () => {
+      createFolderComponent([
+        banking,
+        folder("checking", "Banking/Checking"),
+        folder("savings", "Banking/Savings"),
+      ]);
+
+      expect(accordionTitle()).toBe("foldersInParent:Banking");
+      expect(countLabel()).toBe("folderCount:2");
+    });
+
+    it("uses the singular count for a single child", () => {
+      createFolderComponent([banking, folder("checking", "Banking/Checking")]);
+
+      expect(countLabel()).toBe("folderSingular:1");
+    });
+
+    it("counts the folders nested directly inside each card beneath its name", () => {
+      createFolderComponent([
+        banking,
+        folder("checking", "Banking/Checking"),
+        folder("savings", "Banking/Savings"),
+        folder("joint", "Banking/Checking/Joint"),
+        folder("solo", "Banking/Checking/Solo"),
+        folder("cards", "Banking/Savings/Cards"),
+        folder("misc", "Banking/Misc"),
+      ]);
+
+      expect(
+        cards().map((card) => card.querySelector('[slot="secondary"]')?.textContent?.trim()),
+      ).toEqual(["nestedFolderCount:2", undefined, "nestedFolderSingular"]);
+    });
+
+    it("links each card to its folder's page", () => {
+      createFolderComponent([banking, folder("checking", "Banking/Checking")]);
+
+      expect(cards()[0].getAttribute("href")).toBe("/folders/checking");
+      expect(cards()[0].id).toBe("card-grid_link_folder-checking");
+    });
+
+    it("renders nothing when the folder has no children", () => {
+      createFolderComponent([banking, folder("other", "Other")]);
+
+      expect(fixture.nativeElement.querySelector("bit-accordion")).toBeNull();
+    });
+
+    it("renders nothing for a folder the folders it is given do not hold", () => {
+      createFolderComponent([banking], folderScope("unknown"));
+
+      expect(fixture.nativeElement.querySelector("bit-accordion")).toBeNull();
     });
   });
 });
