@@ -274,14 +274,6 @@ export default {
               edit: "Edit",
               access: "Access",
               delete: "Delete",
-              // Paginator
-              rowsPerPage: "Rows per page",
-              rowsPerPageOption: (count) => `${count} rows per page`,
-              previousPage: "Previous page",
-              nextPage: "Next page",
-              goToPage: "Go to page",
-              ofPageCount: (count) => `of ${count}`,
-              selectPlaceholder: "-- Select --",
               // Bulk actions bar
               editAccess: "Edit access",
               bulkActionsBar: "Bulk actions",
@@ -390,12 +382,8 @@ export const Empty: Story = {
   args: { folders: [] },
 };
 
-/**
- * The rows page themselves against the window, so the paginator appears only once the window is too
- * short to show every folder. Shorten this frame and the page shrinks with it; give it room for all
- * sixty and the paginator goes away.
- */
-export const Pagination: Story = {
+/** Sixty folders, all on one page — the table doesn't paginate. */
+export const ManyFolders: Story = {
   args: {
     folders: Array.from({ length: 60 }, (_, index) => ({
       ...folders[index % folders.length],
