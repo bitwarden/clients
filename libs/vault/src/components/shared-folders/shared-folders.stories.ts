@@ -42,6 +42,8 @@ type FolderFixture = {
   name: string;
   permissions: SharedFolderPermission;
   items: number;
+
+  gated?: boolean;
 };
 
 const folders: FolderFixture[] = [
@@ -102,7 +104,10 @@ function toCollection(fixture: FolderFixture): CollectionView {
     organizationId,
     name: fixture.name,
   });
-  Object.assign(view, FLAGS[fixture.permissions], { assigned: true });
+  Object.assign(view, FLAGS[fixture.permissions], {
+    assigned: true,
+    hasEnabledAccessRule: fixture.gated ?? false,
+  });
   return view;
 }
 
@@ -293,7 +298,8 @@ export default {
               resetSearch: "Reset search",
               clearSearchTooltip: "Clear by clicking here or pressing Esc.",
               add: "Add",
-              itemCount: (count) => `${count} items`,
+              sharedFolderCount: (count) => `${count} shared folders`,
+              sharedFolderSingular: (count) => `${count} shared folder`,
               clearAll: "Clear all",
               filter: "Filter",
               filters: "Filters",
@@ -307,6 +313,7 @@ export default {
               // Columns and rows
               name: "Name",
               permissions: "Permissions",
+              controlledAccess: "Controlled access",
               viewItems: "View items",
               viewItemsHidePass: "View items, hidden passwords",
               editItems: "Edit items",
@@ -319,6 +326,7 @@ export default {
               optionsForItem: (name) => `Options for ${name}`,
               selectAllRows: "Select all rows",
               selectRow: "Select row",
+              pamSharedFolderPrivilegedControls: "Privileged controls: access requires a request",
               // Row actions
               edit: "Edit",
               access: "Access",
@@ -365,6 +373,28 @@ type Story = StoryObj<StoryProps>;
  */
 export const Default: Story = {
   args: { folders: [...folders, ...nestedFolders] },
+};
+
+export const PrivilegedControls: Story = {
+  args: {
+    folders: [
+      ...folders.map((folder) => ({
+        ...folder,
+        gated: folder.name === "Engineering" || folder.name === "Operations",
+      })),
+      {
+        id: "col-7",
+        name: "Engineering platform and developer experience shared credentials",
+        permissions: SharedFolderPermission.View,
+        items: 5,
+        gated: true,
+      },
+    ],
+  },
+};
+
+export const AllFoldersGated: Story = {
+  args: { folders: folders.map((folder) => ({ ...folder, gated: true })) },
 };
 
 /**
