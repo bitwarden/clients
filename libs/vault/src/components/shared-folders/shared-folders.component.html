@@ -12,7 +12,7 @@
   [virtualRowHeight]="rowHeight"
   height="fill"
 >
-  <bit-table-toolbar>
+  <bit-table-toolbar [countLabel]="folderCountLabel">
     <bit-search class="tw-flex-1" [placeholder]="'search' | i18n"></bit-search>
 
     <!-- Hidden rather than removed: projection only matches static top-level nodes, so an `@if`
@@ -46,6 +46,14 @@
           </bit-filter-option>
         }
       </bit-filter-menu>
+    }
+
+    @if (showControlledAccess()) {
+      <bit-filter-toggle
+        key="controlledAccess"
+        [label]="'controlledAccess' | i18n"
+        icon="bwi-lock-encrypted"
+      ></bit-filter-toggle>
     }
   </bit-table-toolbar>
 
@@ -101,6 +109,14 @@
             class="tw-shrink-0 tw-text-muted"
             [attr.id]="'shared-folders_icon_pinned-' + row.id"
             [ariaLabel]="'pinned' | i18n"
+          />
+        }
+        @if (row.gated) {
+          <bit-icon
+            class="tw-shrink-0"
+            name="bwi-lock-encrypted"
+            [ariaLabel]="'pamSharedFolderPrivilegedControls' | i18n"
+            [bitTooltip]="'pamSharedFolderPrivilegedControls' | i18n"
           />
         }
       </span>
