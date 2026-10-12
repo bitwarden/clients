@@ -308,10 +308,7 @@ describe("TargetSystemEditComponent — create mode", () => {
     expect(policyForm.valid).toBe(true);
   });
 
-  /**
-   * Mirrors `bitwarden_pam_sealed::MIN_PASSWORD_ENTROPY_BITS` (80 bits): a short, digits-only
-   * policy's generated password would fall below it (20 × log2(10) ≈ 66.4 bits).
-   */
+  /** Mirrors `bitwarden_pam_sealed::MIN_PASSWORD_ENTROPY_BITS` (80 bits); 20 digits ≈ 66.4 bits. */
   it("marks the policy invalid when it falls below the shared strength floor", () => {
     const policyForm = policyFormOf(fixture);
     policyForm.patchValue({
@@ -491,10 +488,8 @@ describe("TargetSystemEditComponent — create mode", () => {
   });
 
   /**
-   * `TargetSystemsClient.create`'s two-phase registration can fail after the server already
-   * created the row (left in `pending_seal`). The thrown `TargetSystemCreateError` carries that
-   * id, not an `Error` subclass — so this routes to the pending target's edit page (re-saving
-   * finishes sealing) instead of leaving the operator on a create form that cannot retry.
+   * Two-phase create can leave the row in `pending_seal`; `TargetSystemCreateError` carries its
+   * id, so this routes to the pending target's edit page instead of a stuck create form.
    */
   it("routes to the pending target's edit page on a partial create failure", async () => {
     TestBed.resetTestingModule();
@@ -886,9 +881,8 @@ describe("TargetSystemEditComponent — edit mode", () => {
   });
 
   /**
-   * `updateTargetSystem` replaces the blob wholesale, so the immutable `method` and (for an
-   * automatic target) `kind` must be resupplied exactly as stored — read off `existing.sealed`,
-   * not a form control, since the edit page shows them read-only.
+   * `updateTargetSystem` replaces the blob wholesale, so `method`/`kind` must be resupplied from
+   * `existing.sealed`, not a form control — both are read-only on this page.
    */
   it("resends the stored method and kind, unedited, for an automatic target", async () => {
     rotationSdk.updateTargetSystem.mockResolvedValue(undefined);
@@ -978,8 +972,7 @@ describe("TargetSystemEditComponent — edit mode", () => {
 
     await (fx.componentInstance as unknown as { submitEdit: () => Promise<void> }).submitEdit();
 
-    // A manual target's update request has no `supportsSessionTermination` at all — the create
-    // request's manual arm carries neither it nor `kind`.
+    // A manual target's update request carries neither `supportsSessionTermination` nor `kind`.
     expect(rotationApiManual.updateTargetSystem).toHaveBeenCalledWith(
       ORG_ID,
       sysId("sys-1"),
@@ -2654,8 +2647,8 @@ describe("TargetSystemEditComponent — session termination withdrawal (rendered
   });
 
   it("says nothing for a target that never supported termination", async () => {
-    // `sealed` replaces the whole object, so `kind` (CustomScript — the non-native integration
-    // that shows this checkbox at all) must be resupplied, not just `supportsSessionTermination`.
+    // `sealed` replaces the whole object, so `kind` must be resupplied too, not just
+    // `supportsSessionTermination`.
     await render({
       sealed: targetSystemSealedFields({
         kind: TargetSystemKind.CustomScript,

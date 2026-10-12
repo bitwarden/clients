@@ -88,8 +88,7 @@ const DEFAULT_MAX_LENGTH = 64;
 
 /**
  * The generator's supported length range (`bitwarden_pam_sealed::GENERATOR_MIN_LENGTH`/
- * `GENERATOR_MAX_LENGTH`). The SDK rejects a policy outside this range regardless of what this
- * form allows, so the bounds are mirrored here to catch it while editing.
+ * `GENERATOR_MAX_LENGTH`), mirrored here to catch an out-of-range policy while editing.
  */
 const GENERATOR_MIN_LENGTH = 5;
 const GENERATOR_MAX_LENGTH = 128;
@@ -104,9 +103,8 @@ const DIGIT_POOL_SIZE = 10;
 const SYMBOL_POOL_SIZE = 8;
 
 /**
- * The shared PAM strength floor (`bitwarden_pam_sealed::MIN_PASSWORD_ENTROPY_BITS`). The blobs
- * stop a hostile server changing a policy in transit, but not replaying an old weak one, so both
- * this form and the SDK enforce the same floor independently.
+ * The shared PAM strength floor (`bitwarden_pam_sealed::MIN_PASSWORD_ENTROPY_BITS`). Sealing
+ * doesn't stop a replayed weak policy, so both this form and the SDK enforce it independently.
  */
 const MIN_PASSWORD_ENTROPY_BITS = 80;
 
@@ -141,10 +139,8 @@ const characterClassValidator: ValidatorFn = (
 };
 
 /**
- * The entropy, in bits, of a password the connector would generate under this policy:
- * `length × log2(pool)`, where `length` is `maxLength` clamped to the generator's supported range
- * and `pool` is the size of the enabled character classes (0 if none is enabled). Mirrors
- * `bitwarden_pam_sealed::SealedPasswordPolicy::entropy_bits`.
+ * The entropy, in bits, of a generated password under this policy: `length × log2(pool)`, length
+ * clamped to the generator's range. Mirrors `SealedPasswordPolicy::entropy_bits`.
  */
 function passwordPolicyEntropyBits(policy: {
   maxLength: number;
@@ -166,9 +162,8 @@ function passwordPolicyEntropyBits(policy: {
 }
 
 /**
- * Catches a policy the SDK would refuse as too weak. Skips while
- * {@link characterClassValidator} already flags no class enabled, so the two don't double up on
- * one cause.
+ * Catches a policy the SDK would refuse as too weak. Skips while {@link characterClassValidator}
+ * already flags no class enabled, so the two don't double up on one cause.
  */
 const strengthFloorValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const group = control as PolicyGroup;
@@ -352,18 +347,12 @@ export class TargetSystemEditComponent {
    */
   protected readonly showPolicyCard = computed(() => this.isAutomatic() || this.isManual());
 
-  /**
-   * Whether `existing` has verified sealed fields to show and resend as-is. `undefined` (not yet
-   * loaded) reads as unavailable, same as a confirmed failure, so nothing renders as trustworthy
-   * before the read settles.
-   */
+  /** `existing`'s verified sealed fields, or `null` while not yet loaded or unverified. */
   protected readonly sealed = computed(() => this.existing()?.sealed ?? null);
 
   /**
-   * Why {@link sealed} is unavailable, for the callout: `pending` names the common case (a target
-   * {@link RotationSdkService.createTargetSystem} registered but never finished sealing — an
-   * operator finishes it by re-saving this form), `invalid` the rarer one (the blob exists but
-   * failed to verify), `ok` that there is nothing to report.
+   * Why {@link sealed} is unavailable: `pending` is a target that never finished sealing (fixed by
+   * re-saving this form), `invalid` is a blob that failed to verify, `ok` is nothing to report.
    */
   protected readonly sealIssue = computed<"ok" | "pending" | "invalid">(() => {
     const existing = this.existing();
@@ -373,11 +362,7 @@ export class TargetSystemEditComponent {
     return existing.status === TargetSystemStatus.PendingSeal ? "pending" : "invalid";
   });
 
-  /**
-   * Chooses the integration for an automatic target with no sealed `kind` to resend — finishing a
-   * `pending_seal` target, or re-saving one whose blob failed to verify — since neither has a
-   * trustworthy prior value. Reuses {@link kindOptions}, the same picker the create form offers.
-   */
+  /** Picks the integration when finishing or re-saving a target with no sealed `kind` to resend. */
   protected readonly editKindControl = this.formBuilder.nonNullable.control<TargetSystemKind>(
     TargetSystemKind.Entra,
   );
@@ -412,9 +397,7 @@ export class TargetSystemEditComponent {
 
   /**
    * Warns when an edit unchecks session termination on a system that confirmed it supports it.
-   * `sealed` absent means there is nothing trustworthy to compare the staged value against, so
-   * this reads the same as "did not support it" rather than guessing — the `!== true` check below
-   * already takes that branch for `undefined`.
+   * No `sealed` reads as "did not support it" rather than guessing.
    */
   protected readonly showTerminationWarning = computed(() => {
     if (!this.editing) {
@@ -670,9 +653,7 @@ export class TargetSystemEditComponent {
     this.nameForm.patchValue({ name: system.name });
     const sealed = system.sealed;
     if (sealed == null) {
-      // Nothing trustworthy to prefill: the policy form keeps buildPolicyGroup's defaults, and
-      // the edit page's setup-incomplete / integrity-check-failed callout (see sealIssue) tells
-      // the operator why, rather than silently showing made-up values as if they were stored.
+      // Nothing trustworthy to prefill; sealIssue banners why.
       return;
     }
     this.policyForm.patchValue({
@@ -743,9 +724,7 @@ export class TargetSystemEditComponent {
     } catch (e) {
       const pendingId = targetSystemCreatePendingId(e);
       if (pendingId != null) {
-        // The server already created the row (left in pending_seal) before the failure; route to
-        // its edit page, re-saving which finishes sealing, rather than stranding the operator on
-        // a create form that cannot retry a target that already exists.
+        // The row already exists (pending_seal); route to its edit page rather than a dead create form.
         this.toastService.showToast({
           variant: "warning",
           message: this.i18nService.t("pamTargetSystemCreatePartialFailure"),
@@ -772,13 +751,8 @@ export class TargetSystemEditComponent {
   }
 
   /**
-   * Builds the full create-shaped request `updateTargetSystem` requires: the server replaces the
-   * blob wholesale, so the immutable fields (`method`, and for an automatic target, `kind`) have
-   * to be resupplied exactly as stored even though only name/policy/termination are actually
-   * being edited. A different value than the row's own is rejected. `kind` comes off
-   * {@link selectedKind}, which falls back to {@link editKindControl} when there is no sealed
-   * `kind` to resend — finishing a `pending_seal` target, or re-saving one that failed to verify.
-   * Returns `null` if `existing` hasn't loaded, which the save button is unreachable without.
+   * Builds the create-shaped request `updateTargetSystem` requires, with immutable `method`/`kind`
+   * resupplied via {@link selectedKind}. `null` if `existing` hasn't loaded.
    */
   private buildUpdateRequest(name: string): TargetSystemCreateRequest | null {
     const existing = this.existing();
@@ -976,8 +950,7 @@ export class TargetSystemEditComponent {
   /** The form groups that hold user input for the current mode. */
   private liveForms(): AbstractControl[] {
     const forms = [this.editing ? this.nameForm : this.createForm, this.policyForm];
-    // Only live (and only dirty-able) while finishing a target with no sealed kind to fall back
-    // on; harmless to include unconditionally since it starts, and stays, pristine otherwise.
+    // Harmless to include unconditionally; it's pristine except while finishing a kindless target.
     return this.showEditKindPicker() ? [...forms, this.editKindControl] : forms;
   }
 

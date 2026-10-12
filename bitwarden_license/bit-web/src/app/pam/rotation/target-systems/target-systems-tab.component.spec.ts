@@ -940,9 +940,8 @@ describe("TargetSystemsTabComponent", () => {
   });
 
   describe("integrity-check-failed indicator", () => {
-    // Scoped to the name cell: the "warning" variant `statusLabel` badge on a `pendingSeal` row
-    // renders its own warning-triangle icon as part of the component library's own styling, which
-    // would otherwise collide with a page-wide `.bwi-exclamation-triangle` query.
+    // Scoped to the name cell: a pendingSeal row's own "warning" status badge renders the same
+    // warning-triangle icon, which would otherwise collide with a page-wide query.
     function nameCellIcon(): Element | null {
       return (fixture.nativeElement as HTMLElement).querySelector(
         "tbody tr td:first-child .bwi-exclamation-triangle",

@@ -73,10 +73,8 @@ export abstract class RotationSdkService {
   abstract listTargetSystems(organizationId: OrganizationId): Promise<TargetSystem[]>;
 
   /**
-   * Registers and seals a target system in two server calls. If the second fails, the row is left
-   * in `pending_seal` rather than rolled back; the thrown error's `TargetSystemsClient::create`
-   * (SDK side) carries that row's id so the caller can route the operator to finish setup via
-   * {@link updateTargetSystem} — see `targetSystemCreatePendingId` in `./rotation-error`.
+   * Registers and seals a target system in two calls; a failure after the first leaves the row in
+   * `pending_seal`, with the error carrying its id (`targetSystemCreatePendingId` in `./rotation-error`).
    */
   abstract createTargetSystem(
     organizationId: OrganizationId,
@@ -84,15 +82,9 @@ export abstract class RotationSdkService {
   ): Promise<TargetSystem>;
 
   /**
-   * Re-seals and replaces a target system's blob wholesale, so every sealed field has to be
-   * resupplied every time, not just the ones being edited — including `method` and (for an
-   * automatic target) `kind`, neither of which can actually change: the server rejects a
-   * different `method` than the row's own, and, once the existing blob is verified, a different
-   * `kind` than its own. Pass the target's current values back unchanged (read them from a prior
-   * {@link listTargetSystems}). This is also the only transition out of `pending_seal` — calling
-   * it with the same request that `createTargetSystem` used is how an operator finishes a target
-   * left incomplete by a failed create; there is no separate "finish setup" method. The server
-   * answers with no content; re-read through {@link listTargetSystems} to render the result.
+   * Re-seals and replaces the blob wholesale — every sealed field must be resupplied, including
+   * the immutable `method`/`kind` (read from a prior {@link listTargetSystems}; the server rejects
+   * a mismatch). Also the only way to finish a `pending_seal` target. No content in response.
    */
   abstract updateTargetSystem(
     organizationId: OrganizationId,
@@ -125,11 +117,9 @@ export abstract class RotationSdkService {
   ): Promise<RotationConfigDetail>;
 
   /**
-   * Re-seals and replaces a config's blob wholesale, so `cipherId` and `targetSystemId` must be
-   * resupplied unchanged (read them from a prior {@link getConfig}) even though neither can
-   * actually change — the server rejects a request whose values disagree with the config's own.
-   * The server locks the account identity while a job is in flight; check
-   * {@link RotationConfigActions.mutationsLocked} before offering the edit.
+   * Re-seals and replaces the blob wholesale — `cipherId`/`targetSystemId` must be resupplied
+   * unchanged (read from a prior {@link getConfig}; the server rejects a mismatch). Locks the
+   * account identity while a job runs; check {@link RotationConfigActions.mutationsLocked} first.
    */
   abstract updateConfig(
     organizationId: OrganizationId,

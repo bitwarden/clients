@@ -166,12 +166,7 @@ export class RotationConfigEditComponent {
 
   private readonly config = computed(() => this.existingConfig()?.config ?? null);
 
-  /**
-   * `null` once `existingConfig` has loaded and its blob could not be verified — unlike a target
-   * system, a rotation config always carries a blob, so this always means "something is wrong
-   * with this row" rather than "not set up yet". The edit page banners this rather than silently
-   * showing blank or made-up account/termination values.
-   */
+  /** `true` once loaded if the blob failed to verify — a config always has one, unlike a target. */
   protected readonly configSealUnverified = computed(
     () => this.config() != null && this.config()?.sealed == null,
   );
@@ -310,9 +305,7 @@ export class RotationConfigEditComponent {
     });
     const sealed = detail.config.sealed;
     if (sealed == null) {
-      // Nothing trustworthy to prefill; the account form keeps its empty defaults, and the
-      // configSealUnverified banner tells the operator why, rather than showing blank or
-      // made-up values as if they were stored.
+      // Nothing trustworthy to prefill; configSealUnverified banners why instead.
       return;
     }
     this.accountForm.patchValue({
@@ -321,11 +314,7 @@ export class RotationConfigEditComponent {
     });
   }
 
-  /**
-   * Whether the selected target's session-termination capability could not be confirmed — an
-   * automatic target with no verified sealed fields (`pending_seal`, or unverifiable) — so the
-   * checkbox below is disabled for a different reason than "this target doesn't support it".
-   */
+  /** True for an automatic target with no verified sealed fields — the checkbox is disabled for "unknown", not "unsupported". */
   protected readonly terminateSessionsUnknown = signal(false);
 
   /** The server rejects `terminateSessions` unless the target is automatic and confirms it. */
@@ -376,10 +365,8 @@ export class RotationConfigEditComponent {
   };
 
   /**
-   * Sends the account with the schedule, since the server takes both in one write — replacing the
-   * blob wholesale, so `cipherId` and `targetSystemId` are resupplied exactly as loaded even
-   * though neither is editable here; the server rejects a request whose values disagree with the
-   * config's own. The server also rejects the write while a job is in flight.
+   * Replaces the blob wholesale, so `cipherId`/`targetSystemId` are resent exactly as loaded
+   * though neither is editable here. Also rejected while a job is in flight.
    */
   protected readonly submitEdit = async (): Promise<void> => {
     this.settingsForm.markAllAsTouched();

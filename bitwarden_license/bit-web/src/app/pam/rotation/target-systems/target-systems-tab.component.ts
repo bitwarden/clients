@@ -102,16 +102,13 @@ export type TargetSystemRow = {
   statusLabel: string;
   active: boolean;
   /**
-   * Whether the integration can terminate sessions, when known. `unknown` means `system.sealed`
-   * is absent (and the row isn't `pendingSeal`, which has its own callout) — the capability could
-   * not be verified, which is distinct from a manual or custom-script target confirming it
-   * cannot.
+   * Whether the integration can terminate sessions, when known. `unknown` means `sealed` is
+   * absent on a row that isn't `pendingSeal` — unverified, distinct from confirming it cannot.
    */
   sessionTermination: "yes" | "no" | "unknown";
   /**
-   * True once `system.sealed` is absent on a row that isn't `pendingSeal`: the blob exists but
-   * failed to verify, so nothing about this row but its id and name can be trusted. Surfaced as a
-   * distinct icon beside the name, since it is not a lifecycle state the status column can show.
+   * True when `sealed` is absent on a row that isn't `pendingSeal`: the blob exists but failed to
+   * verify. Surfaced as an icon beside the name, since the status column can't show it.
    */
   integrityCheckFailed: boolean;
   /** Only an automatic-method target can claim a connector assignment. */
@@ -122,8 +119,7 @@ export type TargetSystemRow = {
   assignConnectorsBlockedKey: string | null;
   /**
    * The i18n key for why Activate/Deactivate are disabled, or null when either is live. A
-   * `pendingSeal` target has no confirmed capability to toggle; the operator finishes setup (edit
-   * and save) before this menu offers either action.
+   * `pendingSeal` target has no confirmed capability to toggle until setup finishes.
    */
   activationBlockedKey: string | null;
 };
@@ -488,9 +484,6 @@ export class TargetSystemsTabComponent {
           ? ("pamTargetSystemStatusActive" as const)
           : ("pamTargetSystemStatusInactive" as const);
       const kind = system.sealed?.kind ?? null;
-      // Absent sealed fields on a pendingSeal row are the ordinary "not set up yet" case, with
-      // its own callout on the edit page; only flag the rarer "blob exists but failed to verify"
-      // case here.
       const integrityCheckFailed = system.sealed == null && !pendingSeal;
       const sessionTermination: TargetSystemRow["sessionTermination"] =
         system.sealed == null

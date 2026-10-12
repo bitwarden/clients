@@ -89,11 +89,7 @@ export function targetSystem(overrides: Partial<TargetSystem> = {}): TargetSyste
   } as TargetSystem;
 }
 
-/**
- * A target {@link TargetSystemsClient.create} registered but never finished sealing: no
- * trustworthy sealed fields, and the `pending_seal` status that says why. An operator finishes it
- * by re-saving the edit form.
- */
+/** A target `create` registered but never finished sealing: no sealed fields, `pending_seal` status. */
 export function pendingTargetSystem(overrides: Partial<TargetSystem> = {}): TargetSystem {
   return targetSystem({
     status: TargetSystemStatus.PendingSeal,
@@ -102,10 +98,7 @@ export function pendingTargetSystem(overrides: Partial<TargetSystem> = {}): Targ
   });
 }
 
-/**
- * The rarer counterpart to {@link pendingTargetSystem}: a target whose blob exists but failed to
- * verify, distinguished from it only by `status` not being `pending_seal`.
- */
+/** The rarer counterpart to {@link pendingTargetSystem}: a blob that exists but failed to verify. */
 export function unverifiableTargetSystem(overrides: Partial<TargetSystem> = {}): TargetSystem {
   return targetSystem({ sealed: undefined, ...overrides });
 }
@@ -166,10 +159,7 @@ export function rotationConfig(overrides: Partial<RotationConfig> = {}): Rotatio
   } as RotationConfig;
 }
 
-/**
- * A config whose blob exists but failed to verify. Unlike a target system, a rotation config has
- * no "not set up yet" state, so this always means "something is wrong with this row".
- */
+/** A config whose blob exists but failed to verify — always invalid, unlike a target system. */
 export function unverifiableRotationConfig(
   overrides: Partial<RotationConfig> = {},
 ): RotationConfig {

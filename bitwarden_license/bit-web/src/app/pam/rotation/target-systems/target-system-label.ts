@@ -42,8 +42,8 @@ export function targetSystemMethodLabelKey(method: TargetSystemMethod): string |
 /**
  * The i18n key for the detail that tells a target system from a same-named sibling of another kind
  * or method. Siblings sharing both still match, so key off {@link TargetSystemLabel.id} for
- * uniqueness. `kind` lives under `sealed` now; a target with no verified sealed fields (not yet
- * sealed, or unverifiable) falls back to the method, same as a manual target always does.
+ * uniqueness. `kind` now lives under `sealed`; an unverified target falls back to the method,
+ * like a manual one.
  */
 export function targetSystemQualifierKey(
   system: Pick<TargetSystem, "method" | "sealed">,

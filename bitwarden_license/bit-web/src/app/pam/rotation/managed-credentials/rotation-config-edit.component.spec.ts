@@ -363,8 +363,7 @@ describe("RotationConfigEditComponent — CREATE mode", () => {
   });
 
   it("disables termination with an 'unknown' hint for an active target with no verified sealed fields", async () => {
-    // Only an active target reaches the create picker at all, so this is the one shape "no
-    // trustworthy sealed fields" can take here — a `pending_seal` target never appears in it.
+    // `pending_seal` targets never reach the create picker, so this is the only unverified shape.
     const unverifiable = targetSystem({
       id: sysId("sys-unverifiable"),
       method: "automatic",
@@ -549,11 +548,7 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
     );
   });
 
-  /**
-   * `updateConfig` replaces the blob wholesale, so the immutable `cipherId`/`targetSystemId` must
-   * be resupplied exactly as loaded — neither is editable on this page, so there is no form
-   * control to source them from.
-   */
+  /** `updateConfig` replaces the blob wholesale; `cipherId`/`targetSystemId` are resent unedited. */
   it("resends the loaded config's cipherId and targetSystemId, unedited", async () => {
     const existingConfig = loadedConfig({ cipherId: CIPHER_ID, targetSystemId: TARGET_SYSTEM_ID });
     const { component, fixture, rotationSdk } = setup({
