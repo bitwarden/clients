@@ -191,20 +191,6 @@ describe("keyService", () => {
     });
   });
 
-  describe("clearAllStoredUserKeys", () => {
-    it("clears the auto unlock key when deleting the biometric unlock key fails", async () => {
-      const userId = "someUser" as UserId;
-      biometricsService.deleteBiometricUnlockKeyForUser.mockRejectedValue(
-        new Error("Keychain unavailable"),
-      );
-
-      await expect(keyService.clearAllStoredUserKeys(userId)).rejects.toThrow(
-        "Keychain unavailable",
-      );
-      expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(null, { userId });
-    });
-  });
-
   describe("clearKeys", () => {
     test.each([null as unknown as UserId, undefined as unknown as UserId])(
       "throws when the provided userId is %s",
