@@ -1,6 +1,11 @@
 import type { BadgeVariant, BitwardenIcon } from "@bitwarden/components";
 
-import { QuartzSchedulePreset, RotationConfigId, RotationConfig, TargetSystem } from "../rotation";
+import {
+  QuartzSchedulePreset,
+  RotationConfigId,
+  RotationConfigView,
+  TargetSystemView,
+} from "../rotation";
 import { RotationConfigDescription } from "../rotation-sdk.service";
 import { targetSystemMethodLabelKey } from "../target-systems/target-system-label";
 
@@ -66,7 +71,7 @@ const STATUS_BADGES: Readonly<Record<RotationRowStatus, Readonly<RotationStatusB
 export const ROTATION_STATUS_BADGES = Object.freeze(Object.values(STATUS_BADGES));
 
 export function resolveRotationStatus(
-  config: Pick<RotationConfig, "enabled" | "hasActiveJob" | "awaitingManualRotation">,
+  config: Pick<RotationConfigView, "enabled" | "hasActiveJob" | "awaitingManualRotation">,
 ): RotationRowStatus {
   if (config.hasActiveJob) {
     return RotationRowStatus.Rotating;
@@ -90,7 +95,7 @@ export function rotationStatusBadge(status: RotationRowStatus): RotationStatusBa
  */
 export type RotationConfigRow = {
   id: RotationConfigId;
-  config: RotationConfig;
+  config: RotationConfigView;
   /** The decrypted cipher name, or the cipher id until the vault read resolves it. */
   cipherName: string;
   targetSystemName: string;
@@ -129,8 +134,8 @@ export type RotationConfigRow = {
  * and sortable columns.
  */
 export function buildRotationConfigRow(
-  config: RotationConfig,
-  targetSystem: TargetSystem | undefined,
+  config: RotationConfigView,
+  targetSystem: TargetSystemView | undefined,
   cipherName: string | undefined,
   description: RotationConfigDescription,
 ): RotationConfigRow {

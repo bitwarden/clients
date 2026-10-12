@@ -8,7 +8,7 @@ import {
   AccessConnector,
   AccessConnectorStatus,
   TargetSystemId,
-  TargetSystem,
+  TargetSystemView,
 } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
@@ -203,7 +203,7 @@ export class AccessConnectorsService {
 
   private buildRows(
     accessConnectors: AccessConnector[],
-    systemById: Map<TargetSystemId, TargetSystem>,
+    systemById: Map<TargetSystemId, TargetSystemView>,
   ): AccessConnectorRow[] {
     return accessConnectors.map((accessConnector) => ({
       id: accessConnector.id,

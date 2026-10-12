@@ -61,7 +61,12 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { THEN_MANAGED_CREDENTIAL, THEN_QUERY_PARAM } from "../create-flow";
 import { filterOptions } from "../filter-options";
 import { OrgCiphersService } from "../org-ciphers.service";
-import { RotationConfigId, TargetSystemMethod, TargetSystem, TargetSystemId } from "../rotation";
+import {
+  RotationConfigId,
+  TargetSystemMethod,
+  TargetSystemView,
+  TargetSystemId,
+} from "../rotation";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
 import { RowBusyTracker } from "../row-busy-tracker";
@@ -143,7 +148,7 @@ export class ManagedCredentialsTabComponent {
 
   /** A config needs a target system, so with none the tab offers to set one up instead. */
   private readonly targetSystems = toSignal(this.targetSystemsService.systems$, {
-    initialValue: [] as TargetSystem[],
+    initialValue: [] as TargetSystemView[],
   });
   protected readonly hasTargetSystems = computed(() => this.targetSystems().length > 0);
 

@@ -13,10 +13,10 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { AccessConnector, TargetSystem } from "../rotation";
+import { AccessConnector, TargetSystemView } from "../rotation";
 
 export type AssignConnectorDialogParams = {
-  targetSystem: TargetSystem;
+  targetSystem: TargetSystemView;
   /** The enabled access connectors not yet assigned to this target system. */
   options: AccessConnector[];
   /**

@@ -1,6 +1,11 @@
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { TargetSystem, TargetSystemId, TargetSystemKind, TargetSystemMethod } from "../rotation";
+import {
+  TargetSystemView,
+  TargetSystemId,
+  TargetSystemKind,
+  TargetSystemMethod,
+} from "../rotation";
 
 /** A target system as a list row, a picker option, or a control's accessible name names it. */
 export type TargetSystemLabel = {
@@ -42,21 +47,21 @@ export function targetSystemMethodLabelKey(method: TargetSystemMethod): string |
 /**
  * The i18n key for the detail that tells a target system from a same-named sibling of another kind
  * or method. Siblings sharing both still match, so key off {@link TargetSystemLabel.id} for
- * uniqueness.
+ * uniqueness. `kind` now lives under `sealed`; an unverified target falls back to the method,
+ * like a manual one.
  */
 export function targetSystemQualifierKey(
-  system: Pick<TargetSystem, "kind" | "method">,
+  system: Pick<TargetSystemView, "method" | "sealed">,
 ): string | null {
-  return system.kind == null
-    ? targetSystemMethodLabelKey(system.method)
-    : targetSystemKindLabelKey(system.kind);
+  const kind = system.sealed?.kind;
+  return kind == null ? targetSystemMethodLabelKey(system.method) : targetSystemKindLabelKey(kind);
 }
 
 /** Falls back to the raw id while the system is unknown. */
 export function targetSystemLabel(
   i18nService: I18nService,
   id: TargetSystemId,
-  system: TargetSystem | undefined,
+  system: TargetSystemView | undefined,
 ): TargetSystemLabel {
   if (system == null) {
     const fallback = String(id);
