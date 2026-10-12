@@ -41,13 +41,13 @@ import { tabFromSegment } from "../detail-tab";
 import { OrgCiphersService } from "../org-ciphers.service";
 import {
   RotationConfigCreateRequest,
-  RotationConfigDetail,
+  RotationConfigDetailView,
   RotationConfigId,
-  RotationConfigUpdateRequest,
   TargetSystemId,
   TargetSystemMethod,
   TargetSystemStatus,
 } from "../rotation";
+import { classifyRotationError } from "../rotation-error";
 import { ROTATION_TABS, rotationLink } from "../rotation-links";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
@@ -162,9 +162,14 @@ export class RotationConfigEditComponent {
   /** Four blocks, the rough depth of the card each of these pages opens with. */
   protected readonly skeletonFields = [0, 1, 2, 3];
 
-  protected readonly existingConfig = signal<RotationConfigDetail | null>(null);
+  protected readonly existingConfig = signal<RotationConfigDetailView | null>(null);
 
   private readonly config = computed(() => this.existingConfig()?.config ?? null);
+
+  /** `true` once loaded if the blob failed to verify — a config always has one, unlike a target. */
+  protected readonly configSealUnverified = computed(
+    () => this.config() != null && this.config()?.sealed == null,
+  );
 
   protected readonly titleText = computed(() =>
     this.i18nService.t(
@@ -298,24 +303,32 @@ export class RotationConfigEditComponent {
       scheduleCron: detail.config.scheduleCron,
       rotateOnAccessEnd: detail.config.rotateOnAccessEnd,
     });
+    const sealed = detail.config.sealed;
+    if (sealed == null) {
+      // Nothing trustworthy to prefill; configSealUnverified banners why instead.
+      return;
+    }
     this.accountForm.patchValue({
-      accountIdentity: detail.config.accountIdentity,
-      terminateSessions: detail.config.terminateSessions,
+      accountIdentity: sealed.accountIdentity,
+      terminateSessions: sealed.terminateSessions,
     });
   }
 
-  /** The server rejects `terminateSessions` unless the target is automatic and supports it. */
+  /** True for an automatic target with no verified sealed fields — the checkbox is disabled for "unknown", not "unsupported". */
+  protected readonly terminateSessionsUnknown = signal(false);
+
+  /** The server rejects `terminateSessions` unless the target is automatic and confirms it. */
   private coupleTerminateSessions(): void {
     const targetControl = this.createForm.controls.targetSystemId;
     const terminateControl = this.createForm.controls.terminateSessions;
 
     targetControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((targetId) => {
       const target = this.activeTargetSystems().find((s) => String(s.id) === targetId);
-      const allowed =
-        target != null &&
-        target.method === TargetSystemMethod.Automatic &&
-        target.supportsSessionTermination === true;
+      const automatic = target != null && target.method === TargetSystemMethod.Automatic;
+      const unknown = automatic && target.sealed == null;
+      this.terminateSessionsUnknown.set(unknown);
 
+      const allowed = automatic && target.sealed?.supportsSessionTermination === true;
       if (!allowed) {
         terminateControl.setValue(false, { emitEvent: false });
         terminateControl.disable({ emitEvent: false });
@@ -352,8 +365,8 @@ export class RotationConfigEditComponent {
   };
 
   /**
-   * Sends the account with the schedule, since the server takes both in one write. The server
-   * rejects the write while a job is in flight.
+   * Replaces the blob wholesale, so `cipherId`/`targetSystemId` are resent exactly as loaded
+   * though neither is editable here. Also rejected while a job is in flight.
    */
   protected readonly submitEdit = async (): Promise<void> => {
     this.settingsForm.markAllAsTouched();
@@ -361,9 +374,15 @@ export class RotationConfigEditComponent {
     if (this.settingsForm.invalid || this.accountForm.invalid) {
       return;
     }
+    const existing = this.config();
+    if (existing == null) {
+      return;
+    }
     const settings = this.settingsForm.getRawValue();
     const account = this.accountForm.getRawValue();
-    const request: RotationConfigUpdateRequest = {
+    const request: RotationConfigCreateRequest = {
+      cipherId: existing.cipherId,
+      targetSystemId: existing.targetSystemId,
       accountIdentity: account.accountIdentity,
       terminateSessions: account.terminateSessions,
       scheduleCron: settings.scheduleCron ?? undefined,
@@ -472,11 +491,21 @@ export class RotationConfigEditComponent {
   }
 
   private showError(e: unknown): void {
+    const outcome = classifyRotationError(e);
+    if (outcome.kind === "i18n") {
+      this.toastService.showToast({ variant: "error", message: this.i18nService.t(outcome.key) });
+      return;
+    }
     const message =
-      e instanceof ErrorResponse
-        ? (e.message ?? this.i18nService.t("unexpectedError"))
-        : this.i18nService.t("unexpectedError");
-    this.toastService.showToast({ variant: "error", message });
+      outcome.kind === "message"
+        ? outcome.message
+        : e instanceof ErrorResponse
+          ? e.message
+          : undefined;
+    this.toastService.showToast({
+      variant: "error",
+      message: message ?? this.i18nService.t("unexpectedError"),
+    });
   }
 }
 

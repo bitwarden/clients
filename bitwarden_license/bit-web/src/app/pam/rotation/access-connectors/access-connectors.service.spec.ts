@@ -3,7 +3,7 @@ import { BehaviorSubject } from "rxjs";
 
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import type { AccessConnector, TargetSystemId, TargetSystem } from "../rotation";
+import type { AccessConnector, TargetSystemId, TargetSystemView } from "../rotation";
 import { AccessConnectorStatus } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
@@ -25,19 +25,19 @@ function makeAccessConnector(overrides: Partial<AccessConnector> = {}): AccessCo
   } as unknown as AccessConnector;
 }
 
-function makeTargetSystem(id: TargetSystemId, name: string): TargetSystem {
-  return { id, name } as unknown as TargetSystem;
+function makeTargetSystem(id: TargetSystemId, name: string): TargetSystemView {
+  return { id, name } as unknown as TargetSystemView;
 }
 
 describe("AccessConnectorsService", () => {
   let service: AccessConnectorsService;
   let rotationSdk: jest.Mocked<RotationSdkService>;
   let targetSystemsService: jest.Mocked<TargetSystemsService>;
-  let systemById$: BehaviorSubject<Map<TargetSystemId, TargetSystem>>;
+  let systemById$: BehaviorSubject<Map<TargetSystemId, TargetSystemView>>;
   let targetSystemsLoadError$: BehaviorSubject<unknown | null>;
 
   beforeEach(() => {
-    systemById$ = new BehaviorSubject<Map<TargetSystemId, TargetSystem>>(new Map());
+    systemById$ = new BehaviorSubject<Map<TargetSystemId, TargetSystemView>>(new Map());
     targetSystemsLoadError$ = new BehaviorSubject<unknown | null>(null);
 
     rotationSdk = {

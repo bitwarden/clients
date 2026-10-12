@@ -19659,6 +19659,9 @@
   "pamTargetSystemActivate": {
     "message": "Activate"
   },
+  "pamTargetSystemActivationBlockedPendingSeal": {
+    "message": "Finish setting up this target system before activating or deactivating it."
+  },
   "pamTargetSystemDeleteTarget": {
     "message": "Delete target system"
   },
@@ -19763,6 +19766,9 @@
   "pamTargetSystemStatusInactive": {
     "message": "Inactive"
   },
+  "pamTargetSystemStatusPendingSeal": {
+    "message": "Setup incomplete"
+  },
   "pamTargetSystemGeneralInfoHeading": {
     "message": "General information"
   },
@@ -19784,6 +19790,9 @@
   "pamTargetSystemTypeLabel": {
     "message": "Type"
   },
+  "pamTargetSystemTypeUnverifiedHint": {
+    "message": "This target's integration could not be confirmed. Choose it again to finish setup."
+  },
   "pamTargetSystemPolicyManualHint": {
     "message": "These are the rules to follow when you rotate this credential by hand."
   },
@@ -19801,6 +19810,9 @@
   },
   "pamTargetSystemPolicyNoCharacterClass": {
     "message": "Include at least one character type."
+  },
+  "pamTargetSystemPolicyBelowStrengthFloor": {
+    "message": "This policy is too weak. Increase the length or include more character types."
   },
   "pamTargetSystemPolicyUppercase": {
     "message": "Include uppercase letters"
@@ -19826,6 +19838,12 @@
   "pamTargetSystemSessionTerminationNativeHint": {
     "message": "Native integrations always terminate active sessions after a credential is rotated."
   },
+  "pamTargetSystemSessionTerminationUnknown": {
+    "message": "Unknown"
+  },
+  "pamTargetSystemSessionTerminationUnknownTooltip": {
+    "message": "This target system's settings could not be verified, so its session-termination support is unknown."
+  },
   "pamTargetSystemTerminationWithdrawalCredentialWarning": {
     "message": "Removing session termination support is rejected while any managed credential on this target system still relies on it. Update those credentials first."
   },
@@ -19838,6 +19856,9 @@
   "pamTargetSystemSavedNotReread": {
     "message": "Target system saved. The saved values could not be read back, so this page may be out of date."
   },
+  "pamTargetSystemCreatePartialFailure": {
+    "message": "The target system was created, but setup could not finish. Save again to finish securing it."
+  },
   "pamTargetSystemSetupGuidanceTitle": {
     "message": "Finish setting up rotation"
   },
@@ -19846,6 +19867,24 @@
   },
   "pamTargetSystemSetupGuidanceCredential": {
     "message": "Add a managed credential on the Managed credentials tab."
+  },
+  "pamTargetSystemSetupIncompleteTitle": {
+    "message": "Setup incomplete"
+  },
+  "pamTargetSystemSetupIncompleteContent": {
+    "message": "This target system was created but never finished securing its settings. Save to finish, or delete it."
+  },
+  "pamTargetSystemIntegrityCheckFailedTitle": {
+    "message": "Integrity check failed"
+  },
+  "pamTargetSystemIntegrityCheckFailedContent": {
+    "message": "This target system's settings could not be verified. Save to re-secure it, or delete it."
+  },
+  "pamTargetSystemIntegrityCheckFailedTooltip": {
+    "message": "This target system's settings could not be verified."
+  },
+  "pamTargetSystemImmutableFieldMismatch": {
+    "message": "This target system's technology could not be confirmed to match. Reload the page and try again."
   },
   "pamTargetSystemNotFound": {
     "message": "Target system not found."
@@ -20252,6 +20291,9 @@
   "pamRotationConfigTerminateSessionsHint": {
     "message": "Requires the target system to support session termination."
   },
+  "pamRotationConfigTerminationUnknownHint": {
+    "message": "This target system's support for session termination could not be verified."
+  },
   "pamRotationConfigRotateOnAccessEnd": {
     "message": "Rotate when access ends"
   },
@@ -20272,6 +20314,21 @@
   },
   "pamRotationConfigAccountLockedContent": {
     "message": "Account settings cannot be changed while a rotation job is in progress."
+  },
+  "pamRotationConfigIntegrityCheckFailedTitle": {
+    "message": "Integrity check failed"
+  },
+  "pamRotationConfigIntegrityCheckFailedContent": {
+    "message": "This managed credential's settings could not be verified. Save to re-secure it."
+  },
+  "pamRotationConfigTerminationUnsupported": {
+    "message": "This target system does not confirm it supports terminating sessions. Clear the session-termination option, or update the target system first."
+  },
+  "pamRotationConfigTargetSealInvalid": {
+    "message": "The selected target system's settings could not be verified. Fix the target system before saving."
+  },
+  "pamRotationConfigImmutableFieldMismatch": {
+    "message": "This managed credential's item or target system could not be confirmed to match. Reload the page and try again."
   },
   "pamRotationHistoryEmpty": {
     "message": "No rotation jobs recorded yet."
@@ -20534,7 +20591,7 @@
     "message": "Target system renamed"
   },
   "pamAuditKindTargetPolicyUpdated": {
-    "message": "Target password policy updated"
+    "message": "Target system settings updated"
   },
   "pamAuditKindTargetDeleted": {
     "message": "Target system deleted"
