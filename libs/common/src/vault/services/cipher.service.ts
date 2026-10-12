@@ -328,7 +328,7 @@ export class CipherService implements CipherServiceAbstraction {
         originalCipher = await this.get(model.id, userId);
       }
       if (originalCipher != null) {
-        await this.updateModelfromExistingCipher(model, originalCipher, userId);
+        this.updateModelfromExistingCipher(model, await this.decrypt(originalCipher, userId));
       }
       this.adjustPasswordHistoryLength(model);
     }
@@ -980,7 +980,7 @@ export class CipherService implements CipherServiceAbstraction {
       );
     }
 
-    const encrypted = await this.encrypt(cipherView, userId);
+    const encrypted = await this.encryptForUpdate(cipherView, userId, originalCipherView);
     const updatedCipher = await this.updateWithServerLegacy(encrypted, orgAdmin);
     const updatedCipherView = await this.decrypt(updatedCipher, userId);
     return updatedCipherView;
@@ -1803,13 +1803,27 @@ export class CipherService implements CipherServiceAbstraction {
 
   // Helpers
 
-  private async updateModelfromExistingCipher(
+  /** A gated cipher's stored copy has no secrets, so its history comes from the caller's full copy. */
+  private async encryptForUpdate(
     model: CipherView,
-    originalCipher: Cipher,
     userId: UserId,
-  ): Promise<void> {
-    const existingCipher = await this.decrypt(originalCipher, userId);
-    model.passwordHistory = existingCipher.passwordHistory || [];
+    originalView?: CipherView,
+  ): Promise<EncryptionContext> {
+    const stored = await this.get(model.id, userId);
+    if (!stored?.isPartial) {
+      return await this.encrypt(model, userId, stored);
+    }
+    if (originalView == null || originalView.partial) {
+      throw new Error("Updating a PAM-gated cipher requires its full original.");
+    }
+    this.updateModelfromExistingCipher(model, originalView);
+    this.adjustPasswordHistoryLength(model);
+    return await this.cipherEncryptionService.encrypt(model, userId);
+  }
+
+  private updateModelfromExistingCipher(model: CipherView, existingCipher: CipherView): void {
+    // Copied, since existingCipher may be the caller's view and a retried save would grow it.
+    model.passwordHistory = [...(existingCipher.passwordHistory || [])];
     if (model.type === CipherType.Login && existingCipher.type === CipherType.Login) {
       if (
         existingCipher.login.password != null &&

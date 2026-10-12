@@ -48,6 +48,8 @@ import { CipherPartialRequest } from "../models/request/cipher-partial.request";
 import { CipherRequest } from "../models/request/cipher.request";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
+import { LoginView } from "../models/view/login.view";
+import { PasswordHistoryView } from "../models/view/password-history.view";
 
 import { CipherService } from "./cipher.service";
 import { DECRYPTED_CIPHERS, ENCRYPTED_CIPHERS } from "./key-state/ciphers.state";
@@ -592,6 +594,57 @@ describe("Cipher Service", () => {
       expect(apiSpy).not.toHaveBeenCalled();
       expect(clearCacheSpy).toHaveBeenCalledWith(userId);
       expect(result).toBeInstanceOf(CipherView);
+    });
+
+    describe("on the legacy path, for a PAM-gated cipher under a lease", () => {
+      const gatedId = "gated" as CipherId;
+      let model: CipherView;
+      let original: CipherView;
+
+      beforeEach(() => {
+        stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).nextState({
+          [gatedId]: { ...cipherData, id: gatedId, partialData: "{}" } as CipherData,
+        });
+        cipherLeaseStateService.leasedCipherIds.mockResolvedValue(new Set([gatedId]));
+        cipherEncryptionService.encrypt.mockResolvedValue(encryptionContext);
+        apiService.putCipher.mockResolvedValue(encryptionContext.cipher.toCipherData() as any);
+        encryptionContext.cipher.edit = true;
+
+        model = new CipherView();
+        model.id = gatedId;
+        model.type = CipherType.Login;
+        model.login = new LoginView();
+        model.login.password = "new";
+
+        const earlier = new PasswordHistoryView();
+        earlier.password = "earliest";
+        original = new CipherView();
+        original.id = gatedId;
+        original.type = CipherType.Login;
+        original.login = new LoginView();
+        original.login.password = "old";
+        original.passwordHistory = [earlier];
+      });
+
+      it("takes password history from the caller's full copy, leaving that copy as it was", async () => {
+        await cipherService.updateWithServer(model, userId, original, false, true);
+
+        expect(model.passwordHistory.map((h) => h.password)).toEqual(["old", "earliest"]);
+        expect(original.passwordHistory.map((h) => h.password)).toEqual(["earliest"]);
+        expect(cipherEncryptionService.encrypt).toHaveBeenCalledWith(model, userId);
+      });
+
+      it("refuses without a full original, before any request", async () => {
+        original.partial = true;
+
+        await expect(
+          cipherService.updateWithServer(model, userId, original, false, true),
+        ).rejects.toThrow("requires its full original");
+        await expect(cipherService.updateWithServer(model, userId)).rejects.toThrow(
+          "requires its full original",
+        );
+        expect(apiService.putCipher).not.toHaveBeenCalled();
+      });
     });
   });
 
