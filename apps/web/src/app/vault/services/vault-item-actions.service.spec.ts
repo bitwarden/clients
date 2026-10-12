@@ -524,6 +524,19 @@ describe("WebVaultItemActionsService", () => {
       });
     });
 
+    it("seeds the folder in scope, with no organization", async () => {
+      const formConfig = {} as CipherFormConfig;
+      cipherFormConfigService.buildConfig.mockResolvedValue(formConfig);
+
+      await service.add(CipherType.Login, { folderId: "folder-1" });
+
+      expect(formConfig.initialValues).toEqual({
+        organizationId: undefined,
+        collectionIds: undefined,
+        folderId: "folder-1",
+      });
+    });
+
     it("does not seed initial values for a personal-vault scope", async () => {
       const formConfig = {} as CipherFormConfig;
       cipherFormConfigService.buildConfig.mockResolvedValue(formConfig);

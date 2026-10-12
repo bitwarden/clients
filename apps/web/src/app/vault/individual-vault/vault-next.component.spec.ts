@@ -716,6 +716,52 @@ describe("VaultNextComponent", () => {
       });
     });
 
+    describe("scoped to a folder", () => {
+      const folderId = "7d8e9f0a-1b2c-4d3e-8f4a-5b6c7d8e9f0a";
+      const inFolder = buildCipher({ id: "in-folder", folderId });
+      const orgItemInFolder = Object.assign(buildCipherFixture("org-in-folder", organizationId), {
+        folderId,
+      });
+      const inOtherFolder = buildCipher({ id: "in-other-folder", folderId: "other-folder" });
+      const trashedInFolder = buildCipher({
+        id: "trashed-in-folder",
+        folderId,
+        deletedDate: new Date(),
+      });
+
+      beforeEach(() => {
+        ciphers$.next([personal, inFolder, orgItemInFolder, inOtherFolder, trashedInFolder]);
+        folders$.next([Object.assign(new FolderView(), { id: folderId, name: "Family/Kids" })]);
+        paramMap$.next(convertToParamMap({ folderId }));
+        fixture.detectChanges();
+      });
+
+      it("resolves to the folder's scope, in no vault", () => {
+        expect(component().vaultScope()).toEqual({ type: "folder", folderId });
+      });
+
+      it("shows only the folder's own active items, whichever vault owns them", () => {
+        expect(rowIds()).toEqual(["in-folder", "org-in-folder"]);
+      });
+
+      it("keeps the shared folders and vaults of every vault, the way All items does", () => {
+        expect(collectionIds()).toEqual(["org-collection", "other-org-collection"]);
+        expect(organizationIds()).toEqual([organizationId, otherOrganizationId]);
+      });
+
+      it("titles the header with the folder's own name", () => {
+        expect(component().title()).toBe("Kids");
+      });
+
+      it("names the folder for the empty state", () => {
+        expect(component()["emptyFolderName"]()).toBe("Kids");
+      });
+
+      it("prefills new items into the folder", () => {
+        expect(component()["scopedFolderId"]()).toBe(folderId);
+      });
+    });
+
     describe("subscription ended callout", () => {
       beforeEach(() => {
         ciphers$.next([]);
