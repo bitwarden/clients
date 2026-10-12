@@ -93,14 +93,16 @@
       </bit-filter-menu>
     }
 
-    <bit-filter-menu
-      [key]="filterKeys.folder"
-      [placeholderText]="'myFolders' | i18n"
-      multiple
-      [disabled]="noFolders()"
-      [disabledTooltip]="foldersDisabledTooltip()"
-      [options]="nestedFolders()"
-    ></bit-filter-menu>
+    @if (showMyFolders()) {
+      <bit-filter-menu
+        [key]="filterKeys.folder"
+        [placeholderText]="'myFolders' | i18n"
+        multiple
+        [disabled]="noFolders()"
+        [disabledTooltip]="foldersDisabledTooltip()"
+        [options]="nestedFolders()"
+      ></bit-filter-menu>
+    }
   </bit-table-toolbar>
 
   <vault-empty-vault
@@ -111,6 +113,7 @@
     [organizationName]="organizationName()"
     [hasMultipleVaults]="hasMultipleVaults()"
     [sharedFolderName]="sharedFolderName()"
+    [folderName]="folderName()"
     [defaultCollectionId]="defaultCollectionId()"
     (clearSearch)="clearSearch(vaultTable)"
     (clearFilters)="clearChipFilters(vaultTable)"

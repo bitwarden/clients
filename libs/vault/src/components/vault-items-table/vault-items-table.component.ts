@@ -272,8 +272,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
       switchMap((account) =>
         account
           ? this.avatarService
-              .getUserAvatarColor$(account.id)
-              .pipe(map((color) => color ?? getAvatarDefaultColor(account.id, account.name)))
+            .getUserAvatarColor$(account.id)
+            .pipe(map((color) => color ?? getAvatarDefaultColor(account.id, account.name)))
           : of(undefined),
       ),
     ),
@@ -372,6 +372,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   /** The account's active My vault items, which an org page's rows leave out. */
   readonly myVaultItemCount = input(0);
 
+  /** The user's own folder the current vault scope names. */
+  readonly folderName = input<string>();
+
   /** Emits the selected rows whenever the selection changes. */
   readonly selectedChange = output<readonly C[]>();
 
@@ -458,6 +461,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * The relevant columns to be displayed based on the current ciphers provided.
    *  - Vault is omitted if all ciphers belong to the same Vault
    *  - Shared Folders is omitted if all ciphers are individually owned
+   *  - My folders is omitted on a folder's own page, where it would only repeat the folder
    */
   protected readonly visibleColumns = computed<VaultItemsTableColumn[]>(() => {
     const hidden = new Set<VaultItemsTableColumn>();
@@ -466,6 +470,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     }
     if (!this.showSharedFolders()) {
       hidden.add("sharedFolders");
+    }
+    if (!this.showMyFolders()) {
+      hidden.add("myFolders");
     }
     return this.displayedColumns().filter((column) => !hidden.has(column));
   });
@@ -499,6 +506,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly favoritesDisabledTooltip = computed(() =>
     this.noFavorites() ? this.i18nService.t("favoritesFilterTooltip") : "",
   );
+
+  protected readonly showMyFolders = computed(() => this.scope()?.type !== VaultScopeType.Folder);
 
   /** Whether the My folders chip has nothing to offer — see {@link noFavorites}. */
   protected readonly noFolders = computed(() => this.folders().length === 0);
