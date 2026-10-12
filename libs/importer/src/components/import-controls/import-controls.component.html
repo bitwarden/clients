@@ -3,7 +3,7 @@
     <bit-card-content>
       @if (capabilitiesPending() || profilesPending()) {
         <div class="tw-flex tw-justify-center tw-py-8">
-          <bit-spinner size="lg"></bit-spinner>
+          <bit-spinner size="lg" />
         </div>
       } @else if (primaryMode() === "direct") {
         @if (directStep() === "intro") {
@@ -25,7 +25,7 @@
           </p>
 
           <div class="tw-flex tw-gap-4 tw-mb-4">
-            <bit-icon name="bwi-lock" aria-hidden="true" class="tw-text-fg-brand"></bit-icon>
+            <bit-icon name="bwi-lock" aria-hidden="true" class="tw-text-fg-brand" />
             <div>
               <h3 bitTypography="h6" noMargin>
                 {{ "importDataSecureByDesignTitle" | i18n }}
@@ -36,7 +36,7 @@
             </div>
           </div>
           <div class="tw-flex tw-gap-4 tw-mb-4">
-            <bit-icon name="bwi-eye" aria-hidden="true" class="tw-text-fg-brand"></bit-icon>
+            <bit-icon name="bwi-eye" aria-hidden="true" class="tw-text-fg-brand" />
             <div>
               <h3 bitTypography="h6" noMargin>
                 {{ "importDataLoginInfoTitle" | i18n }}
@@ -47,7 +47,7 @@
             </div>
           </div>
           <div class="tw-flex tw-gap-4">
-            <bit-icon name="bwi-download" aria-hidden="true" class="tw-text-fg-brand"></bit-icon>
+            <bit-icon name="bwi-download" aria-hidden="true" class="tw-text-fg-brand" />
             <div>
               <h3 bitTypography="h6" noMargin>
                 {{ "importDataEverythingTransfersTitle" | i18n }}
@@ -60,7 +60,7 @@
         } @else {
           <div class="tw-flex tw-items-center tw-gap-2">
             @if (vendorIcon(); as icon) {
-              <bit-svg [content]="icon" class="tw-size-6"></bit-svg>
+              <bit-svg [content]="icon" class="tw-size-6" />
             }
             <h2 bitTypography="h2" noMargin>{{ "importDataLoginTitle" | i18n: vendorName() }}</h2>
           </div>

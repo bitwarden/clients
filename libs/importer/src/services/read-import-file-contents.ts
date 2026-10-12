@@ -17,28 +17,33 @@ export async function readImportFileContents(format: ImportType, file: File): Pr
     return extractZipContent(file, "Proton Pass/data.json");
   }
 
+  const text = await readFileAsText(file);
+  if (format === "lastpasscsv" && (file.type === "text/html" || name.endsWith(".html"))) {
+    return extractLastPassHtmlContent(text);
+  }
+  return text;
+}
+
+function readFileAsText(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsText(file, "utf-8");
     reader.onload = (evt) => {
-      if (format === "lastpasscsv" && (file.type === "text/html" || name.endsWith(".html"))) {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString((evt.target as any).result, "text/html");
-        const pre = doc.querySelector("pre");
-        if (pre != null) {
-          resolve(pre.textContent);
-          return;
-        }
-        reject(new Error("LastPass html export has no <pre> content"));
-        return;
-      }
-
       resolve((evt.target as any).result);
     };
     reader.onerror = () => {
       reject(reader.error ?? new Error("FileReader error reading file"));
     };
   });
+}
+
+function extractLastPassHtmlContent(html: string): string {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const pre = doc.querySelector("pre");
+  if (pre == null) {
+    throw new Error("LastPass html export has no <pre> content");
+  }
+  return pre.textContent;
 }
 
 async function extractZipContent(zipFile: File, contentFilePath: string): Promise<string> {
