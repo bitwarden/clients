@@ -507,10 +507,8 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     ) {
       return lastLaunchedCipher;
     }
-    return (
-      (await this.cipherService.getLastUsedForUrl(tabUrl, activeUserId, autofillOnPageLoad)) ??
-      undefined
-    );
+    const cipher = await this.cipherService.getLastUsedForUrl(tabUrl, activeUserId, isPageTransition);
+    return cipher ?? undefined;
   }
 
   /** Selects the next card or identity cipher and the cache key its rotation index advances under. */
