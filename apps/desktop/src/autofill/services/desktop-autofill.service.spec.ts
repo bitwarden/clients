@@ -57,11 +57,12 @@ describe("DesktopAutofillService", () => {
     let featureFlag$: BehaviorSubject<boolean>;
     let desktopAutofillIpc: {
       setEnabled: jest.Mock;
+      getPasskeyProviderState: jest.Mock;
       listenerReady: jest.Mock;
     };
 
-    /** Lets `ensureEnabled` finish after a feature flag emission. */
-    const flush = () => new Promise(process.nextTick);
+    const registered = { registered: true, enabled: true };
+    const unregistered = { registered: false, enabled: false };
 
     beforeEach(() => {
       featureFlag$ = new BehaviorSubject<boolean>(true);
@@ -71,6 +72,7 @@ describe("DesktopAutofillService", () => {
 
       desktopAutofillIpc = {
         setEnabled: jest.fn().mockResolvedValue(true),
+        getPasskeyProviderState: jest.fn().mockResolvedValue(registered),
         listenerReady: jest.fn(),
       };
       // `listenIpc` binds a handler to each `listen*` channel.
@@ -88,9 +90,7 @@ describe("DesktopAutofillService", () => {
     it("does not enable when the feature flag is off", async () => {
       featureFlag$.next(false);
 
-      await service.init();
-      await flush();
-
+      await expect(service.refreshPasskeyProviderState()).resolves.toEqual(unregistered);
       expect(desktopAutofillIpc.setEnabled).not.toHaveBeenCalled();
     });
 
@@ -106,39 +106,21 @@ describe("DesktopAutofillService", () => {
         platformUtilsService,
       );
 
-      await service.init();
-      await flush();
-
+      await expect(service.refreshPasskeyProviderState()).resolves.toEqual(unregistered);
       expect(desktopAutofillIpc.setEnabled).not.toHaveBeenCalled();
     });
 
-    it("enables when the feature flag is on at init", async () => {
-      await service.init();
-      await flush();
+    it("reports the passkey provider state from the OS", async () => {
+      const state = { registered: true, enabled: false };
+      desktopAutofillIpc.getPasskeyProviderState.mockResolvedValue(state);
 
+      await expect(service.refreshPasskeyProviderState()).resolves.toEqual(state);
       expect(desktopAutofillIpc.setEnabled).toHaveBeenCalledWith(true);
-      expect(desktopAutofillIpc.listenerReady).toHaveBeenCalledTimes(1);
     });
 
-    it("enables when the feature flag turns on after init", async () => {
-      featureFlag$.next(false);
-      await service.init();
-      expect(desktopAutofillIpc.setEnabled).not.toHaveBeenCalled();
-
-      featureFlag$.next(true);
-      await flush();
-
-      expect(desktopAutofillIpc.setEnabled).toHaveBeenCalledWith(true);
-      expect(desktopAutofillIpc.listenerReady).toHaveBeenCalledTimes(1);
-    });
-
-    it("only starts listening once when the feature flag turns on again", async () => {
-      await service.init();
-      await flush();
-
-      featureFlag$.next(false);
-      featureFlag$.next(true);
-      await flush();
+    it("re-submits registration on every call but only starts listening once", async () => {
+      await expect(service.refreshPasskeyProviderState()).resolves.toEqual(registered);
+      await expect(service.refreshPasskeyProviderState()).resolves.toEqual(registered);
 
       expect(desktopAutofillIpc.setEnabled).toHaveBeenCalledTimes(2);
       expect(desktopAutofillIpc.listenerReady).toHaveBeenCalledTimes(1);
@@ -147,10 +129,21 @@ describe("DesktopAutofillService", () => {
     it("does not start listening when the main process fails to enable", async () => {
       desktopAutofillIpc.setEnabled.mockResolvedValue(false);
 
-      await service.init();
-      await flush();
-
+      await expect(service.refreshPasskeyProviderState()).resolves.toEqual(unregistered);
       expect(desktopAutofillIpc.listenerReady).not.toHaveBeenCalled();
+      expect(desktopAutofillIpc.getPasskeyProviderState).not.toHaveBeenCalled();
+    });
+
+    it("enables when the feature flag turns on after init", async () => {
+      featureFlag$.next(false);
+      await service.init();
+      expect(desktopAutofillIpc.setEnabled).not.toHaveBeenCalled();
+
+      featureFlag$.next(true);
+      await new Promise(process.nextTick);
+
+      expect(desktopAutofillIpc.setEnabled).toHaveBeenCalledWith(true);
+      expect(desktopAutofillIpc.listenerReady).toHaveBeenCalledTimes(1);
     });
   });
 

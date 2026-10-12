@@ -30,6 +30,7 @@ export * from "./filter-menu";
 export * from "./form-control";
 export * from "./form-field";
 export * from "./header";
+export * from "./hover-reveal";
 export * from "./icon-button";
 export * from "./icon";
 export * from "./svg";

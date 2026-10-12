@@ -41,6 +41,7 @@ export {
   NewExperienceDialogResult,
   NEW_EXPERIENCE_LEARN_MORE_URL,
 } from "./components/new-experience-dialog/new-experience-dialog.component";
+export { NewExperienceDialogService } from "./services/new-experience-dialog.service";
 export { VaultItemCopyActionsComponent } from "./components/item-copy-actions/item-copy-actions.component";
 export { openPasswordHistoryDialog } from "./components/password-history/password-history.component";
 export { VaultViewPasswordHistoryService } from "./services/view-password-history.service";
@@ -146,6 +147,7 @@ export {
 } from "./services/vault-batch-bar.service";
 export { VaultBatchActionComponent } from "./components/vault-batch-bar/vault-batch-action.component";
 
+export * from "./components/coachmark";
 export { Vfo1TerminologyService } from "./services/vfo1-terminology.service";
 export { Vfo1I18nPipe } from "./pipes/vfo1-i18n.pipe";
 export { Vfo1IconPipe } from "./pipes/vfo1-icon.pipe";
