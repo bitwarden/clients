@@ -18,6 +18,7 @@ import { RouterLink } from "@angular/router";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
   IconComponent,
   IconTileComponent,
@@ -104,12 +105,18 @@ export class CardGridComponent {
 
   /**
    * The collections of the vault in view, narrowed to it by the host — the grid can never surface
-   * a folder outside the vault it is given.
+   * a folder outside the vault it is given. Read when the scope is a shared folder.
    *
    * Flat, as the collection services hold them: nesting is carried in each name, which
    * {@link source} resolves into the tree the folder in view is found in.
    */
-  readonly collections = input.required<CollectionView[]>();
+  readonly collections = input<CollectionView[]>([]);
+
+  /**
+   * The user's own folders. Read when the scope is a My folder; flat like {@link collections}, with
+   * nesting carried in each name.
+   */
+  readonly folders = input<FolderView[]>([]);
 
   /**
    * The page the grid is on, and the folder within it the URL has drilled into. The folder is what
@@ -194,7 +201,10 @@ export class CardGridComponent {
 
   /** The folder in view and its child cards, resolved from whichever data the scope reads. */
   private readonly source = computed(() =>
-    resolveCardGridSource(this.scope(), { collections: this.collections() }),
+    resolveCardGridSource(this.scope(), {
+      collections: this.collections(),
+      folders: this.folders(),
+    }),
   );
 
   private readonly cards = computed(() => this.source()?.cards ?? []);
