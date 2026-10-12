@@ -107,6 +107,8 @@ describe("BitTableToolbarComponent", () => {
             new I18nMockService({
               filters: "Filters",
               clearAll: "Clear all",
+              showMore: "Show more",
+              showMoreCount: (count?: string) => `Show ${count} more`,
               search: "Search",
               resetSearch: "Reset search",
               removeItem: (name?: string) => `Remove ${name}`,
@@ -328,6 +330,8 @@ describe("BitTableToolbarComponent active filter chips", () => {
             new I18nMockService({
               filters: "Filters",
               clearAll: "Clear all",
+              showMore: "Show more",
+              showMoreCount: (count?: string) => `Show ${count} more`,
               search: "Search",
               resetSearch: "Reset search",
               removeItem: (name?: string) => `Remove ${name}`,
@@ -468,6 +472,8 @@ describe("BitTableToolbarComponent customize control", () => {
             new I18nMockService({
               filters: "Filters",
               clearAll: "Clear all",
+              showMore: "Show more",
+              showMoreCount: (count?: string) => `Show ${count} more`,
               search: "Search",
               resetSearch: "Reset search",
               customize: "Customize",
@@ -577,6 +583,9 @@ describe("BitTableToolbarComponent filter dialog", () => {
         addEventListener: (_: string, listener: (event: MediaQueryListEvent) => void) =>
           mediaListeners.push(listener),
         removeEventListener: jest.fn(),
+        // The chip group's popover pulls in CDK a11y, which still uses the legacy API.
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
         dispatchEvent: jest.fn(),
       })),
     });
@@ -597,6 +606,8 @@ describe("BitTableToolbarComponent filter dialog", () => {
             new I18nMockService({
               filters: "Filters",
               clearAll: "Clear all",
+              showMore: "Show more",
+              showMoreCount: (count?: string) => `Show ${count} more`,
               search: "Search",
               resetSearch: "Reset search",
               removeItem: (name?: string) => `Remove ${name}`,

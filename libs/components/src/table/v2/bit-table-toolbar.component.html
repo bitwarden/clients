@@ -2,8 +2,9 @@
   Two rows: the search and any `slot=end` dev controls share the top row; the
   filter chips get their own row beneath. The filter row is the unit that collapses
   into a single trigger + dialog on small screens (responsive view).
+  `tw-min-w-0` keeps it from growing past a `bitCollapseOnScroll` grid to fit the chip group.
 -->
-<div class="tw-relative tw-flex tw-flex-col">
+<div class="tw-relative tw-flex tw-flex-col tw-min-w-0">
   <div [class]="searchRowClasses()">
     <div [class]="searchClasses()">
       <ng-content select="bit-search"></ng-content>
@@ -83,40 +84,16 @@
       </span>
     }
   </div>
-  <!--
-    Below md, a second row of just the active filters — dismissible chips that clear
-    on click. Rendered only when there's at least one (no empty row, no item count).
-  -->
+  <!-- Below md, a single row of just the active filters, overflowing behind a "+N" chip. -->
   @if (collapsed() && activeFilters().length) {
     <div [class]="activeFilterRowClasses()">
-      @for (filter of activeFilters(); track filter.key()) {
-        @if (filter.multiple() && filter.selections().length) {
-          <!--
-            A multi-select draws one chip per selected option, so each can be removed on its
-            own. The chips show only the option's name — the filter's icon identifies it
-            visually, and each chip's accessible name spells it out for screen readers. No
-            wrapper element, so every chip is a flex item of the row and wraps on its own.
-          -->
-          @for (selection of filter.selections(); track selection.value) {
-            @let name = accessibleLabel(filter, selection);
-            <bit-chip
-              [label]="selection.label"
-              [accessibleName]="name"
-              [startIcon]="filter.icon()"
-              [bitTooltip]="name"
-              (click)="filter.deselect(selection.value)"
-              (dismissed)="filter.deselect(selection.value)"
-            ></bit-chip>
-          }
-        } @else {
-          <bit-chip
-            [label]="appliedLabel(filter)"
-            [bitTooltip]="appliedLabel(filter)"
-            (click)="filter.clear()"
-            (dismissed)="filter.clear()"
-          ></bit-chip>
-        }
-      }
+      <bit-chip-group
+        class="tw-block"
+        dismissible
+        [chips]="activeChipItems()"
+        (chipSelect)="clearChip($event)"
+        (chipDismiss)="clearChip($event)"
+      ></bit-chip-group>
     </div>
   }
 </div>
