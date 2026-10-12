@@ -33,8 +33,9 @@ import { ContainerService } from "../../platform/services/container.service";
 import { CipherId, UserId, OrganizationId, CollectionId } from "../../types/guid";
 import { OrgKey, UserKey } from "../../types/key";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
+import { CipherLeaseStateService } from "../abstractions/cipher-lease-state.service";
 import { CipherSdkService } from "../abstractions/cipher-sdk.service";
-import { EncryptionContext } from "../abstractions/cipher.service";
+import { EncryptionContext, GatedCipherWriteError } from "../abstractions/cipher.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
 import { FieldType } from "../enums";
 import { CipherRepromptType } from "../enums/cipher-reprompt-type";
@@ -114,6 +115,7 @@ describe("Cipher Service", () => {
   const cipherEncryptionService = mock<CipherEncryptionService>();
   const messageSender = mock<MessageSender>();
   const cipherSdkService = mock<CipherSdkService>();
+  const cipherLeaseStateService = mock<CipherLeaseStateService>();
 
   const userId = "TestUserId" as UserId;
   const orgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
@@ -172,6 +174,7 @@ describe("Cipher Service", () => {
       cipherEncryptionService,
       messageSender,
       cipherSdkService,
+      cipherLeaseStateService,
     );
 
     encryptionContext = { cipher: new Cipher(cipherData), encryptedFor: userId };
@@ -912,6 +915,89 @@ describe("Cipher Service", () => {
       );
 
       expect(result).toEqual([normalCard]);
+    });
+  });
+
+  describe("writes to a PAM-gated cipher", () => {
+    const gatedId = "gated" as CipherId;
+    const otherGatedId = "other-gated" as CipherId;
+    const plainId = cipherData.id as CipherId;
+    const gated = (id: CipherId) => ({ ...cipherData, id, partialData: "{}" }) as CipherData;
+
+    beforeEach(() => {
+      stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).nextState({
+        [plainId]: cipherData,
+        [gatedId]: gated(gatedId),
+        [otherGatedId]: gated(otherGatedId),
+      });
+      cipherLeaseStateService.leasedCipherIds.mockResolvedValue(new Set());
+    });
+
+    it("refuses a gated cipher without a lease, before any request", async () => {
+      await expect(cipherService.deleteWithServer(gatedId, userId)).rejects.toThrow(
+        GatedCipherWriteError,
+      );
+
+      expect(apiService.deleteCipher).not.toHaveBeenCalled();
+      expect(cipherSdkService.deleteWithServer).not.toHaveBeenCalled();
+    });
+
+    it("refuses on the SDK path too", async () => {
+      sdkCrudFeatureFlag$.next(true);
+
+      await expect(cipherService.softDeleteWithServer(gatedId, userId)).rejects.toThrow(
+        GatedCipherWriteError,
+      );
+
+      expect(cipherSdkService.softDeleteWithServer).not.toHaveBeenCalled();
+    });
+
+    it("allows a gated cipher under an active lease", async () => {
+      cipherLeaseStateService.leasedCipherIds.mockResolvedValue(new Set([gatedId]));
+
+      await cipherService.deleteWithServer(gatedId, userId);
+
+      expect(cipherLeaseStateService.leasedCipherIds).toHaveBeenCalled();
+      expect(apiService.deleteCipher).toHaveBeenCalledWith(gatedId);
+    });
+
+    it("skips the lease lookup for a cipher that is not gated", async () => {
+      await cipherService.deleteWithServer(plainId, userId);
+
+      expect(cipherLeaseStateService.leasedCipherIds).not.toHaveBeenCalled();
+      expect(apiService.deleteCipher).toHaveBeenCalledWith(plainId);
+    });
+
+    it("fails a bulk call as a whole, naming the gated ids", async () => {
+      const result = cipherService.deleteManyWithServer([plainId, gatedId], userId);
+
+      await expect(result).rejects.toThrow(GatedCipherWriteError);
+      await expect(result).rejects.toHaveProperty("cipherIds", [gatedId]);
+      expect(apiService.deleteManyCiphers).not.toHaveBeenCalled();
+    });
+
+    it("lets Admin Console writes through, as the server does", async () => {
+      await cipherService.deleteWithServer(gatedId, userId, true);
+
+      expect(cipherLeaseStateService.leasedCipherIds).not.toHaveBeenCalled();
+      expect(apiService.deleteCipherAdmin).toHaveBeenCalledWith(gatedId);
+    });
+
+    it("treats a bulk restore with an organization as an Admin Console write", async () => {
+      apiService.putRestoreManyCiphersAdmin.mockResolvedValue({ data: [] } as any);
+
+      await cipherService.restoreManyWithServer([gatedId], userId, "org-id");
+
+      expect(apiService.putRestoreManyCiphersAdmin).toHaveBeenCalled();
+    });
+
+    it("looks up the leases of a bulk call in one read", async () => {
+      cipherLeaseStateService.leasedCipherIds.mockResolvedValue(new Set([gatedId]));
+
+      const result = cipherService.deleteManyWithServer([plainId, gatedId, otherGatedId], userId);
+
+      await expect(result).rejects.toHaveProperty("cipherIds", [otherGatedId]);
+      expect(cipherLeaseStateService.leasedCipherIds).toHaveBeenCalledTimes(1);
     });
   });
 

@@ -324,6 +324,7 @@ import {
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
+import { CipherLeaseStateService } from "@bitwarden/common/vault/abstractions/cipher-lease-state.service";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -349,6 +350,7 @@ import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { DefaultChangeLoginPasswordService } from "@bitwarden/common/vault/services/default-change-login-password.service";
 import { DefaultCipherArchiveService } from "@bitwarden/common/vault/services/default-cipher-archive.service";
 import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services/default-cipher-encryption.service";
+import { DefaultCipherLeaseStateService } from "@bitwarden/common/vault/services/default-cipher-lease-state.service";
 import { DefaultCipherRiskService } from "@bitwarden/common/vault/services/default-cipher-risk.service";
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
@@ -726,6 +728,7 @@ const safeProviders: SafeProvider[] = [
       cipherEncryptionService: CipherEncryptionService,
       messagingService: MessagingServiceAbstraction,
       cipherSdkService: CipherSdkService,
+      cipherLeaseStateService: CipherLeaseStateService,
     ) =>
       new CipherService(
         keyService,
@@ -743,6 +746,7 @@ const safeProviders: SafeProvider[] = [
         cipherEncryptionService,
         messagingService,
         cipherSdkService,
+        cipherLeaseStateService,
       ),
     deps: [
       KeyService,
@@ -760,7 +764,13 @@ const safeProviders: SafeProvider[] = [
       CipherEncryptionService,
       MessagingServiceAbstraction,
       CipherSdkService,
+      CipherLeaseStateService,
     ],
+  }),
+  safeProvider({
+    provide: CipherLeaseStateService,
+    useClass: DefaultCipherLeaseStateService,
+    deps: [],
   }),
   safeProvider({
     provide: CipherRiskService,
