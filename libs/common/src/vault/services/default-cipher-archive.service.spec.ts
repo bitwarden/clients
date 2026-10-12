@@ -10,7 +10,7 @@ import { CipherListView } from "@bitwarden/sdk-internal";
 import { ApiService } from "../../abstractions/api.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
 import { CipherId, UserId } from "../../types/guid";
-import { CipherService } from "../abstractions/cipher.service";
+import { CipherService, GatedCipherWriteError } from "../abstractions/cipher.service";
 import {
   CipherBulkArchiveRequest,
   CipherBulkUnarchiveRequest,
@@ -231,6 +231,17 @@ describe("DefaultCipherArchiveService", () => {
         true,
       );
     });
+
+    it("refuses a gated cipher before any request", async () => {
+      mockCipherService.assertWritable.mockRejectedValue(new GatedCipherWriteError([cipherId]));
+
+      await expect(service.archiveWithServer(cipherId, userId)).rejects.toThrow(
+        GatedCipherWriteError,
+      );
+
+      expect(mockCipherService.assertWritable).toHaveBeenCalledWith(cipherId, userId);
+      expect(mockApiService.send).not.toHaveBeenCalled();
+    });
   });
 
   describe("unarchiveWithServer", () => {
@@ -292,6 +303,16 @@ describe("DefaultCipherArchiveService", () => {
         true,
         true,
       );
+    });
+
+    it("refuses a gated cipher before any request", async () => {
+      mockCipherService.assertWritable.mockRejectedValue(new GatedCipherWriteError([cipherId]));
+
+      await expect(service.unarchiveWithServer(cipherId, userId)).rejects.toThrow(
+        GatedCipherWriteError,
+      );
+
+      expect(mockApiService.send).not.toHaveBeenCalled();
     });
   });
 });

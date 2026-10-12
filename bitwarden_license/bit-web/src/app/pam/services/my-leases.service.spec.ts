@@ -68,4 +68,46 @@ describe("MyLeasesService", () => {
     expect(await firstValueFrom(sut.hasActiveLease$("cipher-1"))).toBe(false);
     expect(logService.error).toHaveBeenCalled();
   });
+
+  it("retries after a failed read rather than serving it from the cache", async () => {
+    leasesApi.listMyLeases.mockRejectedValueOnce(new Error("boom"));
+
+    expect(await firstValueFrom(sut.hasActiveLease$("cipher-1"))).toBe(false);
+    expect(await firstValueFrom(sut.hasActiveLease$("cipher-1"))).toBe(true);
+    expect(leasesApi.listMyLeases).toHaveBeenCalledTimes(2);
+  });
+
+  describe("leasedCipherIds", () => {
+    const live = new Date(Date.now() + 60_000).toISOString();
+
+    it("reports the ciphers under a live lease", async () => {
+      leasesApi.listMyLeases.mockResolvedValue([leaseView({ notAfter: live })]);
+
+      await expect(sut.leasedCipherIds()).resolves.toEqual(new Set(["cipher-1"]));
+    });
+
+    it("drops a lapsed or ended lease", async () => {
+      leasesApi.listMyLeases.mockResolvedValue([
+        leaseView({ notAfter: new Date(Date.now() - 1).toISOString() }),
+        leaseView({ status: "revoked", notAfter: live }),
+      ]);
+
+      await expect(sut.leasedCipherIds()).resolves.toEqual(new Set());
+    });
+
+    it("reads fresh even when the cache is warm", async () => {
+      await firstValueFrom(sut.leases$());
+      leasesApi.listMyLeases.mockResolvedValue([]);
+
+      await expect(sut.leasedCipherIds()).resolves.toEqual(new Set());
+      expect(leasesApi.listMyLeases).toHaveBeenCalledTimes(2);
+    });
+
+    it("fails closed when the read fails", async () => {
+      leasesApi.listMyLeases.mockRejectedValue(new Error("boom"));
+
+      await expect(sut.leasedCipherIds()).resolves.toEqual(new Set());
+      expect(logService.error).toHaveBeenCalled();
+    });
+  });
 });
