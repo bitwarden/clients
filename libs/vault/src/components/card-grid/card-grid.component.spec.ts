@@ -7,7 +7,7 @@ import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 
 import { VaultScope, VaultScopeType } from "../../models/vault-scope";
 
-import { SharedFolderCardGridComponent } from "./shared-folder-card-grid.component";
+import { CardGridComponent } from "./card-grid.component";
 
 /**
  * Nine cards — three columns × three rows — render before the rest collapse. jsdom lays nothing out,
@@ -23,15 +23,15 @@ const WIDTHS = [
   { width: 1200, columns: 3, collapsedCards: 9 },
 ];
 
-const TRIGGER_SELECTOR = "#shared-folder-card-grid_button_toggle-overflow";
+const TRIGGER_SELECTOR = "#card-grid_button_toggle-overflow";
 
 const organizationId = "org-1" as OrganizationId;
 
 /** The folder the scope drills into by default, and the one most suites hang children off. */
 const PARENT = { id: "engineering" as CollectionId, name: "Engineering" };
 
-describe("SharedFolderCardGridComponent", () => {
-  let fixture: ComponentFixture<SharedFolderCardGridComponent>;
+describe("CardGridComponent", () => {
+  let fixture: ComponentFixture<CardGridComponent>;
 
   /**
    * The observers the component has attached to its grid, and what each is watching. jsdom has no
@@ -92,7 +92,7 @@ describe("SharedFolderCardGridComponent", () => {
     scope: VaultScope = scopeTo(PARENT.id),
     startingState: { open?: boolean; initiallyExpanded?: boolean } = {},
   ) {
-    fixture = TestBed.createComponent(SharedFolderCardGridComponent);
+    fixture = TestBed.createComponent(CardGridComponent);
     fixture.componentRef.setInput("collections", collections);
     fixture.componentRef.setInput("scope", scope);
     Object.entries(startingState).forEach(([input, value]) =>
@@ -159,7 +159,7 @@ describe("SharedFolderCardGridComponent", () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [SharedFolderCardGridComponent],
+      imports: [CardGridComponent],
       providers: [
         provideRouter([]),
         {
@@ -220,8 +220,8 @@ describe("SharedFolderCardGridComponent", () => {
 
       // A grandchild arrives with the drill-in to its own parent, not before.
       expect(cards().map((card) => card.id)).toEqual([
-        `shared-folder-card-grid_link_folder-${PARENT.id}-folder-0`,
-        `shared-folder-card-grid_link_folder-${PARENT.id}-folder-1`,
+        `card-grid_link_folder-${PARENT.id}-folder-0`,
+        `card-grid_link_folder-${PARENT.id}-folder-1`,
       ]);
     });
 
@@ -326,7 +326,7 @@ describe("SharedFolderCardGridComponent", () => {
     it("gives each card an id naming the folder it opens", () => {
       createComponent(children(1));
 
-      expect(cards()[0].id).toBe("shared-folder-card-grid_link_folder-engineering-folder-0");
+      expect(cards()[0].id).toBe("card-grid_link_folder-engineering-folder-0");
     });
   });
 
@@ -489,7 +489,7 @@ describe("SharedFolderCardGridComponent", () => {
     });
   });
 
-  // Why the expand moves focus: see SharedFolderCardGridComponent.toggleExpanded.
+  // Why the expand moves focus: see CardGridComponent.toggleExpanded.
   describe("focus on expansion", () => {
     it("moves focus to the first card the trigger reveals", async () => {
       createComponent(children(COLLAPSED_CARD_COUNT + 4));
