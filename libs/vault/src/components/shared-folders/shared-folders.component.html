@@ -206,18 +206,4 @@
       </bit-cell>
     </bit-column>
   }
-
-  <!--
-    Sized to the window rather than to a fixed count — see `autoPageSize`.
-
-    Hidden on the *fitted* size rather than the effective one, because the rows-per-page select
-    lives in the footer — hiding on the effective size would take away the control just used to ask
-    for a longer page, with nothing to restore it until the next resize.
-  -->
-  <bit-table-paginator
-    #paginator
-    [pageSize]="autoPageSize()"
-    [pageSizeOptions]="pageSizeOptions()"
-    [class.tw-hidden]="paginator.pageCount() < 2 && paginator.pageSize() === autoPageSize()"
-  ></bit-table-paginator>
 </bit-table-v2>
