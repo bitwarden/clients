@@ -14,6 +14,9 @@ export type SharedFolderRow = {
   name: string;
   permissions: SharedFolderPermission;
   items: number;
+
+  gated: boolean;
+
   canEdit: boolean;
   canDelete: boolean;
 
@@ -65,6 +68,7 @@ export function sharedFolderRows({
       name: collection.name,
       permissions: sharedFolderPermission(collection, organization),
       items: itemCounts.get(collection.id) ?? 0,
+      gated: collection.hasEnabledAccessRule,
       canEdit: collection.canEdit(organization),
       canDelete: collection.canDelete(organization),
       collection,

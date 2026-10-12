@@ -57,6 +57,7 @@ type CollectionOverrides = {
   readOnly?: boolean;
   hidePasswords?: boolean;
   defaultCollection?: boolean;
+  gated?: boolean;
 };
 
 /** A collection with its branded ids relaxed, so a test can name a folder by a readable id. */
@@ -69,6 +70,7 @@ function collection(overrides: CollectionOverrides = {}): CollectionView {
     readOnly = false,
     hidePasswords = false,
     defaultCollection = false,
+    gated = false,
   } = overrides;
 
   const view = new CollectionView({
@@ -79,6 +81,7 @@ function collection(overrides: CollectionOverrides = {}): CollectionView {
   view.manage = manage;
   view.readOnly = readOnly;
   view.hidePasswords = hidePasswords;
+  view.hasEnabledAccessRule = gated;
   view.assigned = true;
   if (defaultCollection) {
     view.type = CollectionTypes.DefaultUserCollection;
@@ -176,7 +179,15 @@ describe("SharedFoldersComponent", () => {
       imports: [SharedFoldersComponent],
       providers: [
         provideRouter([]),
-        { provide: I18nService, useValue: { t: (key: string) => key } },
+        {
+          provide: I18nService,
+          useValue: {
+            t: (key: string, ...args: unknown[]) => {
+              const substitutions = args.filter((arg) => arg != null);
+              return substitutions.length ? `${key}:${substitutions.join(":")}` : key;
+            },
+          },
+        },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: LogService, useValue: mock<LogService>() },
         {
@@ -191,7 +202,7 @@ describe("SharedFoldersComponent", () => {
           provide: CollectionService,
           useValue: { decryptedCollections$: () => collections$ },
         },
-        { provide: CipherService, useValue: { cipherListViews$: () => ciphers$ } },
+        { provide: CipherService, useValue: { cipherListViewsWithPartials$: () => ciphers$ } },
         { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
         ...(withCollectionDialog
           ? [{ provide: COLLECTION_DIALOG, useValue: collectionDialog }]
@@ -306,6 +317,102 @@ describe("SharedFoldersComponent", () => {
       fixture.detectChanges();
 
       expect(component["loading"]()).toBe(false);
+    });
+
+    it("counts items whose secrets the server withheld", async () => {
+      const withheld = Object.assign(cipher("gated", ["a"]), { partial: true });
+
+      await setup({
+        collections: [collection({ id: "a", name: "Engineering", gated: true })],
+        ciphers: [withheld, cipher("ungated", ["a"])],
+      });
+      fixture.detectChanges();
+
+      expect(bitTable().filtered()).toEqual([expect.objectContaining({ items: 2 })]);
+    });
+
+    describe("the privileged controls indicator", () => {
+      const gatedIcon = (name: string) =>
+        fixture.debugElement
+          .queryAll(By.css("bit-icon.bwi-lock-encrypted"))
+          .find((icon) => icon.nativeElement.closest("bit-row")?.textContent?.includes(name));
+
+      it("marks a folder an access rule governs, and labels it", async () => {
+        await setup({
+          collections: [collection({ id: "a", name: "Engineering", gated: true })],
+        });
+        fixture.detectChanges();
+
+        const icon = gatedIcon("Engineering");
+        expect(icon).toBeDefined();
+        expect(icon!.nativeElement.getAttribute("role")).toBe("img");
+        expect(icon!.nativeElement.getAttribute("aria-label")).toBe(
+          "pamSharedFolderPrivilegedControls",
+        );
+      });
+
+      it("leaves an ungoverned folder unmarked", async () => {
+        await setup({ collections: [collection({ id: "a", name: "Engineering" })] });
+        fixture.detectChanges();
+
+        expect(gatedIcon("Engineering")).toBeUndefined();
+      });
+
+      it("marks only the governed folders", async () => {
+        await setup({
+          collections: [
+            collection({ id: "a", name: "Engineering", gated: true }),
+            collection({ id: "b", name: "Finance" }),
+          ],
+        });
+        fixture.detectChanges();
+
+        expect(gatedIcon("Engineering")).toBeDefined();
+        expect(gatedIcon("Finance")).toBeUndefined();
+      });
+
+      it("sits next to the folder name, inside the link's own flex row", async () => {
+        await setup({
+          collections: [
+            collection({
+              id: "a",
+              name: "Engineering platform and developer experience shared credentials",
+              gated: true,
+            }),
+          ],
+        });
+        fixture.detectChanges();
+
+        const icon = gatedIcon("Engineering platform");
+        const link = fixture.debugElement.query(By.css("[id^='shared-folders_link_name-']"));
+
+        expect(icon).toBeDefined();
+        expect(icon!.nativeElement.parentElement).toBe(link.nativeElement.parentElement);
+        expect(icon!.nativeElement.className).toContain("tw-shrink-0");
+      });
+
+      it("holds the indicator while the folder's items arrive whole", async () => {
+        await setup({
+          collections: [collection({ id: "a", name: "Engineering", gated: true })],
+          ciphers: [cipher("readable", ["a"])],
+        });
+        fixture.detectChanges();
+
+        expect(gatedIcon("Engineering")).toBeDefined();
+      });
+
+      it("drops the indicator once the rule is lifted", async () => {
+        await setup({
+          collections: [collection({ id: "a", name: "Engineering", gated: true })],
+        });
+        fixture.detectChanges();
+        expect(gatedIcon("Engineering")).toBeDefined();
+
+        collections$.next([collection({ id: "a", name: "Engineering" })]);
+        fixture.detectChanges();
+
+        expect(gatedIcon("Engineering")).toBeUndefined();
+      });
     });
 
     it("re-renders as the collections stream re-emits", async () => {
@@ -585,6 +692,174 @@ describe("SharedFoldersComponent", () => {
       fixture.detectChanges();
 
       expect(bitTable().filtered()).toEqual([expect.objectContaining({ name: "Finance archive" })]);
+    });
+  });
+
+  describe("the row count", () => {
+    function countText(): string | undefined {
+      return fixture.nativeElement
+        .querySelector("bit-table-toolbar [bitOverflowTrigger]")
+        ?.textContent?.trim();
+    }
+
+    const mixedPermissions = (count: number) =>
+      Array.from({ length: count }, (_unused, index) =>
+        collectionWith(index === 0 ? SharedFolderPermission.View : SharedFolderPermission.Manage, {
+          id: `col-${index}`,
+          name: `Folder ${index}`,
+        }),
+      );
+
+    it("counts shared folders rather than items", async () => {
+      await setup({ collections: mixedPermissions(3) });
+      fixture.detectChanges();
+
+      expect(countText()).toBe("sharedFolderCount:3");
+    });
+
+    it("uses the singular at one folder", async () => {
+      await setup({ collections: mixedPermissions(3) });
+      fixture.detectChanges();
+
+      searchControl().setValue("Folder 1");
+      fixture.detectChanges();
+
+      expect(countText()).toBe("sharedFolderSingular:1");
+    });
+
+    it("follows the active filters rather than the whole list", async () => {
+      await setup({ collections: mixedPermissions(4) });
+      fixture.detectChanges();
+
+      filterControl("permissions").setValue([SharedFolderPermission.Manage]);
+      fixture.detectChanges();
+
+      expect(countText()).toBe("sharedFolderCount:3");
+    });
+  });
+
+  describe("the controlled access toggle", () => {
+    async function setupMixed(): Promise<void> {
+      await setup({
+        collections: [
+          collection({ id: "a", name: "Engineering", gated: true }),
+          collection({ id: "b", name: "Finance" }),
+        ],
+      });
+      fixture.detectChanges();
+    }
+
+    function toggle(): HTMLElement | null {
+      return fixture.nativeElement.querySelector("bit-filter-toggle");
+    }
+
+    it("is rendered when some folders are governed and some are not", async () => {
+      await setupMixed();
+
+      expect(toggle()).not.toBeNull();
+    });
+
+    it("is omitted when no folder is governed", async () => {
+      await setup({ collections: [collection({ id: "a" }), collection({ id: "b" })] });
+      fixture.detectChanges();
+
+      expect(toggle()).toBeNull();
+    });
+
+    it("is omitted when every folder is governed", async () => {
+      await setup({
+        collections: [collection({ id: "a", gated: true }), collection({ id: "b", gated: true })],
+      });
+      fixture.detectChanges();
+
+      expect(toggle()).toBeNull();
+    });
+
+    it("narrows to the governed folders when switched on", async () => {
+      await setupMixed();
+
+      filterControl("controlledAccess").setValue(true);
+      fixture.detectChanges();
+
+      expect(bitTable().filtered()).toEqual([expect.objectContaining({ name: "Engineering" })]);
+    });
+
+    it("is unfiltered when switched off", async () => {
+      await setupMixed();
+      filterControl("controlledAccess").setValue(true);
+      fixture.detectChanges();
+
+      filterControl("controlledAccess").setValue(false);
+      fixture.detectChanges();
+
+      expect(bitTable().filtered()).toHaveLength(2);
+    });
+
+    it("flips on a click of the chip itself", async () => {
+      await setupMixed();
+
+      toggle()!.querySelector<HTMLButtonElement>("button")!.click();
+      fixture.detectChanges();
+
+      expect(filterControl("controlledAccess").active()).toBe(true);
+      expect(bitTable().filtered()).toEqual([expect.objectContaining({ name: "Engineering" })]);
+    });
+
+    it("intersects with the search term", async () => {
+      await setup({
+        collections: [
+          collection({ id: "a", name: "Engineering", gated: true }),
+          collection({ id: "b", name: "Engineering archive" }),
+          collection({ id: "c", name: "Finance", gated: true }),
+        ],
+      });
+      fixture.detectChanges();
+
+      searchControl().setValue("engineering");
+      filterControl("controlledAccess").setValue(true);
+      fixture.detectChanges();
+
+      expect(bitTable().filtered()).toEqual([expect.objectContaining({ name: "Engineering" })]);
+    });
+
+    it("is cleared by the empty state's Clear all", async () => {
+      await setupMixed();
+      filterControl("controlledAccess").setValue(true);
+      fixture.detectChanges();
+
+      (fixture.nativeElement as HTMLElement)
+        .querySelector<HTMLButtonElement>("#bit-table-toolbar_button_clear-all")!
+        .click();
+      fixture.detectChanges();
+
+      expect(filterControl("controlledAccess").active()).toBe(false);
+      expect(bitTable().filtered()).toHaveLength(2);
+    });
+
+    it("goes away once no folder is governed any more", async () => {
+      await setupMixed();
+      expect(toggle()).not.toBeNull();
+
+      collections$.next([collection({ id: "a", name: "Engineering" }), collection({ id: "b" })]);
+      fixture.detectChanges();
+
+      expect(toggle()).toBeNull();
+    });
+
+    it("leaves no narrowing behind when it goes away while switched on", async () => {
+      await setupMixed();
+      filterControl("controlledAccess").setValue(true);
+      fixture.detectChanges();
+      expect(bitTable().filtered()).toHaveLength(1);
+
+      collections$.next([
+        collection({ id: "a", name: "Engineering", gated: true }),
+        collection({ id: "b", name: "Finance", gated: true }),
+      ]);
+      fixture.detectChanges();
+
+      expect(toggle()).toBeNull();
+      expect(bitTable().filtered()).toHaveLength(2);
     });
   });
 

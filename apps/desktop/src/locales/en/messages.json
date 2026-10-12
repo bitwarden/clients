@@ -1186,6 +1186,12 @@
   "pamDeleteRequiresAccess": {
     "message": "You need active access to delete this item. Request access, then try again."
   },
+  "controlledAccess": {
+    "message": "Controlled access"
+  },
+  "pamSharedFolderPrivilegedControls": {
+    "message": "Privileged controls: access requires a request"
+  },
   "overwritePasswordConfirmation": {
     "message": "Are you sure you want to overwrite the current password?"
   },
