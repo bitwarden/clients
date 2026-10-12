@@ -71,13 +71,25 @@ describe("MainBiometricsIPCListener", () => {
     });
   });
 
-  it("rejects when other actions fail", async () => {
-    const keychainError = new Error("Keychain unavailable");
-    biometricsService.hasPersistentKey.mockRejectedValue(keychainError);
+  // Each non-enrollment action and the service method it delegates to.
+  it.each<[BiometricAction, keyof DesktopBiometricsService]>([
+    [BiometricAction.Authenticate, "authenticateWithBiometrics"],
+    [BiometricAction.GetStatus, "getBiometricsStatus"],
+    [BiometricAction.UnlockForUser, "unlockWithBiometricsForUser"],
+    [BiometricAction.GetStatusForUser, "getBiometricsStatusForUser"],
+    [BiometricAction.SetKeyForUser, "setBiometricProtectedUnlockKeyForUser"],
+    [BiometricAction.RemoveKeyForUser, "deleteBiometricUnlockKeyForUser"],
+    [BiometricAction.Setup, "setupBiometrics"],
+    [BiometricAction.SetShouldAutoprompt, "setShouldAutopromptNow"],
+    [BiometricAction.GetShouldAutoprompt, "getShouldAutopromptNow"],
+    [BiometricAction.HasPersistentKey, "hasPersistentKey"],
+  ])("rejects when %s fails", async (action, method) => {
+    const serviceError = new Error("Service failed");
+    (biometricsService[method] as jest.Mock).mockRejectedValue(serviceError);
     const handler = captureBiometricHandler(biometricsService);
 
     await expect(
-      handler(null, { action: BiometricAction.HasPersistentKey, userId: TEST_USER_ID }),
-    ).rejects.toThrow(keychainError);
+      handler(null, { action, userId: TEST_USER_ID, key: TEST_KEY_B64 }),
+    ).rejects.toThrow(serviceError);
   });
 });
