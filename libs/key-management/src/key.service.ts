@@ -243,9 +243,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   async clearAllStoredUserKeys(userId: UserId): Promise<void> {
+    // Cleared first, so a failed biometric key deletion does not keep the auto unlock key.
+    await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
     // No-op on platforms that do not store a biometrics-protected copy of the user key.
     await this.biometricsService.deleteBiometricUnlockKeyForUser(userId);
-    await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
   }
 
   userKey$(userId: UserId): Observable<UserKey | null> {

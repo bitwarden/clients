@@ -39,9 +39,6 @@ describe("MainBiometricsIPCListener", () => {
   });
 
   describe("enrollPersistent", () => {
-    // The renderer records the enrolled key id once the IPC call resolves. A swallowed failure
-    // would record the new key id without a matching enrollment, and the biometric re-enrollment
-    // migration would then never retry.
     it("rejects when enrollment fails", async () => {
       const enrollmentError = new Error("Failed to parse user key");
       biometricsService.enrollPersistent.mockRejectedValue(enrollmentError);
@@ -74,12 +71,13 @@ describe("MainBiometricsIPCListener", () => {
     });
   });
 
-  it("swallows failures of other actions", async () => {
-    biometricsService.hasPersistentKey.mockRejectedValue(new Error("Keychain unavailable"));
+  it("rejects when other actions fail", async () => {
+    const keychainError = new Error("Keychain unavailable");
+    biometricsService.hasPersistentKey.mockRejectedValue(keychainError);
     const handler = captureBiometricHandler(biometricsService);
 
     await expect(
       handler(null, { action: BiometricAction.HasPersistentKey, userId: TEST_USER_ID }),
-    ).resolves.toBeUndefined();
+    ).rejects.toThrow(keychainError);
   });
 });

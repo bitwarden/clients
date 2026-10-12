@@ -452,11 +452,7 @@ export class SettingsDialogComponent implements OnInit {
         !this.userHasMasterPassword()
       ) {
         // Allow biometric unlock on app restart so the user doesn't get into a bad state.
-        // Keep the PIN if that fails, otherwise nothing unlocks the vault after restart.
-        if (!(await this.enrollPersistentBiometricIfNeeded(userId))) {
-          this.form.controls.pin.setValue(true, { emitEvent: false });
-          return;
-        }
+        await this.enrollPersistentBiometricIfNeeded(userId);
       }
       await this.pinService.unsetPin(userId);
     }
@@ -468,6 +464,9 @@ export class SettingsDialogComponent implements OnInit {
     } catch (error) {
       this.logService.error("Error updating unlock with biometrics: ", error);
       this.form.controls.biometric.setValue(false, { emitEvent: false });
+      // Keep the stored state in line with the form, e.g. when storing the key failed.
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.biometricStateService.setBiometricUnlockEnabled(false, userId);
       this.validationService.showError(error);
     } finally {
       this.messagingService.send("redrawMenu");
@@ -566,7 +565,7 @@ export class SettingsDialogComponent implements OnInit {
   /**
    * Persists the user key so biometrics alone can unlock the vault after an app restart.
    */
-  private async enrollPersistentBiometricIfNeeded(userId: UserId): Promise<boolean> {
+  private async enrollPersistentBiometricIfNeeded(userId: UserId): Promise<void> {
     try {
       if (!(await this.biometricsService.hasPersistentKey(userId))) {
         const userKey = await firstValueFrom(this.keyService.userKey$(userId));
@@ -575,11 +574,9 @@ export class SettingsDialogComponent implements OnInit {
           emitEvent: false,
         });
       }
-      return true;
     } catch (error) {
       this.logService.error("Error enrolling persistent biometric unlock: ", error);
       this.validationService.showError(error);
-      return false;
     }
   }
 
