@@ -18596,6 +18596,9 @@
   "pamStatusUnknown": {
     "message": "Unknown"
   },
+  "pamSharedFolderPrivilegedControls": {
+    "message": "Privileged controls: access requires a request"
+  },
   "pamAccessBadgePrivileged": {
     "message": "Privileged"
   },

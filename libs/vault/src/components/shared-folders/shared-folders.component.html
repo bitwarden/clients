@@ -12,7 +12,7 @@
   [virtualRowHeight]="rowHeight"
   height="fill"
 >
-  <bit-table-toolbar>
+  <bit-table-toolbar [countLabel]="folderCountLabel">
     <bit-search class="tw-flex-1" [placeholder]="'search' | i18n"></bit-search>
 
     <!-- Hidden rather than removed: projection only matches static top-level nodes, so an `@if`
@@ -38,6 +38,14 @@
           </bit-filter-option>
         }
       </bit-filter-menu>
+    }
+
+    @if (showControlledAccess()) {
+      <bit-filter-toggle
+        key="controlledAccess"
+        [label]="'controlledAccess' | i18n"
+        icon="bwi-lock-encrypted"
+      ></bit-filter-toggle>
     }
   </bit-table-toolbar>
 
@@ -70,22 +78,33 @@
     <bit-cell *bitCellDef="table.columns.name; let row">
       <!-- Decorative: the folder name beside it already names the row. -->
       <bit-icon-tile slot="start" icon="bwi-shared-folder" size="sm" aria-hidden="true" />
-      <!-- An anchor rather than a click handler, so middle- and right-click behave as expected. -->
-      <a
-        bitLink
-        truncate
-        [bitTooltip]="row.name"
-        [attr.id]="'shared-folders_link_name-' + row.id"
-        [routerLink]="
-          vaultScopeCommands({
-            type: VaultScopeType.Organization,
-            organizationId: row.organizationId,
-            collectionId: row.id,
-          })
-        "
-      >
-        {{ row.name }}
-      </a>
+      <div class="tw-flex tw-min-w-0 tw-items-center tw-gap-2">
+        <!-- An anchor rather than a click handler, so middle- and right-click behave as expected. -->
+        <a
+          bitLink
+          truncate
+          [bitTooltip]="row.name"
+          [attr.id]="'shared-folders_link_name-' + row.id"
+          [routerLink]="
+            vaultScopeCommands({
+              type: VaultScopeType.Organization,
+              organizationId: row.organizationId,
+              collectionId: row.id,
+            })
+          "
+        >
+          {{ row.name }}
+        </a>
+
+        @if (row.gated) {
+          <bit-icon
+            class="tw-shrink-0"
+            name="bwi-lock-encrypted"
+            [ariaLabel]="'pamSharedFolderPrivilegedControls' | i18n"
+            [bitTooltip]="'pamSharedFolderPrivilegedControls' | i18n"
+          />
+        }
+      </div>
       @if (row.nestedSharedFolders > 0) {
         <span slot="secondary">
           {{

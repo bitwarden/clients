@@ -25,6 +25,7 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
@@ -115,6 +116,8 @@ export type SharedFoldersTableFilters = {
    * label so a URL-synced filter survives a change of locale.
    */
   permissions?: SharedFolderPermission[];
+
+  controlledAccess?: boolean;
 };
 
 /**
@@ -179,6 +182,7 @@ export class SharedFoldersComponent {
   private readonly accountService = inject(AccountService);
   private readonly cipherService = inject(CipherService);
   private readonly collectionService = inject(CollectionService);
+  private readonly i18nService = inject(I18nService);
   private readonly organizationService = inject(OrganizationService);
   private readonly layoutFooter = inject(LayoutFooterService);
   private readonly viewContainerRef = inject(ViewContainerRef);
@@ -341,6 +345,14 @@ export class SharedFoldersComponent {
   /** Whether the chip has anything to narrow. One distinct permission can't exclude a row. */
   protected readonly showPermissions = computed(() => this.permissionOptions().length > 1);
 
+  protected readonly showControlledAccess = computed(() => {
+    const folders = this.sharedFolders();
+    return folders.some((row) => row.gated) && folders.some((row) => !row.gated);
+  });
+
+  protected readonly folderCountLabel = (count: number): string =>
+    this.i18nService.t(count === 1 ? "sharedFolderSingular" : "sharedFolderCount", count);
+
   protected readonly permissionMessageKey = sharedFolderPermissionMessageKey;
 
   protected readonly vaultScopeCommands = vaultScopeCommands;
@@ -374,7 +386,9 @@ export class SharedFoldersComponent {
     sharedFolderPermissionOrder(a.permissions) - sharedFolderPermissionOrder(b.permissions);
 
   protected readonly filter = (row: SharedFolderRow, values: SharedFoldersTableFilters): boolean =>
-    this.matchesSearch(row, values.search) && this.matchesPermissions(row, values.permissions);
+    this.matchesSearch(row, values.search) &&
+    this.matchesPermissions(row, values.permissions) &&
+    this.matchesControlledAccess(row, values.controlledAccess);
 
   constructor() {
     // Carry the selection onto each new set of rows — see `reconcileSelection`. The rows and the
@@ -515,6 +529,10 @@ export class SharedFoldersComponent {
     permissions: SharedFolderPermission[] | undefined,
   ): boolean {
     return !permissions?.length || permissions.includes(row.permissions);
+  }
+
+  private matchesControlledAccess(row: SharedFolderRow, gatedOnly: boolean | undefined): boolean {
+    return !gatedOnly || row.gated;
   }
 
   protected hasActiveChipFilters(
