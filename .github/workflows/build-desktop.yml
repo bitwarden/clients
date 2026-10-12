@@ -2079,10 +2079,14 @@ jobs:
             license_type: oss
             artifact_prefix: ""
             browser_artifact_prefix: ""
+            build_number_suffix: ""
+          # Both variants upload to the same TestFlight app, so the commercial
+          # build needs its own build number (e.g. 3456 vs 3456.1).
           - variant: bit
             license_type: commercial
             artifact_prefix: "commercial-"
             browser_artifact_prefix: "bit-"
+            build_number_suffix: ".1"
     runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     needs:
@@ -2243,7 +2247,7 @@ jobs:
       - name: Increment version
         shell: pwsh
         env:
-          BUILD_NUMBER: ${{ needs.setup.outputs.build_number }}
+          BUILD_NUMBER: ${{ needs.setup.outputs.build_number }}${{ matrix.build_number_suffix }}
         run: |
           $package = Get-Content -Raw -Path electron-builder.json | ConvertFrom-Json
           $package | Add-Member -MemberType NoteProperty -Name buildVersion -Value "$env:BUILD_NUMBER"
@@ -2355,7 +2359,7 @@ jobs:
       - name: Create MacOS App Store build number artifact
         shell: pwsh
         env:
-          BUILD_NUMBER: ${{ needs.setup.outputs.build_number }}
+          BUILD_NUMBER: ${{ needs.setup.outputs.build_number }}${{ matrix.build_number_suffix }}
         run: |
           $buildInfo = @{
             buildNumber = $env:BUILD_NUMBER
@@ -2380,7 +2384,6 @@ jobs:
         if: |
           github.event_name != 'pull_request_target'
           && (inputs.testflight_distribute || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
-          && matrix.license_type == 'oss'
         env:
           _APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           _APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
@@ -2403,18 +2406,18 @@ jobs:
         if: |
           github.event_name != 'pull_request_target'
           && (inputs.testflight_distribute || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
-          && matrix.license_type == 'oss'
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
           BRANCH: ${{ github.ref }}
+          VARIANT: ${{ matrix.variant }}
         run: |
 
           GIT_CHANGE="$(git show -s --format=%s)"
 
           BRANCH=$(echo "$BRANCH" | sed 's/refs\/heads\///')
 
-          CHANGELOG="$BRANCH: $GIT_CHANGE"
+          CHANGELOG="[$VARIANT] $BRANCH: $GIT_CHANGE"
 
           fastlane pilot upload \
             --app_identifier "com.bitwarden.desktop" \
@@ -2427,7 +2430,6 @@ jobs:
         if: |
           github.event_name != 'pull_request_target'
           && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
-          && matrix.license_type == 'oss'
         uses: slackapi/slack-github-action@03ea5433c137af7c0495bc0cad1af10403fc800c # v3.0.2
         with:
           webhook: ${{ steps.retrieve-slack-secret.outputs.slack-webhook-alerts-deploy-qa }}
@@ -2439,13 +2441,13 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "Desktop client v${{ env._PACKAGE_VERSION }} <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|build ${{ env.BUILD_NUMBER }}> success on *${{ github.ref_name }}*"
+                    "text": "Desktop client [${{ matrix.variant }}] v${{ env._PACKAGE_VERSION }} <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|build ${{ env.BUILD_NUMBER }}> success on *${{ github.ref_name }}*"
                   }
                 }
               ]
             }
         env:
-          BUILD_NUMBER: ${{ needs.setup.outputs.build_number }}
+          BUILD_NUMBER: ${{ needs.setup.outputs.build_number }}${{ matrix.build_number_suffix }}
 
   crowdin-push:
     name: Crowdin Push
