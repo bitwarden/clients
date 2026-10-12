@@ -4,6 +4,7 @@ import { Meta, StoryObj, componentWrapperDecorator, moduleMetadata } from "@stor
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { I18nMockService } from "@bitwarden/components";
 
 import { VaultScope, VaultScopeType } from "../../models/vault-scope";
@@ -77,6 +78,24 @@ const MANY_FOLDERS = childFolders([
 const NARROW_WRAPPER = "tw-max-w-xl";
 const NARROWEST_WRAPPER = "tw-max-w-sm";
 
+/**
+ * One of the user's own folders — what a My folder's page draws from instead of collections. Nested
+ * by name like the folder services hold them, so cards come out sorted by name.
+ */
+function myFolder(id: string, name: string): FolderView {
+  return Object.assign(new FolderView(), { id, name });
+}
+
+const MY_FOLDERS = [
+  myFolder("banking", "Banking"),
+  myFolder("checking", "Banking/Checking"),
+  myFolder("joint", "Banking/Checking/Joint"),
+  myFolder("savings", "Banking/Savings"),
+  myFolder("cards", "Banking/Savings/Cards"),
+  myFolder("investments", "Banking/Investments"),
+  myFolder("taxes", "Banking/Taxes"),
+];
+
 const LONG_NAME_FOLDERS = childFolders([
   "Engineering — Platform, Infrastructure, and Developer Experience",
   "Design — Brand, Product, and Marketing Systems",
@@ -100,6 +119,11 @@ export default {
               sharedFolderSingular: (count) => `${count} shared folder`,
               nestedSharedFolderCount: (count) => `${count} nested shared folders`,
               nestedSharedFolderSingular: "1 nested shared folder",
+              foldersInParent: (name) => `Folders in ${name}`,
+              folderCount: (count) => `${count} folders`,
+              folderSingular: (count) => `${count} folder`,
+              nestedFolderCount: (count) => `${count} nested folders`,
+              nestedFolderSingular: "1 nested folder",
               showAll: "Show all",
               showLess: "Show less",
             }),
@@ -130,6 +154,19 @@ export const Default: Story = {};
 export const SingleChild: Story = {
   args: {
     collections: childFolders(["Engineering"]),
+  },
+};
+
+/**
+ * A My folder's page: the same grid over the user's own folders, with the folder icon and the
+ * "Folders in …" and "nested folders" copy. Checking and Savings count the folders nested inside
+ * them beneath their names.
+ */
+export const MyFolders: Story = {
+  args: {
+    collections: [],
+    folders: MY_FOLDERS,
+    scope: { type: VaultScopeType.Folder, folderId: "banking" },
   },
 };
 
