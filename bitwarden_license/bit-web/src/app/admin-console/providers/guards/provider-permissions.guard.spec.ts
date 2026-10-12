@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { TestBed } from "@angular/core/testing";
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -56,6 +54,7 @@ describe("Provider Permissions Guard", () => {
         providerPermissions: null,
       },
     });
+    state = mock<RouterStateSnapshot>();
     TestBed.configureTestingModule({
       providers: [
         { provide: ProviderService, useValue: providerService },
