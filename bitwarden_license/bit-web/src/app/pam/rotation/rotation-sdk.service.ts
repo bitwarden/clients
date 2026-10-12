@@ -7,14 +7,12 @@ import type {
   AccessConnector,
   RotationConfigActions,
   RotationConfigCreateRequest,
-  RotationConfigDetail,
+  RotationConfigDetailView,
   RotationConfigId,
-  RotationConfigUpdateRequest,
-  RotationConfig,
+  RotationConfigView,
   TargetSystemCreateRequest,
   TargetSystemId,
-  TargetSystemUpdateRequest,
-  TargetSystem,
+  TargetSystemView,
 } from "./rotation";
 import { QuartzSchedulePreset, TargetSystemStatus } from "./rotation";
 
@@ -72,22 +70,26 @@ export abstract class RotationSdkService {
     targetSystemId: TargetSystemId,
   ): Promise<void>;
 
-  abstract listTargetSystems(organizationId: OrganizationId): Promise<TargetSystem[]>;
+  abstract listTargetSystems(organizationId: OrganizationId): Promise<TargetSystemView[]>;
 
+  /**
+   * Registers and seals a target system in two calls; a failure after the first leaves the row in
+   * `pending_seal`, with the error carrying its id (`targetSystemCreatePendingId` in `./rotation-error`).
+   */
   abstract createTargetSystem(
     organizationId: OrganizationId,
     request: TargetSystemCreateRequest,
-  ): Promise<TargetSystem>;
+  ): Promise<TargetSystemView>;
 
   /**
-   * Writes name, password policy and session-termination capability together, so a caller
-   * changing one still sends the others. The server answers with no content; re-read through
-   * {@link listTargetSystems} to render the result.
+   * Re-seals and replaces the blob wholesale — every sealed field must be resupplied, including
+   * the immutable `method`/`kind` (read from a prior {@link listTargetSystems}; the server rejects
+   * a mismatch). Also the only way to finish a `pending_seal` target. No content in response.
    */
   abstract updateTargetSystem(
     organizationId: OrganizationId,
     id: TargetSystemId,
-    request: TargetSystemUpdateRequest,
+    request: TargetSystemCreateRequest,
   ): Promise<void>;
 
   abstract enableTargetSystem(organizationId: OrganizationId, id: TargetSystemId): Promise<void>;
@@ -101,28 +103,29 @@ export abstract class RotationSdkService {
    */
   abstract deleteTargetSystem(organizationId: OrganizationId, id: TargetSystemId): Promise<void>;
 
-  abstract listConfigs(organizationId: OrganizationId): Promise<RotationConfig[]>;
+  abstract listConfigs(organizationId: OrganizationId): Promise<RotationConfigView[]>;
 
   /** Reads one config with its rotation history. */
   abstract getConfig(
     organizationId: OrganizationId,
     id: RotationConfigId,
-  ): Promise<RotationConfigDetail>;
+  ): Promise<RotationConfigDetailView>;
 
   abstract createConfig(
     organizationId: OrganizationId,
     request: RotationConfigCreateRequest,
-  ): Promise<RotationConfigDetail>;
+  ): Promise<RotationConfigDetailView>;
 
   /**
-   * Writes account identity and schedule together. The server locks the account identity while a
-   * job is in flight; check {@link RotationConfigActions.mutationsLocked} before offering the edit.
+   * Re-seals and replaces the blob wholesale — `cipherId`/`targetSystemId` must be resupplied
+   * unchanged (read from a prior {@link getConfig}; the server rejects a mismatch). Locks the
+   * account identity while a job runs; check {@link RotationConfigActions.mutationsLocked} first.
    */
   abstract updateConfig(
     organizationId: OrganizationId,
     id: RotationConfigId,
-    request: RotationConfigUpdateRequest,
-  ): Promise<RotationConfigDetail>;
+    request: RotationConfigCreateRequest,
+  ): Promise<RotationConfigDetailView>;
 
   /** Pauses a config, so no new rotation jobs are dispatched. */
   abstract pauseConfig(organizationId: OrganizationId, id: RotationConfigId): Promise<void>;
@@ -146,7 +149,7 @@ export abstract class RotationSdkService {
    * `targetStatusById` hasn't loaded yet; predicates that depend on its status fail closed.
    */
   abstract describeConfigs(
-    configs: readonly RotationConfig[],
+    configs: readonly RotationConfigView[],
     targetStatusById: ReadonlyMap<TargetSystemId, TargetSystemStatus>,
   ): Promise<Map<RotationConfigId, RotationConfigDescription>>;
 
