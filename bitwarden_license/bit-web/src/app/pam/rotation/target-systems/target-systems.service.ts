@@ -3,7 +3,12 @@ import { BehaviorSubject, Observable, combineLatest, map } from "rxjs";
 
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import { TargetSystemId, TargetSystemMethod, TargetSystemStatus, TargetSystem } from "../rotation";
+import {
+  TargetSystemId,
+  TargetSystemMethod,
+  TargetSystemStatus,
+  TargetSystemView,
+} from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 
 /**
@@ -20,17 +25,17 @@ export class TargetSystemsService {
   /** Incremented per {@link load} call so a superseded call can drop its outcome. */
   private loadGeneration = 0;
 
-  private readonly _systems$ = new BehaviorSubject<TargetSystem[]>([]);
+  private readonly _systems$ = new BehaviorSubject<TargetSystemView[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
   private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
 
-  readonly systems$: Observable<TargetSystem[]> = this._systems$.asObservable();
+  readonly systems$: Observable<TargetSystemView[]> = this._systems$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
 
   /** The error from the last {@link load}, or null when it succeeded. */
   readonly loadError$: Observable<unknown | null> = this._loadError$.asObservable();
 
-  readonly systemById$: Observable<Map<TargetSystemId, TargetSystem>> = this._systems$.pipe(
+  readonly systemById$: Observable<Map<TargetSystemId, TargetSystemView>> = this._systems$.pipe(
     map((systems) => new Map(systems.map((s) => [s.id, s]))),
   );
 
@@ -38,7 +43,7 @@ export class TargetSystemsService {
    * The systems an access connector can be assigned to. Status is not considered, as in
    * `AssignAccessConnectorToTargetCommand`; a new rotation config also needs an active target.
    */
-  readonly automaticSystems$: Observable<TargetSystem[]> = combineLatest([this._systems$]).pipe(
+  readonly automaticSystems$: Observable<TargetSystemView[]> = combineLatest([this._systems$]).pipe(
     map(([systems]) => systems.filter((s) => s.method === TargetSystemMethod.Automatic)),
   );
 
@@ -72,7 +77,7 @@ export class TargetSystemsService {
   }
 
   /** The server answers with no content, so the status is patched locally once it confirms. */
-  async setEnabled(system: TargetSystem, enabled: boolean): Promise<void> {
+  async setEnabled(system: TargetSystemView, enabled: boolean): Promise<void> {
     const orgId = this.requireOrganizationId();
     if (enabled) {
       await this.rotationSdk.enableTargetSystem(orgId, system.id);
@@ -82,13 +87,13 @@ export class TargetSystemsService {
     const nextStatus = enabled ? TargetSystemStatus.Active : TargetSystemStatus.Disabled;
     this._systems$.next(
       this._systems$.value.map((s) =>
-        s.id === system.id ? ({ ...s, status: nextStatus } as TargetSystem) : s,
+        s.id === system.id ? ({ ...s, status: nextStatus } as TargetSystemView) : s,
       ),
     );
   }
 
   /** Not optimistic, since the server often refuses while a rotation config names the target. */
-  async delete(system: TargetSystem): Promise<void> {
+  async delete(system: TargetSystemView): Promise<void> {
     const orgId = this.requireOrganizationId();
     await this.rotationSdk.deleteTargetSystem(orgId, system.id);
     this._systems$.next(this._systems$.value.filter((s) => s.id !== system.id));
