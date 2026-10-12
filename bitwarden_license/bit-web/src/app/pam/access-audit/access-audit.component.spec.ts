@@ -210,7 +210,7 @@ describe("AccessAuditComponent", () => {
             pamAuditKindTargetDeactivated: "Target system deactivated",
             pamAuditKindTargetActivated: "Target system activated",
             pamAuditKindTargetRenamed: "Target system renamed",
-            pamAuditKindTargetPolicyUpdated: "Target password policy updated",
+            pamAuditKindTargetPolicyUpdated: "Target system settings updated",
             pamAuditKindTargetDeleted: "Target system deleted",
             pamAuditKindAccessEndedByRequester: "Access ended by requester",
             pamAuditKindUnknown: "Unknown event",
