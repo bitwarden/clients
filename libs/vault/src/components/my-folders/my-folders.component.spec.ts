@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, map, of } from "rxjs";
 
@@ -101,6 +102,7 @@ describe("MyFoldersComponent", () => {
     await TestBed.configureTestingModule({
       imports: [MyFoldersComponent, NoopAnimationsModule],
       providers: [
+        provideRouter([]),
         { provide: AccountService, useValue: mockAccountServiceWith(userId) },
         { provide: CipherService, useValue: { cipherListViews$: () => cipherListViews$ } },
         { provide: DialogService, useValue: dialogService },
@@ -253,6 +255,70 @@ describe("MyFoldersComponent", () => {
       fixture.detectChanges();
 
       expect(component["selected"]()).toEqual([]);
+    });
+  });
+  describe("nested folders", () => {
+    const names = () =>
+      fixture.debugElement
+        .queryAll(By.css("bit-row"))
+        .map((row) => row.query(By.css("a[bitLink]")).nativeElement.textContent.trim());
+
+    const subtitleOf = (id: string): string | undefined =>
+      fixture.debugElement
+        .query(By.css(`#my-folders_link_name-${id}`))
+        .nativeElement.closest("[role=cell]")
+        .querySelector("[slot=secondary]")
+        ?.textContent.trim();
+
+    beforeEach(() => {
+      folderViews$.next([
+        folder("1", "Family"),
+        folder("2", "Family/Kids"),
+        folder("3", "Family/Kids/Toys"),
+        folder("4", "Family/Pets"),
+        folder("5", "Work"),
+        folder("6", "Work/Projects"),
+      ]);
+      cipherListViews$.next([cipher("1"), cipher("2"), cipher("3"), cipher("5")]);
+      fixture.detectChanges();
+    });
+
+    it("lists only the top-level folders", () => {
+      expect(names()).toEqual(["Family", "Work"]);
+    });
+
+    it("counts the folders directly inside a parent in its subtitle", () => {
+      expect(subtitleOf("1")).toBe("nestedFolderCount 2");
+    });
+
+    it("uses the singular subtitle for a single nested folder", () => {
+      expect(subtitleOf("5")).toBe("nestedFolderSingular");
+    });
+
+    it("shows no subtitle for a folder with nothing nested", () => {
+      folderViews$.next([folder("1", "Family")]);
+      fixture.detectChanges();
+
+      expect(subtitleOf("1")).toBeUndefined();
+    });
+
+    it("shows the items in the whole tree under a folder", () => {
+      const counts = fixture.debugElement
+        .queryAll(By.css("bit-row"))
+        .map((row) => row.queryAll(By.css("[role=cell]"))[2].nativeElement.textContent.trim());
+
+      expect(counts).toEqual(["3", "1"]);
+    });
+
+    it("links each name to the folder's own page", () => {
+      const link = fixture.debugElement.query(By.css("#my-folders_link_name-1"));
+
+      expect(link.nativeElement.getAttribute("href")).toBe("/folders/1");
+    });
+
+    it("matches search against top-level names only", () => {
+      expect(component["filter"](component["rows"]()[0], { search: "kids" })).toBe(false);
+      expect(component["filter"](component["rows"]()[0], { search: "fam" })).toBe(true);
     });
   });
 });
