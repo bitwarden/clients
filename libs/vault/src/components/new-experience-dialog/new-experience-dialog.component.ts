@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, ElementRef, inject, viewChild } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
@@ -8,10 +8,12 @@ import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   ButtonModule,
   DIALOG_DATA,
+  DialogComponent,
   DialogModule,
   DialogRef,
   DialogService,
   IconButtonModule,
+  isAtOrLargerThanBreakpoint,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -74,8 +76,10 @@ export class NewExperienceDialogComponent {
 
   protected readonly learnMoreUrl = NEW_EXPERIENCE_LEARN_MORE_URL;
 
+  private readonly dialog = viewChild.required(DialogComponent, { read: ElementRef });
+
   protected async explore() {
-    await this.dismiss(NewExperienceDialogResult.Explore);
+    await this.dismiss(NewExperienceDialogResult.Explore, () => this.slideOutSheet());
   }
 
   /**
@@ -96,12 +100,38 @@ export class NewExperienceDialogComponent {
     await this.dismiss(NewExperienceDialogResult.Dismissed);
   }
 
-  private async dismiss(result: NewExperienceDialogResult) {
+  private async dismiss(result: NewExperienceDialogResult, beforeClose?: () => Promise<void>) {
     try {
       await this.nudgesService.dismissNudge(NudgeType.Vfo1NewExperience, this.params.userId);
     } finally {
+      await beforeClose?.();
       await this.dialogRef.close(result);
     }
+  }
+
+  /**
+   * Slides the bottom sheet down so it hands off to the tour rather than vanishing. `bit-dialog`
+   * only animates in, so the exit lives here. Skipped at `md` and up, where the dialog is centered
+   * rather than a sheet, and for users who prefer reduced motion.
+   */
+  private async slideOutSheet() {
+    const sheet: HTMLElement = this.dialog().nativeElement;
+    // `animate` is missing in jsdom
+    if (
+      typeof sheet.animate !== "function" ||
+      isAtOrLargerThanBreakpoint("md") ||
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
+
+    const slide = sheet.animate([{ transform: "none" }, { transform: "translateY(100%)" }], {
+      duration: 100,
+      easing: "ease-in",
+      fill: "forwards",
+    });
+    // Rejects if the animation is cancelled, e.g. the dialog is torn down mid-slide
+    await slide.finished.catch(() => {});
   }
 
   static async open(
