@@ -68,6 +68,7 @@ describe("Fido2Background", () => {
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
   let authServiceMock!: MockProxy<AuthService>;
   let fido2Background!: Fido2Background;
+  let getSenderFrameUrlSpy!: jest.SpyInstance;
 
   beforeEach(() => {
     tabMock = mock<chrome.tabs.Tab>({
@@ -76,6 +77,9 @@ describe("Fido2Background", () => {
       windowId: 456,
     });
     senderMock = mock<chrome.runtime.MessageSender>({ id: "1", tab: tabMock });
+    getSenderFrameUrlSpy = jest
+      .spyOn(BrowserApi, "getSenderFrameUrl")
+      .mockResolvedValue("https://example.com");
     logService = mock<LogService>();
     fido2ClientService = mock<Fido2ClientService<BrowserFido2ParentWindowReference>>();
     vaultSettingsService = mock<VaultSettingsService>();
@@ -479,11 +483,58 @@ describe("Fido2Background", () => {
 
         expect(fido2ClientService.createCredential).toHaveBeenCalledWith(
           message.data,
-          tabMock,
+          expect.objectContaining({
+            id: tabMock.id,
+            windowId: tabMock.windowId,
+            requestFrameUrl: "https://example.com",
+          }),
           abortController,
         );
         expect(focusTabSpy).toHaveBeenCalledWith(tabMock.id);
         expect(focusWindowSpy).toHaveBeenCalledWith(tabMock.windowId);
+      });
+
+      it("passes the requesting sub-frame's URL rather than the tab's", async () => {
+        const frameUrl = "https://login.example.net/passkey";
+        getSenderFrameUrlSpy.mockResolvedValue(frameUrl);
+        const subFrameSender = mock<chrome.runtime.MessageSender>({
+          id: "1",
+          tab: tabMock,
+          frameId: 4,
+        });
+        const message = mock<Fido2ExtensionMessage>({
+          command: "fido2RegisterCredentialRequest",
+          requestId: "123",
+          data: mock<CreateCredentialParams>(),
+        });
+
+        sendMockExtensionMessage(message, subFrameSender);
+        await flushPromises();
+
+        expect(getSenderFrameUrlSpy).toHaveBeenCalledWith(subFrameSender);
+        expect(fido2ClientService.createCredential).toHaveBeenCalledWith(
+          message.data,
+          expect.objectContaining({ id: tabMock.id, requestFrameUrl: frameUrl }),
+          abortController,
+        );
+      });
+
+      it("falls back to the tab URL when the requesting frame's URL cannot be resolved", async () => {
+        getSenderFrameUrlSpy.mockResolvedValue(undefined);
+        const message = mock<Fido2ExtensionMessage>({
+          command: "fido2RegisterCredentialRequest",
+          requestId: "123",
+          data: mock<CreateCredentialParams>(),
+        });
+
+        sendMockExtensionMessage(message, senderMock);
+        await flushPromises();
+
+        expect(fido2ClientService.createCredential).toHaveBeenCalledWith(
+          message.data,
+          expect.objectContaining({ requestFrameUrl: tabMock.url }),
+          abortController,
+        );
       });
     });
 
@@ -500,7 +551,11 @@ describe("Fido2Background", () => {
 
         expect(fido2ClientService.assertCredential).toHaveBeenCalledWith(
           message.data,
-          tabMock,
+          expect.objectContaining({
+            id: tabMock.id,
+            windowId: tabMock.windowId,
+            requestFrameUrl: "https://example.com",
+          }),
           abortController,
         );
         expect(focusTabSpy).toHaveBeenCalledWith(tabMock.id);
