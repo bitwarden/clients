@@ -66,12 +66,14 @@ import {
   AccessConnectorId,
   AccessConnectorStatus,
   PasswordPolicy,
+  TargetSystemCreateRequest,
   TargetSystemId,
   TargetSystemKind,
   TargetSystemMethod,
   TargetSystemStatus,
-  TargetSystem,
+  TargetSystemView,
 } from "../rotation";
+import { classifyRotationError, targetSystemCreatePendingId } from "../rotation-error";
 import { ROTATION_TABS, rotationLink } from "../rotation-links";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
@@ -83,6 +85,28 @@ import { targetSystemKindLabelKey } from "./target-system-label";
 const NAME_MAX_LENGTH = 200;
 const DEFAULT_MIN_LENGTH = 14;
 const DEFAULT_MAX_LENGTH = 64;
+
+/**
+ * The generator's supported length range (`bitwarden_pam_sealed::GENERATOR_MIN_LENGTH`/
+ * `GENERATOR_MAX_LENGTH`), mirrored here to catch an out-of-range policy while editing.
+ */
+const GENERATOR_MIN_LENGTH = 5;
+const GENERATOR_MAX_LENGTH = 128;
+
+/**
+ * The character pool sizes the connector's generator draws from, mirroring
+ * `bitwarden_pam_sealed::SealedPasswordPolicy::character_pool_size`.
+ */
+const UPPERCASE_POOL_SIZE = 26;
+const LOWERCASE_POOL_SIZE = 26;
+const DIGIT_POOL_SIZE = 10;
+const SYMBOL_POOL_SIZE = 8;
+
+/**
+ * The shared PAM strength floor (`bitwarden_pam_sealed::MIN_PASSWORD_ENTROPY_BITS`). Sealing
+ * doesn't stop a replayed weak policy, so both this form and the SDK enforce it independently.
+ */
+const MIN_PASSWORD_ENTROPY_BITS = 80;
 
 type PolicyControls = {
   minLength: FormControl<number>;
@@ -114,6 +138,46 @@ const characterClassValidator: ValidatorFn = (
   return anyEnabled ? null : { noCharacterClass: true };
 };
 
+/**
+ * The entropy, in bits, of a generated password under this policy: `length × log2(pool)`, length
+ * clamped to the generator's range. Mirrors `SealedPasswordPolicy::entropy_bits`.
+ */
+function passwordPolicyEntropyBits(policy: {
+  maxLength: number;
+  includeUppercase: boolean;
+  includeLowercase: boolean;
+  includeDigits: boolean;
+  includeSymbols: boolean;
+}): number {
+  const pool =
+    (policy.includeUppercase ? UPPERCASE_POOL_SIZE : 0) +
+    (policy.includeLowercase ? LOWERCASE_POOL_SIZE : 0) +
+    (policy.includeDigits ? DIGIT_POOL_SIZE : 0) +
+    (policy.includeSymbols ? SYMBOL_POOL_SIZE : 0);
+  if (pool === 0) {
+    return 0;
+  }
+  const length = Math.min(Math.max(policy.maxLength, GENERATOR_MIN_LENGTH), GENERATOR_MAX_LENGTH);
+  return length * Math.log2(pool);
+}
+
+/**
+ * Catches a policy the SDK would refuse as too weak. Skips while {@link characterClassValidator}
+ * already flags no class enabled, so the two don't double up on one cause.
+ */
+const strengthFloorValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+  const group = control as PolicyGroup;
+  const value = group.getRawValue();
+  const anyEnabled =
+    value.includeUppercase || value.includeLowercase || value.includeDigits || value.includeSymbols;
+  if (!anyEnabled) {
+    return null;
+  }
+  return passwordPolicyEntropyBits(value) < MIN_PASSWORD_ENTROPY_BITS
+    ? { belowStrengthFloor: true }
+    : null;
+};
+
 /** A staged change to a connector assignment; `null` where a row is what the server holds. */
 type StagedAssignment = "assign" | "unassign";
 
@@ -137,13 +201,13 @@ function buildPolicyGroup(fb: FormBuilder): PolicyGroup {
     {
       minLength: fb.nonNullable.control(DEFAULT_MIN_LENGTH, [
         Validators.required,
-        Validators.min(1),
-        Validators.max(999),
+        Validators.min(GENERATOR_MIN_LENGTH),
+        Validators.max(GENERATOR_MAX_LENGTH),
       ]),
       maxLength: fb.nonNullable.control(DEFAULT_MAX_LENGTH, [
         Validators.required,
-        Validators.min(1),
-        Validators.max(999),
+        Validators.min(GENERATOR_MIN_LENGTH),
+        Validators.max(GENERATOR_MAX_LENGTH),
       ]),
       includeUppercase: fb.nonNullable.control(true),
       includeLowercase: fb.nonNullable.control(true),
@@ -151,7 +215,7 @@ function buildPolicyGroup(fb: FormBuilder): PolicyGroup {
       includeSymbols: fb.nonNullable.control(true),
       supportsSessionTermination: fb.nonNullable.control(false),
     },
-    { validators: [minMaxValidator, characterClassValidator] },
+    { validators: [minMaxValidator, characterClassValidator, strengthFloorValidator] },
   );
 }
 
@@ -219,7 +283,7 @@ export class TargetSystemEditComponent {
   /** Four blocks, the rough depth of the card each of these pages opens with. */
   protected readonly skeletonFields = [0, 1, 2, 3];
 
-  protected readonly existing = signal<TargetSystem | null>(null);
+  protected readonly existing = signal<TargetSystemView | null>(null);
 
   /** The id an access connector's config file keys this target's rotation script on. */
   protected readonly systemIdText = computed(() => {
@@ -227,7 +291,9 @@ export class TargetSystemEditComponent {
     return id == null ? null : uuidAsString(id);
   });
 
-  protected readonly kindLabelKey = computed(() => targetSystemKindLabelKey(this.existing()?.kind));
+  protected readonly kindLabelKey = computed(() =>
+    targetSystemKindLabelKey(this.existing()?.sealed?.kind),
+  );
 
   protected readonly titleText = computed(() =>
     this.i18nService.t(this.editing ? "pamTargetSystemEditTitle" : "pamTargetSystemCreateTitle"),
@@ -281,13 +347,44 @@ export class TargetSystemEditComponent {
    */
   protected readonly showPolicyCard = computed(() => this.isAutomatic() || this.isManual());
 
-  private readonly selectedKind = computed<TargetSystemKind | null>(() =>
-    this.isAutomatic()
-      ? this.editing
-        ? (this.existing()?.kind ?? null)
-        : this.createKind()
-      : null,
+  /** `existing`'s verified sealed fields, or `null` while not yet loaded or unverified. */
+  protected readonly sealed = computed(() => this.existing()?.sealed ?? null);
+
+  /**
+   * Why {@link sealed} is unavailable: `pending` is a target that never finished sealing (fixed by
+   * re-saving this form), `invalid` is a blob that failed to verify, `ok` is nothing to report.
+   */
+  protected readonly sealIssue = computed<"ok" | "pending" | "invalid">(() => {
+    const existing = this.existing();
+    if (existing == null || existing.sealed != null) {
+      return "ok";
+    }
+    return existing.status === TargetSystemStatus.PendingSeal ? "pending" : "invalid";
+  });
+
+  /** Picks the integration when finishing or re-saving a target with no sealed `kind` to resend. */
+  protected readonly editKindControl = this.formBuilder.nonNullable.control<TargetSystemKind>(
+    TargetSystemKind.Entra,
   );
+
+  private readonly editKind = toSignal(this.editKindControl.valueChanges, {
+    initialValue: this.editKindControl.value,
+  });
+
+  /** Only shown in edit mode, for an automatic target with no sealed `kind` to fall back on. */
+  protected readonly showEditKindPicker = computed(
+    () => this.editing && this.isAutomatic() && this.sealed() == null,
+  );
+
+  private readonly selectedKind = computed<TargetSystemKind | null>(() => {
+    if (!this.isAutomatic()) {
+      return null;
+    }
+    if (!this.editing) {
+      return this.createKind();
+    }
+    return this.sealed()?.kind ?? this.editKind();
+  });
 
   /**
    * Native integrations always terminate sessions after rotating, so the form shows a static
@@ -298,13 +395,15 @@ export class TargetSystemEditComponent {
     return kind != null && kind !== TargetSystemKind.CustomScript;
   });
 
-  /** Warns when an edit unchecks session termination on a system that supports it. */
+  /**
+   * Warns when an edit unchecks session termination on a system that confirmed it supports it.
+   * No `sealed` reads as "did not support it" rather than guessing.
+   */
   protected readonly showTerminationWarning = computed(() => {
     if (!this.editing) {
       return false;
     }
-    const existing = this.existing();
-    if (existing?.supportsSessionTermination !== true) {
+    if (this.sealed()?.supportsSessionTermination !== true) {
       return false;
     }
     return !this.stagedTermination();
@@ -502,7 +601,7 @@ export class TargetSystemEditComponent {
 
   /** There is no by-id read, so this finds the target in the organization's list. */
   private async loadSystem({ recordFailure = true } = {}): Promise<"loaded" | "failed" | "gone"> {
-    let systems: TargetSystem[];
+    let systems: TargetSystemView[];
     try {
       systems = (await this.rotationSdk.listTargetSystems(this.organizationId)) ?? [];
     } catch (e) {
@@ -550,19 +649,22 @@ export class TargetSystemEditComponent {
     }
   }
 
-  private applySystem(system: TargetSystem): void {
+  private applySystem(system: TargetSystemView): void {
     this.nameForm.patchValue({ name: system.name });
-    if (system.passwordPolicy != null) {
-      this.policyForm.patchValue({
-        minLength: system.passwordPolicy.minLength,
-        maxLength: system.passwordPolicy.maxLength,
-        includeUppercase: system.passwordPolicy.includeUppercase,
-        includeLowercase: system.passwordPolicy.includeLowercase,
-        includeDigits: system.passwordPolicy.includeDigits,
-        includeSymbols: system.passwordPolicy.includeSymbols,
-        supportsSessionTermination: system.supportsSessionTermination ?? false,
-      });
+    const sealed = system.sealed;
+    if (sealed == null) {
+      // Nothing trustworthy to prefill; sealIssue banners why.
+      return;
     }
+    this.policyForm.patchValue({
+      minLength: sealed.passwordPolicy.minLength,
+      maxLength: sealed.passwordPolicy.maxLength,
+      includeUppercase: sealed.passwordPolicy.includeUppercase,
+      includeLowercase: sealed.passwordPolicy.includeLowercase,
+      includeDigits: sealed.passwordPolicy.includeDigits,
+      includeSymbols: sealed.passwordPolicy.includeSymbols,
+      supportsSessionTermination: sealed.supportsSessionTermination ?? false,
+    });
   }
 
   private buildPasswordPolicy(): PasswordPolicy {
@@ -620,11 +722,24 @@ export class TargetSystemEditComponent {
       });
       await this.navigateAfterCreate(created);
     } catch (e) {
+      const pendingId = targetSystemCreatePendingId(e);
+      if (pendingId != null) {
+        // The row already exists (pending_seal); route to its edit page rather than a dead create form.
+        this.toastService.showToast({
+          variant: "warning",
+          message: this.i18nService.t("pamTargetSystemCreatePartialFailure"),
+        });
+        this.markLiveFormsPristine();
+        await this.router.navigate(["target-systems", pendingId], {
+          relativeTo: this.route.parent,
+        });
+        return;
+      }
       this.showError(e);
     }
   };
 
-  private navigateAfterCreate(created: TargetSystem): Promise<boolean> {
+  private navigateAfterCreate(created: TargetSystemView): Promise<boolean> {
     if (this.then !== THEN_MANAGED_CREDENTIAL) {
       return this.navigateToList();
     }
@@ -633,6 +748,28 @@ export class TargetSystemEditComponent {
       relativeTo: this.route.parent,
       queryParams: { [TARGET_SYSTEM_QUERY_PARAM]: created.id },
     });
+  }
+
+  /**
+   * Builds the create-shaped request `updateTargetSystem` requires, with immutable `method`/`kind`
+   * resupplied via {@link selectedKind}. `null` if `existing` hasn't loaded.
+   */
+  private buildUpdateRequest(name: string): TargetSystemCreateRequest | null {
+    const existing = this.existing();
+    if (existing == null) {
+      return null;
+    }
+    const passwordPolicy = this.buildPasswordPolicy();
+    if (existing.method === TargetSystemMethod.Manual) {
+      return { method: "manual", name, passwordPolicy };
+    }
+    return {
+      method: "automatic",
+      name,
+      kind: this.selectedKind() ?? TargetSystemKind.Entra,
+      passwordPolicy,
+      supportsSessionTermination: this.resolvedSessionTermination(),
+    };
   }
 
   /** Saves name, policy and capability in one write, then applies the staged assignments. */
@@ -645,13 +782,12 @@ export class TargetSystemEditComponent {
     }
 
     const { name } = this.nameForm.getRawValue();
+    const request = this.buildUpdateRequest(name);
+    if (request == null) {
+      return;
+    }
     try {
-      await this.rotationSdk.updateTargetSystem(this.organizationId, this.targetSystemId!, {
-        name,
-        passwordPolicy: this.buildPasswordPolicy(),
-        // A manual target has no session to terminate.
-        supportsSessionTermination: this.isAutomatic() && this.resolvedSessionTermination(),
-      });
+      await this.rotationSdk.updateTargetSystem(this.organizationId, this.targetSystemId!, request);
     } catch (e) {
       this.showError(e);
       return;
@@ -813,7 +949,9 @@ export class TargetSystemEditComponent {
 
   /** The form groups that hold user input for the current mode. */
   private liveForms(): AbstractControl[] {
-    return [this.editing ? this.nameForm : this.createForm, this.policyForm];
+    const forms = [this.editing ? this.nameForm : this.createForm, this.policyForm];
+    // Harmless to include unconditionally; it's pristine except while finishing a kindless target.
+    return this.showEditKindPicker() ? [...forms, this.editKindControl] : forms;
   }
 
   private markLiveFormsPristine(): void {
@@ -851,10 +989,17 @@ export class TargetSystemEditComponent {
   }
 
   private showError(e: unknown): void {
+    const outcome = classifyRotationError(e);
+    if (outcome.kind === "i18n") {
+      this.toastService.showToast({ variant: "error", message: this.i18nService.t(outcome.key) });
+      return;
+    }
     const serverMessage =
-      e instanceof ErrorResponse
-        ? e.message
-        : apiErrorBodyMessage(e instanceof Error ? e.message : "");
+      outcome.kind === "message"
+        ? outcome.message
+        : e instanceof ErrorResponse
+          ? e.message
+          : apiErrorBodyMessage(e instanceof Error ? e.message : "");
     this.toastService.showToast({
       variant: "error",
       message: serverMessage ?? this.i18nService.t("unexpectedError"),

@@ -16,7 +16,7 @@ import type { CipherId } from "@bitwarden/sdk-internal";
 
 import { OrgCiphersService } from "../org-ciphers.service";
 import { TargetSystemMethod } from "../rotation";
-import type { RotationConfig } from "../rotation";
+import type { RotationConfigView } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 import { deferred } from "../testing/deferred";
 import {
@@ -40,7 +40,7 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
 };
 
 function makeRow(
-  configOverrides: Partial<RotationConfig> = {},
+  configOverrides: Partial<RotationConfigView> = {},
   description = rotationConfigDescription(),
 ): RotationConfigRow {
   return buildRotationConfigRow(

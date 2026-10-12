@@ -19,9 +19,11 @@ import {
   accessConnector,
   connectorId,
   ORGANIZATION_ID,
+  pendingTargetSystem,
   rotationConfig,
   sysId,
   targetSystem,
+  unverifiableTargetSystem,
 } from "../testing/rotation-builders";
 import { atUrl } from "../testing/story-helpers";
 
@@ -39,10 +41,26 @@ const MANUAL_SYSTEM = targetSystem({
   id: sysId("manual"),
   name: "Legacy mainframe",
   method: TargetSystemMethod.Manual,
-  kind: undefined,
+  sealed: undefined,
 });
 
-const SYSTEMS = [SAMPLE_SYSTEM, ASSIGNED_SYSTEM, SATURATED_SYSTEM, MANUAL_SYSTEM];
+/** A target `TargetSystemsClient.create` registered but never finished sealing. */
+const PENDING_SYSTEM = pendingTargetSystem({ id: sysId("pending"), name: "Staging Entra" });
+
+/** A target whose blob exists but failed to verify. */
+const UNVERIFIABLE_SYSTEM = unverifiableTargetSystem({
+  id: sysId("unverifiable"),
+  name: "Finance SQL",
+});
+
+const SYSTEMS = [
+  SAMPLE_SYSTEM,
+  ASSIGNED_SYSTEM,
+  SATURATED_SYSTEM,
+  MANUAL_SYSTEM,
+  PENDING_SYSTEM,
+  UNVERIFIABLE_SYSTEM,
+];
 
 const CONNECTORS = [
   accessConnector({
@@ -145,4 +163,14 @@ export const AllConnectorsAssigned: Story = {
 /** No integration or connector card, and no connector setup step. */
 export const ManualTarget: Story = {
   decorators: [at(MANUAL_SYSTEM.id)],
+};
+
+/** "Setup incomplete" callout, a kind picker in place of the read-only integration text. */
+export const PendingSeal: Story = {
+  decorators: [at(PENDING_SYSTEM.id)],
+};
+
+/** "Integrity check failed" callout; re-saving (with a chosen kind) re-secures the target. */
+export const Unverifiable: Story = {
+  decorators: [at(UNVERIFIABLE_SYSTEM.id)],
 };

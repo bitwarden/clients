@@ -163,7 +163,12 @@
             formControlName="terminateSessions"
           />
           <bit-label>{{ "pamRotationConfigTerminateSessions" | i18n }}</bit-label>
-          <bit-hint>{{ "pamRotationConfigTerminateSessionsHint" | i18n }}</bit-hint>
+          <bit-hint>{{
+            (terminateSessionsUnknown()
+              ? "pamRotationConfigTerminationUnknownHint"
+              : "pamRotationConfigTerminateSessionsHint"
+            ) | i18n
+          }}</bit-hint>
         </bit-form-control>
 
         <!-- Renders its own labeled bit-form-fields, so it must not be wrapped in one. -->
@@ -225,6 +230,16 @@
           </bit-section>
         }
         @default {
+          @if (configSealUnverified()) {
+            <bit-callout
+              type="warning"
+              [accessibleName]="'pamRotationConfigIntegrityCheckFailedTitle' | i18n"
+              id="rotation-config-edit_callout_seal-issue"
+            >
+              {{ "pamRotationConfigIntegrityCheckFailedContent" | i18n }}
+            </bit-callout>
+          }
+
           <bit-section>
             <bit-section-header>
               <h2 bitTypography="h5">{{ "pamRotationConfigDetailsHeading" | i18n }}</h2>

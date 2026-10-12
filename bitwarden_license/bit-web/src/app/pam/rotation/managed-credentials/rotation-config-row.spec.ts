@@ -1,4 +1,4 @@
-import type { RotationConfig, TargetSystem } from "../rotation";
+import type { RotationConfigView, TargetSystemView } from "../rotation";
 import type { RotationConfigDescription } from "../rotation-sdk.service";
 import {
   CIPHER_ID,
@@ -18,8 +18,8 @@ describe("buildRotationConfigRow", () => {
    */
   const row = (
     options: {
-      config?: Partial<RotationConfig>;
-      target?: TargetSystem;
+      config?: Partial<RotationConfigView>;
+      target?: TargetSystemView;
       cipherName?: string;
       description?: RotationConfigDescription;
     } = {},
@@ -109,7 +109,7 @@ describe("buildRotationConfigRow", () => {
 
   /** Sorting on `statusLabelKey` would order rows by the spelling of an i18n identifier. */
   describe("status sort order", () => {
-    const orderOf = (config: Partial<RotationConfig>) => row({ config }).statusSortOrder;
+    const orderOf = (config: Partial<RotationConfigView>) => row({ config }).statusSortOrder;
 
     it("ranks the statuses by resolveRotationStatus's precedence", () => {
       expect(orderOf({ hasActiveJob: true })).toBe(1);
