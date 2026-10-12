@@ -225,6 +225,7 @@ import { InternalSendService as InternalSendServiceAbstraction } from "@bitwarde
 import { UserId } from "@bitwarden/common/types/guid";
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
+import { CipherLeaseStateService } from "@bitwarden/common/vault/abstractions/cipher-lease-state.service";
 import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
@@ -246,6 +247,7 @@ import { DefaultCipherSdkService } from "@bitwarden/common/vault/services/cipher
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { DefaultChangeLoginPasswordService } from "@bitwarden/common/vault/services/default-change-login-password.service";
 import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services/default-cipher-encryption.service";
+import { DefaultCipherLeaseStateService } from "@bitwarden/common/vault/services/default-cipher-lease-state.service";
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
@@ -448,6 +450,7 @@ export default class MainBackground {
   hibpApiService: HibpApiService;
   environmentService: BrowserEnvironmentService;
   cipherSdkService: CipherSdkService;
+  cipherLeaseStateService: CipherLeaseStateService;
   cipherService: CipherServiceAbstraction;
   folderService: InternalFolderServiceAbstraction;
   userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction;
@@ -1192,6 +1195,7 @@ export default class MainBackground {
     );
 
     this.cipherSdkService = new DefaultCipherSdkService(this.sdkService, this.logService);
+    this.cipherLeaseStateService = new DefaultCipherLeaseStateService();
 
     this.cipherFileUploadService = new CipherFileUploadService(
       this.apiService,
@@ -1216,6 +1220,7 @@ export default class MainBackground {
       this.cipherEncryptionService,
       this.messagingService,
       this.cipherSdkService,
+      this.cipherLeaseStateService,
     );
     this.folderService = new FolderService(
       this.keyService,
