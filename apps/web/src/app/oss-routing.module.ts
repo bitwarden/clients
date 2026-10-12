@@ -57,6 +57,13 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { canActivateImportType } from "@bitwarden/importer-ui";
 import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-management-ui";
+import {
+  FOLDER_ID_PARAM,
+  FOLDERS_ROUTE,
+  folderScopeGuard,
+  vaultFilterRestoreGuard,
+  type VaultScopeRouteData,
+} from "@bitwarden/vault";
 import { premiumInterestRedirectGuard } from "@bitwarden/web-vault/app/vault/guards/premium-interest-redirect/premium-interest-redirect.guard";
 
 import { flagEnabled, Flags } from "../utils/flags";
@@ -716,6 +723,21 @@ const routes: Routes = [
         component: MyFoldersComponent,
         canActivate: [canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault")],
         data: { titleId: "myFolders" } satisfies RouteDataProperties,
+      },
+      // One of the user's folders.
+      {
+        path: `${FOLDERS_ROUTE}/:${FOLDER_ID_PARAM}`,
+        loadComponent: () =>
+          import("./vault/individual-vault/vault-next.component").then(
+            (mod) => mod.VaultNextComponent,
+          ),
+        canActivate: [
+          canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault"),
+          folderScopeGuard,
+          vaultFilterRestoreGuard,
+        ],
+        data: { titleId: "vaults", vaultFilterScope: true } satisfies RouteDataProperties &
+          VaultScopeRouteData,
       },
       {
         path: "sm-landing",
