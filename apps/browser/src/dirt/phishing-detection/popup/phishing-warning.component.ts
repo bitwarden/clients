@@ -18,7 +18,7 @@ import {
 import { MessageSender } from "@bitwarden/messaging";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { BrowserApi } from "../../platform/browser/browser-api";
+import { BrowserApi } from "../../../platform/browser/browser-api";
 import {
   PHISHING_DETECTION_CANCEL_COMMAND,
   PHISHING_DETECTION_CONTINUE_COMMAND,

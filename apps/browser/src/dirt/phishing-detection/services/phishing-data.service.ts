@@ -25,7 +25,7 @@ import { ScheduledTaskNames, TaskSchedulerService } from "@bitwarden/common/plat
 import { LogService } from "@bitwarden/logging";
 import { GlobalStateProvider, KeyDefinition, PHISHING_DETECTION_DISK } from "@bitwarden/state";
 
-import { devFlagEnabled, devFlagValue } from "../../platform/flags";
+import { devFlagEnabled, devFlagValue } from "../../../platform/flags";
 import { PhishingManifest } from "../phishing-manifest.types";
 import {
   PHISHING_CHECKSUM_URL,
