@@ -20,20 +20,20 @@ export type {
   PasswordPolicy,
   RotationAttempt,
   RotationAttemptId,
-  RotationConfig,
   RotationConfigActions,
   RotationConfigCreateRequest,
-  RotationConfigDetail,
+  RotationConfigDetailView,
   RotationConfigId,
   RotationConfigSealedFields,
+  RotationConfigView,
   RotationError,
   RotationJob,
   RotationJobId,
-  TargetSystem,
   TargetSystemCreateError,
   TargetSystemCreateRequest,
   TargetSystemId,
   TargetSystemSealedFields,
+  TargetSystemView,
 } from "@bitwarden/sdk-internal";
 
 /**

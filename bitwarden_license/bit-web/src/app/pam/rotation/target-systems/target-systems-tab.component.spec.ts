@@ -16,7 +16,7 @@ import { AccessConnectorsService } from "../access-connectors/access-connectors.
 import {
   AccessConnectorStatus,
   type AccessConnector,
-  type TargetSystem,
+  type TargetSystemView,
   type TargetSystemId,
 } from "../rotation";
 import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus } from "../rotation";
@@ -41,7 +41,7 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
   translate: (id: string) => id,
 };
 
-function makeSystem(overrides: Partial<TargetSystem> = {}): TargetSystem {
+function makeSystem(overrides: Partial<TargetSystemView> = {}): TargetSystemView {
   return targetSystem({ id: sysId("sys-1"), ...overrides });
 }
 
@@ -57,9 +57,9 @@ describe("TargetSystemsTabComponent", () => {
   let targetSystemsService: {
     loading$: BehaviorSubject<boolean>;
     loadError$: BehaviorSubject<unknown | null>;
-    systems$: BehaviorSubject<TargetSystem[]>;
-    systemById$: BehaviorSubject<Map<string, TargetSystem>>;
-    automaticSystems$: BehaviorSubject<TargetSystem[]>;
+    systems$: BehaviorSubject<TargetSystemView[]>;
+    systemById$: BehaviorSubject<Map<string, TargetSystemView>>;
+    automaticSystems$: BehaviorSubject<TargetSystemView[]>;
     load: jest.Mock;
     setEnabled: jest.Mock;
     delete: jest.Mock;
@@ -115,9 +115,9 @@ describe("TargetSystemsTabComponent", () => {
     targetSystemsService = {
       loading$: new BehaviorSubject<boolean>(false),
       loadError$: new BehaviorSubject<unknown | null>(null),
-      systems$: new BehaviorSubject<TargetSystem[]>([]),
+      systems$: new BehaviorSubject<TargetSystemView[]>([]),
       systemById$: new BehaviorSubject(new Map()),
-      automaticSystems$: new BehaviorSubject<TargetSystem[]>([]),
+      automaticSystems$: new BehaviorSubject<TargetSystemView[]>([]),
       load: jest.fn().mockResolvedValue(undefined),
       setEnabled: jest.fn().mockResolvedValue(undefined),
       delete: jest.fn().mockResolvedValue(undefined),
@@ -165,9 +165,9 @@ describe("TargetSystemsTabComponent", () => {
   it("navigates to edit page on openEdit", async () => {
     const sys = makeSystem({ id: sysId("sys-edit") });
     const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
-    await (component as unknown as { openEdit: (s: TargetSystem) => Promise<boolean> }).openEdit(
-      sys,
-    );
+    await (
+      component as unknown as { openEdit: (s: TargetSystemView) => Promise<boolean> }
+    ).openEdit(sys);
     expect(navigateSpy).toHaveBeenCalledWith(
       ["..", "target-systems", sysId("sys-edit")],
       expect.objectContaining({ relativeTo: expect.anything() }),
@@ -180,7 +180,7 @@ describe("TargetSystemsTabComponent", () => {
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
       const comp = component as unknown as {
-        disable: (s: TargetSystem) => Promise<void>;
+        disable: (s: TargetSystemView) => Promise<void>;
       };
       void comp.disable(sys);
       tick();
@@ -193,7 +193,7 @@ describe("TargetSystemsTabComponent", () => {
       dialogService.openSimpleDialog.mockResolvedValue(false);
 
       const comp = component as unknown as {
-        disable: (s: TargetSystem) => Promise<void>;
+        disable: (s: TargetSystemView) => Promise<void>;
       };
       void comp.disable(sys);
       flushMicrotasks();
@@ -206,7 +206,7 @@ describe("TargetSystemsTabComponent", () => {
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
       const comp = component as unknown as {
-        disable: (s: TargetSystem) => Promise<void>;
+        disable: (s: TargetSystemView) => Promise<void>;
       };
       void comp.disable(sys);
       flushMicrotasks();
@@ -222,7 +222,7 @@ describe("TargetSystemsTabComponent", () => {
       const sys = makeSystem({ id: sysId("sys-1"), status: TargetSystemStatus.Disabled });
 
       const comp = component as unknown as {
-        enable: (s: TargetSystem) => Promise<void>;
+        enable: (s: TargetSystemView) => Promise<void>;
       };
       await comp.enable(sys);
 
@@ -233,7 +233,7 @@ describe("TargetSystemsTabComponent", () => {
       const sys = makeSystem({ id: sysId("sys-1"), status: TargetSystemStatus.Disabled });
 
       const comp = component as unknown as {
-        enable: (s: TargetSystem) => Promise<void>;
+        enable: (s: TargetSystemView) => Promise<void>;
       };
       await comp.enable(sys);
 
@@ -244,7 +244,7 @@ describe("TargetSystemsTabComponent", () => {
   });
 
   describe("delete action", () => {
-    type DeleteComp = { confirmDelete: (s: TargetSystem) => Promise<void> };
+    type DeleteComp = { confirmDelete: (s: TargetSystemView) => Promise<void> };
 
     it("deletes after confirmation and shows a success toast", fakeAsync(() => {
       const sys = makeSystem({ id: sysId("sys-1") });
@@ -431,10 +431,10 @@ describe("TargetSystemsTabComponent", () => {
 
   describe("in-flight row guard", () => {
     type Guarded = {
-      disable: (s: TargetSystem) => Promise<void>;
-      enable: (s: TargetSystem) => Promise<void>;
-      confirmDelete: (s: TargetSystem) => Promise<void>;
-      openAssignConnectorDialog: (s: TargetSystem) => Promise<void>;
+      disable: (s: TargetSystemView) => Promise<void>;
+      enable: (s: TargetSystemView) => Promise<void>;
+      confirmDelete: (s: TargetSystemView) => Promise<void>;
+      openAssignConnectorDialog: (s: TargetSystemView) => Promise<void>;
       isRowBusy: (rowId: TargetSystemId) => boolean;
     };
 
@@ -631,7 +631,7 @@ describe("TargetSystemsTabComponent", () => {
   });
 
   describe("session termination column", () => {
-    async function terminationCell(system: Partial<TargetSystem>): Promise<HTMLElement> {
+    async function terminationCell(system: Partial<TargetSystemView>): Promise<HTMLElement> {
       TestBed.resetTestingModule();
       targetSystemsService.systems$.next([makeSystem(system)]);
       await createComponent({ renderTemplate: true });
@@ -886,7 +886,7 @@ describe("TargetSystemsTabComponent", () => {
   });
 
   describe("activate/deactivate availability for a pending_seal row", () => {
-    async function openRowMenu(system: TargetSystem): Promise<HTMLElement> {
+    async function openRowMenu(system: TargetSystemView): Promise<HTMLElement> {
       TestBed.resetTestingModule();
       targetSystemsService.systems$.next([system]);
       await createComponent({ renderTemplate: true });
@@ -1069,7 +1069,7 @@ describe("TargetSystemsTabComponent", () => {
 
       await (
         component as unknown as {
-          openCreateManagedCredential: (s: TargetSystem) => Promise<boolean>;
+          openCreateManagedCredential: (s: TargetSystemView) => Promise<boolean>;
         }
       ).openCreateManagedCredential(sys);
 
@@ -1084,7 +1084,7 @@ describe("TargetSystemsTabComponent", () => {
   });
 
   describe("openAssignConnectorDialog", () => {
-    type AssignComp = { openAssignConnectorDialog: (s: TargetSystem) => Promise<void> };
+    type AssignComp = { openAssignConnectorDialog: (s: TargetSystemView) => Promise<void> };
 
     it("assigns the selected connector and shows a success toast", fakeAsync(() => {
       const sys = makeSystem({ id: sysId("sys-1") });
@@ -1470,7 +1470,7 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
   });
 
   /** Renders the real template. */
-  function setup(systems: TargetSystem[]) {
+  function setup(systems: TargetSystemView[]) {
     TestBed.configureTestingModule({
       imports: [TargetSystemsTabComponent, ReactiveFormsModule, NoopAnimationsModule],
       providers: [
@@ -1480,9 +1480,9 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
           useValue: {
             loading$: new BehaviorSubject<boolean>(false),
             loadError$: new BehaviorSubject<unknown | null>(null),
-            systems$: new BehaviorSubject<TargetSystem[]>(systems),
+            systems$: new BehaviorSubject<TargetSystemView[]>(systems),
             systemById$: new BehaviorSubject(new Map()),
-            automaticSystems$: new BehaviorSubject<TargetSystem[]>([]),
+            automaticSystems$: new BehaviorSubject<TargetSystemView[]>([]),
             load: jest.fn().mockResolvedValue(undefined),
             setEnabled: jest.fn().mockResolvedValue(undefined),
             delete: jest.fn().mockResolvedValue(undefined),
@@ -1681,7 +1681,10 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
   });
   const SYSTEMS = [entraActive, scriptDisabled, manualActive];
 
-  async function render(vfo1: boolean, systems: TargetSystem[] = SYSTEMS): Promise<HTMLElement> {
+  async function render(
+    vfo1: boolean,
+    systems: TargetSystemView[] = SYSTEMS,
+  ): Promise<HTMLElement> {
     TestBed.resetTestingModule();
     loading$ = new BehaviorSubject<boolean>(false);
     dialogService = mock<DialogService>();
@@ -1696,9 +1699,9 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
           useValue: {
             loading$,
             loadError$: new BehaviorSubject<unknown | null>(null),
-            systems$: new BehaviorSubject<TargetSystem[]>(systems),
+            systems$: new BehaviorSubject<TargetSystemView[]>(systems),
             systemById$: new BehaviorSubject(new Map()),
-            automaticSystems$: new BehaviorSubject<TargetSystem[]>([]),
+            automaticSystems$: new BehaviorSubject<TargetSystemView[]>([]),
             load: jest.fn().mockResolvedValue(undefined),
             setEnabled: jest.fn().mockResolvedValue(undefined),
             delete: jest.fn().mockResolvedValue(undefined),
@@ -2014,7 +2017,7 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
 
 describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
   let fixture: ComponentFixture<TargetSystemsTabComponent>;
-  let systems$: BehaviorSubject<TargetSystem[]>;
+  let systems$: BehaviorSubject<TargetSystemView[]>;
 
   const entraActive = makeSystem({
     id: sysId("1"),
@@ -2041,10 +2044,10 @@ describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
 
   async function render(
     vfo1: boolean,
-    systems: TargetSystem[] = SYSTEMS,
+    systems: TargetSystemView[] = SYSTEMS,
   ): Promise<ComponentFixture<TargetSystemsTabComponent>> {
     TestBed.resetTestingModule();
-    systems$ = new BehaviorSubject<TargetSystem[]>(systems);
+    systems$ = new BehaviorSubject<TargetSystemView[]>(systems);
     await TestBed.configureTestingModule({
       imports: [TargetSystemsTabComponent, ReactiveFormsModule, NoopAnimationsModule],
       providers: [
@@ -2056,7 +2059,7 @@ describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
             loadError$: new BehaviorSubject<unknown | null>(null),
             systems$,
             systemById$: new BehaviorSubject(new Map()),
-            automaticSystems$: new BehaviorSubject<TargetSystem[]>([]),
+            automaticSystems$: new BehaviorSubject<TargetSystemView[]>([]),
             load: jest.fn().mockResolvedValue(undefined),
             setEnabled: jest.fn().mockResolvedValue(undefined),
             delete: jest.fn().mockResolvedValue(undefined),

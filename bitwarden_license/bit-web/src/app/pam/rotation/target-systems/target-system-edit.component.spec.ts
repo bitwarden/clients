@@ -17,7 +17,12 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import type { AccessConnector, RotationConfig, TargetSystem, TargetSystemId } from "../rotation";
+import type {
+  AccessConnector,
+  RotationConfigView,
+  TargetSystemView,
+  TargetSystemId,
+} from "../rotation";
 import {
   AccessConnectorStatus,
   TargetSystemKind,
@@ -58,7 +63,7 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
 /** Stub for the rotation shell route. */
 const ROUTE_PARENT = { snapshot: { params: {} } };
 
-function makeSystem(overrides: Partial<TargetSystem> = {}): TargetSystem {
+function makeSystem(overrides: Partial<TargetSystemView> = {}): TargetSystemView {
   return targetSystem({ id: sysId("sys-1"), ...overrides });
 }
 
@@ -1302,7 +1307,7 @@ describe("TargetSystemEditComponent — assigned access connectors", () => {
 
   async function setup(
     connectors: AccessConnector[],
-    system: Partial<TargetSystem> = {},
+    system: Partial<TargetSystemView> = {},
     renderTemplate = false,
   ): Promise<void> {
     TestBed.resetTestingModule();
@@ -1901,8 +1906,8 @@ describe("TargetSystemEditComponent — outstanding setup hint", () => {
 
   type SetupOptions = {
     connectors?: AccessConnector[];
-    configs?: RotationConfig[];
-    system?: Partial<TargetSystem>;
+    configs?: RotationConfigView[];
+    system?: Partial<TargetSystemView>;
     /** Leave the configs read in flight, to look at the page before it has an answer. */
     holdConfigs?: boolean;
     connectorsFail?: boolean;
@@ -1922,7 +1927,7 @@ describe("TargetSystemEditComponent — outstanding setup hint", () => {
     });
   }
 
-  function credentialHere(): RotationConfig {
+  function credentialHere(): RotationConfigView {
     return rotationConfig({ targetSystemId: SYSTEM_ID });
   }
 
@@ -1940,7 +1945,7 @@ describe("TargetSystemEditComponent — outstanding setup hint", () => {
     }
 
     if (options.holdConfigs) {
-      rotationSdk.listConfigs.mockReturnValue(new Promise<RotationConfig[]>(() => {}));
+      rotationSdk.listConfigs.mockReturnValue(new Promise<RotationConfigView[]>(() => {}));
     } else if (options.configsFail) {
       rotationSdk.listConfigs.mockRejectedValue(new Error("unreachable"));
     } else {
@@ -2158,7 +2163,7 @@ describe("TargetSystemEditComponent — seal status", () => {
   };
   let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
 
-  async function render(system: Partial<TargetSystem>): Promise<void> {
+  async function render(system: Partial<TargetSystemView>): Promise<void> {
     TestBed.resetTestingModule();
     rotationSdk = mock<RotationSdkService>();
     rotationSdk.listTargetSystems.mockResolvedValue([makeSystem({ id: SYSTEM_ID, ...system })]);
@@ -2574,7 +2579,7 @@ describe("TargetSystemEditComponent — session termination withdrawal (rendered
 
   const el = () => fixture.nativeElement as HTMLElement;
 
-  async function render(overrides: Partial<TargetSystem> = {}) {
+  async function render(overrides: Partial<TargetSystemView> = {}) {
     TestBed.resetTestingModule();
     const rotationSdk = mock<RotationSdkService>();
     rotationSdk.listTargetSystems.mockResolvedValue([

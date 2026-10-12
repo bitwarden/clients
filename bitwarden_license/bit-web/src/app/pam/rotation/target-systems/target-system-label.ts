@@ -1,6 +1,11 @@
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { TargetSystem, TargetSystemId, TargetSystemKind, TargetSystemMethod } from "../rotation";
+import {
+  TargetSystemView,
+  TargetSystemId,
+  TargetSystemKind,
+  TargetSystemMethod,
+} from "../rotation";
 
 /** A target system as a list row, a picker option, or a control's accessible name names it. */
 export type TargetSystemLabel = {
@@ -46,7 +51,7 @@ export function targetSystemMethodLabelKey(method: TargetSystemMethod): string |
  * like a manual one.
  */
 export function targetSystemQualifierKey(
-  system: Pick<TargetSystem, "method" | "sealed">,
+  system: Pick<TargetSystemView, "method" | "sealed">,
 ): string | null {
   const kind = system.sealed?.kind;
   return kind == null ? targetSystemMethodLabelKey(system.method) : targetSystemKindLabelKey(kind);
@@ -56,7 +61,7 @@ export function targetSystemQualifierKey(
 export function targetSystemLabel(
   i18nService: I18nService,
   id: TargetSystemId,
-  system: TargetSystem | undefined,
+  system: TargetSystemView | undefined,
 ): TargetSystemLabel {
   if (system == null) {
     const fallback = String(id);

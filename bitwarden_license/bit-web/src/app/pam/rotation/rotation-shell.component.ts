@@ -20,7 +20,7 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { AccessConnectorRegisterDialogComponent } from "./access-connectors/access-connector-register-dialog.component";
 import { AccessConnectorsService } from "./access-connectors/access-connectors.service";
 import { RotationConfigsService } from "./managed-credentials/rotation-configs.service";
-import { AccessConnector, RotationConfig, TargetSystem } from "./rotation";
+import { AccessConnector, RotationConfigView, TargetSystemView } from "./rotation";
 import { TargetSystemsService } from "./target-systems/target-systems.service";
 
 /**
@@ -70,7 +70,7 @@ export class RotationShellComponent {
    * list to have rows.
    */
   private readonly targetSystems = toSignal(this.targetSystemsService.systems$, {
-    initialValue: [] as TargetSystem[],
+    initialValue: [] as TargetSystemView[],
   });
   protected readonly hasTargetSystems = computed(() => this.targetSystems().length > 0);
 
@@ -80,7 +80,7 @@ export class RotationShellComponent {
   });
 
   private readonly configs = toSignal(this.configsService.configs$, {
-    initialValue: [] as RotationConfig[],
+    initialValue: [] as RotationConfigView[],
   });
   protected readonly hasConfigs = computed(() => this.configs().length > 0);
 

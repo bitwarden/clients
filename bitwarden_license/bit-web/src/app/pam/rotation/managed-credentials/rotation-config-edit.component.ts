@@ -41,7 +41,7 @@ import { tabFromSegment } from "../detail-tab";
 import { OrgCiphersService } from "../org-ciphers.service";
 import {
   RotationConfigCreateRequest,
-  RotationConfigDetail,
+  RotationConfigDetailView,
   RotationConfigId,
   TargetSystemId,
   TargetSystemMethod,
@@ -162,7 +162,7 @@ export class RotationConfigEditComponent {
   /** Four blocks, the rough depth of the card each of these pages opens with. */
   protected readonly skeletonFields = [0, 1, 2, 3];
 
-  protected readonly existingConfig = signal<RotationConfigDetail | null>(null);
+  protected readonly existingConfig = signal<RotationConfigDetailView | null>(null);
 
   private readonly config = computed(() => this.existingConfig()?.config ?? null);
 

@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, combineLatest, map, switchMap } from "rxjs
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import { OrgCiphersService } from "../org-ciphers.service";
-import { RotationConfigId, RotationConfig } from "../rotation";
+import { RotationConfigId, RotationConfigView } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
@@ -26,11 +26,11 @@ export class RotationConfigsService {
   /** Incremented per {@link load} call so a superseded call can drop its outcome. */
   private loadGeneration = 0;
 
-  private readonly _configs$ = new BehaviorSubject<RotationConfig[]>([]);
+  private readonly _configs$ = new BehaviorSubject<RotationConfigView[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
   private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
 
-  readonly configs$: Observable<RotationConfig[]> = this._configs$.asObservable();
+  readonly configs$: Observable<RotationConfigView[]> = this._configs$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
 
   /** This list's load error, else the target-system read's; null when both succeeded. */
@@ -105,7 +105,7 @@ export class RotationConfigsService {
     }
   }
 
-  async pause(config: RotationConfig): Promise<void> {
+  async pause(config: RotationConfigView): Promise<void> {
     this.patchConfig(config.id, { enabled: false });
     try {
       await this.rotationSdk.pauseConfig(this.requireOrganizationId(), config.id);
@@ -115,7 +115,7 @@ export class RotationConfigsService {
     }
   }
 
-  async resume(config: RotationConfig): Promise<void> {
+  async resume(config: RotationConfigView): Promise<void> {
     this.patchConfig(config.id, { enabled: true });
     try {
       await this.rotationSdk.resumeConfig(this.requireOrganizationId(), config.id);
@@ -126,12 +126,12 @@ export class RotationConfigsService {
   }
 
   /** Sets `hasActiveJob` once the server accepts, so the row shows the job without a reload. */
-  async rotateNow(config: RotationConfig): Promise<void> {
+  async rotateNow(config: RotationConfigView): Promise<void> {
     await this.rotationSdk.rotateNow(this.requireOrganizationId(), config.id);
     this.patchConfig(config.id, { hasActiveJob: true });
   }
 
-  async recordManual(config: RotationConfig): Promise<void> {
+  async recordManual(config: RotationConfigView): Promise<void> {
     const previousAwaitingManual = config.awaitingManualRotation;
     const previousLastRotationAt = config.lastRotationAt;
     this.patchConfig(config.id, {
@@ -149,7 +149,7 @@ export class RotationConfigsService {
     }
   }
 
-  async delete(config: RotationConfig): Promise<void> {
+  async delete(config: RotationConfigView): Promise<void> {
     await this.rotationSdk.deleteConfig(this.requireOrganizationId(), config.id);
     this._configs$.next(this._configs$.value.filter((c) => c.id !== config.id));
   }
@@ -161,7 +161,7 @@ export class RotationConfigsService {
     return this.organizationId;
   }
 
-  private patchConfig(id: RotationConfigId, patch: Partial<RotationConfig>): void {
+  private patchConfig(id: RotationConfigId, patch: Partial<RotationConfigView>): void {
     this._configs$.next(
       this._configs$.value.map((c) =>
         // A view crosses the WASM boundary as a plain object, so a spread is a faithful copy.

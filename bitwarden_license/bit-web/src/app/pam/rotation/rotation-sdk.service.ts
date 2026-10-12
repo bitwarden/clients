@@ -7,12 +7,12 @@ import type {
   AccessConnector,
   RotationConfigActions,
   RotationConfigCreateRequest,
-  RotationConfigDetail,
+  RotationConfigDetailView,
   RotationConfigId,
-  RotationConfig,
+  RotationConfigView,
   TargetSystemCreateRequest,
   TargetSystemId,
-  TargetSystem,
+  TargetSystemView,
 } from "./rotation";
 import { QuartzSchedulePreset, TargetSystemStatus } from "./rotation";
 
@@ -70,7 +70,7 @@ export abstract class RotationSdkService {
     targetSystemId: TargetSystemId,
   ): Promise<void>;
 
-  abstract listTargetSystems(organizationId: OrganizationId): Promise<TargetSystem[]>;
+  abstract listTargetSystems(organizationId: OrganizationId): Promise<TargetSystemView[]>;
 
   /**
    * Registers and seals a target system in two calls; a failure after the first leaves the row in
@@ -79,7 +79,7 @@ export abstract class RotationSdkService {
   abstract createTargetSystem(
     organizationId: OrganizationId,
     request: TargetSystemCreateRequest,
-  ): Promise<TargetSystem>;
+  ): Promise<TargetSystemView>;
 
   /**
    * Re-seals and replaces the blob wholesale — every sealed field must be resupplied, including
@@ -103,18 +103,18 @@ export abstract class RotationSdkService {
    */
   abstract deleteTargetSystem(organizationId: OrganizationId, id: TargetSystemId): Promise<void>;
 
-  abstract listConfigs(organizationId: OrganizationId): Promise<RotationConfig[]>;
+  abstract listConfigs(organizationId: OrganizationId): Promise<RotationConfigView[]>;
 
   /** Reads one config with its rotation history. */
   abstract getConfig(
     organizationId: OrganizationId,
     id: RotationConfigId,
-  ): Promise<RotationConfigDetail>;
+  ): Promise<RotationConfigDetailView>;
 
   abstract createConfig(
     organizationId: OrganizationId,
     request: RotationConfigCreateRequest,
-  ): Promise<RotationConfigDetail>;
+  ): Promise<RotationConfigDetailView>;
 
   /**
    * Re-seals and replaces the blob wholesale — `cipherId`/`targetSystemId` must be resupplied
@@ -125,7 +125,7 @@ export abstract class RotationSdkService {
     organizationId: OrganizationId,
     id: RotationConfigId,
     request: RotationConfigCreateRequest,
-  ): Promise<RotationConfigDetail>;
+  ): Promise<RotationConfigDetailView>;
 
   /** Pauses a config, so no new rotation jobs are dispatched. */
   abstract pauseConfig(organizationId: OrganizationId, id: RotationConfigId): Promise<void>;
@@ -149,7 +149,7 @@ export abstract class RotationSdkService {
    * `targetStatusById` hasn't loaded yet; predicates that depend on its status fail closed.
    */
   abstract describeConfigs(
-    configs: readonly RotationConfig[],
+    configs: readonly RotationConfigView[],
     targetStatusById: ReadonlyMap<TargetSystemId, TargetSystemStatus>,
   ): Promise<Map<RotationConfigId, RotationConfigDescription>>;
 

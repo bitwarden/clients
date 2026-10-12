@@ -10,15 +10,15 @@ import type {
   RotationAttemptId,
   RotationAttempt,
   RotationConfigActions,
-  RotationConfigDetail,
+  RotationConfigDetailView,
   RotationConfigId,
   RotationConfigSealedFields,
-  RotationConfig,
+  RotationConfigView,
   RotationJobId,
   RotationJob,
   TargetSystemId,
   TargetSystemSealedFields,
-  TargetSystem,
+  TargetSystemView,
 } from "../rotation";
 import { AccessConnectorStatus, TargetSystemStatus } from "../rotation";
 import type { RotationConfigDescription } from "../rotation-sdk.service";
@@ -75,7 +75,7 @@ export function targetSystemSealedFields(
 }
 
 /** An active, automatic Entra target with verified sealed fields, the shape most tests want. */
-export function targetSystem(overrides: Partial<TargetSystem> = {}): TargetSystem {
+export function targetSystem(overrides: Partial<TargetSystemView> = {}): TargetSystemView {
   return {
     id: TARGET_SYSTEM_ID,
     organizationId: ORGANIZATION_ID,
@@ -86,11 +86,11 @@ export function targetSystem(overrides: Partial<TargetSystem> = {}): TargetSyste
     creationDate: TIMESTAMP,
     revisionDate: TIMESTAMP,
     ...overrides,
-  } as TargetSystem;
+  } as TargetSystemView;
 }
 
 /** A target `create` registered but never finished sealing: no sealed fields, `pending_seal` status. */
-export function pendingTargetSystem(overrides: Partial<TargetSystem> = {}): TargetSystem {
+export function pendingTargetSystem(overrides: Partial<TargetSystemView> = {}): TargetSystemView {
   return targetSystem({
     status: TargetSystemStatus.PendingSeal,
     sealed: undefined,
@@ -99,7 +99,9 @@ export function pendingTargetSystem(overrides: Partial<TargetSystem> = {}): Targ
 }
 
 /** The rarer counterpart to {@link pendingTargetSystem}: a blob that exists but failed to verify. */
-export function unverifiableTargetSystem(overrides: Partial<TargetSystem> = {}): TargetSystem {
+export function unverifiableTargetSystem(
+  overrides: Partial<TargetSystemView> = {},
+): TargetSystemView {
   return targetSystem({ sealed: undefined, ...overrides });
 }
 
@@ -137,7 +139,7 @@ export function rotationConfigSealedFields(
 }
 
 /** An enabled, idle, automatic config with verified sealed fields, the one shape that rotates. */
-export function rotationConfig(overrides: Partial<RotationConfig> = {}): RotationConfig {
+export function rotationConfig(overrides: Partial<RotationConfigView> = {}): RotationConfigView {
   return {
     id: ROTATION_CONFIG_ID,
     organizationId: ORGANIZATION_ID,
@@ -156,19 +158,19 @@ export function rotationConfig(overrides: Partial<RotationConfig> = {}): Rotatio
     creationDate: TIMESTAMP,
     revisionDate: TIMESTAMP,
     ...overrides,
-  } as RotationConfig;
+  } as RotationConfigView;
 }
 
 /** A config whose blob exists but failed to verify — always invalid, unlike a target system. */
 export function unverifiableRotationConfig(
-  overrides: Partial<RotationConfig> = {},
-): RotationConfig {
+  overrides: Partial<RotationConfigView> = {},
+): RotationConfigView {
   return rotationConfig({ sealed: undefined, ...overrides });
 }
 
 export function rotationConfigDetail(
-  overrides: Partial<RotationConfigDetail> = {},
-): RotationConfigDetail {
+  overrides: Partial<RotationConfigDetailView> = {},
+): RotationConfigDetailView {
   return { config: rotationConfig(), jobs: [], ...overrides };
 }
 

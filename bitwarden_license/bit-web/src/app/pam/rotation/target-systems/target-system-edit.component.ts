@@ -71,7 +71,7 @@ import {
   TargetSystemKind,
   TargetSystemMethod,
   TargetSystemStatus,
-  TargetSystem,
+  TargetSystemView,
 } from "../rotation";
 import { classifyRotationError, targetSystemCreatePendingId } from "../rotation-error";
 import { ROTATION_TABS, rotationLink } from "../rotation-links";
@@ -283,7 +283,7 @@ export class TargetSystemEditComponent {
   /** Four blocks, the rough depth of the card each of these pages opens with. */
   protected readonly skeletonFields = [0, 1, 2, 3];
 
-  protected readonly existing = signal<TargetSystem | null>(null);
+  protected readonly existing = signal<TargetSystemView | null>(null);
 
   /** The id an access connector's config file keys this target's rotation script on. */
   protected readonly systemIdText = computed(() => {
@@ -601,7 +601,7 @@ export class TargetSystemEditComponent {
 
   /** There is no by-id read, so this finds the target in the organization's list. */
   private async loadSystem({ recordFailure = true } = {}): Promise<"loaded" | "failed" | "gone"> {
-    let systems: TargetSystem[];
+    let systems: TargetSystemView[];
     try {
       systems = (await this.rotationSdk.listTargetSystems(this.organizationId)) ?? [];
     } catch (e) {
@@ -649,7 +649,7 @@ export class TargetSystemEditComponent {
     }
   }
 
-  private applySystem(system: TargetSystem): void {
+  private applySystem(system: TargetSystemView): void {
     this.nameForm.patchValue({ name: system.name });
     const sealed = system.sealed;
     if (sealed == null) {
@@ -739,7 +739,7 @@ export class TargetSystemEditComponent {
     }
   };
 
-  private navigateAfterCreate(created: TargetSystem): Promise<boolean> {
+  private navigateAfterCreate(created: TargetSystemView): Promise<boolean> {
     if (this.then !== THEN_MANAGED_CREDENTIAL) {
       return this.navigateToList();
     }

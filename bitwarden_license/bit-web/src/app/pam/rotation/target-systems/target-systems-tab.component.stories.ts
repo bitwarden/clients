@@ -16,7 +16,7 @@ import { featureFlagModes } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
-import { AccessConnector, TargetSystem } from "../rotation";
+import { AccessConnector, TargetSystemView } from "../rotation";
 import {
   ORGANIZATION_ID,
   pendingTargetSystem,
@@ -31,7 +31,7 @@ import { TargetSystemsTabComponent } from "./target-systems-tab.component";
 import { TargetSystemsService } from "./target-systems.service";
 
 /** Every method, kind, status and seal state the chips and columns can offer. */
-const SYSTEMS: TargetSystem[] = [
+const SYSTEMS: TargetSystemView[] = [
   targetSystem({
     id: sysId("1"),
     name: "Prod Entra",
@@ -58,7 +58,7 @@ const SYSTEMS: TargetSystem[] = [
   unverifiableTargetSystem({ id: sysId("7"), name: "Finance SQL (integrity check failed)" }),
 ];
 
-function rotationServices(systems: TargetSystem[]) {
+function rotationServices(systems: TargetSystemView[]) {
   return moduleMetadata({
     imports: [RouterOutlet],
     providers: [

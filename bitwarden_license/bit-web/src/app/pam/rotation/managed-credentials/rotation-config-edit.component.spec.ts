@@ -14,10 +14,10 @@ import { DialogService, TabsModule, ToastService } from "@bitwarden/components";
 
 import { OrgCiphersService } from "../org-ciphers.service";
 import type {
-  RotationConfig,
-  RotationConfigDetail,
+  RotationConfigView,
+  RotationConfigDetailView,
   RotationConfigId,
-  TargetSystem,
+  TargetSystemView,
 } from "../rotation";
 import { QuartzSchedulePreset } from "../rotation";
 import { ROTATION_TABS, rotationLink } from "../rotation-links";
@@ -63,7 +63,7 @@ const DAILY_CRON = "0 0 0 * * ?";
 const ROUTE_PARENT = { snapshot: { params: {} } };
 
 /** The config the edit page loads: daily schedule, idle, automatic. */
-function loadedConfig(overrides: Partial<RotationConfig> = {}): RotationConfigDetail {
+function loadedConfig(overrides: Partial<RotationConfigView> = {}): RotationConfigDetailView {
   return rotationConfigDetail({
     config: rotationConfig({
       id: configId("cfg-1"),
@@ -76,11 +76,11 @@ function loadedConfig(overrides: Partial<RotationConfig> = {}): RotationConfigDe
 
 type SetupOptions = {
   configId?: RotationConfigId;
-  existingConfig?: RotationConfigDetail | null;
+  existingConfig?: RotationConfigDetailView | null;
   /** Route query params, for the create page's `?targetSystemId=` handoff. */
   queryParams?: Record<string, string>;
   /** The target systems the picker sees; defaults to one active target. */
-  targetSystems?: TargetSystem[];
+  targetSystems?: TargetSystemView[];
   /** The `:tab` segment the edit page is opened on. */
   tab?: string;
   /** Render the page's own markup instead of the stub, for the specs that read the DOM. */
@@ -401,7 +401,7 @@ describe("RotationConfigEditComponent — target-system handoff", () => {
   it("leaves the picker unset when the named target is disabled", async () => {
     const { component, fixture } = setup({
       queryParams: { targetSystemId: uuidAsString(TARGET_SYSTEM_ID) },
-      targetSystems: [targetSystem({ status: "disabled" } as Partial<TargetSystem>)],
+      targetSystems: [targetSystem({ status: "disabled" } as Partial<TargetSystemView>)],
     });
     await fixture.whenStable();
 
@@ -417,7 +417,7 @@ describe("RotationConfigEditComponent — target-system handoff", () => {
 
   it("reports no active target systems when every target is disabled", async () => {
     const { component, fixture } = setup({
-      targetSystems: [targetSystem({ status: "disabled" } as Partial<TargetSystem>)],
+      targetSystems: [targetSystem({ status: "disabled" } as Partial<TargetSystemView>)],
     });
     await fixture.whenStable();
 
@@ -606,7 +606,7 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
 
   describe("an unverifiable config", () => {
     /** A rotation config always carries a blob, so a missing `sealed` always means "invalid". */
-    function unverifiable(): RotationConfigDetail {
+    function unverifiable(): RotationConfigDetailView {
       return rotationConfigDetail({
         config: unverifiableRotationConfig({ id: configId("cfg-1") }),
       });

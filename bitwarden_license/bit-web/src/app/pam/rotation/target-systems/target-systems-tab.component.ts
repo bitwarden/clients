@@ -61,7 +61,7 @@ import {
   TargetSystemKind,
   TargetSystemMethod,
   TargetSystemStatus,
-  TargetSystem,
+  TargetSystemView,
 } from "../rotation";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
@@ -83,7 +83,7 @@ export type TargetSystemRow = {
   id: TargetSystemId;
   /** {@link id} as the string the copy control hands the clipboard. */
   idText: string;
-  system: TargetSystem;
+  system: TargetSystemView;
   name: string;
   /**
    * Null for a method this SDK can't model. The Method chip keys on this rather than
@@ -192,7 +192,7 @@ export class TargetSystemsTabComponent {
   protected readonly skeletonRows = [0, 1, 2, 3, 4];
 
   private readonly systems = toSignal(this.targetSystemsService.systems$, {
-    initialValue: [] as TargetSystem[],
+    initialValue: [] as TargetSystemView[],
   });
   private readonly accessConnectors = toSignal(this.accessConnectorsService.accessConnectors$, {
     initialValue: [] as AccessConnector[],
@@ -325,10 +325,10 @@ export class TargetSystemsTabComponent {
       queryParams: { template: key },
     });
 
-  protected readonly openEdit = (system: TargetSystem): Promise<boolean> =>
+  protected readonly openEdit = (system: TargetSystemView): Promise<boolean> =>
     this.router.navigate(["..", "target-systems", system.id], { relativeTo: this.route });
 
-  protected readonly openCreateManagedCredential = (system: TargetSystem): Promise<boolean> =>
+  protected readonly openCreateManagedCredential = (system: TargetSystemView): Promise<boolean> =>
     this.router.navigate(["..", "managed-credentials", "new"], {
       relativeTo: this.route,
       queryParams: { [TARGET_SYSTEM_QUERY_PARAM]: system.id },
@@ -339,7 +339,7 @@ export class TargetSystemsTabComponent {
    * failed read toasts instead. The row stays busy throughout, so a delete can't race the
    * assignment's optimistic patch.
    */
-  protected readonly openAssignConnectorDialog = (system: TargetSystem): Promise<void> =>
+  protected readonly openAssignConnectorDialog = (system: TargetSystemView): Promise<void> =>
     this.busyRows.run(system.id, async () => {
       const stillMounted = await firstValueFrom(
         this.accessConnectorsService.loading$.pipe(
@@ -387,7 +387,7 @@ export class TargetSystemsTabComponent {
       }
     });
 
-  protected readonly disable = (system: TargetSystem): Promise<void> =>
+  protected readonly disable = (system: TargetSystemView): Promise<void> =>
     this.busyRows.run(system.id, async () => {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "pamTargetSystemDeactivateTitle" },
@@ -410,7 +410,7 @@ export class TargetSystemsTabComponent {
       }
     });
 
-  protected readonly enable = (system: TargetSystem): Promise<void> =>
+  protected readonly enable = (system: TargetSystemView): Promise<void> =>
     this.busyRows.run(system.id, async () => {
       try {
         await this.targetSystemsService.setEnabled(system, true);
@@ -428,7 +428,7 @@ export class TargetSystemsTabComponent {
    * confirmation also warns of dropped connector assignments, or suggests deactivating an active
    * target instead.
    */
-  protected readonly confirmDelete = (system: TargetSystem): Promise<void> =>
+  protected readonly confirmDelete = (system: TargetSystemView): Promise<void> =>
     this.busyRows.run(system.id, async () => {
       const dropsAssignments =
         this.connectorsKnown() &&
@@ -465,7 +465,7 @@ export class TargetSystemsTabComponent {
       }
     });
 
-  private buildRows(systems: TargetSystem[], connectors: AccessConnector[]): TargetSystemRow[] {
+  private buildRows(systems: TargetSystemView[], connectors: AccessConnector[]): TargetSystemRow[] {
     const connectorsKnown = this.connectorsKnown();
     const connectorsUnavailable = this.connectorsUnavailable();
     const hasActiveConnector = eligibleConnectors(connectors).length > 0;

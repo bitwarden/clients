@@ -1,6 +1,6 @@
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import type { TargetSystem, TargetSystemId } from "../rotation";
+import type { TargetSystemView, TargetSystemId } from "../rotation";
 import { TargetSystemKind, TargetSystemMethod } from "../rotation";
 import { sysId, targetSystem, targetSystemSealedFields } from "../testing/rotation-builders";
 
@@ -12,12 +12,15 @@ const i18nFake = {
     id === "pamTargetSystemNameWithDetail" ? `${p1} (${p2})` : id,
 } as I18nService;
 
-function system(overrides: Partial<TargetSystem> = {}): TargetSystem {
+function system(overrides: Partial<TargetSystemView> = {}): TargetSystemView {
   return targetSystem({ id: sysId("ts-1"), name: "dc01 AD domain accounts", ...overrides });
 }
 
 /** `system`, with its sealed `kind` overridden; the rest of `sealed` stays default. */
-function systemWithKind(kind: TargetSystemKind | undefined, overrides: Partial<TargetSystem> = {}) {
+function systemWithKind(
+  kind: TargetSystemKind | undefined,
+  overrides: Partial<TargetSystemView> = {},
+) {
   return system({ sealed: targetSystemSealedFields({ kind }), ...overrides });
 }
 
