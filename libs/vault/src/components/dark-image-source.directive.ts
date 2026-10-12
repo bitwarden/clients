@@ -1,12 +1,4 @@
-import {
-  DestroyRef,
-  Directive,
-  ElementRef,
-  HostBinding,
-  inject,
-  input,
-  OnInit,
-} from "@angular/core";
+import { DestroyRef, Directive, ElementRef, inject, input, OnInit, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { combineLatest, Observable } from "rxjs";
 
@@ -24,6 +16,9 @@ import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-stat
  */
 @Directive({
   selector: "[appDarkImgSrc]",
+  host: {
+    "[attr.src]": "src()",
+  },
 })
 export class DarkImageSourceDirective implements OnInit {
   private themeService = inject(ThemeStateService);
@@ -42,7 +37,11 @@ export class DarkImageSourceDirective implements OnInit {
    */
   readonly darkImgSrc = input.required<string>({ alias: "appDarkImgSrc" });
 
-  @HostBinding("attr.src") src: string | undefined;
+  /**
+   * A signal rather than a plain field so that hosts using `OnPush` repaint when the theme
+   * changes — the subscription below is not a change-detection trigger on its own.
+   */
+  protected readonly src = signal<string | undefined>(undefined);
 
   ngOnInit() {
     // Set the light image source from the element's current src attribute
@@ -54,7 +53,7 @@ export class DarkImageSourceDirective implements OnInit {
       .subscribe(([theme, systemTheme]) => {
         const appliedTheme = theme === "system" ? systemTheme : theme;
         const isDark = appliedTheme === "dark";
-        this.src = isDark ? this.darkImgSrc() : this.lightImgSrc;
+        this.src.set(isDark ? this.darkImgSrc() : this.lightImgSrc);
       });
   }
 }

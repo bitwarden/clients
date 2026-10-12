@@ -3,13 +3,7 @@
     <bit-nav-logo [openIcon]="logo" route="." [label]="'passwordManager' | i18n"></bit-nav-logo>
 
     @if (vfo1Enabled()) {
-      <vault-nav-section
-        [coachmarkPopover]="sharedFoldersCoachmark.popover()"
-        [coachmarkPopoverOpen]="coachmarkService.isStepActive('shareWithCollections')"
-        [coachmarkPosition]="coachmarkService.getStepPosition('shareWithCollections')"
-        [coachmarkTourRunning]="coachmarkService.isRunning()"
-      />
-      <app-coachmark #sharedFoldersCoachmark stepId="shareWithCollections" />
+      <vault-nav-section />
 
       <bit-nav-section [label]="'tools' | i18n">
         <bit-nav-item
@@ -22,7 +16,7 @@
           [closeOnBackdropClick]="false"
           [spotlight]="true"
         ></bit-nav-item>
-        <app-coachmark #vfo1ReportsCoachmark stepId="monitorSecurity" />
+        <vault-coachmark #vfo1ReportsCoachmark stepId="monitorSecurity" />
         @if (sendEnabled$ | async) {
           <bit-nav-item icon="bwi-send" [text]="'send' | i18n" route="sends"></bit-nav-item>
         }
@@ -88,7 +82,7 @@
           [closeOnBackdropClick]="false"
           [spotlight]="true"
         ></bit-nav-item>
-        <app-coachmark #importCoachmark stepId="importData" />
+        <vault-coachmark #importCoachmark stepId="importData" />
         <bit-nav-item [text]="'exportNoun' | i18n" route="tools/export"></bit-nav-item>
       </bit-nav-group>
       <bit-nav-item
@@ -101,7 +95,7 @@
         [closeOnBackdropClick]="false"
         [spotlight]="true"
       ></bit-nav-item>
-      <app-coachmark #reportsCoachmark stepId="monitorSecurity" />
+      <vault-coachmark #reportsCoachmark stepId="monitorSecurity" />
       <bit-nav-group icon="bwi-cog" [text]="'settings' | i18n" route="settings">
         <bit-nav-item [text]="'myAccount' | i18n" route="settings/account"></bit-nav-item>
         <bit-nav-item [text]="'security' | i18n" route="settings/security"></bit-nav-item>

@@ -1,4 +1,5 @@
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { DeviceRequest } from "@bitwarden/common/auth/models/request/identity-token/device.request";
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/sso-token.request";
@@ -19,7 +20,7 @@ import { WebAuthnLoginStrategyData } from "../../login-strategies/webauthn-login
 import {
   MockAuthenticatorAssertionResponse,
   MockPublicKeyCredential,
-} from "../../login-strategies/webauthn-login.strategy.spec";
+} from "../../login-strategies/webauthn-login.strategy.spec-util";
 import { AuthRequestLoginCredentials, WebAuthnLoginCredentials } from "../../models";
 
 import { CACHE_EXPIRATION_KEY, CACHE_KEY } from "./login-strategy.state";
@@ -62,89 +63,102 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
 
   it("should correctly deserialize PasswordLoginStrategyData", () => {
     const actual = {
-      password: new PasswordLoginStrategyData(),
+      password: new PasswordLoginStrategyData({
+        tokenRequest: new PasswordTokenRequest(
+          "EMAIL",
+          "LOCAL_PASSWORD_HASH",
+          twoFactorRequest,
+          deviceRequest,
+        ),
+        userEnteredEmail: "EMAIL",
+        masterKey: new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey,
+        masterPassword: "MASTER_PASSWORD",
+        forcePasswordResetReason: ForceSetPasswordReason.None,
+      }),
     };
-    actual.password.tokenRequest = new PasswordTokenRequest(
-      "EMAIL",
-      "LOCAL_PASSWORD_HASH",
-      twoFactorRequest,
-      deviceRequest,
-    );
-    actual.password.masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(actual)));
 
     expect(result).not.toBeNull();
     expect(result!.password).toBeInstanceOf(PasswordLoginStrategyData);
     verifyPropertyPrototypes(result!, actual);
+    verifyFieldsPreserved(result!.password!, actual.password);
   });
 
   it("should correctly deserialize SsoLoginStrategyData", () => {
-    const actual = { sso: new SsoLoginStrategyData() };
-    actual.sso.tokenRequest = new SsoTokenRequest(
-      "CODE",
-      "CODE_VERIFIER",
-      "REDIRECT_URI",
-      twoFactorRequest,
-      deviceRequest,
-    );
+    const actual = {
+      sso: new SsoLoginStrategyData({
+        tokenRequest: new SsoTokenRequest(
+          "CODE",
+          "CODE_VERIFIER",
+          "REDIRECT_URI",
+          twoFactorRequest,
+          deviceRequest,
+        ),
+        orgId: "ORG_ID",
+      }),
+    };
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(actual)));
 
     expect(result).not.toBeNull();
     expect(result!.sso).toBeInstanceOf(SsoLoginStrategyData);
     verifyPropertyPrototypes(result!, actual);
+    verifyFieldsPreserved(result!.sso!, actual.sso);
   });
 
   it("should correctly deserialize UserApiLoginStrategyData", () => {
-    const actual = { userApiKey: new UserApiLoginStrategyData() };
-    actual.userApiKey.tokenRequest = new UserApiTokenRequest(
-      "CLIENT_ID",
-      "CLIENT_SECRET",
-      twoFactorRequest,
-    );
+    const actual = {
+      userApiKey: new UserApiLoginStrategyData({
+        tokenRequest: new UserApiTokenRequest("CLIENT_ID", "CLIENT_SECRET", twoFactorRequest),
+      }),
+    };
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(actual)));
 
     expect(result).not.toBeNull();
     expect(result!.userApiKey).toBeInstanceOf(UserApiLoginStrategyData);
     verifyPropertyPrototypes(result!, actual);
+    verifyFieldsPreserved(result!.userApiKey!, actual.userApiKey);
   });
 
   it("should correctly deserialize AuthRequestLoginStrategyData", () => {
-    const actual = { authRequest: new AuthRequestLoginStrategyData() };
-    actual.authRequest.tokenRequest = new PasswordTokenRequest(
-      "EMAIL",
-      "ACCESS_CODE",
-      twoFactorRequest,
-      deviceRequest,
-    );
-    actual.authRequest.authRequestCredentials = new AuthRequestLoginCredentials(
-      "EMAIL",
-      "ACCESS_CODE",
-      "AUTH_REQUEST_ID",
-      new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
-    );
+    const actual = {
+      authRequest: new AuthRequestLoginStrategyData({
+        tokenRequest: new PasswordTokenRequest(
+          "EMAIL",
+          "ACCESS_CODE",
+          twoFactorRequest,
+          deviceRequest,
+        ),
+        authRequestCredentials: new AuthRequestLoginCredentials(
+          "EMAIL",
+          "ACCESS_CODE",
+          "AUTH_REQUEST_ID",
+          new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
+        ),
+      }),
+    };
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(actual)));
 
     expect(result).not.toBeNull();
     expect(result!.authRequest).toBeInstanceOf(AuthRequestLoginStrategyData);
     verifyPropertyPrototypes(result!, actual);
+    verifyFieldsPreserved(result!.authRequest!, actual.authRequest);
   });
 
   it("should correctly deserialize WebAuthnLoginStrategyData", () => {
     global.AuthenticatorAssertionResponse = MockAuthenticatorAssertionResponse;
-    const actual = { webAuthn: new WebAuthnLoginStrategyData() };
     const publicKeyCredential = new MockPublicKeyCredential();
     const deviceResponse = new WebAuthnLoginAssertionResponseRequest(publicKeyCredential);
     const prfKey = new SymmetricCryptoKey(new Uint8Array(64)) as PrfKey;
-    actual.webAuthn.credentials = new WebAuthnLoginCredentials("TOKEN", deviceResponse, prfKey);
-    actual.webAuthn.tokenRequest = new WebAuthnLoginTokenRequest(
-      "TOKEN",
-      deviceResponse,
-      deviceRequest,
-    );
+    const actual = {
+      webAuthn: new WebAuthnLoginStrategyData({
+        tokenRequest: new WebAuthnLoginTokenRequest("TOKEN", deviceResponse, deviceRequest),
+        credentials: new WebAuthnLoginCredentials("TOKEN", deviceResponse, prfKey),
+      }),
+    };
 
     actual.webAuthn.tokenRequest.setTwoFactor(
       new TokenTwoFactorRequest(TwoFactorProviderType.Email, "TOKEN", false),
@@ -155,6 +169,7 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
     expect(result).not.toBeNull();
     expect(result!.webAuthn).toBeInstanceOf(WebAuthnLoginStrategyData);
     verifyPropertyPrototypes(result!, actual);
+    verifyFieldsPreserved(result!.webAuthn!, actual.webAuthn);
   });
 });
 
@@ -180,6 +195,24 @@ function verifyPropertyPrototypes(deserialized: object, concrete: object) {
       const realProto = Object.getPrototypeOf(realProperty);
       expect(deserializedProperty).toBeInstanceOf(realProto.constructor);
       verifyPropertyPrototypes(deserializedProperty, realProperty);
+    }
+  }
+}
+
+/**
+ * Verifies that every field set on the object stored in state survives deserialization, and
+ * that primitive fields keep their values.
+ * @param deserialized the deserialized object
+ * @param concrete the object stored in state
+ */
+function verifyFieldsPreserved(deserialized: object, concrete: object) {
+  for (const [key, value] of Object.entries(concrete)) {
+    if (value === undefined) {
+      continue;
+    }
+    expect(deserialized).toHaveProperty(key);
+    if (typeof value !== "object" || value === null) {
+      expect((deserialized as any)[key]).toEqual(value);
     }
   }
 }
