@@ -35,32 +35,33 @@ describe("PamCipherLeaseStateService", () => {
     service = new PamCipherLeaseStateService(leasesApi, logService);
   });
 
-  it("answers every id from one read", async () => {
-    leasesApi.listMyLeases.mockResolvedValue([lease(CIPHER_ID, Date.now() + 60_000)]);
+  it("reports the ciphers under a live lease", async () => {
+    leasesApi.listMyLeases.mockResolvedValue([
+      lease(CIPHER_ID, Date.now() + 60_000),
+      lease(OTHER_CIPHER_ID, Date.now() + 60_000),
+    ]);
 
-    await expect(service.leasedCipherIds([CIPHER_ID, OTHER_CIPHER_ID])).resolves.toEqual(
-      new Set([CIPHER_ID]),
-    );
+    await expect(service.leasedCipherIds()).resolves.toEqual(new Set([CIPHER_ID, OTHER_CIPHER_ID]));
     expect(leasesApi.listMyLeases).toHaveBeenCalledTimes(1);
   });
 
   it("treats a lapsed lease as none", async () => {
     leasesApi.listMyLeases.mockResolvedValue([lease(CIPHER_ID, Date.now() - 1)]);
 
-    await expect(service.leasedCipherIds([CIPHER_ID])).resolves.toEqual(new Set());
+    await expect(service.leasedCipherIds()).resolves.toEqual(new Set());
   });
 
   it("treats an ended lease as none", async () => {
     leasesApi.listMyLeases.mockResolvedValue([lease(CIPHER_ID, Date.now() + 60_000, "revoked")]);
 
-    await expect(service.leasedCipherIds([CIPHER_ID])).resolves.toEqual(new Set());
+    await expect(service.leasedCipherIds()).resolves.toEqual(new Set());
   });
 
   it("fails closed when the read fails", async () => {
     const error = new Error("read failed");
     leasesApi.listMyLeases.mockRejectedValue(error);
 
-    await expect(service.leasedCipherIds([CIPHER_ID])).resolves.toEqual(new Set());
+    await expect(service.leasedCipherIds()).resolves.toEqual(new Set());
     expect(logService.error).toHaveBeenCalledWith(error);
   });
 });

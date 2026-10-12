@@ -956,7 +956,7 @@ describe("Cipher Service", () => {
 
       await cipherService.deleteWithServer(gatedId, userId);
 
-      expect(cipherLeaseStateService.leasedCipherIds).toHaveBeenCalledWith([gatedId]);
+      expect(cipherLeaseStateService.leasedCipherIds).toHaveBeenCalled();
       expect(apiService.deleteCipher).toHaveBeenCalledWith(gatedId);
     });
 
@@ -988,7 +988,6 @@ describe("Cipher Service", () => {
 
       await expect(result).rejects.toHaveProperty("cipherIds", [otherGatedId]);
       expect(cipherLeaseStateService.leasedCipherIds).toHaveBeenCalledTimes(1);
-      expect(cipherLeaseStateService.leasedCipherIds).toHaveBeenCalledWith([gatedId, otherGatedId]);
     });
 
     describe("updateWithServer() on the legacy path, under a lease", () => {

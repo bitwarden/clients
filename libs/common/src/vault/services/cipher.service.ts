@@ -367,7 +367,7 @@ export class CipherService implements CipherServiceAbstraction {
     if (partial.length === 0) {
       return;
     }
-    const leased = await this.cipherLeaseStateService.leasedCipherIds(partial);
+    const leased = await this.cipherLeaseStateService.leasedCipherIds();
     const gated = partial.filter((id) => !leased.has(id));
     if (gated.length > 0) {
       throw new GatedCipherWriteError(gated);
