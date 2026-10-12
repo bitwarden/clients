@@ -11,7 +11,6 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   DefaultVaultHealthReportService,
   VaultHealthReportService,
@@ -46,9 +45,6 @@ import { BrowserKeeperSsoTabMonitor } from "../tools/popup/settings/import/brows
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { ExtensionAnonLayoutWrapperComponent } from "./components/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
-import { healthNavButton$ } from "./dirt/health/health-nav-button";
-import { HealthAccessService } from "./dirt/health/services/health-access.service";
-import { HEALTH_TAB_NAV_BUTTON } from "./health-tab-nav-button";
 import { ServicesModule } from "./services/services.module";
 import { TabsV2Component } from "./tabs-v2.component";
 
@@ -106,11 +102,6 @@ import "../platform/popup/locales";
       provide: VaultHealthReportService,
       useClass: DefaultVaultHealthReportService,
       deps: [CipherRiskService, LogService],
-    }),
-    safeProvider({
-      provide: HEALTH_TAB_NAV_BUTTON,
-      useFactory: healthNavButton$,
-      deps: [AccountService, HealthAccessService],
     }),
   ],
   bootstrap: [AppComponent],

@@ -261,6 +261,41 @@ describe("HealthAccessService", () => {
     });
   });
 
+  describe("healthNavButton$", () => {
+    beforeEach(() => {
+      setFeatureFlag(true);
+      setOrganizations([]);
+    });
+
+    it("builds the Health tab when the User has access", async () => {
+      const button = await firstValueFrom(service.healthNavButton$(userId));
+
+      expect(button).toEqual(expect.objectContaining({ label: "health", page: "/tabs/health" }));
+    });
+
+    it("shows a berry until the User has opened the Health report", async () => {
+      const button = await firstValueFrom(service.healthNavButton$(userId));
+
+      expect(button?.showBerry).toBe(true);
+    });
+
+    it("hides the berry once the User has opened the Health report", async () => {
+      await service.setHealthHasBeenOpened(userId);
+
+      const button = await firstValueFrom(service.healthNavButton$(userId));
+
+      expect(button?.showBerry).toBe(false);
+    });
+
+    it("builds no tab when the User does not have access", async () => {
+      setOrganizations([teamsOrganization]);
+
+      const button = await firstValueFrom(service.healthNavButton$(userId));
+
+      expect(button).toBeUndefined();
+    });
+  });
+
   describe("canAccessHealthDetail", () => {
     /** Runs the guard the way the router does, ignoring the snapshots it does not read. */
     function runGuard() {

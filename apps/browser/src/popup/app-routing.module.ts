@@ -69,6 +69,12 @@ import { BlockedDomainsComponent } from "../autofill/popup/settings/blocked-doma
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
+import { HealthRiskCategoryDetailComponent } from "../dirt/health/popup/health-risk-category-detail.component";
+import { HealthComponent } from "../dirt/health/popup/health.component";
+import {
+  canAccessHealth,
+  canAccessHealthDetail,
+} from "../dirt/health/popup/services/health-access.service";
 import { PhishingWarningComponent } from "../dirt/phishing-detection/popup/phishing-warning.component";
 import { ProtectedByComponent } from "../dirt/phishing-detection/popup/protected-by-component";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
@@ -117,12 +123,6 @@ import {
   ExtensionAnonLayoutWrapperComponent,
   ExtensionAnonLayoutWrapperData,
 } from "./components/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
-import { HealthRiskCategoryDetailComponent } from "./dirt/health/health-risk-category-detail.component";
-import { HealthComponent } from "./dirt/health/health.component";
-import {
-  canAccessHealth,
-  canAccessHealthDetail,
-} from "./dirt/health/services/health-access.service";
 import { debounceNavigationGuard } from "./services/debounce-navigation.service";
 import { TabsV2Component } from "./tabs-v2.component";
 

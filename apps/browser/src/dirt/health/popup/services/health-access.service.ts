@@ -2,6 +2,7 @@ import { inject, Injectable } from "@angular/core";
 import { CanActivateFn, Router } from "@angular/router";
 import { Observable, of, combineLatest, map, switchMap } from "rxjs";
 
+import { HealthActive, HealthInactive } from "@bitwarden/assets/svg";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -10,7 +11,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { ToastService } from "@bitwarden/components";
+import { BottomNavigationButton, ToastService } from "@bitwarden/components";
 import { BROWSER_HEALTH_DISK, StateProvider, UserKeyDefinition } from "@bitwarden/state";
 
 /**
@@ -97,6 +98,28 @@ export class HealthAccessService {
    */
   async setHasRunHealthScan(userId: UserId): Promise<void> {
     await this.stateProvider.setUserState(RUN_HEALTH_SCAN_KEY, true, userId);
+  }
+
+  /**
+   * Given a UserId, returns an observable that emits the Health tab's entry in the popup's bottom navigation.
+   *
+   * @param userId A User's ID.
+   * @returns An observable that emits the Health tab button, or `undefined` when the User does not have access to the Health report feature.
+   */
+  healthNavButton$(userId: UserId): Observable<BottomNavigationButton | undefined> {
+    return combineLatest([this.healthEnabled$(userId), this.healthHasBeenOpened$(userId)]).pipe(
+      map(([healthEnabled, healthTabOpened]) =>
+        healthEnabled
+          ? ({
+              label: "health",
+              page: "/tabs/health",
+              icon: HealthInactive,
+              iconActive: HealthActive,
+              showBerry: !healthTabOpened,
+            } as BottomNavigationButton)
+          : undefined,
+      ),
+    );
   }
 }
 
