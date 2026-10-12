@@ -1,8 +1,9 @@
 import { Injectable } from "@angular/core";
-import { catchError, defer, map, Observable, of, shareReplay } from "rxjs";
+import { catchError, defer, firstValueFrom, map, Observable, of, shareReplay } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { CipherLeaseStateService } from "@bitwarden/common/vault/abstractions/cipher-lease-state.service";
 
 import type { AccessLeaseView } from "../abstractions/access-lease";
 import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
@@ -14,10 +15,11 @@ type CacheEntry = { fetchedAt: number; leases$: Observable<readonly AccessLeaseV
 
 /**
  * One cached `listMyLeases` read, for an item that became reachable through a rule-less collection
- * after its lease was minted. A failed read resolves to no leases, so the gate stays shut.
+ * after its lease was minted, and for `CipherService`'s write gate. A failed read resolves to no
+ * leases, so both gates stay shut.
  */
 @Injectable()
-export class MyLeasesService {
+export class MyLeasesService implements CipherLeaseStateService {
   private cache: CacheEntry | null = null;
 
   constructor(
@@ -50,6 +52,18 @@ export class MyLeasesService {
           (lease) => lease.status === "active" && uuidAsString(lease.cipherId) === cipherId,
         ),
       ),
+    );
+  }
+
+  /** Always reads fresh, so a lease started or ended elsewhere counts at once. Refreshes the cache. */
+  async leasedCipherIds(): Promise<Set<string>> {
+    this.invalidate();
+    const leases = await firstValueFrom(this.leases$());
+    const nowMs = Date.now();
+    return new Set(
+      leases
+        .filter((l) => l.status === "active" && Date.parse(l.notAfter) > nowMs)
+        .map((l) => uuidAsString(l.cipherId)),
     );
   }
 

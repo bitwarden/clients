@@ -45,7 +45,6 @@ import { DefaultAccessRefreshService } from "./services/default-access-refresh.s
 import { DefaultLeasingErrorService } from "./services/default-leasing-error.service";
 import { GovernedCollectionsService } from "./services/governed-collections.service";
 import { MyLeasesService } from "./services/my-leases.service";
-import { PamCipherLeaseStateService } from "./services/pam-cipher-lease-state.service";
 import { PamGatedCipherReloader } from "./services/pam-gated-cipher-reloader.service";
 import { DefaultPamNavBadgeService } from "./services/pam-nav-badge.service";
 import { DefaultVaultRowAccessActionsService } from "./services/vault-row-access-actions.service";
@@ -97,8 +96,7 @@ export function providePam(): SafeProvider[] {
     }),
     safeProvider({
       provide: CipherLeaseStateService,
-      useClass: PamCipherLeaseStateService,
-      deps: [AccessLeaseSdkService, LogService],
+      useExisting: MyLeasesService,
     }),
     safeProvider({
       provide: ApprovalSdkService,
