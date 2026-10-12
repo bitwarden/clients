@@ -1190,6 +1190,12 @@
   "restrictedItemChangeRefused": {
     "message": "This item is restricted. Your change was not saved."
   },
+  "controlledAccess": {
+    "message": "Controlled access"
+  },
+  "pamSharedFolderPrivilegedControls": {
+    "message": "Privileged controls: access requires a request"
+  },
   "overwritePasswordConfirmation": {
     "message": "Are you sure you want to overwrite the current password?"
   },
