@@ -11,7 +11,12 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { DialogService, FilterMenuComponent, ToastService } from "@bitwarden/components";
 
-import type { AccessConnector, AccessConnectorId, TargetSystemId, TargetSystem } from "../rotation";
+import type {
+  AccessConnector,
+  AccessConnectorId,
+  TargetSystemId,
+  TargetSystemView,
+} from "../rotation";
 import { AccessConnectorStatus } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 import { deferred } from "../testing/deferred";
@@ -103,7 +108,7 @@ describe("AccessConnectorsTabComponent", () => {
 
     targetSystemsLoadError$.next(null);
     targetSystemsService = {
-      automaticSystems$: of([] as TargetSystem[]),
+      automaticSystems$: of([] as TargetSystemView[]),
       loading$: of(false),
       loadError$: targetSystemsLoadError$.asObservable(),
       load: jest.fn().mockResolvedValue(undefined),
@@ -402,7 +407,7 @@ describe("AccessConnectorsTabComponent", () => {
   });
 
   describe("openAssignDialog", () => {
-    const activeSystem = { id: sysId("ts-1"), name: "Prod DB" } as unknown as TargetSystem;
+    const activeSystem = { id: sysId("ts-1"), name: "Prod DB" } as unknown as TargetSystemView;
 
     function accessConnectorWithAssignments(...ids: TargetSystemId[]): AccessConnectorRow {
       const row = makeAccessConnectorRow();
@@ -415,7 +420,7 @@ describe("AccessConnectorsTabComponent", () => {
       };
     }
 
-    async function openWith(systems: TargetSystem[], row: AccessConnectorRow): Promise<void> {
+    async function openWith(systems: TargetSystemView[], row: AccessConnectorRow): Promise<void> {
       TestBed.resetTestingModule();
       targetSystemsService = {
         automaticSystems$: of(systems),
@@ -432,13 +437,13 @@ describe("AccessConnectorsTabComponent", () => {
       await component.openAssignDialog(row);
     }
 
-    function dialogData(): { options: TargetSystem[]; noActiveAutomaticSystems: boolean } {
+    function dialogData(): { options: TargetSystemView[]; noActiveAutomaticSystems: boolean } {
       return (dialogService.open as jest.Mock).mock.calls[0][1].data;
     }
 
     async function componentWith(
       targetSystemsLoading$: BehaviorSubject<boolean>,
-      systems: TargetSystem[] = [],
+      systems: TargetSystemView[] = [],
     ): Promise<{ openAssignDialog: (row: AccessConnectorRow) => Promise<void> }> {
       TestBed.resetTestingModule();
       targetSystemsService = {
@@ -566,7 +571,7 @@ describe("AccessConnectorsTabComponent", () => {
   });
 
   describe("assign availability", () => {
-    const eligibleSystem = { id: sysId("ts-1"), name: "Prod DB" } as unknown as TargetSystem;
+    const eligibleSystem = { id: sysId("ts-1"), name: "Prod DB" } as unknown as TargetSystemView;
 
     function assignRow(canAssign: boolean, assignedIds: TargetSystemId[] = []): AccessConnectorRow {
       return makeAccessConnectorRow({
@@ -578,7 +583,7 @@ describe("AccessConnectorsTabComponent", () => {
 
     async function openRowMenu(
       row: AccessConnectorRow,
-      eligible: TargetSystem[] = [eligibleSystem],
+      eligible: TargetSystemView[] = [eligibleSystem],
     ): Promise<HTMLButtonElement> {
       TestBed.resetTestingModule();
       targetSystemsService = {
@@ -650,7 +655,7 @@ describe("AccessConnectorsTabComponent", () => {
     it("leaves the assign item live while the target-system list is still being read", async () => {
       TestBed.resetTestingModule();
       targetSystemsService = {
-        automaticSystems$: of([] as TargetSystem[]),
+        automaticSystems$: of([] as TargetSystemView[]),
         loading$: of(true),
         loadError$: targetSystemsLoadError$.asObservable(),
         load: jest.fn().mockResolvedValue(undefined),
@@ -1016,7 +1021,7 @@ describe("AccessConnectorsTabComponent toolbar filters", () => {
         {
           provide: TargetSystemsService,
           useValue: {
-            automaticSystems$: of([] as TargetSystem[]),
+            automaticSystems$: of([] as TargetSystemView[]),
             loading$: of(false),
             loadError$: new BehaviorSubject<unknown | null>(null),
             load: jest.fn().mockResolvedValue(undefined),
@@ -1149,7 +1154,7 @@ describe("AccessConnectorsTabComponent assigned targets column", () => {
         {
           provide: TargetSystemsService,
           useValue: {
-            automaticSystems$: of([] as TargetSystem[]),
+            automaticSystems$: of([] as TargetSystemView[]),
             loading$: of(false),
             loadError$: new BehaviorSubject<unknown | null>(null),
             load: jest.fn().mockResolvedValue(undefined),
@@ -1253,7 +1258,7 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
   let dialogService: { openSimpleDialog: jest.Mock; open: jest.Mock };
   let overlayContainer: OverlayContainer;
 
-  const eligibleSystem = { id: sysId("ts-1"), name: "Prod DB" } as unknown as TargetSystem;
+  const eligibleSystem = { id: sysId("ts-1"), name: "Prod DB" } as unknown as TargetSystemView;
 
   function makeRow(
     id: string,

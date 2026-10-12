@@ -61,7 +61,7 @@ import {
   TargetSystemKind,
   TargetSystemMethod,
   TargetSystemStatus,
-  TargetSystem,
+  TargetSystemView,
 } from "../rotation";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
@@ -76,11 +76,14 @@ import {
 } from "./target-systems-empty-state.component";
 import { TargetSystemsService } from "./target-systems.service";
 
+/** The three lifecycle states a row's status badge can show. */
+export type TargetSystemRowStatus = "active" | "inactive" | "pendingSeal";
+
 export type TargetSystemRow = {
   id: TargetSystemId;
   /** {@link id} as the string the copy control hands the clipboard. */
   idText: string;
-  system: TargetSystem;
+  system: TargetSystemView;
   name: string;
   /**
    * Null for a method this SDK can't model. The Method chip keys on this rather than
@@ -88,17 +91,37 @@ export type TargetSystemRow = {
    */
   methodLabelKey: string | null;
   methodLabel: string | null;
+  /** `system.sealed?.kind`, null for a manual target or one with no verified sealed fields. */
+  kind: TargetSystemKind | null;
   kindLabel: string | null;
-  /** Two states only, so an unmodellable status reads as inactive. */
-  statusLabelKey: "pamTargetSystemStatusActive" | "pamTargetSystemStatusInactive";
+  status: TargetSystemRowStatus;
+  statusLabelKey:
+    | "pamTargetSystemStatusActive"
+    | "pamTargetSystemStatusInactive"
+    | "pamTargetSystemStatusPendingSeal";
   statusLabel: string;
   active: boolean;
+  /**
+   * Whether the integration can terminate sessions, when known. `unknown` means `sealed` is
+   * absent on a row that isn't `pendingSeal` — unverified, distinct from confirming it cannot.
+   */
+  sessionTermination: "yes" | "no" | "unknown";
+  /**
+   * True when `sealed` is absent on a row that isn't `pendingSeal`: the blob exists but failed to
+   * verify. Surfaced as an icon beside the name, since the status column can't show it.
+   */
+  integrityCheckFailed: boolean;
   /** Only an automatic-method target can claim a connector assignment. */
   canAssignConnectors: boolean;
   /** Only an active target can take a new managed credential. */
   canAddManagedCredential: boolean;
   /** The i18n key for why the menu can't assign an access connector now, or null when it can. */
   assignConnectorsBlockedKey: string | null;
+  /**
+   * The i18n key for why Activate/Deactivate are disabled, or null when either is live. A
+   * `pendingSeal` target has no confirmed capability to toggle until setup finishes.
+   */
+  activationBlockedKey: string | null;
 };
 
 @Component({
@@ -169,7 +192,7 @@ export class TargetSystemsTabComponent {
   protected readonly skeletonRows = [0, 1, 2, 3, 4];
 
   private readonly systems = toSignal(this.targetSystemsService.systems$, {
-    initialValue: [] as TargetSystem[],
+    initialValue: [] as TargetSystemView[],
   });
   private readonly accessConnectors = toSignal(this.accessConnectorsService.accessConnectors$, {
     initialValue: [] as AccessConnector[],
@@ -232,9 +255,7 @@ export class TargetSystemsTabComponent {
   protected readonly kindOptions = computed(() =>
     filterOptions(
       this.rows().flatMap((row) =>
-        row.system.kind != null && row.kindLabel != null
-          ? [[row.system.kind, row.kindLabel] as const]
-          : [],
+        row.kind != null && row.kindLabel != null ? [[row.kind, row.kindLabel] as const] : [],
       ),
     ),
   );
@@ -304,10 +325,10 @@ export class TargetSystemsTabComponent {
       queryParams: { template: key },
     });
 
-  protected readonly openEdit = (system: TargetSystem): Promise<boolean> =>
+  protected readonly openEdit = (system: TargetSystemView): Promise<boolean> =>
     this.router.navigate(["..", "target-systems", system.id], { relativeTo: this.route });
 
-  protected readonly openCreateManagedCredential = (system: TargetSystem): Promise<boolean> =>
+  protected readonly openCreateManagedCredential = (system: TargetSystemView): Promise<boolean> =>
     this.router.navigate(["..", "managed-credentials", "new"], {
       relativeTo: this.route,
       queryParams: { [TARGET_SYSTEM_QUERY_PARAM]: system.id },
@@ -318,7 +339,7 @@ export class TargetSystemsTabComponent {
    * failed read toasts instead. The row stays busy throughout, so a delete can't race the
    * assignment's optimistic patch.
    */
-  protected readonly openAssignConnectorDialog = (system: TargetSystem): Promise<void> =>
+  protected readonly openAssignConnectorDialog = (system: TargetSystemView): Promise<void> =>
     this.busyRows.run(system.id, async () => {
       const stillMounted = await firstValueFrom(
         this.accessConnectorsService.loading$.pipe(
@@ -366,7 +387,7 @@ export class TargetSystemsTabComponent {
       }
     });
 
-  protected readonly disable = (system: TargetSystem): Promise<void> =>
+  protected readonly disable = (system: TargetSystemView): Promise<void> =>
     this.busyRows.run(system.id, async () => {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "pamTargetSystemDeactivateTitle" },
@@ -389,7 +410,7 @@ export class TargetSystemsTabComponent {
       }
     });
 
-  protected readonly enable = (system: TargetSystem): Promise<void> =>
+  protected readonly enable = (system: TargetSystemView): Promise<void> =>
     this.busyRows.run(system.id, async () => {
       try {
         await this.targetSystemsService.setEnabled(system, true);
@@ -407,7 +428,7 @@ export class TargetSystemsTabComponent {
    * confirmation also warns of dropped connector assignments, or suggests deactivating an active
    * target instead.
    */
-  protected readonly confirmDelete = (system: TargetSystem): Promise<void> =>
+  protected readonly confirmDelete = (system: TargetSystemView): Promise<void> =>
     this.busyRows.run(system.id, async () => {
       const dropsAssignments =
         this.connectorsKnown() &&
@@ -444,16 +465,32 @@ export class TargetSystemsTabComponent {
       }
     });
 
-  private buildRows(systems: TargetSystem[], connectors: AccessConnector[]): TargetSystemRow[] {
+  private buildRows(systems: TargetSystemView[], connectors: AccessConnector[]): TargetSystemRow[] {
     const connectorsKnown = this.connectorsKnown();
     const connectorsUnavailable = this.connectorsUnavailable();
     const hasActiveConnector = eligibleConnectors(connectors).length > 0;
     return systems.map((system) => {
       const methodLabelKey = targetSystemMethodLabelKey(system.method);
+      const pendingSeal = system.status === TargetSystemStatus.PendingSeal;
       const active = system.status === TargetSystemStatus.Active;
-      const statusLabelKey = active
-        ? ("pamTargetSystemStatusActive" as const)
-        : ("pamTargetSystemStatusInactive" as const);
+      const status: TargetSystemRowStatus = pendingSeal
+        ? "pendingSeal"
+        : active
+          ? "active"
+          : "inactive";
+      const statusLabelKey = pendingSeal
+        ? ("pamTargetSystemStatusPendingSeal" as const)
+        : active
+          ? ("pamTargetSystemStatusActive" as const)
+          : ("pamTargetSystemStatusInactive" as const);
+      const kind = system.sealed?.kind ?? null;
+      const integrityCheckFailed = system.sealed == null && !pendingSeal;
+      const sessionTermination: TargetSystemRow["sessionTermination"] =
+        system.sealed == null
+          ? "unknown"
+          : system.sealed.supportsSessionTermination === true
+            ? "yes"
+            : "no";
       return {
         id: system.id,
         idText: uuidAsString(system.id),
@@ -461,12 +498,16 @@ export class TargetSystemsTabComponent {
         name: system.name,
         methodLabelKey,
         methodLabel: methodLabelKey == null ? null : this.i18nService.t(methodLabelKey),
-        kindLabel: system.kind != null ? this.kindLabel(system.kind) : null,
+        kind,
+        kindLabel: kind != null ? this.kindLabel(kind) : null,
+        status,
         statusLabelKey,
         statusLabel: this.i18nService.t(statusLabelKey),
         active,
+        sessionTermination,
+        integrityCheckFailed,
         canAssignConnectors: system.method === TargetSystemMethod.Automatic,
-        canAddManagedCredential: system.status === TargetSystemStatus.Active,
+        canAddManagedCredential: active,
         assignConnectorsBlockedKey: connectorsUnavailable
           ? "pamTargetSystemConnectorAssignmentsLoadError"
           : !connectorsKnown || assignableConnectors(system.id, connectors).length > 0
@@ -474,6 +515,7 @@ export class TargetSystemsTabComponent {
             : hasActiveConnector
               ? "pamTargetSystemAssignConnectorNoOptions"
               : "pamTargetSystemAssignConnectorNone",
+        activationBlockedKey: pendingSeal ? "pamTargetSystemActivationBlockedPendingSeal" : null,
       };
     });
   }
@@ -529,7 +571,7 @@ function matchesFilter(row: TargetSystemRow, filter: TargetSystemFilter): boolea
   if (methodLabelKey != null && row.methodLabelKey !== methodLabelKey) {
     return false;
   }
-  if (kind != null && row.system.kind !== kind) {
+  if (kind != null && row.kind !== kind) {
     return false;
   }
   if (statusLabelKey != null && row.statusLabelKey !== statusLabelKey) {
