@@ -25,6 +25,30 @@ describe("CipherViewLikeUtils", () => {
     return cipherView;
   };
 
+  describe("getId", () => {
+    const id = "cccc1111-dddd-4eee-8fff-000011112222";
+
+    it("returns the id of a CipherView", () => {
+      const cipherView = createCipherView();
+      cipherView.id = id;
+
+      expect(CipherViewLikeUtils.getId(cipherView)).toBe(id);
+    });
+
+    it("returns the id of a CipherListView", () => {
+      const cipherListView = { id, type: "identity" } as unknown as CipherListView;
+
+      expect(CipherViewLikeUtils.getId(cipherListView)).toBe(id);
+    });
+
+    it("returns undefined when the cipher has no id", () => {
+      const cipherListView = { id: undefined, type: "identity" } as CipherListView;
+
+      expect(CipherViewLikeUtils.getId(createCipherView())).toBeUndefined();
+      expect(CipherViewLikeUtils.getId(cipherListView)).toBeUndefined();
+    });
+  });
+
   describe("isCipherListView", () => {
     it("returns true when the cipher is a CipherListView", () => {
       const cipherListViewLogin = {

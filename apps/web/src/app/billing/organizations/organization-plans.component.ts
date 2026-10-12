@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  inject,
   input,
   OnDestroy,
   OnInit,
@@ -11,8 +12,19 @@ import {
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { catchError, firstValueFrom, merge, of, Subject, takeUntil } from "rxjs";
-import { debounceTime, filter, map, switchMap } from "rxjs/operators";
+import {
+  catchError,
+  combineLatest,
+  defer,
+  firstValueFrom,
+  from,
+  merge,
+  Observable,
+  of,
+  Subject,
+  takeUntil,
+} from "rxjs";
+import { debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -48,6 +60,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
@@ -62,10 +75,8 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { Cart, CartSummaryComponent, Discount, DiscountTypes } from "@bitwarden/pricing";
-import { Vfo1I18nPipe } from "@bitwarden/vault";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import {
-  OrganizationSubscriptionPlan,
-  OrganizationSubscriptionPurchase,
   PreviewInvoiceClient,
   SubscriberBillingClient,
 } from "@bitwarden/web-vault/app/billing/clients";
@@ -76,9 +87,14 @@ import {
   getBillingAddressFromForm,
 } from "@bitwarden/web-vault/app/billing/payment/components";
 import { tokenizablePaymentMethodToLegacyEnum } from "@bitwarden/web-vault/app/billing/payment/types";
+import {
+  OrganizationSubscriptionPlan,
+  OrganizationSubscriptionPurchase,
+} from "@bitwarden/web-vault/app/billing/types";
 
-import { OrganizationCreateModule } from "../../admin-console/organizations/create/organization-create.module";
+import { OrganizationInformationComponent } from "../../admin-console/organizations/create/organization-information.component";
 import { PremiumOrgUpgradeService } from "../individual/upgrade/premium-org-upgrade-payment/services/premium-org-upgrade.service";
+import { InvoicePreviewService } from "../services/invoice-preview.service";
 import { SubscriptionDiscountService } from "../services/subscription-discount.service";
 import { BillingSharedModule, secretsManagerSubscribeFormFactory } from "../shared";
 
@@ -104,7 +120,7 @@ const Allowed2020PlansForLegacyProviders = [
   templateUrl: "organization-plans.component.html",
   imports: [
     BillingSharedModule,
-    OrganizationCreateModule,
+    OrganizationInformationComponent,
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
     IconComponent,
@@ -163,6 +179,16 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   // Computed signals
   readonly createOrganization = computed(() => this.organizationId() == null);
   readonly hasProvider = computed(() => this.providerId() != null);
+
+  private readonly vfo1Enabled = inject(Vfo1TerminologyService).enabled;
+
+  /**
+   * Tightens the spacing between sections to 24px, replacing the default `bit-section` margin.
+   * Only applies when the component is hosted in the sponsorship flow with VFO1 on.
+   */
+  protected readonly sponsoredPlanLayout = computed(
+    () => this.acceptingSponsorship() && this.vfo1Enabled(),
+  );
 
   /**
    * Determines whether the user can upgrade from Premium to an organization plan.
@@ -346,8 +372,24 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   // Estimated tax for non-premium users
   protected readonly estimatedTax = signal(0);
 
+  private readonly previewDrivenCart$ = this.configService
+    .getFeatureFlag$(FeatureFlag.PM36631_PreviewDrivenCart)
+    .pipe(distinctUntilChanged());
+
+  private readonly previewCart = signal<Cart | null>(null);
+
+  protected readonly previewFailed = signal(false);
+
+  private readonly usePreviewDrivenCart = (previewDrivenCart: boolean) =>
+    previewDrivenCart && this.createOrganization() && !this.hasProvider();
+
   // Cart for CartSummary component
   protected readonly cart = computed<Cart>(() => {
+    const previewCart = this.previewCart();
+    if (previewCart) {
+      return previewCart;
+    }
+
     const formValues = this.formValues();
     const previewInvoice = this.previewInvoice();
     const estimatedTax = this.estimatedTax();
@@ -491,6 +533,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   });
 
   // Private properties
+  private readonly logService = inject(LogService);
+  private readonly invoicePreviewService = inject(InvoicePreviewService);
+
   private _familyPlan: PlanType | null = null; // Used to track which Families plan to show when product tier is Families
   private readonly destroy$ = new Subject<void>();
 
@@ -596,15 +641,25 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
     this.loading = false;
 
-    merge(
-      this.formGroup.valueChanges,
-      this.billingFormGroup.valueChanges,
-      this.secretsManagerForm.valueChanges,
-      this.eligibleDiscounts$,
-    )
+    combineLatest([
+      merge(
+        this.formGroup.valueChanges,
+        this.billingFormGroup.valueChanges,
+        this.secretsManagerForm.valueChanges,
+        this.eligibleDiscounts$,
+      ),
+      this.previewDrivenCart$,
+    ])
       .pipe(
         debounceTime(1000),
-        switchMap(async () => await this.refreshSalesTax()),
+        switchMap(([, previewDrivenCart]) => {
+          if (!this.usePreviewDrivenCart(previewDrivenCart)) {
+            this.previewCart.set(null);
+            this.previewFailed.set(false);
+            return from(this.refreshSalesTax());
+          }
+          return this.refreshPreviewCart();
+        }),
         takeUntil(this.destroy$),
       )
       .subscribe();
@@ -680,7 +735,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
   get paymentDesc() {
     if (this.acceptingSponsorship()) {
-      return this.i18nService.t("paymentSponsored");
+      return this.i18nService.t(
+        this.vfo1Enabled() ? "paymentSponsoredFamilyVault" : "paymentSponsored",
+      );
     } else if (this.freeTrial() && this.createOrganization() && !this.canUpgradeFromPremium()) {
       return this.i18nService.t(
         "paymentChargedWithTrialSpecificLength",
@@ -909,7 +966,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     }
   }
 
-  private buildTaxPreviewRequest(
+  private buildOrganizationPurchase(
     additionalStorage: number,
     sponsored: boolean,
   ): OrganizationSubscriptionPurchase {
@@ -924,13 +981,100 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         additionalStorage,
         sponsored,
       },
-      secretsManager: this.formGroup.value.secretsManager?.enabled
-        ? {
-            seats: this.secretsManagerForm.value.userSeats ?? 0,
-            additionalServiceAccounts: this.secretsManagerForm.value.additionalServiceAccounts ?? 0,
-            standalone: false,
-          }
-        : undefined,
+      secretsManager:
+        this.planOffersSecretsManager() && this.formGroup.value.secretsManager?.enabled
+          ? {
+              seats: this.secretsManagerForm.value.userSeats ?? 0,
+              additionalServiceAccounts:
+                this.secretsManagerForm.value.additionalServiceAccounts ?? 0,
+              standalone: false,
+            }
+          : undefined,
+    };
+  }
+
+  private refreshPreviewCart(): Observable<void> {
+    const selectedPlan = this.selectedPlan();
+    if (
+      !selectedPlan ||
+      selectedPlan.type === PlanType.Free ||
+      selectedPlan.productTier === ProductTierType.TeamsStarter
+    ) {
+      this.previewCart.set(null);
+      this.previewFailed.set(false);
+      return of(undefined);
+    }
+
+    if (this.billingFormGroup.controls.billingAddress.invalid) {
+      return of(undefined);
+    }
+
+    return defer(() => {
+      const billingAddress = getBillingAddressFromForm(
+        this.billingFormGroup.controls.billingAddress,
+      );
+      if (this.canUpgradeFromPremium()) {
+        return from(
+          this.invoicePreviewService.previewPremiumOrgUpgradeCart(
+            {
+              targetProductTierType: selectedPlan.productTier,
+              billingAddress: {
+                country: billingAddress.country,
+                postalCode: billingAddress.postalCode,
+              },
+            },
+            selectedPlan.name,
+          ),
+        );
+      }
+
+      const purchase = this.buildOrganizationPurchase(
+        this.formGroup.value.additionalStorage ?? 0,
+        this.acceptingSponsorship(),
+      );
+      const couponIds = this.eligibleCouponIds();
+      return from(
+        this.invoicePreviewService.previewOrganizationCheckoutCart({
+          purchase: couponIds.length ? { ...purchase, coupons: couponIds } : purchase,
+          billingAddress,
+        }),
+      );
+    }).pipe(
+      tap((cart) => {
+        this.previewCart.set(this.withSponsorshipDiscount(cart));
+        this.previewFailed.set(false);
+      }),
+      map((): void => undefined),
+      catchError((error: unknown) => {
+        this.logService.error("Invoice preview failed:", error);
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("invoicePreviewErrorMessage"),
+        });
+        this.previewCart.set(null);
+        this.previewFailed.set(true);
+        return of(undefined);
+      }),
+    );
+  }
+
+  private withSponsorshipDiscount(cart: Cart): Cart {
+    const seats = cart.passwordManager.seats;
+    const sponsorshipDiscount = this.familiesSponsorshipDiscount;
+    if (!seats || sponsorshipDiscount <= 0) {
+      return cart;
+    }
+
+    return {
+      ...cart,
+      passwordManager: {
+        ...cart.passwordManager,
+        seats: { ...seats, cost: sponsorshipDiscount },
+      },
+      discounts: [
+        ...(cart.discounts ?? []),
+        { type: DiscountTypes.AmountOff, value: sponsorshipDiscount, amount: sponsorshipDiscount },
+      ],
     };
   }
 
@@ -975,11 +1119,11 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       //TODO: Move this logic to PreviewOrganizationTaxCommand - https://bitwarden.atlassian.net/browse/PM-27585
       const [baseTaxAmounts, fullTaxAmounts] = await Promise.all([
         this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
-          this.buildTaxPreviewRequest(0, false),
+          this.buildOrganizationPurchase(0, false),
           billingAddress,
         ),
         this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
-          this.buildTaxPreviewRequest(this.formGroup.value.additionalStorage ?? 0, false),
+          this.buildOrganizationPurchase(this.formGroup.value.additionalStorage ?? 0, false),
           billingAddress,
         ),
       ]);
@@ -989,7 +1133,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     } else {
       const taxAmounts =
         await this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
-          this.buildTaxPreviewRequest(
+          this.buildOrganizationPurchase(
             this.formGroup.value.additionalStorage ?? 0,
             sponsoredForTaxPreview,
           ),

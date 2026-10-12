@@ -22,6 +22,12 @@ import { VaultItemsTableRowAction } from "../components/vault-items-table/vault-
 
 import { CipherActionService } from "./cipher-action.service";
 
+/**
+ * The only actions offered for an item that failed to decrypt. Every other action reads or
+ * re-encrypts fields the client could not decrypt, so it would fail.
+ */
+const DECRYPTION_FAILURE_ACTION_IDS = new Set(["delete", "permanentlyDelete"]);
+
 export type CipherRowMenuHandlers<C extends CipherViewLike> = {
   edit: (item: C) => void | Promise<void>;
   clone: (item: C) => void | Promise<void>;
@@ -68,7 +74,7 @@ export class CipherRowMenuService {
     collections: CollectionView[] = [],
     handlers: CipherRowMenuHandlers<C>,
   ): VaultItemsTableRowAction<C>[] {
-    return [
+    const actions: VaultItemsTableRowAction<C>[] = [
       {
         id: "addFavorite",
         label: this.i18nService.t("favorite"),
@@ -150,6 +156,14 @@ export class CipherRowMenuService {
         variant: "danger",
       },
     ];
+
+    return actions.map((action) => ({
+      ...action,
+      show: (item: C) =>
+        (DECRYPTION_FAILURE_ACTION_IDS.has(action.id) ||
+          !CipherViewLikeUtils.decryptionFailure(item)) &&
+        (action.show?.(item) ?? true),
+    }));
   }
 
   private showFavorite(cipher: CipherViewLike): boolean {

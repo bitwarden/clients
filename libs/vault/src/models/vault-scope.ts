@@ -8,6 +8,8 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { isGuid } from "@bitwarden/guid";
 
+import { sharedFolderName } from "../utils/shared-folder-name";
+
 import { VaultNavItemType, VaultsNavViewModel } from "./vault-nav-view-model";
 
 /**
@@ -414,17 +416,19 @@ export function organizationNameForScope(
 }
 
 /**
- * The shared folder the scope has drilled into, by name — `undefined` unless the scope names a
- * collection {@link collections} can resolve. See {@link scopedSharedFolderId}.
+ * The shared folder the scope has drilled into, by its own name without its parent path (see
+ * {@link sharedFolderName}) — `undefined` unless the scope names a collection {@link collections}
+ * can resolve. See {@link scopedSharedFolderId}.
  */
 export function sharedFolderNameForScope(
   scope: VaultScope,
   collections: readonly CollectionView[],
 ): string | undefined {
   const collectionId = scopedSharedFolderId(scope);
-  return collectionId
-    ? collections.find((collection) => collection.id === collectionId)?.name
+  const collection = collectionId
+    ? collections.find((candidate) => candidate.id === collectionId)
     : undefined;
+  return collection ? sharedFolderName(collection) : undefined;
 }
 
 /**

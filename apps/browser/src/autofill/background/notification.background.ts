@@ -1,4 +1,4 @@
-import { EMPTY, firstValueFrom, switchMap, map, of } from "rxjs";
+import { EMPTY, filter, firstValueFrom, switchMap, map, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import {
@@ -27,6 +27,11 @@ import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/ser
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import {
+  IntraprocessMessageSender,
+  isExternalMessage,
+  MessageListener,
+} from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -69,9 +74,12 @@ import {
   AddLoginMessageData,
   AtRiskPasswordQueueMessage,
   NotificationQueueMessageItem,
+  ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
   LockedVaultPendingNotificationsData,
   NotificationBackgroundExtensionMessage,
   NotificationBackgroundExtensionMessageHandlers,
+  RETRY_SENDER,
+  RETRY_WHEN_UNLOCK_COMPLETED,
 } from "./abstractions/notification.background";
 import {
   LoginSecurityTaskInfo,
@@ -148,7 +156,6 @@ export default class NotificationBackground {
     collectPageDetailsResponse: ({ message }) =>
       this.handleCollectPageDetailsResponseMessage(message),
     getWebVaultUrlForNotification: () => this.getWebVaultUrl(),
-    unlockCompleted: ({ message, sender }) => this.handleUnlockCompleted(message, sender),
     showLoginSavedNotification: ({ message }) => this.handleShowLoginSavedNotification(message),
   };
 
@@ -171,6 +178,8 @@ export default class NotificationBackground {
     private changeLoginPasswordService: ChangeLoginPasswordService,
     protected messagingService: MessagingService,
     private fido2Background: Fido2Background,
+    private intraprocessMessageSender: IntraprocessMessageSender,
+    private messageListener: MessageListener,
   ) {}
 
   init() {
@@ -179,6 +188,7 @@ export default class NotificationBackground {
     }
 
     this.setupExtensionMessageListener();
+    this.setupUnlockCompletedListener();
     this.setupUnlockPopoutCloseListener();
 
     this.cleanupNotificationQueue();
@@ -1362,17 +1372,21 @@ export default class NotificationBackground {
     }
     const tab = sender.tab;
     if ((await this.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      await this.openUnlockPopout(tab, {
-        commandToRetry: {
-          message: {
-            command: message.command,
-            edit: message.edit,
-            folder: message.folder,
+      await this.openUnlockPopout(tab, () =>
+        this.intraprocessMessageSender.send(ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS, {
+          data: {
+            commandToRetry: {
+              message: {
+                command: message.command,
+                edit: message.edit,
+                folder: message.folder,
+              },
+              [RETRY_SENDER]: sender,
+            },
+            target: "notification.background",
           },
-          sender: sender,
-        },
-        target: "notification.background",
-      });
+        }),
+      );
       return;
     }
 
@@ -1795,34 +1809,46 @@ export default class NotificationBackground {
   }
 
   /**
-   * Handles the unlockCompleted extension message. Will close the notification bar
-   * after an attempted autofill action, and retry the autofill action if the message
-   * contains a follow-up command.
-   *
-   * @param message - The extension message
-   * @param sender - The contextual sender of the message
+   * @see {@link RETRY_WHEN_UNLOCK_COMPLETED}
    */
-  private async handleUnlockCompleted(
-    message: NotificationBackgroundExtensionMessage,
-    sender: chrome.runtime.MessageSender,
-  ): Promise<void> {
+  private setupUnlockCompletedListener() {
+    this.messageListener
+      .messages$(RETRY_WHEN_UNLOCK_COMPLETED)
+      .pipe(filter((message) => !isExternalMessage(message)))
+      .subscribe(({ data }) => {
+        this.handleUnlockCompleted(data).catch((error) => this.logService.error(error));
+      });
+  }
+
+  /**
+   * Closes the notification bar after an attempted autofill action, and retries the autofill
+   * action if the retained command carries a follow-up command.
+   *
+   * A retry whose {@link RETRY_SENDER} names no tab is dropped: both the bar it closes and the
+   * handlers it dispatches to act on that tab.
+   *
+   * @param data - The command the background retained when it opened the unlock popout
+   */
+  private async handleUnlockCompleted(data: LockedVaultPendingNotificationsData): Promise<void> {
     this.unlockPopoutTabId = undefined;
-    const messageData = message.data as LockedVaultPendingNotificationsData;
-    const retryCommand = messageData.commandToRetry.message.command as ExtensionCommandType;
+
+    const sender = data?.commandToRetry?.[RETRY_SENDER];
+    if (!sender?.tab) {
+      return;
+    }
+
+    const retryCommand = data.commandToRetry.message.command as ExtensionCommandType;
     if (this.allowedRetryCommands.has(retryCommand) && sender.tab != null) {
       await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar");
     }
 
-    if (messageData.target !== "notification.background") {
+    if (data.target !== "notification.background") {
       return;
     }
 
     const retryHandler: CallableFunction | undefined = this.extensionMessageHandlers[retryCommand];
     if (retryHandler) {
-      retryHandler({
-        message: messageData.commandToRetry.message,
-        sender: messageData.commandToRetry.sender,
-      });
+      retryHandler({ message: data.commandToRetry.message, sender });
     }
   }
 

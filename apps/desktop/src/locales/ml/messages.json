@@ -160,20 +160,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "$COUNT$ more shared folders shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "1 more shared folder shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "എന്റെ ഫോൾഡർ"
   },
@@ -4640,11 +4626,21 @@
   "selectImportCollection": {
     "message": "ഒരു ശേഖരം തിരഞ്ഞെടുക്കുക"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "ഇറക്കുമതി ചെയ്ത ഫയൽ ഉള്ളടക്കങ്ങൾ ഒരു ശേഖരത്തിലേക്ക് മാറ്റാൻ നിങ്ങൾ ആഗ്രഹിക്കുന്നുവെങ്കിൽ ഈ ഓപ്ഷൻ തിരഞ്ഞെടുക്കുക"
   },
   "importTargetHintFolder": {
     "message": "ഇറക്കുമതി ചെയ്ത ഫയൽ ഉള്ളടക്കങ്ങൾ ഒരു ഫോൾഡറിലേക്ക് മാറ്റാൻ നിങ്ങൾ ആഗ്രഹിക്കുന്നുവെങ്കിൽ ഈ ഓപ്ഷൻ തിരഞ്ഞെടുക്കുക"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "ഫയലിൽ അസൈൻ ചെയ്യാത്ത ഇനങ്ങൾ അടങ്ങിയിരിക്കുന്നു."
@@ -4654,6 +4650,40 @@
   },
   "selectImportFile": {
     "message": "ഇറക്കുമതി ഫയൽ തിരഞ്ഞെടുക്കുക"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "ഫയൽ തിരഞ്ഞെടുക്കുക"
@@ -5079,6 +5109,15 @@
   },
   "lastPassYubikeyDesc": {
     "message": "നിങ്ങളുടെ LastPass അക്കൗണ്ടുമായി ബന്ധപ്പെട്ട YubiKey നിങ്ങളുടെ കമ്പ്യൂട്ടറിന്റെ USB പോർട്ടിലേക്ക് തിരുകുക, തുടർന്ന് അതിന്റെ ബട്ടൺ സ്പർശിക്കുക."
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Keeper ഇമെയിൽ"
@@ -5591,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "നിങ്ങൾ ഉപയോഗിക്കുന്ന ബ്രൗസർ എക്സ്റ്റൻഷൻ കാലഹരണപ്പെട്ടതാണ്. ദയവായി ഇത് അപ്ഡേറ്റ് ചെയ്യുക അല്ലെങ്കിൽ ഡെസ്ക്ടോപ്പ് ആപ്പ് ക്രമീകരണങ്ങളിൽ ബ്രൗസർ സംയോജന ഫിംഗർപ്രിന്റ് സാധൂകരണം നിർജ്ജീവമാക്കുക."
   },
-  "changeAtRiskPassword": {
-    "message": "അപകടസാധ്യതയുള്ള പാസ്വേഡ് മാറ്റുക"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "ഈ ലോഗിൻ അപകടസാധ്യതയുള്ളതും ഒരു വെബ്സൈറ്റ് ഇല്ലാത്തതുമാണ്. കൂടുതൽ സുരക്ഷയ്ക്കായി ഒരു വെബ്സൈറ്റ് ചേർത്ത് പാസ്വേഡ് മാറ്റുക."
-  },
   "vulnerablePassword": {
     "message": "കേടായ പാസ്വേഡ്."
   },
   "changeNow": {
     "message": "ഇപ്പോൾ മാറ്റുക"
-  },
-  "missingWebsite": {
-    "message": "വെബ്സൈറ്റ് ഇല്ല"
   },
   "missingPermissions": {
     "message": "ഈ പ്രവർത്തനം നിർവഹിക്കുന്നതിന് ആവശ്യമായ അനുമതികൾ നിങ്ങൾക്ക് ഇല്ല."
@@ -6381,11 +6411,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "You have no folders."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "emptyVaultsDescription": {
     "message": "Add logins, IDs, cards, and other items to get started."

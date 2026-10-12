@@ -647,6 +647,7 @@ export class ImportService implements ImportServiceAbstraction {
         }
         // In either case set target collection to My Items...
         importResult.collections = [importTarget];
+        importResult.targetCollectionIncluded = true;
         // ...and set the collection relationships accordingly
         importResult.collectionRelationships = importResult.ciphers.map((_c, idx) => [idx, 0]);
         return;
@@ -654,6 +655,7 @@ export class ImportService implements ImportServiceAbstraction {
 
       const collections = [...importResult.collections];
       importResult.collections = [importTarget];
+      importResult.targetCollectionIncluded = true;
       collections.map((x) => {
         const f = new CollectionView(x);
         f.name = `${importTarget.name}/${x.name}`;
@@ -684,6 +686,7 @@ export class ImportService implements ImportServiceAbstraction {
 
     const folders = [...importResult.folders];
     importResult.folders = [importTarget];
+    importResult.targetFolderIncluded = true;
     folders.map((x) => {
       const newFolderName = `${importTarget.name}/${x.name}`;
       const f = new FolderView();

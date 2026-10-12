@@ -12,6 +12,7 @@ import {
 } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -62,6 +63,7 @@ export class ShareLinkService {
   private collectionService = inject(CollectionService);
   private policyService = inject(PolicyService);
   private billingAccountProfileStateService = inject(BillingAccountProfileStateService);
+  private organizationService = inject(OrganizationService);
 
   private cipherId = new BehaviorSubject<CipherId | undefined>(undefined);
   /** Observable of all active share links. */
@@ -196,6 +198,10 @@ export class ShareLinkService {
       ),
       this.accountService.activeAccount$.pipe(
         getUserId,
+        switchMap((userId) => this.organizationService.organizations$(userId)),
+      ),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
         switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendControls, userId)),
       ),
       this.accountService.activeAccount$.pipe(
@@ -203,7 +209,7 @@ export class ShareLinkService {
         switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
       ),
     ]).pipe(
-      map(([ffEnabled, hasPremium, sendControlsPolicies, collections]) => {
+      map(([ffEnabled, hasPremium, organizations, sendControlsPolicies, collections]) => {
         // Sharing feature must be enabled and, as a premium feature, accessible
         if (!ffEnabled || !hasPremium) {
           return false;
@@ -227,6 +233,18 @@ export class ShareLinkService {
         );
         if (policyDisablingItemSends) {
           return false;
+        }
+        // If the cipher belongs to an organization that allows admins/owners to access all collection items
+        // and the user is an admin/owner then they'll be able to see the item via the Admin Console but they
+        // won't have the permissions we look for below. Owners and admins are exempt from the Send Controls
+        // policy but custom users aren't, so we do this check after the policy check.
+        if (c.organizationId) {
+          const canEditAllOrgCiphers = organizations.some(
+            (org) => org.id === c.organizationId && org.canEditAllCiphers,
+          );
+          if (canEditAllOrgCiphers) {
+            return true;
+          }
         }
         // Lastly check that, if a cipher belongs to any collections,
         // the user has edit-level access to at least one of them.

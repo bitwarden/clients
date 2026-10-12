@@ -1,3 +1,6 @@
+// Polyfill for Symbol.dispose required by the service's use of `using`
+import "core-js/proposals/explicit-resource-management";
+
 import { TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 import { firstValueFrom, of, throwError } from "rxjs";

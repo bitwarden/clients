@@ -2,6 +2,7 @@ import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service"
 import { ImportOptions, PasswordManagerClient, isImportError } from "@bitwarden/sdk-internal";
 
 import { toSdkCipherType } from "../sdk-cipher-type";
+import { toSdkCollectionType } from "../sdk-collection-type";
 import { SdkImportCredentials } from "../sdk-import-credentials";
 import { SdkImportSummary } from "../sdk-import-summary";
 import { resolveSdkImportTargets } from "../sdk-import-target";
@@ -25,7 +26,11 @@ export class KdbxSdkImporter implements SdkVaultImporter {
       organization_id: context.organizationId ? asUuid(context.organizationId) : undefined,
       target_folder: folder ? { id: asUuid(folder.id), name: folder.name } : undefined,
       target_collection: collection
-        ? { id: asUuid(collection.id), name: collection.name }
+        ? {
+            id: asUuid(collection.id),
+            name: collection.name,
+            type: toSdkCollectionType(collection.type),
+          }
         : undefined,
       restricted_types: context.restrictedTypes.map(toSdkCipherType),
     };

@@ -11,10 +11,7 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
-import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
-import { MasterPasswordPolicyResponse } from "@bitwarden/common/auth/models/response/master-password-policy.response";
-import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 import {
   PasswordPreloginData,
   PasswordPreloginService,
@@ -38,7 +35,6 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
 import {
@@ -46,6 +42,7 @@ import {
   PasswordStrengthService,
 } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
+import { MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
@@ -55,32 +52,22 @@ import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions
 import { PasswordLoginCredentials } from "../models";
 import { UserDecryptionOptions } from "../models/domain/user-decryption-options";
 
+import {
+  accessToken,
+  email,
+  encryptedUserKey,
+  identityTokenResponseFactory,
+  kdfIterations,
+  refreshToken,
+} from "./login.strategy.spec-util";
 import { PasswordLoginStrategy, PasswordLoginStrategyData } from "./password-login.strategy";
 
-const email = "hello@world.com";
 const masterPassword = "password";
 
 const deviceId = Utils.newGuid();
-const accessToken = "ACCESS_TOKEN";
-const refreshToken = "REFRESH_TOKEN";
-const encryptedUserKey = "USER_KEY";
-const privateKey = "PRIVATE_KEY";
-const kdf = 0;
-const kdfIterations = 10000;
 const userId = Utils.newGuid() as UserId;
 const masterPasswordHash = "MASTER_PASSWORD_HASH";
 const name = "NAME";
-const defaultUserDecryptionOptionsServerResponse: IUserDecryptionOptionsServerResponse = {
-  HasMasterPassword: true,
-  MasterPasswordUnlock: {
-    Salt: email,
-    Kdf: {
-      KdfType: kdf,
-      Iterations: kdfIterations,
-    },
-    MasterKeyEncryptedUserKey: encryptedUserKey,
-  },
-};
 
 const decodedToken = {
   sub: userId,
@@ -92,32 +79,6 @@ const decodedToken = {
 const twoFactorProviderType = TwoFactorProviderType.Authenticator;
 const twoFactorToken = "TWO_FACTOR_TOKEN";
 const twoFactorRemember = true;
-
-export function identityTokenResponseFactory(
-  masterPasswordPolicyResponse: MasterPasswordPolicyResponse | undefined = undefined,
-  userDecryptionOptions: IUserDecryptionOptionsServerResponse | undefined = undefined,
-) {
-  return new IdentityTokenResponse({
-    ForcePasswordReset: false,
-    Kdf: kdf,
-    KdfIterations: kdfIterations,
-    Key: encryptedUserKey,
-    PrivateKey: privateKey,
-    access_token: accessToken,
-    expires_in: 3600,
-    refresh_token: refreshToken,
-    scope: "api offline_access",
-    token_type: "Bearer",
-    MasterPasswordPolicy: masterPasswordPolicyResponse,
-    UserDecryptionOptions: userDecryptionOptions || defaultUserDecryptionOptionsServerResponse,
-    AccountKeys: {
-      publicKeyEncryptionKeyPair: {
-        wrappedPrivateKey: privateKey,
-        publicKey: "PUBLIC_KEY",
-      },
-    },
-  });
-}
 
 // TODO: add tests for latest changes to base class for TDE
 describe("LoginStrategy", () => {
@@ -136,7 +97,6 @@ describe("LoginStrategy", () => {
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let messagingService: MockProxy<MessagingService>;
   let logService: MockProxy<LogService>;
-  let stateService: MockProxy<StateService>;
   let twoFactorService: MockProxy<TwoFactorService>;
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let policyService: MockProxy<PolicyService>;
@@ -166,7 +126,6 @@ describe("LoginStrategy", () => {
     platformUtilsService = mock<PlatformUtilsService>();
     messagingService = mock<MessagingService>();
     logService = mock<LogService>();
-    stateService = mock<StateService>();
     twoFactorService = mock<TwoFactorService>();
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
     kdfConfigService = mock<KdfConfigService>();
@@ -205,7 +164,6 @@ describe("LoginStrategy", () => {
       platformUtilsService,
       messagingService,
       logService,
-      stateService,
       twoFactorService,
       userDecryptionOptionsService,
       billingAccountProfileStateService,
@@ -500,12 +458,17 @@ describe("LoginStrategy", () => {
 
     it("sends 2FA token provided by user to server (two-step)", async () => {
       // Simulate a partially completed login
-      cache = new PasswordLoginStrategyData();
-      cache.tokenRequest = new PasswordTokenRequest(
-        email,
-        masterPasswordHash,
-        new TokenTwoFactorRequest(),
-      );
+      cache = new PasswordLoginStrategyData({
+        tokenRequest: new PasswordTokenRequest(
+          email,
+          masterPasswordHash,
+          new TokenTwoFactorRequest(),
+        ),
+        userEnteredEmail: email,
+        masterKey: {} as MasterKey,
+        masterPassword,
+        forcePasswordResetReason: ForceSetPasswordReason.None,
+      });
 
       passwordLoginStrategy = new PasswordLoginStrategy(
         cache,
@@ -524,7 +487,6 @@ describe("LoginStrategy", () => {
         platformUtilsService,
         messagingService,
         logService,
-        stateService,
         twoFactorService,
         userDecryptionOptionsService,
         billingAccountProfileStateService,
@@ -564,12 +526,17 @@ describe("LoginStrategy", () => {
 
       apiService.postIdentityToken.mockResolvedValue(deviceVerificationResponse);
 
-      cache = new PasswordLoginStrategyData();
-      cache.tokenRequest = new PasswordTokenRequest(
-        email,
-        masterPasswordHash,
-        new TokenTwoFactorRequest(),
-      );
+      cache = new PasswordLoginStrategyData({
+        tokenRequest: new PasswordTokenRequest(
+          email,
+          masterPasswordHash,
+          new TokenTwoFactorRequest(),
+        ),
+        userEnteredEmail: email,
+        masterKey: {} as MasterKey,
+        masterPassword,
+        forcePasswordResetReason: ForceSetPasswordReason.None,
+      });
 
       passwordLoginStrategy = new PasswordLoginStrategy(
         cache,
@@ -588,7 +555,6 @@ describe("LoginStrategy", () => {
         platformUtilsService,
         messagingService,
         logService,
-        stateService,
         twoFactorService,
         userDecryptionOptionsService,
         billingAccountProfileStateService,
@@ -602,6 +568,45 @@ describe("LoginStrategy", () => {
       const result = await passwordLoginStrategy.logIn(credentials);
 
       expect(result.requiresDeviceVerification).toBe(true);
+    });
+  });
+
+  describe("given no login in progress", () => {
+    it("rejects a two-factor attempt without sending a token request", async () => {
+      passwordLoginStrategy = new PasswordLoginStrategy(
+        undefined,
+        passwordStrengthService,
+        policyService,
+        passwordPreloginService,
+        unlockService,
+        legacyCompatKeyService,
+        accountService as AccountService,
+        masterPasswordService,
+        keyService,
+        encryptService,
+        apiService,
+        tokenService,
+        appIdService,
+        platformUtilsService,
+        messagingService,
+        logService,
+        twoFactorService,
+        userDecryptionOptionsService,
+        billingAccountProfileStateService,
+        vaultTimeoutSettingsService,
+        kdfConfigService,
+        environmentService,
+        configService,
+        accountCryptographicStateService,
+      );
+
+      await expect(
+        passwordLoginStrategy.logInTwoFactor(
+          new TokenTwoFactorRequest(TwoFactorProviderType.Authenticator, "TOKEN", false),
+        ),
+      ).rejects.toThrow("No login is in progress.");
+
+      expect(apiService.postIdentityToken).not.toHaveBeenCalled();
     });
   });
 });

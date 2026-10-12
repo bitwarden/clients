@@ -22,6 +22,7 @@ import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
@@ -48,6 +49,7 @@ import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { LockService } from "@bitwarden/unlock";
 
 import { AppComponent } from "./app.component";
+import { ImportDesktopComponent } from "./tools/import/import-desktop.component";
 
 describe("AppComponent (desktop)", () => {
   let component: AppComponent;
@@ -59,6 +61,9 @@ describe("AppComponent (desktop)", () => {
   let ngZone: MockProxy<NgZone>;
   let authRequestAnsweringService: MockProxy<AuthRequestAnsweringService>;
   let logService: MockProxy<LogService>;
+  let configService: MockProxy<ConfigService>;
+  let dialogService: MockProxy<DialogService>;
+  let router: MockProxy<Router>;
 
   let broadcasterCallback: (message: any) => Promise<void>;
 
@@ -72,6 +77,11 @@ describe("AppComponent (desktop)", () => {
     ngZone = mock<NgZone>();
     authRequestAnsweringService = mock<AuthRequestAnsweringService>();
     logService = mock<LogService>();
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+    dialogService = mock<DialogService>();
+    router = mock<Router>();
+    router.navigate.mockResolvedValue(true);
 
     accountService.activeAccount$ = of({ id: userId } as any);
     (accountService as any).showHeader$ = EMPTY;
@@ -81,9 +91,6 @@ describe("AppComponent (desktop)", () => {
     broadcasterService.subscribe.mockImplementation((_id: string, cb: (message: any) => void) => {
       broadcasterCallback = cb as (message: any) => Promise<void>;
     });
-
-    const configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     const deviceTrustToastService = mock<DeviceTrustToastService>();
     deviceTrustToastService.setupListeners$ = EMPTY;
@@ -99,7 +106,7 @@ describe("AppComponent (desktop)", () => {
           syncService,
           mock<CipherService>(),
           mock<AuthService>(),
-          mock<Router>(),
+          router,
           mock<ToastService>(),
           mock<I18nService>(),
           ngZone,
@@ -117,7 +124,7 @@ describe("AppComponent (desktop)", () => {
           mock<ModalService>(),
           mock<UserVerificationService>(),
           configService,
-          mock<DialogService>(),
+          dialogService,
           mock<BiometricStateService>(),
           mock<StateEventRunnerService>(),
           accountService,
@@ -205,5 +212,26 @@ describe("AppComponent (desktop)", () => {
     await dispatchMessage({ command: "windowIsFocused", windowIsFocused: true });
 
     expect(syncService.fullSync).toHaveBeenCalledTimes(1);
+  });
+
+  describe("importVault message", () => {
+    it("opens the legacy import dialog when the import upgrade flag is off", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+
+      await dispatchMessage({ command: "importVault" });
+
+      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.ImportUpgrade);
+      expect(dialogService.open).toHaveBeenCalledWith(ImportDesktopComponent);
+      expect(router.navigate).not.toHaveBeenCalledWith(["/import"]);
+    });
+
+    it("navigates to the new import source picker page when the import upgrade flag is on", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      await dispatchMessage({ command: "importVault" });
+
+      expect(router.navigate).toHaveBeenCalledWith(["/import"]);
+      expect(dialogService.open).not.toHaveBeenCalledWith(ImportDesktopComponent);
+    });
   });
 });

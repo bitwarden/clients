@@ -134,7 +134,7 @@ export const getCreditTranslationKey = (
       return "premiumSubscriptionCredit";
     case InvoicePreviewFlowContext.OrganizationPlanChange:
     case InvoicePreviewFlowContext.OrganizationSubscriptionPage:
-      return "appliedSubscriptionCredits";
+      return "appliedProrationCredits";
     default:
       return undefined;
   }
@@ -172,3 +172,14 @@ export const getProrationChargeTranslationKey = (
         : "secretsManagerProratedCharge";
   }
 };
+/**
+ * Resolves the seat label that carries the plan name and prorated month count. Only the
+ * Premium-to-organization upgrade renders it; every other surface returns `undefined` and keeps
+ * the plain membership label.
+ */
+export const getProratedSeatTranslationKey = (
+  flowContext: InvoicePreviewFlowContext,
+): string | undefined =>
+  flowContext === InvoicePreviewFlowContext.PremiumOrgUpgrade
+    ? "planProratedMembershipInMonths"
+    : undefined;
