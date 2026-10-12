@@ -124,6 +124,8 @@ export type SharedFoldersTableFilters = {
    * unfiltered.
    */
   pinned?: boolean;
+
+  controlledAccess?: boolean;
 };
 
 /**
@@ -192,6 +194,7 @@ export class SharedFoldersComponent {
   private readonly accountService = inject(AccountService);
   private readonly cipherService = inject(CipherService);
   private readonly collectionService = inject(CollectionService);
+  private readonly i18nService = inject(I18nService);
   private readonly organizationService = inject(OrganizationService);
   private readonly pinnedSharedFolders = inject(PinnedSharedFoldersService);
   private readonly i18nService = inject(I18nService);
@@ -376,6 +379,14 @@ export class SharedFoldersComponent {
   /** Whether the chip has anything to narrow. One distinct permission can't exclude a row. */
   protected readonly showPermissions = computed(() => this.permissionOptions().length > 1);
 
+  protected readonly showControlledAccess = computed(() => {
+    const folders = this.sharedFolders();
+    return folders.some((row) => row.gated) && folders.some((row) => !row.gated);
+  });
+
+  protected readonly folderCountLabel = (count: number): string =>
+    this.i18nService.t(count === 1 ? "sharedFolderSingular" : "sharedFolderCount", count);
+
   protected readonly permissionMessageKey = sharedFolderPermissionMessageKey;
 
   protected readonly vaultScopeCommands = vaultScopeCommands;
@@ -416,7 +427,8 @@ export class SharedFoldersComponent {
   protected readonly filter = (row: SharedFolderRow, values: SharedFoldersTableFilters): boolean =>
     this.matchesSearch(row, values.search) &&
     this.matchesPermissions(row, values.permissions) &&
-    this.matchesPinned(row, values.pinned);
+    this.matchesPinned(row, values.pinned) &&
+    this.matchesControlledAccess(row, values.controlledAccess);
 
   constructor() {
     // Carry the selection onto each new set of rows — see `reconcileSelection`. The rows and the
@@ -583,6 +595,10 @@ export class SharedFoldersComponent {
   /** Reads the pinned set, so the table re-filters when a pin changes. `undefined` is unfiltered. */
   private matchesPinned(row: SharedFolderRow, pinned: boolean | undefined): boolean {
     return !pinned || this.pinnedIds().has(row.id);
+  }
+
+  private matchesControlledAccess(row: SharedFolderRow, gatedOnly: boolean | undefined): boolean {
+    return !gatedOnly || row.gated;
   }
 
   protected hasActiveChipFilters(
