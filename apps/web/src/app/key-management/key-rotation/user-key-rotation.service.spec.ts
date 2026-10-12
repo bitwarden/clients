@@ -368,50 +368,35 @@ describe("KeyRotationService", () => {
   });
 
   describe("shouldUseSdkKeyRotation$", () => {
-    function arrangeFlags(sdkKeyRotation: boolean, forceUpgradeV2Encryption: boolean) {
-      mockConfigService.getFeatureFlag$
-        .calledWith(FeatureFlag.SdkKeyRotation)
-        .mockReturnValue(of(sdkKeyRotation));
+    function arrangeForceUpgradeV2Encryption(forceUpgradeV2Encryption: boolean) {
       mockConfigService.getFeatureFlag$
         .calledWith(FeatureFlag.ForceUpgradeV2Encryption)
         .mockReturnValue(of(forceUpgradeV2Encryption));
     }
 
-    it.each([
-      [false, false],
-      [true, false],
-      [false, true],
-    ])(
-      "returns false for a v1 user when SdkKeyRotation is %s and ForceUpgradeV2Encryption is %s",
-      async (sdkKeyRotation, forceUpgradeV2Encryption) => {
-        mockKeyService.userKey$.mockReturnValue(new BehaviorSubject(TEST_VECTOR_USER_KEY_V1));
-        arrangeFlags(sdkKeyRotation, forceUpgradeV2Encryption);
-
-        await expect(
-          firstValueFrom(keyRotationService.shouldUseSdkKeyRotation$(mockUser.id)),
-        ).resolves.toBe(false);
-      },
-    );
-
-    it("returns true for a v1 user when both feature flags are enabled", async () => {
+    it("returns false for a v1 user when ForceUpgradeV2Encryption is disabled", async () => {
       mockKeyService.userKey$.mockReturnValue(new BehaviorSubject(TEST_VECTOR_USER_KEY_V1));
-      arrangeFlags(true, true);
+      arrangeForceUpgradeV2Encryption(false);
+
+      await expect(
+        firstValueFrom(keyRotationService.shouldUseSdkKeyRotation$(mockUser.id)),
+      ).resolves.toBe(false);
+    });
+
+    it("returns true for a v1 user when ForceUpgradeV2Encryption is enabled", async () => {
+      mockKeyService.userKey$.mockReturnValue(new BehaviorSubject(TEST_VECTOR_USER_KEY_V1));
+      arrangeForceUpgradeV2Encryption(true);
 
       await expect(
         firstValueFrom(keyRotationService.shouldUseSdkKeyRotation$(mockUser.id)),
       ).resolves.toBe(true);
     });
 
-    it.each([
-      [false, false],
-      [true, false],
-      [false, true],
-      [true, true],
-    ])(
-      "returns true for a v2 user when SdkKeyRotation is %s and ForceUpgradeV2Encryption is %s",
-      async (sdkKeyRotation, forceUpgradeV2Encryption) => {
+    it.each([false, true])(
+      "returns true for a v2 user when ForceUpgradeV2Encryption is %s",
+      async (forceUpgradeV2Encryption) => {
         mockKeyService.userKey$.mockReturnValue(new BehaviorSubject(TEST_VECTOR_USER_KEY_V2));
-        arrangeFlags(sdkKeyRotation, forceUpgradeV2Encryption);
+        arrangeForceUpgradeV2Encryption(forceUpgradeV2Encryption);
 
         await expect(
           firstValueFrom(keyRotationService.shouldUseSdkKeyRotation$(mockUser.id)),
@@ -421,7 +406,7 @@ describe("KeyRotationService", () => {
 
     it("returns false when the user key is null", async () => {
       mockKeyService.userKey$.mockReturnValue(new BehaviorSubject(null));
-      arrangeFlags(true, true);
+      arrangeForceUpgradeV2Encryption(true);
 
       await expect(
         firstValueFrom(keyRotationService.shouldUseSdkKeyRotation$(mockUser.id)),
