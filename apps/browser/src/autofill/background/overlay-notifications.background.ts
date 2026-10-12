@@ -198,18 +198,27 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    * add login or change password notification from being triggered on the user's vault domain or
    * other excluded domains.
    *
+   * Both the sending frame and the top-level page of its tab are checked, so an exclusion for a
+   * page covers every frame within it, while an exclusion for a sub-frame covers only that frame.
+   *
    * @param sender - The sender of the message
    */
   private async isSenderFromExcludedDomain(sender: chrome.runtime.MessageSender): Promise<boolean> {
     try {
-      const senderOrigin = sender.origin;
-      if (!senderOrigin) {
+      const origins: string[] = [];
+      if (sender.origin) {
+        origins.push(sender.origin);
+      }
+      if (sender.tab?.url) {
+        origins.push(new URL(sender.tab.url).origin);
+      }
+      if (!origins.length) {
         return false;
       }
 
       const serverConfig = await this.notificationBackground.getActiveUserServerConfig();
       const activeUserVault = serverConfig?.environment?.vault;
-      if (activeUserVault === senderOrigin) {
+      if (activeUserVault && origins.includes(activeUserVault)) {
         return true;
       }
 
@@ -218,8 +227,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
         return false;
       }
 
-      const senderDomain = new URL(senderOrigin).hostname;
-      return excludedDomains[senderDomain] !== undefined;
+      return origins.some((origin) => excludedDomains[new URL(origin).hostname] !== undefined);
     } catch {
       return true;
     }
