@@ -26,7 +26,6 @@ import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-u
 import { IconButtonModule, MenuModule } from "@bitwarden/components";
 import { ShareLinkMenuItemDirective, ShareLinkService } from "@bitwarden/tools-share";
 import {
-  CopyCipherFieldDirective,
   CopyCipherFieldService,
   OrganizationNameBadgeComponent,
   VaultCopyButtonsService,
