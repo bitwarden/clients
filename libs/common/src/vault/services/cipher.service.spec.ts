@@ -929,6 +929,7 @@ describe("Cipher Service", () => {
         [plainId]: cipherData,
         [gatedId]: { ...cipherData, id: gatedId, partialData: "{}" } as CipherData,
       });
+      cipherLeaseStateService.leasedCipherIds.mockResolvedValue(new Set());
     });
 
     it("refuses a gated cipher without a lease, before any request", async () => {
@@ -951,18 +952,18 @@ describe("Cipher Service", () => {
     });
 
     it("allows a gated cipher under an active lease", async () => {
-      cipherLeaseStateService.hasActiveLease.mockResolvedValue(true);
+      cipherLeaseStateService.leasedCipherIds.mockResolvedValue(new Set([gatedId]));
 
       await cipherService.deleteWithServer(gatedId, userId);
 
-      expect(cipherLeaseStateService.hasActiveLease).toHaveBeenCalledWith(gatedId);
+      expect(cipherLeaseStateService.leasedCipherIds).toHaveBeenCalledWith([gatedId]);
       expect(apiService.deleteCipher).toHaveBeenCalledWith(gatedId);
     });
 
     it("skips the lease lookup for a cipher that is not gated", async () => {
       await cipherService.deleteWithServer(plainId, userId);
 
-      expect(cipherLeaseStateService.hasActiveLease).not.toHaveBeenCalled();
+      expect(cipherLeaseStateService.leasedCipherIds).not.toHaveBeenCalled();
       expect(apiService.deleteCipher).toHaveBeenCalledWith(plainId);
     });
 
@@ -974,12 +975,28 @@ describe("Cipher Service", () => {
       expect(apiService.deleteManyCiphers).not.toHaveBeenCalled();
     });
 
+    it("looks up the leases of a bulk call in one read", async () => {
+      const otherGatedId = "other-gated" as CipherId;
+      stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).nextState({
+        [plainId]: cipherData,
+        [gatedId]: { ...cipherData, id: gatedId, partialData: "{}" } as CipherData,
+        [otherGatedId]: { ...cipherData, id: otherGatedId, partialData: "{}" } as CipherData,
+      });
+      cipherLeaseStateService.leasedCipherIds.mockResolvedValue(new Set([gatedId]));
+
+      const result = cipherService.deleteManyWithServer([plainId, gatedId, otherGatedId], userId);
+
+      await expect(result).rejects.toHaveProperty("cipherIds", [otherGatedId]);
+      expect(cipherLeaseStateService.leasedCipherIds).toHaveBeenCalledTimes(1);
+      expect(cipherLeaseStateService.leasedCipherIds).toHaveBeenCalledWith([gatedId, otherGatedId]);
+    });
+
     describe("updateWithServer() on the legacy path, under a lease", () => {
       let model: CipherView;
       let original: CipherView;
 
       beforeEach(() => {
-        cipherLeaseStateService.hasActiveLease.mockResolvedValue(true);
+        cipherLeaseStateService.leasedCipherIds.mockResolvedValue(new Set([gatedId]));
         cipherEncryptionService.encrypt.mockResolvedValue(encryptionContext);
         apiService.putCipher.mockResolvedValue(encryptionContext.cipher.toCipherData() as any);
         jest.spyOn(cipherService, "upsert").mockResolvedValue({ [gatedId]: cipherData });

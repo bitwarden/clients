@@ -363,11 +363,12 @@ export class CipherService implements CipherServiceAbstraction {
 
   async assertWritable(ids: string | string[], userId: UserId): Promise<void> {
     const stored = await firstValueFrom(this.ciphers$(userId));
-    const partial = [ids].flat().filter((id) => stored[id as CipherId]?.partialData != null);
-    const leased = await Promise.all(
-      partial.map((id) => this.cipherLeaseStateService.hasActiveLease(id as CipherId)),
-    );
-    const gated = partial.filter((_, i) => !leased[i]);
+    const partial = ([ids].flat() as CipherId[]).filter((id) => stored[id]?.partialData != null);
+    if (partial.length === 0) {
+      return;
+    }
+    const leased = await this.cipherLeaseStateService.leasedCipherIds(partial);
+    const gated = partial.filter((id) => !leased.has(id));
     if (gated.length > 0) {
       throw new GatedCipherWriteError(gated);
     }

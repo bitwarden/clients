@@ -98,7 +98,7 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: CipherLeaseStateService,
       useClass: PamCipherLeaseStateService,
-      deps: [AccessRequestSdkService, LogService],
+      deps: [AccessLeaseSdkService, LogService],
     }),
     safeProvider({
       provide: ApprovalSdkService,

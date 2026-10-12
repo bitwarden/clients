@@ -1,6 +1,7 @@
 import { CipherId } from "../../types/guid";
 
-/** Whether the active user holds a live PAM lease on a cipher. */
+/** Which ciphers the active user holds a live PAM lease on. */
 export abstract class CipherLeaseStateService {
-  abstract hasActiveLease(cipherId: CipherId): Promise<boolean>;
+  /** The subset of `cipherIds` under a live lease, looked up in one read. */
+  abstract leasedCipherIds(cipherIds: CipherId[]): Promise<Set<CipherId>>;
 }

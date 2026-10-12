@@ -3,58 +3,64 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 
-import type { CipherAccessStateView } from "../abstractions/access-lease";
-import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
+import type { AccessLeaseStatus, AccessLeaseView } from "../abstractions/access-lease";
+import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
 
 import { PamCipherLeaseStateService } from "./pam-cipher-lease-state.service";
 
 const CIPHER_ID = "cipher-1" as CipherId;
+const OTHER_CIPHER_ID = "cipher-2" as CipherId;
 
-function stateWithLease(notAfterMs: number): CipherAccessStateView {
+function lease(
+  cipherId: CipherId,
+  notAfterMs: number,
+  status: AccessLeaseStatus = "active",
+): AccessLeaseView {
   return {
-    cipherId: CIPHER_ID,
-    activeLease: { id: "lease-1", notAfter: new Date(notAfterMs).toISOString() },
-  } as unknown as CipherAccessStateView;
+    id: `lease-${cipherId}`,
+    cipherId,
+    status,
+    notAfter: new Date(notAfterMs).toISOString(),
+  } as unknown as AccessLeaseView;
 }
 
 describe("PamCipherLeaseStateService", () => {
-  let requestsApi: MockProxy<AccessRequestSdkService>;
+  let leasesApi: MockProxy<AccessLeaseSdkService>;
   let logService: MockProxy<LogService>;
   let service: PamCipherLeaseStateService;
 
   beforeEach(() => {
-    requestsApi = mock<AccessRequestSdkService>();
+    leasesApi = mock<AccessLeaseSdkService>();
     logService = mock<LogService>();
-    service = new PamCipherLeaseStateService(requestsApi, logService);
+    service = new PamCipherLeaseStateService(leasesApi, logService);
   });
 
-  it("reports a live lease", async () => {
-    requestsApi.getCipherAccessState.mockResolvedValue(stateWithLease(Date.now() + 60_000));
+  it("answers every id from one read", async () => {
+    leasesApi.listMyLeases.mockResolvedValue([lease(CIPHER_ID, Date.now() + 60_000)]);
 
-    await expect(service.hasActiveLease(CIPHER_ID)).resolves.toBe(true);
-    expect(requestsApi.getCipherAccessState).toHaveBeenCalledWith(CIPHER_ID);
+    await expect(service.leasedCipherIds([CIPHER_ID, OTHER_CIPHER_ID])).resolves.toEqual(
+      new Set([CIPHER_ID]),
+    );
+    expect(leasesApi.listMyLeases).toHaveBeenCalledTimes(1);
   });
 
   it("treats a lapsed lease as none", async () => {
-    requestsApi.getCipherAccessState.mockResolvedValue(stateWithLease(Date.now() - 1));
+    leasesApi.listMyLeases.mockResolvedValue([lease(CIPHER_ID, Date.now() - 1)]);
 
-    await expect(service.hasActiveLease(CIPHER_ID)).resolves.toBe(false);
+    await expect(service.leasedCipherIds([CIPHER_ID])).resolves.toEqual(new Set());
   });
 
-  it("treats no lease as none", async () => {
-    requestsApi.getCipherAccessState.mockResolvedValue({
-      cipherId: CIPHER_ID,
-      activeLease: undefined,
-    } as unknown as CipherAccessStateView);
+  it("treats an ended lease as none", async () => {
+    leasesApi.listMyLeases.mockResolvedValue([lease(CIPHER_ID, Date.now() + 60_000, "revoked")]);
 
-    await expect(service.hasActiveLease(CIPHER_ID)).resolves.toBe(false);
+    await expect(service.leasedCipherIds([CIPHER_ID])).resolves.toEqual(new Set());
   });
 
   it("fails closed when the read fails", async () => {
     const error = new Error("read failed");
-    requestsApi.getCipherAccessState.mockRejectedValue(error);
+    leasesApi.listMyLeases.mockRejectedValue(error);
 
-    await expect(service.hasActiveLease(CIPHER_ID)).resolves.toBe(false);
+    await expect(service.leasedCipherIds([CIPHER_ID])).resolves.toEqual(new Set());
     expect(logService.error).toHaveBeenCalledWith(error);
   });
 });
