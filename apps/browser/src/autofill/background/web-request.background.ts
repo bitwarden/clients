@@ -19,6 +19,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 const webRequestUrlFilter: chrome.webRequest.RequestFilter = {
   urls: ["http://*/*", "https://*/*"],
@@ -400,23 +401,9 @@ export default class WebRequestBackground {
         return {};
       }
 
-      // Event logs are organization audit records, so releases of personal vault
-      // ciphers are never recorded and skip event collection entirely.
-      if (cipher.organizationId != null) {
-        // The release is recorded before the credential leaves the extension;
-        // a release does not happen if `collect` throws an error.
-        try {
-          await this.eventCollectionService.collect(
-            EventType.Cipher_ClientHttpAuthReleased,
-            cipher.id,
-          );
-        } catch (error) {
-          this.logService.error(
-            "Declined an HTTP auth challenge because the credential release could not be recorded.",
-            error,
-          );
-          return {};
-        }
+      // The release is recorded before the credential leaves the extension.
+      if (!(await this.recordCredentialRelease(cipher))) {
+        return {};
       }
 
       return {
@@ -428,6 +415,30 @@ export default class WebRequestBackground {
     } catch (error) {
       this.logService.error(error);
       return {};
+    }
+  }
+
+  /**
+   * Records the release of a cipher's credential to the event log and resolves to
+   * whether the release may proceed.
+   */
+  private async recordCredentialRelease(cipher: CipherView): Promise<boolean> {
+    // Event logs are organization audit records, so personal vault ciphers are never
+    // recorded and always proceed. An organization cipher whose release cannot be
+    // recorded does not proceed.
+    if (cipher.organizationId == null) {
+      return true;
+    }
+
+    try {
+      await this.eventCollectionService.collect(EventType.Cipher_ClientHttpAuthReleased, cipher.id);
+      return true;
+    } catch (error) {
+      this.logService.error(
+        "Declined an HTTP auth challenge because the credential release could not be recorded.",
+        error,
+      );
+      return false;
     }
   }
 

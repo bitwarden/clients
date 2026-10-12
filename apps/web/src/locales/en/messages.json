@@ -6106,7 +6106,7 @@
     "placeholders": {
       "id": {
         "content": "$1",
-        "example": "Google"
+        "example": "a1234b5c-6789-0d12-3efg-h4ij56klm789"
       }
     }
   },
