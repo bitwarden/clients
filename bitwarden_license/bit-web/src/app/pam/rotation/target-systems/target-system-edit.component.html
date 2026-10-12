@@ -27,7 +27,8 @@
             type="number"
             id="target-system-edit_input_min-length"
             formControlName="minLength"
-            min="1"
+            min="5"
+            max="128"
           />
         </bit-form-field>
         <bit-form-field>
@@ -37,7 +38,8 @@
             type="number"
             id="target-system-edit_input_max-length"
             formControlName="maxLength"
-            min="1"
+            min="5"
+            max="128"
           />
         </bit-form-field>
       </div>
@@ -84,6 +86,11 @@
       @if (policyForm.errors?.["noCharacterClass"] && policyForm.touched) {
         <div id="target-system-edit_error_character-class">
           <bit-error>{{ "pamTargetSystemPolicyNoCharacterClass" | i18n }}</bit-error>
+        </div>
+      }
+      @if (policyForm.errors?.["belowStrengthFloor"] && policyForm.touched) {
+        <div id="target-system-edit_error_strength-floor">
+          <bit-error>{{ "pamTargetSystemPolicyBelowStrengthFloor" | i18n }}</bit-error>
         </div>
       }
 
@@ -269,6 +276,28 @@
     </form>
   } @else {
     <div class="tw-max-w-4xl">
+      @if (sealIssue(); as issue) {
+        @if (issue !== "ok") {
+          <bit-callout
+            type="warning"
+            [accessibleName]="
+              (issue === 'pending'
+                ? 'pamTargetSystemSetupIncompleteTitle'
+                : 'pamTargetSystemIntegrityCheckFailedTitle'
+              ) | i18n
+            "
+            id="target-system-edit_callout_seal-issue"
+          >
+            {{
+              (issue === "pending"
+                ? "pamTargetSystemSetupIncompleteContent"
+                : "pamTargetSystemIntegrityCheckFailedContent"
+              ) | i18n
+            }}
+          </bit-callout>
+        }
+      }
+
       @let setupSteps = outstandingSetupSteps();
       @if (setupSteps.length > 0) {
         <bit-callout
@@ -294,13 +323,29 @@
         </bit-section-header>
         <bit-card>
           @if (existing()?.method === TargetSystemMethod.Automatic) {
-            <p bitTypography="body2" class="tw-text-muted">
-              {{ "pamTargetSystemMethodAutomatic" | i18n }}
-              @if (kindLabelKey(); as kindKey) {
-                ·
-                {{ kindKey | i18n }}
-              }
-            </p>
+            @if (showEditKindPicker()) {
+              <bit-form-field>
+                <bit-label>{{ "pamTargetSystemTypeLabel" | i18n }}</bit-label>
+                <select
+                  bitInput
+                  id="target-system-edit_select_kind"
+                  [formControl]="editKindControl"
+                >
+                  @for (opt of kindOptions; track opt.value) {
+                    <option [ngValue]="opt.value">{{ opt.label | i18n }}</option>
+                  }
+                </select>
+                <bit-hint>{{ "pamTargetSystemTypeUnverifiedHint" | i18n }}</bit-hint>
+              </bit-form-field>
+            } @else {
+              <p bitTypography="body2" class="tw-text-muted">
+                {{ "pamTargetSystemMethodAutomatic" | i18n }}
+                @if (kindLabelKey(); as kindKey) {
+                  ·
+                  {{ kindKey | i18n }}
+                }
+              </p>
+            }
           } @else {
             <p bitTypography="body2" class="tw-text-muted">
               {{ "pamTargetSystemMethodManual" | i18n }}

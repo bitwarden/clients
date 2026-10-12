@@ -54,9 +54,9 @@ import {
   AccessConnectorDetail,
   AccessConnectorId,
   AccessConnectorStatus,
-  RotationConfig,
+  RotationConfigView,
   RotationConfigId,
-  TargetSystem,
+  TargetSystemView,
   TargetSystemId,
 } from "../rotation";
 import { ROTATION_TABS, rotationLink } from "../rotation-links";
@@ -198,7 +198,7 @@ export class AccessConnectorDetailComponent {
   });
 
   /** The org's rotation configs, loaded only when there is job history to label. */
-  private readonly rotationConfigs = signal<RotationConfig[]>([]);
+  private readonly rotationConfigs = signal<RotationConfigView[]>([]);
 
   private readonly cipherNameById = toSignal(this.orgCiphers.cipherNameById$, {
     initialValue: new Map<CipherId, string>(),
@@ -218,7 +218,7 @@ export class AccessConnectorDetailComponent {
   });
 
   private readonly automaticSystems = toSignal(this.targetSystemsService.automaticSystems$, {
-    initialValue: [] as TargetSystem[],
+    initialValue: [] as TargetSystemView[],
   });
 
   protected readonly targetSystemsLoadError = toSignal(this.targetSystemsService.loadError$, {

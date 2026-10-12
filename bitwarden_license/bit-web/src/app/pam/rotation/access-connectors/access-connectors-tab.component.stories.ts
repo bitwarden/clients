@@ -8,7 +8,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { DialogService, I18nMockService, ToastService } from "@bitwarden/components";
 import { featureFlagModes } from "@bitwarden/storybook";
 
-import { AccessConnector, TargetSystem } from "../rotation";
+import { AccessConnector, TargetSystemView } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 import { ORGANIZATION_ID, accessConnector, connectorId, sysId } from "../testing/rotation-builders";
 
@@ -91,7 +91,7 @@ function rotationServices(rows: AccessConnectorRow[]) {
       {
         provide: TargetSystemsService,
         useValue: {
-          automaticSystems$: of([{ id: sysId("1") }] as TargetSystem[]),
+          automaticSystems$: of([{ id: sysId("1") }] as TargetSystemView[]),
           loading$: of(false),
           loadError$: of(null),
           load: () => Promise.resolve(),

@@ -5,7 +5,7 @@ import { provideRouter } from "@angular/router";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 
-import type { AccessConnector, TargetSystem } from "../rotation";
+import type { AccessConnector, TargetSystemView } from "../rotation";
 
 import {
   AssignTargetDialogComponent,
@@ -16,8 +16,8 @@ const i18nStub: Pick<I18nService, "t"> = {
   t: (id: string) => id,
 };
 
-function makeSystem(id: string, name: string): TargetSystem {
-  return { id, name } as unknown as TargetSystem;
+function makeSystem(id: string, name: string): TargetSystemView {
+  return { id, name } as unknown as TargetSystemView;
 }
 
 describe("AssignTargetDialogComponent", () => {
@@ -36,7 +36,7 @@ describe("AssignTargetDialogComponent", () => {
     fixture.nativeElement.querySelector("#assign-target-dialog_anchor_target-systems");
 
   function createComponent(
-    options: TargetSystem[],
+    options: TargetSystemView[],
     noActiveAutomaticSystems = false,
   ): Promise<void> {
     const params: AssignTargetDialogParams = { accessConnector, options, noActiveAutomaticSystems };

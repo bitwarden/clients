@@ -176,6 +176,14 @@
           >
             {{ r.name }}
           </button>
+          @if (r.integrityCheckFailed) {
+            <span
+              class="tw-ms-1 tw-text-warning"
+              [bitTooltip]="'pamTargetSystemIntegrityCheckFailedTooltip' | i18n"
+            >
+              <bit-icon name="bwi-exclamation-triangle"></bit-icon>
+            </span>
+          }
         </bit-cell>
       </bit-column>
 
@@ -204,10 +212,16 @@
       <bit-column>
         <bit-header-cell>{{ "status" | i18n }}</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.statusLabel; let r">
-          @if (r.active) {
-            <span bitBadge variant="success">{{ r.statusLabel }}</span>
-          } @else {
-            <span bitBadge variant="subtle">{{ r.statusLabel }}</span>
+          @switch (r.status) {
+            @case ("active") {
+              <span bitBadge variant="success">{{ r.statusLabel }}</span>
+            }
+            @case ("pendingSeal") {
+              <span bitBadge variant="warning">{{ r.statusLabel }}</span>
+            }
+            @default {
+              <span bitBadge variant="subtle">{{ r.statusLabel }}</span>
+            }
           }
         </bit-cell>
       </bit-column>
@@ -215,12 +229,22 @@
       <bit-column>
         <bit-header-cell>{{ "pamTargetSystemSessionTerminationColumn" | i18n }}</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.sessionTermination; let r">
-          @if (r.system.supportsSessionTermination) {
-            <span bitBadge variant="primary">{{
-              "pamTargetSystemSessionTerminationYes" | i18n
-            }}</span>
-          } @else {
-            <span class="tw-text-muted">{{ "pamTargetSystemSessionTerminationNo" | i18n }}</span>
+          @switch (r.sessionTermination) {
+            @case ("yes") {
+              <span bitBadge variant="primary">{{
+                "pamTargetSystemSessionTerminationYes" | i18n
+              }}</span>
+            }
+            @case ("unknown") {
+              <span
+                class="tw-text-muted"
+                [bitTooltip]="'pamTargetSystemSessionTerminationUnknownTooltip' | i18n"
+                >{{ "pamTargetSystemSessionTerminationUnknown" | i18n }}</span
+              >
+            }
+            @default {
+              <span class="tw-text-muted">{{ "pamTargetSystemSessionTerminationNo" | i18n }}</span>
+            }
           }
         </bit-cell>
       </bit-column>
@@ -295,7 +319,20 @@
                 </button>
               }
             }
-            @if (r.active) {
+            @if (r.activationBlockedKey; as blockedKey) {
+              <button
+                type="button"
+                bitMenuItem
+                [attr.aria-disabled]="true"
+                [bitTooltip]="blockedKey | i18n"
+                [addTooltipToDescribedby]="true"
+                (click)="$event.stopPropagation()"
+                id="target-systems-tab_button_activate-locked-{{ r.id }}"
+              >
+                <bit-icon name="bwi-check-circle" class="tw-text-muted"></bit-icon>
+                {{ "pamTargetSystemActivate" | i18n }}
+              </button>
+            } @else if (r.active) {
               <button
                 type="button"
                 bitMenuItem
@@ -396,6 +433,14 @@
             <button type="button" bitLink linkType="primary" (click)="openEdit(r.system)">
               {{ r.name }}
             </button>
+            @if (r.integrityCheckFailed) {
+              <span
+                class="tw-ms-1 tw-text-warning"
+                [bitTooltip]="'pamTargetSystemIntegrityCheckFailedTooltip' | i18n"
+              >
+                <bit-icon name="bwi-exclamation-triangle"></bit-icon>
+              </span>
+            }
           </td>
           <td bitCell>
             @if (r.methodLabel) {
@@ -412,19 +457,37 @@
             }
           </td>
           <td bitCell>
-            @if (r.active) {
-              <span bitBadge variant="success">{{ r.statusLabel }}</span>
-            } @else {
-              <span bitBadge variant="subtle">{{ r.statusLabel }}</span>
+            @switch (r.status) {
+              @case ("active") {
+                <span bitBadge variant="success">{{ r.statusLabel }}</span>
+              }
+              @case ("pendingSeal") {
+                <span bitBadge variant="warning">{{ r.statusLabel }}</span>
+              }
+              @default {
+                <span bitBadge variant="subtle">{{ r.statusLabel }}</span>
+              }
             }
           </td>
           <td bitCell>
-            @if (r.system.supportsSessionTermination) {
-              <span bitBadge variant="primary">{{
-                "pamTargetSystemSessionTerminationYes" | i18n
-              }}</span>
-            } @else {
-              <span class="tw-text-muted">{{ "pamTargetSystemSessionTerminationNo" | i18n }}</span>
+            @switch (r.sessionTermination) {
+              @case ("yes") {
+                <span bitBadge variant="primary">{{
+                  "pamTargetSystemSessionTerminationYes" | i18n
+                }}</span>
+              }
+              @case ("unknown") {
+                <span
+                  class="tw-text-muted"
+                  [bitTooltip]="'pamTargetSystemSessionTerminationUnknownTooltip' | i18n"
+                  >{{ "pamTargetSystemSessionTerminationUnknown" | i18n }}</span
+                >
+              }
+              @default {
+                <span class="tw-text-muted">{{
+                  "pamTargetSystemSessionTerminationNo" | i18n
+                }}</span>
+              }
             }
           </td>
           <td bitCell>
@@ -488,12 +551,26 @@
                   </button>
                 }
               }
-              @if (r.active) {
+              @if (r.activationBlockedKey; as blockedKey) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  [attr.aria-disabled]="true"
+                  [bitTooltip]="blockedKey | i18n"
+                  [addTooltipToDescribedby]="true"
+                  (click)="$event.stopPropagation()"
+                  id="target-systems-tab_button_activate-locked-{{ r.id }}"
+                >
+                  <bit-icon name="bwi-check-circle" class="tw-text-muted"></bit-icon>
+                  {{ "pamTargetSystemActivate" | i18n }}
+                </button>
+              } @else if (r.active) {
                 <button
                   type="button"
                   bitMenuItem
                   [disabled]="isRowBusy(r.system.id)"
                   (click)="disable(r.system)"
+                  id="target-systems-tab_button_deactivate-{{ r.id }}"
                 >
                   <bit-icon name="bwi-minus-circle" class="tw-text-muted"></bit-icon>
                   {{ "pamTargetSystemDeactivate" | i18n }}
@@ -504,6 +581,7 @@
                   bitMenuItem
                   [disabled]="isRowBusy(r.system.id)"
                   (click)="enable(r.system)"
+                  id="target-systems-tab_button_activate-{{ r.id }}"
                 >
                   <bit-icon name="bwi-check-circle" class="tw-text-muted"></bit-icon>
                   {{ "pamTargetSystemActivate" | i18n }}
