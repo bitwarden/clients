@@ -116,11 +116,4 @@
       ></button>
     </bit-cell>
   </bit-column>
-
-  <bit-table-paginator
-    #paginator
-    [pageSize]="autoPageSize()"
-    [pageSizeOptions]="pageSizeOptions()"
-    [class.tw-hidden]="paginator.pageCount() < 2 && paginator.pageSize() === autoPageSize()"
-  ></bit-table-paginator>
 </bit-table-v2>
