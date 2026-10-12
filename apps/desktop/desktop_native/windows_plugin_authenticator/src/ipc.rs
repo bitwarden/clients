@@ -142,3 +142,52 @@ impl IpcConnector for RealIpcConnector {
         _ = Launcher::LaunchUriAsync(&uri);
     }
 }
+
+#[cfg(test)]
+pub(crate) mod test_util {
+    use autofill_provider::BitwardenError;
+
+    use super::*;
+
+    /// Answers every registration and assertion request with `error`.
+    pub(crate) struct FailingIpcClient {
+        pub(crate) error: fn() -> BitwardenError,
+    }
+
+    impl IpcClient for FailingIpcClient {
+        fn get_connection_status(&self) -> ConnectionStatus {
+            ConnectionStatus::Connected
+        }
+
+        fn get_lock_status(&self, _timeout: Duration) -> Result<LockStatusResponse, String> {
+            unimplemented!("not needed in these tests")
+        }
+
+        fn get_window_handle(
+            &self,
+            _timeout: Duration,
+        ) -> Result<WindowHandleQueryResponse, String> {
+            unimplemented!("not needed in these tests")
+        }
+
+        fn send_native_status(&self, _key: String, _value: String) {}
+
+        fn cancel_request(&self, _context: String) {}
+
+        fn prepare_passkey_registration(
+            &self,
+            _request: PasskeyRegistrationRequest,
+            callback: Arc<dyn PreparePasskeyRegistrationCallback>,
+        ) {
+            callback.on_error((self.error)());
+        }
+
+        fn prepare_passkey_assertion(
+            &self,
+            _request: PasskeyAssertionRequest,
+            callback: Arc<dyn PreparePasskeyAssertionCallback>,
+        ) {
+            callback.on_error((self.error)());
+        }
+    }
+}
