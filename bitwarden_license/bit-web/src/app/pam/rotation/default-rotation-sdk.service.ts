@@ -13,14 +13,12 @@ import type {
   AccessConnectorRegistrationResponse,
   AccessConnector,
   RotationConfigCreateRequest,
-  RotationConfigDetail,
+  RotationConfigDetailView,
   RotationConfigId,
-  RotationConfigUpdateRequest,
-  RotationConfig,
+  RotationConfigView,
   TargetSystemCreateRequest,
   TargetSystemId,
-  TargetSystemUpdateRequest,
-  TargetSystem,
+  TargetSystemView,
 } from "./rotation";
 import { QuartzSchedulePreset, TargetSystemStatus } from "./rotation";
 import { RotationConfigDescription, RotationSdkService } from "./rotation-sdk.service";
@@ -125,7 +123,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
     );
   }
 
-  async listTargetSystems(organizationId: OrganizationId): Promise<TargetSystem[]> {
+  async listTargetSystems(organizationId: OrganizationId): Promise<TargetSystemView[]> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     return this.withRotationClient("list target systems", (rotation) =>
       rotation.target_systems().list(orgId),
@@ -135,7 +133,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
   async createTargetSystem(
     organizationId: OrganizationId,
     request: TargetSystemCreateRequest,
-  ): Promise<TargetSystem> {
+  ): Promise<TargetSystemView> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     return this.withRotationClient("create a target system", (rotation) =>
       rotation.target_systems().create(orgId, request),
@@ -145,7 +143,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
   async updateTargetSystem(
     organizationId: OrganizationId,
     id: TargetSystemId,
-    request: TargetSystemUpdateRequest,
+    request: TargetSystemCreateRequest,
   ): Promise<void> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     await this.withRotationClient("update a target system", (rotation) =>
@@ -174,7 +172,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
     );
   }
 
-  async listConfigs(organizationId: OrganizationId): Promise<RotationConfig[]> {
+  async listConfigs(organizationId: OrganizationId): Promise<RotationConfigView[]> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     return this.withRotationClient("list rotation configs", (rotation) =>
       rotation.configs().list(orgId),
@@ -184,7 +182,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
   async getConfig(
     organizationId: OrganizationId,
     id: RotationConfigId,
-  ): Promise<RotationConfigDetail> {
+  ): Promise<RotationConfigDetailView> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     return this.withRotationClient("get a rotation config", (rotation) =>
       rotation.configs().get(orgId, id),
@@ -194,7 +192,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
   async createConfig(
     organizationId: OrganizationId,
     request: RotationConfigCreateRequest,
-  ): Promise<RotationConfigDetail> {
+  ): Promise<RotationConfigDetailView> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     return this.withRotationClient("create a rotation config", (rotation) =>
       rotation.configs().create(orgId, request),
@@ -204,8 +202,8 @@ export class DefaultRotationSdkService extends RotationSdkService {
   async updateConfig(
     organizationId: OrganizationId,
     id: RotationConfigId,
-    request: RotationConfigUpdateRequest,
-  ): Promise<RotationConfigDetail> {
+    request: RotationConfigCreateRequest,
+  ): Promise<RotationConfigDetailView> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     return this.withRotationClient("update a rotation config", (rotation) =>
       rotation.configs().update(orgId, id, request),
@@ -248,7 +246,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
   }
 
   async describeConfigs(
-    configs: readonly RotationConfig[],
+    configs: readonly RotationConfigView[],
     targetStatusById: ReadonlyMap<TargetSystemId, TargetSystemStatus>,
   ): Promise<Map<RotationConfigId, RotationConfigDescription>> {
     // One client take for the whole list; both predicates are synchronous over it.

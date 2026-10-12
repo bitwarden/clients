@@ -21,8 +21,8 @@ import { AccessConnectorStatus, TargetSystemKind } from "../rotation";
 import type {
   AccessConnector,
   AccessConnectorDetail,
-  RotationConfig,
-  TargetSystem,
+  RotationConfigView,
+  TargetSystemView,
   TargetSystemId,
 } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
@@ -37,6 +37,7 @@ import {
   rotationJob,
   sysId,
   targetSystem,
+  targetSystemSealedFields,
 } from "../testing/rotation-builders";
 
 import {
@@ -86,28 +87,28 @@ function makeAccessConnector(overrides: Partial<AccessConnector> = {}): AccessCo
   });
 }
 
-function makeSystem(): TargetSystem {
+function makeSystem(): TargetSystemView {
   return targetSystem({ id: sysId("ts-1"), name: "Prod Entra" });
 }
 
-function makeOtherSystem(): TargetSystem {
+function makeOtherSystem(): TargetSystemView {
   return targetSystem({
     id: sysId("ts-2"),
     name: "Prod scripted host",
-    kind: TargetSystemKind.CustomScript,
+    sealed: targetSystemSealedFields({ kind: TargetSystemKind.CustomScript }),
   });
 }
 
 /** A second target sharing the first's name, differing only in its integration. */
-function makeSameNamedSystem(): TargetSystem {
+function makeSameNamedSystem(): TargetSystemView {
   return targetSystem({
     id: sysId("ts-2"),
     name: "Prod Entra",
-    kind: TargetSystemKind.CustomScript,
+    sealed: targetSystemSealedFields({ kind: TargetSystemKind.CustomScript }),
   });
 }
 
-function pick(system: TargetSystem): SelectItemView {
+function pick(system: TargetSystemView): SelectItemView {
   return { id: String(system.id), listName: system.name, labelName: system.name };
 }
 
@@ -178,7 +179,7 @@ function fieldText(
   return el?.textContent?.trim() ?? "";
 }
 
-function pendingOf(comp: DetailApi, system: TargetSystem): string | null | undefined {
+function pendingOf(comp: DetailApi, system: TargetSystemView): string | null | undefined {
   return comp.assignments().find((a) => a.targetSystemId === system.id)?.pending;
 }
 
@@ -1000,7 +1001,7 @@ describe("AccessConnectorDetailComponent", () => {
     });
 
     it("renders the Configuration tab while the credential-name reads are still in flight", async () => {
-      let settleConfigs!: (configs: RotationConfig[]) => void;
+      let settleConfigs!: (configs: RotationConfigView[]) => void;
       rotationSdk.getConnector.mockResolvedValue(
         accessConnectorDetail({
           connector: accessConnector({ id: connectorId("access-connector-1") }),
@@ -1008,7 +1009,7 @@ describe("AccessConnectorDetailComponent", () => {
         }),
       );
       rotationSdk.listConfigs.mockReturnValue(
-        new Promise<RotationConfig[]>((resolve) => (settleConfigs = resolve)),
+        new Promise<RotationConfigView[]>((resolve) => (settleConfigs = resolve)),
       );
       await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,

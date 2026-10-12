@@ -1,4 +1,9 @@
-import { AccessConnector, AccessConnectorStatus, TargetSystem, TargetSystemId } from "./rotation";
+import {
+  AccessConnector,
+  AccessConnectorStatus,
+  TargetSystemView,
+  TargetSystemId,
+} from "./rotation";
 
 /** The enabled access connectors a target system does not already hold. */
 export function assignableConnectors(
@@ -21,8 +26,8 @@ export function eligibleConnectors(connectors: readonly AccessConnector[]): Acce
 /** The target systems a connector does not hold, the mirror of {@link assignableConnectors}. */
 export function assignableTargetSystems(
   assignedTargetSystemIds: readonly TargetSystemId[],
-  eligible: readonly TargetSystem[],
-): TargetSystem[] {
+  eligible: readonly TargetSystemView[],
+): TargetSystemView[] {
   const assigned = new Set<TargetSystemId>(assignedTargetSystemIds);
   return eligible.filter((system) => !assigned.has(system.id));
 }

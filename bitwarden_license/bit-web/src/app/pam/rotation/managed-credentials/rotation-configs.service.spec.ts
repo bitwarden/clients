@@ -5,7 +5,12 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import type { CipherId } from "@bitwarden/sdk-internal";
 
 import { OrgCiphersService } from "../org-ciphers.service";
-import type { RotationConfig, TargetSystemId, TargetSystemStatus, TargetSystem } from "../rotation";
+import type {
+  RotationConfigView,
+  TargetSystemId,
+  TargetSystemStatus,
+  TargetSystemView,
+} from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 import { deferred } from "../testing/deferred";
@@ -37,9 +42,9 @@ describe("RotationConfigsService", () => {
     >
   >;
   let targetSystemsService: {
-    systemById$: BehaviorSubject<Map<TargetSystemId, TargetSystem>>;
+    systemById$: BehaviorSubject<Map<TargetSystemId, TargetSystemView>>;
     load: jest.Mock;
-    systems$: BehaviorSubject<TargetSystem[]>;
+    systems$: BehaviorSubject<TargetSystemView[]>;
     loading$: BehaviorSubject<boolean>;
     loadError$: BehaviorSubject<unknown | null>;
   };
@@ -64,7 +69,7 @@ describe("RotationConfigsService", () => {
       // Typed like the real method so jest infers the mock's signature.
       describeConfigs: jest.fn(
         async (
-          configs: readonly RotationConfig[],
+          configs: readonly RotationConfigView[],
           _targetStatusById: ReadonlyMap<TargetSystemId, TargetSystemStatus>,
         ) => new Map(configs.map((c) => [c.id, rotationConfigDescription()])),
       ),
