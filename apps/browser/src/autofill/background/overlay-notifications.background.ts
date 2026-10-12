@@ -28,8 +28,8 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   private readonly formSubmissionRequestMethods: Set<string> = new Set(["POST", "PUT", "PATCH"]);
   private readonly extensionMessageHandlers: OverlayNotificationsExtensionMessageHandlers = {
     generatedPasswordFilled: ({ message, sender }) =>
-      this.storeModifiedLoginFormData(message, sender),
-    formFieldSubmitted: ({ message, sender }) => this.storeModifiedLoginFormData(message, sender),
+      this.handleModifiedLoginFormData(message, sender),
+    formFieldSubmitted: ({ message, sender }) => this.handleModifiedLoginFormData(message, sender),
     collectPageDetailsResponse: ({ message, sender }) =>
       this.handleCollectPageDetailsResponse(message, sender),
   };
@@ -120,13 +120,27 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   }
 
   /**
+   * Handles a content script's report of modified login form data. The data is stored without
+   * holding the message channel open for a response.
+   *
+   * @param message - The message from the content script
+   * @param sender - The sender of the message
+   */
+  private handleModifiedLoginFormData(
+    message: OverlayNotificationsExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ): undefined {
+    this.storeModifiedLoginFormData(message, sender).catch((error) => this.logService.error(error));
+  }
+
+  /**
    * Stores the login form data that was modified by the user in the content script. This data is
    * used to trigger the add login or change password notification when the form is submitted.
    *
    * @param message - The message from the content script
    * @param sender - The sender of the message
    */
-  private storeModifiedLoginFormData = (
+  private storeModifiedLoginFormData = async (
     message: OverlayNotificationsExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) => {
@@ -137,6 +151,12 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
 
     const { uri, username, password, newPassword } = message;
     if (!username && !password && !newPassword) {
+      return;
+    }
+
+    // A tab is registered by the first frame that reports fields, but any frame in the tab may
+    // submit afterward, so each submission is checked against exclusions using its own origin.
+    if (await this.isSenderFromExcludedDomain(sender)) {
       return;
     }
 
@@ -347,9 +367,24 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
       { command: "getInlineMenuFormFieldData" },
       { frameId },
     )) as OverlayNotificationsExtensionMessage;
-    if (response) {
-      this.storeModifiedLoginFormData(response, { tab });
+    if (!response) {
+      return;
     }
+
+    // The response carries no browser-attested sender, so the responding frame's origin is
+    // resolved here for the exclusion check. Without one, the data is not stored.
+    const frameUrl = await BrowserApi.getFrameDetails({ tabId, frameId })
+      .then((frame) => frame?.url)
+      .catch((): undefined => undefined);
+    if (!frameUrl) {
+      return;
+    }
+
+    await this.storeModifiedLoginFormData(response, {
+      tab,
+      frameId,
+      origin: new URL(frameUrl).origin,
+    });
   };
 
   /**

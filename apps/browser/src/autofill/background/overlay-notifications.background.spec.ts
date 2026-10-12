@@ -293,6 +293,11 @@ describe("OverlayNotificationsBackground", () => {
         newPassword: "newPassword",
       };
       jest.spyOn(BrowserApi, "tabSendMessage").mockResolvedValueOnce(response);
+      jest
+        .spyOn(BrowserApi, "getFrameDetails")
+        .mockResolvedValueOnce(
+          mock<chrome.webNavigation.GetFrameResultDetails>({ url: "https://example.com/login" }),
+        );
       sendMockExtensionMessage(
         { command: "collectPageDetailsResponse", details: pageDetails },
         sender,
@@ -316,6 +321,131 @@ describe("OverlayNotificationsBackground", () => {
         username: "username",
         password: "password",
         newPassword: "newPassword",
+      });
+    });
+
+    describe("checking each submission against excluded domains", () => {
+      const excludedHost = "excluded.example";
+      const submission = {
+        command: "formFieldSubmitted",
+        uri: `https://${excludedHost}/login`,
+        username: "username",
+        password: "password",
+        newPassword: "",
+      };
+
+      beforeEach(() => {
+        jest.spyOn(notificationBackground, "getExcludedDomains").mockResolvedValue({
+          [excludedHost]: null,
+        });
+      });
+
+      it("security: ignores a submission from an excluded frame in a tab registered by another frame", async () => {
+        sendMockExtensionMessage(
+          submission,
+          mock<chrome.runtime.MessageSender>({
+            tab: { id: sender.tab.id },
+            frameId: 0,
+            origin: `https://${excludedHost}`,
+          }),
+        );
+        await flushPromises();
+
+        expect(
+          overlayNotificationsBackground["modifyLoginCipherFormData"].get(sender.tab.id),
+        ).toBeUndefined();
+      });
+
+      it("security: ignores a submission from a frame on the user's vault", async () => {
+        const vault = "https://vault.bitwarden.com";
+        jest
+          .spyOn(notificationBackground, "getActiveUserServerConfig")
+          .mockResolvedValue(
+            mock<ServerConfig>({ environment: mock<EnvironmentServerConfigData>({ vault }) }),
+          );
+
+        sendMockExtensionMessage(
+          { ...submission, uri: `${vault}/#/login` },
+          mock<chrome.runtime.MessageSender>({
+            tab: { id: sender.tab.id },
+            frameId: 3,
+            origin: vault,
+          }),
+        );
+        await flushPromises();
+
+        expect(
+          overlayNotificationsBackground["modifyLoginCipherFormData"].get(sender.tab.id),
+        ).toBeUndefined();
+      });
+
+      it("stores a submission from a frame that is not excluded", async () => {
+        sendMockExtensionMessage(
+          { ...submission, uri: "https://allowed.example/login" },
+          mock<chrome.runtime.MessageSender>({
+            tab: { id: sender.tab.id },
+            frameId: 3,
+            origin: "https://allowed.example",
+          }),
+        );
+        await flushPromises();
+
+        expect(
+          overlayNotificationsBackground["modifyLoginCipherFormData"].get(sender.tab.id),
+        ).toEqual({
+          uri: "https://allowed.example/login",
+          username: "username",
+          password: "password",
+          newPassword: "",
+        });
+      });
+
+      describe("when the data is captured within the onBeforeRequest listener", () => {
+        const triggerFormSubmissionRequest = async () => {
+          jest
+            .spyOn(BrowserApi, "getTab")
+            .mockResolvedValueOnce(mock<chrome.tabs.Tab>({ id: sender.tab.id }));
+          jest.spyOn(BrowserApi, "tabSendMessage").mockResolvedValueOnce(submission);
+
+          triggerWebRequestOnBeforeRequestEvent(
+            mock<chrome.webRequest.WebRequestDetails>({
+              url: `https://${excludedHost}/login`,
+              tabId: sender.tab.id,
+              frameId: 3,
+              method: "POST",
+              requestId: "678",
+            }),
+          );
+          await flushPromises();
+        };
+
+        it("security: ignores the data when the responding frame is on an excluded domain", async () => {
+          jest
+            .spyOn(BrowserApi, "getFrameDetails")
+            .mockResolvedValueOnce(
+              mock<chrome.webNavigation.GetFrameResultDetails>({ url: submission.uri }),
+            );
+
+          await triggerFormSubmissionRequest();
+
+          expect(BrowserApi.getFrameDetails).toHaveBeenCalledWith({
+            tabId: sender.tab.id,
+            frameId: 3,
+          });
+          expect(
+            overlayNotificationsBackground["modifyLoginCipherFormData"].get(sender.tab.id),
+          ).toBeUndefined();
+        });
+
+        it("security: ignores the data when the responding frame cannot be resolved", async () => {
+          jest.spyOn(BrowserApi, "getFrameDetails").mockResolvedValueOnce(undefined);
+
+          await triggerFormSubmissionRequest();
+
+          expect(
+            overlayNotificationsBackground["modifyLoginCipherFormData"].get(sender.tab.id),
+          ).toBeUndefined();
+        });
       });
     });
   });
