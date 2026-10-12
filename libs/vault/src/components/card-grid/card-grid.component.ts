@@ -17,9 +17,7 @@ import {
 import { RouterLink } from "@angular/router";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
-import { getNestedCollectionTree } from "@bitwarden/common/admin-console/utils/collection-utils";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import {
   IconComponent,
   IconTileComponent,
@@ -31,13 +29,9 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import {
-  scopedSharedFolderId,
-  VaultScope,
-  vaultScopeCommands,
-  VaultScopeType,
-} from "../../models/vault-scope";
-import { sharedFolderName } from "../../utils/shared-folder-name";
+import { VaultScope } from "../../models/vault-scope";
+
+import { resolveCardGridSource } from "./card-grid-source";
 
 /**
  * Three full rows stay visible before the rest collapse, however many columns the grid is currently
@@ -77,25 +71,16 @@ const COUNT_TOKEN = "\uFFFC";
 // The toggle sits below the grid it controls, so `aria-controls` has to point at the list by id.
 let nextId = 0;
 
-/** A single child folder, resolved to the route its card links to. */
-type SharedFolderCard = {
-  id: string;
-  name: string;
-  commands: unknown[];
-
-  /** How many shared folders sit directly inside this one. */
-  nestedSharedFolders: number;
-};
-
 /**
- * Renders the direct child folders of the shared folder the {@link scope} has drilled into as a
- * responsive card grid. Each card is an anchor built from {@link vaultScopeCommands}, so click,
- * Enter, and cmd/ctrl and middle-click all behave like ordinary links.
+ * Renders the direct child folders of the folder the {@link scope} has drilled into as a
+ * responsive card grid — a shared folder of an organization vault, or one of the user's own My
+ * folders. Each card is an anchor to its folder's page, so click, Enter, and cmd/ctrl and
+ * middle-click all behave like ordinary links.
  *
- * The component fetches nothing and has no loading state: hosts pass the collections of the vault
- * in view and the scope, and the grid derives the tree, the folder in view, and its children from
- * the two. A scope that names no folder — or names one the collections do not hold — renders
- * nothing.
+ * The component fetches nothing and has no loading state: hosts pass the data of the vault in view
+ * and the scope, and the grid derives the tree, the folder in view, and its children from them —
+ * see {@link resolveCardGridSource}. A scope that names no folder — or names one the data does not
+ * hold — renders nothing.
  */
 @Component({
   selector: "vault-card-grid",
@@ -122,13 +107,13 @@ export class CardGridComponent {
    * a folder outside the vault it is given.
    *
    * Flat, as the collection services hold them: nesting is carried in each name, which
-   * {@link collectionTree} resolves into the tree the folder in view is found in.
+   * {@link source} resolves into the tree the folder in view is found in.
    */
   readonly collections = input.required<CollectionView[]>();
 
   /**
-   * The vault the page is scoped to, and the shared folder within it the URL has drilled into. The
-   * folder is what the grid renders the children of, so a scope naming none renders nothing.
+   * The page the grid is on, and the folder within it the URL has drilled into. The folder is what
+   * the grid renders the children of, so a scope naming none renders nothing.
    */
   readonly scope = input.required<VaultScope>();
 
@@ -207,39 +192,27 @@ export class CardGridComponent {
   /** The cards left on show while the grid is collapsed: three full rows at the current width. */
   private readonly collapsedCardCount = computed(() => this.columns() * VISIBLE_ROWS);
 
-  /**
-   * {@link collections} as a tree — the collections of the vault the drill-in sits inside, so the
-   * grid can never surface a folder outside it.
-   */
-  private readonly collectionTree = computed(() => getNestedCollectionTree(this.collections()));
+  /** The folder in view and its child cards, resolved from whichever data the scope reads. */
+  private readonly source = computed(() =>
+    resolveCardGridSource(this.scope(), { collections: this.collections() }),
+  );
 
-  private readonly sharedFolderNode = computed(() => {
-    const collectionId = scopedSharedFolderId(this.scope());
-    if (collectionId == null) {
-      return undefined;
-    }
-    // Predates strict null checks: a miss comes back as `null` despite the signature.
-    return ServiceUtils.getTreeNodeObjectFromList(this.collectionTree(), collectionId) ?? undefined;
-  });
+  private readonly cards = computed(() => this.source()?.cards ?? []);
 
-  /** The direct children of the shared folder in view — the cards the grid renders. */
-  private readonly folders = computed(() => this.sharedFolderNode()?.children ?? []);
+  /** The name of the folder in view, titling the grid. */
+  protected readonly parentName = computed(() => this.source()?.parentName ?? "");
 
-  /**
-   * The name of the shared folder in view, titling the grid. Read through {@link sharedFolderName}:
-   * the tree names a node whose parent is missing by the joined path segments, not its own name.
-   */
-  protected readonly parentName = computed(() => {
-    const node = this.sharedFolderNode()?.node;
-    return node ? sharedFolderName(node) : "";
-  });
+  protected readonly titleKey = computed(() => this.source()?.titleKey ?? "");
+
+  /** The messages for each card's subtext, counting the folders nested inside it. */
+  protected readonly nestedKeys = computed(() => this.source()?.nestedKeys);
 
   protected readonly listId = `card-grid-list-${nextId++}`;
 
   /** Identifies the current set of children, so navigating between folders re-collapses the grid. */
   private readonly folderIds = computed(() =>
-    this.folders()
-      .map((folder) => folder.node.id)
+    this.cards()
+      .map((card) => card.id)
       .join(","),
   );
 
@@ -255,35 +228,6 @@ export class CardGridComponent {
     computation: ({ initiallyExpanded }) => initiallyExpanded,
   });
 
-  /**
-   * The child collections unwrapped from their tree nodes, each resolved to its own route and named
-   * by its own name rather than its path — see {@link parentName}.
-   */
-  private readonly cards = computed<SharedFolderCard[]>(() =>
-    this.folders().map(({ node, children }) => ({
-      id: node.id,
-      name: sharedFolderName(node),
-      commands: this.folderRoute(node),
-      nestedSharedFolders: children.length,
-    })),
-  );
-
-  /**
-   * The route a child folder's card links to: this vault, drilled into that folder. Following it
-   * re-derives the scope and with it the grid's next set of children.
-   *
-   * A folder's route names the vault it lives in rather than the path taken through its ancestors,
-   * so drilling deeper replaces the `:collectionId` segment rather than adding to it — see
-   * {@link vaultScopeCommands}. A scope that can hold no folder links to itself, which the grid
-   * never renders a card for anyway.
-   */
-  private folderRoute(folder: CollectionView): string[] {
-    const scope = this.scope();
-    return vaultScopeCommands(
-      scope.type === VaultScopeType.Organization ? { ...scope, collectionId: folder.id } : scope,
-    );
-  }
-
   protected readonly count = computed(() => this.cards().length);
 
   /**
@@ -293,10 +237,10 @@ export class CardGridComponent {
    * rather than markup.
    */
   protected readonly countSegments = computed(() => {
-    const sentence = this.i18nService.t(
-      this.count() === 1 ? "sharedFolderSingular" : "sharedFolderCount",
-      COUNT_TOKEN,
-    );
+    const keys = this.source()?.countKeys;
+    const sentence = keys
+      ? this.i18nService.t(this.count() === 1 ? keys.singular : keys.plural, COUNT_TOKEN)
+      : "";
 
     const [before, after = ""] = sentence.split(COUNT_TOKEN);
     return { before, count: this.count(), after };

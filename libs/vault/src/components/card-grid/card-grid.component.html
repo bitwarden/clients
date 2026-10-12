@@ -3,7 +3,7 @@
 @if (count() > 0) {
   <bit-accordion
     class="tw-mb-8"
-    [title]="'sharedFoldersInParent' | i18n: parentName()"
+    [title]="titleKey() | i18n: parentName()"
     variant="subtle"
     [open]="open()"
     height="auto"
@@ -61,14 +61,14 @@
         [id]="'card-grid_link_folder-' + folder.id"
         [routerLink]="folder.commands"
       >
-        <bit-icon-tile slot="start" icon="bwi-shared-folder"></bit-icon-tile>
+        <bit-icon-tile slot="start" [icon]="folder.icon"></bit-icon-tile>
         {{ folder.name }}
-        @if (folder.nestedSharedFolders > 0) {
+        @if (folder.nestedCount > 0) {
           <span slot="secondary">
             {{
-              folder.nestedSharedFolders === 1
-                ? ("nestedSharedFolderSingular" | i18n)
-                : ("nestedSharedFolderCount" | i18n: folder.nestedSharedFolders)
+              folder.nestedCount === 1
+                ? (nestedKeys()?.singular ?? "" | i18n)
+                : (nestedKeys()?.plural ?? "" | i18n: folder.nestedCount)
             }}
           </span>
         }
