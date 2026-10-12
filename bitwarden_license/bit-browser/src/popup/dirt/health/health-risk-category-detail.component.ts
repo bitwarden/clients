@@ -21,6 +21,8 @@ import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/p
 import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -49,6 +51,10 @@ import {
   HealthDeleteAtRiskItemDialogComponent,
   HealthDeleteAtRiskItemDialogData,
 } from "./health-delete-at-risk-item-dialog.component";
+import {
+  HealthExcludeAtRiskItemDialogComponent,
+  HealthExcludeAtRiskItemDialogData,
+} from "./health-exclude-at-risk-item-dialog.component";
 import { HealthScanErrorComponent } from "./health-scan-error.component";
 import { HealthScanningComponent } from "./health-scanning.component";
 import { HealthScanService } from "./services/health-scan.service";
@@ -95,6 +101,12 @@ export class HealthRiskCategoryDetailComponent {
   readonly dialogService = inject(DialogService);
   private readonly healthScanService = inject(HealthScanService);
   private readonly compactModeService = inject(CompactModeService);
+  private readonly configService = inject(ConfigService);
+
+  protected readonly exclusionsEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.HealthReportExclusions),
+    { initialValue: false },
+  );
 
   readonly category = toSignal<RiskCategory>(
     this.route.params.pipe(map((params) => params["category"])),
@@ -222,6 +234,16 @@ export class HealthRiskCategoryDetailComponent {
     }
     await this.router.navigate(["/view-cipher"], {
       queryParams: { cipherId: item.id, type: item.type },
+    });
+  };
+
+  readonly onExcludeItem = (health: CipherHealthView) => {
+    this.dialogService.open(HealthExcludeAtRiskItemDialogComponent, {
+      positionStrategy: new CenterPositionStrategy(),
+      data: {
+        item: health,
+        currentCategory: this.category()!,
+      } satisfies HealthExcludeAtRiskItemDialogData,
     });
   };
 
