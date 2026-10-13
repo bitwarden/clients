@@ -14343,6 +14343,9 @@
   "organizationOptionsMenu": {
     "message": "Toggle Organization Menu"
   },
+  "vaultOptions": {
+    "message": "Vault options"
+  },
   "vaultItemSelect": {
     "message": "Select vault item"
   },
