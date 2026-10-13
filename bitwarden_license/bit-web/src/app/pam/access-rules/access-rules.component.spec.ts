@@ -1,14 +1,11 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, provideRouter, Router } from "@angular/router";
-import { mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, FilterControl, ToastService } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
@@ -60,14 +57,6 @@ function rule(id: string, name = "Rule", enabled = true): AccessRuleView {
 
 type ProviderOverride = { provide: unknown; useValue: unknown };
 
-const configServiceWithVfo1 = (enabled: boolean): ConfigService => {
-  const configService = mock<ConfigService>();
-  configService.getFeatureFlag$.mockImplementation((flag) =>
-    of(flag === FeatureFlag.VFO1Foundation ? enabled : false),
-  );
-  return configService as ConfigService;
-};
-
 type SetupOptions = {
   overrides?: ProviderOverride[];
   openSimpleDialog?: jest.Mock;
@@ -94,7 +83,6 @@ const setup = async (
       { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
       { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
       { provide: GovernedCollectionsService, useValue: { invalidate: jest.fn() } },
-      { provide: ConfigService, useValue: configServiceWithVfo1(false) },
       ...overrides,
     ],
   });
@@ -546,7 +534,6 @@ describe("AccessRulesComponent — toolbar filters", () => {
           useValue: { collectionAdminViews$: () => of(collections) },
         },
         { provide: GovernedCollectionsService, useValue: { invalidate: jest.fn() } },
-        { provide: ConfigService, useValue: configServiceWithVfo1(false) },
       ],
     });
 
@@ -578,7 +565,9 @@ describe("AccessRulesComponent — toolbar filters", () => {
   };
 
   const visible = () =>
-    (fixture.componentInstance["dataSource"].filteredData ?? []).map((r) => r.name);
+    Array.from((fixture.nativeElement as HTMLElement).querySelectorAll("button[bitlink]")).map(
+      (n) => (n.textContent ?? "").trim(),
+    );
 
   it("declares an option per collection, sorted by name", async () => {
     await setupToolbar(
@@ -663,7 +652,7 @@ describe("AccessRulesComponent — toolbar filters", () => {
   });
 });
 
-describe("AccessRulesComponent — VFO1 table (flag on)", () => {
+describe("AccessRulesComponent — table", () => {
   const RULES = [
     { ...rule("rule-1", "VPN", true), revisionDate: "2024-03-01T00:00:00.000Z" },
     { ...rule("rule-2", "SSH", false), revisionDate: "2024-05-01T00:00:00.000Z" },
@@ -675,7 +664,7 @@ describe("AccessRulesComponent — VFO1 table (flag on)", () => {
     document.body.querySelectorAll(".cdk-overlay-container").forEach((el) => el.remove());
   });
 
-  const render = async (vfo1: boolean): Promise<ComponentFixture<AccessRulesComponent>> => {
+  const render = async (): Promise<ComponentFixture<AccessRulesComponent>> => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       imports: [AccessRulesComponent],
@@ -691,7 +680,6 @@ describe("AccessRulesComponent — VFO1 table (flag on)", () => {
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
         { provide: GovernedCollectionsService, useValue: { invalidate: jest.fn() } },
-        { provide: ConfigService, useValue: configServiceWithVfo1(vfo1) },
       ],
     });
     TestBed.overrideComponent(AccessRulesComponent, {
@@ -738,26 +726,10 @@ describe("AccessRulesComponent — VFO1 table (flag on)", () => {
     return Array.from(document.querySelectorAll("button[bitmenuitem]")).map(text);
   };
 
-  it("renders bit-table-v2 in place of the v1 table", async () => {
-    const fixture = await render(true);
+  it("renders the column headings in order", async () => {
+    const fixture = await render();
 
-    expect(el(fixture).querySelector("bit-table-v2")).not.toBeNull();
-    expect(el(fixture).querySelector("bit-table")).toBeNull();
-  });
-
-  it("keeps the v1 table when the flag is off", async () => {
-    const fixture = await render(false);
-
-    expect(el(fixture).querySelector("bit-table")).not.toBeNull();
-    expect(el(fixture).querySelector("bit-table-v2")).toBeNull();
-  });
-
-  it("renders the same column headings, in the same order, as the v1 table", async () => {
-    const v1 = headings(await render(false));
-    const v2 = headings(await render(true));
-
-    expect(v2).toEqual(v1);
-    expect(v2).toEqual([
+    expect(headings(fixture)).toEqual([
       "selectAll",
       "pamAccessRuleName",
       "pamAccessRuleAppliesTo",
@@ -769,33 +741,28 @@ describe("AccessRulesComponent — VFO1 table (flag on)", () => {
     ]);
   });
 
-  it("renders the same rows in the same default order (last modified, newest first)", async () => {
-    const v1 = rowNames(await render(false));
-    const v2 = rowNames(await render(true));
+  it("orders the rows by last modified, newest first", async () => {
+    const fixture = await render();
 
-    expect(v2).toEqual(["SSH", "DB", "VPN"]);
-    expect(v2).toEqual(v1);
+    expect(rowNames(fixture)).toEqual(["SSH", "DB", "VPN"]);
   });
 
-  it("gives the selection checkboxes the same accessible names as v1", async () => {
-    const fixture = await render(true);
+  it("gives the selection checkboxes accessible names", async () => {
+    const fixture = await render();
 
     expect(rowCheckboxes(fixture)).toHaveLength(RULES.length);
     expect(accessibleName(fixture, "access-rules_checkbox_select-all")).toBe("selectAll");
     expect(accessibleName(fixture, "access-rules_checkbox_rule-2")).toBe("SSH");
   });
 
-  it("offers the same row actions, in the same order, as the v1 menu", async () => {
-    const v1 = firstRowMenu(await render(false));
-    document.body.querySelectorAll(".cdk-overlay-container").forEach((node) => node.remove());
-    const v2 = firstRowMenu(await render(true));
+  it("offers the row actions with edit first", async () => {
+    const fixture = await render();
 
-    expect(v2).toEqual(["edit", "makeACopy", "pamAccessRuleActivate", "delete"]);
-    expect(v2).toEqual(v1);
+    expect(firstRowMenu(fixture)).toEqual(["edit", "makeACopy", "pamAccessRuleActivate", "delete"]);
   });
 
   it("feeds row checkboxes into the selection the bulk actions read", async () => {
-    const fixture = await render(true);
+    const fixture = await render();
 
     rowCheckboxes(fixture)[0].click();
     fixture.detectChanges();
@@ -805,7 +772,7 @@ describe("AccessRulesComponent — VFO1 table (flag on)", () => {
   });
 
   it("marks row checkboxes so bit-row applies its selected fill", async () => {
-    const fixture = await render(true);
+    const fixture = await render();
 
     const checkboxes = rowCheckboxes(fixture);
     expect(checkboxes).toHaveLength(RULES.length);
@@ -815,7 +782,7 @@ describe("AccessRulesComponent — VFO1 table (flag on)", () => {
   });
 
   it("selects every filtered row from the header checkbox", async () => {
-    const fixture = await render(true);
+    const fixture = await render();
 
     fixture.componentInstance["statusFilter"]()!.setValue("enabled");
     fixture.detectChanges();
@@ -829,56 +796,12 @@ describe("AccessRulesComponent — VFO1 table (flag on)", () => {
     ).toEqual(["DB", "VPN"]);
   });
 
-  it("scopes select-all and bulk actions to the filtered rules when the flag turns on after the rules load", async () => {
-    const flag = new BehaviorSubject(false);
-    const configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockImplementation((f) =>
-      f === FeatureFlag.VFO1Foundation ? flag.asObservable() : of(false),
-    );
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({
-      imports: [AccessRulesComponent],
-      providers: [
-        provideRouter([]),
-        { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
-        {
-          provide: AccessRuleSdkService,
-          useValue: { listAccessRules: jest.fn().mockResolvedValue(RULES) },
-        },
-        { provide: ToastService, useValue: { showToast: jest.fn() } },
-        { provide: I18nService, useValue: i18nFake },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
-        { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
-        { provide: GovernedCollectionsService, useValue: { invalidate: jest.fn() } },
-        { provide: ConfigService, useValue: configService },
-      ],
-    });
-    TestBed.overrideComponent(AccessRulesComponent, {
-      remove: { imports: [HeaderModule] },
-      add: { schemas: [NO_ERRORS_SCHEMA] },
-    });
-    TestBed.overrideProvider(DialogService, { useValue: { openSimpleDialog: jest.fn() } });
-    const fixture = TestBed.createComponent(AccessRulesComponent);
-    const settle = async () => {
-      for (let i = 0; i < 3; i++) {
-        fixture.detectChanges();
-        await fixture.whenStable();
-      }
-    };
-    await settle();
-
-    expect(rowNames(fixture)).toEqual(["SSH", "DB", "VPN"]);
-    expect(el(fixture).querySelector("bit-table")).not.toBeNull();
-    expect(el(fixture).querySelector("bit-table-v2")).toBeNull();
-
-    flag.next(true);
-    await settle();
-
-    expect(el(fixture).querySelector("bit-table-v2")).not.toBeNull();
-    expect(el(fixture).querySelector("bit-table")).toBeNull();
+  it("scopes bulk actions to the filtered rules", async () => {
+    const fixture = await render();
 
     fixture.componentInstance["filterForm"].controls.search.setValue("ssh");
-    await settle();
+    fixture.detectChanges();
+    await fixture.whenStable();
     expect(rowNames(fixture)).toEqual(["SSH"]);
 
     el(fixture).querySelector<HTMLInputElement>("#access-rules_checkbox_select-all")!.click();
@@ -898,8 +821,8 @@ describe("AccessRulesComponent — VFO1 table (flag on)", () => {
     expect(setManyEnabled.mock.calls[0][1]).toBe(true);
   });
 
-  it("narrows the v2 rows on the toolbar chips and search", async () => {
-    const fixture = await render(true);
+  it("narrows the rows on the toolbar chips and search", async () => {
+    const fixture = await render();
 
     fixture.componentInstance["statusFilter"]()!.setValue("disabled");
     fixture.detectChanges();
@@ -912,7 +835,7 @@ describe("AccessRulesComponent — VFO1 table (flag on)", () => {
   });
 
   it("shows the no-results copy when the filters exclude every rule", async () => {
-    const fixture = await render(true);
+    const fixture = await render();
 
     fixture.componentInstance["filterForm"].controls.search.setValue("nothing matches");
     fixture.detectChanges();
@@ -921,8 +844,8 @@ describe("AccessRulesComponent — VFO1 table (flag on)", () => {
     expect(text(el(fixture).querySelector("bit-table-v2")!)).toContain("pamAccessRulesNoResults");
   });
 
-  it("sorts by name when its header is clicked, as v1 does", async () => {
-    const fixture = await render(true);
+  it("sorts by name when its header is clicked", async () => {
+    const fixture = await render();
 
     const nameHeader = Array.from(
       el(fixture).querySelectorAll<HTMLButtonElement>("[role=columnheader] button"),
@@ -934,7 +857,7 @@ describe("AccessRulesComponent — VFO1 table (flag on)", () => {
   });
 });
 
-describe("AccessRulesComponent — VFO1 toolbar (flag on)", () => {
+describe("AccessRulesComponent — toolbar", () => {
   const collection = (id: string, name: string) => ({ id, name }) as unknown as CollectionAdminView;
 
   const ruleIn = (id: string, name: string, collections: string[], enabled = true) =>
@@ -953,7 +876,7 @@ describe("AccessRulesComponent — VFO1 toolbar (flag on)", () => {
     document.body.querySelectorAll(".cdk-overlay-container").forEach((el) => el.remove());
   });
 
-  const render = async (vfo1: boolean): Promise<ComponentFixture<AccessRulesComponent>> => {
+  const render = async (): Promise<ComponentFixture<AccessRulesComponent>> => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       imports: [AccessRulesComponent],
@@ -972,7 +895,6 @@ describe("AccessRulesComponent — VFO1 toolbar (flag on)", () => {
           useValue: { collectionAdminViews$: () => of(COLLECTIONS) },
         },
         { provide: GovernedCollectionsService, useValue: { invalidate: jest.fn() } },
-        { provide: ConfigService, useValue: configServiceWithVfo1(vfo1) },
       ],
     });
     TestBed.overrideComponent(AccessRulesComponent, {
@@ -1003,9 +925,6 @@ describe("AccessRulesComponent — VFO1 toolbar (flag on)", () => {
       (n.textContent ?? "").replace(/\s+/g, " ").trim(),
     );
 
-  const v1Names = (fixture: ComponentFixture<AccessRulesComponent>) =>
-    (fixture.componentInstance["dataSource"].filteredData ?? []).map((r) => r.name);
-
   const setFilters = (
     fixture: ComponentFixture<AccessRulesComponent>,
     filters: { search?: string; status?: unknown; collection?: unknown },
@@ -1023,7 +942,7 @@ describe("AccessRulesComponent — VFO1 toolbar (flag on)", () => {
   };
 
   it("puts the search and both filter chips inside the table's toolbar", async () => {
-    const fixture = await render(true);
+    const fixture = await render();
 
     expect(toolbar(fixture)!.querySelector("bit-search")).not.toBeNull();
     expect(toolbar(fixture)!.querySelectorAll("bit-filter-menu")).toHaveLength(2);
@@ -1031,16 +950,8 @@ describe("AccessRulesComponent — VFO1 toolbar (flag on)", () => {
     expect(el(fixture).querySelectorAll("bit-filter-menu")).toHaveLength(2);
   });
 
-  it("leaves the controls outside the table when the flag is off", async () => {
-    const fixture = await render(false);
-
-    expect(el(fixture).querySelector("bit-table-toolbar")).toBeNull();
-    expect(el(fixture).querySelector("bit-table")!.querySelector("bit-search")).toBeNull();
-    expect(el(fixture).querySelectorAll("bit-filter-menu")).toHaveLength(2);
-  });
-
-  it("keeps the chips' labels, options and unset state", async () => {
-    const fixture = await render(true);
+  it("renders the chips unset, showing every rule", async () => {
+    const fixture = await render();
     const chips = Array.from(toolbar(fixture)!.querySelectorAll("bit-filter-menu"));
 
     expect(chips.map((c) => c.getAttribute("key"))).toEqual(["status", "collection"]);
@@ -1049,35 +960,27 @@ describe("AccessRulesComponent — VFO1 toolbar (flag on)", () => {
     expect(rowNames(fixture)).toEqual(["VPN", "SSH", "Backup"]);
   });
 
-  it("keeps the search placeholder it had off the flag", async () => {
-    const off = await render(false);
-    const offPlaceholder = off.nativeElement
-      .querySelector("bit-search input")
-      ?.getAttribute("placeholder");
+  it("gives the search its placeholder", async () => {
+    const fixture = await render();
 
-    const on = await render(true);
-
-    expect(toolbar(on)!.querySelector("bit-search input")!.getAttribute("placeholder")).toBe(
-      offPlaceholder,
+    expect(toolbar(fixture)!.querySelector("bit-search input")!.getAttribute("placeholder")).toBe(
+      "pamSearchRules",
     );
-    expect(offPlaceholder).toBe("pamSearchRules");
   });
 
-  it("moves the create action into the toolbar's end slot, keeping its id", async () => {
-    const on = await render(true);
+  it("puts the create action in the toolbar's end slot", async () => {
+    const fixture = await render();
 
     // The button must be the slot's direct child, since below `md` the slot sizes what it projects
     // and a wrapper would leave the button at its intrinsic width.
-    expect(Array.from(endSlot(on).children).map((n) => n.id)).toEqual(["access-rules_button_new"]);
-    expect(on.nativeElement.querySelectorAll("#access-rules_button_new")).toHaveLength(1);
-
-    const off = await render(false);
-    expect(off.nativeElement.querySelector("bit-table-toolbar")).toBeNull();
-    expect(off.nativeElement.querySelector("#access-rules_button_new")).not.toBeNull();
+    expect(Array.from(endSlot(fixture).children).map((n) => n.id)).toEqual([
+      "access-rules_button_new",
+    ]);
+    expect(el(fixture).querySelectorAll("#access-rules_button_new")).toHaveLength(1);
   });
 
-  it("still opens the create menu from the toolbar", async () => {
-    const fixture = await render(true);
+  it("opens the create menu from the toolbar", async () => {
+    const fixture = await render();
 
     toolbar(fixture)!.querySelector<HTMLButtonElement>("#access-rules_button_new")!.click();
     fixture.detectChanges();
@@ -1085,37 +988,25 @@ describe("AccessRulesComponent — VFO1 toolbar (flag on)", () => {
     expect(document.querySelector("#access-rules_button_new-custom")).not.toBeNull();
   });
 
-  it("still opens the create menu from the page header when the flag is off", async () => {
-    const fixture = await render(false);
+  it.each<[string, { search?: string; status?: unknown; collection?: unknown }, string[]]>([
+    ["the status chip", { status: "enabled" }, ["VPN", "Backup"]],
+    ["the collections chip", { collection: ["col-2"] }, ["SSH", "Backup"]],
+    ["search on a rule name", { search: "vpn" }, ["VPN"]],
+    ["search on a collection name", { search: "databases" }, ["VPN"]],
+    [
+      "every control at once",
+      { search: "s", status: "enabled", collection: ["col-2"] },
+      ["Backup"],
+    ],
+  ])("narrows the toolbar's rows on %s", async (_, filters, expected) => {
+    const fixture = await render();
+    setFilters(fixture, filters);
 
-    el(fixture).querySelector<HTMLButtonElement>("#access-rules_button_new")!.click();
-    fixture.detectChanges();
-
-    expect(document.querySelector("#access-rules_button_new-custom")).not.toBeNull();
-  });
-
-  it.each<[string, { search?: string; status?: unknown; collection?: unknown }]>([
-    ["the status chip", { status: "enabled" }],
-    ["the collections chip", { collection: ["col-2"] }],
-    ["search on a rule name", { search: "vpn" }],
-    ["search on a collection name", { search: "databases" }],
-    ["every control at once", { search: "s", status: "enabled", collection: ["col-2"] }],
-  ])("narrows the toolbar's rows the same way the flag-off path does: %s", async (_, filters) => {
-    const off = await render(false);
-    setFilters(off, filters);
-    const expected = v1Names(off);
-    // Guards the comparison: two empty lists would agree without either path filtering.
-    expect(expected.length).toBeGreaterThan(0);
-    expect(expected.length).toBeLessThan(RULES.length);
-
-    const on = await render(true);
-    setFilters(on, filters);
-
-    expect(rowNames(on)).toEqual(expected);
+    expect(rowNames(fixture)).toEqual(expected);
   });
 
   it("restores every rule when a chip is cleared from the toolbar", async () => {
-    const fixture = await render(true);
+    const fixture = await render();
 
     setFilters(fixture, { collection: ["col-1"] });
     expect(rowNames(fixture)).toEqual(["VPN"]);
@@ -1125,7 +1016,7 @@ describe("AccessRulesComponent — VFO1 toolbar (flag on)", () => {
   });
 
   it("scopes select-all to the rows the toolbar left visible", async () => {
-    const fixture = await render(true);
+    const fixture = await render();
 
     setFilters(fixture, { status: "enabled" });
     fixture.componentInstance["toggleAll"]();
@@ -1134,7 +1025,7 @@ describe("AccessRulesComponent — VFO1 toolbar (flag on)", () => {
   });
 
   it("keeps the toolbar rendered when the filters exclude every rule", async () => {
-    const fixture = await render(true);
+    const fixture = await render();
 
     setFilters(fixture, { search: "nothing matches" });
 
