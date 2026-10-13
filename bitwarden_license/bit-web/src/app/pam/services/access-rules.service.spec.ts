@@ -119,7 +119,6 @@ describe("AccessRulesService", () => {
 
       const changed = await service.setManyEnabled(rules, true);
 
-      // Only rule-1 needed enabling.
       expect(changed).toBe(1);
       expect(pamApi.updateAccessRule).toHaveBeenCalledTimes(1);
     });

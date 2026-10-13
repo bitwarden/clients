@@ -223,6 +223,8 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
   private chosenCipherSubject = new Subject<CipherViewLike | undefined>();
 
+  private credentialNotFoundDismissedSubject = new Subject<void>();
+
   /**
    * Whether this ceremony took over the app window to show UI. Some ceremonies
    * complete without any UI at all, and those must leave a window the user
@@ -796,12 +798,53 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   }
 
   /**
-   * Rejects so the OS learns the vault holds none of the requested credentials.
+   * Notifies the session that the user dismissed the "no passkeys found" message.
+   */
+  notifyCredentialNotFoundDismissed(): void {
+    this.credentialNotFoundDismissedSubject.next();
+    this.credentialNotFoundDismissedSubject.complete();
+  }
+
+  /**
+   * Shows the user that their vault holds none of the requested credentials,
+   * waits for them to dismiss the message, then rejects so the OS learns the
+   * reason too.
    *
-   * @throws {CredentialNotFound}
+   * A timeout still reports the missing credential. A cancelled request reports
+   * the cancellation instead.
+   *
+   * @throws {CredentialNotFound} once the message is dismissed or times out.
    */
   async informCredentialNotFound(): Promise<void> {
     this.logService.debug("informCredentialNotFound");
+
+    const abortSignal = this.abortController.signal;
+    abortSignal.throwIfAborted();
+
+    try {
+      await this.showUi("/fido2-credential-not-found", this.windowObject.windowXy, false);
+
+      const dismissTimeout = AbortSignal.timeout(60 * 1000);
+      await firstValueFrom(
+        this.credentialNotFoundDismissedSubject.pipe(
+          throwOnAbort(AbortSignal.any([abortSignal, dismissTimeout])),
+        ),
+      );
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "TimeoutError") {
+        this.logService.warning(
+          "Timeout: User did not dismiss the message within the allowed time",
+        );
+      } else {
+        if (abortSignal.aborted) {
+          this.logService.warning("Request was cancelled before the user dismissed the message");
+        }
+        throw error;
+      }
+    } finally {
+      await this.hideUi();
+    }
+
     throw new CredentialNotFound();
   }
 
