@@ -48,6 +48,7 @@ describe("access-audit event vocabulary", () => {
         "rotationReportRejected",
         "manualRotationDue",
         "manualRotationRecorded",
+        "rotationConfigUpdated",
         "accessConnectorRegistered",
         "accessConnectorRevoked",
         "accessConnectorDisabled",
@@ -61,6 +62,7 @@ describe("access-audit event vocabulary", () => {
         "targetSystemRenamed",
         "targetSystemPolicyUpdated",
         "targetSystemDeleted",
+        "targetSystemUpdated",
       ].sort(),
     );
   });
@@ -111,6 +113,10 @@ describe("access-audit event vocabulary", () => {
         "leasingFreezeEnabled",
         "leasingFreezeLifted",
         "accessConnectorRevoked",
+        "rotationSettingsUpdated",
+        "rotationAccountUpdated",
+        "targetSystemRenamed",
+        "targetSystemPolicyUpdated",
       ].sort(),
     );
   });
