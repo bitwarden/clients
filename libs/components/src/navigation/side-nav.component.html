@@ -35,14 +35,10 @@
       "
       (keydown)="handleKeyDown($event)"
     >
-      <!-- Reserve scrollbar gutters so classic (non-overlay) scrollbars never shift or squish the icons. -->
+      <!-- Collapsed only: reserve gutters so classic scrollbars never squish the rail icons. -->
       <div
         class="tw-flex-1 tw-min-h-0 tw-overflow-auto tw-overscroll-none tw-@container-[size]"
-        [class]="
-          open
-            ? '[scrollbar-gutter:stable]'
-            : '[scrollbar-gutter:stable_both-edges] [scrollbar-width:thin]'
-        "
+        [class]="open ? '' : '[scrollbar-gutter:stable_both-edges] [scrollbar-width:thin]'"
         id="bit-side-nav--scroll"
         (focusin)="scrollFocusedIntoView($event)"
       >
