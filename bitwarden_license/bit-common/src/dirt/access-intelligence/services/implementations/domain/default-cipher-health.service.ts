@@ -12,7 +12,7 @@ import {
 } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
-import { CipherHealthView } from "@bitwarden/common/dirt/vault-health/models";
+import { CipherHealthView } from "@bitwarden/common/dirt/models/view";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";

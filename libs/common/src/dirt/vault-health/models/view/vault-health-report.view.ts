@@ -1,7 +1,6 @@
 import { View } from "../../../../models/view/view";
+import { CipherHealthView } from "../../../models/view";
 import { RiskCategory } from "../risk-category";
-
-import { CipherHealthView } from "./cipher-health.view";
 
 type CategoryRecord<T> = Record<RiskCategory, T>;
 
