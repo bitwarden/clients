@@ -137,7 +137,7 @@ export class AccessRuleEditComponent {
   private readonly accessRuleId = this.route.snapshot.params.accessRuleId as
     AccessRuleId | undefined;
   /**
-   * Set by the list's "Make a copy", so the name field opens selected for a rename. Presence is the
+   * Set by the list's "Make a copy", so the name field opens focused for a rename. Presence is the
    * signal; the value is not read.
    */
   protected readonly renaming = this.route.snapshot.queryParams.renaming != null;
