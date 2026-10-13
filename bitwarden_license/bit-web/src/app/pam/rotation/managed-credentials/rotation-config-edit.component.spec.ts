@@ -12,6 +12,7 @@ import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.se
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, TabsModule, ToastService } from "@bitwarden/components";
 
+import { leaveThroughGuard } from "../../testing/unsaved-changes";
 import { OrgCiphersService } from "../org-ciphers.service";
 import type {
   RotationConfigView,
@@ -427,7 +428,7 @@ describe("RotationConfigEditComponent — target-system handoff", () => {
     });
     await fixture.whenStable();
 
-    await expect(component.confirmLeave()).resolves.toBe(true);
+    await expect(leaveThroughGuard(component)).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 
@@ -748,7 +749,7 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "error" }),
       );
-      await component.confirmLeave();
+      await leaveThroughGuard(component);
       expect(dialogService.openSimpleDialog).toHaveBeenCalled();
     });
 
@@ -771,12 +772,15 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
   });
 
   describe("cancel", () => {
-    it("leaves by the list route once the discard is confirmed, and does not ask again", async () => {
+    // The router runs the route's guard on the way out; that is where Cancel is asked about.
+    it("leaves by the list route, asking once on the way", async () => {
       const { component, fixture, dialogService } = setup({ configId: configId("cfg-1") });
       await fixture.whenStable();
       component.accountForm.controls.accountIdentity.setValue("svc_rotation");
       dialogService.openSimpleDialog.mockResolvedValue(true);
-      const nav = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+      const nav = jest
+        .spyOn(TestBed.inject(Router), "navigate")
+        .mockImplementation(() => leaveThroughGuard(component));
 
       await component.cancel();
 
@@ -787,7 +791,7 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
         "rotation",
         "managed-credentials",
       ]);
-      await expect(component.confirmLeave()).resolves.toBe(true);
+      await expect(nav.mock.results[0].value).resolves.toBe(true);
       expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
     });
 
@@ -796,37 +800,33 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
       await fixture.whenStable();
       component.accountForm.controls.accountIdentity.setValue("svc_rotation");
       dialogService.openSimpleDialog.mockResolvedValue(false);
-      const nav = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+      const nav = jest
+        .spyOn(TestBed.inject(Router), "navigate")
+        .mockImplementation(() => leaveThroughGuard(component));
 
       await component.cancel();
 
-      expect(nav).not.toHaveBeenCalled();
+      await expect(nav.mock.results[0].value).resolves.toBe(false);
+      expect(component.accountForm.controls.accountIdentity.value).toBe("svc_rotation");
     });
   });
 });
 
 describe("RotationConfigEditComponent — unsaved changes", () => {
-  const CREATE_DIALOG = {
-    title: { key: "pamRotationConfigDiscardTitle" },
-    content: { key: "pamDiscardContent" },
-    acceptButtonText: { key: "pamDiscardConfirm" },
-    cancelButtonText: { key: "cancel" },
-    type: "warning",
-  };
-
-  const EDIT_DIALOG = {
+  const DISCARD_DIALOG = {
     title: { key: "discardEditsTitle" },
     content: { key: "discardEditsConfirmation" },
     acceptButtonText: { key: "discardEdits" },
-    cancelButtonText: { key: "keepEditing" },
-    type: "warning",
+    cancelButtonText: { key: "backToEditing" },
+    type: "danger",
+    hideIcon: true,
   };
 
   it("leaves an untouched create form without asking", async () => {
     const { component, fixture, dialogService } = setup();
     await fixture.whenStable();
 
-    await expect(component.confirmLeave()).resolves.toBe(true);
+    await expect(leaveThroughGuard(component)).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 
@@ -839,7 +839,7 @@ describe("RotationConfigEditComponent — unsaved changes", () => {
       const { component, fixture, dialogService } = setup({ configId: configId("cfg-1") });
 
       expect(component.loading()).toBe(true);
-      await expect(component.confirmLeave()).resolves.toBe(true);
+      await expect(leaveThroughGuard(component)).resolves.toBe(true);
       expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
 
       await fixture.whenStable();
@@ -849,7 +849,7 @@ describe("RotationConfigEditComponent — unsaved changes", () => {
       const { component, fixture, dialogService } = setup();
 
       expect(component.loading()).toBe(true);
-      await expect(component.confirmLeave()).resolves.toBe(true);
+      await expect(leaveThroughGuard(component)).resolves.toBe(true);
       expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
 
       await fixture.whenStable();
@@ -859,13 +859,13 @@ describe("RotationConfigEditComponent — unsaved changes", () => {
     it("asks again once the load has settled and the operator has edited", async () => {
       const { component, fixture, dialogService } = setup({ configId: configId("cfg-1") });
 
-      await expect(component.confirmLeave()).resolves.toBe(true);
+      await expect(leaveThroughGuard(component)).resolves.toBe(true);
 
       await fixture.whenStable();
       component.accountForm.controls.accountIdentity.setValue("svc_rotation");
 
-      await expect(component.confirmLeave()).resolves.toBe(true);
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(EDIT_DIALOG);
+      await expect(leaveThroughGuard(component)).resolves.toBe(true);
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(DISCARD_DIALOG);
     });
   });
 
@@ -875,7 +875,7 @@ describe("RotationConfigEditComponent — unsaved changes", () => {
     component.createForm.controls.scheduleCron.setValue(null);
     component.createForm.controls.scheduleCron.markAsDirty();
 
-    await expect(component.confirmLeave()).resolves.toBe(true);
+    await expect(leaveThroughGuard(component)).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 
@@ -885,7 +885,7 @@ describe("RotationConfigEditComponent — unsaved changes", () => {
     component.settingsForm.controls.scheduleCron.setValue("0 0 0 * * ?");
     component.settingsForm.controls.scheduleCron.markAsDirty();
 
-    await expect(component.confirmLeave()).resolves.toBe(true);
+    await expect(leaveThroughGuard(component)).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 
@@ -894,8 +894,8 @@ describe("RotationConfigEditComponent — unsaved changes", () => {
     await fixture.whenStable();
     component.settingsForm.controls.scheduleCron.setValue("0 0 */4 * * ?");
 
-    await expect(component.confirmLeave()).resolves.toBe(true);
-    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(EDIT_DIALOG);
+    await expect(leaveThroughGuard(component)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(DISCARD_DIALOG);
   });
 
   it("asks about an abandoned new managed credential", async () => {
@@ -903,8 +903,8 @@ describe("RotationConfigEditComponent — unsaved changes", () => {
     await fixture.whenStable();
     component.createForm.controls.accountIdentity.setValue("admin@example.com");
 
-    await expect(component.confirmLeave()).resolves.toBe(true);
-    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(CREATE_DIALOG);
+    await expect(leaveThroughGuard(component)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(DISCARD_DIALOG);
   });
 
   it("asks about unsaved edits made in either card", async () => {
@@ -912,8 +912,8 @@ describe("RotationConfigEditComponent — unsaved changes", () => {
     await fixture.whenStable();
     component.accountForm.controls.accountIdentity.setValue("svc_rotation");
 
-    await expect(component.confirmLeave()).resolves.toBe(true);
-    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(EDIT_DIALOG);
+    await expect(leaveThroughGuard(component)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(DISCARD_DIALOG);
   });
 
   it("stays on the page when the operator keeps editing", async () => {
@@ -922,7 +922,7 @@ describe("RotationConfigEditComponent — unsaved changes", () => {
     dialogService.openSimpleDialog.mockResolvedValue(false);
     component.accountForm.controls.accountIdentity.setValue("svc_rotation");
 
-    await expect(component.confirmLeave()).resolves.toBe(false);
+    await expect(leaveThroughGuard(component)).resolves.toBe(false);
   });
 
   it("does not ask after a successful save", async () => {
@@ -932,7 +932,7 @@ describe("RotationConfigEditComponent — unsaved changes", () => {
 
     await component.submitEdit();
 
-    await expect(component.confirmLeave()).resolves.toBe(true);
+    await expect(leaveThroughGuard(component)).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 
@@ -943,7 +943,7 @@ describe("RotationConfigEditComponent — unsaved changes", () => {
 
     await component.removeRotation();
 
-    await expect(component.confirmLeave()).resolves.toBe(true);
+    await expect(leaveThroughGuard(component)).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
   });
 });

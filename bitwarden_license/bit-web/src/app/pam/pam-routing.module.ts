@@ -11,7 +11,7 @@ import { AccessNameResolverService } from "./access-requests/access-name-resolve
 import { AccessRuleEditComponent } from "./access-rules/access-rule-edit/access-rule-edit.component";
 import { AccessRulesComponent } from "./access-rules/access-rules.component";
 import { pamLandingRoute } from "./pam-landing-route";
-import { unsavedChangesGuard } from "./unsaved-changes.guard";
+import { unsavedChangesDialogGuard } from "./unsaved-changes.guard";
 
 const routes: Routes = [
   {
@@ -55,13 +55,13 @@ const routes: Routes = [
           {
             path: "new",
             component: AccessRuleEditComponent,
-            canDeactivate: [unsavedChangesGuard],
+            canDeactivate: [unsavedChangesDialogGuard],
             data: { titleId: "pamAccessRuleCreateTitle" },
           },
           {
             path: ":accessRuleId",
             component: AccessRuleEditComponent,
-            canDeactivate: [unsavedChangesGuard],
+            canDeactivate: [unsavedChangesDialogGuard],
             data: { titleId: "pamAccessRuleEditTitle" },
           },
         ],

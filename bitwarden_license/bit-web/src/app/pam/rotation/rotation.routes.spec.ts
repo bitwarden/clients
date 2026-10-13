@@ -1,6 +1,6 @@
 import { ActivatedRouteSnapshot, Route } from "@angular/router";
 
-import { unsavedChangesGuard } from "../unsaved-changes.guard";
+import { unsavedChangesDialogGuard } from "../unsaved-changes.guard";
 
 import { ROTATION_TABS } from "./rotation-links";
 import { rotationRoutes } from "./rotation.routes";
@@ -34,7 +34,7 @@ describe("rotationRoutes", () => {
     const tabRoute = () => routeAt(`${ROTATION_TABS.managedCredentials}/:configId/:tab`);
 
     it("holds an exit for unsaved input", () => {
-      expect(tabRoute().canDeactivate).toEqual([unsavedChangesGuard]);
+      expect(tabRoute().canDeactivate).toEqual([unsavedChangesDialogGuard]);
     });
 
     it("leaves the guard alone for a move between the page's own tabs", () => {
@@ -62,7 +62,7 @@ describe("rotationRoutes", () => {
     const tabRoute = () => routeAt(`${ROTATION_TABS.accessConnectors}/:accessConnectorId/:tab`);
 
     it("holds an exit for unsaved input", () => {
-      expect(tabRoute().canDeactivate).toEqual([unsavedChangesGuard]);
+      expect(tabRoute().canDeactivate).toEqual([unsavedChangesDialogGuard]);
     });
 
     it("leaves the guard alone for a move between the page's own tabs", () => {
@@ -89,7 +89,7 @@ describe("rotationRoutes", () => {
   it("guards the create page, which has no tab of its own to move between", () => {
     const create = routeAt(`${ROTATION_TABS.managedCredentials}/new`);
 
-    expect(create.canDeactivate).toEqual([unsavedChangesGuard]);
+    expect(create.canDeactivate).toEqual([unsavedChangesDialogGuard]);
     expect(create.runGuardsAndResolvers).toBeUndefined();
   });
 });
