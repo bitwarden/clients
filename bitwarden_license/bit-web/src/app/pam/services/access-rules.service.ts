@@ -13,7 +13,7 @@ import {
   AccessRuleView,
   accessRuleToCopyRequest,
   accessRuleToRequest,
-  rulesChangingEnabled,
+  filterRulesToToggle,
 } from "..";
 
 import { GovernedCollectionsService } from "./governed-collections.service";
@@ -90,7 +90,7 @@ export class AccessRulesService {
    * partial failure the toggles that landed are kept before the first error is rethrown.
    */
   async setManyEnabled(rules: AccessRuleView[], enabled: boolean): Promise<number> {
-    const targets = rulesChangingEnabled(rules, enabled);
+    const targets = filterRulesToToggle(rules, enabled);
     if (targets.length === 0) {
       return 0;
     }
