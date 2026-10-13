@@ -87,6 +87,7 @@ const KIND_LABEL_KEYS: Record<AccessAuditEventKind, string> = {
   [AccessAuditEventKind.RotationReportRejected]: "pamAuditKindRotationReportRejected",
   [AccessAuditEventKind.ManualRotationDue]: "pamAuditKindManualRotationDue",
   [AccessAuditEventKind.ManualRotationRecorded]: "pamAuditKindManualRotationRecorded",
+  [AccessAuditEventKind.RotationConfigUpdated]: "pamAuditKindRotationConfigUpdated",
   [AccessAuditEventKind.AccessConnectorRegistered]: "pamAuditKindAccessConnectorRegistered",
   [AccessAuditEventKind.AccessConnectorRevoked]: "pamAuditKindAccessConnectorRevoked",
   [AccessAuditEventKind.AccessConnectorDisabled]: "pamAuditKindAccessConnectorDeactivated",
@@ -101,6 +102,7 @@ const KIND_LABEL_KEYS: Record<AccessAuditEventKind, string> = {
   [AccessAuditEventKind.TargetSystemRenamed]: "pamAuditKindTargetRenamed",
   [AccessAuditEventKind.TargetSystemPolicyUpdated]: "pamAuditKindTargetPolicyUpdated",
   [AccessAuditEventKind.TargetSystemDeleted]: "pamAuditKindTargetDeleted",
+  [AccessAuditEventKind.TargetSystemUpdated]: "pamAuditKindTargetUpdated",
 };
 
 /** The fallback only serves a kind from a server running ahead of this client. */
@@ -109,9 +111,9 @@ export function auditKindLabelKey(kind: AccessAuditEventKind): string {
 }
 
 /**
- * Kinds no action emits: the seven the server marks "not emitted yet", plus
- * `AccessConnectorRevoked`. Stored rows still get a label, but the Event filter leaves these out,
- * since they match nothing.
+ * Kinds no action emits: the seven the server marks "not emitted yet", `AccessConnectorRevoked`,
+ * and the four update kinds that `RotationConfigUpdated` and `TargetSystemUpdated` replaced. Stored
+ * rows still get a label, but the Event filter leaves these out, since new events never match them.
  */
 export const UNEMITTED_AUDIT_KINDS: ReadonlySet<AccessAuditEventKind> = new Set([
   AccessAuditEventKind.RequestExpiredUnanswered,
@@ -122,6 +124,10 @@ export const UNEMITTED_AUDIT_KINDS: ReadonlySet<AccessAuditEventKind> = new Set(
   AccessAuditEventKind.LeasingFreezeEnabled,
   AccessAuditEventKind.LeasingFreezeLifted,
   AccessAuditEventKind.AccessConnectorRevoked,
+  AccessAuditEventKind.RotationSettingsUpdated,
+  AccessAuditEventKind.RotationAccountUpdated,
+  AccessAuditEventKind.TargetSystemRenamed,
+  AccessAuditEventKind.TargetSystemPolicyUpdated,
 ]);
 
 function isTimestamp(value: string | null): value is string {
