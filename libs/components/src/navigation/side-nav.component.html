@@ -10,6 +10,61 @@
 ></ng-template>
 <ng-template #navContent><ng-content></ng-content></ng-template>
 <ng-template #footerContent><ng-content select="[slot=footer]"></ng-content></ng-template>
+<!-- Collapsed: outside the scroller so dividers span its gutters; open: sticky inside it. -->
+<ng-template #headerBand>
+  <div
+    #headerWrapper
+    data-testid="side-nav-header"
+    class="tw-flex tw-pb-3 tw-justify-between tw-items-center tw-border-0 tw-border-solid tw-border-b tw-border-border-nav-divider tw-bg-bg-nav"
+    [class]="
+      open
+        ? 'tw-px-3 [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-top-0 [@container_(min-height:600px)]:tw-z-20'
+        : railPadding
+    "
+    [class.tw-pt-3]="!isOverlay"
+    [class.tw-flex-col]="!open"
+    [class.tw-gap-1]="!open"
+    [class.tw-gap-2]="open"
+    [style.padding-top]="
+      isOverlay ? 'calc(0.75rem + var(--bit-sidenav-extra-top-padding, 0px))' : null
+    "
+  >
+    <ng-container *ngTemplateOutlet="logoContent"></ng-container>
+    <button
+      #toggleButton
+      type="button"
+      [bitIconButton]="open ? 'bwi-collapse-nav' : 'bwi-expand-nav'"
+      buttonType="side-nav"
+      size="small"
+      (click)="sideNavService.toggle()"
+      [label]="'toggleSideNavigation' | i18n"
+      [attr.aria-expanded]="open"
+      aria-controls="bit-side-nav"
+    ></button>
+  </div>
+</ng-template>
+<ng-template #footerBand>
+  <div
+    #footerWrapper
+    class="tw-w-full tw-bg-bg-nav"
+    [class]="
+      open
+        ? '[@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-bottom-0 [@container_(min-height:600px)]:tw-z-10'
+        : ''
+    "
+  >
+    <div
+      data-footer
+      class="tw-py-3 tw-flex tw-flex-col tw-gap-2 tw-border-solid tw-border-0 tw-border-t tw-border-border-nav-divider empty:tw-hidden"
+      [class]="open ? 'tw-px-3' : railPadding"
+    >
+      @if (open) {
+        <ng-content select="[slot=callout]"></ng-content>
+      }
+      <ng-content select="[slot=account]"></ng-content>
+    </div>
+  </div>
+</ng-template>
 
 @if (version === "vfo1") {
   <div
@@ -22,7 +77,7 @@
     <div
       id="bit-side-nav"
       [attr.data-nav-version]="version"
-      class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overflow-hidden tw-bg-bg-nav tw-text-fg-nav tw-outline-none"
+      class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overflow-hidden tw-bg-bg-nav tw-text-fg-nav tw-outline-none tw-group/side-nav"
       [style.width.rem]="
         sideNavService.dragDisplayWidth() ?? (open ? sideNavService.widthRem() : closedWidthRem)
       "
@@ -35,32 +90,9 @@
       "
       (keydown)="handleKeyDown($event)"
     >
-      <!-- Outside the scroller so its divider spans the scrollbar gutters. -->
-      <div
-        data-testid="side-nav-header"
-        class="tw-flex tw-shrink-0 tw-pb-3 tw-justify-between tw-items-center tw-border-0 tw-border-solid tw-border-b tw-border-border-nav-divider"
-        [class]="open ? 'tw-px-3' : railPadding"
-        [class.tw-pt-3]="!isOverlay"
-        [class.tw-flex-col]="!open"
-        [class.tw-gap-1]="!open"
-        [class.tw-gap-2]="open"
-        [style.padding-top]="
-          isOverlay ? 'calc(0.75rem + var(--bit-sidenav-extra-top-padding, 0px))' : null
-        "
-      >
-        <ng-container *ngTemplateOutlet="logoContent"></ng-container>
-        <button
-          #toggleButton
-          type="button"
-          [bitIconButton]="open ? 'bwi-collapse-nav' : 'bwi-expand-nav'"
-          buttonType="side-nav"
-          size="small"
-          (click)="sideNavService.toggle()"
-          [label]="'toggleSideNavigation' | i18n"
-          [attr.aria-expanded]="open"
-          aria-controls="bit-side-nav"
-        ></button>
-      </div>
+      @if (!open) {
+        <ng-container *ngTemplateOutlet="headerBand"></ng-container>
+      }
       <!-- Collapsed only: reserve gutters so classic scrollbars never squish the rail icons. -->
       <div
         class="tw-flex-1 tw-min-h-0 tw-overflow-auto tw-overscroll-none tw-@container-[size]"
@@ -68,8 +100,11 @@
         id="bit-side-nav--scroll"
         (focusin)="scrollFocusedIntoView($event)"
       >
-        <div class="tw-flex tw-flex-col tw-min-h-full tw-group/side-nav">
+        <div class="tw-flex tw-flex-col tw-min-h-full">
           <nav class="tw-flex-1" [attr.aria-label]="'sideNavigation' | i18n">
+            @if (open) {
+              <ng-container *ngTemplateOutlet="headerBand"></ng-container>
+            }
             <!-- Switcher keeps its wider 48px collapsed column. -->
             <div
               class="tw-w-full tw-bg-bg-nav tw-pt-2"
@@ -85,23 +120,14 @@
               <ng-container *ngTemplateOutlet="navContent"></ng-container>
             </div>
           </nav>
-          <div
-            #footerWrapper
-            class="tw-w-full tw-bg-bg-nav [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-bottom-0 [@container_(min-height:600px)]:tw-z-10"
-          >
-            <div
-              data-footer
-              class="tw-py-3 tw-flex tw-flex-col tw-gap-2 tw-border-solid tw-border-0 tw-border-t tw-border-border-nav-divider empty:tw-hidden"
-              [class]="open ? 'tw-px-3' : railPadding"
-            >
-              @if (open) {
-                <ng-content select="[slot=callout]"></ng-content>
-              }
-              <ng-content select="[slot=account]"></ng-content>
-            </div>
-          </div>
+          @if (open) {
+            <ng-container *ngTemplateOutlet="footerBand"></ng-container>
+          }
         </div>
       </div>
+      @if (!open) {
+        <ng-container *ngTemplateOutlet="footerBand"></ng-container>
+      }
     </div>
     <div
       cdkDrag
