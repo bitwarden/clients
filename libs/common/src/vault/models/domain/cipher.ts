@@ -88,6 +88,8 @@ export class Cipher extends Domain {
   key?: EncString;
   /** @deprecated Opaque sealed blob (blob format only), not public API. Never parse or construct it. See {@link Cipher}. */
   data?: string;
+  /** Raw JSON-string partial-data envelope for PAM-gated rows; see {@link CipherData.partialData}. */
+  partialData?: string;
 
   constructor(obj?: CipherData, localData?: LocalData) {
     super();
@@ -116,6 +118,7 @@ export class Cipher extends Domain {
     this.reprompt = obj.reprompt;
     this.key = conditionalEncString(obj.key);
     this.data = obj.data;
+    this.partialData = obj.partialData;
 
     switch (this.type) {
       case CipherType.Login:
@@ -159,6 +162,15 @@ export class Cipher extends Domain {
     }
   }
 
+  /**
+   * @returns `true` when this is a PAM-gated ("partial") row, whose sensitive fields the server
+   *   suppressed in favour of the {@link partialData} envelope. The decrypted-side equivalent is
+   *   `CipherViewLikeUtils.isPartial`.
+   */
+  get isPartial(): boolean {
+    return this.partialData != null;
+  }
+
   toCipherData(): CipherData {
     const c = new CipherData();
     c.id = this.id;
@@ -193,6 +205,7 @@ export class Cipher extends Domain {
     }
 
     c.archivedDate = this.archivedDate != null ? this.archivedDate.toISOString() : undefined;
+    c.partialData = this.partialData;
 
     this.buildDataModel(this, c, {
       name: null,
@@ -275,6 +288,8 @@ export class Cipher extends Domain {
     if (obj.permissions != null) {
       domain.permissions = new CipherPermissionsApi(obj.permissions);
     }
+
+    domain.partialData = obj.partialData;
 
     domain.collectionIds = obj.collectionIds;
     domain.localData = obj.localData;
@@ -389,6 +404,7 @@ export class Cipher extends Domain {
       driversLicense: undefined,
       passport: undefined,
       data: this.data,
+      partialData: this.partialData,
     };
 
     switch (this.type) {
@@ -481,6 +497,7 @@ export class Cipher extends Domain {
     cipher.archivedDate = sdkCipher.archivedDate ? new Date(sdkCipher.archivedDate) : undefined;
     cipher.reprompt = sdkCipher.reprompt;
     cipher.data = sdkCipher.data;
+    cipher.partialData = sdkCipher.partialData;
 
     // Cipher type specific properties
     cipher.login = Login.fromSdkLogin(sdkCipher.login);
