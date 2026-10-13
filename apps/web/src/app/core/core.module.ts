@@ -167,6 +167,7 @@ import {
   SshImportPromptService,
   VAULT_NAV_ORGANIZATION_OPTIONS,
   VaultNavService,
+  VFO1_FILTERS_STEP,
   VFO1_SHARED_FOLDERS_STEP,
   VFO1_SWITCH_PRODUCTS_STEP,
   VFO1_VAULT_LIST_STEP,
@@ -636,7 +637,12 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: VFO1_WALKTHROUGH_STEPS,
-    useValue: [VFO1_SWITCH_PRODUCTS_STEP, VFO1_VAULT_LIST_STEP, VFO1_SHARED_FOLDERS_STEP],
+    useValue: [
+      VFO1_SWITCH_PRODUCTS_STEP,
+      VFO1_VAULT_LIST_STEP,
+      VFO1_SHARED_FOLDERS_STEP,
+      VFO1_FILTERS_STEP,
+    ],
   }),
   safeProvider({
     provide: SHARE_PASSWORD_REPROMPT,

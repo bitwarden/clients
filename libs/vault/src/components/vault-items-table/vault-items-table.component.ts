@@ -55,6 +55,7 @@ import {
   IconTileComponent,
   IconTileOptions,
   LinkModule,
+  PopoverService,
   SearchModule,
   SelectionConfig,
   SkeletonTextComponent,
@@ -84,6 +85,8 @@ import {
   MY_VAULT,
   NO_FOLDER,
 } from "../../utils/vault-filter-predicates";
+import { CoachmarkComponent } from "../coachmark/coachmark.component";
+import { CoachmarkService } from "../coachmark/coachmark.service";
 import { EmptyVaultComponent } from "../empty-vault/empty-vault.component";
 import { VaultItem } from "../vault-item";
 import {
@@ -223,6 +226,7 @@ function chipItem(id: string, label: string, startIcon: BitwardenIcon): ChipGrou
     BitTableV2Component,
     ButtonModule,
     ChipGroupComponent,
+    CoachmarkComponent,
     EmptyVaultComponent,
     FilterMenuModule,
     I18nPipe,
@@ -819,6 +823,27 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * memoized search result has to be computed outside the per-row call.
    */
   private readonly tableComponent = viewChild(BitTableV2Component<C>);
+
+  private readonly coachmark = inject(CoachmarkService);
+  private readonly popoverService = inject(PopoverService);
+  private readonly toolbar = viewChild(BitTableToolbarComponent);
+  private readonly filtersCoachmark = viewChild<CoachmarkComponent>("filtersCoachmark");
+
+  /** Spotlights the small-screen filter button while the walkthrough's filter step is active. */
+  private readonly showFiltersCoachmark = effect((onCleanup) => {
+    const popover = this.filtersCoachmark()?.popover();
+    const toolbar = this.toolbar();
+    if (!popover || !toolbar || !this.coachmark.isStepActive("filters")) {
+      return;
+    }
+
+    const ref = this.popoverService.open(popover, toolbar.filterButton, {
+      spotlight: true,
+      closeOnBackdropClick: false,
+      position: this.coachmark.getStepPosition("filters"),
+    });
+    onCleanup(() => ref.close());
+  });
 
   /**
    * Registers the table's `TableSelectionModel<C>` as the batch bar's selection source, so checking
