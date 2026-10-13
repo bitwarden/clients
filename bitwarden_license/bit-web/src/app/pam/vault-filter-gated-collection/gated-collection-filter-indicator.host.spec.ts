@@ -14,8 +14,8 @@ import {
   VaultFilterServiceAbstraction as VaultFilterService,
   VaultFilterSection,
   VaultFilterType,
+  CoachmarkService,
 } from "@bitwarden/vault";
-import { CoachmarkService } from "@bitwarden/web-vault/app/vault/components/coachmark";
 import { VAULT_FILTER_GATED_COLLECTION_INDICATOR } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/shared/components/pam/vault-filter-gated-collection-indicator.token";
 import { VaultFilterSectionComponent } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/shared/components/vault-filter-section.component";
 
