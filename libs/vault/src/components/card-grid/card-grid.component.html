@@ -64,13 +64,7 @@
         <bit-icon-tile slot="start" [icon]="folder.icon"></bit-icon-tile>
         {{ folder.name }}
         @if (folder.nestedCount > 0) {
-          <span slot="secondary">
-            {{
-              folder.nestedCount === 1
-                ? (nestedKeys()?.singular ?? "" | i18n)
-                : (nestedKeys()?.plural ?? "" | i18n: folder.nestedCount)
-            }}
-          </span>
+          <span slot="secondary">{{ nestedLabel(folder.nestedCount) }}</span>
         }
         <bit-icon slot="end" name="bwi-angle-right" class="tw-text-2xl" />
       </a>
