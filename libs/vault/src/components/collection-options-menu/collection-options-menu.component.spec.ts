@@ -208,7 +208,7 @@ describe("CollectionOptionsMenuComponent", () => {
   it("opens the collection dialog on the Info tab and emits a non-delete result", async () => {
     await setup();
     const emitted = jest.fn();
-    component.actionResult.subscribe(emitted);
+    fixture.componentRef.setInput("onActionResult", emitted);
 
     await component["editCollection"](CollectionDialogTab.Info);
 
@@ -227,7 +227,7 @@ describe("CollectionOptionsMenuComponent", () => {
   it("opens the collection dialog on the Access tab and emits a non-delete result", async () => {
     await setup();
     const emitted = jest.fn();
-    component.actionResult.subscribe(emitted);
+    fixture.componentRef.setInput("onActionResult", emitted);
 
     await component["editCollection"](CollectionDialogTab.Access);
 
@@ -247,7 +247,7 @@ describe("CollectionOptionsMenuComponent", () => {
     await setup();
     collectionDialog.open.mockResolvedValue(CollectionDialogOutcome.Deleted);
     const emitted = jest.fn();
-    component.actionResult.subscribe(emitted);
+    fixture.componentRef.setInput("onActionResult", emitted);
 
     await component["editCollection"](CollectionDialogTab.Access);
 
@@ -262,7 +262,7 @@ describe("CollectionOptionsMenuComponent", () => {
     const org = organization();
     await setup({ organization: org });
     const emitted = jest.fn();
-    component.actionResult.subscribe(emitted);
+    fixture.componentRef.setInput("onActionResult", emitted);
 
     await component["delete"]();
 
@@ -281,7 +281,7 @@ describe("CollectionOptionsMenuComponent", () => {
     await setup();
     bulkDeleteDialog.open.mockResolvedValue(BulkDeleteDialogResult.Canceled);
     const emitted = jest.fn();
-    component.actionResult.subscribe(emitted);
+    fixture.componentRef.setInput("onActionResult", emitted);
 
     await component["delete"]();
 

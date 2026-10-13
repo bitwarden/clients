@@ -15,7 +15,7 @@
       aria-hidden="true"
     />
   }
-  @if (collectionMenuFolder(); as collection) {
+  @if (currentCollection(); as collection) {
     <vault-collection-options-menu
       slot="title-suffix"
       [collection]="collection"
@@ -23,7 +23,7 @@
       [showPin]="true"
       triggerIcon="bwi-angle-down"
       idPrefix="vault-next"
-      (actionResult)="onCollectionActionResult($event)"
+      [onActionResult]="onCollectionActionResult"
     />
   }
 </app-header>

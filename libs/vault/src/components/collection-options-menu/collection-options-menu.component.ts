@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { firstValueFrom, switchMap } from "rxjs";
 
@@ -76,7 +76,10 @@ export class CollectionOptionsMenuComponent {
    * menu sets this `false` since it already provides that token for an unrelated bulk-select bar. */
   readonly showDelete = input<boolean>(true);
 
-  readonly actionResult = output<CollectionActionResult>();
+  /** Called with what `editCollection()` or `delete()` did. A plain callback, not `output()`:
+   * an output silently no-ops once its host is destroyed, and the host here can be destroyed by
+   * the very same state change (e.g. a delete) that its own result needs to report. */
+  readonly onActionResult = input<(result: CollectionActionResult) => void>();
 
   /** Exposed so the template can name a tab by member rather than a bare string. */
   protected readonly CollectionDialogTab = CollectionDialogTab;
@@ -138,7 +141,7 @@ export class CollectionOptionsMenuComponent {
     const collectionId = collection.id;
     const outcome = await this.collectionDialog?.open({ organizationId, collectionId, initialTab });
     if (outcome != null) {
-      this.actionResult.emit({
+      this.onActionResult()?.({
         deleted: outcome === CollectionDialogOutcome.Deleted,
         organizationId,
         collectionId,
@@ -154,7 +157,7 @@ export class CollectionOptionsMenuComponent {
     }
     const result = await this.bulkDeleteDialog?.open({ organization, collections: [collection] });
     if (result != null) {
-      this.actionResult.emit({
+      this.onActionResult()?.({
         deleted: result === BulkDeleteDialogResult.Deleted,
         organizationId: organization.id,
         collectionId: collection.id,

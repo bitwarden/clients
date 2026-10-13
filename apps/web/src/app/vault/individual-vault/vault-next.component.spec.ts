@@ -926,7 +926,7 @@ describe("VaultNextComponent", () => {
               return CollectionDialogOutcome.Saved;
             });
 
-            // The real child, so the `(actionResult)` template binding gets exercised too.
+            // The real child, so the `[onActionResult]` template binding gets exercised too.
             const menu = fixture.debugElement.query(By.directive(CollectionOptionsMenuComponent))
               .componentInstance as CollectionOptionsMenuComponent;
             void menu["editCollection"](CollectionDialogTab.Info);
@@ -937,14 +937,15 @@ describe("VaultNextComponent", () => {
             });
           }));
 
-          it("still navigates when change detection tears down and rebuilds the `@if` mid-dialog, not just the signal graph beneath it", fakeAsync(() => {
+          it("still navigates through the real child's callback even if change detection destroys it mid-dialog", fakeAsync(() => {
             collections$.next([manageableFolder()]);
             fixture.detectChanges();
 
             collectionDialog.open.mockImplementation(async () => {
-              // Unlike the interleaving test above, a real change-detection pass runs here — if the
-              // menu weren't bound to a sticky signal, this would destroy it and its `actionResult`
-              // emit below would silently no-op instead of navigating.
+              // Unlike the interleaving test above, a real change-detection pass runs here,
+              // destroying the `@if` (and the menu inside it) before this promise resolves —
+              // confirming `onActionResult` still works post-destroy, unlike an `output()`, which
+              // would silently no-op instead of navigating.
               collections$.next([]);
               fixture.detectChanges();
               return CollectionDialogOutcome.Saved;
@@ -955,6 +956,9 @@ describe("VaultNextComponent", () => {
             void menu["editCollection"](CollectionDialogTab.Info);
             tick();
 
+            expect(
+              fixture.debugElement.query(By.directive(CollectionOptionsMenuComponent)),
+            ).toBeNull();
             expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
               replaceUrl: true,
             });

@@ -18,7 +18,6 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import {
   CollectionData,
   CollectionDetailsResponse,
-  CollectionView,
 } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -412,46 +411,6 @@ export class VaultNextComponent implements OnInit {
     return id == null ? undefined : this.scopedCollections().find((c) => c.id === id);
   });
 
-  /**
-   * Keeps resolving to the last folder found for the current {@link scopedCollectionId} even after
-   * {@link currentCollection} goes null for it — e.g. once a delete or self-unassignment lands.
-   * The template binds the menu to this, not to {@link currentCollection} directly: otherwise the
-   * `@if` would destroy `CollectionOptionsMenuComponent` out from under its own in-flight dialog,
-   * and a signal-based output silently drops an `emit()` call made after its host is destroyed —
-   * dropping the navigate-away in {@link onCollectionActionResult}, which reads the live,
-   * non-sticky {@link currentCollection} to tell a real disappearance from this staleness.
-   * Cleared once a different (or no) folder is confirmed in view, so it can't leak into one that
-   * never resolves (still loading, or one this viewer never had access to).
-   */
-  private readonly lastResolvedCollection = signal<
-    { id: CollectionId; collection: CollectionView } | undefined
-  >(undefined);
-
-  private readonly trackLastResolvedCollection = effect(() => {
-    const id = this.scopedCollectionId();
-    const found = this.currentCollection();
-    untracked(() => {
-      if (id != null && found != null) {
-        this.lastResolvedCollection.set({ id, collection: found });
-      } else if (this.lastResolvedCollection()?.id !== id) {
-        this.lastResolvedCollection.set(undefined);
-      }
-    });
-  });
-
-  protected readonly collectionMenuFolder = computed(() => {
-    const id = this.scopedCollectionId();
-    if (id == null) {
-      return undefined;
-    }
-    const found = this.currentCollection();
-    if (found != null) {
-      return found;
-    }
-    const cached = this.lastResolvedCollection();
-    return cached?.id === id ? cached.collection : undefined;
-  });
-
   protected readonly currentOrganization = computed(() => {
     const orgId = this.scopedOrganizationId();
     return orgId == null ? undefined : this.organizations().find((o) => o.id === orgId);
@@ -749,12 +708,17 @@ export class VaultNextComponent implements OnInit {
    * Navigates away whenever the folder is now gone — not just on an explicit delete, since saving
    * Access can itself drop the member's own assignment. No-ops if the viewer has since moved to a
    * different folder (e.g. Back/Forward while the dialog was open), since the result is stale.
+   *
+   * Bound as an input on the menu, so it must be a stable reference rather than a method — see
+   * {@link itemAction}. The menu may already be destroyed by the time this runs (its own result
+   * is what can make {@link currentCollection} go null), but that's fine: this doesn't touch the
+   * menu, only the signals and router this component itself owns.
    */
-  protected async onCollectionActionResult({
+  protected readonly onCollectionActionResult = async ({
     deleted,
     organizationId,
     collectionId,
-  }: CollectionActionResult): Promise<void> {
+  }: CollectionActionResult): Promise<void> => {
     if (
       this.scopedOrganizationId() === organizationId &&
       this.scopedCollectionId() === collectionId &&
@@ -762,7 +726,7 @@ export class VaultNextComponent implements OnInit {
     ) {
       await this.router.navigate(sharedFoldersCommands(organizationId), { replaceUrl: true });
     }
-  }
+  };
 
   protected async openImport(): Promise<void> {
     if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
