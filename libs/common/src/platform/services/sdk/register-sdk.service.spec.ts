@@ -81,7 +81,7 @@ describe("DefaultRegisterSdkService", () => {
     describe("given the user is logged in", () => {
       const userId = "0da62ebd-98bb-4f42-a846-64e8555087d7" as UserId;
       beforeEach(() => {
-        environmentService.getEnvironment$
+        environmentService.userEnvironment$
           .calledWith(userId)
           .mockReturnValue(new BehaviorSubject(mock<Environment>()));
         accountService.accounts$ = of({
@@ -165,7 +165,7 @@ describe("DefaultRegisterSdkService", () => {
       const userId = "0da62ebd-98bb-4f42-a846-64e8555087d7" as UserId;
 
       beforeEach(() => {
-        environmentService.getEnvironment$
+        environmentService.userEnvironment$
           .calledWith(userId)
           .mockReturnValue(new BehaviorSubject(mock<Environment>()));
         accountService.accounts$ = of({});

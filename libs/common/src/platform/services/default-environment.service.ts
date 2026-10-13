@@ -230,7 +230,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
     return this.availableRegions().find((r) => r.key === region);
   }
 
-  async setEnvironment(region: Region, urls?: Urls): Promise<Urls> {
+  async setGlobalEnvironment(region: Region, urls?: Urls): Promise<Urls> {
     // Unknown regions are treated as self-hosted
     if (this.getRegionConfig(region) == null) {
       region = Region.SelfHosted;
@@ -313,22 +313,12 @@ export class DefaultEnvironmentService implements EnvironmentService {
     }
   }
 
-  getEnvironment$(userId: UserId): Observable<Environment> {
+  userEnvironment$(userId: UserId): Observable<Environment> {
     return this.stateProvider.getUser(userId, USER_ENVIRONMENT_KEY).state$.pipe(
       map((state) => {
         return this.buildEnvironment(state?.region, state?.urls);
       }),
     );
-  }
-
-  /**
-   * @deprecated Use getEnvironment$ instead.
-   */
-  async getEnvironment(userId?: UserId): Promise<Environment | undefined> {
-    // Add backwards compatibility support for null userId
-    const definedUserId = userId ?? (await firstValueFrom(this.activeAccountId$));
-
-    return firstValueFrom(this.getEnvironment$(definedUserId));
   }
 
   async seedUserEnvironment(userId: UserId) {

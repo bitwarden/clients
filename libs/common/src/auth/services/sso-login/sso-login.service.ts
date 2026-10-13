@@ -164,7 +164,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
    * Makes an `SsoRequiredCacheEntry` object based on the user's email and resolved webVaultUrl
    */
   private async makeEntry(email: string, userId: UserId): Promise<SsoRequiredCacheEntry> {
-    const env = await firstValueFrom(this.environmentService.getEnvironment$(userId));
+    const env = await firstValueFrom(this.environmentService.userEnvironment$(userId));
     const webVaultUrl = env.getWebVaultUrl();
 
     return { email: email.toLowerCase(), webVaultUrl };

@@ -54,7 +54,7 @@ describe("AccountSwitcherService", () => {
     authService.authStatuses$ = authStatusSubject;
 
     envBSubject = new BehaviorSubject<Environment | undefined>(mockEnv as Environment);
-    environmentService.getEnvironment$.mockReturnValue(envBSubject);
+    environmentService.userEnvironment$.mockReturnValue(envBSubject);
 
     accountSwitcherService = new AccountSwitcherService(
       accountService,

@@ -2,8 +2,10 @@
 // @ts-strict-ignore
 import { Component, DestroyRef, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, lastValueFrom, map } from "rxjs";
+import { combineLatest, firstValueFrom, lastValueFrom, map } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -58,6 +60,7 @@ export class SendComponent {
   private i18nService = inject(I18nService);
   private platformUtilsService = inject(PlatformUtilsService);
   private environmentService = inject(EnvironmentService);
+  private accountService = inject(AccountService);
   private sendApiService = inject(SendApiService);
   private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
@@ -142,7 +145,8 @@ export class SendComponent {
   }
 
   protected async onCopySend(send: SendView): Promise<void> {
-    const env = await this.environmentService.getEnvironment();
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const env = await firstValueFrom(this.environmentService.userEnvironment$(userId));
     const link = env.getSendUrl() + send.accessId + "/" + send.urlB64Key;
     this.platformUtilsService.copyToClipboard(link);
     this.toastService.showToast({

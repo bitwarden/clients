@@ -51,7 +51,7 @@ describe("SSOLoginService ", () => {
     mockPolicyService = mock<PolicyService>();
     mockEnvironmentService = mock<EnvironmentService>();
 
-    mockEnvironmentService.getEnvironment$.mockReturnValue(
+    mockEnvironmentService.userEnvironment$.mockReturnValue(
       of({ getWebVaultUrl: () => webVaultUrl } as Environment),
     );
 
@@ -220,7 +220,7 @@ describe("SSOLoginService ", () => {
         await sut.updateSsoRequiredCache(email, userId);
 
         // Assert
-        expect(mockEnvironmentService.getEnvironment$).toHaveBeenCalledWith(userId);
+        expect(mockEnvironmentService.userEnvironment$).toHaveBeenCalledWith(userId);
       });
     });
 
@@ -265,7 +265,7 @@ describe("SSOLoginService ", () => {
         await sut.updateSsoRequiredCache(email, userId);
 
         // Assert
-        expect(mockEnvironmentService.getEnvironment$).toHaveBeenCalledWith(userId);
+        expect(mockEnvironmentService.userEnvironment$).toHaveBeenCalledWith(userId);
       });
     });
 
@@ -361,13 +361,13 @@ describe("SSOLoginService ", () => {
       await sut.removeFromSsoRequiredCacheIfPresent(email, userId);
 
       // Assert
-      expect(mockEnvironmentService.getEnvironment$).toHaveBeenCalledWith(userId);
+      expect(mockEnvironmentService.userEnvironment$).toHaveBeenCalledWith(userId);
     });
 
     it("should NOT remove an entry when the email matches but the resolved webVaultUrl differs", async () => {
       // Arrange
       const euUrl = "https://vault.bitwarden.eu";
-      mockEnvironmentService.getEnvironment$.mockReturnValue(
+      mockEnvironmentService.userEnvironment$.mockReturnValue(
         of({ getWebVaultUrl: () => euUrl } as Environment),
       );
       mockStateProvider.global
