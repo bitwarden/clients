@@ -6,6 +6,7 @@ import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
 import { CidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/cidr-validation.service";
 import { DefaultCidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/default-cidr-validation.service";
 import { AccessRulesSdkService } from "./services/access-rules-sdk.service";
+import { GovernedCollectionsService } from "./services/governed-collections.service";
 
 import { AccessRuleSdkService } from ".";
 
@@ -28,6 +29,12 @@ export function providePam(): SafeProvider[] {
       provide: CidrValidationService,
       useClass: DefaultCidrValidationService,
       deps: [],
+    }),
+    // Root-level so the banner and repeated dialog opens share one cached per-org rules read.
+    safeProvider({
+      provide: GovernedCollectionsService,
+      useClass: GovernedCollectionsService,
+      deps: [AccessRuleSdkService, LogService],
     }),
   ];
 }

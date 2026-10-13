@@ -1,4 +1,5 @@
 import { importProvidersFrom } from "@angular/core";
+import { provideAnimations } from "@angular/platform-browser/animations";
 import { provideRouter, RouterOutlet, Routes, withHashLocation } from "@angular/router";
 import {
   applicationConfig,
@@ -9,13 +10,16 @@ import {
   StoryObj,
 } from "@storybook/angular";
 import { of } from "rxjs";
+import { getByText, userEvent } from "storybook/test";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ToastService } from "@bitwarden/components";
+import { DialogModule, DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AccessRuleSdkService, AccessRuleView } from "../..";
+import { GovernedCollectionsService } from "../../services/governed-collections.service";
 
 import { AccessRuleEditComponent } from "./access-rule-edit.component";
 import { CidrValidationService } from "./ip-allowlist/cidr-validation.service";
@@ -66,6 +70,28 @@ const routes: Routes = [
   },
 ];
 
+/** A minimal rule; only the collections it claims matter. */
+const governingRule = (name: string, enabled: boolean, collections: string[]) =>
+  ({
+    id: `rule-${name}`,
+    name,
+    enabled,
+    collections,
+    conditions: [],
+    singleActiveLease: false,
+  }) as unknown as AccessRuleView;
+
+/** Drives the picker's governed-collection filter. */
+const governedBy = (rules: AccessRuleView[]): Decorator =>
+  moduleMetadata({
+    providers: [
+      {
+        provide: GovernedCollectionsService,
+        useValue: { rules$: () => of(rules), invalidate: () => {} },
+      },
+    ],
+  });
+
 /** Renders the story at `url`; hash routing keeps Storybook's own query string intact. */
 const atUrl =
   (url: string): Decorator =>
@@ -92,7 +118,16 @@ export default {
           provide: CollectionAdminService,
           useValue: { collectionAdminViews$: () => of(ORG_COLLECTIONS) },
         },
+        {
+          provide: GovernedCollectionsService,
+          useValue: { rules$: () => of([]), invalidate: () => {} },
+        },
         { provide: CidrValidationService, useValue: { isValid: () => true } },
+        {
+          provide: OrganizationService,
+          useValue: { organizations$: () => of([{ id: "org-1", canAccessEventLogs: true }]) },
+        },
+        { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },
       ],
     }),
   ],
@@ -109,7 +144,113 @@ export const CreateFromTemplate: Story = {
   decorators: [atUrl("/organizations/org-1/access-rules/new?template=approval-required")],
 };
 
-/** Edit mode: the form is populated from an existing rule (conditions + extensions enabled). */
+/** Only `col-2` is offered; `col-1`'s rule is disabled but still counts, as on the server. */
+export const CreateWithGovernedCollections: Story = {
+  decorators: [
+    atUrl("/organizations/org-1/access-rules/new"),
+    governedBy([
+      governingRule("Disabled rule", false, ["col-1"]),
+      governingRule("Enabled rule", true, ["col-3"]),
+    ]),
+  ],
+};
+
+/** `rule-1` governs its own collections, which stay selectable. */
 export const Edit: Story = {
-  decorators: [atUrl("/organizations/org-1/access-rules/rule-1")],
+  decorators: [atUrl("/organizations/org-1/access-rules/rule-1"), governedBy([SAMPLE_RULE])],
+};
+
+/** The header badge reads "Off" and the Status checkbox is clear. */
+export const EditInactive: Story = {
+  decorators: [
+    atUrl("/organizations/org-1/access-rules/rule-1"),
+    moduleMetadata({
+      providers: [
+        {
+          provide: AccessRuleSdkService,
+          useValue: {
+            ...pamApi,
+            getAccessRule: () => Promise.resolve({ ...SAMPLE_RULE, enabled: false }),
+          } satisfies Partial<AccessRuleSdkService>,
+        },
+      ],
+    }),
+  ],
+};
+
+/** Edit mode, so the form is already valid and Save goes straight to the failure callout. */
+export const SaveError: Story = {
+  decorators: [
+    atUrl("/organizations/org-1/access-rules/rule-1"),
+    moduleMetadata({
+      providers: [
+        {
+          provide: AccessRuleSdkService,
+          useValue: {
+            ...pamApi,
+            updateAccessRule: () =>
+              Promise.reject(new Error("The access rule service is unavailable.")),
+          } satisfies Partial<AccessRuleSdkService>,
+        },
+      ],
+    }),
+  ],
+  play: async (context) => {
+    await userEvent.click(getByText(context.canvasElement, "Save"));
+  },
+};
+
+/**
+ * A recognised rejection shows on the field it names, without a retry, since resending the same
+ * collections would fail the same way.
+ */
+export const SaveErrorOnField: Story = {
+  decorators: [
+    atUrl("/organizations/org-1/access-rules/rule-1"),
+    moduleMetadata({
+      providers: [
+        {
+          provide: AccessRuleSdkService,
+          useValue: {
+            ...pamApi,
+            updateAccessRule: () =>
+              Promise.reject(
+                Object.assign(
+                  new Error("One or more collections are already governed by another access rule."),
+                  { name: "AccessRuleError", variant: "Api" },
+                ),
+              ),
+          } satisfies Partial<AccessRuleSdkService>,
+        },
+      ],
+    }),
+  ],
+  play: async (context) => {
+    await userEvent.click(getByText(context.canvasElement, "Save"));
+  },
+};
+
+/** Submits the empty create form, where name and collections are required. */
+export const ValidationSummary: Story = {
+  play: async (context) => {
+    await userEvent.click(getByText(context.canvasElement, "Save"));
+  },
+};
+
+/**
+ * Typing dirties the form, so Cancel asks first. `DialogModule` replaces the default
+ * {@link DialogService} stub so the dialog renders.
+ */
+export const DiscardConfirmation: Story = {
+  decorators: [
+    applicationConfig({ providers: [provideAnimations()] }),
+    moduleMetadata({ imports: [DialogModule] }),
+  ],
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    const name = canvas.querySelector("#access-rule-edit_input_name") as HTMLInputElement;
+
+    await userEvent.type(name, "Half-finished rule");
+    await userEvent.click(getByText(canvas, "Cancel"));
+  },
 };
