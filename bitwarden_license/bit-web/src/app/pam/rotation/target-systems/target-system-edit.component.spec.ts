@@ -40,10 +40,7 @@ import {
   targetSystemSealedFields,
 } from "../testing/rotation-builders";
 
-import {
-  TargetSystemEditComponent,
-  targetSystemEditDiscardGuard,
-} from "./target-system-edit.component";
+import { TargetSystemEditComponent } from "./target-system-edit.component";
 
 // JSDOM has no ResizeObserver
 class ResizeObserverStub {
@@ -463,14 +460,7 @@ describe("TargetSystemEditComponent — create mode", () => {
     createFormOf(fixture).markAsDirty();
     await component.submitCreate();
 
-    await expect(
-      targetSystemEditDiscardGuard(
-        fixture.componentInstance,
-        null as never,
-        null as never,
-        null as never,
-      ) as Promise<boolean>,
-    ).resolves.toBe(true);
+    await expect(fixture.componentInstance.confirmLeave()).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 
@@ -1131,7 +1121,7 @@ describe("TargetSystemEditComponent — system id (rendered)", () => {
   });
 });
 
-describe("TargetSystemEditComponent — discard guard", () => {
+describe("TargetSystemEditComponent — unsaved changes", () => {
   let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
   let dialogService: ReturnType<typeof mock<DialogService>>;
   let router: Router;
@@ -1151,15 +1141,6 @@ describe("TargetSystemEditComponent — discard guard", () => {
     cancelButtonText: { key: "keepEditing" },
     type: "warning",
   };
-
-  function runGuard(component: TargetSystemEditComponent): Promise<boolean> {
-    return targetSystemEditDiscardGuard(
-      component,
-      null as never,
-      null as never,
-      null as never,
-    ) as Promise<boolean>;
-  }
 
   async function mount(mode: "create" | "edit") {
     rotationSdk = mock<RotationSdkService>();
@@ -1183,7 +1164,7 @@ describe("TargetSystemEditComponent — discard guard", () => {
   it("leaves an untouched create form without asking", async () => {
     const fixture = await mount("create");
 
-    await expect(runGuard(fixture.componentInstance)).resolves.toBe(true);
+    await expect(fixture.componentInstance.confirmLeave()).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 
@@ -1193,7 +1174,7 @@ describe("TargetSystemEditComponent — discard guard", () => {
 
     createFormOf(fixture).controls.name.markAsDirty();
 
-    await expect(runGuard(fixture.componentInstance)).resolves.toBe(true);
+    await expect(fixture.componentInstance.confirmLeave()).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(CREATE_DIALOG);
   });
 
@@ -1203,7 +1184,7 @@ describe("TargetSystemEditComponent — discard guard", () => {
 
     policyFormOf(fixture).controls.minLength.markAsDirty();
 
-    await expect(runGuard(fixture.componentInstance)).resolves.toBe(true);
+    await expect(fixture.componentInstance.confirmLeave()).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(CREATE_DIALOG);
   });
 
@@ -1213,7 +1194,7 @@ describe("TargetSystemEditComponent — discard guard", () => {
 
     nameFormOf(fixture).controls.name.markAsDirty();
 
-    await expect(runGuard(fixture.componentInstance)).resolves.toBe(true);
+    await expect(fixture.componentInstance.confirmLeave()).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(EDIT_DIALOG);
   });
 
@@ -1226,7 +1207,7 @@ describe("TargetSystemEditComponent — discard guard", () => {
     nameFormOf(fixture).markAsDirty();
     await (fixture.componentInstance as unknown as { cancel: () => Promise<void> }).cancel();
 
-    await expect(runGuard(fixture.componentInstance)).resolves.toBe(false);
+    await expect(fixture.componentInstance.confirmLeave()).resolves.toBe(false);
     expect(nav).not.toHaveBeenCalled();
     expect(nameFormOf(fixture).getRawValue().name).toBe("Half typed");
   });
@@ -1241,7 +1222,7 @@ describe("TargetSystemEditComponent — discard guard", () => {
       fixture.componentInstance as unknown as { submitEdit: () => Promise<void> }
     ).submitEdit();
 
-    await expect(runGuard(fixture.componentInstance)).resolves.toBe(true);
+    await expect(fixture.componentInstance.confirmLeave()).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 
@@ -1262,7 +1243,7 @@ describe("TargetSystemEditComponent — discard guard", () => {
     ).submitCreate();
 
     expect(rotationSdk.createTargetSystem).toHaveBeenCalled();
-    await expect(runGuard(fixture.componentInstance)).resolves.toBe(true);
+    await expect(fixture.componentInstance.confirmLeave()).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 });
@@ -1542,14 +1523,7 @@ describe("TargetSystemEditComponent — assigned access connectors", () => {
       await component.stageAssign([optionFor(free)]);
 
       expect(nameFormOf(fixture).dirty).toBe(true);
-      await expect(
-        targetSystemEditDiscardGuard(
-          fixture.componentInstance,
-          null as never,
-          null as never,
-          null as never,
-        ) as Promise<boolean>,
-      ).resolves.toBe(true);
+      await expect(fixture.componentInstance.confirmLeave()).resolves.toBe(true);
       expect(dialogService.openSimpleDialog).toHaveBeenCalled();
     });
 

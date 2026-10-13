@@ -11,7 +11,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { ActivatedRoute, CanDeactivateFn, Router, RouterLink } from "@angular/router";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
@@ -75,6 +75,7 @@ import {
 } from "../..";
 import { discardConfirmOptions } from "../../helpers/discard-confirm";
 import { GovernedCollectionsService } from "../../services/governed-collections.service";
+import { HasUnsavedChanges } from "../../unsaved-changes.guard";
 import { ACCESS_RULE_TEMPLATES } from "../access-rule-templates";
 
 import { CidrValidationService } from "./ip-allowlist/cidr-validation.service";
@@ -117,7 +118,7 @@ import {
     ContainerComponent,
   ],
 })
-export class AccessRuleEditComponent {
+export class AccessRuleEditComponent implements HasUnsavedChanges {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly formBuilder = inject(FormBuilder);
@@ -533,7 +534,7 @@ export class AccessRuleEditComponent {
    * Called by Cancel and by the route's CanDeactivate guard, which covers the breadcrumb and
    * browser back and forward.
    */
-  async confirmDiscard(): Promise<boolean> {
+  async confirmLeave(): Promise<boolean> {
     if (!this.formGroup.dirty) {
       return true;
     }
@@ -544,7 +545,7 @@ export class AccessRuleEditComponent {
   }
 
   protected readonly cancel = async (): Promise<void> => {
-    if (!(await this.confirmDiscard())) {
+    if (!(await this.confirmLeave())) {
       return;
     }
 
@@ -587,6 +588,3 @@ export class AccessRuleEditComponent {
     return this.router.navigate([".."], { relativeTo: this.route });
   }
 }
-
-export const accessRuleEditDiscardGuard: CanDeactivateFn<AccessRuleEditComponent> = (component) =>
-  component.confirmDiscard();

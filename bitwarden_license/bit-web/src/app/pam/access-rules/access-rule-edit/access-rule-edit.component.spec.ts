@@ -1346,7 +1346,7 @@ describe("AccessRuleEditComponent — form states", () => {
       controls().name.markAsDirty();
       dialog.openSimpleDialog.mockResolvedValue(false);
 
-      await expect(component.confirmDiscard()).resolves.toBe(false);
+      await expect(component.confirmLeave()).resolves.toBe(false);
       expect(dialog.openSimpleDialog).toHaveBeenCalled();
     });
 
@@ -1358,7 +1358,7 @@ describe("AccessRuleEditComponent — form states", () => {
       await component["submit"]();
 
       expect(navigate).toHaveBeenCalledWith([".."], expect.objectContaining({}));
-      await expect(component.confirmDiscard()).resolves.toBe(true);
+      await expect(component.confirmLeave()).resolves.toBe(true);
       expect(dialog.openSimpleDialog).not.toHaveBeenCalled();
     });
 
@@ -1370,7 +1370,7 @@ describe("AccessRuleEditComponent — form states", () => {
       await component["remove"]();
 
       expect(navigate).toHaveBeenCalledWith([".."], expect.objectContaining({}));
-      await expect(component.confirmDiscard()).resolves.toBe(true);
+      await expect(component.confirmLeave()).resolves.toBe(true);
       // Only the delete confirmation itself; no discard prompt on the way out.
       expect(dialog.openSimpleDialog).toHaveBeenCalledTimes(1);
     });
@@ -1380,7 +1380,7 @@ describe("AccessRuleEditComponent — form states", () => {
       controls().name.setValue("Half-finished rule");
       controls().name.markAsDirty();
       navigate.mockImplementation(async () => {
-        expect(await component.confirmDiscard()).toBe(true);
+        expect(await component.confirmLeave()).toBe(true);
         return true;
       });
 
