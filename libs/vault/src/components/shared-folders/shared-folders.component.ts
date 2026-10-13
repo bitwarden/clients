@@ -1,12 +1,17 @@
+import { TemplatePortal } from "@angular/cdk/portal";
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
+  TemplateRef,
   TrackByFunction,
   untracked,
   viewChild,
+  ViewContainerRef,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
@@ -39,6 +44,7 @@ import {
   IconButtonModule,
   IconModule,
   IconTileComponent,
+  LayoutFooterService,
   LinkModule,
   MenuModule,
   SearchModule,
@@ -63,6 +69,11 @@ import {
   CollectionDialogRef,
   CollectionDialogTab,
 } from "../../tokens/collection-dialog.token";
+import {
+  BULK_BAR_CLEARANCE,
+  VAULT_TABLE_MIN_HEIGHT,
+  VAULT_TABLE_ROW_HEIGHT,
+} from "../vault-table-sizing";
 
 import { injectVaultOrganizationId } from "./inject-vault-organization";
 import {
@@ -132,7 +143,11 @@ export type SharedFoldersTableFilters = {
   templateUrl: "./shared-folders.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: "tw-flex tw-flex-col tw-h-full tw-min-h-0",
+    class: "tw-flex tw-flex-col tw-flex-1 tw-min-h-0",
+    // Inline rather than a `tw-min-h-*` utility: it has to beat the `tw-min-h-0` above, which
+    // otherwise lets the flex parent shrink the table to nothing.
+    "[style.minHeight.px]": "minTableHeight",
+    "[style.marginBottom.px]": "bulkBarClearance()",
   },
   imports: [
     BitCellComponent,
@@ -165,6 +180,11 @@ export class SharedFoldersComponent {
   private readonly cipherService = inject(CipherService);
   private readonly collectionService = inject(CollectionService);
   private readonly organizationService = inject(OrganizationService);
+  private readonly layoutFooter = inject(LayoutFooterService);
+  private readonly viewContainerRef = inject(ViewContainerRef);
+  private readonly destroyRef = inject(DestroyRef);
+
+  private readonly bulkBarTemplate = viewChild.required<TemplateRef<unknown>>("bulkBar");
 
   /** The projected table, for the selection model it owns — see {@link reconcileSelection}. */
   private readonly tableComponent = viewChild(BitTableV2Component<SharedFolderRow>);
@@ -229,13 +249,21 @@ export class SharedFoldersComponent {
 
   protected readonly trackById: TrackByFunction<SharedFolderRow> = (_index, row) => row.id;
 
+  protected readonly rowHeight = VAULT_TABLE_ROW_HEIGHT;
+  protected readonly minTableHeight = VAULT_TABLE_MIN_HEIGHT;
+
   /**
    * The selected rows, read off the table's own model so a bulk action can be handed the rows it
-   * acts on. Read rather than mirrored through `selectedChange`, so it empties with the model when
-   * selection turns off — see {@link selection}. The bar reads its own count off the table.
+   * acts on, and the bar its count — it sits outside the table. Read rather than mirrored through
+   * `selectedChange`, so it empties with the model when selection turns off — see {@link selection}.
    */
   protected readonly selectedRows = computed<readonly SharedFolderRow[]>(
     () => this.tableComponent()?.selectionModel()?.selected() ?? [],
+  );
+
+  /** Bottom margin held while the bulk-actions bar is up. */
+  protected readonly bulkBarClearance = computed(() =>
+    this.selectedRows().length > 0 ? BULK_BAR_CLEARANCE : 0,
   );
 
   /**
@@ -360,6 +388,21 @@ export class SharedFoldersComponent {
       }
       untracked(() => this.reconcileSelection(model, rows));
     });
+
+    // The bar is `position: fixed`, but inline it would sit inside the layout's <main>, whose
+    // `contain: strict` makes it the containing block — so the hidden bar, translated below the
+    // fold, would add scroll height to the page. The layout's footer region, a sibling of <main>,
+    // escapes that. Matches `bit-vault-batch-action`.
+    afterNextRender(() => {
+      const portal = new TemplatePortal(this.bulkBarTemplate(), this.viewContainerRef);
+      this.layoutFooter.attach(portal);
+      this.destroyRef.onDestroy(() => this.layoutFooter.detach(portal));
+    });
+  }
+
+  /** Clears the table's selection, for the bulk actions bar's dismiss. */
+  protected clearSelection(): void {
+    this.tableComponent()?.selectionModel()?.clear();
   }
 
   protected async addSharedFolder(): Promise<void> {

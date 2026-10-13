@@ -1,3 +1,6 @@
+import { PortalModule } from "@angular/cdk/portal";
+import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, convertToParamMap, provideRouter } from "@angular/router";
@@ -22,6 +25,7 @@ import {
   BitTableV2Component,
   DialogService,
   FilterControl,
+  LayoutFooterService,
   MenuTriggerForDirective,
 } from "@bitwarden/components";
 
@@ -139,8 +143,20 @@ type SetupOptions = {
   };
 };
 
+/** Stands in for the layout's footer region, where the component renders its bulk actions bar. */
+@Component({
+  selector: "test-footer-outlet",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [PortalModule],
+  template: `<ng-template [cdkPortalOutlet]="footerPortal()"></ng-template>`,
+})
+class FooterOutletComponent {
+  protected readonly footerPortal = inject(LayoutFooterService).portal;
+}
+
 describe("SharedFoldersComponent", () => {
   let fixture: ComponentFixture<SharedFoldersComponent>;
+  let footerFixture: ComponentFixture<FooterOutletComponent>;
   let component: SharedFoldersComponent;
   let collections$: BehaviorSubject<CollectionView[]>;
   let ciphers$: BehaviorSubject<CipherView[] | null>;
@@ -148,6 +164,21 @@ describe("SharedFoldersComponent", () => {
   let collectionDialog: MockProxy<CollectionDialogRef>;
   let bulkDeleteDialog: MockProxy<BulkDeleteDialogRef>;
   let bulkEditAccessDialog: MockProxy<BulkEditCollectionAccessDialogRef>;
+
+  // CDK's CdkVirtualScrollViewport.ngOnInit() defers initialization in a Promise.resolve().then(),
+  // which never resolves during synchronous fixture.detectChanges() calls in JSDOM. Patch it to
+  // run synchronously so the scroll strategy attaches and sets the rendered range before
+  // CdkVirtualForOf.ngDoCheck() runs, allowing rows to appear in the same detectChanges() call.
+  const originalNgOnInit = CdkVirtualScrollViewport.prototype.ngOnInit;
+  beforeAll(() => {
+    CdkVirtualScrollViewport.prototype.ngOnInit = function (this: CdkVirtualScrollViewport) {
+      (this as any)["_measureViewportSize"]();
+      (this as any)["_scrollStrategy"].attach(this);
+    };
+  });
+  afterAll(() => {
+    CdkVirtualScrollViewport.prototype.ngOnInit = originalNgOnInit;
+  });
 
   async function setup(options: SetupOptions = {}): Promise<void> {
     const {
@@ -204,8 +235,17 @@ describe("SharedFoldersComponent", () => {
       ],
     }).compileComponents();
 
+    footerFixture = TestBed.createComponent(FooterOutletComponent);
     fixture = TestBed.createComponent(SharedFoldersComponent);
     component = fixture.componentInstance;
+  }
+
+  /** The bulk actions bar, as rendered into the layout's footer region. */
+  function bulkBar(): HTMLElement | null {
+    // Runs the `afterNextRender` that hands the bar to the footer, then renders the footer.
+    TestBed.tick();
+    footerFixture.detectChanges();
+    return footerFixture.nativeElement.querySelector("bit-bulk-actions-bar");
   }
 
   afterEach(() => {
@@ -757,6 +797,21 @@ describe("SharedFoldersComponent", () => {
       return model;
     }
 
+    it("holds room below the table for the bar while rows are selected", async () => {
+      await setup({ collections: [collection()] });
+      fixture.detectChanges();
+      const host: HTMLElement = fixture.nativeElement;
+      expect(host.style.marginBottom).toBe("0px");
+
+      selectionModel().select(row("col-1"));
+      fixture.detectChanges();
+      expect(host.style.marginBottom).toBe("53px");
+
+      selectionModel().clear();
+      fixture.detectChanges();
+      expect(host.style.marginBottom).toBe("0px");
+    });
+
     it("leaves selection off for a client with neither bulk dialog", async () => {
       await setup({
         collections: [collection()],
@@ -765,7 +820,7 @@ describe("SharedFoldersComponent", () => {
       fixture.detectChanges();
 
       expect(bitTable().selectionModel()).toBeUndefined();
-      expect(fixture.nativeElement.querySelector("bit-bulk-actions-bar")).toBeNull();
+      expect(bulkBar()).toBeNull();
     });
 
     it("leaves selection off when the member can act on none of the listed folders", async () => {
@@ -773,7 +828,7 @@ describe("SharedFoldersComponent", () => {
       fixture.detectChanges();
 
       expect(bitTable().selectionModel()).toBeUndefined();
-      expect(fixture.nativeElement.querySelector("bit-bulk-actions-bar")).toBeNull();
+      expect(bulkBar()).toBeNull();
     });
 
     it("turns on multi-select and renders the bar once an action applies", async () => {
@@ -783,16 +838,32 @@ describe("SharedFoldersComponent", () => {
       selectionModel().select(...bitTable().filtered());
 
       expect(selectionModel().count()).toBe(2);
-      const bar: HTMLElement = fixture.nativeElement.querySelector("bit-bulk-actions-bar");
+      const bar = bulkBar()!;
       expect(bar.textContent).toContain("editAccess");
       expect(bar.textContent).toContain("delete");
+    });
+
+    it("shows the selected count on the bar and clears the selection on dismiss", async () => {
+      await setup({ collections: [collection({ id: "a" }), collection({ id: "b" })] });
+      fixture.detectChanges();
+
+      selectionModel().select(...bitTable().filtered());
+      fixture.detectChanges();
+
+      const bar = bulkBar()!;
+      expect(bar.textContent).toContain("2");
+
+      bar.querySelector<HTMLButtonElement>("button[icon='bwi-clear']")!.click();
+      fixture.detectChanges();
+
+      expect(selectionModel().count()).toBe(0);
     });
 
     it("drops Delete for a client with no bulk delete dialog", async () => {
       await setup({ collections: [collection()], dialogs: { bulkDelete: false } });
       fixture.detectChanges();
 
-      const bar: HTMLElement = fixture.nativeElement.querySelector("bit-bulk-actions-bar");
+      const bar = bulkBar()!;
       expect(bar.textContent).toContain("editAccess");
       expect(bar.textContent).not.toContain("delete");
     });
@@ -856,7 +927,7 @@ describe("SharedFoldersComponent", () => {
 
       // The bar removes itself at a count of zero, so a stale count would leave it announcing a
       // selection that no longer exists — and with no rows left, the bar goes with them.
-      expect(fixture.nativeElement.querySelector("bit-bulk-actions-bar")).toBeNull();
+      expect(bulkBar()).toBeNull();
     });
 
     it("hands Edit access the selected folders' collections", async () => {
@@ -934,8 +1005,8 @@ describe("SharedFoldersComponent", () => {
     });
   });
 
-  describe("pagination", () => {
-    it("renders every folder on one page, with no paginator", async () => {
+  describe("virtual scroll", () => {
+    it("renders only the rows in the scroll window, with no paginator", async () => {
       await setup({
         collections: Array.from({ length: 60 }, (_, i) =>
           collection({ id: `col-${i}`, name: `Folder ${i}` }),
@@ -943,7 +1014,10 @@ describe("SharedFoldersComponent", () => {
       });
       fixture.detectChanges();
 
-      expect(fixture.debugElement.queryAll(By.css("bit-row"))).toHaveLength(60);
+      const rendered = fixture.debugElement.queryAll(By.css("bit-row")).length;
+      expect(rendered).toBeGreaterThan(0);
+      expect(rendered).toBeLessThan(60);
+      expect(fixture.nativeElement.querySelector("cdk-virtual-scroll-viewport")).not.toBeNull();
       expect(fixture.nativeElement.querySelector("bit-table-paginator")).toBeNull();
     });
   });
