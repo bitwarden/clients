@@ -19,8 +19,8 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
   translate: (id: string) => id,
 };
 
-// Stand-in for the SDK-backed CIDR check; these specs don't assert CIDR-format validity, so
-// treating every non-empty row as valid keeps seeded IP-allowlist forms submittable.
+// Stand-in for the SDK-backed CIDR check; accepting every row keeps seeded IP-allowlist forms
+// submittable.
 const cidrValidationStub: CidrValidationService = { isValid: () => true };
 
 // Preset durations offered by the pickers, in seconds.
@@ -115,7 +115,6 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     updateAccessRule: jest.Mock;
   };
 
-  // The org's collections, as returned by the admin-console service.
   const ORG_COLLECTIONS = [
     { id: "col-1", name: "Engineering" },
     { id: "col-2", name: "Design" },
@@ -150,7 +149,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
     const fixture = TestBed.createComponent(AccessRuleEditComponent);
     component = fixture.componentInstance;
-    // Let the constructor-driven initialize() (rule fetch + collection load) settle.
+    // Lets the constructor's rule fetch and collection load settle.
     await fixture.whenStable();
   };
 
@@ -164,7 +163,6 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     } as unknown as AccessRuleView);
 
     expect(controls().collections.value.map((i) => i.id)).toEqual(["col-1", "col-3"]);
-    // Chips show real names, not raw UUIDs.
     expect(controls().collections.value.map((i) => i.labelName)).toEqual([
       "Engineering",
       "Finance",
@@ -196,8 +194,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
       { id: "col-2", listName: "Design", labelName: "Design", icon: "bwi-collection-shared" },
     ] satisfies SelectItemView[]);
     controls().ipAllowlistEnabled.setValue(true);
-    // The FormArray is seeded via the component helper (a FormArray can't be resized with
-    // setValue), mirroring how the editor and load path populate rows.
+    // Seeded through the component helper, since `setValue` can't resize a FormArray.
     component["setIpAllowlistCidrs"](["10.0.0.0/8", "", "192.168.0.0/16"]);
 
     await component["submit"]();
@@ -210,9 +207,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
   });
 
   it("carries forward condition kinds this client doesn't model when editing a rule", async () => {
-    // `time_of_day` isn't a kind this client's checkboxes model (only
-    // human_approval/ip_allowlist are); it stands in for any future server-side
-    // condition kind the SDK passes through unrecognised.
+    // `time_of_day` stands in for any condition kind the SDK passes through unrecognised.
     const existingRule = {
       id: "rule-1",
       name: "Existing rule",
@@ -235,7 +230,6 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     expect(request.conditions).toEqual(
       expect.arrayContaining([{ kind: "time_of_day", tz: "UTC", windows: [] }]),
     );
-    // The known condition is still rebuilt from its checkbox as normal.
     expect(request.conditions).toEqual(expect.arrayContaining([{ kind: "human_approval" }]));
   });
 
@@ -257,7 +251,6 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
   it("does not submit when required fields are missing", async () => {
     await setup({});
 
-    // No name, no collections.
     await component["submit"]();
 
     expect(pamApi.createAccessRule).not.toHaveBeenCalled();
@@ -323,7 +316,6 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
         message: "pamAccessRuleCollectionsLoadError",
       }),
     );
-    // The load settled (spinner cleared) even though it failed.
     expect(component["collectionsLoading"]()).toBe(false);
   });
 
