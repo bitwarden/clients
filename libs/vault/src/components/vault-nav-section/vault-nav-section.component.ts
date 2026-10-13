@@ -26,6 +26,7 @@ import {
   isPersonalOnly,
   MY_ITEMS_ROUTE,
   sharedFoldersCommands,
+  showsVaultsSection,
   vaultScopeCommands,
   VaultScopeType,
 } from "../../models/vault-scope";
@@ -184,6 +185,12 @@ export class VaultNavSectionComponent {
   protected readonly personalOnly = computed(() => {
     const nav = this.vaultNav();
     return nav != null && isPersonalOnly(nav);
+  });
+
+  /** Whether to render the Vaults header over the list of vaults. */
+  protected readonly showsVaultsSection = computed(() => {
+    const nav = this.vaultNav();
+    return nav != null && showsVaultsSection(nav);
   });
 
   protected vaultRoute(vault: VaultNavItemViewModel): string[] | undefined {

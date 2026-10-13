@@ -122,7 +122,7 @@
         size="sm"
       />
     </bit-nav-item>
-  } @else if (nav.organizationDataOwnership || nav.vaults.length > 1) {
+  } @else if (showsVaultsSection()) {
     <div
       [bitPopoverAnchorFor]="vaultListCoachmark.popover()"
       [popoverOpen]="coachmark.isStepActive('vaultList')"
@@ -130,14 +130,12 @@
       [closeOnBackdropClick]="false"
       [spotlight]="coachmark.isStepActive('vaultList')"
     >
-      @if (nav.organizationDataOwnership) {
+      <bit-nav-section [label]="'vaults' | i18n">
         <ng-container [ngTemplateOutlet]="vaultGroups"></ng-container>
-      } @else {
-        <bit-nav-section [label]="'vaults' | i18n">
-          <ng-container [ngTemplateOutlet]="vaultGroups"></ng-container>
-        </bit-nav-section>
-      }
+      </bit-nav-section>
     </div>
+  } @else if (nav.organizationDataOwnership) {
+    <ng-container [ngTemplateOutlet]="vaultGroups"></ng-container>
   }
 }
 
