@@ -1,14 +1,14 @@
 <!--
   Two rows: the search and any `slot=end` dev controls share the top row; the
   filter chips get their own row beneath. The filter row is the unit that collapses
-  into a single trigger + dialog on small screens (responsive view).
+  into a single trigger + dialog.
 -->
 <div class="tw-relative tw-flex tw-flex-col">
   <div [class]="searchRowClasses()">
-    <div [class]="searchClasses()">
+    <div class="tw-flex tw-min-w-0 tw-flex-1 @table-toolbar:tw-max-w-[25rem]">
       <ng-content select="bit-search"></ng-content>
     </div>
-    <!-- Below md the chip row collapses into this single trigger + applied-count berry. -->
+    <!-- Collapsed, the chip row is replaced by this single trigger + applied-count berry. -->
     @if (showFilterTrigger()) {
       <div class="tw-relative tw-flex-none">
         <button
@@ -26,7 +26,9 @@
         }
       </div>
     }
-    <div [class]="endSlotClasses()">
+    <div
+      class="tw-flex tw-w-full tw-items-center tw-gap-3 empty:tw-hidden [&>*]:tw-flex-1 @table-toolbar:tw-ms-auto @table-toolbar:tw-w-auto @table-toolbar:[&>*]:tw-flex-initial"
+    >
       @if (canCustomizeColumns()) {
         <button
           type="button"
@@ -43,9 +45,8 @@
     </div>
   </div>
   <!--
-    Wide-viewport filter row: the projected chips and the item count. Hidden (not
-    removed) below md so the chips stay instantiated to back the dialog and the
-    small-screen active-filter chips below.
+    The filter row: the projected chips and the item count. Hidden (not removed) while
+    collapsed so the chips stay instantiated to back the dialog and the active-filter chips below.
   -->
   <div #filterRow bitOverflowList [gap]="8" [items]="overflowItems()" [class]="filterRowClasses()">
     <ng-content select="bit-filter-menu, bit-filter-toggle, bit-filter-divider"></ng-content>
@@ -84,7 +85,7 @@
     }
   </div>
   <!--
-    Below md, a second row of just the active filters — dismissible chips that clear
+    Collapsed, a second row of just the active filters — dismissible chips that clear
     on click. Rendered only when there's at least one (no empty row, no item count).
   -->
   @if (collapsed() && activeFilters().length) {

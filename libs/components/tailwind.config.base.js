@@ -404,6 +404,10 @@ module.exports = {
       ...theme("colors"),
     }),
     extend: {
+      containers: {
+        // `bit-table-toolbar`'s inline layout; keep in sync with its `WIDE_TOOLBAR_MIN_WIDTH`.
+        "table-toolbar": "37.5rem",
+      },
       width: {
         "50vw": "50vw",
         "75vw": "75vw",
