@@ -30,7 +30,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 import { CalloutModule, SearchModule, TypographyModule } from "@bitwarden/components";
 
-import { CIPHER_VIEW_BANNER } from "../tokens/cipher-view-banner.token";
+import { CIPHER_VIEW_BANNER, CipherViewBanner } from "../tokens/cipher-view-banner.token";
 
 import { AdditionalOptionsComponent } from "./additional-options/additional-options.component";
 import { AttachmentsV2ViewComponent } from "./attachments/attachments-v2-view.component";
@@ -79,7 +79,9 @@ export class CipherViewComponent {
   readonly cipher = input.required<CipherView>();
 
   /** Host-provided banner above the cipher's details; null when unprovided. */
-  protected readonly bannerComponent = inject(CIPHER_VIEW_BANNER, { optional: true });
+  protected readonly bannerComponent: CipherViewBanner | null = inject(CIPHER_VIEW_BANNER, {
+    optional: true,
+  });
 
   /**
    * Observable version of the cipher input
