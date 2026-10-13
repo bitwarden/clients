@@ -43,8 +43,9 @@ export class SpotlightService {
    * @param target - The element to highlight
    */
   showSpotlight(target: HTMLElement): void {
-    const resolvedTarget =
-      (target.querySelector("[data-spotlight-target]") as HTMLElement | null) ?? target;
+    const resolvedTarget = target.matches("[data-spotlight-target]")
+      ? target
+      : ((target.querySelector("[data-spotlight-target]") as HTMLElement | null) ?? target);
 
     if (this.hideTimeout !== null) {
       clearTimeout(this.hideTimeout);
