@@ -6,6 +6,10 @@ import { SafeInjectionToken } from "@bitwarden/ui-common";
 
 export const MY_REQUESTS_FILTER_ID = "my-requests";
 export const PRIVILEGED_FILTER_ID = "privileged";
+export const PENDING_FILTER_ID = "pending";
+export const READY_FILTER_ID = "ready";
+export const ACTIVE_FILTER_ID = "active";
+export const UNAVAILABLE_FILTER_ID = "unavailable";
 
 /** One child of the "Controlled access" group, already localized by the host that supplies it. */
 export type ControlledAccessFilterOption = {
@@ -22,6 +26,12 @@ export type ControlledAccessFilterOption = {
 export abstract class VaultControlledAccessFilter {
   /** The group's children. An empty array hides the group. */
   abstract readonly options$: Observable<ControlledAccessFilterOption[]>;
+
+  /**
+   * The vault table chip's options, when they differ from the sidebar's {@link options$}. Unset,
+   * the chip offers {@link options$}.
+   */
+  readonly tableOptions$?: Observable<ControlledAccessFilterOption[]>;
 
   /**
    * The subset of `ciphers` matching the selected option. An id {@link options$} does not offer
