@@ -37,10 +37,7 @@ import {
   unverifiableRotationConfig,
 } from "../testing/rotation-builders";
 
-import {
-  RotationConfigEditComponent,
-  rotationConfigEditDiscardGuard,
-} from "./rotation-config-edit.component";
+import { RotationConfigEditComponent } from "./rotation-config-edit.component";
 
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
   t: (id: string) => id,
@@ -430,7 +427,7 @@ describe("RotationConfigEditComponent — target-system handoff", () => {
     });
     await fixture.whenStable();
 
-    await expect(component.confirmDiscard()).resolves.toBe(true);
+    await expect(component.confirmLeave()).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 
@@ -751,7 +748,7 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "error" }),
       );
-      await component.confirmDiscard();
+      await component.confirmLeave();
       expect(dialogService.openSimpleDialog).toHaveBeenCalled();
     });
 
@@ -790,7 +787,7 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
         "rotation",
         "managed-credentials",
       ]);
-      await expect(component.confirmDiscard()).resolves.toBe(true);
+      await expect(component.confirmLeave()).resolves.toBe(true);
       expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
     });
 
@@ -808,7 +805,7 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
   });
 });
 
-describe("RotationConfigEditComponent — discard guard", () => {
+describe("RotationConfigEditComponent — unsaved changes", () => {
   const CREATE_DIALOG = {
     title: { key: "pamRotationConfigDiscardTitle" },
     content: { key: "pamDiscardContent" },
@@ -825,20 +822,11 @@ describe("RotationConfigEditComponent — discard guard", () => {
     type: "warning",
   };
 
-  function runGuard(component: RotationConfigEditComponent): Promise<boolean> {
-    return rotationConfigEditDiscardGuard(
-      component,
-      null as never,
-      null as never,
-      null as never,
-    ) as Promise<boolean>;
-  }
-
   it("leaves an untouched create form without asking", async () => {
     const { component, fixture, dialogService } = setup();
     await fixture.whenStable();
 
-    await expect(runGuard(component)).resolves.toBe(true);
+    await expect(component.confirmLeave()).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 
@@ -851,7 +839,7 @@ describe("RotationConfigEditComponent — discard guard", () => {
       const { component, fixture, dialogService } = setup({ configId: configId("cfg-1") });
 
       expect(component.loading()).toBe(true);
-      await expect(runGuard(component)).resolves.toBe(true);
+      await expect(component.confirmLeave()).resolves.toBe(true);
       expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
 
       await fixture.whenStable();
@@ -861,7 +849,7 @@ describe("RotationConfigEditComponent — discard guard", () => {
       const { component, fixture, dialogService } = setup();
 
       expect(component.loading()).toBe(true);
-      await expect(runGuard(component)).resolves.toBe(true);
+      await expect(component.confirmLeave()).resolves.toBe(true);
       expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
 
       await fixture.whenStable();
@@ -871,12 +859,12 @@ describe("RotationConfigEditComponent — discard guard", () => {
     it("asks again once the load has settled and the operator has edited", async () => {
       const { component, fixture, dialogService } = setup({ configId: configId("cfg-1") });
 
-      await expect(runGuard(component)).resolves.toBe(true);
+      await expect(component.confirmLeave()).resolves.toBe(true);
 
       await fixture.whenStable();
       component.accountForm.controls.accountIdentity.setValue("svc_rotation");
 
-      await expect(runGuard(component)).resolves.toBe(true);
+      await expect(component.confirmLeave()).resolves.toBe(true);
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(EDIT_DIALOG);
     });
   });
@@ -887,7 +875,7 @@ describe("RotationConfigEditComponent — discard guard", () => {
     component.createForm.controls.scheduleCron.setValue(null);
     component.createForm.controls.scheduleCron.markAsDirty();
 
-    await expect(runGuard(component)).resolves.toBe(true);
+    await expect(component.confirmLeave()).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 
@@ -897,7 +885,7 @@ describe("RotationConfigEditComponent — discard guard", () => {
     component.settingsForm.controls.scheduleCron.setValue("0 0 0 * * ?");
     component.settingsForm.controls.scheduleCron.markAsDirty();
 
-    await expect(runGuard(component)).resolves.toBe(true);
+    await expect(component.confirmLeave()).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 
@@ -906,7 +894,7 @@ describe("RotationConfigEditComponent — discard guard", () => {
     await fixture.whenStable();
     component.settingsForm.controls.scheduleCron.setValue("0 0 */4 * * ?");
 
-    await expect(runGuard(component)).resolves.toBe(true);
+    await expect(component.confirmLeave()).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(EDIT_DIALOG);
   });
 
@@ -915,7 +903,7 @@ describe("RotationConfigEditComponent — discard guard", () => {
     await fixture.whenStable();
     component.createForm.controls.accountIdentity.setValue("admin@example.com");
 
-    await expect(runGuard(component)).resolves.toBe(true);
+    await expect(component.confirmLeave()).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(CREATE_DIALOG);
   });
 
@@ -924,7 +912,7 @@ describe("RotationConfigEditComponent — discard guard", () => {
     await fixture.whenStable();
     component.accountForm.controls.accountIdentity.setValue("svc_rotation");
 
-    await expect(runGuard(component)).resolves.toBe(true);
+    await expect(component.confirmLeave()).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(EDIT_DIALOG);
   });
 
@@ -934,7 +922,7 @@ describe("RotationConfigEditComponent — discard guard", () => {
     dialogService.openSimpleDialog.mockResolvedValue(false);
     component.accountForm.controls.accountIdentity.setValue("svc_rotation");
 
-    await expect(runGuard(component)).resolves.toBe(false);
+    await expect(component.confirmLeave()).resolves.toBe(false);
   });
 
   it("does not ask after a successful save", async () => {
@@ -944,7 +932,7 @@ describe("RotationConfigEditComponent — discard guard", () => {
 
     await component.submitEdit();
 
-    await expect(runGuard(component)).resolves.toBe(true);
+    await expect(component.confirmLeave()).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 
@@ -955,7 +943,7 @@ describe("RotationConfigEditComponent — discard guard", () => {
 
     await component.removeRotation();
 
-    await expect(runGuard(component)).resolves.toBe(true);
+    await expect(component.confirmLeave()).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
   });
 });
