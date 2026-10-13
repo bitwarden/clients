@@ -1,6 +1,6 @@
 import { RunGuardsAndResolvers, Routes } from "@angular/router";
 
-import { unsavedChangesGuard } from "../unsaved-changes.guard";
+import { unsavedChangesDialogGuard } from "../unsaved-changes.guard";
 
 import { AccessConnectorDetailComponent } from "./access-connectors/access-connector-detail.component";
 import { AccessConnectorsTabComponent } from "./access-connectors/access-connectors-tab.component";
@@ -30,7 +30,7 @@ export const rotationRoutes: Routes = [
   {
     path: `${ROTATION_TABS.managedCredentials}/new`,
     component: RotationConfigEditComponent,
-    canDeactivate: [unsavedChangesGuard],
+    canDeactivate: [unsavedChangesDialogGuard],
     data: { titleId: "pamRotationConfigCreateTitle" },
   },
   // The edit page's tabs are routed, so each is deep-linkable. Angular reuses the component
@@ -43,20 +43,20 @@ export const rotationRoutes: Routes = [
   {
     path: `${ROTATION_TABS.managedCredentials}/:configId/:tab`,
     component: RotationConfigEditComponent,
-    canDeactivate: [unsavedChangesGuard],
+    canDeactivate: [unsavedChangesDialogGuard],
     runGuardsAndResolvers: recordChanged("configId"),
     data: { titleId: "pamRotationConfigEditTitle" },
   },
   {
     path: `${ROTATION_TABS.targetSystems}/new`,
     component: TargetSystemEditComponent,
-    canDeactivate: [unsavedChangesGuard],
+    canDeactivate: [unsavedChangesDialogGuard],
     data: { titleId: "pamTargetSystemCreateTitle" },
   },
   {
     path: `${ROTATION_TABS.targetSystems}/:targetSystemId`,
     component: TargetSystemEditComponent,
-    canDeactivate: [unsavedChangesGuard],
+    canDeactivate: [unsavedChangesDialogGuard],
     data: { titleId: "pamTargetSystemEditTitle" },
   },
   {
@@ -67,7 +67,7 @@ export const rotationRoutes: Routes = [
   {
     path: `${ROTATION_TABS.accessConnectors}/:accessConnectorId/:tab`,
     component: AccessConnectorDetailComponent,
-    canDeactivate: [unsavedChangesGuard],
+    canDeactivate: [unsavedChangesDialogGuard],
     runGuardsAndResolvers: recordChanged("accessConnectorId"),
     data: { titleId: "pamAccessConnectorDetailTitle" },
   },

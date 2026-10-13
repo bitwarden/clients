@@ -12,6 +12,7 @@ import { DialogService, SelectItemView, ToastService } from "@bitwarden/componen
 
 import { ACCESS_RULE_DESCRIPTION_MAX_LENGTH, AccessRuleSdkService, AccessRuleView } from "../..";
 import { GovernedCollectionsService } from "../../services/governed-collections.service";
+import { leaveThroughGuard } from "../../testing/unsaved-changes";
 
 import { AccessRuleEditComponent } from "./access-rule-edit.component";
 import { CidrValidationService } from "./ip-allowlist/cidr-validation.service";
@@ -1284,8 +1285,14 @@ describe("AccessRuleEditComponent — form states", () => {
   });
 
   describe("discard confirmation", () => {
+    // The router runs the route's guard on the way out; that is where Cancel is asked about.
+    const renderLeavingThroughGuard = async (state?: RouteState) => {
+      await render(state);
+      navigate.mockImplementation(() => leaveThroughGuard(component));
+    };
+
     it("leaves a pristine form without asking", async () => {
-      await render();
+      await renderLeavingThroughGuard();
 
       await component["cancel"]();
 
@@ -1294,95 +1301,91 @@ describe("AccessRuleEditComponent — form states", () => {
     });
 
     it("confirms before discarding a form the user has typed into", async () => {
-      await render();
+      await renderLeavingThroughGuard();
       controls().name.setValue("Half-finished rule");
       controls().name.markAsDirty();
 
       await component["cancel"]();
 
-      expect(dialog.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title: { key: "pamAccessRuleDiscardTitle" },
-          content: { key: "pamDiscardContent" },
-          acceptButtonText: { key: "pamDiscardConfirm" },
-          cancelButtonText: { key: "cancel" },
-          type: "warning",
-        }),
-      );
+      expect(dialog.openSimpleDialog).toHaveBeenCalledWith({
+        title: { key: "discardEditsTitle" },
+        content: { key: "discardEditsConfirmation" },
+        acceptButtonText: { key: "discardEdits" },
+        cancelButtonText: { key: "backToEditing" },
+        type: "danger",
+        hideIcon: true,
+      });
       expect(navigate).toHaveBeenCalledWith([".."], expect.objectContaining({}));
     });
 
-    it("names the edits, not the rule, when an existing rule is being edited", async () => {
-      await render({ params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } });
+    it("confirms the same way when an existing rule is being edited", async () => {
+      await renderLeavingThroughGuard({
+        params: { accessRuleId: "11111111-1111-1111-1111-111111111111" },
+      });
       controls().name.setValue("Renamed rule");
       controls().name.markAsDirty();
 
       await component["cancel"]();
 
       expect(dialog.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title: { key: "discardEditsTitle" },
-          acceptButtonText: { key: "discardEdits" },
-          cancelButtonText: { key: "keepEditing" },
-        }),
+        expect.objectContaining({ title: { key: "discardEditsTitle" } }),
       );
     });
 
     it("stays on the form with its values intact when the dialog is dismissed", async () => {
-      await render();
+      await renderLeavingThroughGuard();
       controls().name.setValue("Half-finished rule");
       controls().name.markAsDirty();
       dialog.openSimpleDialog.mockResolvedValue(false);
 
       await component["cancel"]();
 
-      expect(navigate).not.toHaveBeenCalled();
+      await expect(navigate.mock.results[0].value).resolves.toBe(false);
       expect(controls().name.value).toBe("Half-finished rule");
+      expect(controls().name.dirty).toBe(true);
     });
 
     it("asks again when the route is left by any other means", async () => {
-      await render();
+      await renderLeavingThroughGuard();
       controls().name.setValue("Half-finished rule");
       controls().name.markAsDirty();
       dialog.openSimpleDialog.mockResolvedValue(false);
 
-      await expect(component.confirmLeave()).resolves.toBe(false);
+      await expect(leaveThroughGuard(component)).resolves.toBe(false);
       expect(dialog.openSimpleDialog).toHaveBeenCalled();
     });
 
     it("does not ask once a successful save has left the page", async () => {
-      await render();
+      await renderLeavingThroughGuard();
       fillRequiredFields();
       controls().name.markAsDirty();
 
       await component["submit"]();
 
       expect(navigate).toHaveBeenCalledWith([".."], expect.objectContaining({}));
-      await expect(component.confirmLeave()).resolves.toBe(true);
+      await expect(leaveThroughGuard(component)).resolves.toBe(true);
       expect(dialog.openSimpleDialog).not.toHaveBeenCalled();
     });
 
     it("does not ask once the rule has been deleted", async () => {
-      await render({ params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } });
+      await renderLeavingThroughGuard({
+        params: { accessRuleId: "11111111-1111-1111-1111-111111111111" },
+      });
       controls().name.setValue("Renamed rule");
       controls().name.markAsDirty();
 
       await component["remove"]();
 
       expect(navigate).toHaveBeenCalledWith([".."], expect.objectContaining({}));
-      await expect(component.confirmLeave()).resolves.toBe(true);
+      await expect(leaveThroughGuard(component)).resolves.toBe(true);
       // Only the delete confirmation itself; no discard prompt on the way out.
       expect(dialog.openSimpleDialog).toHaveBeenCalledTimes(1);
     });
 
-    it("does not ask a second time for the navigation Cancel already confirmed", async () => {
-      await render();
+    it("asks once when Cancel leaves an edited form", async () => {
+      await renderLeavingThroughGuard();
       controls().name.setValue("Half-finished rule");
       controls().name.markAsDirty();
-      navigate.mockImplementation(async () => {
-        expect(await component.confirmLeave()).toBe(true);
-        return true;
-      });
 
       await component["cancel"]();
 
