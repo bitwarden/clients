@@ -17752,12 +17752,6 @@
   "pamAccessRequestsTitle": {
     "message": "Access requests"
   },
-  "pamDiscardContent": {
-    "message": "The details you entered won't be saved."
-  },
-  "pamDiscardConfirm": {
-    "message": "Discard"
-  },
   "pamAccessRules": {
     "message": "Access rules"
   },
@@ -17957,9 +17951,6 @@
   },
   "pamAccessRuleDeleted": {
     "message": "Access rule deleted."
-  },
-  "pamAccessRuleDiscardTitle": {
-    "message": "Discard rule"
   },
   "pamAccessRuleDiscardContent": {
     "message": "The details you entered won't be saved."
@@ -19892,9 +19883,6 @@
   "pamTargetSystemNotFound": {
     "message": "Target system not found."
   },
-  "pamTargetSystemDiscardTitle": {
-    "message": "Discard target system"
-  },
   "pamAccessConnectorSearch": {
     "message": "Search access connectors"
   },
@@ -20302,9 +20290,6 @@
   },
   "pamRotationConfigRotateWhenAccessEndsHint": {
     "message": "Automatically rotate this credential when PAM access to it ends."
-  },
-  "pamRotationConfigDiscardTitle": {
-    "message": "Discard managed credential"
   },
   "pamRotationConfigCreated": {
     "message": "Managed credential created."
