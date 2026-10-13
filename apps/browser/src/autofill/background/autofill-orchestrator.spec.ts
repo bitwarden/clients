@@ -1169,7 +1169,7 @@ describe("DefaultAutofillOrchestrator", () => {
     });
   });
 
-  describe("autoSubmitLoginOnTab", () => {
+  describe("automated login", () => {
     it("collects the reporting frame and fills it with the auto-submit script", async () => {
       const pd = pageDetail(1, 0);
       const cipher = makeCipher(CipherType.Login);
@@ -1178,9 +1178,10 @@ describe("DefaultAutofillOrchestrator", () => {
 
       autofillService.doAutoFill.mockResolvedValue({ outcome: AutofillOutcome.Filled });
 
-      await autofillOrchestrator["autoSubmitLoginOnTab"](pd.tab, 0);
+      emitAutomatedLoginStep(pd);
+      await flushPromises();
 
-      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, 0);
+      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, pd.frameId);
       expect(cipherService.getLastLaunchedForUrl).toHaveBeenCalledWith(
         DEFAULT_URL,
         "user-1",
@@ -1205,9 +1206,11 @@ describe("DefaultAutofillOrchestrator", () => {
       autofillService.doAutoFill.mockResolvedValue({ outcome: AutofillOutcome.Filled });
 
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([usernameStep]));
-      await autofillOrchestrator["autoSubmitLoginOnTab"](usernameStep.tab, 0);
+      emitAutomatedLoginStep(usernameStep);
+      await flushPromises();
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([passwordStep]));
-      await autofillOrchestrator["autoSubmitLoginOnTab"](passwordStep.tab, 0);
+      emitAutomatedLoginStep(passwordStep);
+      await flushPromises();
 
       // Selection does not advance the rotation, so both steps resolve to the same cipher.
       expect(cipherService.getNextCipherForUrl).not.toHaveBeenCalled();
@@ -1230,7 +1233,8 @@ describe("DefaultAutofillOrchestrator", () => {
       );
       autofillService.isPasswordRepromptRequired.mockResolvedValue(true);
 
-      await autofillOrchestrator["autoSubmitLoginOnTab"](pd.tab, 0);
+      emitAutomatedLoginStep(pd);
+      await flushPromises();
 
       // The popout fills after the master password. This attempt is abandoned, and the rotation
       // moves so the next selection offers the next cipher.
@@ -1240,9 +1244,11 @@ describe("DefaultAutofillOrchestrator", () => {
     });
 
     it("does not fill when the frame has no page details to submit", async () => {
+      const pd = pageDetail(1, 0);
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([]));
 
-      await autofillOrchestrator["autoSubmitLoginOnTab"](createChromeTabMock({ id: 1 }), 0);
+      emitAutomatedLoginStep(pd);
+      await flushPromises();
 
       expect(autofillService.doAutoFill).not.toHaveBeenCalled();
     });
@@ -1258,7 +1264,8 @@ describe("DefaultAutofillOrchestrator", () => {
         .spyOn(BrowserApi, "getTabFromCurrentWindow")
         .mockResolvedValue(createChromeTabMock({ id: 2 }));
 
-      await autofillOrchestrator["autoSubmitLoginOnTab"](pd.tab, 0);
+      emitAutomatedLoginStep(pd);
+      await flushPromises();
 
       // The read ran but no credential was filled or submitted to the non-foreground tab, and no
       // activity was booked — the guard short-circuits before `doAutoFill`, so a blocked submit
@@ -1266,21 +1273,6 @@ describe("DefaultAutofillOrchestrator", () => {
       expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalled();
       expect(autofillService.doAutoFill).not.toHaveBeenCalled();
       expect(accountService.setAccountActivity).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("automatedLoginStepReady$ consumer", () => {
-    it("interprets an auto-submit step-ready fact as a collect → fill → submit", async () => {
-      const pd = pageDetail(1, 0);
-      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
-
-      emitAutomatedLoginStep(pd);
-      await flushPromises();
-
-      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, pd.frameId);
-      expect(autofillService.doAutoFill).toHaveBeenCalledWith(
-        expect.objectContaining({ pageDetails: [pd], autoSubmitLogin: true }),
-      );
     });
   });
 });
