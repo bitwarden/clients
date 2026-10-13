@@ -817,7 +817,6 @@ export default class NotificationBackground {
       if (!newPasswordFieldHasValue) {
         return false;
       }
-      // This needs to be the call that includes the full form data
       await this.pushChangePasswordToQueue(null, loginDomain, newPasswordFieldValue, tab, true);
 
       return true;
@@ -1089,11 +1088,7 @@ export default class NotificationBackground {
       usernamePasswordMatches,
     } = ciphersByInputMatchCategory;
 
-    // @TODO handle empty strings / incomplete data structure
     const submittedPassword = data.newPassword || data.password;
-    const formHasNoUsername =
-      data.username === null || data.username === undefined || data.username === "";
-
     // IMPORTANT! The order of statements matters here; later evaluations
     // depend on the assumptions of the early exits in preceding logic
 
@@ -1116,10 +1111,6 @@ export default class NotificationBackground {
         ).includes(inputScenario) &&
         newLoginNotificationIsEnabled
       ) {
-        const scenarioRequiresUsername = inputScenario !== inputScenarios.passwordNewPassword;
-        if (scenarioRequiresUsername && formHasNoUsername) {
-          return false;
-        }
         await this.pushAddLoginToQueue(
           loginDomain,
           {
@@ -1256,9 +1247,6 @@ export default class NotificationBackground {
         inputScenario === inputScenarios.usernamePasswordNewPassword &&
         newLoginNotificationIsEnabled
       ) {
-        if (formHasNoUsername) {
-          return false;
-        }
         await this.pushAddLoginToQueue(
           loginDomain,
           {
@@ -1291,13 +1279,10 @@ export default class NotificationBackground {
         ] as InputScenario[]
       ).includes(inputScenario);
 
-      if (passwordOnlyMatchWithFormUsername && !formHasNoUsername) {
+      if (passwordOnlyMatchWithFormUsername) {
         const passwordMatchCipherIdsWithoutStoredUsername = ciphersForURL
           .filter(
-            (c) =>
-              passwordOnlyMatchIds.has(c.id) &&
-              c.login != null &&
-              Utils.isNullOrWhitespace(c.login.username),
+            (c) => passwordOnlyMatchIds.has(c.id) && Utils.isNullOrWhitespace(c.login.username),
           )
           .map((c) => c.id);
 
@@ -1310,10 +1295,15 @@ export default class NotificationBackground {
             loginDomain,
             submittedPassword,
             tab,
+            false,
+            data.username,
           );
           return true;
         }
-        if (usernameOnlyMatches.length === 0 && newLoginNotificationIsEnabled) {
+        // Only reachable with matches here when change password notifications are disabled
+        const submittedUsernameAlreadyStored =
+          usernameOnlyMatches.length > 0 || usernamePasswordMatches.length > 0;
+        if (!submittedUsernameAlreadyStored && newLoginNotificationIsEnabled) {
           await this.pushAddLoginToQueue(
             loginDomain,
             {
@@ -1374,13 +1364,13 @@ export default class NotificationBackground {
     });
   }
 
-  // @TODO this needs the whole input record, and not just newPassword
   private async pushChangePasswordToQueue(
     cipherIds: CipherView["id"][] | null,
     loginDomain: string,
     newPassword: string,
     tab: chrome.tabs.Tab,
     isVaultLocked = false,
+    username?: string,
   ) {
     const ciphers = cipherIds ?? [];
     // remove any old messages for this tab
@@ -1388,7 +1378,11 @@ export default class NotificationBackground {
     const launchTimestamp = new Date().getTime();
     const message: AddChangePasswordNotificationQueueMessage = {
       type: NotificationType.ChangePassword,
-      data: { cipherIds: ciphers, newPassword: newPassword },
+      data: {
+        cipherIds: ciphers,
+        newPassword: newPassword,
+        ...(!Utils.isNullOrWhitespace(username) ? { username } : {}),
+      },
       domain: loginDomain,
       tab: tab,
       launchTimestamp,
@@ -1490,7 +1484,7 @@ export default class NotificationBackground {
 
       if (queueMessage.type === NotificationType.ChangePassword) {
         const {
-          data: { newPassword },
+          data: { newPassword, username },
         } = queueMessage;
         const cipherView = await this.getDecryptedCipherById(cipherId, activeUserId);
         if (cipherView == null) {
@@ -1504,6 +1498,7 @@ export default class NotificationBackground {
           tab,
           activeUserId,
           skipReprompt,
+          username,
         );
         return;
       }
@@ -1577,8 +1572,15 @@ export default class NotificationBackground {
     tab: chrome.tabs.Tab,
     userId: UserId,
     skipReprompt: boolean = false,
+    username?: string,
   ) {
     cipherView.login.password = newPassword;
+    if (
+      !Utils.isNullOrWhitespace(username) &&
+      Utils.isNullOrWhitespace(cipherView.login.username)
+    ) {
+      cipherView.login.username = username;
+    }
 
     if (edit) {
       await this.editItem(cipherView, userId, tab);
