@@ -1,5 +1,6 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { ActivatedRoute, provideRouter, Router } from "@angular/router";
 import { of } from "rxjs";
 
@@ -7,7 +8,12 @@ import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, FilterControl, ToastService } from "@bitwarden/components";
+import {
+  BitTableV2Component,
+  DialogService,
+  FilterControl,
+  ToastService,
+} from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { accessRuleDeactivateConfirmOptions, AccessRuleSdkService, AccessRuleView } from "..";
@@ -36,6 +42,31 @@ const NAME_TAKEN_PAYLOAD =
   'error in response: status code 400 Bad Request: {"object":"error","message":"A rule with ' +
   'that name already exists.","validationErrors":null}';
 
+type FilterKey = "search" | "status" | "collection";
+
+/** A toolbar control as the table registered it: a chip, or the adopted `bit-search` under `search`. */
+function filterControl(
+  fixture: ComponentFixture<AccessRulesComponent>,
+  key: FilterKey,
+): FilterControl {
+  const table = fixture.debugElement.query(By.directive(BitTableV2Component))
+    .componentInstance as BitTableV2Component;
+  const control = table.filterControls().find((c) => c.key() === key);
+  if (control == null) {
+    throw new Error(`the ${key} control did not register`);
+  }
+  return control;
+}
+
+function setFilter(
+  fixture: ComponentFixture<AccessRulesComponent>,
+  key: FilterKey,
+  value: unknown,
+): void {
+  filterControl(fixture, key).setValue(value);
+  fixture.detectChanges();
+}
+
 function rule(id: string, name = "Rule", enabled = true): AccessRuleView {
   return {
     id,
@@ -60,14 +91,25 @@ type ProviderOverride = { provide: unknown; useValue: unknown };
 type SetupOptions = {
   overrides?: ProviderOverride[];
   openSimpleDialog?: jest.Mock;
+  /** Renders the real template, for logic that reads the table's filtered rows. */
+  renderTable?: boolean;
 };
 
-// Blanks the template so these tests exercise the component's logic, not its child rendering.
+// Blanks the template by default, so these tests exercise the component's logic, not its children.
 const setup = async (
   rules: AccessRuleView[],
-  { overrides = [], openSimpleDialog = jest.fn().mockResolvedValue(true) }: SetupOptions = {},
+  {
+    overrides = [],
+    openSimpleDialog = jest.fn().mockResolvedValue(true),
+    renderTable = false,
+  }: SetupOptions = {},
 ): Promise<ComponentFixture<AccessRulesComponent>> => {
-  TestBed.overrideComponent(AccessRulesComponent, { set: { template: "" } });
+  TestBed.overrideComponent(
+    AccessRulesComponent,
+    renderTable
+      ? { remove: { imports: [HeaderModule] }, add: { schemas: [NO_ERRORS_SCHEMA] } }
+      : { set: { template: "" } },
+  );
 
   TestBed.configureTestingModule({
     imports: [AccessRulesComponent],
@@ -110,6 +152,7 @@ const setupMutations = async (
   rules: AccessRuleView[],
   confirmed = true,
   overrides: ProviderOverride[] = [],
+  renderTable = false,
 ): Promise<ComponentFixture<AccessRulesComponent>> => {
   showToast = jest.fn();
   openSimpleDialog = jest.fn().mockResolvedValue(confirmed);
@@ -134,6 +177,7 @@ const setupMutations = async (
       ...overrides,
     ],
     openSimpleDialog,
+    renderTable,
   });
 };
 
@@ -141,7 +185,8 @@ const setupBulk = async (
   rules: AccessRuleView[],
   confirmed = true,
 ): Promise<ComponentFixture<AccessRulesComponent>> => {
-  const fixture = await setupMutations(rules, confirmed);
+  // Bulk actions act on the selected rows the table's filters leave visible, so the table renders.
+  const fixture = await setupMutations(rules, confirmed, [], true);
   fixture.componentInstance["selection"].select(...rules.map((r) => r.id));
   return fixture;
 };
@@ -504,10 +549,7 @@ describe("AccessRulesComponent — bulk deactivate confirmation", () => {
   });
 });
 
-/**
- * These render the real template, since the chips own their selection and the blanked template the
- * other blocks use would leave the `viewChild`s unset.
- */
+/** These render the real template, since the table owns the chips' selections. */
 describe("AccessRulesComponent — toolbar filters", () => {
   let fixture: ComponentFixture<AccessRulesComponent>;
 
@@ -551,18 +593,7 @@ describe("AccessRulesComponent — toolbar filters", () => {
     }
   };
 
-  const chip = (name: "statusFilter" | "collectionFilter"): FilterControl => {
-    const control = fixture.componentInstance[name]();
-    if (control == null) {
-      throw new Error(`the ${name} chip did not render`);
-    }
-    return control;
-  };
-
-  const select = (name: "statusFilter" | "collectionFilter", value: unknown) => {
-    chip(name).setValue(value);
-    fixture.detectChanges();
-  };
+  const select = (key: FilterKey, value: unknown) => setFilter(fixture, key, value);
 
   const visible = () =>
     Array.from((fixture.nativeElement as HTMLElement).querySelectorAll("button[bitlink]")).map(
@@ -584,10 +615,10 @@ describe("AccessRulesComponent — toolbar filters", () => {
   it("narrows the table to the status selected on the chip", async () => {
     await setupToolbar([rule("rule-1", "VPN", true), rule("rule-2", "SSH", false)]);
 
-    select("statusFilter", "enabled");
+    select("status", "enabled");
     expect(visible()).toEqual(["VPN"]);
 
-    select("statusFilter", "disabled");
+    select("status", "disabled");
     expect(visible()).toEqual(["SSH"]);
   });
 
@@ -601,10 +632,10 @@ describe("AccessRulesComponent — toolbar filters", () => {
       [collection("col-1", "Servers"), collection("col-2", "Databases")],
     );
 
-    select("collectionFilter", ["col-1"]);
+    select("collection", ["col-1"]);
     expect(visible()).toEqual(["VPN"]);
 
-    select("collectionFilter", ["col-1", "col-2"]);
+    select("collection", ["col-1", "col-2"]);
     expect(visible()).toEqual(["VPN", "SSH"]);
   });
 
@@ -614,10 +645,10 @@ describe("AccessRulesComponent — toolbar filters", () => {
       [collection("col-1", "Servers")],
     );
 
-    select("collectionFilter", ["col-1"]);
+    select("collection", ["col-1"]);
     expect(visible()).toEqual(["VPN"]);
 
-    select("collectionFilter", []);
+    select("collection", []);
     expect(visible()).toEqual(["VPN", "SSH"]);
   });
 
@@ -631,8 +662,8 @@ describe("AccessRulesComponent — toolbar filters", () => {
       [collection("col-1", "Servers"), collection("col-2", "Databases")],
     );
 
-    select("statusFilter", "enabled");
-    select("collectionFilter", ["col-1"]);
+    select("status", "enabled");
+    select("collection", ["col-1"]);
 
     expect(visible()).toEqual(["VPN"]);
   });
@@ -643,11 +674,10 @@ describe("AccessRulesComponent — toolbar filters", () => {
       [collection("col-1", "Servers"), collection("col-2", "Databases")],
     );
 
-    fixture.componentInstance["filterForm"].controls.search.setValue("backup");
-    fixture.detectChanges();
+    select("search", "backup");
     expect(visible()).toEqual(["VPN backup"]);
 
-    select("collectionFilter", ["col-1"]);
+    select("collection", ["col-1"]);
     expect(visible()).toEqual([]);
   });
 });
@@ -784,8 +814,7 @@ describe("AccessRulesComponent — table", () => {
   it("selects every filtered row from the header checkbox", async () => {
     const fixture = await render();
 
-    fixture.componentInstance["statusFilter"]()!.setValue("enabled");
-    fixture.detectChanges();
+    setFilter(fixture, "status", "enabled");
     el(fixture).querySelector<HTMLInputElement>("#access-rules_checkbox_select-all")!.click();
     fixture.detectChanges();
 
@@ -799,8 +828,7 @@ describe("AccessRulesComponent — table", () => {
   it("scopes bulk actions to the filtered rules", async () => {
     const fixture = await render();
 
-    fixture.componentInstance["filterForm"].controls.search.setValue("ssh");
-    fixture.detectChanges();
+    setFilter(fixture, "search", "ssh");
     await fixture.whenStable();
     expect(rowNames(fixture)).toEqual(["SSH"]);
 
@@ -824,21 +852,18 @@ describe("AccessRulesComponent — table", () => {
   it("narrows the rows on the toolbar chips and search", async () => {
     const fixture = await render();
 
-    fixture.componentInstance["statusFilter"]()!.setValue("disabled");
-    fixture.detectChanges();
+    setFilter(fixture, "status", "disabled");
     expect(rowNames(fixture)).toEqual(["SSH"]);
 
-    fixture.componentInstance["statusFilter"]()!.setValue(null);
-    fixture.componentInstance["filterForm"].controls.search.setValue("db");
-    fixture.detectChanges();
+    setFilter(fixture, "status", null);
+    setFilter(fixture, "search", "db");
     expect(rowNames(fixture)).toEqual(["DB"]);
   });
 
   it("shows the no-results copy when the filters exclude every rule", async () => {
     const fixture = await render();
 
-    fixture.componentInstance["filterForm"].controls.search.setValue("nothing matches");
-    fixture.detectChanges();
+    setFilter(fixture, "search", "nothing matches");
 
     expect(rowNames(fixture)).toEqual([]);
     expect(text(el(fixture).querySelector("bit-table-v2")!)).toContain("pamAccessRulesNoResults");
@@ -929,16 +954,9 @@ describe("AccessRulesComponent — toolbar", () => {
     fixture: ComponentFixture<AccessRulesComponent>,
     filters: { search?: string; status?: unknown; collection?: unknown },
   ) => {
-    if (filters.search !== undefined) {
-      fixture.componentInstance["filterForm"].controls.search.setValue(filters.search);
+    for (const [key, value] of Object.entries(filters)) {
+      setFilter(fixture, key as FilterKey, value);
     }
-    if (filters.status !== undefined) {
-      fixture.componentInstance["statusFilter"]()!.setValue(filters.status);
-    }
-    if (filters.collection !== undefined) {
-      fixture.componentInstance["collectionFilter"]()!.setValue(filters.collection);
-    }
-    fixture.detectChanges();
   };
 
   it("puts the search and both filter chips inside the table's toolbar", async () => {
@@ -955,8 +973,8 @@ describe("AccessRulesComponent — toolbar", () => {
     const chips = Array.from(toolbar(fixture)!.querySelectorAll("bit-filter-menu"));
 
     expect(chips.map((c) => c.getAttribute("key"))).toEqual(["status", "collection"]);
-    expect(fixture.componentInstance["statusFilter"]()!.active()).toBe(false);
-    expect(fixture.componentInstance["collectionFilter"]()!.active()).toBe(false);
+    expect(filterControl(fixture, "status").active()).toBe(false);
+    expect(filterControl(fixture, "collection").active()).toBe(false);
     expect(rowNames(fixture)).toEqual(["VPN", "SSH", "Backup"]);
   });
 
