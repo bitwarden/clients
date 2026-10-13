@@ -9,9 +9,8 @@ import {
   viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { map, startWith } from "rxjs";
+import { map } from "rxjs";
 
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -30,7 +29,6 @@ import {
   ButtonModule,
   CheckboxModule,
   DialogService,
-  FILTER_CONTROL,
   FilterMenuComponent,
   FilterOptionComponent,
   IconButtonModule,
@@ -60,7 +58,6 @@ import {
   copyRuleName,
   resolveCollectionNames,
   rulesChangingEnabled,
-  selectedFilterStrings,
 } from "..";
 import { DurationLongPipe } from "../date/duration-long.pipe";
 import { RelativeTimePipe } from "../date/relative-time.pipe";
@@ -77,7 +74,6 @@ import { ApprovalMethodPipe } from "./approval-method.pipe";
   providers: [AccessRulesService],
   imports: [
     DatePipe,
-    ReactiveFormsModule,
     AccessRuleCollectionBadgesComponent,
     AccessRulesEmptyStateComponent,
     BadgeModule,
@@ -127,53 +123,26 @@ export class AccessRulesComponent {
 
   protected readonly table = defineTable<AccessRuleView, "select" | "actions">(this.rules);
 
-  // Only `search` is a form control, since `bit-filter-menu` isn't a `ControlValueAccessor`. The
-  // table reads the same `bit-search`, so `rowMatchesFilter` must not apply `searchTerm` again.
-  protected readonly filterForm = new FormGroup({
-    search: new FormControl("", { nonNullable: true }),
-  });
+  private readonly rulesTable =
+    viewChild<BitTableV2Component<AccessRuleView, "select" | "actions", AccessRuleFilterValues>>(
+      BitTableV2Component,
+    );
 
-  private readonly searchTerm = toSignal(
-    this.filterForm.controls.search.valueChanges.pipe(startWith("")),
-    { requireSync: true },
-  );
-
-  private readonly statusFilter = viewChild("statusFilter", { read: FILTER_CONTROL });
-  private readonly collectionFilter = viewChild("collectionFilter", { read: FILTER_CONTROL });
-
-  private readonly filterInputs = computed(() =>
-    toAccessRuleFilter({
-      search: this.searchTerm(),
-      status: this.statusFilter()?.value(),
-      collection: this.collectionFilter()?.value(),
-    }),
-  );
-
-  protected readonly ruleFilter = computed(() => {
-    const filter = this.filterInputs();
-    return (rule: AccessRuleView): boolean => this.matchesFilter(rule, filter);
-  });
-
-  /**
-   * The table's row test. Chip and search values arrive keyed, which the table needs to count
-   * each chip's options.
-   */
+  /** The table's row test, given the search term and the chips' selections keyed by chip. */
   protected readonly rowMatchesFilter = (
     rule: AccessRuleView,
     values: AccessRuleFilterValues,
-  ): boolean => this.matchesFilter(rule, toAccessRuleFilter(values));
-
-  private matchesFilter(rule: AccessRuleView, filter: AccessRuleFilter): boolean {
+  ): boolean => {
     const ruleCollectionIds = rule.collections.map(uuidAsString);
     return accessRuleMatchesFilter(
       { name: rule.name, enabled: rule.enabled, collections: ruleCollectionIds },
       resolveCollectionNames(ruleCollectionIds, this.collections()),
-      filter,
+      toAccessRuleFilter(values),
     );
-  }
+  };
 
   /** The rows the filters leave visible, which select-all spans. */
-  private readonly selectableRows = computed(() => this.rules().filter(this.ruleFilter()));
+  private readonly selectableRows = computed(() => this.rulesTable()?.filtered() ?? []);
 
   protected readonly statusOptions: { label: string; value: AccessRuleStatusFilter }[] = [
     { label: this.i18nService.t("pamAccessRuleActive"), value: "enabled" },
@@ -418,20 +387,19 @@ export class AccessRulesComponent {
   }
 }
 
-/** Untyped per key, since both hosts hand over whatever each chip reports. */
+/** The shape of the table's `filterValues()`, keyed by each toolbar control's `key`. */
 type AccessRuleFilterValues = {
   search?: string;
-  status?: unknown;
-  collection?: unknown;
+  status?: AccessRuleStatusFilter | null;
+  /** Collection ids. Multi-select: a rule matches any selected collection. */
+  collection?: string[] | null;
 };
 
 function toAccessRuleFilter(values: AccessRuleFilterValues): AccessRuleFilter {
   return {
     text: (values.search ?? "").trim().toLowerCase(),
-    status: (typeof values.status === "string"
-      ? values.status
-      : null) as AccessRuleStatusFilter | null,
-    collectionIds: selectedFilterStrings(values.collection),
+    status: values.status ?? null,
+    collectionIds: values.collection ?? [],
   };
 }
 
