@@ -131,4 +131,25 @@ describe("PopupPageComponent", () => {
 
     expect(floatingActionWrapper().classList).toContain("tw-invisible");
   });
+
+  describe("loading spinner", () => {
+    const spinner = (): HTMLElement | null =>
+      fixture.nativeElement.querySelector("[data-testid=popup-page-loading-spinner]");
+
+    it("is not rendered when not loading", () => {
+      expect(spinner()).toBeNull();
+    });
+
+    it("is rendered while loading and removed once loading finishes", () => {
+      host.loading.set(true);
+      fixture.detectChanges();
+
+      expect(spinner()).not.toBeNull();
+
+      host.loading.set(false);
+      fixture.detectChanges();
+
+      expect(spinner()).toBeNull();
+    });
+  });
 });
