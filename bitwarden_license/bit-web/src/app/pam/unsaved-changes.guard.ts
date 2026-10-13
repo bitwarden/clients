@@ -4,18 +4,60 @@ import { firstValueFrom } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
 
-/** A routed component that may hold input the user would lose by leaving. */
+/** Default discard dialog props. */
+const discardDialog: SimpleDialogOptions = Object.freeze({
+  title: { key: "discardEditsTitle" },
+  content: { key: "discardEditsConfirmation" },
+  acceptButtonText: { key: "discardEdits" },
+  cancelButtonText: { key: "backToEditing" },
+  type: "danger",
+  hideIcon: true,
+});
+
+/** A routed component that asks in its own way, e.g. by closing a drawer whose close check asks. */
 export interface HasUnsavedChanges {
   /** Resolves true when leaving is safe: nothing is pending, or the user agreed to leave anyway. */
   confirmLeave(): boolean | Promise<boolean>;
 }
 
+/** A routed component whose unsaved input the guard asks about with a discard dialog. */
+export interface HasUnsavedChangesDialog {
+  /**
+   * `false` when there is nothing to lose, `true` to ask with the default discard dialog, or
+   * options overriding parts of it.
+   */
+  unsavedChanges(): boolean | Partial<SimpleDialogOptions>;
+}
+
+/** Defers to the component's own `confirmLeave()`. */
+export const unsavedChangesGuard: CanDeactivateFn<HasUnsavedChanges> = (component) =>
+  leaveUnlessLocked(component, (target) => target.confirmLeave());
+
+/** Shows a discard dialog when the component reports unsaved changes. */
+export const unsavedChangesDialogGuard: CanDeactivateFn<HasUnsavedChangesDialog> = (component) => {
+  const dialogService = inject(DialogService);
+
+  return leaveUnlessLocked(component, (target) => {
+    const changes = target.unsavedChanges();
+    if (changes === false) {
+      return true;
+    }
+
+    const overrides = changes === true ? {} : changes;
+    return dialogService.openSimpleDialog({ ...discardDialog, ...overrides });
+  });
+};
+
 /**
- * Asks the component before navigating away. Lock and logout always win, so the guard lets those
- * through without asking, as it does when Angular passes no component during teardown.
+ * Lock and logout always win. Both guards let those through without asking, as they do when
+ * Angular passes no component during teardown.
  */
-export const unsavedChangesGuard: CanDeactivateFn<HasUnsavedChanges> = async (component) => {
+async function leaveUnlessLocked<T>(
+  component: T | null,
+  confirm: (component: T) => boolean | Promise<boolean>,
+): Promise<boolean> {
   const authService = inject(AuthService);
 
   if (component == null) {
@@ -27,5 +69,5 @@ export const unsavedChangesGuard: CanDeactivateFn<HasUnsavedChanges> = async (co
     return true;
   }
 
-  return await component.confirmLeave();
-};
+  return await confirm(component);
+}

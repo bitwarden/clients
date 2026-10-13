@@ -16,6 +16,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { DialogService, SelectItemView, ToastService } from "@bitwarden/components";
 import type { CipherId } from "@bitwarden/sdk-internal";
 
+import { leaveThroughGuard } from "../../testing/unsaved-changes";
 import { OrgCiphersService } from "../org-ciphers.service";
 import { AccessConnectorStatus, TargetSystemKind } from "../rotation";
 import type {
@@ -71,7 +72,7 @@ type DetailApi = {
   unassignTarget: (assignment: AccessConnectorAssignment) => Promise<boolean>;
   submit: () => Promise<void>;
   deleteAccessConnector: () => Promise<void>;
-  confirmLeave: () => Promise<boolean>;
+  unsavedChanges: () => boolean;
   accessConnector: () => AccessConnectorDetail | null;
 };
 
@@ -640,7 +641,7 @@ describe("AccessConnectorDetailComponent", () => {
     it("lets an untouched page go without asking", async () => {
       const comp = await mount();
 
-      await expect(comp.confirmLeave()).resolves.toBe(true);
+      await expect(leaveThroughGuard(comp)).resolves.toBe(true);
       expect(dialog.openSimpleDialog).not.toHaveBeenCalled();
     });
 
@@ -648,7 +649,7 @@ describe("AccessConnectorDetailComponent", () => {
       const comp = await mount();
       await comp.assignTargets([pick(makeOtherSystem())]);
 
-      await expect(comp.confirmLeave()).resolves.toBe(true);
+      await expect(leaveThroughGuard(comp)).resolves.toBe(true);
       expect(dialog.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({ title: { key: "discardEditsTitle" } }),
       );
@@ -658,7 +659,7 @@ describe("AccessConnectorDetailComponent", () => {
       const comp = await mount();
       await comp.unassignTarget(comp.assignments()[0]);
 
-      await comp.confirmLeave();
+      await leaveThroughGuard(comp);
 
       expect(dialog.openSimpleDialog).toHaveBeenCalled();
     });
@@ -667,7 +668,7 @@ describe("AccessConnectorDetailComponent", () => {
       const comp = await mount();
       stageActive(comp, false);
 
-      await comp.confirmLeave();
+      await leaveThroughGuard(comp);
 
       expect(dialog.openSimpleDialog).toHaveBeenCalled();
     });
@@ -677,7 +678,7 @@ describe("AccessConnectorDetailComponent", () => {
       dialog.openSimpleDialog.mockResolvedValue(false);
       await comp.assignTargets([pick(makeOtherSystem())]);
 
-      await expect(comp.confirmLeave()).resolves.toBe(false);
+      await expect(leaveThroughGuard(comp)).resolves.toBe(false);
     });
 
     it("stops asking once the staged changes are saved", async () => {
@@ -685,7 +686,7 @@ describe("AccessConnectorDetailComponent", () => {
       await comp.assignTargets([pick(makeOtherSystem())]);
       await comp.submit();
 
-      await expect(comp.confirmLeave()).resolves.toBe(true);
+      await expect(leaveThroughGuard(comp)).resolves.toBe(true);
       expect(dialog.openSimpleDialog).not.toHaveBeenCalledWith(
         expect.objectContaining({ title: { key: "discardEditsTitle" } }),
       );
@@ -699,7 +700,7 @@ describe("AccessConnectorDetailComponent", () => {
       await comp.deleteAccessConnector();
 
       expect(rotationSdk.deleteConnector).toHaveBeenCalled();
-      await expect(comp.confirmLeave()).resolves.toBe(true);
+      await expect(leaveThroughGuard(comp)).resolves.toBe(true);
     });
   });
 

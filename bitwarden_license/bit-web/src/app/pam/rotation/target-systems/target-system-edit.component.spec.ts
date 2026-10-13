@@ -17,6 +17,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { leaveThroughGuard } from "../../testing/unsaved-changes";
 import type {
   AccessConnector,
   RotationConfigView,
@@ -460,7 +461,7 @@ describe("TargetSystemEditComponent — create mode", () => {
     createFormOf(fixture).markAsDirty();
     await component.submitCreate();
 
-    await expect(fixture.componentInstance.confirmLeave()).resolves.toBe(true);
+    await expect(leaveThroughGuard(fixture.componentInstance)).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 
@@ -1126,20 +1127,13 @@ describe("TargetSystemEditComponent — unsaved changes", () => {
   let dialogService: ReturnType<typeof mock<DialogService>>;
   let router: Router;
 
-  const CREATE_DIALOG = {
-    title: { key: "pamTargetSystemDiscardTitle" },
-    content: { key: "pamDiscardContent" },
-    acceptButtonText: { key: "pamDiscardConfirm" },
-    cancelButtonText: { key: "cancel" },
-    type: "warning",
-  };
-
-  const EDIT_DIALOG = {
+  const DISCARD_DIALOG = {
     title: { key: "discardEditsTitle" },
     content: { key: "discardEditsConfirmation" },
     acceptButtonText: { key: "discardEdits" },
-    cancelButtonText: { key: "keepEditing" },
-    type: "warning",
+    cancelButtonText: { key: "backToEditing" },
+    type: "danger",
+    hideIcon: true,
   };
 
   async function mount(mode: "create" | "edit") {
@@ -1164,7 +1158,7 @@ describe("TargetSystemEditComponent — unsaved changes", () => {
   it("leaves an untouched create form without asking", async () => {
     const fixture = await mount("create");
 
-    await expect(fixture.componentInstance.confirmLeave()).resolves.toBe(true);
+    await expect(leaveThroughGuard(fixture.componentInstance)).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 
@@ -1174,8 +1168,8 @@ describe("TargetSystemEditComponent — unsaved changes", () => {
 
     createFormOf(fixture).controls.name.markAsDirty();
 
-    await expect(fixture.componentInstance.confirmLeave()).resolves.toBe(true);
-    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(CREATE_DIALOG);
+    await expect(leaveThroughGuard(fixture.componentInstance)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(DISCARD_DIALOG);
   });
 
   it("asks when only the policy card was touched", async () => {
@@ -1184,31 +1178,33 @@ describe("TargetSystemEditComponent — unsaved changes", () => {
 
     policyFormOf(fixture).controls.minLength.markAsDirty();
 
-    await expect(fixture.componentInstance.confirmLeave()).resolves.toBe(true);
-    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(CREATE_DIALOG);
+    await expect(leaveThroughGuard(fixture.componentInstance)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(DISCARD_DIALOG);
   });
 
-  it("asks about unsaved edits with the shared edit wording", async () => {
+  it("asks about unsaved edits to an existing target system", async () => {
     const fixture = await mount("edit");
     dialogService.openSimpleDialog.mockResolvedValue(true);
 
     nameFormOf(fixture).controls.name.markAsDirty();
 
-    await expect(fixture.componentInstance.confirmLeave()).resolves.toBe(true);
-    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(EDIT_DIALOG);
+    await expect(leaveThroughGuard(fixture.componentInstance)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(DISCARD_DIALOG);
   });
 
   it("stays on the page when the operator keeps editing", async () => {
     const fixture = await mount("edit");
     dialogService.openSimpleDialog.mockResolvedValue(false);
-    const nav = jest.spyOn(router, "navigate").mockResolvedValue(true);
+    // The router runs the route's guard on the way out; that is where Cancel is asked about.
+    const nav = jest
+      .spyOn(router, "navigate")
+      .mockImplementation(() => leaveThroughGuard(fixture.componentInstance));
 
     nameFormOf(fixture).patchValue({ name: "Half typed" });
     nameFormOf(fixture).markAsDirty();
     await (fixture.componentInstance as unknown as { cancel: () => Promise<void> }).cancel();
 
-    await expect(fixture.componentInstance.confirmLeave()).resolves.toBe(false);
-    expect(nav).not.toHaveBeenCalled();
+    await expect(nav.mock.results[0].value).resolves.toBe(false);
     expect(nameFormOf(fixture).getRawValue().name).toBe("Half typed");
   });
 
@@ -1222,7 +1218,7 @@ describe("TargetSystemEditComponent — unsaved changes", () => {
       fixture.componentInstance as unknown as { submitEdit: () => Promise<void> }
     ).submitEdit();
 
-    await expect(fixture.componentInstance.confirmLeave()).resolves.toBe(true);
+    await expect(leaveThroughGuard(fixture.componentInstance)).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 
@@ -1243,7 +1239,7 @@ describe("TargetSystemEditComponent — unsaved changes", () => {
     ).submitCreate();
 
     expect(rotationSdk.createTargetSystem).toHaveBeenCalled();
-    await expect(fixture.componentInstance.confirmLeave()).resolves.toBe(true);
+    await expect(leaveThroughGuard(fixture.componentInstance)).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 });
@@ -1523,7 +1519,7 @@ describe("TargetSystemEditComponent — assigned access connectors", () => {
       await component.stageAssign([optionFor(free)]);
 
       expect(nameFormOf(fixture).dirty).toBe(true);
-      await expect(fixture.componentInstance.confirmLeave()).resolves.toBe(true);
+      await expect(leaveThroughGuard(fixture.componentInstance)).resolves.toBe(true);
       expect(dialogService.openSimpleDialog).toHaveBeenCalled();
     });
 
