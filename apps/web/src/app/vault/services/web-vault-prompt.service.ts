@@ -9,7 +9,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, SideNavService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import {
   CoachmarkService,
@@ -47,6 +47,7 @@ export class WebVaultPromptService {
   private webVaultExtensionPromptService = inject(WebVaultExtensionPromptService);
   private welcomeDialogService = inject(WelcomeDialogService);
   private newExperienceDialogService = inject(NewExperienceDialogService);
+  private sideNavService = inject(SideNavService);
   private coachmarkService = inject(CoachmarkService);
 
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
@@ -92,6 +93,7 @@ export class WebVaultPromptService {
       darkImgSrc: NEW_EXPERIENCE_DARK_IMG,
     });
     if (newExperienceResult !== null) {
+      this.sideNavService.open.set(true);
       return;
     }
 

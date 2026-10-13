@@ -1183,6 +1183,9 @@
   "collections": {
     "message": "Collections"
   },
+  "controlledAccess": {
+    "message": "Controlled access"
+  },
   "firstName": {
     "message": "First name"
   },
@@ -6724,11 +6727,26 @@
   "resendInvitation": {
     "message": "Resend invitation"
   },
+  "sendInvite": {
+    "message": "Send invite"
+  },
+  "sendInvites": {
+    "message": "Send invites"
+  },
   "resendEmail": {
     "message": "Resend email"
   },
   "hasBeenReinvited": {
     "message": "$USER$ reinvited",
+    "placeholders": {
+      "user": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "hasBeenInvited": {
+    "message": "$USER$ invited",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -14328,6 +14346,9 @@
   "organizationOptionsMenu": {
     "message": "Toggle Organization Menu"
   },
+  "vaultOptions": {
+    "message": "Vault options"
+  },
   "vaultItemSelect": {
     "message": "Select vault item"
   },
@@ -16998,6 +17019,15 @@
   },
   "coachmarkMonitorSecurityDescription": {
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
+  },
+  "tourTheNewVault": {
+    "message": "Tour the new vault"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "With updated navigation and design, it's easier than ever to find what you need."
+  },
+  "takeTheTour": {
+    "message": "Take the tour"
   },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Monitor security activity"

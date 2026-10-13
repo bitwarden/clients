@@ -13,6 +13,7 @@ import { VaultProfileService } from "../vault-profile.service";
 import {
   VFO1_GA_RELEASE_DATE,
   VFO1_ONBOARDING_WINDOW_MONTHS,
+  VFO1_WALKTHROUGH_ACCOUNT_AGE_DAYS,
   Vfo1OnboardingNudgeService,
 } from "./vfo1-onboarding-nudge.service";
 
@@ -94,6 +95,36 @@ describe("Vfo1OnboardingNudgeService", () => {
       expect(result).toEqual({
         hasBadgeDismissed: true,
         hasSpotlightDismissed: true,
+      });
+    });
+
+    describe("walkthrough", () => {
+      it("is dismissed for an account created less than the account-age cutoff before GA", async () => {
+        vaultProfileService.getProfileCreationDate.mockResolvedValue(
+          gaDatePlusDays(-(VFO1_WALKTHROUGH_ACCOUNT_AGE_DAYS - 1)),
+        );
+
+        const walkthrough = await firstValueFrom(
+          service.nudgeStatus$(NudgeType.Vfo1Walkthrough, userId),
+        );
+        const newExperience = await firstValueFrom(
+          service.nudgeStatus$(NudgeType.Vfo1NewExperience, userId),
+        );
+
+        expect(walkthrough.hasSpotlightDismissed).toBe(true);
+        expect(newExperience.hasSpotlightDismissed).toBe(false);
+      });
+
+      it("is active for an account created more than the account-age cutoff before GA", async () => {
+        vaultProfileService.getProfileCreationDate.mockResolvedValue(
+          gaDatePlusDays(-(VFO1_WALKTHROUGH_ACCOUNT_AGE_DAYS + 1)),
+        );
+
+        const result = await firstValueFrom(
+          service.nudgeStatus$(NudgeType.Vfo1Walkthrough, userId),
+        );
+
+        expect(result.hasSpotlightDismissed).toBe(false);
       });
     });
 
