@@ -20527,6 +20527,9 @@
   "pamAuditKindRotationConfigDeleted": {
     "message": "Rotation config deleted"
   },
+  "pamAuditKindRotationConfigUpdated": {
+    "message": "Rotation config updated"
+  },
   "pamAuditKindRotationOfferedToConnector": {
     "message": "Rotation offered to access connector"
   },
@@ -20598,6 +20601,9 @@
   },
   "pamAuditKindTargetDeleted": {
     "message": "Target system deleted"
+  },
+  "pamAuditKindTargetUpdated": {
+    "message": "Target system updated"
   },
   "pamAuditTargetSystem": {
     "message": "Target system"
