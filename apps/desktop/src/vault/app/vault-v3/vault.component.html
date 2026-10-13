@@ -9,6 +9,8 @@
     <app-header [title]="title()">
       @if (showBreadcrumbs()) {
         <vault-breadcrumbs slot="breadcrumbs" [scope]="vaultScope()" />
+      } @else if (scopedFolderId(); as folderId) {
+        <vault-my-folder-breadcrumbs slot="breadcrumbs" [folderId]="folderId" />
       } @else if (headerTile(); as tile) {
         <bit-icon-tile
           slot="title-prefix"
@@ -19,6 +21,15 @@
           size="sm"
           aria-hidden="true"
         />
+      }
+
+      <!--
+        Its own block rather than a second root in the one above: a control flow block only
+        projects into a named slot when it has a single root element, and otherwise falls into the
+        default slot.
+      -->
+      @if (scopedFolderId(); as folderId) {
+        <vault-my-folder-menu slot="title-suffix" [folderId]="folderId" />
       }
       @if (!vfo1Foundation()) {
         <vault-new-cipher-menu
