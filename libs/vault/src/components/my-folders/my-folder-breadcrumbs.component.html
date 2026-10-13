@@ -1,0 +1,20 @@
+@if (trail(); as path) {
+  <bit-breadcrumbs>
+    <bit-breadcrumb icon="bwi-folder" [route]="foldersListCommands()">
+      {{ "myFolders" | i18n }}
+    </bit-breadcrumb>
+    @for (ancestor of path.ancestors; track ancestor.id) {
+      <bit-breadcrumb icon="bwi-folder" [route]="folderCommands(ancestor.id)">
+        {{ ancestor.name }}
+      </bit-breadcrumb>
+    }
+
+    <!--
+      `[route]="[]"` plus `preserve` resolves to the current URL, query params and all, which is
+      what keeps this crumb active once the table writes its filter state there.
+    -->
+    <bit-breadcrumb icon="bwi-folder" [route]="[]" queryParamsHandling="preserve">
+      {{ path.current }}
+    </bit-breadcrumb>
+  </bit-breadcrumbs>
+}

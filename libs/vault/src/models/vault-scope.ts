@@ -386,6 +386,11 @@ export function sharedFoldersCommands(organizationId: OrganizationId): string[] 
   ];
 }
 
+/** The `Router.navigate` commands for the My folders list. */
+export function foldersListCommands(): string[] {
+  return [`/${FOLDERS_ROUTE}`];
+}
+
 /** The `Router.navigate` commands for one of the user's folders. */
 export function folderCommands(folderId: string): string[] {
   return [`/${FOLDERS_ROUTE}`, folderId];
