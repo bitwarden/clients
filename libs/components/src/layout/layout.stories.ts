@@ -118,9 +118,11 @@ export const StickyHeaderAndFooterVfo1: Story = {
     `,
   }),
   play: async ({ canvasElement }) => {
-    // The nav scrolls itself, not the page; the sticky bands only engage once it is 600px tall.
+    // The nav scrolls itself, not the page; which element scrolls depends on the 600px breakpoint.
     const scroller = await waitFor(() => {
-      const el = canvasElement.querySelector<HTMLElement>("#bit-side-nav--scroll");
+      const el = [
+        ...canvasElement.querySelectorAll<HTMLElement>("[data-nav-column], #bit-side-nav--scroll"),
+      ].find((candidate) => candidate.scrollHeight > candidate.clientHeight);
       if (el == null) {
         throw new Error("Side nav scroll container has not rendered");
       }
@@ -129,6 +131,41 @@ export const StickyHeaderAndFooterVfo1: Story = {
 
     scroller.scrollTop = 400;
     await waitFor(async () => await expect(scroller.scrollTop).toBeGreaterThan(0));
+  },
+};
+
+export const ToggleKeepsFocusVfo1: Story = {
+  ...WithContentVfo1,
+  play: async ({ canvasElement }) => {
+    // The toggle must stay one DOM node across states, or keyboard focus falls to <body>.
+    const toggle = await waitFor(() => {
+      const el = canvasElement.querySelector<HTMLButtonElement>(
+        "[data-testid='side-nav-header'] button",
+      );
+      if (el == null) {
+        throw new Error("Side nav toggle has not rendered");
+      }
+      return el;
+    });
+    const initial = toggle.getAttribute("aria-expanded");
+    const flipped = initial === "true" ? "false" : "true";
+
+    toggle.focus();
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => expect(toggle).toHaveAttribute("aria-expanded", flipped));
+    await expect(toggle).toHaveFocus();
+
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => expect(toggle).toHaveAttribute("aria-expanded", initial));
+    await expect(toggle).toHaveFocus();
+
+    if (initial === "false") {
+      await userEvent.keyboard("{Enter}");
+    }
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(toggle).toHaveAttribute("aria-expanded", "false"));
+    await expect(toggle).toHaveFocus();
+    await expect(toggle.closest("nav")).not.toBeNull();
   },
 };
 

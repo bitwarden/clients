@@ -1,5 +1,5 @@
 /* Standard scrollbar props disable the webkit pseudo-elements (the only way to round the thumb), so they're Firefox-only. */
-bit-side-nav [data-nav-version="vfo1"] > #bit-side-nav--scroll {
+bit-side-nav [data-nav-version="vfo1"] :is([data-nav-column], #bit-side-nav--scroll) {
   @supports selector(::-webkit-scrollbar) {
     &::-webkit-scrollbar {
       width: 10px;
