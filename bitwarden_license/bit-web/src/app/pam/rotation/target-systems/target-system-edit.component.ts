@@ -44,8 +44,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { apiErrorBodyMessage } from "../../abstractions/api-error";
-import { discardConfirmOptions } from "../../helpers/discard-confirm";
-import { HasUnsavedChanges } from "../../unsaved-changes.guard";
+import { HasUnsavedChangesDialog } from "../../unsaved-changes.guard";
 import {
   accessConnectorConnectionLabelKey,
   accessConnectorStatusLabelKey,
@@ -253,7 +252,7 @@ function buildPolicyGroup(fb: FormBuilder): PolicyGroup {
     I18nPipe,
   ],
 })
-export class TargetSystemEditComponent implements HasUnsavedChanges {
+export class TargetSystemEditComponent implements HasUnsavedChangesDialog {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly formBuilder = inject(FormBuilder);
@@ -959,29 +958,13 @@ export class TargetSystemEditComponent implements HasUnsavedChanges {
     this.liveForms().forEach((form) => form.markAsPristine());
   }
 
-  /**
-   * Called by Cancel and by the CanDeactivate guard, which covers the breadcrumb and browser
-   * back/forward.
-   */
-  async confirmLeave(): Promise<boolean> {
-    if (!this.liveForms().some((form) => form.dirty)) {
-      return true;
-    }
-
-    return await this.dialogService.openSimpleDialog(
-      discardConfirmOptions({
-        editing: this.editing,
-        createTitleKey: "pamTargetSystemDiscardTitle",
-      }),
-    );
+  unsavedChanges(): boolean {
+    return this.liveForms().some((form) => form.dirty);
   }
 
+  /** Leaves through the route's guard, which asks before discarding. */
   protected readonly cancel = async (): Promise<void> => {
-    if (!(await this.confirmLeave())) {
-      return;
-    }
-
-    await this.navigateToList();
+    await this.router.navigate([".."], { relativeTo: this.route });
   };
 
   private navigateToList(): Promise<boolean> {
