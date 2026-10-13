@@ -18026,16 +18026,16 @@
   "pamAccessRuleDescription": {
     "message": "Description"
   },
-  "pamAccessRuleDefaultDuration": {
+  "pamAccessRuleDefaultDurationLabel": {
     "message": "Default duration"
   },
-  "pamAccessRuleMaxDuration": {
+  "pamAccessRuleMaxDurationLabel": {
     "message": "Maximum duration"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "No cap"
   },
-  "pamAccessRuleMaxDurationHint": {
+  "pamAccessRuleMaxDurationLimitHint": {
     "message": "Access is limited to this length, whatever duration is requested."
   },
   "pamAccessRuleDuration15m": {
