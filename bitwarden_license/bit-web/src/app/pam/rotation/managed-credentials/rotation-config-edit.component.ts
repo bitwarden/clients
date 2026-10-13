@@ -30,8 +30,7 @@ import {
 import type { CipherId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { discardConfirmOptions } from "../../helpers/discard-confirm";
-import { HasUnsavedChanges } from "../../unsaved-changes.guard";
+import { HasUnsavedChangesDialog } from "../../unsaved-changes.guard";
 import {
   TARGET_SYSTEM_QUERY_PARAM,
   THEN_MANAGED_CREDENTIAL,
@@ -100,7 +99,7 @@ export type RotationConfigEditTab = (typeof ROTATION_CONFIG_EDIT_TABS)[number];
     I18nPipe,
   ],
 })
-export class RotationConfigEditComponent implements HasUnsavedChanges {
+export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly formBuilder = inject(FormBuilder);
@@ -458,32 +457,16 @@ export class RotationConfigEditComponent implements HasUnsavedChanges {
   }
 
   /**
-   * Called by Cancel and by the CanDeactivate guard, which a `:tab` change doesn't trigger. Exits
-   * while loading pass, since `savedValue` has no snapshot until `initialize()` settles.
+   * Read by the CanDeactivate guard, which a `:tab` change doesn't trigger. Nothing is unsaved
+   * while loading, since `savedValue` has no snapshot until `initialize()` settles.
    */
-  async confirmLeave(): Promise<boolean> {
-    if (this.loading()) {
-      return true;
-    }
-
-    if (JSON.stringify(this.liveForm().getRawValue()) === this.savedValue()) {
-      return true;
-    }
-
-    return await this.dialogService.openSimpleDialog(
-      discardConfirmOptions({
-        editing: this.editing,
-        createTitleKey: "pamRotationConfigDiscardTitle",
-      }),
-    );
+  unsavedChanges(): boolean {
+    return !this.loading() && JSON.stringify(this.liveForm().getRawValue()) !== this.savedValue();
   }
 
+  /** Leaves through the route's guard, which asks before discarding. */
   protected readonly cancel = async (): Promise<void> => {
-    if (!(await this.confirmLeave())) {
-      return;
-    }
-
-    await this.navigateBack();
+    await this.router.navigate(this.credentialsListRoute);
   };
 
   private navigateBack(): Promise<boolean> {
