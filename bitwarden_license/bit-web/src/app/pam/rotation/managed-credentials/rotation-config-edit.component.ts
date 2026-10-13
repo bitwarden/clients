@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { ActivatedRoute, CanDeactivateFn, Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, map } from "rxjs";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -31,6 +31,7 @@ import type { CipherId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { discardConfirmOptions } from "../../helpers/discard-confirm";
+import { HasUnsavedChanges } from "../../unsaved-changes.guard";
 import {
   TARGET_SYSTEM_QUERY_PARAM,
   THEN_MANAGED_CREDENTIAL,
@@ -99,7 +100,7 @@ export type RotationConfigEditTab = (typeof ROTATION_CONFIG_EDIT_TABS)[number];
     I18nPipe,
   ],
 })
-export class RotationConfigEditComponent {
+export class RotationConfigEditComponent implements HasUnsavedChanges {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly formBuilder = inject(FormBuilder);
@@ -460,7 +461,7 @@ export class RotationConfigEditComponent {
    * Called by Cancel and by the CanDeactivate guard, which a `:tab` change doesn't trigger. Exits
    * while loading pass, since `savedValue` has no snapshot until `initialize()` settles.
    */
-  async confirmDiscard(): Promise<boolean> {
+  async confirmLeave(): Promise<boolean> {
     if (this.loading()) {
       return true;
     }
@@ -478,7 +479,7 @@ export class RotationConfigEditComponent {
   }
 
   protected readonly cancel = async (): Promise<void> => {
-    if (!(await this.confirmDiscard())) {
+    if (!(await this.confirmLeave())) {
       return;
     }
 
@@ -508,7 +509,3 @@ export class RotationConfigEditComponent {
     });
   }
 }
-
-export const rotationConfigEditDiscardGuard: CanDeactivateFn<RotationConfigEditComponent> = (
-  component,
-) => component.confirmDiscard();
