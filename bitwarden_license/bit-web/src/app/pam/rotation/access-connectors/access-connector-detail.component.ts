@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { ActivatedRoute, CanDeactivateFn, Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { map } from "rxjs";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -39,6 +39,7 @@ import {
   accessConnectorDeleteConfirmOptions,
 } from "../../helpers/access-connector-confirm";
 import { discardEditsConfirmOptions } from "../../helpers/discard-confirm";
+import { HasUnsavedChanges } from "../../unsaved-changes.guard";
 import {
   AssignmentPickerColumn,
   AssignmentPickerComponent,
@@ -115,7 +116,7 @@ export type AccessConnectorAssignment = Omit<TargetSystemLabel, "id"> &
     I18nPipe,
   ],
 })
-export class AccessConnectorDetailComponent {
+export class AccessConnectorDetailComponent implements HasUnsavedChanges {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly rotationSdk = inject(RotationSdkService);
@@ -395,7 +396,7 @@ export class AccessConnectorDetailComponent {
     }
   };
 
-  async confirmDiscard(): Promise<boolean> {
+  async confirmLeave(): Promise<boolean> {
     if (!this.formGroup.dirty) {
       return true;
     }
@@ -551,7 +552,3 @@ export class AccessConnectorDetailComponent {
     this.toastService.showToast({ variant: "error", message });
   }
 }
-
-export const accessConnectorDetailDiscardGuard: CanDeactivateFn<AccessConnectorDetailComponent> = (
-  component,
-) => component.confirmDiscard();

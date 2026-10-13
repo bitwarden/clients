@@ -8,12 +8,10 @@ import { organizationRedirectGuard } from "@bitwarden/web-vault/app/admin-consol
 
 import { AccessAuditComponent } from "./access-audit/access-audit.component";
 import { AccessNameResolverService } from "./access-requests/access-name-resolver.service";
-import {
-  AccessRuleEditComponent,
-  accessRuleEditDiscardGuard,
-} from "./access-rules/access-rule-edit/access-rule-edit.component";
+import { AccessRuleEditComponent } from "./access-rules/access-rule-edit/access-rule-edit.component";
 import { AccessRulesComponent } from "./access-rules/access-rules.component";
 import { pamLandingRoute } from "./pam-landing-route";
+import { unsavedChangesGuard } from "./unsaved-changes.guard";
 
 const routes: Routes = [
   {
@@ -57,13 +55,13 @@ const routes: Routes = [
           {
             path: "new",
             component: AccessRuleEditComponent,
-            canDeactivate: [accessRuleEditDiscardGuard],
+            canDeactivate: [unsavedChangesGuard],
             data: { titleId: "pamAccessRuleCreateTitle" },
           },
           {
             path: ":accessRuleId",
             component: AccessRuleEditComponent,
-            canDeactivate: [accessRuleEditDiscardGuard],
+            canDeactivate: [unsavedChangesGuard],
             data: { titleId: "pamAccessRuleEditTitle" },
           },
         ],
