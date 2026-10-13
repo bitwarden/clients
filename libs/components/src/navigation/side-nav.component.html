@@ -35,6 +35,32 @@
       "
       (keydown)="handleKeyDown($event)"
     >
+      <!-- Outside the scroller so its divider spans the scrollbar gutters. -->
+      <div
+        data-testid="side-nav-header"
+        class="tw-flex tw-shrink-0 tw-pb-3 tw-justify-between tw-items-center tw-border-0 tw-border-solid tw-border-b tw-border-border-nav-divider"
+        [class]="open ? 'tw-px-3' : railPadding"
+        [class.tw-pt-3]="!isOverlay"
+        [class.tw-flex-col]="!open"
+        [class.tw-gap-1]="!open"
+        [class.tw-gap-2]="open"
+        [style.padding-top]="
+          isOverlay ? 'calc(0.75rem + var(--bit-sidenav-extra-top-padding, 0px))' : null
+        "
+      >
+        <ng-container *ngTemplateOutlet="logoContent"></ng-container>
+        <button
+          #toggleButton
+          type="button"
+          [bitIconButton]="open ? 'bwi-collapse-nav' : 'bwi-expand-nav'"
+          buttonType="side-nav"
+          size="small"
+          (click)="sideNavService.toggle()"
+          [label]="'toggleSideNavigation' | i18n"
+          [attr.aria-expanded]="open"
+          aria-controls="bit-side-nav"
+        ></button>
+      </div>
       <!-- Collapsed only: reserve gutters so classic scrollbars never squish the rail icons. -->
       <div
         class="tw-flex-1 tw-min-h-0 tw-overflow-auto tw-overscroll-none tw-@container-[size]"
@@ -44,33 +70,6 @@
       >
         <div class="tw-flex tw-flex-col tw-min-h-full tw-group/side-nav">
           <nav class="tw-flex-1" [attr.aria-label]="'sideNavigation' | i18n">
-            <div
-              #headerWrapper
-              data-testid="side-nav-header"
-              class="tw-flex tw-pb-3 tw-justify-between tw-items-center tw-border-0 tw-border-solid tw-border-b tw-border-border-nav-divider tw-bg-bg-nav [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-top-0 [@container_(min-height:600px)]:tw-z-20"
-              [class]="open ? 'tw-px-3' : railPadding"
-              [class.tw-pt-3]="!isOverlay"
-              [class.tw-flex-col]="!open"
-              [class.tw-gap-1]="!open"
-              [class.tw-gap-2]="open"
-              [class.tw-pe-3]="open"
-              [style.padding-top]="
-                isOverlay ? 'calc(0.75rem + var(--bit-sidenav-extra-top-padding, 0px))' : null
-              "
-            >
-              <ng-container *ngTemplateOutlet="logoContent"></ng-container>
-              <button
-                #toggleButton
-                type="button"
-                [bitIconButton]="open ? 'bwi-collapse-nav' : 'bwi-expand-nav'"
-                buttonType="side-nav"
-                size="small"
-                (click)="sideNavService.toggle()"
-                [label]="'toggleSideNavigation' | i18n"
-                [attr.aria-expanded]="open"
-                aria-controls="bit-side-nav"
-              ></button>
-            </div>
             <!-- Switcher keeps its wider 48px collapsed column. -->
             <div
               class="tw-w-full tw-bg-bg-nav tw-pt-2"
