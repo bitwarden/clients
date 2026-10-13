@@ -109,6 +109,10 @@ export class CipherViewComponent {
    * situations where the cipher contents are not editable)
    */
   readonly hideChangePasswordLink = input<boolean>(false);
+  /**
+   * Optional input for explicitly disabling the item history section of cipher details
+   */
+  readonly hideItemHistory = input<boolean>(false);
 
   constructor(
     private organizationService: OrganizationService,

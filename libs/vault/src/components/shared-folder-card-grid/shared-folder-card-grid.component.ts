@@ -37,6 +37,7 @@ import {
   vaultScopeCommands,
   VaultScopeType,
 } from "../../models/vault-scope";
+import { sharedFolderName } from "../../utils/shared-folder-name";
 
 /**
  * Three full rows stay visible before the rest collapse, however many columns the grid is currently
@@ -225,10 +226,13 @@ export class SharedFolderCardGridComponent {
   private readonly folders = computed(() => this.sharedFolderNode()?.children ?? []);
 
   /**
-   * The name of the shared folder in view, titling the grid. The tree names each node by its own
-   * path segment, so this is the folder's own name rather than its full path.
+   * The name of the shared folder in view, titling the grid. Read through {@link sharedFolderName}:
+   * the tree names a node whose parent is missing by the joined path segments, not its own name.
    */
-  protected readonly parentName = computed(() => this.sharedFolderNode()?.node.name ?? "");
+  protected readonly parentName = computed(() => {
+    const node = this.sharedFolderNode()?.node;
+    return node ? sharedFolderName(node) : "";
+  });
 
   protected readonly listId = `shared-folder-card-grid-list-${nextId++}`;
 
@@ -252,14 +256,13 @@ export class SharedFolderCardGridComponent {
   });
 
   /**
-   * The child collections unwrapped from their tree nodes, each resolved to its own route. The tree
-   * names each node by its own path segment rather than its full path, so a card shows the folder's
-   * own name.
+   * The child collections unwrapped from their tree nodes, each resolved to its own route and named
+   * by its own name rather than its path — see {@link parentName}.
    */
   private readonly cards = computed<SharedFolderCard[]>(() =>
     this.folders().map(({ node, children }) => ({
       id: node.id,
-      name: node.name,
+      name: sharedFolderName(node),
       commands: this.folderRoute(node),
       nestedSharedFolders: children.length,
     })),

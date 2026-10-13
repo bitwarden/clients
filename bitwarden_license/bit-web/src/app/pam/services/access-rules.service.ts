@@ -34,11 +34,9 @@ export class AccessRulesService {
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
 
   readonly rules$: Observable<AccessRuleView[]> = this._rules$.asObservable();
-  /** The org's collections; the view resolves rule collection ids to names against these. */
   readonly collections$: Observable<CollectionAdminView[]> = this._collections$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
 
-  /** Fetch the org's rules and collections, replacing local state. */
   async load(organizationId: OrganizationId): Promise<void> {
     this.organizationId = organizationId;
     this._loading$.next(true);
@@ -55,7 +53,6 @@ export class AccessRulesService {
     }
   }
 
-  /** The currently-loaded rule with the given id, if any. */
   getRule(id: string): AccessRuleView | undefined {
     return this._rules$.value.find((r) => uuidAsString(r.id) === id);
   }
