@@ -314,7 +314,10 @@ describe("FirstMenu", () => {
       const submenu = (menu as any).logOutSubmenu;
       await submenu[0].click();
 
-      expect(messagingService.send).toHaveBeenCalledWith("logout", { userId: "user1" });
+      expect(messagingService.send).toHaveBeenCalledWith("logout", {
+        userId: "user1",
+        logoutReason: "userInitiated",
+      });
     });
 
     it("does not send logout message when dialog is cancelled", async () => {

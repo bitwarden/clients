@@ -686,6 +686,9 @@ export class AppComponent implements OnInit, OnDestroy {
   // Even though the userId parameter is no longer optional doesn't mean a message couldn't be
   // passing null-ish values to us.
   private async logOut(logoutReason: LogoutReason, userId: UserId) {
+    // Desktop logout paths bypass DefaultLogoutService (see PM-21212 TODO above),
+    // so the log line that lives there is mirrored here to cover every caller.
+    this.logService.info("Logging out user %s for reason: %s", userId, logoutReason);
     await this.displayLogoutReason(logoutReason);
 
     const activeUserId = await firstValueFrom(
