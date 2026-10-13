@@ -1,24 +1,17 @@
 import { RunGuardsAndResolvers, Routes } from "@angular/router";
 
-import {
-  AccessConnectorDetailComponent,
-  accessConnectorDetailDiscardGuard,
-} from "./access-connectors/access-connector-detail.component";
+import { unsavedChangesGuard } from "../unsaved-changes.guard";
+
+import { AccessConnectorDetailComponent } from "./access-connectors/access-connector-detail.component";
 import { AccessConnectorsTabComponent } from "./access-connectors/access-connectors-tab.component";
 import { AccessConnectorsService } from "./access-connectors/access-connectors.service";
 import { ManagedCredentialsTabComponent } from "./managed-credentials/managed-credentials-tab.component";
-import {
-  RotationConfigEditComponent,
-  rotationConfigEditDiscardGuard,
-} from "./managed-credentials/rotation-config-edit.component";
+import { RotationConfigEditComponent } from "./managed-credentials/rotation-config-edit.component";
 import { RotationConfigsService } from "./managed-credentials/rotation-configs.service";
 import { OrgCiphersService } from "./org-ciphers.service";
 import { ROTATION_TABS } from "./rotation-links";
 import { RotationShellComponent } from "./rotation-shell.component";
-import {
-  TargetSystemEditComponent,
-  targetSystemEditDiscardGuard,
-} from "./target-systems/target-system-edit.component";
+import { TargetSystemEditComponent } from "./target-systems/target-system-edit.component";
 import { TargetSystemsTabComponent } from "./target-systems/target-systems-tab.component";
 import { TargetSystemsService } from "./target-systems/target-systems.service";
 
@@ -37,7 +30,7 @@ export const rotationRoutes: Routes = [
   {
     path: `${ROTATION_TABS.managedCredentials}/new`,
     component: RotationConfigEditComponent,
-    canDeactivate: [rotationConfigEditDiscardGuard],
+    canDeactivate: [unsavedChangesGuard],
     data: { titleId: "pamRotationConfigCreateTitle" },
   },
   // The edit page's tabs are routed, so each is deep-linkable. Angular reuses the component
@@ -50,20 +43,20 @@ export const rotationRoutes: Routes = [
   {
     path: `${ROTATION_TABS.managedCredentials}/:configId/:tab`,
     component: RotationConfigEditComponent,
-    canDeactivate: [rotationConfigEditDiscardGuard],
+    canDeactivate: [unsavedChangesGuard],
     runGuardsAndResolvers: recordChanged("configId"),
     data: { titleId: "pamRotationConfigEditTitle" },
   },
   {
     path: `${ROTATION_TABS.targetSystems}/new`,
     component: TargetSystemEditComponent,
-    canDeactivate: [targetSystemEditDiscardGuard],
+    canDeactivate: [unsavedChangesGuard],
     data: { titleId: "pamTargetSystemCreateTitle" },
   },
   {
     path: `${ROTATION_TABS.targetSystems}/:targetSystemId`,
     component: TargetSystemEditComponent,
-    canDeactivate: [targetSystemEditDiscardGuard],
+    canDeactivate: [unsavedChangesGuard],
     data: { titleId: "pamTargetSystemEditTitle" },
   },
   {
@@ -74,7 +67,7 @@ export const rotationRoutes: Routes = [
   {
     path: `${ROTATION_TABS.accessConnectors}/:accessConnectorId/:tab`,
     component: AccessConnectorDetailComponent,
-    canDeactivate: [accessConnectorDetailDiscardGuard],
+    canDeactivate: [unsavedChangesGuard],
     runGuardsAndResolvers: recordChanged("accessConnectorId"),
     data: { titleId: "pamAccessConnectorDetailTitle" },
   },
