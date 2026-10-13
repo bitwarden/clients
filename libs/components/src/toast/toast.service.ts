@@ -51,8 +51,7 @@ export class ToastService {
       : messageText;
 
     if (fullAnnouncement?.trim() && this.liveAnnouncer) {
-      const politeness = options.variant === "error" ? "assertive" : "polite";
-      void this.liveAnnouncer.announce(fullAnnouncement.trim(), politeness);
+      void this.liveAnnouncer.announce(fullAnnouncement.trim(), "polite");
     }
   }
 

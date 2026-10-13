@@ -54,13 +54,13 @@ describe("ToastService", () => {
     expect(liveAnnouncer.announce).toHaveBeenCalledWith("Item copied", "polite");
   });
 
-  it("should announce assertive screen reader message for error variant", () => {
+  it("should announce polite screen reader message for error variant", () => {
     service.showToast({
       message: "Failed to copy password",
       variant: "error",
     });
 
-    expect(liveAnnouncer.announce).toHaveBeenCalledWith("Failed to copy password", "assertive");
+    expect(liveAnnouncer.announce).toHaveBeenCalledWith("Failed to copy password", "polite");
   });
 
   it("should include title in announcement when present", () => {
