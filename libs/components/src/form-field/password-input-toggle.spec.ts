@@ -1,6 +1,8 @@
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { Component, DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -41,8 +43,11 @@ describe("PasswordInputToggle", () => {
   let button: BitIconButtonComponent;
   let input: BitFormFieldControlDirective;
   let toggle: DebugElement;
+  let liveAnnouncer: MockProxy<LiveAnnouncer>;
 
   beforeEach(async () => {
+    liveAnnouncer = mock<LiveAnnouncer>();
+
     await TestBed.configureTestingModule({
       imports: [TestFormFieldComponent],
       providers: [
@@ -50,8 +55,16 @@ describe("PasswordInputToggle", () => {
           provide: I18nService,
           useValue: new I18nMockService({
             toggleVisibility: "Toggle visibility",
+            showPassword: "Show password",
+            hidePassword: "Hide password",
+            passwordShown: "Password shown",
+            passwordHidden: "Password hidden",
             loading: "Loading",
           }),
+        },
+        {
+          provide: LiveAnnouncer,
+          useValue: liveAnnouncer,
         },
       ],
     }).compileComponents();
@@ -79,11 +92,18 @@ describe("PasswordInputToggle", () => {
     it("spellcheck is disabled", () => {
       expect(input.spellcheck!()).toBe(undefined);
     });
+
+    it("has dynamic showPassword accessible label and attributes", () => {
+      expect(toggle.nativeElement.getAttribute("aria-label")).toBe("Show password");
+      expect(toggle.nativeElement.getAttribute("aria-pressed")).toBe("false");
+      expect(toggle.nativeElement.getAttribute("title")).toBe("Show password");
+    });
   });
 
   describe("when toggled", () => {
     beforeEach(() => {
       toggle.triggerEventHandler("click");
+      fixture.detectChanges();
     });
 
     it("has correct icon", () => {
@@ -97,12 +117,24 @@ describe("PasswordInputToggle", () => {
     it("spellcheck is disabled", () => {
       expect(input.spellcheck!()).toBe(false);
     });
+
+    it("has dynamic hidePassword accessible label and attributes", () => {
+      expect(toggle.nativeElement.getAttribute("aria-label")).toBe("Hide password");
+      expect(toggle.nativeElement.getAttribute("aria-pressed")).toBe("true");
+      expect(toggle.nativeElement.getAttribute("title")).toBe("Hide password");
+    });
+
+    it("announces password visibility to screen reader", () => {
+      expect(liveAnnouncer.announce).toHaveBeenCalledWith("Password shown", "polite");
+    });
   });
 
   describe("when toggled twice", () => {
     beforeEach(() => {
       toggle.triggerEventHandler("click");
+      fixture.detectChanges();
       toggle.triggerEventHandler("click");
+      fixture.detectChanges();
     });
 
     it("has correct icon", () => {
@@ -115,6 +147,15 @@ describe("PasswordInputToggle", () => {
 
     it("spellcheck is disabled", () => {
       expect(input.spellcheck!()).toBe(undefined);
+    });
+
+    it("restores showPassword accessible label", () => {
+      expect(toggle.nativeElement.getAttribute("aria-label")).toBe("Show password");
+      expect(toggle.nativeElement.getAttribute("aria-pressed")).toBe("false");
+    });
+
+    it("announces password hidden to screen reader", () => {
+      expect(liveAnnouncer.announce).toHaveBeenCalledWith("Password hidden", "polite");
     });
   });
 });

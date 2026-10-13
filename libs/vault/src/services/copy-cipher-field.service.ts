@@ -192,10 +192,11 @@ export class CopyCipherFieldService {
     }
 
     this.platformUtilsService.copyToClipboard(valueToCopy);
+    const fieldLabel = this.i18nService.t(action.typeI18nKey);
+    const message = this.i18nService.t("valueCopied", fieldLabel);
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("valueCopied", this.i18nService.t(action.typeI18nKey)),
-      title: "",
+      message,
     });
 
     if (action.event !== undefined) {

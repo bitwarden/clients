@@ -1,3 +1,4 @@
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import {
   AfterContentInit,
   Directive,
@@ -7,6 +8,7 @@ import {
   HostListener,
   model,
   OnChanges,
+  Optional,
   Output,
 } from "@angular/core";
 
@@ -16,6 +18,9 @@ import { BitIconButtonComponent } from "../icon-button/icon-button.component";
 
 import { BitFormFieldComponent } from "./form-field.component";
 
+/**
+ * Directive applied to toggle buttons on password inputs to show or hide plain text password values.
+ */
 @Directive({
   selector: "[bitPasswordInputToggle]",
   host: {
@@ -31,8 +36,15 @@ export class BitPasswordInputToggleDirective implements AfterContentInit, OnChan
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() toggledChange = new EventEmitter<boolean>();
 
-  @HostBinding("attr.title") title = this.i18nService.t("toggleVisibility");
-  @HostBinding("attr.aria-label") label = this.i18nService.t("toggleVisibility");
+  @HostBinding("attr.title") get title(): string {
+    return this.label;
+  }
+
+  @HostBinding("attr.aria-label") get label(): string {
+    const key = this.toggled() ? "hidePassword" : "showPassword";
+    const localized = this.i18nService.t(key);
+    return localized || (this.toggled() ? "Hide password" : "Show password");
+  }
 
   /**
    * Click handler to toggle the state of the input type.
@@ -42,12 +54,20 @@ export class BitPasswordInputToggleDirective implements AfterContentInit, OnChan
     this.toggledChange.emit(this.toggled());
 
     this.update();
+
+    if (this.liveAnnouncer) {
+      const announceKey = this.toggled() ? "passwordShown" : "passwordHidden";
+      const message =
+        this.i18nService.t(announceKey) || (this.toggled() ? "Password shown" : "Password hidden");
+      void this.liveAnnouncer.announce(message, "polite");
+    }
   }
 
   constructor(
     @Host() private button: BitIconButtonComponent,
     private formField: BitFormFieldComponent,
     private i18nService: I18nService,
+    @Optional() private liveAnnouncer?: LiveAnnouncer,
   ) {}
 
   get icon() {
