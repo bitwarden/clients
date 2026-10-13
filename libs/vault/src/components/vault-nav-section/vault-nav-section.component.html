@@ -34,7 +34,7 @@
           />
         </bit-nav-item>
       } @else {
-        <!-- See `coachmarkTourRunning` for why the tour expands this for its whole run. -->
+        <!-- See `coachmarkExpands` for why the tour expands this for its whole run. -->
         <bit-nav-group
           [text]="vault.label"
           [open]="nav.organizationDataOwnership || coachmarkExpands(vault)"
@@ -80,11 +80,11 @@
             [text]="'sharedFolders' | i18n"
             [route]="sharedFoldersRoute(vault)"
             [queryParamsHandling]="queryParamsHandling(sharedFoldersRoute(vault))"
-            [bitPopoverAnchorFor]="coachmarkPopover()"
+            [bitPopoverAnchorFor]="sharedFoldersCoachmark.popover()"
             [popoverOpen]="coachmarkTargets(vault)"
-            [position]="coachmarkPosition()"
+            [position]="coachmark.getStepPosition('shareWithCollections')"
             [closeOnBackdropClick]="false"
-            [spotlight]="!!coachmarkPopover()"
+            [spotlight]="coachmarkTargets(vault)"
           ></bit-nav-item>
         </bit-nav-group>
       }
@@ -117,3 +117,5 @@
     </bit-nav-section>
   }
 }
+
+<vault-coachmark #sharedFoldersCoachmark stepId="shareWithCollections" />

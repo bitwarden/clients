@@ -437,7 +437,7 @@ const routes: Routes = [
       },
       {
         path: "lock",
-        canActivate: [deepLinkGuard(), lockGuard()],
+        canActivate: [lockGuard()],
         children: [
           {
             path: "",

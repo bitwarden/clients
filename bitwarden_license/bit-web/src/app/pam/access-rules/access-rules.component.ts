@@ -99,9 +99,8 @@ export class AccessRulesComponent {
 
   protected readonly dataSource = new TableDataSource<AccessRuleView>();
   /**
-   * The filtered + sorted rules straight from the data source — the basis for both the
-   * rendered table body and select-all (which spans the whole filtered set). `connect()`
-   * is idempotent, so sharing it with `bit-table` (which connects too) is safe.
+   * The filtered and sorted rows, which select-all spans. Sharing `connect()` with `bit-table` is
+   * safe, since it is idempotent.
    */
   protected readonly processedRows = toSignal(this.dataSource.connect(), {
     initialValue: [] as AccessRuleView[],
@@ -137,7 +136,6 @@ export class AccessRulesComponent {
       .sort((a, b) => a.label.localeCompare(b.label)),
   );
 
-  // --- Selection ---
   protected readonly selection = new SelectionModel<AccessRuleId>(true, []);
 
   protected selectedCount(): number {
@@ -159,18 +157,15 @@ export class AccessRulesComponent {
   );
 
   constructor() {
-    // Reload whenever the active organization changes. This also refreshes the list
-    // when returning from the create/edit page, since the component remounts.
+    // Also reloads on return from the create or edit page, since the component remounts.
     effect(() => {
       void this.accessRules.load(this.organizationId());
     });
 
-    // Mirror the loaded rules into the table data source.
     effect(() => {
       this.dataSource.data = this.rules();
     });
 
-    // Recompute the combined filter whenever any toolbar control changes.
     effect(() => {
       const { search, status, collection } = this.filterInputs();
       const text = search.trim().toLowerCase();
@@ -185,23 +180,19 @@ export class AccessRulesComponent {
     });
   }
 
-  /** Column sort for "status": disabled rules before enabled ones (ascending). */
+  /** Ascending puts disabled rules first. */
   protected readonly sortByStatus: SortFn = (a: AccessRuleView, b: AccessRuleView) =>
     Number(a.enabled) - Number(b.enabled);
 
-  /** Column sort for "last modified": chronological by revision date (ascending). */
   protected readonly sortByRevisionDate: SortFn = (a: AccessRuleView, b: AccessRuleView) =>
     revisionDateMs(a) - revisionDateMs(b);
 
-  /** Navigate to the create page. */
   protected readonly openCreate = (): Promise<boolean> =>
     this.router.navigate(["new"], { relativeTo: this.route });
 
-  /** Navigate to the create page, seeding it from a starter template. */
   protected readonly openFromTemplate = (key: AccessRuleTemplateKey): Promise<boolean> =>
     this.router.navigate(["new"], { relativeTo: this.route, queryParams: { template: key } });
 
-  /** Navigate to the edit page for a rule (a shareable, deep-linkable URL). */
   protected readonly openEdit = (rule: AccessRuleView): Promise<boolean> =>
     this.router.navigate([rule.id], { relativeTo: this.route });
 
@@ -240,8 +231,6 @@ export class AccessRulesComponent {
       this.showError(e);
     }
   };
-
-  // --- Selection ---
 
   protected toggleAll(): void {
     if (this.allSelected()) {
@@ -311,8 +300,6 @@ export class AccessRulesComponent {
       this.showError(e);
     }
   }
-
-  // --- Helpers ---
 
   private selectedRules(): AccessRuleView[] {
     return this.processedRows().filter((r) => this.selection.isSelected(r.id));

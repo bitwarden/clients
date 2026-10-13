@@ -69,6 +69,7 @@ import {
   ALL_ITEMS_SCOPE,
   DecryptionFailureDialogComponent,
   DefaultVaultItemsTransferService,
+  NewExperienceDialogService,
   resolveVaultScope,
   type VaultScope,
   VaultItemsTransferService,
@@ -114,6 +115,10 @@ const VaultState = {
 } as const;
 
 type VaultState = UnionOfValues<typeof VaultState>;
+
+// Resolved against the popup document at the extension root, not this file.
+const NEW_EXPERIENCE_LIGHT_IMG = "../../../../images/new-experience/new-experience.light.png";
+const NEW_EXPERIENCE_DARK_IMG = "../../../../images/new-experience/new-experience.dark.png";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -295,6 +300,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly vaultNavService = inject(VaultNavService);
+  private readonly newExperienceDialogService = inject(NewExperienceDialogService);
 
   /** The account's vaults; `undefined` until they load. */
   private readonly vaultNav = toSignal(
@@ -414,6 +420,12 @@ export class VaultComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
+    // Read before the call below marks it dismissed, so this reflects whether the user had already
+    // been through onboarding when they opened the popup.
+    const onboardingWelcomeDismissed = await firstValueFrom(
+      this.introCarouselService.introCarouselState$,
+    );
+
     await this.introCarouselService.setIntroCarouselDismissed();
 
     this.cipherService
@@ -482,6 +494,26 @@ export class VaultComponent implements OnInit, OnDestroy {
     await this.vaultItemsTransferService.enforceOrganizationDataOwnership(this.activeUserId);
 
     this.readySubject.next(true);
+
+    await this.openNewExperienceDialog(this.activeUserId, onboardingWelcomeDismissed);
+  }
+
+  /**
+   * Opens the new experience dialog once, for accounts that predate the GA release.
+   *
+   * Gated on the intro carousel — the extension's onboarding welcome — so a user who has not yet
+   * been introduced to the product is not told what changed about it. The remaining rules are
+   * shared with web and desktop, and live in {@link NewExperienceDialogService}.
+   */
+  private async openNewExperienceDialog(userId: UserId, onboardingWelcomeDismissed: boolean) {
+    if (!onboardingWelcomeDismissed) {
+      return;
+    }
+
+    await this.newExperienceDialogService.conditionallyOpen(userId, {
+      lightImgSrc: NEW_EXPERIENCE_LIGHT_IMG,
+      darkImgSrc: NEW_EXPERIENCE_DARK_IMG,
+    });
   }
 
   ngOnDestroy() {

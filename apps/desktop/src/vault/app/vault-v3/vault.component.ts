@@ -106,6 +106,7 @@ import {
   DecryptionFailureDialogComponent,
   DefaultCipherFormConfigService,
   DefaultVaultItemsTransferService,
+  NewExperienceDialogService,
   PasswordRepromptService,
   VaultFilter,
   VaultFilterServiceAbstraction as VaultFilterService,
@@ -162,6 +163,13 @@ import { VaultListTableComponent } from "./vault-list-table/vault-list-table.com
 import { VaultListComponent } from "./vault-list.component";
 
 const BroadcasterSubscriptionId = "VaultComponent";
+
+/**
+ * Screenshots of the redesigned vault, shown in the new experience dialog. Relative to the
+ * renderer document, which webpack emits alongside the copied `images` directory.
+ */
+const NEW_EXPERIENCE_LIGHT_IMG = "images/new-experience/new-experience.light.png";
+const NEW_EXPERIENCE_DARK_IMG = "images/new-experience/new-experience.dark.png";
 
 type EmptyStateType = "trash" | "favorites" | "archive";
 
@@ -242,6 +250,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   private destroyRef = inject(DestroyRef);
   private cipherFormConfigService = inject(CipherFormConfigService);
+  private newExperienceDialogService = inject(NewExperienceDialogService);
   private vaultBatchBarService = inject(VaultBatchBarService);
   private activeDrawerRef?: DialogRef<VaultItemDialogResult>;
 
@@ -860,7 +869,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.refresh());
 
-    void this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
+    await this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
+
+    // Desktop has no prompt service to sequence onboarding, so the page opens this itself.
+    await this.newExperienceDialogService.conditionallyOpen(activeUserId, {
+      lightImgSrc: NEW_EXPERIENCE_LIGHT_IMG,
+      darkImgSrc: NEW_EXPERIENCE_DARK_IMG,
+    });
   }
 
   ngOnDestroy() {
