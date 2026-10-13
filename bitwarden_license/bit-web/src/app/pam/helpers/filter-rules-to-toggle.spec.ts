@@ -1,6 +1,6 @@
-import { rulesChangingEnabled } from "./rules-changing-enabled";
+import { filterRulesToToggle } from "./filter-rules-to-toggle";
 
-describe("rulesChangingEnabled", () => {
+describe("filterRulesToToggle", () => {
   const rules = [
     { id: "a", enabled: true },
     { id: "b", enabled: false },
@@ -8,17 +8,17 @@ describe("rulesChangingEnabled", () => {
   ];
 
   it("keeps only the rules not already disabled when disabling", () => {
-    expect(rulesChangingEnabled(rules, false)).toEqual([
+    expect(filterRulesToToggle(rules, false)).toEqual([
       { id: "a", enabled: true },
       { id: "c", enabled: true },
     ]);
   });
 
   it("keeps only the rules not already enabled when enabling", () => {
-    expect(rulesChangingEnabled(rules, true)).toEqual([{ id: "b", enabled: false }]);
+    expect(filterRulesToToggle(rules, true)).toEqual([{ id: "b", enabled: false }]);
   });
 
   it("is empty when every rule is already in the target state", () => {
-    expect(rulesChangingEnabled([{ id: "b", enabled: false }], false)).toEqual([]);
+    expect(filterRulesToToggle([{ id: "b", enabled: false }], false)).toEqual([]);
   });
 });
