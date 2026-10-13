@@ -233,4 +233,54 @@ describe("ControlledAccessVaultFilterService", () => {
       expect(result).toEqual([]);
     });
   });
+
+  describe("sortRanks$", () => {
+    it("ranks gated rows by the SDK's badge order: active, ready, pending, unavailable, privileged", async () => {
+      const states: Record<string, unknown> = {
+        privileged: "privileged",
+        unavailable: "unavailable",
+        pending: "pending",
+        ready: "ready",
+        active: { active: { expiresAt: "2026-08-20T12:00:00.000Z" } },
+      };
+      accessRequestSdkService.getCipherAccessState.mockImplementation((cipherId: string) =>
+        Promise.resolve(accessState(states[cipherId])),
+      );
+      const rows = Object.keys(states).map((id) => cipher(id, PAM_ORG, true));
+
+      const ranks = await firstValueFrom(service.sortRanks$(rows));
+
+      const order = [...ranks.entries()].sort(([, a], [, b]) => a - b).map(([id]) => id);
+      expect(order).toEqual(["active", "ready", "pending", "unavailable", "privileged"]);
+    });
+
+    it("leaves out ungated rows and rows whose read failed", async () => {
+      accessRequestSdkService.getCipherAccessState.mockImplementation((cipherId: string) =>
+        cipherId === "failed"
+          ? Promise.reject(new Error("boom"))
+          : Promise.resolve(accessState("privileged")),
+      );
+
+      const ranks = await firstValueFrom(
+        service.sortRanks$([
+          cipher("gated", PAM_ORG, true),
+          cipher("ungated", PAM_ORG, false),
+          cipher("elsewhere", PLAIN_ORG, true),
+          cipher("failed", PAM_ORG, true),
+        ]),
+      );
+
+      expect([...ranks.keys()]).toEqual(["gated"]);
+    });
+
+    it("shares its reads with narrow$ over the same rows", async () => {
+      const rows = [cipher("cipher-1", PAM_ORG, true), cipher("cipher-2", PAM_ORG, true)];
+
+      await firstValueFrom(
+        combineLatest([service.narrow$(PRIVILEGED_FILTER_ID, rows), service.sortRanks$(rows)]),
+      );
+
+      expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(rows.length);
+    });
+  });
 });

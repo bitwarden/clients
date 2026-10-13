@@ -99,6 +99,18 @@ const CONTROLLED_ACCESS_STATE_FILTERS: readonly ControlledAccessFilterDefinition
 type AccessKind = AccessBadgeState["kind"];
 
 /**
+ * The vault table's Controlled access sort, ascending: the SDK's badge ranking (active → ready →
+ * pending → unavailable → privileged), so the rows needing the user's attention lead.
+ */
+const SORT_ORDER: readonly AccessKind[] = [
+  "active",
+  "ready",
+  "pending",
+  "unavailable",
+  "privileged",
+];
+
+/**
  * The "Controlled access" filter: the sidebar's state groups ({@link options$}) and the vault
  * table chip's one-per-state options ({@link tableOptions$}), over one narrowing. Narrowing costs
  * one `getCipherAccessState` call per gated row in a PAM organization, shared across options.
@@ -159,6 +171,21 @@ export class ControlledAccessVaultFilterService implements VaultControlledAccess
           ? this.narrowTo$(definition, ciphers)
           : of(ciphers),
       ),
+    );
+  }
+
+  sortRanks$<C extends CipherViewLike>(ciphers: C[]): Observable<Map<string, number>> {
+    return this.kinds$(ciphers).pipe(
+      map((kinds) => {
+        const ranks = new Map<string, number>();
+        for (const [id, kind] of kinds) {
+          const rank = SORT_ORDER.indexOf(kind);
+          if (rank !== -1) {
+            ranks.set(id, rank);
+          }
+        }
+        return ranks;
+      }),
     );
   }
 
