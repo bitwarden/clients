@@ -1,5 +1,5 @@
 import { SelectionModel } from "@angular/cdk/collections";
-import { CommonModule } from "@angular/common";
+import { DatePipe } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -14,8 +14,6 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { map, startWith } from "rxjs";
 
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -41,8 +39,6 @@ import {
   MenuModule,
   SearchModule,
   SortFn,
-  TableDataSource,
-  TableModule,
   defineTable,
   ToastService,
   TooltipDirective,
@@ -80,7 +76,7 @@ import { ApprovalMethodPipe } from "./approval-method.pipe";
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [AccessRulesService],
   imports: [
-    CommonModule,
+    DatePipe,
     ReactiveFormsModule,
     AccessRuleCollectionBadgesComponent,
     AccessRulesEmptyStateComponent,
@@ -103,7 +99,6 @@ import { ApprovalMethodPipe } from "./approval-method.pipe";
     LinkModule,
     MenuModule,
     SearchModule,
-    TableModule,
     TooltipDirective,
     TypographyModule,
     I18nPipe,
@@ -119,13 +114,6 @@ export class AccessRulesComponent {
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
-  private readonly configService = inject(ConfigService);
-
-  // remove when VFO1 flag is removed
-  protected readonly vfo1Enabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
-    { initialValue: false },
-  );
 
   protected readonly loading = toSignal(this.accessRules.loading$, { initialValue: true });
   protected readonly collections = toSignal(this.accessRules.collections$, {
@@ -137,19 +125,10 @@ export class AccessRulesComponent {
 
   protected readonly templates = ACCESS_RULE_TEMPLATES;
 
-  protected readonly dataSource = new TableDataSource<AccessRuleView>();
-  /**
-   * The filtered and sorted rows, which select-all spans. Sharing `connect()` with `bit-table` is
-   * safe, since it is idempotent.
-   */
-  protected readonly processedRows = toSignal(this.dataSource.connect(), {
-    initialValue: [] as AccessRuleView[],
-  });
-
   protected readonly table = defineTable<AccessRuleView, "select" | "actions">(this.rules);
 
-  // Only `search` is a form control, since `bit-filter-menu` isn't a `ControlValueAccessor`. The v2
-  // table adopts the same `bit-search`, so `rowMatchesFilter` must not apply `searchTerm` again.
+  // Only `search` is a form control, since `bit-filter-menu` isn't a `ControlValueAccessor`. The
+  // table reads the same `bit-search`, so `rowMatchesFilter` must not apply `searchTerm` again.
   protected readonly filterForm = new FormGroup({
     search: new FormControl("", { nonNullable: true }),
   });
@@ -176,7 +155,7 @@ export class AccessRulesComponent {
   });
 
   /**
-   * The v2 table's row test. Chip and search values arrive keyed, which the table needs to count
+   * The table's row test. Chip and search values arrive keyed, which the table needs to count
    * each chip's options.
    */
   protected readonly rowMatchesFilter = (
@@ -193,9 +172,8 @@ export class AccessRulesComponent {
     );
   }
 
-  private readonly selectableRows = computed(() =>
-    this.vfo1Enabled() ? this.rules().filter(this.ruleFilter()) : this.processedRows(),
-  );
+  /** The rows the filters leave visible, which select-all spans. */
+  private readonly selectableRows = computed(() => this.rules().filter(this.ruleFilter()));
 
   protected readonly statusOptions: { label: string; value: AccessRuleStatusFilter }[] = [
     { label: this.i18nService.t("pamAccessRuleActive"), value: "enabled" },
@@ -232,14 +210,6 @@ export class AccessRulesComponent {
     // Also reloads on return from the create or edit page, since the component remounts.
     effect(() => {
       void this.accessRules.load(this.organizationId());
-    });
-
-    effect(() => {
-      this.dataSource.data = this.rules();
-    });
-
-    effect(() => {
-      this.dataSource.filter = this.ruleFilter();
     });
   }
 
