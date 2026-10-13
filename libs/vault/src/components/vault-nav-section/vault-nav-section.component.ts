@@ -13,6 +13,7 @@ import {
   IconTileComponent,
   IconTileOptions,
   NavigationModule,
+  PopoverModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -28,6 +29,8 @@ import {
 } from "../../models/vault-scope";
 import { EXACT_PATH } from "../../routing/exact-path";
 import { VaultNavService } from "../../services/vault-nav.service";
+import { CoachmarkComponent } from "../coachmark/coachmark.component";
+import { CoachmarkService } from "../coachmark/coachmark.service";
 
 /**
  * Renders the Password Manager side-nav Vaults section from the shared {@link VaultNavService}
@@ -44,6 +47,8 @@ import { VaultNavService } from "../../services/vault-nav.service";
     IconTileComponent,
     IconModule,
     A11yTitleDirective,
+    PopoverModule,
+    CoachmarkComponent,
   ],
 })
 export class VaultNavSectionComponent {
@@ -52,6 +57,7 @@ export class VaultNavSectionComponent {
   private readonly vaultNavService = inject(VaultNavService);
   private readonly accountService = inject(AccountService);
   private readonly router = inject(Router);
+  protected readonly coachmark = inject(CoachmarkService);
 
   protected readonly vaultNav = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -171,6 +177,29 @@ export class VaultNavSectionComponent {
 
   protected sharedFoldersRoute(vault: VaultNavItemViewModel): string[] | undefined {
     return this.sharedFolderRoutes().get(vault.id);
+  }
+
+  /** The one Shared folders entry the coachmark anchors, of the one each organization renders. */
+  private readonly coachmarkVaultId = computed(
+    () => this.vaultNav()?.vaults.find((vault) => vault.type !== VaultNavItemType.Personal)?.id,
+  );
+
+  /** Whether the tour's popover anchors to this vault's Shared folders entry. */
+  protected coachmarkTargets(vault: VaultNavItemViewModel): boolean {
+    return (
+      this.coachmark.isStepActive("shareWithCollections") && vault.id === this.coachmarkVaultId()
+    );
+  }
+
+  /**
+   * Whether this vault's group has to stay open for the tour to reach its Shared folders entry.
+   * Held for the whole tour rather than only for its own step: a collapsed group has no entry to
+   * anchor, and one that mounts in the same change detection cycle the popover opens in leaves
+   * `TemplatePortal` with no root nodes to move, so the popover renders inline in the nav instead
+   * of in its overlay.
+   */
+  protected coachmarkExpands(vault: VaultNavItemViewModel): boolean {
+    return this.coachmark.isRunning() && vault.id === this.coachmarkVaultId();
   }
 
   protected myItemsRoute(vault: VaultNavItemViewModel): string[] | undefined {

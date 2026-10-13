@@ -1252,20 +1252,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "$COUNT$ extra gedeelde mappen weergegeven boven deze knop",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "1 extra gedeelde map weergegeven boven deze knop",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "Mijn map"
   },
@@ -1274,6 +1260,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Voeg mappen toe aan items om ze hier te filteren."
+  },
+  "myItemsFilterTooltip": {
+    "message": "Items toevoegen aan Mijn items om ze hier te filteren."
   },
   "sharedFolderFilterTooltip": {
     "message": "Add items to a shared folder to filter here."
@@ -1699,6 +1688,14 @@
   "copyUsername": {
     "message": "Gebruikersnaam kopiëren",
     "description": "Copy username to clipboard"
+  },
+  "copyExternalId": {
+    "message": "Extern ID kopiëren",
+    "description": "Copy external ID to clipboard"
+  },
+  "copySsoExternalId": {
+    "message": "SSO extern ID kopiëren",
+    "description": "Copy SSO external ID to clipboard"
   },
   "copyNumber": {
     "message": "Nummer Kopiëren",
@@ -2629,10 +2626,10 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Je hebt geen mappen."
+  "youHaveNoFoldersV2": {
+    "message": "Je hebt geen mappen"
   },
-  "emptyFoldersDescription": {
+  "emptyFoldersDescriptionV2": {
     "message": "Gebruik mappen om kluis-items te organiseren. Ze zijn alleen voor jou - niemand anders zal ze zien of gebruiken."
   },
   "emptyVaultsDescription": {
@@ -3461,11 +3458,21 @@
   "selectImportCollection": {
     "message": "Collectie selecteren"
   },
+  "selectImportSharedFolder": {
+    "message": "Gedeelde map selecteren"
+  },
+  "importTargetMyFolder": {
+    "message": "Mijn map",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een collectie wilt verplaatsen"
   },
   "importTargetHintFolder": {
     "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een map wilt verplaatsen"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Selecteer deze optie als je de inhoud van het geïmporteerde bestand naar een gedeelde map wilt verplaatsen"
   },
   "importUnassignedItemsError": {
     "message": "Bestand bevat niet-toegewezen items."
@@ -3475,6 +3482,40 @@
   },
   "selectImportFile": {
     "message": "Kies het importbestand"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Bestand kiezen"
@@ -4469,6 +4510,14 @@
     "message": "Rekeningtegoed",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
   },
+  "appliedBalance": {
+    "message": "Toegepast saldo",
+    "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
+  },
+  "amountDue": {
+    "message": "Openstaand bedrag",
+    "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
+  },
   "accountBalance": {
     "message": "Rekeningbalans",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
@@ -4684,6 +4733,15 @@
   },
   "reinstateSubscription": {
     "message": "Abonnement opnieuw activeren"
+  },
+  "keepSubscription": {
+    "message": "Abonnement behouden"
+  },
+  "subscriptionPastDueWillPauseSoon": {
+    "message": "Je abonnement is verlopen en zal binnenkort worden onderbroken."
+  },
+  "subscriptionPastDuePaused": {
+    "message": "Je abonnement is verlopen en is onderbroken."
   },
   "reinstateConfirmation": {
     "message": "Weet je zeker dat je de lopende opzegging wilt verwijderen en je abonnement opnieuw wilt activeren?"
@@ -5418,10 +5476,6 @@
   },
   "collectionInfo": {
     "message": "Collectieinformatie"
-  },
-  "sharedFolderInfo": {
-    "message": "Gedeelde map-informatie",
-    "description": "VFO1 terminology feature flag variant of collectionInfo"
   },
   "deleteCollectionConfirmation": {
     "message": "Weet je zeker dat je deze verzameling wilt verwijderen?"
@@ -6886,6 +6940,9 @@
   "clickHereToAddPaymentMethod": {
     "message": "Klik hier voor het toevoegen van een betaalmethode."
   },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "Neem contact op met je Bitwarden-verkoopvertegenwoordiger voor het instellen van facturatie."
+  },
   "joinOrganization": {
     "message": "Lid worden van organisatie"
   },
@@ -7480,6 +7537,9 @@
   "inviteLinkRegenerated": {
     "message": "Uitnodigingslink opnieuw gegenereerd"
   },
+  "inviteLinkConfirmationUpdated": {
+    "message": "Uitnodigingslink bijgewerkt"
+  },
   "regenerateInviteLink": {
     "message": "Uitnodigingslink opnieuw genereren"
   },
@@ -7554,6 +7614,9 @@
   },
   "inviteByLinkDesc": {
     "message": "Leden met een link uitnodigen voor je organisatie. Als er nog geen rol is opgegeven, worden ze toegevoegd als een standaardgebruiker."
+  },
+  "inviteLinkSelfHostEmailVerificationWarning": {
+    "message": "Het gebruik van een uitnodigingslink kan een beveiligingsrisico vormen in je zelf gehoste omgeving, omdat gebruikers hun e-mailadres niet hoeven te verifiëren."
   },
   "byContinuingYouAgreeToThe": {
     "message": "Door verder te gaan, ga je akkoord met de"
@@ -8853,16 +8916,16 @@
   "sendControls": {
     "message": "Send-instellingen"
   },
-  "manageSend": {
-    "message": "Send beheren",
+  "manageSendV2": {
+    "message": "Send en delen beheren",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDesc": {
     "message": "Instellingen voor het aanmaken en bewerken van Sends, inclusief de mogelijkheid tot het verwijderen van Sends.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV4": {
-    "message": "Beheer hoe leden Send gebruiken. Dit beleid is van toepassing op Sends die zijn aangemaakt nadat je dit  beleid inschakelt. Beheerders en eigenaren zijn vrijgesteld.",
+  "sendControlsPolicyDescV5": {
+    "message": "Beheer hoe leden Send en het delen van kluisitems gebruiken. Dit beleid zal niet worden afgedwongen voor eigenaren en admins.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDescListVfo1": {
@@ -9533,16 +9596,25 @@
   "decryptionError": {
     "message": "Ontsleutelingsfout"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden kon de onderstaande kluisitem(s) niet ontsleutelen."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden kon het onderstaande kluisitem niet ontsleutelen. Neem contact op met Bitwarden Customer Support en geef het item ID hieronder om te zien of het kan worden hersteld."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Neem contact op met de klantenservice",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden kon de onderstaande kluisitems niet ontsleutelen. Neem contact op met Bitwarden Customer Support en geef het item ID hieronder om te zien of het kan worden hersteld."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "om extra dataverlies te voorkomen.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "Item ID",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "Item IDs",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": ""
+  },
+  "copyAllIds": {
+    "message": "Alle ID's kopiëren"
   },
   "accountRecoveryManageUsers": {
     "message": "Gebruikers beheren moet je ook accountherstel beheren toekennen"
@@ -9865,6 +9937,9 @@
   "activateAutofillPolicyDescV2": {
     "message": "Schakel automatisch invullen in voor pagina-laadinstellingen in de browserextensie voor alle bestaande en nieuwe leden. Houd er rekening mee dat gecompromitteerde of onbetrouwbare websites "
   },
+  "activateAutofillPolicyDescV3": {
+    "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Once this policy is on, members must adjust their personal settings to turn on autofill. Be aware that compromised or untrustworthy websites can"
+  },
   "exploitAutofillOnPageLoad": {
     "message": "automatisch invullen bij laden van pagina's kunnen exploiteren"
   },
@@ -10081,6 +10156,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "Selecteer de organisatie die je wilt sponsoren"
   },
+  "selectAFamilyVault": {
+    "message": "Selecteer een familiekluis"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "Welke gratis Families wil je inwisselen?"
   },
@@ -10092,6 +10170,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "Accepteer aanbod voor een bestaande organisatie of maak een nieuwe Families-organisatie aan."
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ heeft een gratis Bitwarden Families-abonnement voor jou gesponsord! Je kunt je gratis abonnement toepassen op een bestaande familiekluis of een nieuwe aanmaken.",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "Je bent gesponsord met een gratis Bitwarden Families-abonnement! Je kunt je gratis abonnement toepassen op een bestaande familiekluis of een nieuwe aanmaken.",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "Je hebt een gratis Bitwarden Families Plan-organisatie aangeboden gekregen. Om door te gaan, moet je inloggen op het account dat de aanbieding heeft ontvangen."
@@ -10110,6 +10202,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "Gratis Bitwarden Families-organisatieaanbod verzilveren"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "Gesponsord Familie-abonnement accepteren"
+  },
+  "sponsoredPlanDetails": {
+    "message": "Details gesponsord abonnement"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "Gratis Bitwarden Families-aanbod succesvol verzilverd"
@@ -10279,14 +10377,24 @@
   "paymentSponsored": {
     "message": "Geef een betalingsmethode om aan de organisatie te koppelen. Maak je geen zorgen, we brengen niets in rekening tenzij je aanvullende functies kiest of je sponsoring verloopt. "
   },
+  "paymentSponsoredFamilyVault": {
+    "message": "Geef een betalingsmethode om aan je familiekluis te koppelen. Maak je geen zorgen, we brengen niets in rekening tenzij je aanvullende functionaliteit kiest of je sponsoring verloopt.",
+    "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
+  },
   "orgCreatedSponsorshipInvalid": {
     "message": "De sponsoring is verlopen. Je kunt de organisatie die je hebt aangemaakt verwijderen om kosten aan het einde van je proefperiode van 7 dagen te voorkomen. Anders kun je deze pop-up sluiten om de organisatie te behouden en factureringsverantwoordelijkheid te nemen."
   },
   "newFamiliesOrganization": {
     "message": "Nieuwe Families-oganisatie"
   },
+  "createVault": {
+    "message": "Kluis aanmaken"
+  },
   "acceptOffer": {
     "message": "Aanbod accepteren"
+  },
+  "applySponsorship": {
+    "message": "Sponsoring toepassen"
   },
   "sponsoringOrg": {
     "message": "Sponsoringorganisatie"
@@ -10919,18 +11027,6 @@
   "scimLearnMore": {
     "message": "Meer informatie over SCIM"
   },
-  "scimIntegrationDescription": {
-    "message": "Automatisch in gebruikers en groepen voorzien via SCIM-provisioning van je voorkeursprovider. Onderteunde integraties vinden",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDesc": {
-    "message": "SCIM inschakelen",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDescHelpText": {
-    "message": "Stel je voorkeurs voorkeursprovider voor identiteiten in door de URL SCIM API-sleutel te configureren",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
   "scimApiKeyHelperText": {
     "message": "Deze API-sleutel heeft toegang tot het beheer van gebruikers binnen je organisatie. Het moet geheim blijven."
   },
@@ -11277,6 +11373,48 @@
   },
   "hardDeleteSecrets": {
     "message": "Geheimen definitief verwijderen"
+  },
+  "currentVersion": {
+    "message": "Huidige versie",
+    "description": "Label for the current version section in the secret version history."
+  },
+  "modifiedBy": {
+    "message": "Gewijzigd door: $NAME$",
+    "description": "Label indicating the user who modified a version.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "secretValueCopied": {
+    "message": "Geheime waarde gekopieerd",
+    "description": "Message displayed when a secret value has been copied to the clipboard."
+  },
+  "secretVersionRestored": {
+    "message": "Geheim teruggezet naar de geselecteerde versie",
+    "description": "Message displayed when a secret has been restored to a previous version."
+  },
+  "restoreVersionConfirmTitle": {
+    "message": "Versie geheim herstellen",
+    "description": "Title for the confirmation dialog when restoring a secret to a previous version."
+  },
+  "restoreVersionConfirmMessage": {
+    "message": "Weet je zeker dat u dit geheim naar de geselecteerde versie wilt herstellen? De huidige waarde zal worden vervangen.",
+    "description": "Message displayed in the confirmation dialog when restoring a secret to a previous version."
+  },
+  "previousVersions": {
+    "message": "Vorige versies",
+    "description": "Section header for previous versions of a secret in the version history."
+  },
+  "versionHistory": {
+    "message": "Versiegeschiedenis",
+    "description": "Menu option to view the version history of a secret."
+  },
+  "noVersionHistory": {
+    "message": "Geen versiegeschiedenis",
+    "description": "Empty state shown when a secret has no previous versions."
   },
   "secretProjectAssociationDescription": {
     "message": "Kies projecten om het geheim aan te koppelen. Alleen gebruikers uit de organisatie met toegang tot deze projecten kunnen het geheim zien.",
@@ -12457,6 +12595,9 @@
   },
   "restoreSecretsPrompt": {
     "message": "Weet je zeker dat je deze geheimen wilt herstellen?"
+  },
+  "restoreThisVersion": {
+    "message": "Deze versie herstellen"
   },
   "secretRestoredSuccessToast": {
     "message": "Geheim hersteld"
@@ -15459,20 +15600,11 @@
   "atRiskPassword": {
     "message": "Risicovolle wachtwoorden"
   },
-  "changeAtRiskPassword": {
-    "message": "Risicovol wachtwoord wijzigen"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Deze login is in gevaar en mist een website. Voeg een website toe en verander het wachtwoord voor een sterkere beveiliging."
-  },
   "vulnerablePassword": {
     "message": "Kwetsbaar wachtwoord."
   },
   "changeNow": {
     "message": "Nu wijzigen"
-  },
-  "missingWebsite": {
-    "message": "Ontbrekende website"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Ontgrendelen met PIN verwijderen"
@@ -16901,6 +17033,15 @@
       }
     }
   },
+  "secretKey": {
+    "message": "Geheime sleutel"
+  },
+  "secretKeyAndPassword": {
+    "message": "Geheime sleutel en wachtwoord"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Je account is beveiligd met een geheime sleutel en wachtwoord. Je moet beide invoeren om door te gaan."
+  },
   "keeperEmail": {
     "message": "E-mailadres Keeper"
   },
@@ -17356,6 +17497,9 @@
   "pam": {
     "message": "PAM"
   },
+  "pamAccessRequestsTitle": {
+    "message": "Verzoeken om toegang"
+  },
   "pamAccessRules": {
     "message": "Toegangsregels"
   },
@@ -17686,5 +17830,152 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "inviteLinkCalloutHeading": {
+    "message": "Je hele team uitnodigen met één link"
+  },
+  "inviteLinkCalloutBody": {
+    "message": "Iedereen met een bedrijfse-mailadres kan de uitnodigingslink gebruiken om voor deelname aan je organisatie. Sleep het neer in onboarding bronnen, zodat nieuwe medewerkers kunnen deelnemen wanneer ze klaar zijn."
+  },
+  "inviteLinkCalloutImageAlt": {
+    "message": "Preview van het dialoogvenster voor het uitnodigen van leden met het nieuwe tabblad"
+  },
+  "showMeHow": {
+    "message": "Laat mij zien hoe"
+  },
+  "shareVerb": {
+    "message": "Delen"
+  },
+  "peopleWhoCanView": {
+    "message": "Mensen die kunnen bekijken",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Na het delen van deze link moeten individuen hun e-mailadres met een code verifiëren om het item te kunnen bekijken.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Deze link verloopt na deze datum, maar ontvangers kunnen eerder gedeelde informatie bewaren. Hergenereer het inloggegevens voor het intrekken van toegang.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Link verloopt na",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Eenmalig delen",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Actieve links",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Link gekopieerd naar klembord",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Kan deel-link niet aanmaken",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Link opgeslagen en gekopieerd naar klembord",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Kan deel-link niet naar klembord kopiëren",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Deel-link verwijderd",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Kan deel-link niet verwijderen",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Deel via link",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Delen voor kluisitem $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareLinkExpires": {
+    "message": "Verloopt",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "sendAccessItemSubtitle": {
+    "message": "$SENDER_NAME$ heeft het volgende item met je gedeeld.",
+    "placeholders": {
+      "sender_name": {
+        "content": "$1",
+        "example": "user@example.com"
+      }
+    }
+  },
+  "additionalServiceAccountsLower": {
+    "message": "extra service accounts"
+  },
+  "additionalStorageGbLower": {
+    "message": "extra opslagruimte (GB)"
+  },
+  "membersLower": {
+    "message": "leden"
+  },
+  "memberLower": {
+    "message": "lid"
+  },
+  "annualLower": {
+    "message": "jaarlijks"
+  },
+  "monthlyLower": {
+    "message": "maandelijks"
+  },
+  "organizationSubscriptionCardTitle": {
+    "message": "$PLAN$ $CADENCE$-abonnement",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      },
+      "cadence": {
+        "content": "$2",
+        "example": "annual"
+      }
+    }
+  },
+  "keepAndReactivate": {
+    "message": "Behouden en heractiverev"
+  },
+  "subscriptionIsNowActive": {
+    "message": "Abonnement is nu actief"
+  },
+  "undoCancellationRequestConfirmation": {
+    "message": "Dit maakt jeannuleringsverzoek ongedaan en heactiveert je abonnement."
+  },
+  "subscriptionDetailsNotLoading": {
+    "message": "Abonnementdetails laden niet"
+  },
+  "subscriptionDetailsNotLoadingDesc": {
+    "message": "Onze factureringsdienst is niet beschikbaar, dus kunnen we je abonnement en prijzen op dit moment niet weergeven. Je abonnement zelf is niet beïnvloed."
+  },
+  "passwordManagerProratedCharge": {
+    "message": "Pro-rata-kosten wachtwoordbeheerder"
+  },
+  "storageProratedCharge": {
+    "message": "Pro-rata opslagkosten"
+  },
+  "secretsManagerProratedCharge": {
+    "message": "Pro-rata kosten Secret Manager"
+  },
+  "serviceAccountsProratedCharge": {
+    "message": "Pro-rata-kosten service-accounts"
   }
 }

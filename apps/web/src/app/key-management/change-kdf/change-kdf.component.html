@@ -1,9 +1,6 @@
 <h2 bitTypography="h2">
   {{ "encKeySettings" | i18n }}
 </h2>
-@if (!(noLogoutOnKdfChangeFeatureFlag$ | async)) {
-  <bit-callout type="warning">{{ "kdfSettingsChangeLogoutWarning" | i18n }}</bit-callout>
-}
 <p bitTypography="body1" class="tw-mt-4">
   {{ "encryptionKeySettingsHowShouldWeEncryptYourData" | i18n }}
 </p>

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideRouter, Router } from "@angular/router";
@@ -9,7 +9,7 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { CollectionId, UserId } from "@bitwarden/common/types/guid";
-import { NavigationModule, SideNavService } from "@bitwarden/components";
+import { NavigationModule, PopoverAnchorForDirective, SideNavService } from "@bitwarden/components";
 import { GlobalStateProvider } from "@bitwarden/state";
 
 import {
@@ -18,6 +18,8 @@ import {
   VaultsNavViewModel,
 } from "../../models/vault-nav-view-model";
 import { VaultNavService } from "../../services/vault-nav.service";
+import { CoachmarkStepId } from "../coachmark/coachmark-step";
+import { CoachmarkService } from "../coachmark/coachmark.service";
 
 import { VaultNavSectionComponent } from "./vault-nav-section.component";
 
@@ -155,8 +157,21 @@ describe("VaultNavSectionComponent", () => {
     fixture.detectChanges();
   };
 
+  const activeStepId = signal<CoachmarkStepId | null>(null);
+  const coachmarkService = {
+    isStepActive: (stepId: CoachmarkStepId) => activeStepId() === stepId,
+    isRunning: () => activeStepId() !== null,
+    getStepPosition: () => "right-center",
+    getStepTitle: () => "",
+    getStepDescription: () => "",
+    getStepLearnMoreUrl: (): string | undefined => undefined,
+    currentStepNumber: () => 1,
+    totalSteps: () => 1,
+  };
+
   beforeEach(async () => {
     jest.clearAllMocks();
+    activeStepId.set(null);
     viewModel$.next(personalOnly);
 
     i18nService.t.mockImplementation((key: string) => key);
@@ -169,6 +184,7 @@ describe("VaultNavSectionComponent", () => {
         { provide: VaultNavService, useValue: vaultNavService },
         { provide: AccountService, useValue: accountService },
         { provide: I18nService, useValue: i18nService },
+        { provide: CoachmarkService, useValue: coachmarkService },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
         provideRouter(routes),
       ],
@@ -309,6 +325,51 @@ describe("VaultNavSectionComponent", () => {
 
       expect(navItemIsLit(family, "sharedFolders")).toBe(false);
       expect(navItemIsLit(family, "allVaultItems")).toBe(false);
+    });
+  });
+
+  describe("coachmark anchor", () => {
+    /** Where the tour's popover is open, as `"<organization>/<element>"`. */
+    const openAnchors = () =>
+      fixture.debugElement
+        .queryAll(By.directive(PopoverAnchorForDirective))
+        .filter((el) => el.injector.get(PopoverAnchorForDirective).popoverOpen())
+        .map((el) => {
+          let group = el;
+          while (group.parent != null && group.name !== "bit-nav-group") {
+            group = group.parent;
+          }
+          return `${group.componentInstance.text()}/${el.name}`;
+        });
+
+    const navGroup = (label: string) =>
+      fixture.debugElement
+        .queryAll(By.css("bit-nav-group"))
+        .find((el) => el.componentInstance.text() === label);
+
+    beforeEach(() => {
+      viewModel$.next(withOrgs);
+      activeStepId.set("addItem");
+      fixture.detectChanges();
+    });
+
+    it("opens the first organization's group for the whole tour", () => {
+      // Groups collapse by default. See `coachmarkExpands` for why the tour needs
+      // this one open for its whole run.
+      expect(navGroup("Acme corporation").componentInstance.open()).toBe(true);
+      expect(navGroup("Smith family").componentInstance.open()).toBe(false);
+    });
+
+    it("opens on the first organization's Shared folders entry only", () => {
+      activeStepId.set("shareWithCollections");
+      fixture.detectChanges();
+
+      // One Shared folders entry per organization, and a single popover to place.
+      expect(openAnchors()).toEqual(["Acme corporation/bit-nav-item"]);
+    });
+
+    it("stays closed while the step is not active", () => {
+      expect(openAnchors()).toEqual([]);
     });
   });
 

@@ -25,3 +25,6 @@ export type AutomationBiometricMessage = {
 };
 
 export const AUTOMATION_BIOMETRIC_CHANNEL = "automation.biometric";
+
+/** Main-to-renderer event carrying each request that starts awaiting approval. */
+export const AUTOMATION_BIOMETRIC_REQUEST_CHANNEL = "automation.biometric.request";

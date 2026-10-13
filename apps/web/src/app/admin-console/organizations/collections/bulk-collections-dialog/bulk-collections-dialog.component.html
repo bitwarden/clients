@@ -2,7 +2,7 @@
   [formGroup]="formGroup"
   [bitSubmit]="submit"
   bit-dialog
-  [loading]="loading"
+  [loading]="loading$ | async"
   dialogSize="large"
 >
   <span bitDialogTitle>
@@ -17,25 +17,35 @@
   </span>
 
   <div bitDialogContent>
-    <bit-access-selector
-      *ngIf="organization?.useGroups"
-      [permissionMode]="PermissionMode.Edit"
-      formControlName="access"
-      [items]="accessItems"
-      [columnHeader]="'groupSlashMemberColumnHeader' | i18n"
-      [selectorLabelText]="'selectGroupsAndMembers' | i18n"
-      [selectorHelpText]="'userPermissionOverrideHelperDesc' | i18n"
-      [emptySelectionText]="'noMembersOrGroupsAdded' | i18n"
-    ></bit-access-selector>
-    <bit-access-selector
-      *ngIf="!organization?.useGroups"
-      [permissionMode]="PermissionMode.Edit"
-      formControlName="access"
-      [items]="accessItems"
-      [columnHeader]="'memberColumnHeader' | i18n"
-      [selectorLabelText]="'selectMembers' | i18n"
-      [emptySelectionText]="'noMembersAdded' | i18n"
-    ></bit-access-selector>
+    @if (!(loading$ | async)) {
+      @let organization = organization$ | async;
+      @if (organization?.useGroups) {
+        <bit-access-selector
+          [permissionMode]="PermissionMode.Edit"
+          formControlName="access"
+          [items]="accessItems$ | async"
+          [columnHeader]="'groupSlashMemberColumnHeader' | i18n"
+          [selectorLabelText]="'selectGroupsAndMembers' | i18n"
+          [selectorHelpText]="'userPermissionOverrideHelperDesc' | i18n"
+          [emptySelectionText]="'noMembersOrGroupsAdded' | i18n"
+        ></bit-access-selector>
+      } @else {
+        <bit-access-selector
+          [permissionMode]="PermissionMode.Edit"
+          formControlName="access"
+          [items]="accessItems$ | async"
+          [columnHeader]="'memberColumnHeader' | i18n"
+          [selectorLabelText]="'selectMembers' | i18n"
+          [emptySelectionText]="'noMembersAdded' | i18n"
+        ></bit-access-selector>
+      }
+    } @else {
+      <bit-icon
+        name="bwi-spinner"
+        class="bwi-spin tw-text-muted"
+        [ariaLabel]="'loading' | i18n"
+      ></bit-icon>
+    }
   </div>
 
   <ng-container bitDialogFooter>

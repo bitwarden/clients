@@ -2,11 +2,13 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import {
+  afterNextRender,
   ChangeDetectorRef,
   Component,
   computed,
   DestroyRef,
   inject,
+  Injector,
   NgZone,
   OnDestroy,
   OnInit,
@@ -27,6 +29,7 @@ import {
   debounceTime,
   distinctUntilChanged,
   of,
+  skip,
 } from "rxjs";
 import { filter, map, shareReplay, concatMap, tap } from "rxjs/operators";
 
@@ -57,6 +60,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -88,6 +92,7 @@ import {
   AutofocusDirective,
   IconTileComponent,
 } from "@bitwarden/components";
+import { isGuid } from "@bitwarden/guid";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
@@ -101,6 +106,7 @@ import {
   DecryptionFailureDialogComponent,
   DefaultCipherFormConfigService,
   DefaultVaultItemsTransferService,
+  NewExperienceDialogService,
   PasswordRepromptService,
   VaultFilter,
   VaultFilterServiceAbstraction as VaultFilterService,
@@ -129,16 +135,21 @@ import {
   organizationNameForScope,
   organizationVaultPage,
   OrganizationVaultPage,
+  parseVaultScope,
   resolveVaultScope,
+  scopeKey,
   scopedCollectionSegment,
   SharedFolderCardGridComponent,
   VaultBreadcrumbsComponent,
+  VaultRemountOnDirective,
   sharedFolderNameForScope,
   VaultNavService,
+  vaultScopeCommands,
   vaultScopeHeaderTile,
   vaultScopeTitle,
   VaultScopeType,
   defaultUserCollectionId,
+  VAULT_RENDERED_MARK,
 } from "@bitwarden/vault";
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
@@ -152,6 +163,13 @@ import { VaultListTableComponent } from "./vault-list-table/vault-list-table.com
 import { VaultListComponent } from "./vault-list.component";
 
 const BroadcasterSubscriptionId = "VaultComponent";
+
+/**
+ * Screenshots of the redesigned vault, shown in the new experience dialog. Relative to the
+ * renderer document, which webpack emits alongside the copied `images` directory.
+ */
+const NEW_EXPERIENCE_LIGHT_IMG = "images/new-experience/new-experience.light.png";
+const NEW_EXPERIENCE_DARK_IMG = "images/new-experience/new-experience.dark.png";
 
 type EmptyStateType = "trash" | "favorites" | "archive";
 
@@ -182,6 +200,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     SharedFolderCardGridComponent,
     VaultBreadcrumbsComponent,
     IconTileComponent,
+    VaultRemountOnDirective,
   ],
   providers: [
     { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
@@ -216,6 +235,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private restrictedItemTypesService = inject(RestrictedItemTypesService);
   private cipherArchiveService = inject(CipherArchiveService);
   private policyService = inject(PolicyService);
+  private logService = inject(LogService);
+  private injector = inject(Injector);
   private cipherActionService = inject(CipherActionService);
   private routedVaultFilterBridgeService = inject(RoutedVaultFilterBridgeService);
   private vaultFilterService = inject(VaultFilterService);
@@ -229,7 +250,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   private destroyRef = inject(DestroyRef);
   private cipherFormConfigService = inject(CipherFormConfigService);
-  private vaultBatchBarService = inject(VaultBatchBarService, { optional: true });
+  private newExperienceDialogService = inject(NewExperienceDialogService);
+  private vaultBatchBarService = inject(VaultBatchBarService);
   private activeDrawerRef?: DialogRef<VaultItemDialogResult>;
 
   protected readonly activeFilter = signal<VaultFilter>(new VaultFilter());
@@ -259,14 +281,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     { initialValue: false },
   );
 
-  protected readonly vaultBatchBarFeatureFlag = toSignal(
-    combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
-      this.configService.getFeatureFlag$(FeatureFlag.PM37785_DesktopVaultBatchBar),
-    ]).pipe(map(([batchBarFlag, desktopBatchBarFlag]) => batchBarFlag && desktopBatchBarFlag)),
-    { initialValue: false },
-  );
-
   protected readonly folders = toSignal(
     this.accountService.activeAccount$.pipe(
       map((a) => a?.id),
@@ -287,7 +301,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
     filterOutNullish(),
-    switchMap((id) => this.organizationService.organizations$(id)),
+    switchMap((id) => this.organizationService.memberOrganizations$(id)),
   );
 
   /** The account's vaults nav view model — {@link vaultScope$} resolves against this. */
@@ -320,6 +334,22 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   /** {@link vaultScope$} for the template — the card grid renders the folder it has drilled into. */
   protected readonly vaultScope = toSignal(this.vaultScope$, { initialValue: ALL_ITEMS_SCOPE });
+
+  /**
+   * The scope key the vault table's filter state belongs to. Read from the route rather than from
+   * {@link vaultScope$}, which resolves a second time as the nav loads.
+   */
+  protected readonly filterScopeKey = toSignal(
+    combineLatest([this.route.paramMap, this.route.data]).pipe(
+      map(([params, data]) =>
+        scopeKey(
+          parseVaultScope(params.get("vaultId"), scopedCollectionSegment(params, data)) ??
+            ALL_ITEMS_SCOPE,
+        ),
+      ),
+    ),
+    { initialValue: scopeKey(ALL_ITEMS_SCOPE) },
+  );
 
   /** {@link vaultNav$} as a signal for use in computed properties. */
   private readonly vaultNav = toSignal(this.vaultNav$);
@@ -648,6 +678,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     const filter$ = this.routedVaultFilterService.filter$;
 
+    /** Whether the current view is Trash, from the route's scope under VFO1, and from the query-param filter otherwise. */
+    const inTrash$ = combineLatest([this.vfo1Foundation$, this.vaultScope$, filter$]).pipe(
+      map(([vfo1Foundation, scope, filter]) =>
+        vfo1Foundation ? scope.type === VaultScopeType.Trash : filter.type === "trash",
+      ),
+    );
+
     /** Rows come from the route's scope under VFO1, and from the query-param filter otherwise. */
     const rowFilter$ = combineLatest([this.vfo1Foundation$, this.vaultScope$, filter$]).pipe(
       map(([vfo1Foundation, scope, filter]): FilterFunction =>
@@ -788,22 +825,43 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.ciphers = ciphers;
           this.collectionsToDisplay = collections;
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
+          const initialLoad = this.performingInitialLoad;
           this.performingInitialLoad = false;
           this.refreshing = false;
 
-          // Explicitly mark for check to ensure the view is updated
-          // Some sources are not always emitted within the Angular zone (e.g. ciphers updated via WS server notifications)
-          this.changeDetectorRef.markForCheck();
+          // WS server notifications emit outside the Angular zone; force change detection so the list updates.
+          this.changeDetectorRef.detectChanges();
+
+          // Marks when the first vault list is painted, the end point of unlock/login perf traces
+          if (initialLoad) {
+            afterNextRender(() => this.logService.mark(VAULT_RENDERED_MARK), {
+              injector: this.injector,
+            });
+          }
         },
       );
 
-    combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0))])
+    combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0)), inTrash$])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([allCollections, hasCiphers]) =>
-        this.vaultBatchBarService?.setConfig({ isOrgVault: false, allCollections, hasCiphers }),
+      .subscribe(([allCollections, hasCiphers, inTrash]) =>
+        this.vaultBatchBarService.setConfig({
+          isOrgVault: false,
+          allCollections,
+          hasCiphers,
+          inTrash,
+        }),
       );
 
-    this.vaultBatchBarService?.completed$
+    this.vaultScope$
+      .pipe(
+        map((scope) => vaultScopeCommands(scope).join("/")),
+        distinctUntilChanged(),
+        skip(1),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => this.vaultBatchBarService.clearSelection());
+
+    this.vaultBatchBarService.completed$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.refresh());
 
@@ -811,7 +869,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.refresh());
 
-    void this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
+    await this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
+
+    // Desktop has no prompt service to sequence onboarding, so the page opens this itself.
+    await this.newExperienceDialogService.conditionallyOpen(activeUserId, {
+      lightImgSrc: NEW_EXPERIENCE_LIGHT_IMG,
+      darkImgSrc: NEW_EXPERIENCE_DARK_IMG,
+    });
   }
 
   ngOnDestroy() {
@@ -1106,8 +1170,34 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
   }
 
-  protected openImport(): void {
-    this.dialogService.open(ImportDesktopComponent);
+  protected async openImport(): Promise<void> {
+    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+      // TODO: (PM-41469) this drops the org/collection scope the legacy branch below pre-fills.
+      // The new picker has no defined way to receive it yet (its `continue` output isn't wired
+      // to anything) — Tools Team to implement this before finalizing Import UI/UX upgrades
+      await this.router.navigate(["/import"]);
+      return;
+    }
+
+    let defaultOrganizationId;
+    let defaultCollectionId;
+
+    const vfo1Enabled = this.vfo1Foundation();
+    const scope = this.vaultScope();
+    if (vfo1Enabled) {
+      defaultOrganizationId =
+        scope.type === VaultScopeType.Organization ? scope.organizationId : undefined;
+      defaultCollectionId =
+        scope.type === VaultScopeType.Organization &&
+        scope.collectionId &&
+        isGuid(scope.collectionId)
+          ? scope.collectionId
+          : undefined;
+    }
+
+    this.dialogService.open(ImportDesktopComponent, {
+      data: { defaultOrganizationId, defaultCollectionId },
+    });
   }
 
   filterSearchText(searchText: string) {

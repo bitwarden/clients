@@ -143,6 +143,9 @@ at all. Stick to `px` / `fr` / `minmax`.
 
 The selection checkbox column is a fixed `56px` and isn't configurable.
 
+If no visible column can grow, the first visible column's max becomes `1fr` so rows still fill their
+width: `minmax(240px, 480px)` becomes `minmax(240px, 1fr)`.
+
 ### Columns without a data field
 
 For columns that don't map to a field on your row type — action buttons, expand/collapse, and the
@@ -186,6 +189,37 @@ show every column in declaration order.**
   </bit-column>
 </bit-table-v2>
 ```
+
+### Letting the user choose columns
+
+To enable column customization, mark a `bit-column` as `removable` and give it a `label` for the
+Customize dialog. This also requires a unique `stateKey` on the table to store the user's
+preference. A **Customize** button then appears in the toolbar.
+
+```html
+<bit-table-v2 [tableDef]="table" stateKey="vaultItems">
+  <bit-table-toolbar>
+    <bit-search [placeholder]="'search' | i18n"></bit-search>
+  </bit-table-toolbar>
+
+  <bit-column sortable>
+    <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+  </bit-column>
+
+  <bit-column removable [label]="'email' | i18n" sortable>
+    <bit-header-cell>{{ "email" | i18n }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.email; let row">{{ row.email }}</bit-cell>
+  </bit-column>
+</bit-table-v2>
+```
+
+- Register the `stateKey` in `TABLE_STATE_KEYS` (`table-state-keys.ts`).
+- A `removable` column without a `label` is ignored and stays visible.
+- `displayedColumns` decides which columns are available; the user's choice hides a subset of those.
+- Not offered in `list` presentation.
+- Leave the row's identity column and any row-action columns unmarked, so the table can't be
+  emptied.
 
 ### Reusable columns
 
@@ -348,7 +382,12 @@ filter: (row, f) =>
   the chips to reset them in one click — search is untouched.
 
 The filter row collapses into a single trigger and dialog once its contents stop fitting on one
-line, and always below `md`.
+line, and always below `md`. Collapsed, the active filters get a row of dismissible chips beneath
+the search: a single-select or a toggle takes one chip naming the filter and its value
+(`Type: Login`), while a **multi-select takes one chip per selected option**, named for the option
+alone and led by the filter's `icon`. Dismissing one of those drops just that option; the others
+stay applied. Each chip's dismiss button is named for both the filter and the option, so a screen
+reader still hears which filter a chip belongs to.
 
 ```html
 <bit-table-v2 [tableDef]="table">
@@ -398,6 +437,23 @@ even when selecting programmatically:
   >…</bit-table-v2
 >
 ```
+
+### Capping the selection
+
+Add a `max` when acting on a selection costs something per item — a bulk action that turns each row
+into a permission check and a request payload, say, or a server that caps a batch. Select-all stops
+at the cap, and further row checkboxes disable so a click can never leave a row looking selected
+that nothing will act on.
+
+```html
+<bit-table-v2 [tableDef]="table" [selection]="{ multiple: true, max: 500 }">…</bit-table-v2>
+```
+
+The cap binds the selection itself rather than a downstream view of it, so what the checkboxes show
+is always what a consumer will act on. The header reads as partial while rows remain unselected, and
+clicking it at the cap clears — so it stays actionable rather than stranding the user.
+
+<Canvas of={stories.SelectableCapped} />
 
 ### Bulk actions
 

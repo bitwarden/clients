@@ -8,6 +8,8 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { isGuid } from "@bitwarden/guid";
 
+import { sharedFolderName } from "../utils/shared-folder-name";
+
 import { VaultNavItemType, VaultsNavViewModel } from "./vault-nav-view-model";
 
 /**
@@ -325,6 +327,23 @@ export function vaultScopeCommands(
 }
 
 /**
+ * The key a scope's state is stored under — the vault filter memory keys its records by it.
+ *
+ * An organization's id is a guid and every other scope is a {@link VaultScopeType} name, so the two
+ * can't collide; a shared folder drill-in keys apart from the organization vault it was reached
+ * from, since the two show different rows.
+ */
+export function scopeKey(scope: VaultScope): string {
+  if (scope.type !== VaultScopeType.Organization) {
+    return scope.type;
+  }
+
+  return scope.collectionId == null
+    ? scope.organizationId
+    : `${scope.organizationId}/${scope.collectionId}`;
+}
+
+/**
  * The `Router.navigate` commands for an organization vault's shared folders list.
  *
  * Deliberately not a {@link VaultScope} member: a scope says which *items* a page shows, and
@@ -397,17 +416,19 @@ export function organizationNameForScope(
 }
 
 /**
- * The shared folder the scope has drilled into, by name — `undefined` unless the scope names a
- * collection {@link collections} can resolve. See {@link scopedSharedFolderId}.
+ * The shared folder the scope has drilled into, by its own name without its parent path (see
+ * {@link sharedFolderName}) — `undefined` unless the scope names a collection {@link collections}
+ * can resolve. See {@link scopedSharedFolderId}.
  */
 export function sharedFolderNameForScope(
   scope: VaultScope,
   collections: readonly CollectionView[],
 ): string | undefined {
   const collectionId = scopedSharedFolderId(scope);
-  return collectionId
-    ? collections.find((collection) => collection.id === collectionId)?.name
+  const collection = collectionId
+    ? collections.find((candidate) => candidate.id === collectionId)
     : undefined;
+  return collection ? sharedFolderName(collection) : undefined;
 }
 
 /**

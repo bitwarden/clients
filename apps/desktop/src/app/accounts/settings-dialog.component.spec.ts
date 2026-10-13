@@ -61,7 +61,9 @@ import { VaultCopyButtonsService } from "@bitwarden/vault";
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
+import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
+import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
@@ -104,6 +106,8 @@ describe("SettingsDialogComponent", () => {
   const autoUnlockService = mock<AutoUnlockService>();
   const dialogService = mock<DialogService>();
   const desktopAutotypeMvpService = mock<DesktopAutotypeMvpService>();
+  const desktopAutotypeService = mock<DesktopAutotypeService>();
+  const desktopAutofillService = mock<DesktopAutofillService>();
   const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
   const configService = mock<ConfigService>();
   const userVerificationService = mock<UserVerificationService>();
@@ -170,6 +174,8 @@ describe("SettingsDialogComponent", () => {
         { provide: MessagingService, useValue: messagingService },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: DesktopAutotypeMvpService, useValue: desktopAutotypeMvpService },
+        { provide: DesktopAutotypeService, useValue: desktopAutotypeService },
+        { provide: DesktopAutofillService, useValue: desktopAutofillService },
         { provide: BillingAccountProfileStateService, useValue: billingAccountProfileStateService },
         { provide: VaultCopyButtonsService, useValue: vaultCopyButtonsService },
       ],
@@ -213,9 +219,15 @@ describe("SettingsDialogComponent", () => {
     policyService.policiesByType$.mockReturnValue(of([null]));
     desktopAutotypeMvpService.autotypeEnabledUserSetting$ = of(false);
     desktopAutotypeMvpService.autotypeKeyboardShortcut$ = of(["Control", "Alt", "B"]);
+    desktopAutotypeService.autotypeEnabledUserSetting$ = of(false);
+    desktopAutotypeService.autotypeKeyboardShortcut$ = of(["Control", "Alt", "G"]);
     billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
     configService.getFeatureFlag$.mockReturnValue(of(false));
     vaultCopyButtonsService.showQuickCopyActions$ = of(false);
+    desktopAutofillService.refreshPasskeyProviderState.mockResolvedValue({
+      registered: false,
+      enabled: false,
+    });
 
     fixture = TestBed.createComponent(SettingsDialogComponent);
     component = fixture.componentInstance;
@@ -416,6 +428,61 @@ describe("SettingsDialogComponent", () => {
         return [textContent];
       }
     });
+
+    describe("linux desktop", () => {
+      beforeEach(() => {
+        platformUtilsService.getDevice.mockReturnValue(DeviceType.LinuxDesktop);
+
+        // Recreate component to apply the correct device
+        fixture = TestBed.createComponent(SettingsDialogComponent);
+        component = fixture.componentInstance;
+      });
+
+      afterEach(() => {
+        platformUtilsService.getDevice.mockReset();
+      });
+
+      it("displays require MP on app restart checkbox with hint and warning callout when unchecked", async () => {
+        userVerificationService.hasMasterPassword.mockResolvedValue(true);
+
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        const input = fixture.debugElement.query(
+          By.css("input[formControlName='requireMasterPasswordOnAppRestart']"),
+        );
+        expect(input).not.toBeNull();
+
+        const formControl = input.parent;
+        const hint = formControl?.query(By.css("bit-hint"));
+        expect(hint?.nativeElement.textContent).toContain("requireMasterPasswordOnAppRestartDesc");
+
+        expect(fixture.debugElement.query(By.css("bit-callout[type='warning']"))).toBeNull();
+
+        (component as any).form.controls.requireMasterPasswordOnAppRestart.setValue(false);
+        fixture.detectChanges();
+
+        const callout = fixture.debugElement.query(By.css("bit-callout[type='warning']"));
+        expect(callout).not.toBeNull();
+        expect(callout.nativeElement.textContent).toContain(
+          "requireMasterPasswordOnAppRestartWarning",
+        );
+      });
+
+      it("does not display require MP/PIN on app restart checkbox without a master password or PIN", async () => {
+        userVerificationService.hasMasterPassword.mockResolvedValue(false);
+        pinServiceAbstraction.isPinSet.mockResolvedValue(false);
+
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect(
+          fixture.debugElement.query(
+            By.css("input[formControlName='requireMasterPasswordOnAppRestart']"),
+          ),
+        ).toBeNull();
+      });
+    });
   });
 
   describe("updatePinHandler", () => {
@@ -612,6 +679,36 @@ describe("SettingsDialogComponent", () => {
             expect(desktopBiometricsService.enrollPersistent).not.toHaveBeenCalled();
           },
         );
+      });
+
+      describe("on linux", () => {
+        beforeEach(() => {
+          keyService.userKey$.mockReturnValue(of(mockUserKey));
+        });
+
+        const setUpUserWithoutMasterPassword = async () => {
+          desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
+
+          await component.ngOnInit();
+          (component as any).isWindows = false;
+          (component as any).isLinux = true;
+          (component as any).form.value.requireMasterPasswordOnAppRestart = true;
+          (component as any).userHasMasterPassword.set(false);
+          (component as any).supportsBiometric.set(true);
+          (component as any).form.value.biometric = true;
+        };
+
+        it("enrolls a persistent key when turning off PIN", async () => {
+          await setUpUserWithoutMasterPassword();
+
+          await (component as any).updatePinHandler(false);
+
+          expect(desktopBiometricsService.enrollPersistent).toHaveBeenCalledWith(
+            mockUserId,
+            mockUserKey,
+          );
+          expect(pinServiceAbstraction.unsetPin).toHaveBeenCalled();
+        });
       });
     });
   });
@@ -852,6 +949,49 @@ describe("SettingsDialogComponent", () => {
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
 
+      describe("linux test cases", () => {
+        beforeEach(() => {
+          keyService.userKey$.mockReturnValue(of(mockUserKey));
+          (component as any).isWindows = false;
+          (component as any).isLinux = true;
+
+          desktopBiometricsService.getBiometricsStatus.mockResolvedValue(
+            BiometricsStatus.Available,
+          );
+          desktopBiometricsService.getBiometricsStatusForUser.mockResolvedValue(
+            BiometricsStatus.Available,
+          );
+        });
+
+        it("when the user doesn't have a master password or a PIN set, allows biometric unlock on app restart", async () => {
+          (component as any).userHasMasterPassword.set(false);
+          (component as any).userHasPinSet.set(false);
+          desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
+
+          await (component as any).updateBiometricHandler(true);
+
+          expect(desktopBiometricsService.enrollPersistent).toHaveBeenCalledWith(
+            mockUserId,
+            mockUserKey,
+          );
+          expect((component as any).form.controls.requireMasterPasswordOnAppRestart.value).toBe(
+            false,
+          );
+        });
+
+        it("when the user has a master password, requires it on app restart by default", async () => {
+          (component as any).userHasMasterPassword.set(true);
+          (component as any).userHasPinSet.set(false);
+
+          await (component as any).updateBiometricHandler(true);
+
+          expect(desktopBiometricsService.enrollPersistent).not.toHaveBeenCalled();
+          expect((component as any).form.controls.requireMasterPasswordOnAppRestart.value).toBe(
+            true,
+          );
+        });
+      });
+
       it.each([
         BiometricsStatus.UnlockNeeded,
         BiometricsStatus.HardwareUnavailable,
@@ -952,6 +1092,27 @@ describe("SettingsDialogComponent", () => {
         expect((component as any).form.controls.requireMasterPasswordOnAppRestart.value).toBe(
           false,
         );
+        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("when updating to false on linux", () => {
+      beforeEach(() => {
+        (component as any).isLinux = true;
+      });
+
+      it("enrolls persistent biometric if not already enrolled", async () => {
+        await component.ngOnInit();
+        await (component as any).updateRequireMasterPasswordOnAppRestartHandler(false, mockUserId);
+
+        expect(keyService.userKey$).toHaveBeenCalledWith(mockUserId);
+        expect(desktopBiometricsService.enrollPersistent).toHaveBeenCalledWith(
+          mockUserId,
+          mockUserKey,
+        );
+        expect((component as any).form.controls.requireMasterPasswordOnAppRestart.value).toBe(
+          false,
+        );
       });
     });
   });
@@ -976,9 +1137,30 @@ describe("SettingsDialogComponent", () => {
 
       // `showEnableAutotype` signal should be false
       expect((component as any).showEnableAutotype()).toBe(false);
+
+      // `enableAutotypeGa` input shouldn't be found
+      const enableAutotypeGaInput = fixture.debugElement.query(
+        By.css("input[formControlName='enableAutotypeGa']"),
+      );
+      expect(enableAutotypeGaInput).toBeNull();
+
+      // `showEnableAutotypeGa` signal should be false
+      expect((component as any).showEnableAutotypeGa()).toBe(false);
     });
 
     describe("flag-driven visibility on windows", () => {
+      function mockAutotypeFlags(mvpEnabled: boolean, gaEnabled: boolean) {
+        configService.getFeatureFlag$.mockImplementation((flag) => {
+          if (flag === FeatureFlag.WindowsDesktopAutotypeGA) {
+            return of(gaEnabled);
+          }
+          if (flag === FeatureFlag.WindowsDesktopAutotype) {
+            return of(mvpEnabled);
+          }
+          throw new Error(`Unexpected feature flag requested in test: ${flag}`);
+        });
+      }
+
       beforeEach(() => {
         // `isWindows` is captured in the constructor, so the device must be set before
         // the component is created.
@@ -988,9 +1170,8 @@ describe("SettingsDialogComponent", () => {
         component = fixture.componentInstance;
       });
 
-      it("shows the enable autotype control when the feature flag is enabled", async () => {
-        configService.getFeatureFlag$.mockReturnValue(of(true) as any);
-
+      it("shows the enable autotype control when the MVP flag is enabled", async () => {
+        mockAutotypeFlags(true, false);
         await component.ngOnInit();
         fixture.detectChanges();
 
@@ -1010,39 +1191,235 @@ describe("SettingsDialogComponent", () => {
           fixture.debugElement.query(By.css("input[formControlName='enableAutotype']")),
         ).toBeNull();
       });
+
+      it("hides the enable autotype control when only the GA flag is enabled", async () => {
+        mockAutotypeFlags(false, true);
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect((component as any).showEnableAutotype()).toBe(false);
+      });
+
+      it("hides the enable autotype control when both the MVP and GA flags are enabled", async () => {
+        mockAutotypeFlags(true, true);
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect((component as any).showEnableAutotype()).toBe(false);
+      });
+
+      it("shows the enable autotype GA control when the GA flag is enabled", async () => {
+        mockAutotypeFlags(false, true);
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect((component as any).showEnableAutotypeGa()).toBe(true);
+        expect(
+          fixture.debugElement.query(By.css("input[formControlName='enableAutotypeGa']")),
+        ).not.toBeNull();
+      });
+
+      it("hides the enable autotype GA control when the feature flag is disabled", async () => {
+        // The top-level `beforeEach` already mocks every feature flag as false.
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect((component as any).showEnableAutotypeGa()).toBe(false);
+        expect(
+          fixture.debugElement.query(By.css("input[formControlName='enableAutotypeGa']")),
+        ).toBeNull();
+      });
+
+      it("hides the enable autotype GA control when only the MVP flag is enabled", async () => {
+        mockAutotypeFlags(true, false);
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect((component as any).showEnableAutotypeGa()).toBe(false);
+      });
+
+      it("hides the enable autotype GA control when both the MVP and GA flags are enabled", async () => {
+        mockAutotypeFlags(true, true);
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect((component as any).showEnableAutotypeGa()).toBe(false);
+      });
+    });
+
+    describe("saveEnableAutotypeGa", () => {
+      it("saves the enable autotype GA setting through the GA service", async () => {
+        await component.ngOnInit();
+        (component as any).form.controls.enableAutotypeGa.enable();
+        (component as any).form.controls.enableAutotypeGa.setValue(true);
+
+        await (component as any).saveEnableAutotypeGa();
+
+        expect(desktopAutotypeService.setAutotypeEnabledState).toHaveBeenCalledWith(true);
+        expect(desktopAutotypeMvpService.setAutotypeEnabledState).not.toHaveBeenCalled();
+      });
     });
   });
 
-  describe("quick copy actions", () => {
-    /**
-     * `showQuickCopyActionsSetting` is a `toSignal()` initialized at class level, so the feature
-     * flag mock must be in place before the component is constructed.
-     */
-    function createComponentWithFlag(enabled: boolean) {
-      configService.getFeatureFlag$.mockImplementation((flag) =>
-        of(flag === FeatureFlag.PM40435_QuickCopyIconSetting ? enabled : false),
-      );
+  describe("passkey provider setting", () => {
+    // Registered components listen for window focus, so destroy them to keep tests independent.
+    afterEach(() => fixture.destroy());
 
+    function createComponent(deviceType: DeviceType) {
+      // `isMac` is captured in the constructor, so the device must be set before the component is
+      // created.
+      platformUtilsService.getDevice.mockReturnValue(deviceType);
       fixture = TestBed.createComponent(SettingsDialogComponent);
       component = fixture.componentInstance;
     }
 
-    it("is not visible when the feature flag is disabled", async () => {
-      createComponentWithFlag(false);
-
-      await component.ngOnInit();
+    /** Runs `ngOnInit` once, through change detection, and renders the result. */
+    async function init() {
       fixture.detectChanges();
+      await new Promise(process.nextTick);
+      fixture.detectChanges();
+    }
 
-      const showQuickCopyActionsInput = fixture.debugElement.query(
-        By.css("input[formControlName='showQuickCopyActions']"),
-      );
-      expect(showQuickCopyActionsInput).toBeNull();
-      expect((component as any).showQuickCopyActionsSetting()).toBe(false);
+    const passkeyProviderSetting = () =>
+      fixture.debugElement.query(By.css('[aria-labelledby="passkey-provider-label"]'));
+
+    const manageInSystemSettingsLink = () =>
+      passkeyProviderSetting().query(By.css("button[bitLink]"));
+
+    it("is visible when the app is registered", async () => {
+      createComponent(DeviceType.MacOsDesktop);
+      desktopAutofillService.refreshPasskeyProviderState.mockResolvedValue({
+        registered: true,
+        enabled: true,
+      });
+
+      await init();
+
+      expect(passkeyProviderSetting()).not.toBeNull();
     });
 
-    it("is visible when the feature flag is enabled", async () => {
-      createComponentWithFlag(true);
+    it("is not visible when the app is not registered", async () => {
+      createComponent(DeviceType.MacOsDesktop);
 
+      await init();
+
+      expect(passkeyProviderSetting()).toBeNull();
+    });
+
+    it.each([
+      [true, "turnedOn"],
+      [false, "turnedOff"],
+    ])("shows the status when enabled is %s", async (enabled, status) => {
+      createComponent(DeviceType.MacOsDesktop);
+      desktopAutofillService.refreshPasskeyProviderState.mockResolvedValue({
+        registered: true,
+        enabled,
+      });
+
+      await init();
+
+      expect(passkeyProviderSetting().nativeElement.textContent).toContain(status);
+    });
+
+    it("refreshes the status when the window regains focus", async () => {
+      createComponent(DeviceType.MacOsDesktop);
+      desktopAutofillService.refreshPasskeyProviderState.mockResolvedValue({
+        registered: true,
+        enabled: false,
+      });
+      desktopAutofillService.getPasskeyProviderState.mockResolvedValue({
+        registered: true,
+        enabled: true,
+      });
+      await init();
+
+      window.dispatchEvent(new Event("focus"));
+      await new Promise(process.nextTick);
+      fixture.detectChanges();
+
+      expect(passkeyProviderSetting().nativeElement.textContent).toContain("turnedOn");
+    });
+
+    it("keeps refreshing the status on focus after a refresh fails", async () => {
+      createComponent(DeviceType.MacOsDesktop);
+      desktopAutofillService.refreshPasskeyProviderState.mockResolvedValue({
+        registered: true,
+        enabled: false,
+      });
+      desktopAutofillService.getPasskeyProviderState
+        .mockRejectedValueOnce(new Error("IPC failed"))
+        .mockResolvedValueOnce({ registered: true, enabled: true });
+      await init();
+
+      window.dispatchEvent(new Event("focus"));
+      await new Promise(process.nextTick);
+      window.dispatchEvent(new Event("focus"));
+      await new Promise(process.nextTick);
+      fixture.detectChanges();
+
+      expect(logService.error).toHaveBeenCalledWith(
+        "Failed to refresh passkey provider state",
+        expect.any(Error),
+      );
+      expect(passkeyProviderSetting().nativeElement.textContent).toContain("turnedOn");
+    });
+
+    async function createRegisteredComponent(enabled: boolean) {
+      createComponent(DeviceType.MacOsDesktop);
+      desktopAutofillService.refreshPasskeyProviderState.mockResolvedValue({
+        registered: true,
+        enabled,
+      });
+      await init();
+    }
+
+    it("asks to turn on Bitwarden when it is off", async () => {
+      await createRegisteredComponent(false);
+      desktopAutofillService.requestEnableCredentialProvider.mockResolvedValue(true);
+
+      manageInSystemSettingsLink().nativeElement.click();
+      await new Promise(process.nextTick);
+      fixture.detectChanges();
+
+      expect(passkeyProviderSetting().nativeElement.textContent).toContain("turnedOn");
+      expect(desktopAutofillService.openCredentialProviderSettings).not.toHaveBeenCalled();
+    });
+
+    it("opens the system settings when the OS cannot ask to turn on Bitwarden", async () => {
+      await createRegisteredComponent(false);
+      desktopAutofillService.requestEnableCredentialProvider.mockResolvedValue(undefined);
+
+      manageInSystemSettingsLink().nativeElement.click();
+      await new Promise(process.nextTick);
+
+      expect(desktopAutofillService.openCredentialProviderSettings).toHaveBeenCalled();
+    });
+
+    it("describes the link with a hint that it may open the system settings", async () => {
+      await createRegisteredComponent(false);
+
+      const describedBy: string =
+        manageInSystemSettingsLink().nativeElement.getAttribute("aria-describedby");
+      const descriptions = describedBy
+        .split(" ")
+        .map((id) => fixture.nativeElement.querySelector(`#${id}`).textContent);
+
+      expect(descriptions).toContainEqual(expect.stringContaining("mayOpenSystemSettings"));
+    });
+
+    it("opens the system settings when Bitwarden is on", async () => {
+      await createRegisteredComponent(true);
+
+      manageInSystemSettingsLink().nativeElement.click();
+      await new Promise(process.nextTick);
+
+      expect(desktopAutofillService.requestEnableCredentialProvider).not.toHaveBeenCalled();
+      expect(desktopAutofillService.openCredentialProviderSettings).toHaveBeenCalled();
+    });
+  });
+
+  describe("quick copy actions", () => {
+    it("renders the quick copy actions checkbox", async () => {
       await component.ngOnInit();
       fixture.detectChanges();
 
@@ -1053,7 +1430,6 @@ describe("SettingsDialogComponent", () => {
       expect(showQuickCopyActionsInput.attributes).toMatchObject({
         type: "checkbox",
       });
-      expect((component as any).showQuickCopyActionsSetting()).toBe(true);
     });
 
     test.each([true, false])(

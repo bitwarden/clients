@@ -26,6 +26,7 @@ import {
   parseVaultScope,
   resolveVaultScope,
   scopedSharedFolderId,
+  scopeKey,
   SHARED_FOLDERS_ROUTE,
   sharedFolderNameForScope,
   TRASH_ROUTE,
@@ -364,6 +365,28 @@ describe("vaultScopeCommands", () => {
   });
 });
 
+describe("scopeKey", () => {
+  it("keys the aggregate scopes by their type", () => {
+    expect(scopeKey(ALL_ITEMS_SCOPE)).toBe(VaultScopeType.AllItems);
+    expect(scopeKey(myVaultScope)).toBe(VaultScopeType.MyVault);
+    expect(scopeKey(trashScope)).toBe(VaultScopeType.Trash);
+    expect(scopeKey(archiveScope)).toBe(VaultScopeType.Archive);
+  });
+
+  it("keys an organization vault by its id", () => {
+    expect(scopeKey(organizationScope)).toBe(organizationId);
+  });
+
+  it("keys a shared folder drill-in apart from the vault it was reached from", () => {
+    expect(scopeKey(sharedFolderScope)).toBe(`${organizationId}/${collectionId}`);
+    expect(scopeKey(sharedFolderScope)).not.toBe(scopeKey(organizationScope));
+  });
+
+  it("keys the My items collection by its sentinel", () => {
+    expect(scopeKey(myItemsScope)).toBe(`${organizationId}/${MY_ITEMS_ROUTE}`);
+  });
+});
+
 describe("scopedSharedFolderId", () => {
   it("names the folder an organization vault has drilled into", () => {
     expect(scopedSharedFolderId(sharedFolderScope)).toBe(collectionId);
@@ -596,6 +619,16 @@ describe("sharedFolderNameForScope", () => {
     };
 
     expect(sharedFolderNameForScope(scope, [collection])).toBe(collection.name);
+  });
+
+  it("names a nested shared folder by its own name, without its parent path", () => {
+    const nested = new CollectionView({
+      id: collectionId,
+      organizationId,
+      name: "Engineering/Backend",
+    });
+
+    expect(sharedFolderNameForScope(sharedFolderScope, [nested])).toBe("Backend");
   });
 
   it("names none for a scope naming no collection the list can resolve", () => {

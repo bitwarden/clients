@@ -4,10 +4,12 @@ import {
   Component,
   ElementRef,
   Injector,
+  Signal,
   computed,
   inject,
   signal,
   viewChild,
+  viewChildren,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -21,19 +23,15 @@ import {
   OverflowListDirective,
   OverflowTriggerDirective,
 } from "../overflow-list";
+import { TooltipDirective } from "../tooltip";
 import { focusAfterRender } from "../utils/focus-after-render";
 
-import { FilterPresenter } from "./filter-tokens";
+import { FilterPresenter, selectionCount } from "./filter-tokens";
 
 /** Data passed to {@link FilterDialogComponent} when the toolbar opens it. */
 export interface FilterDialogParams {
   /** The toolbar's projected filters, in row order. */
-  readonly filters: readonly FilterPresenter[];
-}
-
-/** A toggle reports no labels, so its `active` state stands in for its one selection. */
-function optionCount(filter: FilterPresenter): number {
-  return Math.max(filter.summaryLabels().length, filter.active() ? 1 : 0);
+  readonly filters: Signal<readonly FilterPresenter[]>;
 }
 
 /** The small-screen filter view. Opened by `bit-table-toolbar`. */
@@ -50,6 +48,7 @@ function optionCount(filter: FilterPresenter): number {
     OverflowListDirective,
     OverflowItemDirective,
     OverflowTriggerDirective,
+    TooltipDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -58,21 +57,29 @@ export class FilterDialogComponent {
 
   private readonly doneButtonEl = viewChild("doneButton", { read: ElementRef<HTMLElement> });
 
-  /** The filters to present, in row order. */
+  /** The list page's rows, in `filters` order. Empty while drilled into a filter. */
+  private readonly rowEls = viewChildren("row", { read: ElementRef<HTMLElement> });
+
   protected readonly filters = inject<FilterDialogParams>(DIALOG_DATA).filters;
+
+  /** The list page's row for filter `key`, for anchoring a popover. */
+  row(key: string): ElementRef<HTMLElement> | undefined {
+    const index = this.filters().findIndex((filter) => filter.key() === key);
+    return this.rowEls()[index];
+  }
 
   /** The filter being drilled into, or `undefined` on the list page. */
   protected readonly activeFilter = signal<FilterPresenter | undefined>(undefined);
 
   /** How many options are selected across every filter — shown in the list page's footer. */
   protected readonly selectedCount = computed(() =>
-    this.filters.reduce((total, filter) => total + optionCount(filter), 0),
+    this.filters().reduce((total, filter) => total + selectionCount(filter), 0),
   );
 
   /** The same count for the filter being drilled into. */
   protected readonly activeSelectedCount = computed(() => {
     const filter = this.activeFilter();
-    return filter ? optionCount(filter) : 0;
+    return filter ? selectionCount(filter) : 0;
   });
 
   /** Whichever count the footer is showing — the drilled-into filter's, or every filter's. */
@@ -83,6 +90,15 @@ export class FilterDialogComponent {
   /** Kept out of the template so no whitespace lands between the label and the colon. */
   protected rowLabel(filter: FilterPresenter): string {
     return filter.summary() ? `${filter.label()}:` : filter.label();
+  }
+
+  /**
+   * The row's full text for its tooltip. Unlike {@link rowLabel} this keeps the summary, since
+   * the row truncates its label and hides any selection past the first few behind a `+N`.
+   */
+  protected rowTooltip(filter: FilterPresenter): string {
+    const summary = filter.summary();
+    return summary ? `${filter.label()}: ${summary}` : filter.label();
   }
 
   // The rows come from the chip's template, shared with the popover, so the card and
@@ -140,7 +156,7 @@ export class FilterDialogComponent {
 
   /** Reset every filter's selection. */
   protected clearAll(): void {
-    this.filters.forEach((filter) => filter.clear());
+    this.filters().forEach((filter) => filter.clear());
     this.keepFocusOnDone();
   }
 

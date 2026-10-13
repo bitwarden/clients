@@ -6,17 +6,16 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
 
-import { OrganizationCreateModule } from "./organization-create.module";
 import { OrganizationInformationComponent } from "./organization-information.component";
 
 describe("OrganizationInformationComponent", () => {
   let fixture: ComponentFixture<OrganizationInformationComponent>;
   let vfo1Enabled: boolean;
 
-  async function setup(enabled: boolean) {
+  async function setup(enabled: boolean, isProvider = false, nameOnly = false) {
     vfo1Enabled = enabled;
     await TestBed.configureTestingModule({
-      imports: [OrganizationCreateModule],
+      imports: [OrganizationInformationComponent],
       providers: [
         {
           provide: AccountService,
@@ -34,14 +33,17 @@ describe("OrganizationInformationComponent", () => {
 
     fixture = TestBed.createComponent(OrganizationInformationComponent);
     const component = fixture.componentInstance;
-    component.nameOnly = false;
+    component.nameOnly = nameOnly;
     component.createOrganization = true;
+    component.isProvider = isProvider;
     component.formGroup = new UntypedFormGroup({
       name: new UntypedFormControl(""),
       billingEmail: new UntypedFormControl(""),
+      clientOwnerEmail: new UntypedFormControl(""),
     });
     fixture.detectChanges();
     await fixture.whenStable();
+    return component;
   }
 
   it("renders the General information header when the VFO1 flag is off", async () => {
@@ -52,5 +54,66 @@ describe("OrganizationInformationComponent", () => {
   it("hides the General information header when the VFO1 flag is on", async () => {
     await setup(true);
     expect(fixture.nativeElement.querySelector("h2")).toBeNull();
+  });
+
+  it("stacks the name and billing email fields when the VFO1 flag is on", async () => {
+    await setup(true);
+
+    const fields = fixture.nativeElement.querySelectorAll("bit-form-field");
+    expect(fields.length).toBe(2);
+
+    const container = fields[0].parentElement;
+    expect(container.classList).not.toContain("tw-flex");
+    fields.forEach((field: HTMLElement) => {
+      expect(field.classList).not.toContain("tw-w-1/2");
+    });
+  });
+
+  it("keeps the fields side by side when the VFO1 flag is off", async () => {
+    await setup(false);
+
+    const fields = fixture.nativeElement.querySelectorAll("bit-form-field");
+    expect(fields.length).toBe(2);
+
+    const container = fields[0].parentElement;
+    expect(container.classList).toContain("tw-flex");
+    fields.forEach((field: HTMLElement) => {
+      expect(field.classList).toContain("tw-w-1/2");
+    });
+  });
+
+  it("renders the client owner email field for providers", async () => {
+    await setup(true, true);
+
+    const inputs = fixture.nativeElement.querySelectorAll("input");
+    expect(inputs.length).toBe(3);
+    expect(inputs[2].getAttribute("formcontrolname")).toBe("clientOwnerEmail");
+  });
+  describe("nameOnly", () => {
+    // The trial initiation wizard renders this step as <app-org-info [nameOnly]="true">, and gates
+    // its submit button on the bound form group's name control.
+    it("renders only the organization name field", async () => {
+      await setup(true, false, true);
+
+      const fields = fixture.nativeElement.querySelectorAll("bit-form-field");
+      expect(fields.length).toBe(1);
+      expect(fixture.nativeElement.querySelector('input[formcontrolname="name"]')).not.toBeNull();
+      expect(
+        fixture.nativeElement.querySelector('input[formcontrolname="billingEmail"]'),
+      ).toBeNull();
+    });
+
+    it("feeds a typed organization name into the bound form group", async () => {
+      const component = await setup(true, false, true);
+
+      const nameInput: HTMLInputElement = fixture.nativeElement.querySelector(
+        'input[formcontrolname="name"]',
+      );
+      nameInput.value = "Wizard Org";
+      nameInput.dispatchEvent(new Event("input"));
+      fixture.detectChanges();
+
+      expect(component.formGroup!.controls.name.value).toBe("Wizard Org");
+    });
   });
 });

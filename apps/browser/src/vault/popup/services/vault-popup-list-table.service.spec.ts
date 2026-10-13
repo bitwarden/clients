@@ -4,11 +4,8 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, map, of, Subject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
@@ -43,12 +40,11 @@ describe("VaultPopupListTableService", () => {
   const searchText$ = new BehaviorSubject<string>("");
   const emptyVault$ = new BehaviorSubject<boolean>(false);
   const loading$ = new BehaviorSubject<boolean>(false);
+  const hasFilterApplied$ = new BehaviorSubject<boolean>(false);
+  const autofillAllowed$ = new BehaviorSubject<boolean>(true);
   const applyFilter = jest.fn();
 
-  // Inputs to the per-row action policy (feature flag, blocklist, click-to-autofill setting).
-  const simplifiedItemActionEnabled$ = new BehaviorSubject<boolean>(false);
   const currentTabIsOnBlocklist$ = new BehaviorSubject<boolean>(false);
-  const clickItemsToAutofillVaultView$ = new BehaviorSubject<boolean>(true);
   /** The chip selection, as the table's `filterValues` reports it. */
   const selectedFilters$ = new BehaviorSubject<{
     cipherType: CipherType | null;
@@ -71,30 +67,21 @@ describe("VaultPopupListTableService", () => {
     searchText$.next("");
     emptyVault$.next(false);
     loading$.next(false);
-    simplifiedItemActionEnabled$.next(false);
+    hasFilterApplied$.next(false);
+    autofillAllowed$.next(true);
     currentTabIsOnBlocklist$.next(false);
-    clickItemsToAutofillVaultView$.next(true);
     selectedFilters$.next({ cipherType: null, organization: [], collection: [], folder: [] });
     memberOrganizations$.next([]);
 
     cipherService = mock<CipherService>();
     vaultPopupAutofillService = mock<VaultPopupAutofillService>();
     vaultPopupAutofillService.currentTabIsOnBlocklist$ = currentTabIsOnBlocklist$.asObservable();
+    vaultPopupAutofillService.autofillAllowed$ = autofillAllowed$.asObservable();
     passwordRepromptService = mock<PasswordRepromptService>();
     router = mock<Router>();
 
     const accountService = mock<AccountService>();
     accountService.activeAccount$ = of({ id: "user-1" } as any);
-
-    const configService = {
-      getFeatureFlag$: jest
-        .fn()
-        .mockImplementation((flag: FeatureFlag) =>
-          flag === FeatureFlag.PM31039ItemActionInExtension
-            ? simplifiedItemActionEnabled$.asObservable()
-            : of(false),
-        ),
-    };
 
     TestBed.configureTestingModule({
       providers: [
@@ -108,6 +95,7 @@ describe("VaultPopupListTableService", () => {
             hasSearchText$: hasSearchText$.asObservable(),
             searchText$: searchText$.asObservable(),
             emptyVault$: emptyVault$.asObservable(),
+            hasFilterApplied$: hasFilterApplied$.asObservable(),
             applyFilter,
           },
         },
@@ -121,13 +109,6 @@ describe("VaultPopupListTableService", () => {
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: Router, useValue: router },
         { provide: VaultPopupAutofillService, useValue: vaultPopupAutofillService },
-        { provide: ConfigService, useValue: configService },
-        {
-          provide: VaultSettingsService,
-          useValue: {
-            clickItemsToAutofillVaultView$: clickItemsToAutofillVaultView$.asObservable(),
-          },
-        },
         {
           provide: VaultPopupListTableFiltersService,
           useValue: {
@@ -455,7 +436,7 @@ describe("VaultPopupListTableService", () => {
   });
 
   describe("row actions", () => {
-    // The action context streams seed themselves with `startWith`, so `rows$` emits a seeded value
+    // The action context stream seeds itself with `startWith`, so `rows$` emits a seeded value
     // before settling. Read the latest synchronous emission (as `toSignal` does), not the first.
     const latestRows = () => {
       let latest: any[] = [];
@@ -473,12 +454,7 @@ describe("VaultPopupListTableService", () => {
       return latestRows().find((r) => r._section === section)!.actions;
     };
 
-    describe("simplified item action (feature flag on)", () => {
-      beforeEach(() => {
-        simplifiedItemActionEnabled$.next(true);
-        currentTabIsOnBlocklist$.next(false);
-      });
-
+    describe("resolved actions", () => {
       it("fills autofill-section rows on click and offers View (not Autofill) in the menu", async () => {
         expect(autofillRow()).toMatchObject({
           primaryAutofill: true,
@@ -486,7 +462,6 @@ describe("VaultPopupListTableService", () => {
           showLaunch: false,
           showAutofillInMenu: false,
           showViewInMenu: true,
-          showAutofillBadge: false,
         });
       });
 
@@ -506,37 +481,8 @@ describe("VaultPopupListTableService", () => {
       });
     });
 
-    describe("legacy autofill affordance (feature flag off)", () => {
-      beforeEach(() => {
-        simplifiedItemActionEnabled$.next(false);
-      });
-
-      it("shows the Fill chip on autofill rows when click-to-autofill is off and the URI isn't blocked", async () => {
-        clickItemsToAutofillVaultView$.next(false);
-        expect(autofillRow()).toMatchObject({ showAutofillBadge: true, primaryAutofill: false });
-        expect(sectionRow("favorites")).toMatchObject({ showAutofillBadge: false });
-      });
-
-      it("hides the Fill chip and fills on click when click-to-autofill is on", async () => {
-        clickItemsToAutofillVaultView$.next(true);
-        expect(autofillRow()).toMatchObject({ showAutofillBadge: false, primaryAutofill: true });
-      });
-
-      it("hides the Fill chip and never autofills when the URI is blocked", async () => {
-        clickItemsToAutofillVaultView$.next(false);
-        currentTabIsOnBlocklist$.next(true);
-        expect(autofillRow()).toMatchObject({ showAutofillBadge: false, primaryAutofill: false });
-      });
-
-      it("offers Autofill in the menu for non-autofill rows only", async () => {
-        expect(autofillRow()).toMatchObject({ showAutofillInMenu: false });
-        expect(sectionRow("favorites")).toMatchObject({ showAutofillInMenu: true });
-      });
-    });
-
     describe("titleKey", () => {
       it("uses the autofill title (named field when a username is present) for fill-on-click rows", async () => {
-        simplifiedItemActionEnabled$.next(true);
         jest.spyOn(CipherViewLikeUtils, "getLogin").mockReturnValue({ username: "user" } as any);
         expect(autofillRow().titleKey).toBe("autofillTitleWithField");
       });
@@ -562,6 +508,38 @@ describe("VaultPopupListTableService", () => {
 
       emptyVault$.next(false);
       expect(await firstValueFrom(service.hasItems$)).toBe(true);
+    });
+  });
+
+  describe("showEmptyAutofillTip$", () => {
+    it("shows the tip when no filter is applied, autofill is allowed, and no login is suggested", async () => {
+      autoFillCiphers$.next([]);
+
+      expect(await firstValueFrom(service.showEmptyAutofillTip$)).toBe(true);
+    });
+
+    it("shows the tip when only non-login items are suggested", async () => {
+      autoFillCiphers$.next([makeCipher({ type: CipherType.Card })]);
+
+      expect(await firstValueFrom(service.showEmptyAutofillTip$)).toBe(true);
+    });
+
+    it("hides the tip when a login is suggested", async () => {
+      autoFillCiphers$.next([makeCipher({ type: CipherType.Login })]);
+
+      expect(await firstValueFrom(service.showEmptyAutofillTip$)).toBe(false);
+    });
+
+    it("hides the tip when a filter is applied", async () => {
+      hasFilterApplied$.next(true);
+
+      expect(await firstValueFrom(service.showEmptyAutofillTip$)).toBe(false);
+    });
+
+    it("hides the tip when autofill is not allowed", async () => {
+      autofillAllowed$.next(false);
+
+      expect(await firstValueFrom(service.showEmptyAutofillTip$)).toBe(false);
     });
   });
 

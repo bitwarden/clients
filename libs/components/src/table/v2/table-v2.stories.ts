@@ -1,5 +1,13 @@
 import { NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormRecord, ReactiveFormsModule } from "@angular/forms";
 import { NavigationEnd, Router } from "@angular/router";
@@ -9,7 +17,7 @@ import { filter as rxFilter, map } from "rxjs";
 import { screen, userEvent, within } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { GlobalStateProvider } from "@bitwarden/state";
+import { GlobalStateProvider, StateProvider } from "@bitwarden/state";
 
 import { AsyncActionsModule } from "../../async-actions";
 import { BulkActionComponent } from "../../bulk-actions-bar/bulk-action.component";
@@ -25,11 +33,12 @@ import { IconTileComponent, type IconTileVariant } from "../../icon-tile/icon-ti
 import { InputModule } from "../../input/input.module";
 import { LayoutComponent, PageComponent } from "../../layout";
 import { mockLayoutI18n } from "../../layout/mocks";
+import { PopoverComponent, PopoverModule, PopoverRef, PopoverService } from "../../popover";
 import { SearchModule } from "../../search";
 import { SkeletonTextComponent } from "../../skeleton";
 import { positionFixedWrapperDecorator } from "../../stories/storybook-decorators";
 import { TypographyModule } from "../../typography";
-import { I18nMockService, StorybookGlobalStateProvider } from "../../utils";
+import { I18nMockService, StorybookGlobalStateProvider, StorybookStateProvider } from "../../utils";
 
 import { BitCellDefDirective } from "./bit-cell-def.directive";
 import { BitCellLoadingDirective } from "./bit-cell-loading.directive";
@@ -331,7 +340,7 @@ type VaultFilters = {
 
           <bit-filter-divider></bit-filter-divider>
 
-          <bit-filter-menu key="vault" placeholderText="Vault" multiple>
+          <bit-filter-menu icon="bwi-vault" key="vault" placeholderText="Vault" multiple>
             @for (option of vaultOptions; track option.value) {
               <bit-filter-option [value]="option.value">
                 {{ option.label }}
@@ -339,7 +348,12 @@ type VaultFilters = {
             }
           </bit-filter-menu>
 
-          <bit-filter-menu key="collection" placeholderText="Collections" multiple>
+          <bit-filter-menu
+            icon="bwi-collection"
+            key="collection"
+            placeholderText="Collections"
+            multiple
+          >
             @for (org of collectionOrgs; track org.name) {
               <bit-filter-section [label]="org.name" collapsible>
                 @for (collection of org.collections; track collection.id) {
@@ -418,6 +432,126 @@ class DemoFilterableTableComponent {
 }
 
 @Component({
+  selector: "demo-filter-coachmark-table",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    BitTableV2Component,
+    BitColumnComponent,
+    BitCellDefDirective,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    BitTableToolbarComponent,
+    FilterMenuModule,
+    SearchModule,
+    ButtonModule,
+    PopoverModule,
+  ],
+  template: `
+    <!-- Popup-sized: the chips can't fit, so the toolbar shows the filter button at any viewport. -->
+    <div class="tw-flex tw-flex-col" style="width: 380px; height: 600px">
+      <bit-table-v2 [tableDef]="table" [filter]="filter" presentation="list" height="fill">
+        <bit-table-toolbar
+          [(filterDialogOpen)]="filterDialogOpen"
+          (filterDialogOpenChange)="$event || endTour()"
+        >
+          <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
+          <button bitButton buttonType="primary" type="button" slot="end" (click)="start()">
+            Start tour
+          </button>
+
+          <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
+            @for (option of typeOptions; track option.value) {
+              <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+            }
+          </bit-filter-menu>
+
+          <bit-filter-menu icon="bwi-vault" key="vault" placeholderText="Vault" multiple>
+            @for (option of vaultOptions; track option.value) {
+              <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+            }
+          </bit-filter-menu>
+
+          <bit-filter-menu
+            icon="bwi-collection"
+            key="collection"
+            placeholderText="Collections"
+            multiple
+          >
+            @for (org of collectionOrgs; track org.name) {
+              <bit-filter-section [label]="org.name">
+                @for (collection of org.collections; track collection.id) {
+                  <bit-filter-option [value]="collection.id">{{
+                    collection.name
+                  }}</bit-filter-option>
+                }
+              </bit-filter-section>
+            }
+          </bit-filter-menu>
+
+          <bit-filter-toggle
+            key="favorite"
+            label="Favorites"
+            icon="bwi-star"
+            iconActive="bwi-star-f"
+          ></bit-filter-toggle>
+        </bit-table-toolbar>
+
+        <bit-column sortable defaultSort="asc">
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+      </bit-table-v2>
+    </div>
+
+    <bit-popover [title]="'Filters'" (closed)="endTour()" #filtersCoachmark>
+      <div>Narrow the list by type or vault.</div>
+      <div class="tw-mt-4">
+        <button type="button" bitButton buttonType="primary" (click)="next()">Next</button>
+      </div>
+    </bit-popover>
+    <bit-popover [title]="'Vaults'" (closed)="endTour()" #vaultRowCoachmark>
+      <div>Show items from one vault at a time.</div>
+      <div class="tw-mt-4">
+        <button type="button" bitButton buttonType="primary" (click)="endTour()">Done</button>
+      </div>
+    </bit-popover>
+  `,
+})
+class DemoFilterCoachmarkTableComponent extends DemoFilterableTableComponent {
+  private readonly popoverService = inject(PopoverService);
+  private readonly toolbar = viewChild.required(BitTableToolbarComponent);
+  private readonly filtersCoachmark = viewChild.required<PopoverComponent>("filtersCoachmark");
+  private readonly vaultRowCoachmark = viewChild.required<PopoverComponent>("vaultRowCoachmark");
+  private ref?: PopoverRef;
+
+  protected readonly filterDialogOpen = signal(false);
+
+  protected start(): void {
+    this.ref?.close();
+    this.ref = this.popoverService.open(this.filtersCoachmark(), this.toolbar().filterButton, {
+      spotlight: true,
+      position: "below-end",
+    });
+  }
+
+  protected next(): void {
+    this.ref?.close();
+    this.filterDialogOpen.set(true);
+    // Waits for the dialog row to render and finish animating in.
+    this.ref = this.popoverService.open(
+      this.vaultRowCoachmark(),
+      this.toolbar().filterRow("vault"),
+      { spotlight: true, position: "above-center" },
+    );
+  }
+
+  protected endTour(): void {
+    this.ref?.close();
+    this.filterDialogOpen.set(false);
+  }
+}
+
+@Component({
   selector: "demo-kitchen-sink-table",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -447,9 +581,6 @@ class DemoFilterableTableComponent {
           >
             Import
           </button>
-          <button bitButton buttonType="secondary" type="button" slot="end" startIcon="bwi-sliders">
-            Customize
-          </button>
           <button bitButton buttonType="primary" type="button" slot="end" startIcon="bwi-plus">
             Add
           </button>
@@ -464,7 +595,7 @@ class DemoFilterableTableComponent {
 
           <bit-filter-divider></bit-filter-divider>
 
-          <bit-filter-menu key="vault" placeholderText="Vault" multiple>
+          <bit-filter-menu icon="bwi-vault" key="vault" placeholderText="Vault" multiple>
             @for (option of vaultOptions; track option.value) {
               <bit-filter-option [value]="option.value">
                 {{ option.label }}
@@ -472,7 +603,12 @@ class DemoFilterableTableComponent {
             }
           </bit-filter-menu>
 
-          <bit-filter-menu key="collection" placeholderText="Shared folders" multiple>
+          <bit-filter-menu
+            icon="bwi-collection"
+            key="collection"
+            placeholderText="Shared folders"
+            multiple
+          >
             @for (org of collectionOrgs; track org.name) {
               <bit-filter-section [label]="org.name" collapsible>
                 @for (collection of org.collections; track collection.id) {
@@ -494,7 +630,7 @@ class DemoFilterableTableComponent {
             }
           </bit-filter-menu>
 
-          <bit-filter-menu key="folder" placeholderText="My folders" multiple>
+          <bit-filter-menu icon="bwi-folder" key="folder" placeholderText="My folders" multiple>
             <bit-filter-option [value]="null">No folders</bit-filter-option>
             <bit-filter-option-divider></bit-filter-option-divider>
             @for (folder of folders; track folder.id) {
@@ -666,7 +802,7 @@ class DemoSearchableTableComponent {
             }
           </bit-filter-menu>
 
-          <bit-filter-menu key="vault" placeholderText="Vault" multiple>
+          <bit-filter-menu icon="bwi-vault" key="vault" placeholderText="Vault" multiple>
             @for (option of vaultOptions(); track option.value) {
               <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
             }
@@ -810,6 +946,185 @@ class DemoFormTableComponent {
   };
 }
 
+type LongLabelRow = { id: number; name: string; collectionIds: string[]; folderId: string };
+type LongLabelFilters = { search?: string; collection?: string[]; folder?: string[] };
+
+const LONG_LABEL_ORG = "Bitwarden Design System and Component Library";
+
+const LONG_LABEL_COLLECTIONS = [
+  { id: "onboarding", name: "Onboarding materials for new design system contributors" },
+  { id: "tokens", name: "Design tokens, themes, and every palette we publish" },
+];
+
+const LONG_LABEL_FOLDERS = [
+  { id: "household", name: "Household paperwork, warranties, and appliance manuals" },
+  { id: "subscriptions", name: "Streaming subscriptions I keep meaning to cancel" },
+];
+
+const LONG_LABEL_ROWS: LongLabelRow[] = [
+  {
+    id: 1,
+    name: "Design system handbook",
+    collectionIds: ["onboarding"],
+    folderId: "household",
+  },
+  { id: 2, name: "Palette generator", collectionIds: ["tokens"], folderId: "subscriptions" },
+  {
+    id: 3,
+    name: "Contributor checklist",
+    collectionIds: ["onboarding", "tokens"],
+    folderId: "household",
+  },
+];
+
+/**
+ * Filter options named after real organizations, collections, and folders — long enough that
+ * every surface has to truncate them.
+ */
+@Component({
+  selector: "demo-long-label-filters-table",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    BitTableV2Component,
+    BitColumnComponent,
+    BitCellDefDirective,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    BitTableToolbarComponent,
+    FilterMenuModule,
+    SearchModule,
+    LayoutComponent,
+  ],
+  template: `
+    <bit-layout>
+      <bit-table-v2 [tableDef]="table" [filter]="filter" [filters]="seed()">
+        <bit-table-toolbar>
+          <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
+
+          <bit-filter-menu
+            key="collection"
+            placeholderText="Shared folders"
+            icon="bwi-shared-folder"
+            multiple
+          >
+            <bit-filter-section [label]="orgName" collapsible>
+              @for (collection of collections; track collection.id) {
+                <bit-filter-option [value]="collection.id">
+                  {{ collection.name }}
+                </bit-filter-option>
+              }
+            </bit-filter-section>
+          </bit-filter-menu>
+
+          <bit-filter-menu icon="bwi-folder" key="folder" placeholderText="My folders" multiple>
+            @for (folder of folders; track folder.id) {
+              <bit-filter-option [value]="folder.id">{{ folder.name }}</bit-filter-option>
+            }
+          </bit-filter-menu>
+        </bit-table-toolbar>
+
+        <bit-column sortable defaultSort="asc">
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+      </bit-table-v2>
+    </bit-layout>
+  `,
+})
+class DemoLongLabelFiltersTableComponent {
+  /** Seeds a selection, so the collapsed toolbar's active-filter chips have something to show. */
+  readonly applied = input(false);
+
+  protected readonly data = signal(LONG_LABEL_ROWS);
+  protected readonly table = defineTable<LongLabelRow>(this.data);
+
+  protected readonly orgName = LONG_LABEL_ORG;
+  protected readonly collections = LONG_LABEL_COLLECTIONS;
+  protected readonly folders = LONG_LABEL_FOLDERS;
+
+  // `{}` rather than `undefined` when nothing is applied: the input's declared type isn't
+  // nullable, and an empty object seeds no chip.
+  protected readonly seed = computed<Partial<LongLabelFilters>>(() =>
+    this.applied() ? { collection: LONG_LABEL_COLLECTIONS.map((c) => c.id) } : {},
+  );
+
+  protected readonly filter = (row: LongLabelRow, f: Partial<LongLabelFilters>) =>
+    (!f.search || row.name.toLowerCase().includes(f.search.toLowerCase())) &&
+    (!f.collection?.length || f.collection.some((c) => row.collectionIds.includes(c))) &&
+    (!f.folder?.length || f.folder.includes(row.folderId));
+}
+
+/**
+ * The vault items table's shape: a bounded Name, two bounded middle columns, a fluid Folders
+ * column the user can hide, and a fixed-width Options column. Folders carries the row's only
+ * `fr` track, so hiding it would leave nothing to absorb the remainder.
+ */
+@Component({
+  selector: "demo-bounded-widths-table",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    BitTableV2Component,
+    BitColumnComponent,
+    BitCellDefDirective,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    BitTableToolbarComponent,
+    SearchModule,
+    IconButtonModule,
+  ],
+  template: `
+    <bit-table-v2 [tableDef]="table" stateKey="vaultItems">
+      <bit-table-toolbar>
+        <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
+      </bit-table-toolbar>
+
+      <bit-column sortable defaultSort="asc" width="minmax(240px, 480px)">
+        <bit-header-cell>Name</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+      </bit-column>
+      <bit-column removable label="Vault" sortable width="minmax(176px, 280px)">
+        <bit-header-cell>Vault</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.vault; let row">{{ vaultName(row.vault) }}</bit-cell>
+      </bit-column>
+      <bit-column removable label="Type" sortable width="minmax(176px, 280px)">
+        <bit-header-cell>Type</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.type; let row">{{ typeName(row.type) }}</bit-cell>
+      </bit-column>
+      <bit-column removable label="Folders" sortable width="minmax(140px, 1fr)">
+        <bit-header-cell>Folders</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.folderId; let row">{{
+          folderName(row.folderId)
+        }}</bit-cell>
+      </bit-column>
+      <bit-column width="160px">
+        <bit-header-cell><span class="tw-sr-only">Options</span></bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.actions; let row">
+          <button
+            slot="end"
+            type="button"
+            bitIconButton="bwi-ellipsis-v"
+            size="small"
+            label="Options"
+          ></button>
+        </bit-cell>
+      </bit-column>
+    </bit-table-v2>
+  `,
+})
+class DemoBoundedWidthsTableComponent {
+  protected readonly table = defineTable<VaultRow, "actions">(signal(VAULT_ROWS));
+
+  protected vaultName(id: string): string {
+    return VAULTS.find((v) => v.id === id)?.name ?? id;
+  }
+
+  protected folderName(id: string | null): string {
+    return FOLDERS.find((f) => f.id === id)?.name ?? "—";
+  }
+
+  protected readonly typeName = typeLabel;
+}
+
 export default {
   title: "Component Library/Table V2 (Beta)",
   decorators: [
@@ -830,15 +1145,19 @@ export default {
         SkeletonTextComponent,
         DemoStatusColumnComponent,
         DemoFilterableTableComponent,
+        DemoFilterCoachmarkTableComponent,
         DemoKitchenSinkTableComponent,
+        DemoLongLabelFiltersTableComponent,
         DemoSearchableTableComponent,
         DemoUrlSyncTableComponent,
         DemoFormTableComponent,
+        DemoBoundedWidthsTableComponent,
         BulkActionsBarComponent,
         BulkActionComponent,
         BulkAdditionalActionComponent,
         IconTileComponent,
         ChipActionComponent,
+        ButtonModule,
         IconButtonModule,
         LayoutComponent,
         PageComponent,
@@ -853,6 +1172,10 @@ export default {
         {
           provide: GlobalStateProvider,
           useClass: StorybookGlobalStateProvider,
+        },
+        {
+          provide: StateProvider,
+          useClass: StorybookStateProvider,
         },
         // Provided at the application (root) level so dialogs opened via DialogService —
         // which root their injector at the app injector, not the story module — resolve it.
@@ -869,6 +1192,7 @@ export default {
               additionalActions: "Additional actions",
               search: "Search",
               resetSearch: "Reset search",
+              clearSearchTooltip: "Clear by clicking here or pressing Esc.",
               viewItemsIn: (name) => `View items in ${name}`,
               back: "Back",
               backTo: (name) => `Back to ${name}`,
@@ -879,6 +1203,10 @@ export default {
               noMatchingItems: "No matching items",
               noFiltersMatchTerm: (term) => `No filters match \u201c${term}\u201d`,
               clearSearch: "Clear search",
+              customize: "Customize",
+              customizeYourView: "Customize your view",
+              showColumns: "Show columns",
+              resetToDefault: "Reset to default",
               oneFilterResult: "1 result",
               filterResults: (count) => `${count} results`,
               selectAllRows: "Select all rows",
@@ -1145,6 +1473,104 @@ export const ReorderedAndHidden: Story = {
       </bit-table-v2>
     `,
   }),
+};
+
+/** A table that opts two of its three columns into the Customize dialog. */
+const customizeColumnsTemplate = `
+  <bit-table-v2 [tableDef]="table" stateKey="vaultItems">
+    <bit-table-toolbar>
+      <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
+      <button bitButton buttonType="secondary" type="button" slot="end" startIcon="bwi-download">
+        Import
+      </button>
+      <button bitButton buttonType="primary" type="button" slot="end" startIcon="bwi-plus">
+        Add
+      </button>
+    </bit-table-toolbar>
+    <bit-column sortable>
+      <bit-header-cell>Name</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+    </bit-column>
+    <bit-column removable label="Id" sortable>
+      <bit-header-cell>Id</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+    </bit-column>
+    <bit-column removable label="Other" sortable>
+      <bit-header-cell>Other</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
+    </bit-column>
+  </bit-table-v2>
+`;
+
+/**
+ * A table opts into the column picker by setting `stateKey` and marking the columns
+ * the user may hide. The **Customize** button then appears beside the search input, and
+ * each switch in the dialog applies immediately — the table re-lays out behind the scrim.
+ *
+ * **Import** and **Add** are the host's own page controls, projected through `slot=end` the
+ * way the web vault does it. Customize belongs to the table, so it sits to their left.
+ */
+export const CustomizeColumns: Story = {
+  render: () => ({
+    props: { table: basicTable },
+    template: customizeColumnsTemplate,
+  }),
+};
+
+/**
+ * Turn the named columns off through the Customize dialog. The switch input is `sr-only` under a
+ * `pointer-events-none` wrapper — a real user clicks the card's overlay label, which has no
+ * queryable role — so the pointer check is skipped and the input clicked directly.
+ */
+async function hideColumns(canvasElement: HTMLElement, ...labels: string[]) {
+  const user = userEvent.setup({ pointerEventsCheck: 0 });
+  await user.click(await within(canvasElement).findByRole("button", { name: "Customize" }));
+  for (const label of labels) {
+    await user.click(await screen.findByRole("switch", { name: label }));
+  }
+  await user.click(await screen.findByRole("button", { name: "Done" }));
+}
+
+/**
+ * Every column has a bounded max except **Folders**, which supplies the row's only flexible
+ * track. Compare with {@link CustomizeColumnsBoundedWidthsHidden}.
+ */
+export const CustomizeColumnsBoundedWidths: Story = {
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
+  render: () => ({ template: `<demo-bounded-widths-table />` }),
+};
+
+/**
+ * The same table with **Folders** hidden. Nothing declared can grow, so the table frees the first
+ * column's max — Name stretches and Options stays flush with the row's right edge, instead of the
+ * cells stopping short of the row's background and hover fill.
+ */
+export const CustomizeColumnsBoundedWidthsHidden: Story = {
+  render: () => ({ template: `<demo-bounded-widths-table />` }),
+  play: ({ canvasElement }) => hideColumns(canvasElement, "Folders"),
+};
+
+/**
+ * The floor of the feature: everything hideable turned off, leaving only Name and the
+ * non-removable Options column. Name takes the whole remainder.
+ */
+export const CustomizeColumnsBoundedWidthsAllHidden: Story = {
+  render: () => ({ template: `<demo-bounded-widths-table />` }),
+  play: ({ canvasElement }) => hideColumns(canvasElement, "Vault", "Type", "Folders"),
+};
+
+/** The dialog as it opens, with one switch per hideable column. */
+export const CustomizeColumnsDialogOpen: Story = {
+  render: () => ({
+    props: { table: basicTable },
+    template: customizeColumnsTemplate,
+  }),
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
+    await userEvent.click(await canvas.findByRole("button", { name: "Customize" }));
+  },
 };
 
 /**
@@ -1461,6 +1887,48 @@ export const FillPage: Story = {
 };
 
 /**
+ * A `fill` table whose viewport grows without the window resizing: hiding the block above it hands
+ * its height to the table. Rows must still reach the bottom edge afterwards.
+ */
+export const FillPageResizedViewport: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
+  render: () => ({
+    props: {
+      table: largeTable,
+      trackBy: (_: number, item: DemoRow) => item.id,
+      blockShown: signal(true),
+    },
+    template: `
+      <bit-layout>
+        <bit-page>
+          <div class="tw-mb-4 tw-flex tw-items-center tw-gap-4">
+            <h1 bitTypography="h1" class="tw-mb-0">Members</h1>
+            <button type="button" bitButton (click)="blockShown.set(!blockShown())">
+              {{ blockShown() ? "Hide" : "Show" }} block
+            </button>
+          </div>
+          @if (blockShown()) {
+            <div class="tw-mb-4 tw-flex tw-h-96 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-xl tw-bg-bg-secondary">
+              Content above the table
+            </div>
+          }
+          <bit-table-v2 [tableDef]="table" [virtualRowHeight]="64" [trackBy]="trackBy" height="fill">
+            <bit-column>
+              <bit-header-cell>Id</bit-header-cell>
+              <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+            </bit-column>
+            <bit-column>
+              <bit-header-cell>Name</bit-header-cell>
+              <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+            </bit-column>
+          </bit-table-v2>
+        </bit-page>
+      </bit-layout>
+    `,
+  }),
+};
+
+/**
  * Filtering with projected filter chips. A radio chip and a toggle chip register
  * with the table automatically when projected in; the table composes their
  * predicates into the rendered rows and shows a "no matching items" state when
@@ -1470,6 +1938,20 @@ export const Filterable: Story = {
   render: () => ({
     template: `<demo-filterable-table></demo-filterable-table>`,
   }),
+};
+
+/**
+ * Coachmarks pointing into the toolbar: the filter button, then a row inside the filter
+ * dialog, spotlit above the dialog.
+ */
+export const FilterCoachmarkTour: Story = {
+  render: () => ({
+    template: `<demo-filter-coachmark-table></demo-filter-coachmark-table>`,
+  }),
+  parameters: {
+    // Popover positioning is flaky in snapshots, see CL-822
+    chromatic: { disableSnapshot: true },
+  },
 };
 
 /** The open filter surface — the chip's popover, or the responsive dialog. */
@@ -1548,6 +2030,39 @@ export const KitchenSinkFilterEmpty: Story = {
   play: async ({ canvasElement }) => {
     await openSharedFoldersFilter(canvasElement);
     await searchForNothing();
+  },
+  parameters: {
+    chromatic: { viewports: [390, 1280] },
+  },
+};
+
+/**
+ * Long option names, with a selection already applied. Nothing here can show a name in full,
+ * so each surface truncates and carries a tooltip with the whole thing: the chip triggers, and
+ * below `md` the dismissible chips on the collapsed toolbar's own row. A multi-select puts one
+ * chip on that row per selected option — named for the option alone, led by the filter's icon —
+ * so each can be dropped without clearing the rest. Snapshotted at both widths.
+ */
+export const FilterLongLabelsApplied: Story = {
+  render: () => ({
+    template: `<demo-long-label-filters-table [applied]="true"></demo-long-label-filters-table>`,
+  }),
+  parameters: {
+    chromatic: { viewports: [390, 1280] },
+  },
+};
+
+/**
+ * The same filters opened: the popover's rows above `md`, the dialog's row list below it —
+ * where a row shows its label, then as many selected names as fit and a `+N` for the rest.
+ * Hovering a row reads out the full text either way.
+ */
+export const FilterLongLabelsOpen: Story = {
+  render: () => ({
+    template: `<demo-long-label-filters-table [applied]="true"></demo-long-label-filters-table>`,
+  }),
+  play: async ({ canvasElement }) => {
+    await openSharedFoldersFilter(canvasElement);
   },
   parameters: {
     chromatic: { viewports: [390, 1280] },
@@ -1671,6 +2186,32 @@ export const SelectableSubset: Story = {
         table,
         selection: { multiple: true, canSelect: (row: DemoRow) => row.id % 2 === 0 },
       },
+      template: `
+        <bit-table-v2 [tableDef]="table" [selection]="selection">
+          <bit-column>
+            <bit-header-cell>Id</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+          </bit-column>
+          <bit-column>
+            <bit-header-cell>Name</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+          </bit-column>
+          <bit-column>
+            <bit-header-cell>Other</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
+          </bit-column>
+        </bit-table-v2>
+      `,
+    };
+  },
+};
+
+/** `max` bounds the selection — capped to 3 of 5 rows here. See the docs page. */
+export const SelectableCapped: Story = {
+  render: () => {
+    const table = defineTable<DemoRow>(basicData);
+    return {
+      props: { table, selection: { multiple: true, max: 3 } },
       template: `
         <bit-table-v2 [tableDef]="table" [selection]="selection">
           <bit-column>

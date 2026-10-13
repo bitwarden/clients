@@ -4,6 +4,7 @@ import {
   DestroyRef,
   OnInit,
   WritableSignal,
+  computed,
   inject,
   signal,
 } from "@angular/core";
@@ -39,14 +40,13 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import {
   DIALOG_DATA,
+  CopyClickDirective,
   DialogConfig,
   DialogRef,
   SelectModule,
@@ -89,7 +89,14 @@ type ButtonType = (typeof ButtonType)[keyof typeof ButtonType];
 @Component({
   selector: "app-collection-dialog",
   templateUrl: "collection-dialog.component.html",
-  imports: [SharedModule, AccessSelectorModule, SelectModule, Vfo1IconPipe, Vfo1I18nPipe],
+  imports: [
+    SharedModule,
+    AccessSelectorModule,
+    CopyClickDirective,
+    SelectModule,
+    Vfo1IconPipe,
+    Vfo1I18nPipe,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CollectionDialogComponent implements OnInit {
@@ -105,7 +112,6 @@ export class CollectionDialogComponent implements OnInit {
   private readonly accountService = inject(AccountService);
   private readonly toastService = inject(ToastService);
   private readonly collectionService = inject(CollectionService);
-  private readonly configService = inject(ConfigService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
@@ -117,6 +123,16 @@ export class CollectionDialogComponent implements OnInit {
     access: [[] as AccessItemValue[]],
     selectedOrg: "" as OrganizationId,
   });
+
+  private readonly externalIdValue = toSignal(
+    this.formGroup.controls.externalId.valueChanges.pipe(map((value) => value || undefined)),
+    { initialValue: this.formGroup.controls.externalId.value || undefined },
+  );
+
+  /** The external ID, shown read-only and only in the Admin Console. */
+  protected readonly externalId = computed(() =>
+    this.params.isAdminConsoleActive ? this.externalIdValue() : undefined,
+  );
 
   private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -283,10 +299,6 @@ export class CollectionDialogComponent implements OnInit {
     this.params.initialPermission ?? CollectionPermission.View,
   );
 
-  protected readonly btnTextAddCreateFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
-  );
-
   private readonly orgExceedingCollectionLimit$ = this.organizationSelected.statusChanges.pipe(
     filter(() => !!this.organizationSelected.errors?.cannotCreateCollections),
     switchMap(() =>
@@ -409,10 +421,6 @@ export class CollectionDialogComponent implements OnInit {
     return this.formGroup.controls.selectedOrg;
   }
 
-  protected get isExternalIdVisible(): boolean {
-    return !!this.params.isAdminConsoleActive && !!this.formGroup.get("externalId")?.value;
-  }
-
   protected get collectionId() {
     return this.params.collectionId;
   }
@@ -456,14 +464,13 @@ export class CollectionDialogComponent implements OnInit {
       const accessTabError = this.formGroup.controls.access.hasError("managePermissionRequired");
 
       if (this.tabIndex() === CollectionDialogTabType.Access && !accessTabError) {
-        const collectionInfoKey = this.vfo1TerminologyService.enabled()
-          ? "sharedFolderInfo"
-          : "collectionInfo";
+        // Must match the info tab's label in the template so the toast names the tab the user sees.
+        const infoTabKey = this.vfo1TerminologyService.enabled() ? "details" : "collectionInfo";
         this.toastService.showToast({
           variant: "error",
           message: this.i18nService.t(
             "fieldOnTabRequiresAttention",
-            this.i18nService.t(collectionInfoKey),
+            this.i18nService.t(infoTabKey),
           ),
         });
       } else if (this.tabIndex() === CollectionDialogTabType.Info && accessTabError) {

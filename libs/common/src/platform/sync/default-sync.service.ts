@@ -8,6 +8,7 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { PerfTrackGroup } from "@bitwarden/logging";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -62,6 +63,9 @@ import { StateProvider } from "../state";
 import { CoreSyncService } from "./core-sync.service";
 import { SyncResponse } from "./sync.response";
 import { SyncOptions } from "./sync.service";
+
+const PERF_TRACK_GROUP = PerfTrackGroup.Sync;
+const PERF_TRACK = "Full Sync";
 
 export class DefaultSyncService extends CoreSyncService {
   syncInProgress = false;
@@ -139,6 +143,7 @@ export class DefaultSyncService extends CoreSyncService {
       return this.syncCompleted(false, userId);
     }
 
+    const syncMeasurement = this.logService.startMeasurement(PERF_TRACK_GROUP, PERF_TRACK, "total");
     const now = new Date();
     let needsSync = false;
     let needsSyncSucceeded = true;
@@ -178,7 +183,19 @@ export class DefaultSyncService extends CoreSyncService {
         );
       }
 
+      const getSyncMeasurement = this.logService.startMeasurement(
+        PERF_TRACK_GROUP,
+        PERF_TRACK,
+        "getSync",
+      );
       const response = await this.inFlightApiCalls.sync;
+      getSyncMeasurement.finish();
+
+      const processMeasurement = this.logService.startMeasurement(
+        PERF_TRACK_GROUP,
+        PERF_TRACK,
+        "processResponse",
+      );
 
       // The crypto sync handler *MUST* be the first sync handler to run. It reserves
       // the option to reject a sync, should the data be inconsitent. In this case, it will throw.
@@ -193,11 +210,14 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncCollections(response.collections, response.profile.id);
       await this.syncCiphers(response.ciphers, response.profile.id);
       await this.syncSends(response.sends, response.profile.id);
+      await this.retryPendingSendDeletions(response.profile.id);
       await this.syncSettings(response.domains, response.profile.id);
       await this.syncPolicies(response.policies, response.profile.id);
       await this.syncNewPolicies(response.policiesNew, response.policies, response.profile.id);
+      processMeasurement.finish([["Ciphers", response.ciphers?.length ?? 0]]);
 
       await this.setLastSync(now, userId);
+      syncMeasurement.finish([["Forced", forceSync]]);
       return this.syncCompleted(true, userId);
     } catch (e) {
       if (allowThrowOnError) {
@@ -242,11 +262,6 @@ export class DefaultSyncService extends CoreSyncService {
       }
 
       throw new Error("Stamp has changed");
-    }
-
-    // This is for key-connector users
-    if (response?.key) {
-      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, response.id);
     }
 
     await this.keyService.setProviderKeys(response.providers, response.id);
@@ -427,10 +442,10 @@ export class DefaultSyncService extends CoreSyncService {
     fallback: PolicyResponse[] | undefined,
     userId: UserId,
   ) {
-    // Fall back to `policies` when `policiesNew` is absent or empty (e.g. the server
-    // feature flag is off) so the new service is always seeded with data.
+    // Fall back to `policies` when `policiesNew` is absent or empty, so the new service
+    // is always seeded with data on servers that do not send `policiesNew`.
     const source = response != null && response.length > 0 ? response : fallback;
-    if (source == null || source.length === 0) {
+    if (source == null) {
       return;
     }
     const policies: { [id: string]: PolicyData } = {};
@@ -458,5 +473,24 @@ export class DefaultSyncService extends CoreSyncService {
         accountCryptographicState: profile.accountKeys?.toWrappedAccountCryptographicState(),
       }),
     );
+  }
+
+  /**
+   * Retries any file Send deletes that were durably queued after a failed create rollback.
+   *
+   * Best-effort cleanup: failures are logged and swallowed so they never block or fail the sync.
+   */
+  private async retryPendingSendDeletions(userId: UserId) {
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi))) {
+      return;
+    }
+
+    try {
+      await withPasswordManagerSdk(userId, this.sdkService, (sdk) =>
+        sdk.sends().retry_pending_deletions(),
+      );
+    } catch (e) {
+      this.logService.error("Sync: Failed to retry pending Send deletions.", e);
+    }
   }
 }

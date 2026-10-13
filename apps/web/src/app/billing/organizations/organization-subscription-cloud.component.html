@@ -109,7 +109,10 @@
       </div>
     </ng-container>
 
-    <app-organization-scheduled-price-increase-warning [organization]="userOrg">
+    <app-organization-scheduled-price-increase-warning
+      [organization]="userOrg"
+      class="tw-mt-6 tw-mb-8"
+    >
     </app-organization-scheduled-price-increase-warning>
 
     <ng-container *ngIf="userOrg.canEditSubscription">

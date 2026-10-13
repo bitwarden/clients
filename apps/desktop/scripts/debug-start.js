@@ -5,6 +5,7 @@
 // so it does not interfere with the host system's bitwarden desktop installation.
 //
 //   .debug/desktop-profile/           app data (vault, settings, logs)
+//   .debug/chrome-profile/            native messaging manifest for the debug browser
 //   .debug/.bitwarden-ssh-agent.sock  SSH agent socket
 //   .debug/s.<name>                   IPC sockets
 ////
@@ -22,6 +23,7 @@ const args = process.argv.splice(2);
 const DEBUG_DIR = path.resolve(__dirname, "../../..", ".debug");
 
 process.env.BITWARDEN_APPDATA_DIR = path.join(DEBUG_DIR, "desktop-profile");
+process.env.BITWARDEN_CHROME_PROFILE_DIR = path.join(DEBUG_DIR, "chrome-profile");
 process.env.BITWARDEN_SSH_AUTH_SOCK = path.join(DEBUG_DIR, ".bitwarden-ssh-agent.sock");
 process.env.BITWARDEN_IPC_SOCKET_DIR = DEBUG_DIR;
 

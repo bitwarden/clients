@@ -1,4 +1,4 @@
-import { Observable, catchError, forkJoin, from, map, switchMap, take } from "rxjs";
+import { Observable, catchError, forkJoin, from, map, switchMap, take, tap } from "rxjs";
 
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -15,6 +15,7 @@ import { LogService } from "@bitwarden/logging";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { AccessReportSummaryView } from "../../../models";
+import { flowTimer } from "../../../utils/measure-flow-step.operator";
 import {
   AccessReportEncryptionService,
   DecryptedAccessReportData,
@@ -279,34 +280,73 @@ export class DefaultAccessReportEncryptionService extends AccessReportEncryption
         return contentKey$.pipe(
           switchMap((contentEncryptionKey) => {
             const { reportData, summaryData, applicationData } = data;
+            const counts: [string, any][] = [
+              ["memberCount", Object.keys(reportData.memberRegistry).length],
+              ["applicationCount", reportData.reports.length],
+            ];
+            const measureStep = flowTimer(this.logService);
+
+            // Every serialize step reports charCount. The properties array is evaluated before
+            // measureStep stops the window, so encoding here purely to report bytes would time
+            // that throwaway pass as part of the step. The report's real byte size arrives at the
+            // encode step below, which encodes as part of the existing work.
             const serializedReport = this.reportVersioningService.serialize(reportData);
+            measureStep("Save: report serialized", [
+              ...counts,
+              ["charCount", serializedReport.length],
+            ]);
+
+            const encodedReport = new TextEncoder().encode(serializedReport);
+            measureStep("Save: report encoded", [
+              ...counts,
+              ["byteSize", encodedReport.byteLength],
+            ]);
+
+            const serializedSummary = this.summaryVersioningService.serialize(summaryData);
+            measureStep("Save: summary serialized", [
+              ...counts,
+              ["charCount", serializedSummary.length],
+            ]);
+
+            const serializedApplications =
+              this.applicationVersioningService.serialize(applicationData);
+            measureStep("Save: applications serialized", [
+              ...counts,
+              ["charCount", serializedApplications.length],
+            ]);
 
             return forkJoin({
               encryptedReportData: from(
-                this.encryptService.encryptFileData(
-                  new TextEncoder().encode(serializedReport),
-                  contentEncryptionKey,
-                ),
+                this.encryptService.encryptFileData(encodedReport, contentEncryptionKey),
               ),
               encryptedFileName: from(
                 this.encryptService.encryptString("report-data.json", contentEncryptionKey),
               ),
               encryptedSummaryData: from(
-                this.encryptService.encryptString(
-                  this.summaryVersioningService.serialize(summaryData),
-                  contentEncryptionKey,
-                ),
+                this.encryptService.encryptString(serializedSummary, contentEncryptionKey),
               ),
               encryptedApplicationData: from(
-                this.encryptService.encryptString(
-                  this.applicationVersioningService.serialize(applicationData),
-                  contentEncryptionKey,
-                ),
+                this.encryptService.encryptString(serializedApplications, contentEncryptionKey),
               ),
               wrappedEncryptionKey: from(
                 this.encryptService.wrapSymmetricKey(contentEncryptionKey, orgKey),
               ),
-            });
+            }).pipe(
+              // Per-branch timings would overlap, so the whole forkJoin is one measurement.
+              // The two encryptString artifacts are sized in characters: their EncString is the
+              // serialized base64 envelope, not a buffer, so only reportByteSize is a byte count.
+              tap((encrypted) =>
+                measureStep("Save: artifacts encrypted", [
+                  ...counts,
+                  ["reportByteSize", encrypted.encryptedReportData.buffer.byteLength],
+                  ["summaryCharCount", encrypted.encryptedSummaryData.encryptedString?.length ?? 0],
+                  [
+                    "applicationsCharCount",
+                    encrypted.encryptedApplicationData.encryptedString?.length ?? 0,
+                  ],
+                ]),
+              ),
+            );
           }),
           map(
             ({

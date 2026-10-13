@@ -19,6 +19,10 @@ module.exports = {
   ...presetConfig,
   testMatch: ["**/+(*.)+(spec).+(ts)"],
 
+  // jsdom marks window, document, location, and top as non-configurable; this
+  // environment relaxes them so tests can replace them with Object.defineProperty.
+  testEnvironment: path.resolve(__dirname, "jsdom-configurable.environment.ts"),
+
   // oauth4webapi is ESM-only; allow jest-preset-angular's transformer to compile it.
   transformIgnorePatterns: [
     "node_modules/(?!(.*\\.mjs$|@angular/common/locales/.*\\.js$|oauth4webapi/.*))",

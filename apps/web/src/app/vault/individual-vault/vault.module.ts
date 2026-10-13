@@ -3,7 +3,7 @@ import { NgModule } from "@angular/core";
 import { BulkDialogsModule } from "@bitwarden/vault";
 
 import { CollectionNameBadgeComponent } from "../../admin-console/organizations/collections";
-import { GroupBadgeModule } from "../../admin-console/organizations/collections/group-badge/group-badge.module";
+import { GroupNameBadgeComponent } from "../../admin-console/organizations/collections/group-badge/group-name-badge.component";
 import { CollectionDialogComponent } from "../../admin-console/organizations/shared/components/collection-dialog";
 import { SharedModule } from "../../shared";
 
@@ -18,7 +18,7 @@ import { VaultComponent } from "./vault.component";
   imports: [
     VaultRoutingModule,
     OrganizationBadgeModule,
-    GroupBadgeModule,
+    GroupNameBadgeComponent,
     CollectionNameBadgeComponent,
     PipesModule,
     SharedModule,

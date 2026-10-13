@@ -156,6 +156,11 @@ export class VaultCollectionRowComponent<C extends CipherViewLike> {
     return "";
   }
 
+  /** Query params to navigate to this collection, using the terminology-appropriate param key. */
+  get collectionQueryParams() {
+    return this.vfo1TerminologyService.collectionQueryParams(this.collection.id);
+  }
+
   protected edit(readonly: boolean) {
     this.onEvent.next({ type: "editCollection", item: this.collection, readonly: readonly });
   }

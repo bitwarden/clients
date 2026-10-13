@@ -1,6 +1,6 @@
 import { computed, inject, provideEnvironmentInitializer, signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { applicationConfig, Meta, StoryObj } from "@storybook/angular";
+import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { BehaviorSubject, NEVER, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -22,7 +22,6 @@ import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
-import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -31,12 +30,14 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
+  CalloutModule,
   CompactModeService,
   DialogService,
   I18nMockService,
   ToastService,
 } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
+import { ShareLinkService } from "@bitwarden/tools-share";
 import {
   MY_VAULT,
   orgIconTile,
@@ -51,6 +52,9 @@ import {
 } from "@bitwarden/vault";
 
 import { PopupWidthOptions } from "../../../../../platform/browser/browser-popup-utils";
+import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup-header.component";
+import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
+import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import { VaultPopupListTableFiltersService } from "../../../services/vault-popup-list-table-filters.service";
@@ -228,10 +232,6 @@ type StoryArgs = {
   currentUriIsBlocked?: boolean;
   /** When true, render as if in the sidebar so the autofill section shows the refresh control. */
   inSidebar?: boolean;
-  /** PM31039ItemActionInExtension flag. Defaults to on (the simplified item-action design). */
-  simplifiedItemActionEnabled?: boolean;
-  /** Legacy (flag-off) setting: whether clicking an autofill suggestion fills it. Defaults to on. */
-  clickItemsToAutofillVaultView?: boolean;
   /** Filters to restore into the chips on story load — ids, matching what `restoreFilters$` emits. */
   appliedFilters?: {
     cipherType?: CipherType | null;
@@ -241,6 +241,8 @@ type StoryArgs = {
   };
   /** Sections rendered collapsed. Defaults to all expanded. */
   collapsedSections?: VaultSection[];
+  /** VFO1Foundation flag. Off by default, matching the other flags in this stub. */
+  vfo1Enabled?: boolean;
   /** The vault the page is narrowed to. Defaults to All items. */
   scope?: VaultScope;
 };
@@ -321,11 +323,19 @@ const buildProviders = (args: StoryArgs) => {
   const searchText$ = new BehaviorSubject("");
   const hasSearchText$ = new BehaviorSubject(false);
 
+  // Mirrors the real service: the list counts as filtered when search text or any restored filter
+  // narrows it. `showEmptyAutofillTip$` combines this stream, so it must exist on the mock.
+  const filtersApplied = Object.values(args.appliedFilters ?? {}).some((value) =>
+    Array.isArray(value) ? value.length > 0 : value != null,
+  );
+  const hasFilterApplied$ = new BehaviorSubject(filtersApplied);
+
   // Minimal stand-in for the real search service so the toolbar search folds the list live.
   const applyFilter = (text: string) => {
     const term = (text ?? "").trim().toLowerCase();
     searchText$.next(text ?? "");
     hasSearchText$.next(term.length > 0);
+    hasFilterApplied$.next(filtersApplied || term.length > 0);
     filteredCiphers$.next(
       term ? allItems.filter((c) => c.name.toLowerCase().includes(term)) : allItems,
     );
@@ -351,6 +361,7 @@ const buildProviders = (args: StoryArgs) => {
         restoreFilters$: () => of(args.appliedFilters ?? {}),
         saveFilters: () => {},
         clearVaultScopedFilters: () => {},
+        filterDialogOpen: signal(false),
         vaultScopedFiltersCleared$: NEVER,
         suspended$: () => of(false),
         selectedFilters$: of({
@@ -359,7 +370,6 @@ const buildProviders = (args: StoryArgs) => {
           collection: [] as string[],
           folder: [] as string[],
         }),
-        selectedOrganizations: signal<string[]>([]),
         cipherTypes$: of(CIPHER_TYPE_OPTIONS),
         organizations$: of(ORGANIZATION_OPTIONS),
         organizationNames$: of(ORGANIZATION_NAMES),
@@ -378,6 +388,7 @@ const buildProviders = (args: StoryArgs) => {
         loading$: loading$.asObservable(),
         searchText$: searchText$.asObservable(),
         hasSearchText$: hasSearchText$.asObservable(),
+        hasFilterApplied$: hasFilterApplied$.asObservable(),
         // No story exercises the suspended-organization notice.
         showDeactivatedOrg$: of(false),
         // Mirrors the real service: whether the account has any items at all, ignoring search/filters.
@@ -436,16 +447,12 @@ const buildProviders = (args: StoryArgs) => {
       provide: ConfigService,
       useValue: {
         getFeatureFlag$: (flag: FeatureFlag) => {
-          if (flag === FeatureFlag.PM31039ItemActionInExtension) {
-            return of(args.simplifiedItemActionEnabled ?? true);
+          if (flag === FeatureFlag.VFO1Foundation) {
+            return of(args.vfo1Enabled ?? false);
           }
           return of(false);
         },
       },
-    },
-    {
-      provide: VaultSettingsService,
-      useValue: { clickItemsToAutofillVaultView$: of(args.clickItemsToAutofillVaultView ?? true) },
     },
     {
       provide: I18nService,
@@ -453,9 +460,15 @@ const buildProviders = (args: StoryArgs) => {
         new I18nMockService({
           search: "Search",
           searchResults: "Search results",
+          // `popup-page` / `popup-header` strings, for the stories that render the full page.
+          // `back` and `vault` are already defined below for the filter chips.
+          loading: "Loading",
+          appLogoLabel: "Bitwarden",
           resetSearch: "Reset search",
+          clearSearchTooltip: "Clear by clicking here or pressing Esc.",
           name: "Name",
           autofillSuggestions: "Autofill suggestions",
+          autofillSuggestionsTip: "Save a login item for this site to autofill",
           itemSuggestions: "Suggested items",
           // Sidebar-only autofill refresh control; not rendered in Storybook (not a sidebar).
           refresh: "Refresh",
@@ -597,7 +610,7 @@ const buildProviders = (args: StoryArgs) => {
     { provide: CipherArchiveService, useValue: { userCanArchive$: () => of(false) } },
     {
       provide: PlatformUtilsService,
-      useValue: { getAutofillKeyboardShortcut: async () => "Ctrl+Shift+L" },
+      useValue: {},
     },
     { provide: EventCollectionService, useValue: {} },
     { provide: TotpService, useValue: {} },
@@ -609,6 +622,14 @@ const buildProviders = (args: StoryArgs) => {
     {
       provide: ActivatedRoute,
       useValue: { snapshot: { queryParams: {}, paramMap: new Map() }, queryParams: of({}) },
+    },
+    // `popup-header`'s back button, for the stories that render the full page layout.
+    { provide: PopupRouterCacheService, useValue: { back: () => Promise.resolve(true) } },
+    {
+      // The rows' more-options menu hosts the share entry point, which asks whether the
+      // item can be shared. Stubbed so the real service is not constructed.
+      provide: ShareLinkService,
+      useValue: { cipherCanBeShared$: () => of(false) },
     },
   ];
 };
@@ -637,6 +658,70 @@ export const Default: Story = {
   ],
   render: () => ({
     template: `<div class="tw-flex tw-flex-col" style="height: 500px"><app-vault-popup-list-table></app-vault-popup-list-table></div>`,
+  }),
+};
+
+export const VaultPage: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
+  decorators: [
+    applicationConfig({
+      providers: buildProviders({
+        autoFillCiphers: AUTOFILL_CIPHERS,
+        favoriteCiphers: FAVORITE_CIPHERS,
+        filteredCiphers: [...AUTOFILL_CIPHERS, ...FAVORITE_CIPHERS, ...ALL_ITEM_CIPHERS],
+        loading: false,
+        vfo1Enabled: true,
+      }),
+    }),
+    moduleMetadata({ imports: [PopupPageComponent, PopupHeaderComponent, CalloutModule] }),
+  ],
+  render: () => ({
+    // The popup's own viewport height, so there is genuinely more list than fits.
+    template: /* HTML */ `
+      <div class="tw-border tw-border-solid tw-border-secondary-300" style="height: 600px">
+        <popup-page [collapseAboveScrollArea]="true">
+          <popup-header slot="header" pageTitle="Vault"></popup-header>
+          <ng-container slot="above-scroll-area">
+            <bit-callout class="[&_aside]:!tw-mb-0" title="Unlock advanced security" [icon]="null">
+              Get stronger protection with Bitwarden Premium.
+            </bit-callout>
+          </ng-container>
+          <div class="tw-flex tw-flex-col tw-justify-center tw-h-full">
+            <app-vault-popup-list-table></app-vault-popup-list-table>
+          </div>
+        </popup-page>
+      </div>
+    `,
+  }),
+};
+
+export const VaultPageShortScroll: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
+  decorators: [
+    applicationConfig({
+      providers: buildProviders({
+        // One section only, so the content height is easy to reason about.
+        autoFillCiphers: [],
+        favoriteCiphers: [],
+        filteredCiphers: ALL_ITEM_CIPHERS,
+        loading: false,
+        vfo1Enabled: true,
+      }),
+    }),
+    moduleMetadata({ imports: [PopupPageComponent, PopupHeaderComponent] }),
+  ],
+  render: () => ({
+    // Deliberately shorter than `VaultPage`, to land the overflow under the collapsible height.
+    template: /* HTML */ `
+      <div class="tw-border tw-border-solid tw-border-secondary-300" style="height: 520px">
+        <popup-page [collapseAboveScrollArea]="true">
+          <popup-header slot="header" pageTitle="Vault"></popup-header>
+          <div class="tw-flex tw-flex-col tw-justify-center tw-h-full">
+            <app-vault-popup-list-table></app-vault-popup-list-table>
+          </div>
+        </popup-page>
+      </div>
+    `,
   }),
 };
 
@@ -724,27 +809,6 @@ export const SidebarRefresh: Story = {
         filteredCiphers: [...AUTOFILL_CIPHERS, ...FAVORITE_CIPHERS, ...ALL_ITEM_CIPHERS],
         loading: false,
         inSidebar: true,
-      }),
-    }),
-  ],
-  render: () => ({
-    template: `<div class="tw-flex tw-flex-col" style="height: 500px"><app-vault-popup-list-table></app-vault-popup-list-table></div>`,
-  }),
-};
-
-// Legacy (PM31039ItemActionInExtension off) affordance: autofill suggestions show a primary "Fill"
-// chip (with a keyboard-shortcut tooltip) instead of fill-on-click. `clickItemsToAutofillVaultView`
-// is off so the chip is shown rather than the click itself autofilling.
-export const LegacyAutofillButton: Story = {
-  decorators: [
-    applicationConfig({
-      providers: buildProviders({
-        autoFillCiphers: AUTOFILL_CIPHERS,
-        favoriteCiphers: FAVORITE_CIPHERS,
-        filteredCiphers: [...AUTOFILL_CIPHERS, ...FAVORITE_CIPHERS, ...ALL_ITEM_CIPHERS],
-        loading: false,
-        simplifiedItemActionEnabled: false,
-        clickItemsToAutofillVaultView: false,
       }),
     }),
   ],

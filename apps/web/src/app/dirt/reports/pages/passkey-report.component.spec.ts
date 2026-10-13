@@ -18,10 +18,15 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BreadcrumbsModule, DialogService, IconModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  CipherFormConfigService,
+  PasswordRepromptService,
+  VaultItemDialogResult,
+} from "@bitwarden/vault";
 
 import { PasskeyReportComponent } from "./passkey-report.component";
 import { PasskeyReportService } from "./passkey-report.service";
@@ -415,5 +420,20 @@ describe("PasskeyReportComponent", () => {
     const crumbs = breadcrumbs.queryAll(By.css("span[bitOverflowItem]"));
     expect(crumbs).toHaveLength(2);
     expect(crumbs[1].nativeElement.textContent.trim()).toBe("passkeyLoginReport");
+  });
+
+  describe("refresh", () => {
+    it("decrypts the saved cipher through the cipher service", async () => {
+      const savedCipher = new Cipher();
+      savedCipher.id = "cipher-id";
+      const savedCipherView = new CipherView();
+      savedCipherView.id = "cipher-id";
+      cipherServiceMock.get.mockResolvedValue(savedCipher);
+      cipherServiceMock.decrypt.mockResolvedValue(savedCipherView);
+
+      await component["refresh"](VaultItemDialogResult.Saved, savedCipherView);
+
+      expect(cipherServiceMock.decrypt).toHaveBeenCalledWith(savedCipher, userId);
+    });
   });
 });

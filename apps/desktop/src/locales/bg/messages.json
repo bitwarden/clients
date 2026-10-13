@@ -160,20 +160,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "още $COUNT$ споделени папки над този бутон",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "още 1 споделена папка над този бутон",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "Моята папка"
   },
@@ -182,6 +168,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Добавете папки към елементите, за да ги филтрирате тук."
+  },
+  "myItemsFilterTooltip": {
+    "message": "Добавете папки към „Моите елементи“, за да ги филтрирате тук."
   },
   "sharedFolderFilterTooltip": {
     "message": "Добавете записи в споделена папка, за да филтрирате тук."
@@ -802,16 +791,25 @@
   "decryptionError": {
     "message": "Грешка при дешифриране"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Битоурден не може да дешифрира елементите от трезора посочени по-долу."
+  "couldNotDecryptVaultItem": {
+    "message": "Битуорден не може да дешифрова посочения по-долу запис от трезора. Свържете се с поддръжката на Битуорден и дайте идентификатора на записа по-долу, за да проверите дали може да бъде възстановен."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Свържете се с поддръжката",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Битуорден не може да дешифрова посочените по-долу записи от трезора. Свържете се с поддръжката на Битуорден и дайте идентификаторите на записите по-долу, за да проверите дали могат да бъдат възстановени."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "за да избегнете загубата на данни.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "Идентификатор на запис",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "Идентификатори на записи",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Копиране на идентификатора"
+  },
+  "copyAllIds": {
+    "message": "Копиране на всички идентификатори"
   },
   "january": {
     "message": "януари"
@@ -4628,11 +4626,21 @@
   "selectImportCollection": {
     "message": "Изберете колекция"
   },
+  "selectImportSharedFolder": {
+    "message": "Изберете споделена папка"
+  },
+  "importTargetMyFolder": {
+    "message": "Моята папка",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в колекция"
   },
   "importTargetHintFolder": {
     "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в папка"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в споделена папка"
   },
   "importUnassignedItemsError": {
     "message": "Файлът съдържа невъзложени елементи."
@@ -4642,6 +4650,40 @@
   },
   "selectImportFile": {
     "message": "Изберете файла за внасяне"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Изберете източник"
+  },
+  "importSourceSelectTitle": {
+    "message": "Изберете своя източник"
+  },
+  "importSourceSelectDescription": {
+    "message": "Изберете управителя на пароли или браузъра, от който внасяте."
+  },
+  "importSourceBrowsers": {
+    "message": "Браузъри"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Управители на пароли"
+  },
+  "importSourceShowAll": {
+    "message": "Показване на всички"
+  },
+  "importSourceShowLess": {
+    "message": "Показване на по-малко"
+  },
+  "importSourceStepCount": {
+    "message": "Стъпка $CURRENT$ от $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Изберете файл"
@@ -5067,6 +5109,15 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Поставете устройството на YubiKey, което е свързано с регистрацията Ви в LastPass, в USB порт и натиснете бутона на устройството."
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Е-поща за Keeper"
@@ -5579,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Добавката за браузъра, която използвате, е остаряла. Моля, обновете я или изключете интеграцията за проверка на пръстов отпечатък в браузъра от настройките на самостоятелното приложение."
   },
-  "changeAtRiskPassword": {
-    "message": "Промяна на парола в риск"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Този елемент за вписване е в риск и в него липсва уеб сайт. Добавете уеб сайт и сменете паролата, за по-добра сигурност."
-  },
   "vulnerablePassword": {
     "message": "Уязвима парола."
   },
   "changeNow": {
     "message": "Промяна сега"
-  },
-  "missingWebsite": {
-    "message": "Липсващ уеб сайт"
   },
   "missingPermissions": {
     "message": "Нямате нужните правомощия да извършите това действие."
@@ -5982,6 +6024,9 @@
   "enableAutotypeShortcutPreview": {
     "message": "Включване на комбинация за автоматично попълване (Функционалност в изпитание)"
   },
+  "enableAutotypeGaShortcut": {
+    "message": "Включване на клавишната комбинация за автоматично попълване"
+  },
   "enableAutotypeShortcutDescription": {
     "message": "Уверете се, че сте в правилното поле, преди да използвате комбинацията, за да избегнете попълването на данните на грешното място."
   },
@@ -6366,11 +6411,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Нямате никакви папки."
+  "youHaveNoFoldersV2": {
+    "message": "Нямате никакви папки"
   },
-  "emptyFoldersDescription": {
-    "message": "Използвайте папки, за да внесете ред в трезора си. Те са само за Вас — никой друг няма да ги вижда или използва."
+  "emptyFoldersDescriptionV2": {
+    "message": "Използвайте папки, за да внесете ред в трезора си. Те са само за Вас. Никой друг няма да ги вижда или използва."
   },
   "emptyVaultsDescription": {
     "message": "За да започнете, добавете данни за вписване, идентичности, карти и други елементи."
@@ -6848,5 +6893,80 @@
   },
   "editItemsHidePass": {
     "message": "Редактиране на елементите, със скрити пароли"
+  },
+  "shareVerb": {
+    "message": "Споделяне"
+  },
+  "peopleWhoCanView": {
+    "message": "Хора, които могат да преглеждат",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "След като споделите тази връзка, хората ще трябва да потвърдят е-пощата си чрез код, за да могат да видят записа.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Тази връзка изтича след тази дата, но получателите биха могли да запазят споделената информация. Променете удостоверителните данни, за да отнемете достъпа им.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Връзката изтича след",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Еднократно споделяне",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Активни връзки",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Връзката е копирана в операт. памет",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Не може да се създаде споделена връзка",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Връзката е запазена и копирана в буфера за обмен",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Връзката за споделяне не може да бъде копирана в буфера за обмен",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Връзката за споделяне е изтрита",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Споделената връзка не успя да бъде изтрита",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Споделяне чрез връзка",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Споделяне за запис от трезора $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareLinkExpires": {
+    "message": "Изтича",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Изтича",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Неизвестен запис. Може да се нуждаете от правомощие за достъп до този запис."
   }
 }

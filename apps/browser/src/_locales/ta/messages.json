@@ -451,6 +451,9 @@
   "noFolders": {
     "message": "பட்டியலிட கோப்புறைகள் எதுவும் இல்லை."
   },
+  "noFoldersFilter": {
+    "message": "No folders"
+  },
   "helpFeedback": {
     "message": "உதவி மற்றும் பின்னூட்டம்"
   },
@@ -1288,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "வால்ட் பார்வையில் உருப்படிகளை தானாக நிரப்ப கிளிக் செய்யவும்"
   },
-  "clickToAutofill": {
-    "message": "தானாக நிரப்பும் பரிந்துரையில் உருப்படிகளை நிரப்ப கிளிக் செய்யவும்"
-  },
   "clearClipboard": {
     "message": "கிளிப்போர்டை அழி",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1536,6 +1536,40 @@
   "importVerb": {
     "message": "இறக்குமதி செய்",
     "description": "The verb form of the word Import"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "importItems": {
     "message": "உருப்படிகளை இறக்குமதி செய்"
@@ -4059,16 +4093,25 @@
   "errorGettingAutoFillData": {
     "message": "தானியங்குநிரப்பு தரவைப் பெறுவதில் பிழை"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden கீழே பட்டியலிடப்பட்ட பெட்டக பொருளை குறியாக்கம் நீக்க முடியவில்லை."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden could not decrypt the vault item listed below. Contact Bitwarden Customer Support and provide the item ID below to see if it can be recovered."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "கூடுதல் தரவு இழப்பைத் தவிர்க்க",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden could not decrypt the vault items listed below. Contact Bitwarden Customer Support and provide the item IDs below to see if they can be recovered."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "வாடிக்கையாளர் ஆதரவைத் தொடர்பு கொள்ளவும்.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "Item ID",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "Item IDs",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Copy ID"
+  },
+  "copyAllIds": {
+    "message": "Copy all IDs"
   },
   "generateUsername": {
     "message": "பயனர் பெயரை உருவாக்கு"
@@ -5129,11 +5172,21 @@
   "selectImportCollection": {
     "message": "ஒரு சேகரிப்பைத் தேர்ந்தெடு"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "இறக்குமதி செய்யப்பட்ட கோப்பு உள்ளடக்கங்கள் ஒரு சேகரிப்புக்கு நகர்த்தப்பட விரும்பினால் இந்த விருப்பத்தைத் தேர்ந்தெடுக்கவும்"
   },
   "importTargetHintFolder": {
     "message": "இறக்குமதி செய்யப்பட்ட கோப்பு உள்ளடக்கங்கள் ஒரு கோப்புறைக்கு நகர்த்தப்பட விரும்பினால் இந்த விருப்பத்தைத் தேர்ந்தெடுக்கவும்"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "கோப்பில் ஒதுக்கப்படாத உருப்படிகள் உள்ளன."
@@ -5626,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "உங்கள் LastPass கணக்குடன் தொடர்புடைய YubiKey-யை உங்கள் கம்ப்யூட்டரின் USB போர்ட்டில் செருகவும், பின்னர் அதன் பட்டனைத் தொடவும்."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper மின்னஞ்சல்"
   },
@@ -5820,6 +5882,9 @@
   },
   "switchAccounts": {
     "message": "கணக்குகளை மாற்று"
+  },
+  "switchVault": {
+    "message": "Switch vault"
   },
   "switchToAccount": {
     "message": "கணக்கிற்கு மாறு"
@@ -7186,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "அபாயத்திலுள்ள கடவுச்சொல்லை மாற்றவும்"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "இந்த உள்நுழைவு ஆபத்தில் உள்ளது, மேலும் அதில் ஒரு வலைத்தளமும் இல்லை. வலுவான பாதுகாப்பிற்காக ஒரு வலைத்தளத்தைச் சேர்த்து கடவுச்சொல்லை மாற்றவும்."
-  },
   "vulnerablePassword": {
     "message": "பாதிக்கப்படக்கூடிய கடவுச்சொல்."
   },
   "changeNow": {
     "message": "இப்போதே மாற்றவும்"
-  },
-  "missingWebsite": {
-    "message": "காணாமல் போன வலைத்தளம்"
   },
   "settingsVaultOptions": {
     "message": "சேமிப்பு பெட்டக விருப்பத்தேர்வுகள்"
@@ -7228,11 +7284,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "உங்களிடம் கோப்புறைகள் எதுவும் இல்லை."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "பெட்டக உருப்படிகளை ஒழுங்கமைக்க கோப்புறைகளைப் பயன்படுத்தவும். அவை உங்களுக்காக மட்டுமே — வேறு யாரும் அவற்றைப் பார்க்கவோ பயன்படுத்தவோ முடியாது."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "Bitwarden க்கு நல்வரவு"
@@ -8116,5 +8172,84 @@
   },
   "editItemsHidePass": {
     "message": "உருப்படிகளைத் திருத்து, மறைக்கப்பட்ட கடவுச்சொற்கள்"
+  },
+  "shareVerb": {
+    "message": "Share"
+  },
+  "peopleWhoCanView": {
+    "message": "People who can view",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "After sharing this link, recipients will need to verify their email with a code to view the item.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "This link expires after this date, but recipients may retain previously shared information. Regenerate the credential to revoke access.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Link expires after",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "One time share",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Active links",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Link copied to clipboard",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Unable to create share link",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Link saved and copied to clipboard",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Failed to copy share link to clipboard",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Share link deleted",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Failed to delete share link",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Share via link",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Share for vault item $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "share": {
+    "message": "Share",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareLinkExpires": {
+    "message": "Expires",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Expires",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Unknown item, you may need to request permission to access this item."
   }
 }

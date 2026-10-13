@@ -1,5 +1,6 @@
-import { NgModule } from "@angular/core";
+import { inject, NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { map } from "rxjs";
 
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
 import { AuthRoute } from "@bitwarden/angular/auth/constants";
@@ -15,6 +16,7 @@ import {
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
+import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
@@ -41,6 +43,7 @@ import {
   NewDeviceVerificationComponent,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import {
   LockComponent,
@@ -53,13 +56,16 @@ import {
   organizationVaultGuard,
   SHARED_FOLDERS_ROUTE,
   vaultFilterLegacyRedirectGuard,
+  vaultFilterRestoreGuard,
   vaultScopeGuard,
+  type VaultScopeRouteData,
 } from "@bitwarden/vault";
 
 import { AccountSwitcherV2Component } from "../auth/components/account-switcher/account-switcher-v2.component";
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
 import { reactiveUnlockVaultGuard } from "../autofill/guards/reactive-vault-guard";
 import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create.component";
+import { Fido2CredentialNotFoundComponent } from "../autofill/modal/credentials/fido2-credential-not-found.component";
 import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
 import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
 import { MyFoldersComponent } from "../vault/app/my-folders/my-folders.component";
@@ -79,7 +85,7 @@ export interface RouteDataProperties {
   // then assert that the data object satisfies this interface in the route object.
 }
 
-const routes: Routes = [
+export const routes: Routes = [
   {
     path: "",
     pathMatch: "full",
@@ -140,6 +146,10 @@ const routes: Routes = [
   {
     path: "fido2-excluded",
     component: Fido2ExcludedCiphersComponent,
+  },
+  {
+    path: "fido2-credential-not-found",
+    component: Fido2CredentialNotFoundComponent,
   },
   {
     path: "",
@@ -462,17 +472,29 @@ const routes: Routes = [
         canActivate: [vaultFilterLegacyRedirectGuard],
         data: { pageTitle: { key: "vault" } } satisfies RouteDataProperties,
         children: [
-          {
-            path: "",
-            component: VaultComponent,
-          },
+          // Filter memory hangs off the flagged route options; the same component is expected.
+          ...featureFlaggedRoute({
+            defaultComponent: VaultComponent,
+            flaggedComponent: VaultComponent,
+            featureFlag: FeatureFlag.VFO1Foundation,
+            routeOptions: {
+              path: "",
+            },
+            flaggedRouteOptions: {
+              path: "",
+              canActivate: [vaultFilterRestoreGuard],
+              data: { vaultFilterScope: true } satisfies RouteDataProperties & VaultScopeRouteData,
+            },
+          }),
           {
             path: ":vaultId",
             component: VaultComponent,
             canActivate: [
               canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault", false),
               vaultScopeGuard,
+              vaultFilterRestoreGuard,
             ],
+            data: { vaultFilterScope: true } satisfies RouteDataProperties & VaultScopeRouteData,
           },
           // An organization's "My items" collection. A page of the vault rather than one of its
           // shared folders, so it sits alongside the list rather than under it — see
@@ -483,8 +505,10 @@ const routes: Routes = [
             canActivate: [
               canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault", false),
               vaultScopeGuard,
+              vaultFilterRestoreGuard,
             ],
-            data: MY_ITEMS_ROUTE_DATA,
+            data: { ...MY_ITEMS_ROUTE_DATA, vaultFilterScope: true } satisfies RouteDataProperties &
+              VaultScopeRouteData,
           },
           // An organization vault's shared folders.
           {
@@ -505,7 +529,9 @@ const routes: Routes = [
             canActivate: [
               canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault", false),
               vaultScopeGuard,
+              vaultFilterRestoreGuard,
             ],
+            data: { vaultFilterScope: true } satisfies RouteDataProperties & VaultScopeRouteData,
           },
         ],
       },
@@ -520,6 +546,21 @@ const routes: Routes = [
         component: SendComponent,
         data: { pageTitle: { key: "send" } } satisfies RouteDataProperties,
         canDeactivate: [unsavedSendEditsGuard],
+      },
+      {
+        path: "import",
+        canMatch: [
+          () =>
+            inject(ConfigService)
+              .getFeatureFlag$(FeatureFlag.ImportUpgrade)
+              .pipe(map((flagValue) => flagValue === true)),
+        ],
+        // Lazy load vendor icon set
+        loadComponent: () =>
+          import("./tools/import/import-source-select-desktop.component").then(
+            (mod) => mod.ImportSourceSelectDesktopComponent,
+          ),
+        data: { pageTitle: { key: "importNoun" } } satisfies RouteDataProperties,
       },
     ],
   },
