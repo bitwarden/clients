@@ -5,9 +5,7 @@ import { of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { featureFlagModes } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { ACCESS_RULE_DESCRIPTION_MAX_LENGTH, AccessRuleSdkService, AccessRuleView } from "..";
@@ -128,16 +126,7 @@ export default {
 type Story = StoryObj<AccessRulesComponent>;
 
 /** A mix of active and inactive rules, conditions and duration caps. */
-export const Default: Story = {
-  parameters: {
-    chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) },
-  },
-};
-
-/** {@link Default} with the VFO1 flag on, rendering `bit-table-v2`. */
-export const FlagOn: Story = {
-  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
-};
+export const Default: Story = {};
 
 /** No rules yet, so the empty state offers the starter templates. */
 export const Empty: Story = {
