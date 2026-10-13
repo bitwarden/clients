@@ -3,10 +3,10 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
 
-import { DesktopImportMetadataService } from "./desktop-import-metadata.service";
+import { DesktopImportUpgradeMetadataService } from "./desktop-import-upgrade-metadata.service";
 
-describe("DesktopImportMetadataService", () => {
-  let sut: DesktopImportMetadataService;
+describe("DesktopImportUpgradeMetadataService", () => {
+  let sut: DesktopImportUpgradeMetadataService;
   let systemServiceProvider: MockProxy<SystemServiceProvider>;
   let i18nService: MockProxy<I18nService>;
   let requestBrowserAccess: jest.Mock;
@@ -19,7 +19,7 @@ describe("DesktopImportMetadataService", () => {
     i18nService = mock<I18nService>({
       t: (key: string, ...args: string[]) => [key, ...args].join(":"),
     });
-    sut = new DesktopImportMetadataService(systemServiceProvider, i18nService);
+    sut = new DesktopImportUpgradeMetadataService(systemServiceProvider, i18nService);
 
     requestBrowserAccess = jest.fn().mockResolvedValue(undefined);
     getAvailableProfiles = jest.fn().mockResolvedValue([{ id: "Default", name: "Default" }]);

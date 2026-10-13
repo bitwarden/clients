@@ -14,11 +14,11 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { DialogService, I18nMockService, ToastService } from "@bitwarden/components";
 
 import { DataLoader, Loader } from "../../metadata";
-import { CredentialKind, ImportOption, ImportType } from "../../models";
+import { CredentialKind, ImportOption, UpgradeImportType } from "../../models";
 import {
-  ImporterCapabilities,
-  ImportMetadataServiceAbstraction,
-  ImportServiceAbstraction,
+  ImporterUpgradeCapabilities,
+  ImportUpgradeMetadataServiceAbstraction,
+  ImportUpgradeServiceAbstraction,
 } from "../../services";
 import { KeeperDirectImportService } from "../keeper/keeper-direct-import.service";
 import { LastPassDirectImportService } from "../lastpass/lastpass-direct-import.service";
@@ -168,8 +168,8 @@ const options: Record<string, ImportOption> = {
   }),
 };
 
-const importServiceStub: Partial<ImportServiceAbstraction> = {
-  getImportOption: (id: ImportType) => options[id],
+const importServiceStub: Partial<ImportUpgradeServiceAbstraction> = {
+  getImportOption: (id: UpgradeImportType) => options[id],
   // Without these, Continue throws "not a function", swallowed into a silently-empty dialog.
   getImporter: () => ({}) as any,
   import: async () =>
@@ -181,11 +181,11 @@ const importServiceStub: Partial<ImportServiceAbstraction> = {
 
 function metadataService(
   loaders: readonly DataLoader[] = [Loader.file],
-): ImportMetadataServiceAbstraction {
+): ImportUpgradeMetadataServiceAbstraction {
   return {
     init: () => Promise.resolve(),
-    metadata$: (type$: Observable<ImportType>) =>
-      type$.pipe(map((type): ImporterCapabilities => ({ type, loaders: [...loaders] }))),
+    metadata$: (type$: Observable<UpgradeImportType>) =>
+      type$.pipe(map((type): ImporterUpgradeCapabilities => ({ type, loaders: [...loaders] }))),
     getAvailableProfiles: () =>
       Promise.resolve([
         { id: "Default", name: "Default" },
@@ -195,12 +195,15 @@ function metadataService(
   };
 }
 
-function metadataServiceNoProfiles(): ImportMetadataServiceAbstraction {
+function metadataServiceNoProfiles(): ImportUpgradeMetadataServiceAbstraction {
   return {
     init: () => Promise.resolve(),
-    metadata$: (type$: Observable<ImportType>) =>
+    metadata$: (type$: Observable<UpgradeImportType>) =>
       type$.pipe(
-        map((type): ImporterCapabilities => ({ type, loaders: [Loader.file, Loader.chromium] })),
+        map((type): ImporterUpgradeCapabilities => ({
+          type,
+          loaders: [Loader.file, Loader.chromium],
+        })),
       ),
     getAvailableProfiles: () => Promise.resolve([]),
     getChromiumLogins: () => Promise.resolve([]),
@@ -210,14 +213,14 @@ function metadataServiceNoProfiles(): ImportMetadataServiceAbstraction {
 function decoratorsFor(
   clientType: ClientType,
   loaders: readonly DataLoader[] = [Loader.file],
-  metadataServiceOverride?: ImportMetadataServiceAbstraction,
+  metadataServiceOverride?: ImportUpgradeMetadataServiceAbstraction,
 ) {
   return [
     moduleMetadata({
       providers: [
-        { provide: ImportServiceAbstraction, useValue: importServiceStub },
+        { provide: ImportUpgradeServiceAbstraction, useValue: importServiceStub },
         {
-          provide: ImportMetadataServiceAbstraction,
+          provide: ImportUpgradeMetadataServiceAbstraction,
           useValue: metadataServiceOverride ?? metadataService(loaders),
         },
         {
@@ -287,6 +290,9 @@ function decoratorsFor(
               errorOccurred: "An error has occurred.",
               selectFile: "Select a file.",
               selectFileUnsupportedType: "That file type isn't accepted for this source.",
+              fileTypeNotSupported: (types?: string) =>
+                `This file type isn't supported. Select a ${types} file.`,
+              pasteContentFormatMismatch: "The pasted content doesn't match the selected format.",
               pasteContentRequired: "Paste the exported content.",
               selectFormat: "Select the format of the import file.",
               // Chromium's stub always resolves zero logins, so Continue always hits this key.
@@ -421,8 +427,9 @@ export const FileOnly: Story = {
   }),
 };
 
-/** 1Password — the vendor-format-grouping case. Choose a .csv file to see the Windows/Mac
- *  disambiguation control appear. */
+/** 1Password — the vendor-format-grouping case. The format dropdown always lists every format;
+ *  pick Windows or Mac csv, then choose a matching .csv file. A file the selected format doesn't
+ *  accept shows an inline error on the file field. */
 export const VendorFormatGrouping: Story = {
   decorators: decoratorsFor(ClientType.Web),
   render: (args) => ({

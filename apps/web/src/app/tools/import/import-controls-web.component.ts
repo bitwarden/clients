@@ -2,12 +2,12 @@ import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
 import {
-  DefaultImportMetadataService,
-  ImportMetadataServiceAbstraction,
+  DefaultImportUpgradeMetadataService,
+  ImportUpgradeMetadataServiceAbstraction,
 } from "@bitwarden/importer-core";
 import {
   ImportControlsComponent,
-  ImporterProviders,
+  ImportUpgradeProviders,
   importTypeFromRoute,
   SYSTEM_SERVICE_PROVIDER,
 } from "@bitwarden/importer-ui";
@@ -18,10 +18,10 @@ import { safeProvider } from "@bitwarden/ui-common";
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ImportControlsComponent],
   providers: [
-    ...ImporterProviders,
+    ...ImportUpgradeProviders,
     safeProvider({
-      provide: ImportMetadataServiceAbstraction,
-      useClass: DefaultImportMetadataService,
+      provide: ImportUpgradeMetadataServiceAbstraction,
+      useClass: DefaultImportUpgradeMetadataService,
       deps: [SYSTEM_SERVICE_PROVIDER],
     }),
   ],

@@ -1777,6 +1777,18 @@
   "pasteContentRequired": {
     "message": "Paste the exported content"
   },
+  "fileTypeNotSupported": {
+    "message": "This file type isn't supported. Select a $TYPES$ file",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "The pasted content doesn't match the selected format"
+  },
   "errorReadingFile": {
     "message": "The selected file could not be read"
   },

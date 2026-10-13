@@ -7,7 +7,7 @@ import { AbstractThemingService } from "@bitwarden/angular/platform/services/the
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
-import { ImportOption, ImportType } from "../../models";
+import { ImportOption, UpgradeImportType } from "../../models";
 
 import { ImportSourceSelectComponent } from "./import-source-select.component";
 
@@ -32,7 +32,7 @@ jest.mock("../../models", () => {
     // Featured vs. remaining is no longer a per-option flag — it's derived from real
     // membership in PICKER_FEATURED_PASSWORD_MANAGER_ORDER, so these ids are chosen to match
     // that real list rather than set via an override here.
-    importOptions: [
+    importUpgradeOptions: [
       buildOption({ id: "chromecsv", name: "Chrome", isBrowser: true }),
       buildOption({ id: "firefoxcsv", name: "Firefox (csv)", isBrowser: true }),
       buildOption({ id: "1password", name: "1Password" }),
@@ -46,7 +46,7 @@ jest.mock("../../models", () => {
       // generic-icon-tile-fallback test below. (Not "gnomejson": that vendor gained real art
       // as part of the SVG conversion, so it no longer exercises the fallback path.)
       buildOption({ id: "passworddragonxml", name: "Password Dragon" }),
-      // Deliberately not a real ImportType — no entry in the real picker vendor metadata map at
+      // Deliberately not a real UpgradeImportType — no entry in the real picker vendor metadata map at
       // all, for the exclusion test below. Using a fake id here (rather than a
       // real-but-currently-uncovered one) keeps that test from silently passing for the wrong
       // reason if that id ever gets a real metadata entry added later.
@@ -118,7 +118,7 @@ describe("ImportSourceSelectComponent", () => {
   it("enables and emits Continue after a real click, not just FormControl.setValue", () => {
     const continueButton = fixture.debugElement.query(By.css("button[bitButton]"))
       .nativeElement as HTMLButtonElement;
-    const emitted: ImportType[] = [];
+    const emitted: UpgradeImportType[] = [];
     component.continue.subscribe((id) => emitted.push(id));
 
     const chrome = radioInputs()[0];
@@ -229,7 +229,7 @@ describe("ImportSourceSelectComponent", () => {
     component["searchControl"].setValue("zoho");
     fixture.detectChanges();
 
-    component["sourceControl"].setValue("zohovaultcsv" as ImportType);
+    component["sourceControl"].setValue("zohovaultcsv" as UpgradeImportType);
     fixture.detectChanges();
 
     component["searchControl"].setValue("");
@@ -251,7 +251,7 @@ describe("ImportSourceSelectComponent", () => {
     fixture.detectChanges();
     expect(cardLabels()).not.toContain("Zoho Vault");
 
-    component["sourceControl"].setValue("chromecsv" as ImportType);
+    component["sourceControl"].setValue("chromecsv" as UpgradeImportType);
     fixture.detectChanges();
 
     expect(cardLabels()).not.toContain("Zoho Vault");
@@ -270,10 +270,10 @@ describe("ImportSourceSelectComponent", () => {
       .nativeElement as HTMLButtonElement;
     expect(continueButton.getAttribute("aria-disabled")).toBe("true");
 
-    const emitted: ImportType[] = [];
+    const emitted: UpgradeImportType[] = [];
     component.continue.subscribe((id) => emitted.push(id));
 
-    component["sourceControl"].setValue("chromecsv" as ImportType);
+    component["sourceControl"].setValue("chromecsv" as UpgradeImportType);
     fixture.detectChanges();
     expect(continueButton.getAttribute("aria-disabled")).toBeNull();
 
@@ -282,7 +282,7 @@ describe("ImportSourceSelectComponent", () => {
   });
 
   describe("initialSource", () => {
-    function renderWith(source?: ImportType): ComponentFixture<ImportSourceSelectComponent> {
+    function renderWith(source?: UpgradeImportType): ComponentFixture<ImportSourceSelectComponent> {
       const seeded = TestBed.createComponent(ImportSourceSelectComponent);
       if (source) {
         seeded.componentRef.setInput("initialSource", source);
@@ -303,10 +303,10 @@ describe("ImportSourceSelectComponent", () => {
     });
 
     it("preselects a featured vendor and enables Continue", () => {
-      const seeded = renderWith("lastpasscsv" as ImportType);
+      const seeded = renderWith("lastpasscsv" as UpgradeImportType);
       const continueButton = seeded.debugElement.query(By.css("button[bitButton]"))
         .nativeElement as HTMLButtonElement;
-      const emitted: ImportType[] = [];
+      const emitted: UpgradeImportType[] = [];
       seeded.componentInstance.continue.subscribe((id) => emitted.push(id));
 
       expect(checkedCards(seeded)).toEqual([expect.stringContaining("LastPass")]);
@@ -316,7 +316,7 @@ describe("ImportSourceSelectComponent", () => {
     });
 
     it("opens Show all and preselects a vendor from the remaining list", () => {
-      const seeded = renderWith("zohovaultcsv" as ImportType);
+      const seeded = renderWith("zohovaultcsv" as UpgradeImportType);
 
       expect(checkedCards(seeded)).toEqual([expect.stringContaining("Zoho Vault")]);
     });
@@ -326,7 +326,7 @@ describe("ImportSourceSelectComponent", () => {
     const continueButton = fixture.debugElement.query(By.css("button[bitButton]"))
       .nativeElement as HTMLButtonElement;
 
-    component["sourceControl"].setValue("chromecsv" as ImportType);
+    component["sourceControl"].setValue("chromecsv" as UpgradeImportType);
     fixture.detectChanges();
     expect(continueButton.getAttribute("aria-disabled")).toBeNull();
 
@@ -336,7 +336,7 @@ describe("ImportSourceSelectComponent", () => {
     expect(cardLabels()).not.toContain("Chrome");
     expect(continueButton.getAttribute("aria-disabled")).toBe("true");
 
-    const emitted: ImportType[] = [];
+    const emitted: UpgradeImportType[] = [];
     component.continue.subscribe((id) => emitted.push(id));
     continueButton.click();
     expect(emitted).toEqual([]);

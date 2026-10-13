@@ -2,26 +2,26 @@ import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ImportMetadataServiceAbstraction } from "@bitwarden/importer-core";
+import { ImportUpgradeMetadataServiceAbstraction } from "@bitwarden/importer-core";
 import {
   ImportControlsComponent,
-  ImporterProviders,
+  ImportUpgradeProviders,
   importTypeFromRoute,
   SYSTEM_SERVICE_PROVIDER,
 } from "@bitwarden/importer-ui";
 import { safeProvider } from "@bitwarden/ui-common";
 
-import { DesktopImportMetadataService } from "./desktop-import-metadata.service";
+import { DesktopImportUpgradeMetadataService } from "./desktop-import-upgrade-metadata.service";
 
 @Component({
   templateUrl: "import-controls-desktop.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ImportControlsComponent],
   providers: [
-    ...ImporterProviders,
+    ...ImportUpgradeProviders,
     safeProvider({
-      provide: ImportMetadataServiceAbstraction,
-      useClass: DesktopImportMetadataService,
+      provide: ImportUpgradeMetadataServiceAbstraction,
+      useClass: DesktopImportUpgradeMetadataService,
       deps: [SYSTEM_SERVICE_PROVIDER, I18nService],
     }),
   ],

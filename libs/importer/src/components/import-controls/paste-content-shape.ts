@@ -1,4 +1,4 @@
-import { ImportOption, ImportType } from "../../models";
+import { ImportOption, UpgradeImportType } from "../../models";
 
 export const PasteContentShape = Object.freeze({
   Json: "json",
@@ -15,7 +15,7 @@ function isPasteContentShape(value: string): value is PasteContentShape {
 
 // Vendors whose paste formats are distinguishable by shape. Excludes 1Password (wincsv/maccsv
 // share a shape). Includes keepass now that keepassxcsv joined its picker card.
-const SHAPE_NARROWABLE_VENDORS: ReadonlySet<ImportType> = new Set([
+const SHAPE_NARROWABLE_VENDORS: ReadonlySet<UpgradeImportType> = new Set([
   "bitwarden",
   "dashlane",
   "keeper",
@@ -25,7 +25,7 @@ const SHAPE_NARROWABLE_VENDORS: ReadonlySet<ImportType> = new Set([
   "keepass",
 ]);
 
-export function vendorSupportsPasteShapeNarrowing(vendorId: ImportType): boolean {
+export function vendorSupportsPasteShapeNarrowing(vendorId: UpgradeImportType): boolean {
   return SHAPE_NARROWABLE_VENDORS.has(vendorId);
 }
 

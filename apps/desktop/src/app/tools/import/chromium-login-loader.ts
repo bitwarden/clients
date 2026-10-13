@@ -1,7 +1,7 @@
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ImporterLoginResult } from "@bitwarden/importer-core";
 
-/** Imports logins from an already-authorized profile. Shared by the new and legacy import flows. */
+/** Imports logins from an already-authorized profile. Used by DesktopImportUpgradeMetadataService. */
 export async function loadChromiumLogins(
   browser: string,
   profileId: string,

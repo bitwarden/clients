@@ -3,9 +3,8 @@ import type { chromium_importer } from "@bitwarden/desktop-napi";
 import { ImporterProfile } from "@bitwarden/importer-core";
 
 /** Requests OS-level access to the given browser's profile directory (a no-op outside a
- *  sandboxed build), then reads its available profiles. Shared by DesktopImportMetadataService
- *  (the new ImportControlsComponent flow) and ImportDesktopComponent (the legacy import dialog),
- *  since both flows load the same native module the same way. */
+ *  sandboxed build), then reads its available profiles. Used by
+ *  DesktopImportUpgradeMetadataService. */
 export async function loadChromiumProfiles(
   browser: string,
   i18nService: I18nService,

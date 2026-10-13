@@ -1,6 +1,6 @@
 import { Component, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { RouterModule } from "@angular/router";
+import { Router, RouterModule } from "@angular/router";
 import { map } from "rxjs";
 
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
@@ -43,6 +43,7 @@ export class DesktopLayoutComponent {
   private sendPolicyService = inject(SendPolicyService);
   private configService = inject(ConfigService);
   private platformUtilsService = inject(PlatformUtilsService);
+  private router = inject(Router);
 
   protected readonly logo = PasswordManagerLogo;
 
@@ -56,6 +57,7 @@ export class DesktopLayoutComponent {
     { initialValue: false },
   );
 
+  // TODO: remove once pm-35053-import-upgrade is retired
   protected readonly importUpgradeEnabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.ImportUpgrade),
     { initialValue: false },
@@ -67,8 +69,9 @@ export class DesktopLayoutComponent {
     this.dialogService.open(CredentialGeneratorComponent);
   }
 
-  protected openImport() {
-    if (this.importUpgradeEnabled()) {
+  protected async openImport() {
+    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+      await this.router.navigate(["/import"]);
       return;
     }
     this.dialogService.open(ImportDesktopComponent);

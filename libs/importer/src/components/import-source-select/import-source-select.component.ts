@@ -33,7 +33,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { ImportOption, importOptions, ImportType } from "../../models";
+import { ImportOption, importUpgradeOptions, UpgradeImportType } from "../../models";
 
 import { pickerIconFor } from "./import-source-picker-metadata";
 import {
@@ -78,12 +78,12 @@ export class ImportSourceSelectComponent implements OnInit {
   );
 
   /** Emits the chosen import format when Continue is pressed. */
-  readonly continue = output<ImportType>();
+  readonly continue = output<UpgradeImportType>();
 
   /** Preselects a source, e.g. when Back returns from step 2. Read once on init. */
-  readonly initialSource = input<ImportType>();
+  readonly initialSource = input<UpgradeImportType>();
 
-  protected readonly sourceControl = new FormControl<ImportType | null>(null);
+  protected readonly sourceControl = new FormControl<UpgradeImportType | null>(null);
   protected readonly selectedSource = toSignal(this.sourceControl.valueChanges, {
     initialValue: this.sourceControl.value,
   });
@@ -93,7 +93,7 @@ export class ImportSourceSelectComponent implements OnInit {
     initialValue: "",
   });
 
-  private readonly allOptions = importOptions.filter((option) => isPickerVendor(option.id));
+  private readonly allOptions = importUpgradeOptions.filter((option) => isPickerVendor(option.id));
 
   protected readonly normalizedSearch = computed(() =>
     (this.searchText() ?? "").trim().toLowerCase(),

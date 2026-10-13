@@ -62,7 +62,7 @@ import {
   ImportZohoIcon,
 } from "@bitwarden/assets/svg";
 
-import { ImportType } from "../../models";
+import { UpgradeImportType } from "../../models";
 
 /** Icons live in their own module, separate from `picker-vendor-data.ts`, so
  * `canActivateImportType` (which needs only displayName/formats) doesn't pull them in. */
@@ -75,7 +75,7 @@ interface PickerVendorIcon {
   darkIcon?: BitSvg;
 }
 
-const PICKER_VENDOR_ICONS: Partial<Record<ImportType, PickerVendorIcon>> = {
+const PICKER_VENDOR_ICONS: Partial<Record<UpgradeImportType, PickerVendorIcon>> = {
   bitwarden: { icon: ImportBitwardenIcon },
   chromecsv: { icon: ImportChromeIcon },
   dashlane: { icon: ImportDashlaneIcon, darkIcon: ImportDashlaneDarkIcon },
@@ -136,6 +136,6 @@ const PICKER_VENDOR_ICONS: Partial<Record<ImportType, PickerVendorIcon>> = {
 };
 
 export function pickerIconFor(id: string, isDark: boolean): BitSvg | undefined {
-  const icons = PICKER_VENDOR_ICONS[id as ImportType];
+  const icons = PICKER_VENDOR_ICONS[id as UpgradeImportType];
   return (isDark ? icons?.darkIcon : undefined) ?? icons?.icon;
 }

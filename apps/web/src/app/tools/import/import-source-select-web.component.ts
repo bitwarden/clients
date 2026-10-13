@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
-import { ImportType } from "@bitwarden/importer-core";
+import { UpgradeImportType } from "@bitwarden/importer-core";
 import { ImportSourceSelectComponent, importSourceFromQuery } from "@bitwarden/importer-ui";
 
 @Component({
@@ -15,7 +15,7 @@ export class ImportSourceSelectWebComponent {
 
   protected readonly initialSource = importSourceFromQuery(this.route);
 
-  protected onContinue(importType: ImportType): void {
+  protected onContinue(importType: UpgradeImportType): void {
     void this.router.navigate(["/tools/import", importType]);
   }
 }

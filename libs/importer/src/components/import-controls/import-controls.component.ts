@@ -1,4 +1,5 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
+import { DOCUMENT } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -54,11 +55,12 @@ import {
   ImportResultErrorKey,
   ImportType,
   SdkImportCredentials,
+  UpgradeImportType,
 } from "../../models";
 import {
   ImporterProfile,
-  ImportMetadataServiceAbstraction,
-  ImportServiceAbstraction,
+  ImportUpgradeMetadataServiceAbstraction,
+  ImportUpgradeServiceAbstraction,
   readImportFileContents,
 } from "../../services";
 import { chromiumLoginsToCsv } from "../chrome/chromium-login-csv";
@@ -123,7 +125,7 @@ const requiredTrimmedValidator: ValidatorFn = (control: AbstractControl<string>)
     SegmentedCardComponent,
     SpinnerComponent,
   ],
-  // Scoped to the component: they inject ImportServiceAbstraction, which the host components provide.
+  // Scoped to the component: they inject ImportUpgradeServiceAbstraction, which the host components provide.
   providers: [KeeperDirectImportRunner, LastPassDirectImportRunner],
 })
 export class ImportControlsComponent {
@@ -138,12 +140,13 @@ export class ImportControlsComponent {
   private readonly accountService = inject(AccountService);
   private readonly syncService = inject(SyncService);
   private readonly injector = inject(Injector);
-  private readonly importService = inject(ImportServiceAbstraction);
-  private readonly importMetadataService = inject(ImportMetadataServiceAbstraction);
+  private readonly document = inject(DOCUMENT);
+  private readonly importService = inject(ImportUpgradeServiceAbstraction);
+  private readonly importMetadataService = inject(ImportUpgradeMetadataServiceAbstraction);
   private readonly themingService = inject(AbstractThemingService);
 
   /** The vendor chosen in step 1. */
-  readonly importType = input.required<ImportType>();
+  readonly importType = input.required<UpgradeImportType>();
 
   /** Fires once the import succeeds, not on button click. */
   readonly continue = output<void>();
@@ -186,17 +189,26 @@ export class ImportControlsComponent {
     dedupe(this.formatOptions().flatMap((option) => option.pasteFormats)),
   );
 
+  // Follows the selected format so the OS picker filter matches the hint.
   protected readonly fileAccept = computed(() =>
-    this.acceptedFileTypes()
+    (this.selectedFormat()?.acceptedFileTypes ?? this.acceptedFileTypes())
       .map((type) => `.${type}`)
       .join(","),
   );
 
-  protected readonly acceptedFileTypesHint = computed(() => {
+  /** The extensions shown to the user: the selected format's (1Password's .1pux advertises only
+   *  .1pux), else the vendor's union. */
+  private readonly displayedFileTypes = computed<readonly string[]>(() => {
     const selected = this.selectedFormat();
-    const types = selected?.id === "1password1pux" ? ["1pux"] : selected?.acceptedFileTypes;
-    return toHint(types, this.acceptedFileTypes());
+    const picked = selected?.id === "1password1pux" ? ["1pux"] : selected?.acceptedFileTypes;
+    return picked?.length ? picked : this.acceptedFileTypes();
   });
+
+  protected readonly acceptedFileTypesHint = computed(() =>
+    this.displayedFileTypes()
+      .map((type) => `.${type}`)
+      .join(", "),
+  );
   protected readonly pasteFormatsHint = computed(() =>
     toHint(this.selectedFormat()?.pasteFormats, this.pasteFormats()),
   );
@@ -256,7 +268,7 @@ export class ImportControlsComponent {
     () => this.primaryModeOverride() ?? this.defaultPrimaryMode(),
   );
 
-  private readonly chromiumProfilesFor = computed<ImportType | undefined>(() =>
+  private readonly chromiumProfilesFor = computed<UpgradeImportType | undefined>(() =>
     this.primaryMode() === "chromium" ? this.importType() : undefined,
   );
 
@@ -358,6 +370,46 @@ export class ImportControlsComponent {
       ? null
       : { filePasswordRequired: { message: this.i18nService.t("filePasswordRequired") } };
 
+  /** Pasted content must look like the selected format (dropdown vendors only; the dropdown is
+   *  never changed by what is pasted). Formats with no distinguishable shape never mismatch. */
+  private readonly pasteShapeValidator: ValidatorFn = (control: AbstractControl<string>) => {
+    const selected = this.selectedFormat();
+    const content = control.value ?? "";
+    const expected = selected ? expectedPasteShapeFor(selected) : undefined;
+    if (!expected || content.trim() === "" || detectPasteContentShape(content) === expected) {
+      return null;
+    }
+    return {
+      pasteContentFormatMismatch: {
+        message: this.i18nService.t("pasteContentFormatMismatch"),
+      },
+    };
+  };
+
+  /** The chosen file's extension must be one the selected format (else the vendor) accepts. The
+   *  picker's accept filter is only advisory, so this is what actually blocks a wrong file. */
+  private readonly fileTypeSupportedValidator: ValidatorFn = (
+    control: AbstractControl<File | null>,
+  ) => {
+    // Read before the early return so the effect that revalidates tracks the selection.
+    const accepted = this.selectedFormat()?.acceptedFileTypes ?? this.acceptedFileTypes();
+    const file = control.value;
+    if (file == null) {
+      return null;
+    }
+    const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
+    if (accepted.includes(extension)) {
+      return null;
+    }
+    const types = new Intl.ListFormat(this.document.documentElement.lang || undefined, {
+      style: "long",
+      type: "disjunction",
+    }).format(this.displayedFileTypes().map((type) => `.${type}`));
+    return {
+      fileTypeNotSupported: { message: this.i18nService.t("fileTypeNotSupported", types) },
+    };
+  };
+
   protected readonly formGroup = this.formBuilder.group({
     keeperEmail: [{ value: "", disabled: true }, [Validators.required, Validators.email]],
     keeperRegion: this.formBuilder.nonNullable.control<KeeperRegion>(KeeperRegion.Us),
@@ -433,13 +485,9 @@ export class ImportControlsComponent {
     () => this.needsFormatDisambiguation() || this.alwaysPromptFormat(),
   );
 
-  /** Candidates once any exist, else every sibling format. */
+  /** Every sibling format, regardless of what was uploaded or pasted; paste mode excludes formats
+   *  that can't be pasted. */
   protected readonly formatChoiceOptions = computed<ImportOption[]>(() => {
-    const candidates = this.candidateFormats();
-    if (candidates.length > 0) {
-      return candidates;
-    }
-    // Pre-content: paste mode excludes formats that can't be pasted.
     const options = this.formatOptions();
     return this.method() === "paste"
       ? options.filter((option) => option.pasteFormats.length > 0)
@@ -493,14 +541,17 @@ export class ImportControlsComponent {
 
   protected readonly resolvedFormat = computed<ImportType | undefined>(() => {
     const candidates = this.candidateFormats();
+    if (this.formatChoiceActive()) {
+      // The dropdown decides; what was uploaded never does. An extension matching none of this
+      // vendor's formats is still unsupported, whatever is selected.
+      return candidates.length === 0 && this.hasAttemptedContent()
+        ? undefined
+        : (this.formatChoice() ?? undefined);
+    }
     if (candidates.length === 1) {
       return candidates[0].id as ImportType;
     }
     if (candidates.length > 1) {
-      return this.formatChoice() ?? undefined;
-    }
-    // 0 candidates: only a pre-file pick counts; once content is chosen it's unsupported.
-    if (this.alwaysPromptFormat() && !this.hasAttemptedContent()) {
       return this.formatChoice() ?? undefined;
     }
     return undefined;
@@ -574,23 +625,41 @@ export class ImportControlsComponent {
     () => this.isFilePasswordProtected() && this.filePasswordRequested(),
   );
 
+  /** An always-prompt vendor's selection per method, so file, paste, file restores it even though
+   *  paste can't offer every format (kdbx). */
+  private readonly formatChoiceByMethod = new Map<"file" | "paste", ImportType | null>();
+
   constructor() {
-    this.formGroup.controls.method.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+    let previousMethod = this.formGroup.controls.method.value;
+    this.formGroup.controls.method.valueChanges.pipe(takeUntilDestroyed()).subscribe((method) => {
+      this.formatChoiceByMethod.set(previousMethod, this.formGroup.controls.formatChoice.value);
+      previousMethod = method;
       this.filePasswordRequested.set(false);
-      this.formGroup.controls.formatChoice.reset(null);
+      // An always-prompt vendor's selection is the user's and survives the switch; the seeding
+      // effect replaces it only if the new method can't offer it (kdbx can't be pasted).
+      if (!this.alwaysPromptFormat()) {
+        this.formGroup.controls.formatChoice.reset(null);
+      } else {
+        const remembered = this.formatChoiceByMethod.get(method);
+        if (remembered != null) {
+          this.formGroup.controls.formatChoice.setValue(remembered);
+        }
+      }
       // Not reset(): the file and pasted content survive the switch.
       this.formGroup.controls.file.markAsUntouched();
       this.formGroup.controls.fileContents.markAsUntouched();
     });
 
-    // First pick keeps a still-valid pre-file answer; replacing a file always resets it.
+    // For a dropdown shown only because an upload collided: first pick keeps a still-valid
+    // pre-file answer; replacing a file always resets it. An always-prompt vendor's selection is
+    // never touched by an upload.
     let previousFile: File | null = null;
     this.formGroup.controls.file.valueChanges.pipe(takeUntilDestroyed()).subscribe((file) => {
       this.filePasswordRequested.set(false);
       const current = this.formGroup.controls.formatChoice.value;
       const keepCurrent =
         previousFile == null && this.candidateFormats().some((option) => option.id === current);
-      if (!keepCurrent) {
+      if (!keepCurrent && !this.alwaysPromptFormat()) {
         this.formGroup.controls.formatChoice.reset(null);
       }
       if (previousFile != null && previousFile !== file) {
@@ -610,7 +679,7 @@ export class ImportControlsComponent {
       const currentCandidateIds = this.candidateFormats()
         .map((option) => option.id)
         .join(",");
-      if (currentCandidateIds !== previousCandidateIds) {
+      if (currentCandidateIds !== previousCandidateIds && !this.alwaysPromptFormat()) {
         this.formGroup.controls.formatChoice.reset(null);
       }
       previousCandidateIds = currentCandidateIds;
@@ -651,7 +720,9 @@ export class ImportControlsComponent {
 
     effect(() => {
       const fileRequired = this.method() === "file";
-      this.formGroup.controls.file.setValidators(fileRequired ? Validators.required : []);
+      this.formGroup.controls.file.setValidators(
+        fileRequired ? [Validators.required, this.fileTypeSupportedValidator] : [],
+      );
       this.formGroup.controls.file.updateValueAndValidity();
     });
 
@@ -659,7 +730,9 @@ export class ImportControlsComponent {
     effect(() => {
       const pasteRequired = this.method() === "paste";
       this.formGroup.controls.fileContents.setValidators(
-        pasteRequired ? [Validators.required, requiredTrimmedValidator] : [],
+        pasteRequired
+          ? [Validators.required, requiredTrimmedValidator, this.pasteShapeValidator]
+          : [],
       );
       this.formGroup.controls.fileContents.updateValueAndValidity();
     });
@@ -690,7 +763,7 @@ export class ImportControlsComponent {
       }
     });
 
-    let previousImportType: ImportType | undefined;
+    let previousImportType: UpgradeImportType | undefined;
     effect(() => {
       const current = this.importType();
       const isRealChange = previousImportType !== undefined && previousImportType !== current;
@@ -716,22 +789,21 @@ export class ImportControlsComponent {
         filePassword: "",
         formatChoice: null,
       });
+      this.formatChoiceByMethod.clear();
     });
 
     // Declared last so it seeds after the importType() reset effect.
     effect(() => {
-      const genuinelyUnsupported =
-        this.candidateFormats().length === 0 && this.hasAttemptedContent();
-      const active =
-        this.primaryMode() === "manual" && this.showFormatChoice() && !genuinelyUnsupported;
+      const active = this.primaryMode() === "manual" && this.showFormatChoice();
       this.formatChoiceActive.set(active);
       setEnabled(this.formGroup.controls.formatChoice, active);
       if (!active) {
         this.formGroup.controls.formatChoice.reset(null);
         return;
       }
-      // Seeds a default only outside disambiguation.
-      if (this.needsFormatDisambiguation()) {
+      // A dropdown shown only because an upload collided has no default to seed; an always-prompt
+      // vendor's dropdown is always seeded and keeps its selection across uploads.
+      if (this.needsFormatDisambiguation() && !this.alwaysPromptFormat()) {
         return;
       }
       const options = this.formatChoiceOptions();
@@ -785,7 +857,10 @@ export class ImportControlsComponent {
       outcome = await this.runImport();
     } catch (error) {
       this.logService.error(error);
-      this.dialogService.open(ImportErrorDialogComponent, { data: error as Error });
+      // The dialog reads .message; an unmapped SDK rejection may not be an Error.
+      this.dialogService.open(ImportErrorDialogComponent, {
+        data: error instanceof Error ? error : new Error(String(error)),
+      });
       return;
     }
 
@@ -926,7 +1001,7 @@ export class ImportControlsComponent {
     try {
       return { kind: "imported", result: await this.runGenericImport(format, contents) };
     } catch (error) {
-      // Set only by BitwardenEncryptedJsonImporter; shown as a toast, not the error dialog.
+      // Set only by UpgradeBitwardenEncryptedJsonImporter; shown as a toast, not the error dialog.
       if (
         error instanceof ImportResultError &&
         error.errorKey === ImportResultErrorKey.AccountMismatch
@@ -1067,7 +1142,7 @@ export class ImportControlsComponent {
   }
 
   private async runGenericImport(
-    format: ImportType,
+    format: UpgradeImportType,
     contents: string,
     promptForPassword_callback: () => Promise<string> = () => this.promptForPassword(),
   ): Promise<ImportResult> {

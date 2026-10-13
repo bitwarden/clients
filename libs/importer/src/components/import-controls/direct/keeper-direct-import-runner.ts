@@ -8,7 +8,7 @@ import { DialogService } from "@bitwarden/components";
 
 import { KeeperRegion } from "../../../importers/keeper/access";
 import { ImportRecordError, ImportResult } from "../../../models";
-import { ImportServiceAbstraction } from "../../../services";
+import { ImportUpgradeServiceAbstraction } from "../../../services";
 import { KeeperDirectImportService } from "../../keeper/keeper-direct-import.service";
 import { keeperImportGate, shouldSubmitAfterDialog } from "../../keeper/keeper-import-gate";
 import { keeperValidationErrorI18nKey } from "../../keeper/keeper-validation-error";
@@ -21,7 +21,7 @@ import { ImportOutcome } from "../import-outcome";
 @Injectable()
 export class KeeperDirectImportRunner {
   private readonly keeperDirectImportService = inject(KeeperDirectImportService);
-  private readonly importService = inject(ImportServiceAbstraction);
+  private readonly importService = inject(ImportUpgradeServiceAbstraction);
   private readonly dialogService = inject(DialogService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);

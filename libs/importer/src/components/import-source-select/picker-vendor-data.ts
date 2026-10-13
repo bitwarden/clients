@@ -1,4 +1,4 @@
-import { ImportType } from "../../models";
+import { ImportType, UpgradeImportType } from "../../models";
 
 // Which ids the picker shows a card for, and what to call each one. An id with no entry here
 // simply isn't shown — legacy duplicates and non-primary format variants (e.g. 1Password's
@@ -14,7 +14,7 @@ interface PickerVendorData {
   alwaysPromptFormat?: boolean;
 }
 
-const PICKER_VENDOR_DATA: Partial<Record<ImportType, PickerVendorData>> = {
+const PICKER_VENDOR_DATA: Partial<Record<UpgradeImportType, PickerVendorData>> = {
   bitwarden: { displayName: "Bitwarden", formats: ["bitwardencsv", "bitwardenjson"] },
   chromecsv: { displayName: "Chrome" },
   dashlane: { displayName: "Dashlane", formats: ["dashlanecsv", "dashlanejson"] },
@@ -96,19 +96,19 @@ export function isPickerVendor(id: string): boolean {
 
 // Caller must confirm isPickerVendor(id) first — the ! assumes an entry exists.
 export function pickerDisplayNameFor(id: string): string {
-  return PICKER_VENDOR_DATA[id as ImportType]!.displayName;
+  return PICKER_VENDOR_DATA[id as UpgradeImportType]!.displayName;
 }
 
 // Whether this vendor's format picker should show unconditionally, not just on a genuine
 // extension collision.
 export function pickerAlwaysPromptsFormat(id: string): boolean {
-  return PICKER_VENDOR_DATA[id as ImportType]?.alwaysPromptFormat ?? false;
+  return PICKER_VENDOR_DATA[id as UpgradeImportType]?.alwaysPromptFormat ?? false;
 }
 
 // Every ImportType this vendor's card can produce. Used by ImportControlsComponent to union
 // accepted file types and resolve which format an uploaded file belongs to.
 export function pickerFormatsFor(id: string): readonly ImportType[] {
-  return PICKER_VENDOR_DATA[id as ImportType]?.formats ?? [id as ImportType];
+  return PICKER_VENDOR_DATA[id as UpgradeImportType]?.formats ?? [id as ImportType];
 }
 
 /** Display order for the Browsers section */
@@ -124,7 +124,7 @@ export const PICKER_BROWSER_ORDER: readonly ImportType[] = [
 ];
 
 /** Display order for the featured Password managers section */
-export const PICKER_FEATURED_PASSWORD_MANAGER_ORDER: readonly ImportType[] = [
+export const PICKER_FEATURED_PASSWORD_MANAGER_ORDER: readonly UpgradeImportType[] = [
   "1password",
   "dashlane",
   "keepass",
@@ -144,7 +144,7 @@ export function isFeaturedPasswordManager(id: string): boolean {
 // Sorts by position in `order`; ids absent from `order` sort last, in their original order.
 export function sortByPickerOrder<T extends { id: string }>(
   items: readonly T[],
-  order: readonly ImportType[],
+  order: readonly UpgradeImportType[],
 ): T[] {
   const rank = new Map<string, number>(order.map((id, index) => [id, index]));
   return [...items].sort(

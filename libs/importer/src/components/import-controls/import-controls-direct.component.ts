@@ -5,7 +5,7 @@ import { BitSvg } from "@bitwarden/assets/svg";
 import { BadgeModule, IconComponent, SvgModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { ImportType } from "../../models";
+import { UpgradeImportType } from "../../models";
 
 import { ImportControlsKeeperCredentialsComponent } from "./import-controls-keeper-credentials.component";
 import { ImportControlsLastPassCredentialsComponent } from "./import-controls-lastpass-credentials.component";
@@ -32,7 +32,7 @@ export class ImportControlsDirectComponent {
   /** The parent's form, passed to the vendor's credential fields. */
   readonly form = input.required<FormGroup>();
   readonly step = input.required<DirectStep>();
-  readonly importType = input.required<ImportType>();
+  readonly importType = input.required<UpgradeImportType>();
   readonly vendorName = input.required<string>();
   readonly vendorIcon = input<BitSvg>();
 }

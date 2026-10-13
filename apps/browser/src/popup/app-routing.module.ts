@@ -1,5 +1,5 @@
-import { NgModule } from "@angular/core";
-import { RouteReuseStrategy, RouterModule, Routes } from "@angular/router";
+import { Injectable, NgModule } from "@angular/core";
+import { ActivatedRouteSnapshot, RouteReuseStrategy, RouterModule, Routes } from "@angular/router";
 
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
 import { AuthRoute } from "@bitwarden/angular/auth/constants";
@@ -119,7 +119,6 @@ import {
   ExtensionAnonLayoutWrapperComponent,
   ExtensionAnonLayoutWrapperData,
 } from "./components/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
-import { NoRouteReuseStrategy } from "./no-route-reuse-strategy";
 import { debounceNavigationGuard } from "./services/debounce-navigation.service";
 import { TabsV2Component } from "./tabs-v2.component";
 
@@ -128,6 +127,9 @@ import { TabsV2Component } from "./tabs-v2.component";
  */
 export interface RouteDataProperties extends RouteCacheOptions {
   elevation: RouteElevation;
+
+  /** Marks the import shell route; NoRouteReuseStrategy reuses it across its child routes. */
+  importShell?: boolean;
 
   /**
    * A boolean to indicate that the URL should not be saved in memory in the BrowserRouterService.
@@ -296,7 +298,7 @@ const routes: Routes = [
     path: "import-source-select",
     component: ImportShellBrowserComponent,
     canActivate: [authGuard, importUpgradeRequiredGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
+    data: { elevation: 1, importShell: true } satisfies RouteDataProperties,
     children: [
       {
         path: "",
@@ -877,6 +879,42 @@ const routes: Routes = [
     ],
   },
 ];
+
+@Injectable()
+export class NoRouteReuseStrategy implements RouteReuseStrategy {
+  shouldDetach(route: ActivatedRouteSnapshot) {
+    return false;
+  }
+
+  // eslint-disable-next-line
+  store(route: ActivatedRouteSnapshot, handle: {}) {
+    /* Nothing */
+  }
+
+  shouldAttach(route: ActivatedRouteSnapshot) {
+    return false;
+  }
+
+  retrieve(route: ActivatedRouteSnapshot): any {
+    return null;
+  }
+
+  shouldReuseRoute(future: ActivatedRouteSnapshot, curr: ActivatedRouteSnapshot) {
+    // The import shell is reused so its progress bar persists across its child routes. Only the
+    // flagged import route carries the marker, so every other route still returns false.
+    if (future.routeConfig !== curr.routeConfig) {
+      return false;
+    }
+    // Root's routeConfig is always null; reuse it only when both sides are inside the import shell.
+    if (future.routeConfig === null) {
+      return (
+        future.firstChild?.routeConfig?.data?.["importShell"] === true &&
+        curr.firstChild?.routeConfig?.data?.["importShell"] === true
+      );
+    }
+    return future.routeConfig.data?.["importShell"] === true;
+  }
+}
 
 @NgModule({
   imports: [

@@ -21,7 +21,7 @@ import {
   isPasswordProtected,
 } from "@bitwarden/vault-export-core";
 
-import { ImportResult, ImportResultErrorKey } from "../../models/import-result";
+import { ImportResult } from "../../models/import-result";
 import { Importer } from "../importer";
 
 import { BitwardenEncryptedJsonImporter } from "./bitwarden-encrypted-json-importer";
@@ -67,7 +67,6 @@ export class BitwardenPasswordProtectedImporter
     if (!(await this.checkPassword(parsedData, password))) {
       result.success = false;
       result.errorMessage = this.i18nService.t("invalidFilePassword");
-      result.errorKey = ImportResultErrorKey.InvalidFilePassword;
       return result;
     }
 

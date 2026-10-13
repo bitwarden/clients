@@ -27,15 +27,13 @@ export class ImportErrorDialogComponent implements OnInit {
 
   constructor(
     public dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) public data: unknown,
+    @Inject(DIALOG_DATA) public data: Error,
   ) {}
 
   ngOnInit(): void {
-    // Not always a real Error (e.g. an unmapped SDK rejection) — fall back to String().
-    const message = this.data instanceof Error ? this.data.message : String(this.data);
-    const split = message.split("\n\n");
+    const split = this.data.message.split("\n\n");
     if (split.length == 1) {
-      this.dataSource.data = [{ type: "", message }];
+      this.dataSource.data = [{ type: "", message: this.data.message }];
       return;
     }
 

@@ -107,12 +107,7 @@ import {
   ImportOption,
   ImportType,
 } from "../models/import-options";
-import {
-  CollectionRelationship,
-  FolderRelationship,
-  ImportResult,
-  ImportResultError,
-} from "../models/import-result";
+import { CollectionRelationship, FolderRelationship, ImportResult } from "../models/import-result";
 import {
   buildSdkImporterRegistry,
   SdkImportCredentials,
@@ -184,7 +179,7 @@ export class ImportService implements ImportServiceAbstraction {
   ): Promise<ImportResult> {
     if (!importResult.success) {
       if (!Utils.isNullOrWhitespace(importResult.errorMessage)) {
-        throw new ImportResultError(importResult.errorMessage, importResult.errorKey);
+        throw new Error(importResult.errorMessage);
       }
       throw new Error(this.i18nService.t("importFormatError"));
     }

@@ -3,7 +3,7 @@ import { of } from "rxjs";
 
 import { DialogService, I18nMockService } from "@bitwarden/components";
 
-import { ImportServiceAbstraction } from "../../services";
+import { ImportUpgradeServiceAbstraction } from "../../services";
 import { ImportErrorDialogComponent, ImportSuccessDialogComponent } from "../dialog";
 
 import { ImportControlsComponent } from "./import-controls.component";
@@ -105,10 +105,10 @@ describe("import-controls.stories i18n and DI coverage", () => {
 
     // Spies on the real importServiceStub instance so each case can assert which path fired.
     const importServiceProvider = (providers as { provide: unknown; useValue?: any }[]).find(
-      (p) => p.provide === ImportServiceAbstraction,
+      (p) => p.provide === ImportUpgradeServiceAbstraction,
     );
     if (importServiceProvider?.useValue == null) {
-      throw new Error("Story has no ImportServiceAbstraction provider — update this test.");
+      throw new Error("Story has no ImportUpgradeServiceAbstraction provider — update this test.");
     }
     for (const method of ["import", "importWithSdk", "importImportResult"] as const) {
       const original = importServiceProvider.useValue[method];
@@ -258,15 +258,15 @@ describe("import-controls.stories i18n and DI coverage", () => {
     expect(missedKeys).toEqual([]);
   });
 
-  it("VendorFormatGrouping: chooses an ambiguous .csv, resolves the disambiguation, then submits", async () => {
+  it("VendorFormatGrouping: picks a csv format, chooses a matching .csv, then submits", async () => {
     const fixture = await mount(stories.VendorFormatGrouping);
     const component = fixture.componentInstance as any;
 
-    component.formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
-    fixture.detectChanges();
-    expect(component.needsFormatDisambiguation()).toBe(true);
     component.formGroup.controls.formatChoice.setValue("1passwordwincsv");
     fixture.detectChanges();
+    component.formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+    fixture.detectChanges();
+    expect(component.formGroup.controls.file.errors).toBeNull();
     await component.submit();
     fixture.detectChanges();
 

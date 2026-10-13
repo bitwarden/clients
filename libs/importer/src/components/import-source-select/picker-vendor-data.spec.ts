@@ -1,4 +1,4 @@
-import { importOptions, VENDOR_ONLY_IMPORT_TYPE_IDS } from "../../models";
+import { importOptions, importUpgradeOptions } from "../../models";
 
 import {
   isPickerVendor,
@@ -21,7 +21,7 @@ describe("pickerDisplayNameFor", () => {
     // Delinea, etc.) had no entry in the picker's vendor metadata table, so the picker fell back
     // to ImportOption.name verbatim — e.g. "Delinea (xml)" — leaking the file format onto the
     // card. This asserts every visible option's resolved display name is free of that.
-    const visibleOptions = importOptions.filter((option) => isPickerVendor(option.id));
+    const visibleOptions = importUpgradeOptions.filter((option) => isPickerVendor(option.id));
     expect(visibleOptions.length).toBeGreaterThan(0);
 
     const leaked = visibleOptions
@@ -78,12 +78,15 @@ describe("pickerAlwaysPromptsFormat", () => {
 });
 
 describe("picker vendors that group several formats", () => {
-  const entryFor = (id: string) => importOptions.find((option) => option.id === id);
+  const entryFor = (id: string) => importUpgradeOptions.find((option) => option.id === id);
   const union = (lists: readonly (readonly string[])[]) => Array.from(new Set(lists.flat()));
-  const vendorIds = Array.from(VENDOR_ONLY_IMPORT_TYPE_IDS);
+  // Picker vendors that exist only in the upgrade table, not as importable formats.
+  const vendorIds = importUpgradeOptions
+    .map((option) => option.id)
+    .filter((id) => !importOptions.some((option) => option.id === id));
 
   it("are exactly the vendor-only ids, apart from keeper whose id is already its own entry", () => {
-    const grouped = importOptions
+    const grouped = importUpgradeOptions
       .filter((option) => isPickerVendor(option.id) && pickerFormatsFor(option.id).length > 1)
       .map((option) => option.id)
       .filter((id) => id !== "keeper");
@@ -97,7 +100,7 @@ describe("picker vendors that group several formats", () => {
     expect(formats.length).toBeGreaterThan(1);
     for (const format of formats) {
       expect(entryFor(format)).toBeDefined();
-      expect(VENDOR_ONLY_IMPORT_TYPE_IDS.has(format)).toBe(false);
+      expect(vendorIds).not.toContain(format);
     }
   });
 
