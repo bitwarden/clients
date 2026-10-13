@@ -38,8 +38,7 @@ import {
   accessConnectorDeactivateConfirmOptions,
   accessConnectorDeleteConfirmOptions,
 } from "../../helpers/access-connector-confirm";
-import { discardEditsConfirmOptions } from "../../helpers/discard-confirm";
-import { HasUnsavedChanges } from "../../unsaved-changes.guard";
+import { HasUnsavedChangesDialog } from "../../unsaved-changes.guard";
 import {
   AssignmentPickerColumn,
   AssignmentPickerComponent,
@@ -116,7 +115,7 @@ export type AccessConnectorAssignment = Omit<TargetSystemLabel, "id"> &
     I18nPipe,
   ],
 })
-export class AccessConnectorDetailComponent implements HasUnsavedChanges {
+export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly rotationSdk = inject(RotationSdkService);
@@ -396,12 +395,8 @@ export class AccessConnectorDetailComponent implements HasUnsavedChanges {
     }
   };
 
-  async confirmLeave(): Promise<boolean> {
-    if (!this.formGroup.dirty) {
-      return true;
-    }
-
-    return await this.dialogService.openSimpleDialog(discardEditsConfirmOptions());
+  unsavedChanges(): boolean {
+    return this.formGroup.dirty;
   }
 
   private confirmDeactivate(name: string): Promise<boolean> {
