@@ -16,6 +16,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { ButtonComponent } from "@bitwarden/components";
 import { CipherAttachmentsComponent } from "@bitwarden/vault";
 
@@ -81,6 +82,7 @@ describe("AttachmentsComponent", () => {
         },
         { provide: ApiService, useValue: mock<ApiService>() },
         { provide: OrganizationService, useValue: mock<OrganizationService>() },
+        { provide: CipherAuthorizationService, useValue: mock<CipherAuthorizationService>() },
       ],
     })
       .overrideComponent(AttachmentsComponent, {
