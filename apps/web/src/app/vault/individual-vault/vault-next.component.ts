@@ -18,6 +18,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import {
   CollectionData,
   CollectionDetailsResponse,
+  CollectionView,
 } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -409,6 +410,46 @@ export class VaultNextComponent implements OnInit {
   protected readonly currentCollection = computed(() => {
     const id = this.scopedCollectionId();
     return id == null ? undefined : this.scopedCollections().find((c) => c.id === id);
+  });
+
+  /**
+   * Keeps resolving to the last folder found for the current {@link scopedCollectionId} even after
+   * {@link currentCollection} goes null for it — e.g. once a delete or self-unassignment lands.
+   * The template binds the menu to this, not to {@link currentCollection} directly: otherwise the
+   * `@if` would destroy `CollectionOptionsMenuComponent` out from under its own in-flight dialog,
+   * and a signal-based output silently drops an `emit()` call made after its host is destroyed —
+   * dropping the navigate-away in {@link onCollectionActionResult}, which reads the live,
+   * non-sticky {@link currentCollection} to tell a real disappearance from this staleness.
+   * Cleared once a different (or no) folder is confirmed in view, so it can't leak into one that
+   * never resolves (still loading, or one this viewer never had access to).
+   */
+  private readonly lastResolvedCollection = signal<
+    { id: CollectionId; collection: CollectionView } | undefined
+  >(undefined);
+
+  private readonly trackLastResolvedCollection = effect(() => {
+    const id = this.scopedCollectionId();
+    const found = this.currentCollection();
+    untracked(() => {
+      if (id != null && found != null) {
+        this.lastResolvedCollection.set({ id, collection: found });
+      } else if (this.lastResolvedCollection()?.id !== id) {
+        this.lastResolvedCollection.set(undefined);
+      }
+    });
+  });
+
+  protected readonly collectionMenuFolder = computed(() => {
+    const id = this.scopedCollectionId();
+    if (id == null) {
+      return undefined;
+    }
+    const found = this.currentCollection();
+    if (found != null) {
+      return found;
+    }
+    const cached = this.lastResolvedCollection();
+    return cached?.id === id ? cached.collection : undefined;
   });
 
   protected readonly currentOrganization = computed(() => {

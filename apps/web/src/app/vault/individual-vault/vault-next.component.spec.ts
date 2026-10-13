@@ -937,6 +937,29 @@ describe("VaultNextComponent", () => {
             });
           }));
 
+          it("still navigates when change detection tears down and rebuilds the `@if` mid-dialog, not just the signal graph beneath it", fakeAsync(() => {
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            collectionDialog.open.mockImplementation(async () => {
+              // Unlike the interleaving test above, a real change-detection pass runs here — if the
+              // menu weren't bound to a sticky signal, this would destroy it and its `actionResult`
+              // emit below would silently no-op instead of navigating.
+              collections$.next([]);
+              fixture.detectChanges();
+              return CollectionDialogOutcome.Saved;
+            });
+
+            const menu = fixture.debugElement.query(By.directive(CollectionOptionsMenuComponent))
+              .componentInstance as CollectionOptionsMenuComponent;
+            void menu["editCollection"](CollectionDialogTab.Info);
+            tick();
+
+            expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
+              replaceUrl: true,
+            });
+          }));
+
           it("navigates through the real child component's delete(), not just a synthetic call to the parent's handler", fakeAsync(() => {
             collections$.next([manageableFolder()]);
             fixture.detectChanges();
