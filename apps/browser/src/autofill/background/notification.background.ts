@@ -1313,7 +1313,7 @@ export default class NotificationBackground {
           );
           return true;
         }
-        if (newLoginNotificationIsEnabled) {
+        if (usernameOnlyMatches.length === 0 && newLoginNotificationIsEnabled) {
           await this.pushAddLoginToQueue(
             loginDomain,
             {
