@@ -21,7 +21,6 @@ export type CardGridCard = {
   id: string;
   name: string;
   commands: string[];
-
   icon: BitwardenIcon;
 
   /** How many folders sit directly inside this one. */
