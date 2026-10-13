@@ -1,0 +1,26 @@
+@if (folderName() != null) {
+  <button
+    type="button"
+    id="my-folder-menu_button_options"
+    bitIconButton="bwi-angle-down"
+    size="small"
+    [bitMenuTriggerFor]="folderMenu"
+    [label]="'options' | i18n"
+  ></button>
+  <bit-menu #folderMenu>
+    <button type="button" id="my-folder-menu_button_edit" bitMenuItem (click)="edit()">
+      <bit-icon fixedWidth name="bwi-pencil-square" slot="start" />
+      {{ "edit" | i18n }}
+    </button>
+    <button
+      type="button"
+      id="my-folder-menu_button_delete"
+      bitMenuItem
+      variant="danger"
+      (click)="delete()"
+    >
+      <bit-icon fixedWidth name="bwi-trash" slot="start" />
+      {{ "delete" | i18n }}
+    </button>
+  </bit-menu>
+}
