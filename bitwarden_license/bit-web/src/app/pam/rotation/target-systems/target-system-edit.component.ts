@@ -11,7 +11,7 @@ import {
   ValidatorFn,
   Validators,
 } from "@angular/forms";
-import { ActivatedRoute, CanDeactivateFn, Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -45,6 +45,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { apiErrorBodyMessage } from "../../abstractions/api-error";
 import { discardConfirmOptions } from "../../helpers/discard-confirm";
+import { HasUnsavedChanges } from "../../unsaved-changes.guard";
 import {
   accessConnectorConnectionLabelKey,
   accessConnectorStatusLabelKey,
@@ -252,7 +253,7 @@ function buildPolicyGroup(fb: FormBuilder): PolicyGroup {
     I18nPipe,
   ],
 })
-export class TargetSystemEditComponent {
+export class TargetSystemEditComponent implements HasUnsavedChanges {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly formBuilder = inject(FormBuilder);
@@ -962,7 +963,7 @@ export class TargetSystemEditComponent {
    * Called by Cancel and by the CanDeactivate guard, which covers the breadcrumb and browser
    * back/forward.
    */
-  async confirmDiscard(): Promise<boolean> {
+  async confirmLeave(): Promise<boolean> {
     if (!this.liveForms().some((form) => form.dirty)) {
       return true;
     }
@@ -976,7 +977,7 @@ export class TargetSystemEditComponent {
   }
 
   protected readonly cancel = async (): Promise<void> => {
-    if (!(await this.confirmDiscard())) {
+    if (!(await this.confirmLeave())) {
       return;
     }
 
@@ -1006,7 +1007,3 @@ export class TargetSystemEditComponent {
     });
   }
 }
-
-export const targetSystemEditDiscardGuard: CanDeactivateFn<TargetSystemEditComponent> = (
-  component,
-) => component.confirmDiscard();
