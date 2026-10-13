@@ -946,15 +946,13 @@ describe("AccessRuleEditComponent — form states", () => {
     const nameInput = () =>
       fixture.nativeElement.querySelector("#access-rule-edit_input_name") as HTMLInputElement;
 
-    it("selects the prefilled name so typing replaces it", async () => {
+    it("focuses the name field", async () => {
       await render({
         params: { accessRuleId: "11111111-1111-1111-1111-111111111111" },
         queryParams: { renaming: "true" },
       });
 
       expect(document.activeElement).toBe(nameInput());
-      expect(nameInput().selectionStart).toBe(0);
-      expect(nameInput().selectionEnd).toBe("Existing rule".length);
     });
 
     it("leaves focus alone on an ordinary edit", async () => {

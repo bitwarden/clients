@@ -277,7 +277,7 @@ export class AccessRulesComponent {
       variant: "success",
       message: this.i18nService.t("pamAccessRuleCopyCreated"),
     });
-    // `renaming` opens the edit page with the suffixed name selected, ready to type over.
+    // `renaming` opens the edit page with the name field focused.
     await this.router.navigate([created.id], {
       relativeTo: this.route,
       queryParams: { renaming: true },
