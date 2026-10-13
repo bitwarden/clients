@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, inject, input, resource, Type } from "@angular/core";
+import { Component, computed, inject, input, resource } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, of, switchMap, map, catchError, from, Observable, startWith } from "rxjs";
 
@@ -79,9 +79,7 @@ export class CipherViewComponent {
   readonly cipher = input.required<CipherView>();
 
   /** Host-provided banner above the cipher's details; null when unprovided. */
-  protected readonly bannerComponent: Type<unknown> | null = inject(CIPHER_VIEW_BANNER, {
-    optional: true,
-  });
+  protected readonly bannerComponent = inject(CIPHER_VIEW_BANNER, { optional: true });
 
   /**
    * Observable version of the cipher input

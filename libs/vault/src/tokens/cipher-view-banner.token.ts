@@ -1,5 +1,6 @@
-import { Type } from "@angular/core";
+import { InputSignal, Type } from "@angular/core";
 
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 
 /**
@@ -7,4 +8,6 @@ import { SafeInjectionToken } from "@bitwarden/ui-common";
  * Hosts that surface privileged access provide the component class, so `libs/vault` needs no
  * dependency on that feature library. Unprovided, nothing renders.
  */
-export const CIPHER_VIEW_BANNER = new SafeInjectionToken<Type<unknown>>("CipherViewBanner");
+export const CIPHER_VIEW_BANNER = new SafeInjectionToken<Type<{ cipher: InputSignal<CipherView> }>>(
+  "CipherViewBanner",
+);

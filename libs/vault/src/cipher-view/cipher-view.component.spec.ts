@@ -203,7 +203,6 @@ describe("CipherViewComponent", () => {
       const cipher = new CipherView();
       cipher.id = "cipher-id";
       cipher.partial = true;
-      cipher.leaseGated = true;
       fixture.componentRef.setInput("cipher", cipher);
       fixture.detectChanges();
 

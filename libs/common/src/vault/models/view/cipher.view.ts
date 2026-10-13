@@ -73,13 +73,6 @@ export class CipherView implements View, InitializerMetadata {
   partial = false;
 
   /**
-   * Client-only companion to {@link partial}: a full cipher served under an active PAM lease, so
-   * gating surfaces keep rendering lease state. Never persisted or serialized; its producer
-   * stamps it on the view directly.
-   */
-  leaseGated?: boolean;
-
-  /**
    * Flag to indicate if the cipher decryption failed.
    */
   decryptionFailure = false;
@@ -248,7 +241,6 @@ export class CipherView implements View, InitializerMetadata {
     view.organizationUseTotp = obj.organizationUseTotp ?? false;
     view.localData = obj.localData ? obj.localData : undefined;
     view.permissions = obj.permissions ? CipherPermissionsApi.fromJSON(obj.permissions) : undefined;
-    // `leaseGated` is deliberately absent — it must not survive serialization.
     view.partial = obj.partial ?? false;
     view.reprompt = obj.reprompt ?? CipherRepromptType.None;
     view.decryptionFailure = obj.decryptionFailure ?? false;
@@ -524,6 +516,8 @@ export class CipherView implements View, InitializerMetadata {
       archivedDate: this.archivedDate?.toISOString(),
       reprompt: this.reprompt ?? CipherRepromptType.None,
       key: this.key?.toSdk(),
+      // Lets the SDK refuse to encrypt a gated view
+      partial: this.partial,
       // Cipher type specific properties are set in the switch statement below
       // CipherView initializes each with default constructors (undefined values)
       // The SDK does not expect those undefined values and will throw exceptions
