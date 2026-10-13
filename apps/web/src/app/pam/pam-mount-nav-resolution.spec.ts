@@ -19,13 +19,17 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { NavigationModule, SideNavService } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
-import { VaultNavService, VaultsNavViewModel } from "@bitwarden/vault";
+import {
+  VaultNavService,
+  VaultsNavViewModel,
+  CoachmarkComponent,
+  CoachmarkService,
+} from "@bitwarden/vault";
 
 import { PremiumSubscriptionRoutingService } from "../billing/individual/services/premium-subscription-routing.service";
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
 import { UserLayoutComponent } from "../layouts/user-layout.component";
 import { WebLayoutModule } from "../layouts/web-layout.module";
-import { CoachmarkComponent, CoachmarkService } from "../vault/components/coachmark";
 
 import { PAM_ROUTES } from "./pam-routes.token";
 import { PamUserNavSlotComponent } from "./user-nav-slot/pam-user-nav-slot.component";
@@ -59,7 +63,7 @@ class MockBillingFreeFamiliesNavItemComponent {}
 class MockPamUserNavSlotComponent {}
 
 @Component({
-  selector: "app-coachmark",
+  selector: "vault-coachmark",
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
