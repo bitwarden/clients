@@ -214,9 +214,6 @@ export class CardGridComponent {
 
   protected readonly titleKey = computed(() => this.source()?.titleKey ?? "");
 
-  /** The messages for each card's subtext, counting the folders nested inside it. */
-  protected readonly nestedKeys = computed(() => this.source()?.nestedKeys);
-
   protected readonly listId = `card-grid-list-${nextId++}`;
 
   /** Identifies the current set of children, so navigating between folders re-collapses the grid. */
@@ -255,6 +252,15 @@ export class CardGridComponent {
     const [before, after = ""] = sentence.split(COUNT_TOKEN);
     return { before, count: this.count(), after };
   });
+
+  /** The subtext of a card, counting the folders nested inside it. */
+  protected nestedLabel(count: number): string {
+    const keys = this.source()?.nestedKeys;
+    if (keys == null) {
+      return "";
+    }
+    return count === 1 ? this.i18nService.t(keys.singular) : this.i18nService.t(keys.plural, count);
+  }
 
   protected readonly overflowCards = computed(() => this.cards().slice(this.collapsedCardCount()));
 
