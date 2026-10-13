@@ -28,6 +28,7 @@ import { DesktopSettingsService } from "../../../platform/services/desktop-setti
 import { DesktopFido2UserInterfaceService } from "../../services/desktop-fido2-user-interface.service";
 
 import { Fido2ModalHeaderComponent } from "./fido2-modal-header.component";
+import { Fido2ModalPageComponent } from "./fido2-modal-page.component";
 
 @Component({
   standalone: true,
@@ -45,6 +46,7 @@ import { Fido2ModalHeaderComponent } from "./fido2-modal-header.component";
     IconComponent,
     TypographyModule,
     Fido2ModalHeaderComponent,
+    Fido2ModalPageComponent,
   ],
   templateUrl: "fido2-vault.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
