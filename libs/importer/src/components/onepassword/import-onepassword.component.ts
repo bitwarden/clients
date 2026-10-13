@@ -133,7 +133,7 @@ export class ImportOnePasswordComponent implements OnInit, OnDestroy {
       );
     } catch (error) {
       this.logService.error(`1Password importer error: ${onePasswordErrorLogName(error)}`);
-      this.showError(error, account);
+      this.showError(error);
       return;
     }
 
@@ -142,11 +142,8 @@ export class ImportOnePasswordComponent implements OnInit, OnDestroy {
     }
   }
 
-  private showError(error: unknown, account: OnePasswordAccount): void {
-    const { field, message } = this.onePasswordDirectImportService.describeError(
-      error,
-      account.domain,
-    );
+  private showError(error: unknown): void {
+    const { field, message } = this.onePasswordDirectImportService.describeError(error);
     if (field === "email" || field === "signInAddress") {
       const control = field === "email" ? "email" : "subdomain";
       this.rejection.set({ control, value: this.formGroup.controls[control].value, message });

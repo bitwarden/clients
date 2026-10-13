@@ -21,7 +21,6 @@ import {
   OnePasswordSecretKeyAndPassword,
   OnePasswordTwoFactorPromptComponent,
 } from "./dialog";
-import { onePasswordSignInDomainLabel } from "./onepassword-sign-in-domains";
 
 /** The 1Password account to import, as entered in the import form. */
 export interface OnePasswordAccount {
@@ -56,8 +55,9 @@ export class OnePasswordDirectImportService {
    *
    * Only the Continue button of the open prompt shows the import is running. The Secret Key and
    * password prompt stays open until the import is over, unless the account has two-factor
-   * verification, which takes its place. A refused Secret Key, password or code is marked on its
-   * field for the user to correct; any other failure closes the prompts and is thrown.
+   * verification, which takes its place. The user can try again after a refused Secret Key,
+   * password or code, which the open prompt reports; any other failure closes the prompts and is
+   * thrown.
    */
   handleImport(
     account: OnePasswordAccount,
@@ -99,11 +99,11 @@ export class OnePasswordDirectImportService {
           if (twoFactor.cancelled) {
             settle = () => resolve(undefined);
           } else {
-            const { field, message } = this.describeError(error, account.domain);
+            const { field, message } = this.describeError(error);
             // Once two-factor verification takes over, the Secret Key and password are behind it.
-            if ((field === "secretKey" || field === "password") && !twoFactor.opened) {
+            if ((field === "secretKey" || field === "secretKeyAndPassword") && !twoFactor.opened) {
               signingIn = false;
-              return { field, message };
+              return { field: field === "secretKey" ? field : undefined, message };
             }
             settle = () => reject(error);
           }
@@ -126,13 +126,10 @@ export class OnePasswordDirectImportService {
     });
   }
 
-  /** How a failed import of an account on `domain` is shown. */
-  describeError(error: unknown, domain: OnePasswordSignInDomain): OnePasswordErrorDescription {
+  /** How a failed import is shown. */
+  describeError(error: unknown): OnePasswordErrorDescription {
     const { field, messageKey } = onePasswordErrorDisplay(error);
-    return {
-      field,
-      message: this.i18nService.t(messageKey, onePasswordSignInDomainLabel(domain)),
-    };
+    return { field, message: this.i18nService.t(messageKey) };
   }
 }
 

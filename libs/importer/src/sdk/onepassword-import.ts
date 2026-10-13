@@ -32,14 +32,18 @@ export function onePasswordErrorLogName(error: unknown): string {
   return error instanceof Error ? error.name : "unknown";
 }
 
-/** A field of the import form or the Secret Key and password prompt. */
-export type OnePasswordErrorField = "email" | "signInAddress" | "secretKey" | "password";
+/**
+ * A field of the import form or the Secret Key and password prompt. `secretKeyAndPassword` is the
+ * two together: 1Password checks them as one and cannot tell which is wrong.
+ */
+export type OnePasswordErrorField =
+  "email" | "signInAddress" | "secretKey" | "secretKeyAndPassword";
 
 /** How a failed 1Password import is shown. */
 export interface OnePasswordErrorDisplay {
   /** The field the user can correct, shown with the message, or `undefined` for a toast. */
   field?: OnePasswordErrorField;
-  /** The message's i18n key. `onePasswordIncorrectUsernameOrPassword` takes the sign-in domain. */
+  /** The message's i18n key. */
   messageKey: string;
 }
 
@@ -56,7 +60,7 @@ export function onePasswordErrorDisplay(error: unknown): OnePasswordErrorDisplay
     // 1Password refuses an unknown email, sign-in address or region the same way as a wrong
     // password or Secret Key.
     case "OnePasswordBadCredentials":
-      return { field: "password", messageKey: "onePasswordIncorrectUsernameOrPassword" };
+      return { field: "secretKeyAndPassword", messageKey: "onePasswordCheckCredentials" };
     case "OnePasswordInvalidSecretKey":
       return { field: "secretKey", messageKey: "enterValidSecretKey" };
     case "OnePasswordInvalidSignInAddress":

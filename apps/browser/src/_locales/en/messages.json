@@ -5631,14 +5631,8 @@
       }
     }
   },
-  "onePasswordIncorrectUsernameOrPassword": {
-    "message": "Incorrect username or password. Check that you're using the same credentials you created on $DOMAIN$.",
-    "placeholders": {
-      "domain": {
-        "content": "$1",
-        "example": "1password.com"
-      }
-    }
+  "onePasswordCheckCredentials": {
+    "message": "An error has occurred. Check your credentials and try again."
   },
   "onePasswordOnlyPasswordLogin": {
     "message": "Only login with password is supported."

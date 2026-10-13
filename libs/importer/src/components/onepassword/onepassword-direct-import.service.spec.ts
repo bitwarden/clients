@@ -100,7 +100,7 @@ describe("OnePasswordDirectImportService", () => {
         { provide: DialogService, useValue: dialogService },
         {
           provide: I18nService,
-          useValue: { t: (key: string, domain: string) => `${key}(${domain})` },
+          useValue: { t: (key: string) => key },
         },
         { provide: ImportServiceAbstraction, useValue: importService },
       ],
@@ -176,13 +176,29 @@ describe("OnePasswordDirectImportService", () => {
     expect(importService.importOnePassword).not.toHaveBeenCalled();
   });
 
-  it("keeps the prompt open and marks the field 1Password refused", async () => {
+  it("keeps the prompt open and marks a malformed Secret Key on its field", async () => {
+    importService.importOnePassword.mockRejectedValueOnce(
+      importError("OnePasswordInvalidSecretKey"),
+    );
+    const result = start();
+
+    await expect(credentialPrompts[0].data.signIn(entered)).resolves.toEqual({
+      field: "secretKey",
+      message: "enterValidSecretKey",
+    });
+    expect(credentialPrompts[0].close).not.toHaveBeenCalled();
+
+    await expect(credentialPrompts[0].data.signIn(entered)).resolves.toBeUndefined();
+    await expect(result).resolves.toBe(summary);
+  });
+
+  it("keeps the prompt open and marks no field when 1Password refuses the Secret Key and password", async () => {
     importService.importOnePassword.mockRejectedValueOnce(importError("OnePasswordBadCredentials"));
     const result = start();
 
     await expect(credentialPrompts[0].data.signIn(entered)).resolves.toEqual({
-      field: "password",
-      message: "onePasswordIncorrectUsernameOrPassword(1password.eu)",
+      field: undefined,
+      message: "onePasswordCheckCredentials",
     });
     expect(credentialPrompts[0].close).not.toHaveBeenCalled();
 

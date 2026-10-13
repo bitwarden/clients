@@ -28,7 +28,7 @@ describe("onePasswordErrorDisplay", () => {
   it.each<[ImportError["variant"], OnePasswordErrorDisplay]>([
     [
       "OnePasswordBadCredentials",
-      { field: "password", messageKey: "onePasswordIncorrectUsernameOrPassword" },
+      { field: "secretKeyAndPassword", messageKey: "onePasswordCheckCredentials" },
     ],
     ["OnePasswordInvalidSecretKey", { field: "secretKey", messageKey: "enterValidSecretKey" }],
     [

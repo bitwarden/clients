@@ -18,6 +18,7 @@ import {
   DialogService,
   FormFieldModule,
   IconButtonModule,
+  ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 
@@ -28,9 +29,12 @@ export interface OnePasswordSecretKeyAndPassword {
   password: string;
 }
 
-/** Which of the two 1Password refused, and why. */
+/**
+ * Why 1Password refused the Secret Key and password, and the field at fault, or `undefined` when it
+ * cannot tell which of the two is wrong.
+ */
 export interface OnePasswordCredentialsRejection {
-  field: keyof OnePasswordSecretKeyAndPassword;
+  field?: keyof OnePasswordSecretKeyAndPassword;
   message: string;
 }
 
@@ -38,8 +42,9 @@ export interface OnePasswordCredentialsPromptData {
   email: string;
   /**
    * Signs in with what was entered, settling once the sign-in is over. It resolves with a rejection
-   * when the user can correct the Secret Key or password, which the prompt marks on the field. The
-   * Continue button stays busy until then, and whoever opened the prompt closes it.
+   * when the user can correct the Secret Key or password, which the prompt marks on its field, or
+   * shows in a toast when the field is unknown. The Continue button stays busy until then, and
+   * whoever opened the prompt closes it.
    */
   signIn: (
     entered: OnePasswordSecretKeyAndPassword,
@@ -67,6 +72,7 @@ export interface OnePasswordCredentialsPromptData {
 export class OnePasswordCredentialsPromptComponent {
   private readonly dialogRef = inject(DialogRef<undefined>);
   private readonly i18nService = inject(I18nService);
+  private readonly toastService = inject(ToastService);
   protected readonly data = inject<OnePasswordCredentialsPromptData>(DIALOG_DATA);
 
   /**
@@ -74,7 +80,7 @@ export class OnePasswordCredentialsPromptComponent {
    * can be the wrong one, so changing the other also clears it.
    */
   private readonly rejection = signal<
-    (OnePasswordCredentialsRejection & OnePasswordSecretKeyAndPassword) | undefined
+    (Required<OnePasswordCredentialsRejection> & OnePasswordSecretKeyAndPassword) | undefined
   >(undefined);
 
   protected readonly formGroup = new FormGroup(
@@ -110,9 +116,11 @@ export class OnePasswordCredentialsPromptComponent {
 
     const entered = this.formGroup.getRawValue();
     const rejection = await this.data.signIn(entered);
-    if (rejection != null) {
-      this.rejection.set({ ...rejection, ...entered });
+    if (rejection?.field != null) {
+      this.rejection.set({ field: rejection.field, message: rejection.message, ...entered });
       this.formGroup.controls[rejection.field].updateValueAndValidity();
+    } else if (rejection != null) {
+      this.toastService.showToast({ variant: "error", message: rejection.message });
     }
   };
 
