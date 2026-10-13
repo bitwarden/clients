@@ -39,6 +39,7 @@
     "entitlements": "resources/entitlements.mac.beta.plist",
     "entitlementsInherit": "resources/entitlements.mac.inherit.plist",
     "extendInfo": {
+      "BitwardenAppGroupIdentifier": "group.com.bitwarden.beta.desktop",
       "ITSAppUsesNonExemptEncryption": false,
       "CFBundleLocalizations": [
         "en",
@@ -88,7 +89,7 @@
     "signIgnore": [
       "MacOS/desktop_proxy",
       "MacOS/desktop_proxy.inherit",
-      "Contents/Plugins/autofill-extension.appex",
+      "Contents/PlugIns/autofill-extension.appex",
       "Frameworks/Electron Framework.framework/(Electron Framework|Libraries|Resources|Versions/Current)/.*"
     ],
     "target": ["dmg", "zip"],

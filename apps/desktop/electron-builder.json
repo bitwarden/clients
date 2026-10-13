@@ -38,6 +38,7 @@
     "entitlements": "resources/entitlements.mac.plist",
     "entitlementsInherit": "resources/entitlements.mac.inherit.plist",
     "extendInfo": {
+      "BitwardenAppGroupIdentifier": "group.com.bitwarden.desktop",
       "ITSAppUsesNonExemptEncryption": false,
       "CFBundleLocalizations": [
         "en",
