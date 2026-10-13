@@ -7,6 +7,8 @@ import { tagAsExternal } from "@bitwarden/common/platform/messaging/internal";
 
 import { fromChromeEvent } from "../browser/from-chrome-event";
 
+import { stampWebExtSender } from "./web-ext-sender";
+
 /**
  * Creates an observable that listens to messages through `chrome.runtime.onMessage`.
  * @returns An observable stream of messages.
@@ -16,10 +18,9 @@ export const fromChromeRuntimeMessaging = () => {
     map(([message, sender]) => {
       message ??= {};
 
-      // Force the sender onto the message as long as we won't overwrite anything
-      if (!("webExtSender" in message)) {
-        message.webExtSender = sender;
-      }
+      // Stamp the browser-authoritative sender under a private symbol so consumers that need
+      // trustworthy provenance can read it via `getWebExtSender`.
+      stampWebExtSender(message, sender);
 
       return message;
     }),

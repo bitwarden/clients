@@ -16,7 +16,10 @@ const testRunnerConfig: TestRunnerConfig = {
       page,
 
       // context
-      "#storybook-root",
+      {
+        include: ["#storybook-root", ".cdk-overlay-container"],
+        exclude: [".cdk-visually-hidden"],
+      },
 
       // axeOptions, see https://www.deque.com/axe/core-documentation/api-documentation/#parameters-axerun
       {

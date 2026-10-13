@@ -47,9 +47,9 @@ export class SetPinComponent implements OnInit {
     const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
     await this.pinService.setPin(
       pinFormControl.value,
-      requireMasterPasswordOnClientRestart ? "EPHEMERAL" : "PERSISTENT",
+      requireMasterPasswordOnClientRestart ? "AfterFirstUnlock" : "BeforeFirstUnlock",
       userId,
     );
-    this.dialogRef.close(true);
+    await this.dialogRef.close(true);
   };
 }

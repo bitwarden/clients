@@ -6,7 +6,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BitIconButtonComponent, MenuItemComponent } from "@bitwarden/components";
-import { CopyCipherFieldService } from "@bitwarden/vault";
+
+import { CopyCipherFieldService } from "..";
 
 import { CopyCipherFieldDirective } from "./copy-cipher-field.directive";
 
@@ -43,7 +44,7 @@ describe("CopyCipherFieldDirective", () => {
 
       await copyCipherFieldDirective.ngOnChanges();
 
-      expect(copyCipherFieldDirective["disabled"]).toBe(null);
+      expect(copyCipherFieldDirective["hostDisabled"]).toBe(null);
     });
 
     it("should be disabled when the field is not available", async () => {
@@ -55,7 +56,32 @@ describe("CopyCipherFieldDirective", () => {
 
       await copyCipherFieldDirective.ngOnChanges();
 
-      expect(copyCipherFieldDirective["disabled"]).toBe(true);
+      expect(copyCipherFieldDirective["hostDisabled"]).toBe(true);
+    });
+
+    it("should be disabled when externally disabled even if the field is available", async () => {
+      copyCipherFieldDirective.action = "username";
+      (copyCipherFieldDirective.cipher as CipherView).login.username = "test-username";
+      copyCipherFieldDirective.disabled = true;
+
+      await copyCipherFieldDirective.ngOnChanges();
+
+      expect(copyCipherFieldDirective["hostDisabled"]).toBe(true);
+    });
+
+    it("stays disabled for an unavailable field when the external disabled state is toggled off", async () => {
+      // Empty cipher, so the field has no value to copy.
+      copyCipherFieldDirective.cipher = new CipherView();
+      copyCipherFieldDirective.cipher.type = CipherType.Login;
+      copyCipherFieldDirective.action = "username";
+
+      // Simulate a list refresh toggling the external disabled state true -> false.
+      copyCipherFieldDirective.disabled = true;
+      await copyCipherFieldDirective.ngOnChanges();
+      copyCipherFieldDirective.disabled = false;
+      await copyCipherFieldDirective.ngOnChanges();
+
+      expect(copyCipherFieldDirective["hostDisabled"]).toBe(true);
     });
 
     it("updates icon button disabled state", async () => {
@@ -99,6 +125,30 @@ describe("CopyCipherFieldDirective", () => {
       await copyCipherFieldDirective.ngOnChanges();
 
       expect(menuItemComponent.disabled).toBe(true);
+    });
+  });
+
+  describe("copy guard", () => {
+    it("does not copy when the field has no value", async () => {
+      copyCipherFieldDirective.cipher = new CipherView();
+      copyCipherFieldDirective.cipher.type = CipherType.Login;
+      copyCipherFieldDirective.action = "username";
+
+      await copyCipherFieldDirective.ngOnChanges();
+      await copyCipherFieldDirective.copy();
+
+      expect(copyFieldService.copy).not.toHaveBeenCalled();
+    });
+
+    it("does not copy when externally disabled", async () => {
+      copyCipherFieldDirective.action = "username";
+      (copyCipherFieldDirective.cipher as CipherView).login.username = "test-username";
+      copyCipherFieldDirective.disabled = true;
+
+      await copyCipherFieldDirective.ngOnChanges();
+      await copyCipherFieldDirective.copy();
+
+      expect(copyFieldService.copy).not.toHaveBeenCalled();
     });
   });
 
@@ -214,6 +264,34 @@ describe("CopyCipherFieldDirective", () => {
       ["publicKey", "test-public-key"],
       ["keyFingerprint", "test-key-fingerprint"],
     ])("copies %s field from ssh key to clipboard", async (action, value) => {
+      copyCipherFieldDirective.action = action as CopyCipherFieldDirective["action"];
+
+      await copyCipherFieldDirective.copy();
+
+      expect(copyFieldService.copy).toHaveBeenCalledWith(
+        value,
+        action,
+        copyCipherFieldDirective.cipher,
+      );
+    });
+  });
+
+  describe("bank account", () => {
+    beforeEach(() => {
+      const cipher = copyCipherFieldDirective.cipher as CipherView;
+      cipher.type = CipherType.BankAccount;
+      cipher.bankAccount.accountNumber = "test-account-number";
+      cipher.bankAccount.routingNumber = "test-routing-number";
+      cipher.bankAccount.pin = "test-pin";
+      cipher.bankAccount.iban = "test-iban";
+    });
+
+    it.each([
+      ["accountNumber", "test-account-number"],
+      ["routingNumber", "test-routing-number"],
+      ["pin", "test-pin"],
+      ["iban", "test-iban"],
+    ])("copies %s field from bank account to clipboard", async (action, value) => {
       copyCipherFieldDirective.action = action as CopyCipherFieldDirective["action"];
 
       await copyCipherFieldDirective.copy();

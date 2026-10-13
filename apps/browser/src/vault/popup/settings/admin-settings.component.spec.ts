@@ -1,13 +1,16 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { AutoConfirmState, AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
+import { AutoConfirmWarningDialogComponent } from "@bitwarden/auto-confirm/angular";
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
+import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -52,6 +55,8 @@ describe("AdminSettingsComponent", () => {
   let autoConfirmService: MockProxy<AutomaticUserConfirmationService>;
   let nudgesService: MockProxy<NudgesService>;
   let mockDialogService: MockProxy<DialogService>;
+  let eventCollectionService: MockProxy<EventCollectionService>;
+  let organizationService: MockProxy<InternalOrganizationServiceAbstraction>;
 
   const userId = "test-user-id" as UserId;
   const mockAutoConfirmState: AutoConfirmState = {
@@ -64,10 +69,15 @@ describe("AdminSettingsComponent", () => {
     autoConfirmService = mock<AutomaticUserConfirmationService>();
     nudgesService = mock<NudgesService>();
     mockDialogService = mock<DialogService>();
+    eventCollectionService = mock<EventCollectionService>();
+    organizationService = mock<InternalOrganizationServiceAbstraction>();
 
     autoConfirmService.configuration$.mockReturnValue(of(mockAutoConfirmState));
     autoConfirmService.upsert.mockResolvedValue(undefined);
+    autoConfirmService.bulkAutoConfirmPendingUsers.mockResolvedValue(undefined);
     nudgesService.showNudgeSpotlight$.mockReturnValue(of(false));
+    eventCollectionService.collect.mockResolvedValue(undefined);
+    organizationService.organizations$.mockReturnValue(of([]));
 
     await TestBed.configureTestingModule({
       imports: [AdminSettingsComponent],
@@ -77,6 +87,11 @@ describe("AdminSettingsComponent", () => {
         { provide: AutomaticUserConfirmationService, useValue: autoConfirmService },
         { provide: DialogService, useValue: mockDialogService },
         { provide: NudgesService, useValue: nudgesService },
+        { provide: EventCollectionService, useValue: eventCollectionService },
+        {
+          provide: InternalOrganizationServiceAbstraction,
+          useValue: organizationService,
+        },
         { provide: I18nService, useValue: { t: (key: string) => key } },
       ],
     })
@@ -195,5 +210,49 @@ describe("AdminSettingsComponent", () => {
     it("should have autoConfirm control", () => {
       expect(component["adminForm"].controls.autoConfirm).toBeDefined();
     });
+  });
+
+  describe("autoConfirm toggle", () => {
+    let warningDialogSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      warningDialogSpy = jest
+        .spyOn(AutoConfirmWarningDialogComponent, "open")
+        .mockImplementation((_: DialogService) => ({ closed: of(true) }) as any);
+    });
+
+    afterEach(() => {
+      warningDialogSpy.mockRestore();
+    });
+
+    it("calls bulkAutoConfirmPendingUsers when auto-confirm is enabled", fakeAsync(async () => {
+      autoConfirmService.configuration$.mockReturnValue(
+        of({ ...mockAutoConfirmState, enabled: true }),
+      );
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+      tick();
+
+      expect(autoConfirmService.bulkAutoConfirmPendingUsers).toHaveBeenCalledWith(userId);
+    }));
+
+    it("does not call bulkAutoConfirmPendingUsers when auto-confirm is disabled", fakeAsync(async () => {
+      await component.ngOnInit();
+      fixture.detectChanges();
+      tick();
+
+      expect(autoConfirmService.bulkAutoConfirmPendingUsers).not.toHaveBeenCalled();
+    }));
+
+    it("does not call bulkAutoConfirmPendingUsers when auto-confirm configuration is never enabled", fakeAsync(async () => {
+      warningDialogSpy.mockImplementation((_: DialogService) => ({ closed: of(false) }) as any);
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+      tick();
+
+      expect(autoConfirmService.bulkAutoConfirmPendingUsers).not.toHaveBeenCalled();
+    }));
   });
 });

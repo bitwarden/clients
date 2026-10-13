@@ -1,0 +1,18 @@
+<bit-item>
+  <button
+    bit-item-content
+    type="button"
+    (click)="openAttachments()"
+    [disabled]="parentFormDisabled"
+    [title]="'popOutNewWindow' | i18n"
+  >
+    <div class="tw-flex tw-items-center tw-gap-2">
+      {{ "attachments" | i18n }}
+      <app-premium-badge></app-premium-badge>
+    </div>
+    <ng-container slot="end">
+      <span class="tw-sr-only">{{ "popOutNewWindow" | i18n }}</span>
+      <i class="bwi bwi-popout tw-text-muted" aria-hidden="true"></i>
+    </ng-container>
+  </button>
+</bit-item>

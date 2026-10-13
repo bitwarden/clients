@@ -41,6 +41,11 @@ export abstract class CredentialGeneratorService {
     dependencies: BoundDependency<"account", Account>,
   ) => Observable<AlgorithmMetadata[]>;
 
+  abstract preferredAlgorithm$: (
+    type: CredentialType,
+    dependencies: BoundDependency<"account", Account>,
+  ) => Observable<AlgorithmMetadata>;
+
   /** Lists metadata for a set of algorithms.
    *  @param type the type or types of algorithms
    *  @returns A list containing the requested metadata.

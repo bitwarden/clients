@@ -4,7 +4,9 @@ import { BehaviorSubject } from "rxjs";
 
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
 import { StateProvider } from "@bitwarden/common/platform/state";
 
 import { WebBrowserInteractionService } from "../services/web-browser-interaction.service";
@@ -27,11 +29,14 @@ describe("setupExtensionRedirectGuard", () => {
   const createUrlTree = jest.fn();
   const getProfileCreationDate = jest.fn().mockResolvedValue(seventeenDaysAgo);
 
+  let serverSettings$: BehaviorSubject<ServerSettings | null>;
+
   beforeEach(() => {
     Utils.isMobileBrowser = false;
 
     getProfileCreationDate.mockClear();
     createUrlTree.mockClear();
+    serverSettings$ = new BehaviorSubject<ServerSettings | null>(new ServerSettings());
 
     TestBed.configureTestingModule({
       providers: [
@@ -42,6 +47,10 @@ describe("setupExtensionRedirectGuard", () => {
         {
           provide: VaultProfileService,
           useValue: { getProfileCreationDate },
+        },
+        {
+          provide: ConfigService,
+          useValue: { serverSettings$: serverSettings$.asObservable() },
         },
       ],
     });
@@ -89,6 +98,16 @@ describe("setupExtensionRedirectGuard", () => {
     await setupExtensionGuard();
 
     expect(createUrlTree).toHaveBeenCalledWith(["/setup-extension"]);
+  });
+
+  it("returns `true` when suppressOnboardingInterstitials is enabled", async () => {
+    state$.next(false);
+    serverSettings$.next(new ServerSettings({ suppressOnboardingInterstitials: true }));
+
+    const result = await setupExtensionGuard();
+
+    expect(result).toBe(true);
+    expect(createUrlTree).not.toHaveBeenCalled();
   });
 
   describe("missing current account", () => {

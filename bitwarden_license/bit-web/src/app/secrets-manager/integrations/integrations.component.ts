@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 
-import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
+import { IntegrationStateService } from "@bitwarden/bit-common/dirt/organization-integrations/shared/integration-state.service";
 import { IntegrationType } from "@bitwarden/common/enums";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -11,10 +11,8 @@ import { IntegrationType } from "@bitwarden/common/enums";
   standalone: false,
 })
 export class IntegrationsComponent {
-  private integrationsAndSdks: Integration[] = [];
-
-  constructor() {
-    this.integrationsAndSdks = [
+  constructor(private state: IntegrationStateService) {
+    const integrations = [
       {
         name: "Rust",
         linkURL: "https://github.com/bitwarden/sdk-sm",
@@ -100,25 +98,13 @@ export class IntegrationsComponent {
       },
       {
         name: "Terraform Provider",
-        linkURL: "https://registry.terraform.io/providers/bitwarden/bitwarden-secrets/latest",
+        linkURL: "https://registry.terraform.io/providers/bitwarden/bitwarden-secrets/latest/docs",
         image: "../../../../../../../images/secrets-manager/integrations/terraform.svg",
         type: IntegrationType.Integration,
         newBadgeExpiration: "2025-12-12", // December 12, 2025
       },
     ];
-  }
 
-  /** Filter out content for the integrations sections */
-  get integrations(): Integration[] {
-    return this.integrationsAndSdks.filter(
-      (integration) => integration.type === IntegrationType.Integration,
-    );
-  }
-
-  /** Filter out content for the SDKs section */
-  get sdks(): Integration[] {
-    return this.integrationsAndSdks.filter(
-      (integration) => integration.type === IntegrationType.SDK,
-    );
+    this.state.setIntegrations(integrations);
   }
 }

@@ -153,16 +153,16 @@
         "port": 8080
       },
       "configurations": {
-        "oss": {
+        "oss-dev": {
           "buildTarget": "web:build:oss-dev"
         },
-        "commercial": {
+        "commercial-dev": {
           "buildTarget": "web:build:commercial-dev"
         },
-        "oss-selfhost": {
+        "oss-selfhost-dev": {
           "buildTarget": "web:build:oss-selfhost-dev"
         },
-        "commercial-selfhost": {
+        "commercial-selfhost-dev": {
           "buildTarget": "web:build:commercial-selfhost-dev"
         }
       }

@@ -3,6 +3,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
+import { createAutofillFormMock } from "../spec/autofill-mocks";
 
 import { AutoFillConstants } from "./autofill-constants";
 import { InlineMenuFieldQualificationService } from "./inline-menu-field-qualification.service";
@@ -451,6 +452,185 @@ describe("InlineMenuFieldQualificationService", () => {
           },
         );
 
+        describe("carries a non-login signal", () => {
+          it("is in a form whose htmlID contains a non-login keyword", () => {
+            const field = mock<AutofillField>({
+              type: "email",
+              autoCompleteType: "",
+              htmlID: "email",
+              htmlName: "email",
+              placeholder: "Your email",
+              form: "validFormId",
+            });
+            pageDetails.forms = {
+              validFormId: mock<AutofillForm>({
+                opid: "validFormId",
+                htmlID: "newsletter-signup",
+                htmlName: "",
+                htmlAction: "",
+              }),
+            };
+            pageDetails.fields = [field];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(false);
+          });
+
+          it("has a non-login keyword in its own placeholder even when the form is generic", () => {
+            const field = mock<AutofillField>({
+              type: "email",
+              autoCompleteType: "",
+              htmlID: "email",
+              htmlName: "email",
+              placeholder: "Newsletter email",
+              form: "validFormId",
+            });
+            pageDetails.forms = {
+              validFormId: mock<AutofillForm>({
+                opid: "validFormId",
+                htmlID: "form",
+                htmlName: "form",
+                htmlAction: "/submit",
+              }),
+            };
+            pageDetails.fields = [field];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(false);
+          });
+
+          it("has a sibling field carrying a non-login keyword in the same form", () => {
+            const field = mock<AutofillField>({
+              type: "email",
+              autoCompleteType: "",
+              htmlID: "email",
+              htmlName: "email",
+              placeholder: "Email",
+              form: "validFormId",
+            });
+            const sibling = mock<AutofillField>({
+              type: "checkbox",
+              autoCompleteType: "",
+              htmlID: "newsletter-optin",
+              htmlName: "newsletter",
+              placeholder: "",
+              form: "validFormId",
+            });
+            pageDetails.forms = {
+              validFormId: mock<AutofillForm>({
+                opid: "validFormId",
+                htmlID: "form",
+                htmlName: "form",
+                htmlAction: "/submit",
+              }),
+            };
+            pageDetails.fields = [field, sibling];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(false);
+          });
+        });
+
+        describe("structural-ambiguity tie-breaker (single email-typed field, no password anywhere)", () => {
+          it("disqualifies when the parent form's htmlClass carries an ambiguous keyword (e.g. 'subscribe')", () => {
+            const field = mock<AutofillField>({
+              type: "email",
+              autoCompleteType: "",
+              htmlID: "email",
+              htmlName: "email",
+              placeholder: "Your email",
+              form: "validFormId",
+            });
+            pageDetails.forms = {
+              validFormId: mock<AutofillForm>({
+                opid: "validFormId",
+                htmlID: "",
+                htmlName: "",
+                htmlAction: "",
+                htmlClass: "subscribe-form",
+                htmlAncestorHeadings: [],
+              }),
+            };
+            pageDetails.fields = [field];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(false);
+          });
+
+          it("disqualifies when ancestor heading text carries an ambiguous keyword", () => {
+            const field = mock<AutofillField>({
+              type: "email",
+              autoCompleteType: "",
+              htmlID: "email",
+              htmlName: "email",
+              placeholder: "Enter email address",
+              form: "validFormId",
+            });
+            pageDetails.forms = {
+              validFormId: mock<AutofillForm>({
+                opid: "validFormId",
+                htmlID: "",
+                htmlName: "",
+                htmlAction: "",
+                htmlClass: "m-form__m-inputwrap",
+                htmlAncestorHeadings: ["Subscribe to our newsletter"],
+              }),
+            };
+            pageDetails.fields = [field];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(false);
+          });
+
+          it("preserves the default-to-login behavior on legitimate multistep logins (no surrounding signals)", () => {
+            const field = mock<AutofillField>({
+              type: "email",
+              autoCompleteType: "",
+              htmlID: "user-email",
+              htmlName: "user-email",
+              placeholder: "Email",
+              form: "validFormId",
+            });
+            pageDetails.forms = {
+              validFormId: mock<AutofillForm>({
+                opid: "validFormId",
+                htmlID: "login",
+                htmlName: "login",
+                htmlAction: "/auth",
+                htmlClass: "login-form",
+                htmlAncestorHeadings: ["Sign in to your account"],
+              }),
+            };
+            pageDetails.fields = [field];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(true);
+          });
+
+          it("disqualifies a formless field whose own attributes carry an ambiguous keyword", () => {
+            const field = mock<AutofillField>({
+              type: "email",
+              autoCompleteType: "",
+              htmlID: "newsletter-email",
+              htmlName: "email",
+              placeholder: "Subscribe with your email",
+              form: undefined,
+            });
+            pageDetails.forms = {};
+            pageDetails.fields = [field];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(false);
+          });
+        });
+
         describe("does not have a parent form element", () => {
           beforeEach(() => {
             pageDetails.forms = {};
@@ -487,10 +667,10 @@ describe("InlineMenuFieldQualificationService", () => {
         });
 
         describe("has a parent form element", () => {
-          let form: MockProxy<AutofillForm>;
+          let form: AutofillForm;
 
           beforeEach(() => {
-            form = mock<AutofillForm>({ opid: "validFormId" });
+            form = createAutofillFormMock({ opid: "validFormId" });
             pageDetails.forms = {
               validFormId: form,
             };
@@ -534,6 +714,67 @@ describe("InlineMenuFieldQualificationService", () => {
             expect(
               inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
             ).toBe(false);
+          });
+
+          it("is structured on a page with no password fields and has a visible checkbox in the form", () => {
+            const field = mock<AutofillField>({
+              type: "text",
+              autoCompleteType: "",
+              htmlID: "username",
+              htmlName: "username",
+              placeholder: "username",
+              form: "validFormId",
+              viewable: true,
+            });
+            const checkboxField = mock<AutofillField>({
+              type: "checkbox",
+              autoCompleteType: "",
+              htmlID: "cookie-agree",
+              htmlName: "cookie-agree",
+              placeholder: "",
+              form: "validFormId",
+              viewable: true,
+            });
+            pageDetails.fields = [field, checkboxField];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(true);
+          });
+
+          it("is structured on a page with no password fields and has hidden textarea fields in the form", () => {
+            const field = mock<AutofillField>({
+              type: "email",
+              autoCompleteType: "",
+              htmlID: "email",
+              htmlName: "email",
+              placeholder: "",
+              form: "validFormId",
+              viewable: false,
+            });
+            const captchaTextarea1 = mock<AutofillField>({
+              type: "textarea",
+              autoCompleteType: "",
+              htmlID: "g-recaptcha-response",
+              htmlName: "g-recaptcha-response",
+              placeholder: "",
+              form: "validFormId",
+              viewable: false,
+            });
+            const captchaTextarea2 = mock<AutofillField>({
+              type: "textarea",
+              autoCompleteType: "",
+              htmlID: "h-captcha-response",
+              htmlName: "h-captcha-response",
+              placeholder: "",
+              form: "validFormId",
+              viewable: false,
+            });
+            pageDetails.fields = [field, captchaTextarea1, captchaTextarea2];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(true);
           });
 
           it("is structured on a page with multiple viewable password fields", () => {
@@ -908,6 +1149,98 @@ describe("InlineMenuFieldQualificationService", () => {
     });
   });
 
+  describe("isFieldForSshKeyForm", () => {
+    it("qualifies a GitHub-shaped public key textarea via algorithm placeholder", () => {
+      const field = mock<AutofillField>({
+        tagName: "textarea",
+        htmlName: "ssh_key[key]",
+        htmlID: "ssh_key_key",
+        placeholder: "Begins with 'ssh-rsa', 'ssh-ed25519'",
+      });
+      pageDetails.fields = [field];
+
+      expect(inlineMenuFieldQualificationService.isFieldForSshKeyForm(field, pageDetails)).toBe(
+        true,
+      );
+    });
+
+    it("qualifies a GitLab-shaped public key textarea via data-supported-algorithms", () => {
+      const field = mock<AutofillField>({
+        tagName: "textarea",
+        htmlName: "key[key]",
+        htmlID: "key_key",
+        dataSetValues: 'supportedAlgorithms: ["ssh-rsa","ssh-ed25519"]',
+      });
+      pageDetails.fields = [field];
+
+      expect(inlineMenuFieldQualificationService.isFieldForSshKeyForm(field, pageDetails)).toBe(
+        true,
+      );
+    });
+
+    it("qualifies a title input when a public key field is present on the page", () => {
+      const publicKeyField = mock<AutofillField>({
+        tagName: "textarea",
+        htmlName: "ssh_key[key]",
+        placeholder: "Begins with 'ssh-rsa'",
+        form: "validFormId",
+      });
+      const titleField = mock<AutofillField>({
+        tagName: "input",
+        type: "text",
+        htmlName: "ssh_key[title]",
+        form: "validFormId",
+      });
+      pageDetails.fields = [publicKeyField, titleField];
+
+      expect(
+        inlineMenuFieldQualificationService.isFieldForSshKeyForm(titleField, pageDetails),
+      ).toBe(true);
+    });
+
+    it("does not qualify a title input when no public key field is present", () => {
+      const titleField = mock<AutofillField>({
+        tagName: "input",
+        type: "text",
+        htmlName: "ssh_key[title]",
+        form: "validFormId",
+      });
+      pageDetails.fields = [titleField];
+
+      expect(
+        inlineMenuFieldQualificationService.isFieldForSshKeyForm(titleField, pageDetails),
+      ).toBe(false);
+    });
+
+    it("does not qualify a single-line api_key input", () => {
+      const field = mock<AutofillField>({
+        tagName: "input",
+        type: "text",
+        htmlName: "api_key",
+        htmlID: "api_key",
+      });
+      pageDetails.fields = [field];
+
+      expect(inlineMenuFieldQualificationService.isFieldForSshKeyForm(field, pageDetails)).toBe(
+        false,
+      );
+    });
+
+    it("does not qualify a generic comment textarea", () => {
+      const field = mock<AutofillField>({
+        tagName: "textarea",
+        htmlName: "comment",
+        htmlID: "comment",
+        placeholder: "Leave a comment",
+      });
+      pageDetails.fields = [field];
+
+      expect(inlineMenuFieldQualificationService.isFieldForSshKeyForm(field, pageDetails)).toBe(
+        false,
+      );
+    });
+  });
+
   describe("isFieldForAccountCreationForm", () => {
     it("validates a field for an account creation if the field is formless but at least one new password field exists in the page details", () => {
       const field = mock<AutofillField>({
@@ -974,6 +1307,47 @@ describe("InlineMenuFieldQualificationService", () => {
       });
 
       expect(inlineMenuFieldQualificationService.isEmailField(field)).toBe(true);
+    });
+
+    it("returns false if the field qualifies as a TOTP field", () => {
+      const field = mock<AutofillField>({
+        placeholder: "Security code",
+        autoCompleteType: "on",
+        type: "text",
+        htmlName: "otp",
+        htmlID: "otp",
+      });
+
+      expect(inlineMenuFieldQualificationService.isEmailField(field)).toBe(false);
+    });
+  });
+
+  describe("hasCurrentPasswordAutocomplete", () => {
+    it("returns true when the autocomplete attribute contains `current-password`", () => {
+      const field = mock<AutofillField>({
+        type: "password",
+        autoCompleteType: "current-password",
+      });
+
+      expect(inlineMenuFieldQualificationService.hasCurrentPasswordAutocomplete(field)).toBe(true);
+    });
+
+    it("returns false when the autocomplete attribute is `new-password`", () => {
+      const field = mock<AutofillField>({
+        type: "password",
+        autoCompleteType: "new-password",
+      });
+
+      expect(inlineMenuFieldQualificationService.hasCurrentPasswordAutocomplete(field)).toBe(false);
+    });
+
+    it("returns false when the autocomplete attribute is missing", () => {
+      const field = mock<AutofillField>({
+        type: "password",
+        autoCompleteType: "",
+      });
+
+      expect(inlineMenuFieldQualificationService.hasCurrentPasswordAutocomplete(field)).toBe(false);
     });
   });
 });

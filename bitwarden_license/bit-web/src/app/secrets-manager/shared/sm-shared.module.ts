@@ -5,8 +5,9 @@ import {
   MultiSelectModule,
   SearchModule,
   SelectModule,
-  NoItemsModule,
+  StatusLockupComponent,
   FormFieldModule,
+  IconModule,
 } from "@bitwarden/components";
 import { CoreOrganizationModule } from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import { DynamicAvatarComponent } from "@bitwarden/web-vault/app/components/dynamic-avatar.component";
@@ -28,13 +29,14 @@ import { SecretsListComponent } from "./secrets-list.component";
     ProductSwitcherModule,
     MultiSelectModule,
     CoreOrganizationModule,
-    NoItemsModule,
+    StatusLockupComponent,
     SelectModule,
     DynamicAvatarComponent,
     SearchModule,
     HeaderModule,
     CardComponent,
     FormFieldModule,
+    IconModule,
   ],
   exports: [
     AccessPolicySelectorComponent,
@@ -43,7 +45,7 @@ import { SecretsListComponent } from "./secrets-list.component";
     FormFieldModule,
     HeaderModule,
     NewMenuComponent,
-    NoItemsModule,
+    StatusLockupComponent,
     ProjectsListComponent,
     SearchModule,
     SecretsListComponent,
@@ -54,7 +56,6 @@ import { SecretsListComponent } from "./secrets-list.component";
   declarations: [
     AccessPolicySelectorComponent,
     BulkConfirmationDialogComponent,
-    BulkStatusDialogComponent,
     BulkStatusDialogComponent,
     NewMenuComponent,
     OrgSuspendedComponent,

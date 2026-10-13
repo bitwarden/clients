@@ -28,4 +28,15 @@ export default class AutofillForm {
    * Non-null asserted. The HTML `method` attribute of the form field.
    */
   htmlMethod!: "get" | "post" | string;
+
+  /**
+   * The HTML `class` attribute of the form. Empty string when the attribute is absent.
+   */
+  htmlClass!: string;
+
+  /**
+   * Heading text from the form's bounded ancestors, ordered by ancestor distance
+   * (closest first).
+   */
+  htmlAncestorHeadings!: string[];
 }

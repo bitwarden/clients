@@ -4,7 +4,7 @@
     <div class="tw-flex tw-gap-6 tw-pt-4">
       <bit-form-field class="tw-w-2/5 tw-min-w-80" tw>
         <bit-label>{{ "identityUrl" | i18n }}</bit-label>
-        <input bitInput type="text" [(ngModel)]="identityUrl" [disabled]="true" />
+        <input bitInput type="text" [(ngModel)]="identityUrl" readonly />
         <button
           bitSuffix
           type="button"
@@ -16,7 +16,7 @@
       </bit-form-field>
       <bit-form-field class="tw-w-2/5 tw-min-w-80">
         <bit-label>{{ "apiUrl" | i18n }}</bit-label>
-        <input bitInput type="text" [(ngModel)]="apiUrl" [disabled]="true" />
+        <input bitInput type="text" [(ngModel)]="apiUrl" readonly />
         <button
           bitSuffix
           type="button"
@@ -28,7 +28,7 @@
     </div>
     <bit-form-field class="tw-w-2/5 tw-min-w-80">
       <bit-label>{{ "organizationId" | i18n }}</bit-label>
-      <input bitInput type="text" [(ngModel)]="organizationId" [disabled]="true" />
+      <input bitInput type="text" [(ngModel)]="organizationId" readonly />
       <button
         bitSuffix
         type="button"

@@ -3,7 +3,7 @@ import { BrowserWindow, dialog, MenuItem, MenuItemConstructorOptions } from "ele
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
-import { isMacAppStore, isSnapStore, isWindowsStore } from "../../utils";
+import { isMacAppStore, isSnapStore, isWindowsStore } from "../platform-utils.main";
 import { UpdaterMain } from "../updater.main";
 
 import { MenuAccount } from "./menu.updater";
@@ -24,7 +24,10 @@ export class FirstMenu {
   }
 
   protected get hasLockableAccounts(): boolean {
-    return this._accounts != null && Object.values(this._accounts).some((a) => a.isLockable);
+    return (
+      this._accounts != null &&
+      Object.values(this._accounts).some((a) => a.isLockable && a.isAuthenticated && !a.isLocked)
+    );
   }
 
   protected get hasAuthenticatedAccounts(): boolean {
@@ -74,7 +77,7 @@ export class FirstMenu {
 
       const account = this._accounts[userId];
 
-      if (account == null || !account.isLockable) {
+      if (account == null || !account.isLockable || !account.isAuthenticated) {
         continue;
       }
 
@@ -83,7 +86,6 @@ export class FirstMenu {
         id: `lockNow_${account.userId}`,
         click: () => this.sendMessage("lockVault", { userId: account.userId }),
         enabled: !account.isLocked,
-        visible: account.isAuthenticated,
       });
     }
     return value;
@@ -95,7 +97,7 @@ export class FirstMenu {
       label: this.localize("lockAllVaults"),
       click: () => this.sendMessage("lockAllVaults"),
       accelerator: "CmdOrCtrl+L",
-      enabled: this.hasAccounts,
+      enabled: this.hasLockableAccounts,
     };
   }
 
@@ -104,7 +106,7 @@ export class FirstMenu {
       id: "logOut",
       label: this.localize("logOut"),
       submenu: this.logOutSubmenu,
-      enabled: this.hasAccounts,
+      enabled: this.hasAuthenticatedAccounts,
     };
   }
 

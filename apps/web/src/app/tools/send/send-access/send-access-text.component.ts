@@ -6,7 +6,7 @@ import { FormBuilder } from "@angular/forms";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
-import { ToastService } from "@bitwarden/components";
+import { IconModule, ToastService } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
 
@@ -15,7 +15,7 @@ import { SharedModule } from "../../../shared";
 @Component({
   selector: "app-send-access-text",
   templateUrl: "send-access-text.component.html",
-  imports: [SharedModule],
+  imports: [SharedModule, IconModule],
 })
 export class SendAccessTextComponent {
   private _send: SendAccessView = null;

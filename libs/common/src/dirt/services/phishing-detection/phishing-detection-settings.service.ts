@@ -1,17 +1,17 @@
 import { combineLatest, Observable, of, switchMap } from "rxjs";
 import { catchError, distinctUntilChanged, map, shareReplay, tap } from "rxjs/operators";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { LogService } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
 
+import { OrganizationService } from "../../../admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "../../../admin-console/models/domain/organization";
+import { AccountService } from "../../../auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "../../../billing/abstractions";
+import { ProductTierType } from "../../../billing/enums";
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
+import { ConfigService } from "../../../platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
 import { PHISHING_DETECTION_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
 import { PhishingDetectionSettingsServiceAbstraction } from "../abstractions/phishing-detection-settings.service.abstraction";
 

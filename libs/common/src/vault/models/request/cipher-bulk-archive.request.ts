@@ -1,4 +1,4 @@
-import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherId } from "../../../types/guid";
 
 export class CipherBulkArchiveRequest {
   ids: CipherId[];

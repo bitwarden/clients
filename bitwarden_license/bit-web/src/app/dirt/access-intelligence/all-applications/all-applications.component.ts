@@ -22,7 +22,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import {
   IconButtonModule,
   LinkModule,
-  NoItemsModule,
   SearchModule,
   TableDataSource,
   ToastService,
@@ -48,7 +47,6 @@ import { ReportLoadingComponent } from "../shared/report-loading.component";
     LinkModule,
     SearchModule,
     PipesModule,
-    NoItemsModule,
     SharedModule,
     AppTableRowScrollableComponent,
     IconButtonModule,
@@ -56,10 +54,10 @@ import { ReportLoadingComponent } from "../shared/report-loading.component";
   ],
 })
 export class AllApplicationsComponent implements OnInit {
-  destroyRef = inject(DestroyRef);
+  readonly destroyRef = inject(DestroyRef);
 
-  protected ReportStatusEnum = ReportStatus;
-  protected noItemsIcon = Security;
+  protected readonly ReportStatusEnum = ReportStatus;
+  protected readonly noItemsIcon = Security;
 
   // Standard properties
   protected readonly dataSource = new TableDataSource<ApplicationTableDataSource>();
@@ -71,10 +69,10 @@ export class AllApplicationsComponent implements OnInit {
   protected readonly applicationSummary = signal<OrganizationReportSummary>(createNewSummaryData());
 
   constructor(
-    protected i18nService: I18nService,
-    protected activatedRoute: ActivatedRoute,
-    protected toastService: ToastService,
-    protected dataService: RiskInsightsDataService,
+    protected readonly i18nService: I18nService,
+    protected readonly activatedRoute: ActivatedRoute,
+    protected readonly toastService: ToastService,
+    protected readonly dataService: RiskInsightsDataService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
@@ -110,7 +108,7 @@ export class AllApplicationsComponent implements OnInit {
     return this.selectedUrls().has(applicationName);
   }
 
-  markAppsAsCritical = async () => {
+  readonly markAppsAsCritical = async () => {
     this.markingAsCritical.set(true);
     const count = this.selectedUrls().size;
 
@@ -137,11 +135,11 @@ export class AllApplicationsComponent implements OnInit {
       });
   };
 
-  showAppAtRiskMembers = async (applicationName: string) => {
+  readonly showAppAtRiskMembers = async (applicationName: string) => {
     await this.dataService.setDrawerForAppAtRiskMembers(applicationName);
   };
 
-  onCheckboxChange = (applicationName: string, event: Event) => {
+  readonly onCheckboxChange = (applicationName: string, event: Event) => {
     const isChecked = (event.target as HTMLInputElement).checked;
     this.selectedUrls.update((selectedUrls) => {
       const nextSelected = new Set(selectedUrls);

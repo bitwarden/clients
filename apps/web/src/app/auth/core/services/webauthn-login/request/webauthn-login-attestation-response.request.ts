@@ -1,4 +1,4 @@
-import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 
 import { WebauthnLoginAuthenticatorResponseRequest } from "./webauthn-login-authenticator-response.request";
 
@@ -10,6 +10,7 @@ export class WebauthnLoginAttestationResponseRequest extends WebauthnLoginAuthen
   response: {
     attestationObject: string;
     clientDataJson: string;
+    transports: string[];
   };
 
   constructor(credential: PublicKeyCredential) {
@@ -20,8 +21,13 @@ export class WebauthnLoginAttestationResponseRequest extends WebauthnLoginAuthen
     }
 
     this.response = {
-      attestationObject: Utils.fromBufferToUrlB64(credential.response.attestationObject),
-      clientDataJson: Utils.fromBufferToUrlB64(credential.response.clientDataJSON),
+      attestationObject: Fido2Utils.arrayToString(
+        Fido2Utils.bufferSourceToUint8Array(credential.response.attestationObject),
+      ),
+      clientDataJson: Fido2Utils.arrayToString(
+        Fido2Utils.bufferSourceToUint8Array(credential.response.clientDataJSON),
+      ),
+      transports: credential.response.getTransports(),
     };
   }
 }

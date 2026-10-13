@@ -4,10 +4,9 @@ import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -115,7 +114,22 @@ describe("LoginCredentialsViewComponent", () => {
       passwordField = fixture.debugElement.queryAll(By.directive(BitFormFieldComponent))[1];
     });
 
-    it("displays the password", () => {
+    it("displays a masked password by default", () => {
+      const passwordInput = passwordField.query(By.css("input")).nativeElement;
+
+      expect(passwordInput.value).toBe(cipher.login.maskedPassword);
+    });
+
+    it("displays the actual password when revealed", () => {
+      cipher.viewPassword = true;
+      fixture.detectChanges();
+
+      const viewPasswordButton = passwordField.query(By.directive(BitPasswordInputToggleDirective));
+      const toggleInputDirective = viewPasswordButton.injector.get(BitPasswordInputToggleDirective);
+
+      toggleInputDirective.onClick();
+      fixture.detectChanges();
+
       const passwordInput = passwordField.query(By.css("input")).nativeElement;
 
       expect(passwordInput.value).toBe(cipher.login.password);

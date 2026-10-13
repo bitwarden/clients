@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { PlanType } from "../../../billing/enums";
 import { PlanResponse } from "../../../billing/models/response/plan.response";
 import { BaseResponse } from "../../../models/response/base.response";
@@ -14,7 +12,7 @@ export class OrganizationResponse extends BaseResponse {
   businessCountry: string;
   businessTaxNumber: string;
   billingEmail: string;
-  plan: PlanResponse;
+  plan?: PlanResponse;
   planType: PlanType;
   seats: number;
   maxAutoscaleSeats: number;
@@ -30,8 +28,10 @@ export class OrganizationResponse extends BaseResponse {
   useSecretsManager: boolean;
   hasPublicAndPrivateKeys: boolean;
   usePasswordManager: boolean;
+  usePam: boolean;
   smSeats?: number;
   smServiceAccounts?: number;
+  smServiceAccountsGrace?: number;
   maxAutoscaleSmSeats?: number;
   maxAutoscaleSmServiceAccounts?: number;
   limitCollectionCreation: boolean;
@@ -41,6 +41,8 @@ export class OrganizationResponse extends BaseResponse {
   useDisableSMAdsForUsers: boolean;
   useAccessIntelligence: boolean;
   usePhishingBlocker: boolean;
+  useMyItems: boolean;
+  useInviteLinks: boolean;
 
   constructor(response: any) {
     super(response);
@@ -55,7 +57,7 @@ export class OrganizationResponse extends BaseResponse {
     this.billingEmail = this.getResponseProperty("BillingEmail");
 
     const plan = this.getResponseProperty("Plan");
-    this.plan = plan == null ? null : new PlanResponse(plan);
+    this.plan = plan == null ? undefined : new PlanResponse(plan);
 
     this.planType = this.getResponseProperty("PlanType");
     this.seats = this.getResponseProperty("Seats");
@@ -72,8 +74,10 @@ export class OrganizationResponse extends BaseResponse {
     this.useSecretsManager = this.getResponseProperty("UseSecretsManager");
     this.hasPublicAndPrivateKeys = this.getResponseProperty("HasPublicAndPrivateKeys");
     this.usePasswordManager = this.getResponseProperty("UsePasswordManager");
+    this.usePam = this.getResponseProperty("UsePam") ?? false;
     this.smSeats = this.getResponseProperty("SmSeats");
     this.smServiceAccounts = this.getResponseProperty("SmServiceAccounts");
+    this.smServiceAccountsGrace = this.getResponseProperty("SmServiceAccountsGrace") ?? 0;
     this.maxAutoscaleSmSeats = this.getResponseProperty("MaxAutoscaleSmSeats");
     this.maxAutoscaleSmServiceAccounts = this.getResponseProperty("MaxAutoscaleSmServiceAccounts");
     this.limitCollectionCreation = this.getResponseProperty("LimitCollectionCreation");
@@ -86,5 +90,7 @@ export class OrganizationResponse extends BaseResponse {
     // Map from backend API property (UseRiskInsights) to domain model property (useAccessIntelligence)
     this.useAccessIntelligence = this.getResponseProperty("UseRiskInsights");
     this.usePhishingBlocker = this.getResponseProperty("UsePhishingBlocker") ?? false;
+    this.useMyItems = this.getResponseProperty("UseMyItems") ?? false;
+    this.useInviteLinks = this.getResponseProperty("UseInviteLinks") ?? false;
   }
 }

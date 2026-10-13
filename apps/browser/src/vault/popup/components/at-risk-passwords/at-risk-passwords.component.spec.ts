@@ -17,18 +17,14 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { FakeAccountService, FakeStateProvider } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { EndUserNotificationService } from "@bitwarden/common/vault/notifications";
 import { NotificationView } from "@bitwarden/common/vault/notifications/models";
 import { SecurityTask, SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService, ToastService } from "@bitwarden/components";
-import {
-  ChangeLoginPasswordService,
-  DefaultChangeLoginPasswordService,
-  PasswordRepromptService,
-  AtRiskPasswordCalloutService,
-} from "@bitwarden/vault";
+import { PasswordRepromptService, AtRiskPasswordCalloutService } from "@bitwarden/vault";
 
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
@@ -190,11 +186,7 @@ describe("AtRiskPasswordsComponent", () => {
       .overrideComponent(AtRiskPasswordsComponent, {
         remove: {
           imports: [PopupHeaderComponent, PopupPageComponent],
-          providers: [
-            AtRiskPasswordPageService,
-            { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
-            DialogService,
-          ],
+          providers: [AtRiskPasswordPageService, DialogService],
         },
         add: {
           imports: [MockPopupHeaderComponent, MockPopupPageComponent],

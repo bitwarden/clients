@@ -41,7 +41,7 @@ export class SecretHardDeleteDialogComponent {
     await this.secretService.deleteTrashed(this.data.organizationId, this.data.secretIds);
     const message =
       this.data.secretIds.length === 1 ? "hardDeleteSuccessToast" : "hardDeletesSuccessToast";
-    this.dialogRef.close(this.data.secretIds);
+    await this.dialogRef.close(this.data.secretIds);
     this.toastService.showToast({
       variant: "success",
       title: null,

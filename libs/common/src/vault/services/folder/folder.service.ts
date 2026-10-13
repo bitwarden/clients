@@ -15,11 +15,13 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { PerfTrackGroup } from "@bitwarden/logging";
 
-import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
+import { LogService } from "../../../platform/abstractions/log.service";
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
@@ -52,6 +54,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
     private i18nService: I18nService,
     private cipherService: CipherService,
     private stateProvider: StateProvider,
+    private logService: LogService,
   ) {}
 
   folders$(userId: UserId): Observable<Folder[]> {
@@ -188,13 +191,13 @@ export class FolderService implements InternalFolderServiceAbstraction {
   }
 
   async delete(id: string | string[], userId: UserId): Promise<any> {
+    const folderIdsToDelete = Array.isArray(id) ? id : [id];
+
     await this.clearDecryptedFolderState(userId);
     await this.encryptedFoldersState(userId).update((folders) => {
       if (folders == null) {
         return;
       }
-
-      const folderIdsToDelete = Array.isArray(id) ? id : [id];
 
       folderIdsToDelete.forEach((id) => {
         if (folders[id] != null) {
@@ -210,7 +213,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
     if (ciphers != null) {
       const updates: Cipher[] = [];
       for (const cId in ciphers) {
-        if (ciphers[cId].folderId === id) {
+        if (folderIdsToDelete.includes(ciphers[cId].folderId)) {
           ciphers[cId].folderId = null;
           updates.push(ciphers[cId]);
         }
@@ -236,10 +239,13 @@ export class FolderService implements InternalFolderServiceAbstraction {
       return encryptedFolders;
     }
     encryptedFolders = await Promise.all(
-      folders.map(async (folder) => {
-        const encryptedFolder = await this.encrypt(folder, newUserKey);
-        return new FolderWithIdRequest(encryptedFolder);
-      }),
+      folders
+        // Filter out "No folder"
+        .filter((folder) => !Utils.isNullOrEmpty(folder.id))
+        .map(async (folder) => {
+          const encryptedFolder = await this.encrypt(folder, newUserKey);
+          return new FolderWithIdRequest(encryptedFolder);
+        }),
     );
     return encryptedFolders;
   }
@@ -272,6 +278,11 @@ export class FolderService implements InternalFolderServiceAbstraction {
       return [];
     }
 
+    const decryptMeasurement = this.logService.startMeasurement(
+      PerfTrackGroup.Unlock,
+      "Folders",
+      "decryptFolders",
+    );
     const decryptFolderPromises = folders.map(async (f) => {
       try {
         return await f.decryptWithKey(userKey, this.encryptService);
@@ -282,6 +293,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
     const decryptedFolders = (await Promise.all(decryptFolderPromises))
       .filter((p) => p !== null)
       .sort(Utils.getSortFunction(this.i18nService, "name"));
+    decryptMeasurement.finish([["Items", folders.length]]);
 
     const noneFolder = new FolderView();
     noneFolder.name = this.i18nService.t("noneFolder");

@@ -2,19 +2,22 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { emptyGuid, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey, UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { KdfType, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, KdfType, KeyGenerationService } from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
 import { emptyAccountEncrypted } from "../spec-data/bitwarden-json/account-encrypted.json";
-import { emptyUnencryptedExport } from "../spec-data/bitwarden-json/unencrypted.json";
+import {
+  emptyUnencryptedExport,
+  unencryptedExportWithCipherKey,
+} from "../spec-data/bitwarden-json/unencrypted.json";
 
 import { BitwardenEncryptedJsonImporter } from "./bitwarden-encrypted-json-importer";
 import { BitwardenJsonImporter } from "./bitwarden-json-importer";
@@ -88,6 +91,14 @@ describe("BitwardenPasswordProtectedImporter", () => {
     it("Should call BitwardenJsonImporter", async () => {
       expect((await importer.parse(emptyUnencryptedExport)).success).toEqual(true);
       expect(BitwardenJsonImporter.prototype.parse).toHaveBeenCalledWith(emptyUnencryptedExport);
+    });
+
+    it("drops the per-cipher key so key-bearing exports import successfully", async () => {
+      const result = await importer.parse(unencryptedExportWithCipherKey);
+
+      expect(result.success).toEqual(true);
+      expect(result.ciphers).toHaveLength(1);
+      expect(result.ciphers[0].key).toBeNull();
     });
   });
 

@@ -11,6 +11,7 @@ import {
   signal,
   model,
   computed,
+  effect,
   OnDestroy,
 } from "@angular/core";
 
@@ -28,8 +29,8 @@ export const TOOLTIP_DELAY_MS = 800;
   host: {
     "(mouseenter)": "showTooltip()",
     "(mouseleave)": "hideTooltip()",
-    "(focus)": "showTooltip()",
-    "(blur)": "hideTooltip()",
+    "(focusin)": "onFocusIn($event)",
+    "(focusout)": "onFocusOut()",
     "[attr.aria-describedby]": "resolvedDescribedByIds()",
   },
 })
@@ -50,6 +51,13 @@ export class TooltipDirective implements OnInit, OnDestroy {
    */
   readonly addTooltipToDescribedby = input<boolean>(false);
 
+  /**
+   * When `true`, any visible tooltip is torn down and `showTooltip()` becomes a no-op.
+   * Sibling directives on the same element (e.g. `MenuTriggerForDirective`) flip this
+   * so a tooltip can't compete with a popover that's owning the user's attention.
+   */
+  readonly suppressed = signal(false);
+
   private readonly isVisible = signal(false);
   private overlayRef: OverlayRef | undefined;
   private showTimeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -64,6 +72,14 @@ export class TooltipDirective implements OnInit, OnDestroy {
   private tooltipId = `bit-tooltip-${TooltipDirective.nextId++}`;
   private currentDescribedByIds =
     this.elementRef.nativeElement.getAttribute("aria-describedby") || null;
+
+  constructor() {
+    effect(() => {
+      if (this.suppressed()) {
+        this.destroyTooltip();
+      }
+    });
+  }
 
   private tooltipPortal = new ComponentPortal(
     TooltipComponent,
@@ -104,6 +120,10 @@ export class TooltipDirective implements OnInit, OnDestroy {
   };
 
   protected showTooltip = () => {
+    if (this.suppressed()) {
+      return;
+    }
+
     this.clearTimeout();
 
     if (!this.overlayRef) {
@@ -124,6 +144,20 @@ export class TooltipDirective implements OnInit, OnDestroy {
   protected hideTooltip = () => {
     this.destroyTooltip();
   };
+
+  /**
+   * Show tooltip on focus-visible (keyboard navigation) but not on regular focus (mouse click).
+   */
+  protected onFocusIn(event: FocusEvent) {
+    const target = event.target as HTMLElement;
+    if (target.matches(":focus-visible")) {
+      this.showTooltip();
+    }
+  }
+
+  protected onFocusOut() {
+    this.hideTooltip();
+  }
 
   protected readonly resolvedDescribedByIds = computed(() => {
     if (this.addTooltipToDescribedby()) {

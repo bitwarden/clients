@@ -1,6 +1,8 @@
 import { addons } from "storybook/manager-api";
 import { create } from "storybook/theming";
 
+import "../libs/storybook/src/addons/feature-flags/panel";
+
 const lightTheme = create({
   base: "light",
   //logo and Title

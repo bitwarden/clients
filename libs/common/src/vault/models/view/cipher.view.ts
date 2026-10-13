@@ -1,14 +1,15 @@
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { ItemView } from "@bitwarden/common/vault/models/view/item.view";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import {
   CipherCreateRequest,
   CipherEditRequest,
+  CipherPartialEditRequest,
   CipherViewType,
   CipherView as SdkCipherView,
 } from "@bitwarden/sdk-internal";
 
 import { View } from "../../../models/view/view";
+import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
 import { InitializerMetadata } from "../../../platform/interfaces/initializer-metadata.interface";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { DeepJsonify } from "../../../types/deep-jsonify";
@@ -19,10 +20,14 @@ import { LocalData, toSdkLocalData, fromSdkLocalData } from "../data/local.data"
 import { Cipher } from "../domain/cipher";
 
 import { AttachmentView } from "./attachment.view";
+import { BankAccountView } from "./bank-account.view";
 import { CardView } from "./card.view";
+import { DriversLicenseView } from "./drivers-license.view";
 import { FieldView } from "./field.view";
 import { IdentityView } from "./identity.view";
+import { ItemView } from "./item.view";
 import { LoginView } from "./login.view";
+import { PassportView } from "./passport.view";
 import { PasswordHistoryView } from "./password-history.view";
 import { SecureNoteView } from "./secure-note.view";
 import { SshKeyView } from "./ssh-key.view";
@@ -47,6 +52,9 @@ export class CipherView implements View, InitializerMetadata {
   card = new CardView();
   secureNote = new SecureNoteView();
   sshKey = new SshKeyView();
+  bankAccount = new BankAccountView();
+  driversLicense = new DriversLicenseView();
+  passport = new PassportView();
   attachments: AttachmentView[] = [];
   fields: FieldView[] = [];
   passwordHistory: PasswordHistoryView[] = [];
@@ -56,9 +64,7 @@ export class CipherView implements View, InitializerMetadata {
   deletedDate?: Date;
   archivedDate?: Date;
   reprompt: CipherRepromptType = CipherRepromptType.None;
-  // We need a copy of the encrypted key so we can pass it to
-  // the SdkCipherView during encryption
-  key?: EncString;
+  key?: SymmetricCryptoKey;
 
   /**
    * Flag to indicate if the cipher decryption failed.
@@ -88,7 +94,6 @@ export class CipherView implements View, InitializerMetadata {
     this.archivedDate = c.archivedDate;
     // Old locally stored ciphers might have reprompt == null. If so set it to None.
     this.reprompt = c.reprompt ?? CipherRepromptType.None;
-    this.key = c.key;
   }
 
   private get item(): ItemView | undefined {
@@ -103,6 +108,12 @@ export class CipherView implements View, InitializerMetadata {
         return this.identity;
       case CipherType.SshKey:
         return this.sshKey;
+      case CipherType.BankAccount:
+        return this.bankAccount;
+      case CipherType.DriversLicense:
+        return this.driversLicense;
+      case CipherType.Passport:
+        return this.passport;
       default:
         break;
     }
@@ -134,13 +145,13 @@ export class CipherView implements View, InitializerMetadata {
 
   get hasOldAttachments(): boolean {
     if (this.hasAttachments) {
-      for (let i = 0; i < this.attachments.length; i++) {
-        if (this.attachments[i].key == null && this.attachments[i].encryptedKey == null) {
-          return true;
-        }
-      }
+      return this.attachments.some((a) => a.isLegacyAttachment());
     }
     return false;
+  }
+
+  get isUserOwnedCipher(): boolean {
+    return this.organizationId == null;
   }
 
   get hasFields(): boolean {
@@ -237,17 +248,7 @@ export class CipherView implements View, InitializerMetadata {
     view.passwordHistory =
       obj.passwordHistory?.map((ph: any) => PasswordHistoryView.fromJSON(ph)) ?? [];
 
-    if (obj.key != null) {
-      let key: EncString | undefined;
-      if (typeof obj.key === "string") {
-        // If the key is a string, we need to parse it as EncString
-        key = EncString.fromJSON(obj.key);
-      } else if ((obj.key as any) instanceof EncString) {
-        // If the key is already an EncString instance, we can use it directly
-        key = obj.key;
-      }
-      view.key = key;
-    }
+    view.key = obj.key != null ? SymmetricCryptoKey.fromJSON(obj.key) : undefined;
 
     switch (obj.type) {
       case CipherType.Card:
@@ -265,6 +266,15 @@ export class CipherView implements View, InitializerMetadata {
       case CipherType.SshKey:
         view.sshKey = SshKeyView.fromJSON(obj.sshKey);
         break;
+      case CipherType.BankAccount:
+        view.bankAccount = BankAccountView.fromJSON(obj.bankAccount);
+        break;
+      case CipherType.DriversLicense:
+        view.driversLicense = DriversLicenseView.fromJSON(obj.driversLicense);
+        break;
+      case CipherType.Passport:
+        view.passport = PassportView.fromJSON(obj.passport);
+        break;
       default:
         break;
     }
@@ -278,6 +288,17 @@ export class CipherView implements View, InitializerMetadata {
   static fromSdkCipherView(obj: SdkCipherView): CipherView | undefined {
     if (obj == null) {
       return undefined;
+    }
+
+    const attachments = obj.attachments?.map((a) => AttachmentView.fromSdkAttachmentView(a)!) ?? [];
+
+    if (obj.attachmentDecryptionFailures?.length) {
+      obj.attachmentDecryptionFailures.forEach((attachment) => {
+        const attachmentView = AttachmentView.fromSdkAttachmentView(attachment, true);
+        if (attachmentView) {
+          attachments.push(attachmentView);
+        }
+      });
     }
 
     const cipherView = new CipherView();
@@ -295,8 +316,7 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.edit = obj.edit;
     cipherView.viewPassword = obj.viewPassword;
     cipherView.localData = fromSdkLocalData(obj.localData);
-    cipherView.attachments =
-      obj.attachments?.map((a) => AttachmentView.fromSdkAttachmentView(a)!) ?? [];
+    cipherView.attachments = attachments;
     cipherView.fields = obj.fields?.map((f) => FieldView.fromSdkFieldView(f)!) ?? [];
     cipherView.passwordHistory =
       obj.passwordHistory?.map((ph) => PasswordHistoryView.fromSdkPasswordHistoryView(ph)!) ?? [];
@@ -306,7 +326,7 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.deletedDate = obj.deletedDate == null ? undefined : new Date(obj.deletedDate);
     cipherView.archivedDate = obj.archivedDate == null ? undefined : new Date(obj.archivedDate);
     cipherView.reprompt = obj.reprompt ?? CipherRepromptType.None;
-    cipherView.key = obj.key ? EncString.fromJSON(obj.key) : undefined;
+    cipherView.key = obj.key ? SymmetricCryptoKey.fromString(obj.key) : undefined;
 
     switch (obj.type) {
       case CipherType.Card:
@@ -329,6 +349,21 @@ export class CipherView implements View, InitializerMetadata {
         cipherView.sshKey = obj.sshKey
           ? SshKeyView.fromSdkSshKeyView(obj.sshKey)
           : new SshKeyView();
+        break;
+      case CipherType.BankAccount:
+        cipherView.bankAccount = obj.bankAccount
+          ? BankAccountView.fromSdkBankAccountView(obj.bankAccount)
+          : new BankAccountView();
+        break;
+      case CipherType.DriversLicense:
+        cipherView.driversLicense = obj.driversLicense
+          ? DriversLicenseView.fromSdkDriversLicenseView(obj.driversLicense)
+          : new DriversLicenseView();
+        break;
+      case CipherType.Passport:
+        cipherView.passport = obj.passport
+          ? PassportView.fromSdkPassportView(obj.passport)
+          : new PassportView();
         break;
       default:
         break;
@@ -353,6 +388,7 @@ export class CipherView implements View, InitializerMetadata {
       reprompt: this.reprompt ?? CipherRepromptType.None,
       fields: this.fields?.map((f) => f.toSdkFieldView()),
       type: this.getSdkCipherViewType(),
+      archivedDate: this.archivedDate?.toISOString(),
     };
 
     return sdkCipherCreateRequest;
@@ -384,6 +420,21 @@ export class CipherView implements View, InitializerMetadata {
   }
 
   /**
+   * Maps CipherView to an SDK CipherPartialEditRequest
+   *
+   * @returns {CipherPartialEditRequest} The SDK cipher edit request object
+   */
+  toSdkPartialUpdateCipherRequest(): CipherPartialEditRequest {
+    const sdkCipherPartialEditRequest: CipherPartialEditRequest = {
+      id: asUuid(this.id),
+      folderId: this.folderId ? asUuid(this.folderId) : undefined,
+      favorite: this.favorite ?? false,
+    };
+
+    return sdkCipherPartialEditRequest;
+  }
+
+  /**
    * Returns the SDK CipherViewType object for the cipher.
    *
    * @returns {CipherViewType} The SDK CipherViewType for the cipher.t
@@ -405,6 +456,15 @@ export class CipherView implements View, InitializerMetadata {
         break;
       case CipherType.SshKey:
         viewType = { sshKey: this.sshKey?.toSdkSshKeyView() };
+        break;
+      case CipherType.BankAccount:
+        viewType = { bankAccount: this.bankAccount?.toSdkBankAccountView() };
+        break;
+      case CipherType.DriversLicense:
+        viewType = { driversLicense: this.driversLicense?.toSdkDriversLicenseView() };
+        break;
+      case CipherType.Passport:
+        viewType = { passport: this.passport?.toSdkPassportView() };
         break;
       default:
         viewType = {
@@ -454,6 +514,9 @@ export class CipherView implements View, InitializerMetadata {
       identity: undefined,
       secureNote: undefined,
       sshKey: undefined,
+      bankAccount: undefined,
+      driversLicense: undefined,
+      passport: undefined,
     };
 
     switch (this.type) {
@@ -471,6 +534,15 @@ export class CipherView implements View, InitializerMetadata {
         break;
       case CipherType.SshKey:
         sdkCipherView.sshKey = this.sshKey?.toSdkSshKeyView();
+        break;
+      case CipherType.BankAccount:
+        sdkCipherView.bankAccount = this.bankAccount?.toSdkBankAccountView();
+        break;
+      case CipherType.DriversLicense:
+        sdkCipherView.driversLicense = this.driversLicense?.toSdkDriversLicenseView();
+        break;
+      case CipherType.Passport:
+        sdkCipherView.passport = this.passport?.toSdkPassportView();
         break;
       default:
         break;

@@ -8,7 +8,7 @@ import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/m
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { isFixedSeatPlan } from "../../../admin-console/organizations/members/components/member-dialog/validators/org-seat-limit-reached.validator";
+import { isFixedSeatPlan } from "../../../admin-console/organizations/members/components/member-dialog/validators/input-email-limit.validator";
 import {
   ChangePlanDialogResultType,
   openChangePlanDialog,
@@ -16,11 +16,16 @@ import {
 
 export interface SeatLimitResult {
   canAddUsers: boolean;
-  reason?: "reseller-limit" | "fixed-seat-limit" | "no-billing-permission";
+  reason?: "provider-limit" | "fixed-seat-limit";
   shouldShowUpgradeDialog?: boolean;
 }
 
-@Injectable()
+export type SeatLimitAction = "invite" | "restore";
+
+// Provided in root for the same reason as MemberActionsService: EditMemberDialogComponent injects
+// it, and dialogs resolve against the root environment injector. This service is stateless, so a
+// single instance is safe.
+@Injectable({ providedIn: "root" })
 export class BillingConstraintService {
   constructor(
     private i18nService: I18nService,
@@ -43,10 +48,10 @@ export class BillingConstraintService {
       return { canAddUsers: true };
     }
 
-    if (organization.hasReseller) {
+    if (organization.hasReseller || organization.hasBillableProvider) {
       return {
         canAddUsers: false,
-        reason: "reseller-limit",
+        reason: "provider-limit",
       };
     }
 
@@ -61,29 +66,44 @@ export class BillingConstraintService {
     return { canAddUsers: true };
   }
 
-  async seatLimitReached(result: SeatLimitResult, organization: Organization): Promise<boolean> {
+  async seatLimitReached(
+    result: SeatLimitResult,
+    organization: Organization,
+    action: SeatLimitAction = "invite",
+  ): Promise<boolean> {
     if (result.canAddUsers) {
       return false;
     }
 
     switch (result.reason) {
-      case "reseller-limit":
+      case "provider-limit":
         this.toastService.showToast({
           variant: "error",
-          title: this.i18nService.t("seatLimitReached"),
-          message: this.i18nService.t("contactYourProvider"),
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("seatLimitReachedContactProvider", organization.seats),
         });
         return true;
 
       case "fixed-seat-limit":
+        // Admins who can manage billing self-serve out of the limit through the change-plan dialog,
+        // for both invite and restore.
         if (result.shouldShowUpgradeDialog) {
           const dialogResult = await this.showChangePlanDialog(organization);
           // If the plan was successfully changed, the seat limit is no longer blocking
           return dialogResult !== ChangePlanDialogResultType.Submitted;
-        } else {
-          await this.showSeatLimitReachedDialog(organization);
+        }
+
+        if (action === "invite") {
+          this.toastService.showToast({
+            variant: "error",
+            title: this.i18nService.t("errorOccurred"),
+            message: this.i18nService.t("seatLimitReachedContactOwner", organization.seats),
+          });
           return true;
         }
+
+        await this.showSeatLimitReachedRestoreDialog(organization);
+        return true;
 
       default:
         return true;
@@ -108,12 +128,12 @@ export class BillingConstraintService {
     return result;
   }
 
-  private async showSeatLimitReachedDialog(organization: Organization): Promise<void> {
+  private async showSeatLimitReachedRestoreDialog(organization: Organization): Promise<void> {
     const dialogContent = this.getSeatLimitReachedDialogContent(organization);
     const acceptButtonText = this.getSeatLimitReachedDialogAcceptButtonText(organization);
 
     const orgUpgradeSimpleDialogOpts = {
-      title: this.i18nService.t("upgradeOrganization"),
+      title: this.i18nService.t("cannotRestoreAccessError"),
       content: dialogContent,
       type: "primary" as const,
       acceptButtonText,
@@ -178,7 +198,7 @@ export class BillingConstraintService {
       default:
         throw new Error(`Unsupported product type: ${organization.productTierType}`);
     }
-    return `${product}InvLimitReached${manageBillingText}`;
+    return `${product}RestoreLimitReached${manageBillingText}`;
   }
 
   async navigateToPaymentMethod(organization: Organization): Promise<void> {

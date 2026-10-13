@@ -15,7 +15,6 @@ import { TooltipDirective, TOOLTIP_DELAY_MS } from "./tooltip.directive";
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   imports: [TooltipDirective],
   template: ` <button [bitTooltip]="tooltipText" type="button">Hover or focus me</button> `,
 })
@@ -103,14 +102,50 @@ describe("TooltipDirective (visibility only)", () => {
     expect(isVisible()).toBe(true);
   }));
 
-  it("sets isVisible to true on focus", fakeAsync(() => {
+  it("sets isVisible to true on focus-visible", fakeAsync(() => {
     const button: HTMLButtonElement = fixture.debugElement.query(By.css("button")).nativeElement;
     const directive = getDirective();
 
     const isVisible = (directive as unknown as { isVisible: () => boolean }).isVisible;
 
-    button.dispatchEvent(new Event("focus"));
+    // Mock matches to return true for :focus-visible (simulates keyboard navigation)
+    const originalMatches = button.matches.bind(button);
+    button.matches = jest.fn((selector: string) => {
+      if (selector === ":focus-visible") {
+        return true;
+      }
+      return originalMatches(selector);
+    });
+
+    button.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
     tick(TOOLTIP_DELAY_MS);
     expect(isVisible()).toBe(true);
+  }));
+
+  it("tears down a visible tooltip when suppressed flips to true", fakeAsync(() => {
+    const button: HTMLButtonElement = fixture.debugElement.query(By.css("button")).nativeElement;
+    const directive = getDirective();
+    const isVisible = (directive as unknown as { isVisible: () => boolean }).isVisible;
+
+    button.dispatchEvent(new Event("mouseenter"));
+    tick(TOOLTIP_DELAY_MS);
+    expect(isVisible()).toBe(true);
+
+    directive.suppressed.set(true);
+    fixture.detectChanges();
+    expect(isVisible()).toBe(false);
+  }));
+
+  it("is a no-op on mouseenter while suppressed", fakeAsync(() => {
+    const button: HTMLButtonElement = fixture.debugElement.query(By.css("button")).nativeElement;
+    const directive = getDirective();
+    const isVisible = (directive as unknown as { isVisible: () => boolean }).isVisible;
+
+    directive.suppressed.set(true);
+    fixture.detectChanges();
+
+    button.dispatchEvent(new Event("mouseenter"));
+    tick(TOOLTIP_DELAY_MS);
+    expect(isVisible()).toBe(false);
   }));
 });

@@ -1,4 +1,5 @@
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { expect, waitFor } from "storybook/test";
 
 import { FormFieldModule } from "../form-field";
 
@@ -23,4 +24,7 @@ export const AutofocusField: StoryObj = {
       </bit-form-field>
     `,
   }),
+  play: async ({ canvasElement }) => {
+    await waitFor(() => expect(canvasElement.querySelector("input")).toHaveFocus());
+  },
 };

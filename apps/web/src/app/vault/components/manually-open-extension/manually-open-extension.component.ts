@@ -11,5 +11,5 @@ import { I18nPipe } from "@bitwarden/ui-common";
   imports: [I18nPipe, SvgModule],
 })
 export class ManuallyOpenExtensionComponent {
-  protected BitwardenIcon = BitwardenIcon;
+  protected readonly BitwardenIcon = BitwardenIcon;
 }

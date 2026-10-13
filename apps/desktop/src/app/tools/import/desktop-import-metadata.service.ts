@@ -2,12 +2,10 @@ import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
 import type { chromium_importer } from "@bitwarden/desktop-napi";
 import {
   ImportType,
+  ImportOptionData,
   DefaultImportMetadataService,
   ImportMetadataServiceAbstraction,
   DataLoader,
-  ImporterMetadata,
-  InstructionLink,
-  Instructions,
   Loader,
 } from "@bitwarden/importer-core";
 
@@ -28,16 +26,19 @@ export class DesktopImportMetadataService
   private async parseNativeMetaData(
     raw: Record<string, chromium_importer.NativeImporterMetadata>,
   ): Promise<void> {
-    const entries = Object.entries(raw).map(([id, meta]) => {
-      const loaders = meta.loaders.map(this.mapLoader);
-      const instructions = this.mapInstructions(meta.instructions);
-      const mapped: ImporterMetadata = {
-        type: id as ImportType,
-        loaders,
-        ...(instructions ? { instructions } : {}),
-      };
-      return [id, mapped] as const;
-    });
+    // The native module can return ids that aren't real `ImportType`s (e.g. a generic
+    // "chromiumcsv" entry with no UI-selectable counterpart) — skip those rather than let
+    // an unchecked cast inject a phantom key into `this.importers`.
+    const entries = Object.entries(raw)
+      .filter(([id]) => id in this.importers)
+      .map(([id, meta]) => {
+        const loaders = meta.loaders.map(this.mapLoader);
+        const mapped: ImportOptionData = {
+          ...this.importers[id as ImportType],
+          loaders,
+        };
+        return [id, mapped] as const;
+      });
 
     // Do not overwrite existing importers, just add new ones or update existing ones
     this.importers = {
@@ -54,15 +55,6 @@ export class DesktopImportMetadataService
         return Loader.chromium;
       default:
         throw new Error(`Unknown loader from native module: ${name}`);
-    }
-  }
-
-  private mapInstructions(name: string): InstructionLink | undefined {
-    switch (name) {
-      case "chromium":
-        return Instructions.chromium;
-      default:
-        return undefined;
     }
   }
 }

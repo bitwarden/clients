@@ -52,6 +52,15 @@ export class Rc<T extends Freeable> {
     this.freeIfPossible();
   }
 
+  /**
+   * Whether this Rc has been marked for disposal. Once marked, any
+   * subsequent call to {@link take} will throw. Useful for filtering
+   * out stale references in shared observable pipelines.
+   */
+  get isMarkedForDisposal(): boolean {
+    return this.markedForDisposal;
+  }
+
   private release() {
     this.refCount--;
     this.freeIfPossible();

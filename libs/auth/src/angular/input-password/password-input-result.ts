@@ -1,6 +1,7 @@
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { MasterKey } from "@bitwarden/common/types/key";
-import { KdfConfig } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { KdfConfig } from "@bitwarden/legacy-crypto";
 
 export interface PasswordInputResult {
   currentPassword?: string;
@@ -10,17 +11,18 @@ export interface PasswordInputResult {
   newPasswordHint?: string;
   rotateUserKey?: boolean;
 
-  /** @deprecated This low-level cryptographic state will be removed. It will be replaced by high level calls to masterpassword service, in the consumers of this interface. */
-  currentMasterKey?: MasterKey;
-  /** @deprecated */
-  currentServerMasterKeyHash?: string;
-  /** @deprecated */
-  currentLocalMasterKeyHash?: string;
-
-  /** @deprecated */
+  // ============================================================
+  // PM-42990 — ROLLBACK NOTE
+  // ============================================================
+  // SetInitialPasswordComponent sets newMasterKey and newServerMasterKeyHash.
+  // It sets them only because the set-password endpoint uses the old request shape.
+  //
+  // DELETE: Delete newMasterKey and newServerMasterKeyHash below. Delete the
+  // code in SetInitialPasswordComponent that sets them. Delete the matching
+  // assertions in DefaultSetInitialPasswordService.setInitialPassword(). See
+  // https://github.com/bitwarden/clients/pull/20643 for initial pass at this
+  // refactor.
+  // ============================================================
   newMasterKey?: MasterKey;
-  /** @deprecated */
   newServerMasterKeyHash?: string;
-  /** @deprecated */
-  newLocalMasterKeyHash?: string;
 }

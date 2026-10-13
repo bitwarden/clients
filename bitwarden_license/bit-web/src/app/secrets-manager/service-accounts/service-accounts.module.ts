@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 
-import { BreadcrumbsModule } from "@bitwarden/components";
+import { BreadcrumbsModule, IconModule } from "@bitwarden/components";
 
 import { SecretsManagerSharedModule } from "../shared/sm-shared.module";
 
@@ -21,7 +21,12 @@ import { ServiceAccountsRoutingModule } from "./service-accounts-routing.module"
 import { ServiceAccountsComponent } from "./service-accounts.component";
 
 @NgModule({
-  imports: [SecretsManagerSharedModule, ServiceAccountsRoutingModule, BreadcrumbsModule],
+  imports: [
+    SecretsManagerSharedModule,
+    ServiceAccountsRoutingModule,
+    BreadcrumbsModule,
+    IconModule,
+  ],
   declarations: [
     AccessListComponent,
     AccessTokenComponent,

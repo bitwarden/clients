@@ -15,7 +15,7 @@ The `bit-icon` component renders Bitwarden Web Icons (bwi) using icon font class
 ## Basic Usage
 
 ```html
-<bit-icon name="bwi-lock"></bit-icon>
+<bit-icon name="bwi-lock" />
 ```
 
 ## Icon Names
@@ -29,7 +29,7 @@ By default, icons are decorative and marked with `aria-hidden="true"`. To make a
 provide an `ariaLabel`:
 
 ```html
-<bit-icon name="bwi-lock" [ariaLabel]="'Secure lock'"></bit-icon>
+<bit-icon name="bwi-lock" [ariaLabel]="'Secure lock'" />
 ```
 
 ## Styling
@@ -38,7 +38,7 @@ The component renders as an inline element. Apply standard CSS classes or styles
 appearance:
 
 ```html
-<bit-icon name="bwi-lock" class="tw-text-primary-500 tw-text-2xl"></bit-icon>
+<bit-icon name="bwi-lock" class="tw-text-primary-500 tw-text-2xl" />
 ```
 
 ## Note on SVG Icons

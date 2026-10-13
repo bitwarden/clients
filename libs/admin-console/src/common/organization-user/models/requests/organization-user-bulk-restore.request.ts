@@ -1,11 +1,11 @@
 import { EncString } from "@bitwarden/sdk-internal";
 
 export class OrganizationUserBulkRestoreRequest {
-  userIds: string[];
+  ids: string[];
   defaultUserCollectionName: EncString | undefined;
 
-  constructor(userIds: string[], defaultUserCollectionName?: EncString) {
-    this.userIds = userIds;
+  constructor(ids: string[], defaultUserCollectionName?: EncString) {
+    this.ids = ids;
     this.defaultUserCollectionName = defaultUserCollectionName;
   }
 }

@@ -8,8 +8,11 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  resource,
+  signal,
   ViewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, Subject, switchMap, takeUntil } from "rxjs";
@@ -20,9 +23,9 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import {
   getOrganizationById,
   OrganizationService,
+  singleOrganizationPolicyApplies$,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/models/request/organization-upgrade.request";
@@ -32,6 +35,7 @@ import { PlanInterval, PlanType, ProductTierType } from "@bitwarden/common/billi
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -44,13 +48,19 @@ import {
   DialogConfig,
   DialogRef,
   DialogService,
+  SpinnerComponent,
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { CartSummaryComponent } from "@bitwarden/pricing";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import {
   OrganizationSubscriptionPlan,
+  OrganizationPlanChangePreviewRequest,
   SubscriberBillingClient,
-  TaxClient,
+  PreviewInvoiceClient,
 } from "@bitwarden/web-vault/app/billing/clients";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import {
@@ -66,6 +76,7 @@ import {
 import { BitwardenSubscriber } from "@bitwarden/web-vault/app/billing/types";
 
 import { BillingNotificationService } from "../services/billing-notification.service";
+import { InvoicePreviewService } from "../services/invoice-preview.service";
 import { BillingSharedModule } from "../shared/billing-shared.module";
 
 type ChangePlanDialogParams = {
@@ -116,8 +127,10 @@ interface OnSuccessArgs {
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
     CardComponent,
+    CartSummaryComponent,
+    SpinnerComponent,
+    Vfo1I18nPipe,
   ],
-  providers: [SubscriberBillingClient, TaxClient],
 })
 export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -150,6 +163,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   protected estimatedTax: number = 0;
+  protected estimatedTotal?: number;
   private _productTier = ProductTierType.Free;
   private _familyPlan: PlanType;
 
@@ -179,7 +193,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onTrialBillingSuccess = new EventEmitter();
 
-  protected discountPercentageFromSub: number;
   protected loading = true;
   protected planCards: PlanCard[];
   protected ResultType = ChangePlanDialogResultType;
@@ -231,6 +244,106 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
+  /**
+   * Signal indicating whether the plan change preview cart feature is enabled.
+   */
+  protected readonly previewCartEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM36631_PreviewDrivenCart),
+    { initialValue: false },
+  );
+
+  /**
+   * Signal holding the current plan change request.
+   */
+  private readonly planChangeRequest = signal<OrganizationPlanChangePreviewRequest | undefined>(
+    undefined,
+    {
+      equal: (a, b) =>
+        a?.tier === b?.tier &&
+        a?.cadence === b?.cadence &&
+        a?.billingAddress.country === b?.billingAddress.country &&
+        a?.billingAddress.postalCode === b?.billingAddress.postalCode &&
+        a?.billingAddress.taxId?.code === b?.billingAddress.taxId?.code &&
+        a?.billingAddress.taxId?.value === b?.billingAddress.taxId?.value,
+    },
+  );
+
+  protected planChangeCart = resource({
+    params: () => (this.previewCartEnabled() ? this.planChangeRequest() : undefined),
+    loader: async ({ params }) => {
+      try {
+        return await this.invoicePreviewService.previewPlanChangeCart(this.organizationId, params);
+      } catch (error) {
+        this.billingNotificationService.showError(
+          this.i18nService.t(this.messageForPreviewError(error)),
+        );
+        throw error;
+      }
+    },
+  });
+
+  // Message shown in the error callout, from the resource's returned error object.
+  protected get previewErrorMessageKey(): string {
+    return this.messageForPreviewError(this.planChangeCart.error());
+  }
+
+  // A 400 means the request was rejected on user input — for this request that's the billing
+  // address (plan/cadence are fixed enums). Anything else is a generic preview failure.
+  private messageForPreviewError(error: unknown): string {
+    // The resource wraps a non-Error rejection (ErrorResponse isn't an Error) and puts the
+    // original on `cause`, so unwrap that before inspecting the status.
+    const response =
+      error instanceof ErrorResponse ? error : (error as { cause?: unknown } | undefined)?.cause;
+    return response instanceof ErrorResponse && response.statusCode === 400
+      ? "billingPreviewInvalidAddressError"
+      : "invoicePreviewErrorMessage";
+  }
+
+  protected get showPreviewCart(): boolean {
+    return this.previewCartEnabled() && !this.isSubscriptionCanceled;
+  }
+
+  // With the preview cart on, block submission until the cost preview has loaded so a plan change
+  // can't be committed without its cost shown.
+  protected get isSubmitDisabled(): boolean {
+    return this.showPreviewCart && !this.planChangeCart.hasValue();
+  }
+
+  protected get trialLengthDays(): number {
+    return this.selectedPlan?.trialPeriodDays ?? 0;
+  }
+
+  // A free org upgrading to a paid plan that carries a trial: the total is charged when the trial ends.
+  protected get isFreeUpgradeWithTrial(): boolean {
+    return this.currentPlan?.productTier === ProductTierType.Free && this.trialLengthDays > 0;
+  }
+
+  protected get isTrialing(): boolean {
+    return this.sub?.subscription?.status === "trialing";
+  }
+
+  // When the current trial ends and the total is charged.
+  protected get trialEndDate(): string | undefined {
+    return this.sub?.subscription?.trialEndDate;
+  }
+
+  // Whole days left in the current trial, or 0 when the subscription is not trialing.
+  protected get remainingTrialDays(): number {
+    if (!this.isTrialing || !this.trialEndDate) {
+      return 0;
+    }
+    const msPerDay = 1000 * 60 * 60 * 24;
+    const remaining = new Date(this.trialEndDate).getTime() - Date.now();
+    return Math.max(0, Math.ceil(remaining / msPerDay));
+  }
+
+  // The chrome i18n format has no plural support, so pick the singular key on the trial's last day.
+  protected get trialRemainingMessageKey(): string {
+    return this.remainingTrialDays === 1
+      ? "planChangeTrialRemaining"
+      : "planChangeTrialRemainingPlural";
+  }
+
   constructor(
     @Inject(DIALOG_DATA) private dialogParams: ChangePlanDialogParams,
     private dialogRef: DialogRef<ChangePlanDialogResultType>,
@@ -238,6 +351,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private i18nService: I18nService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private router: Router,
     private syncService: SyncService,
     private policyService: PolicyService,
@@ -248,8 +362,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private billingNotificationService: BillingNotificationService,
     private subscriberBillingClient: SubscriberBillingClient,
-    private taxClient: TaxClient,
+    private previewInvoiceClient: PreviewInvoiceClient,
     private organizationWarningsService: OrganizationWarningsService,
+    private vfo1TerminologyService: Vfo1TerminologyService,
+    private invoicePreviewService: InvoicePreviewService,
     private configService: ConfigService,
   ) {}
 
@@ -300,12 +416,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       }
     }
 
-    const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM26462_Milestone_3,
-    );
-    this._familyPlan = milestone3FeatureEnabled
-      ? PlanType.FamiliesAnnually
-      : PlanType.FamiliesAnnually2025;
+    this._familyPlan = PlanType.FamiliesAnnually;
     if (this.currentPlan && this.currentPlan.productTier !== ProductTierType.Enterprise) {
       const upgradedPlan = this.passwordManagerPlans.find((plan) =>
         this.currentPlan.productTier === ProductTierType.Free
@@ -321,9 +432,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.accountService.activeAccount$
       .pipe(
         getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
-        ),
+        switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
         takeUntil(this.destroy$),
       )
       .subscribe((policyAppliesToActiveUser) => {
@@ -344,13 +453,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         selected: false,
       },
     ];
-    this.discountPercentageFromSub = this.isSecretsManagerTrial()
-      ? 0
-      : (this.sub?.customerDiscount?.percentOff ?? 0);
 
     await this.setInitialPlanSelection();
     if (!this.isSubscriptionCanceled) {
-      await this.refreshSalesTax();
+      await this.refreshCostSummary();
     }
 
     combineLatest([
@@ -360,7 +466,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     ])
       .pipe(
         debounceTime(1000),
-        switchMap(async () => await this.refreshSalesTax()),
+        switchMap(async () => await this.refreshCostSummary()),
         takeUntil(this.destroy$),
       )
       .subscribe();
@@ -377,10 +483,12 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       }
     }
 
-    return this.i18nService.t(
-      "upgradeFreeOrganization",
-      this.resolvePlanName(this.dialogParams.productTierType),
-    );
+    return this.vfo1TerminologyService.enabled()
+      ? this.i18nService.t("upgradeYourPlan")
+      : this.i18nService.t(
+          "upgradeFreeOrganization",
+          this.resolvePlanName(this.dialogParams.productTierType),
+        );
   }
 
   async setInitialPlanSelection() {
@@ -397,6 +505,12 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   isSecretsManagerTrial(): boolean {
+    // A schedule-derived discount (e.g. a deferred price-migration coupon) is not an SM trial,
+    // even when it applies to a subscription product.
+    if (this.sub?.customerDiscount?.isFromSchedule) {
+      return false;
+    }
+
     return (
       this.sub?.subscription?.items?.some((item) =>
         this.sub?.customerDiscount?.appliesTo?.includes(item.productId),
@@ -520,12 +634,16 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return;
     }
     this.selectedPlan = plan;
+    // Clear the previous plan's server total so the summary falls back to the client
+    // estimate for the newly selected plan until the refresh resolves.
+    this.estimatedTotal = undefined;
     this.formGroup.patchValue({ productTier: plan.productTier });
 
     try {
-      await this.refreshSalesTax();
+      await this.refreshCostSummary();
     } catch {
       this.estimatedTax = 0;
+      this.estimatedTotal = undefined;
     }
   }
 
@@ -752,7 +870,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     }
 
     const baseServiceAccount = this.currentPlan.SecretsManager?.baseServiceAccount || 0;
-    const usedServiceAccounts = this.sub?.smServiceAccounts || 0;
+    const usedServiceAccounts =
+      (this.sub?.smServiceAccounts || 0) - (this.sub?.smServiceAccountsGrace || 0);
 
     const additionalServiceAccounts = baseServiceAccount - usedServiceAccounts;
 
@@ -843,7 +962,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.onSuccess.emit({ organizationId: organizationId });
     // TODO: No one actually listening to this message?
     this.messagingService.send("organizationCreated", { organizationId });
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   private async restartSubscription() {
@@ -901,7 +1020,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
           .orgKeys$(userId)
           .pipe(map((orgKeys) => orgKeys?.[this.organizationId as OrganizationId] ?? null)),
       );
-      const orgKeys = await this.keyService.makeKeyPair(orgShareKey);
+      const orgKeys = await this.legacyCompatKeyService.makeKeyPair(orgShareKey);
       request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
     }
 
@@ -984,10 +1103,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.totalOpened = !this.totalOpened;
   }
 
-  calculateTotalAppliedDiscount(total: number) {
-    return total * (this.discountPercentageFromSub / 100);
-  }
-
   resolvePlanName(productTier: ProductTierType) {
     switch (productTier) {
       case ProductTierType.Enterprise:
@@ -1017,12 +1132,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
       setTimeout(() => {
         const card = cardElements[newIndex];
-        if (
-          !(
-            card.classList.contains("tw-bg-secondary-100") &&
-            card.classList.contains("tw-text-muted")
-          )
-        ) {
+        if (!(
+          card.classList.contains("tw-bg-secondary-100") && card.classList.contains("tw-text-muted")
+        )) {
           card?.focus();
         }
       }, 0);
@@ -1043,38 +1155,88 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     return index;
   }
 
+  /**
+   * Refreshes the estimated sales tax and total for the current plan change.
+   */
+  // Routes cost-summary refreshes to the preview-driven cart or the legacy tax summary by flag.
+  private async refreshCostSummary(): Promise<void> {
+    if (this.showPreviewCart) {
+      this.refreshPlanChangePreview();
+    } else {
+      await this.refreshSalesTax();
+    }
+  }
+
+  private refreshPlanChangePreview(): void {
+    this.planChangeRequest.set(this.buildPlanChangePreviewRequest());
+  }
+
+  /**
+   * Builds the request object for previewing an organization plan change.
+   * @returns The request object for previewing an organization plan change, or undefined if no valid billing address is available.
+   */
+  private buildPlanChangePreviewRequest(): OrganizationPlanChangePreviewRequest | undefined {
+    const billingAddress = this.billingFormGroup.controls.billingAddress.valid
+      ? getBillingAddressFromForm(this.billingFormGroup.controls.billingAddress)
+      : this.billingAddress;
+
+    if (billingAddress == null) {
+      return undefined;
+    }
+
+    const plan = this.getPlanFromLegacyEnum(this.selectedPlan.type);
+    if (plan == null) {
+      return undefined;
+    }
+
+    return {
+      tier: plan.tier,
+      cadence: plan.cadence,
+      billingAddress: {
+        country: billingAddress.country,
+        postalCode: billingAddress.postalCode,
+        taxId: billingAddress.taxId,
+      },
+    };
+  }
+
   private async refreshSalesTax(): Promise<void> {
     if (this.billingFormGroup.controls.billingAddress.invalid && !this.billingAddress) {
       return;
     }
 
-    const getPlanFromLegacyEnum = (planType: PlanType): OrganizationSubscriptionPlan => {
-      switch (planType) {
-        case PlanType.FamiliesAnnually:
-        case PlanType.FamiliesAnnually2025:
-          return { tier: "families", cadence: "annually" };
-        case PlanType.TeamsMonthly:
-          return { tier: "teams", cadence: "monthly" };
-        case PlanType.TeamsAnnually:
-          return { tier: "teams", cadence: "annually" };
-        case PlanType.EnterpriseMonthly:
-          return { tier: "enterprise", cadence: "monthly" };
-        case PlanType.EnterpriseAnnually:
-          return { tier: "enterprise", cadence: "annually" };
-      }
-    };
-
     const billingAddress = this.billingFormGroup.controls.billingAddress.valid
       ? getBillingAddressFromForm(this.billingFormGroup.controls.billingAddress)
       : this.billingAddress;
 
-    const taxAmounts = await this.taxClient.previewTaxForOrganizationSubscriptionPlanChange(
-      this.organizationId,
-      getPlanFromLegacyEnum(this.selectedPlan.type),
-      billingAddress,
-    );
+    const taxAmounts =
+      await this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPlanChange(
+        this.organizationId,
+        this.getPlanFromLegacyEnum(this.selectedPlan.type),
+        billingAddress,
+      );
 
     this.estimatedTax = taxAmounts.tax;
+    this.estimatedTotal = taxAmounts.total;
+  }
+
+  /**
+   * Converts a legacy PlanType enum value to an OrganizationSubscriptionPlan object.
+   */
+  private getPlanFromLegacyEnum(planType: PlanType): OrganizationSubscriptionPlan {
+    switch (planType) {
+      case PlanType.FamiliesAnnually:
+      case PlanType.FamiliesAnnually2025:
+        return { tier: "families", cadence: "annually" };
+      case PlanType.TeamsMonthly:
+        return { tier: "teams", cadence: "monthly" };
+      case PlanType.TeamsAnnually:
+        return { tier: "teams", cadence: "annually" };
+      case PlanType.EnterpriseMonthly:
+        return { tier: "enterprise", cadence: "monthly" };
+      case PlanType.EnterpriseAnnually:
+        return { tier: "enterprise", cadence: "annually" };
+    }
   }
 
   protected canUpdatePaymentInformation(): boolean {

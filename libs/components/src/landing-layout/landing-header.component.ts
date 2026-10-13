@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
-import { BitwardenLogo } from "@bitwarden/assets/svg";
+import { BitwardenLogo, BitwardenLogoBeta } from "@bitwarden/assets/svg";
+import { flagEnabled } from "@bitwarden/common/platform/misc/flags";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-import { SharedModule } from "../shared";
 import { SvgModule } from "../svg";
 
 /**
@@ -34,9 +35,9 @@ import { SvgModule } from "../svg";
   selector: "bit-landing-header",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./landing-header.component.html",
-  imports: [RouterModule, SvgModule, SharedModule],
+  imports: [I18nPipe, RouterModule, SvgModule],
 })
 export class LandingHeaderComponent {
   readonly hideLogo = input<boolean>(false);
-  protected readonly logo = BitwardenLogo;
+  protected readonly logo = flagEnabled("prereleaseBuild") ? BitwardenLogoBeta : BitwardenLogo;
 }

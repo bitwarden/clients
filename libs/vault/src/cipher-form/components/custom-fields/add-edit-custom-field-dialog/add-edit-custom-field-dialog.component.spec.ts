@@ -73,8 +73,14 @@ describe("AddEditCustomFieldDialogComponent", () => {
     expect(removeField).toHaveBeenCalledWith(2);
   });
 
-  it('filters out "Linked" field type for SecureNote cipher type', () => {
-    dialogData.cipherType = CipherType.SecureNote;
+  it.each([
+    ["SecureNote", CipherType.SecureNote],
+    ["SshKey", CipherType.SshKey],
+    ["BankAccount", CipherType.BankAccount],
+    ["DriversLicense", CipherType.DriversLicense],
+    ["Passport", CipherType.Passport],
+  ])('filters out "Linked" field type for %s cipher type', (_, cipherType) => {
+    dialogData.cipherType = cipherType;
 
     fixture = TestBed.createComponent(AddEditCustomFieldDialogComponent);
     component = fixture.componentInstance;

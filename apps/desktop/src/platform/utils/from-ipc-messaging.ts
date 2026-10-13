@@ -12,6 +12,6 @@ import { tagAsExternal } from "@bitwarden/common/platform/messaging/internal";
 export const fromIpcMessaging = () => {
   return fromEventPattern<Message<Record<string, unknown>>>(
     (handler) => ipc.platform.onMessage.addListener(handler),
-    (handler) => ipc.platform.onMessage.removeListener(handler),
+    (_handler, cleanup) => cleanup(),
   ).pipe(tagAsExternal(), share());
 };

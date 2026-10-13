@@ -1,69 +1,76 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { KeyValue } from "@angular/common";
-import { Component, Input, OnInit, OnDestroy } from "@angular/core";
-import { FormControl, FormGroup } from "@angular/forms";
-import { Subject, takeUntil } from "rxjs";
+import { AsyncPipe } from "@angular/common";
+import { Component, ChangeDetectionStrategy, computed, input } from "@angular/core";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import { map, startWith, switchMap } from "rxjs";
 
-import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { CheckboxModule, FormFieldModule } from "@bitwarden/components";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+/**
+ * Maps each collection-management form-control name to its VFO1 (shared folder terminology)
+ * i18n key. The control names themselves must not change - they are bound to
+ * `PermissionsApi` fields - only the label rendered for each checkbox is flagged.
+ */
+const VFO1_LABEL_KEYS: Readonly<Record<string, string>> = Object.freeze({
+  manageAllCollections: "manageAllSharedFolders",
+  createNewCollections: "createNewSharedFolders",
+  editAnyCollection: "editAnySharedFolder",
+  deleteAnyCollection: "deleteAnySharedFolder",
+});
+
 @Component({
   selector: "app-nested-checkbox",
   templateUrl: "nested-checkbox.component.html",
-  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [AsyncPipe, ReactiveFormsModule, CheckboxModule, FormFieldModule, Vfo1I18nPipe],
 })
-export class NestedCheckboxComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class NestedCheckboxComponent {
+  readonly parentId = input.required<string>();
+  readonly checkboxes = input.required<FormGroup<Record<string, FormControl<boolean>>>>();
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() parentId: string;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() checkboxes: FormGroup<Record<string, FormControl<boolean>>>;
-
-  get parentIndeterminate() {
-    return (
-      this.children.some(([key, control]) => control.value == true) &&
-      !this.children.every(([key, control]) => control.value == true)
-    );
+  /**
+   * Returns the VFO1 (shared folder) i18n key for a given control name, falling back to the
+   * control name itself when there is no mapping (keeps this component generic).
+   */
+  protected vfo1LabelKey(controlName: string): string {
+    return VFO1_LABEL_KEYS[controlName] ?? controlName;
   }
 
-  ngOnInit(): void {
-    this.checkboxes.controls[this.parentId].valueChanges
-      .pipe(takeUntil(this.destroy$))
+  protected readonly children = computed(() =>
+    Object.entries(this.checkboxes().controls).filter(([key]) => key !== this.parentId()),
+  );
+
+  protected readonly parentIndeterminate$ = toObservable(this.checkboxes).pipe(
+    switchMap((checkboxes) =>
+      checkboxes.valueChanges.pipe(
+        startWith(checkboxes.value),
+        map((values) => {
+          const childValues = Object.entries(values)
+            .filter(([key]) => key !== this.parentId())
+            .map(([, v]) => v as boolean);
+          return childValues.some(Boolean) && !childValues.every(Boolean);
+        }),
+      ),
+    ),
+  );
+
+  constructor() {
+    toObservable(this.checkboxes)
+      .pipe(
+        switchMap((checkboxes) => checkboxes.controls[this.parentId()].valueChanges),
+        takeUntilDestroyed(),
+      )
       .subscribe((value) => {
-        Object.values(this.checkboxes.controls).forEach((control) =>
+        Object.values(this.checkboxes().controls).forEach((control) =>
           control.setValue(value, { emitEvent: false }),
         );
       });
   }
 
-  private get parentCheckbox() {
-    return this.checkboxes.controls[this.parentId];
-  }
-
-  get children() {
-    return Object.entries(this.checkboxes.controls).filter(([key, value]) => key != this.parentId);
-  }
-
   protected onChildCheck() {
-    const parentChecked = this.children.every(([key, value]) => value.value == true);
-    this.parentCheckbox.setValue(parentChecked, { emitEvent: false });
-  }
-
-  protected key(index: number, item: KeyValue<string, FormControl<boolean>>) {
-    return item.key;
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  pascalize(s: string) {
-    return Utils.camelToPascalCase(s);
+    const parentChecked = this.children().every(([, value]) => value.value === true);
+    this.checkboxes().controls[this.parentId()].setValue(parentChecked, { emitEvent: false });
   }
 }

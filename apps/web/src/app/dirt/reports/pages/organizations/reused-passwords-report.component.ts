@@ -1,26 +1,30 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, takeUntil, tap } from "rxjs";
 
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { ChipSelectComponent, DialogService } from "@bitwarden/components";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import {
+  BerryComponent,
+  ChipFilterComponent,
+  DialogService,
+  BreadcrumbsModule,
+} from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 import {
   CipherFormConfigService,
   PasswordRepromptService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
@@ -44,13 +48,23 @@ import { ReusedPasswordsReportComponent as BaseReusedPasswordsReportComponent } 
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
   ],
-  imports: [SharedModule, HeaderModule, OrganizationBadgeModule, PipesModule, ChipSelectComponent],
+  imports: [
+    SharedModule,
+    HeaderModule,
+    OrganizationBadgeModule,
+    PipesModule,
+    BreadcrumbsModule,
+    ChipFilterComponent,
+    BerryComponent,
+    Vfo1IconPipe,
+  ],
 })
 export class ReusedPasswordsReportComponent
   extends BaseReusedPasswordsReportComponent
   implements OnInit
 {
-  manageableCiphers: Cipher[];
+  private manageableCipherIds = new Set<string>();
+  private sharedCollectionIds = new Set<string>();
 
   constructor(
     cipherService: CipherService,
@@ -58,11 +72,13 @@ export class ReusedPasswordsReportComponent
     private route: ActivatedRoute,
     organizationService: OrganizationService,
     protected accountService: AccountService,
+    protected logService: LogService,
     passwordRepromptService: PasswordRepromptService,
     i18nService: I18nService,
     syncService: SyncService,
     cipherFormConfigService: CipherFormConfigService,
     adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
+    private collectionService: CollectionService,
   ) {
     super(
       cipherService,
@@ -74,32 +90,75 @@ export class ReusedPasswordsReportComponent
       syncService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
+      logService,
     );
   }
 
   async ngOnInit() {
     this.isAdminConsoleActive = true;
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    this.route.parent.parent.params.subscribe(async (params) => {
-      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      this.organization = await firstValueFrom(
-        this.organizationService
-          .organizations$(userId)
-          .pipe(getOrganizationById(params.organizationId)),
-      );
-      this.manageableCiphers = await this.cipherService.getAll(userId);
-      await super.ngOnInit();
-    });
+    this.logService.info("[ReusedPasswordsOrganizationReport] org setup start");
+
+    this.route.parent?.parent?.params
+      .pipe(
+        tap(async (params) => {
+          this.logService.info("[ReusedPasswordsOrganizationReport] route params received");
+
+          try {
+            const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+            this.organization = await firstValueFrom(
+              this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
+            );
+            this.logService.info(
+              `[ReusedPasswordsOrganizationReport] organization context loaded found=${this.organization != null}`,
+            );
+
+            const manageableCiphers = await this.cipherService.getAll(userId);
+            this.manageableCipherIds = new Set(manageableCiphers.map((c) => c.id));
+            this.logService.info(
+              `[ReusedPasswordsOrganizationReport] manageable ciphers loaded count=${this.manageableCipherIds.size}`,
+            );
+
+            const collections = await firstValueFrom(
+              this.collectionService.decryptedCollections$(userId),
+            );
+            this.sharedCollectionIds = new Set(
+              collections
+                .filter((c) => !c.isDefaultCollection && c.organizationId === this.organization?.id)
+                .map((c) => c.id as string),
+            );
+            this.logService.info(
+              `[ReusedPasswordsOrganizationReport] shared collections loaded count=${this.sharedCollectionIds.size}`,
+            );
+
+            await super.ngOnInit();
+            this.logService.info("[ReusedPasswordsOrganizationReport] org setup complete");
+          } catch (e) {
+            this.logService.error("[ReusedPasswordsOrganizationReport] org setup failure", e);
+            throw e;
+          }
+        }),
+        takeUntil(this.destroyed$),
+      )
+      .subscribe();
   }
 
-  getAllCiphers(): Promise<CipherView[]> {
-    return this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
+  async getAllCiphers(): Promise<CipherView[]> {
+    if (this.organization) {
+      return this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
+    }
+    return [];
   }
 
   canManageCipher(c: CipherView): boolean {
-    if (c.collectionIds.length === 0) {
+    if (
+      CipherViewLikeUtils.isUnassigned(c) ||
+      !c.collectionIds?.some((id) => this.sharedCollectionIds.has(id))
+    ) {
+      return false;
+    }
+    if (this.organization?.allowAdminAccessToAllCollectionItems) {
       return true;
     }
-    return this.manageableCiphers.some((x) => x.id === c.id);
+    return this.manageableCipherIds.has(c.id);
   }
 }

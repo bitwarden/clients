@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/bitwarden/clients/refs/heads/main/apps/desktop/desktop_native/autotype/schemas/autotype-pairing-data-schema.0.1.0.json",
+  "title": "Autotype Pairing Data Schema",
+  "description": "The app pairing data saved for Bitwarden's Autotype implementation must adhere to this schema.",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "object",
+          "properties": {
+            "major": {
+              "description": "The SemVer major version of the schema this data adheres to.",
+              "type": "integer",
+              "const": 0
+            },
+            "minor": {
+              "description": "The SemVer minor version of the schema this data adheres to.",
+              "type": "integer",
+              "const": 1
+            },
+            "patch": {
+              "description": "The SemVer patch version of the schema this data adheres to.",
+              "type": "integer",
+              "const": 0
+            }
+          },
+          "required": ["major", "minor", "patch"],
+          "additionalProperties": false
+        },
+        "pairingTimestamp": {
+          "description": "When this pairing was created, stored as a unix timestamp in seconds since the epoch.",
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": ["schemaVersion", "pairingTimestamp"],
+      "additionalProperties": false
+    },
+    "appData": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name of the application paired.",
+          "type": "string"
+        },
+        "normalizedPath": {
+          "description": "The normalized absolute path of the application paired, including the file name.",
+          "type": "string"
+        }
+      },
+      "required": ["name", "normalizedPath"],
+      "additionalProperties": false
+    },
+    "clientData": {
+      "type": "object",
+      "properties": {
+        "packagingType": {
+          "description": "The type of packaging of the Bitwarden client this pairing was made on. Informs the operating system and potential sandboxing requirements.",
+          "enum": ["windows-msix", "windows-exe"]
+        }
+      },
+      "required": ["packagingType"],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "metadata",
+    "appData",
+    "clientData"
+  ],
+  "additionalProperties": false
+}

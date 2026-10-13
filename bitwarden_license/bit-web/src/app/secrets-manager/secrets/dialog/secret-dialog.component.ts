@@ -104,6 +104,7 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   private currentPeopleAccessPolicies: ApItemViewType[];
+  private originalSecretValue: string;
 
   constructor(
     public dialogRef: DialogRef,
@@ -122,7 +123,7 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
   ) {}
 
   get title() {
-    return this.data.operation === OperationType.Add ? "newSecret" : "editSecret";
+    return this.data.operation === OperationType.Add ? "addSecret" : "editSecret";
   }
 
   get subtitle(): string | undefined {
@@ -140,7 +141,7 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
     if (this.data.operation === OperationType.Edit && this.data.secretId) {
       await this.loadEditDialog();
     } else if (this.data.operation !== OperationType.Add) {
-      this.dialogRef.close();
+      await this.dialogRef.close();
       throw new Error(`The secret dialog was not called with the appropriate operation values.`);
     } else if (this.data.operation === OperationType.Add) {
       await this.loadAddDialog();
@@ -214,7 +215,7 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
       secretView.id = this.data.secretId;
       await this.updateSecret(secretView, secretAccessPoliciesView);
     }
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   delete = async () => {
@@ -237,6 +238,7 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
 
   private async loadEditDialog() {
     const secret = await this.secretService.getBySecretId(this.data.secretId);
+    this.originalSecretValue = secret.value;
     await this.loadProjects(secret.projects);
 
     const currentAccessPolicies = await this.getCurrentAccessPolicies(
@@ -372,7 +374,13 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
     secretView: SecretView,
     secretAccessPoliciesView: SecretAccessPoliciesView,
   ) {
-    await this.secretService.update(this.data.organizationId, secretView, secretAccessPoliciesView);
+    const valueChanged = secretView.value !== this.originalSecretValue;
+    await this.secretService.update(
+      this.data.organizationId,
+      secretView,
+      secretAccessPoliciesView,
+      valueChanged,
+    );
     this.toastService.showToast({
       variant: "success",
       title: null,

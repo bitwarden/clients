@@ -1,18 +1,27 @@
-import { distinctUntilChanged, EMPTY, filter, map, merge, Subject, switchMap, tap } from "rxjs";
+import {
+  distinctUntilChanged,
+  EMPTY,
+  filter,
+  firstValueFrom,
+  map,
+  merge,
+  switchMap,
+  tap,
+} from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
+import { fromChromeEvent } from "../../../platform/browser/from-chrome-event";
 
 import { PhishingDataService } from "./phishing-data.service";
-
-type PhishingDetectionNavigationEvent = {
-  tabId: number;
-  changeInfo: chrome.tabs.OnUpdatedInfo;
-  tab: chrome.tabs.Tab;
-};
 
 /**
  * Sends a message to the phishing detection service to continue to the caught url
@@ -30,15 +39,19 @@ export const PHISHING_DETECTION_CANCEL_COMMAND = new CommandDefinition<{
 }>("phishing-detection-cancel");
 
 export class PhishingDetectionService {
-  private static _tabUpdated$ = new Subject<PhishingDetectionNavigationEvent>();
-  private static _ignoredHostnames = new Set<string>();
-  private static _didInit = false;
+  // Tracks hostname:tabId pairs that should bypass phishing checks after "Continue to this site".
+  // Entries persist for the lifetime of the background page (cleared on extension/browser restart).
+  private _ignoredEntries = new Set<string>();
+  private _didInit = false;
 
-  static initialize(
+  constructor(
     logService: LogService,
     phishingDataService: PhishingDataService,
     phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
     messageListener: MessageListener,
+    eventCollectionService: EventCollectionService,
+    organizationService: OrganizationService,
+    accountService: AccountService,
   ) {
     if (this._didInit) {
       logService.debug("[PhishingDetectionService] Initialize already called. Aborting.");
@@ -47,43 +60,69 @@ export class PhishingDetectionService {
 
     logService.debug("[PhishingDetectionService] Initialize called. Checking prerequisites...");
 
-    BrowserApi.addListener(chrome.tabs.onUpdated, this._handleTabUpdated.bind(this));
+    const getOrgsToNotify = async (): Promise<Organization[]> => {
+      const userId = await firstValueFrom(getUserId(accountService.activeAccount$));
+      const orgs = await firstValueFrom(organizationService.organizations$(userId));
+      return orgs.filter((o) => o.useEvents && o.usePhishingBlocker);
+    };
+
+    const recordEvents = async (
+      eventType: EventType,
+      uploadImmediately: boolean = false,
+    ): Promise<void> => {
+      try {
+        const orgs = await getOrgsToNotify();
+        // intentionally keeping this sequential
+        // using Promise.all creates a race condition in eventCollectionService
+        for (const org of orgs) {
+          await eventCollectionService.collect(eventType, undefined, uploadImmediately, org.id);
+        }
+      } catch {
+        logService.warning(`[PhishingDetectionService] Failed to record event: ${eventType}`);
+      }
+    };
 
     const onContinueCommand$ = messageListener.messages$(PHISHING_DETECTION_CONTINUE_COMMAND).pipe(
       tap((message) =>
         logService.debug(`[PhishingDetectionService] user selected continue for ${message.url}`),
       ),
       switchMap(async (message) => {
+        await recordEvents(EventType.PhishingBlocker_Bypassed);
         const url = new URL(message.url);
-        this._ignoredHostnames.add(url.hostname);
+        this._ignoredEntries.add(`${url.hostname}:${message.tabId}`);
         await BrowserApi.navigateTabToUrl(message.tabId, url);
       }),
     );
 
-    const onTabUpdated$ = this._tabUpdated$.pipe(
+    // onCommitted for successful navigations; onErrorOccurred for HTTP errors/DNS failures
+    // where Chrome skips onCommitted. Firefox fires both, deduplicated by distinctUntilChanged.
+    const onCommitted$ = fromChromeEvent(chrome.webNavigation.onCommitted).pipe(
+      map(([details]) => details),
+    );
+    const onErrorOccurred$ = fromChromeEvent(chrome.webNavigation.onErrorOccurred).pipe(
+      map(([details]) => details),
+    );
+
+    const onTabUpdated$ = merge(onCommitted$, onErrorOccurred$).pipe(
+      filter((details) => details.frameId === 0),
       filter(
-        (navEvent) =>
-          navEvent.changeInfo.status === "complete" &&
-          !!navEvent.tab.url &&
-          !this._isExtensionPage(navEvent.tab.url),
+        (details) =>
+          !!details.url && !details.url.startsWith("about:") && !this._isExtensionPage(details.url),
       ),
-      map(({ tab, tabId }) => {
-        const url = new URL(tab.url!);
-        return { tabId, url, ignored: this._ignoredHostnames.has(url.hostname) };
+      map((details) => {
+        const url = new URL(details.url);
+        return {
+          tabId: details.tabId,
+          url,
+          ignored: this._ignoredEntries.has(`${url.hostname}:${details.tabId}`),
+        };
       }),
       distinctUntilChanged(
-        (prev, curr) =>
-          prev.url.toString() === curr.url.toString() &&
-          prev.tabId === curr.tabId &&
-          prev.ignored === curr.ignored,
+        (prev, curr) => prev.url.toString() === curr.url.toString() && prev.tabId === curr.tabId,
       ),
-      tap((event) => logService.debug(`[PhishingDetectionService] processing event:`, event)),
-      // Use switchMap to cancel any in-progress check when navigating to a new URL
-      // This prevents race conditions where a stale check redirects the user incorrectly
+      // switchMap cancels in-progress checks when a new navigation arrives
       switchMap(async ({ tabId, url, ignored }) => {
         if (ignored) {
-          // The next time this host is visited, block again
-          this._ignoredHostnames.delete(url.hostname);
           return;
         }
         const isPhishing = await phishingDataService.isPhishingWebAddress(url);
@@ -95,17 +134,21 @@ export class PhishingDetectionService {
           BrowserApi.getRuntimeURL("popup/index.html#/security/phishing-warning") +
             `?phishingUrl=${url.toString()}`,
         );
+        await recordEvents(EventType.PhishingBlocker_SiteAccessed);
         await BrowserApi.navigateTabToUrl(tabId, phishingWarningPage);
       }),
     );
 
-    const onCancelCommand$ = messageListener
-      .messages$(PHISHING_DETECTION_CANCEL_COMMAND)
-      .pipe(switchMap((message) => BrowserApi.closeTab(message.tabId)));
+    const onCancelCommand$ = messageListener.messages$(PHISHING_DETECTION_CANCEL_COMMAND).pipe(
+      switchMap(async (message) => {
+        await recordEvents(EventType.PhishingBlocker_SiteExited);
+        await BrowserApi.closeTab(message.tabId);
+      }),
+    );
 
     const phishingDetectionActive$ = phishingDetectionSettingsService.on$;
 
-    const initSub = phishingDetectionActive$
+    phishingDetectionActive$
       .pipe(
         distinctUntilChanged(),
         switchMap((activeUserHasAccess) => {
@@ -128,35 +171,9 @@ export class PhishingDetectionService {
       .subscribe();
 
     this._didInit = true;
-    return () => {
-      // Dispose phishing data service resources
-      phishingDataService.dispose();
-
-      initSub.unsubscribe();
-      this._didInit = false;
-
-      // Manually type cast to satisfy the listener signature due to the mixture
-      // of static and instance methods in this class. To be fixed when refactoring
-      // this class to be instance-based while providing a singleton instance in usage
-      BrowserApi.removeListener(
-        chrome.tabs.onUpdated,
-        PhishingDetectionService._handleTabUpdated as (...args: readonly unknown[]) => unknown,
-      );
-    };
   }
 
-  private static _handleTabUpdated(
-    tabId: number,
-    changeInfo: chrome.tabs.OnUpdatedInfo,
-    tab: chrome.tabs.Tab,
-  ): boolean {
-    this._tabUpdated$.next({ tabId, changeInfo, tab });
-
-    // Return value for supporting BrowserApi event listener signature
-    return true;
-  }
-
-  private static _isExtensionPage(url: string): boolean {
+  private _isExtensionPage(url: string): boolean {
     // Check against all common extension protocols
     return (
       url.startsWith("chrome-extension://") ||

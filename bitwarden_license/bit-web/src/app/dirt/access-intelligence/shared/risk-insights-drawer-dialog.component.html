@@ -1,5 +1,5 @@
 @if (isActiveDrawerType(drawerTypes.OrgAtRiskMembers)) {
-  <bit-dialog dialogSize="small" disablePadding="false">
+  <bit-dialog dialogSize="small">
     <ng-container bitDialogTitle>
       <span>{{
         "atRiskMembersWithCount" | i18n: drawerDetails.atRiskMemberDetails?.length ?? 0
@@ -19,21 +19,27 @@
           type="button"
           class="tw-my-4 tw-font-bold tw-block"
           (click)="downloadAtRiskMembers()"
+          startIcon="bwi-download"
         >
-          <i class="bwi bwi-download tw-mr-1"></i>
           {{ "downloadCSV" | i18n }}
         </button>
         <ng-container>
-          <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
+          <div
+            class="tw-flex tw-justify-between tw-mt-2 tw-text-muted"
+            data-testid="at-risk-header"
+          >
             <div bitTypography="body2" class="tw-text-sm tw-font-bold">
               {{ "email" | i18n }}
             </div>
             <div bitTypography="body2" class="tw-text-sm tw-font-bold">
-              {{ "atRiskPasswords" | i18n }}
+              {{ "atRiskApplications" | i18n }}
             </div>
           </div>
           @for (member of drawerDetails.atRiskMemberDetails; track member.email) {
-            <div class="tw-flex tw-justify-between tw-mt-2">
+            <div
+              class="tw-flex tw-justify-between tw-mt-2"
+              [attr.data-testid]="'at-risk-row-' + $index"
+            >
               <div>{{ member.email }}</div>
               <div>{{ member.atRiskPasswordCount }}</div>
             </div>
@@ -45,7 +51,7 @@
 }
 
 @if (isActiveDrawerType(drawerTypes.AppAtRiskMembers)) {
-  <bit-dialog dialogSize="small" disablePadding="false">
+  <bit-dialog dialogSize="small">
     <ng-container bitDialogTitle>
       <span>{{ drawerDetails.appAtRiskMembers?.applicationName }}</span>
     </ng-container>
@@ -63,7 +69,7 @@
       </div>
       <div class="tw-mt-1">
         @for (member of drawerDetails.appAtRiskMembers?.members; track $index) {
-          <div>{{ member.email }}</div>
+          <div [attr.data-testid]="'at-risk-row-' + $index">{{ member.email }}</div>
         }
       </div>
     </ng-container>
@@ -71,7 +77,7 @@
 }
 
 @if (isActiveDrawerType(drawerTypes.OrgAtRiskApps)) {
-  <bit-dialog dialogSize="small" disablePadding="false">
+  <bit-dialog dialogSize="small">
     <ng-container bitDialogTitle>
       <span>{{
         "atRiskApplicationsWithCount" | i18n: drawerDetails.atRiskAppDetails?.length ?? 0
@@ -91,11 +97,14 @@
             type="button"
             class="tw-my-4 tw-font-bold tw-block"
             (click)="downloadAtRiskApplications()"
+            startIcon="bwi-download"
           >
-            <i class="bwi bwi-download tw-mr-1"></i>
             {{ "downloadCSV" | i18n }}
           </button>
-          <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
+          <div
+            class="tw-flex tw-justify-between tw-mt-2 tw-text-muted"
+            data-testid="at-risk-header"
+          >
             <div bitTypography="body2" class="tw-text-sm tw-font-bold">
               {{ "application" | i18n }}
             </div>
@@ -104,7 +113,10 @@
             </div>
           </div>
           @for (app of drawerDetails.atRiskAppDetails; track app.applicationName) {
-            <div class="tw-flex tw-justify-between tw-mt-2">
+            <div
+              class="tw-flex tw-justify-between tw-mt-2"
+              [attr.data-testid]="'at-risk-row-' + $index"
+            >
               <div>{{ app.applicationName }}</div>
               <div>{{ app.atRiskPasswordCount }}</div>
             </div>

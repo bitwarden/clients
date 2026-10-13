@@ -3,9 +3,9 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { IconButtonModule, TypographyModule } from "@bitwarden/components";
-import { CartSummaryComponent, DiscountTypes } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { CartSummaryComponent, DiscountTypes } from "../..";
 import { Cart } from "../../types/cart";
 
 export default {
@@ -43,6 +43,8 @@ export default {
                   return "Additional Storage";
                 case "estimatedTax":
                   return "Estimated tax";
+                case "subtotal":
+                  return "Subtotal";
                 case "total":
                   return "Total";
                 case "expandPurchaseDetails":
@@ -57,6 +59,22 @@ export default {
                   return "Your next charge is for";
                 case "dueOn":
                   return "due on";
+                case "premiumSubscriptionCredit":
+                  return "Premium subscription credit";
+                case "accountCredit":
+                  return "Account credit";
+                case "appliedSubscriptionCredits":
+                  return "Applied subscription credits";
+                case "appliedProrationCredits":
+                  return "Applied proration credits";
+                case "passwordManagerProratedCharge":
+                  return "Password Manager prorated charge";
+                case "discount":
+                  return "discount";
+                case "appliedBalance":
+                  return "Applied balance";
+                case "amountDue":
+                  return "Amount due";
                 default:
                   return key;
               }
@@ -306,12 +324,15 @@ export const WithPercentDiscount: Story = {
         },
       },
       cadence: "monthly",
-      discount: {
-        type: DiscountTypes.PercentOff,
-        value: 20,
-      },
+      discounts: [
+        {
+          type: DiscountTypes.PercentOff,
+          value: 20,
+        },
+      ],
       estimatedTax: 10.4,
     } satisfies Cart,
+    showDiscountBadges: true,
   },
 };
 
@@ -333,11 +354,434 @@ export const WithAmountDiscount: Story = {
         },
       },
       cadence: "annually",
-      discount: {
-        type: DiscountTypes.AmountOff,
+      discounts: [
+        {
+          type: DiscountTypes.AmountOff,
+          value: 50.0,
+        },
+      ],
+      estimatedTax: 95.0,
+    } satisfies Cart,
+    showDiscountBadges: true,
+  },
+};
+
+export const WithHiddenBreakdown: Story = {
+  name: "Hidden Cost Breakdown",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+          hideBreakdown: true,
+        },
+        additionalStorage: {
+          quantity: 2,
+          translationKey: "additionalStorageGB",
+          cost: 10.0,
+          hideBreakdown: true,
+        },
+      },
+      secretsManager: {
+        seats: {
+          quantity: 3,
+          translationKey: "members",
+          cost: 30.0,
+          hideBreakdown: true,
+        },
+        additionalServiceAccounts: {
+          quantity: 2,
+          translationKey: "additionalServiceAccountsV2",
+          cost: 6.0,
+          hideBreakdown: true,
+        },
+      },
+      cadence: "monthly",
+      estimatedTax: 19.2,
+    } satisfies Cart,
+  },
+};
+
+export const WithCredit: Story = {
+  name: "With Account Credit",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+        },
+      },
+      cadence: "monthly",
+      credit: {
+        translationKey: "premiumSubscriptionCredit",
+        value: 25.0,
+      },
+      estimatedTax: 10.0,
+    } satisfies Cart,
+  },
+};
+
+export const WithAppliedBalance: Story = {
+  name: "With Applied Account Balance (Premium Renewal)",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: { quantity: 1, translationKey: "premiumMembership", cost: 19.8 },
+      },
+      cadence: "annually",
+      estimatedTax: 1.58,
+      total: 21.38,
+      appliedBalance: 12.96,
+      amountDue: 8.42,
+    } satisfies Cart,
+  },
+};
+
+export const WithDiscountAndCredit: Story = {
+  name: "With Both Discount and Credit",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+        },
+        additionalStorage: {
+          quantity: 2,
+          translationKey: "additionalStorageGB",
+          cost: 10.0,
+        },
+      },
+      cadence: "annually",
+      discounts: [
+        {
+          type: DiscountTypes.PercentOff,
+          value: 15,
+        },
+      ],
+      credit: {
+        translationKey: "premiumSubscriptionCredit",
         value: 50.0,
       },
-      estimatedTax: 95.0,
+      estimatedTax: 15.0,
+    } satisfies Cart,
+    showDiscountBadges: true,
+  },
+};
+
+export const SinglePerLineDiscount: Story = {
+  name: "With Single Per-Line Discount (Premium Renewal)",
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "A single per-line discount carrying the server's authoritative `amount`. " +
+          "The renderer uses that amount verbatim rather than deriving it from `type` and `value`.",
+      },
+    },
+  },
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 1,
+          translationKey: "premiumMembership",
+          cost: 10.0,
+          discounts: [
+            {
+              type: DiscountTypes.PercentOff,
+              value: 25,
+              amount: 2.5,
+            },
+          ],
+        },
+      },
+      cadence: "annually",
+      estimatedTax: 2.03,
+    } satisfies Cart,
+  },
+};
+
+export const FlagOffRegression: Story = {
+  name: "Flag-Off Regression (Legacy One-Element Shim)",
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "The shape the legacy `CartItemResponse` shim emits when the feature flag is off: a " +
+          "one-element `discounts` array with no `amount` and no `label`. Proves the renderer " +
+          "still derives both via `getAmount` / `getLabel`, so flag-off carts render unchanged.",
+      },
+    },
+  },
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+          discounts: [
+            {
+              type: DiscountTypes.PercentOff,
+              value: 25,
+            },
+          ],
+        },
+      },
+      cadence: "monthly",
+      estimatedTax: 9.6,
+    } satisfies Cart,
+  },
+};
+
+export const MultiplePerLineDiscounts: Story = {
+  name: "With Multiple Per-Line Discounts",
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Two discounts on a single line: a percent-off coupon with no `amount` (derived) and a " +
+          "labeled amount-off promotion with an authoritative `amount`. Both rows render beneath " +
+          "the line. Per-line discounts do not cascade — each is measured against the same " +
+          "extended price, unlike the cart-wide loop.",
+      },
+    },
+  },
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+          discounts: [
+            {
+              type: DiscountTypes.PercentOff,
+              value: 20,
+            },
+            {
+              type: DiscountTypes.AmountOff,
+              value: 15,
+              amount: 15,
+              label: "Loyalty promotion",
+            },
+          ],
+        },
+      },
+      cadence: "monthly",
+      estimatedTax: 8.55,
+    } satisfies Cart,
+  },
+};
+
+export const PerLineAndCartWideStacked: Story = {
+  name: "With Per-Line and Cart-Wide Discounts Stacked",
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Represents the **membership card (post-purchase)** view. " +
+          "The item-level discount renders inline under its line item. " +
+          "The cart-level discount badge is intentionally hidden (`showDiscountBadges` defaults to `false`) " +
+          "because post-purchase the user's concern is billing amount and date, not promotional persuasion.",
+      },
+    },
+  },
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+          discounts: [
+            {
+              type: DiscountTypes.PercentOff,
+              value: 25,
+            },
+          ],
+        },
+        additionalStorage: {
+          quantity: 2,
+          translationKey: "additionalStorageGB",
+          cost: 10.0,
+        },
+      },
+      cadence: "monthly",
+      discounts: [
+        {
+          type: DiscountTypes.PercentOff,
+          value: 10,
+        },
+      ],
+      estimatedTax: 8.55,
+    } satisfies Cart,
+  },
+};
+
+export const CartLevelDiscountSummaryBlock: Story = {
+  name: "With Cart-Level Discount Summary Block (Design Mockup)",
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "The approved design-review layout for carts mixing item-level and cart-level " +
+          "discounts: item-level discounts render indented beneath their line, while the " +
+          "cart-level discount renders in a grouped summary block — divider, Subtotal, " +
+          "discount, Estimated tax, divider, Total. The Subtotal row appears only when a " +
+          "cart-level discount is present. Labels here are server-supplied (`label` " +
+          "pass-through) with authoritative `amount`s.",
+      },
+    },
+  },
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+          discounts: [
+            {
+              type: DiscountTypes.PercentOff,
+              value: 25,
+              amount: 62.5,
+              label: "Team plan discount (25% off members)",
+            },
+          ],
+        },
+        additionalStorage: {
+          quantity: 2,
+          translationKey: "additionalStorageGB",
+          cost: 10.0,
+        },
+      },
+      cadence: "monthly",
+      discounts: [
+        {
+          type: DiscountTypes.PercentOff,
+          value: 10,
+          amount: 27.0,
+          label: "Promo: SAVE10 (10% off subtotal)",
+        },
+      ],
+      estimatedTax: 8.55,
+    } satisfies Cart,
+  },
+};
+
+export const WithMultipleDiscounts: Story = {
+  name: "With Multiple Stacked Discounts",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+        },
+        additionalStorage: {
+          quantity: 2,
+          translationKey: "additionalStorageGB",
+          cost: 10.0,
+        },
+      },
+      cadence: "annually",
+      discounts: [
+        {
+          type: DiscountTypes.PercentOff,
+          value: 20,
+        },
+        {
+          type: DiscountTypes.PercentOff,
+          value: 10,
+        },
+      ],
+      estimatedTax: 8.64,
+    } satisfies Cart,
+    showDiscountBadges: true,
+  },
+};
+
+export const HiddenPricingTerm: Story = {
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+        },
+      },
+      cadence: "monthly",
+      estimatedTax: 9.6,
+    } satisfies Cart,
+    hidePricingTerm: true,
+  },
+};
+
+export const AllProrationInvoice: Story = {
+  name: "All Proration (Mid-Cycle Transition)",
+  args: {
+    cart: {
+      passwordManager: {
+        prorationCharges: [
+          {
+            translationKey: "passwordManagerProratedCharge",
+            quantity: 1,
+            cost: 188.22,
+            hideBreakdown: true,
+          },
+        ],
+      },
+      cadence: "annually",
+      credit: {
+        translationKey: "appliedProrationCredits",
+        value: 37.64,
+      },
+      estimatedTax: 12.05,
+      // Seatless one-time invoice: the total carries no term.
+      hidePricingTerm: true,
+    } satisfies Cart,
+  },
+};
+
+export const RecurringWithProration: Story = {
+  name: "Recurring Items With Proration",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 3,
+          translationKey: "members",
+          cost: 48.0,
+        },
+        additionalStorage: {
+          quantity: 5,
+          translationKey: "additionalStorageGB",
+          cost: 3.0,
+        },
+        prorationCharges: [
+          {
+            translationKey: "passwordManagerProratedCharge",
+            quantity: 1,
+            cost: 13.52,
+            hideBreakdown: true,
+          },
+        ],
+      },
+      cadence: "annually",
+      credit: {
+        translationKey: "appliedProrationCredits",
+        value: 9.02,
+      },
+      estimatedTax: 0.36,
     } satisfies Cart,
   },
 };

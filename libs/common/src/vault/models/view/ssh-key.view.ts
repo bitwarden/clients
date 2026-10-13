@@ -55,8 +55,9 @@ export class SshKeyView extends ItemView {
   toSdkSshKeyView(): SdkSshKeyView {
     return {
       privateKey: this.privateKey,
-      publicKey: this.publicKey,
-      fingerprint: this.keyFingerprint,
+      // The SDK view requires strings and derives these from the private key when given "".
+      publicKey: this.publicKey ?? "",
+      fingerprint: this.keyFingerprint ?? "",
     };
   }
 }

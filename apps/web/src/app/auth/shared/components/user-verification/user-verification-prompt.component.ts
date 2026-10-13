@@ -49,7 +49,7 @@ export class UserVerificationPromptComponent extends BaseUserVerificationPrompt 
   }
 
   override close(success: boolean) {
-    this.dialogRef.close(success);
+    void this.dialogRef.close(success);
   }
 }
 

@@ -14,6 +14,18 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FocusableElement } from "../shared/focusable-element";
 
 /**
+ * Helper function to query for descendents of a given el that have the AutofocusDirective
+ * applied to them
+ *
+ * @param el element that supports querySelectorAll
+ * @returns querySelectorAll results
+ */
+export function queryForAutofocusDescendents(el: Document | Element) {
+  // ensure selectors match the directive selectors
+  return el.querySelectorAll("[appAutofocus], [bitAutofocus]");
+}
+
+/**
  * Directive to focus an element.
  *
  * @remarks
@@ -21,7 +33,7 @@ import { FocusableElement } from "../shared/focusable-element";
  * Will focus the element once, when it becomes visible.
  *
  * If the component provides the `FocusableElement` interface, the `focus`
- * method will be called. Otherwise, the native element will be focused.
+ * method will be called. Otherwise, the native element will be focused. *
  */
 @Directive({
   selector: "[appAutofocus], [bitAutofocus]",
@@ -72,8 +84,18 @@ export class AutofocusDirective implements AfterContentChecked {
     const el = this.getElement();
 
     if (el) {
-      el.focus();
-      this.focused = el === document.activeElement;
+      if (document.activeElement !== el) {
+        el.focus();
+      }
+
+      /**
+       * Being the active element is not enough to consider the focus settled — the document
+       * also has to own focus. Safari's extension popover gives its web view keyboard focus
+       * after the page has loaded, and assigns initial focus to the first focusable element,
+       * discarding anything focused before that. Staying unlatched lets the attempt repeat on
+       * later change detection passes so it survives the handoff.
+       */
+      this.focused = el === document.activeElement && document.hasFocus();
     }
   }
 

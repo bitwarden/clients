@@ -8,9 +8,15 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { AutotypeFeatureFlagState } from "@bitwarden/common/desktop-native/enums/autotype-feature-flag-state.enum";
+import { autotypeFeatureFlagState$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
+/**
+ * Autotype MVP only: this policy must only be used within the Autotype MVP scope
+ * (`AutotypeFeatureFlagState.Mvp`, MVP feature flag on and GA feature flag off). The Autotype
+ * GA implementation must not consume it.
+ */
 @Injectable({ providedIn: "root" })
 export class DesktopAutotypeDefaultSettingPolicy {
   constructor(
@@ -21,43 +27,42 @@ export class DesktopAutotypeDefaultSettingPolicy {
   ) {}
 
   /**
-   * Emits the autotype policy enabled status when account is unlocked and WindowsDesktopAutotype is enabled.
-   * - true: autotype policy exists and is enabled
-   * - null: no autotype policy exists for the user's organization
+   * Emits the autotype policy enabled status when account is unlocked and the resolved
+   * Autotype feature flag state is `AutotypeFeatureFlagState.Mvp`.
+   * - true: autotype policy applies to the user (enabled and the user is not exempt, e.g. an Owner)
+   * - null: the resolved Autotype feature flag state is not `AutotypeFeatureFlagState.Mvp`, no autotype
+   *   policy applies to the user's organization, or the user is exempt from it
    */
-  readonly autotypeDefaultSetting$: Observable<boolean | null> = this.configService
-    .getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype)
-    .pipe(
-      switchMap((autotypeFeatureEnabled) => {
-        if (!autotypeFeatureEnabled) {
-          return of(null);
-        }
+  readonly autotypeDefaultSetting$: Observable<boolean | null> = autotypeFeatureFlagState$(
+    this.configService,
+  ).pipe(
+    switchMap((autotypeFeatureFlagState) => {
+      if (autotypeFeatureFlagState !== AutotypeFeatureFlagState.Mvp) {
+        return of(null);
+      }
 
-        return this.accountService.activeAccount$.pipe(
-          filter((account) => account != null && account.id != null),
-          getUserId,
-          distinctUntilChanged(),
-          switchMap((userId) => {
-            const isUnlocked$ = this.authService.authStatusFor$(userId).pipe(
-              map((status) => status === AuthenticationStatus.Unlocked),
-              distinctUntilChanged(),
-            );
+      return this.accountService.activeAccount$.pipe(
+        filter((account) => account != null && account.id != null),
+        getUserId,
+        distinctUntilChanged(),
+        switchMap((userId) => {
+          const isUnlocked$ = this.authService.authStatusFor$(userId).pipe(
+            map((status) => status === AuthenticationStatus.Unlocked),
+            distinctUntilChanged(),
+          );
 
-            const policy$ = this.policyService.policies$(userId).pipe(
-              map((policies) => {
-                const autotypePolicy = policies.find(
-                  (policy) => policy.type === PolicyType.AutotypeDefaultSetting && policy.enabled,
-                );
-                return autotypePolicy ? true : null;
-              }),
+          const policy$ = this.policyService
+            .policyAppliesToUser$(PolicyType.AutotypeDefaultSetting, userId)
+            .pipe(
+              map((applies) => (applies ? true : null)),
               distinctUntilChanged(),
               shareReplay({ bufferSize: 1, refCount: true }),
             );
 
-            return isUnlocked$.pipe(switchMap((unlocked) => (unlocked ? policy$ : of(null))));
-          }),
-        );
-      }),
-      shareReplay({ bufferSize: 1, refCount: true }),
-    );
+          return isUnlocked$.pipe(switchMap((unlocked) => (unlocked ? policy$ : of(null))));
+        }),
+      );
+    }),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
 }

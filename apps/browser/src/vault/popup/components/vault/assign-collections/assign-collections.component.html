@@ -1,0 +1,37 @@
+<popup-page>
+  <popup-header
+    slot="header"
+    [pageTitle]="'assignToCollections' | vfo1I18n: 'addToSharedFolder'"
+    showBackButton
+  >
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+
+  <bit-card>
+    @if (params) {
+      <assign-collections
+        [params]="params"
+        [submitBtn]="assignSubmitButton"
+        (onCollectionAssign)="navigateBack()"
+        (submitButtonTextChange)="submitButtonText = $event"
+      ></assign-collections>
+    }
+  </bit-card>
+
+  <popup-footer slot="footer">
+    <button
+      #assignSubmitButton
+      bitButton
+      form="assign_collections_form"
+      buttonType="primary"
+      type="submit"
+    >
+      {{ submitButtonText ?? ("assign" | vfo1I18n: "transferAndAdd") }}
+    </button>
+    <a bitButton buttonType="secondary" (click)="navigateBack()">
+      {{ "cancel" | i18n }}
+    </a>
+  </popup-footer>
+</popup-page>

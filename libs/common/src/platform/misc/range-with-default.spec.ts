@@ -3,11 +3,11 @@ import { RangeWithDefault } from "./range-with-default";
 describe("RangeWithDefault", () => {
   describe("constructor", () => {
     it("should throw an error when min is greater than max", () => {
-      expect(() => new RangeWithDefault(10, 5, 0)).toThrowError("10 is greater than 5.");
+      expect(() => new RangeWithDefault(10, 5, 0)).toThrow("10 is greater than 5.");
     });
 
     it("should throw an error when default value is not in range", () => {
-      expect(() => new RangeWithDefault(0, 10, 20)).toThrowError("Default value is not in range.");
+      expect(() => new RangeWithDefault(0, 10, 20)).toThrow("Default value is not in range.");
     });
   });
 

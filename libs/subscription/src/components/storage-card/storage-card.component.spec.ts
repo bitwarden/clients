@@ -2,7 +2,8 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { Storage, StorageCardComponent } from "@bitwarden/subscription";
+
+import { Storage, StorageCardComponent } from "../..";
 
 describe("StorageCardComponent", () => {
   let component: StorageCardComponent;
@@ -101,11 +102,6 @@ describe("StorageCardComponent", () => {
 
     it("should return 100 when storage is full", () => {
       setupComponent({ ...baseStorage, used: 5, readableUsed: "5 GB" });
-      expect(component.percentageUsed()).toBe(100);
-    });
-
-    it("should cap at 100 when used exceeds available", () => {
-      setupComponent({ ...baseStorage, used: 6, readableUsed: "6 GB" });
       expect(component.percentageUsed()).toBe(100);
     });
 
@@ -278,28 +274,28 @@ describe("StorageCardComponent", () => {
   });
 
   describe("progress bar rendering", () => {
-    it("should render bit-progress component when storage is empty", () => {
+    it("should render bit-progress-bar component when storage is empty", () => {
       setupComponent({ ...baseStorage, used: 0 });
-      const progressBar = fixture.debugElement.query(By.css("bit-progress"));
+      const progressBar = fixture.debugElement.query(By.css("bit-progress-bar"));
       expect(progressBar).toBeTruthy();
     });
 
-    it("should pass correct barWidth to bit-progress when half storage is used", () => {
+    it("should pass correct value to bit-progress-bar when half storage is used", () => {
       setupComponent({ ...baseStorage, used: 2.5, readableUsed: "2.5 GB" });
       expect(component.percentageUsed()).toBe(50);
     });
 
-    it("should pass correct barWidth to bit-progress when storage is full", () => {
+    it("should pass correct value to bit-progress-bar when storage is full", () => {
       setupComponent({ ...baseStorage, used: 5, readableUsed: "5 GB" });
       expect(component.percentageUsed()).toBe(100);
     });
 
-    it("should pass primary color to bit-progress when storage is not full", () => {
+    it("should pass primary color to bit-progress-bar when storage is not full", () => {
       setupComponent({ ...baseStorage, used: 2.5, readableUsed: "2.5 GB" });
       expect(component.progressBarColor()).toBe("primary");
     });
 
-    it("should pass danger color to bit-progress when storage is full", () => {
+    it("should pass danger color to bit-progress-bar when storage is full", () => {
       setupComponent({ ...baseStorage, used: 5, readableUsed: "5 GB" });
       expect(component.progressBarColor()).toBe("danger");
     });

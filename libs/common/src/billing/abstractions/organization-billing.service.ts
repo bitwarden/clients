@@ -1,8 +1,7 @@
 import { UserId } from "@bitwarden/user-core";
 
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
-import { InitiationPath } from "../../models/request/reference-event.request";
-import { PaymentMethodType, PlanType } from "../enums";
+import { InitiationPath, PaymentMethodType, PlanType } from "../enums";
 
 export type OrganizationInformation = {
   name: string;
@@ -35,12 +34,14 @@ export type PaymentInformation = {
   paymentMethod: [string, PaymentMethodType];
   billing: BillingInformation;
   skipTrial?: boolean;
+  trialLength?: number;
 };
 
 export type SubscriptionInformation = {
   organization: OrganizationInformation;
   plan?: PlanInformation;
   payment?: PaymentInformation;
+  coupons?: string[];
 };
 
 export abstract class OrganizationBillingServiceAbstraction {
@@ -52,6 +53,7 @@ export abstract class OrganizationBillingServiceAbstraction {
   abstract purchaseSubscriptionNoPaymentMethod(
     subscription: SubscriptionInformation,
     activeUserId: UserId,
+    trialLength?: number,
   ): Promise<OrganizationResponse>;
 
   abstract startFree(

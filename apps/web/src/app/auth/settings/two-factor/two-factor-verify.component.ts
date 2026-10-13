@@ -5,9 +5,11 @@ import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
-import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
-import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
-import { TwoFactorResponse } from "@bitwarden/common/auth/types/two-factor-response";
+import {
+  TwoFactorService,
+  TwoFactorSetupDialogData,
+  TwoFactorResponse,
+} from "@bitwarden/common/auth/two-factor";
 import { VerificationWithSecret } from "@bitwarden/common/auth/types/verification";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -74,7 +76,7 @@ export class TwoFactorVerifyComponent {
       });
 
       const response = await this.formPromise;
-      this.dialogRef.close({
+      await this.dialogRef.close({
         response: response,
         secret: secret.secret,
         verificationType: secret.type,
@@ -132,9 +134,9 @@ export class TwoFactorVerifyComponent {
   }
 
   static open(dialogService: DialogService, config: DialogConfig<TwoFactorVerifyDialogData>) {
-    return dialogService.open<AuthResponse<any>, TwoFactorVerifyDialogData>(
+    return dialogService.open<TwoFactorSetupDialogData<any>, TwoFactorVerifyDialogData>(
       TwoFactorVerifyComponent,
-      config as DialogConfig<TwoFactorVerifyDialogData, DialogRef<AuthResponse<any>>>,
+      config as DialogConfig<TwoFactorVerifyDialogData, TwoFactorSetupDialogData<any>>,
     );
   }
 }

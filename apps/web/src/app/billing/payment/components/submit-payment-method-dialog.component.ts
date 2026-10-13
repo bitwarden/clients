@@ -63,7 +63,7 @@ export abstract class SubmitPaymentMethodDialogComponent {
           title: "",
           message: this.i18nService.t("paymentMethodUpdated"),
         });
-        this.dialogRef.close({
+        await this.dialogRef.close({
           type: "success",
           paymentMethod: result.value,
         });
@@ -75,7 +75,7 @@ export abstract class SubmitPaymentMethodDialogComponent {
           title: "",
           message: result.message,
         });
-        this.dialogRef.close({ type: "error" });
+        await this.dialogRef.close({ type: "error" });
         break;
       }
     }

@@ -1,4 +1,3 @@
-import { NgIf } from "@angular/common";
 import { Component, Input } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -18,7 +17,6 @@ import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-
   selector: "app-view-identity-sections",
   templateUrl: "./view-identity-sections.component.html",
   imports: [
-    NgIf,
     JslibModule,
     SectionHeaderComponent,
     TypographyModule,

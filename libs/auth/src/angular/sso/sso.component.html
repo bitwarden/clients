@@ -1,6 +1,6 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit" class="tw-container">
   <div *ngIf="loggingIn">
-    <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+    <bit-icon name="bwi-spinner" class="bwi-spin" [ariaLabel]="'loading' | i18n"></bit-icon>
     {{ "loading" | i18n }}
   </div>
   <div *ngIf="!loggingIn">

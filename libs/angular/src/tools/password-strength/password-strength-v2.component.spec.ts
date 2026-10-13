@@ -1,3 +1,4 @@
+import { SimpleChange } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 
@@ -53,7 +54,9 @@ describe("PasswordStrengthV2Component", () => {
   it("should emit password score text and color when ngOnChanges executes", () => {
     jest.spyOn(component.passwordScoreTextWithColor, "emit");
     jest.useFakeTimers();
-    component.ngOnChanges();
+    component.ngOnChanges({
+      email: new SimpleChange("", "a@b.com", false),
+    });
     jest.runAllTimers();
     expect(component.passwordScoreTextWithColor.emit).toHaveBeenCalled();
   });
@@ -72,7 +75,9 @@ describe("PasswordStrengthV2Component", () => {
       jest.useFakeTimers();
       jest.spyOn(component.passwordScoreTextWithColor, "emit");
       component.passwordScore = score;
-      component.ngOnChanges();
+      component.ngOnChanges({
+        email: new SimpleChange("", "a@b.com", false),
+      });
       jest.runAllTimers();
       expect(component.passwordScoreTextWithColor.emit).toHaveBeenCalledWith(expected);
     },

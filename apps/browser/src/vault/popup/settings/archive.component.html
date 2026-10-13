@@ -74,16 +74,18 @@
                   <button type="button" bitMenuItem (click)="edit(cipher)">
                     {{ "edit" | i18n }}
                   </button>
-                  <button type="button" bitMenuItem (click)="clone(cipher)">
-                    {{ "clone" | i18n }}
-                  </button>
+                  @if (userHasPremium$ | async) {
+                    <button type="button" bitMenuItem (click)="clone(cipher)">
+                      {{ "clone" | i18n }}
+                    </button>
+                  }
                   @if (canAssignCollections$ | async) {
                     <button
                       type="button"
                       bitMenuItem
                       (click)="conditionallyNavigateToAssignCollections(cipher)"
                     >
-                      {{ "assignToCollections" | i18n }}
+                      {{ "assignToCollections" | vfo1I18n: "addToSharedFolder" }}
                     </button>
                   }
                   <button type="button" bitMenuItem (click)="unarchive(cipher)">
@@ -92,12 +94,11 @@
                   <button
                     type="button"
                     bitMenuItem
+                    variant="danger"
                     *appCanDeleteCipher="cipher"
                     (click)="delete(cipher)"
                   >
-                    <span class="tw-text-danger">
-                      {{ "delete" | i18n }}
-                    </span>
+                    {{ "delete" | i18n }}
                   </button>
                 </bit-menu>
               </bit-item-action>
@@ -105,15 +106,22 @@
           }
         </bit-item-group>
       </bit-section>
+    } @else if (vfo1Enabled()) {
+      <vault-empty-vault
+        class="tw-flex tw-h-full tw-items-center tw-justify-center"
+        [hasItems]="false"
+        [scope]="archiveScope"
+      ></vault-empty-vault>
     } @else {
-      <bit-no-items class="tw-flex tw-h-full tw-items-center tw-justify-center">
+      <bit-status-lockup class="tw-flex tw-h-full tw-items-center tw-justify-center">
+        <bit-svg slot="graphic" [content]="noItemsIcon"></bit-svg>
         <ng-container slot="title">
           {{ "noItemsInArchive" | i18n }}
         </ng-container>
         <ng-container slot="description">
           {{ "noItemsInArchiveDesc" | i18n }}
         </ng-container>
-      </bit-no-items>
+      </bit-status-lockup>
     }
   }
 </popup-page>

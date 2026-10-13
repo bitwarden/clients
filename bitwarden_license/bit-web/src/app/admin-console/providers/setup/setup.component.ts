@@ -13,7 +13,8 @@ import { ValidationService } from "@bitwarden/common/platform/abstractions/valid
 import { ProviderKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
@@ -49,7 +50,7 @@ export class SetupComponent implements OnInit, OnDestroy {
     private router: Router,
     private i18nService: I18nService,
     private route: ActivatedRoute,
-    private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private syncService: SyncService,
     private validationService: ValidationService,
     private providerApiService: ProviderApiServiceAbstraction,
@@ -124,22 +125,22 @@ export class SetupComponent implements OnInit, OnDestroy {
         return;
       }
       const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-      const providerKey = await this.keyService.makeOrgKey<ProviderKey>(activeUserId);
+      const providerKey = await this.legacyCompatKeyService.makeOrgKey<ProviderKey>(activeUserId);
       const key = providerKey[0].encryptedString;
-
-      const request = new ProviderSetupRequest();
-      request.name = this.formGroup.value.name!;
-      request.billingEmail = this.formGroup.value.billingEmail!;
-      request.token = this.token;
-      request.key = key!;
 
       const paymentMethod = await this.enterPaymentMethodComponent.tokenize();
       if (!paymentMethod) {
         return;
       }
 
-      request.paymentMethod = paymentMethod;
-      request.billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
+      const request = new ProviderSetupRequest({
+        name: this.formGroup.value.name!,
+        billingEmail: this.formGroup.value.billingEmail!,
+        token: this.token,
+        key: key!,
+        paymentMethod,
+        billingAddress: getBillingAddressFromForm(this.formGroup.controls.billingAddress),
+      });
 
       const provider = await this.providerApiService.postProviderSetup(this.providerId, request);
 

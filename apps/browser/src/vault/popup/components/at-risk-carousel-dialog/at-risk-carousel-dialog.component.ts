@@ -40,7 +40,7 @@ export class AtRiskCarouselDialogComponent {
   protected dismissBtnEnabled = signal(false);
 
   protected async dismiss() {
-    this.dialogRef.close(AtRiskCarouselDialogResult.Dismissed);
+    await this.dialogRef.close(AtRiskCarouselDialogResult.Dismissed);
   }
 
   protected onSlideChange(slideIndex: number) {

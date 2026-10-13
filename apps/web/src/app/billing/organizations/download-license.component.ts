@@ -51,7 +51,7 @@ export class DownloadLicenceDialogComponent {
       fileName: "bitwarden_organization_license.json",
       blobData: licenseString,
     });
-    this.dialogRef.close(DownloadLicenseDialogResult.Downloaded);
+    await this.dialogRef.close(DownloadLicenseDialogResult.Downloaded);
   };
   /**
    * Strongly typed helper to open a DownloadLicenceDialogComponent
@@ -62,6 +62,6 @@ export class DownloadLicenceDialogComponent {
     return dialogService.open<DownloadLicenseDialogResult>(DownloadLicenceDialogComponent, config);
   }
   cancel = () => {
-    this.dialogRef.close(DownloadLicenseDialogResult.Cancelled);
+    void this.dialogRef.close(DownloadLicenseDialogResult.Cancelled);
   };
 }

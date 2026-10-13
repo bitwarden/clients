@@ -1,10 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { Component, inject, OnDestroy, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import {
   FormBuilder,
   FormControl,
   FormGroup,
+  ReactiveFormsModule,
   Validators,
   AbstractControl,
   AsyncValidatorFn,
@@ -13,6 +16,7 @@ import {
 import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -21,12 +25,29 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanSponsorshipType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { ToastService } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  BreadcrumbsModule,
+  ButtonModule,
+  ContainerComponent,
+  FormFieldModule,
+  SelectModule,
+  TableModule,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
+import { HeaderModule } from "../../layouts/header/header.module";
 import { FreeFamiliesPolicyService } from "../services/free-families-policy.service";
+
+import { SponsoringOrgRowComponent } from "./sponsoring-org-row.component";
 
 interface RequestSponsorshipForm {
   selectedSponsorshipOrgId: FormControl<string>;
@@ -38,9 +59,30 @@ interface RequestSponsorshipForm {
 @Component({
   selector: "app-sponsored-families",
   templateUrl: "sponsored-families.component.html",
-  standalone: false,
+  imports: [
+    AsyncActionsModule,
+    BreadcrumbsModule,
+    ButtonModule,
+    CommonModule,
+    ContainerComponent,
+    FormFieldModule,
+    HeaderModule,
+    I18nPipe,
+    JslibModule,
+    ReactiveFormsModule,
+    SelectModule,
+    SponsoringOrgRowComponent,
+    TableModule,
+    TypographyModule,
+    Vfo1I18nPipe,
+  ],
 })
 export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
+  protected readonly showBreadcrumbs = toSignal(
+    inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
+
   loading = false;
 
   availableSponsorshipOrgs$: Observable<Organization[]>;
@@ -92,7 +134,7 @@ export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
 
     this.availableSponsorshipOrgs$ = combineLatest([
       this.organizationService.organizations$(userId),
-      this.policyService.policiesByType$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
+      this.policyService.policiesByType$(PolicyType.FreeFamiliesSponsorship, userId),
     ]).pipe(
       map(([organizations, policies]) =>
         organizations

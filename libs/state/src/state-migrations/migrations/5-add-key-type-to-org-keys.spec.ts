@@ -111,7 +111,7 @@ describe("AddKeyTypeToOrgKeysMigrator", () => {
       sut = new AddKeyTypeToOrgKeysMigrator(4, 5);
     });
 
-    it("should remove type from orgainzation keys", async () => {
+    it("should remove type from organizations keys", async () => {
       await sut.rollback(helper);
 
       expect(helper.set).toHaveBeenCalledWith("c493ed01-4e08-4e88-abc7-332f380ca760", {

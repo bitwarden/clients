@@ -13,7 +13,6 @@ import {
   EmergencyAccessGranteeDetailsResponse,
   EmergencyAccessGrantorDetailsResponse,
   EmergencyAccessTakeoverResponse,
-  EmergencyAccessViewResponse,
 } from "../response/emergency-access.response";
 
 @Injectable()
@@ -116,16 +115,5 @@ export class EmergencyAccessApiService {
       true,
       true,
     );
-  }
-
-  async postEmergencyAccessView(id: string): Promise<EmergencyAccessViewResponse> {
-    const r = await this.apiService.send(
-      "POST",
-      "/emergency-access/" + id + "/view",
-      null,
-      true,
-      true,
-    );
-    return new EmergencyAccessViewResponse(r);
   }
 }

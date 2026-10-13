@@ -5,6 +5,7 @@ import { Component, EventEmitter, Input, OnDestroy, Output, OnInit } from "@angu
 import { ActivatedRoute } from "@angular/router";
 import { catchError, concatMap, map, Observable, of, Subject, switchMap, takeUntil } from "rxjs";
 
+import { NoResults } from "@bitwarden/assets/svg";
 import {
   getOrganizationById,
   OrganizationService,
@@ -14,7 +15,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogRef, DialogService, TableDataSource, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { openEntityEventsDialog } from "@bitwarden/web-vault/app/admin-console/organizations/manage/entity-events.component";
+import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 
 import {
   ServiceAccountSecretsDetailsView,
@@ -29,6 +30,8 @@ import {
   standalone: false,
 })
 export class ServiceAccountsListComponent implements OnDestroy, OnInit {
+  readonly noItemsIcon = NoResults;
+
   protected dataSource = new TableDataSource<ServiceAccountSecretsDetailsView>();
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals

@@ -93,7 +93,7 @@ For other browsers like Google Chrome, some additional processing is required. T
 3. blob starts with 0x02: the key is encrypted with a fixed ChaCha20 key found in Google Chrome binary, a random IV is
    stored in the blob as well
 4. blob starts with 0x03: the blob contains a random key, encrypted with CNG API with a random key stored in the
-   **system keychain** under the name `Google Chromekey1`. After that key is decryped (under **system level** impersonation again), the key is xor'ed with a fixed key from the Chrome binary and the it is used to decrypt the key from the last DPAPI decryption stage.
+   **system keychain** under the name `Google Chromekey1`. After that key is decrypted (under **system level** impersonation again), the key is xor'ed with a fixed key from the Chrome binary and the it is used to decrypt the key from the last DPAPI decryption stage.
 
 The decrypted key is sent back to the client via the named pipe. `bitwarden_chromium_import_helper.exe` connects to the
 pipe and writes the result.

@@ -1,0 +1,299 @@
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+
+import { Cart, CartItem } from "../../types/cart";
+import {
+  InvoicePreview,
+  InvoicePreviewItem,
+  PurchasableProration,
+  PurchasableReference,
+} from "../../types/invoice-preview";
+
+import { InvoicePreviewFlowContext } from "./invoice-preview-flow-context";
+import {
+  getCartItemTranslationKey,
+  getCreditTranslationKey,
+  getProratedSeatTranslationKey,
+  getProrationChargeTranslationKey,
+} from "./translation";
+
+export type AdaptInvoicePreviewOptions = {
+  planName?: string;
+};
+
+/**
+ * Describes where a proration charge should be placed in the cart.
+ *
+ * - SeatLine (upgrade): Places the proration charges within the seat line itself, with no separate charge row.
+ * The seat (charge) line's quantity x cost breakdown is hidden because the cost is a lump sum.
+ * - ProrationLine (subscription page, plan-change): charged prorations render as their own lines beside any real seat line (pm-seat, etc),
+ *   or as the only line when the invoice is all prorations.
+ */
+const ProrationChargePlacements = {
+  SeatLine: "seat-line",
+  ProrationLine: "proration-line",
+} as const;
+type ProrationChargePlacement =
+  (typeof ProrationChargePlacements)[keyof typeof ProrationChargePlacements];
+
+const DiscountPlacements = {
+  CartLevel: "cart-level",
+  LineLevel: "line-level",
+} as const;
+type DiscountPlacement = (typeof DiscountPlacements)[keyof typeof DiscountPlacements];
+
+const getDiscountPlacement = (flowContext: InvoicePreviewFlowContext): DiscountPlacement => {
+  switch (flowContext) {
+    case InvoicePreviewFlowContext.PersonalCheckout:
+    case InvoicePreviewFlowContext.OrganizationCheckout:
+      return DiscountPlacements.CartLevel;
+    default:
+      return DiscountPlacements.LineLevel;
+  }
+};
+
+/**
+ * Determines where a proration charge should be placed in the cart based on the flow context.
+ * @param flowContext The current flow context of the invoice preview.
+ * @returns The placement of the proration charge in the cart.
+ */
+const getProrationChargePlacement = (
+  flowContext: InvoicePreviewFlowContext,
+): ProrationChargePlacement => {
+  switch (flowContext) {
+    case InvoicePreviewFlowContext.OrganizationSubscriptionPage:
+    case InvoicePreviewFlowContext.OrganizationPlanChange:
+      return ProrationChargePlacements.ProrationLine;
+    default:
+      return ProrationChargePlacements.SeatLine;
+  }
+};
+
+/**
+ * Converts the server's `InvoicePreview` wire model into the render-ready `Cart` view model consumed
+ * by `<billing-cart-summary>`.
+ *
+ * Pure by design — no DI, no side effects beyond logging — so it is unit-testable in isolation and
+ * has exactly one caller per facade method. Server-supplied amounts are authoritative throughout;
+ * this adapter reshapes and relabels but never recomputes pricing.
+ */
+export const adaptInvoicePreviewToCart = (
+  preview: InvoicePreview,
+  flowContext: InvoicePreviewFlowContext,
+  logService: LogService,
+  options: AdaptInvoicePreviewOptions = {},
+): Cart => {
+  const { passwordManager, secretsManager, planTier } = preview;
+  const keepLineDiscounts = getDiscountPlacement(flowContext) === DiscountPlacements.LineLevel;
+
+  const toCartItem = (item: InvoicePreviewItem, hideBreakdown: boolean = false): CartItem => ({
+    translationKey: getCartItemTranslationKey(
+      item.reference,
+      planTier,
+      flowContext,
+      logService,
+      item.quantity,
+    ),
+    quantity: item.quantity,
+    cost: item.cost,
+    // Discounts pass through untouched: the server's `amount` is authoritative and the renderer
+    // does not cascade per-line discounts.
+    ...(keepLineDiscounts && item.discounts ? { discounts: item.discounts } : {}),
+    ...(hideBreakdown ? { hideBreakdown: true } : {}),
+  });
+
+  const hoistedLineDiscounts = keepLineDiscounts
+    ? []
+    : [
+        passwordManager.seats,
+        passwordManager.additionalStorage,
+        secretsManager?.seats,
+        secretsManager?.additionalServiceAccounts,
+      ].flatMap((item) => item?.discounts ?? []);
+  const discounts = [...(preview.discounts ?? []), ...hoistedLineDiscounts];
+
+  /**
+   * Constructs a proration charge line for the cart.
+   */
+  const chargeLine = (
+    proration: PurchasableProration,
+    seatReference: PurchasableReference,
+  ): CartItem => ({
+    translationKey: getProrationChargeTranslationKey(proration.reference, seatReference),
+    quantity: 1,
+    cost: proration.charge,
+    hideBreakdown: true,
+  });
+
+  /**
+   * Stands in for a missing seat line on SeatLine placements: the group's summed proration charge
+   * at quantity 1, with the breakdown hidden because the cost is a lump. Returns `undefined` when
+   * nothing was charged, so a credit-only group renders no seat row.
+   */
+  const derivedSeatLine = (
+    prorations: PurchasableProration[] | undefined,
+    seatReference: PurchasableReference,
+  ): CartItem | undefined => {
+    const cost = sumInCents((prorations ?? []).map((proration) => proration.charge));
+    if (cost <= 0) {
+      return undefined;
+    }
+
+    return {
+      translationKey: getCartItemTranslationKey(
+        seatReference,
+        planTier,
+        flowContext,
+        logService,
+        1,
+      ),
+      quantity: 1,
+      cost,
+      hideBreakdown: true,
+    };
+  };
+
+  /**
+   * Builds one product group's rows: its seat line, if the invoice carries one (or can stand in
+   * for it), plus the group's charged prorations, placed per the flow's charge placement.
+   */
+  const buildGroup = (
+    item: InvoicePreviewItem | undefined,
+    prorations: PurchasableProration[] | undefined,
+    seatReference: PurchasableReference,
+  ): { seats?: CartItem; prorationCharges?: CartItem[] } => {
+    const placement = getProrationChargePlacement(flowContext);
+
+    // On SeatLine placements the seat line's cost is the proration charge itself — a lump, not a
+    // per-unit price — so its quantity x cost breakdown would read false.
+    const shouldHideBreakdown =
+      placement === ProrationChargePlacements.SeatLine && hasProrations(prorations);
+
+    const seats = item
+      ? toCartItem(item, shouldHideBreakdown)
+      : placement === ProrationChargePlacements.SeatLine
+        ? derivedSeatLine(prorations, seatReference)
+        : undefined;
+
+    let prorationCharges: CartItem[] | undefined;
+    if (placement === ProrationChargePlacements.ProrationLine && prorations != null) {
+      prorationCharges = prorations
+        .filter((proration) => proration.charge > 0)
+        .map((proration) => chargeLine(proration, seatReference));
+    }
+
+    return {
+      seats,
+      prorationCharges: prorationCharges?.length ? prorationCharges : undefined,
+    };
+  };
+
+  const pm = buildGroup(passwordManager.seats, passwordManager.prorations, "pm-seat");
+  const sm = secretsManager
+    ? buildGroup(secretsManager.seats, secretsManager.prorations, "sm-seat")
+    : {};
+
+  const proratedMonths = passwordManager.prorations?.[0]?.months ?? 0;
+
+  const labelProratedMonths = (seats: CartItem): CartItem => {
+    const translationKey = getProratedSeatTranslationKey(flowContext);
+    if (!translationKey || !options.planName || proratedMonths <= 0) {
+      return seats;
+    }
+
+    return {
+      ...seats,
+      translationKey,
+      translationParams: [options.planName, formatMonthLabel(proratedMonths)],
+    };
+  };
+  // Hide the recurring term for one-time invoices: an all-proration invoice (no recurring line at
+  // all) or a mid-cycle plan change carrying prorations.
+  const allProrationInvoice =
+    pm.seats == null &&
+    passwordManager.additionalStorage == null &&
+    sm.seats == null &&
+    secretsManager?.additionalServiceAccounts == null;
+
+  const oneTimePlanChange =
+    flowContext === InvoicePreviewFlowContext.OrganizationPlanChange &&
+    (hasProrations(passwordManager.prorations) || hasProrations(secretsManager?.prorations));
+  const hidePricingTerm = allProrationInvoice || oneTimePlanChange;
+
+  const cart: Cart = {
+    passwordManager: {
+      ...(pm.seats ? { seats: labelProratedMonths(pm.seats) } : {}),
+      ...(passwordManager.additionalStorage
+        ? { additionalStorage: toCartItem(passwordManager.additionalStorage) }
+        : {}),
+      ...(pm.prorationCharges ? { prorationCharges: pm.prorationCharges } : {}),
+    },
+    ...(secretsManager &&
+    (sm.seats || secretsManager.additionalServiceAccounts || sm.prorationCharges)
+      ? {
+          secretsManager: {
+            ...(sm.seats ? { seats: sm.seats } : {}),
+            ...(secretsManager.additionalServiceAccounts
+              ? {
+                  additionalServiceAccounts: toCartItem(secretsManager.additionalServiceAccounts),
+                }
+              : {}),
+            ...(sm.prorationCharges ? { prorationCharges: sm.prorationCharges } : {}),
+          },
+        }
+      : {}),
+    cadence: preview.cadence,
+    ...(hidePricingTerm ? { hidePricingTerm: true } : {}),
+    ...(discounts.length ? { discounts } : {}),
+    estimatedTax: preview.estimatedTax,
+    total: preview.total,
+  };
+
+  const credit = buildCreditRow(preview, flowContext);
+  if (credit) {
+    cart.credit = credit;
+  }
+
+  cart.amountDue = preview.amountDue;
+  const appliedBalance = sumInCents([preview.total, -preview.amountDue]);
+  if (appliedBalance > 0) {
+    cart.appliedBalance = appliedBalance;
+  }
+
+  return cart;
+};
+
+const hasProrations = (prorations: PurchasableProration[] | undefined): boolean =>
+  !!prorations && prorations.length > 0;
+
+const formatMonthLabel = (months: number): string => `${months} month${months > 1 ? "s" : ""}`;
+
+/** Sums in integer cents and converts once so a run of fractional amounts cannot accumulate drift. */
+const sumInCents = (amounts: number[]): number =>
+  amounts.reduce((sum, amount) => sum + Math.round(amount * 100), 0) / 100;
+
+/**
+ * Collapses every proration across both product groups into at most one credit row. The row is
+ * emitted only when the total is positive AND the flow context actually renders credit.
+ */
+const buildCreditRow = (
+  preview: InvoicePreview,
+  flowContext: InvoicePreviewFlowContext,
+): Cart["credit"] => {
+  const translationKey = getCreditTranslationKey(flowContext);
+  if (!translationKey) {
+    return undefined;
+  }
+
+  const value = sumInCents(
+    [
+      ...(preview.passwordManager.prorations ?? []),
+      ...(preview.secretsManager?.prorations ?? []),
+    ].map((proration) => proration.credit),
+  );
+
+  if (value <= 0) {
+    return undefined;
+  }
+
+  return { translationKey, value };
+};

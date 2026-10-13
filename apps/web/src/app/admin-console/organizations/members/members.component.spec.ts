@@ -34,9 +34,9 @@ import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/or
 
 import { OrganizationUserView } from "../core/views/organization-user.view";
 
-import { AccountRecoveryDialogResultType } from "./components/account-recovery/account-recovery-dialog.component";
+import { AccountRecoveryDialogResultType } from "./components/account-recovery";
 import { MemberDialogResult } from "./components/member-dialog";
-import { vNextMembersComponent } from "./members.component";
+import { MembersComponent } from "./members.component";
 import {
   MemberDialogManagerService,
   MemberExportService,
@@ -48,9 +48,9 @@ import {
   MemberActionResult,
 } from "./services/member-actions/member-actions.service";
 
-describe("vNextMembersComponent", () => {
-  let component: vNextMembersComponent;
-  let fixture: ComponentFixture<vNextMembersComponent>;
+describe("MembersComponent", () => {
+  let component: MembersComponent;
+  let fixture: ComponentFixture<MembersComponent>;
 
   let mockApiService: MockProxy<ApiService>;
   let mockI18nService: MockProxy<I18nService>;
@@ -102,7 +102,7 @@ describe("vNextMembersComponent", () => {
     name: "Test User",
     resetPasswordEnrolled: false,
     accessSecretsManager: false,
-    managedByOrganization: false,
+    claimedByOrganization: false,
     twoFactorEnabled: false,
     usesKeyConnector: false,
     hasMasterPassword: true,
@@ -172,7 +172,7 @@ describe("vNextMembersComponent", () => {
     mockFileDownloadService = mock<FileDownloadService>();
 
     await TestBed.configureTestingModule({
-      declarations: [vNextMembersComponent],
+      imports: [MembersComponent],
       providers: [
         { provide: ApiService, useValue: mockApiService },
         { provide: I18nService, useValue: mockI18nService },
@@ -211,13 +211,12 @@ describe("vNextMembersComponent", () => {
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
-      .overrideComponent(vNextMembersComponent, {
-        remove: { imports: [] },
-        add: { template: "<div></div>" },
+      .overrideComponent(MembersComponent, {
+        set: { imports: [], template: "<div></div>" },
       })
       .compileComponents();
 
-    fixture = TestBed.createComponent(vNextMembersComponent);
+    fixture = TestBed.createComponent(MembersComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -323,12 +322,11 @@ describe("vNextMembersComponent", () => {
     it("should confirm user with auto-confirm enabled", async () => {
       mockOrganizationManagementPreferencesService.autoConfirmFingerPrints.state$ = of(true);
       mockMemberActionsService.confirmUser.mockResolvedValue({ success: true });
+      mockMemberService.loadUsers.mockResolvedValue([mockUser]);
 
       // Mock getPublicKeyForConfirm to return a public key
       const mockPublicKey = new Uint8Array([1, 2, 3, 4]);
       mockMemberActionsService.getPublicKeyForConfirm.mockResolvedValue(mockPublicKey);
-
-      const replaceSpy = jest.spyOn(component["dataSource"](), "replaceUser");
 
       await component.confirm(mockUser, mockOrg);
 
@@ -338,7 +336,7 @@ describe("vNextMembersComponent", () => {
         mockPublicKey,
         mockOrg,
       );
-      expect(replaceSpy).toHaveBeenCalled();
+      expect(mockMemberService.loadUsers).toHaveBeenCalledWith(mockOrg);
       expect(mockToastService.showToast).toHaveBeenCalled();
     });
 
@@ -392,18 +390,29 @@ describe("vNextMembersComponent", () => {
   });
 
   describe("restore", () => {
-    it("should restore user successfully", async () => {
+    it("should check the seat limit and restore user successfully", async () => {
+      mockBillingConstraint.seatLimitReached.mockResolvedValue(false);
       mockMemberActionsService.restoreUser.mockResolvedValue({ success: true });
       mockMemberService.loadUsers.mockResolvedValue([mockUser]);
 
       await component.restore(mockUser, mockOrg);
 
+      expect(mockBillingConstraint.checkSeatLimit).toHaveBeenCalledWith(
+        mockOrg,
+        mockBillingMetadata,
+      );
+      expect(mockBillingConstraint.seatLimitReached).toHaveBeenCalledWith(
+        undefined,
+        mockOrg,
+        "restore",
+      );
       expect(mockMemberActionsService.restoreUser).toHaveBeenCalledWith(mockOrg, mockUser.id);
       expect(mockToastService.showToast).toHaveBeenCalled();
       expect(mockMemberService.loadUsers).toHaveBeenCalledWith(mockOrg);
     });
 
     it("should handle errors via handleMemberActionResult", async () => {
+      mockBillingConstraint.seatLimitReached.mockResolvedValue(false);
       mockMemberActionsService.restoreUser.mockResolvedValue({
         success: false,
         error: "Restore failed",
@@ -416,6 +425,14 @@ describe("vNextMembersComponent", () => {
         message: "Restore failed",
       });
       expect(mockLogService.error).toHaveBeenCalledWith("Restore failed");
+    });
+
+    it("should not restore user when seat limit is reached", async () => {
+      mockBillingConstraint.seatLimitReached.mockResolvedValue(true);
+
+      await component.restore(mockUser, mockOrg);
+
+      expect(mockMemberActionsService.restoreUser).not.toHaveBeenCalled();
     });
   });
 
@@ -491,6 +508,7 @@ describe("vNextMembersComponent", () => {
     ])(
       "should open bulk $action dialog and reload when isRevoking is $isRevoking",
       async ({ isRevoking }) => {
+        mockBillingConstraint.seatLimitReached.mockResolvedValue(false);
         const users = [mockUser];
         jest.spyOn(component["dataSource"](), "getCheckedUsersWithLimit").mockReturnValue(users);
         mockMemberService.loadUsers.mockResolvedValue([mockUser]);
@@ -505,6 +523,49 @@ describe("vNextMembersComponent", () => {
         expect(mockMemberService.loadUsers).toHaveBeenCalledWith(mockOrg);
       },
     );
+
+    it("should check the seat limit before opening the bulk restore dialog", async () => {
+      mockBillingConstraint.seatLimitReached.mockResolvedValue(false);
+      const users = [mockUser];
+      jest.spyOn(component["dataSource"](), "getCheckedUsersWithLimit").mockReturnValue(users);
+      mockMemberService.loadUsers.mockResolvedValue([mockUser]);
+
+      await component.bulkRevokeOrRestore(false, mockOrg);
+
+      expect(mockBillingConstraint.checkSeatLimit).toHaveBeenCalledWith(
+        mockOrg,
+        mockBillingMetadata,
+      );
+      expect(mockBillingConstraint.seatLimitReached).toHaveBeenCalledWith(
+        undefined,
+        mockOrg,
+        "restore",
+      );
+    });
+
+    it("should not open the bulk restore dialog when seat limit is reached", async () => {
+      mockBillingConstraint.seatLimitReached.mockResolvedValue(true);
+
+      await component.bulkRevokeOrRestore(false, mockOrg);
+
+      expect(mockMemberDialogManager.openBulkRestoreRevokeDialog).not.toHaveBeenCalled();
+    });
+
+    it("should not check the seat limit when revoking", async () => {
+      const users = [mockUser];
+      jest.spyOn(component["dataSource"](), "getCheckedUsersWithLimit").mockReturnValue(users);
+      mockMemberService.loadUsers.mockResolvedValue([mockUser]);
+
+      await component.bulkRevokeOrRestore(true, mockOrg);
+
+      expect(mockBillingConstraint.checkSeatLimit).not.toHaveBeenCalled();
+      expect(mockBillingConstraint.seatLimitReached).not.toHaveBeenCalled();
+      expect(mockMemberDialogManager.openBulkRestoreRevokeDialog).toHaveBeenCalledWith(
+        mockOrg,
+        users,
+        true,
+      );
+    });
   });
 
   describe("bulkReinvite", () => {
@@ -515,11 +576,11 @@ describe("vNextMembersComponent", () => {
       };
       jest.spyOn(component["dataSource"](), "isIncreasedBulkLimitEnabled").mockReturnValue(false);
       jest.spyOn(component["dataSource"](), "getCheckedUsers").mockReturnValue([invitedUser]);
-      mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: true });
+      mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: [{}], failed: [] });
 
       await component.bulkReinvite(mockOrg);
 
-      expect(mockMemberActionsService.bulkReinvite).toHaveBeenCalledWith(mockOrg, [invitedUser.id]);
+      expect(mockMemberActionsService.bulkReinvite).toHaveBeenCalledWith(mockOrg, [invitedUser]);
       expect(mockMemberDialogManager.openBulkStatusDialog).toHaveBeenCalled();
     });
 
@@ -549,7 +610,7 @@ describe("vNextMembersComponent", () => {
       jest.spyOn(component["dataSource"](), "isIncreasedBulkLimitEnabled").mockReturnValue(false);
       jest.spyOn(component["dataSource"](), "getCheckedUsers").mockReturnValue([invitedUser]);
       const error = new Error("Bulk reinvite failed");
-      mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: false, failed: error });
+      mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: [], failed: error });
 
       await component.bulkReinvite(mockOrg);
 
@@ -691,6 +752,51 @@ describe("vNextMembersComponent", () => {
       await expect(
         component.handleMemberActionResult(result, "testSuccessKey", mockUser, sideEffect),
       ).rejects.toThrow("Side effect failed");
+    });
+  });
+
+  describe("staged filter fallback (PM-40482)", () => {
+    const stagedUser = {
+      ...mockUser,
+      id: newGuid(),
+      status: OrganizationUserStatusType.Staged,
+    } as OrganizationUserView;
+
+    it("resets the status filter to All when the last staged member is removed while the Staged view is selected", () => {
+      component["dataSource"]().data = [stagedUser];
+      component["statusToggle"].next(OrganizationUserStatusType.Staged);
+
+      component["dataSource"]().removeUser(stagedUser);
+
+      expect(component["statusToggle"].value).toBeUndefined();
+    });
+
+    it("keeps the Staged filter selected while staged members remain", () => {
+      const otherStagedUser = {
+        ...mockUser,
+        id: newGuid(),
+        status: OrganizationUserStatusType.Staged,
+      } as OrganizationUserView;
+      component["dataSource"]().data = [stagedUser, otherStagedUser];
+      component["statusToggle"].next(OrganizationUserStatusType.Staged);
+
+      component["dataSource"]().removeUser(stagedUser);
+
+      expect(component["statusToggle"].value).toBe(OrganizationUserStatusType.Staged);
+    });
+
+    it("leaves other selected filters unchanged when their count reaches zero", () => {
+      const invitedUser = {
+        ...mockUser,
+        id: newGuid(),
+        status: OrganizationUserStatusType.Invited,
+      } as OrganizationUserView;
+      component["dataSource"]().data = [invitedUser];
+      component["statusToggle"].next(OrganizationUserStatusType.Invited);
+
+      component["dataSource"]().removeUser(invitedUser);
+
+      expect(component["statusToggle"].value).toBe(OrganizationUserStatusType.Invited);
     });
   });
 });

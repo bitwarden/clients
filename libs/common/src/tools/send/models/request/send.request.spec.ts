@@ -1,51 +1,15 @@
-import { Send } from "@bitwarden/common/tools/send/models/domain/send";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 
-import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import { SendType } from "../../types/send-type";
+import { Send } from "../domain/send";
+import { SendItem } from "../domain/send-item";
 import { SendText } from "../domain/send-text";
 
 import { SendRequest } from "./send.request";
 
 describe("SendRequest", () => {
   describe("constructor", () => {
-    it("should populate emails with encrypted string from Send.emails", () => {
-      const send = new Send();
-      send.type = SendType.Text;
-      send.name = new EncString("encryptedName");
-      send.notes = new EncString("encryptedNotes");
-      send.key = new EncString("encryptedKey");
-      send.emails = new EncString("encryptedEmailList");
-      send.emailHashes = "HASH1,HASH2,HASH3";
-      send.disabled = false;
-      send.hideEmail = false;
-      send.text = new SendText();
-      send.text.text = new EncString("text");
-      send.text.hidden = false;
-
-      const request = new SendRequest(send);
-
-      expect(request.emails).toBe("encryptedEmailList");
-    });
-
-    it("should populate emailHashes from Send.emailHashes", () => {
-      const send = new Send();
-      send.type = SendType.Text;
-      send.name = new EncString("encryptedName");
-      send.notes = new EncString("encryptedNotes");
-      send.key = new EncString("encryptedKey");
-      send.emails = new EncString("encryptedEmailList");
-      send.emailHashes = "HASH1,HASH2,HASH3";
-      send.disabled = false;
-      send.hideEmail = false;
-      send.text = new SendText();
-      send.text.text = new EncString("text");
-      send.text.hidden = false;
-
-      const request = new SendRequest(send);
-
-      expect(request.emailHashes).toBe("HASH1,HASH2,HASH3");
-    });
-
     it("should set emails to null when Send.emails is null", () => {
       const send = new Send();
       send.type = SendType.Text;
@@ -53,7 +17,6 @@ describe("SendRequest", () => {
       send.notes = new EncString("encryptedNotes");
       send.key = new EncString("encryptedKey");
       send.emails = null;
-      send.emailHashes = "";
       send.disabled = false;
       send.hideEmail = false;
       send.text = new SendText();
@@ -63,45 +26,6 @@ describe("SendRequest", () => {
       const request = new SendRequest(send);
 
       expect(request.emails).toBeNull();
-      expect(request.emailHashes).toBe("");
-    });
-
-    it("should handle empty emailHashes", () => {
-      const send = new Send();
-      send.type = SendType.Text;
-      send.name = new EncString("encryptedName");
-      send.key = new EncString("encryptedKey");
-      send.emails = null;
-      send.emailHashes = "";
-      send.disabled = false;
-      send.hideEmail = false;
-      send.text = new SendText();
-      send.text.text = new EncString("text");
-      send.text.hidden = false;
-
-      const request = new SendRequest(send);
-
-      expect(request.emailHashes).toBe("");
-    });
-
-    it("should not expose plaintext emails", () => {
-      const send = new Send();
-      send.type = SendType.Text;
-      send.name = new EncString("encryptedName");
-      send.key = new EncString("encryptedKey");
-      send.emails = new EncString("2.encrypted|emaildata|here");
-      send.emailHashes = "ABC123,DEF456";
-      send.disabled = false;
-      send.hideEmail = false;
-      send.text = new SendText();
-      send.text.text = new EncString("text");
-      send.text.hidden = false;
-
-      const request = new SendRequest(send);
-
-      // Ensure the request contains the encrypted string format, not plaintext
-      expect(request.emails).toBe("2.encrypted|emaildata|here");
-      expect(request.emails).not.toContain("@");
     });
 
     it("should handle name being null", () => {
@@ -111,7 +35,6 @@ describe("SendRequest", () => {
       send.notes = new EncString("encryptedNotes");
       send.key = new EncString("encryptedKey");
       send.emails = null;
-      send.emailHashes = "";
       send.disabled = false;
       send.hideEmail = false;
       send.text = new SendText();
@@ -130,7 +53,6 @@ describe("SendRequest", () => {
       send.notes = null;
       send.key = new EncString("encryptedKey");
       send.emails = null;
-      send.emailHashes = "";
       send.disabled = false;
       send.hideEmail = false;
       send.text = new SendText();
@@ -148,7 +70,6 @@ describe("SendRequest", () => {
       send.name = new EncString("encryptedName");
       send.key = new EncString("encryptedKey");
       send.emails = null;
-      send.emailHashes = "";
       send.disabled = false;
       send.hideEmail = false;
       send.text = new SendText();
@@ -159,34 +80,32 @@ describe("SendRequest", () => {
 
       expect(request.fileLength).toBe(1024);
     });
-  });
 
-  describe("Email auth requirements", () => {
-    it("should create request with encrypted emails and plaintext emailHashes", () => {
-      // Setup: A Send with encrypted emails and computed hashes
+    it("should pass Item Send data through unchanged and carry its metadata", () => {
+      const sealedData = '{"format_version":1,"wrapped_cek":"2.a|b|c","envelope":"g1hH"}';
       const send = new Send();
-      send.type = SendType.Text;
+      send.type = SendType.Item;
       send.name = new EncString("encryptedName");
       send.key = new EncString("encryptedKey");
-      send.emails = new EncString("2.encryptedEmailString|data");
-      send.emailHashes = "A1B2C3D4,E5F6G7H8"; // Plaintext hashes
-      send.disabled = false;
-      send.hideEmail = false;
-      send.text = new SendText();
-      send.text.text = new EncString("text");
-      send.text.hidden = false;
+      send.data = new SendItem();
+      send.data.data = sealedData;
+      send.data.metadata = { itemId: "5d4fbf2b-7a36-4b3c-9f2e-1a6d8c0e9b71" };
 
-      // Act: Create the request
       const request = new SendRequest(send);
 
-      // emails field contains encrypted value
-      expect(request.emails).toBe("2.encryptedEmailString|data");
-      expect(request.emails).toContain("encrypted");
+      expect(request.data.data).toBe(sealedData);
+      expect(request.data.metadata.itemId).toBe("5d4fbf2b-7a36-4b3c-9f2e-1a6d8c0e9b71");
+    });
 
-      //emailHashes field contains plaintext comma-separated hashes
-      expect(request.emailHashes).toBe("A1B2C3D4,E5F6G7H8");
-      expect(request.emailHashes).not.toContain("encrypted");
-      expect(request.emailHashes.split(",")).toHaveLength(2);
+    it("should throw for an Item Send without metadata", () => {
+      const send = new Send();
+      send.type = SendType.Item;
+      send.name = new EncString("encryptedName");
+      send.key = new EncString("encryptedKey");
+      send.data = new SendItem();
+      send.data.data = "sealed";
+
+      expect(() => new SendRequest(send)).toThrow("Item Send is missing its item metadata");
     });
   });
 });

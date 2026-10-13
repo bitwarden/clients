@@ -1,0 +1,191 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Microsoft ResX Schema
+
+    Version 2.0
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
+    associated with the data types.
+
+    Example:
+
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+
+    There are any number of "resheader" rows that contain simple
+    name/value pairs.
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
+    mimetype set.
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
+    extensible. For a given mimetype the value must be set accordingly:
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
+    read any of the formats listed below.
+
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string"/>
+              <xsd:attribute name="type" type="xsd:string"/>
+              <xsd:attribute name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string"/>
+              <xsd:attribute name="name" type="xsd:string"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Name" xml:space="preserve">
+    <value>Bitwarden Купуясөз башкаруучусу</value>
+  </data>
+  <data name="Summary" xml:space="preserve">
+    <value>Үйдө, иште же жолдо, Bitwarden бардык сырсөздөрүңүздү, passkeyлериңизди жана купуя маалыматтарыңызды оңой коргойт.</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>PCMag, WIRED, The Verge, CNET, G2 жана башкалар тарабынан эң мыкты сырсөз менеджери деп табылган!
+
+САНАРИПТИК ЖАШООҢУЗДУ КОРГОҢУЗ
+Ар бир аккаунт үчүн уникалдуу, күчтүү сырсөздөрдү түзүп жана сактоо менен санариптик жашооңузду коргоңуз жана маалымат бузууларынан коргоңуз. Бардыгын сиз гана жетүү мүмкүн болгон учтан-учка шифрленген сырсөз сактоосунда сактаңыз.
+
+МААЛЫМАТТАРЫҢЫЗГА КААЛАГАН ЖЕРДЕ, КААЛАГАН УБАКТА, КААЛАГАН ТҮЗМӨКТӨ ЖЕТИҢИЗ
+Чексиз түзмөктөрдө чексиз сырсөздөрдү чектөөсүз оңой башкарыңыз, сактаңыз, коргоңуз жана бөлүшүңүз.
+
+АР БИР АДАМ ОНЛАЙН КООПСУЗ БОЛУУ ҮЧҮН КУРАЛДАРГА ЭЭ БОЛУШУ КЕРЕК
+Bitwardenди жарнамасыз же маалымат сатпастан акысыз колдонуңуз. Bitwarden ар бир адам онлайн коопсуз болуу мүмкүнчүлүгүнө ээ болушу керек деп эсептейт. Premium пландар кеңейтилген функцияларга жетүүнү сунуштайт.
+
+КОМАНДАЛАРЫҢЫЗДЫ BITWARDEN МЕНЕН КҮЧӨТҮҢҮЗ
+Teams жана Enterprise үчүн пландар профессионалдык бизнес функциялары менен келет. Айрым мисалдарга SSO интеграциясы, өзүн-өзү хосттоо, каталог интеграциясы жана SCIM камсыздоо, глобалдык саясаттар, API жетүү, окуя журналдары жана башкалар кирет.
+
+Жумушчу күчүңүздү коопсуз кылуу жана кесиптештер менен купуя маалыматтарды бөлүшүү үчүн Bitwardenди колдонуңуз.
+
+
+Bitwardenди тандоонун дагы себептери:
+
+Дүйнөлүк деңгээлдеги шифрлөө
+Сырсөздөр өркүндөтүлгөн учтан-учка шифрлөө (AES-256 бит, туздалган хештөө жана PBKDF2 SHA-256) менен корголот, ошондуктан маалыматтарыңыз коопсуз жана купуя бойдон калат.
+
+Үчүнчү тараптын аудиттери
+Bitwarden белгилүү коопсуздук фирмалары менен үзгүлтүксүз комплекстүү үчүнчү тараптын коопсуздук аудиттерин жүргүзөт. Бул жылдык аудиттер Bitwarden IPлери, серверлери жана веб колдонмолору боюнча баштапкы кодду баалоону жана кирип-тесттерди камтыйт.
+
+Өркүндөтүлгөн 2FA
+Кирүүңүздү үчүнчү тараптын аутентификатору, электрондук почта аркылуу коддор же FIDO2 WebAuthn маалыматтары (мисалы, аппараттык коопсуздук ачкычы же passkey) менен коргоңуз.
+
+Bitwarden Send
+Маалыматты башкаларга түз жөнөтүңүз, ошол эле учурда учтан-учка шифрленген коопсуздукту сактап, ачыкка чыгууну чектеңиз.
+
+Курулган генератор
+Ар бир кирген сайтыңыз үчүн узун, татаал жана өзгөчө сырсөздөрдү жана уникалдуу колдонуучу аттарын түзүңүз. Кошумча купуялык үчүн электрондук почта псевдоним провайдерлери менен интеграциялаңыз.
+
+Глобалдык котормолор
+Bitwarden котормолору 60тан ашык тилде бар, аларды глобалдык коомчулук Crowdin аркылуу которгон.
+
+Кросс-платформалык колдонмолор
+Каалаган браузер, мобилдик түзмөк же иш такта ОС жана башкалардан Bitwarden Сактооңуздагы купуя маалыматтарды коргоңуз жана бөлүшүңүз.
+
+Bitwarden сырсөздөрдөн көбүрөөк нерсени коргойт
+Bitwardenдин учтан-учка шифрленген маалыматтарды башкаруу чечимдери уюмдарга иштеп чыгуучунун сырлары жана passkey тажрыйбалары сыяктуу бардык нерсени коргоого мүмкүндүк берет. Bitwarden Secrets Manager жана Bitwarden Passwordless.dev тууралуу кененирээк билүү үчүн Bitwarden.com сайтына кириңиз!</value>
+  </data>
+  <data name="AssetTitle" xml:space="preserve">
+    <value>Үйдө, иште же жолдо, Bitwarden бардык сырсөздөрүңүздү, passkeyлериңизди жана купуя маалыматтарыңызды оңой коргойт.</value>
+  </data>
+  <data name="ScreenshotSync" xml:space="preserve">
+    <value>Бир нече түзмөктөн сактооңузду шайкештириңиз жана жетүү</value>
+  </data>
+  <data name="ScreenshotVault" xml:space="preserve">
+    <value>Бардык кирүүлөрүңүздү жана сырсөздөрүңүздү коопсуз сактоодон башкарыңыз</value>
+  </data>
+  <data name="ScreenshotAutofill" xml:space="preserve">
+    <value>Кирүү маалыматтарыңызды кирген ар кандай веб сайтка тез автотолтуруңуз</value>
+  </data>
+  <data name="ScreenshotMenu" xml:space="preserve">
+    <value>Сактооңузга оң баскыч менюсунан да ыңгайлуу жетүүгө болот</value>
+  </data>
+  <data name="ScreenshotPassword" xml:space="preserve">
+    <value>Күчтүү, кокустан алынган жана коопсуз сырсөздөрдү автоматтык түрдө түзүңүз</value>
+  </data>
+  <data name="ScreenshotEdit" xml:space="preserve">
+    <value>Маалыматтарыңыз AES-256 бит шифрлөө колдонуу менен коопсуз башкарылат</value>
+  </data>
+</root>

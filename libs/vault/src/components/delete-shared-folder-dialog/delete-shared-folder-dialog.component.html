@@ -1,0 +1,29 @@
+<bit-simple-dialog>
+  <span bitDialogTitle>{{ "deleteSharedFolder" | i18n }}</span>
+
+  <span bitDialogContent>
+    {{ descriptionBefore }}<span class="tw-italic">{{ folderName }}</span
+    >{{ descriptionAfter }}
+  </span>
+
+  <ng-container bitDialogFooter>
+    <button
+      bitButton
+      type="button"
+      buttonType="danger"
+      (click)="delete()"
+      id="delete-shared-folder-dialog_button_delete"
+    >
+      {{ "delete" | i18n }}
+    </button>
+    <button
+      bitButton
+      type="button"
+      buttonType="secondary"
+      (click)="cancel()"
+      id="delete-shared-folder-dialog_button_cancel"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-simple-dialog>

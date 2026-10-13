@@ -2,7 +2,6 @@ import { Observable } from "rxjs";
 
 import { UriMatchStrategySetting } from "@bitwarden/common/models/domain/domain-service";
 import { CommandDefinition } from "@bitwarden/common/platform/messaging";
-import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { AutofillMessageCommand } from "../../enums/autofill-message.enums";
@@ -10,6 +9,7 @@ import { InlineMenuFillType } from "../../enums/autofill-overlay.enum";
 import AutofillField from "../../models/autofill-field";
 import AutofillForm from "../../models/autofill-form";
 import AutofillPageDetails from "../../models/autofill-page-details";
+import { FillResult } from "../../types/fill-result";
 
 export interface PageDetail {
   frameId: number;
@@ -34,12 +34,21 @@ export interface AutoFillOptions {
   inlineMenuFillType?: InlineMenuFillType;
 }
 
-export interface FormData {
+interface FormDataBase {
   form: AutofillForm;
   password: AutofillField;
-  username: AutofillField;
   passwords: AutofillField[];
 }
+
+export interface FormDataWithUsername extends FormDataBase {
+  username: AutofillField;
+}
+
+export interface FormDataPasswordOnly extends FormDataBase {
+  username: null;
+}
+
+export type FormData = FormDataWithUsername | FormDataPasswordOnly;
 
 export interface GenerateFillScriptOptions {
   skipUsernameOnlyFill: boolean;
@@ -48,6 +57,11 @@ export interface GenerateFillScriptOptions {
   allowTotpAutofill: boolean;
   autoSubmitLogin: boolean;
   cipher: CipherView;
+  /**
+   * Whether the account is entitled to TOTP for this cipher. Gates filling the value only,
+   * `allowTotpAutofill` gates whether TOTP fields are identified.
+   */
+  canAccessTotp: boolean;
   tabUrl: string;
   defaultUriMatch: UriMatchStrategySetting;
   focusedFieldOpid?: string;
@@ -58,7 +72,6 @@ export type CollectPageDetailsResponseMessage = {
   tab: chrome.tabs.Tab;
   details: AutofillPageDetails;
   sender?: string;
-  webExtSender: chrome.runtime.MessageSender;
 };
 
 export const COLLECT_PAGE_DETAILS_RESPONSE_COMMAND =
@@ -67,8 +80,10 @@ export const COLLECT_PAGE_DETAILS_RESPONSE_COMMAND =
   );
 
 export abstract class AutofillService {
+  enableInlineMenuAnimation$!: Observable<boolean>;
+  enableNotificationAnimation$!: Observable<boolean>;
   /** Non-null asserted. */
-  collectPageDetailsFromTab$!: (tab: chrome.tabs.Tab) => Observable<PageDetail[]>;
+  collectPageDetailsFromTab$!: (tab: chrome.tabs.Tab, frameId?: number) => Observable<PageDetail[]>;
   /** Non-null asserted. */
   loadAutofillScriptsOnInstall!: () => Promise<void>;
   /** Non-null asserted. */
@@ -81,21 +96,14 @@ export abstract class AutofillService {
   ) => Promise<void>;
   /** Non-null asserted. */
   getFormsWithPasswordFields!: (pageDetails: AutofillPageDetails) => FormData[];
-  /** Non-null asserted. */
-  doAutoFill!: (options: AutoFillOptions) => Promise<string | null>;
-  /** Non-null asserted. */
-  doAutoFillOnTab!: (
-    pageDetails: PageDetail[],
-    tab: chrome.tabs.Tab,
-    fromCommand: boolean,
-    autoSubmitLogin?: boolean,
-  ) => Promise<string | null>;
-  /** Non-null asserted. */
-  doAutoFillActiveTab!: (
-    pageDetails: PageDetail[],
-    fromCommand: boolean,
-    cipherType?: CipherType,
-  ) => Promise<string | null>;
+  /**
+   * Fills a concrete cipher into the instructed tab/frame(s) and reports the
+   * outcome. Cipher selection and active-tab verification are the caller's concern.
+   *
+   * If you're calling this method, you're probably doing it wrong. Use the
+   * {@link AutofillOrchestrator} to request an autofill!
+   */
+  doAutoFill!: (options: AutoFillOptions) => Promise<FillResult>;
   /** Non-null asserted. */
   setAutoFillOnPageLoadOrgPolicy!: () => Promise<void>;
   /** Non-null asserted. */

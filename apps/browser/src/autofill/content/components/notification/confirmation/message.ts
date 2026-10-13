@@ -3,6 +3,7 @@ import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
+import { EventSecurity } from "../../../../utils/event-security";
 import { spacing, themes, typography } from "../../constants/styles";
 
 export type NotificationConfirmationMessageProps = {
@@ -26,42 +27,50 @@ export function NotificationConfirmationMessage({
 }: NotificationConfirmationMessageProps) {
   return html`
     <div class=${containerStyles}>
-      ${message || buttonText
-        ? html`
-            <div class=${singleLineWrapperStyles}>
-              ${itemName
-                ? html`
-                    <span class=${itemNameStyles(theme)} title=${itemName}> ${itemName} </span>
-                  `
-                : nothing}
-              <span
-                title=${message || buttonText}
-                class=${notificationConfirmationMessageStyles(theme)}
-              >
-                ${message || nothing}
-                ${buttonText
-                  ? html`
-                      <a
-                        title=${buttonText}
-                        class=${notificationConfirmationButtonTextStyles(theme)}
-                        @click=${handleClick}
-                        @keydown=${(e: KeyboardEvent) =>
-                          handleButtonKeyDown(e, () => handleClick(e))}
-                        aria-label=${buttonAria}
-                        tabindex="0"
-                        role="button"
-                      >
-                        ${buttonText}
-                      </a>
-                    `
-                  : nothing}
-              </span>
-            </div>
-          `
-        : nothing}
-      ${messageDetails
-        ? html`<div class=${AdditionalMessageStyles({ theme })}>${messageDetails}</div>`
-        : nothing}
+      ${
+        message || buttonText
+          ? html`
+              <div class=${singleLineWrapperStyles}>
+                ${
+                  itemName
+                    ? html`
+                        <span class=${itemNameStyles(theme)} title=${itemName}> ${itemName} </span>
+                      `
+                    : nothing
+                }
+                <span
+                  title=${message || buttonText}
+                  class=${notificationConfirmationMessageStyles(theme)}
+                >
+                  ${message || nothing}
+                  ${
+                    buttonText
+                      ? html`
+                          <a
+                            title=${buttonText}
+                            class=${notificationConfirmationButtonTextStyles(theme)}
+                            @click=${handleClick}
+                            @keydown=${(e: KeyboardEvent) =>
+                              handleButtonKeyDown(e, () => handleClick(e))}
+                            aria-label=${buttonAria}
+                            tabindex="0"
+                            role="button"
+                          >
+                            ${buttonText}
+                          </a>
+                        `
+                      : nothing
+                  }
+                </span>
+              </div>
+            `
+          : nothing
+      }
+      ${
+        messageDetails
+          ? html`<div class=${AdditionalMessageStyles({ theme })}>${messageDetails}</div>`
+          : nothing
+      }
     </div>
   `;
 }
@@ -127,7 +136,7 @@ const AdditionalMessageStyles = ({ theme }: { theme: Theme }) => css`
 `;
 
 function handleButtonKeyDown(event: KeyboardEvent, handleClick: () => void) {
-  if (event.key === "Enter" || event.key === " ") {
+  if (EventSecurity.isEventTrusted(event) && (event.key === "Enter" || event.key === " ")) {
     event.preventDefault();
     handleClick();
   }

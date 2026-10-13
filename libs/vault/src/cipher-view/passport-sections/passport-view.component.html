@@ -1,0 +1,219 @@
+<section class="tw-mb-5 bit-compact:tw-mb-4">
+  <bit-section-header>
+    <h2 bitTypography="h6">{{ "passportDetails" | i18n }}</h2>
+  </bit-section-header>
+  <read-only-cipher-card>
+    @if (passport().givenName) {
+      <bit-form-field>
+        <bit-label>{{ "firstName" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="passport().givenName"
+          aria-readonly="true"
+          data-testid="firstName"
+        />
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [label]="'copyFirstName' | i18n"
+          appCopyField="givenName"
+          [cipher]="cipher()"
+        ></button>
+      </bit-form-field>
+    }
+
+    @if (passport().surname) {
+      <bit-form-field>
+        <bit-label>{{ "lastName" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="passport().surname"
+          aria-readonly="true"
+          data-testid="lastName"
+        />
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [label]="'copyLastName' | i18n"
+          appCopyField="surname"
+          [cipher]="cipher()"
+        ></button>
+      </bit-form-field>
+    }
+
+    @if (passport().dateOfBirth) {
+      <bit-form-field>
+        <bit-label>{{ "dateOfBirth" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="formatDate(passport().dateOfBirth)"
+          aria-readonly="true"
+          data-testid="date-of-birth"
+        />
+      </bit-form-field>
+    }
+
+    @if (passport().sex) {
+      <bit-form-field>
+        <bit-label>{{ "sex" | i18n }}</bit-label>
+        <input readonly bitInput [value]="passport().sex" aria-readonly="true" data-testid="sex" />
+      </bit-form-field>
+    }
+
+    @if (passport().birthPlace) {
+      <bit-form-field>
+        <bit-label>{{ "birthPlace" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="passport().birthPlace"
+          aria-readonly="true"
+          data-testid="birth-place"
+        />
+      </bit-form-field>
+    }
+
+    @if (passport().nationality) {
+      <bit-form-field>
+        <bit-label>{{ "nationality" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="passport().nationality"
+          aria-readonly="true"
+          data-testid="nationality"
+        />
+      </bit-form-field>
+    }
+
+    @if (passport().passportNumber) {
+      <bit-form-field>
+        <bit-label>{{ "passportNumber" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="passport().passportNumber"
+          aria-readonly="true"
+          type="password"
+          data-testid="passport-number"
+        />
+        <button
+          bitSuffix
+          type="button"
+          bitIconButton
+          bitPasswordInputToggle
+          [toggled]="revealPassportNumber()"
+          (toggledChange)="togglePassportNumberVisible($event)"
+        ></button>
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [label]="'copyPassportNumber' | i18n"
+          appCopyField="passportNumber"
+          [cipher]="cipher()"
+        ></button>
+      </bit-form-field>
+    }
+
+    @if (passport().passportType) {
+      <bit-form-field>
+        <bit-label>{{ "passportType" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="passport().passportType"
+          aria-readonly="true"
+          data-testid="passport-type"
+        />
+      </bit-form-field>
+    }
+
+    @if (passport().nationalIdentificationNumber) {
+      <bit-form-field>
+        <bit-label>{{ "nationalIdentificationNumber" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="passport().nationalIdentificationNumber"
+          aria-readonly="true"
+          type="password"
+          data-testid="national-identification-number"
+        />
+        <button
+          bitSuffix
+          type="button"
+          bitIconButton
+          bitPasswordInputToggle
+          [toggled]="revealNationalIdentificationNumber()"
+          (toggledChange)="toggleNationalIdentificationNumberVisible($event)"
+        ></button>
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [label]="'copyNationalIdentificationNumber' | i18n"
+          appCopyField="nationalIdentificationNumber"
+          [cipher]="cipher()"
+        ></button>
+      </bit-form-field>
+    }
+
+    @if (passport().issuingCountry) {
+      <bit-form-field>
+        <bit-label>{{ "issuingCountry" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="passport().issuingCountry"
+          aria-readonly="true"
+          data-testid="issuing-country"
+        />
+      </bit-form-field>
+    }
+
+    @if (passport().issuingAuthority) {
+      <bit-form-field>
+        <bit-label>{{ "issuingAuthority" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="passport().issuingAuthority"
+          aria-readonly="true"
+          data-testid="issuing-authority"
+        />
+      </bit-form-field>
+    }
+
+    @if (passport().issueDate) {
+      <bit-form-field>
+        <bit-label>{{ "issueDate" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="formatDate(passport().issueDate)"
+          aria-readonly="true"
+          data-testid="issue-date"
+        />
+      </bit-form-field>
+    }
+
+    @if (passport().expirationDate) {
+      <bit-form-field>
+        <bit-label>{{ "expirationDate" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="formatDate(passport().expirationDate)"
+          aria-readonly="true"
+          data-testid="expiration-date"
+        />
+      </bit-form-field>
+    }
+  </read-only-cipher-card>
+</section>

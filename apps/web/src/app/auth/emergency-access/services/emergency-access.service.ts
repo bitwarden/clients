@@ -1,29 +1,36 @@
 import { Injectable } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { concatMap, firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
-  EncryptedString,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
+  MasterPasswordAuthenticationData,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { KeyService, UserKeyRotationKeyRecoveryProvider } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
+  EncryptedString,
+  EncryptService,
+  EncString,
   KdfConfig,
-  PBKDF2KdfConfig,
-  KeyService,
   KdfType,
-  UserKeyRotationKeyRecoveryProvider,
-} from "@bitwarden/key-management";
+  LegacyCompatKeyService,
+  PBKDF2KdfConfig,
+} from "@bitwarden/legacy-crypto";
+import { EmergencyAccessId } from "@bitwarden/sdk-internal";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../enums/emergency-access-type";
@@ -53,9 +60,12 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     private emergencyAccessApiService: EmergencyAccessApiService,
     private apiService: ApiService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private encryptService: EncryptService,
     private cipherService: CipherService,
     private logService: LogService,
+    private masterPasswordService: MasterPasswordServiceAbstraction,
+    private sdkService: SdkService,
   ) {}
 
   /**
@@ -190,7 +200,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     try {
       this.logService.debug(
         "User's fingerprint: " +
-          (await this.keyService.getFingerprint(granteeId, publicKey)).join("-"),
+          (await this.legacyCompatKeyService.getFingerprint(granteeId, publicKey)).join("-"),
       );
     } catch {
       // Ignore errors since it's just a debug message
@@ -244,8 +254,6 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * @param activeUserId the user id of the active user
    */
   async getViewOnlyCiphers(id: string, activeUserId: UserId): Promise<CipherView[]> {
-    const response = await this.emergencyAccessApiService.postEmergencyAccessView(id);
-
     const activeUserPrivateKey = await firstValueFrom(
       this.keyService.userPrivateKey$(activeUserId),
     );
@@ -254,15 +262,30 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
       throw new Error("Active user does not have a private key, cannot get view only ciphers.");
     }
 
-    const grantorUserKey = (await this.encryptService.decapsulateKeyUnsigned(
-      new EncString(response.keyEncrypted),
-      activeUserPrivateKey,
-    )) as UserKey;
+    // The SDK fetches the view and decrypts it with the grantor key, which never leaves the SDK.
+    const result = await firstValueFrom(
+      this.sdkService.userClient$(activeUserId).pipe(
+        concatMap(async (sdk) => {
+          using ref = sdk.take();
+          return await ref.value.emergency_access().view_vault_items(asUuid<EmergencyAccessId>(id));
+        }),
+      ),
+    );
 
-    let ciphers: CipherView[] = [];
-    const ciphersEncrypted = response.ciphers.map((c) => new Cipher(c));
-    ciphers = await Promise.all(ciphersEncrypted.map(async (c) => c.decrypt(grantorUserKey)));
-    return ciphers.sort(this.cipherService.getLocaleSortingFunction());
+    const decrypted = result.successes.map((view) => CipherView.fromSdkCipherView(view)!);
+
+    // Keep failed ciphers visible to the grantee, like the legacy TS decryption did.
+    const failed = result.failures
+      .map((cipher) => Cipher.fromSdkCipher(cipher))
+      .filter((cipher): cipher is Cipher => cipher !== undefined)
+      .map((cipher) => {
+        const failedView = new CipherView(cipher);
+        failedView.name = "[error: cannot decrypt]";
+        failedView.decryptionFailure = true;
+        return failedView;
+      });
+
+    return [...decrypted, ...failed].sort(this.cipherService.getLocaleSortingFunction());
   }
 
   /**
@@ -270,7 +293,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * Intended for grantee.
    * @param id emergency access id
    * @param masterPassword new master password
-   * @param email email address of grantee (must be consistent or login will fail)
+   * @param email email address of grantor (must be consistent or login will fail)
    * @param activeUserId the user id of the active user
    */
   async takeover(id: string, masterPassword: string, email: string, activeUserId: UserId) {
@@ -303,24 +326,39 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
       case KdfType.Argon2id:
         config = new Argon2KdfConfig(
           takeoverResponse.kdfIterations,
-          takeoverResponse.kdfMemory,
-          takeoverResponse.kdfParallelism,
+          takeoverResponse.kdfMemory!,
+          takeoverResponse.kdfParallelism!,
         );
         break;
     }
 
-    const masterKey = await this.keyService.makeMasterKey(masterPassword, email, config);
-    const masterKeyHash = await this.keyService.hashMasterKey(masterPassword, masterKey);
+    // Prefer server-provided salt from the takeover response.
+    // Falls back to email-derived salt for backward compatibility with servers
+    // that don't yet include Salt in the response (PM-31636).
+    //
+    // TODO: PM-32059 — When salt is fully disconnected from email (Stage 3),
+    // the email fallback will be removed and server salt becomes mandatory.
+    const salt: MasterPasswordSalt =
+      typeof takeoverResponse.salt === "string"
+        ? (takeoverResponse.salt as MasterPasswordSalt)
+        : this.masterPasswordService.emailToSalt(email);
 
-    const encKey = await this.keyService.encryptUserKeyWithMasterKey(masterKey, grantorUserKey);
+    const authenticationData: MasterPasswordAuthenticationData =
+      await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+        masterPassword,
+        config,
+        salt,
+      );
 
-    if (encKey == null || !encKey[1].encryptedString) {
-      throw new Error("masterKeyEncryptedUserKey not found");
-    }
+    const unlockData: MasterPasswordUnlockData =
+      await this.masterPasswordService.makeMasterPasswordUnlockData(
+        masterPassword,
+        config,
+        salt,
+        grantorUserKey,
+      );
 
-    const request = new EmergencyAccessPasswordRequest();
-    request.newMasterPasswordHash = masterKeyHash;
-    request.key = encKey[1].encryptedString;
+    const request = new EmergencyAccessPasswordRequest(authenticationData, unlockData);
 
     await this.emergencyAccessApiService.postEmergencyAccessPassword(id, request);
   }
@@ -399,7 +437,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     for (const details of allDetails) {
       if (
         trustedPublicKeys.find(
-          (pk) => Utils.fromBufferToHex(pk) === Utils.fromBufferToHex(details.publicKey),
+          (pk) => Utils.fromArrayToHex(pk) === Utils.fromArrayToHex(details.publicKey),
         ) == null
       ) {
         this.logService.info(

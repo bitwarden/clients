@@ -4,11 +4,14 @@ import { ObservedValueOf, of } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { newGuid } from "@bitwarden/guid";
 import { UserId } from "@bitwarden/user-core";
 
 import { mockAccountInfoWith } from "../../spec";
 import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
+import { EventRequest } from "../dirt/event-logs";
+import { EventType } from "../dirt/event-logs/enums/event-type.enum";
 import { DeviceType } from "../enums";
 import {
   VaultTimeoutAction,
@@ -22,7 +25,7 @@ import { LogService } from "../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
 
 import { InsecureUrlNotAllowedError } from "./api-errors";
-import { ApiService, HttpOperations } from "./api.service";
+import { ApiService, EventUploadBatchSize, HttpOperations } from "./api.service";
 
 describe("ApiService", () => {
   let tokenService: MockProxy<TokenService>;
@@ -40,6 +43,7 @@ describe("ApiService", () => {
 
   const testActiveUser = "activeUser" as UserId;
   const testInactiveUser = "inactiveUser" as UserId;
+  const kdfFields = { Kdf: 0, KdfIterations: 600_000 };
 
   beforeEach(() => {
     tokenService = mock();
@@ -63,6 +67,17 @@ describe("ApiService", () => {
     } satisfies ObservedValueOf<AccountService["activeAccount$"]>);
 
     httpOperations = mock();
+    httpOperations.createRequest.mockImplementation((url, request) => {
+      return {
+        url: url,
+        cache: request.cache,
+        credentials: request.credentials,
+        method: request.method,
+        mode: request.mode,
+        signal: request.signal ?? undefined,
+        headers: new Headers(request.headers),
+      } satisfies Partial<Request> as unknown as Request;
+    });
 
     sut = new ApiService(
       tokenService,
@@ -90,18 +105,6 @@ describe("ApiService", () => {
           getApiUrl: () => "https://authed.example.com",
         } satisfies Partial<Environment> as Environment),
       );
-
-      httpOperations.createRequest.mockImplementation((url, request) => {
-        return {
-          url: url,
-          cache: request.cache,
-          credentials: request.credentials,
-          method: request.method,
-          mode: request.mode,
-          signal: request.signal,
-          headers: new Headers(request.headers),
-        } satisfies Partial<Request> as unknown as Request;
-      });
 
       tokenService.getAccessToken.mockResolvedValue("access_token");
       tokenService.tokenNeedsRefresh.mockResolvedValue(false);
@@ -150,18 +153,6 @@ describe("ApiService", () => {
           getApiUrl: () => "https://inactive.example.com",
         } satisfies Partial<Environment> as Environment),
       );
-
-      httpOperations.createRequest.mockImplementation((url, request) => {
-        return {
-          url: url,
-          cache: request.cache,
-          credentials: request.credentials,
-          method: request.method,
-          mode: request.mode,
-          signal: request.signal,
-          headers: new Headers(request.headers),
-        } satisfies Partial<Request> as unknown as Request;
-      });
 
       tokenService.getAccessToken
         .calledWith(testInactiveUser)
@@ -222,7 +213,7 @@ describe("ApiService", () => {
         expectedEffectiveUser: testActiveUser,
       },
       {
-        name: "refreshes acess token when the user passed in happens to be the active one",
+        name: "refreshes access token when the user passed in happens to be the active one",
         authedOrUserId: testActiveUser,
         expectedEffectiveUser: testActiveUser,
       },
@@ -276,18 +267,6 @@ describe("ApiService", () => {
         )
         .mockResolvedValue({ accessToken: `${expectedEffectiveUser}_refreshed_access_token` });
 
-      httpOperations.createRequest.mockImplementation((url, request) => {
-        return {
-          url: url,
-          cache: request.cache,
-          credentials: request.credentials,
-          method: request.method,
-          mode: request.mode,
-          signal: request.signal,
-          headers: new Headers(request.headers),
-        } satisfies Partial<Request> as unknown as Request;
-      });
-
       const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
 
       nativeFetch.mockImplementation((request) => {
@@ -300,6 +279,7 @@ describe("ApiService", () => {
                 access_token: `${expectedEffectiveUser}_new_access_token`,
                 token_type: "Bearer",
                 refresh_token: `${expectedEffectiveUser}_new_refresh_token`,
+                ...kdfFields,
               }),
           } satisfies Partial<Response> as Response);
         }
@@ -385,18 +365,6 @@ describe("ApiService", () => {
         } satisfies Partial<Environment> as Environment),
       );
 
-      httpOperations.createRequest.mockImplementation((url, request) => {
-        return {
-          url: url,
-          cache: request.cache,
-          credentials: request.credentials,
-          method: request.method,
-          mode: request.mode,
-          signal: request.signal,
-          headers: new Headers(request.headers),
-        } satisfies Partial<Request> as unknown as Request;
-      });
-
       const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
 
       nativeFetch.mockImplementation((request) => {
@@ -421,18 +389,6 @@ describe("ApiService", () => {
         getApiUrl: () => "http://example.com",
       } satisfies Partial<Environment> as Environment),
     );
-
-    httpOperations.createRequest.mockImplementation((url, request) => {
-      return {
-        url: url,
-        cache: request.cache,
-        credentials: request.credentials,
-        method: request.method,
-        mode: request.mode,
-        signal: request.signal ?? undefined,
-        headers: new Headers(request.headers),
-      } satisfies Partial<Request> as unknown as Request;
-    });
 
     const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
     nativeFetch.mockImplementation((request) => {
@@ -466,17 +422,6 @@ describe("ApiService", () => {
         } satisfies Partial<Environment> as Environment),
       );
 
-      httpOperations.createRequest.mockImplementation((url, request) => {
-        return {
-          url: url,
-          cache: request.cache,
-          credentials: request.credentials,
-          method: request.method,
-          mode: request.mode,
-          signal: request.signal,
-          headers: new Headers(request.headers),
-        } satisfies Partial<Request> as unknown as Request;
-      });
       tokenService.getAccessToken.calledWith(testActiveUser).mockResolvedValue("access_token");
       // First call (initial request): token doesn't need refresh yet
       // Subsequent calls (after 401): token needs refresh, triggering the refresh flow
@@ -540,6 +485,7 @@ describe("ApiService", () => {
                 access_token: "new_access_token",
                 token_type: "Bearer",
                 refresh_token: "new_refresh_token",
+                ...kdfFields,
               }),
           } satisfies Partial<Response> as Response);
         }
@@ -573,18 +519,6 @@ describe("ApiService", () => {
         getApiUrl: () => "https://example.com",
       } satisfies Partial<Environment> as Environment);
 
-      httpOperations.createRequest.mockImplementation((url, request) => {
-        return {
-          url: url,
-          cache: request.cache,
-          credentials: request.credentials,
-          method: request.method,
-          mode: request.mode,
-          signal: request.signal,
-          headers: new Headers(request.headers),
-        } satisfies Partial<Request> as unknown as Request;
-      });
-
       const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
 
       nativeFetch.mockImplementation((request) => {
@@ -616,18 +550,6 @@ describe("ApiService", () => {
         } satisfies Partial<Environment> as Environment),
       );
 
-      httpOperations.createRequest.mockImplementation((url, request) => {
-        return {
-          url: url,
-          cache: request.cache,
-          credentials: request.credentials,
-          method: request.method,
-          mode: request.mode,
-          signal: request.signal,
-          headers: new Headers(request.headers),
-        } satisfies Partial<Request> as unknown as Request;
-      });
-
       tokenService.getAccessToken.calledWith(testActiveUser).mockResolvedValue("valid_token");
       tokenService.tokenNeedsRefresh.calledWith(testActiveUser).mockResolvedValue(false);
 
@@ -658,18 +580,6 @@ describe("ApiService", () => {
       environmentService.environment$ = of({
         getApiUrl: () => "https://example.com",
       } satisfies Partial<Environment> as Environment);
-
-      httpOperations.createRequest.mockImplementation((url, request) => {
-        return {
-          url: url,
-          cache: request.cache,
-          credentials: request.credentials,
-          method: request.method,
-          mode: request.mode,
-          signal: request.signal,
-          headers: new Headers(request.headers),
-        } satisfies Partial<Request> as unknown as Request;
-      });
 
       const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
 
@@ -704,18 +614,6 @@ describe("ApiService", () => {
           getIdentityUrl: () => "https://identity.example.com",
         } satisfies Partial<Environment> as Environment),
       );
-
-      httpOperations.createRequest.mockImplementation((url, request) => {
-        return {
-          url: url,
-          cache: request.cache,
-          credentials: request.credentials,
-          method: request.method,
-          mode: request.mode,
-          signal: request.signal,
-          headers: new Headers(request.headers),
-        } satisfies Partial<Request> as unknown as Request;
-      });
 
       tokenService.getAccessToken.calledWith(testActiveUser).mockResolvedValue("expired_token");
       tokenService.tokenNeedsRefresh.calledWith(testActiveUser).mockResolvedValue(false);
@@ -772,18 +670,6 @@ describe("ApiService", () => {
           getIdentityUrl: () => "https://identity.inactive.example.com",
         } satisfies Partial<Environment> as Environment),
       );
-
-      httpOperations.createRequest.mockImplementation((url, request) => {
-        return {
-          url: url,
-          cache: request.cache,
-          credentials: request.credentials,
-          method: request.method,
-          mode: request.mode,
-          signal: request.signal,
-          headers: new Headers(request.headers),
-        } satisfies Partial<Request> as unknown as Request;
-      });
 
       tokenService.getAccessToken
         .calledWith(testActiveUser)
@@ -869,6 +755,7 @@ describe("ApiService", () => {
                 access_token: "active_new_access_token",
                 token_type: "Bearer",
                 refresh_token: "active_new_refresh_token",
+                ...kdfFields,
               }),
           } satisfies Partial<Response> as Response);
         }
@@ -911,18 +798,6 @@ describe("ApiService", () => {
           getIdentityUrl: () => "https://identity.example.com",
         } satisfies Partial<Environment> as Environment),
       );
-
-      httpOperations.createRequest.mockImplementation((url, request) => {
-        return {
-          url: url,
-          cache: request.cache,
-          credentials: request.credentials,
-          method: request.method,
-          mode: request.mode,
-          signal: request.signal,
-          headers: new Headers(request.headers),
-        } satisfies Partial<Request> as unknown as Request;
-      });
 
       tokenService.getAccessToken.calledWith(testActiveUser).mockResolvedValue("access_token");
       // First call (initial request): token doesn't need refresh yet
@@ -987,6 +862,7 @@ describe("ApiService", () => {
                 access_token: "new_access_token",
                 token_type: "Bearer",
                 refresh_token: "new_refresh_token",
+                ...kdfFields,
               }),
           } satisfies Partial<Response> as Response);
         }
@@ -1031,18 +907,6 @@ describe("ApiService", () => {
           getIdentityUrl: () => "https://identity.example.com",
         } satisfies Partial<Environment> as Environment),
       );
-
-      httpOperations.createRequest.mockImplementation((url, request) => {
-        return {
-          url: url,
-          cache: request.cache,
-          credentials: request.credentials,
-          method: request.method,
-          mode: request.mode,
-          signal: request.signal,
-          headers: new Headers(request.headers),
-        } satisfies Partial<Request> as unknown as Request;
-      });
 
       tokenService.getAccessToken.calledWith(testActiveUser).mockResolvedValue("expired_token");
 
@@ -1100,6 +964,8 @@ describe("ApiService", () => {
                       access_token: "new_access_token",
                       token_type: "Bearer",
                       refresh_token: "new_refresh_token",
+                      Kdf: 0,
+                      KdfIterations: 600_000,
                     }),
                 } satisfies Partial<Response> as Response),
               100,
@@ -1169,18 +1035,6 @@ describe("ApiService", () => {
         } satisfies Partial<Environment> as Environment),
       );
 
-      httpOperations.createRequest.mockImplementation((url, request) => {
-        return {
-          url: url,
-          cache: request.cache,
-          credentials: request.credentials,
-          method: request.method,
-          mode: request.mode,
-          signal: request.signal,
-          headers: new Headers(request.headers),
-        } satisfies Partial<Request> as unknown as Request;
-      });
-
       tokenService.getAccessToken.calledWith(testActiveUser).mockResolvedValue("valid_token");
       tokenService.tokenNeedsRefresh.calledWith(testActiveUser).mockResolvedValue(false);
 
@@ -1211,18 +1065,6 @@ describe("ApiService", () => {
         getApiUrl: () => "https://example.com",
       } satisfies Partial<Environment> as Environment);
 
-      httpOperations.createRequest.mockImplementation((url, request) => {
-        return {
-          url: url,
-          cache: request.cache,
-          credentials: request.credentials,
-          method: request.method,
-          mode: request.mode,
-          signal: request.signal,
-          headers: new Headers(request.headers),
-        } satisfies Partial<Request> as unknown as Request;
-      });
-
       const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
 
       nativeFetch.mockImplementation((request) => {
@@ -1243,6 +1085,226 @@ describe("ApiService", () => {
       ).rejects.toMatchObject({ message: "Forbidden" });
 
       expect(logoutCallback).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("fetch", () => {
+    it("does not execute any middlewares when none are registered", async () => {
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+      nativeFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+      } satisfies Partial<Response> as Response);
+      sut.nativeFetch = nativeFetch;
+
+      const request = {
+        url: "https://example.com/api",
+        method: "POST",
+        headers: { set: jest.fn() },
+      } as unknown as Request;
+      await sut.fetch(request);
+
+      expect(nativeFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("executes a registered middleware before sending the request", async () => {
+      const middleware = jest.fn<Promise<Response>, [Request, (req: Request) => Promise<Response>]>(
+        async (req, next) => next(req),
+      );
+      sut.addMiddleware(middleware);
+
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+      nativeFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+      } satisfies Partial<Response> as Response);
+      sut.nativeFetch = nativeFetch;
+
+      const request = {
+        url: "https://example.com/api",
+        method: "POST",
+        headers: { set: jest.fn() },
+      } as unknown as Request;
+      await sut.fetch(request);
+
+      expect(middleware).toHaveBeenCalledTimes(1);
+      expect(middleware).toHaveBeenCalledWith(request, expect.any(Function));
+      expect(nativeFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("executes all registered middlewares before sending the request", async () => {
+      const callOrder: number[] = [];
+      const middleware1 = jest
+        .fn<Promise<Response>, [Request, (req: Request) => Promise<Response>]>()
+        .mockImplementation(async (req, next) => {
+          callOrder.push(1);
+          return next(req);
+        });
+      const middleware2 = jest
+        .fn<Promise<Response>, [Request, (req: Request) => Promise<Response>]>()
+        .mockImplementation(async (req, next) => {
+          callOrder.push(2);
+          return next(req);
+        });
+      sut.addMiddleware(middleware1);
+      sut.addMiddleware(middleware2);
+
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+      nativeFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+      } satisfies Partial<Response> as Response);
+      sut.nativeFetch = nativeFetch;
+
+      const request = {
+        url: "https://example.com/api",
+        method: "POST",
+        headers: { set: jest.fn() },
+      } as unknown as Request;
+      await sut.fetch(request);
+
+      expect(middleware1).toHaveBeenCalledTimes(1);
+      expect(middleware2).toHaveBeenCalledTimes(1);
+      expect(nativeFetch).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("refreshAccessToken", () => {
+    const userId = testActiveUser;
+    const refreshTokenValue = "refresh_token_value";
+    const newAccessToken = "new_access_token";
+    const newRefreshToken = "new_refresh_token";
+    const refreshedAccessToken = "refreshed_access_token";
+
+    beforeEach(() => {
+      environmentService.getEnvironment$.calledWith(userId).mockReturnValue(
+        of({
+          getIdentityUrl: () => "https://identity.example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+
+      tokenService.getRefreshToken.calledWith(userId).mockResolvedValue(refreshTokenValue);
+
+      tokenService.decodeAccessToken
+        .calledWith(userId)
+        .mockResolvedValue({ client_id: "web" } as any);
+
+      tokenService.decodeAccessToken
+        .calledWith(newAccessToken)
+        .mockResolvedValue({ sub: userId } as any);
+
+      vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$
+        .calledWith(userId)
+        .mockReturnValue(of(VaultTimeoutAction.Lock));
+
+      vaultTimeoutSettingsService.getVaultTimeoutByUserId$
+        .calledWith(userId)
+        .mockReturnValue(of(VaultTimeoutStringType.Never));
+
+      tokenService.setTokens.mockResolvedValue({ accessToken: refreshedAccessToken } as any);
+    });
+
+    it("returns new access token on success", async () => {
+      sut.nativeFetch = jest.fn().mockResolvedValue({
+        status: 200,
+        json: () =>
+          Promise.resolve({
+            access_token: newAccessToken,
+            token_type: "Bearer",
+            refresh_token: newRefreshToken,
+          }),
+      } satisfies Partial<Response> as Response);
+
+      const result = await (sut as any).refreshAccessToken(userId);
+
+      expect(result).toEqual(refreshedAccessToken);
+      expect(tokenService.setTokens).toHaveBeenCalledWith(
+        newAccessToken,
+        VaultTimeoutAction.Lock,
+        VaultTimeoutStringType.Never,
+        newRefreshToken,
+      );
+    });
+
+    it("does not crash when server includes KDF fields (PM-35246 regression)", async () => {
+      sut.nativeFetch = jest.fn().mockResolvedValue({
+        status: 200,
+        json: () =>
+          Promise.resolve({
+            access_token: newAccessToken,
+            token_type: "Bearer",
+            refresh_token: newRefreshToken,
+            ...kdfFields,
+          }),
+      } satisfies Partial<Response> as Response);
+
+      await expect((sut as any).refreshAccessToken(userId)).resolves.toEqual(refreshedAccessToken);
+    });
+
+    it("handles missing refresh_token in response", async () => {
+      sut.nativeFetch = jest.fn().mockResolvedValue({
+        status: 200,
+        json: () =>
+          Promise.resolve({
+            access_token: newAccessToken,
+            token_type: "Bearer",
+          }),
+      } satisfies Partial<Response> as Response);
+
+      await (sut as any).refreshAccessToken(userId);
+
+      expect(tokenService.setTokens).toHaveBeenCalledWith(
+        newAccessToken,
+        VaultTimeoutAction.Lock,
+        VaultTimeoutStringType.Never,
+        undefined,
+      );
+    });
+
+    it("rejects on non-200 response", async () => {
+      sut.nativeFetch = jest.fn().mockResolvedValue({
+        status: 400,
+        headers: new Headers(),
+      } satisfies Partial<Response> as Response);
+
+      await expect((sut as any).refreshAccessToken(userId)).rejects.toBeInstanceOf(ErrorResponse);
+    });
+  });
+
+  describe("postEventsCollect", () => {
+    beforeEach(() => {
+      environmentService.environment$ = of({
+        getEventsUrl: () => "https://example.com",
+      } satisfies Partial<Environment> as Environment);
+
+      environmentService.getEnvironment$.mockReturnValue(
+        of({
+          getEventsUrl: () => "https://example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+    });
+
+    it("returns all failed events", async () => {
+      sut.nativeFetch = jest
+        .fn()
+        .mockResolvedValueOnce({
+          status: 200,
+        })
+        .mockResolvedValue({
+          status: 500,
+        });
+      // create events
+      const events = [...Array(1000).keys()].map((i) => {
+        return {
+          type: EventType.Cipher_ClientAutofilled,
+          cipherId: newGuid(),
+          date: new Date().toISOString(),
+          organizationId: newGuid(),
+        } as EventRequest;
+      });
+      await expect(sut.postEventsCollect(events)).resolves.toEqual(
+        events.slice(EventUploadBatchSize),
+      );
     });
   });
 });

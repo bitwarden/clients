@@ -1,12 +1,10 @@
 import { Observable } from "rxjs";
 
-import { CipherId, UserId } from "@bitwarden/common/types/guid";
-import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-
+import { CipherId, UserId } from "../../types/guid";
 import { CipherData } from "../models/data/cipher.data";
+import { CipherViewLike } from "../utils/cipher-view-like-utils";
 
 export abstract class CipherArchiveService {
-  abstract hasArchiveFlagEnabled$: Observable<boolean>;
   abstract archivedCiphers$(userId: UserId): Observable<CipherViewLike[]>;
   abstract userCanArchive$(userId: UserId): Observable<boolean>;
   abstract userHasPremium$(userId: UserId): Observable<boolean>;

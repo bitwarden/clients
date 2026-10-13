@@ -14,13 +14,12 @@ import {
   ifEnabledSemanticLoggerProvider,
 } from "@bitwarden/common/tools/log";
 import { UserId } from "@bitwarden/common/types/guid";
+import { ColorPasswordModule, IconButtonModule, ItemModule } from "@bitwarden/components";
 import {
-  ColorPasswordModule,
-  IconButtonModule,
-  ItemModule,
-  NoItemsModule,
-} from "@bitwarden/components";
-import { AlgorithmsByType, CredentialGeneratorService } from "@bitwarden/generator-core";
+  AlgorithmsByType,
+  CredentialAlgorithm,
+  CredentialGeneratorService,
+} from "@bitwarden/generator-core";
 import { GeneratedCredential, GeneratorHistoryService } from "@bitwarden/generator-history";
 
 import { translate } from "./util";
@@ -30,14 +29,7 @@ import { translate } from "./util";
 @Component({
   selector: "bit-credential-generator-history",
   templateUrl: "credential-generator-history.component.html",
-  imports: [
-    CommonModule,
-    ColorPasswordModule,
-    IconButtonModule,
-    NoItemsModule,
-    JslibModule,
-    ItemModule,
-  ],
+  imports: [CommonModule, ColorPasswordModule, IconButtonModule, JslibModule, ItemModule],
 })
 export class CredentialGeneratorHistoryComponent implements OnChanges, OnInit, OnDestroy {
   private readonly destroyed = new Subject<void>();
@@ -100,19 +92,24 @@ export class CredentialGeneratorHistoryComponent implements OnChanges, OnInit, O
   }
 
   protected getCopyText(credential: GeneratedCredential) {
-    // there isn't a way way to look up category metadata so
-    //   bodge it by looking up algorithm metadata
-    const [id] = AlgorithmsByType[credential.category];
-    const info = this.generatorService.algorithm(id);
+    const info = this.generatorService.algorithm(this.algorithmId(credential));
     return translate(info.i18nKeys.copyCredential, this.i18nService);
   }
 
   protected getGeneratedValueText(credential: GeneratedCredential) {
-    // there isn't a way way to look up category metadata so
-    //   bodge it by looking up algorithm metadata
-    const [id] = AlgorithmsByType[credential.category];
-    const info = this.generatorService.algorithm(id);
+    const info = this.generatorService.algorithm(this.algorithmId(credential));
     return translate(info.i18nKeys.credentialType, this.i18nService);
+  }
+
+  // Prefer the algorithm captured at generation time so passwords and passphrases
+  //   resolve to their respective i18n keys. Fall back to the first algorithm for
+  //   the category for credentials persisted before the algorithm was tracked.
+  private algorithmId(credential: GeneratedCredential): CredentialAlgorithm {
+    if (credential.algorithm) {
+      return credential.algorithm as CredentialAlgorithm;
+    }
+    const [id] = AlgorithmsByType[credential.category];
+    return id;
   }
 
   ngOnDestroy() {

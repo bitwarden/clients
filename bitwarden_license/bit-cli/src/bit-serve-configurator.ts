@@ -1,4 +1,4 @@
-import * as koaRouter from "@koa/router";
+import { Router } from "@koa/router";
 
 import { OssServeConfigurator } from "@bitwarden/cli/oss-serve-configurator";
 
@@ -16,7 +16,7 @@ export class BitServeConfigurator extends OssServeConfigurator {
     super(serviceContainer);
   }
 
-  override async configureRouter(router: koaRouter): Promise<void> {
+  override async configureRouter(router: Router): Promise<void> {
     // Register OSS endpoints
     await super.configureRouter(router);
 
@@ -24,7 +24,7 @@ export class BitServeConfigurator extends OssServeConfigurator {
     this.serveDeviceApprovals(router);
   }
 
-  private serveDeviceApprovals(router: koaRouter) {
+  private serveDeviceApprovals(router: Router) {
     router.get("/device-approval/:organizationId", async (ctx, next) => {
       if (await this.errorIfLocked(ctx.response)) {
         await next();

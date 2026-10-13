@@ -4,34 +4,34 @@
       <app-pop-out></app-pop-out>
     </ng-container>
   </popup-header>
-  <ng-container *ngIf="deletedCiphers$ | async as deletedItems">
-    <bit-callout
-      *ngIf="deletedItems.length"
-      type="warning"
-      title="{{ 'warning' | i18n | titlecase }}"
-    >
-      {{ "trashWarning" | i18n }}
-    </bit-callout>
+  @if (deletedCiphers$ | async; as deletedItems) {
+    @if (deletedItems.length) {
+      <bit-callout type="warning" title="{{ 'warning' | i18n | titlecase }}">
+        {{ "trashWarning" | i18n }}
+      </bit-callout>
+    }
 
-    <ng-container *ngIf="deletedItems.length; else noDeletedItems">
+    @if (deletedItems.length) {
       <app-trash-list-items-container
         [headerText]="'itemsInTrash' | i18n"
         [ciphers]="deletedItems"
       ></app-trash-list-items-container>
-    </ng-container>
-
-    <ng-template #noDeletedItems>
-      <bit-no-items
-        [icon]="emptyTrashIcon"
+    } @else if (vfo1Enabled()) {
+      <vault-empty-vault
         class="tw-flex tw-h-full tw-items-center tw-justify-center"
-      >
+        [hasItems]="false"
+        [scope]="trashScope"
+      ></vault-empty-vault>
+    } @else {
+      <bit-status-lockup class="tw-flex tw-h-full tw-items-center tw-justify-center">
+        <bit-svg slot="graphic" [content]="emptyTrashIcon"></bit-svg>
         <ng-container slot="title">
           {{ "noItemsInTrash" | i18n }}
         </ng-container>
         <ng-container slot="description">
           {{ "noItemsInTrashDesc" | i18n }}
         </ng-container>
-      </bit-no-items>
-    </ng-template>
-  </ng-container>
+      </bit-status-lockup>
+    }
+  }
 </popup-page>

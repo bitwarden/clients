@@ -1,6 +1,6 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
-import AutofillPageDetails from "../models/autofill-page-details";
+import { AutofillMessageCommand } from "../enums/autofill-message.enums";
 import AutofillScript from "../models/autofill-script";
 import { SubmitLoginButtonNames } from "../services/autofill-constants";
 import { CollectAutofillContentService } from "../services/collect-autofill-content.service";
@@ -9,12 +9,12 @@ import { DomQueryService } from "../services/dom-query.service";
 import InsertAutofillContentService from "../services/insert-autofill-content.service";
 import {
   elementIsInputElement,
-  getSubmitButtonKeywordsSet,
-  nodeIsButtonElement,
-  nodeIsFormElement,
-  nodeIsTypeSubmitElement,
+  elementIsButtonElement,
+  elementIsFormElement,
+  elementIsTypeSubmitElement,
   sendExtensionMessage,
 } from "../utils";
+import { getSubmitButtonKeywordsSet } from "../utils/qualification";
 
 (function (globalContext) {
   const domQueryService = new DomQueryService();
@@ -45,18 +45,14 @@ import {
   }
 
   /**
-   * Collects the autofill page details and triggers the auto-submit login workflow.
-   * If no details are found, we exit the auto-submit workflow.
+   * Reports an auto-submit login opportunity for this frame to the background.
    */
-  async function startAutoSubmitLoginWorkflow() {
-    const pageDetails: AutofillPageDetails = await collectAutofillContentService.getPageDetails();
-    if (!pageDetails?.fields.length) {
-      endUpAutoSubmitLoginWorkflow();
-      return;
-    }
-
+  function startAutoSubmitLoginWorkflow() {
+    // Clear the filling flag so a step that finds nothing to fill cannot leave the
+    // inline menu globally suppressed. It is re-set when the fill script is injected.
+    updateIsFieldCurrentlyFilling(false);
     chrome.runtime.onMessage.addListener(handleExtensionMessage);
-    await sendExtensionMessage("triggerAutoSubmitLogin", { pageDetails });
+    void sendExtensionMessage(AutofillMessageCommand.automatedLoginStepReady);
   }
 
   /**
@@ -197,7 +193,7 @@ import {
     const genericSubmitElement = querySubmitButtonElement(
       element,
       "[type='submit']",
-      (node: Node) => nodeIsTypeSubmitElement(node),
+      (element: Element) => elementIsTypeSubmitElement(element),
     );
     if (genericSubmitElement) {
       clickSubmitElement(genericSubmitElement, lastFieldIsPasswordInput);
@@ -207,7 +203,7 @@ import {
     const buttonElement = querySubmitButtonElement(
       element,
       "button, [type='button']",
-      (node: Node) => nodeIsButtonElement(node),
+      (element: Element) => elementIsButtonElement(element),
     );
     if (buttonElement) {
       clickSubmitElement(buttonElement, lastFieldIsPasswordInput);
@@ -228,7 +224,7 @@ import {
   function querySubmitButtonElement(
     element: HTMLElement,
     selector: string,
-    treeWalkerFilter: CallableFunction,
+    treeWalkerFilter: (element: Element) => boolean,
   ) {
     const submitButtonElements = domQueryService.query<HTMLButtonElement>(
       element,
@@ -294,7 +290,7 @@ import {
     return domQueryService.query<HTMLFormElement>(
       globalContext.document.documentElement,
       "form",
-      (node: Node) => nodeIsFormElement(node),
+      (element: Element) => elementIsFormElement(element),
     );
   }
 

@@ -6,7 +6,6 @@ import * as path from "path";
 import * as chalk from "chalk";
 import { program, Command, Option, OptionValues } from "commander";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 
@@ -33,15 +32,12 @@ const writeLn = CliUtils.writeLn;
 
 export class SendProgram extends BaseProgram {
   async register() {
-    const emailAuthEnabled = await this.serviceContainer.configService.getFeatureFlag(
-      FeatureFlag.SendEmailOTP,
-    );
-    program.addCommand(this.sendCommand(emailAuthEnabled));
+    program.addCommand(this.sendCommand());
     // receive is accessible both at `bw receive` and `bw send receive`
     program.addCommand(this.receiveCommand());
   }
 
-  private sendCommand(emailAuthEnabled: boolean): Command {
+  private sendCommand(): Command {
     return new Command("send")
       .argument("<data>", "The data to Send. Specify as a filepath with the --file option")
       .description(
@@ -50,18 +46,18 @@ export class SendProgram extends BaseProgram {
       .option("-f, --file", "Specifies that <data> is a filepath")
       .option(
         "-d, --deleteInDays <days>",
-        "The number of days in the future to set deletion date, defaults to 7",
+        "The number of days in the future to set deletion date, defaults to 7. If a particular deletion date is mandated by enterprise policy that value will override this flag.",
         "7",
       )
       .addOption(
         new Option(
           "--password <password>",
           "optional password to access this Send. Can also be specified in JSON.",
-        ).conflicts("email"),
+        ).conflicts("emails"),
       )
       .addOption(
         new Option(
-          "--email <email>",
+          "--emails <emails>",
           "optional emails to access this Send. Can also be specified in JSON.",
         ).argParser(parseEmail),
       )
@@ -80,18 +76,11 @@ export class SendProgram extends BaseProgram {
       .addCommand(this.templateCommand())
       .addCommand(this.getCommand())
       .addCommand(this.receiveCommand())
-      .addCommand(this.createCommand(emailAuthEnabled))
-      .addCommand(this.editCommand(emailAuthEnabled))
+      .addCommand(this.createCommand())
+      .addCommand(this.editCommand())
       .addCommand(this.removePasswordCommand())
       .addCommand(this.deleteCommand())
       .action(async (data: string, options: OptionValues) => {
-        if (options.email) {
-          if (!emailAuthEnabled) {
-            this.processResponse(Response.error("The --email feature is not currently available."));
-            return;
-          }
-        }
-
         const encodedJson = this.makeSendJson(data, options);
 
         let response: Response;
@@ -124,17 +113,23 @@ export class SendProgram extends BaseProgram {
         );
         writeLn("", true);
       })
-      .action(async (url: string, options: OptionValues) => {
+      .action(async (url: string, options: OptionValues, command: Command) => {
         const cmd = new SendReceiveCommand(
-          this.serviceContainer.keyService,
           this.serviceContainer.encryptService,
           this.serviceContainer.cryptoFunctionService,
           this.serviceContainer.platformUtilsService,
           this.serviceContainer.environmentService,
           this.serviceContainer.sendApiService,
           this.serviceContainer.apiService,
+          this.serviceContainer.sendTokenService,
+          this.serviceContainer.sendDecryptionService,
+          this.serviceContainer.appIdService,
         );
-        const response = await cmd.run(url, options);
+        // When invoked as `bw send receive`, the parent `send` command also declares
+        // `--password`, so commander binds the flag to the parent and this subcommand's
+        // `options.password` is undefined. `optsWithGlobals()` merges ancestor options so the
+        // password is resolved for both `bw send receive` and top-level `bw receive`. (PM-24945)
+        const response = await cmd.run(url, command.optsWithGlobals());
         this.processResponse(response);
       });
   }
@@ -202,13 +197,14 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.encryptService,
           this.serviceContainer.apiService,
           this.serviceContainer.accountService,
+          this.serviceContainer.sendDecryptionService,
         );
         const response = await cmd.run(id, options);
         this.processResponse(response);
       });
   }
 
-  private createCommand(emailAuthEnabled: any): Command {
+  private createCommand(): Command {
     return new Command("create")
       .argument("[encodedJson]", "JSON object to upload. Can also be piped in through stdin.")
       .description("create a Send")
@@ -223,19 +219,12 @@ export class SendProgram extends BaseProgram {
       })
       .action(async (encodedJson: string, options: OptionValues, args: { parent: Command }) => {
         // subcommands inherit flags from their parent; they cannot override them
-        const { fullObject = false, email = undefined, password = undefined } = args.parent.opts();
-
-        if (email) {
-          if (!emailAuthEnabled) {
-            this.processResponse(Response.error("The --email feature is not currently available."));
-            return;
-          }
-        }
+        const { fullObject = false, emails = undefined, password = undefined } = args.parent.opts();
 
         const mergedOptions = {
           ...options,
           fullObject: fullObject,
-          email,
+          emails,
           password,
         };
 
@@ -244,7 +233,7 @@ export class SendProgram extends BaseProgram {
       });
   }
 
-  private editCommand(emailAuthEnabled: any): Command {
+  private editCommand(): Command {
     return new Command("edit")
       .argument(
         "[encodedJson]",
@@ -260,13 +249,7 @@ export class SendProgram extends BaseProgram {
       })
       .action(async (encodedJson: string, options: OptionValues, args: { parent: Command }) => {
         await this.exitIfLocked();
-        const { email = undefined, password = undefined } = args.parent.opts();
-        if (email) {
-          if (!emailAuthEnabled) {
-            this.processResponse(Response.error("The --email feature is not currently available."));
-            return;
-          }
-        }
+        const { emails = undefined, password = undefined } = args.parent.opts();
 
         const getCmd = new SendGetCommand(
           this.serviceContainer.sendService,
@@ -275,6 +258,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.encryptService,
           this.serviceContainer.apiService,
           this.serviceContainer.accountService,
+          this.serviceContainer.sendDecryptionService,
         );
         const cmd = new SendEditCommand(
           this.serviceContainer.sendService,
@@ -282,11 +266,12 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.sendApiService,
           this.serviceContainer.billingAccountProfileStateService,
           this.serviceContainer.accountService,
+          this.serviceContainer.sendDecryptionService,
         );
 
         const mergedOptions = {
           ...options,
-          email,
+          emails,
           password,
         };
 
@@ -321,6 +306,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.sendApiService,
           this.serviceContainer.environmentService,
           this.serviceContainer.accountService,
+          this.serviceContainer.sendDecryptionService,
         );
         const response = await cmd.run(id);
         this.processResponse(response);
@@ -351,7 +337,7 @@ export class SendProgram extends BaseProgram {
       file: sendFile,
       text: sendText,
       type: type,
-      emails: options.email ?? undefined,
+      emails: options.emails ?? undefined,
     });
 
     return Buffer.from(JSON.stringify(template), "utf8").toString("base64");
@@ -365,6 +351,9 @@ export class SendProgram extends BaseProgram {
       this.serviceContainer.sendApiService,
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.accountService,
+      this.serviceContainer.policyService,
+      this.serviceContainer.configService,
+      this.serviceContainer.sendDecryptionService,
     );
     return await cmd.run(encodedJson, options);
   }

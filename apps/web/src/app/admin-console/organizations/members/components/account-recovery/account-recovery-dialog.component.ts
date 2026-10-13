@@ -1,9 +1,11 @@
-import { CommonModule } from "@angular/common";
-import { Component, Inject, ViewChild } from "@angular/core";
-import { switchMap } from "rxjs";
+import { AsyncPipe, NgIf } from "@angular/common";
+import { ChangeDetectionStrategy, Component, Inject, viewChild } from "@angular/core";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { map, of, switchMap } from "rxjs";
 
 import { InputPasswordComponent, InputPasswordFlow } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { OrganizationUserType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -11,12 +13,13 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   ButtonModule,
-  CalloutModule,
+  CheckboxModule,
   DIALOG_DATA,
   DialogConfig,
   DialogModule,
   DialogRef,
   DialogService,
+  FormFieldModule,
   ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -47,6 +50,17 @@ export type AccountRecoveryDialogData = {
    * The organization's `organizationId`
    */
   organizationId: OrganizationId;
+
+  /**
+   * The organization user's role type, used to determine policy exemption
+   */
+  organizationUserType: OrganizationUserType;
+
+  /**
+   * Whether the organization user currently has two-step login enabled.
+   * Used to disable the reset two-step login option when not applicable.
+   */
+  twoFactorEnabled: boolean;
 };
 
 export const AccountRecoveryDialogResultType = {
@@ -57,77 +71,123 @@ export type AccountRecoveryDialogResultType =
   (typeof AccountRecoveryDialogResultType)[keyof typeof AccountRecoveryDialogResultType];
 
 /**
- * Used in a dialog for initiating the account recovery process against a
- * given organization user. An admin will access this form when they want to
- * reset a user's password and log them out of sessions.
+ * Account recovery dialog used to selectively reset an organization user's
+ * master password, two-step login, or both.
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   standalone: true,
   selector: "app-account-recovery-dialog",
   templateUrl: "account-recovery-dialog.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AsyncActionsModule,
+    AsyncPipe,
     ButtonModule,
-    CalloutModule,
-    CommonModule,
+    CheckboxModule,
     DialogModule,
+    FormFieldModule,
+    NgIf,
+    ReactiveFormsModule,
     I18nPipe,
     InputPasswordComponent,
   ],
 })
 export class AccountRecoveryDialogComponent {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild(InputPasswordComponent)
-  inputPasswordComponent: InputPasswordComponent | undefined = undefined;
+  protected readonly inputPasswordComponent = viewChild(InputPasswordComponent);
 
-  masterPasswordPolicyOptions$ = this.accountService.activeAccount$.pipe(
-    getUserId,
-    switchMap((userId) => this.policyService.masterPasswordPolicyOptions$(userId)),
-  );
+  /** True when the target user is exempt from policies (Admin or Owner role). */
+  private readonly targetUserExemptFromPolicies =
+    this.dialogData.organizationUserType === OrganizationUserType.Owner ||
+    this.dialogData.organizationUserType === OrganizationUserType.Admin;
 
-  inputPasswordFlow = InputPasswordFlow.ChangePasswordDelegation;
+  readonly masterPasswordPolicyOptions$ = this.targetUserExemptFromPolicies
+    ? of(undefined)
+    : this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policies$(userId).pipe(
+            map((policies) =>
+              policies.filter(
+                (p) =>
+                  p.type === PolicyType.MasterPassword &&
+                  p.enabled &&
+                  p.organizationId === this.dialogData.organizationId,
+              ),
+            ),
+            switchMap((policies) =>
+              this.policyService.masterPasswordPolicyOptions$(userId, policies),
+            ),
+          ),
+        ),
+      );
 
-  get loggedOutWarningName() {
-    return this.dialogData.name != null ? this.dialogData.name : this.i18nService.t("thisUser");
-  }
+  /** True when the org has the Require Two-Step Login policy enabled and the target user is subject to it. */
+  readonly twoFactorPolicyEnabled$ = this.targetUserExemptFromPolicies
+    ? of(false)
+    : this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.policyService.policies$(userId)),
+        map((policies) =>
+          policies.some(
+            (p) =>
+              p.type === PolicyType.TwoFactorAuthentication &&
+              p.enabled &&
+              p.organizationId === this.dialogData.organizationId,
+          ),
+        ),
+      );
+
+  readonly inputPasswordFlow = InputPasswordFlow.ChangePasswordDelegation;
+
+  protected readonly form = this.formBuilder.group({
+    resetMasterPassword: [true],
+    resetTwoFactor: [{ value: false, disabled: !this.dialogData.twoFactorEnabled }],
+  });
 
   constructor(
-    @Inject(DIALOG_DATA) protected dialogData: AccountRecoveryDialogData,
-    private accountService: AccountService,
-    private dialogRef: DialogRef<AccountRecoveryDialogResultType>,
-    private i18nService: I18nService,
-    private policyService: PolicyService,
-    private resetPasswordService: OrganizationUserResetPasswordService,
-    private toastService: ToastService,
+    @Inject(DIALOG_DATA) protected readonly dialogData: AccountRecoveryDialogData,
+    private readonly accountService: AccountService,
+    private readonly dialogRef: DialogRef<AccountRecoveryDialogResultType>,
+    private readonly formBuilder: FormBuilder,
+    private readonly i18nService: I18nService,
+    private readonly policyService: PolicyService,
+    private readonly resetPasswordService: OrganizationUserResetPasswordService,
+    private readonly toastService: ToastService,
   ) {}
 
-  handlePrimaryButtonClick = async () => {
-    if (!this.inputPasswordComponent) {
-      throw new Error("InputPasswordComponent is not initialized");
+  readonly handlePrimaryButtonClick = async () => {
+    const { resetMasterPassword, resetTwoFactor } = this.form.value;
+    let newPassword: string | undefined;
+
+    if (resetMasterPassword) {
+      const inputPasswordComponent = this.inputPasswordComponent();
+      if (!inputPasswordComponent) {
+        throw new Error("InputPasswordComponent is not initialized");
+      }
+
+      const passwordInputResult = await inputPasswordComponent.submit();
+      if (!passwordInputResult) {
+        return;
+      }
+      newPassword = passwordInputResult.newPassword;
     }
 
-    const passwordInputResult = await this.inputPasswordComponent.submit();
-    if (!passwordInputResult) {
-      return;
-    }
-
-    await this.resetPasswordService.resetMasterPassword(
-      passwordInputResult.newPassword,
-      this.dialogData.email,
-      this.dialogData.organizationUserId,
-      this.dialogData.organizationId,
-    );
+    await this.resetPasswordService.recoverAccount({
+      organizationUserId: this.dialogData.organizationUserId,
+      organizationId: this.dialogData.organizationId,
+      resetMasterPassword: resetMasterPassword ?? false,
+      resetTwoFactor: resetTwoFactor ?? false,
+      newMasterPassword: newPassword,
+      email: this.dialogData.email,
+    });
 
     this.toastService.showToast({
       variant: "success",
       title: "",
-      message: this.i18nService.t("resetPasswordSuccess"),
+      message: this.i18nService.t("recoverAccountSuccess"),
     });
 
-    this.dialogRef.close(AccountRecoveryDialogResultType.Ok);
+    await this.dialogRef.close(AccountRecoveryDialogResultType.Ok);
   };
 
   /**
@@ -135,12 +195,9 @@ export class AccountRecoveryDialogComponent {
    * @param dialogService Instance of the dialog service that will be used to open the dialog
    * @param dialogConfig Configuration for the dialog
    */
-  static open = (
+  static readonly open = (
     dialogService: DialogService,
-    dialogConfig: DialogConfig<
-      AccountRecoveryDialogData,
-      DialogRef<AccountRecoveryDialogResultType, unknown>
-    >,
+    dialogConfig: DialogConfig<AccountRecoveryDialogData, AccountRecoveryDialogResultType>,
   ) => {
     return dialogService.open<AccountRecoveryDialogResultType, AccountRecoveryDialogData>(
       AccountRecoveryDialogComponent,

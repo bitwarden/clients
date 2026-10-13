@@ -7,6 +7,7 @@ import {
   SHOW_CARDS_CURRENT_TAB,
   SHOW_IDENTITIES_CURRENT_TAB,
   USER_ENABLE_PASSKEYS,
+  SHOW_AT_RISK_PASSWORD_NOTIFICATIONS,
 } from "../key-state/vault-settings.state";
 import { RestrictedItemTypesService } from "../restricted-item-types.service";
 
@@ -48,6 +49,14 @@ export class VaultSettingsService implements VaultSettingsServiceAbstraction {
   readonly showIdentitiesCurrentTab$: Observable<boolean> =
     this.showIdentitiesCurrentTabState.state$.pipe(map((x) => x ?? true));
 
+  private showAtRiskPasswordNotificationsState: ActiveUserState<boolean> =
+    this.stateProvider.getActive(SHOW_AT_RISK_PASSWORD_NOTIFICATIONS);
+  /**
+   * {@link VaultSettingsServiceAbstraction.showAtRiskPasswordNotifications$}
+   */
+  readonly showAtRiskPasswordNotifications$: Observable<boolean> =
+    this.showAtRiskPasswordNotificationsState.state$.pipe(map((x) => x ?? true));
+
   constructor(
     private stateProvider: StateProvider,
     private restrictedItemTypesService: RestrictedItemTypesService,
@@ -61,7 +70,7 @@ export class VaultSettingsService implements VaultSettingsServiceAbstraction {
   }
 
   /**
-   * {@link VaultSettingsServiceAbstraction.setDontShowIdentitiesCurrentTab}
+   * {@link VaultSettingsServiceAbstraction.setShowIdentitiesCurrentTab}
    */
   async setShowIdentitiesCurrentTab(value: boolean): Promise<void> {
     await this.showIdentitiesCurrentTabState.update(() => value);
@@ -72,5 +81,12 @@ export class VaultSettingsService implements VaultSettingsServiceAbstraction {
    */
   async setEnablePasskeys(value: boolean): Promise<void> {
     await this.enablePasskeysState.update(() => value);
+  }
+
+  /**
+   * {@link VaultSettingsServiceAbstraction.setShowAtRiskPasswordNotifications}
+   */
+  async setShowAtRiskPasswordNotifications(value: boolean): Promise<void> {
+    await this.showAtRiskPasswordNotificationsState.update(() => value);
   }
 }

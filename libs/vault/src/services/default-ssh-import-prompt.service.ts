@@ -1,7 +1,10 @@
 import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SshKeyApi } from "@bitwarden/common/vault/models/api/ssh-key.api";
 import { SshKeyData } from "@bitwarden/common/vault/models/data/ssh-key.data";
@@ -16,11 +19,19 @@ import { SshImportPromptService } from "./ssh-import-prompt.service";
  */
 @Injectable()
 export class DefaultSshImportPromptService implements SshImportPromptService {
+  private static readonly ECDSA_KEY_TYPES = [
+    "ecdsa-sha2-nistp256",
+    "ecdsa-sha2-nistp384",
+    "ecdsa-sha2-nistp521",
+  ];
+
   constructor(
     private dialogService: DialogService,
     private toastService: ToastService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
+    private configService: ConfigService,
+    private logService: LogService,
   ) {}
 
   async importSshKeyFromClipboard(): Promise<SshKeyData | null> {
@@ -37,11 +48,7 @@ export class DefaultSshImportPromptService implements SshImportPromptService {
       if (error.variant === "PasswordRequired" || error.variant === "WrongPassword") {
         isPasswordProtectedSshKey = true;
       } else {
-        this.toastService.showToast({
-          variant: "error",
-          title: "",
-          message: this.i18nService.t(this.sshImportErrorVariantToI18nKey(error.variant)),
-        });
+        this.reportImportFailure(error.variant);
         return null;
       }
     }
@@ -59,14 +66,25 @@ export class DefaultSshImportPromptService implements SshImportPromptService {
         } catch (e) {
           const error = e as SshKeyImportError;
           if (error.variant !== "WrongPassword") {
-            this.toastService.showToast({
-              variant: "error",
-              title: "",
-              message: this.i18nService.t(this.sshImportErrorVariantToI18nKey(error.variant)),
-            });
+            this.reportImportFailure(error.variant);
             return null;
           }
         }
+      }
+    }
+
+    const isEcdsaKey = DefaultSshImportPromptService.ECDSA_KEY_TYPES.some((type) =>
+      parsedKey!.publicKey.startsWith(type),
+    );
+    if (isEcdsaKey) {
+      const ecdsaEnabled = await this.configService.getFeatureFlag(FeatureFlag.SSHecdsa);
+      if (!ecdsaEnabled) {
+        this.reportImportFailure(
+          "UnsupportedKeyType",
+          "ECDSA key type is disabled by the SSHecdsa feature flag",
+        );
+
+        return null;
       }
     }
 
@@ -85,9 +103,24 @@ export class DefaultSshImportPromptService implements SshImportPromptService {
     );
   }
 
+  /**
+   * Logs the failure to the app log and shows the matching localized toast.
+   *
+   * Only the variant and an optional non-sensitive reason are logged — never the key itself.
+   */
+  private reportImportFailure(variant: string, reason?: string) {
+    this.logService.error(`SSH key import failed: ${reason ?? variant}`);
+
+    this.toastService.showToast({
+      variant: "error",
+      title: "",
+      message: this.i18nService.t(this.sshImportErrorVariantToI18nKey(variant)),
+    });
+  }
+
   private sshImportErrorVariantToI18nKey(variant: string): string {
     switch (variant) {
-      case "ParsingError":
+      case "Parsing":
         return "invalidSshKey";
       case "UnsupportedKeyType":
         return "sshKeyTypeUnsupported";

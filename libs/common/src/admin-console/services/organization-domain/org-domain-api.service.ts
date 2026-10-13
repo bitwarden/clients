@@ -2,7 +2,6 @@ import { ApiService } from "../../../abstractions/api.service";
 import { ListResponse } from "../../../models/response/list.response";
 import { OrgDomainApiServiceAbstraction } from "../../abstractions/organization-domain/org-domain-api.service.abstraction";
 import { OrgDomainInternalServiceAbstraction } from "../../abstractions/organization-domain/org-domain.service.abstraction";
-import { OrganizationDomainSsoDetailsResponse } from "../../abstractions/organization-domain/responses/organization-domain-sso-details.response";
 import { OrganizationDomainResponse } from "../../abstractions/organization-domain/responses/organization-domain.response";
 import { VerifiedOrganizationDomainSsoDetailsResponse } from "../../abstractions/organization-domain/responses/verified-organization-domain-sso-details.response";
 
@@ -96,19 +95,6 @@ export class OrgDomainApiService implements OrgDomainApiServiceAbstraction {
       false,
     );
     this.orgDomainService.delete([orgDomainId]);
-  }
-
-  async getClaimedOrgDomainByEmail(email: string): Promise<OrganizationDomainSsoDetailsResponse> {
-    const result = await this.apiService.send(
-      "POST",
-      `/organizations/domain/sso/details`,
-      new OrganizationDomainSsoDetailsRequest(email),
-      false, // anonymous
-      true,
-    );
-    const response = new OrganizationDomainSsoDetailsResponse(result);
-
-    return response;
   }
 
   async getVerifiedOrgDomainsByEmail(

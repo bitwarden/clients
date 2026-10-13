@@ -10,6 +10,7 @@ export class AutofillInlineMenuButtonIframe extends AutofillInlineMenuIframeElem
       {
         background: "transparent",
         border: "none",
+        colorScheme: "auto",
       },
       chrome.i18n.getMessage("bitwardenOverlayButton"),
       chrome.i18n.getMessage("bitwardenOverlayMenuAvailable"),

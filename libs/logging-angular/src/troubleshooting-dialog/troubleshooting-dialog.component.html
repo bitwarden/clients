@@ -1,0 +1,26 @@
+<bit-simple-dialog>
+  <bit-icon bitDialogIcon name="bwi-info-circle" class="tw-text-info tw-text-3xl"></bit-icon>
+  <span bitDialogTitle>
+    {{ "experiencingAnIssue" | i18n }}
+  </span>
+  <span bitDialogContent>
+    {{ "downloadDiagnosticReportWith" | i18n }}
+    <a
+      bitLink
+      href="https://bitwarden.com/contact/"
+      target="_blank"
+      rel="noopener noreferrer"
+      endIcon="bwi-external-link"
+    >
+      {{ "bitwardenSupport" | i18n }}
+    </a>
+  </span>
+  <ng-container bitDialogFooter>
+    <button bitButton type="button" buttonType="primary" (click)="download()">
+      {{ "download" | i18n }}
+    </button>
+    <button bitButton type="button" buttonType="secondary" bitDialogClose>
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-simple-dialog>

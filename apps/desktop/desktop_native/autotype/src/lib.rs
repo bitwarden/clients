@@ -1,39 +1,53 @@
+mod app_data;
+mod type_input;
+
+pub mod mvp; // MVP, delete with PM-41067
+
 use anyhow::Result;
+pub use app_data::{
+    path::{build_normalizer, PathNormalizer, PlatformPolicy},
+    running_apps::{get_active_app, get_running_apps},
+    AppData, AppMetadata, VerifiableAppData,
+};
 
-#[cfg(target_os = "windows")]
-mod modifier_keys;
-
-#[cfg(target_os = "windows")]
-pub(crate) use modifier_keys::*;
-
-#[cfg_attr(target_os = "linux", path = "linux.rs")]
-#[cfg_attr(target_os = "macos", path = "macos.rs")]
-#[cfg_attr(target_os = "windows", path = "windows/mod.rs")]
-mod windowing;
-
-/// Gets the title bar string for the foreground window.
+/// Verifies the active application and types into it.
 ///
 /// # Errors
 ///
-/// This function returns an `anyhow::Error` if there is any
-/// issue obtaining the window title. Detailed reasons will
-/// vary based on platform implementation.
-pub fn get_foreground_window_title() -> Result<String> {
-    windowing::get_foreground_window_title()
+/// Returns an error if the active app can't be resolved, if it no longer matches `expected`, or if
+/// typing fails.
+#[cfg(windows)]
+pub fn execute_autotype(
+    expected: VerifiableAppData,
+    input: &[u16],
+    keyboard_shortcut: &[String],
+) -> Result<()> {
+    let current = get_active_app()?;
+
+    if current != expected {
+        tracing::error!(
+            %expected,
+            %current,
+            "active application changed since verification; cancelling."
+        );
+        return Err(anyhow::anyhow!(
+            "active application changed since verification; cancelling."
+        ));
+    }
+
+    type_input::type_input(input, keyboard_shortcut)
 }
 
-/// Attempts to type the input text wherever the user's cursor is.
+/// Verifies the active application and types into it.
 ///
-/// # Arguments
+/// # Panics
 ///
-/// * `input` an array of utf-16 encoded characters to insert.
-/// * `keyboard_shortcut` a vector of valid shortcut keys: Control, Alt, Super, Shift, letters a - Z
-///
-/// # Errors
-///
-/// This function returns an `anyhow::Error` if there is any
-/// issue in typing the input. Detailed reasons will
-/// vary based on platform implementation.
-pub fn type_input(input: &[u16], keyboard_shortcut: &[String]) -> Result<()> {
-    windowing::type_input(input, keyboard_shortcut)
+/// Always panics — Autotype is not supported on non-Windows platforms.
+#[cfg(not(windows))]
+pub fn execute_autotype(
+    _expected: VerifiableAppData,
+    _input: &[u16],
+    _keyboard_shortcut: &[String],
+) -> Result<()> {
+    unimplemented!("Autotype is not supported on non-Windows platforms")
 }

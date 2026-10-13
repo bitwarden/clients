@@ -22,6 +22,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
   useResetPassword: boolean;
   useSecretsManager: boolean;
   usePasswordManager: boolean;
+  usePam: boolean;
   useActivateAutofillPolicy: boolean;
   useAutomaticUserConfirmation: boolean;
   selfHost: boolean;
@@ -56,7 +57,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
   limitCollectionDeletion: boolean;
   limitItemDeletion: boolean;
   allowAdminAccessToAllCollectionItems: boolean;
-  userIsManagedByOrganization: boolean;
+  userIsClaimedByOrganization: boolean;
   useAccessIntelligence: boolean;
   useAdminSponsoredFamilies: boolean;
   useDisableSMAdsForUsers: boolean;
@@ -64,6 +65,8 @@ export class ProfileOrganizationResponse extends BaseResponse {
   ssoEnabled: boolean;
   ssoMemberDecryptionType?: MemberDecryptionType;
   usePhishingBlocker: boolean;
+  useMyItems: boolean;
+  useInviteLinks: boolean;
 
   constructor(response: any) {
     super(response);
@@ -84,6 +87,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.useResetPassword = this.getResponseProperty("UseResetPassword");
     this.useSecretsManager = this.getResponseProperty("UseSecretsManager");
     this.usePasswordManager = this.getResponseProperty("UsePasswordManager");
+    this.usePam = this.getResponseProperty("UsePam") ?? false;
     this.useActivateAutofillPolicy = this.getResponseProperty("UseActivateAutofillPolicy");
     this.useAutomaticUserConfirmation = this.getResponseProperty("UseAutomaticUserConfirmation");
     this.selfHost = this.getResponseProperty("SelfHost");
@@ -130,7 +134,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.allowAdminAccessToAllCollectionItems = this.getResponseProperty(
       "AllowAdminAccessToAllCollectionItems",
     );
-    this.userIsManagedByOrganization = this.getResponseProperty("UserIsManagedByOrganization");
+    this.userIsClaimedByOrganization = this.getResponseProperty("UserIsClaimedByOrganization");
     // Map from backend API property (UseRiskInsights) to domain model property (useAccessIntelligence)
     this.useAccessIntelligence = this.getResponseProperty("UseRiskInsights");
     this.useAdminSponsoredFamilies = this.getResponseProperty("UseAdminSponsoredFamilies");
@@ -139,5 +143,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.ssoEnabled = this.getResponseProperty("SsoEnabled") ?? false;
     this.ssoMemberDecryptionType = this.getResponseProperty("SsoMemberDecryptionType");
     this.usePhishingBlocker = this.getResponseProperty("UsePhishingBlocker") ?? false;
+    this.useMyItems = this.getResponseProperty("UseMyItems") ?? false;
+    this.useInviteLinks = this.getResponseProperty("UseInviteLinks") ?? false;
   }
 }

@@ -5,7 +5,9 @@ import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
   debounceTime,
+  distinctUntilChanged,
   firstValueFrom,
+  from,
   map,
   Observable,
   of,
@@ -19,6 +21,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { isUrlInList } from "@bitwarden/common/autofill/utils";
+import { matchTargetingRulesForUrl } from "@bitwarden/common/autofill/utils/targeting-rules";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -31,13 +34,13 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-import {
-  AutofillService,
-  PageDetail,
-} from "../../../autofill/services/abstractions/autofill.service";
+import { AutofillOutcome } from "../../../autofill/enums/autofill-outcome.enum";
+import { PageDetail } from "../../../autofill/services/abstractions/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
+import { didFillOccur, FillResult, shouldAutoCopyTotp } from "../../../autofill/types/fill-result";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
+import { devFlagEnabled } from "../../../platform/flags";
 import { closeViewVaultItemPopout, VaultPopoutType } from "../utils/vault-popout-window";
 
 @Injectable({
@@ -162,11 +165,69 @@ export class VaultPopupAutofillService {
             }
           }
 
-          return this.autofillService.collectPageDetailsFromTab$(tab);
+          return from(this.collectPageDetailsFromBackground(tab));
         }),
       );
     }),
     debounceTime(50),
+    shareReplay({ refCount: false, bufferSize: 1 }),
+  );
+
+  /**
+   * Collects the tab's page details through the background AutofillOrchestrator — the
+   * sole sender of the collect. The popup runs in the foreground and cannot
+   * call the orchestrator directly, so it round-trips through the background and receives
+   * the settled page details in the response.
+   */
+  private async collectPageDetailsFromBackground(tab: chrome.tabs.Tab): Promise<PageDetail[]> {
+    const response = await BrowserApi.sendMessageWithResponse<{ result?: PageDetail[] }>(
+      "collectPageDetailsForPopup",
+      { tabId: tab.id },
+    );
+    return response?.result ?? [];
+  }
+
+  /**
+   * Emits `true` when fill assist targeting rules apply to the current tab.
+   *
+   * The vault popup only renders when the vault is unlocked, so the auth/unlock gating that
+   * {@link DomainSettingsService.getTargetingRulesForUrl} performs is already guaranteed here.
+   * That lets us match the resolved rules synchronously via {@link matchTargetingRulesForUrl}
+   * rather than re-resolving (and re-awaiting) that state per emission.
+   */
+  showFillAssistActiveBanner$: Observable<boolean> = combineLatest([
+    this.currentAutofillTab$,
+    this.domainSettingsService.resolvedEnableFillAssist$,
+    this.domainSettingsService.targetingRules$,
+    this.currentTabIsOnBlocklist$,
+  ]).pipe(
+    map(([currentTab, fillAssistEnabled, targetingRules, tabIsOnBlocklist]) => {
+      // Developer-only banner
+      if (!devFlagEnabled("fillAssistDevTools")) {
+        return false;
+      }
+
+      if (!fillAssistEnabled) {
+        return false;
+      }
+
+      // A blocklisted tab suppresses all autofill, so fill assist is moot regardless of the
+      // blocked-domains banner's shown/dismissed state.
+      if (tabIsOnBlocklist) {
+        return false;
+      }
+
+      if (!currentTab?.url?.length) {
+        return false;
+      }
+
+      const matchedTargetingRules = matchTargetingRulesForUrl(targetingRules, currentTab.url);
+
+      // Any non-`null` result means rules apply, including an empty array (a targeting-rule
+      // blocklist that intentionally suppresses autofill). Only `null` (no rules) is inactive.
+      return matchedTargetingRules !== null;
+    }),
+    distinctUntilChanged(),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
@@ -211,7 +272,6 @@ export class VaultPopupAutofillService {
   );
 
   constructor(
-    private autofillService: AutofillService,
     private domainSettingsService: DomainSettingsService,
     private i18nService: I18nService,
     private toastService: ToastService,
@@ -230,7 +290,6 @@ export class VaultPopupAutofillService {
   private async _internalDoAutofill(
     cipher: CipherView,
     tab: chrome.tabs.Tab,
-    pageDetails: PageDetail[],
     skipPasswordReprompt = false,
   ): Promise<boolean> {
     if (
@@ -241,7 +300,7 @@ export class VaultPopupAutofillService {
       return false;
     }
 
-    if (tab == null || pageDetails.length === 0) {
+    if (tab == null) {
       this.toastService.showToast({
         variant: "error",
         title: null,
@@ -251,29 +310,46 @@ export class VaultPopupAutofillService {
     }
 
     try {
-      const totpCode = await this.autofillService.doAutoFill({
-        tab,
-        cipher,
-        pageDetails,
-        doc: window.document,
-        fillNewPassword: true,
-        allowTotpAutofill: true,
-      });
-
-      if (totpCode != null) {
-        this.platformUtilService.copyToClipboard(totpCode, { window: window });
+      // The cipher is sent by id so decrypted vault data stays off the message channel.
+      const response = await BrowserApi.sendMessageWithResponse<{
+        result?: FillResult;
+      }>("fillCipherForPopup", { tabId: tab.id, tabUrl: tab.url, cipherId: cipher.id });
+      const fillResult = response?.result;
+      if (!fillResult || !didFillOccur(fillResult)) {
+        this._reportAutofillFailure();
+        return false;
       }
-    } catch {
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("autofillError"),
-      });
+
+      if (shouldAutoCopyTotp(fillResult)) {
+        this.platformUtilService.copyToClipboard(fillResult.totp, { window: window });
+      }
+
+      // An absent fill placed no credential, so it is reported as the failure it is even when
+      // copying the code mitigated it.
+      if (fillResult.outcome !== AutofillOutcome.Filled) {
+        this._reportAutofillFailure();
+        return false;
+      }
+    } catch (e: unknown) {
+      // unexpected error occurred during autofill
+      this._reportAutofillFailure(e);
       return false;
     }
-    await this.handleAutofillSuggestionUsed({ cipherId: cipher.id });
 
+    await this.handleAutofillSuggestionUsed({ cipherId: cipher.id });
     return true;
+  }
+
+  private _reportAutofillFailure(e?: unknown) {
+    if (e) {
+      this.logService.error(e);
+    }
+
+    this.toastService.showToast({
+      variant: "error",
+      title: null,
+      message: this.i18nService.t("autofillError"),
+    });
   }
 
   private async _closePopup(cipher: CipherView, tab: chrome.tabs.Tab | null) {
@@ -324,20 +400,14 @@ export class VaultPopupAutofillService {
     skipPasswordReprompt = false,
   ): Promise<boolean> {
     const tab = await firstValueFrom(this.currentAutofillTab$);
-    const pageDetails = await firstValueFrom(this._currentPageDetails$);
 
-    const didAutofill = await this._internalDoAutofill(
-      cipher,
-      tab,
-      pageDetails,
-      skipPasswordReprompt,
-    );
+    const filled = await this._internalDoAutofill(cipher, tab, skipPasswordReprompt);
 
-    if (didAutofill && closePopup) {
+    if (filled && closePopup) {
       await this._closePopup(cipher, tab);
     }
 
-    return didAutofill;
+    return filled;
   }
 
   /**
@@ -372,17 +442,11 @@ export class VaultPopupAutofillService {
       return false;
     }
 
-    const pageDetails = await firstValueFrom(this._currentPageDetails$);
     const tab = await firstValueFrom(this.currentAutofillTab$);
 
-    const didAutofill = await this._internalDoAutofill(
-      cipher,
-      tab,
-      pageDetails,
-      skipPasswordReprompt,
-    );
+    const filled = await this._internalDoAutofill(cipher, tab, skipPasswordReprompt);
 
-    if (!didAutofill) {
+    if (!filled) {
       return false;
     }
 

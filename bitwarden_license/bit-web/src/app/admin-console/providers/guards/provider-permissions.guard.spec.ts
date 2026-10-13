@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { TestBed } from "@angular/core/testing";
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -7,6 +5,7 @@ import { of } from "rxjs";
 
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { ProviderUserType } from "@bitwarden/common/admin-console/enums";
+import { ProviderData } from "@bitwarden/common/admin-console/models/data/provider.data";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -19,12 +18,11 @@ import { providerPermissionsGuard } from "./provider-permissions.guard";
 
 const providerFactory = (props: Partial<Provider> = {}) =>
   Object.assign(
-    new Provider(),
-    {
+    new Provider({
       id: "myProviderId",
       enabled: true,
       type: ProviderUserType.ServiceUser,
-    },
+    } as ProviderData),
     props,
   );
 
@@ -56,6 +54,7 @@ describe("Provider Permissions Guard", () => {
         providerPermissions: null,
       },
     });
+    state = mock<RouterStateSnapshot>();
     TestBed.configureTestingModule({
       providers: [
         { provide: ProviderService, useValue: providerService },

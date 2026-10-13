@@ -1,0 +1,29 @@
+<button
+  type="button"
+  class="tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-full tw-border tw-border-solid tw-border-secondary-300 tw-bg-background tw-px-3 tw-py-1 tw-text-sm tw-text-muted hover:tw-border-secondary-700 hover:tw-bg-secondary-100 focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600 focus-visible:tw-ring-offset-1"
+  [bitMenuTriggerFor]="periodMenu"
+  [attr.aria-label]="'timePeriod' | i18n"
+>
+  <span>{{ selectedLabel() }}</span>
+  <bit-icon name="bwi-angle-down" class="tw-mt-0.5" />
+</button>
+
+<bit-menu #periodMenu [ariaLabel]="'timePeriod' | i18n">
+  @for (option of periodOptions; track option.value) {
+    <button
+      type="button"
+      bitMenuItem
+      (click)="selectPeriod(option.value)"
+      [attr.aria-current]="option.value === selectedPeriod() ? 'true' : null"
+    >
+      <span class="tw-flex tw-w-full tw-items-center tw-justify-between">
+        <span class="tw-w-5">
+          @if (option.value === selectedPeriod()) {
+            <bit-icon name="bwi-check" aria-hidden="true"></bit-icon>
+          }
+        </span>
+        {{ option.label }}
+      </span>
+    </button>
+  }
+</bit-menu>

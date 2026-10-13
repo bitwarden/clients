@@ -4,7 +4,8 @@ import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Cart } from "@bitwarden/pricing";
-import { BitwardenSubscription, SubscriptionCardComponent } from "@bitwarden/subscription";
+
+import { BitwardenSubscription, SubscriptionCardComponent, SubscriptionPreview } from "../..";
 
 describe("SubscriptionCardComponent", () => {
   let component: SubscriptionCardComponent;
@@ -44,15 +45,19 @@ describe("SubscriptionCardComponent", () => {
         unpaid: "Unpaid",
         weCouldNotProcessYourPayment: "We could not process your payment",
         contactSupportShort: "Contact support",
-        yourSubscriptionHasExpired: "Your subscription has expired",
-        yourSubscriptionIsScheduledToCancel: `Your subscription is scheduled to cancel on ${params[0]}`,
-        reinstateSubscription: "Reinstate subscription",
+        yourSubscriptionIsExpired: "Your subscription is expired",
+        yourSubscriptionIsCanceled: "Your subscription is canceled",
+        subscriptionPendingCanceled: "The subscription has been marked for cancellation",
+        keepSubscription: "Keep subscription",
+        resubscribe: "Resubscribe",
         upgradeYourPlan: "Upgrade your plan",
         premiumShareEvenMore: "Premium share even more",
         upgradeNow: "Upgrade now",
         youHaveAGracePeriod: `You have a grace period of ${params[0]} days ending ${params[1]}`,
         manageInvoices: "Manage invoices",
         toReactivateYourSubscription: "To reactivate your subscription",
+        subscriptionPastDueWillPauseSoon: "Your subscription is past due and will be paused soon.",
+        subscriptionPastDuePaused: "Your subscription is past due and has been paused.",
       };
       return translations[key] || key;
     },
@@ -253,7 +258,7 @@ describe("SubscriptionCardComponent", () => {
       expect(buttons[1].nativeElement.textContent.trim()).toBe("Contact support");
     });
 
-    it("should display incomplete_expired callout with contact support action", () => {
+    it("should display incomplete_expired callout with resubscribe action", () => {
       setupComponent({
         ...baseSubscription,
         status: "incomplete_expired",
@@ -265,18 +270,18 @@ describe("SubscriptionCardComponent", () => {
       expect(calloutData).toBeTruthy();
       expect(calloutData!.type).toBe("danger");
       expect(calloutData!.title).toBe("Expired");
-      expect(calloutData!.description).toContain("Your subscription has expired");
+      expect(calloutData!.description).toContain("Your subscription is expired");
       expect(calloutData!.callsToAction?.length).toBe(1);
 
       const callout = fixture.debugElement.query(By.css("bit-callout"));
       expect(callout).toBeTruthy();
 
       const description = callout.query(By.css("p"));
-      expect(description.nativeElement.textContent).toContain("Your subscription has expired");
+      expect(description.nativeElement.textContent).toContain("Your subscription is expired");
 
       const buttons = callout.queryAll(By.css("button"));
       expect(buttons.length).toBe(1);
-      expect(buttons[0].nativeElement.textContent.trim()).toBe("Contact support");
+      expect(buttons[0].nativeElement.textContent.trim()).toBe("Resubscribe");
     });
 
     it("should display pending cancellation callout for active status with cancelAt", () => {
@@ -299,7 +304,7 @@ describe("SubscriptionCardComponent", () => {
 
       const buttons = callout.queryAll(By.css("button"));
       expect(buttons.length).toBe(1);
-      expect(buttons[0].nativeElement.textContent.trim()).toBe("Reinstate subscription");
+      expect(buttons[0].nativeElement.textContent.trim()).toBe("Keep subscription");
     });
 
     it("should display upgrade callout for active status when showUpgradeButton is true", () => {
@@ -364,15 +369,44 @@ describe("SubscriptionCardComponent", () => {
       expect(buttons[0].nativeElement.textContent.trim()).toBe("Manage invoices");
     });
 
-    it("should not display callout for canceled status", () => {
+    it("does not display callout without suspension details", () => {
+      fixture.componentRef.setInput("title", "Test Plan");
+      fixture.componentRef.setInput("subscription", {
+        cart: mockCart,
+        status: "past_due",
+      } satisfies SubscriptionPreview);
+      fixture.detectChanges();
+
+      const calloutData = component.callout();
+      expect(calloutData).toBeNull();
+
+      const callout = fixture.debugElement.query(By.css("bit-callout"));
+      expect(callout).toBeNull();
+    });
+
+    it("should display canceled callout with resubscribe action", () => {
       setupComponent({
         ...baseSubscription,
         status: "canceled",
         canceled: new Date("2025-01-15"),
       });
 
+      const calloutData = component.callout();
+      expect(calloutData).toBeTruthy();
+      expect(calloutData!.type).toBe("danger");
+      expect(calloutData!.title).toBe("Canceled");
+      expect(calloutData!.description).toContain("Your subscription is canceled");
+      expect(calloutData!.callsToAction?.length).toBe(1);
+
       const callout = fixture.debugElement.query(By.css("bit-callout"));
-      expect(callout).toBeFalsy();
+      expect(callout).toBeTruthy();
+
+      const description = callout.query(By.css("p"));
+      expect(description.nativeElement.textContent).toContain("Your subscription is canceled");
+
+      const buttons = callout.queryAll(By.css("button"));
+      expect(buttons.length).toBe(1);
+      expect(buttons[0].nativeElement.textContent.trim()).toBe("Resubscribe");
     });
 
     it("should display unpaid callout with manage invoices action", () => {
@@ -489,6 +523,39 @@ describe("SubscriptionCardComponent", () => {
 
       expect(emitSpy).toHaveBeenCalledWith("manage-invoices");
     });
+
+    it("should emit resubscribe action when button is clicked for incomplete_expired status", () => {
+      setupComponent({
+        ...baseSubscription,
+        status: "incomplete_expired",
+        suspension: new Date("2025-01-15"),
+        gracePeriod: 7,
+      });
+
+      const emitSpy = jest.spyOn(component.callToActionClicked, "emit");
+
+      const button = fixture.debugElement.query(By.css("bit-callout button"));
+      button.triggerEventHandler("click", { button: 0 });
+      fixture.detectChanges();
+
+      expect(emitSpy).toHaveBeenCalledWith("resubscribe");
+    });
+
+    it("should emit resubscribe action when button is clicked for canceled status", () => {
+      setupComponent({
+        ...baseSubscription,
+        status: "canceled",
+        canceled: new Date("2025-01-15"),
+      });
+
+      const emitSpy = jest.spyOn(component.callToActionClicked, "emit");
+
+      const button = fixture.debugElement.query(By.css("bit-callout button"));
+      button.triggerEventHandler("click", { button: 0 });
+      fixture.detectChanges();
+
+      expect(emitSpy).toHaveBeenCalledWith("resubscribe");
+    });
   });
 
   describe("Cart summary header content", () => {
@@ -595,6 +662,43 @@ describe("SubscriptionCardComponent", () => {
 
       const cartSummary = fixture.debugElement.query(By.css("billing-cart-summary"));
       expect(cartSummary).toBeTruthy();
+    });
+
+    it("shows the will-be-paused message in the header for past_due without a suspension date", () => {
+      setupComponent({
+        ...baseSubscription,
+        status: "past_due",
+      } as BitwardenSubscription);
+
+      const header = fixture.nativeElement.querySelector(
+        '[data-test-id="cart-summary-header-custom"]',
+      );
+      expect(header?.textContent).toContain("will be paused soon");
+    });
+
+    it("shows the has-been-paused message in the header for unpaid without a suspension date", () => {
+      setupComponent({
+        ...baseSubscription,
+        status: "unpaid",
+      } as BitwardenSubscription);
+
+      const header = fixture.nativeElement.querySelector(
+        '[data-test-id="cart-summary-header-custom"]',
+      );
+      expect(header?.textContent).toContain("has been paused");
+    });
+
+    it("shows the amount due in the next-charge header when a balance reduces it", () => {
+      setupComponent({
+        ...baseSubscription,
+        status: "active",
+        nextCharge: new Date("2025-02-01"),
+        cart: { ...mockCart, total: 14.54, appliedBalance: 12.96, amountDue: 1.58 },
+      } as SubscriptionPreview);
+
+      const header = fixture.debugElement.query(By.css("#cart-summary-header-custom"));
+      expect(header.nativeElement.textContent).toContain("$1.58");
+      expect(header.nativeElement.textContent).not.toContain("$14.54");
     });
   });
 

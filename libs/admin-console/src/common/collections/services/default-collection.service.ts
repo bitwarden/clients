@@ -1,15 +1,17 @@
 import {
+  catchError,
   combineLatest,
   delayWhen,
   filter,
   firstValueFrom,
   from,
+  ignoreElements,
   map,
-  NEVER,
   Observable,
   of,
   shareReplay,
   switchMap,
+  tap,
 } from "rxjs";
 
 import {
@@ -17,8 +19,8 @@ import {
   Collection,
   CollectionData,
 } from "@bitwarden/common/admin-console/models/collections";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -26,7 +28,11 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
+import { PerfTrackGroup } from "@bitwarden/logging";
 
+import { CollectionEncryptionService } from "../abstractions/collection-encryption.service";
 import { CollectionService } from "../abstractions/collection.service";
 
 import { DECRYPTED_COLLECTION_DATA_KEY, ENCRYPTED_COLLECTION_DATA_KEY } from "./collection.state";
@@ -39,6 +45,8 @@ export class DefaultCollectionService implements CollectionService {
     private encryptService: EncryptService,
     private i18nService: I18nService,
     protected stateProvider: StateProvider,
+    private collectionEncryptionService: CollectionEncryptionService,
+    private logService: LogService,
   ) {}
 
   private collectionViewCache = new Map<UserId, Observable<CollectionView[]>>();
@@ -77,12 +85,15 @@ export class DefaultCollectionService implements CollectionService {
 
     const result$ = this.decryptedState(userId).state$.pipe(
       switchMap((decryptedState) => {
-        // If decrypted state is already populated, return that
+        // If decrypted state is already populated, return that. A persisted empty array is only
+        // ever written by a successful decryption (failed decryptions are not cached - see
+        // initializeDecryptedState), so an empty cached value is a valid empty vault and is served
+        // as-is rather than re-decrypted.
         if (decryptedState !== null) {
           return of(decryptedState ?? []);
         }
 
-        return this.initializeDecryptedState(userId).pipe(switchMap(() => NEVER));
+        return this.initializeDecryptedState(userId);
       }),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
@@ -107,11 +118,29 @@ export class DefaultCollectionService implements CollectionService {
       this.encryptedCollections$(userId),
       this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
     ]).pipe(
-      switchMap(([collections, orgKeys]) =>
-        this.decryptMany$(collections, orgKeys).pipe(
-          delayWhen((collections) => this.setDecryptedCollections(collections, userId)),
-        ),
-      ),
+      switchMap(([collections]) => {
+        const decryptMeasurement = this.logService.startMeasurement(
+          PerfTrackGroup.Unlock,
+          "Collections",
+          "decryptMany",
+        );
+        return this.collectionEncryptionService.decryptMany(collections ?? [], userId).pipe(
+          tap((views) => decryptMeasurement.finish([["Items", views.length]])),
+          map((views) => views.sort(Utils.getSortFunction(this.i18nService, "name"))),
+          // Cache successful decryptions (delayWhen only runs on emitted values, so a failure
+          // is never cached), then drop this emission - the value is delivered to subscribers
+          // when the cache re-emits, which avoids emitting the same value twice.
+          delayWhen((decrypted: CollectionView[]) =>
+            this.setDecryptedCollections(decrypted, userId),
+          ),
+          ignoreElements(),
+          // A failed batch emits an empty list without caching it, so decryption is retried
+          // on the next input emission rather than serving a stale empty list.
+          catchError(() => {
+            return of([]);
+          }),
+        );
+      }),
     );
   }
 
@@ -129,13 +158,9 @@ export class DefaultCollectionService implements CollectionService {
     });
 
     const decryptedCollections = await firstValueFrom(
-      this.keyService.orgKeys$(userId).pipe(
-        switchMap((orgKeys) => {
-          if (!orgKeys) {
-            throw new Error("No key for this collection's organization.");
-          }
-          return this.decryptMany$([Collection.fromCollectionData(toUpdate)], orgKeys);
-        }),
+      this.collectionEncryptionService.decryptMany(
+        [Collection.fromCollectionData(toUpdate)],
+        userId,
       ),
     );
 

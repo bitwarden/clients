@@ -1,5 +1,61 @@
-<bit-tab-header>
-  <nav bitTabListContainer [attr.aria-label]="label()" (keydown)="keyManager.onKeydown($event)">
+<bit-tab-header (keydown)="keyManager()?.onKeydown($event)">
+  <nav
+    bitOverflowList
+    [items]="overflowItems()"
+    [gap]="TAB_LIST_CONTAINER_GAP"
+    #ovf="bitOverflowList"
+    bitTabListContainer
+    [attr.aria-label]="label()"
+    [class.tw-invisible]="!ovf.ready()"
+  >
     <ng-content></ng-content>
+    <!--
+      The More button sits inside the overflow list so it lands immediately after
+      the last visible tab in the flex flow. The list hides the trigger via the
+      `hidden` property when there's nothing to surface, which also takes it out
+      of focus and the accessibility tree.
+    -->
+    <button
+      #moreButton
+      bitTabListItem
+      bitOverflowTrigger
+      type="button"
+      class="tw-shrink-0"
+      tabindex="-1"
+      [bitMenuTriggerFor]="overflowTabsMenu"
+    >
+      <span [class]="tabLabelContentClasses">
+        {{ "more" | i18n }}
+        <bit-berry [value]="ovf.overflow().length" />
+        <bit-icon name="bwi-angle-down" class="tw-text-base" />
+      </span>
+    </button>
   </nav>
 </bit-tab-header>
+
+<bit-menu #overflowTabsMenu (closed)="onOverflowMenuClosed()">
+  @for (i of ovf.overflow(); track i) {
+    @let tab = tabLabels()[i];
+    <a
+      bitMenuItem
+      [routerLink]="tab.disabled ? null : tab.route()"
+      [disabled]="tab.disabled"
+      [attr.aria-disabled]="tab.disabled || null"
+      (click)="!tab.disabled && overflowTabsMenu.closed.emit()"
+      ariaCurrentWhenActive="page"
+    >
+      @if (tab.startIcon()) {
+        <bit-icon slot="start" [name]="tab.startIcon()" class="tw-text-base" />
+      }
+      {{ tab.displayText() }}
+      <div slot="end" class="empty:tw-hidden tw-flex tw-items-center tw-gap-1">
+        @if (tab.berryValue()) {
+          <bit-berry [value]="tab.berryValue()" />
+        }
+        @if (tab.endIcon()) {
+          <bit-icon [name]="tab.endIcon()" class="tw-text-base" />
+        }
+      </div>
+    </a>
+  }
+</bit-menu>

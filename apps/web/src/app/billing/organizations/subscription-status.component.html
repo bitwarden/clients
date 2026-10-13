@@ -1,10 +1,14 @@
 <ng-container>
-  <bit-callout *ngIf="data.callout" [type]="data.callout.severity" [title]="data.callout.header">
+  <bit-callout
+    *ngIf="data.callout && !hideCallout"
+    [type]="data.callout.severity"
+    [title]="data.callout.header"
+  >
     <p>{{ data.callout.body }}</p>
     <button
       *ngIf="data.callout.showReinstatementButton"
       bitButton
-      buttonType="secondary"
+      [buttonType]="data.callout.severity"
       [bitAction]="requestReinstatement"
       type="button"
     >

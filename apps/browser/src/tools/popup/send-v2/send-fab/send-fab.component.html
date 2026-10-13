@@ -1,0 +1,31 @@
+@if (allowedSendTypes().length === 1) {
+  <!-- Button content is set via `label` input -->
+  <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
+  <button
+    type="button"
+    [vaultFab]="'bwi-plus'"
+    [label]="'createSend' | i18n"
+    (click)="navigateToRestrictedSend()"
+  ></button>
+} @else {
+  <!-- Button content is set via `label` input -->
+  <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
+  <button
+    type="button"
+    [vaultFab]="'bwi-plus'"
+    [label]="'createSend' | i18n"
+    [bitMenuTriggerFor]="sendTypeMenu"
+  ></button>
+  <bit-menu #sendTypeMenu>
+    <button type="button" bitMenuItem (click)="navigateToTextSend()">
+      <bit-icon name="bwi-file-text" class="tw-text-md" slot="start"></bit-icon>
+      {{ "sendTypeText" | i18n }}
+    </button>
+    <button type="button" bitMenuItem (click)="navigateToFileSend()">
+      <bit-icon name="bwi-file" class="tw-text-md" slot="start"></bit-icon>
+      {{ "sendTypeFile" | i18n }}
+      <app-premium-badge slot="end"></app-premium-badge>
+      <bit-icon name="bwi-external-link" class="tw-text-md" slot="end"></bit-icon>
+    </button>
+  </bit-menu>
+}

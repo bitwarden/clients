@@ -1,0 +1,316 @@
+import { signal } from "@angular/core";
+import { fakeAsync, TestBed, tick } from "@angular/core/testing";
+import { BehaviorSubject, of } from "rxjs";
+
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
+import { UserId } from "@bitwarden/common/types/guid";
+import { DialogRef, DialogService } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
+import {
+  CoachmarkService,
+  NewExperienceDialogService,
+  VaultItemsTransferService,
+} from "@bitwarden/vault";
+
+import {
+  AutoConfirmPolicy,
+  MultiStepPolicyEditModalComponent,
+  PolicyEditDialogResult,
+} from "../../admin-console/organizations/policies";
+import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/services";
+
+import { WebVaultExtensionPromptService } from "./web-vault-extension-prompt.service";
+import { WebVaultPromptService } from "./web-vault-prompt.service";
+import { WelcomeDialogService } from "./welcome-dialog.service";
+
+describe("WebVaultPromptService", () => {
+  let service: WebVaultPromptService;
+
+  const mockUserId = "user-123" as UserId;
+  const mockOrganizationId = "org-456";
+
+  const open = jest.fn();
+  const policies$ = jest.fn().mockReturnValue(of([]));
+  const configurationAutoConfirm$ = jest
+    .fn()
+    .mockReturnValue(
+      of({ showSetupDialog: false, enabled: false, showBrowserNotification: false }),
+    );
+  const upsertAutoConfirm = jest.fn().mockResolvedValue(undefined);
+  const organizations$ = jest.fn().mockReturnValue(of([]));
+  const displayUpgradePromptConditionally = jest.fn().mockResolvedValue(false);
+  const enforceOrganizationDataOwnership = jest.fn().mockResolvedValue(undefined);
+  const conditionallyShowWelcomeDialog = jest.fn().mockResolvedValue(false);
+  const logError = jest.fn();
+  const conditionallyPromptUserForExtension = jest.fn().mockResolvedValue(false);
+  const conditionallyOpenNewExperience = jest.fn().mockResolvedValue(false);
+  const tourRunning = signal(false);
+
+  let serverSettings$: BehaviorSubject<ServerSettings | null>;
+  let activeAccount$: BehaviorSubject<Account | null>;
+
+  function createAccount(overrides: Partial<Account> = {}): Account {
+    return {
+      id: mockUserId,
+      creationDate: new Date(),
+      ...overrides,
+    } as Account;
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    tourRunning.set(false);
+
+    activeAccount$ = new BehaviorSubject<Account | null>(createAccount());
+    serverSettings$ = new BehaviorSubject<ServerSettings | null>(new ServerSettings());
+
+    TestBed.configureTestingModule({
+      providers: [
+        WebVaultPromptService,
+        { provide: UnifiedUpgradePromptService, useValue: { displayUpgradePromptConditionally } },
+        { provide: VaultItemsTransferService, useValue: { enforceOrganizationDataOwnership } },
+        { provide: PolicyService, useValue: { policies$ } },
+        { provide: AccountService, useValue: { activeAccount$ } },
+        { provide: ConfigService, useValue: { serverSettings$: serverSettings$.asObservable() } },
+        {
+          provide: AutomaticUserConfirmationService,
+          useValue: { configuration$: configurationAutoConfirm$, upsert: upsertAutoConfirm },
+        },
+        { provide: OrganizationService, useValue: { organizations$ } },
+        { provide: DialogService, useValue: { open } },
+        { provide: LogService, useValue: { error: logError } },
+        {
+          provide: WebVaultExtensionPromptService,
+          useValue: { conditionallyPromptUserForExtension },
+        },
+        {
+          provide: WelcomeDialogService,
+          useValue: { conditionallyShowWelcomeDialog, conditionallyPromptUserForExtension },
+        },
+        {
+          provide: NewExperienceDialogService,
+          useValue: { conditionallyOpen: conditionallyOpenNewExperience },
+        },
+        { provide: CoachmarkService, useValue: { isRunning: tourRunning.asReadonly() } },
+      ],
+    });
+
+    service = TestBed.inject(WebVaultPromptService);
+  });
+
+  describe("conditionallyPromptUser", () => {
+    it("calls displayUpgradePromptConditionally", async () => {
+      await service.conditionallyPromptUser();
+
+      expect(
+        service["unifiedUpgradePromptService"].displayUpgradePromptConditionally,
+      ).toHaveBeenCalled();
+    });
+
+    it("calls enforceOrganizationDataOwnership with the userId", async () => {
+      await service.conditionallyPromptUser();
+
+      expect(
+        service["vaultItemTransferService"].enforceOrganizationDataOwnership,
+      ).toHaveBeenCalledWith(mockUserId);
+    });
+
+    it("calls conditionallyPromptUserForExtension with the userId", async () => {
+      await service.conditionallyPromptUser();
+
+      expect(
+        service["webVaultExtensionPromptService"].conditionallyPromptUserForExtension,
+      ).toHaveBeenCalledWith(mockUserId);
+    });
+
+    it("skips onboarding prompts but not policy flows when suppressOnboardingInterstitials is enabled", async () => {
+      serverSettings$.next(new ServerSettings({ suppressOnboardingInterstitials: true }));
+
+      await service.conditionallyPromptUser();
+
+      expect(enforceOrganizationDataOwnership).toHaveBeenCalledWith(mockUserId);
+      expect(displayUpgradePromptConditionally).not.toHaveBeenCalled();
+      expect(conditionallyShowWelcomeDialog).not.toHaveBeenCalled();
+      expect(conditionallyOpenNewExperience).not.toHaveBeenCalled();
+      expect(conditionallyPromptUserForExtension).not.toHaveBeenCalled();
+    });
+
+    it("skips onboarding prompts but not policy flows while a tour is running", async () => {
+      tourRunning.set(true);
+
+      await service.conditionallyPromptUser();
+
+      expect(enforceOrganizationDataOwnership).toHaveBeenCalledWith(mockUserId);
+      expect(displayUpgradePromptConditionally).not.toHaveBeenCalled();
+      expect(conditionallyShowWelcomeDialog).not.toHaveBeenCalled();
+      expect(conditionallyOpenNewExperience).not.toHaveBeenCalled();
+      expect(conditionallyPromptUserForExtension).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("new experience dialog", () => {
+    it("offers it the redesigned vault screenshots", async () => {
+      await service.conditionallyPromptUser();
+
+      expect(conditionallyOpenNewExperience).toHaveBeenCalledWith(mockUserId, {
+        lightImgSrc: "images/new-experience/new-experience.light.png",
+        darkImgSrc: "images/new-experience/new-experience.dark.png",
+      });
+    });
+
+    it("skips it for a user who was just welcomed to Bitwarden", async () => {
+      conditionallyShowWelcomeDialog.mockResolvedValueOnce(true);
+
+      await service.conditionallyPromptUser();
+
+      expect(conditionallyOpenNewExperience).not.toHaveBeenCalled();
+    });
+
+    it("holds back the extension prompt when it opened, so the two do not stack", async () => {
+      conditionallyOpenNewExperience.mockResolvedValueOnce(true);
+
+      await service.conditionallyPromptUser();
+
+      expect(conditionallyPromptUserForExtension).not.toHaveBeenCalled();
+    });
+
+    it("lets the extension prompt through when it did not open", async () => {
+      await service.conditionallyPromptUser();
+
+      expect(conditionallyPromptUserForExtension).toHaveBeenCalledWith(mockUserId);
+    });
+  });
+
+  describe("setupAutoConfirm", () => {
+    it("shows dialog when all conditions are met", fakeAsync(() => {
+      configurationAutoConfirm$.mockReturnValueOnce(
+        of({ showSetupDialog: true, enabled: false, showBrowserNotification: false }),
+      );
+      policies$.mockReturnValueOnce(of([]));
+
+      const mockOrg = {
+        id: mockOrganizationId,
+        canManagePolicies: true,
+        canEnableAutoConfirmPolicy: true,
+      } as Organization;
+      organizations$.mockReturnValueOnce(of([mockOrg]));
+
+      const dialogClosedSubject = new BehaviorSubject<PolicyEditDialogResult>(null);
+      const dialogRefMock = {
+        closed: dialogClosedSubject.asObservable(),
+      } as unknown as DialogRef<PolicyEditDialogResult>;
+
+      const openSpy = jest
+        .spyOn(MultiStepPolicyEditModalComponent, "open")
+        .mockReturnValue(dialogRefMock);
+
+      void service.conditionallyPromptUser();
+
+      tick();
+
+      expect(openSpy).toHaveBeenCalledWith(expect.anything(), {
+        data: {
+          policy: expect.any(Object),
+          organization: expect.objectContaining({ id: mockOrganizationId }),
+        },
+      });
+
+      const passedPolicy = openSpy.mock.calls[0][1].data.policy;
+      expect(passedPolicy).toBeInstanceOf(AutoConfirmPolicy);
+      expect(passedPolicy.firstTimeDialog).toBe(true);
+
+      dialogClosedSubject.next(null);
+    }));
+
+    it("does not show dialog when policy is already enabled", fakeAsync(() => {
+      configurationAutoConfirm$.mockReturnValueOnce(
+        of({ showSetupDialog: true, enabled: false, showBrowserNotification: false }),
+      );
+
+      const mockPolicy = {
+        type: PolicyType.AutomaticUserConfirmation,
+        enabled: true,
+      } as Policy;
+      policies$.mockReturnValueOnce(of([mockPolicy]));
+
+      const mockOrg = {
+        id: mockOrganizationId,
+      } as Organization;
+      organizations$.mockReturnValueOnce(of([mockOrg]));
+
+      const openSpy = jest.spyOn(MultiStepPolicyEditModalComponent, "open");
+
+      void service.conditionallyPromptUser();
+
+      tick();
+
+      expect(openSpy).not.toHaveBeenCalled();
+    }));
+
+    it("does not show dialog when showSetupDialog is false", fakeAsync(() => {
+      configurationAutoConfirm$.mockReturnValueOnce(
+        of({ showSetupDialog: false, enabled: false, showBrowserNotification: false }),
+      );
+      policies$.mockReturnValueOnce(of([]));
+
+      const mockOrg = {
+        id: mockOrganizationId,
+      } as Organization;
+      organizations$.mockReturnValueOnce(of([mockOrg]));
+
+      const openSpy = jest.spyOn(MultiStepPolicyEditModalComponent, "open");
+
+      void service.conditionallyPromptUser();
+
+      tick();
+
+      expect(openSpy).not.toHaveBeenCalled();
+    }));
+
+    it("does not show dialog when organization is undefined", fakeAsync(() => {
+      configurationAutoConfirm$.mockReturnValueOnce(
+        of({ showSetupDialog: true, enabled: false, showBrowserNotification: false }),
+      );
+      policies$.mockReturnValueOnce(of([]));
+      organizations$.mockReturnValueOnce(of([]));
+
+      const openSpy = jest.spyOn(MultiStepPolicyEditModalComponent, "open");
+
+      void service.conditionallyPromptUser();
+
+      tick();
+
+      expect(openSpy).not.toHaveBeenCalled();
+    }));
+
+    it("does not show dialog when organization cannot enable auto-confirm policy", fakeAsync(() => {
+      configurationAutoConfirm$.mockReturnValueOnce(
+        of({ showSetupDialog: true, enabled: false, showBrowserNotification: false }),
+      );
+      policies$.mockReturnValueOnce(of([]));
+
+      const mockOrg = {
+        id: mockOrganizationId,
+        canManagePolicies: false,
+      } as Organization;
+
+      organizations$.mockReturnValueOnce(of([mockOrg]));
+
+      const openSpy = jest.spyOn(MultiStepPolicyEditModalComponent, "open");
+
+      void service.conditionallyPromptUser();
+
+      tick();
+
+      expect(openSpy).not.toHaveBeenCalled();
+    }));
+  });
+});

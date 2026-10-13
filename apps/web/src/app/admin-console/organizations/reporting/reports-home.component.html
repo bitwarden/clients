@@ -1,16 +1,9 @@
-<ng-container *ngIf="homepage$ | async">
+@if (homepage$ | async) {
   <app-header></app-header>
 
-  <p bitTypography="body1">{{ "orgsReportsDesc" | i18n }}</p>
+  <p bitTypography="body1">{{ "orgsReportsDesc" | vfo1I18n: "orgsReportsDescV2" }}</p>
 
   <app-report-list [reports]="reports$ | async"></app-report-list>
-</ng-container>
+}
 
 <router-outlet></router-outlet>
-
-<div class="tw-mt-4">
-  <a bitButton routerLink="./" *ngIf="!(homepage$ | async)">
-    <i class="bwi bwi-angle-left" aria-hidden="true"></i>
-    {{ "backToReports" | i18n }}
-  </a>
-</div>

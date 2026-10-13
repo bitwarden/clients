@@ -68,7 +68,7 @@ export class PurgeVaultComponent {
     } else {
       await this.router.navigate(["vault"]);
     }
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   static open(dialogService: DialogService, config?: DialogConfig<PurgeVaultDialogData>) {

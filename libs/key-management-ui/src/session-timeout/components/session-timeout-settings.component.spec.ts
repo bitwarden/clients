@@ -88,6 +88,7 @@ describe("SessionTimeoutSettingsComponent", () => {
     mockVaultTimeoutSettingsService.availableVaultTimeoutActions$.mockImplementation(() =>
       of([VaultTimeoutAction.Lock, VaultTimeoutAction.LogOut]),
     );
+    mockVaultTimeoutSettingsService.isVaultTimeoutSuppressed$.mockImplementation(() => of(false));
     mockSessionTimeoutSettingsComponentService.policyFilteredTimeoutOptions$.mockImplementation(
       (userId) => availableTimeoutOptions$.asObservable(),
     );

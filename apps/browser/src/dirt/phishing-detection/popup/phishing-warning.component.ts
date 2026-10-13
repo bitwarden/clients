@@ -1,9 +1,9 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { firstValueFrom, map } from "rxjs";
+import { map } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
 import {
   AsyncActionsModule,
@@ -17,22 +17,21 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { MessageSender } from "@bitwarden/messaging";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
   PHISHING_DETECTION_CANCEL_COMMAND,
   PHISHING_DETECTION_CONTINUE_COMMAND,
 } from "../services/phishing-detection.service";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "dirt-phishing-warning",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   templateUrl: "phishing-warning.component.html",
   imports: [
     CommonModule,
     SvgModule,
-    JslibModule,
     LinkModule,
     FormFieldModule,
     AsyncActionsModule,
@@ -42,32 +41,31 @@ import {
     IconTileComponent,
     CalloutComponent,
     TypographyModule,
+    I18nPipe,
   ],
 })
-// FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix
-// eslint-disable-next-line @angular-eslint/component-class-suffix
-export class PhishingWarning {
-  private activatedRoute = inject(ActivatedRoute);
-  private messageSender = inject(MessageSender);
+export class PhishingWarningComponent {
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly messageSender = inject(MessageSender);
 
-  private phishingUrl$ = this.activatedRoute.queryParamMap.pipe(
-    map((params) => params.get("phishingUrl") || ""),
+  private readonly phishingUrl = toSignal(
+    this.activatedRoute.queryParamMap.pipe(map((params) => params.get("phishingUrl") || "")),
+    { initialValue: "" },
   );
-  protected phishingHostname$ = this.phishingUrl$.pipe(map((url) => new URL(url).hostname));
+  protected readonly phishingHostname = computed(() => {
+    const url = this.phishingUrl();
+    return url ? new URL(url).hostname : "";
+  });
 
   async closeTab() {
     const tabId = await this.getTabId();
-    this.messageSender.send(PHISHING_DETECTION_CANCEL_COMMAND, {
-      tabId,
-    });
+    this.messageSender.send(PHISHING_DETECTION_CANCEL_COMMAND, { tabId });
   }
+
   async continueAnyway() {
-    const url = await firstValueFrom(this.phishingUrl$);
+    const url = this.phishingUrl();
     const tabId = await this.getTabId();
-    this.messageSender.send(PHISHING_DETECTION_CONTINUE_COMMAND, {
-      tabId,
-      url,
-    });
+    this.messageSender.send(PHISHING_DETECTION_CONTINUE_COMMAND, { tabId, url });
   }
 
   private async getTabId() {

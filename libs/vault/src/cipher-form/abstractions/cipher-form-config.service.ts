@@ -28,6 +28,7 @@ export type OptionalInitialValues = {
   // Credit Card Information
   cardholderName?: string;
   number?: string;
+  brand?: string;
   expMonth?: string;
   expYear?: string;
   code?: string;

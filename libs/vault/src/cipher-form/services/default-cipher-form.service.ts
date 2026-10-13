@@ -51,7 +51,7 @@ export class DefaultCipherFormService implements CipherFormService {
     const newCollectionIds = new Set(cipher.collectionIds ?? []);
 
     // Call shareWithServer if the owner is changing from a user to an organization
-    if (config.originalCipher.organizationId === null && cipher.organizationId != null) {
+    if (config.originalCipher.organizationId == null && cipher.organizationId != null) {
       // shareWithServer expects the cipher to have no organizationId set
       const organizationId = cipher.organizationId as OrganizationId;
       cipher.organizationId = null;
@@ -61,7 +61,7 @@ export class DefaultCipherFormService implements CipherFormService {
         organizationId,
         cipher.collectionIds,
         activeUserId,
-        config.originalCipher,
+        originalCipherView,
       );
       // If the collectionIds are the same, update the cipher normally
     } else if (isSetEqual(originalCollectionIds, newCollectionIds)) {
@@ -76,6 +76,9 @@ export class DefaultCipherFormService implements CipherFormService {
         .then((res) => res.cipher);
     } else {
       // Updating a cipher with collection changes is not supported with a single request currently
+      // Save the new collectionIds before overwriting
+      const newCollectionIdsToSave = cipher.collectionIds;
+
       // First update the cipher with the original collectionIds
       cipher.collectionIds = config.originalCipher.collectionIds;
       const newCipher = await this.cipherService.updateWithServer(
@@ -86,7 +89,7 @@ export class DefaultCipherFormService implements CipherFormService {
       );
 
       // Then save the new collection changes separately
-      newCipher.collectionIds = cipher.collectionIds;
+      newCipher.collectionIds = newCollectionIdsToSave;
 
       // TODO: Remove after migrating all SDK ops
       const { cipher: encryptedCipher } = await this.cipherService.encrypt(newCipher, activeUserId);

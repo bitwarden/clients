@@ -1,13 +1,14 @@
 import { NgModule } from "@angular/core";
 
+import { Vfo1I18nPipe } from "@bitwarden/vault";
+
 import { SharedModule } from "../../../shared";
 
 import { BulkDeleteDialogComponent } from "./bulk-delete-dialog/bulk-delete-dialog.component";
-import { BulkMoveDialogComponent } from "./bulk-move-dialog/bulk-move-dialog.component";
 
 @NgModule({
-  imports: [SharedModule],
-  declarations: [BulkDeleteDialogComponent, BulkMoveDialogComponent],
-  exports: [BulkDeleteDialogComponent, BulkMoveDialogComponent],
+  imports: [SharedModule, Vfo1I18nPipe],
+  declarations: [BulkDeleteDialogComponent],
+  exports: [BulkDeleteDialogComponent],
 })
-export class BulkDialogsModule {}
+export class BulkDeleteDialogsModule {}

@@ -1,7 +1,5 @@
-import { Jsonify } from "type-fest";
-
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { CipherPermissionsApi } from "@bitwarden/common/vault/models/api/cipher-permissions.api";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import {
   CipherView as SdkCipherView,
   CipherType as SdkCipherType,
@@ -17,6 +15,7 @@ import { mockFromJson, mockFromSdk } from "../../../../spec";
 import { asUuid } from "../../../platform/abstractions/sdk/sdk.service";
 import { CipherRepromptType } from "../../enums";
 import { CipherType } from "../../enums/cipher-type";
+import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 
 import { AttachmentView } from "./attachment.view";
 import { CardView } from "./card.view";
@@ -91,23 +90,13 @@ describe("CipherView", () => {
       expect(actual).toMatchObject(expected);
     });
 
-    it("handle both string and object inputs for the cipher key", () => {
-      const cipherKeyString = "cipherKeyString";
-      const cipherKeyObject = new EncString("cipherKeyObject");
+    it("deserializes the cipher key to a SymmetricCryptoKey", () => {
+      const mockKey = { keyB64: "c29tZS1iYXNlNjQta2V5" };
+      jest.spyOn(SymmetricCryptoKey, "fromJSON").mockReturnValue(mockKey as any);
 
-      // Test with string input
-      let actual = CipherView.fromJSON({
-        key: cipherKeyString,
-      });
-      expect(actual.key).toBeInstanceOf(EncString);
-      expect(actual.key?.toJSON()).toBe(cipherKeyString);
-
-      // Test with object input (which can happen when cipher view is stored in an InMemory state provider)
-      actual = CipherView.fromJSON({
-        key: cipherKeyObject,
-      } as Jsonify<CipherView>);
-      expect(actual.key).toBeInstanceOf(EncString);
-      expect(actual.key?.toJSON()).toBe(cipherKeyObject.toJSON());
+      const actual = CipherView.fromJSON({ key: mockKey as any });
+      expect(actual.key).toBe(mockKey);
+      expect(SymmetricCryptoKey.fromJSON).toHaveBeenCalledWith(mockKey);
     });
 
     it("fromJSON should always restore top-level CipherView properties", () => {
@@ -140,7 +129,7 @@ describe("CipherView", () => {
       original.deletedDate = new Date("2022-01-03");
       original.archivedDate = new Date("2022-01-04");
       original.reprompt = CipherRepromptType.Password;
-      original.key = new EncString("test-key");
+      original.key = new SymmetricCryptoKey(new Uint8Array(64));
       original.decryptionFailure = true;
 
       // Serialize and deserialize
@@ -217,6 +206,9 @@ describe("CipherView", () => {
         card: undefined,
         secureNote: undefined,
         sshKey: undefined,
+        bankAccount: undefined,
+        driversLicense: undefined,
+        passport: undefined,
         fields: [
           {
             name: "fieldName",
@@ -298,7 +290,7 @@ describe("CipherView", () => {
       cipherView.organizationId = "000f2a6e-da5e-4726-87ed-1c5c77322c3c";
       cipherView.folderId = "41b22db4-8e2a-4ed2-b568-f1186c72922f";
       cipherView.collectionIds = ["b0473506-3c3c-4260-a734-dfaaf833ab6f"];
-      cipherView.key = new EncString("some-key");
+      cipherView.key = { toSdk: () => "some-key-b64" } as any;
       cipherView.name = "name";
       cipherView.notes = "notes";
       cipherView.type = CipherType.Login;
@@ -328,7 +320,7 @@ describe("CipherView", () => {
         organizationId: asUuid("000f2a6e-da5e-4726-87ed-1c5c77322c3c"),
         folderId: asUuid("41b22db4-8e2a-4ed2-b568-f1186c72922f"),
         collectionIds: [asUuid("b0473506-3c3c-4260-a734-dfaaf833ab6f")],
-        key: "some-key" as any,
+        key: "some-key-b64" as any,
         name: "name",
         notes: "notes",
         type: SdkCipherType.Login,
@@ -351,6 +343,9 @@ describe("CipherView", () => {
         passwordHistory: [],
         fields: [],
       });
+
+      // FIDO2 credentials are not set when no SDK client is provided
+      expect(sdkCipherView.login?.fido2Credentials).toBeUndefined();
     });
   });
 
@@ -371,6 +366,7 @@ describe("CipherView", () => {
       cipherView.type = CipherType.Login;
       cipherView.favorite = true;
       cipherView.reprompt = CipherRepromptType.Password;
+      cipherView.archivedDate = new Date("2022-01-01T12:00:00.000Z");
 
       const field = new RealFieldView();
       field.name = "testField";
@@ -402,6 +398,7 @@ describe("CipherView", () => {
         username: "testuser",
         password: "testpass",
       });
+      expect(result.archivedDate).toBe("2022-01-01T12:00:00.000Z");
     });
 
     it("handles undefined organizationId and folderId", () => {
@@ -505,7 +502,7 @@ describe("CipherView", () => {
       cipherView.reprompt = CipherRepromptType.Password;
       cipherView.revisionDate = new Date("2022-01-02T12:00:00.000Z");
       cipherView.archivedDate = new Date("2022-01-03T12:00:00.000Z");
-      cipherView.key = new EncString("cipher-key");
+      cipherView.key = { toSdk: () => "cipher-key-b64" } as any;
 
       const mockField = new RealFieldView();
       mockField.name = "testField";
@@ -536,6 +533,9 @@ describe("CipherView", () => {
         username: "testuser",
       });
       expect(result.key).toBeDefined();
+
+      // FIDO2 credentials are not included when no FIDO2 credentials are present
+      expect((result.type as any).login.fido2Credentials).toBeUndefined();
     });
 
     it("handles undefined optional properties", () => {

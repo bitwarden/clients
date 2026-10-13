@@ -5,6 +5,7 @@ import { SendType } from "../../types/send-type";
 import { SendResponse } from "../response/send.response";
 
 import { SendFileData } from "./send-file.data";
+import { SendItemData } from "./send-item.data";
 import { SendTextData } from "./send-text.data";
 
 export class SendData {
@@ -15,6 +16,7 @@ export class SendData {
   notes: string;
   file: SendFileData;
   text: SendTextData;
+  data: SendItemData;
   key: string;
   maxAccessCount?: number;
   accessCount: number;
@@ -23,7 +25,6 @@ export class SendData {
   deletionDate: string;
   password: string;
   emails: string;
-  emailHashes: string;
   disabled: boolean;
   hideEmail: boolean;
   authType: AuthType;
@@ -47,7 +48,6 @@ export class SendData {
     this.deletionDate = response.deletionDate;
     this.password = response.password;
     this.emails = response.emails;
-    this.emailHashes = "";
     this.disabled = response.disable;
     this.hideEmail = response.hideEmail;
     this.authType = response.authType;
@@ -58,6 +58,9 @@ export class SendData {
         break;
       case SendType.File:
         this.file = new SendFileData(response.file);
+        break;
+      case SendType.Item:
+        this.data = new SendItemData(response.data);
         break;
       default:
         break;

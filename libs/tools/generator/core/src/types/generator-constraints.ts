@@ -6,6 +6,5 @@ import {
 
 /** Specializes state constraints to include policy. */
 export type GeneratorConstraints<Settings> = { constraints: PolicyConstraints<Settings> } & (
-  | DynamicStateConstraints<Settings>
-  | StateConstraints<Settings>
+  DynamicStateConstraints<Settings> | StateConstraints<Settings>
 );

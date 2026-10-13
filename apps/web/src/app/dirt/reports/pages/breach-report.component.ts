@@ -1,12 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { firstValueFrom, map } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BreachAccountResponse } from "@bitwarden/common/dirt/models/response/breach-account.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/logging";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -16,46 +20,71 @@ import { BreachAccountResponse } from "@bitwarden/common/dirt/models/response/br
   standalone: false,
 })
 export class BreachReportComponent implements OnInit {
+  private readonly configService = inject(ConfigService);
+
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    {
+      initialValue: false,
+    },
+  );
+  protected readonly reportTitleKey = "dataBreachReport";
+
   loading = false;
   error = false;
-  checkedUsername: string;
+  checkedEmail: string;
   breachedAccounts: BreachAccountResponse[] = [];
   formGroup = this.formBuilder.group({
-    username: ["", { validators: [Validators.required], updateOn: "change" }],
+    email: ["", { validators: [Validators.required, Validators.email], updateOn: "change" }],
   });
 
   constructor(
     private auditService: AuditService,
     private accountService: AccountService,
     private formBuilder: FormBuilder,
+    private logService: LogService,
   ) {}
 
   async ngOnInit() {
-    this.formGroup
-      .get("username")
-      .setValue(
-        await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.email))),
-      );
+    this.logService.info("[BreachReport] load start");
+    try {
+      this.formGroup
+        .get("email")
+        .setValue(
+          await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.email))),
+        );
+      this.logService.info("[BreachReport] load success");
+    } catch (e) {
+      this.logService.error("[BreachReport] load failure", e);
+      throw e;
+    }
   }
 
   submit = async () => {
     this.formGroup.markAsTouched();
 
     if (this.formGroup.invalid) {
+      this.logService.warning("[BreachReport] submit blocked invalid form");
       return;
     }
 
     this.error = false;
     this.loading = true;
-    const username = this.formGroup.value.username.toLowerCase();
+    this.logService.info("[BreachReport] breach check start");
+    const email = this.formGroup.value.email.toLowerCase();
     try {
-      this.breachedAccounts = await this.auditService.breachedAccounts(username);
+      this.breachedAccounts = await this.auditService.breachedAccounts(email);
+      this.logService.info(
+        `[BreachReport] breach check complete count=${this.breachedAccounts.length}`,
+      );
     } catch {
       this.error = true;
+      this.logService.error("[BreachReport] breach check failure");
     } finally {
       this.loading = false;
+      this.logService.info("[BreachReport] breach check finalize loading=false");
     }
 
-    this.checkedUsername = username;
+    this.checkedEmail = email;
   };
 }

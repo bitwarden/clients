@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`AutofillInlineMenuButton initAutofillInlineMenuButton creates the button element with the locked icon when the user's auth status is not Unlocked 1`] = `
 <button

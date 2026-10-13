@@ -1,20 +1,21 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { SendAccessToken } from "@bitwarden/common/auth/send-access";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { SendAccessRequest } from "@bitwarden/common/tools/send/models/request/send-access.request";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { unsafeUrlReason } from "@bitwarden/common/tools/url-safety";
 import { ToastService } from "@bitwarden/components";
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { SharedModule } from "../../../shared";
 
@@ -27,7 +28,6 @@ import { SharedModule } from "../../../shared";
 export class SendAccessFileComponent {
   readonly send = input<SendAccessView | null>(null);
   readonly decKey = input<SymmetricCryptoKey | null>(null);
-  readonly accessRequest = input<SendAccessRequest | null>(null);
   readonly accessToken = input<SendAccessToken | null>(null);
 
   constructor(
@@ -36,21 +36,19 @@ export class SendAccessFileComponent {
     private encryptService: EncryptService,
     private fileDownloadService: FileDownloadService,
     private sendApiService: SendApiService,
-    private configService: ConfigService,
+    private environmentService: EnvironmentService,
   ) {}
 
   protected download = async () => {
-    const sendEmailOtp = await this.configService.getFeatureFlag(FeatureFlag.SendEmailOTP);
     const accessToken = this.accessToken();
-    const accessRequest = this.accessRequest();
-    const authMissing = (sendEmailOtp && !accessToken) || (!sendEmailOtp && !accessRequest);
-    if (this.send() == null || this.decKey() == null || authMissing) {
+    if (this.send() == null || this.decKey() == null || !accessToken) {
       return;
     }
 
-    const downloadData = sendEmailOtp
-      ? await this.sendApiService.getSendFileDownloadDataV2(this.send(), accessToken)
-      : await this.sendApiService.getSendFileDownloadData(this.send(), accessRequest);
+    const downloadData = await this.sendApiService.getSendFileDownloadData(
+      this.send(),
+      accessToken,
+    );
 
     if (Utils.isNullOrWhitespace(downloadData.url)) {
       this.toastService.showToast({
@@ -61,7 +59,20 @@ export class SendAccessFileComponent {
       return;
     }
 
-    const response = await fetch(new Request(downloadData.url, { cache: "no-store" }));
+    const environment = await firstValueFrom(this.environmentService.environment$);
+    if (unsafeUrlReason(downloadData.url, environment.getApiUrl())) {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("sendDownloadBlocked"),
+      });
+      return;
+    }
+
+    // don't follow a redirect blindly — a validated host could still redirect elsewhere
+    const response = await fetch(
+      new Request(downloadData.url, { cache: "no-store", redirect: "manual" }),
+    );
     if (response.status !== 200) {
       this.toastService.showToast({
         variant: "error",
@@ -76,7 +87,7 @@ export class SendAccessFileComponent {
       const decBuf = await this.encryptService.decryptFileData(encBuf, this.decKey());
       this.fileDownloadService.download({
         fileName: this.send().file.fileName,
-        blobData: decBuf,
+        blobData: decBuf as BlobPart,
         downloadMethod: "save",
       });
       // FIXME: Remove when updating file. Eslint update

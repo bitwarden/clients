@@ -1,3 +1,4 @@
+import { ScrollingModule } from "@angular/cdk/scrolling";
 import { Component, computed, inject, signal, Signal, WritableSignal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
@@ -14,6 +15,7 @@ import {
   merge,
   Observable,
   shareReplay,
+  startWith,
   switchMap,
   take,
 } from "rxjs";
@@ -23,9 +25,10 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import {
-  OrganizationUserStatusType,
   OrganizationUserType,
   PolicyType,
+  RevocationReasonMessageMap,
+  RevocationReasonType,
 } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
@@ -33,37 +36,48 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { getById } from "@bitwarden/common/platform/misc";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  BerryComponent,
+  DialogService,
+  IconModule,
+  ScrollLayoutDirective,
+  ToastService,
+} from "@bitwarden/components";
+import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
+import { Vfo1I18nPipe, Vfo1IconPipe } from "@bitwarden/vault";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
+import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
+import { HeaderModule } from "../../../layouts/header/header.module";
 import {
-  CloudBulkReinviteLimit,
   MaxCheckedCount,
   MembersTableDataSource,
   peopleFilter,
   showConfirmBanner,
 } from "../../common/people-table-data-source";
 import { OrganizationUserView } from "../core/views/organization-user.view";
+import { SharedOrganizationModule } from "../shared";
 
-import { AccountRecoveryDialogResultType } from "./components/account-recovery/account-recovery-dialog.component";
+import { AccountRecoveryDialogResultType } from "./components/account-recovery";
 import { MemberDialogResult, MemberDialogTab } from "./components/member-dialog";
+import { AvatarIdPipe } from "./pipes";
 import {
   MemberDialogManagerService,
   MemberExportService,
   OrganizationMembersService,
 } from "./services";
 import { DeleteManagedMemberWarningService } from "./services/delete-managed-member/delete-managed-member-warning.service";
-import {
-  MemberActionsService,
-  MemberActionResult,
-} from "./services/member-actions/member-actions.service";
+import { MemberActionsService } from "./services/member-actions/member-actions.service";
+import { MemberActionResult } from "./services/member-actions/member-actions.types";
 
 interface BulkMemberFlags {
   showBulkRestoreUsers: boolean;
@@ -78,9 +92,20 @@ interface BulkMemberFlags {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "members.component.html",
-  standalone: false,
+  imports: [
+    AvatarIdPipe,
+    BerryComponent,
+    HeaderModule,
+    IconModule,
+    OrganizationFreeTrialWarningComponent,
+    ScrollingModule,
+    ScrollLayoutDirective,
+    SharedOrganizationModule,
+    Vfo1I18nPipe,
+    Vfo1IconPipe,
+  ],
 })
-export class vNextMembersComponent {
+export class MembersComponent {
   protected i18nService = inject(I18nService);
   protected validationService = inject(ValidationService);
   protected logService = inject(LogService);
@@ -101,6 +126,7 @@ export class vNextMembersComponent {
   private organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
   private environmentService = inject(EnvironmentService);
   private memberExportService = inject(MemberExportService);
+  private configService = inject(ConfigService);
 
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -125,10 +151,31 @@ export class vNextMembersComponent {
     .usersUpdated()
     .pipe(map(() => showConfirmBanner(this.dataSource())));
 
+  protected selectedInvitedCount$ = this.dataSource()
+    .usersUpdated()
+    .pipe(
+      map(
+        (members) => members.filter((m) => m.status === OrganizationUserStatusType.Invited).length,
+      ),
+    );
+
+  protected isSingleInvite$ = this.selectedInvitedCount$.pipe(map((count) => count === 1));
+
   protected isProcessing = this.memberActionsService.isProcessing;
 
   protected readonly canUseSecretsManager: Signal<boolean> = computed(
     () => this.organization()?.useSecretsManager ?? false,
+  );
+
+  private readonly privilegedControlsEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.Pam),
+    {
+      initialValue: false,
+    },
+  );
+
+  protected readonly canUsePrivilegedControls: Signal<boolean> = computed(
+    () => (this.organization()?.usePam ?? false) && this.privilegedControlsEnabled(),
   );
 
   protected readonly showUserManagementControls: Signal<boolean> = computed(
@@ -144,11 +191,30 @@ export class vNextMembersComponent {
   protected rowHeightClass = `tw-h-[66px]`;
 
   constructor() {
-    combineLatest([this.searchControl.valueChanges.pipe(debounceTime(200)), this.statusToggle])
+    combineLatest([
+      this.searchControl.valueChanges.pipe(startWith(this.searchControl.value), debounceTime(200)),
+      this.statusToggle,
+    ])
       .pipe(takeUntilDestroyed())
       .subscribe(
         ([searchText, status]) => (this.dataSource().filter = peopleFilter(searchText, status)),
       );
+
+    // The Staged toggle is the only status filter that is removed from the view when it has no
+    // members. If the last staged member is revoked or removed while the Staged view is selected,
+    // the toggle disappears but the filter stays stuck on Staged, stranding the user in a filterless
+    // view showing zero members. Fall back to the "All" view whenever that happens.
+    this.dataSource()
+      .usersUpdated()
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        if (
+          this.statusToggle.value === OrganizationUserStatusType.Staged &&
+          this.dataSource().stagedUserCount === 0
+        ) {
+          this.statusToggle.next(undefined);
+        }
+      });
 
     const organization$ = this.route.params.pipe(
       concatMap((params) =>
@@ -186,9 +252,9 @@ export class vNextMembersComponent {
     combineLatest([this.route.queryParams, organization$])
       .pipe(
         concatMap(async ([qParams, organization]) => {
-          await this.load(organization!);
+          this.searchControl.setValue(qParams.search, { emitEvent: false });
 
-          this.searchControl.setValue(qParams.search);
+          await this.load(organization!);
 
           if (qParams.viewEvents != null) {
             const user = this.dataSource().data.filter((u) => u.id === qParams.viewEvents);
@@ -228,6 +294,10 @@ export class vNextMembersComponent {
   async load(organization: Organization) {
     const response = await this.memberService.loadUsers(organization);
     this.dataSource().data = response;
+    // Apply the current filter synchronously alongside the data so the table never renders
+    // an unfiltered frame (e.g. showing a just-revoked member) while waiting for the debounced
+    // searchControl/statusToggle subscription to catch up.
+    this.dataSource().filter = peopleFilter(this.searchControl.value, this.statusToggle.value);
     this.firstLoaded.set(true);
   }
 
@@ -249,11 +319,7 @@ export class vNextMembersComponent {
   }
 
   async confirm(user: OrganizationUserView, organization: Organization) {
-    const confirmUserSideEffect = () => {
-      user.status = this.userStatusType.Confirmed;
-      this.dataSource().replaceUser(user);
-    };
-
+    const sideEffect = async () => await this.load(organization);
     const publicKeyResult = await this.memberActionsService.getPublicKeyForConfirm(user);
 
     if (publicKeyResult == null) {
@@ -262,7 +328,7 @@ export class vNextMembersComponent {
     }
 
     const result = await this.memberActionsService.confirmUser(user, publicKeyResult, organization);
-    await this.handleMemberActionResult(result, "hasBeenConfirmed", user, confirmUserSideEffect);
+    await this.handleMemberActionResult(result, "hasBeenConfirmed", user, sideEffect);
   }
 
   async revoke(user: OrganizationUserView, organization: Organization) {
@@ -278,6 +344,12 @@ export class vNextMembersComponent {
   }
 
   async restore(user: OrganizationUserView, organization: Organization) {
+    const billingMetadata = await firstValueFrom(this.billingMetadata$);
+    const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
+    if (await this.billingConstraint.seatLimitReached(seatLimitResult, organization, "restore")) {
+      return;
+    }
+
     const result = await this.memberActionsService.restoreUser(organization, user.id);
     const sideEffect = async () => await this.load(organization);
     await this.handleMemberActionResult(result, "restoredUserId", user, sideEffect);
@@ -315,12 +387,12 @@ export class vNextMembersComponent {
       return;
     }
 
-    const allUserEmails = this.dataSource().data?.map((user) => user.email) ?? [];
+    const allUsers = this.dataSource().data ?? [];
 
     const result = await this.memberDialogManager.openInviteDialog(
       organization,
       billingMetadata,
-      allUserEmails,
+      allUsers,
     );
 
     if (result === MemberDialogResult.Saved) {
@@ -332,7 +404,7 @@ export class vNextMembersComponent {
   async edit(
     user: OrganizationUserView,
     organization: Organization,
-    initialTab: MemberDialogTab = MemberDialogTab.Role,
+    initialTab: MemberDialogTab = MemberDialogTab.Details,
   ) {
     const billingMetadata = await firstValueFrom(this.billingMetadata$);
 
@@ -369,6 +441,14 @@ export class vNextMembersComponent {
   }
 
   async bulkRevokeOrRestore(isRevoking: boolean, organization: Organization) {
+    if (!isRevoking) {
+      const billingMetadata = await firstValueFrom(this.billingMetadata$);
+      const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
+      if (await this.billingConstraint.seatLimitReached(seatLimitResult, organization, "restore")) {
+        return;
+      }
+    }
+
     const users = this.dataSource().getCheckedUsersWithLimit(MaxCheckedCount);
     await this.memberDialogManager.openBulkRestoreRevokeDialog(organization, users, isRevoking);
     await this.load(organization);
@@ -383,22 +463,9 @@ export class vNextMembersComponent {
     }
 
     const allInvitedUsers = users.filter((u) => u.status === OrganizationUserStatusType.Invited);
+    const invitedCount = allInvitedUsers.length;
 
-    // Capture the original count BEFORE enforcing the limit
-    const originalInvitedCount = allInvitedUsers.length;
-
-    // In cloud environments, limit invited users and uncheck the excess
-    let filteredUsers: OrganizationUserView[];
-    if (this.dataSource().isIncreasedBulkLimitEnabled()) {
-      filteredUsers = this.dataSource().limitAndUncheckExcess(
-        allInvitedUsers,
-        CloudBulkReinviteLimit,
-      );
-    } else {
-      filteredUsers = allInvitedUsers;
-    }
-
-    if (filteredUsers.length <= 0) {
+    if (invitedCount <= 0) {
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("errorOccurred"),
@@ -407,46 +474,31 @@ export class vNextMembersComponent {
       return;
     }
 
-    const result = await this.memberActionsService.bulkReinvite(
-      organization,
-      filteredUsers.map((user) => user.id as UserId),
-    );
+    const result = await this.memberActionsService.bulkReinvite(organization, allInvitedUsers);
 
-    if (!result.successful) {
+    if (result.successful.length === 0) {
       this.validationService.showError(result.failed);
     }
 
-    // In cloud environments, show toast instead of dialog
     if (this.dataSource().isIncreasedBulkLimitEnabled()) {
-      const selectedCount = originalInvitedCount;
-      const invitedCount = filteredUsers.length;
-
-      if (selectedCount > CloudBulkReinviteLimit) {
-        const excludedCount = selectedCount - CloudBulkReinviteLimit;
-        this.toastService.showToast({
-          variant: "success",
-          message: this.i18nService.t(
-            "bulkReinviteLimitedSuccessToast",
-            CloudBulkReinviteLimit.toLocaleString(),
-            selectedCount.toLocaleString(),
-            excludedCount.toLocaleString(),
-          ),
-        });
-      } else {
-        this.toastService.showToast({
-          variant: "success",
-          message: this.i18nService.t("bulkReinviteSuccessToast", invitedCount.toString()),
-        });
-      }
+      this.toastService.showToast({
+        variant: "success",
+        message:
+          invitedCount === 1
+            ? this.i18nService.t("reinviteSuccessToast")
+            : this.i18nService.t("bulkReinviteSentToast", invitedCount.toString()),
+      });
     } else {
       // In self-hosted environments, show legacy dialog
       await this.memberDialogManager.openBulkStatusDialog(
         users,
-        filteredUsers,
+        allInvitedUsers,
         Promise.resolve(result.successful),
         this.i18nService.t("bulkReinviteMessage"),
       );
     }
+
+    this.dataSource().uncheckAllUsers();
   }
 
   async bulkConfirm(organization: Organization) {
@@ -458,6 +510,14 @@ export class vNextMembersComponent {
   async bulkEnableSM(organization: Organization) {
     const users = this.dataSource().getCheckedUsersWithLimit(MaxCheckedCount);
     await this.memberDialogManager.openBulkEnableSecretsManagerDialog(organization, users);
+
+    this.dataSource().uncheckAllUsers();
+    await this.load(organization);
+  }
+
+  async bulkActivatePrivilegedControls(organization: Organization) {
+    const users = this.dataSource().getCheckedUsersWithLimit(MaxCheckedCount);
+    await this.memberDialogManager.openBulkActivatePrivilegedControlsDialog(organization, users);
 
     this.dataSource().uncheckAllUsers();
     await this.load(organization);
@@ -509,7 +569,7 @@ export class vNextMembersComponent {
     user: OrganizationUserView,
     sideEffect?: () => void | Promise<void>,
   ) {
-    if (result.error != null) {
+    if (result.success === false) {
       this.toastService.showToast({
         variant: "error",
         message: result.error,
@@ -538,13 +598,13 @@ export class vNextMembersComponent {
     ];
 
     const result = {
-      showBulkConfirmUsers: members.every((m) => m.status == OrganizationUserStatusType.Accepted),
-      showBulkReinviteUsers: members.every((m) => m.status == OrganizationUserStatusType.Invited),
-      showBulkRestoreUsers: members.every((m) => m.status == OrganizationUserStatusType.Revoked),
-      showBulkRevokeUsers: members.every((m) => m.status != OrganizationUserStatusType.Revoked),
-      showBulkRemoveUsers: members.every((m) => !m.managedByOrganization),
+      showBulkConfirmUsers: members.every((m) => m.canConfirm),
+      showBulkReinviteUsers: members.every((m) => m.canReinvite),
+      showBulkRestoreUsers: members.every((m) => m.canRestore),
+      showBulkRevokeUsers: members.every((m) => m.canRevoke),
+      showBulkRemoveUsers: members.every((m) => m.canRemove),
       showBulkDeleteUsers: members.every(
-        (m) => m.managedByOrganization && validStatuses.includes(m.status),
+        (m) => m.claimedByOrganization && validStatuses.includes(m.status),
       ),
     };
 
@@ -565,4 +625,7 @@ export class vNextMembersComponent {
       this.validationService.showError(result.error.message);
     }
   };
+
+  getRevocationReasonTranslationKey = (reason?: RevocationReasonType) =>
+    RevocationReasonMessageMap[reason || RevocationReasonType.Unknown];
 }

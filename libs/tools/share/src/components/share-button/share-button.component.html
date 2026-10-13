@@ -1,0 +1,13 @@
+@if (canShare()) {
+  <button
+    type="button"
+    class="tw-mt-4"
+    bitButton
+    buttonType="secondary"
+    startIcon="bwi-share-link"
+    block
+    (click)="share()"
+  >
+    {{ "shareVerb" | i18n }}
+  </button>
+}

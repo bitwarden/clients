@@ -4,7 +4,7 @@ import {
   LoginDecryptionOptionsService,
   DefaultLoginDecryptionOptionsService,
 } from "@bitwarden/auth/angular";
-import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
 import { RouterService } from "../../../../core/router.service";
@@ -23,11 +23,13 @@ export class WebLoginDecryptionOptionsService
 
   override async handleCreateUserSuccess(): Promise<void> {
     try {
-      // Invites from TDE orgs go through here, but the invite is
-      // accepted while being enrolled in admin recovery. So we need to clear
-      // the redirect and stored org invite.
-      await this.routerService.getAndClearLoginRedirectUrl();
-      await this.organizationInviteService.clearOrganizationInvitation();
+      // TDE org invites are accepted during admin recovery enrollment on the server, so clear the stashed
+      // invite and its accept URL redirect. Without a stashed invite, the redirect is an
+      // unrelated deep link which we don't want to clear.
+      if ((await this.organizationInviteService.getOrganizationInvite()) != null) {
+        await this.routerService.getAndClearLoginRedirectUrl();
+        await this.organizationInviteService.clearOrganizationInvite();
+      }
     } catch (error) {
       throw new Error(error);
     }

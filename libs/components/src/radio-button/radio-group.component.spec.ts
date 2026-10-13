@@ -10,7 +10,7 @@ import { I18nMockService } from "../utils/i18n-mock.service";
 import { RadioButtonComponent } from "./radio-button.component";
 import { RadioButtonModule } from "./radio-button.module";
 
-describe("RadioGroupComponent", () => {
+describe("FormControlGroupComponent (radio mode)", () => {
   let fixture: ComponentFixture<TestAppComponent>;
   let testAppComponent: TestAppComponent;
   let buttonElements: RadioButtonComponent[];

@@ -1,7 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import * as FormData from "form-data";
-import { HttpsProxyAgent } from "https-proxy-agent";
 import * as fe from "node-fetch";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -47,11 +46,20 @@ export class NodeApiService extends ApiService {
     );
   }
 
-  nativeFetch(request: Request): Promise<Response> {
+  async nativeFetch(request: Request): Promise<Response> {
     const proxy = process.env.http_proxy || process.env.https_proxy;
     if (proxy) {
+      const { HttpsProxyAgent } = await import("https-proxy-agent");
       (request as any).agent = new HttpsProxyAgent(proxy);
     }
     return fetch(request);
+  }
+
+  /** XMLHttpRequest is not supported in Node.js, fallback to fetch */
+  override nativeXMLHttpRequest(
+    request: Request,
+    _onProgress: (percentage: number) => void,
+  ): Promise<Response> {
+    return this.nativeFetch(request);
   }
 }

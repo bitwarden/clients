@@ -1,6 +1,8 @@
 import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
+import { EventSecurity } from "../utils/event-security";
+
 import {
   ContentMessageWindowData,
   ContentMessageWindowEventHandlers,
@@ -92,7 +94,10 @@ function handleOpenBrowserExtensionToUrlMessage({ url }: { url?: ExtensionPageUr
  */
 function handleWindowMessageEvent(event: MessageEvent) {
   const { source, data, origin } = event;
-  if (source !== window || !data?.command) {
+  /**
+   * Reject synthetic events (not originating from the user agent)
+   */
+  if (!EventSecurity.isEventTrusted(event) || source !== window || !data?.command) {
     return;
   }
 
@@ -118,13 +123,14 @@ function handleWindowMessageEvent(event: MessageEvent) {
 
 /**
  * Commands to forward from this script to the extension background.
+ *
+ * Only add a command here when a script outside the background needs to act on it. Forwarding
+ * makes the command reachable by anything that can reach this content script.
+ *
+ * Do not add commands containing sensitive information to this set. Use the background's
+ * `IntraprocessMessageSender` to transmit those commands instead of forwarding.
  */
-const forwardCommands = new Set([
-  "bgUnlockPopoutOpened",
-  "addToLockedVaultPendingNotifications",
-  "unlockCompleted",
-  "addedCipher",
-]);
+const forwardCommands = new Set(["bgUnlockPopoutOpened", "addedCipher"]);
 
 /**
  * Handles messages from the extension. Currently, this is

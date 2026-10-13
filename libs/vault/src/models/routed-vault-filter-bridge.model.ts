@@ -87,7 +87,7 @@ export class RoutedVaultFilterBridge implements VaultFilter {
     return this.legacyFilter.selectedFolderNode;
   }
   set selectedFolderNode(value: TreeNode<FolderFilter>) {
-    const folderId = value != null && value.node.id === null ? Unassigned : value?.node.id;
+    const folderId = value?.node.id ? value.node.id : Unassigned;
     this.bridgeService.navigate({
       ...this.routedFilter,
       folderId,

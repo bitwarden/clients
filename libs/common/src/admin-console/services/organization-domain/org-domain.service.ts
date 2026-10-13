@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { BehaviorSubject } from "rxjs";
 
 import { I18nService } from "../../../platform/abstractions/i18n.service";
@@ -8,7 +6,9 @@ import { OrgDomainInternalServiceAbstraction } from "../../abstractions/organiza
 import { OrganizationDomainResponse } from "../../abstractions/organization-domain/responses/organization-domain.response";
 
 export class OrgDomainService implements OrgDomainInternalServiceAbstraction {
-  protected _orgDomains$: BehaviorSubject<OrganizationDomainResponse[]> = new BehaviorSubject([]);
+  protected _orgDomains$: BehaviorSubject<OrganizationDomainResponse[]> = new BehaviorSubject<
+    OrganizationDomainResponse[]
+  >([]);
 
   orgDomains$ = this._orgDomains$.asObservable();
 
@@ -17,7 +17,7 @@ export class OrgDomainService implements OrgDomainInternalServiceAbstraction {
     private i18nService: I18nService,
   ) {}
 
-  get(orgDomainId: string): OrganizationDomainResponse {
+  get(orgDomainId: string): OrganizationDomainResponse | undefined {
     const orgDomains: OrganizationDomainResponse[] = this._orgDomains$.getValue();
 
     return orgDomains.find((orgDomain) => orgDomain.id === orgDomainId);

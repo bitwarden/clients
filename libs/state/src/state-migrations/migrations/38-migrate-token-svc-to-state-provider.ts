@@ -71,7 +71,7 @@ export class TokenServiceStateProviderMigrator extends Migrator<37, 38> {
       let updatedAccount = false;
 
       // migrate 2FA token from global to user state
-      // Due to the existing implmentation, n users on the same device share the same global state value for 2FA token.
+      // Due to the existing implementation, n users on the same device share the same global state value for 2FA token.
       // So, we will just migrate it to all users to keep it valid for whichever was the user that set it previously.
       // Note: don't bother migrating 2FA Token if user account or email is undefined
       const email = account?.profile?.email;

@@ -3,6 +3,7 @@ import { mock } from "jest-mock-extended";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 import { postWindowMessage, sendMockExtensionMessage } from "../spec/testing-utils";
+import { EventSecurity } from "../utils/event-security";
 
 describe("ContentMessageHandler", () => {
   const sendMessageSpy = jest.spyOn(chrome.runtime, "sendMessage");
@@ -19,6 +20,7 @@ describe("ContentMessageHandler", () => {
   );
 
   beforeEach(() => {
+    jest.spyOn(EventSecurity, "isEventTrusted").mockReturnValue(true);
     // FIXME: Remove when updating file. Eslint update
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./content-message-handler");
@@ -108,11 +110,7 @@ describe("ContentMessageHandler", () => {
     });
 
     it("forwards the message to the extension background if it is present in the forwardCommands list", () => {
-      const forwardCommands = [
-        "addToLockedVaultPendingNotifications",
-        "unlockCompleted",
-        "addedCipher",
-      ];
+      const forwardCommands = ["bgUnlockPopoutOpened", "addedCipher"];
 
       forwardCommands.forEach((command) => {
         sendMockExtensionMessage({ command });
@@ -121,6 +119,17 @@ describe("ContentMessageHandler", () => {
       });
 
       expect(sendMessageSpy).toHaveBeenCalledTimes(forwardCommands.length);
+    });
+
+    it("does not relay the locked vault retry commands", () => {
+      // Both carry a `commandToRetry` that names the tab receiving the retried autofill.
+      // Relaying them makes that payload authorable by anything that can reach this script,
+      // so the background publishes and consumes them intraprocess instead.
+      ["addToLockedVaultPendingNotifications", "unlockCompleted"].forEach((command) => {
+        sendMockExtensionMessage({ command });
+      });
+
+      expect(sendMessageSpy).not.toHaveBeenCalled();
     });
   });
 

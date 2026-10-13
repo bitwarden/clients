@@ -40,13 +40,12 @@
           <button
             type="button"
             bitMenuItem
+            variant="danger"
             (click)="denyAllRequests()"
             [disabled]="actionInProgress"
           >
-            <span class="tw-text-danger">
-              <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
-              {{ "denyAllRequests" | i18n }}
-            </span>
+            <bit-icon fixedWidth name="bwi-close" slot="start" />
+            {{ "denyAllRequests" | i18n }}
           </button>
         </bit-menu>
       </th>
@@ -86,13 +85,12 @@
           <button
             type="button"
             bitMenuItem
+            variant="danger"
             (click)="denyRequest(r.id)"
             [disabled]="actionInProgress"
           >
-            <span class="tw-text-danger">
-              <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
-              {{ "denyRequest" | i18n }}
-            </span>
+            <bit-icon fixedWidth name="bwi-close" slot="start" />
+            {{ "denyRequest" | i18n }}
           </button>
         </bit-menu>
       </td>
@@ -100,11 +98,8 @@
   </ng-template>
 </bit-table>
 
-<bit-no-items
-  class="tw-text-main"
-  *ngIf="!loading && tableDataSource.data.length == 0"
-  [icon]="DevicesIcon"
->
+<bit-status-lockup class="tw-text-main" *ngIf="!loading && tableDataSource.data.length == 0">
+  <bit-svg slot="graphic" [content]="DevicesIcon"></bit-svg>
   <ng-container slot="title">{{ "noDeviceRequests" | i18n }}</ng-container>
   <ng-container slot="description">{{ "noDeviceRequestsDesc" | i18n }}</ng-container>
-</bit-no-items>
+</bit-status-lockup>

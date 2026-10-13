@@ -6,5 +6,5 @@ import { Observable } from "rxjs";
  */
 export abstract class PremiumUpgradePromptService {
   abstract promptForPremium(organizationId?: string): Promise<void>;
-  abstract upgradeConfirmed$?: Observable<boolean>;
+  abstract upgradeConfirmed$: Observable<boolean>;
 }

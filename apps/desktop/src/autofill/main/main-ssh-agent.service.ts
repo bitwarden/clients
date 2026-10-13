@@ -1,120 +1,109 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { ipcMain } from "electron";
-import { concatMap, delay, filter, firstValueFrom, from, race, take, timer } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { sshagent } from "@bitwarden/desktop-napi";
 
-class AgentResponse {
-  requestId: number;
-  accepted: boolean;
-  timestamp: Date;
-}
+import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
 
 export class MainSshAgentService {
-  SIGN_TIMEOUT = 60_000;
-  REQUEST_POLL_INTERVAL = 50;
-
-  private requestResponses: AgentResponse[] = [];
-  private request_id = 0;
+  // The napi callback requestSign() is awaited directly by the Rust agent,
+  // so it must return a Promise that resolves with the user's decision.
+  // The approval dialog lives in the renderer (a separate process), so bridging a callback
+  // to a user decision requires a round-trip: main fires a message to the renderer, the
+  // renderer responds via a separate IPC call. Because multiple SSH clients can connect
+  // simultaneously, multiple callbacks can be in-flight at once. pendingRequests holds the
+  // resolve function for each in-flight callback, keyed by requestId, so the IPC response
+  // can be matched back to the correct waiting Promise. Electron has no native
+  // main→renderer request-response mechanism, making this correlation map necessary.
+  private pendingRequests = new Map<number, (accepted: boolean) => void>();
+  private requestId = 0;
   private agentState: sshagent.SshAgentState;
 
   constructor(
     private logService: LogService,
     private messagingService: MessagingService,
   ) {
-    ipcMain.handle("sshagent.init", async (event: any, message: any) => {
-      this.init();
+    this.registerIpcHandlers();
+  }
+
+  private registerIpcHandlers() {
+    ipcMain.handle(SSH_AGENT_IPC_CHANNELS.INIT, async () => {
+      await this.init();
     });
 
-    ipcMain.handle("sshagent.isloaded", async (event: any) => {
-      return this.agentState != null;
+    ipcMain.handle(SSH_AGENT_IPC_CHANNELS.IS_LOADED, async () => {
+      return this.agentState?.isRunning() ?? false;
+    });
+
+    ipcMain.handle(
+      SSH_AGENT_IPC_CHANNELS.REPLACE,
+      async (_, keys: { name: string; privateKey: string; cipherId: string }[]) => {
+        if (this.agentState != null && this.agentState.isRunning()) {
+          this.agentState.replace(keys);
+        }
+      },
+    );
+
+    ipcMain.handle(
+      SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE,
+      async (_, { requestId, accepted }: { requestId: number; accepted: boolean }) => {
+        this.pendingRequests.get(requestId)?.(accepted);
+        this.pendingRequests.delete(requestId);
+      },
+    );
+
+    ipcMain.handle(SSH_AGENT_IPC_CHANNELS.STOP, async () => {
+      if (this.agentState != null) {
+        this.agentState.stop();
+        this.agentState = null;
+      }
+    });
+
+    ipcMain.handle(
+      SSH_AGENT_IPC_CHANNELS.LIST_KEYS_RESPONSE,
+      async (_, { requestId, accepted }: { requestId: number; accepted: boolean }) => {
+        this.pendingRequests.get(requestId)?.(accepted);
+        this.pendingRequests.delete(requestId);
+      },
+    );
+  }
+
+  // Starts the Agent.
+  // @pre: The agent must not be running. The caller may utilize `is_running()` and `stop()`.
+  private async init() {
+    const signCb = (_err: Error | null, data: sshagent.SignRequestData) => this.requestSign(data);
+    const listCb = (_err: Error | null) => this.requestListKeys();
+    try {
+      this.agentState = await sshagent.SshAgentState.serve(signCb, listCb);
+      this.logService.info("SSH agent started");
+    } catch (e: unknown) {
+      this.logService.error("SSH agent encountered an error: ", e);
+    }
+  }
+
+  private requestListKeys(): Promise<boolean> {
+    const id = ++this.requestId;
+    return new Promise((resolve) => {
+      this.pendingRequests.set(id, resolve);
+      this.messagingService.send(SSH_AGENT_IPC_CHANNELS.LIST_KEYS_REQUEST, { requestId: id });
     });
   }
 
-  init() {
-    // handle sign request passing to UI
-    sshagent
-      .serve(async (err: Error | null, sshUiRequest: sshagent.SshUiRequest): Promise<boolean> => {
-        // clear all old (> SIGN_TIMEOUT) requests
-        this.requestResponses = this.requestResponses.filter(
-          (response) => response.timestamp > new Date(Date.now() - this.SIGN_TIMEOUT),
-        );
-
-        this.request_id += 1;
-        const id_for_this_request = this.request_id;
-        this.messagingService.send("sshagent.signrequest", {
-          cipherId: sshUiRequest.cipherId,
-          isListRequest: sshUiRequest.isList,
-          requestId: id_for_this_request,
-          processName: sshUiRequest.processName,
-          isAgentForwarding: sshUiRequest.isForwarding,
-          namespace: sshUiRequest.namespace,
-        });
-
-        const result = await firstValueFrom(
-          race(
-            from([false]).pipe(delay(this.SIGN_TIMEOUT)),
-
-            //poll for response
-            timer(0, this.REQUEST_POLL_INTERVAL).pipe(
-              concatMap(() => from(this.requestResponses)),
-              filter((response) => response.requestId == id_for_this_request),
-              take(1),
-              concatMap(() => from([true])),
-            ),
-          ),
-        );
-
-        if (!result) {
-          return false;
-        }
-
-        const response = this.requestResponses.find(
-          (response) => response.requestId == id_for_this_request,
-        );
-
-        this.requestResponses = this.requestResponses.filter(
-          (response) => response.requestId != id_for_this_request,
-        );
-
-        return response.accepted;
-      })
-      .then((agentState: sshagent.SshAgentState) => {
-        this.agentState = agentState;
-        this.logService.info("SSH agent started");
-      })
-      .catch((e) => {
-        this.logService.error("SSH agent encountered an error: ", e);
+  private requestSign(data: sshagent.SignRequestData): Promise<boolean> {
+    const id = ++this.requestId;
+    return new Promise((resolve) => {
+      this.pendingRequests.set(id, resolve);
+      this.messagingService.send(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST, {
+        cipherId: data.cipherId,
+        requestId: id,
+        processName: data.signRequest.processName,
+        isAgentForwarding: data.signRequest.isForwarding,
+        namespace: data.signRequest.namespace,
+        hostFingerprint: data.signRequest.hostFingerprint,
       });
-
-    ipcMain.handle(
-      "sshagent.setkeys",
-      async (event: any, keys: { name: string; privateKey: string; cipherId: string }[]) => {
-        if (this.agentState != null && (await sshagent.isRunning(this.agentState))) {
-          sshagent.setKeys(this.agentState, keys);
-        }
-      },
-    );
-    ipcMain.handle(
-      "sshagent.signrequestresponse",
-      async (event: any, { requestId, accepted }: { requestId: number; accepted: boolean }) => {
-        this.requestResponses.push({ requestId, accepted, timestamp: new Date() });
-      },
-    );
-
-    ipcMain.handle("sshagent.lock", async (event: any) => {
-      if (this.agentState != null && (await sshagent.isRunning(this.agentState))) {
-        sshagent.lock(this.agentState);
-      }
-    });
-
-    ipcMain.handle("sshagent.clearkeys", async (event: any) => {
-      if (this.agentState != null) {
-        sshagent.clearKeys(this.agentState);
-      }
     });
   }
 }

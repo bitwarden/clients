@@ -114,7 +114,7 @@ export class ServiceAccountDialogComponent implements OnInit {
       title: null,
       message: serviceAccountMessage,
     });
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   private getServiceAccountView() {
@@ -125,6 +125,10 @@ export class ServiceAccountDialogComponent implements OnInit {
   }
 
   get title() {
-    return this.data.operation === OperationType.Add ? "newMachineAccount" : "editMachineAccount";
+    if (this.data.operation === OperationType.Add) {
+      return "addMachineAccount";
+    } else {
+      return "editMachineAccount";
+    }
   }
 }

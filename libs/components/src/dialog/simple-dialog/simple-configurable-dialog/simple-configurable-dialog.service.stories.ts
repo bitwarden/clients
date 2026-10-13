@@ -169,6 +169,8 @@ export default {
               cancel: "Cancel",
               accept: "Accept",
               decline: "Decline",
+              close: "Close",
+              callout: "Callout",
             });
           },
         },

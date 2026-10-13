@@ -63,10 +63,41 @@ export class Client {
       );
 
       let privateKey: Uint8Array = null;
+      // The initialization vector is a random 16-byte value used to ensure
+      // the same plaintext (e.g. same password used for two different accounts)
+      // results in a different ciphertext when encrypted
+      let initVec: Uint8Array = null;
       if (session.encryptedPrivateKey != null && session.encryptedPrivateKey != "") {
-        privateKey = await this.parser.parseEncryptedPrivateKey(session.encryptedPrivateKey, key);
-      }
+        let encryptedPrivateKey = null;
 
+        if (session.encryptedPrivateKey.startsWith("!")) {
+          // LastPass private key format is !<base64>|<base64>
+          // Private key use AES-CBC encryption, with the first base64 string
+          // being the initialization vector and the second base64 string
+          // containing the actual encrypted key
+          const parts = session.encryptedPrivateKey.split("|");
+          if (parts.length < 2) {
+            throw new Error("Invalid LastPass private key format, no | separator");
+          }
+          if (parts.length > 2) {
+            throw new Error("Invalid LastPass private key format, too many | separators");
+          }
+          // Remove the starting ! character, which is not a part of the initialization
+          // vector, and then base64 decode
+          initVec = Utils.fromB64ToArray(parts[0].slice(1));
+          if (initVec.length !== 16) {
+            throw new Error(`Invalid LastPass private key init vector length (${initVec.length})`);
+          }
+          encryptedPrivateKey = Utils.fromB64ToArray(parts[1]);
+        } else {
+          // This catch-all works with the older private key format that LastPass used, presumably
+          // we no longer need it, but is here just in case...
+          encryptedPrivateKey = Utils.fromHexToArray(session.encryptedPrivateKey);
+          initVec = key.subarray(0, 16);
+        }
+
+        privateKey = await this.parser.parseEncryptedPrivateKey(encryptedPrivateKey, key, initVec);
+      }
       return this.parseVault(blob, key, privateKey, options);
     } finally {
       await this.logout(session, rest);
@@ -111,7 +142,7 @@ export class Client {
 
   private isComplete(chunks: Chunk[]): boolean {
     if (chunks.length > 0 && chunks[chunks.length - 1].id === "ENDM") {
-      const okChunk = Utils.fromBufferToUtf8(chunks[chunks.length - 1].payload);
+      const okChunk = Utils.fromArrayToUtf8(chunks[chunks.length - 1].payload);
       return okChunk === "OK";
     }
     return false;
@@ -523,7 +554,7 @@ export class Client {
       ["method", PlatformToUserAgent.get(clientInfo.platform)],
       ["xml", "2"],
       ["username", username],
-      ["hash", Utils.fromBufferToHex(hash.buffer)],
+      ["hash", Utils.fromArrayToHex(hash)],
       ["iterations", keyIterationCount],
       ["includeprivatekeyenc", "1"],
       ["outofbandsupported", "1"],

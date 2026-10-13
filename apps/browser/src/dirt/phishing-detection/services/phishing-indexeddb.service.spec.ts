@@ -17,6 +17,28 @@ describe("PhishingIndexedDbService", () => {
   let mockDb: any;
   let mockOpenRequest: any;
 
+  // Mock crypto.subtle for SHA256 computation in processStream
+  const mockDigest = jest.fn().mockImplementation(async (_algo: string, data: ArrayBuffer) => {
+    // Return a deterministic 32-byte hash based on data length (sufficient for testing)
+    const hash = new Uint8Array(32);
+    const len = data.byteLength;
+    for (let i = 0; i < 32; i++) {
+      hash[i] = (len + i * 17) & 0xff;
+    }
+    return hash.buffer;
+  });
+
+  beforeAll(() => {
+    if (!globalThis.crypto?.subtle) {
+      Object.defineProperty(globalThis, "crypto", {
+        value: { subtle: { digest: mockDigest } },
+        writable: true,
+      });
+    } else {
+      jest.spyOn(crypto.subtle, "digest").mockImplementation(mockDigest);
+    }
+  });
+
   beforeEach(() => {
     logService = mock<LogService>();
     mockStore = new Map();
@@ -382,7 +404,9 @@ describe("PhishingIndexedDbService", () => {
 
       const result = await service.saveUrlsFromStream(stream);
 
-      expect(result).toBe(true);
+      // saveUrlsFromStream returns a hex SHA256 string on success
+      expect(result).toBeTruthy();
+      expect(result).toMatch(/^[a-f0-9]{64}$/);
       expect(mockObjectStore.clear).toHaveBeenCalled();
       expect(mockObjectStore.put).toHaveBeenCalledTimes(3);
     });
@@ -404,11 +428,13 @@ describe("PhishingIndexedDbService", () => {
 
       const result = await service.saveUrlsFromStream(stream);
 
-      expect(result).toBe(true);
+      // saveUrlsFromStream returns a hex SHA256 string on success
+      expect(result).toBeTruthy();
+      expect(result).toMatch(/^[a-f0-9]{64}$/);
       expect(mockObjectStore.put).toHaveBeenCalledTimes(2);
     });
 
-    it("returns false on error", async () => {
+    it("returns empty string on error", async () => {
       const error = new Error("IndexedDB error");
       mockOpenRequest.error = error;
       (global.indexedDB.open as jest.Mock).mockImplementation(() => {
@@ -427,7 +453,7 @@ describe("PhishingIndexedDbService", () => {
 
       const result = await service.saveUrlsFromStream(stream);
 
-      expect(result).toBe(false);
+      expect(result).toBe("");
       expect(logService.error).toHaveBeenCalledWith(
         "[PhishingIndexedDbService] Stream save failed",
         expect.any(Error),

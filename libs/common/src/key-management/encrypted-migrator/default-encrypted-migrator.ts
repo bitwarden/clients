@@ -1,43 +1,102 @@
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfigService } from "@bitwarden/key-management";
-import { LogService } from "@bitwarden/logging";
+import {
+  BiometricStateService,
+  BiometricsService,
+  KdfConfigService,
+  KeyService,
+} from "@bitwarden/key-management";
+import { LogService, measured, PerfTrackGroup } from "@bitwarden/logging";
+import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { assertNonNullish } from "../../auth/utils";
+import { ClientType } from "../../enums";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
+import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
+import { StateProvider } from "../../platform/state";
 import { SyncService } from "../../platform/sync";
 import { UserId } from "../../types/guid";
-import { ChangeKdfService } from "../kdf/change-kdf.service.abstraction";
-import { MasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
+import { CipherService } from "../../vault/abstractions/cipher.service";
+import { InternalMasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
 
 import { EncryptedMigrator } from "./encrypted-migrator.abstraction";
+import { BiometricPersistentMigration } from "./migrations/biometric-persistent-encryption-migration";
 import { EncryptedMigration, MigrationRequirement } from "./migrations/encrypted-migration";
 import { MinimumKdfMigration } from "./migrations/minimum-kdf-migration";
+import { UserKeyIdBackfillMigration } from "./migrations/user-key-id-backfill-migration";
+import { V2KeyRotationMigration } from "./migrations/v2-key-rotation-migration";
+
+const PERF_TRACK_GROUP = PerfTrackGroup.Migrations;
+const PERF_TRACK = "Encrypted Migrator";
 
 export class DefaultEncryptedMigrator implements EncryptedMigrator {
   private migrations: { name: string; migration: EncryptedMigration }[] = [];
   private isRunningMigration = false;
 
   constructor(
-    readonly kdfConfigService: KdfConfigService,
-    readonly changeKdfService: ChangeKdfService,
+    kdfConfigService: KdfConfigService,
     private readonly logService: LogService,
-    readonly configService: ConfigService,
-    readonly masterPasswordService: MasterPasswordServiceAbstraction,
-    readonly syncService: SyncService,
+    configService: ConfigService,
+    masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    private readonly syncService: SyncService,
+    keyService: KeyService,
+    biometricsService: BiometricsService,
+    biometricStateService: BiometricStateService,
+    platformUtilsService: PlatformUtilsService,
+    userKeyRotationService: UserKeyRotationServiceAbstraction,
+    cipherService: CipherService,
+    sdkService: SdkService,
+    stateProvider: StateProvider,
   ) {
     // Register migrations here
+
+    this.migrations.push({
+      name: "User Key Id Backfill Migration",
+      migration: new UserKeyIdBackfillMigration(sdkService, syncService, stateProvider, logService),
+    });
+
     this.migrations.push({
       name: "Minimum PBKDF2 Iteration Count Migration",
       migration: new MinimumKdfMigration(
         kdfConfigService,
-        changeKdfService,
+        sdkService,
         logService,
-        configService,
         masterPasswordService,
+        syncService,
       ),
     });
+
+    // Biometric persistent encryption is only relevant on desktop
+    if (platformUtilsService.getClientType() === ClientType.Desktop) {
+      this.migrations.push({
+        name: "Biometric V2 Encryption Migration",
+        migration: new BiometricPersistentMigration(
+          keyService,
+          biometricsService,
+          biometricStateService,
+          logService,
+        ),
+      });
+    }
+
+    if (platformUtilsService.getClientType() !== ClientType.Cli) {
+      this.migrations.push({
+        name: "V2 User Key Rotation Migration",
+        migration: new V2KeyRotationMigration(
+          keyService,
+          userKeyRotationService,
+          masterPasswordService,
+          syncService,
+          configService,
+          logService,
+          cipherService,
+          sdkService,
+        ),
+      });
+    }
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async runMigrations(userId: UserId, masterPassword: string | null): Promise<void> {
     assertNonNullish(userId, "userId");
 
@@ -69,9 +128,9 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
       for (const { name, migration } of this.migrations) {
         if ((await migration.needsMigration(userId)) !== "noMigrationNeeded") {
           this.logService.info(`[Encrypted Migrator] Running migration: ${name}`);
-          const start = performance.now();
+          const measurement = this.logService.startMeasurement(PERF_TRACK_GROUP, PERF_TRACK, name);
           await migration.runMigrations(userId, masterPassword);
-          this.logService.measure(start, "[Encrypted Migrator]", name, "ExecutionTime");
+          measurement.finish();
           ranMigration = true;
         }
       }

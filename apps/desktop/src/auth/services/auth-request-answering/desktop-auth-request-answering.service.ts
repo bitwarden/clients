@@ -5,7 +5,9 @@ import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DefaultAuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/default-auth-request-answering.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { LogService } from "@bitwarden/logging";
@@ -23,6 +25,7 @@ export class DesktopAuthRequestAnsweringService
     protected readonly pendingAuthRequestsState: PendingAuthRequestsStateService,
     private readonly i18nService: I18nService,
     private readonly logService: LogService,
+    private readonly configService: ConfigService,
   ) {
     super(
       accountService,
@@ -35,9 +38,12 @@ export class DesktopAuthRequestAnsweringService
 
   /**
    * @param authRequestUserId The UserId that the auth request is for.
-   * @param authRequestId The authRequestId param is not used on Desktop because clicks on a
-   *                      Desktop notification do not run any auth-request-specific actions.
-   *                      All clicks simply open the Desktop window. See electron-main-messaging.service.ts.
+   * TODO: PM-34438 - clean up this comment when we remove the PM34210_DesktopAddDevices flag
+   * @param authRequestId When the PM34210_DesktopAddDevices flag is enabled, this is forwarded
+   *                      in the 'openLoginApproval' message so the DeviceManagementComponent can
+   *                      upsert the pending device inline. When the flag is disabled, it is not
+   *                      used — Desktop notification clicks simply open the window.
+   *                      See electron-main-messaging.service.ts.
    */
   async receivedPendingAuthRequest(
     authRequestUserId: UserId,
@@ -54,8 +60,18 @@ export class DesktopAuthRequestAnsweringService
       await this.activeUserMeetsConditionsToShowApprovalDialog(authRequestUserId);
 
     if (activeUserMeetsConditionsToShowApprovalDialog) {
-      // Send message to open dialog immediately for this request
-      this.messagingService.send("openLoginApproval");
+      const desktopAddDevicesEnabled = await this.configService.getFeatureFlag(
+        FeatureFlag.PM34210_DesktopAddDevices,
+      );
+
+      // Send message to open dialog immediately for this request.
+      // Include notificationId when the feature flag is enabled so the
+      // DeviceManagementComponent can upsert the pending device inline.
+      if (desktopAddDevicesEnabled) {
+        this.messagingService.send("openLoginApproval", { notificationId: authRequestId });
+      } else {
+        this.messagingService.send("openLoginApproval");
+      }
     }
 
     const isWindowVisible = await ipc.platform.isWindowVisible();

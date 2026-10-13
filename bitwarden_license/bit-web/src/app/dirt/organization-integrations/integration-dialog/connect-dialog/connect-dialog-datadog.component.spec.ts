@@ -158,10 +158,7 @@ describe("ConnectDialogDatadogComponent", () => {
 describe("openDatadogConnectDialog", () => {
   it("should call dialogService.open with correct params", () => {
     const dialogServiceMock = mock<DialogService>();
-    const config: DialogConfig<
-      DatadogConnectDialogParams,
-      DialogRef<DatadogConnectDialogResult>
-    > = {
+    const config: DialogConfig<DatadogConnectDialogParams, DatadogConnectDialogResult> = {
       data: { settings: { name: "Test" } as Integration },
     } as any;
 

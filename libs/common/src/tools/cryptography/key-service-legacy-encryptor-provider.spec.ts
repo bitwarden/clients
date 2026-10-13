@@ -4,12 +4,12 @@ import { BehaviorSubject, Subject } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { CsprngArray, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "../../types/csprng";
+import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { OrganizationId, UserId } from "../../types/guid";
-import { OrgKey, UserKey } from "../../types/key";
+import { OrgKey } from "../../types/key";
 import { OrganizationBound, UserBound } from "../dependencies";
 
 import { KeyServiceLegacyEncryptorProvider } from "./key-service-legacy-encryptor-provider";
@@ -20,11 +20,11 @@ import { UserKeyEncryptor } from "./user-key-encryptor";
 
 const encryptService = mock<EncryptService>();
 const keyService = mock<KeyService>();
+const sdkService = mock<SdkService>();
 
 const SomeCsprngArray = new Uint8Array(64) as CsprngArray;
 const SomeUser = "some user" as UserId;
 const AnotherUser = "another user" as UserId;
-const SomeUserKey = new SymmetricCryptoKey(SomeCsprngArray) as UserKey;
 const SomeOrganization = "some organization" as OrganizationId;
 const AnotherOrganization = "another organization" as OrganizationId;
 const SomeOrgKey = new SymmetricCryptoKey(SomeCsprngArray) as OrgKey;
@@ -40,21 +40,21 @@ const OrgRecords: Record<OrganizationId, OrgKey> = {
 describe("KeyServiceLegacyEncryptorProvider", () => {
   describe("userEncryptor$", () => {
     it("emits a user key encryptor bound to the user", async () => {
-      const userKey$ = new BehaviorSubject<UserKey>(SomeUserKey);
-      keyService.userKey$.mockReturnValue(userKey$);
       const singleUserId$ = new BehaviorSubject<UserId>(SomeUser);
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
+      const provider = new KeyServiceLegacyEncryptorProvider(
+        encryptService,
+        keyService,
+        sdkService,
+      );
       const results: UserBound<"encryptor", UserEncryptor>[] = [];
 
       provider.userEncryptor$(1, { singleUserId$ }).subscribe((v) => results.push(v));
 
-      expect(keyService.userKey$).toHaveBeenCalledWith(SomeUser);
       expect(results.length).toBe(1);
       expect(results[0]).toMatchObject({
         userId: SomeUser,
         encryptor: {
           userId: SomeUser,
-          key: SomeUserKey,
           dataPacker: { frameSize: 1 },
         },
       });
@@ -62,10 +62,12 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
     });
 
     it("waits until `dependencies.singleUserId$` emits", () => {
-      const userKey$ = new BehaviorSubject<UserKey>(SomeUserKey);
-      keyService.userKey$.mockReturnValue(userKey$);
       const singleUserId$ = new Subject<UserId>();
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
+      const provider = new KeyServiceLegacyEncryptorProvider(
+        encryptService,
+        keyService,
+        sdkService,
+      );
       const results: UserBound<"encryptor", UserEncryptor>[] = [];
       provider.userEncryptor$(1, { singleUserId$ }).subscribe((v) => results.push(v));
       // precondition: no emissions occur on subscribe
@@ -77,10 +79,12 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
     });
 
     it("emits a new user key encryptor each time `dependencies.singleUserId$` emits", () => {
-      const userKey$ = new BehaviorSubject<UserKey>(SomeUserKey);
-      keyService.userKey$.mockReturnValue(userKey$);
       const singleUserId$ = new Subject<UserId>();
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
+      const provider = new KeyServiceLegacyEncryptorProvider(
+        encryptService,
+        keyService,
+        sdkService,
+      );
       const results: UserBound<"encryptor", UserEncryptor>[] = [];
       provider.userEncryptor$(1, { singleUserId$ }).subscribe((v) => results.push(v));
 
@@ -91,48 +95,13 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
       expect(results[0]).not.toBe(results[1]);
     });
 
-    it("waits until `userKey$` emits a truthy value", () => {
-      const userKey$ = new BehaviorSubject<UserKey>(null);
-      keyService.userKey$.mockReturnValue(userKey$);
-      const singleUserId$ = new BehaviorSubject<UserId>(SomeUser);
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
-      const results: UserBound<"encryptor", UserEncryptor>[] = [];
-      provider.userEncryptor$(1, { singleUserId$ }).subscribe((v) => results.push(v));
-      // precondition: no emissions occur on subscribe
-      expect(results.length).toBe(0);
-
-      userKey$.next(SomeUserKey);
-
-      expect(results.length).toBe(1);
-      expect(results[0]).toMatchObject({
-        userId: SomeUser,
-        encryptor: {
-          userId: SomeUser,
-          key: SomeUserKey,
-          dataPacker: { frameSize: 1 },
-        },
-      });
-    });
-
-    it("emits a user key encryptor each time `userKey$` emits", () => {
-      const userKey$ = new Subject<UserKey>();
-      keyService.userKey$.mockReturnValue(userKey$);
-      const singleUserId$ = new BehaviorSubject<UserId>(SomeUser);
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
-      const results: UserBound<"encryptor", UserEncryptor>[] = [];
-      provider.userEncryptor$(1, { singleUserId$ }).subscribe((v) => results.push(v));
-
-      userKey$.next(SomeUserKey);
-      userKey$.next(SomeUserKey);
-
-      expect(results.length).toBe(2);
-    });
-
     it("errors when the userId changes", () => {
-      const userKey$ = new BehaviorSubject<UserKey>(SomeUserKey);
-      keyService.userKey$.mockReturnValue(userKey$);
       const singleUserId$ = new Subject<UserId>();
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
+      const provider = new KeyServiceLegacyEncryptorProvider(
+        encryptService,
+        keyService,
+        sdkService,
+      );
       let error: unknown = false;
       provider
         .userEncryptor$(1, { singleUserId$ })
@@ -145,10 +114,12 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
     });
 
     it("errors when `dependencies.singleUserId$` errors", () => {
-      const userKey$ = new BehaviorSubject<UserKey>(SomeUserKey);
-      keyService.userKey$.mockReturnValue(userKey$);
       const singleUserId$ = new Subject<UserId>();
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
+      const provider = new KeyServiceLegacyEncryptorProvider(
+        encryptService,
+        keyService,
+        sdkService,
+      );
       let error: unknown = false;
       provider
         .userEncryptor$(1, { singleUserId$ })
@@ -159,62 +130,19 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
       expect(error).toEqual({ some: "error" });
     });
 
-    it("errors once `dependencies.singleUserId$` emits and `userKey$` errors", () => {
-      const userKey$ = new Subject<UserKey>();
-      keyService.userKey$.mockReturnValue(userKey$);
-      const singleUserId$ = new BehaviorSubject<UserId>(SomeUser);
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
-      let error: unknown = false;
-      provider
-        .userEncryptor$(1, { singleUserId$ })
-        .subscribe({ error: (e: unknown) => (error = e) });
-
-      userKey$.error({ some: "error" });
-
-      expect(error).toEqual({ some: "error" });
-    });
-
     it("completes when `dependencies.singleUserId$` completes", () => {
-      const userKey$ = new Subject<UserKey>();
-      keyService.userKey$.mockReturnValue(userKey$);
       const singleUserId$ = new BehaviorSubject<UserId>(SomeUser);
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
+      const provider = new KeyServiceLegacyEncryptorProvider(
+        encryptService,
+        keyService,
+        sdkService,
+      );
       let completed = false;
       provider
         .userEncryptor$(1, { singleUserId$ })
         .subscribe({ complete: () => (completed = true) });
 
       singleUserId$.complete();
-
-      expect(completed).toBe(true);
-    });
-
-    it("completes when `userKey$` emits a falsy value after emitting a truthy value", () => {
-      const userKey$ = new BehaviorSubject<UserKey>(SomeUserKey);
-      keyService.userKey$.mockReturnValue(userKey$);
-      const singleUserId$ = new BehaviorSubject<UserId>(SomeUser);
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
-      let completed = false;
-      provider
-        .userEncryptor$(1, { singleUserId$ })
-        .subscribe({ complete: () => (completed = true) });
-
-      userKey$.next(null);
-
-      expect(completed).toBe(true);
-    });
-
-    it("completes once `dependencies.singleUserId$` emits and `userKey$` completes", () => {
-      const userKey$ = new BehaviorSubject<UserKey>(SomeUserKey);
-      keyService.userKey$.mockReturnValue(userKey$);
-      const singleUserId$ = new BehaviorSubject<UserId>(SomeUser);
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
-      let completed = false;
-      provider
-        .userEncryptor$(1, { singleUserId$ })
-        .subscribe({ complete: () => (completed = true) });
-
-      userKey$.complete();
 
       expect(completed).toBe(true);
     });
@@ -230,7 +158,11 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
         organizationId: SomeOrganization,
         userId: SomeUser,
       });
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
+      const provider = new KeyServiceLegacyEncryptorProvider(
+        encryptService,
+        keyService,
+        sdkService,
+      );
       const results: OrganizationBound<"encryptor", OrganizationEncryptor>[] = [];
 
       provider
@@ -254,7 +186,11 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
       const orgKey$ = new BehaviorSubject(OrgRecords);
       keyService.orgKeys$.mockReturnValue(orgKey$);
       const singleOrganizationId$ = new Subject<UserBound<"organizationId", OrganizationId>>();
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
+      const provider = new KeyServiceLegacyEncryptorProvider(
+        encryptService,
+        keyService,
+        sdkService,
+      );
       const results: OrganizationBound<"encryptor", OrganizationEncryptor>[] = [];
       provider
         .organizationEncryptor$(1, { singleOrganizationId$ })
@@ -274,7 +210,11 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
       const orgKey$ = new BehaviorSubject(OrgRecords);
       keyService.orgKeys$.mockReturnValue(orgKey$);
       const singleOrganizationId$ = new Subject<UserBound<"organizationId", OrganizationId>>();
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
+      const provider = new KeyServiceLegacyEncryptorProvider(
+        encryptService,
+        keyService,
+        sdkService,
+      );
       const results: OrganizationBound<"encryptor", OrganizationEncryptor>[] = [];
       provider
         .organizationEncryptor$(1, { singleOrganizationId$ })
@@ -296,7 +236,7 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
     });
 
     it("waits until `orgKeys$` emits a truthy value", () => {
-      const orgKey$ = new BehaviorSubject<Record<OrganizationId, OrgKey>>(null);
+      const orgKey$ = new BehaviorSubject<Record<OrganizationId, OrgKey> | null>(null);
       keyService.orgKeys$.mockReturnValue(orgKey$);
       const singleOrganizationId$ = new BehaviorSubject<
         UserBound<"organizationId", OrganizationId>
@@ -304,7 +244,11 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
         organizationId: SomeOrganization,
         userId: SomeUser,
       });
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
+      const provider = new KeyServiceLegacyEncryptorProvider(
+        encryptService,
+        keyService,
+        sdkService,
+      );
       const results: OrganizationBound<"encryptor", OrganizationEncryptor>[] = [];
       provider
         .organizationEncryptor$(1, { singleOrganizationId$ })
@@ -334,7 +278,11 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
         organizationId: SomeOrganization,
         userId: SomeUser,
       });
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
+      const provider = new KeyServiceLegacyEncryptorProvider(
+        encryptService,
+        keyService,
+        sdkService,
+      );
       const results: OrganizationBound<"encryptor", OrganizationEncryptor>[] = [];
       provider
         .organizationEncryptor$(1, { singleOrganizationId$ })
@@ -350,7 +298,11 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
       const orgKey$ = new BehaviorSubject(OrgRecords);
       keyService.orgKeys$.mockReturnValue(orgKey$);
       const singleOrganizationId$ = new Subject<UserBound<"organizationId", OrganizationId>>();
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
+      const provider = new KeyServiceLegacyEncryptorProvider(
+        encryptService,
+        keyService,
+        sdkService,
+      );
       let error: unknown = false;
       provider
         .organizationEncryptor$(1, { singleOrganizationId$ })
@@ -366,7 +318,11 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
       const orgKey$ = new BehaviorSubject(OrgRecords);
       keyService.orgKeys$.mockReturnValue(orgKey$);
       const singleOrganizationId$ = new Subject<UserBound<"organizationId", OrganizationId>>();
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
+      const provider = new KeyServiceLegacyEncryptorProvider(
+        encryptService,
+        keyService,
+        sdkService,
+      );
       let error: unknown = false;
       provider
         .organizationEncryptor$(1, { singleOrganizationId$ })
@@ -385,7 +341,11 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
       const orgKey$ = new BehaviorSubject(OrgRecords);
       keyService.orgKeys$.mockReturnValue(orgKey$);
       const singleOrganizationId$ = new Subject<UserBound<"organizationId", OrganizationId>>();
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
+      const provider = new KeyServiceLegacyEncryptorProvider(
+        encryptService,
+        keyService,
+        sdkService,
+      );
       let error: unknown = false;
       provider
         .organizationEncryptor$(1, { singleOrganizationId$ })
@@ -405,7 +365,11 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
         organizationId: SomeOrganization,
         userId: SomeUser,
       });
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
+      const provider = new KeyServiceLegacyEncryptorProvider(
+        encryptService,
+        keyService,
+        sdkService,
+      );
       let error: unknown = false;
       provider
         .organizationEncryptor$(1, { singleOrganizationId$ })
@@ -425,7 +389,11 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
         organizationId: SomeOrganization,
         userId: SomeUser,
       });
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
+      const provider = new KeyServiceLegacyEncryptorProvider(
+        encryptService,
+        keyService,
+        sdkService,
+      );
       let error: unknown = false;
 
       provider
@@ -439,7 +407,11 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
       const orgKey$ = new BehaviorSubject(OrgRecords);
       keyService.orgKeys$.mockReturnValue(orgKey$);
       const singleOrganizationId$ = new Subject<UserBound<"organizationId", OrganizationId>>();
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
+      const provider = new KeyServiceLegacyEncryptorProvider(
+        encryptService,
+        keyService,
+        sdkService,
+      );
       let completed = false;
       provider
         .organizationEncryptor$(1, { singleOrganizationId$ })
@@ -451,7 +423,7 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
     });
 
     it("completes when `orgKeys$` emits a falsy value after emitting a truthy value", () => {
-      const orgKey$ = new Subject<Record<OrganizationId, OrgKey>>();
+      const orgKey$ = new Subject<Record<OrganizationId, OrgKey> | null>();
       keyService.orgKeys$.mockReturnValue(orgKey$);
       const singleOrganizationId$ = new BehaviorSubject<
         UserBound<"organizationId", OrganizationId>
@@ -459,7 +431,11 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
         organizationId: SomeOrganization,
         userId: SomeUser,
       });
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
+      const provider = new KeyServiceLegacyEncryptorProvider(
+        encryptService,
+        keyService,
+        sdkService,
+      );
       let completed = false;
       provider
         .organizationEncryptor$(1, { singleOrganizationId$ })
@@ -480,7 +456,11 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
         organizationId: SomeOrganization,
         userId: SomeUser,
       });
-      const provider = new KeyServiceLegacyEncryptorProvider(encryptService, keyService);
+      const provider = new KeyServiceLegacyEncryptorProvider(
+        encryptService,
+        keyService,
+        sdkService,
+      );
       let completed = false;
       provider
         .organizationEncryptor$(1, { singleOrganizationId$ })

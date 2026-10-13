@@ -1,155 +1,135 @@
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit, Signal, signal } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, from } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { EmailTokenRequest } from "@bitwarden/common/auth/models/request/email-token.request";
-import { EmailRequest } from "@bitwarden/common/auth/models/request/email.request";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email/change-email.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
+import { assertNonNullish } from "@bitwarden/common/auth/utils";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { SharedModule } from "../../../shared";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-change-email",
   templateUrl: "change-email.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [SharedModule],
 })
 export class ChangeEmailComponent implements OnInit {
-  tokenSent = false;
-  showTwoFactorEmailWarning = false;
-  userId: UserId | undefined;
+  protected readonly userVerificationSuccessful = signal(false);
+  protected readonly showTwoFactorEmailWarning = signal(false);
+  protected readonly userId = signal<UserId | undefined>(undefined);
 
-  formGroup = this.formBuilder.group({
-    step1: this.formBuilder.group({
+  protected readonly selfServiceChangeEmailEnabled: Signal<boolean>;
+
+  readonly formGroup = this.formBuilder.group({
+    userVerificationAndNewEmail: this.formBuilder.group({
       masterPassword: ["", [Validators.required]],
       newEmail: ["", [Validators.required, Validators.email]],
     }),
-    token: [{ value: "", disabled: true }, [Validators.required]],
+    emailOwnershipVerification: [{ value: "", disabled: true }, [Validators.required]],
   });
 
   constructor(
-    private accountService: AccountService,
-    private apiService: ApiService,
-    private twoFactorService: TwoFactorService,
-    private i18nService: I18nService,
-    private keyService: KeyService,
-    private messagingService: MessagingService,
-    private formBuilder: FormBuilder,
-    private kdfConfigService: KdfConfigService,
-    private toastService: ToastService,
-  ) {}
-
-  async ngOnInit() {
-    this.userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-
-    const twoFactorProviders = await this.twoFactorService.getEnabledTwoFactorProviders();
-    this.showTwoFactorEmailWarning = twoFactorProviders.data.some(
-      (p) => p.type === TwoFactorProviderType.Email && p.enabled,
+    private readonly accountService: AccountService,
+    private readonly twoFactorService: TwoFactorService,
+    private readonly i18nService: I18nService,
+    private readonly messagingService: MessagingService,
+    private readonly formBuilder: FormBuilder,
+    private readonly toastService: ToastService,
+    private readonly changeEmailService: ChangeEmailService,
+    private readonly configService: ConfigService,
+  ) {
+    this.selfServiceChangeEmailEnabled = toSignal(
+      from(this.configService.getFeatureFlag(FeatureFlag.PM30806_SelfServiceChangeEmailCommand)),
+      { initialValue: false },
     );
   }
 
-  submit = async () => {
-    if (this.userId == null) {
+  async ngOnInit() {
+    this.userId.set(await firstValueFrom(getUserId(this.accountService.activeAccount$)));
+
+    const twoFactorProviders = await this.twoFactorService.getEnabledTwoFactorProviders();
+    this.showTwoFactorEmailWarning.set(
+      twoFactorProviders.data.some((p) => p.type === TwoFactorProviderType.Email && p.enabled),
+    );
+  }
+
+  readonly submit = async () => {
+    const userId = this.userId();
+    if (userId == null) {
       throw new Error("Can't find user");
     }
 
     // This form has multiple steps, so we need to mark all the groups as touched.
-    this.formGroup.controls.step1.markAllAsTouched();
+    this.formGroup.controls.userVerificationAndNewEmail.markAllAsTouched();
 
-    if (this.tokenSent) {
-      this.formGroup.controls.token.markAllAsTouched();
+    if (this.userVerificationSuccessful()) {
+      this.formGroup.controls.emailOwnershipVerification.markAllAsTouched();
     }
 
-    // Exit if the form is invalid.
     if (this.formGroup.invalid) {
       return;
     }
 
-    const step1Value = this.formGroup.controls.step1.value;
-    const newEmail = step1Value.newEmail?.trim().toLowerCase();
-    const masterPassword = step1Value.masterPassword;
+    const userVerificationForm = this.formGroup.controls.userVerificationAndNewEmail.value;
+    const newEmail = userVerificationForm.newEmail?.trim().toLowerCase();
+    const masterPassword = userVerificationForm.masterPassword;
 
-    if (newEmail == null || masterPassword == null) {
-      throw new Error("Missing email or password");
-    }
+    const ctx = "Could not update email.";
+    assertNonNullish(newEmail, "email", ctx);
+    assertNonNullish(masterPassword, "password", ctx);
 
-    const existingHash = await this.keyService.hashMasterKey(
-      masterPassword,
-      await this.keyService.getOrDeriveMasterKey(masterPassword, this.userId),
-    );
-
-    if (!this.tokenSent) {
-      const request = new EmailTokenRequest();
-      request.newEmail = newEmail;
-      request.masterPasswordHash = existingHash;
-      await this.apiService.postEmailToken(request);
-      this.activateStep2();
+    if (!this.userVerificationSuccessful()) {
+      await this.changeEmailService.requestEmailToken(masterPassword, newEmail, userId);
+      this.advanceToEmailOwnershipVerification();
     } else {
-      const token = this.formGroup.value.token;
-      if (token == null) {
+      const emailOtp = this.formGroup.value.emailOwnershipVerification;
+      if (emailOtp == null) {
         throw new Error("Missing token");
       }
-      const request = new EmailRequest();
-      request.token = token;
-      request.newEmail = newEmail;
-      request.masterPasswordHash = existingHash;
 
-      const kdfConfig = await firstValueFrom(this.kdfConfigService.getKdfConfig$(this.userId));
-      if (kdfConfig == null) {
-        throw new Error("Missing kdf config");
+      await this.changeEmailService.confirmEmailChange(masterPassword, newEmail, emailOtp, userId);
+      this.resetFormsToInitialState();
+      if (this.selfServiceChangeEmailEnabled()) {
+        await this.accountService.setAccountEmail(userId, newEmail);
+        this.toastService.showToast({
+          variant: "success",
+          title: this.i18nService.t("emailChanged"),
+          message: "",
+        });
+      } else {
+        this.toastService.showToast({
+          variant: "success",
+          title: this.i18nService.t("emailChanged"),
+          message: this.i18nService.t("logBackIn"),
+        });
+        this.messagingService.send("logout");
       }
-      const newMasterKey = await this.keyService.makeMasterKey(masterPassword, newEmail, kdfConfig);
-      request.newMasterPasswordHash = await this.keyService.hashMasterKey(
-        masterPassword,
-        newMasterKey,
-      );
-
-      const userKey = await firstValueFrom(this.keyService.userKey$(this.userId));
-      if (userKey == null) {
-        throw new Error("Can't find UserKey");
-      }
-      const newUserKey = await this.keyService.encryptUserKeyWithMasterKey(newMasterKey, userKey);
-      const encryptedUserKey = newUserKey[1]?.encryptedString;
-      if (encryptedUserKey == null) {
-        throw new Error("Missing Encrypted User Key");
-      }
-      request.key = encryptedUserKey;
-
-      await this.apiService.postEmail(request);
-      this.reset();
-      this.toastService.showToast({
-        variant: "success",
-        title: this.i18nService.t("emailChanged"),
-        message: this.i18nService.t("logBackIn"),
-      });
-      this.messagingService.send("logout");
     }
   };
 
-  // Disable step1 and enable token
-  activateStep2() {
-    this.formGroup.controls.step1.disable();
-    this.formGroup.controls.token.enable();
+  advanceToEmailOwnershipVerification() {
+    this.formGroup.controls.userVerificationAndNewEmail.disable();
+    this.formGroup.controls.emailOwnershipVerification.enable();
 
-    this.tokenSent = true;
+    this.userVerificationSuccessful.set(true);
   }
 
-  // Reset form and re-enable step1
-  reset() {
+  resetFormsToInitialState() {
     this.formGroup.reset();
-    this.formGroup.controls.step1.enable();
-    this.formGroup.controls.token.disable();
+    this.formGroup.controls.userVerificationAndNewEmail.enable();
+    this.formGroup.controls.emailOwnershipVerification.disable();
 
-    this.tokenSent = false;
+    this.userVerificationSuccessful.set(false);
   }
 }

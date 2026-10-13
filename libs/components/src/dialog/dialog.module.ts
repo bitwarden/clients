@@ -4,7 +4,11 @@ import { NgModule } from "@angular/core";
 import { DialogComponent } from "./dialog/dialog.component";
 import { DialogService } from "./dialog.service";
 import { DialogCloseDirective } from "./directives/dialog-close.directive";
-import { IconDirective, SimpleDialogComponent } from "./simple-dialog/simple-dialog.component";
+import {
+  DialogFooterDirective,
+  IconDirective,
+  SimpleDialogComponent,
+} from "./simple-dialog/simple-dialog.component";
 
 @NgModule({
   imports: [
@@ -13,12 +17,14 @@ import { IconDirective, SimpleDialogComponent } from "./simple-dialog/simple-dia
     DialogComponent,
     SimpleDialogComponent,
     IconDirective,
+    DialogFooterDirective,
   ],
   exports: [
     CdkDialogModule,
     DialogCloseDirective,
     DialogComponent,
     IconDirective,
+    DialogFooterDirective,
     SimpleDialogComponent,
   ],
   providers: [DialogService],

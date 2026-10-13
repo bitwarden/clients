@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input, Output, EventEmitter } from "@angular/core";
+import { Component, Input, Output, EventEmitter, output } from "@angular/core";
 import { ReactiveFormsModule, FormsModule, FormControl } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -40,9 +40,20 @@ export class TwoFactorAuthAuthenticatorComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() tokenChange = new EventEmitter<{ token: string }>();
+  submitOnPaste = output<void>();
 
   onTokenChange(event: Event) {
     const tokenValue = (event.target as HTMLInputElement).value || "";
     this.tokenChange.emit({ token: tokenValue });
+  }
+
+  onPaste(event: ClipboardEvent) {
+    const pastedText = event.clipboardData?.getData("text")?.trim() ?? "";
+    if (!pastedText) {
+      return;
+    }
+    event.preventDefault();
+    this.tokenFormControl?.setValue(pastedText);
+    this.submitOnPaste.emit();
   }
 }

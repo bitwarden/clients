@@ -9,12 +9,7 @@
 
 @if (loading()) {
   <div class="tw-text-center">
-    <i
-      class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
-      title="{{ 'loading' | i18n }}"
-      aria-hidden="true"
-    ></i>
-    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+    <bit-spinner></bit-spinner>
   </div>
 } @else {
   @if (unavailable()) {
@@ -29,10 +24,12 @@
   }
   @if (send()) {
     <div>
-      <p class="tw-text-center">
-        <b>{{ send().name }}</b>
-      </p>
-      <hr />
+      @if (send().type !== sendType.Item) {
+        <p class="tw-text-center">
+          <b>{{ send().name }}</b>
+        </p>
+        <hr />
+      }
       @switch (send().type) {
         @case (sendType.Text) {
           <app-send-access-text [send]="send()"></app-send-access-text>
@@ -41,13 +38,19 @@
           <app-send-access-file
             [send]="send()"
             [decKey]="decKey"
-            [accessRequest]="accessRequest()"
             [accessToken]="accessToken()"
           ></app-send-access-file>
         }
+        @case (sendType.Item) {
+          <app-send-access-item [send]="send()"></app-send-access-item>
+        }
       }
       @if (expirationDate()) {
-        <p class="tw-text-center tw-text-muted">Expires: {{ expirationDate() | date: "medium" }}</p>
+        @let formattedExpirationTime = expirationDate() | date: "shortTime";
+        @let formattedExpirationDate = expirationDate() | date: "mediumDate";
+        <p class="tw-text-center tw-text-muted tw-text-sm">
+          {{ "sendExpiresOn" | i18n: formattedExpirationTime : formattedExpirationDate }}
+        </p>
       }
     </div>
   }

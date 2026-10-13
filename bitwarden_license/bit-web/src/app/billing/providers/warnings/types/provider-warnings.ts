@@ -2,9 +2,7 @@ import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 import { TaxIdWarningResponse } from "@bitwarden/web-vault/app/billing/warnings/types";
 
 type ProviderSuspensionResolution =
-  | "add_payment_method"
-  | "contact_administrator"
-  | "contact_support";
+  "add_payment_method" | "contact_administrator" | "contact_support";
 
 export class ProviderWarningsResponse extends BaseResponse {
   suspension?: SuspensionWarningResponse;

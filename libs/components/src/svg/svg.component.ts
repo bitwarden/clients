@@ -10,12 +10,13 @@ import { BitSvg, isBitSvg } from "@bitwarden/assets/svg";
     "[attr.aria-label]": "ariaLabel()",
     "[innerHtml]": "innerHtml()",
     class: "tw-max-h-full tw-flex tw-justify-center",
+    "[attr.role]": "ariaLabel() ? 'img' : 'presentation'",
   },
   template: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SvgComponent {
-  private domSanitizer = inject(DomSanitizer);
+  private readonly domSanitizer = inject(DomSanitizer);
 
   readonly content = input<BitSvg>();
   readonly ariaLabel = input<string>();

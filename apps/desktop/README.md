@@ -1,6 +1,5 @@
 [![Github Workflow build on main](https://github.com/bitwarden/clients/actions/workflows/build-desktop.yml/badge.svg?branch=main)](https://github.com/bitwarden/clients/actions/workflows/build-desktop.yml?query=branch:main)
 [![Crowdin](https://d322cqt584bo4o.cloudfront.net/bitwarden-desktop/localized.svg)](https://crowdin.com/project/bitwarden-desktop)
-[![Join the chat at https://gitter.im/bitwarden/Lobby](https://badges.gitter.im/bitwarden/Lobby.svg)](https://gitter.im/bitwarden/Lobby)
 
 # Bitwarden Desktop Application
 

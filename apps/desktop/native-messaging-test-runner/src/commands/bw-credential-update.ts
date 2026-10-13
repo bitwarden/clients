@@ -2,9 +2,6 @@
 // @ts-strict-ignore
 import "module-alias/register";
 
-import yargs from "yargs";
-import { hideBin } from "yargs/helpers";
-
 import { NativeMessagingVersion } from "@bitwarden/common/enums";
 
 // eslint-disable-next-line no-restricted-imports
@@ -14,42 +11,42 @@ import NativeMessageService from "../native-message.service";
 import { TestRunnerSdkLoadService } from "../sdk-load.service";
 import * as config from "../variables";
 
-// Command line arguments
-const argv: any = yargs(hideBin(process.argv))
-  .option("name", {
-    alias: "n",
-    demand: true,
-    describe: "Name that the updated login will be given",
-    type: "string",
-  })
-  .option("username", {
-    alias: "u",
-    demand: true,
-    describe: "Username that the login will be given",
-    type: "string",
-  })
-  .option("password", {
-    alias: "p",
-    demand: true,
-    describe: "Password that the login will be given",
-    type: "string",
-  })
-  .option("uri", {
-    demand: true,
-    describe: "Uri that the login will be given",
-    type: "string",
-  })
-  .option("credentialId", {
-    demand: true,
-    describe: "GUID of the credential to update",
-    type: "string",
-  }).argv;
-
-const { name, username, password, uri, credentialId } = argv;
-
 // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async () => {
+  const { default: yargs } = await import("yargs");
+  const { hideBin } = await import("yargs/helpers");
+  const argv: any = yargs(hideBin(process.argv))
+    .option("name", {
+      alias: "n",
+      demand: true,
+      describe: "Name that the updated login will be given",
+      type: "string",
+    })
+    .option("username", {
+      alias: "u",
+      demand: true,
+      describe: "Username that the login will be given",
+      type: "string",
+    })
+    .option("password", {
+      alias: "p",
+      demand: true,
+      describe: "Password that the login will be given",
+      type: "string",
+    })
+    .option("uri", {
+      demand: true,
+      describe: "Uri that the login will be given",
+      type: "string",
+    })
+    .option("credentialId", {
+      demand: true,
+      describe: "GUID of the credential to update",
+      type: "string",
+    }).argv;
+  const { name, username, password, uri, credentialId } = argv;
+
   // Initialize SDK before using crypto functions
   const sdkLoadService = new TestRunnerSdkLoadService();
   await sdkLoadService.loadAndInit();

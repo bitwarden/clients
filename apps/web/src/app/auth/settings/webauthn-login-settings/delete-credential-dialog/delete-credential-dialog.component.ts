@@ -87,7 +87,7 @@ export class DeleteCredentialDialogComponent implements OnInit, OnDestroy {
       this.dialogRef.disableClose = false;
     }
 
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   ngOnDestroy(): void {

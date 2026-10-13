@@ -1,4 +1,6 @@
-import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+
 import { RotateableKeySet } from "../../models/rotateable-key-set";
 
 export abstract class RotateableKeySetService {

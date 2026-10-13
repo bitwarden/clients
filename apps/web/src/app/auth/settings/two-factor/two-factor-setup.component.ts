@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import {
   first,
   lastValueFrom,
@@ -11,6 +12,7 @@ import {
   switchMap,
 } from "rxjs";
 
+import { TwoFactorIconComponent } from "@bitwarden/angular/auth/components/two-factor-icon.component";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -19,21 +21,33 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { TwoFactorProviderRequest } from "@bitwarden/common/auth/models/request/two-factor-provider.request";
-import { TwoFactorAuthenticatorResponse } from "@bitwarden/common/auth/models/response/two-factor-authenticator.response";
-import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
-import { TwoFactorEmailResponse } from "@bitwarden/common/auth/models/response/two-factor-email.response";
-import { TwoFactorWebAuthnResponse } from "@bitwarden/common/auth/models/response/two-factor-web-authn.response";
-import { TwoFactorYubiKeyResponse } from "@bitwarden/common/auth/models/response/two-factor-yubi-key.response";
+import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { TwoFactorService, TwoFactorProviders } from "@bitwarden/common/auth/two-factor";
-import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
+import {
+  TwoFactorService,
+  TwoFactorProviders,
+  TwoFactorSetupDialogData,
+} from "@bitwarden/common/auth/two-factor";
+import { TwoFactorDuoDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-duo-delete.request";
+import { TwoFactorYubiKeyDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-yubikey-delete.request";
+import { TwoFactorAuthenticatorResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-authenticator.response";
+import { TwoFactorDuoResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-duo.response";
+import { TwoFactorEmailResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-email.response";
+import { TwoFactorWebAuthnResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-web-authn.response";
+import { TwoFactorYubiKeyResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-yubi-key.response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { DialogRef, DialogService, ItemModule, ToastService } from "@bitwarden/components";
+import {
+  BreadcrumbsModule,
+  DialogRef,
+  DialogService,
+  ItemModule,
+  ToastService,
+} from "@bitwarden/components";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared/shared.module";
@@ -51,7 +65,14 @@ import { TwoFactorVerifyComponent } from "./two-factor-verify.component";
 @Component({
   selector: "app-two-factor-setup",
   templateUrl: "two-factor-setup.component.html",
-  imports: [ItemModule, HeaderModule, PremiumBadgeComponent, SharedModule],
+  imports: [
+    ItemModule,
+    HeaderModule,
+    BreadcrumbsModule,
+    PremiumBadgeComponent,
+    TwoFactorIconComponent,
+    SharedModule,
+  ],
 })
 export class TwoFactorSetupComponent implements OnInit, OnDestroy {
   organizationId: string;
@@ -63,6 +84,11 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
   loading = true;
 
   tabbedHeader = true;
+
+  protected readonly showBreadcrumbs = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   protected destroy$ = new Subject<void>();
   private twoFactorAuthPolicyAppliesToActiveUser: boolean;
@@ -154,28 +180,47 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * For users who enabled a premium-only 2fa provider,
-   * they should still be allowed to disable that provider
-   * (without otherwise modifying) if they no longer have
-   * premium access [PM-21204]
-   * @param type the 2FA Provider Type
+   * Lapsed-premium escape hatch: a user who previously enrolled a premium provider (YubiKey or
+   * Duo) while subscribed should still be able to disable it after their premium subscription
+   * lapses. Surfaces a UV dialog rather than the full management screen so the user cannot
+   * accidentally attempt to add more credentials (which would fail at PUT-time on the server).
+   *
+   * Under the hood: the per-provider GET (now non-premium-gated) mints a UV token, which the
+   * per-provider DELETE then consumes — same single dialog interaction as before, two server
+   * round-trips instead of one.
    */
   async disablePremium2faTypeForNonPremiumUser(type: TwoFactorProviderType) {
-    // Use UserVerificationDialogComponent instead of TwoFactorVerifyComponent
-    // because the latter makes GET API calls that require premium for YubiKey/Duo.
-    // The disable endpoint only requires user verification, not provider configuration.
     const result = await UserVerificationDialogComponent.open(this.dialogService, {
       title: "twoStepLogin",
       verificationType: {
         type: "custom",
         verificationFn: async (secret) => {
-          const request = await this.userVerificationService.buildRequest<TwoFactorProviderRequest>(
-            secret,
-            TwoFactorProviderRequest,
-          );
-          request.type = type;
+          const getRequest =
+            await this.userVerificationService.buildRequest<SecretVerificationRequest>(
+              secret,
+              SecretVerificationRequest,
+            );
 
-          await this.twoFactorService.putTwoFactorDisable(request);
+          switch (type) {
+            case TwoFactorProviderType.Yubikey: {
+              const response = await this.twoFactorService.getTwoFactorYubiKey(getRequest);
+              const deleteRequest = new TwoFactorYubiKeyDeleteRequest(
+                response.userVerificationToken,
+              );
+              await this.twoFactorService.deleteTwoFactorYubiKey(deleteRequest);
+              break;
+            }
+            case TwoFactorProviderType.Duo: {
+              const response = await this.twoFactorService.getTwoFactorDuo(getRequest);
+              const deleteRequest = new TwoFactorDuoDeleteRequest(response.userVerificationToken);
+              await this.twoFactorService.deleteTwoFactorDuo(deleteRequest);
+              break;
+            }
+            default:
+              throw new Error(
+                "disablePremium2faTypeForNonPremiumUser only supports YubiKey and Duo",
+              );
+          }
           return true;
         },
       },
@@ -203,7 +248,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
 
     switch (type) {
       case TwoFactorProviderType.Authenticator: {
-        const result: AuthResponse<TwoFactorAuthenticatorResponse> =
+        const result: TwoFactorSetupDialogData<TwoFactorAuthenticatorResponse> =
           await this.callTwoFactorVerifyDialog(type);
         if (!result) {
           return;
@@ -215,13 +260,13 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
         this.twoFactorSetupSubscription = authComp.componentInstance.onChangeStatus
           .pipe(first(), takeUntil(this.destroy$))
           .subscribe((enabled: boolean) => {
-            authComp.close();
+            void authComp.close();
             this.updateStatus(enabled, TwoFactorProviderType.Authenticator);
           });
         break;
       }
       case TwoFactorProviderType.Yubikey: {
-        const result: AuthResponse<TwoFactorYubiKeyResponse> =
+        const result: TwoFactorSetupDialogData<TwoFactorYubiKeyResponse> =
           await this.callTwoFactorVerifyDialog(type);
         if (!result) {
           return;
@@ -238,7 +283,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
         break;
       }
       case TwoFactorProviderType.Duo: {
-        const result: AuthResponse<TwoFactorDuoResponse> =
+        const result: TwoFactorSetupDialogData<TwoFactorDuoResponse> =
           await this.callTwoFactorVerifyDialog(type);
         if (!result) {
           return;
@@ -254,13 +299,13 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
         this.twoFactorSetupSubscription = duoComp.componentInstance.onChangeStatus
           .pipe(first(), takeUntil(this.destroy$))
           .subscribe((enabled: boolean) => {
-            duoComp.close();
+            void duoComp.close();
             this.updateStatus(enabled, TwoFactorProviderType.Duo);
           });
         break;
       }
       case TwoFactorProviderType.Email: {
-        const result: AuthResponse<TwoFactorEmailResponse> =
+        const result: TwoFactorSetupDialogData<TwoFactorEmailResponse> =
           await this.callTwoFactorVerifyDialog(type);
         if (!result) {
           return;
@@ -274,13 +319,13 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
         this.twoFactorSetupSubscription = emailComp.componentInstance.onChangeStatus
           .pipe(first(), takeUntil(this.destroy$))
           .subscribe((enabled: boolean) => {
-            emailComp.close();
+            void emailComp.close();
             this.updateStatus(enabled, TwoFactorProviderType.Email);
           });
         break;
       }
       case TwoFactorProviderType.WebAuthn: {
-        const result: AuthResponse<TwoFactorWebAuthnResponse> =
+        const result: TwoFactorSetupDialogData<TwoFactorWebAuthnResponse> =
           await this.callTwoFactorVerifyDialog(type);
         if (!result) {
           return;
@@ -292,7 +337,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
         this.twoFactorSetupSubscription = webAuthnComp.componentInstance.onUpdated
           .pipe(first(), takeUntil(this.destroy$))
           .subscribe((enabled: boolean) => {
-            webAuthnComp.close();
+            void webAuthnComp.close();
             this.updateStatus(enabled, TwoFactorProviderType.WebAuthn);
           });
         break;

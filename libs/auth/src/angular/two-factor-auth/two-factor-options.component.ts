@@ -5,7 +5,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   TwoFactorAuthAuthenticatorIcon,
   TwoFactorAuthDuoIcon,
-  TwoFactorAuthEmailIcon,
+  EmailCodeSentIcon,
   TwoFactorAuthWebAuthnIcon,
   TwoFactorAuthYubicoIcon,
 } from "@bitwarden/assets/svg";
@@ -49,7 +49,7 @@ export class TwoFactorOptionsComponent implements OnInit {
 
   readonly Icons = {
     TwoFactorAuthAuthenticatorIcon,
-    TwoFactorAuthEmailIcon,
+    EmailCodeSentIcon,
     TwoFactorAuthDuoIcon,
     TwoFactorAuthYubicoIcon,
     TwoFactorAuthWebAuthnIcon,
@@ -67,7 +67,7 @@ export class TwoFactorOptionsComponent implements OnInit {
   }
 
   async choose(p: TwoFactorProviderDetails) {
-    this.dialogRef.close({ type: p.type });
+    await this.dialogRef.close({ type: p.type });
   }
 
   static open(dialogService: DialogService) {
@@ -75,6 +75,6 @@ export class TwoFactorOptionsComponent implements OnInit {
   }
 
   cancel() {
-    this.dialogRef.close();
+    void this.dialogRef.close();
   }
 }

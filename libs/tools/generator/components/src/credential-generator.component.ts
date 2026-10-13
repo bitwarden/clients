@@ -341,8 +341,17 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
           "credential generated",
         );
 
+        // Pass the string-form algorithm id so the history view can disambiguate
+        //   sub-types within a category (e.g. password vs passphrase).
+        const algorithmId = typeof algorithm?.id === "string" ? algorithm.id : undefined;
         this.generatorHistoryService
-          .track(account.id, generated.credential, generated.category, generated.generationDate)
+          .track(
+            account.id,
+            generated.credential,
+            generated.category,
+            generated.generationDate,
+            algorithmId,
+          )
           .catch((e: unknown) => {
             this.logService.error(e);
           });
@@ -655,6 +664,11 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
   /** Emits the last generated value. */
   protected readonly value$ = this.generatedCredential$.pipe(
     map((generated) => generated?.credential ?? "-"),
+  );
+
+  /** Emits the character count of the last generated value. */
+  protected readonly valueLength$ = this.generatedCredential$.pipe(
+    map((generated) => generated?.credential.length ?? 0),
   );
 
   /** Identifies generator requests that were requested by the user */

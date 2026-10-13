@@ -5,12 +5,23 @@ import { RouterModule } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 // import { AppRoutingAnimationsModule } from "@bitwarden/browser/popup/app-routing-animations";
+import {
+  DefaultVaultHealthReportService,
+  VaultHealthReportService,
+} from "@bitwarden/bit-common/dirt/vault-health/services";
 import { AppRoutingModule as OssRoutingModule } from "@bitwarden/browser/popup/app-routing.module";
 import { AppModule as OssModule } from "@bitwarden/browser/popup/app.module";
+import { HEALTH_TAB_NAV_BUTTON } from "@bitwarden/browser/popup/health-tab-nav-button";
 // import { WildcardRoutingModule } from "@bitwarden/browser/popup/wildcard-routing.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
+import { safeProvider } from "@bitwarden/ui-common";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
+import { healthNavButton$ } from "./dirt/health/health-nav-button";
+import { HealthAccessService } from "./dirt/health/services/health-access.service";
 /**
  * This is the AppModule for the commercial version of Bitwarden.
  * `apps/browser/app.module.ts` contains the OSS version.
@@ -35,5 +46,17 @@ import { AppComponent } from "./app.component";
   ],
   declarations: [AppComponent],
   bootstrap: [AppComponent],
+  providers: [
+    safeProvider({
+      provide: VaultHealthReportService,
+      useClass: DefaultVaultHealthReportService,
+      deps: [CipherRiskService, LogService],
+    }),
+    safeProvider({
+      provide: HEALTH_TAB_NAV_BUTTON,
+      useFactory: healthNavButton$,
+      deps: [AccountService, HealthAccessService],
+    }),
+  ],
 })
 export class AppModule {}

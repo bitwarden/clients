@@ -16,7 +16,7 @@ import { Matrix } from "../../../../spec/matrix";
 import { subscribeTo } from "../../../../spec/observable-tracker";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import { FeatureFlag } from "../../../enums/feature-flag.enum";
+import { AllowedFeatureFlagTypes, FeatureFlag } from "../../../enums/feature-flag.enum";
 import { UserId } from "../../../types/guid";
 import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-api.service.abstraction";
 import { ServerConfig } from "../../abstractions/config/server-config";
@@ -34,6 +34,7 @@ import {
   ApiUrl,
   DefaultConfigService,
   RETRIEVAL_INTERVAL,
+  GLOBAL_FEATURE_FLAG_OVERRIDES,
   GLOBAL_SERVER_CONFIGURATIONS,
   USER_SERVER_CONFIG,
   SLOW_EMISSION_GUARD,
@@ -165,6 +166,59 @@ describe("ConfigService", () => {
             delete newConfig.utcDate;
 
             expect(actual).toEqual(newConfig);
+          });
+
+          describe("serverCommunicationConfig$", () => {
+            it("emits direct bootstrap config when response has no communication config", async () => {
+              await firstValueFrom(sut.serverConfig$);
+
+              const result = await firstValueFrom(sut.serverCommunicationConfig$);
+
+              expect(result).toEqual({ bootstrap: { type: "direct" } });
+            });
+
+            it("emits ssoCookieVendor config when response includes ssoCookieVendor bootstrap", async () => {
+              const ssoResponse = serverConfigResponseFactory("hash", {
+                type: "ssoCookieVendor",
+                idpLoginUrl: "https://idp.example.com",
+                cookieName: "auth_token",
+                cookieDomain: ".example.com",
+              });
+              configApiService.get.mockResolvedValue(ssoResponse);
+
+              await firstValueFrom(sut.serverConfig$);
+
+              const result = await firstValueFrom(sut.serverCommunicationConfig$);
+
+              expect(result).toEqual({
+                bootstrap: {
+                  type: "ssoCookieVendor",
+                  idpLoginUrl: "https://idp.example.com",
+                  cookieName: "auth_token",
+                  cookieDomain: ".example.com",
+                  vaultUrl: "vault.example.com",
+                  cookieValue: undefined,
+                },
+              });
+            });
+
+            it("emits direct bootstrap config when ssoCookieVendor bootstrap has no vault URL", async () => {
+              const ssoResponse = serverConfigResponseFactory("hash", {
+                type: "ssoCookieVendor",
+                idpLoginUrl: "https://idp.example.com",
+                cookieName: "auth_token",
+                cookieDomain: ".example.com",
+              });
+              // Remove the environment field so vaultUrl will be undefined
+              ssoResponse.environment = undefined as any;
+              configApiService.get.mockResolvedValue(ssoResponse);
+
+              await firstValueFrom(sut.serverConfig$);
+
+              const result = await firstValueFrom(sut.serverCommunicationConfig$);
+
+              expect(result).toEqual({ bootstrap: { type: "direct" } });
+            });
           });
         });
       });
@@ -313,6 +367,232 @@ describe("ConfigService", () => {
     });
   });
 
+  describe("feature flag overrides", () => {
+    let sut: DefaultConfigService;
+    let overrideState: FakeGlobalState<Record<string, boolean | number | string>>;
+    const environmentSubject = new BehaviorSubject(environmentFactory(activeApiUrl));
+
+    beforeAll(async () => {
+      await accountService.switchAccount(null);
+    });
+
+    beforeEach(() => {
+      Matrix.autoMockMethod(environmentService.getEnvironment$, () => environmentSubject);
+      environmentService.globalEnvironment$ = environmentSubject;
+
+      // Provide a fresh server config so serverConfig$ resolves without fetching
+      globalState.stateSubject.next({ [activeApiUrl]: serverConfigFactory(activeApiUrl) });
+
+      overrideState = stateProvider.global.getFake(GLOBAL_FEATURE_FLAG_OVERRIDES);
+
+      sut = new DefaultConfigService(
+        configApiService,
+        environmentService,
+        logService,
+        stateProvider,
+        authService,
+      );
+    });
+
+    it("returns the override value when one is present", async () => {
+      overrideState.stateSubject.next({ [FeatureFlag.FedRampGovRegion]: true });
+
+      const result = await firstValueFrom(sut.getFeatureFlag$(FeatureFlag.FedRampGovRegion));
+
+      expect(result).toBe(true);
+    });
+
+    it("returns the override value for non-boolean types", async () => {
+      overrideState.stateSubject.next({ [FeatureFlag.PM32180PremiumUpsellAccountAge]: 99 });
+
+      const result = await firstValueFrom(
+        sut.getFeatureFlag$(FeatureFlag.PM32180PremiumUpsellAccountAge),
+      );
+
+      expect(result).toBe(99);
+    });
+
+    it("falls through to the server config when the flag is not in the override map", async () => {
+      overrideState.stateSubject.next({});
+      const serverConfig = new ServerConfig(
+        new ServerConfigData({
+          featureStates: { [FeatureFlag.FedRampGovRegion]: true },
+        }),
+      );
+      globalState.stateSubject.next({ [activeApiUrl]: serverConfig });
+
+      const result = await firstValueFrom(sut.getFeatureFlag$(FeatureFlag.FedRampGovRegion));
+
+      expect(result).toBe(true);
+    });
+
+    it("falls through to the default value when neither override nor server set the flag", async () => {
+      overrideState.stateSubject.next({});
+
+      const result = await firstValueFrom(sut.getFeatureFlag$(FeatureFlag.FedRampGovRegion));
+
+      expect(result).toBe(false);
+    });
+
+    it("falls through to the default value when overrides state is null", async () => {
+      overrideState.stateSubject.next(null);
+
+      const result = await firstValueFrom(sut.getFeatureFlag$(FeatureFlag.FedRampGovRegion));
+
+      expect(result).toBe(false);
+    });
+
+    it("userCachedFeatureFlag$ honors the override", async () => {
+      overrideState.stateSubject.next({ [FeatureFlag.FedRampGovRegion]: true });
+      userState.nextState(null);
+
+      const result = await firstValueFrom(
+        sut.userCachedFeatureFlag$(FeatureFlag.FedRampGovRegion, userId),
+      );
+
+      expect(result).toBe(true);
+    });
+
+    function configWithFlag(value: boolean) {
+      const config = new ServerConfig(
+        new ServerConfigData({ featureStates: { [FeatureFlag.FedRampGovRegion]: value } }),
+      );
+      config.utcDate = new Date();
+      return config;
+    }
+
+    it("does not re-emit when a config refresh keeps the flag value", async () => {
+      // Consumers restart their work on each emission, e.g. re-decrypting the whole vault.
+      overrideState.stateSubject.next({});
+      globalState.stateSubject.next({ [activeApiUrl]: configWithFlag(true) });
+
+      const emitted: boolean[] = [];
+      const subscription = sut
+        .getFeatureFlag$(FeatureFlag.FedRampGovRegion)
+        .subscribe((value) => emitted.push(value));
+      await new Promise(process.nextTick);
+
+      globalState.stateSubject.next({ [activeApiUrl]: configWithFlag(true) });
+      await new Promise(process.nextTick);
+
+      subscription.unsubscribe();
+      expect(emitted).toEqual([true]);
+    });
+
+    it("re-emits when a config refresh changes the flag value", async () => {
+      overrideState.stateSubject.next({});
+      globalState.stateSubject.next({ [activeApiUrl]: configWithFlag(true) });
+
+      const emitted: boolean[] = [];
+      const subscription = sut
+        .getFeatureFlag$(FeatureFlag.FedRampGovRegion)
+        .subscribe((value) => emitted.push(value));
+      await new Promise(process.nextTick);
+
+      globalState.stateSubject.next({ [activeApiUrl]: configWithFlag(false) });
+      await new Promise(process.nextTick);
+
+      subscription.unsubscribe();
+      expect(emitted).toEqual([true, false]);
+    });
+  });
+
+  describe("flight recorder gate", () => {
+    let sut: DefaultConfigService;
+    let overrideState: FakeGlobalState<Record<string, boolean | number | string>>;
+    const environmentSubject = new BehaviorSubject(environmentFactory(activeApiUrl));
+
+    beforeAll(async () => {
+      await accountService.switchAccount(null);
+    });
+
+    beforeEach(() => {
+      Matrix.autoMockMethod(environmentService.getEnvironment$, () => environmentSubject);
+      environmentService.globalEnvironment$ = environmentSubject;
+      overrideState = stateProvider.global.getFake(GLOBAL_FEATURE_FLAG_OVERRIDES);
+    });
+
+    /** Builds the service over a fresh config carrying the given flag states. */
+    const withConfig = async (featureStates: Record<string, AllowedFeatureFlagTypes>) => {
+      const config = new ServerConfig(new ServerConfigData({ featureStates }));
+      config.utcDate = new Date();
+      globalState.stateSubject.next({ [activeApiUrl]: config });
+
+      sut = new DefaultConfigService(
+        configApiService,
+        environmentService,
+        logService,
+        stateProvider,
+        authService,
+      );
+      await firstValueFrom(sut.serverConfig$);
+    };
+
+    it("enables the recorder when the flag is on", async () => {
+      await withConfig({ [FeatureFlag.PM30935_FlightRecorderTsLogging]: true });
+
+      expect(logService.enableRecorder).toHaveBeenCalledWith(true);
+    });
+
+    it("disables the recorder when the flag is absent", async () => {
+      await withConfig({});
+
+      expect(logService.enableRecorder).toHaveBeenCalledWith(false);
+    });
+
+    it("honours a local override", async () => {
+      overrideState.stateSubject.next({
+        [FeatureFlag.PM30935_FlightRecorderTsLogging]: true,
+      });
+
+      await withConfig({ [FeatureFlag.PM30935_FlightRecorderTsLogging]: false });
+
+      expect(logService.enableRecorder).toHaveBeenCalledWith(true);
+    });
+
+    it("waits for the fetched config rather than gating on a stale one", async () => {
+      const stale = new ServerConfig(
+        new ServerConfigData({
+          featureStates: { [FeatureFlag.PM30935_FlightRecorderTsLogging]: false },
+        }),
+      );
+      stale.utcDate = tooOld;
+      globalState.stateSubject.next({ [activeApiUrl]: stale });
+      configApiService.get.mockResolvedValue(
+        new ServerConfigResponse({
+          featureStates: { [FeatureFlag.PM30935_FlightRecorderTsLogging]: true },
+        }),
+      );
+
+      sut = new DefaultConfigService(
+        configApiService,
+        environmentService,
+        logService,
+        stateProvider,
+        authService,
+      );
+      await firstValueFrom(sut.serverConfig$);
+
+      // Gating on the stale config would disable first and drop the startup queue.
+      expect(logService.enableRecorder).not.toHaveBeenCalledWith(false);
+      expect(logService.enableRecorder).toHaveBeenCalledWith(true);
+    });
+
+    it("does not read the flag when nothing subscribes", () => {
+      new DefaultConfigService(
+        configApiService,
+        environmentService,
+        logService,
+        stateProvider,
+        authService,
+      );
+
+      // The gate hangs off the existing pipeline, so a run that never reads config
+      // never enables the recorder.
+      expect(logService.enableRecorder).not.toHaveBeenCalled();
+    });
+  });
+
   describe("slow configuration", () => {
     const environmentSubject = new BehaviorSubject<Environment>(null);
 
@@ -375,7 +655,10 @@ function serverConfigDataFactory(hash?: string) {
   return new ServerConfigData(serverConfigResponseFactory(hash));
 }
 
-function serverConfigResponseFactory(hash?: string) {
+function serverConfigResponseFactory(
+  hash?: string,
+  bootstrap?: { type: string; idpLoginUrl?: string; cookieName?: string; cookieDomain?: string },
+) {
   return new ServerConfigResponse({
     version: "myConfigVersion",
     gitHash: hash ?? Utils.newGuid(), // Use optional git hash to store uniqueness value
@@ -391,6 +674,7 @@ function serverConfigResponseFactory(hash?: string) {
       feat2: "on",
       feat3: "off",
     },
+    ...(bootstrap != null ? { communication: { bootstrap } } : {}),
   });
 }
 

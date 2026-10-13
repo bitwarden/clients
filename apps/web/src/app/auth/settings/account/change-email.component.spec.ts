@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import mock, { MockProxy } from "jest-mock-extended/lib/Mock";
-import { firstValueFrom, of } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { TwoFactorProviderResponse } from "@bitwarden/common/auth/models/response/two-factor-provider.response";
+import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email/change-email.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorProviderResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-provider.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { ChangeEmailComponent } from "@bitwarden/web-vault/app/auth/settings/account/change-email.component";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
@@ -22,31 +22,29 @@ describe("ChangeEmailComponent", () => {
   let component: ChangeEmailComponent;
   let fixture: ComponentFixture<ChangeEmailComponent>;
 
-  let apiService: MockProxy<ApiService>;
+  let changeEmailService: MockProxy<ChangeEmailService>;
   let twoFactorService: MockProxy<TwoFactorService>;
   let accountService: FakeAccountService;
-  let keyService: MockProxy<KeyService>;
-  let kdfConfigService: MockProxy<KdfConfigService>;
+  let configService: MockProxy<ConfigService>;
 
   beforeEach(async () => {
-    apiService = mock<ApiService>();
+    changeEmailService = mock<ChangeEmailService>();
     twoFactorService = mock<TwoFactorService>();
-    keyService = mock<KeyService>();
-    kdfConfigService = mock<KdfConfigService>();
     accountService = mockAccountServiceWith("UserId" as UserId);
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(false);
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, SharedModule, ChangeEmailComponent],
       providers: [
         { provide: AccountService, useValue: accountService },
-        { provide: ApiService, useValue: apiService },
         { provide: TwoFactorService, useValue: twoFactorService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
-        { provide: KeyService, useValue: keyService },
         { provide: MessagingService, useValue: mock<MessagingService>() },
-        { provide: KdfConfigService, useValue: kdfConfigService },
-        { provide: ToastService, useValue: mock<ToastService>() },
         { provide: FormBuilder, useClass: FormBuilder },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: ChangeEmailService, useValue: changeEmailService },
+        { provide: ConfigService, useValue: configService },
       ],
     }).compileComponents();
 
@@ -68,7 +66,7 @@ describe("ChangeEmailComponent", () => {
 
     it("initializes userId", async () => {
       await component.ngOnInit();
-      expect(component.userId).toBe("UserId");
+      expect(component["userId"]()).toBe("UserId");
     });
 
     it("errors if there is no active user", async () => {
@@ -81,119 +79,77 @@ describe("ChangeEmailComponent", () => {
 
     it("initializes showTwoFactorEmailWarning", async () => {
       await component.ngOnInit();
-      expect(component.showTwoFactorEmailWarning).toBe(true);
+      expect(component["showTwoFactorEmailWarning"]()).toBe(true);
     });
   });
 
   describe("submit", () => {
     beforeEach(() => {
-      component.formGroup.controls.step1.setValue({
+      component["userId"].set("UserId" as UserId);
+      component.formGroup.controls.userVerificationAndNewEmail.setValue({
         masterPassword: "password",
         newEmail: "test@example.com",
       });
-
-      keyService.getOrDeriveMasterKey
-        .calledWith("password", "UserId" as UserId)
-        .mockResolvedValue("getOrDeriveMasterKey" as any);
-      keyService.hashMasterKey
-        .calledWith("password", "getOrDeriveMasterKey" as any)
-        .mockResolvedValue("existingHash");
     });
 
     it("throws if userId is null on submit", async () => {
-      component.userId = undefined;
+      component["userId"].set(undefined);
 
       await expect(component.submit()).rejects.toThrow("Can't find user");
     });
 
-    describe("step 1", () => {
-      it("does not submit if step 1 is invalid", async () => {
-        component.formGroup.controls.step1.setValue({
+    describe("user verification and new email", () => {
+      it("does not submit if user verification and new email are invalid", async () => {
+        component.formGroup.controls.userVerificationAndNewEmail.setValue({
           masterPassword: "",
           newEmail: "",
         });
 
         await component.submit();
 
-        expect(apiService.postEmailToken).not.toHaveBeenCalled();
+        expect(changeEmailService.requestEmailToken).not.toHaveBeenCalled();
       });
 
-      it("sends email token in step 1 if tokenSent is false", async () => {
+      it("requests an email token when user verification has not succeeded yet", async () => {
         await component.submit();
 
-        expect(apiService.postEmailToken).toHaveBeenCalledWith({
-          newEmail: "test@example.com",
-          masterPasswordHash: "existingHash",
-        });
-        // should activate step 2
-        expect(component.tokenSent).toBe(true);
-        expect(component.formGroup.controls.step1.disabled).toBe(true);
-        expect(component.formGroup.controls.token.enabled).toBe(true);
+        expect(changeEmailService.requestEmailToken).toHaveBeenCalledWith(
+          "password",
+          "test@example.com",
+          "UserId" as UserId,
+        );
+        // should advance to email ownership verification
+        expect(component["userVerificationSuccessful"]()).toBe(true);
+        expect(component.formGroup.controls.userVerificationAndNewEmail.disabled).toBe(true);
+        expect(component.formGroup.controls.emailOwnershipVerification.enabled).toBe(true);
       });
     });
 
-    describe("step 2", () => {
+    describe("email ownership verification", () => {
       beforeEach(() => {
-        component.tokenSent = true;
-        component.formGroup.controls.step1.disable();
-        component.formGroup.controls.token.enable();
-        component.formGroup.controls.token.setValue("token");
-
-        kdfConfigService.getKdfConfig$
-          .calledWith("UserId" as any)
-          .mockReturnValue(of("kdfConfig" as any));
-        keyService.userKey$.calledWith("UserId" as any).mockReturnValue(of("userKey" as any));
-
-        keyService.makeMasterKey
-          .calledWith("password", "test@example.com", "kdfConfig" as any)
-          .mockResolvedValue("newMasterKey" as any);
-        keyService.hashMasterKey
-          .calledWith("password", "newMasterKey" as any)
-          .mockResolvedValue("newMasterKeyHash");
-
-        // Important: make sure this is called with new master key, not existing
-        keyService.encryptUserKeyWithMasterKey
-          .calledWith("newMasterKey" as any, "userKey" as any)
-          .mockResolvedValue(["userKey" as any, { encryptedString: "newEncryptedUserKey" } as any]);
+        component["userVerificationSuccessful"].set(true);
+        component.formGroup.controls.userVerificationAndNewEmail.disable();
+        component.formGroup.controls.emailOwnershipVerification.enable();
+        component.formGroup.controls.emailOwnershipVerification.setValue("token");
       });
 
       it("does not post email if token is missing on submit", async () => {
-        component.formGroup.controls.token.setValue("");
+        component.formGroup.controls.emailOwnershipVerification.setValue("");
 
         await component.submit();
 
-        expect(apiService.postEmail).not.toHaveBeenCalled();
+        expect(changeEmailService.confirmEmailChange).not.toHaveBeenCalled();
       });
 
-      it("throws if kdfConfig is missing on submit", async () => {
-        kdfConfigService.getKdfConfig$.mockReturnValue(of(null));
-
-        await expect(component.submit()).rejects.toThrow("Missing kdf config");
-      });
-
-      it("throws if userKey can't be found", async () => {
-        keyService.userKey$.mockReturnValue(of(null));
-
-        await expect(component.submit()).rejects.toThrow("Can't find UserKey");
-      });
-
-      it("throws if encryptedUserKey is missing", async () => {
-        keyService.encryptUserKeyWithMasterKey.mockResolvedValue(["userKey" as any, null as any]);
-
-        await expect(component.submit()).rejects.toThrow("Missing Encrypted User Key");
-      });
-
-      it("submits if step 2 is valid", async () => {
+      it("confirms the email change when email ownership verification is valid", async () => {
         await component.submit();
 
-        // validate that hashes are correct
-        expect(apiService.postEmail).toHaveBeenCalledWith({
-          masterPasswordHash: "existingHash",
-          newMasterPasswordHash: "newMasterKeyHash",
-          token: "token",
-          newEmail: "test@example.com",
-          key: "newEncryptedUserKey",
-        });
+        expect(changeEmailService.confirmEmailChange).toHaveBeenCalledWith(
+          "password",
+          "test@example.com",
+          "token",
+          "UserId" as UserId,
+        );
       });
     });
   });

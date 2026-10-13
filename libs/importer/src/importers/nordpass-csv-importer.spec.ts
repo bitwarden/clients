@@ -158,7 +158,7 @@ describe("NordPass CSV Importer", () => {
     expectFields(cipher); //for custom fields
   });
 
-  it("should parse login records with additinal urls", async () => {
+  it("should parse login records with additional urls", async () => {
     const result = await importer.parse(loginDataWithAdditionalUrls);
 
     expect(result).not.toBeNull();

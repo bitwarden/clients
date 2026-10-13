@@ -1,0 +1,9 @@
+<keeper-auth-stage-view
+  [stage]="stage()"
+  [email]="email()"
+  (submitted)="onSubmitted($event)"
+  (cancelled)="onCancelled()"
+  (triedAnother)="onTriedAnother()"
+  (resent)="onResent()"
+  (errorDismissed)="onErrorDismissed()"
+/>

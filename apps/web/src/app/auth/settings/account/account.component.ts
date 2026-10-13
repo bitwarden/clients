@@ -1,11 +1,15 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { firstValueFrom, lastValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
+import { AccountDeletionService } from "@bitwarden/angular/auth/account-deletion/account-deletion.service";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { DialogService } from "@bitwarden/components";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { BreadcrumbsModule, DialogService } from "@bitwarden/components";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
@@ -14,7 +18,6 @@ import { PurgeVaultComponent } from "../../../vault/settings/purge-vault.compone
 import { ChangeEmailComponent } from "./change-email.component";
 import { DangerZoneComponent } from "./danger-zone.component";
 import { DeauthorizeSessionsComponent } from "./deauthorize-sessions.component";
-import { DeleteAccountDialogComponent } from "./delete-account-dialog.component";
 import { ProfileComponent } from "./profile.component";
 import { SetAccountVerifyDevicesDialogComponent } from "./set-account-verify-devices-dialog.component";
 
@@ -25,6 +28,7 @@ import { SetAccountVerifyDevicesDialogComponent } from "./set-account-verify-dev
   imports: [
     SharedModule,
     HeaderModule,
+    BreadcrumbsModule,
     ProfileComponent,
     ChangeEmailComponent,
     DangerZoneComponent,
@@ -32,6 +36,11 @@ import { SetAccountVerifyDevicesDialogComponent } from "./set-account-verify-dev
 })
 export class AccountComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+
+  protected readonly showBreadcrumbs = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   showChangeEmail$: Observable<boolean> = new Observable();
   showPurgeVault$: Observable<boolean> = new Observable();
@@ -43,27 +52,29 @@ export class AccountComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private organizationService: OrganizationService,
+    private accountDeletionService: AccountDeletionService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
-    const userIsManagedByOrganization$ = this.organizationService
+    const userIsClaimedByOrganization$ = this.organizationService
       .organizations$(userId)
       .pipe(
-        map((organizations) => organizations.some((o) => o.userIsManagedByOrganization === true)),
+        map((organizations) => organizations.some((o) => o.userIsClaimedByOrganization === true)),
       );
 
     const hasMasterPassword$ = this.userDecryptionOptionsService.hasMasterPasswordById$(userId);
 
     this.showChangeEmail$ = hasMasterPassword$;
 
-    this.showPurgeVault$ = userIsManagedByOrganization$.pipe(
-      map((userIsManagedByOrganization) => !userIsManagedByOrganization),
+    this.showPurgeVault$ = userIsClaimedByOrganization$.pipe(
+      map((userIsClaimedByOrganization) => !userIsClaimedByOrganization),
     );
 
-    this.showDeleteAccount$ = userIsManagedByOrganization$.pipe(
-      map((userIsManagedByOrganization) => !userIsManagedByOrganization),
+    this.showDeleteAccount$ = userIsClaimedByOrganization$.pipe(
+      map((userIsClaimedByOrganization) => !userIsClaimedByOrganization),
     );
 
     this.accountService.accountVerifyNewDeviceLogin$
@@ -84,8 +95,7 @@ export class AccountComponent implements OnInit, OnDestroy {
   };
 
   deleteAccount = async () => {
-    const dialogRef = DeleteAccountDialogComponent.open(this.dialogService);
-    await lastValueFrom(dialogRef.closed);
+    await this.accountDeletionService.openDeleteAccountFlow();
   };
 
   setNewDeviceLoginProtection = async () => {

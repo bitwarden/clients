@@ -52,6 +52,15 @@ export class ForwarderContext<Settings extends ApiSettings> extends IntegrationC
     return prefix as any;
   }
 
+  /** check whether the website prefix feature is enabled in the forwarder's settings.
+   *  @returns true when the prefix setting is set to the "website" sentinel value;
+   *   false otherwise. This method never throws.
+   */
+  prefixEnabled(): boolean {
+    const prefix = "prefix" in this.settings ? (this.settings.prefix ?? "") : "";
+    return prefix === "website";
+  }
+
   /** look up a localized error message indicating an account id is required
    *  but wasn't found.
    *  @remarks this returns a string instead of throwing it so that the

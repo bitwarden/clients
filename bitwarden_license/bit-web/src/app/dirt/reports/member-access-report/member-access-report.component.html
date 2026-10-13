@@ -1,4 +1,15 @@
 <app-header>
+  <bit-breadcrumbs slot="breadcrumbs">
+    <bit-breadcrumb route="../" icon="bwi-sliders">
+      {{ "reports" | i18n }}
+    </bit-breadcrumb>
+    @if (vfo1Enabled()) {
+      <bit-breadcrumb [route]="[]">
+        {{ reportTitleKey | i18n }}
+      </bit-breadcrumb>
+    }
+  </bit-breadcrumbs>
+
   @let isLoading = isLoading$ | async;
 
   @if (!isLoading) {
@@ -7,26 +18,31 @@
       [placeholder]="'searchMembers' | i18n"
       class="tw-grow"
     ></bit-search>
-    <button type="button" bitButton buttonType="primary" [bitAction]="exportReportAction">
-      <span>{{ "export" | i18n }}</span>
-      <i class="bwi bwi-fw bwi-sign-in" aria-hidden="true"></i>
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      endIcon="bwi-import"
+      [bitAction]="exportReportAction"
+    >
+      {{ "exportVerb" | i18n }}
     </button>
   }
 </app-header>
 
 <div class="tw-max-w-4xl">
   <p bitTypography="body1">
-    {{ "memberAccessReportPageDesc" | i18n }}
+    {{ "memberAccessReportPageDesc" | vfo1I18n: "memberAccessReportPageDescV3" }}
   </p>
 </div>
 
 @if (isLoading) {
   <div class="tw-flex-col tw-flex tw-justify-center tw-items-center tw-gap-5 tw-mt-4">
-    <i
-      class="bwi bwi-2x bwi-spinner bwi-spin tw-text-primary-600"
-      title="{{ 'loading' | i18n }}"
-      aria-hidden="true"
-    ></i>
+    <bit-icon
+      name="bwi-spinner"
+      class="bwi-2x bwi-spin tw-text-primary-600"
+      [ariaLabel]="'loading' | i18n"
+    ></bit-icon>
     <h2 bitTypography="h1">{{ "loading" | i18n }}</h2>
   </div>
 } @else {
@@ -35,14 +51,19 @@
       <th bitCell bitSortable="email" default>{{ "members" | i18n }}</th>
       <th bitCell bitSortable="groupsCount" class="tw-w-[278px]">{{ "groups" | i18n }}</th>
       <th bitCell bitSortable="collectionsCount" class="tw-w-[278px]">
-        {{ "collections" | i18n }}
+        {{ "collections" | vfo1I18n: "sharedFolders" }}
       </th>
       <th bitCell bitSortable="itemsCount" class="tw-w-[278px]">{{ "items" | i18n }}</th>
     </ng-container>
     <ng-template bitRowDef let-row>
       <td bitCell>
         <div class="tw-flex tw-items-center">
-          <bit-avatar size="small" [text]="row.name" class="tw-mr-3"></bit-avatar>
+          <bit-avatar
+            [text]="row.name ? row.name : row.email"
+            [id]="row.userIdFromOrgUser"
+            [color]="row.avatarColor"
+            class="tw-mr-3"
+          ></bit-avatar>
           <div class="tw-flex tw-flex-col">
             <button type="button" bitLink (click)="edit(row)">
               {{ row.name }}

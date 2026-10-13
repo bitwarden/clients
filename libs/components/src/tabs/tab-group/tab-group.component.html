@@ -1,45 +1,106 @@
-<bit-tab-header>
+<ng-template #tabLabelContent let-tab="tab">
+  <span [class]="tabLabelContentClasses">
+    @if (tab.startIcon()) {
+      <bit-icon [name]="tab.startIcon()" class="tw-text-base" />
+    }
+    <span class="tw-min-w-0 tw-truncate">
+      {{ tab.textLabel() }}
+    </span>
+    @if (tab.berryValue()) {
+      <bit-berry [value]="tab.berryValue()" />
+    }
+    @if (tab.endIcon()) {
+      <bit-icon [name]="tab.endIcon()" class="tw-text-base" />
+    }
+  </span>
+</ng-template>
+
+<bit-tab-header (keydown)="keyManager()?.onKeydown($event)">
   <div
+    bitOverflowList
+    [gap]="TAB_LIST_CONTAINER_GAP"
+    #ovf="bitOverflowList"
     bitTabListContainer
     role="tablist"
     [attr.aria-label]="label()"
-    (keydown)="keyManager.onKeydown($event)"
+    [class.tw-invisible]="!ovf.ready()"
   >
-    @for (tab of tabs(); track tab; let i = $index) {
+    @for (tab of tabs(); track tab.id; let i = $index) {
       <button
+        bitOverflowItem
+        #ovfItem="bitOverflowItem"
+        [pinned]="selectedIndex() === i"
         bitTabListItem
         type="button"
         role="tab"
         [id]="getTabLabelId(i)"
-        [active]="tab.isActive"
+        [active]="tab.isActive()"
         [disabled]="tab.disabled()"
-        [attr.aria-selected]="selectedIndex === i"
-        [attr.tabindex]="selectedIndex === i ? 0 : -1"
+        [attr.aria-selected]="selectedIndex() === i"
+        [attr.tabindex]="selectedIndex() === i ? 0 : -1"
+        [class]="ovfItem.shouldShrink() ? 'tw-flex-1 tw-min-w-0 tw-overflow-hidden' : 'tw-shrink-0'"
         (click)="selectTab(i)"
       >
-        <ng-container [ngTemplateOutlet]="content"></ng-container>
-        <ng-template #content>
-          @if (tab.templateLabel) {
-            <ng-container [ngTemplateOutlet]="tab.templateLabel.templateRef"></ng-container>
-          } @else {
-            {{ tab.textLabel() }}
-          }
-        </ng-template>
+        <ng-container
+          [ngTemplateOutlet]="tabLabelContent"
+          [ngTemplateOutletContext]="{ tab: tab }"
+        ></ng-container>
       </button>
     }
+    <!--
+      The More button sits inside the overflow list so it lands immediately after
+      the last visible tab in the flex flow. The list hides the trigger via the
+      `hidden` property when there's nothing to surface, which also takes it out
+      of focus and the accessibility tree.
+    -->
+    <button
+      #moreButton
+      bitTabListItem
+      bitOverflowTrigger
+      type="button"
+      class="tw-shrink-0"
+      tabindex="-1"
+      [bitMenuTriggerFor]="overFlowTabsMenu"
+    >
+      <span [class]="tabLabelContentClasses">
+        {{ "more" | i18n }}
+        <bit-berry [value]="ovf.overflow().length"></bit-berry>
+        <bit-icon name="bwi-angle-down" class="tw-text-base" />
+      </span>
+    </button>
   </div>
 </bit-tab-header>
-<div class="tw-px-6 tw-pt-5">
-  @for (tab of tabs(); track tab; let i = $index) {
+<div class="tw-pt-5">
+  @for (tab of tabs(); track tab.id; let i = $index) {
     <bit-tab-body
       role="tabpanel"
       [id]="getTabContentId(i)"
       [attr.tabindex]="tab.contentTabIndex()"
-      [attr.labeledby]="getTabLabelId(i)"
-      [active]="tab.isActive"
+      [attr.aria-labelledby]="getTabLabelId(i)"
+      [active]="tab.isActive()"
       [content]="tab.content"
       [preserveContent]="preserveContent()"
     >
     </bit-tab-body>
   }
 </div>
+
+<bit-menu #overFlowTabsMenu (closed)="onOverflowMenuClosed()">
+  @for (i of ovf.overflow(); track i) {
+    @let tab = tabs()[i];
+    <button bitMenuItem type="button" [disabled]="tab.disabled()" (click)="selectTab(i)">
+      @if (tab.startIcon()) {
+        <bit-icon slot="start" [name]="tab.startIcon()" class="tw-text-base" />
+      }
+      {{ tab.textLabel() }}
+      <div slot="end" class="empty:tw-hidden tw-flex tw-items-center tw-gap-1">
+        @if (tab.berryValue()) {
+          <bit-berry [value]="tab.berryValue()" />
+        }
+        @if (tab.endIcon()) {
+          <bit-icon [name]="tab.endIcon()" class="tw-text-base" />
+        }
+      </div>
+    </button>
+  }
+</bit-menu>

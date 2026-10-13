@@ -1,22 +1,33 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, map, takeUntil } from "rxjs";
+import { firstValueFrom, takeUntil, tap } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { ChipSelectComponent, DialogService } from "@bitwarden/components";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import {
+  BerryComponent,
+  BreadcrumbsModule,
+  ChipActionComponent,
+  ChipFilterComponent,
+  DialogService,
+} from "@bitwarden/components";
 import {
   CipherFormConfigService,
   PasswordRepromptService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
@@ -39,14 +50,24 @@ import { InactiveTwoFactorReportComponent as BaseInactiveTwoFactorReportComponen
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
   ],
-  imports: [SharedModule, HeaderModule, OrganizationBadgeModule, PipesModule, ChipSelectComponent],
+  imports: [
+    SharedModule,
+    HeaderModule,
+    OrganizationBadgeModule,
+    PipesModule,
+    ChipFilterComponent,
+    ChipActionComponent,
+    BerryComponent,
+    Vfo1IconPipe,
+    BreadcrumbsModule,
+  ],
 })
 export class InactiveTwoFactorReportComponent
   extends BaseInactiveTwoFactorReportComponent
   implements OnInit
 {
-  // Contains a list of ciphers, the user running the report, can manage
-  private manageableCiphers: Cipher[] = [];
+  private manageableCipherIds = new Set<string>();
+  private sharedCollectionIds = new Set<string>();
 
   constructor(
     cipherService: CipherService,
@@ -61,6 +82,7 @@ export class InactiveTwoFactorReportComponent
     cipherFormConfigService: CipherFormConfigService,
     adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
     protected changeDetectorRef: ChangeDetectorRef,
+    private collectionService: CollectionService,
   ) {
     super(
       cipherService,
@@ -79,37 +101,70 @@ export class InactiveTwoFactorReportComponent
 
   async ngOnInit() {
     this.isAdminConsoleActive = true;
+    this.logService.info("[InactiveTwoFactorOrganizationReport] org setup start");
 
     this.route.parent?.parent?.params
-      ?.pipe(takeUntil(this.destroyed$))
-      // eslint-disable-next-line rxjs/no-async-subscribe
-      .subscribe(async (params) => {
-        const userId = await firstValueFrom(
-          this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-        );
+      .pipe(
+        tap(async (params) => {
+          this.logService.info("[InactiveTwoFactorOrganizationReport] route params received");
 
-        if (userId) {
-          this.organization = await firstValueFrom(
-            this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
-          );
-          this.manageableCiphers = await this.cipherService.getAll(userId);
-          await super.ngOnInit();
-        }
-        this.changeDetectorRef.markForCheck();
-      });
+          try {
+            const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+            this.organization = await firstValueFrom(
+              this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
+            );
+            this.logService.info(
+              `[InactiveTwoFactorOrganizationReport] organization context loaded found=${this.organization != null}`,
+            );
+
+            const manageableCiphers = await this.cipherService.getAll(userId);
+            this.manageableCipherIds = new Set(manageableCiphers.map((c) => c.id));
+            this.logService.info(
+              `[InactiveTwoFactorOrganizationReport] manageable ciphers loaded count=${this.manageableCipherIds.size}`,
+            );
+
+            const collections = await firstValueFrom(
+              this.collectionService.decryptedCollections$(userId),
+            );
+            this.sharedCollectionIds = new Set(
+              collections
+                .filter((c) => !c.isDefaultCollection && c.organizationId === this.organization?.id)
+                .map((c) => c.id as string),
+            );
+            this.logService.info(
+              `[InactiveTwoFactorOrganizationReport] shared collections loaded count=${this.sharedCollectionIds.size}`,
+            );
+
+            await super.ngOnInit();
+            this.logService.info("[InactiveTwoFactorOrganizationReport] org setup complete");
+            this.changeDetectorRef.markForCheck();
+          } catch (e) {
+            this.logService.error("[InactiveTwoFactorOrganizationReport] org setup failure", e);
+            throw e;
+          }
+        }),
+        takeUntil(this.destroyed$),
+      )
+      .subscribe();
   }
 
   async getAllCiphers(): Promise<CipherView[]> {
     if (this.organization) {
-      return await this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
+      return this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
     }
     return [];
   }
 
   protected canManageCipher(c: CipherView): boolean {
-    if (c.collectionIds.length === 0) {
+    if (
+      CipherViewLikeUtils.isUnassigned(c) ||
+      !c.collectionIds?.some((id) => this.sharedCollectionIds.has(id))
+    ) {
+      return false;
+    }
+    if (this.organization?.allowAdminAccessToAllCollectionItems) {
       return true;
     }
-    return this.manageableCiphers.some((x) => x.id === c.id);
+    return this.manageableCipherIds.has(c.id);
   }
 }

@@ -1,8 +1,9 @@
 import { ipcMain } from "electron";
 
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { UserId } from "@bitwarden/common/types/guid";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { BiometricMessage, BiometricAction } from "../../types/biometric-message";
 
@@ -58,10 +59,6 @@ export class MainBiometricsIPCListener {
               message.userId as UserId,
               SymmetricCryptoKey.fromString(message.key as string),
             );
-          case BiometricAction.EnableLinuxV2:
-            return await this.biometricService.enableLinuxV2Biometrics();
-          case BiometricAction.IsLinuxV2Enabled:
-            return await this.biometricService.isLinuxV2BiometricsEnabled();
           default:
             return;
         }

@@ -3,12 +3,24 @@
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
-import { Subject, from, map, of, pairwise, startWith, switchMap, takeUntil, tap } from "rxjs";
+import {
+  Observable,
+  Subject,
+  from,
+  map,
+  of,
+  pairwise,
+  startWith,
+  switchMap,
+  takeUntil,
+  tap,
+} from "rxjs";
 
+import { SelfHostedEnvConfigDialogComponent } from "@bitwarden/angular/auth/self-hosted-env-config-dialog";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ClientType } from "@bitwarden/common/enums";
+import { AvailableRegionsService } from "@bitwarden/common/platform/abstractions/available-regions.service";
 import {
-  Environment,
   EnvironmentService,
   Region,
   RegionConfig,
@@ -18,8 +30,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { DialogService, FormFieldModule, SelectModule, ToastService } from "@bitwarden/components";
-
-import { SelfHostedEnvConfigDialogComponent } from "../../self-hosted-env-config-dialog/self-hosted-env-config-dialog.component";
 
 /**
  * Component for selecting the environment to register with in the email verification registration flow.
@@ -35,21 +45,24 @@ import { SelfHostedEnvConfigDialogComponent } from "../../self-hosted-env-config
 export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() selectedRegionChange = new EventEmitter<RegionConfig | Region.SelfHosted | null>();
+  @Output() selectedRegionChange = new EventEmitter<
+    RegionConfig | typeof Region.SelfHosted | null
+  >();
 
   ServerEnvironmentType = Region;
 
   formGroup = this.formBuilder.group({
-    selectedRegion: [null as RegionConfig | Region.SelfHosted | null, Validators.required],
+    selectedRegion: [null as RegionConfig | typeof Region.SelfHosted | null, Validators.required],
   });
 
   get selectedRegion(): FormControl {
     return this.formGroup.get("selectedRegion") as FormControl;
   }
 
-  availableRegionConfigs: RegionConfig[] = this.environmentService.availableRegions();
+  availableRegionConfigs$: Observable<RegionConfig[]> =
+    this.availableRegionsService.availableRegions$;
 
-  private selectedRegionFromEnv: RegionConfig | Region.SelfHosted;
+  private selectedRegionFromEnv: RegionConfig | typeof Region.SelfHosted;
 
   hideEnvSelector = false;
   isDesktopOrBrowserExtension = false;
@@ -59,6 +72,7 @@ export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
   constructor(
     private formBuilder: FormBuilder,
     private environmentService: EnvironmentService,
+    private availableRegionsService: AvailableRegionsService,
     private dialogService: DialogService,
     private i18nService: I18nService,
     private toastService: ToastService,
@@ -83,11 +97,11 @@ export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
   private async initSelectedRegionAndListenForEnvChanges() {
     this.environmentService.environment$
       .pipe(
-        map((env: Environment) => {
+        map((env) => {
           const region: Region = env.getRegion();
-          const regionConfig: RegionConfig = this.availableRegionConfigs.find(
-            (availableRegionConfig) => availableRegionConfig.key === region,
-          );
+          const regionConfig: RegionConfig | undefined = this.environmentService
+            .availableRegions()
+            .find((availableRegionConfig) => availableRegionConfig.key === region);
 
           if (regionConfig === undefined) {
             // Self hosted does not have a region config.
@@ -96,7 +110,7 @@ export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
 
           return regionConfig;
         }),
-        tap((selectedRegionFromEnv: RegionConfig | Region.SelfHosted) => {
+        tap((selectedRegionFromEnv: RegionConfig | typeof Region.SelfHosted) => {
           // Only set the value if it is different from the current value.
           if (selectedRegionFromEnv !== this.selectedRegion.value) {
             // Don't emit to avoid triggering the selectedRegion valueChanges subscription
@@ -126,8 +140,8 @@ export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
         pairwise(),
         switchMap(
           ([prevSelectedRegion, selectedRegion]: [
-            RegionConfig | Region.SelfHosted | null,
-            RegionConfig | Region.SelfHosted | null,
+            RegionConfig | typeof Region.SelfHosted | null,
+            RegionConfig | typeof Region.SelfHosted | null,
           ]) => {
             if (selectedRegion === null) {
               this.selectedRegionChange.emit(selectedRegion);
@@ -149,7 +163,7 @@ export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
 
   private handleSelfHostedEnvConfigDialogResult(
     result: boolean | undefined,
-    prevSelectedRegion: RegionConfig | Region.SelfHosted | null,
+    prevSelectedRegion: RegionConfig | typeof Region.SelfHosted | null,
   ) {
     if (result === true) {
       this.selectedRegionChange.emit(Region.SelfHosted);

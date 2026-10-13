@@ -1,11 +1,13 @@
-import { CollectionAccessSelectionView } from "@bitwarden/common/admin-console/models/collections";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { OrgKey } from "@bitwarden/common/types/key";
+// eslint-disable-next-line no-restricted-imports
+import { DECRYPT_ERROR, EncryptService, EncString } from "@bitwarden/legacy-crypto";
+
+import { OrgKey } from "../../../types/key";
+import { Organization } from "../domain/organization";
 
 import { CollectionAccessDetailsResponse, CollectionResponse } from "./collection.response";
 import { CollectionView } from "./collection.view";
+
+import { CollectionAccessSelectionView } from ".";
 
 // TODO: this is used to represent the pseudo "Unassigned" collection as well as
 // the user's personal vault (as a pseudo organization). This should be separated out into different values.
@@ -121,8 +123,8 @@ export class CollectionAdminView extends CollectionView {
     try {
       view.name = await encryptService.decryptString(new EncString(view.name), orgKey);
     } catch (e) {
-      view.name = "[error: cannot decrypt]";
-      // Note: This should be replaced by the owning team with appropriate, domain-specific behavior.
+      view.name = DECRYPT_ERROR;
+      view.decryptionFailure = true;
       // eslint-disable-next-line no-console
       console.error(
         "[CollectionAdminView/fromCollectionAccessDetails] Error decrypting collection name",

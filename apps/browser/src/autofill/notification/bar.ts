@@ -20,6 +20,7 @@ import {
   NotificationType,
   NotificationTypes,
 } from "./abstractions/notification-bar";
+import { isAtRiskPasswordNotification } from "./utils";
 
 let notificationBarIframeInitData: NotificationBarIframeInitData = {};
 let windowMessageOrigin: string;
@@ -181,6 +182,14 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
   }
 
   notificationBarIframeInitData = initData;
+
+  if (initData.isConfirmation) {
+    return handleSaveCipherConfirmation({
+      command: "saveCipherAttemptCompleted",
+      data: initData.confirmationData,
+    });
+  }
+
   const {
     isVaultLocked,
     removeIndividualVault: personalVaultDisallowed,
@@ -227,16 +236,19 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
   }
 
   // Handle AtRiskPasswordNotification render
-  if (notificationBarIframeInitData.type === NotificationTypes.AtRiskPassword) {
+  if (isAtRiskPasswordNotification(notificationBarIframeInitData)) {
     return render(
       AtRiskNotification({
         ...notificationBarIframeInitData,
-        type: notificationBarIframeInitData.type as NotificationType,
+        type: notificationBarIframeInitData.type,
         theme: resolvedTheme,
         i18n,
         notificationTestId,
-        params: initData.params,
+        params: notificationBarIframeInitData.params,
         handleCloseNotification,
+        handleChangePasswordClick: notificationBarIframeInitData.params.hasPasswordChangeUri
+          ? handleChangePasswordClick
+          : undefined,
       }),
       document.body,
     );
@@ -289,10 +301,19 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
   }
 }
 
+function handleChangePasswordClick(e: Event) {
+  // Guard against any default browser action (e.g., form submission) so only
+  // the background service worker message triggers navigation.
+  e.preventDefault();
+  sendPlatformMessage({ command: "bgOpenChangePasswordUrl" });
+}
+
 function handleCloseNotification(e: Event) {
   e.preventDefault();
   sendPlatformMessage({
     command: "bgCloseNotificationBar",
+    // FIXME (PM-33879): This value should be replaced with the resolved
+    // user preference and/or removed entirely
     fadeOutNotification: true,
   });
 }

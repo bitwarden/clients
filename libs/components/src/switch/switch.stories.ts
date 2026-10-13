@@ -2,13 +2,14 @@ import { FormsModule, ReactiveFormsModule, FormControl, FormGroup } from "@angul
 import { Meta, moduleMetadata, StoryObj, componentWrapperDecorator } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
 import { FormControlModule } from "../form-control";
+import { FormControlCardComponent } from "../form-control/form-control-card.component";
+import { FormControlGroupComponent } from "../form-control/form-control-group.component";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { SwitchComponent } from "./switch.component";
-
-import { formatArgsForCodeSnippet } from ".storybook/format-args-for-code-snippet";
 
 export default {
   title: "Component Library/Form/Switch",
@@ -18,7 +19,14 @@ export default {
       return /* HTML */ `<div class="tw-max-w-[600px] ">${story}</div>`;
     }),
     moduleMetadata({
-      imports: [FormsModule, ReactiveFormsModule, SwitchComponent, FormControlModule],
+      imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        SwitchComponent,
+        FormControlModule,
+        FormControlGroupComponent,
+        FormControlCardComponent,
+      ],
       providers: [
         {
           provide: I18nService,
@@ -42,6 +50,9 @@ export default {
       control: "boolean",
       description: "Model signal for selected state binding when used outside of a form",
     },
+    size: {
+      options: ["base", "large"],
+    },
   },
   parameters: {
     design: {
@@ -55,20 +66,19 @@ export default {
   },
 } as Meta<SwitchComponent>;
 
-type Story = StoryObj<SwitchComponent & { disabled?: boolean; selected?: boolean }>;
+type Story = StoryObj<
+  SwitchComponent & { disabled?: boolean; selected?: boolean; size: "base" | "large" }
+>;
 
 export const Default: Story = {
   render: (args) => ({
-    props: {
-      formObj: new FormGroup({
-        switch: new FormControl(0),
-      }),
-    },
+    props: args,
     template: /* HTML */ `
-      <bit-switch ${formatArgsForCodeSnippet<SwitchComponent>(args)}>
+      <bit-form-control>
+        <bit-switch ${formatArgsForCodeSnippet<SwitchComponent>(args)}></bit-switch>
         <bit-label>Example switch</bit-label>
         <bit-hint>This is a hint for the switch</bit-hint>
-      </bit-switch>
+      </bit-form-control>
     `,
   }),
   args: {
@@ -79,19 +89,16 @@ export const Default: Story = {
 
 export const WithLongLabel: Story = {
   render: (args) => ({
-    props: {
-      formObj: new FormGroup({
-        switch: new FormControl(0),
-      }),
-    },
+    props: args,
     template: /* HTML */ `
-      <bit-switch ${formatArgsForCodeSnippet<SwitchComponent>(args)}>
+      <bit-form-control>
+        <bit-switch ${formatArgsForCodeSnippet<SwitchComponent>(args)}></bit-switch>
         <bit-label>
           This example switch has a super long label. This is not recommended. Switch labels should
           be clear and concise. They should tell the user what turning on the switch will do.
         </bit-label>
         <bit-hint>This is a hint for the switch</bit-hint>
-      </bit-switch>
+      </bit-form-control>
     `,
   }),
   args: {
@@ -104,35 +111,105 @@ export const WithForm: Story = {
   render: (args) => ({
     props: {
       formObj: new FormGroup({
-        switch: new FormControl(0),
+        switch: new FormControl(false),
       }),
     },
     template: /* HTML */ `
       <form [formGroup]="formObj">
-        <bit-switch formControlName="switch" ${formatArgsForCodeSnippet<SwitchComponent>(args)}>
+        <bit-form-control>
+          <bit-switch
+            formControlName="switch"
+            ${formatArgsForCodeSnippet<SwitchComponent>(args)}
+          ></bit-switch>
           <bit-label>Example switch</bit-label>
           <bit-hint>This is a hint for the switch</bit-hint>
-        </bit-switch>
+        </bit-form-control>
       </form>
     `,
   }),
 };
 
-export const Disabled: Story = {
+export const Inactive: Story = {
   render: (args) => ({
     props: args,
     template: /* HTML */ `
-      <bit-switch
-        disabledReasonText="Switch disabled because I am not allowed to change it"
-        ${formatArgsForCodeSnippet<SwitchComponent>(args)}
-      >
+      <bit-form-control>
+        <bit-switch ${formatArgsForCodeSnippet<SwitchComponent>(args)}></bit-switch>
         <bit-label>Example switch</bit-label>
         <bit-hint>This is a hint for the switch</bit-hint>
-      </bit-switch>
+      </bit-form-control>
     `,
   }),
   args: {
     disabled: true,
-    selected: true,
+    selected: false,
   },
+};
+
+export const FormControlCard: Story = {
+  render: () => ({
+    props: {
+      formObj: new FormGroup({
+        switch: new FormControl(false),
+      }),
+    },
+    template: /* HTML */ `
+      <form [formGroup]="formObj">
+        <bit-form-control-card icon="bwi-clock">
+          <bit-switch formControlName="switch"></bit-switch>
+          <bit-label>Enable feature</bit-label>
+          <bit-hint>This feature does some pretty cool stuff</bit-hint>
+        </bit-form-control-card>
+      </form>
+    `,
+  }),
+};
+
+export const InactiveFormControlCard: Story = {
+  render: () => ({
+    props: {
+      formObj: new FormGroup({
+        switch: new FormControl({ value: false, disabled: true }),
+      }),
+    },
+    template: /* HTML */ `
+      <form [formGroup]="formObj">
+        <bit-form-control-card icon="bwi-clock">
+          <bit-switch formControlName="switch"></bit-switch>
+          <bit-label>Enable feature</bit-label>
+          <bit-hint>Enabling this feature will allow you to do cool things.</bit-hint>
+        </bit-form-control-card>
+      </form>
+    `,
+  }),
+};
+
+export const FormControlCardGroup: Story = {
+  render: () => ({
+    props: {
+      formObj: new FormGroup({
+        emailNotifications: new FormControl(false),
+        autoLock: new FormControl(false),
+      }),
+    },
+    template: /* HTML */ `
+      <form [formGroup]="formObj">
+        <bit-form-control-group>
+          <bit-label>Notification preferences</bit-label>
+
+          <bit-form-control-card icon="bwi-envelope">
+            <bit-switch formControlName="emailNotifications"></bit-switch>
+            <bit-label>Email notifications</bit-label>
+            <bit-hint>Receive email updates for important activity</bit-hint>
+          </bit-form-control-card>
+
+          <bit-form-control-card icon="bwi-lock">
+            <bit-switch formControlName="autoLock"></bit-switch>
+            <bit-label>Auto-lock</bit-label>
+            <bit-hint>Automatically lock after inactivity</bit-hint>
+          </bit-form-control-card>
+        </bit-form-control-group>
+      </form>
+    `,
+  }),
 };

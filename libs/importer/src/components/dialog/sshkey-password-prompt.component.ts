@@ -42,6 +42,6 @@ export class SshKeyPasswordPromptComponent {
     if (!this.formGroup.valid) {
       return;
     }
-    this.dialogRef.close(this.formGroup.value.sshKeyPassword);
+    void this.dialogRef.close(this.formGroup.value.sshKeyPassword);
   };
 }

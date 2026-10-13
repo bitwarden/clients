@@ -8,14 +8,49 @@ const builder = require("electron-builder");
 const fse = require("fs-extra");
 exports.default = run;
 
+const IS_GITHUB_ACTIONS = process.env.GITHUB_ACTIONS == "true";
+
 /**
  *
  * @param {builder.AfterPackContext} context
  */
 async function run(context) {
+  if (IS_GITHUB_ACTIONS) {
+    console.log(`::group::After Pack (${builder.Arch[context.arch]})`);
+  }
   console.log("## After pack");
   // console.log(context);
+  try {
+    await doBuild(context);
+  } catch (error) {
+    console.error("### Error occurred during after-pack phase:", error.stack);
+    throw error;
+  } finally {
+    if (IS_GITHUB_ACTIONS) {
+      console.log(`::endgroup::`);
+    }
+  }
+}
 
+async function doBuild(context) {
+  const isMacOsBuild = ["darwin", "mas"].includes(context.electronPlatformName);
+
+  let isTargetArch;
+  if (!isMacOsBuild) {
+    isTargetArch = true;
+  } else {
+    // When running a universal macOS build, afterPack is called once per arch:
+    // x64, arm64, and then finally for universal. For an explicit single-arch
+    // build (--x64 / --arm64) it is called only once, for that arch.
+    //
+    // To determine whether this is the target arch, we need to compare the
+    // packager's configured targets with the current target.
+    const requestedArchs = context.packager.info.options.targets?.get(context.packager.platform);
+    const isUniversalRequested = requestedArchs?.has(builder.Arch.universal) ?? false;
+    isTargetArch = isUniversalRequested ? context.arch === builder.Arch.universal : true;
+  }
+
+  // TODO: Update this to isTargetArch, and remove resetAdHocDarwinSignature parameter below.
   if (context.packager.platform.nodeName !== "darwin" || context.arch === builder.Arch.universal) {
     await addElectronFuses(context);
   }
@@ -35,20 +70,22 @@ async function run(context) {
     console.log("Copied memory-protection wrapper script");
   }
 
-  if (["darwin", "mas"].includes(context.electronPlatformName)) {
+  if (isMacOsBuild) {
+    if (isTargetArch) {
+      console.log("[macOS] Copying extensions...");
+      copyMacOsAutofillExtension(context);
+      copySafariExtension(context);
+    }
     const is_mas = context.electronPlatformName === "mas";
-    const is_mas_dev = context.targets.some((e) => e.name === "mas-dev");
 
     let id;
 
     // Only use the Bitwarden Identities on CI
     if (process.env.GITHUB_ACTIONS === "true") {
       if (is_mas) {
-        id = is_mas_dev
-          ? "A579B6AE496B360642D05B8AB1B650C1B143B770"
-          : "3rd Party Mac Developer Application: Bitwarden Inc";
+        id = "3rd Party Mac Developer Application: Bitwarden Inc";
       } else {
-        id = "Developer ID Application: 8bit Solutions LLC";
+        id = "Developer ID Application: Bitwarden Inc";
       }
       // Locally, use the first valid code signing identity, unless CSC_NAME is set
     } else if (process.env.CSC_NAME) {
@@ -70,13 +107,13 @@ async function run(context) {
     const proxyPath = path.join(appPath, "Contents", "MacOS", "desktop_proxy");
     const inheritProxyPath = path.join(appPath, "Contents", "MacOS", "desktop_proxy.inherit");
 
-    const packageId = "com.bitwarden.desktop";
+    const packageId = context.packager.appInfo.id;
 
     if (is_mas) {
       const entitlementsName = "entitlements.desktop_proxy.plist";
       const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
       child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${entitlementsPath} ${proxyPath}`,
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${proxyPath}"`,
       );
 
       const inheritEntitlementsName = "entitlements.desktop_proxy.inherit.plist";
@@ -87,7 +124,7 @@ async function run(context) {
         inheritEntitlementsName,
       );
       child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${inheritEntitlementsPath} ${inheritProxyPath}`,
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${inheritEntitlementsPath}" "${inheritProxyPath}"`,
       );
     } else {
       // For non-Appstore builds, we don't need the inherit binary as they are not sandboxed,
@@ -95,10 +132,10 @@ async function run(context) {
       const entitlementsName = "entitlements.mac.inherit.plist";
       const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
       child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${entitlementsPath} ${proxyPath}`,
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${proxyPath}"`,
       );
       child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${entitlementsPath} ${inheritProxyPath}`,
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${inheritProxyPath}"`,
       );
     }
   }
@@ -154,7 +191,7 @@ async function addElectronFuses(context) {
   const IS_LINUX = platform === "linux";
   const executableName = IS_LINUX
     ? context.packager.appInfo.productFilename.toLowerCase().replace("-dev", "").replace(" ", "-")
-    : context.packager.appInfo.productFilename; // .toLowerCase() to accomodate Linux file named `name` but productFileName is `Name` -- Replaces '-dev' because on Linux the executable name is `name` even for the DEV builds
+    : context.packager.appInfo.productFilename; // .toLowerCase() to accommodate Linux file named `name` but productFileName is `Name` -- Replaces '-dev' because on Linux the executable name is `name` even for the DEV builds
 
   const electronBinaryPath = path.join(context.appOutDir, `${executableName}${ext}`);
 
@@ -187,5 +224,66 @@ async function addElectronFuses(context) {
     // This can be done by defining a custom app:// protocol and loading the bundle from there,
     // but then any requests to the server will be blocked by CORS policy
     [FuseV1Options.GrantFileProtocolExtraPrivileges]: true,
+
+    // Enables V8 signal handlers to trap Out of Bounds memory access from WebAssembly
+    [FuseV1Options.WasmTrapHandlers]: true,
   });
+}
+
+function copyMacOsAutofillExtension(context) {
+  // Currently because the provisioning profiles in the portal do not have the
+  // correct entitlements, we leave out the autofill extension except for local
+  // dev builds.
+  const isMasDevBuild =
+    context.electronPlatformName === "mas" && context.targets.at(0)?.name === "mas-dev";
+  if (!isMasDevBuild) {
+    console.log("### Autofill extension: needs Apple Developer Portal changes. Skipping.");
+    return;
+  }
+
+  const extensionPath = path.join(__dirname, "../macos/dist/autofill-extension.appex");
+  copyMacOsPlugin(context, "Autofill extension", extensionPath);
+}
+
+function copySafariExtension(context) {
+  const plugIn = path.join(__dirname, "../PlugIns", "safari.appex");
+  copyMacOsPlugin(context, "Safari Extension", plugIn);
+}
+
+function copyMacOsPlugin(context, targetName, extensionPath) {
+  // Pre-signed macOS extensions are copied here in after-pack.js, before electron-builder signs the app, so that
+  // the app's own signature seals it.
+  //
+  // Copying it in after signing leaves the outer bundle invalid ("a sealed
+  // resource is missing or invalid") and notarization rejects it unless the
+  // whole package is signed a second time. electron-builder never signs
+  // anything under Contents/PlugIns, so the extension keeps the signature and
+  // entitlements XCode gave it.
+  //
+  // We cannot use extraFiles because it modifies the extension's .plist and makes it invalid. Cf.
+  // https://github.com/electron-userland/electron-builder/issues/5552.
+
+  if (!["darwin", "mas"].includes(context.electronPlatformName)) {
+    // not a macOS build, skipping.
+    console.log(`### ${targetName}: Not macOS build. Skipping.`);
+    return;
+  }
+
+  if (!fse.existsSync(extensionPath)) {
+    console.log(`### ${targetName}: ${extensionPath} not found - skipping`);
+    return;
+  }
+
+  console.log(`### ${targetName}: Copying plugin...`);
+
+  // Make PlugIns directory.
+  const appName = context.packager.appInfo.productFilename;
+  const plugInsPath = path.join(context.appOutDir, `${appName}.app`, "Contents/PlugIns");
+  fse.mkdirSync(plugInsPath, { recursive: true });
+
+  // Copy extension
+  const name = path.basename(extensionPath);
+  const output = path.join(plugInsPath, name);
+  fse.copySync(extensionPath, output);
+  console.log(`### ${targetName}: Copied ${extensionPath} to ${output}.`);
 }

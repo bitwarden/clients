@@ -1,0 +1,85 @@
+/**
+ * The `icons.scss` file is used to generate `icons.css`. Do not modify the CSS file directly.
+ * Instead, make changes to the SCSS file and regenerate the CSS.
+ *
+ * npx sass ./libs/angular/src/scss/icons.scss ./libs/angular/src/scss/icons.css --no-source-map 2>&1
+ */
+.credit-card-icon {
+  display: block;
+  height: 19px;
+  width: 24px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.card-visa {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/visa-light.png");
+}
+
+.card-amex {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/amex-light.png");
+}
+
+.card-diners-club {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/diners_club-light.png");
+}
+
+.card-discover {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/discover-light.png");
+}
+
+.card-jcb {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/jcb-light.png");
+}
+
+.card-maestro {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/maestro-light.png");
+}
+
+.card-mastercard {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/mastercard-light.png");
+}
+
+.card-union-pay {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/union_pay-light.png");
+}
+
+.card-ru-pay {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/ru_pay-light.png");
+}
+
+.theme_dark .card-visa {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/visa-dark.png");
+}
+
+.theme_dark .card-amex {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/amex-dark.png");
+}
+
+.theme_dark .card-diners-club {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/diners_club-dark.png");
+}
+
+.theme_dark .card-discover {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/discover-dark.png");
+}
+
+.theme_dark .card-jcb {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/jcb-dark.png");
+}
+
+.theme_dark .card-maestro {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/maestro-dark.png");
+}
+
+.theme_dark .card-mastercard {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/mastercard-dark.png");
+}
+
+.theme_dark .card-union-pay {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/union_pay-dark.png");
+}
+
+.theme_dark .card-ru-pay {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/ru_pay-dark.png");
+}

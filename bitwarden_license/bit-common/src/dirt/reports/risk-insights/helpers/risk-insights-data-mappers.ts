@@ -40,8 +40,10 @@ export function getTrimmedCipherUris(cipher: CipherView): string[] {
   const uniqueDomains = new Set<string>();
 
   uris.forEach((u: { uri: string | undefined }) => {
-    const domain = Utils.getDomain(u.uri) ?? u.uri;
-    uniqueDomains.add(domain);
+    const domain = Utils.getDomain(u.uri) ?? u.uri?.trim();
+    if (domain) {
+      uniqueDomains.add(domain);
+    }
   });
   return Array.from(uniqueDomains);
 }
@@ -73,6 +75,10 @@ export function createNewSummaryData(): OrganizationReportSummary {
     totalCriticalAtRiskMemberCount: 0,
     totalCriticalApplicationCount: 0,
     totalCriticalAtRiskApplicationCount: 0,
+    totalPasswordCount: 0,
+    totalAtRiskPasswordCount: 0,
+    totalCriticalPasswordCount: 0,
+    totalCriticalAtRiskPasswordCount: 0,
   };
 }
 export function getAtRiskApplicationList(

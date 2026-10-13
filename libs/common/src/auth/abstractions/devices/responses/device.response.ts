@@ -19,6 +19,7 @@ export class DeviceResponse extends BaseResponse {
   encryptedPublicKey: string | null;
 
   devicePendingAuthRequest: DevicePendingAuthRequest | null;
+  lastActivityDate: string | null;
 
   constructor(response: any) {
     super(response);
@@ -33,5 +34,6 @@ export class DeviceResponse extends BaseResponse {
     this.encryptedUserKey = this.getResponseProperty("EncryptedUserKey");
     this.encryptedPublicKey = this.getResponseProperty("EncryptedPublicKey");
     this.devicePendingAuthRequest = this.getResponseProperty("DevicePendingAuthRequest");
+    this.lastActivityDate = this.getResponseProperty("LastActivityDate");
   }
 }

@@ -1,5 +1,5 @@
 @if (icon() || title() || subtitle()) {
-  <div class="tw-text-center tw-mb-4 sm:tw-mb-6 tw-mx-auto">
+  <div class="tw-mb-4 sm:tw-mb-6" [class]="alignmentClasses()">
     @if (icon()) {
       <!-- In some scenarios this icon's size is not limited by container width correctly -->
       <!-- Targeting the SVG here to try and ensure it never grows too large in even the media queries are not working as expected -->
@@ -22,7 +22,9 @@
     }
 
     @if (subtitle()) {
-      <div class="tw-text-sm sm:tw-text-base">{{ subtitle() }}</div>
+      <div class="tw-text-sm tw-mt-4 sm:tw-mt-0 sm:tw-text-base">
+        {{ subtitle() }}
+      </div>
     }
   </div>
 }

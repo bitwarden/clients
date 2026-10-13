@@ -6,12 +6,16 @@ import { filter, firstValueFrom, map, Subject, switchMap } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  DECRYPT_ERROR,
+  EncryptService,
+  EncString,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
 import { ProjectListView } from "../models/view/project-list.view";
 import { ProjectView } from "../models/view/project.view";
@@ -136,10 +140,15 @@ export class ProjectService {
     projectView.revisionDate = projectResponse.revisionDate;
     projectView.read = projectResponse.read;
     projectView.write = projectResponse.write;
-    projectView.name = await this.encryptService.decryptString(
-      new EncString(projectResponse.name),
-      orgKey,
-    );
+    try {
+      projectView.name = await this.encryptService.decryptString(
+        new EncString(projectResponse.name),
+        orgKey,
+      );
+    } catch {
+      projectView.name = DECRYPT_ERROR;
+      projectView.decryptionError = true;
+    }
     return projectView;
   }
 
@@ -155,10 +164,15 @@ export class ProjectService {
         projectListView.organizationId = s.organizationId;
         projectListView.read = s.read;
         projectListView.write = s.write;
-        projectListView.name = await this.encryptService.decryptString(
-          new EncString(s.name),
-          orgKey,
-        );
+        try {
+          projectListView.name = await this.encryptService.decryptString(
+            new EncString(s.name),
+            orgKey,
+          );
+        } catch {
+          projectListView.name = DECRYPT_ERROR;
+          projectListView.decryptionError = true;
+        }
         projectListView.creationDate = s.creationDate;
         projectListView.revisionDate = s.revisionDate;
         projectListView.linkable = true;

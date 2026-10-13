@@ -6,12 +6,17 @@ import { filter, firstValueFrom, map, Subject, switchMap } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  DECRYPT_ERROR,
+  EncryptService,
+  EncString,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
 import {
   ServiceAccountSecretsDetailsView,
@@ -38,6 +43,7 @@ export class ServiceAccountService {
     private apiService: ApiService,
     private encryptService: EncryptService,
     private accountService: AccountService,
+    private logService: LogService,
   ) {}
 
   private getOrganizationKey$(organizationId: string) {
@@ -167,12 +173,24 @@ export class ServiceAccountService {
     serviceAccountView.organizationId = serviceAccountResponse.organizationId;
     serviceAccountView.creationDate = serviceAccountResponse.creationDate;
     serviceAccountView.revisionDate = serviceAccountResponse.revisionDate;
-    serviceAccountView.name = serviceAccountResponse.name
-      ? await this.encryptService.decryptString(
+
+    if (serviceAccountResponse.name) {
+      try {
+        const name = await this.decryptField(
           new EncString(serviceAccountResponse.name),
           organizationKey,
-        )
-      : null;
+        );
+        serviceAccountView.name = name.value;
+        serviceAccountView.decryptionError = name.error;
+      } catch (error) {
+        this.logService.error("Error decrypting service account name", error);
+        serviceAccountView.name = DECRYPT_ERROR;
+        serviceAccountView.decryptionError = true;
+      }
+    } else {
+      serviceAccountView.name = null;
+    }
+
     return serviceAccountView;
   }
 
@@ -186,9 +204,21 @@ export class ServiceAccountService {
     view.creationDate = response.creationDate;
     view.revisionDate = response.revisionDate;
     view.accessToSecrets = response.accessToSecrets;
-    view.name = response.name
-      ? await this.encryptService.decryptString(new EncString(response.name), organizationKey)
-      : null;
+
+    if (response.name) {
+      try {
+        const name = await this.decryptField(new EncString(response.name), organizationKey);
+        view.name = name.value;
+        view.decryptionError = name.error;
+      } catch (error) {
+        this.logService.error("Error decrypting service account name", error);
+        view.name = DECRYPT_ERROR;
+        view.decryptionError = true;
+      }
+    } else {
+      view.name = null;
+    }
+
     return view;
   }
 
@@ -202,5 +232,18 @@ export class ServiceAccountService {
         return await this.createServiceAccountSecretsDetailsView(orgKey, s);
       }),
     );
+  }
+
+  private async decryptField(
+    encString: EncString,
+    organizationKey: SymmetricCryptoKey,
+  ): Promise<{ value: string; error: boolean }> {
+    try {
+      const decrypted = await this.encryptService.decryptString(encString, organizationKey);
+      return { value: decrypted, error: false };
+    } catch (error) {
+      this.logService.error("Error decrypting service account field", error);
+      return { value: DECRYPT_ERROR, error: true };
+    }
   }
 }

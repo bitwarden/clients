@@ -1,0 +1,15 @@
+<p bitTypography="body1">
+  {{ "troubleshootingDiagnosticReport" | i18n }}
+  <a
+    bitLink
+    href="https://bitwarden.com/contact/"
+    target="_blank"
+    rel="noopener noreferrer"
+    endIcon="bwi-external-link"
+  >
+    {{ "bitwardenSupport" | i18n }}
+  </a>
+</p>
+<button bitButton type="button" buttonType="primary" (click)="download()">
+  {{ "download" | i18n }}
+</button>

@@ -36,8 +36,11 @@ import {
   ButtonModule,
   CalloutComponent,
   DialogService,
+  IconModule,
   ToastService,
 } from "@bitwarden/components";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
@@ -45,6 +48,7 @@ import {
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
   SetInitialPasswordTdeOffboardingCredentials,
+  SetInitialPasswordTdeUserWithPermissionCredentials,
   SetInitialPasswordUserType,
 } from "./set-initial-password.service.abstraction";
 
@@ -53,7 +57,14 @@ import {
 @Component({
   standalone: true,
   templateUrl: "set-initial-password.component.html",
-  imports: [ButtonModule, CalloutComponent, CommonModule, InputPasswordComponent, I18nPipe],
+  imports: [
+    ButtonModule,
+    CalloutComponent,
+    CommonModule,
+    IconModule,
+    InputPasswordComponent,
+    I18nPipe,
+  ],
 })
 export class SetInitialPasswordComponent implements OnInit {
   protected inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAuthedUser;
@@ -76,6 +87,7 @@ export class SetInitialPasswordComponent implements OnInit {
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private dialogService: DialogService,
     private i18nService: I18nService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private logoutService: LogoutService,
     private logService: LogService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -119,12 +131,46 @@ export class SetInitialPasswordComponent implements OnInit {
           return;
         }
 
-        await this.setInitialPassword(passwordInputResult);
+        // ============================================================
+        // PM-42990 — ROLLBACK NOTE
+        // ============================================================
+        // This code computes a master key and a password hash. It runs here because
+        // the set-password endpoint needs the old request shape for 3 releases
+        // to maintain backwards compatibility with self hosted servers.
+        //
+        // BUILD: Move this computation into DefaultSetInitialPasswordService. Put
+        // it next to the other master password logic there.
+        //
+        // DELETE: Remove this block. Remove the injected LegacyCompatKeyService.
+        // Remove the code that sets newMasterKey and newServerMasterKeyHash on
+        // passwordInputResult. See https://github.com/bitwarden/clients/pull/20643
+        // for initial pass at this refactor.
+        // ============================================================
 
+        const ctx = "Could not set initial password.";
+        assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
+        assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
+        assertTruthy(this.email, "email", ctx);
+
+        const newMasterKey = await this.legacyCompatKeyService.makeMasterKey(
+          passwordInputResult.newPassword,
+          this.email.trim().toLowerCase(),
+          passwordInputResult.kdfConfig,
+        );
+
+        const newServerMasterKeyHash = await this.legacyCompatKeyService.hashMasterKey(
+          passwordInputResult.newPassword,
+          newMasterKey,
+        );
+
+        passwordInputResult.newMasterKey = newMasterKey;
+        passwordInputResult.newServerMasterKeyHash = newServerMasterKeyHash;
+
+        await this.setInitialPassword(passwordInputResult);
         break;
       }
       case SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP:
-        await this.setInitialPassword(passwordInputResult);
+        await this.setInitialPasswordTdeUserWithPermission(passwordInputResult);
         break;
       case SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER:
         await this.setInitialPasswordTdeOffboarding(passwordInputResult);
@@ -274,11 +320,13 @@ export class SetInitialPasswordComponent implements OnInit {
     }
   }
 
+  /**
+   * @deprecated use `setInitialPasswordJitMPUserV2Encryption()` instead
+   */
   private async setInitialPassword(passwordInputResult: PasswordInputResult) {
     const ctx = "Could not set initial password.";
     assertTruthy(passwordInputResult.newMasterKey, "newMasterKey", ctx);
     assertTruthy(passwordInputResult.newServerMasterKeyHash, "newServerMasterKeyHash", ctx);
-    assertTruthy(passwordInputResult.newLocalMasterKeyHash, "newLocalMasterKeyHash", ctx);
     assertTruthy(passwordInputResult.kdfConfig, "kdfConfig", ctx);
     assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
     assertTruthy(passwordInputResult.salt, "salt", ctx);
@@ -293,7 +341,6 @@ export class SetInitialPasswordComponent implements OnInit {
       const credentials: SetInitialPasswordCredentials = {
         newMasterKey: passwordInputResult.newMasterKey,
         newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
-        newLocalMasterKeyHash: passwordInputResult.newLocalMasterKeyHash,
         newPasswordHint: passwordInputResult.newPasswordHint,
         kdfConfig: passwordInputResult.kdfConfig,
         orgSsoIdentifier: this.orgSsoIdentifier,
@@ -320,17 +367,59 @@ export class SetInitialPasswordComponent implements OnInit {
     }
   }
 
+  private async setInitialPasswordTdeUserWithPermission(passwordInputResult: PasswordInputResult) {
+    const ctx =
+      "Could not set initial password for TDE user with Manage Account Recovery permission.";
+
+    assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
+    assertTruthy(passwordInputResult.salt, "salt", ctx);
+    assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
+    assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a valid value, so check non-nullish
+    assertTruthy(this.orgSsoIdentifier, "orgSsoIdentifier", ctx);
+    assertTruthy(this.orgId, "orgId", ctx);
+    assertNonNullish(this.resetPasswordAutoEnroll, "resetPasswordAutoEnroll", ctx); // can have `false` as a valid value, so check non-nullish
+    assertTruthy(this.userId, "userId", ctx);
+
+    try {
+      const credentials: SetInitialPasswordTdeUserWithPermissionCredentials = {
+        newPassword: passwordInputResult.newPassword,
+        salt: passwordInputResult.salt,
+        kdfConfig: passwordInputResult.kdfConfig,
+        newPasswordHint: passwordInputResult.newPasswordHint,
+        orgSsoIdentifier: this.orgSsoIdentifier,
+        orgId: this.orgId as OrganizationId,
+        resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
+      };
+
+      await this.setInitialPasswordService.setInitialPasswordTdeUserWithPermission(
+        credentials,
+        this.userId,
+      );
+
+      this.showSuccessToastByUserType();
+
+      this.submitting = false;
+      await this.router.navigate(["vault"]);
+    } catch (e) {
+      this.logService.error("Error setting initial password", e);
+      this.validationService.showError(e);
+      this.submitting = false;
+    }
+  }
+
   private async setInitialPasswordTdeOffboarding(passwordInputResult: PasswordInputResult) {
     const ctx = "Could not set initial password.";
-    assertTruthy(passwordInputResult.newMasterKey, "newMasterKey", ctx);
-    assertTruthy(passwordInputResult.newServerMasterKeyHash, "newServerMasterKeyHash", ctx);
-    assertTruthy(this.userId, "userId", ctx);
+    assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
+    assertTruthy(passwordInputResult.salt, "salt", ctx);
+    assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
     assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a valid value, so check non-nullish
+    assertTruthy(this.userId, "userId", ctx);
 
     try {
       const credentials: SetInitialPasswordTdeOffboardingCredentials = {
-        newMasterKey: passwordInputResult.newMasterKey,
-        newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
+        newPassword: passwordInputResult.newPassword,
+        salt: passwordInputResult.salt,
+        kdfConfig: passwordInputResult.kdfConfig,
         newPasswordHint: passwordInputResult.newPasswordHint,
       };
 
@@ -341,6 +430,7 @@ export class SetInitialPasswordComponent implements OnInit {
 
       this.showSuccessToastByUserType();
 
+      // TODO: investigate refactoring logout and follow-up routing in https://bitwarden.atlassian.net/browse/PM-32660
       await this.logoutService.logout(this.userId);
       // navigate to root so redirect guard can properly route next active user or null user to correct page
       await this.router.navigate(["/"]);

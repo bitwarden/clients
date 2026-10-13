@@ -9,12 +9,17 @@ import * as stories from "./icons.stories";
 Bitwarden has a suite of presentational icons available for use, as well as a few helper classes for
 sizing and rotation.
 
-Icons use the `bwi` class, as well as an additional `bwi-*` class to indicate which icon will be
-rendered.
+The preferred way to render an icon is the `bit-icon` component, passing the icon name to its `name`
+input:
 
-Example basic usage:
-
+```html
+<bit-icon name="bwi-check"></bit-icon>
 ```
+
+Under the hood, icons use the `bwi` class plus an additional `bwi-*` class to indicate which icon is
+rendered. For non-Angular or low-level contexts you can apply those classes directly:
+
+```html
 <i class="bwi bwi-check"></i>
 ```
 
@@ -57,3 +62,226 @@ or an options menu icon.
 ## Rotation Variants
 
 <Canvas of={stories.RotationVariants} />
+
+---
+
+# Developer Guide
+
+## Adding a New Icon
+
+The icon system generates the font directly from the SVG filenames — the filename becomes the CSS
+class (`help.svg` → `bwi-help`), and the TypeScript icon list is generated for you. There is no
+name-mapping step to maintain. Follow these steps:
+
+### 1. Export from Figma
+
+1. Open the Figma icon file
+2. Select the icon you want to export
+3. Export as SVG with these settings:
+   - **Outline stroke**: Enabled
+   - **Include "id" attribute**: Disabled
+   - **Simplify stroke**: Enabled
+4. Name the file in kebab-case (e.g., `help.svg`, `star-filled.svg`). **The filename becomes the
+   `bwi-` class name**, so choose it carefully.
+5. Save to `libs/assets/src/material-icons/`
+
+### 2. Generate the Icon Font
+
+Run the build script:
+
+```bash
+npm run icons:build
+```
+
+This script will:
+
+1. ✅ Generate the icon font files from all SVGs (woff2, woff, ttf, svg)
+2. ✅ Update the SCSS (`style.scss`) with the new icon mappings
+3. ✅ Compile the SCSS to CSS (`style.css`)
+4. ✅ **Auto-generate** `libs/components/src/shared/icon.ts` with the new icon
+5. ✅ Clean up temporary build artifacts
+
+> **Note:** `icon.ts` is auto-generated (`BITWARDEN_ICONS` array and the derived `BitwardenIcon`
+> type) — do not edit it by hand. The build overwrites it.
+
+### 3. Add to Storybook Documentation
+
+Add your icon to the appropriate category in `libs/components/src/stories/icons/icon-data.ts`:
+
+```typescript
+// Choose the appropriate category:
+// - statusIndicators
+// - bitwardenObjects
+// - actions
+// - directionalMenuIndicators
+// - miscObjects
+// - platformsAndLogos
+
+const actions = [
+  // ... existing icons ...
+  {
+    id: "bwi-your-new-icon",
+    usage: "Detailed description of when and how to use this icon.",
+  },
+];
+```
+
+**Usage description guidelines:**
+
+- Start with what the icon indicates or does
+- Include context-specific guidance (mobile, desktop, toggle states, etc.)
+- Mention any variants or related icons
+- Note any accessibility considerations
+
+### 4. Test Your Icon
+
+**Visual verification**: Run Storybook to see your icon
+
+```bash
+npm run storybook
+```
+
+Navigate to "Documentation / Icons" to verify your icon appears correctly
+
+**Type checking**: Ensure TypeScript compiles without errors
+
+```bash
+npm run test:types
+```
+
+**Usage test**: Try using the icon in a component
+
+```html
+<bit-icon name="bwi-your-new-icon"></bit-icon>
+```
+
+---
+
+## Icon Naming Conventions
+
+The SVG filename becomes the CSS class name directly, with the `bwi-` prefix added automatically.
+
+- **Use kebab-case**: `star-filled.svg`, not `starFilled.svg` or `star_filled.svg`
+- **Be descriptive**: choose names that clearly indicate the icon's purpose
+- **Follow Figma**: use names from the Figma design system when possible
+
+| SVG Filename            | Generated CSS Class     | Usage                     |
+| ----------------------- | ----------------------- | ------------------------- |
+| `help.svg`              | `bwi-help`              | Help/question icons       |
+| `star-filled.svg`       | `bwi-star-filled`       | Filled star for favorites |
+| `add-circle.svg`        | `bwi-add-circle`        | Add button with circle    |
+| `arrow-filled-down.svg` | `bwi-arrow-filled-down` | Dropdown indicators       |
+
+### Legacy names
+
+Some older icons have legacy aliases (e.g. `bwi-question-circle` → `bwi-help`, `bwi-plus` →
+`bwi-add`) preserved in
+[`scripts/material-icons/migration-map.ts`](../../../../../scripts/material-icons/migration-map.ts).
+These aliases are still emitted by `npm run icons:build` into `style.scss` and `icon.ts`, so legacy
+names keep working; they are also the input to the migration (bulk-rename) workflow — see the
+[README](../../../../../scripts/material-icons/README.md). New icons don't need any mapping.
+
+---
+
+## Troubleshooting
+
+### Icon not appearing after build
+
+- Verify the SVG file is in `libs/assets/src/material-icons/`
+- Check that your SVG filename uses kebab-case and has the `.svg` extension
+- Run `npm run icons:build` again
+- Clear browser cache
+
+### Wrong icon displaying
+
+- Verify the SVG filename matches what you expect (it becomes the CSS class)
+- Check for duplicate SVG files with similar names
+- Ensure you're using the correct `bwi-` class name in your component
+
+### Font not updating
+
+Delete the generated font files and rebuild:
+
+```bash
+rm libs/angular/src/scss/bwicons/fonts/bwi-font.*
+npm run icons:build
+```
+
+### TypeScript errors
+
+- `icon.ts` is auto-generated — re-run `npm run icons:build` to regenerate it (don't edit it by
+  hand)
+- Check that the icon name format matches: `bwi-icon-name`
+
+---
+
+## Advanced Usage
+
+### Creating Icon Variants
+
+If you need an additional CSS class that reuses the same SVG (like `collection-shared` reusing
+`collection.svg`), add it to `FIGMA_VARIANTS` in
+[`scripts/material-icons/migration-map.ts`](../../../../../scripts/material-icons/migration-map.ts).
+List only the _extra_ variant name(s) — the base name comes from the SVG filename:
+
+```typescript
+export const FIGMA_VARIANTS: Record<string, string[]> = {
+  // collection.svg also generates the bwi-collection-shared class
+  collection: ["collection-shared"],
+};
+```
+
+Running `npm run icons:build` then produces both `.bwi-collection` and `.bwi-collection-shared` from
+the same `collection.svg` glyph.
+
+---
+
+## File Structure
+
+```
+scripts/material-icons/
+├── build-with-bwi-names.ts          # Main build script
+├── migrate-icon-names.ts            # Bulk icon-name migration (rename) script
+├── reverse-migrate-icon-names.ts    # Reverse of the migration script
+├── migration-map.ts                 # Legacy-name aliases + one-to-many variants
+└── README.md                        # Detailed documentation
+
+libs/assets/src/material-icons/
+├── help.svg                         # Figma-exported SVG files
+├── star-filled.svg
+└── ... (all source SVG files)
+
+libs/angular/src/scss/bwicons/
+├── fonts/
+│   ├── bwi-font.woff2              # Generated font files
+│   ├── bwi-font.woff
+│   ├── bwi-font.ttf
+│   └── bwi-font.svg
+└── styles/
+    ├── style.scss                   # Generated SCSS with icon mappings
+    └── style.css                    # Compiled CSS output
+
+libs/components/src/
+├── shared/
+│   └── icon.ts                      # Auto-generated icon list + BitwardenIcon type
+└── stories/icons/
+    └── icon-data.ts                 # Storybook documentation
+```
+
+---
+
+## Best Practices
+
+1. **Icon Consistency**: Follow the existing Figma design system naming
+2. **Semantic Naming**: Use BWI names that describe the icon's purpose, not appearance
+3. **Documentation**: Always add usage guidelines to Storybook
+4. **Accessibility**: Include proper ARIA labels when using icons without text
+5. **SVG Optimization**: Export from Figma with strokes outlined
+6. **Testing**: Verify icons in Storybook before committing
+
+---
+
+## Resources
+
+- [Fantasticon Documentation](https://github.com/tancredi/fantasticon)
+- Detailed README: `scripts/material-icons/README.md`

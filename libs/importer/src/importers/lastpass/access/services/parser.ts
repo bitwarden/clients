@@ -1,7 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 
 import { Account, Chunk, ParserOptions, SharedFolder } from "../models";
 
@@ -42,7 +43,7 @@ export class Parser {
 
       // Read all items
       // 0: id
-      id = Utils.fromBufferToUtf8(this.readItem(reader));
+      id = Utils.fromArrayToUtf8(this.readItem(reader));
 
       // 1: name
       step = 1;
@@ -72,7 +73,7 @@ export class Parser {
               placeholder,
             )
           : // URL is not encrypted
-            Utils.fromBufferToUtf8(this.decodeHexLoose(Utils.fromBufferToUtf8(urlEncoded)));
+            Utils.fromArrayToUtf8(this.decodeHexLoose(Utils.fromArrayToUtf8(urlEncoded)));
 
       // Ignore "group" accounts. They have no credentials.
       if (url == "http://group") {
@@ -89,7 +90,7 @@ export class Parser {
 
       // 5: fav (is favorite)
       step = 5;
-      const isFavorite = Utils.fromBufferToUtf8(this.readItem(reader)) === "1";
+      const isFavorite = Utils.fromArrayToUtf8(this.readItem(reader)) === "1";
 
       // 6: sharedfromaid (?)
       this.skipItem(reader);
@@ -118,7 +119,7 @@ export class Parser {
 
       // 11: sn (is secure note)
       step = 11;
-      const isSecureNote = Utils.fromBufferToUtf8(this.readItem(reader)) === "1";
+      const isSecureNote = Utils.fromArrayToUtf8(this.readItem(reader)) === "1";
 
       // Parse secure note
       if (options.parseSecureNotesToAccount && isSecureNote) {
@@ -284,17 +285,17 @@ export class Parser {
       const reader = new BinaryReader(chunk.payload);
 
       // Id
-      id = Utils.fromBufferToUtf8(this.readItem(reader));
+      id = Utils.fromArrayToUtf8(this.readItem(reader));
 
       // Key
       const folderKey = this.readItem(reader);
-      const rsaEncryptedFolderKey = Utils.fromHexToArray(Utils.fromBufferToUtf8(folderKey));
+      const rsaEncryptedFolderKey = Utils.fromHexToArray(Utils.fromArrayToUtf8(folderKey));
       const decFolderKey = await this.cryptoFunctionService.rsaDecrypt(
         rsaEncryptedFolderKey,
         rsaKey,
         "sha1",
       );
-      const key = Utils.fromHexToArray(Utils.fromBufferToUtf8(decFolderKey));
+      const key = Utils.fromHexToArray(Utils.fromArrayToUtf8(decFolderKey));
 
       // Name
       const encryptedName = this.readItem(reader);
@@ -312,12 +313,16 @@ export class Parser {
     }
   }
 
-  async parseEncryptedPrivateKey(encryptedPrivateKey: string, encryptionKey: Uint8Array) {
+  async parseEncryptedPrivateKey(
+    encryptedPrivateKey: Uint8Array,
+    encryptionKey: Uint8Array,
+    initVec: Uint8Array,
+  ) {
     const decrypted = await this.cryptoUtils.decryptAes256(
-      Utils.fromHexToArray(encryptedPrivateKey),
+      encryptedPrivateKey,
       encryptionKey,
       "cbc",
-      encryptionKey.subarray(0, 16),
+      initVec,
     );
 
     const header = "LastPassPrivateKey<";
@@ -384,7 +389,7 @@ export class Parser {
   }
 
   private readId(reader: BinaryReader): string {
-    return Utils.fromBufferToUtf8(reader.readBytes(4));
+    return Utils.fromArrayToUtf8(reader.readBytes(4));
   }
 
   private readSize(reader: BinaryReader): number {

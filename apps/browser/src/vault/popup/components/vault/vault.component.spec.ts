@@ -1,0 +1,1351 @@
+import { ChangeDetectionStrategy, Component, input, NO_ERRORS_SCHEMA } from "@angular/core";
+import { ComponentFixture, TestBed, fakeAsync, flush, tick } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
+import { provideNoopAnimations } from "@angular/platform-browser/animations";
+import { ActivatedRoute, convertToParamMap, Router } from "@angular/router";
+import { RouterTestingModule } from "@angular/router/testing";
+import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject, Observable, Subject, of } from "rxjs";
+
+import { CollectionService } from "@bitwarden/admin-console/common";
+import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
+import { NudgeType, NudgesService, PremiumUpsellService } from "@bitwarden/angular/vault";
+import {
+  AutoConfirmExtensionSetupDialogComponent,
+  AutomaticUserConfirmationService,
+} from "@bitwarden/auto-confirm/angular";
+import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
+import AutofillService from "@bitwarden/browser/autofill/services/autofill.service";
+import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
+import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
+import { PopupRouterCacheService } from "@bitwarden/browser/platform/popup/view-cache/popup-router-cache.service";
+import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { TaskService } from "@bitwarden/common/vault/tasks";
+import { DialogService } from "@bitwarden/components";
+import { StateProvider } from "@bitwarden/state";
+import {
+  DecryptionFailureDialogComponent,
+  DefaultVaultItemsTransferService,
+  NewExperienceDialogComponent,
+  NewExperienceDialogResult,
+  VaultCopyButtonsService,
+  VaultItemsTransferService,
+  VaultNavService,
+  VaultOrganizationUserNotificationsComponent,
+} from "@bitwarden/vault";
+
+import { BrowserApi } from "../../../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../../../platform/browser/browser-popup-utils";
+import { ImportUpgradeNavigationService } from "../../../../tools/popup/settings/import/import-upgrade-navigation.service";
+import { IntroCarouselService } from "../../services/intro-carousel.service";
+import { VaultPopupAutofillService } from "../../services/vault-popup-autofill.service";
+import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
+import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
+import { VaultPopupListTableFiltersService } from "../../services/vault-popup-list-table-filters.service";
+import { VaultPopupListTableService } from "../../services/vault-popup-list-table.service";
+import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
+import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
+import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-password-callout.component";
+
+import { AutofillVaultListItemsComponent } from "./autofill-vault-list-items/autofill-vault-list-items.component";
+import { BlockedInjectionBanner } from "./blocked-injection-banner/blocked-injection-banner.component";
+import { FillAssistActiveBannerComponent } from "./fill-assist-active-banner/fill-assist-active-banner.component";
+import { NewItemDropdownComponent } from "./new-item-dropdown/new-item-dropdown.component";
+import { VaultHeaderComponent } from "./vault-header/vault-header.component";
+import { VaultListItemsContainerComponent } from "./vault-list-items-container/vault-list-items-container.component";
+import { VaultPopupListTableComponent } from "./vault-popup-list-table/vault-popup-list-table.component";
+import { VaultSwitcherComponent } from "./vault-switcher/vault-switcher.component";
+import { VaultComponent } from "./vault.component";
+
+@Component({
+  selector: "popup-header",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class PopupHeaderStubComponent {
+  readonly pageTitle = input("");
+}
+
+@Component({
+  selector: "app-vault-header",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class VaultHeaderStubComponent {}
+
+@Component({
+  selector: "app-vault-switcher",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class VaultSwitcherStubComponent {
+  readonly scope = input<unknown>(null);
+}
+
+@Component({
+  selector: "app-current-account",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class CurrentAccountStubComponent {}
+
+@Component({
+  selector: "app-new-item-dropdown",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class NewItemDropdownStubComponent {
+  readonly initialValues = input();
+  readonly canCreateCipher = input();
+}
+
+@Component({
+  selector: "app-pop-out",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class PopOutStubComponent {}
+
+@Component({
+  selector: "blocked-injection-banner",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class BlockedInjectionBannerStubComponent {}
+
+@Component({
+  selector: "fill-assist-active-banner",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class FillAssistActiveBannerStubComponent {}
+
+@Component({
+  selector: "vault-at-risk-password-callout",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class VaultAtRiskCalloutStubComponent {}
+
+@Component({
+  selector: "vault-organization-user-notifications",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class VaultOrganizationUserNotificationsStubComponent {}
+
+@Component({
+  selector: "app-autofill-vault-list-items",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class AutofillVaultListItemsStubComponent {}
+
+@Component({
+  selector: "app-vault-list-items-container",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class VaultListItemsContainerStubComponent {
+  readonly title = input<string>();
+  readonly ciphers = input<any[]>();
+  readonly id = input<string>();
+  readonly disableSectionMargin = input<boolean>();
+  readonly collapsibleKey = input<string>();
+}
+
+@Component({
+  selector: "app-vault-popup-list-table",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class VaultPopupListTableStubComponent {
+  /** Declares `scope` so the page's binding resolves with the real table removed. */
+  readonly scope = input<unknown>(null);
+}
+
+const mockDialogRef = {
+  close: jest.fn(),
+  afterClosed: jest.fn().mockReturnValue(of(undefined)),
+  closed: of(undefined),
+} as unknown as import("@bitwarden/components").DialogRef<any, any>;
+
+jest
+  .spyOn(PremiumUpgradeDialogComponent, "open")
+  .mockImplementation((_: DialogService) => mockDialogRef as any);
+
+jest
+  .spyOn(DecryptionFailureDialogComponent, "open")
+  .mockImplementation((_: DialogService, _params: any) => mockDialogRef as any);
+
+const autoConfirmDialogSpy = jest
+  .spyOn(AutoConfirmExtensionSetupDialogComponent, "open")
+  .mockImplementation((_: DialogService) => mockDialogRef as any);
+
+const newExperienceDialogSpy = jest
+  .spyOn(NewExperienceDialogComponent, "open")
+  .mockResolvedValue(NewExperienceDialogResult.Dismissed);
+
+jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(false);
+jest.spyOn(BrowserPopupUtils, "openCurrentPagePopout").mockResolvedValue();
+
+describe("VaultComponent", () => {
+  let component: VaultComponent;
+  let defaultFixture: ComponentFixture<VaultComponent>;
+
+  interface FakeAccount {
+    id: string;
+  }
+
+  function queryAllSpotlights(fixture: any): HTMLElement[] {
+    return Array.from(fixture.nativeElement.querySelectorAll("bit-callout")) as HTMLElement[];
+  }
+
+  const itemsSvc: any = {
+    emptyVault$: new BehaviorSubject<boolean>(false),
+    noFilteredResults$: new BehaviorSubject<boolean>(false),
+    showDeactivatedOrg$: new BehaviorSubject<boolean>(false),
+    favoriteCiphers$: new BehaviorSubject<any[]>([]),
+    remainingCiphers$: new BehaviorSubject<any[]>([]),
+    filteredCiphers$: new BehaviorSubject<any[]>([]),
+    cipherCount$: new BehaviorSubject<number>(0),
+    hasSearchText$: new BehaviorSubject<boolean>(false),
+  } as Partial<VaultPopupItemsService>;
+
+  /** Rows as the list table service builds them; the header counts the `allItems` section. */
+  const itemCount$ = new BehaviorSubject<number>(0);
+  const listTableSvc = { setScope: jest.fn(), itemCount$ };
+
+  /** The account's vaults, as the header reads them to decide whether to show a page title. */
+  const vaultNav$ = new BehaviorSubject<any>({ vaults: [], organizationDataOwnership: false });
+
+  const filtersSvc: any = {
+    allFilters$: new Subject<any>(),
+    filters$: new BehaviorSubject<any>({}),
+    // Read by the vault switcher in the header; empty keeps it hidden by default.
+    organizations$: new BehaviorSubject<any[]>([]),
+    filterVisibilityState$: new BehaviorSubject<any>({}),
+    numberOfAppliedFilters$: new BehaviorSubject<number>(0),
+  };
+
+  const loadingSvc: any = {
+    loading$: new BehaviorSubject<boolean>(false),
+  };
+
+  const activeAccount$ = new BehaviorSubject<FakeAccount | null>({ id: "user-1" });
+
+  const cipherSvc = {
+    failedToDecryptCiphers$: jest.fn().mockReturnValue(of([])),
+    ciphers$: jest.fn().mockReturnValue(of({})),
+  } as Partial<CipherService>;
+
+  const nudgesSvc = {
+    showNudgeSpotlight$: jest.fn().mockImplementation((_type: NudgeType) => of(false)),
+    dismissNudge: jest.fn().mockResolvedValue(undefined),
+  };
+
+  const dialogSvc = {
+    openSimpleDialog: jest.fn().mockResolvedValue(false),
+  } as Partial<DialogService>;
+
+  const introCarouselState$ = new BehaviorSubject<boolean>(true);
+
+  const introSvc = {
+    introCarouselState$,
+    setIntroCarouselDismissed: jest.fn().mockResolvedValue(undefined),
+  } as Partial<IntroCarouselService>;
+
+  const scrollSvc = {
+    start: jest.fn(),
+    stop: jest.fn(),
+  } as Partial<VaultPopupScrollPositionService>;
+
+  const vaultItemsTransferSvc = {
+    transferInProgress$: new BehaviorSubject<boolean>(false),
+    enforceOrganizationDataOwnership: jest.fn().mockResolvedValue(undefined),
+  } as Partial<VaultItemsTransferService>;
+
+  function getObs<T = unknown>(cmp: any, key: string): Observable<T> {
+    return cmp[key] as Observable<T>;
+  }
+
+  const hasPremiumFromAnySource$ = new BehaviorSubject<boolean>(false);
+
+  const billingSvc = {
+    hasPremiumFromAnySource$: (_: string) => hasPremiumFromAnySource$,
+  };
+
+  const serverSettings$ = new BehaviorSubject<ServerSettings>(new ServerSettings());
+
+  const configSvc = {
+    getFeatureFlag$: jest.fn().mockImplementation((_flag: string) => of(false)),
+    getFeatureFlag: jest.fn().mockResolvedValue(false),
+    serverSettings$,
+  };
+
+  const importUpgradeNavigationSvc = mock<ImportUpgradeNavigationService>();
+
+  const premiumUpsellSvc = {
+    showUpsell: jest.fn().mockReturnValue(false),
+  };
+
+  const autoConfirmSvc = {
+    configuration$: jest.fn().mockReturnValue(of({})),
+    canManageAutoConfirm$: jest.fn().mockReturnValue(of(false)),
+    upsert: jest.fn().mockResolvedValue(undefined),
+    autoConfirmUser: jest.fn().mockResolvedValue(undefined),
+    bulkAutoConfirmPendingUsers: jest.fn().mockResolvedValue(undefined),
+  };
+
+  beforeEach(async () => {
+    jest.clearAllMocks();
+    premiumUpsellSvc.showUpsell.mockReturnValue(false);
+    await TestBed.configureTestingModule({
+      imports: [VaultComponent, RouterTestingModule],
+      providers: [
+        provideNoopAnimations(),
+        { provide: VaultPopupItemsService, useValue: itemsSvc },
+        { provide: VaultPopupListFiltersService, useValue: filtersSvc },
+        {
+          // Read by the vault switcher; empty organizations keep it hidden by default.
+          provide: VaultPopupListTableFiltersService,
+          useValue: { organizations$: new BehaviorSubject<any[]>([]) },
+        },
+        {
+          // The page pushes its resolved scope here; the service narrows the rows with it.
+          provide: VaultPopupListTableService,
+          useValue: listTableSvc,
+        },
+        {
+          provide: VaultNavService,
+          useValue: {
+            viewModel$: () => vaultNav$,
+          },
+        },
+        { provide: VaultPopupLoadingService, useValue: loadingSvc },
+        { provide: VaultPopupScrollPositionService, useValue: scrollSvc },
+        {
+          provide: AccountService,
+          useValue: { activeAccount$ },
+        },
+        { provide: CipherService, useValue: cipherSvc },
+        { provide: DialogService, useValue: dialogSvc },
+        { provide: IntroCarouselService, useValue: introSvc },
+        { provide: NudgesService, useValue: nudgesSvc },
+        {
+          provide: VaultCopyButtonsService,
+          useValue: { showQuickCopyActions$: new BehaviorSubject<boolean>(false) },
+        },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: billingSvc,
+        },
+        {
+          provide: I18nService,
+          useValue: { translate: (key: string) => key, t: (key: string) => key },
+        },
+        { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
+        { provide: LogService, useValue: mock<LogService>() },
+        { provide: RestrictedItemTypesService, useValue: { restricted$: new BehaviorSubject([]) } },
+        {
+          provide: VaultPopupListTableFiltersService,
+          useValue: { cachedFilters: jest.fn().mockReturnValue({}) },
+        },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
+        { provide: AvatarService, useValue: mock<AvatarService>() },
+        { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },
+        { provide: AuthService, useValue: mock<AuthService>() },
+        { provide: AutofillService, useValue: mock<AutofillService>() },
+        {
+          provide: VaultPopupAutofillService,
+          useValue: mock<VaultPopupAutofillService>(),
+        },
+        { provide: TaskService, useValue: mock<TaskService>() },
+        { provide: StateProvider, useValue: mock<StateProvider>() },
+        {
+          provide: ConfigService,
+          useValue: configSvc,
+        },
+        {
+          provide: ImportUpgradeNavigationService,
+          useValue: importUpgradeNavigationSvc,
+        },
+        {
+          provide: SearchService,
+          useValue: { isCipherSearching$: of(false) },
+        },
+        {
+          provide: AutomaticUserConfirmationService,
+          useValue: autoConfirmSvc,
+        },
+        { provide: EventCollectionService, useValue: mock<EventCollectionService>() },
+        {
+          provide: InternalOrganizationServiceAbstraction,
+          useValue: {
+            organizations$: jest.fn().mockReturnValue(of([])),
+            memberOrganizations$: jest.fn().mockReturnValue(of([])),
+          },
+        },
+        { provide: PremiumUpsellService, useValue: premiumUpsellSvc },
+        {
+          provide: CollectionService,
+          useValue: { decryptedCollections$: jest.fn().mockReturnValue(of([])) },
+        },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
+
+    TestBed.overrideComponent(VaultComponent, {
+      remove: {
+        imports: [
+          PopupHeaderComponent,
+          VaultHeaderComponent,
+          CurrentAccountComponent,
+          NewItemDropdownComponent,
+          PopOutComponent,
+          BlockedInjectionBanner,
+          FillAssistActiveBannerComponent,
+          AtRiskPasswordCalloutComponent,
+          AutofillVaultListItemsComponent,
+          VaultListItemsContainerComponent,
+          VaultOrganizationUserNotificationsComponent,
+          VaultPopupListTableComponent,
+          VaultSwitcherComponent,
+        ],
+        providers: [
+          { provide: VaultItemsTransferService, useValue: DefaultVaultItemsTransferService },
+        ],
+      },
+      add: {
+        imports: [
+          PopupHeaderStubComponent,
+          VaultHeaderStubComponent,
+          CurrentAccountStubComponent,
+          NewItemDropdownStubComponent,
+          PopOutStubComponent,
+          BlockedInjectionBannerStubComponent,
+          FillAssistActiveBannerStubComponent,
+          VaultAtRiskCalloutStubComponent,
+          AutofillVaultListItemsStubComponent,
+          VaultListItemsContainerStubComponent,
+          VaultOrganizationUserNotificationsStubComponent,
+          VaultPopupListTableStubComponent,
+          VaultSwitcherStubComponent,
+        ],
+        providers: [{ provide: VaultItemsTransferService, useValue: vaultItemsTransferSvc }],
+      },
+    });
+
+    defaultFixture = TestBed.createComponent(VaultComponent);
+    component = defaultFixture.componentInstance;
+  });
+
+  describe("vaultState", () => {
+    type ExpectedKey = "Empty" | "DeactivatedOrg" | "NoResults" | null;
+
+    const cases: [string, boolean, boolean, boolean, ExpectedKey][] = [
+      ["null when none true", false, false, false, null],
+      ["Empty when empty true only", true, false, false, "Empty"],
+      ["DeactivatedOrg when only deactivated true", false, false, true, "DeactivatedOrg"],
+      ["NoResults when only noResults true", false, true, false, "NoResults"],
+    ];
+
+    it.each(cases)(
+      "%s",
+      fakeAsync(
+        (
+          _label: string,
+          empty: boolean,
+          noResults: boolean,
+          deactivated: boolean,
+          expectedKey: ExpectedKey,
+        ) => {
+          const empty$ = itemsSvc.emptyVault$ as BehaviorSubject<boolean>;
+          const noResults$ = itemsSvc.noFilteredResults$ as BehaviorSubject<boolean>;
+          const deactivated$ = itemsSvc.showDeactivatedOrg$ as BehaviorSubject<boolean>;
+
+          empty$.next(empty);
+          noResults$.next(noResults);
+          deactivated$.next(deactivated);
+          tick();
+
+          const expectedValue =
+            expectedKey === null ? null : (component as any).VaultStateEnum[expectedKey];
+
+          expect((component as any).vaultState).toBe(expectedValue);
+        },
+      ),
+    );
+  });
+
+  it("loading$ is true when items loading or filters missing; false when both ready", () => {
+    const vaultLoading$ = loadingSvc.loading$ as unknown as BehaviorSubject<boolean>;
+    const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
+    const readySubject$ = component["readySubject"] as unknown as BehaviorSubject<boolean>;
+
+    const values: boolean[] = [];
+    // `loadingSvc.loading$` is shared by every test in this file, so this subscription has to be
+    // torn down explicitly — it isn't owned by a fixture, and a leaked one keeps announcing
+    // through a `LiveAnnouncer` that TestBed has already destroyed.
+    const sub = getObs<boolean>(component, "loading$").subscribe((v) => values.push(!!v));
+
+    vaultLoading$.next(true);
+
+    allFilters$.next({});
+
+    vaultLoading$.next(false);
+
+    readySubject$.next(true);
+
+    expect(values[values.length - 1]).toBe(false);
+
+    sub.unsubscribe();
+  });
+
+  it("marks the vault rendered only once, on the first render", fakeAsync(() => {
+    const vaultLoading$ = loadingSvc.loading$ as unknown as BehaviorSubject<boolean>;
+    const readySubject$ = component["readySubject"] as unknown as BehaviorSubject<boolean>;
+    const logService = TestBed.inject(LogService) as MockProxy<LogService>;
+    logService.mark.mockClear();
+
+    // loading$ has several subscribers, and background syncs flip it back to loading
+    const subs = [
+      getObs<boolean>(component, "loading$").subscribe(),
+      getObs<boolean>(component, "loading$").subscribe(),
+    ];
+    readySubject$.next(true);
+    vaultLoading$.next(false);
+    defaultFixture.detectChanges();
+
+    vaultLoading$.next(true);
+    vaultLoading$.next(false);
+    defaultFixture.detectChanges();
+    flush();
+
+    expect(logService.mark).toHaveBeenCalledTimes(1);
+    expect(logService.mark).toHaveBeenCalledWith("Vault rendered");
+
+    subs.forEach((sub) => sub.unsubscribe());
+  }));
+
+  it("passes popup-page scroll region element to scroll position service", fakeAsync(() => {
+    const fixture = TestBed.createComponent(VaultComponent);
+    const component = fixture.componentInstance;
+
+    const readySubject$ = component["readySubject"] as unknown as BehaviorSubject<boolean>;
+    const vaultLoading$ = loadingSvc.loading$ as unknown as BehaviorSubject<boolean>;
+    const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
+
+    fixture.detectChanges();
+    tick();
+
+    const scrollRegion = fixture.nativeElement.querySelector(
+      '[data-testid="popup-layout-scroll-region"]',
+    ) as HTMLElement;
+
+    // Unblock loading
+    vaultLoading$.next(false);
+    readySubject$.next(true);
+    allFilters$.next({});
+    tick();
+
+    expect(scrollSvc.start).toHaveBeenCalledWith(scrollRegion);
+  }));
+
+  describe("vfo1-foundation presentation gate", () => {
+    /**
+     * The flag signal is read in a field initializer, so the mock has to be set before the
+     * component is constructed. The shared `beforeEach`'s fixture is torn down first so its
+     * subscriptions don't react to state pushed for this test.
+     */
+    function createWithFlag(enabled: boolean) {
+      defaultFixture.destroy();
+
+      configSvc.getFeatureFlag$.mockImplementation((flag: string) =>
+        of(flag === FeatureFlag.VFO1Foundation ? enabled : false),
+      );
+
+      // The populated, settled state, so the list branch renders.
+      itemsSvc.emptyVault$.next(false);
+      itemsSvc.noFilteredResults$.next(false);
+      itemsSvc.showDeactivatedOrg$.next(false);
+      itemsSvc.hasSearchText$.next(false);
+      loadingSvc.loading$.next(false);
+
+      const fixture = TestBed.createComponent(VaultComponent);
+
+      // Unblock loading
+      fixture.componentInstance["readySubject"].next(true);
+      (filtersSvc.allFilters$ as Subject<any>).next({});
+
+      tick();
+      fixture.detectChanges();
+
+      return fixture;
+    }
+
+    it("shows the list table's item count in the header", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      itemCount$.next(10);
+
+      let count: number | undefined;
+      fixture.componentInstance["cipherCount$"].subscribe((c: number) => (count = c));
+      expect(count).toBe(10);
+
+      flush();
+      fixture.destroy();
+    }));
+
+    /** The count tracks the rows, so narrowing to a vault moves it too. */
+    it("tracks the count as the rows narrow", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      const seen: number[] = [];
+      fixture.componentInstance["cipherCount$"].subscribe((c: number) => seen.push(c));
+
+      itemCount$.next(10);
+      itemCount$.next(3);
+
+      expect(seen.slice(-2)).toEqual([10, 3]);
+
+      flush();
+      fixture.destroy();
+    }));
+
+    /**
+     * The switcher names the page only when it renders, so a one-vault account keeps the title.
+     */
+    describe("page title", () => {
+      const title = (fixture: ComponentFixture<VaultComponent>) =>
+        fixture.debugElement.query(By.css("popup-header")).componentInstance.pageTitle();
+
+      it("drops the title when the switcher names the page", fakeAsync(() => {
+        vaultNav$.next({
+          vaults: [{ id: "user-1" }, { id: "org-1" }],
+          organizationDataOwnership: false,
+        });
+
+        const fixture = createWithFlag(true);
+
+        expect(title(fixture)).toBe("");
+
+        flush();
+        fixture.destroy();
+      }));
+
+      it("keeps the title when there is only one vault to switch between", fakeAsync(() => {
+        vaultNav$.next({ vaults: [{ id: "user-1" }], organizationDataOwnership: false });
+
+        const fixture = createWithFlag(true);
+
+        expect(title(fixture)).toBe("vault");
+
+        flush();
+        fixture.destroy();
+      }));
+
+      it("keeps the title with the flag off", fakeAsync(() => {
+        vaultNav$.next({
+          vaults: [{ id: "user-1" }, { id: "org-1" }],
+          organizationDataOwnership: false,
+        });
+
+        const fixture = createWithFlag(false);
+
+        expect(title(fixture)).toBe("vault");
+
+        flush();
+        fixture.destroy();
+      }));
+    });
+
+    it("publishes the route's vault scope to the list table service", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      expect(listTableSvc.setScope).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "allItems" }),
+      );
+
+      flush();
+      fixture.destroy();
+    }));
+
+    it("renders the table and drops the legacy header and list when the flag is on", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      expect(fixture.nativeElement.querySelector("app-vault-popup-list-table")).toBeTruthy();
+      expect(fixture.nativeElement.querySelector("app-vault-header")).toBeNull();
+      expect(fixture.nativeElement.querySelector("app-vault-list-items-container")).toBeNull();
+
+      flush();
+    }));
+
+    // With the flag on the table's toolbar holds the only search input, so unmounting it on a
+    // zero-result search would strand the user with no way to clear the term.
+    it("keeps the table mounted when a search returns no results", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      itemsSvc.hasSearchText$.next(true);
+      itemsSvc.noFilteredResults$.next(true);
+      tick();
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance["vaultState"]).toBe(
+        fixture.componentInstance["VaultStateEnum"].NoResults,
+      );
+      expect(fixture.nativeElement.querySelector("app-vault-popup-list-table")).toBeTruthy();
+
+      flush();
+    }));
+
+    it("defers to the table's own empty state instead of the page-level one", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      itemsSvc.noFilteredResults$.next(true);
+      tick();
+      fixture.detectChanges();
+
+      // The table is stubbed here, so the copy it renders is covered in its own spec.
+      expect(fixture.nativeElement.querySelector("app-vault-popup-list-table")).toBeTruthy();
+      expect(fixture.nativeElement.textContent).not.toContain("noItemsMatchSearch");
+
+      flush();
+    }));
+
+    // The table carries the organization filter that produces this state, and renders the notice
+    // itself, so the page-level block stands down rather than showing the message twice.
+    it("keeps the table mounted in the deactivated-org state", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      itemsSvc.showDeactivatedOrg$.next(true);
+      tick();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("app-vault-popup-list-table")).toBeTruthy();
+      // The table is stubbed here, so the notice it renders is covered in its own spec.
+      expect(fixture.nativeElement.textContent).not.toContain("organizationIsDeactivated");
+
+      flush();
+    }));
+
+    it("still renders the page-level deactivated-org notice when the flag is off", fakeAsync(() => {
+      const fixture = createWithFlag(false);
+
+      itemsSvc.showDeactivatedOrg$.next(true);
+      tick();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain("organizationIsDeactivated");
+
+      flush();
+    }));
+
+    it("still shows the page-level no-results state when the flag is off", fakeAsync(() => {
+      const fixture = createWithFlag(false);
+
+      itemsSvc.noFilteredResults$.next(true);
+      tick();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain("noItemsMatchSearch");
+
+      flush();
+    }));
+
+    it("renders the legacy header and list and no table when the flag is off", fakeAsync(() => {
+      const fixture = createWithFlag(false);
+
+      expect(fixture.nativeElement.querySelector("app-vault-popup-list-table")).toBeNull();
+      expect(fixture.nativeElement.querySelector("app-vault-header")).toBeTruthy();
+      expect(fixture.nativeElement.querySelector("app-vault-list-items-container")).toBeTruthy();
+
+      flush();
+    }));
+
+    /** Puts the vault into its loading state and waits out the skeleton's show delay. */
+    function enterLoading(fixture: ComponentFixture<VaultComponent>) {
+      (loadingSvc.loading$ as BehaviorSubject<boolean>).next(true);
+      // `skeletonLoadingDelay` holds the skeleton back for 1s before showing it.
+      tick(1500);
+      fixture.detectChanges();
+    }
+
+    it("shows the page-level skeleton while loading when the flag is off", fakeAsync(() => {
+      const fixture = createWithFlag(false);
+
+      enterLoading(fixture);
+
+      expect(fixture.nativeElement.querySelector("vault-loading-skeleton")).toBeTruthy();
+
+      (loadingSvc.loading$ as BehaviorSubject<boolean>).next(false);
+      flush();
+    }));
+
+    it("suppresses the page-level skeleton when the flag is on", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      enterLoading(fixture);
+
+      expect(fixture.nativeElement.querySelector("vault-loading-skeleton")).toBeNull();
+
+      (loadingSvc.loading$ as BehaviorSubject<boolean>).next(false);
+      flush();
+    }));
+  });
+
+  it("showPremiumDialog opens PremiumUpgradeDialogComponent", () => {
+    component["showPremiumDialog"]();
+    expect(PremiumUpgradeDialogComponent.open).toHaveBeenCalledTimes(1);
+  });
+
+  it("navigateToImport navigates to import route", fakeAsync(async () => {
+    configSvc.getFeatureFlag.mockResolvedValue(false);
+    const ngRouter = TestBed.inject(Router);
+    jest.spyOn(ngRouter, "navigate").mockResolvedValue(true as any);
+
+    await component["navigateToImport"]();
+
+    expect(ngRouter.navigate).toHaveBeenCalledWith(["/import"]);
+  }));
+
+  it("navigateToImport opens the import picker's own extension tab immediately, with no confirmation, when the import upgrade flag is on", async () => {
+    configSvc.getFeatureFlag.mockResolvedValue(true);
+    const ngRouter = TestBed.inject(Router);
+    jest.spyOn(ngRouter, "navigate");
+
+    await component["navigateToImport"]();
+
+    expect(importUpgradeNavigationSvc.openImportSourceSelectTab).toHaveBeenCalled();
+    expect(ngRouter.navigate).not.toHaveBeenCalled();
+  });
+
+  it("ngOnInit dismisses intro carousel and opens decryption dialog for non-deleted failures", fakeAsync(() => {
+    (cipherSvc.failedToDecryptCiphers$ as any).mockReturnValue(
+      of([
+        { id: "a", isDeleted: false },
+        { id: "b", isDeleted: true },
+        { id: "c", isDeleted: false },
+      ]),
+    );
+
+    void component.ngOnInit();
+    tick();
+
+    expect(introSvc.setIntroCarouselDismissed).toHaveBeenCalled();
+
+    expect(DecryptionFailureDialogComponent.open).toHaveBeenCalledWith(expect.any(Object), {
+      cipherIds: ["a", "c"],
+    });
+
+    flush();
+  }));
+
+  it("dismissVaultNudgeSpotlight forwards to NudgesService with active user id", fakeAsync(() => {
+    const spy = jest.spyOn(nudgesSvc, "dismissNudge").mockResolvedValue(undefined);
+
+    activeAccount$.next({ id: "user-xyz" });
+
+    void component.ngOnInit();
+    tick();
+
+    void component["dismissVaultNudgeSpotlight"](NudgeType.HasVaultItems);
+    tick();
+
+    expect(spy).toHaveBeenCalledWith(NudgeType.HasVaultItems, "user-xyz");
+  }));
+
+  it("renders Premium spotlight when eligible and opens dialog on click", fakeAsync(() => {
+    activeAccount$.next({
+      id: "user-1",
+      creationDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+    } as any);
+
+    itemsSvc.cipherCount$.next(10);
+
+    hasPremiumFromAnySource$.next(false);
+    premiumUpsellSvc.showUpsell.mockReturnValue(true);
+
+    configSvc.getFeatureFlag$.mockImplementation((_flag: string) => of(true));
+
+    nudgesSvc.showNudgeSpotlight$.mockImplementation((type: NudgeType) =>
+      of(type === NudgeType.PremiumUpgrade),
+    );
+
+    const fixture = TestBed.createComponent(VaultComponent);
+    const component = fixture.componentInstance;
+
+    void component.ngOnInit();
+
+    fixture.detectChanges();
+    tick();
+
+    fixture.detectChanges();
+
+    const spotlights = Array.from(
+      fixture.nativeElement.querySelectorAll("bit-callout"),
+    ) as HTMLElement[];
+    expect(spotlights.length).toBe(1);
+
+    const spotDe = fixture.debugElement.query(By.css("bit-callout"));
+    expect(spotDe).toBeTruthy();
+
+    const button = spotDe.query(By.css("[slot='end']"));
+    button.nativeElement.click();
+
+    fixture.detectChanges();
+
+    expect(PremiumUpgradeDialogComponent.open).toHaveBeenCalledTimes(1);
+  }));
+
+  it("renders Empty-Vault spotlight when vaultState is Empty and nudge is on", fakeAsync(() => {
+    configSvc.getFeatureFlag$.mockImplementation((_flag: string) => of(false));
+
+    itemsSvc.emptyVault$.next(true);
+
+    nudgesSvc.showNudgeSpotlight$.mockImplementation((type: NudgeType) => {
+      return of(type === NudgeType.EmptyVaultNudge);
+    });
+
+    const fixture = TestBed.createComponent(VaultComponent);
+    fixture.detectChanges();
+    tick();
+
+    const spotlights = queryAllSpotlights(fixture);
+    expect(spotlights.length).toBe(1);
+
+    expect(fixture.nativeElement.textContent).toContain("emptyVaultNudgeTitle");
+  }));
+
+  it("renders Has-Items spotlight when vault has items and nudge is on", fakeAsync(() => {
+    itemsSvc.emptyVault$.next(false);
+
+    (nudgesSvc.showNudgeSpotlight$ as jest.Mock).mockImplementation((type: NudgeType) => {
+      return of(type === NudgeType.HasVaultItems);
+    });
+
+    const fixture = TestBed.createComponent(VaultComponent);
+    fixture.detectChanges();
+    tick();
+
+    const spotlights = queryAllSpotlights(fixture);
+    expect(spotlights.length).toBe(1);
+
+    expect(fixture.nativeElement.textContent).toContain("hasItemsVaultNudgeTitle");
+  }));
+
+  it("does not render Premium spotlight when account is less than a week old", fakeAsync(() => {
+    activeAccount$.next({
+      id: "user-1",
+      creationDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+    } as any);
+    itemsSvc.cipherCount$.next(10);
+    hasPremiumFromAnySource$.next(false);
+
+    (nudgesSvc.showNudgeSpotlight$ as jest.Mock).mockImplementation((type: NudgeType) => {
+      return of(type === NudgeType.PremiumUpgrade);
+    });
+
+    const fixture = TestBed.createComponent(VaultComponent);
+    fixture.detectChanges();
+    tick();
+
+    const spotlights = queryAllSpotlights(fixture);
+    expect(spotlights.length).toBe(0);
+  }));
+
+  it("does not render Premium spotlight when vault has less than 5 items", fakeAsync(() => {
+    itemsSvc.cipherCount$.next(3);
+    hasPremiumFromAnySource$.next(false);
+
+    (nudgesSvc.showNudgeSpotlight$ as jest.Mock).mockImplementation((type: NudgeType) => {
+      return of(type === NudgeType.PremiumUpgrade);
+    });
+
+    const fixture = TestBed.createComponent(VaultComponent);
+    fixture.detectChanges();
+    tick();
+
+    const spotlights = queryAllSpotlights(fixture);
+    expect(spotlights.length).toBe(0);
+  }));
+
+  it("does not render Premium spotlight when user already has premium", fakeAsync(() => {
+    itemsSvc.cipherCount$.next(10);
+    hasPremiumFromAnySource$.next(true);
+
+    (nudgesSvc.showNudgeSpotlight$ as jest.Mock).mockImplementation((type: NudgeType) => {
+      return of(type === NudgeType.PremiumUpgrade);
+    });
+
+    const fixture = TestBed.createComponent(VaultComponent);
+    fixture.detectChanges();
+    tick();
+
+    const spotlights = queryAllSpotlights(fixture);
+    expect(spotlights.length).toBe(0);
+  }));
+
+  it("does not render app-autofill-vault-list-items or favorites item container when hasSearchText$ is true", () => {
+    itemsSvc.hasSearchText$.next(true);
+
+    const fixture = TestBed.createComponent(VaultComponent);
+    component = fixture.componentInstance;
+
+    const readySubject$ = component["readySubject"];
+    const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
+
+    // Unblock loading
+    readySubject$.next(true);
+    allFilters$.next({});
+    fixture.detectChanges();
+
+    const autofillElement = fixture.debugElement.query(By.css("app-autofill-vault-list-items"));
+    expect(autofillElement).toBeFalsy();
+
+    const favoritesElement = fixture.debugElement.query(By.css("#favorites"));
+    expect(favoritesElement).toBeFalsy();
+  });
+
+  it("does render app-autofill-vault-list-items and favorites item container when hasSearchText$ is false", () => {
+    // Ensure vaultState is null (not Empty, NoResults, or DeactivatedOrg)
+    itemsSvc.emptyVault$.next(false);
+    itemsSvc.noFilteredResults$.next(false);
+    itemsSvc.showDeactivatedOrg$.next(false);
+    itemsSvc.hasSearchText$.next(false);
+    loadingSvc.loading$.next(false);
+
+    const fixture = TestBed.createComponent(VaultComponent);
+    component = fixture.componentInstance;
+
+    const readySubject$ = component["readySubject"];
+    const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
+
+    // Unblock loading
+    readySubject$.next(true);
+    allFilters$.next({});
+    fixture.detectChanges();
+
+    const autofillElement = fixture.debugElement.query(By.css("app-autofill-vault-list-items"));
+    expect(autofillElement).toBeTruthy();
+
+    const favoritesElement = fixture.debugElement.query(By.css("#favorites"));
+    expect(favoritesElement).toBeTruthy();
+  });
+
+  it("does set the title for allItems container to allItems when hasSearchText$ and numberOfAppliedFilters$ are false and 0 respectively", () => {
+    // Ensure vaultState is null (not Empty, NoResults, or DeactivatedOrg)
+    itemsSvc.emptyVault$.next(false);
+    itemsSvc.noFilteredResults$.next(false);
+    itemsSvc.showDeactivatedOrg$.next(false);
+    itemsSvc.hasSearchText$.next(false);
+    filtersSvc.numberOfAppliedFilters$.next(0);
+    loadingSvc.loading$.next(false);
+
+    const fixture = TestBed.createComponent(VaultComponent);
+    component = fixture.componentInstance;
+
+    const readySubject$ = component["readySubject"];
+    const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
+
+    // Unblock loading
+    readySubject$.next(true);
+    allFilters$.next({});
+    fixture.detectChanges();
+
+    const allItemsElement = fixture.debugElement.query(By.css("#allItems"));
+    const allItemsTitle = allItemsElement.componentInstance.title();
+    expect(allItemsTitle).toBe("allItems");
+  });
+
+  it("does set the title for allItems container to searchResults when hasSearchText$ is true", () => {
+    // Ensure vaultState is null (not Empty, NoResults, or DeactivatedOrg)
+    itemsSvc.emptyVault$.next(false);
+    itemsSvc.noFilteredResults$.next(false);
+    itemsSvc.showDeactivatedOrg$.next(false);
+    itemsSvc.hasSearchText$.next(true);
+    loadingSvc.loading$.next(false);
+
+    const fixture = TestBed.createComponent(VaultComponent);
+    component = fixture.componentInstance;
+
+    const readySubject$ = component["readySubject"];
+    const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
+
+    // Unblock loading
+    readySubject$.next(true);
+    allFilters$.next({});
+    fixture.detectChanges();
+
+    const allItemsElement = fixture.debugElement.query(By.css("#allItems"));
+    const allItemsTitle = allItemsElement.componentInstance.title();
+    expect(allItemsTitle).toBe("searchResults");
+  });
+
+  it("does set the title for allItems container to items when numberOfAppliedFilters$ is > 0", fakeAsync(() => {
+    // Ensure vaultState is null (not Empty, NoResults, or DeactivatedOrg)
+    itemsSvc.emptyVault$.next(false);
+    itemsSvc.noFilteredResults$.next(false);
+    itemsSvc.showDeactivatedOrg$.next(false);
+    itemsSvc.hasSearchText$.next(false);
+    filtersSvc.numberOfAppliedFilters$.next(1);
+    loadingSvc.loading$.next(false);
+
+    const fixture = TestBed.createComponent(VaultComponent);
+    component = fixture.componentInstance;
+
+    const readySubject$ = component["readySubject"];
+    const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
+
+    // Unblock loading
+    readySubject$.next(true);
+    allFilters$.next({});
+    fixture.detectChanges();
+
+    const allItemsElement = fixture.debugElement.query(By.css("#allItems"));
+    const allItemsTitle = allItemsElement.componentInstance.title();
+    expect(allItemsTitle).toBe("items");
+  }));
+
+  describe("AutoConfirmExtensionSetupDialog", () => {
+    beforeEach(() => {
+      autoConfirmDialogSpy.mockClear();
+    });
+
+    it("opens dialog when canManage is true and showBrowserNotification is undefined", fakeAsync(() => {
+      autoConfirmSvc.canManageAutoConfirm$.mockReturnValue(of(true));
+      autoConfirmSvc.configuration$.mockReturnValue(
+        of({
+          enabled: false,
+          showSetupDialog: true,
+          showBrowserNotification: undefined,
+        }),
+      );
+
+      const fixture = TestBed.createComponent(VaultComponent);
+      const component = fixture.componentInstance;
+
+      void component.ngOnInit();
+      tick();
+
+      expect(autoConfirmDialogSpy).toHaveBeenCalledWith(expect.any(Object));
+    }));
+
+    it("does not open dialog when showBrowserNotification is false", fakeAsync(() => {
+      autoConfirmSvc.canManageAutoConfirm$.mockReturnValue(of(true));
+      autoConfirmSvc.configuration$.mockReturnValue(
+        of({
+          enabled: false,
+          showSetupDialog: true,
+          showBrowserNotification: false,
+        }),
+      );
+
+      const fixture = TestBed.createComponent(VaultComponent);
+      const component = fixture.componentInstance;
+
+      void component.ngOnInit();
+      tick();
+
+      expect(autoConfirmDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("does not open dialog when showBrowserNotification is true", fakeAsync(() => {
+      autoConfirmSvc.canManageAutoConfirm$.mockReturnValue(of(true));
+      autoConfirmSvc.configuration$.mockReturnValue(
+        of({
+          enabled: true,
+          showSetupDialog: true,
+          showBrowserNotification: true,
+        }),
+      );
+
+      const fixture = TestBed.createComponent(VaultComponent);
+      const component = fixture.componentInstance;
+
+      void component.ngOnInit();
+      tick();
+
+      expect(autoConfirmDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("does not open dialog when canManage is false even if showBrowserNotification is undefined", fakeAsync(() => {
+      autoConfirmSvc.canManageAutoConfirm$.mockReturnValue(of(false));
+      autoConfirmSvc.configuration$.mockReturnValue(
+        of({
+          enabled: false,
+          showSetupDialog: true,
+          showBrowserNotification: undefined,
+        }),
+      );
+
+      const fixture = TestBed.createComponent(VaultComponent);
+      const component = fixture.componentInstance;
+
+      void component.ngOnInit();
+      tick();
+
+      expect(autoConfirmDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("calls bulkAutoConfirmPendingUsers when user enables auto-confirm via setup dialog", fakeAsync(() => {
+      autoConfirmSvc.canManageAutoConfirm$.mockReturnValue(of(true));
+      autoConfirmSvc.configuration$.mockReturnValue(
+        of({
+          enabled: false,
+          showSetupDialog: true,
+          showBrowserNotification: undefined,
+        }),
+      );
+      autoConfirmDialogSpy.mockImplementation((_: DialogService) => ({ closed: of(true) }) as any);
+
+      const fixture = TestBed.createComponent(VaultComponent);
+      const component = fixture.componentInstance;
+
+      void component.ngOnInit();
+      tick();
+
+      expect(autoConfirmSvc.bulkAutoConfirmPendingUsers).toHaveBeenCalledWith(expect.any(String));
+    }));
+
+    it("does not call bulkAutoConfirmPendingUsers when user dismisses setup dialog", fakeAsync(() => {
+      autoConfirmSvc.canManageAutoConfirm$.mockReturnValue(of(true));
+      autoConfirmSvc.configuration$.mockReturnValue(
+        of({
+          enabled: false,
+          showSetupDialog: true,
+          showBrowserNotification: undefined,
+        }),
+      );
+      autoConfirmDialogSpy.mockImplementation((_: DialogService) => ({ closed: of(false) }) as any);
+
+      const fixture = TestBed.createComponent(VaultComponent);
+      const component = fixture.componentInstance;
+
+      void component.ngOnInit();
+      tick();
+
+      expect(autoConfirmSvc.bulkAutoConfirmPendingUsers).not.toHaveBeenCalled();
+    }));
+  });
+
+  describe("NewExperienceDialog", () => {
+    function initVault() {
+      const fixture = TestBed.createComponent(VaultComponent);
+      void fixture.componentInstance.ngOnInit();
+      tick();
+    }
+
+    beforeEach(() => {
+      newExperienceDialogSpy.mockClear();
+      newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Dismissed);
+      nudgesSvc.showNudgeSpotlight$.mockImplementation((type: NudgeType) =>
+        of(type === NudgeType.Vfo1NewExperience),
+      );
+      configSvc.getFeatureFlag$.mockImplementation((flag: string) =>
+        of(flag === FeatureFlag.VFO1Foundation),
+      );
+      introCarouselState$.next(true);
+      serverSettings$.next(new ServerSettings());
+    });
+
+    afterEach(() => {
+      nudgesSvc.showNudgeSpotlight$.mockImplementation((_type: NudgeType) => of(false));
+      configSvc.getFeatureFlag$.mockImplementation((_flag: string) => of(false));
+    });
+
+    it("opens the dialog when the nudge is active and onboarding was already dismissed", fakeAsync(() => {
+      initVault();
+
+      expect(newExperienceDialogSpy).toHaveBeenCalledWith(
+        expect.any(Object),
+        expect.objectContaining({
+          userId: "user-1",
+          lightImgSrc: expect.stringContaining("new-experience.light.png"),
+          darkImgSrc: expect.stringContaining("new-experience.dark.png"),
+        }),
+      );
+    }));
+
+    it("leaves dismissing the nudge to the dialog's actions", fakeAsync(() => {
+      newExperienceDialogSpy.mockReturnValue(new Promise(() => {}));
+
+      initVault();
+
+      expect(nudgesSvc.dismissNudge).not.toHaveBeenCalledWith(
+        NudgeType.Vfo1NewExperience,
+        expect.anything(),
+      );
+    }));
+
+    it("does not open the dialog when the nudge is already dismissed", fakeAsync(() => {
+      nudgesSvc.showNudgeSpotlight$.mockImplementation((_type: NudgeType) => of(false));
+
+      initVault();
+
+      expect(newExperienceDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("does not open the dialog for a user who has not dismissed the onboarding welcome", fakeAsync(() => {
+      introCarouselState$.next(false);
+
+      initVault();
+
+      expect(newExperienceDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("does not open the dialog when the server suppresses onboarding interstitials", fakeAsync(() => {
+      serverSettings$.next(new ServerSettings({ suppressOnboardingInterstitials: true }));
+
+      initVault();
+
+      expect(newExperienceDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("does not open the dialog when the vfo1-foundation flag is off", fakeAsync(() => {
+      configSvc.getFeatureFlag$.mockImplementation((_flag: string) => of(false));
+
+      initVault();
+
+      expect(newExperienceDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("leaves the nudge undismissed when the dialog never opens", fakeAsync(() => {
+      introCarouselState$.next(false);
+
+      initVault();
+
+      expect(nudgesSvc.dismissNudge).not.toHaveBeenCalledWith(
+        NudgeType.Vfo1NewExperience,
+        expect.anything(),
+      );
+    }));
+  });
+});

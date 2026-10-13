@@ -1,6 +1,8 @@
 # General
 .DS_Store
 Thumbs.db
+.claude/worktrees/
+.worktrees/
 
 # IDEs and editors
 .idea/
@@ -56,3 +58,12 @@ apps/**/config/local.json
 
 # Nx
 .nx
+
+# DevContainer generated files
+.devcontainer/native-gui/docker-compose.override.yml
+.devcontainer/common/.env
+
+# Debug run artifacts (profiles, sockets, browser downloads)
+.debug/**
+!.debug/**/
+!.debug/**/.gitkeep

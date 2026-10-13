@@ -1,6 +1,6 @@
 <ng-container *ngIf="loading">
   <div class="tw-flex tw-items-center tw-justify-center">
-    <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
+    <bit-icon name="bwi-spinner" class="bwi-spin bwi-3x" [ariaLabel]="'loading' | i18n"></bit-icon>
   </div>
 </ng-container>
 
@@ -14,12 +14,14 @@
     <app-two-factor-auth-email
       [tokenFormControl]="tokenFormControl"
       (tokenChange)="saveFormDataWithPartialData($event)"
+      (submitOnPaste)="continueButton?.nativeElement?.click()"
       *ngIf="selectedProviderType === providerType.Email"
     />
 
     <app-two-factor-auth-authenticator
       [tokenFormControl]="tokenFormControl"
       (tokenChange)="saveFormDataWithPartialData($event)"
+      (submitOnPaste)="continueButton?.nativeElement?.click()"
       *ngIf="selectedProviderType === providerType.Authenticator"
     />
     <app-two-factor-auth-yubikey

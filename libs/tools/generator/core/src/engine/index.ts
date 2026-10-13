@@ -1,4 +1,4 @@
-export { KeyServiceRandomizer } from "./key-service-randomizer";
+export { SdkRandomizer } from "./sdk-randomizer";
 export { ForwarderConfiguration, AccountRequest } from "./forwarder-configuration";
 export { ForwarderContext } from "./forwarder-context";
 export * from "./settings";

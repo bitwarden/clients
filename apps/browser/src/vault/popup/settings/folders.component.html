@@ -1,0 +1,74 @@
+<popup-page>
+  @if (vfo1Enabled()) {
+    <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
+    <button
+      type="button"
+      slot="floating-action"
+      [vaultFab]="'bwi-plus'"
+      [label]="'newFolder' | i18n"
+      (click)="openAddEditFolderDialog()"
+    ></button>
+  }
+  <popup-header slot="header" [pageTitle]="'folders' | vfo1I18n: 'myFolders'" showBackButton>
+    <ng-container slot="end">
+      @if (!vfo1Enabled()) {
+        <button
+          bitButton
+          size="small"
+          buttonType="primary"
+          type="button"
+          (click)="openAddEditFolderDialog()"
+          startIcon="bwi-plus"
+        >
+          {{ "new" | i18n }}
+        </button>
+      }
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+
+  @if (folders$ | async; as folders) {
+    @if (folders.length) {
+      <bit-item-group>
+        @for (folder of folders; track folder.id) {
+          <bit-item>
+            <bit-item-content>
+              {{ folder.name }}
+              <button
+                slot="end"
+                type="button"
+                (click)="openAddEditFolderDialog(folder)"
+                [label]="'editFolderWithName' | i18n: folder.name"
+                bitIconButton="bwi-pencil-square"
+                class="tw-self-end"
+                data-testid="edit-folder-button"
+              ></button>
+            </bit-item-content>
+          </bit-item>
+        }
+      </bit-item-group>
+    } @else if (vfo1Enabled()) {
+      <bit-status-lockup class="tw-h-full tw-flex tw-items-center">
+        <ng-container slot="title">{{ "youHaveNoFoldersV2" | i18n }}</ng-container>
+        <ng-container slot="description">{{ "emptyFoldersDescriptionV2" | i18n }}</ng-container>
+      </bit-status-lockup>
+    } @else {
+      <bit-status-lockup class="tw-h-full tw-flex tw-items-center">
+        <bit-svg slot="graphic" [content]="NoFoldersIcon"></bit-svg>
+        <ng-container slot="title">{{ "noFoldersAdded" | i18n }}</ng-container>
+        <ng-container slot="description">{{ "createFoldersToOrganize" | i18n }}</ng-container>
+        <button
+          bitButton
+          buttonType="primary"
+          type="button"
+          slot="button"
+          (click)="openAddEditFolderDialog()"
+          data-testid="empty-new-folder-button"
+          startIcon="bwi-plus"
+        >
+          {{ "newFolder" | i18n }}
+        </button>
+      </bit-status-lockup>
+    }
+  }
+</popup-page>

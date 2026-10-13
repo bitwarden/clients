@@ -1,8 +1,7 @@
 import { Observable, Subject, Subscription } from "rxjs";
 
-import { NotificationResponse } from "@bitwarden/common/models/response/notification.response";
-import { UserId } from "@bitwarden/common/types/guid";
-
+import { NotificationResponse } from "../../../models/response/notification.response";
+import { UserId } from "../../../types/guid";
 import { LogService } from "../../abstractions/log.service";
 import { ServerNotificationsService } from "../server-notifications.service";
 

@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, effect, inject, input } from "@angular/core";
 import {
   FormsModule,
   ReactiveFormsModule,
@@ -9,11 +9,15 @@ import {
 } from "@angular/forms";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
+import { LockIcon } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { BadgeModule } from "../badge";
 import { FormControlModule } from "../form-control";
+import { FormControlCardComponent } from "../form-control/form-control-card.component";
+import { FormControlGroupComponent } from "../form-control/form-control-group.component";
 import { FormFieldModule } from "../form-field";
+import { SvgComponent } from "../svg/svg.component";
 import { TableModule } from "../table";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
@@ -28,35 +32,34 @@ const template = /*html*/ `
   </form>
 `;
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-example",
   template,
   imports: [FormControlModule, CheckboxModule, FormsModule, FormFieldModule, ReactiveFormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class ExampleComponent {
+  readonly checked = input<boolean>(false);
+  readonly disabled = input<boolean>(false);
+
+  private formBuilder = inject(FormBuilder);
+
   protected formObj = this.formBuilder.group({
     checkbox: [false, Validators.requiredTrue],
   });
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() set checked(value: boolean) {
-    this.formObj.patchValue({ checkbox: value });
+  constructor() {
+    effect(() => {
+      this.formObj.patchValue({ checkbox: this.checked() });
+    });
+    effect(() => {
+      if (this.disabled()) {
+        this.formObj.disable();
+      } else {
+        this.formObj.enable();
+      }
+    });
   }
-
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() set disabled(disable: boolean) {
-    if (disable) {
-      this.formObj.disable();
-    } else {
-      this.formObj.enable();
-    }
-  }
-
-  constructor(private formBuilder: FormBuilder) {}
 }
 
 export default {
@@ -68,9 +71,12 @@ export default {
         FormsModule,
         ReactiveFormsModule,
         FormControlModule,
+        FormControlGroupComponent,
+        FormControlCardComponent,
         CheckboxModule,
         TableModule,
         BadgeModule,
+        SvgComponent,
       ],
       providers: [
         {
@@ -181,7 +187,7 @@ export const Hint: Story = {
   },
 };
 
-export const Disabled: Story = {
+export const Inactive: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
@@ -205,15 +211,15 @@ export const Custom: Story = {
       <div class="tw-flex tw-flex-col tw-w-32">
         <label class="tw-text-main tw-gap-2 tw-flex tw-items-center tw-justify-between tw-bg-secondary-300 tw-p-2">
           A-Z
-          <input class="tw-me-0 focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
+          <input class="tw-me-0" type="checkbox" bitCheckbox />
         </label>
         <label class="tw-text-main tw-flex tw-items-center tw-justify-between tw-bg-secondary-300 tw-p-2">
           a-z
-          <input class="tw-me-0 focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
+          <input class="tw-me-0" type="checkbox" bitCheckbox />
         </label>
        <label class="tw-text-main tw-flex tw-items-center tw-justify-between tw-bg-secondary-300 tw-p-2">
           0-9
-          <input class="tw-me-0 focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
+          <input class="tw-me-0" type="checkbox" bitCheckbox />
         </label>
       </div>
     `,
@@ -276,4 +282,188 @@ export const InTableRow: Story = {
       </bit-table>
     `,
   }),
+};
+
+export const FormControlCard: Story = {
+  render: () => {
+    const formBuilder = new FormBuilder();
+    return {
+      props: {
+        formObj: formBuilder.group({
+          checkbox: [false],
+        }),
+      },
+      template: /*html*/ `
+        <form [formGroup]="formObj">
+          <bit-form-control-card icon="bwi-clock">
+            <input type="checkbox" bitCheckbox formControlName="checkbox" />
+            <bit-label>Enable feature</bit-label>
+            <bit-hint>Enabling this feature will allow you to do cool things.</bit-hint>
+          </bit-form-control-card>
+        </form>
+      `,
+    };
+  },
+};
+
+export const FormControlCardCustomSlot: Story = {
+  render: () => {
+    const formBuilder = new FormBuilder();
+    return {
+      props: {
+        formObj: formBuilder.group({
+          checkbox: [false],
+        }),
+        lockIcon: LockIcon,
+      },
+      template: /*html*/ `
+        <form [formGroup]="formObj">
+          <bit-form-control-card>
+            <bit-svg slot="start" [content]="lockIcon" aria-hidden="true" class="tw-w-9 tw-text-fg-brand"></bit-svg>
+            <input type="checkbox" bitCheckbox formControlName="checkbox" />
+            <bit-label>Enable feature</bit-label>
+            <bit-hint>Projected via slot="start" — any element works here.</bit-hint>
+          </bit-form-control-card>
+        </form>
+      `,
+    };
+  },
+};
+
+export const InactiveFormControlCard: Story = {
+  render: () => {
+    const formBuilder = new FormBuilder();
+    return {
+      props: {
+        formObj: formBuilder.group({
+          checkbox: [true],
+        }),
+      },
+      template: /*html*/ `
+        <form [formGroup]="formObj">
+          <bit-form-control-card icon="bwi-clock">
+            <input type="checkbox" bitCheckbox formControlName="checkbox" disabled />
+            <bit-label>Enable feature</bit-label>
+            <bit-hint>Enabling this feature will allow you to do cool things.</bit-hint>
+          </bit-form-control-card>
+        </form>
+      `,
+    };
+  },
+};
+
+export const FormControlCardGroup: Story = {
+  render: () => {
+    const formObj = new FormGroup({
+      features: new FormControl<string[]>([], Validators.required),
+    });
+    return {
+      props: { formObj },
+      template: /* HTML */ `
+        <form [formGroup]="formObj">
+          <bit-form-control-group formControlName="features">
+            <bit-label>Checkbox group</bit-label>
+
+            <bit-form-control-card>
+              <input type="checkbox" bitCheckbox [value]="'featureA'" />
+              <bit-label>Feature A</bit-label>
+              <bit-hint>Enables Feature A for your account</bit-hint>
+            </bit-form-control-card>
+
+            <bit-form-control-card>
+              <input type="checkbox" bitCheckbox [value]="'featureB'" />
+              <bit-label>Feature B</bit-label>
+              <bit-hint>Enables Feature B for your account</bit-hint>
+            </bit-form-control-card>
+
+            <bit-form-control-card>
+              <input type="checkbox" bitCheckbox [value]="'featureC'" />
+              <bit-label>Feature C</bit-label>
+            </bit-form-control-card>
+            <bit-hint>Choose which features to enable.</bit-hint>
+          </bit-form-control-group>
+        </form>
+      `,
+    };
+  },
+};
+
+export const FormControlCardGroupGrid: Story = {
+  render: () => {
+    const formObj = new FormGroup({
+      features: new FormControl<string[]>([], Validators.required),
+    });
+    return {
+      props: { formObj },
+      template: /* HTML */ `
+        <form [formGroup]="formObj">
+          <bit-form-control-group formControlName="features" grid>
+            <bit-label>Checkbox group</bit-label>
+
+            <bit-form-control-card icon="bwi-envelope">
+              <input type="checkbox" bitCheckbox [value]="'featureA'" />
+              <bit-label>Feature A</bit-label>
+              <bit-hint>Enables Feature A for your account</bit-hint>
+            </bit-form-control-card>
+
+            <bit-form-control-card icon="bwi-envelope">
+              <input type="checkbox" bitCheckbox [value]="'featureB'" />
+              <bit-label>Feature B</bit-label>
+              <bit-hint>Enables Feature B for your account</bit-hint>
+            </bit-form-control-card>
+
+            <bit-form-control-card icon="bwi-envelope">
+              <input type="checkbox" bitCheckbox [value]="'featureC'" />
+              <bit-label>Feature C</bit-label>
+              <bit-hint>Enables Feature C for your account</bit-hint>
+            </bit-form-control-card>
+
+            <bit-form-control-card icon="bwi-envelope">
+              <input type="checkbox" bitCheckbox [value]="'featureD'" />
+              <bit-label>Feature D</bit-label>
+              <bit-hint>Enables Feature D for your account</bit-hint>
+            </bit-form-control-card>
+            <bit-hint>Choose which features to enable.</bit-hint>
+          </bit-form-control-group>
+        </form>
+      `,
+    };
+  },
+};
+
+export const FormControlCardGroupWithValidation: Story = {
+  render: () => {
+    const formObj = new FormGroup({
+      features: new FormControl<string[]>([], Validators.required),
+    });
+    formObj.markAllAsTouched();
+    return {
+      props: { formObj },
+      template: /* HTML */ `
+        <form [formGroup]="formObj">
+          <bit-form-control-group formControlName="features">
+            <bit-label>Checkbox group</bit-label>
+
+            <bit-form-control-card>
+              <input type="checkbox" bitCheckbox [value]="'featureA'" />
+              <bit-label>Feature A</bit-label>
+              <bit-hint>Enables Feature A for your account</bit-hint>
+            </bit-form-control-card>
+
+            <bit-form-control-card>
+              <input type="checkbox" bitCheckbox [value]="'featureB'" />
+              <bit-label>Feature B</bit-label>
+              <bit-hint>Enables Feature B for your account</bit-hint>
+            </bit-form-control-card>
+
+            <bit-form-control-card>
+              <input type="checkbox" bitCheckbox [value]="'featureC'" />
+              <bit-label>Feature C</bit-label>
+            </bit-form-control-card>
+            <bit-hint>Choose which features to enable.</bit-hint>
+          </bit-form-control-group>
+        </form>
+      `,
+    };
+  },
 };

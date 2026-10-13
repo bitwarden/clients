@@ -26,6 +26,7 @@ describe("NewItemNudgeComponent", () => {
   beforeEach(async () => {
     i18nService = mock<I18nService>({ t: (key: string) => key });
     nudgesService = mock<NudgesService>();
+    nudgesService.showNudgeSpotlight$.mockReturnValue(of(true));
 
     await TestBed.configureTestingModule({
       imports: [NewItemNudgeComponent, CommonModule],
@@ -56,9 +57,9 @@ describe("NewItemNudgeComponent", () => {
       expect(value).toEqual(true);
     });
     expect(component.nudgeTitle).toBe("newLoginNudgeTitle");
-    expect(component.nudgeBody).toBe(
-      "newLoginNudgeBodyOne <strong>newLoginNudgeBodyBold</strong> newLoginNudgeBodyTwo",
-    );
+    expect(component.nudgeBody).toBe("newLoginNudgeBodyOne");
+    expect(component.nudgeBodyBold).toBe("newLoginNudgeBodyBold");
+    expect(component.nudgeBodySuffix).toBe("newLoginNudgeBodyTwo");
     expect(component.dismissalNudgeType).toBe(NudgeType.NewLoginItemStatus);
   });
 
@@ -74,12 +75,25 @@ describe("NewItemNudgeComponent", () => {
   });
 
   it("should not show anything if spotlight has been dismissed", async () => {
+    nudgesService.showNudgeSpotlight$.mockReturnValue(of(false));
     componentRef.setInput("configType", CipherType.Identity);
     fixture.detectChanges();
     component.showNewItemSpotlight$.subscribe((value) => {
       expect(value).toEqual(false);
     });
     expect(component.dismissalNudgeType).toBe(NudgeType.NewIdentityItemStatus);
+  });
+
+  it("should set nudge title, body, and link for CipherType.SshKey type", () => {
+    componentRef.setInput("configType", CipherType.SshKey);
+    fixture.detectChanges();
+    expect(component.nudgeTitle).toBe("newSshNudgeTitle");
+    expect(component.nudgeBody).toBe("newSshNudgeBodyOne");
+    expect(component.nudgeBodyLinkText).toBe("newSshNudgeBodyTwo");
+    expect(component.nudgeBodyLinkUrl).toBe("https://bitwarden.com/help/ssh-agent");
+    expect(component.nudgeBodyBold).toBe("");
+    expect(component.nudgeBodySuffix).toBe("");
+    expect(component.dismissalNudgeType).toBe(NudgeType.NewSshItemStatus);
   });
 
   it("should set showNewItemSpotlight to false when user dismisses spotlight", async () => {

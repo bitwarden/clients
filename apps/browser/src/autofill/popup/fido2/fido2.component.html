@@ -8,8 +8,14 @@
       }}"
     >
       @if (showNewPasskeyButton) {
-        <button bitButton buttonType="primary" type="button" (click)="addCipher()" slot="end">
-          <i class="bwi bwi-plus" aria-hidden="true"></i>
+        <button
+          bitButton
+          buttonType="primary"
+          type="button"
+          (click)="addCipher()"
+          slot="end"
+          startIcon="bwi-plus"
+        >
           {{ "new" | i18n }}
         </button>
       }
@@ -45,7 +51,8 @@
               }
             }
             @if (!displayedCiphers.length) {
-              <bit-no-items [icon]="noResultsIcon">
+              <bit-status-lockup>
+                <bit-svg slot="graphic" [content]="noResultsIcon"></bit-svg>
                 <ng-container slot="title">{{
                   (hasSearched ? "noItemsMatchSearch" : "noMatchingLoginsForSite") | i18n
                 }}</ng-container>
@@ -63,7 +70,7 @@
                 >
                   {{ (hasSearched ? "multiSelectClearAll" : "savePasskeyNewLogin") | i18n }}
                 </button>
-              </bit-no-items>
+              </bit-status-lockup>
             }
           </bit-section>
         }
@@ -95,7 +102,8 @@
                 ></app-fido2-cipher-row>
               }
             } @else {
-              <bit-no-items [icon]="noResultsIcon">
+              <bit-status-lockup>
+                <bit-svg slot="graphic" [content]="noResultsIcon"></bit-svg>
                 <ng-container slot="title">{{
                   (hasSearched ? "noItemsMatchSearch" : "noMatchingLoginsForSite") | i18n
                 }}</ng-container>
@@ -112,7 +120,7 @@
                 >
                   {{ (hasSearched ? "multiSelectClearAll" : "savePasskeyNewLogin") | i18n }}
                 </button>
-              </bit-no-items>
+              </bit-status-lockup>
             }
           </bit-section>
         }

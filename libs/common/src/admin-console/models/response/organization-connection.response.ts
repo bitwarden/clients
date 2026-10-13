@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { BillingSyncConfigApi } from "../../../billing/models/api/billing-sync-config.api";
 import { BaseResponse } from "../../../models/response/base.response";
 import { OrganizationConnectionType } from "../../enums";
@@ -15,7 +13,7 @@ export class OrganizationConnectionResponse<
   type: OrganizationConnectionType;
   organizationId: string;
   enabled: boolean;
-  config: TConfig;
+  config?: TConfig;
 
   constructor(response: any, configType: { new (response: any): TConfig }) {
     super(response);
@@ -24,6 +22,6 @@ export class OrganizationConnectionResponse<
     this.organizationId = this.getResponseProperty("OrganizationId");
     this.enabled = this.getResponseProperty("Enabled");
     const rawConfig = this.getResponseProperty("Config");
-    this.config = rawConfig == null ? null : new configType(rawConfig);
+    this.config = rawConfig == null ? undefined : new configType(rawConfig);
   }
 }

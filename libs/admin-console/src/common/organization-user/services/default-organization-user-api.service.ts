@@ -1,5 +1,6 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { OrganizationUserApiService } from "../abstractions";
 import {
@@ -19,6 +20,7 @@ import {
   OrganizationUserBulkPublicKeyResponse,
   OrganizationUserBulkResponse,
   OrganizationUserDetailsResponse,
+  OrganizationUserPendingAutoConfirmResponse,
   OrganizationUserResetPasswordDetailsResponse,
   OrganizationUserUserDetailsResponse,
   OrganizationUserUserMiniResponse,
@@ -213,12 +215,13 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
   async postOrganizationUsersPublicKey(
     organizationId: string,
     ids: string[],
+    userId: UserId,
   ): Promise<ListResponse<OrganizationUserBulkPublicKeyResponse>> {
     const r = await this.apiService.send(
       "POST",
       "/organizations/" + organizationId + "/users/public-keys",
       new OrganizationUserBulkRequest(ids),
-      true,
+      userId,
       true,
     );
     return new ListResponse(r, OrganizationUserBulkPublicKeyResponse);
@@ -245,6 +248,16 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     await this.apiService.send(
       "PUT",
       "/organizations/" + organizationId + "/users/enable-secrets-manager",
+      new OrganizationUserBulkRequest(ids),
+      true,
+      false,
+    );
+  }
+
+  async putOrganizationUserBulkEnablePam(organizationId: string, ids: string[]): Promise<void> {
+    await this.apiService.send(
+      "PUT",
+      "/organizations/" + organizationId + "/users/enable-pam",
       new OrganizationUserBulkRequest(ids),
       true,
       false,
@@ -279,14 +292,14 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     );
   }
 
-  putOrganizationUserResetPassword(
+  putOrganizationUserRecoverAccount(
     organizationId: string,
     id: string,
     request: OrganizationUserResetPasswordRequest,
   ): Promise<void> {
     return this.apiService.send(
       "PUT",
-      "/organizations/" + organizationId + "/users/" + id + "/reset-password",
+      "/organizations/" + organizationId + "/users/" + id + "/recover-account",
       request,
       true,
       false,
@@ -351,17 +364,7 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     );
   }
 
-  restoreOrganizationUser(organizationId: string, id: string): Promise<void> {
-    return this.apiService.send(
-      "PUT",
-      "/organizations/" + organizationId + "/users/" + id + "/restore",
-      null,
-      true,
-      false,
-    );
-  }
-
-  restoreOrganizationUser_vNext(
+  restoreOrganizationUser(
     organizationId: string,
     id: string,
     request: OrganizationUserRestoreRequest,
@@ -376,20 +379,6 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
   }
 
   async restoreManyOrganizationUsers(
-    organizationId: string,
-    ids: string[],
-  ): Promise<ListResponse<OrganizationUserBulkResponse>> {
-    const r = await this.apiService.send(
-      "PUT",
-      "/organizations/" + organizationId + "/users/restore",
-      new OrganizationUserBulkRequest(ids),
-      true,
-      true,
-    );
-    return new ListResponse(r, OrganizationUserBulkResponse);
-  }
-
-  async restoreManyOrganizationUsers_vNext(
     organizationId: string,
     request: OrganizationUserBulkRestoreRequest,
   ): Promise<ListResponse<OrganizationUserBulkResponse>> {
@@ -422,6 +411,35 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
       "/organizations/" + organizationId + "/users/delete-account",
       new OrganizationUserBulkRequest(ids),
       true,
+      true,
+    );
+    return new ListResponse(r, OrganizationUserBulkResponse);
+  }
+
+  async getPendingAutoConfirmUsers(
+    organizationId: string,
+    userId: UserId,
+  ): Promise<ListResponse<OrganizationUserPendingAutoConfirmResponse>> {
+    const r = await this.apiService.send(
+      "GET",
+      "/organizations/" + organizationId + "/users/pending-auto-confirm",
+      null,
+      userId,
+      true,
+    );
+    return new ListResponse(r, OrganizationUserPendingAutoConfirmResponse);
+  }
+
+  async postBulkOrganizationUserAutoConfirm(
+    organizationId: string,
+    request: OrganizationUserBulkConfirmRequest,
+    userId: UserId,
+  ): Promise<ListResponse<OrganizationUserBulkResponse>> {
+    const r = await this.apiService.send(
+      "POST",
+      "/organizations/" + organizationId + "/users/bulk-auto-confirm",
+      request,
+      userId,
       true,
     );
     return new ListResponse(r, OrganizationUserBulkResponse);

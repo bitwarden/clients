@@ -19,23 +19,21 @@ import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/respons
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
-import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import {
@@ -55,19 +53,16 @@ type IdentityResponse =
   | IdentitySsoRequiredResponse;
 
 export abstract class LoginStrategyData {
-  tokenRequest:
-    | UserApiTokenRequest
-    | PasswordTokenRequest
-    | SsoTokenRequest
-    | WebAuthnLoginTokenRequest
-    | undefined;
+  abstract readonly tokenRequest:
+    UserApiTokenRequest | PasswordTokenRequest | SsoTokenRequest | WebAuthnLoginTokenRequest;
 
   /** User's entered email obtained pre-login. */
-  abstract userEnteredEmail?: string;
+  abstract readonly userEnteredEmail?: string;
 }
 
-export abstract class LoginStrategy {
-  protected abstract cache: BehaviorSubject<LoginStrategyData>;
+export abstract class LoginStrategy<TData extends LoginStrategyData = LoginStrategyData> {
+  /** Holds the data of the login in progress; `undefined` when no login is in progress. */
+  protected abstract cache: BehaviorSubject<TData | undefined>;
   protected sessionTimeoutSubject = new BehaviorSubject<boolean>(false);
   sessionTimeout$: Observable<boolean> = this.sessionTimeoutSubject.asObservable();
 
@@ -82,7 +77,6 @@ export abstract class LoginStrategy {
     protected platformUtilsService: PlatformUtilsService,
     protected messagingService: MessagingService,
     protected logService: LogService,
-    protected stateService: StateService,
     protected twoFactorService: TwoFactorService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
@@ -105,10 +99,7 @@ export abstract class LoginStrategy {
   ): Promise<AuthResult>;
 
   async logInTwoFactor(twoFactor: TokenTwoFactorRequest): Promise<AuthResult> {
-    const data = this.cache.value;
-    if (!data.tokenRequest) {
-      throw new Error("Token request is undefined");
-    }
+    const data = this.getLoginStrategyDataOrThrow();
     data.tokenRequest.setTwoFactor(twoFactor);
     this.cache.next(data);
     const [authResult] = await this.startLogIn();
@@ -120,10 +111,7 @@ export abstract class LoginStrategy {
   protected async startLogIn(): Promise<[AuthResult, IdentityResponse]> {
     await this.twoFactorService.clearSelectedProvider();
 
-    const tokenRequest = this.cache.value.tokenRequest;
-    if (!tokenRequest) {
-      throw new Error("Token request is undefined");
-    }
+    const { tokenRequest } = this.getLoginStrategyDataOrThrow();
     const response = await this.apiService.postIdentityToken(tokenRequest);
 
     if (response instanceof IdentityTwoFactorResponse) {
@@ -137,6 +125,18 @@ export abstract class LoginStrategy {
     }
 
     throw new Error("Invalid response object.");
+  }
+
+  /**
+   * Returns the data of the login in progress.
+   * @throws if no login is in progress.
+   */
+  protected getLoginStrategyDataOrThrow(): TData {
+    const data = this.cache.value;
+    if (data == null) {
+      throw new Error("No login is in progress.");
+    }
+    return data;
   }
 
   protected async buildDeviceRequest() {
@@ -263,9 +263,8 @@ export abstract class LoginStrategy {
       await this.tokenService.setTwoFactorToken(userEmail, response.twoFactorToken);
     }
 
-    await this.setMasterKey(response, userId);
-    await this.setUserKey(response, userId);
-    await this.setPrivateKey(response, userId);
+    await this.setAccountCryptographicState(response, userId);
+    await this.unlock(response, userId);
 
     // This needs to run after the keys are set because it checks for the existence of the encrypted private key
     await this.processForceSetPasswordReason(response.forcePasswordReset, userId);
@@ -278,12 +277,25 @@ export abstract class LoginStrategy {
     return result;
   }
 
-  // The keys comes from different sources depending on the login strategy
-  protected abstract setMasterKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
+  /**
+   * Unlocks the SDK for the user using the implementation for the login strategy.
+   */
+  protected abstract unlock(response: IdentityTokenResponse, userId: UserId): Promise<void>;
 
-  protected abstract setUserKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
-
-  protected abstract setPrivateKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
+  protected async setAccountCryptographicState(
+    response: IdentityTokenResponse,
+    userId: UserId,
+  ): Promise<void> {
+    // The accountKeysResponseModel is always present except for JIT SSO users
+    // which have just registered but not yet initialized the cryptographic state
+    // for their account.
+    if (response.accountKeysResponseModel) {
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
+        userId,
+      );
+    }
+  }
 
   // Old accounts used master key for encryption. We are forcing migrations but only need to
   // check on password logins
@@ -315,28 +327,6 @@ export abstract class LoginStrategy {
     return true;
   }
 
-  protected async createKeyPairForOldAccount(userId: UserId) {
-    try {
-      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-      if (userKey === null) {
-        throw new Error("User key is null when creating key pair for old account");
-      }
-
-      if (userKey.inner().type == EncryptionType.CoseEncrypt0) {
-        throw new Error("Cannot create key pair for account on V2 encryption");
-      }
-
-      const [publicKey, privateKey] = await this.keyService.makeKeyPair(userKey);
-      if (!privateKey.encryptedString) {
-        throw new Error("Failed to create encrypted private key");
-      }
-      await this.apiService.postAccountKeys(new KeysRequest(publicKey, privateKey.encryptedString));
-      return privateKey.encryptedString;
-    } catch (e) {
-      this.logService.error(e);
-    }
-  }
-
   /**
    * Handles the response from the server when a 2FA is required.
    * It clears any existing 2FA token, as it's no longer valid, and sets up the necessary data for the 2FA process.
@@ -363,7 +353,7 @@ export abstract class LoginStrategy {
    * Clears the 2FA token from the token service using the user's email if it exists
    */
   private async clearTwoFactorToken() {
-    const email = this.cache.value.userEnteredEmail;
+    const email = this.cache.value?.userEnteredEmail;
     if (email) {
       await this.tokenService.clearTwoFactorToken(email);
     }

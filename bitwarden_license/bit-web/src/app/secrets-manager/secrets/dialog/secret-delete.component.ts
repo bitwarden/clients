@@ -50,7 +50,7 @@ export class SecretDeleteDialogComponent {
 
     if (bulkResponses.find((response) => response.errorMessage)) {
       this.openBulkStatusDialog(bulkResponses.filter((response) => response.errorMessage));
-      this.dialogRef.close(true);
+      await this.dialogRef.close(true);
       return;
     }
 
@@ -62,7 +62,7 @@ export class SecretDeleteDialogComponent {
       message: this.i18nService.t(message),
     });
 
-    this.dialogRef.close(true);
+    await this.dialogRef.close(true);
   };
 
   openBulkStatusDialog(bulkStatusResults: BulkOperationStatus[]) {

@@ -3,7 +3,7 @@
     <bit-label>{{ "creatingAccountOn" | i18n }}</bit-label>
     <bit-select formControlName="selectedRegion" (closed)="onSelectClosed()">
       <bit-option
-        *ngFor="let regionConfig of availableRegionConfigs"
+        *ngFor="let regionConfig of availableRegionConfigs$ | async"
         [value]="regionConfig"
         [label]="regionConfig.domain"
       ></bit-option>

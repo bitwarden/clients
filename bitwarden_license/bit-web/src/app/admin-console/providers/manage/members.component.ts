@@ -35,9 +35,10 @@ import {
   ProvidersTableDataSource,
   showConfirmBanner,
 } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
-import { openEntityEventsDialog } from "@bitwarden/web-vault/app/admin-console/organizations/manage/entity-events.component";
 import { BulkStatusComponent } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/bulk/bulk-status.component";
 import { MemberActionsService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.service";
+import { MemberActionResult } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.types";
+import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 
 import {
   AddEditMemberDialogComponent,
@@ -45,10 +46,7 @@ import {
 } from "./dialogs/add-edit-member-dialog.component";
 import { BulkConfirmDialogComponent } from "./dialogs/bulk-confirm-dialog.component";
 import { BulkRemoveDialogComponent } from "./dialogs/bulk-remove-dialog.component";
-import {
-  MemberActionResult,
-  ProviderActionsService,
-} from "./services/provider-actions/provider-actions.service";
+import { ProviderActionsService } from "./services/provider-actions/provider-actions.service";
 
 interface BulkProviderFlags {
   showBulkConfirmUsers: boolean;
@@ -61,7 +59,7 @@ interface BulkProviderFlags {
   templateUrl: "members.component.html",
   standalone: false,
 })
-export class vNextMembersComponent {
+export class MembersComponent {
   protected apiService = inject(ApiService);
   protected dialogService = inject(DialogService);
   protected i18nService = inject(I18nService);
@@ -103,6 +101,14 @@ export class vNextMembersComponent {
   protected showConfirmBanner$ = this.dataSource()
     .usersUpdated()
     .pipe(map(() => showConfirmBanner(this.dataSource())));
+
+  protected selectedInvitedCount$ = this.dataSource()
+    .usersUpdated()
+    .pipe(
+      map((members) => members.filter((m) => m.status === ProviderUserStatusType.Invited).length),
+    );
+
+  protected isSingleInvite$ = this.selectedInvitedCount$.pipe(map((count) => count === 1));
 
   protected isProcessing = this.providerActionsService.isProcessing;
 
@@ -220,15 +226,20 @@ export class vNextMembersComponent {
         } else {
           this.toastService.showToast({
             variant: "success",
-            message: this.i18nService.t("bulkReinviteSuccessToast", invitedCount.toString()),
+            message:
+              invitedCount === 1
+                ? this.i18nService.t("reinviteSuccessToast")
+                : this.i18nService.t("bulkReinviteSentToast", invitedCount.toString()),
           });
         }
       } else {
         // In self-hosted environments, show legacy dialog
-        const request = this.apiService.postManyProviderUserReinvite(
-          providerId,
-          new ProviderUserBulkRequest(checkedInvitedUsers.map((user) => user.id)),
-        );
+        const request = this.apiService
+          .postManyProviderUserReinvite(
+            providerId,
+            new ProviderUserBulkRequest(checkedInvitedUsers.map((user) => user.id)),
+          )
+          .then((response) => response.data);
 
         const dialogRef = BulkStatusComponent.open(this.dialogService, {
           data: {
@@ -353,7 +364,7 @@ export class vNextMembersComponent {
     user: ProviderUser,
     sideEffect?: () => void | Promise<void>,
   ) {
-    if (result.error != null) {
+    if (result.success === false) {
       this.validationService.showError(result.error);
       this.logService.error(result.error);
       return;

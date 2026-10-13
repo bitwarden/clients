@@ -50,6 +50,7 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
       cipher.id = null;
       cipher.organizationId = null;
       cipher.collectionIds = null;
+      cipher.key = null;
 
       // make sure password history is limited
       if (cipher.passwordHistory != null && cipher.passwordHistory.length > 5) {

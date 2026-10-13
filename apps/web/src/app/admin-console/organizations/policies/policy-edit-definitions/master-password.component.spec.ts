@@ -1,13 +1,30 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ReactiveFormsModule } from "@angular/forms";
 import { mock } from "jest-mock-extended";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { KeyService } from "@bitwarden/key-management";
 
-import { MasterPasswordPolicyComponent } from "./master-password.component";
+import { MasterPasswordPolicy, MasterPasswordPolicyComponent } from "./master-password.component";
+
+describe("MasterPasswordPolicy", () => {
+  const policy = new MasterPasswordPolicy();
+
+  it("should have correct attributes", () => {
+    expect(policy.name).toEqual("masterPassPolicyTitle");
+    expect(policy.description).toEqual("masterPassPolicyDesc");
+    expect(policy.component).toEqual(MasterPasswordPolicyComponent);
+  });
+
+  it("hides the dialog's description (the component renders its own)", () => {
+    expect(policy.showDescription).toBe(false);
+  });
+});
 
 describe("MasterPasswordPolicyComponent", () => {
   let component: MasterPasswordPolicyComponent;
@@ -15,10 +32,13 @@ describe("MasterPasswordPolicyComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      imports: [ReactiveFormsModule],
       providers: [
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: OrganizationService, useValue: mock<OrganizationService>() },
         { provide: AccountService, useValue: mock<AccountService>() },
+        { provide: KeyService, useValue: mock<KeyService>() },
+        { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();

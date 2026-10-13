@@ -1,3 +1,7 @@
+/// SDK/WASM code relies on TextEncoder/TextDecoder being available globally
+import { TextEncoder, TextDecoder } from "util";
+Object.assign(global, { TextDecoder, TextEncoder });
+
 import { mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -67,6 +71,37 @@ describe("ForwarderContext", () => {
       const context = new ForwarderContext(config, settings, i18n);
 
       expect(() => context.emailPrefix()).toThrow("forwarderNoPrefix");
+    });
+  });
+
+  describe("prefixEnabled", () => {
+    it("returns true when prefix is set to the 'website' sentinel", () => {
+      const settings = mock<EmailPrefixSettings & ApiSettings>({ prefix: "website" });
+      const config = mock<ForwarderConfiguration<typeof settings>>();
+      const context = new ForwarderContext(config, settings, i18n);
+      const result = context.prefixEnabled();
+      expect(result).toBe(true);
+    });
+    it.each([[null], [undefined], [""]])("returns false when prefix is %p", (prefix) => {
+      const settings = mock<EmailPrefixSettings & ApiSettings>({ prefix });
+      const config = mock<ForwarderConfiguration<typeof settings>>();
+      const context = new ForwarderContext(config, settings, i18n);
+      const result = context.prefixEnabled();
+      expect(result).toBe(false);
+    });
+    it("returns false when prefix is not an enumerable member of settings", () => {
+      const settings = {} as EmailPrefixSettings & ApiSettings;
+      const config = mock<ForwarderConfiguration<typeof settings>>();
+      const context = new ForwarderContext(config, settings, i18n);
+      const result = context.prefixEnabled();
+      expect(result).toBe(false);
+    });
+    it("returns false when prefix is any non-'website' string", () => {
+      const settings = mock<EmailPrefixSettings & ApiSettings>({ prefix: "some-other-value" });
+      const config = mock<ForwarderConfiguration<typeof settings>>();
+      const context = new ForwarderContext(config, settings, i18n);
+      const result = context.prefixEnabled();
+      expect(result).toBe(false);
     });
   });
 

@@ -4,8 +4,10 @@
 
 <div
   #endSlot
-  class="tw-px-2 tw-flex tw-items-center tw-gap-2 [&_button[biticonbutton]]:-tw-mx-1"
-  [hidden]="endSlot.childElementCount === 0"
+  data-bit-item-end-slot
+  class="tw-flex tw-items-center"
+  [class]="endSlotPaddingClass()"
+  [hidden]="!endSlotHasChildren()"
 >
   <ng-content select="[slot=end]"></ng-content>
 </div>

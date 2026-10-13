@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -11,15 +11,14 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
-import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
-import { MasterPasswordPolicyResponse } from "@bitwarden/common/auth/models/response/master-password-policy.response";
-import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
+import {
+  PasswordPreloginData,
+  PasswordPreloginService,
+} from "@bitwarden/common/auth/password-prelogin";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   MasterKeyWrappedUserKey,
@@ -36,50 +35,39 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
 import {
   PasswordStrengthServiceAbstraction,
   PasswordStrengthService,
 } from "@bitwarden/common/tools/password-strength";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
-import { UserKey, MasterKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { MasterKey } from "@bitwarden/common/types/key";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, LegacyCompatKeyService, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
+import { UnlockService } from "@bitwarden/unlock";
 
-import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { PasswordLoginCredentials } from "../models";
 import { UserDecryptionOptions } from "../models/domain/user-decryption-options";
 
+import {
+  accessToken,
+  email,
+  encryptedUserKey,
+  identityTokenResponseFactory,
+  kdfIterations,
+  refreshToken,
+} from "./login.strategy.spec-util";
 import { PasswordLoginStrategy, PasswordLoginStrategyData } from "./password-login.strategy";
 
-const email = "hello@world.com";
 const masterPassword = "password";
 
 const deviceId = Utils.newGuid();
-const accessToken = "ACCESS_TOKEN";
-const refreshToken = "REFRESH_TOKEN";
-const encryptedUserKey = "USER_KEY";
-const privateKey = "PRIVATE_KEY";
-const kdf = 0;
-const kdfIterations = 10000;
 const userId = Utils.newGuid() as UserId;
 const masterPasswordHash = "MASTER_PASSWORD_HASH";
 const name = "NAME";
-const defaultUserDecryptionOptionsServerResponse: IUserDecryptionOptionsServerResponse = {
-  HasMasterPassword: true,
-  MasterPasswordUnlock: {
-    Salt: email,
-    Kdf: {
-      KdfType: kdf,
-      Iterations: kdfIterations,
-    },
-    MasterKeyEncryptedUserKey: encryptedUserKey,
-  },
-};
 
 const decodedToken = {
   sub: userId,
@@ -92,34 +80,16 @@ const twoFactorProviderType = TwoFactorProviderType.Authenticator;
 const twoFactorToken = "TWO_FACTOR_TOKEN";
 const twoFactorRemember = true;
 
-export function identityTokenResponseFactory(
-  masterPasswordPolicyResponse: MasterPasswordPolicyResponse | undefined = undefined,
-  userDecryptionOptions: IUserDecryptionOptionsServerResponse | undefined = undefined,
-) {
-  return new IdentityTokenResponse({
-    ForcePasswordReset: false,
-    Kdf: kdf,
-    KdfIterations: kdfIterations,
-    Key: encryptedUserKey,
-    PrivateKey: privateKey,
-    access_token: accessToken,
-    expires_in: 3600,
-    refresh_token: refreshToken,
-    scope: "api offline_access",
-    token_type: "Bearer",
-    MasterPasswordPolicy: masterPasswordPolicyResponse,
-    UserDecryptionOptions: userDecryptionOptions || defaultUserDecryptionOptionsServerResponse,
-  });
-}
-
 // TODO: add tests for latest changes to base class for TDE
 describe("LoginStrategy", () => {
   let cache: PasswordLoginStrategyData;
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
+  let unlockService: MockProxy<UnlockService>;
 
-  let loginStrategyService: MockProxy<LoginStrategyServiceAbstraction>;
+  let passwordPreloginService: MockProxy<PasswordPreloginService>;
   let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let encryptService: MockProxy<EncryptService>;
   let apiService: MockProxy<ApiService>;
   let tokenService: MockProxy<TokenService>;
@@ -127,7 +97,6 @@ describe("LoginStrategy", () => {
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let messagingService: MockProxy<MessagingService>;
   let logService: MockProxy<LogService>;
-  let stateService: MockProxy<StateService>;
   let twoFactorService: MockProxy<TwoFactorService>;
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let policyService: MockProxy<PolicyService>;
@@ -145,9 +114,11 @@ describe("LoginStrategy", () => {
   beforeEach(async () => {
     accountService = mockAccountServiceWith(userId);
     masterPasswordService = new FakeMasterPasswordService();
+    unlockService = mock<UnlockService>();
 
-    loginStrategyService = mock<LoginStrategyServiceAbstraction>();
+    passwordPreloginService = mock<PasswordPreloginService>();
     keyService = mock<KeyService>();
+    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     encryptService = mock<EncryptService>();
     apiService = mock<ApiService>();
     tokenService = mock<TokenService>();
@@ -155,7 +126,6 @@ describe("LoginStrategy", () => {
     platformUtilsService = mock<PlatformUtilsService>();
     messagingService = mock<MessagingService>();
     logService = mock<LogService>();
-    stateService = mock<StateService>();
     twoFactorService = mock<TwoFactorService>();
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
     kdfConfigService = mock<KdfConfigService>();
@@ -171,12 +141,19 @@ describe("LoginStrategy", () => {
     appIdService.getAppId.mockResolvedValue(deviceId);
     tokenService.decodeAccessToken.calledWith(accessToken).mockResolvedValue(decodedToken);
 
+    passwordPreloginService.getPreloginData$.mockReturnValue(
+      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault(), "prelogin-salt")),
+    );
+    legacyCompatKeyService.makeMasterKey.mockResolvedValue({} as any);
+
     // The base class is abstract so we test it via PasswordLoginStrategy
     passwordLoginStrategy = new PasswordLoginStrategy(
       cache,
       passwordStrengthService,
       policyService,
-      loginStrategyService,
+      passwordPreloginService,
+      unlockService,
+      legacyCompatKeyService,
       accountService as unknown as AccountService,
       masterPasswordService,
       keyService,
@@ -187,7 +164,6 @@ describe("LoginStrategy", () => {
       platformUtilsService,
       messagingService,
       logService,
-      stateService,
       twoFactorService,
       userDecryptionOptionsService,
       billingAccountProfileStateService,
@@ -201,19 +177,7 @@ describe("LoginStrategy", () => {
   });
 
   describe("base class", () => {
-    const userKeyBytesLength = 64;
-    const masterKeyBytesLength = 64;
-    let userKey: UserKey;
-    let masterKey: MasterKey;
-
     beforeEach(() => {
-      userKey = new SymmetricCryptoKey(
-        new Uint8Array(userKeyBytesLength).buffer as CsprngArray,
-      ) as UserKey;
-      masterKey = new SymmetricCryptoKey(
-        new Uint8Array(masterKeyBytesLength).buffer as CsprngArray,
-      ) as MasterKey;
-
       const mockVaultTimeoutAction = VaultTimeoutAction.Lock;
       const mockVaultTimeoutActionBSub = new BehaviorSubject<VaultTimeoutAction>(
         mockVaultTimeoutAction,
@@ -312,7 +276,6 @@ describe("LoginStrategy", () => {
       const expected = new AuthResult();
       expected.masterPassword = "password";
       expected.userId = userId;
-      expected.twoFactorProviders = null;
       expect(result).toEqual(expected);
     });
 
@@ -327,7 +290,6 @@ describe("LoginStrategy", () => {
       const expected = new AuthResult();
       expected.masterPassword = "password";
       expected.userId = userId;
-      expected.twoFactorProviders = null;
       expect(result).toEqual(expected);
 
       expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
@@ -336,36 +298,40 @@ describe("LoginStrategy", () => {
       );
     });
 
-    it("makes a new public and private key for an old account", async () => {
+    it("sets account cryptographic state when accountKeysResponseModel is present", async () => {
+      const accountKeysData = {
+        publicKeyEncryptionKeyPair: {
+          publicKey: "testPublicKey",
+          wrappedPrivateKey: "testPrivateKey",
+        },
+      };
+
       const tokenResponse = identityTokenResponseFactory();
-      tokenResponse.privateKey = null;
-      keyService.makeKeyPair.mockResolvedValue(["PUBLIC_KEY", new EncString("PRIVATE_KEY")]);
-      keyService.userKey$.mockReturnValue(new BehaviorSubject<UserKey>(userKey).asObservable());
+      tokenResponse.key = makeEncString("mockEncryptedUserKey");
+      // Add accountKeysResponseModel to the response
+      (tokenResponse as any).accountKeysResponseModel = {
+        publicKeyEncryptionKeyPair: accountKeysData.publicKeyEncryptionKeyPair,
+        toWrappedAccountCryptographicState: jest.fn().mockReturnValue({
+          V1: {
+            private_key: "testPrivateKey",
+          },
+        }),
+      };
 
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-      masterPasswordService.masterKeySubject.next(masterKey);
-      masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(userKey);
 
       await passwordLoginStrategy.logIn(credentials);
 
-      // User symmetric key must be set before the new RSA keypair is generated
-      expect(keyService.setUserKey).toHaveBeenCalled();
-      expect(keyService.makeKeyPair).toHaveBeenCalled();
-      expect(keyService.setUserKey.mock.invocationCallOrder[0]).toBeLessThan(
-        keyService.makeKeyPair.mock.invocationCallOrder[0],
+      expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledTimes(
+        1,
       );
-
-      expect(apiService.postAccountKeys).toHaveBeenCalled();
-    });
-
-    it("throws if userKey is CoseEncrypt0 (V2 encryption) in createKeyPairForOldAccount", async () => {
-      keyService.userKey$.mockReturnValue(
-        new BehaviorSubject<UserKey>({
-          inner: () => ({ type: 7 }),
-        } as unknown as UserKey).asObservable(),
-      );
-      await expect(passwordLoginStrategy["createKeyPairForOldAccount"](userId)).resolves.toBe(
-        undefined,
+      expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+        {
+          V1: {
+            private_key: "testPrivateKey",
+          },
+        },
+        userId,
       );
     });
   });
@@ -492,18 +458,25 @@ describe("LoginStrategy", () => {
 
     it("sends 2FA token provided by user to server (two-step)", async () => {
       // Simulate a partially completed login
-      cache = new PasswordLoginStrategyData();
-      cache.tokenRequest = new PasswordTokenRequest(
-        email,
-        masterPasswordHash,
-        new TokenTwoFactorRequest(),
-      );
+      cache = new PasswordLoginStrategyData({
+        tokenRequest: new PasswordTokenRequest(
+          email,
+          masterPasswordHash,
+          new TokenTwoFactorRequest(),
+        ),
+        userEnteredEmail: email,
+        masterKey: {} as MasterKey,
+        masterPassword,
+        forcePasswordResetReason: ForceSetPasswordReason.None,
+      });
 
       passwordLoginStrategy = new PasswordLoginStrategy(
         cache,
         passwordStrengthService,
         policyService,
-        loginStrategyService,
+        passwordPreloginService,
+        unlockService,
+        legacyCompatKeyService,
         accountService as AccountService,
         masterPasswordService,
         keyService,
@@ -514,7 +487,6 @@ describe("LoginStrategy", () => {
         platformUtilsService,
         messagingService,
         logService,
-        stateService,
         twoFactorService,
         userDecryptionOptionsService,
         billingAccountProfileStateService,
@@ -554,18 +526,25 @@ describe("LoginStrategy", () => {
 
       apiService.postIdentityToken.mockResolvedValue(deviceVerificationResponse);
 
-      cache = new PasswordLoginStrategyData();
-      cache.tokenRequest = new PasswordTokenRequest(
-        email,
-        masterPasswordHash,
-        new TokenTwoFactorRequest(),
-      );
+      cache = new PasswordLoginStrategyData({
+        tokenRequest: new PasswordTokenRequest(
+          email,
+          masterPasswordHash,
+          new TokenTwoFactorRequest(),
+        ),
+        userEnteredEmail: email,
+        masterKey: {} as MasterKey,
+        masterPassword,
+        forcePasswordResetReason: ForceSetPasswordReason.None,
+      });
 
       passwordLoginStrategy = new PasswordLoginStrategy(
         cache,
         passwordStrengthService,
         policyService,
-        loginStrategyService,
+        passwordPreloginService,
+        unlockService,
+        legacyCompatKeyService,
         accountService as AccountService,
         masterPasswordService,
         keyService,
@@ -576,7 +555,6 @@ describe("LoginStrategy", () => {
         platformUtilsService,
         messagingService,
         logService,
-        stateService,
         twoFactorService,
         userDecryptionOptionsService,
         billingAccountProfileStateService,
@@ -590,6 +568,45 @@ describe("LoginStrategy", () => {
       const result = await passwordLoginStrategy.logIn(credentials);
 
       expect(result.requiresDeviceVerification).toBe(true);
+    });
+  });
+
+  describe("given no login in progress", () => {
+    it("rejects a two-factor attempt without sending a token request", async () => {
+      passwordLoginStrategy = new PasswordLoginStrategy(
+        undefined,
+        passwordStrengthService,
+        policyService,
+        passwordPreloginService,
+        unlockService,
+        legacyCompatKeyService,
+        accountService as AccountService,
+        masterPasswordService,
+        keyService,
+        encryptService,
+        apiService,
+        tokenService,
+        appIdService,
+        platformUtilsService,
+        messagingService,
+        logService,
+        twoFactorService,
+        userDecryptionOptionsService,
+        billingAccountProfileStateService,
+        vaultTimeoutSettingsService,
+        kdfConfigService,
+        environmentService,
+        configService,
+        accountCryptographicStateService,
+      );
+
+      await expect(
+        passwordLoginStrategy.logInTwoFactor(
+          new TokenTwoFactorRequest(TwoFactorProviderType.Authenticator, "TOKEN", false),
+        ),
+      ).rejects.toThrow("No login is in progress.");
+
+      expect(apiService.postIdentityToken).not.toHaveBeenCalled();
     });
   });
 });
