@@ -41,6 +41,7 @@ export const AccessAuditEventKind = Object.freeze({
   RotationReportRejected: "rotationReportRejected",
   ManualRotationDue: "manualRotationDue",
   ManualRotationRecorded: "manualRotationRecorded",
+  RotationConfigUpdated: "rotationConfigUpdated",
   AccessConnectorRegistered: "accessConnectorRegistered",
   AccessConnectorRevoked: "accessConnectorRevoked",
   AccessConnectorDisabled: "accessConnectorDisabled",
@@ -54,6 +55,7 @@ export const AccessAuditEventKind = Object.freeze({
   TargetSystemRenamed: "targetSystemRenamed",
   TargetSystemPolicyUpdated: "targetSystemPolicyUpdated",
   TargetSystemDeleted: "targetSystemDeleted",
+  TargetSystemUpdated: "targetSystemUpdated",
 } as const);
 export type AccessAuditEventKind = (typeof AccessAuditEventKind)[keyof typeof AccessAuditEventKind];
 
