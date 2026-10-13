@@ -1080,6 +1080,10 @@
   "resetSearch": {
     "message": "Reset search"
   },
+  "clearSearchTooltip": {
+    "message": "Clear by clicking here or pressing Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "allItems": {
     "message": "All items"
   },
@@ -6720,11 +6724,26 @@
   "resendInvitation": {
     "message": "Resend invitation"
   },
+  "sendInvite": {
+    "message": "Send invite"
+  },
+  "sendInvites": {
+    "message": "Send invites"
+  },
   "resendEmail": {
     "message": "Resend email"
   },
   "hasBeenReinvited": {
     "message": "$USER$ reinvited",
+    "placeholders": {
+      "user": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "hasBeenInvited": {
+    "message": "$USER$ invited",
     "placeholders": {
       "user": {
         "content": "$1",
