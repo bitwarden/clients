@@ -1,7 +1,9 @@
 import {
+  afterNextRender,
   ChangeDetectorRef,
   Component,
   inject,
+  Injector,
   NgZone,
   OnDestroy,
   OnInit,
@@ -121,6 +123,7 @@ import {
   openDeleteSharedFolderDialog,
   VaultOrganizationUserNotificationsComponent,
   Vfo1TerminologyService,
+  VAULT_RENDERED_MARK,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
@@ -185,6 +188,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
 })
 export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+  private readonly injector = inject(Injector);
 
   readonly filterComponent = viewChild(VaultFilterComponent);
   readonly vaultItemsComponent = viewChild(VaultItemsComponent);
@@ -623,12 +627,20 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           );
 
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
+          const initialLoad = this.performingInitialLoad;
           this.performingInitialLoad = false;
           this.refreshing = false;
 
           // Explicitly mark for check to ensure the view is updated
           // Some sources are not always emitted within the Angular zone (e.g. ciphers updated via WS server notifications)
           this.changeDetectorRef.markForCheck();
+
+          // Marks when the first vault list is painted, the end point of unlock/login perf traces
+          if (initialLoad) {
+            afterNextRender(() => this.logService.mark(VAULT_RENDERED_MARK), {
+              injector: this.injector,
+            });
+          }
         },
       );
 
