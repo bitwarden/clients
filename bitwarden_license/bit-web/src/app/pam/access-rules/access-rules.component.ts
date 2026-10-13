@@ -57,7 +57,7 @@ import {
   classifyAccessRuleError,
   copyRuleName,
   resolveCollectionNames,
-  rulesChangingEnabled,
+  filterRulesToToggle,
 } from "..";
 import { DurationLongPipe } from "../date/duration-long.pipe";
 import { RelativeTimePipe } from "../date/relative-time.pipe";
@@ -315,7 +315,7 @@ export class AccessRulesComponent {
   private async bulkSetEnabled(enabled: boolean): Promise<void> {
     const selected = this.selectedRules();
     // Confirms as the row menu does, counting only the rules that will change.
-    const deactivating = enabled ? [] : rulesChangingEnabled(selected, false);
+    const deactivating = enabled ? [] : filterRulesToToggle(selected, false);
     if (deactivating.length > 0) {
       const confirmed = await this.dialogService.openSimpleDialog(
         accessRuleDeactivateConfirmOptions(deactivating.length),
