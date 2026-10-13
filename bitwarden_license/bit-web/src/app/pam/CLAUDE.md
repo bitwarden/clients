@@ -296,6 +296,10 @@ Add a seam rather than importing PAM from OSS code.
 `organizationPermissionsGuard((org) => org.canManageAccessRules)` and `rotation`
 `organizationPermissionsGuard((org) => org.canManageRotation)`.
 
+Routed edit pages take `canDeactivate: [unsavedChangesGuard]` (`unsaved-changes.guard.ts`) and
+implement `HasUnsavedChanges`; the guard stands down on lock and logout, so `confirmLeave()`
+only has to decide whether to prompt.
+
 **The rotation fleet is a third authority, separate from rule authorship — do not reuse
 `canManageAccessRules` for it.** `canManageRotation` is Admin/Owner, or a Custom member
 holding `ManageRotation`, mirroring the server's `ManageAccessConnectorRequirement`.
