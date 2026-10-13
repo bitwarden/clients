@@ -618,8 +618,13 @@ export default class MainBackground {
   private phishingDetectionService: PhishingDetectionService;
 
   constructor() {
-    const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) =>
+    // Downstream services receive this callback and invoke it directly instead of
+    // going through LogoutService, so the log line that lives in DefaultLogoutService
+    // is mirrored here to cover this path.
+    const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) => {
+      this.logService.info("Logging out user %s for reason: %s", userId, logoutReason);
       await this.logout(logoutReason, userId);
+    };
 
     const runtimeNativeMessagingBackground = () => this.nativeMessagingBackground;
 
@@ -1149,6 +1154,7 @@ export default class MainBackground {
       this.policyService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.configService,
     );
 
     this.ssoLoginService = new SsoLoginService(
@@ -1507,7 +1513,6 @@ export default class MainBackground {
       this.authService,
       this.webPushConnectionService,
       this.authRequestAnsweringService,
-      this.configService,
       this.autoConfirmService,
       this.billingAccountProfileStateService,
     );
@@ -1566,7 +1571,7 @@ export default class MainBackground {
       permissionsPolicyBackground,
     );
 
-    const logoutService = new DefaultLogoutService(this.messagingService);
+    const logoutService = new DefaultLogoutService(this.messagingService, this.logService);
     this.lockService = new ExtensionLockService(
       this.accountService,
       this.biometricsService,
@@ -1770,7 +1775,6 @@ export default class MainBackground {
         this.authService,
         this.accountService,
         chrome.webRequest,
-        this.configService,
         this.autofillSettingsService,
       );
     }
@@ -1820,6 +1824,7 @@ export default class MainBackground {
       this.sharedUnlockSettingsService,
       this.unlockService,
       this.configService,
+      this.stateProvider,
     );
 
     this.endUserNotificationService = new DefaultEndUserNotificationService(
