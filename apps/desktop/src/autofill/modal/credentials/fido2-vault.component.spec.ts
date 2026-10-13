@@ -5,7 +5,6 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -61,10 +60,6 @@ describe("Fido2VaultComponent", () => {
         { provide: LogService, useValue: mockLogService },
         { provide: Router, useValue: mockRouter },
         { provide: I18nService, useValue: mockI18nService },
-        {
-          provide: ConfigService,
-          useValue: mock<ConfigService>({ getFeatureFlag$: () => of(false) }),
-        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })

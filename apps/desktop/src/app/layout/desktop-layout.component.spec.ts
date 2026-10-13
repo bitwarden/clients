@@ -28,6 +28,7 @@ import {
   VaultNavItemType,
   VaultNavService,
   VaultsNavViewModel,
+  VaultTourCalloutComponent,
 } from "@bitwarden/vault";
 
 import { AccountSwitcherV2Component } from "../../auth/components/account-switcher/account-switcher-v2.component";
@@ -188,7 +189,7 @@ describe("DesktopLayoutComponent", () => {
         add: { imports: [MockSendFiltersNavComponent, MockVaultFiltersNavComponent] },
       })
       .overrideComponent(DesktopSideNavComponent, {
-        remove: { imports: [AccountSwitcherV2Component] },
+        remove: { imports: [AccountSwitcherV2Component, VaultTourCalloutComponent] },
         add: { schemas: [CUSTOM_ELEMENTS_SCHEMA] },
       })
       .compileComponents();

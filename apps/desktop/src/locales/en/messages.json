@@ -123,6 +123,10 @@
   "resetSearch": {
     "message": "Reset search"
   },
+  "clearSearchTooltip": {
+    "message": "Clear by clicking here or pressing Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "addItem": {
     "message": "Add item"
   },
@@ -2135,6 +2139,13 @@
   },
   "turnedOff": {
     "message": "Off"
+  },
+  "manageInSystemSettings": {
+    "message": "Manage in system settings"
+  },
+  "mayOpenSystemSettings": {
+    "message": "May open the system settings app.",
+    "description": "Screen reader hint for the 'Manage in system settings' link, which shows an inline prompt when possible and otherwise opens the operating system's settings app."
   },
   "theme": {
     "message": "Theme"
@@ -5785,6 +5796,9 @@
   "applicationDoesNotSupportDuplicates": {
     "message": "This application does not support duplicates."
   },
+  "noPasskeysFoundForThisApplication": {
+    "message": "No passkeys found for this application."
+  },
   "closeThisWindow": {
     "message": "Close this window"
   },
@@ -7202,6 +7216,15 @@
   },
   "coachmarkMonitorSecurityDescription": {
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
+  },
+  "tourTheNewVault": {
+    "message": "Tour the new vault"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "With updated navigation and design, it's easier than ever to find what you need."
+  },
+  "takeTheTour": {
+    "message": "Take the tour"
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ of $TOTAL$",
