@@ -9,8 +9,8 @@ import { OrganizationOptionsComponent } from "./components/organization-options.
 import { VaultFilterComponent } from "./components/vault-filter.component";
 
 @NgModule({
-  imports: [VaultFilterSharedModule, SearchModule, IconModule],
-  declarations: [VaultFilterComponent, OrganizationOptionsComponent],
+  imports: [VaultFilterSharedModule, SearchModule, IconModule, OrganizationOptionsComponent],
+  declarations: [VaultFilterComponent],
   exports: [VaultFilterComponent],
   providers: [
     {
