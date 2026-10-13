@@ -2119,6 +2119,13 @@
   "turnedOff": {
     "message": "Off"
   },
+  "manageInSystemSettings": {
+    "message": "Manage in system settings"
+  },
+  "mayOpenSystemSettings": {
+    "message": "May open the system settings app.",
+    "description": "Screen reader hint for the 'Manage in system settings' link, which shows an inline prompt when possible and otherwise opens the operating system's settings app."
+  },
   "theme": {
     "message": "Theme"
   },
