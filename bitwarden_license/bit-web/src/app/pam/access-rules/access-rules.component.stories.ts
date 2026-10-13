@@ -20,7 +20,6 @@ const ORG_COLLECTIONS = [
   { id: "col-5", name: "Operations" },
 ];
 
-/** Builds an AccessRuleView with sensible defaults; overrides fill in per-rule specifics. */
 function rule(overrides: Record<string, unknown>): AccessRuleView {
   return {
     id: "rule",
@@ -78,7 +77,6 @@ const RULES: AccessRuleView[] = [
   }),
 ];
 
-/** Base SDK mock; per-story decorators override `listAccessRules` for the empty/loading states. */
 function pamApi(listAccessRules: () => Promise<AccessRuleView[]>): Partial<AccessRuleSdkService> {
   return {
     listAccessRules,
@@ -117,7 +115,7 @@ type Story = StoryObj<AccessRulesComponent>;
 /** The populated table: a mix of enabled/disabled rules, conditions, and lease windows. */
 export const Default: Story = {};
 
-/** No rules yet — the empty state with starter templates is shown. */
+/** No rules yet, so the empty state offers the starter templates. */
 export const Empty: Story = {
   decorators: [
     moduleMetadata({
@@ -126,7 +124,7 @@ export const Empty: Story = {
   ],
 };
 
-/** The initial load, before rules resolve — a spinner. */
+/** A spinner until the rules resolve. */
 export const Loading: Story = {
   decorators: [
     moduleMetadata({

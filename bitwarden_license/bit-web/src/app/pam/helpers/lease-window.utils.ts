@@ -30,9 +30,8 @@ export const EXTENSION_DURATION_OPTIONS: ReadonlyArray<{ seconds: number; labelK
 export const DEFAULT_MAX_EXTENSION_DURATION_SECONDS = 60 * 60;
 
 /**
- * Snap a duration to the nearest `seconds` entry in `options`, so a value
- * persisted outside a picker's option set still renders against an option.
- * Assumes a non-empty option list; callers own the "no stored value" fallback.
+ * Snaps to the nearest option, so a value persisted outside the set still renders. Assumes a
+ * non-empty `options`.
  */
 export function snapToNearestDuration(
   seconds: number,
@@ -46,12 +45,6 @@ export function snapToNearestDuration(
   ).seconds;
 }
 
-/**
- * Snap an arbitrary stored duration to the nearest entry in
- * {@link ACCESS_RULE_DURATION_PRESETS}, so a value persisted outside the preset
- * set still renders against an option. Falls back to
- * {@link DEFAULT_ACCESS_RULE_DURATION_SECONDS} when no value is stored.
- */
 export function snapToNearestAccessRuleDuration(seconds: number | null | undefined): number {
   if (seconds == null) {
     return DEFAULT_ACCESS_RULE_DURATION_SECONDS;
@@ -62,15 +55,7 @@ export function snapToNearestAccessRuleDuration(seconds: number | null | undefin
 /** A duration unit accepted by {@link Intl.NumberFormat}'s `unit` option. */
 export type DurationUnit = "day" | "hour" | "minute" | "second";
 
-/**
- * Picks the largest whole unit a duration divides evenly into, e.g. 3600
- * seconds -> `{ value: 1, unit: "hour" }`. Falls back to seconds when no
- * larger unit divides evenly.
- *
- * Kept as bare value/unit data (no formatting) so locale-specific rendering
- * — `Intl.NumberFormat`'s `style: "unit"` — happens where the display
- * concern belongs: {@link DurationShortPipe} in the `access-rules` view.
- */
+/** The largest unit `seconds` divides evenly into, e.g. 3600 is `{ value: 1, unit: "hour" }`. */
 export function pickDurationUnit(seconds: number): { value: number; unit: DurationUnit } {
   const divisions: { seconds: number; unit: DurationUnit }[] = [
     { seconds: 86400, unit: "day" },

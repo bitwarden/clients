@@ -11,7 +11,7 @@ import {
   IpAllowlistEditorComponent,
 } from "./ip-allowlist-editor.component";
 
-// Stand-in for the SDK-backed CIDR check the app injects; recognises the fixtures these specs use.
+// Stand-in for the SDK-backed CIDR check the app injects.
 const isValidCidr = (value: string): boolean =>
   value === "10.0.0.0/8" || value === "192.168.0.0/16";
 
