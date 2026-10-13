@@ -11,8 +11,14 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
+import { AutofillIpcErrorKind } from "../models/autofill-ipc-channels";
+
 import { DesktopAutofillService } from "./desktop-autofill.service";
-import { NativeWindowObject } from "./desktop-fido2-user-interface.service";
+import {
+  CredentialNotFound,
+  ExcludedCredentialMatched,
+  NativeWindowObject,
+} from "./desktop-fido2-user-interface.service";
 
 describe("DesktopAutofillService", () => {
   let logService: MockProxy<LogService>;
@@ -57,11 +63,12 @@ describe("DesktopAutofillService", () => {
     let featureFlag$: BehaviorSubject<boolean>;
     let desktopAutofillIpc: {
       setEnabled: jest.Mock;
+      getPasskeyProviderState: jest.Mock;
       listenerReady: jest.Mock;
     };
 
-    /** Lets `ensureEnabled` finish after a feature flag emission. */
-    const flush = () => new Promise(process.nextTick);
+    const registered = { registered: true, enabled: true };
+    const unregistered = { registered: false, enabled: false };
 
     beforeEach(() => {
       featureFlag$ = new BehaviorSubject<boolean>(true);
@@ -71,6 +78,7 @@ describe("DesktopAutofillService", () => {
 
       desktopAutofillIpc = {
         setEnabled: jest.fn().mockResolvedValue(true),
+        getPasskeyProviderState: jest.fn().mockResolvedValue(registered),
         listenerReady: jest.fn(),
       };
       // `listenIpc` binds a handler to each `listen*` channel.
@@ -88,9 +96,7 @@ describe("DesktopAutofillService", () => {
     it("does not enable when the feature flag is off", async () => {
       featureFlag$.next(false);
 
-      await service.init();
-      await flush();
-
+      await expect(service.refreshPasskeyProviderState()).resolves.toEqual(unregistered);
       expect(desktopAutofillIpc.setEnabled).not.toHaveBeenCalled();
     });
 
@@ -106,39 +112,21 @@ describe("DesktopAutofillService", () => {
         platformUtilsService,
       );
 
-      await service.init();
-      await flush();
-
+      await expect(service.refreshPasskeyProviderState()).resolves.toEqual(unregistered);
       expect(desktopAutofillIpc.setEnabled).not.toHaveBeenCalled();
     });
 
-    it("enables when the feature flag is on at init", async () => {
-      await service.init();
-      await flush();
+    it("reports the passkey provider state from the OS", async () => {
+      const state = { registered: true, enabled: false };
+      desktopAutofillIpc.getPasskeyProviderState.mockResolvedValue(state);
 
+      await expect(service.refreshPasskeyProviderState()).resolves.toEqual(state);
       expect(desktopAutofillIpc.setEnabled).toHaveBeenCalledWith(true);
-      expect(desktopAutofillIpc.listenerReady).toHaveBeenCalledTimes(1);
     });
 
-    it("enables when the feature flag turns on after init", async () => {
-      featureFlag$.next(false);
-      await service.init();
-      expect(desktopAutofillIpc.setEnabled).not.toHaveBeenCalled();
-
-      featureFlag$.next(true);
-      await flush();
-
-      expect(desktopAutofillIpc.setEnabled).toHaveBeenCalledWith(true);
-      expect(desktopAutofillIpc.listenerReady).toHaveBeenCalledTimes(1);
-    });
-
-    it("only starts listening once when the feature flag turns on again", async () => {
-      await service.init();
-      await flush();
-
-      featureFlag$.next(false);
-      featureFlag$.next(true);
-      await flush();
+    it("re-submits registration on every call but only starts listening once", async () => {
+      await expect(service.refreshPasskeyProviderState()).resolves.toEqual(registered);
+      await expect(service.refreshPasskeyProviderState()).resolves.toEqual(registered);
 
       expect(desktopAutofillIpc.setEnabled).toHaveBeenCalledTimes(2);
       expect(desktopAutofillIpc.listenerReady).toHaveBeenCalledTimes(1);
@@ -147,10 +135,21 @@ describe("DesktopAutofillService", () => {
     it("does not start listening when the main process fails to enable", async () => {
       desktopAutofillIpc.setEnabled.mockResolvedValue(false);
 
-      await service.init();
-      await flush();
-
+      await expect(service.refreshPasskeyProviderState()).resolves.toEqual(unregistered);
       expect(desktopAutofillIpc.listenerReady).not.toHaveBeenCalled();
+      expect(desktopAutofillIpc.getPasskeyProviderState).not.toHaveBeenCalled();
+    });
+
+    it("enables when the feature flag turns on after init", async () => {
+      featureFlag$.next(false);
+      await service.init();
+      expect(desktopAutofillIpc.setEnabled).not.toHaveBeenCalled();
+
+      featureFlag$.next(true);
+      await new Promise(process.nextTick);
+
+      expect(desktopAutofillIpc.setEnabled).toHaveBeenCalledWith(true);
+      expect(desktopAutofillIpc.listenerReady).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -270,6 +269,42 @@ describe("DesktopAutofillService", () => {
 
       expect(completeCallback).toHaveBeenCalledWith(expect.any(Error), null);
       expect((service as any).inFlightRequests[context]).toBeUndefined();
+    });
+
+    it("tags an excluded credential match so the OS can report it to the relying party", async () => {
+      const completeCallback = jest.fn();
+      const error = new ExcludedCredentialMatched();
+
+      const requestListener = registerListener<{ context: string }>(
+        () => Promise.reject(error),
+        (request) => request.context,
+      );
+
+      await requestListener(1, 2, { context: "txn-4" }, completeCallback);
+
+      expect(completeCallback).toHaveBeenCalledWith(
+        error,
+        null,
+        AutofillIpcErrorKind.ExcludedCredentialMatched,
+      );
+    });
+
+    it("tags a missing credential so the OS can drop its stale credential identity", async () => {
+      const completeCallback = jest.fn();
+      const error = new CredentialNotFound();
+
+      const requestListener = registerListener<{ context: string }>(
+        () => Promise.reject(error),
+        (request) => request.context,
+      );
+
+      await requestListener(1, 2, { context: "txn-5" }, completeCallback);
+
+      expect(completeCallback).toHaveBeenCalledWith(
+        error,
+        null,
+        AutofillIpcErrorKind.CredentialNotFound,
+      );
     });
   });
 });

@@ -10,7 +10,7 @@ import { DefaultSingleNudgeService } from "../default-single-nudge.service";
 import { NudgeStatus, NudgeType } from "../nudges.service";
 import { VaultProfileService } from "../vault-profile.service";
 
-export const VFO1_GA_RELEASE_DATE = new Date("2026-11-02T00:00:00.000Z");
+export const VFO1_GA_RELEASE_DATE = new Date("2026-11-19T00:00:00.000Z");
 
 /** How long after GA the VFO1 onboarding messages stay eligible to show. */
 export const VFO1_ONBOARDING_WINDOW_MONTHS = 6;
