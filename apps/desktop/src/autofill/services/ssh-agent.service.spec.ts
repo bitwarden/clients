@@ -529,6 +529,7 @@ describe("SshAgentService – sign request authorization", () => {
   let mockFocusWindow: jest.Mock;
   let mockShowToast: jest.Mock;
   let mockGetAllDecrypted: jest.Mock;
+  let mockLoginRequest: jest.Mock;
 
   beforeEach(async () => {
     signRequestSubject = new Subject();
@@ -539,6 +540,7 @@ describe("SshAgentService – sign request authorization", () => {
     mockDialogOpen = jest.fn().mockReturnValue({ closed: of(true) });
     mockFocusWindow = jest.fn();
     mockShowToast = jest.fn();
+    mockLoginRequest = jest.fn().mockResolvedValue(undefined);
     mockGetAllDecrypted = jest
       .fn()
       .mockResolvedValue([makeSshCipher(CIPHER_ID, "Test Key", "pem")]);
@@ -555,6 +557,7 @@ describe("SshAgentService – sign request authorization", () => {
         },
       },
       platform: { focusWindow: mockFocusWindow },
+      auth: { loginRequest: mockLoginRequest },
     };
 
     service = new SshAgentService(
@@ -736,6 +739,21 @@ describe("SshAgentService – sign request authorization", () => {
 
     expect(mockDialogOpen).toHaveBeenCalled();
     expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
+  });
+
+  it("shows an OS notification when authorization is required", async () => {
+    sendSignRequest();
+    await flush();
+
+    expect(mockLoginRequest).toHaveBeenCalled();
+  });
+
+  it("shows an OS notification even when no authorization is required", async () => {
+    promptBehaviorSubject.next(SshAgentPromptType.Never);
+    sendSignRequest();
+    await flush();
+
+    expect(mockLoginRequest).toHaveBeenCalled();
   });
 
   it("Always: shows dialog and denies when user rejects", async () => {
