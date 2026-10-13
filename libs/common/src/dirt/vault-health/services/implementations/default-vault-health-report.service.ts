@@ -7,8 +7,8 @@ import { UserId } from "../../../../types/guid";
 import { CipherRiskService } from "../../../../vault/abstractions/cipher-risk.service";
 import { CipherType } from "../../../../vault/enums/cipher-type";
 import { CipherView } from "../../../../vault/models/view/cipher.view";
+import { CipherHealthView } from "../../../models/view";
 import {
-  CipherHealthView,
   VAULT_HEALTH_REPORT_IDLE,
   VaultHealthReportState,
   VaultHealthReportStatus,

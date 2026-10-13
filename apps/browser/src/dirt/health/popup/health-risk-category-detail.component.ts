@@ -9,12 +9,12 @@ import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault
 import { NoCredentialsIcon, ReportExposedPasswords, LockIcon } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { CipherHealthView } from "@bitwarden/common/dirt/models/view";
 import {
   isRiskCategory,
   RiskCategory,
   VAULT_HEALTH_REPORT_IDLE,
   VaultHealthReportStatus,
-  CipherHealthView,
 } from "@bitwarden/common/dirt/vault-health/models";
 import { VaultHealthReportService } from "@bitwarden/common/dirt/vault-health/services";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";

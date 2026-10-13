@@ -9,8 +9,8 @@ import { CipherRiskService } from "../../../../vault/abstractions/cipher-risk.se
 import { CipherType } from "../../../../vault/enums/cipher-type";
 import { CipherView } from "../../../../vault/models/view/cipher.view";
 import { LoginView } from "../../../../vault/models/view/login.view";
+import { CipherHealthView } from "../../../models/view";
 import {
-  CipherHealthView,
   VAULT_HEALTH_REPORT_IDLE,
   VaultHealthReportState,
   VaultHealthReportStatus,

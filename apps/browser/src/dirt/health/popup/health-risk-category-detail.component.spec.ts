@@ -8,11 +8,11 @@ import { BehaviorSubject, combineLatest, map, of } from "rxjs";
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { BitSvg, ReportExposedPasswords, LockIcon, NoCredentialsIcon } from "@bitwarden/assets/svg";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { CipherHealthView } from "@bitwarden/common/dirt/models/view";
 import {
   RiskCategory,
   VaultHealthReportStatus,
   VaultHealthReportView,
-  CipherHealthView,
 } from "@bitwarden/common/dirt/vault-health/models";
 import { VaultHealthReportService } from "@bitwarden/common/dirt/vault-health/services";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
