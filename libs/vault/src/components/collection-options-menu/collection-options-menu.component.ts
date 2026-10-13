@@ -91,12 +91,15 @@ export class CollectionOptionsMenuComponent {
     () => this.collectionDialog != null && this.collection().canEdit(this.organization()),
   );
 
-  protected readonly showDeleteAction = computed(
-    () =>
+  protected readonly showDeleteAction = computed(() => {
+    const organization = this.organization();
+    return (
       this.showDelete() &&
       this.bulkDeleteDialog != null &&
-      this.collection().canDelete(this.organization()),
-  );
+      organization != null &&
+      this.collection().canDelete(organization)
+    );
+  });
 
   /** Pin isn't permission-gated like Edit/Delete, so the default collection needs excluding here. */
   protected readonly showPinAction = computed(

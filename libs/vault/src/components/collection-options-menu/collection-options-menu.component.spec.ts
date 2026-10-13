@@ -172,14 +172,21 @@ describe("CollectionOptionsMenuComponent", () => {
     expect(component["showDeleteAction"]()).toBe(true);
   });
 
-  it("still offers Edit/Delete when organization is undefined, since canEdit/canDelete tolerate that", async () => {
+  it("still offers Edit when organization is undefined, since canEdit tolerates that", async () => {
     await setup();
     fixture.componentRef.setInput("organization", undefined);
     fixture.detectChanges();
 
     expect(trigger()).not.toBeNull();
     expect(component["showEditActions"]()).toBe(true);
-    expect(component["showDeleteAction"]()).toBe(true);
+  });
+
+  it("withholds Delete while organization is undefined, since canDelete needs it to honor limitCollectionDeletion", async () => {
+    await setup();
+    fixture.componentRef.setInput("organization", undefined);
+    fixture.detectChanges();
+
+    expect(component["showDeleteAction"]()).toBe(false);
   });
 
   it("offers only Delete for a client that provides no collection dialog", async () => {
