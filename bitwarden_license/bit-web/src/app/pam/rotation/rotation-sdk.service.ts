@@ -117,9 +117,10 @@ export abstract class RotationSdkService {
   ): Promise<RotationConfigDetailView>;
 
   /**
-   * Re-seals and replaces the blob wholesale — `cipherId`/`targetSystemId` must be resupplied
-   * unchanged (read from a prior {@link getConfig}; the server rejects a mismatch). Locks the
-   * account identity while a job runs; check {@link RotationConfigActions.mutationsLocked} first.
+   * Replaces every field — `cipherId`/`targetSystemId` must be resupplied unchanged (read from a
+   * prior {@link getConfig}; the server rejects a mismatch). Re-seals only when the account fields
+   * change, which the server refuses while a job runs; check
+   * {@link RotationConfigActions.mutationsLocked} first. The schedule stays editable then.
    */
   abstract updateConfig(
     organizationId: OrganizationId,
