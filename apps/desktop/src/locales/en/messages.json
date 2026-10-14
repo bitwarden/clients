@@ -7217,14 +7217,11 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
   },
-  "tourTheNewVault": {
-    "message": "Tour the new vault"
+  "whatsNew": {
+    "message": "What's new"
   },
   "tourTheNewVaultDescription": {
     "message": "With updated navigation and design, it's easier than ever to find what you need."
-  },
-  "takeTheTour": {
-    "message": "Take the tour"
   },
   "coachmarkVaultListTitle": {
     "message": "All your vaults in one place"
