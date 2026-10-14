@@ -7,10 +7,13 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 
 import { VaultNavItemType } from "../models/vault-nav-view-model";
 import {
   defaultUserCollectionId,
+  FOLDER_ID_PARAM,
+  FOLDERS_ROUTE,
   isPersonalOnly,
   MY_ITEMS_ROUTE,
   vaultScopeCommands,
@@ -22,7 +25,7 @@ import { routeVaultScope } from "./route-vault-scope";
 import { VAULT_BASE_ROUTE } from "./vault-base-route";
 
 /**
- * Guards the `:vaultId` vault routes, redirecting to the unscoped vault when the segment names no
+ * Guards the `:vaultId` vault routes and a folder's page, redirecting to the unscoped vault when the segment names no
  * vault the side nav offers — a typo, a bookmark to an organization the user has left, or
  * `my-vault` on an account whose lone entry already points at the unscoped route. Without it those
  * URLs render an empty vault, or the right rows under a nav with nothing highlighted.
@@ -37,6 +40,10 @@ import { VAULT_BASE_ROUTE } from "./vault-base-route";
  * membership is established by then, so the vault the URL named is still a destination even though
  * the folder within it is not.
  *
+ * A folder's page is admitted only when the user holds that folder. It lives outside the vault, at
+ * `/folders/:folderId`, so a folder the user does not hold — or a segment that is no folder id at
+ * all — falls back to the My folders list rather than to the unscoped vault.
+ *
  * The active account is resolved once and both the nav view model and the collections are read for
  * that user, so an account switch mid-navigation cannot decide membership from one account's vaults
  * and the folder from another's collections.
@@ -48,6 +55,7 @@ export const vaultScopeGuard: CanActivateFn = async (route) => {
   const vaultNavService = inject(VaultNavService);
   const accountService = inject(AccountService);
   const collectionService = inject(CollectionService);
+  const folderService = inject(FolderService);
   const basePath = inject(VAULT_BASE_ROUTE);
 
   const allItems = () => router.createUrlTree([basePath]);
@@ -55,17 +63,29 @@ export const vaultScopeGuard: CanActivateFn = async (route) => {
     router.createUrlTree(
       vaultScopeCommands({ type: VaultScopeType.Organization, organizationId }, basePath),
     );
+  const myFolders = () => router.createUrlTree([`/${FOLDERS_ROUTE}`]);
 
   const scope = routeVaultScope(route.paramMap, route.data);
   if (scope == null) {
-    return allItems();
+    return route.paramMap.has(FOLDER_ID_PARAM) ? myFolders() : allItems();
   }
 
-  if (scope.type !== VaultScopeType.MyVault && scope.type !== VaultScopeType.Organization) {
+  if (
+    scope.type !== VaultScopeType.MyVault &&
+    scope.type !== VaultScopeType.Organization &&
+    scope.type !== VaultScopeType.Folder
+  ) {
     return true;
   }
 
   const userId = await firstValueFrom(accountService.activeAccount$.pipe(getUserId));
+
+  if (scope.type === VaultScopeType.Folder) {
+    // Uses encrypted folders, like the collections below, to avoid waiting on decryption
+    const folders = await firstValueFrom(folderService.folders$(userId));
+    return folders.some((folder) => folder.id === scope.folderId) || myFolders();
+  }
+
   const nav = await firstValueFrom(vaultNavService.viewModel$(userId));
 
   if (scope.type === VaultScopeType.MyVault) {
