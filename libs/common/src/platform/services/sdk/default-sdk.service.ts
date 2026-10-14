@@ -11,8 +11,6 @@ import {
   tap,
   switchMap,
   catchError,
-  BehaviorSubject,
-  of,
   takeWhile,
   throwIfEmpty,
   firstValueFrom,
@@ -42,6 +40,7 @@ import { AccountCryptographicStateService } from "../../../key-management/accoun
 import { JsWasmStateBridge } from "../../../key-management/state-bridge";
 import { V2UpgradeTokenStateService } from "../../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { OrganizationId, UserId } from "../../../types/guid";
+import { UserKey } from "../../../types/key";
 import { AppIdService } from "../../abstractions/app-id.service";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
@@ -52,6 +51,7 @@ import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import {
   asUuid,
   SdkService,
+  SdkUnlockRequest,
   toSdkDevice,
   UserNotLoggedInError,
 } from "../../abstractions/sdk/sdk.service";
@@ -60,10 +60,6 @@ import { Rc } from "../../misc/reference-counting/rc";
 import { StateProvider } from "../../state";
 
 import { initializeClientManagedState } from "./client-managed-state";
-
-// A symbol that represents an overridden client that is explicitly set to undefined,
-// blocking the creation of an internal client for that user.
-const UnsetClient = Symbol("UnsetClient");
 
 /**
  * A token provider that exposes the access token to the SDK.
@@ -89,9 +85,6 @@ const CRYPTO_TRACK_GROUP = PerfTrackGroup.Unlock;
 const CRYPTO_TRACK = "Crypto";
 
 export class DefaultSdkService implements SdkService {
-  private sdkClientOverrides = new BehaviorSubject<{
-    [userId: UserId]: Rc<PasswordManagerClient> | typeof UnsetClient;
-  }>({});
   private sdkClientCache = new Map<UserId, Observable<Rc<PasswordManagerClient>>>();
 
   client$ = this.environmentService.environment$.pipe(
@@ -134,22 +127,7 @@ export class DefaultSdkService implements SdkService {
   ) {}
 
   userClient$(userId: UserId): Observable<Rc<PasswordManagerClient>> {
-    return this.sdkClientOverrides.pipe(
-      takeWhile((clients) => clients[userId] !== UnsetClient, false),
-      map((clients) => {
-        if (clients[userId] === UnsetClient) {
-          throw new Error("Encountered UnsetClient even though it should have been filtered out");
-        }
-        return clients[userId] as Rc<PasswordManagerClient>;
-      }),
-      distinctUntilChanged(),
-      switchMap((clientOverride) => {
-        if (clientOverride) {
-          return of(clientOverride);
-        }
-
-        return this.internalClient$(userId);
-      }),
+    return this.internalClient$(userId).pipe(
       takeWhile((client) => client !== undefined, false),
       // Filter out clients that have been marked for disposal. This can happen in the
       // race window where `internalClient$`'s `combineLatest` re-emits (e.g. during
@@ -162,23 +140,23 @@ export class DefaultSdkService implements SdkService {
     );
   }
 
-  setClient(userId: UserId, client: PasswordManagerClient | undefined) {
-    const previousValue = this.sdkClientOverrides.value[userId];
-
-    this.sdkClientOverrides.next({
-      ...this.sdkClientOverrides.value,
-      [userId]: client ? new Rc(client) : UnsetClient,
-    });
-
-    if (previousValue !== UnsetClient && previousValue !== undefined) {
-      previousValue.markForDisposal();
-    }
+  async unlock(userId: UserId, request: SdkUnlockRequest): Promise<UserKey | null> {
+    return null;
   }
 
+  async lock(userId: UserId): Promise<void> {}
+
+  logout(userId: UserId): void {}
+
+  async setFlags(userId: UserId, flags: Map<string, boolean>): Promise<void> {}
+
+  async setOrgKeys(
+    userId: UserId,
+    orgKeys: Record<OrganizationId, UnsignedSharedKey>,
+  ): Promise<void> {}
+
   /**
-   * This method is used to create a client for a specific user by using the existing state of the application.
-   * This methods is a fallback for when no client has been provided by Auth. As Auth starts implementing the
-   * client creation, this method will be deprecated.
+   * Creates a client for a specific user by using the existing state of the application.
    * @param userId The user id for which to create the client
    * @returns An observable that emits the client for the user
    */
