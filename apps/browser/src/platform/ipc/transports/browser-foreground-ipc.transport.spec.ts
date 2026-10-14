@@ -119,18 +119,21 @@ describe("BrowserForegroundIpcTransport", () => {
     expect(receive).not.toHaveBeenCalled();
   });
 
-  it("sends to the port for the destination id", async () => {
-    const { port } = createPort();
-    connect(port);
+  it("sends only to the port for the destination id", async () => {
+    const first = createPort();
+    const second = createPort();
+    connect(first.port);
+    connect(second.port);
 
     await transport.send({
-      destination: { BrowserForeground: { id: 1 } },
+      destination: { BrowserForeground: { id: 2 } },
       payload: new Uint8Array([4, 5]),
       topic: "topic",
     } as OutgoingMessage);
 
-    expect(port.postMessage).toHaveBeenCalledWith(
-      ipcMessage({ BrowserForeground: { id: 1 } }, [4, 5]),
+    expect(first.port.postMessage).not.toHaveBeenCalled();
+    expect(second.port.postMessage).toHaveBeenCalledWith(
+      ipcMessage({ BrowserForeground: { id: 2 } }, [4, 5]),
     );
   });
 

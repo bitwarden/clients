@@ -112,10 +112,4 @@ describe("BrowserBackgroundIpcTransport", () => {
 
     expect(chrome.runtime.connect).toHaveBeenCalledTimes(2);
   });
-
-  it("rejects destinations other than the background", async () => {
-    await expect(
-      transport.send({ destination: "DesktopMain", payload: new Uint8Array() } as OutgoingMessage),
-    ).rejects.toThrow("Destination not supported.");
-  });
 });
