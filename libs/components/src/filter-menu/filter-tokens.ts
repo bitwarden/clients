@@ -111,6 +111,11 @@ export interface FilterPresenter {
 /** Provided by a filter chip / toggle; injected by the responsive filter dialog. */
 export const FILTER_PRESENTER = new InjectionToken<FilterPresenter>("FilterPresenter");
 
+/** Options selected in a filter; a toggle has no labels, so its active state counts as one. */
+export function selectionCount(filter: FilterPresenter): number {
+  return Math.max(filter.selections().length, filter.active() ? 1 : 0);
+}
+
 /** A top-level entry projected into a `bit-filter-menu` — an option, a section, or a divider. */
 export interface FilterEntry {
   readonly kind: "option" | "section" | "divider";

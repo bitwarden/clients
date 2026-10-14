@@ -1,10 +1,29 @@
 import { CommonModule } from "@angular/common";
-import { Component, input, output, ChangeDetectionStrategy, signal, computed } from "@angular/core";
+import {
+  Component,
+  input,
+  output,
+  ChangeDetectionStrategy,
+  signal,
+  computed,
+  effect,
+} from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
+import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { ApplicationHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
-import { ButtonModule, DialogModule, SearchModule, TypographyModule } from "@bitwarden/components";
-import { SharedModule } from "@bitwarden/web-vault/app/shared";
+import {
+  BitIconButtonComponent,
+  DialogModule,
+  IconComponent,
+  ScrollLayoutHostDirective,
+  ScrollLayoutService,
+  SearchModule,
+  TableDataSource,
+  TableModule,
+  TypographyModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
  * Displays a searchable, selectable list of applications with health metrics
@@ -15,14 +34,19 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
   selector: "dirt-review-applications-view-v2",
   standalone: true,
   templateUrl: "./review-applications-view-v2.component.html",
+  providers: [ScrollLayoutService],
   imports: [
+    AppVaultIconComponent,
+    BitIconButtonComponent,
     CommonModule,
-    ButtonModule,
     DialogModule,
     FormsModule,
+    I18nPipe,
+    IconComponent,
+    ScrollLayoutHostDirective,
     SearchModule,
+    TableModule,
     TypographyModule,
-    SharedModule,
   ],
 })
 export class ReviewApplicationsViewV2Component {
@@ -53,6 +77,12 @@ export class ReviewApplicationsViewV2Component {
   });
 
   /**
+   * Data source for the virtual-scroll table.
+   * Populated by the constructor effect whenever filteredApplications changes.
+   */
+  protected readonly dataSource = new TableDataSource<ApplicationHealthView>();
+
+  /**
    * Emitted when user toggles selection of a single application
    */
   readonly onToggleSelection = output<string>();
@@ -61,6 +91,12 @@ export class ReviewApplicationsViewV2Component {
    * Emitted when user toggles "select all" button
    */
   readonly onToggleAll = output<void>();
+
+  constructor() {
+    effect(() => {
+      this.dataSource.data = this.filteredApplications();
+    });
+  }
 
   /**
    * Toggle selection state of a single application

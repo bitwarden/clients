@@ -1,12 +1,10 @@
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { Decryptable, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/legacy-crypto";
 import { Cipher as SdkCipher } from "@bitwarden/sdk-internal";
 
-import { assertNonNullish } from "../../../auth/utils";
 import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
-import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import {
@@ -18,10 +16,6 @@ import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 import { CipherData } from "../data/cipher.data";
 import { LocalData, fromSdkLocalData, toSdkLocalData } from "../data/local.data";
-import { AttachmentView } from "../view/attachment.view";
-import { CipherView } from "../view/cipher.view";
-import { FieldView } from "../view/field.view";
-import { PasswordHistoryView } from "../view/password-history.view";
 
 import { Attachment } from "./attachment";
 import { BankAccount } from "./bank-account";
@@ -47,7 +41,7 @@ import { SshKey } from "./ssh-key";
  * Decrypt to a `CipherView` / `CipherListView` to inspect item contents (e.g. whether a login has
  * a TOTP or passkey). See bitwarden/sdk-internal#1535.
  */
-export class Cipher extends Domain implements Decryptable<CipherView> {
+export class Cipher extends Domain {
   readonly initializerKey = InitializerKey.Cipher;
 
   id: string = "";
@@ -94,6 +88,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   key?: EncString;
   /** @deprecated Opaque sealed blob (blob format only), not public API. Never parse or construct it. See {@link Cipher}. */
   data?: string;
+  /** Raw JSON-string partial-data envelope for PAM-gated rows; see {@link CipherData.partialData}. */
+  partialData?: string;
 
   constructor(obj?: CipherData, localData?: LocalData) {
     super();
@@ -122,6 +118,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     this.reprompt = obj.reprompt;
     this.key = conditionalEncString(obj.key);
     this.data = obj.data;
+    this.partialData = obj.partialData;
 
     switch (this.type) {
       case CipherType.Login:
@@ -166,129 +163,12 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   }
 
   /**
-   * @deprecated WARNING: This API may fail to decrypt ciphers if they are using blob encryption.
-   * If you are using this, please migrate off of it immediately! This function will be removed
-   * in a near release.
+   * @returns `true` when this is a PAM-gated ("partial") row, whose sensitive fields the server
+   *   suppressed in favour of the {@link partialData} envelope. The decrypted-side equivalent is
+   *   `CipherViewLikeUtils.isPartial`.
    */
-  async decrypt(userKeyOrOrgKey: SymmetricCryptoKey): Promise<CipherView> {
-    assertNonNullish(userKeyOrOrgKey, "userKeyOrOrgKey", "Cipher decryption");
-
-    const model = new CipherView(this);
-    let bypassValidation = true;
-
-    // By default, the user/organization key is used for decryption
-    let cipherDecryptionKey = userKeyOrOrgKey;
-
-    // If there is a cipher key present, unwrap it and use it for decryption
-    if (this.key != null) {
-      const encryptService = Utils.getContainerService().getEncryptService();
-
-      try {
-        const cipherKey = await encryptService.unwrapSymmetricKey(this.key, userKeyOrOrgKey);
-        cipherDecryptionKey = cipherKey;
-        model.key = cipherKey;
-        bypassValidation = false;
-      } catch {
-        model.name = "[error: cannot decrypt]";
-        model.decryptionFailure = true;
-        return model;
-      }
-    }
-
-    await this.decryptObj<Cipher, CipherView>(this, model, ["name", "notes"], cipherDecryptionKey);
-
-    switch (this.type) {
-      case CipherType.Login:
-        if (this.login != null) {
-          model.login = await this.login.decrypt(
-            bypassValidation,
-            cipherDecryptionKey,
-            `Cipher Id: ${this.id}`,
-          );
-        }
-        break;
-      case CipherType.SecureNote:
-        if (this.secureNote != null) {
-          model.secureNote = await this.secureNote.decrypt();
-        }
-        break;
-      case CipherType.Card:
-        if (this.card != null) {
-          model.card = await this.card.decrypt(cipherDecryptionKey, `Cipher Id: ${this.id}`);
-        }
-        break;
-      case CipherType.Identity:
-        if (this.identity != null) {
-          model.identity = await this.identity.decrypt(
-            cipherDecryptionKey,
-            `Cipher Id: ${this.id}`,
-          );
-        }
-        break;
-      case CipherType.SshKey:
-        if (this.sshKey != null) {
-          model.sshKey = await this.sshKey.decrypt(cipherDecryptionKey, `Cipher Id: ${this.id}`);
-        }
-        break;
-      case CipherType.BankAccount:
-        if (this.bankAccount != null) {
-          model.bankAccount = await this.bankAccount.decrypt(
-            cipherDecryptionKey,
-            `Cipher Id: ${this.id}`,
-          );
-        }
-        break;
-      case CipherType.DriversLicense:
-        if (this.driversLicense != null) {
-          model.driversLicense = await this.driversLicense.decrypt(
-            cipherDecryptionKey,
-            `Cipher Id: ${this.id}`,
-          );
-        }
-        break;
-      case CipherType.Passport:
-        if (this.passport != null) {
-          model.passport = await this.passport.decrypt(
-            cipherDecryptionKey,
-            `Cipher Id: ${this.id}`,
-          );
-        }
-        break;
-      default:
-        break;
-    }
-
-    if (this.attachments != null && this.attachments.length > 0) {
-      const attachments: AttachmentView[] = [];
-      for (const attachment of this.attachments) {
-        const decryptedAttachment = await attachment.decrypt(
-          cipherDecryptionKey,
-          `Cipher Id: ${this.id}`,
-        );
-        attachments.push(decryptedAttachment);
-      }
-      model.attachments = attachments;
-    }
-
-    if (this.fields != null && this.fields.length > 0) {
-      const fields: FieldView[] = [];
-      for (const field of this.fields) {
-        const decryptedField = await field.decrypt(cipherDecryptionKey);
-        fields.push(decryptedField);
-      }
-      model.fields = fields;
-    }
-
-    if (this.passwordHistory != null && this.passwordHistory.length > 0) {
-      const passwordHistory: PasswordHistoryView[] = [];
-      for (const ph of this.passwordHistory) {
-        const decryptedPh = await ph.decrypt(cipherDecryptionKey);
-        passwordHistory.push(decryptedPh);
-      }
-      model.passwordHistory = passwordHistory;
-    }
-
-    return model;
+  get isPartial(): boolean {
+    return this.partialData != null;
   }
 
   toCipherData(): CipherData {
@@ -325,6 +205,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     }
 
     c.archivedDate = this.archivedDate != null ? this.archivedDate.toISOString() : undefined;
+    c.partialData = this.partialData;
 
     this.buildDataModel(this, c, {
       name: null,
@@ -407,6 +288,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     if (obj.permissions != null) {
       domain.permissions = new CipherPermissionsApi(obj.permissions);
     }
+
+    domain.partialData = obj.partialData;
 
     domain.collectionIds = obj.collectionIds;
     domain.localData = obj.localData;
@@ -521,6 +404,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       driversLicense: undefined,
       passport: undefined,
       data: this.data,
+      partialData: this.partialData,
     };
 
     switch (this.type) {
@@ -613,6 +497,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     cipher.archivedDate = sdkCipher.archivedDate ? new Date(sdkCipher.archivedDate) : undefined;
     cipher.reprompt = sdkCipher.reprompt;
     cipher.data = sdkCipher.data;
+    cipher.partialData = sdkCipher.partialData;
 
     // Cipher type specific properties
     cipher.login = Login.fromSdkLogin(sdkCipher.login);

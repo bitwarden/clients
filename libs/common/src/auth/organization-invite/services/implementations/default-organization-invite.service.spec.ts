@@ -295,7 +295,10 @@ describe("DefaultOrganizationInviteService", () => {
       const result = await sut.validateAndAcceptDirectOrgInvite(invite, activeUserId, acceptOrgUrl);
 
       expect(result).toBe(false);
-      expect(logoutService.logout).toHaveBeenCalled();
+      expect(logoutService.logout).toHaveBeenCalledWith(
+        activeUserId,
+        "masterPasswordPolicyEnforcement",
+      );
       expect(deepLinkRedirectService.persistPostLoginRedirectUrl).toHaveBeenCalledWith(
         acceptOrgUrl,
       );
@@ -915,7 +918,10 @@ describe("DefaultOrganizationInviteService", () => {
       const result = await sut.acceptOpenOrgInvite(open, activeUserId, acceptOrgUrl);
 
       expect(result).toEqual({ kind: "stashed-for-mp-policy-detour" });
-      expect(logoutService.logout).toHaveBeenCalled();
+      expect(logoutService.logout).toHaveBeenCalledWith(
+        activeUserId,
+        "masterPasswordPolicyEnforcement",
+      );
       expect(deepLinkRedirectService.persistPostLoginRedirectUrl).toHaveBeenCalledWith(
         acceptOrgUrl,
       );

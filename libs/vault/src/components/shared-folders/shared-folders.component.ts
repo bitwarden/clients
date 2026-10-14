@@ -135,10 +135,10 @@ export type SharedFoldersTableFilters = {
 };
 
 /**
- * The shared folders of one organization vault: name, permissions, item count, and a per-row
- * Options menu, with a search field, a Permissions filter chip, an Add button, and a bulk actions
- * bar. Self-contained — it reads the route, loads the folders, and owns its dialogs. Project the
- * client's page header into the default slot:
+ * The top-level shared folders of one organization vault: name (with a count of the folders nested
+ * inside), permissions, item count, and a per-row Options menu, with a search field, a Permissions
+ * filter chip, an Add button, and a bulk actions bar. Self-contained — it reads the route, loads
+ * the folders, and owns its dialogs. Project the client's page header into the default slot:
  *
  * ```html
  * <vault-shared-folders><app-header /></vault-shared-folders>
