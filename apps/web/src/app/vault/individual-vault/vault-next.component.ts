@@ -69,16 +69,14 @@ import {
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
-  FOLDER_ID_PARAM,
   folderNameForScope,
   hasMultipleVaults,
   organizationNameForScope,
   organizationInScope,
   organizationVaultPage,
   OrganizationVaultPage,
-  parseVaultScope,
   resolveVaultScope,
-  scopedCollectionSegment,
+  routeVaultScope,
   scopedFolderId,
   vaultScopeHeaderTile,
   vaultScopeTitle,
@@ -207,13 +205,9 @@ export class VaultNextComponent implements OnInit {
 
   private readonly routeData = toSignal(this.activatedRoute.data);
 
-  private readonly vaultIdParam = computed(() => this.routeParams()?.get("vaultId"));
-
-  private readonly collectionSegment = computed(() =>
-    scopedCollectionSegment(this.routeParams(), this.routeData()),
+  private readonly routeScope = computed(() =>
+    routeVaultScope(this.routeParams(), this.routeData()),
   );
-
-  private readonly folderSegment = computed(() => this.routeParams()?.get(FOLDER_ID_PARAM));
 
   private readonly vaultNav = toSignal(
     this.userId$.pipe(switchMap((userId) => this.vaultNavService.viewModel$(userId))),
@@ -225,13 +219,7 @@ export class VaultNextComponent implements OnInit {
    * unresolvable one here means the guard was bypassed — show everything rather than an empty page.
    */
   protected readonly vaultScope = computed(
-    () =>
-      resolveVaultScope(
-        this.vaultIdParam(),
-        this.collectionSegment(),
-        this.vaultNav(),
-        this.folderSegment(),
-      ) ?? ALL_ITEMS_SCOPE,
+    () => resolveVaultScope(this.routeScope(), this.vaultNav()) ?? ALL_ITEMS_SCOPE,
   );
 
   protected readonly defaultCollectionId = computed(() => {
@@ -253,11 +241,7 @@ export class VaultNextComponent implements OnInit {
     vaultScopeHeaderTile(this.vaultScope(), this.vaultNav()),
   );
 
-  protected readonly parsedVaultScope = computed(
-    () =>
-      parseVaultScope(this.vaultIdParam(), this.collectionSegment(), this.folderSegment()) ??
-      ALL_ITEMS_SCOPE,
-  );
+  protected readonly parsedVaultScope = computed(() => this.routeScope() ?? ALL_ITEMS_SCOPE);
 
   /**
    * The scope key the vault table's filter state belongs to. Keyed off the parsed scope rather
@@ -266,7 +250,7 @@ export class VaultNextComponent implements OnInit {
   protected readonly filterScopeKey = computed(() => scopeKey(this.parsedVaultScope()));
 
   protected readonly collectionSelected = computed(() => {
-    const seg = this.collectionSegment();
+    const seg = scopedSharedFolderId(this.parsedVaultScope());
     return seg != null && seg !== MY_ITEMS_ROUTE;
   });
 
