@@ -551,60 +551,6 @@ class DemoFilterCoachmarkTableComponent extends DemoFilterableTableComponent {
   }
 }
 
-// TEMP: demo for `filterChips`; remove before merge.
-@Component({
-  selector: "demo-filter-chips-spotlight",
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BitTableToolbarComponent, FilterMenuModule, SearchModule, ButtonModule, PopoverModule],
-  template: `
-    <div class="tw-mb-4 tw-flex tw-gap-2">
-      <button bitButton buttonType="primary" type="button" (click)="spotlight()">
-        Spotlight chips
-      </button>
-      <button bitButton buttonType="secondary" type="button" (click)="narrow.set(!narrow())">
-        {{ narrow() ? "Widen" : "Narrow" }} toolbar
-      </button>
-    </div>
-    <div [style.width]="narrow() ? '380px' : '100%'">
-      <bit-table-toolbar>
-        <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
-        <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
-          @for (option of typeOptions; track option.value) {
-            <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
-          }
-        </bit-filter-menu>
-        <bit-filter-toggle
-          key="favorite"
-          label="Favorites"
-          icon="bwi-star"
-          iconActive="bwi-star-f"
-        ></bit-filter-toggle>
-      </bit-table-toolbar>
-    </div>
-
-    <bit-popover [title]="'Filters'" (closed)="ref?.close()" #chipsCoachmark>
-      <div>Narrow the list by type, or show only favorites.</div>
-    </bit-popover>
-  `,
-})
-class DemoFilterChipsSpotlightComponent {
-  private readonly popoverService = inject(PopoverService);
-  private readonly toolbar = viewChild.required(BitTableToolbarComponent);
-  private readonly chipsCoachmark = viewChild.required<PopoverComponent>("chipsCoachmark");
-  protected ref?: PopoverRef;
-
-  protected readonly narrow = signal(false);
-  protected readonly typeOptions = VAULT_ITEM_TYPES;
-
-  protected spotlight(): void {
-    this.ref?.close();
-    this.ref = this.popoverService.open(this.chipsCoachmark(), this.toolbar().filterChips, {
-      spotlight: true,
-      position: "below-start",
-    });
-  }
-}
-
 @Component({
   selector: "demo-kitchen-sink-table",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -1200,7 +1146,6 @@ export default {
         DemoStatusColumnComponent,
         DemoFilterableTableComponent,
         DemoFilterCoachmarkTableComponent,
-        DemoFilterChipsSpotlightComponent,
         DemoKitchenSinkTableComponent,
         DemoLongLabelFiltersTableComponent,
         DemoSearchableTableComponent,
@@ -2005,16 +1950,6 @@ export const FilterCoachmarkTour: Story = {
   }),
   parameters: {
     // Popover positioning is flaky in snapshots, see CL-822
-    chromatic: { disableSnapshot: true },
-  },
-};
-
-// TEMP: demo for `filterChips`; remove before merge.
-export const FilterChipsSpotlight: Story = {
-  render: () => ({
-    template: `<demo-filter-chips-spotlight></demo-filter-chips-spotlight>`,
-  }),
-  parameters: {
     chromatic: { disableSnapshot: true },
   },
 };
