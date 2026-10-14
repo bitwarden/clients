@@ -1,12 +1,7 @@
 import {
-  MemberDecryptionType as SdkMemberDecryptionType,
   OrganizationId as SdkOrganizationId,
   OrganizationUserId as SdkOrganizationUserId,
-  OrganizationUserStatusType as SdkOrganizationUserStatusType,
-  OrganizationUserType as SdkOrganizationUserType,
-  ProductTierType as SdkProductTierType,
   ProfileOrganization as SdkProfileOrganization,
-  ProviderType as SdkProviderType,
   UserId as SdkUserId,
 } from "@bitwarden/sdk-internal";
 
@@ -19,8 +14,6 @@ import { OrganizationData } from "../data/organization.data";
 /**
  * Bridges the client's `ORGANIZATIONS` state to the SDK's organization repository so the SDK can
  * read/write organizations from the same state legacy sync already populates.
- *
- * The client and SDK enums share the same numeric values, so they are cast rather than mapped.
  */
 export class OrganizationRecordMapper implements SdkRecordMapper<
   OrganizationData,
@@ -39,7 +32,7 @@ export class OrganizationRecordMapper implements SdkRecordMapper<
         hasPublicAndPrivateKeys: value.hasPublicAndPrivateKeys,
       },
       plan: {
-        productTierType: value.productTierType as number as SdkProductTierType,
+        productTierType: value.productTierType,
         seats: value.seats ?? undefined,
         maxCollections: value.maxCollections ?? undefined,
         maxStorageGb: value.maxStorageGb ?? undefined,
@@ -71,8 +64,8 @@ export class OrganizationRecordMapper implements SdkRecordMapper<
         useInviteLinks: value.useInviteLinks,
       },
       membership: {
-        status: value.status as number as SdkOrganizationUserStatusType,
-        type: value.type as number as SdkOrganizationUserType,
+        status: value.status,
+        type: value.type,
         permissions: {
           accessEventLogs: value.permissions?.accessEventLogs,
           accessImportExport: value.permissions?.accessImportExport,
@@ -109,17 +102,14 @@ export class OrganizationRecordMapper implements SdkRecordMapper<
         value.providerId != null && value.providerType != null
           ? {
               id: asUuid(value.providerId),
-              type: value.providerType as number as SdkProviderType,
+              type: value.providerType,
               name: value.providerName ?? undefined,
             }
           : undefined,
       sso: {
         enabled: value.ssoEnabled,
         identifier: value.identifier ?? undefined,
-        memberDecryptionType:
-          value.ssoMemberDecryptionType != null
-            ? (value.ssoMemberDecryptionType as number as SdkMemberDecryptionType)
-            : undefined,
+        memberDecryptionType: value.ssoMemberDecryptionType ?? undefined,
         keyConnectorEnabled: value.keyConnectorEnabled,
         keyConnectorUrl: value.keyConnectorUrl ?? undefined,
       },
@@ -144,7 +134,7 @@ export class OrganizationRecordMapper implements SdkRecordMapper<
       enabled: details.enabled,
       hasPublicAndPrivateKeys: details.hasPublicAndPrivateKeys,
 
-      productTierType: plan.productTierType as number,
+      productTierType: plan.productTierType,
       seats: plan.seats ?? null,
       maxCollections: plan.maxCollections ?? null,
       maxStorageGb: plan.maxStorageGb ?? undefined,
@@ -175,8 +165,8 @@ export class OrganizationRecordMapper implements SdkRecordMapper<
       useMyItems: plan.useMyItems,
       useInviteLinks: plan.useInviteLinks,
 
-      status: membership.status as number,
-      type: membership.type as number,
+      status: membership.status,
+      type: membership.type,
       permissions: {
         accessEventLogs: membership.permissions.accessEventLogs ?? false,
         accessImportExport: membership.permissions.accessImportExport ?? false,
@@ -209,12 +199,11 @@ export class OrganizationRecordMapper implements SdkRecordMapper<
 
       providerId: provider != null ? uuidAsString(provider.id) : null,
       providerName: provider?.name ?? null,
-      providerType: provider != null ? (provider.type as number) : undefined,
+      providerType: provider?.type,
 
       ssoEnabled: sso.enabled,
       identifier: sso.identifier ?? null,
-      ssoMemberDecryptionType:
-        sso.memberDecryptionType != null ? (sso.memberDecryptionType as number) : undefined,
+      ssoMemberDecryptionType: sso.memberDecryptionType,
       keyConnectorEnabled: sso.keyConnectorEnabled,
       keyConnectorUrl: sso.keyConnectorUrl ?? null,
 

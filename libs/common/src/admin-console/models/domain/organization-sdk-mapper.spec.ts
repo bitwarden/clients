@@ -1,6 +1,11 @@
-import { MemberDecryptionType } from "../../../auth/enums/sso";
-import { ProductTierType } from "../../../billing/enums";
-import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
+import {
+  MemberDecryptionType,
+  OrganizationUserStatusType,
+  OrganizationUserType,
+  ProductTierType,
+  ProviderType,
+} from "@bitwarden/sdk-internal";
+
 import { PermissionsApi } from "../api/permissions.api";
 import { OrganizationData } from "../data/organization.data";
 
