@@ -1,10 +1,9 @@
+import { endpointToString } from "@bitwarden/common/platform/ipc";
 import { Endpoint, IpcSessionRepository as SdkIpcSessionRepository } from "@bitwarden/sdk-internal";
-
-import { endpointToString } from "./ipc-session-repository";
 
 /**
  * In-memory implementation of the SDK session repository. Unlike the SDK's internal in-memory
- * sessions, transports can call {@link remove} to drop a session when a peer disconnects.
+ * sessions, a service can call {@link remove} to drop a session when a peer disconnects.
  */
 export class InMemoryIpcSessionRepository implements SdkIpcSessionRepository {
   private sessions = new Map<string, any>();

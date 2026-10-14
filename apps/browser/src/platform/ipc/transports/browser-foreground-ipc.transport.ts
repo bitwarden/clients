@@ -1,12 +1,11 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
-  InMemoryIpcSessionRepository,
   IpcMessage,
   isIpcMessage,
   reconstructIpcMessage,
   SerializedOutgoingMessage,
 } from "@bitwarden/common/platform/ipc";
-import { IncomingMessage, OutgoingMessage, Source } from "@bitwarden/sdk-internal";
+import { Endpoint, IncomingMessage, OutgoingMessage, Source } from "@bitwarden/sdk-internal";
 
 import { BrowserApi } from "../../browser/browser-api";
 
@@ -21,22 +20,23 @@ type ReceivedMessage = { message: SerializedOutgoingMessage; source: Source };
  * sidebar). Each accepted runtime port is assigned a never-reused id and addressed as
  * `BrowserForeground { id }`. Handles the `BrowserForeground` destination.
  */
-export class ForegroundIpcTransport {
+export class BrowserForegroundIpcTransport {
   private ports = new Map<number, chrome.runtime.Port>();
   private nextId = 1;
-  private receive?: (message: IncomingMessage) => void;
+  private started = false;
   private pending: ReceivedMessage[] = [];
 
   constructor(
     private logService: LogService,
-    private sessionRepository: InMemoryIpcSessionRepository,
+    private receive: (message: IncomingMessage) => void,
+    private onDisconnect?: (endpoint: Endpoint) => void,
   ) {}
 
   /**
    * Starts accepting ports. Must run synchronously during service worker startup so a port that
    * wakes the worker is not missed. Messages are held until {@link start} is called.
    */
-  listen() {
+  init() {
     BrowserApi.addListener(chrome.runtime.onConnect, (port) => {
       if (port.name !== FOREGROUND_IPC_PORT_NAME) {
         return;
@@ -64,7 +64,7 @@ export class ForegroundIpcTransport {
       port.onDisconnect.addListener(() => {
         port.onMessage.removeListener(onMessage);
         this.ports.delete(id);
-        void this.sessionRepository.remove(source);
+        this.onDisconnect?.(source);
 
         // Suppress error message
         void chrome.runtime.lastError;
@@ -75,8 +75,8 @@ export class ForegroundIpcTransport {
   /**
    * Delivers held and future messages to the IPC client. Requires the SDK to be loaded.
    */
-  start(receive: (message: IncomingMessage) => void) {
-    this.receive = receive;
+  start() {
+    this.started = true;
     const pending = this.pending;
     this.pending = [];
     pending.forEach((message) => this.deliver(message));
@@ -107,7 +107,7 @@ export class ForegroundIpcTransport {
   }
 
   private deliver({ message, source }: ReceivedMessage) {
-    if (this.receive == null) {
+    if (!this.started) {
       this.pending.push({ message, source });
       return;
     }

@@ -1,11 +1,14 @@
 import { mock } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { InMemoryIpcSessionRepository, IpcMessage } from "@bitwarden/common/platform/ipc";
-import { IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-internal";
+import { IpcMessage } from "@bitwarden/common/platform/ipc";
+import { Endpoint, IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-internal";
 
+import {
+  BrowserForegroundIpcTransport,
+  FOREGROUND_IPC_PORT_NAME,
+} from "./browser-foreground-ipc.transport";
 import { DESTINATION_UNREACHABLE_ERROR } from "./errors";
-import { FOREGROUND_IPC_PORT_NAME, ForegroundIpcTransport } from "./foreground-ipc.transport";
 
 function createPort(name = FOREGROUND_IPC_PORT_NAME, origin = "chrome-extension://id") {
   const messageListeners: ((message: unknown) => void)[] = [];
@@ -34,11 +37,11 @@ function ipcMessage(destination: unknown, payload = [1, 2, 3]): IpcMessage {
   } as IpcMessage;
 }
 
-describe("ForegroundIpcTransport", () => {
+describe("BrowserForegroundIpcTransport", () => {
   const logService = mock<LogService>();
   const receive = jest.fn<void, [IncomingMessage]>();
-  let sessionRepository: InMemoryIpcSessionRepository;
-  let transport: ForegroundIpcTransport;
+  const onDisconnect = jest.fn<void, [Endpoint]>();
+  let transport: BrowserForegroundIpcTransport;
 
   const connect = (port: chrome.runtime.Port) => {
     const onConnect = (chrome.runtime.onConnect.addListener as jest.Mock).mock.calls[0][0];
@@ -47,13 +50,12 @@ describe("ForegroundIpcTransport", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    sessionRepository = new InMemoryIpcSessionRepository();
-    transport = new ForegroundIpcTransport(logService, sessionRepository);
-    transport.listen();
+    transport = new BrowserForegroundIpcTransport(logService, receive, onDisconnect);
+    transport.init();
   });
 
   it("assigns each port a new id and stamps it as the source", () => {
-    transport.start(receive);
+    transport.start();
     const first = createPort();
     const second = createPort();
     connect(first.port);
@@ -68,7 +70,7 @@ describe("ForegroundIpcTransport", () => {
   });
 
   it("does not reuse the id of a disconnected port", () => {
-    transport.start(receive);
+    transport.start();
     const first = createPort();
     connect(first.port);
     first.disconnect();
@@ -87,7 +89,7 @@ describe("ForegroundIpcTransport", () => {
 
     expect(receive).not.toHaveBeenCalled();
 
-    transport.start(receive);
+    transport.start();
 
     expect(receive).toHaveBeenCalledTimes(1);
   });
@@ -107,7 +109,7 @@ describe("ForegroundIpcTransport", () => {
   });
 
   it("ignores messages not addressed to the background", () => {
-    transport.start(receive);
+    transport.start();
     const { port, emit } = createPort();
     connect(port);
 
@@ -141,14 +143,13 @@ describe("ForegroundIpcTransport", () => {
     ).rejects.toThrow(DESTINATION_UNREACHABLE_ERROR);
   });
 
-  it("removes the port and its session on disconnect", async () => {
+  it("removes the port and reports its endpoint on disconnect", async () => {
     const { port, disconnect } = createPort();
     connect(port);
-    await sessionRepository.save({ BrowserForeground: { id: 1 } }, { some: "session" });
 
     disconnect();
 
-    expect(await sessionRepository.get({ BrowserForeground: { id: 1 } })).toBeUndefined();
+    expect(onDisconnect).toHaveBeenCalledWith({ BrowserForeground: { id: 1 } });
     await expect(
       transport.send({
         destination: { BrowserForeground: { id: 1 } },

@@ -1,7 +1,7 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { InMemoryIpcSessionRepository, IpcService } from "@bitwarden/common/platform/ipc";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import {
   IpcCommunicationBackend,
   IncomingMessage,
@@ -10,14 +10,15 @@ import {
   IpcClient,
 } from "@bitwarden/sdk-internal";
 
-import { DesktopIpcTransport, ForegroundIpcTransport, WebIpcTransport } from "./transports";
+import { InMemoryIpcSessionRepository } from "./in-memory-ipc-session-repository";
+import { BrowserForegroundIpcTransport, DesktopIpcTransport, WebIpcTransport } from "./transports";
 
 export class IpcBackgroundService extends IpcService {
   private communicationBackend?: IpcCommunicationBackend;
   private webTransport?: WebIpcTransport;
   private desktopTransport?: DesktopIpcTransport;
   private sessionRepository = new InMemoryIpcSessionRepository();
-  private foregroundTransport: ForegroundIpcTransport;
+  private foregroundTransport: BrowserForegroundIpcTransport;
 
   constructor(
     private platformUtilsService: PlatformUtilsService,
@@ -25,8 +26,13 @@ export class IpcBackgroundService extends IpcService {
   ) {
     super();
 
-    this.foregroundTransport = new ForegroundIpcTransport(this.logService, this.sessionRepository);
-    this.foregroundTransport.listen();
+    // Listens before the SDK loads so a port that wakes the service worker is not missed.
+    this.foregroundTransport = new BrowserForegroundIpcTransport(
+      this.logService,
+      (message: IncomingMessage) => this.communicationBackend?.receive(message),
+      (endpoint) => void this.sessionRepository.remove(endpoint),
+    );
+    this.foregroundTransport.init();
   }
 
   override async init() {
@@ -75,7 +81,7 @@ export class IpcBackgroundService extends IpcService {
       await super.initWithClient(
         IpcClient.newWithClientManagedSessions(this.communicationBackend, this.sessionRepository),
       );
-      this.foregroundTransport.start(receive);
+      this.foregroundTransport.start();
 
       await ipcRegisterDiscoverHandler(this.client, {
         version: await this.platformUtilsService.getApplicationVersion(),

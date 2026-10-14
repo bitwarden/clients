@@ -1,7 +1,7 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { InMemoryIpcSessionRepository, IpcService } from "@bitwarden/common/platform/ipc";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import {
   IncomingMessage,
   IpcClient,
@@ -10,7 +10,8 @@ import {
   OutgoingMessage,
 } from "@bitwarden/sdk-internal";
 
-import { BackgroundIpcTransport } from "./transports";
+import { InMemoryIpcSessionRepository } from "./in-memory-ipc-session-repository";
+import { BrowserBackgroundIpcTransport } from "./transports";
 
 /**
  * {@link IpcService} for extension pages (popup, popout, sidebar). All traffic goes to the
@@ -32,9 +33,11 @@ export class IpcForegroundService extends IpcService {
       await SdkLoadService.Ready;
 
       const sessionRepository = new InMemoryIpcSessionRepository();
-      const transport = new BackgroundIpcTransport(
+      // The background may have restarted with no session for us, so drop ours on disconnect and
+      // let the next send start a new handshake instead of being rejected.
+      const transport = new BrowserBackgroundIpcTransport(
         (message: IncomingMessage) => this.communicationBackend?.receive(message),
-        sessionRepository,
+        (endpoint) => void sessionRepository.remove(endpoint),
       );
 
       this.communicationBackend = new IpcCommunicationBackend({

@@ -1,15 +1,10 @@
-import {
-  InMemoryIpcSessionRepository,
-  IpcMessage,
-  isIpcMessage,
-  reconstructIpcMessage,
-} from "@bitwarden/common/platform/ipc";
-import { IncomingMessage, OutgoingMessage, Source } from "@bitwarden/sdk-internal";
+import { IpcMessage, isIpcMessage, reconstructIpcMessage } from "@bitwarden/common/platform/ipc";
+import { Endpoint, IncomingMessage, OutgoingMessage, Source } from "@bitwarden/sdk-internal";
 
 import { BrowserApi } from "../../browser/browser-api";
 
+import { FOREGROUND_IPC_PORT_NAME } from "./browser-foreground-ipc.transport";
 import { DESTINATION_UNREACHABLE_ERROR } from "./errors";
-import { FOREGROUND_IPC_PORT_NAME } from "./foreground-ipc.transport";
 
 const BACKGROUND_SOURCE = { BrowserBackground: { id: "Own" } } satisfies Source;
 
@@ -17,12 +12,12 @@ const BACKGROUND_SOURCE = { BrowserBackground: { id: "Own" } } satisfies Source;
  * Extension page side of the transport to the background. Connects a runtime port on first send
  * and handles the `BrowserBackground` destination.
  */
-export class BackgroundIpcTransport {
+export class BrowserBackgroundIpcTransport {
   private port?: chrome.runtime.Port;
 
   constructor(
     private receive: (message: IncomingMessage) => void,
-    private sessionRepository: InMemoryIpcSessionRepository,
+    private onDisconnect?: (endpoint: Endpoint) => void,
   ) {}
 
   async send(message: OutgoingMessage): Promise<void> {
@@ -66,13 +61,11 @@ export class BackgroundIpcTransport {
       );
     });
 
-    // The background may have restarted with no session for us; drop ours so the next send
-    // starts a new handshake instead of being rejected.
     BrowserApi.addListener(port.onDisconnect, () => {
       if (this.port === port) {
         this.port = undefined;
       }
-      void this.sessionRepository.remove(BACKGROUND_SOURCE);
+      this.onDisconnect?.(BACKGROUND_SOURCE);
 
       // Suppress error message
       void chrome.runtime.lastError;

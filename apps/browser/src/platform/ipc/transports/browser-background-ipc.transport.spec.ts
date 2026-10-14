@@ -1,9 +1,9 @@
-import { InMemoryIpcSessionRepository, IpcMessage } from "@bitwarden/common/platform/ipc";
-import { IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-internal";
+import { IpcMessage } from "@bitwarden/common/platform/ipc";
+import { Endpoint, IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-internal";
 
-import { BackgroundIpcTransport } from "./background-ipc.transport";
+import { BrowserBackgroundIpcTransport } from "./browser-background-ipc.transport";
+import { FOREGROUND_IPC_PORT_NAME } from "./browser-foreground-ipc.transport";
 import { DESTINATION_UNREACHABLE_ERROR } from "./errors";
-import { FOREGROUND_IPC_PORT_NAME } from "./foreground-ipc.transport";
 
 function createPort() {
   const messageListeners: ((message: unknown) => void)[] = [];
@@ -26,10 +26,10 @@ const toBackground = {
   topic: "topic",
 } as OutgoingMessage;
 
-describe("BackgroundIpcTransport", () => {
+describe("BrowserBackgroundIpcTransport", () => {
   const receive = jest.fn<void, [IncomingMessage]>();
-  let sessionRepository: InMemoryIpcSessionRepository;
-  let transport: BackgroundIpcTransport;
+  const onDisconnect = jest.fn<void, [Endpoint]>();
+  let transport: BrowserBackgroundIpcTransport;
   let ports: ReturnType<typeof createPort>[];
 
   beforeEach(() => {
@@ -40,8 +40,7 @@ describe("BackgroundIpcTransport", () => {
       ports.push(port);
       return port.port;
     });
-    sessionRepository = new InMemoryIpcSessionRepository();
-    transport = new BackgroundIpcTransport(receive, sessionRepository);
+    transport = new BrowserBackgroundIpcTransport(receive, onDisconnect);
   });
 
   it("connects on first send and reuses the port", async () => {
@@ -86,13 +85,12 @@ describe("BackgroundIpcTransport", () => {
     expect(receive).not.toHaveBeenCalled();
   });
 
-  it("drops the session on disconnect and reconnects on the next send", async () => {
+  it("reports the background endpoint on disconnect and reconnects on the next send", async () => {
     await transport.send(toBackground);
-    await sessionRepository.save({ BrowserBackground: { id: "Own" } }, { some: "session" });
 
     ports[0].disconnect();
 
-    expect(await sessionRepository.get({ BrowserBackground: { id: "Own" } })).toBeUndefined();
+    expect(onDisconnect).toHaveBeenCalledWith({ BrowserBackground: { id: "Own" } });
 
     await transport.send(toBackground);
 
