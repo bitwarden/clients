@@ -39,6 +39,7 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { unsafeUrlReason } from "@bitwarden/common/tools/url-safety";
 // eslint-disable-next-line no-restricted-imports
 import {
   CryptoFunctionService,
@@ -76,6 +77,8 @@ type SendServer = {
  * Prompting, retries, and output handling are the same whichever implementation is in use.
  */
 type SendReceiver = {
+  /** The API url of the server that hosts the Send. */
+  apiUrl: string;
   /** Requests an access token for the Send, with `credentials` when the Send is protected. */
   requestToken(
     sendId: string,
@@ -621,6 +624,10 @@ export class SendReceiveCommand extends DownloadCommand {
         case SendType.File: {
           const downloadUrl = await receiver.getFileDownloadUrl(decryptedView, accessToken);
 
+          if (unsafeUrlReason(downloadUrl, receiver.apiUrl)) {
+            return Response.error("Download blocked: the file url failed a security check.");
+          }
+
           return await this.saveAttachmentToFile(
             downloadUrl,
             path.basename(decryptedView?.file?.fileName ?? `BitwardenSendFile-${Date.now()}`),
@@ -676,6 +683,7 @@ export class SendReceiveCommand extends DownloadCommand {
     const apiUrl = sendServer.apiUrl;
     let decKey: SymmetricCryptoKey;
     return {
+      apiUrl,
       requestToken: (sendId, credentials) => this.requestToken(sendServer, sendId, credentials),
       hashPassword: async (password) =>
         (await this.getUnlockedPassword(password, keyArray)) as SendHashedPasswordB64,
@@ -709,6 +717,7 @@ export class SendReceiveCommand extends DownloadCommand {
   ): SendReceiver {
     const keyB64 = Utils.fromArrayToUrlB64(keyArray);
     return {
+      apiUrl: sendServer.apiUrl,
       requestToken: async (sendId, credentials) => {
         const insecure = this.insecureTokenUrlError(sendServer.identityUrl);
         if (insecure != null) {

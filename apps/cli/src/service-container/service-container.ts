@@ -726,6 +726,7 @@ export class ServiceContainer {
       this.v2UpgradeTokenStateService,
       managedSettingsService,
       this.appIdService,
+      this.logService,
       customUserAgent,
     );
 
@@ -807,6 +808,7 @@ export class ServiceContainer {
       this.i18nService,
       this.stateProvider,
       this.collectionEncryptionService,
+      this.logService,
     );
 
     this.unlockService = new DefaultUnlockService(
@@ -974,6 +976,7 @@ export class ServiceContainer {
       this.policyService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.configService,
     );
 
     this.cipherEncryptionService = new DefaultCipherEncryptionService(
@@ -1022,6 +1025,7 @@ export class ServiceContainer {
       this.i18nService,
       this.cipherService,
       this.stateProvider,
+      this.logService,
     );
 
     this.folderApiService = new FolderApiService(this.folderService, this.apiService);
@@ -1041,7 +1045,7 @@ export class ServiceContainer {
       this.masterPasswordUnlockService,
     );
 
-    const logoutService = new DefaultLogoutService(this.messagingService);
+    const logoutService = new DefaultLogoutService(this.messagingService, this.logService);
     const processReloadService = new CliProcessReloadService();
     const systemService = new CliSystemService();
     this.lockService = new DefaultLockService(
