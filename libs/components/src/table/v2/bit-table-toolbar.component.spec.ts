@@ -109,6 +109,7 @@ describe("BitTableToolbarComponent", () => {
               clearAll: "Clear all",
               search: "Search",
               resetSearch: "Reset search",
+              clearSearchTooltip: "Clear by clicking here or pressing Esc.",
               removeItem: (name?: string) => `Remove ${name}`,
             }),
         },
@@ -351,6 +352,17 @@ describe("BitTableToolbarComponent active filter chips", () => {
     fixture.detectChanges();
 
     expect(chipLabels()).toEqual(["Login", "Card"]);
+  });
+
+  it("counts each selected option toward the trigger's berry", () => {
+    const toolbar = fixture.debugElement.query(By.directive(BitTableToolbarComponent))
+      .componentInstance as BitTableToolbarComponent;
+
+    host.type().setValue(["login", "card"]);
+    host.vault().setValue("mine");
+    fixture.detectChanges();
+
+    expect(toolbar.appliedCount()).toBe(3);
   });
 
   it("leads each chip with the filter's icon", () => {

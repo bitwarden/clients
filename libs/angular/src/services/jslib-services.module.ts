@@ -124,6 +124,10 @@ import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstr
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import {
+  AccountSwitcherService,
+  DefaultAccountSwitcherService,
+} from "@bitwarden/common/auth/account-switcher";
+import {
   DeepLinkRedirectService,
   NoopDeepLinkRedirectService,
 } from "@bitwarden/common/auth/deep-link-redirect";
@@ -541,13 +545,14 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LOGOUT_CALLBACK,
     useFactory:
-      (messagingService: MessagingServiceAbstraction) =>
+      (messagingService: MessagingServiceAbstraction, logService: LogService) =>
       async (logoutReason: LogoutReason, userId?: string) => {
+        logService.info("Logging out user %s for reason: %s", userId, logoutReason);
         return Promise.resolve(
           messagingService.send("logout", { logoutReason: logoutReason, userId: userId }),
         );
       },
-    deps: [MessagingServiceAbstraction],
+    deps: [MessagingServiceAbstraction, LogService],
   }),
   safeProvider({
     provide: LOG_MAC_FAILURES,
@@ -603,6 +608,16 @@ const safeProviders: SafeProvider[] = [
       ApiServiceAbstraction,
       StateServiceAbstraction,
       TokenServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: AccountSwitcherService,
+    useClass: DefaultAccountSwitcherService,
+    deps: [
+      AccountServiceAbstraction,
+      AuthServiceAbstraction,
+      AvatarServiceAbstraction,
+      EnvironmentService,
     ],
   }),
   safeProvider({
@@ -1269,7 +1284,6 @@ const safeProviders: SafeProvider[] = [
       AuthServiceAbstraction,
       WebPushConnectionService,
       AuthRequestAnsweringService,
-      ConfigService,
       AutomaticUserConfirmationService,
       BillingAccountProfileStateService,
     ],
@@ -1748,7 +1762,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AutofillSettingsServiceAbstraction,
     useClass: AutofillSettingsService,
-    deps: [StateProvider, PolicyServiceAbstraction, AccountService, RestrictedItemTypesService],
+    deps: [
+      StateProvider,
+      PolicyServiceAbstraction,
+      AccountService,
+      RestrictedItemTypesService,
+      ConfigService,
+    ],
   }),
   safeProvider({
     provide: BadgeSettingsServiceAbstraction,
@@ -1991,7 +2011,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LoginDecryptionOptionsService,
     useClass: DefaultLoginDecryptionOptionsService,
-    deps: [MessagingServiceAbstraction],
+    deps: [],
   }),
   safeProvider({
     provide: UserAsymmetricKeysRegenerationService,
@@ -2060,7 +2080,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LogoutService,
     useClass: DefaultLogoutService,
-    deps: [MessagingServiceAbstraction],
+    deps: [MessagingServiceAbstraction, LogService],
   }),
   safeProvider({
     provide: DocumentLangSetter,

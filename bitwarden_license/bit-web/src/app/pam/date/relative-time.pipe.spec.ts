@@ -11,8 +11,7 @@ describe("RelativeTimePipe", () => {
   });
 
   it("formats a past ISO date as a relative phrase", () => {
-    // Assert against the formatter's own output (see relative-time.spec.ts) so this
-    // doesn't hardcode ICU's exact narrow-style wording.
+    // Asserts against the formatter's own output, so this doesn't hardcode ICU's narrow wording.
     const formatter = new Intl.RelativeTimeFormat("en-US", { numeric: "always", style: "narrow" });
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
 

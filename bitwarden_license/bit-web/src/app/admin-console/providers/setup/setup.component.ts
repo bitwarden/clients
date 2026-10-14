@@ -1,5 +1,6 @@
+import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, Subject, switchMap } from "rxjs";
 import { first, takeUntil } from "rxjs/operators";
@@ -12,9 +13,15 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ProviderKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { ToastService } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  FormFieldModule,
+  ToastService,
+} from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { I18nPipe } from "@bitwarden/ui-common";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
@@ -26,7 +33,16 @@ import {
 @Component({
   selector: "provider-setup",
   templateUrl: "setup.component.html",
-  standalone: false,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    I18nPipe,
+    FormFieldModule,
+    ButtonModule,
+    AsyncActionsModule,
+    EnterPaymentMethodComponent,
+    EnterBillingAddressComponent,
+  ],
 })
 export class SetupComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
