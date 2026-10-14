@@ -283,7 +283,7 @@ export function defaultUserCollectionId(
 }
 
 /**
- * {@link parseVaultScope}, with the two segments only the nav can resolve given their answer:
+ * A {@link parseVaultScope} answer, with the two segments only the nav can resolve given theirs:
  * All items becomes My vault for an {@link isPersonalOnly} account — the same destination for them,
  * so branching on the scope type gives one answer whichever of the two URLs they arrived by — and
  * a {@link MY_ITEMS_ROUTE} collection segment becomes the id of the organization's "My items"
@@ -298,13 +298,9 @@ export function defaultUserCollectionId(
  * `null` the way an unknown vault segment does.
  */
 export function resolveVaultScope(
-  segment: string | null | undefined,
-  collectionSegment: string | null | undefined,
+  scope: VaultScope | null,
   nav: VaultsNavViewModel | undefined,
-  folderSegment?: string | null,
 ): VaultScope | null {
-  const scope = parseVaultScope(segment, collectionSegment, folderSegment);
-
   if (scope?.type === VaultScopeType.AllItems && nav != null && isPersonalOnly(nav)) {
     return { type: VaultScopeType.MyVault };
   }

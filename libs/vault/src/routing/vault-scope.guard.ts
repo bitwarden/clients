@@ -13,13 +13,12 @@ import {
   defaultUserCollectionId,
   isPersonalOnly,
   MY_ITEMS_ROUTE,
-  parseVaultScope,
   vaultScopeCommands,
   VaultScopeType,
 } from "../models/vault-scope";
 import { VaultNavService } from "../services/vault-nav.service";
 
-import { scopedCollectionSegment } from "./scoped-collection";
+import { routeVaultScope } from "./route-vault-scope";
 import { VAULT_BASE_ROUTE } from "./vault-base-route";
 
 /**
@@ -57,10 +56,7 @@ export const vaultScopeGuard: CanActivateFn = async (route) => {
       vaultScopeCommands({ type: VaultScopeType.Organization, organizationId }, basePath),
     );
 
-  const scope = parseVaultScope(
-    route.paramMap.get("vaultId"),
-    scopedCollectionSegment(route.paramMap, route.data),
-  );
+  const scope = routeVaultScope(route.paramMap, route.data);
   if (scope == null) {
     return allItems();
   }

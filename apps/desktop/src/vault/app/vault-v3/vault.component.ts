@@ -130,7 +130,6 @@ import {
   cipherInScope,
   collectionInScope,
   FilterFunction,
-  FOLDER_ID_PARAM,
   folderNameForScope,
   hasMultipleVaults,
   MY_ITEMS_ROUTE,
@@ -138,10 +137,9 @@ import {
   organizationNameForScope,
   organizationVaultPage,
   OrganizationVaultPage,
-  parseVaultScope,
   resolveVaultScope,
+  routeVaultScope,
   scopeKey,
-  scopedCollectionSegment,
   SharedFolderCardGridComponent,
   VaultBreadcrumbsComponent,
   VaultRemountOnDirective,
@@ -324,12 +322,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         ? combineLatest([this.route.paramMap, this.route.data, this.vaultNav$]).pipe(
             map(
               ([params, data, nav]) =>
-                resolveVaultScope(
-                  params.get("vaultId"),
-                  scopedCollectionSegment(params, data),
-                  nav,
-                  params.get(FOLDER_ID_PARAM),
-                ) ?? ALL_ITEMS_SCOPE,
+                resolveVaultScope(routeVaultScope(params, data), nav) ?? ALL_ITEMS_SCOPE,
             ),
           )
         : of(ALL_ITEMS_SCOPE),
@@ -346,15 +339,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
    */
   protected readonly filterScopeKey = toSignal(
     combineLatest([this.route.paramMap, this.route.data]).pipe(
-      map(([params, data]) =>
-        scopeKey(
-          parseVaultScope(
-            params.get("vaultId"),
-            scopedCollectionSegment(params, data),
-            params.get(FOLDER_ID_PARAM),
-          ) ?? ALL_ITEMS_SCOPE,
-        ),
-      ),
+      map(([params, data]) => scopeKey(routeVaultScope(params, data) ?? ALL_ITEMS_SCOPE)),
     ),
     { initialValue: scopeKey(ALL_ITEMS_SCOPE) },
   );
