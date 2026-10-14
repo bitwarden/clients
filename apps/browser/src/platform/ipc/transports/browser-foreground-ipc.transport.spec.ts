@@ -2,7 +2,7 @@ import { mock } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { IpcMessage } from "@bitwarden/common/platform/ipc";
-import { Endpoint, IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-internal";
+import { IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-internal";
 
 import {
   BrowserForegroundIpcTransport,
@@ -40,7 +40,6 @@ function ipcMessage(destination: unknown, payload = [1, 2, 3]): IpcMessage {
 describe("BrowserForegroundIpcTransport", () => {
   const logService = mock<LogService>();
   const receive = jest.fn<void, [IncomingMessage]>();
-  const onDisconnect = jest.fn<void, [Endpoint]>();
   let transport: BrowserForegroundIpcTransport;
 
   const connect = (port: chrome.runtime.Port) => {
@@ -50,7 +49,7 @@ describe("BrowserForegroundIpcTransport", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    transport = new BrowserForegroundIpcTransport(logService, receive, onDisconnect);
+    transport = new BrowserForegroundIpcTransport(logService, receive);
     transport.init();
   });
 
@@ -146,13 +145,12 @@ describe("BrowserForegroundIpcTransport", () => {
     ).rejects.toThrow(DESTINATION_UNREACHABLE_ERROR);
   });
 
-  it("removes the port and reports its endpoint on disconnect", async () => {
+  it("removes the port on disconnect", async () => {
     const { port, disconnect } = createPort();
     connect(port);
 
     disconnect();
 
-    expect(onDisconnect).toHaveBeenCalledWith({ BrowserForeground: { id: 1 } });
     await expect(
       transport.send({
         destination: { BrowserForeground: { id: 1 } },

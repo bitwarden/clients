@@ -1,5 +1,5 @@
 import { IpcMessage, isIpcMessage, reconstructIpcMessage } from "@bitwarden/common/platform/ipc";
-import { Endpoint, IncomingMessage, OutgoingMessage, Source } from "@bitwarden/sdk-internal";
+import { IncomingMessage, OutgoingMessage, Source } from "@bitwarden/sdk-internal";
 
 import { BrowserApi } from "../../browser/browser-api";
 
@@ -15,10 +15,7 @@ const BACKGROUND_SOURCE = { BrowserBackground: { id: "Own" } } satisfies Source;
 export class BrowserBackgroundIpcTransport {
   private port?: chrome.runtime.Port;
 
-  constructor(
-    private receive: (message: IncomingMessage) => void,
-    private onDisconnect?: (endpoint: Endpoint) => void,
-  ) {}
+  constructor(private receive: (message: IncomingMessage) => void) {}
 
   async send(message: OutgoingMessage): Promise<void> {
     if (typeof message.destination !== "object" || !("BrowserBackground" in message.destination)) {
@@ -65,7 +62,6 @@ export class BrowserBackgroundIpcTransport {
       if (this.port === port) {
         this.port = undefined;
       }
-      this.onDisconnect?.(BACKGROUND_SOURCE);
 
       // Suppress error message
       void chrome.runtime.lastError;

@@ -10,7 +10,6 @@ import {
   OutgoingMessage,
 } from "@bitwarden/sdk-internal";
 
-import { InMemoryIpcSessionRepository } from "./in-memory-ipc-session-repository";
 import { BrowserBackgroundIpcTransport } from "./transports";
 
 /**
@@ -32,21 +31,15 @@ export class IpcForegroundService extends IpcService {
       // This function uses classes and functions defined in the SDK, so we need to wait for the SDK to load.
       await SdkLoadService.Ready;
 
-      const sessionRepository = new InMemoryIpcSessionRepository();
-      // The background may have restarted with no session for us, so drop ours on disconnect and
-      // let the next send start a new handshake instead of being rejected.
-      const transport = new BrowserBackgroundIpcTransport(
-        (message: IncomingMessage) => this.communicationBackend?.receive(message),
-        (endpoint) => void sessionRepository.remove(endpoint),
+      const transport = new BrowserBackgroundIpcTransport((message: IncomingMessage) =>
+        this.communicationBackend?.receive(message),
       );
 
       this.communicationBackend = new IpcCommunicationBackend({
         send: (message: OutgoingMessage) => transport.send(message),
       });
 
-      await super.initWithClient(
-        IpcClient.newWithClientManagedSessions(this.communicationBackend, sessionRepository),
-      );
+      await super.initWithClient(IpcClient.newWithSdkInMemorySessions(this.communicationBackend));
 
       await ipcRegisterDiscoverHandler(this.client, {
         version: await this.platformUtilsService.getApplicationVersion(),

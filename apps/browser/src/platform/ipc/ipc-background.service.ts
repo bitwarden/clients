@@ -10,14 +10,12 @@ import {
   IpcClient,
 } from "@bitwarden/sdk-internal";
 
-import { InMemoryIpcSessionRepository } from "./in-memory-ipc-session-repository";
 import { BrowserForegroundIpcTransport, DesktopIpcTransport, WebIpcTransport } from "./transports";
 
 export class IpcBackgroundService extends IpcService {
   private communicationBackend?: IpcCommunicationBackend;
   private webTransport?: WebIpcTransport;
   private desktopTransport?: DesktopIpcTransport;
-  private sessionRepository = new InMemoryIpcSessionRepository();
   private foregroundTransport: BrowserForegroundIpcTransport;
 
   constructor(
@@ -30,7 +28,6 @@ export class IpcBackgroundService extends IpcService {
     this.foregroundTransport = new BrowserForegroundIpcTransport(
       this.logService,
       (message: IncomingMessage) => this.communicationBackend?.receive(message),
-      (endpoint) => void this.sessionRepository.remove(endpoint),
     );
     this.foregroundTransport.init();
   }
@@ -78,9 +75,7 @@ export class IpcBackgroundService extends IpcService {
         this.webTransport.init();
       }
 
-      await super.initWithClient(
-        IpcClient.newWithClientManagedSessions(this.communicationBackend, this.sessionRepository),
-      );
+      await super.initWithClient(IpcClient.newWithSdkInMemorySessions(this.communicationBackend));
       this.foregroundTransport.start();
 
       await ipcRegisterDiscoverHandler(this.client, {

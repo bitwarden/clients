@@ -5,7 +5,7 @@ import {
   reconstructIpcMessage,
   SerializedOutgoingMessage,
 } from "@bitwarden/common/platform/ipc";
-import { Endpoint, IncomingMessage, OutgoingMessage, Source } from "@bitwarden/sdk-internal";
+import { IncomingMessage, OutgoingMessage, Source } from "@bitwarden/sdk-internal";
 
 import { BrowserApi } from "../../browser/browser-api";
 
@@ -29,7 +29,6 @@ export class BrowserForegroundIpcTransport {
   constructor(
     private logService: LogService,
     private receive: (message: IncomingMessage) => void,
-    private onDisconnect?: (endpoint: Endpoint) => void,
   ) {}
 
   /**
@@ -64,7 +63,6 @@ export class BrowserForegroundIpcTransport {
       port.onDisconnect.addListener(() => {
         port.onMessage.removeListener(onMessage);
         this.ports.delete(id);
-        this.onDisconnect?.(source);
 
         // Suppress error message
         void chrome.runtime.lastError;

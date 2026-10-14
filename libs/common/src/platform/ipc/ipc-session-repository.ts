@@ -55,7 +55,7 @@ function hostIdToString(id: HostId): string {
   return `Id(${id.Id})`;
 }
 
-export function endpointToString(endpoint: Endpoint): string {
+function endpointToString(endpoint: Endpoint): string {
   if (typeof endpoint === "string") {
     return endpoint;
   }

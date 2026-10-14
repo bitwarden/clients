@@ -1,5 +1,5 @@
 import { IpcMessage } from "@bitwarden/common/platform/ipc";
-import { Endpoint, IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-internal";
+import { IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-internal";
 
 import { BrowserBackgroundIpcTransport } from "./browser-background-ipc.transport";
 import { FOREGROUND_IPC_PORT_NAME } from "./browser-foreground-ipc.transport";
@@ -28,7 +28,6 @@ const toBackground = {
 
 describe("BrowserBackgroundIpcTransport", () => {
   const receive = jest.fn<void, [IncomingMessage]>();
-  const onDisconnect = jest.fn<void, [Endpoint]>();
   let transport: BrowserBackgroundIpcTransport;
   let ports: ReturnType<typeof createPort>[];
 
@@ -40,7 +39,7 @@ describe("BrowserBackgroundIpcTransport", () => {
       ports.push(port);
       return port.port;
     });
-    transport = new BrowserBackgroundIpcTransport(receive, onDisconnect);
+    transport = new BrowserBackgroundIpcTransport(receive);
   });
 
   it("connects on first send and reuses the port", async () => {
@@ -85,13 +84,10 @@ describe("BrowserBackgroundIpcTransport", () => {
     expect(receive).not.toHaveBeenCalled();
   });
 
-  it("reports the background endpoint on disconnect and reconnects on the next send", async () => {
+  it("reconnects on the next send after a disconnect", async () => {
     await transport.send(toBackground);
 
     ports[0].disconnect();
-
-    expect(onDisconnect).toHaveBeenCalledWith({ BrowserBackground: { id: "Own" } });
-
     await transport.send(toBackground);
 
     expect(chrome.runtime.connect).toHaveBeenCalledTimes(2);
