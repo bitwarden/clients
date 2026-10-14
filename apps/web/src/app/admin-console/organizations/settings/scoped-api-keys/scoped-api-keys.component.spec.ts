@@ -1,7 +1,15 @@
+import { createComponent, EnvironmentInjector, Injector } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, of, Subject } from "rxjs";
+
+// The dialog's footer border watches scrolling with an observer jsdom doesn't have.
+global.IntersectionObserver = jest.fn().mockImplementation(() => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+}));
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationScopedApiKeyCreatedResponse } from "@bitwarden/common/admin-console/models/response/organization-scoped-api-key-created.response";
@@ -10,8 +18,16 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { DialogRef, DialogService, SimpleDialogOptions, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  SimpleDialogOptions,
+  ToastService,
+} from "@bitwarden/components";
 
 import { ScopedApiKeyCreateDialogComponent } from "./scoped-api-key-create-dialog.component";
 import { ScopedApiKeySecretDialogComponent } from "./scoped-api-key-secret-dialog.component";
@@ -75,6 +91,7 @@ describe("ScopedApiKeysComponent", () => {
         { provide: I18nService, useValue: i18nService },
         { provide: ValidationService, useValue: mock<ValidationService>() },
         { provide: LogService, useValue: mock<LogService>() },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         provideNoopAnimations(),
       ],
     })
@@ -175,21 +192,66 @@ describe("ScopedApiKeysComponent", () => {
       clientSecret: "the-client-secret",
     });
 
+    const createButton = () =>
+      (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
+        "#scoped-api-keys_button_create",
+      )!;
+    const doneButton = () =>
+      document.querySelector<HTMLButtonElement>("#scoped-api-key-secret-dialog_button_done")!;
+
+    let secretDialogOpen = false;
+
+    // Renders the real secret dialog behind a ref that, like the CDK one, only closes via close().
+    const openSecretDialog = (config: DialogConfig) => {
+      const closed$ = new Subject<unknown>();
+      const dialogRef = {
+        disableClose: config.disableClose,
+        closed: closed$.asObservable(),
+        close: async (result?: unknown) => {
+          secretDialogOpen = false;
+          closed$.next(result);
+          closed$.complete();
+          dialogComponent.destroy();
+          dialogComponent.location.nativeElement.remove();
+          return { closed: true };
+        },
+      } as DialogRef;
+      const dialogComponent = createComponent(ScopedApiKeySecretDialogComponent, {
+        environmentInjector: TestBed.inject(EnvironmentInjector),
+        elementInjector: Injector.create({
+          providers: [
+            { provide: DIALOG_DATA, useValue: config.data },
+            { provide: DialogRef, useValue: dialogRef },
+          ],
+        }),
+      });
+      document.body.appendChild(dialogComponent.location.nativeElement);
+      dialogComponent.changeDetectorRef.detectChanges();
+      secretDialogOpen = true;
+      return dialogRef;
+    };
+
     beforeEach(async () => {
       organizationApiService.getScopedApiKeys.mockResolvedValue(listOf());
-      dialogService.open.mockImplementation(
-        (component) =>
-          ({
-            closed: of(component === ScopedApiKeyCreateDialogComponent ? created : undefined),
-          }) as DialogRef<any, any>,
+      dialogService.open.mockImplementation((component, config) =>
+        component === ScopedApiKeyCreateDialogComponent
+          ? ({ closed: of(created) } as DialogRef<any, any>)
+          : openSecretDialog(config!),
       );
       await render();
 
-      (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>("#scoped-api-keys_button_create")!
-        .click();
+      createButton().click();
       await fixture.whenStable();
       fixture.detectChanges();
+    });
+
+    afterEach(async () => {
+      // Settle the pending create action before the fixture is torn down.
+      if (secretDialogOpen) {
+        doneButton().click();
+        await fixture.whenStable();
+      }
+      document.body.innerHTML = "";
     });
 
     it("shows the new client ID, secret and scope in a dialog that can't be dismissed by accident", () => {
@@ -207,7 +269,20 @@ describe("ScopedApiKeysComponent", () => {
       );
     });
 
-    it("doesn't keep the secret on the page after the dialog closes", () => {
+    it("closes the secret dialog with Done and lets the owner create another key", async () => {
+      doneButton().click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(doneButton()).toBeNull();
+      expect(createButton().getAttribute("aria-disabled")).toBeNull();
+    });
+
+    it("doesn't keep the secret on the page after the dialog closes", async () => {
+      doneButton().click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
       expect(text()).not.toContain("the-client-secret");
     });
   });
