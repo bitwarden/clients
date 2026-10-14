@@ -278,4 +278,28 @@ describe("OnePasswordDirectImportService", () => {
       await expect(result).resolves.toBeUndefined();
     });
   });
+
+  describe("signsInWithPassword", () => {
+    it("asks 1Password about the account", async () => {
+      importService.onePasswordSignInMethods.mockResolvedValue({ password: true, sso: false });
+
+      await service.signsInWithPassword(account);
+
+      expect(importService.onePasswordSignInMethods).toHaveBeenCalledWith("user@example.com", {
+        subdomain: "my",
+        domain: "Europe",
+      });
+    });
+
+    it.each([
+      [true, false, true],
+      [true, true, true],
+      [false, true, false],
+      [false, false, false],
+    ])("with password %s and SSO %s resolves with %s", async (password, sso, expected) => {
+      importService.onePasswordSignInMethods.mockResolvedValue({ password, sso });
+
+      await expect(service.signsInWithPassword(account)).resolves.toBe(expected);
+    });
+  });
 });

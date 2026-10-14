@@ -51,6 +51,18 @@ export class OnePasswordDirectImportService {
   private readonly importService = inject(ImportServiceAbstraction);
 
   /**
+   * Asks 1Password whether the account signs in with a password and Secret Key, the only method
+   * this importer supports. An account that signs in with single sign-on only does not.
+   */
+  async signsInWithPassword(account: OnePasswordAccount): Promise<boolean> {
+    const offered = await this.importService.onePasswordSignInMethods(account.email, {
+      subdomain: account.subdomain,
+      domain: account.domain,
+    });
+    return offered.password;
+  }
+
+  /**
    * Imports the account, or resolves with `undefined` when the user cancels one of the prompts.
    *
    * Only the Continue button of the open prompt shows the import is running. The Secret Key and

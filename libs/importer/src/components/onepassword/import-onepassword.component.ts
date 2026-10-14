@@ -109,9 +109,10 @@ export class ImportOnePasswordComponent implements OnInit, OnDestroy {
   /**
    * Signs in to 1Password through the SDK, which downloads, decrypts and submits the account, then
    * hands the summary to `onImported`. The Secret Key, password and two-factor code are asked for in
-   * dialogs along the way, which show the import's progress. A refused email or sign-in address is
-   * marked on its field, and any other failure is shown in a toast. The parent invokes this from its
-   * submit handler; 1Password direct has no file fallback to fall through to.
+   * dialogs along the way, which show the import's progress. An account that cannot sign in with a
+   * password, or a refused email or sign-in address, is marked on its field, and any other failure
+   * is shown in a toast. The parent invokes this from its submit handler; 1Password direct has no
+   * file fallback to fall through to.
    */
   async submitDirect(
     context: OnePasswordImportContext,
@@ -125,6 +126,10 @@ export class ImportOnePasswordComponent implements OnInit, OnDestroy {
     const account = this.account();
     let summary: OnePasswordImportSummary | undefined;
     try {
+      if (!(await this.onePasswordDirectImportService.signsInWithPassword(account))) {
+        this.reject("email", this.i18nService.t("onePasswordOnlyPasswordLoginTryAgain"));
+        return;
+      }
       summary = await this.onePasswordDirectImportService.handleImport(
         account,
         context.organizationId,
@@ -145,13 +150,16 @@ export class ImportOnePasswordComponent implements OnInit, OnDestroy {
   private showError(error: unknown): void {
     const { field, message } = this.onePasswordDirectImportService.describeError(error);
     if (field === "email" || field === "signInAddress") {
-      const control = field === "email" ? "email" : "subdomain";
-      this.rejection.set({ control, value: this.formGroup.controls[control].value, message });
-      this.formGroup.controls[control].updateValueAndValidity();
-      this.formGroup.controls[control].markAsTouched();
+      this.reject(field === "email" ? "email" : "subdomain", message);
       return;
     }
     this.toastService.showToast({ variant: "error", message });
+  }
+
+  private reject(control: Rejection["control"], message: string): void {
+    this.rejection.set({ control, value: this.formGroup.controls[control].value, message });
+    this.formGroup.controls[control].updateValueAndValidity();
+    this.formGroup.controls[control].markAsTouched();
   }
 
   private rejectionValidator(control: Rejection["control"]): ValidatorFn {

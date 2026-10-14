@@ -2,14 +2,18 @@ import {
   Credentials as OnePasswordCredentials,
   OnePasswordImportSummary,
   OnePasswordTwoFactorUi,
+  SignInAddress as OnePasswordSignInAddress,
   SignInDomain as OnePasswordSignInDomain,
+  SignInMethods as OnePasswordSignInMethods,
   isImportError,
 } from "@bitwarden/sdk-internal";
 
 export {
   OnePasswordCredentials,
   OnePasswordImportSummary,
+  OnePasswordSignInAddress,
   OnePasswordSignInDomain,
+  OnePasswordSignInMethods,
   OnePasswordTwoFactorUi,
 };
 
