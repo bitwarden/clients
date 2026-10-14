@@ -50,7 +50,6 @@ describe("OrganizationRecordMapper", () => {
         createNewCollections: false,
         editAnyCollection: true,
         deleteAnyCollection: false,
-        manageCiphers: false,
         manageGroups: true,
         manageSso: false,
         managePolicies: true,
