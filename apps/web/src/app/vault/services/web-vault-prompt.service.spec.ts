@@ -12,7 +12,7 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DialogRef, DialogService } from "@bitwarden/components";
+import { DialogRef, DialogService, SideNavService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import {
   CoachmarkService,
@@ -52,6 +52,7 @@ describe("WebVaultPromptService", () => {
   const logError = jest.fn();
   const conditionallyPromptUserForExtension = jest.fn().mockResolvedValue(false);
   const conditionallyOpenNewExperience = jest.fn().mockResolvedValue(false);
+  const sideNavOpen = signal(false);
   const tourRunning = signal(false);
 
   let serverSettings$: BehaviorSubject<ServerSettings | null>;
@@ -99,6 +100,7 @@ describe("WebVaultPromptService", () => {
           provide: NewExperienceDialogService,
           useValue: { conditionallyOpen: conditionallyOpenNewExperience },
         },
+        { provide: SideNavService, useValue: { open: sideNavOpen } },
         { provide: CoachmarkService, useValue: { isRunning: tourRunning.asReadonly() } },
       ],
     });
@@ -172,6 +174,23 @@ describe("WebVaultPromptService", () => {
       await service.conditionallyPromptUser();
 
       expect(conditionallyOpenNewExperience).not.toHaveBeenCalled();
+    });
+
+    it("opens the side nav once it has opened, so the tour callout is visible", async () => {
+      sideNavOpen.set(false);
+      conditionallyOpenNewExperience.mockResolvedValueOnce(true);
+
+      await service.conditionallyPromptUser();
+
+      expect(sideNavOpen()).toBe(true);
+    });
+
+    it("leaves the side nav alone when it did not open", async () => {
+      sideNavOpen.set(false);
+
+      await service.conditionallyPromptUser();
+
+      expect(sideNavOpen()).toBe(false);
     });
 
     it("holds back the extension prompt when it opened, so the two do not stack", async () => {

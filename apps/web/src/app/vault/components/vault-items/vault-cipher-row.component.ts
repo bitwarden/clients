@@ -4,9 +4,11 @@ import {
   Component,
   EventEmitter,
   HostListener,
+  Inject,
   inject,
   Input,
   OnInit,
+  Optional,
   Output,
   ViewChild,
 } from "@angular/core";
@@ -36,6 +38,7 @@ import {
 } from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
 import { VaultItemEvent } from "./vault-item-event";
 import { RowHeightClass } from "./vault-items.component";
+import { VAULT_ROW_LEASE_BADGE, VaultRowLeaseBadge } from "./vault-row-lease-badge.token";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -90,6 +93,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() viewingOrgVault: boolean;
+
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() showControlledAccess: boolean;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() canEditCipher: boolean;
@@ -152,6 +158,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     private accountService: AccountService,
     private cipherService: CipherService,
     private platformUtilsService: PlatformUtilsService,
+    @Optional() @Inject(VAULT_ROW_LEASE_BADGE) protected leaseBadge: VaultRowLeaseBadge | null,
   ) {}
 
   /**
@@ -228,6 +235,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected get decryptionFailure() {
     return CipherViewLikeUtils.decryptionFailure(this.cipher);
+  }
+
+  /** Gated ("partial") rows are read-only: not selectable, no modify actions. */
+  protected get isPartial() {
+    return CipherViewLikeUtils.isPartial(this.cipher);
   }
 
   protected get showAssignToCollections() {

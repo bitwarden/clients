@@ -67,6 +67,12 @@ export class CipherView implements View, InitializerMetadata {
   key?: SymmetricCryptoKey;
 
   /**
+   * True when the server gated this cipher: only the name and (for logins) URIs are populated.
+   * The row badge, the cipher-view banner, and edit-blocking key off this.
+   */
+  partial = false;
+
+  /**
    * Flag to indicate if the cipher decryption failed.
    */
   decryptionFailure = false;
@@ -94,6 +100,8 @@ export class CipherView implements View, InitializerMetadata {
     this.archivedDate = c.archivedDate;
     // Old locally stored ciphers might have reprompt == null. If so set it to None.
     this.reprompt = c.reprompt ?? CipherRepromptType.None;
+    // The SDK decrypt path sets this from the SDK view instead, see fromSdkCipherView.
+    this.partial = c.isPartial;
   }
 
   private get item(): ItemView | undefined {
@@ -233,6 +241,7 @@ export class CipherView implements View, InitializerMetadata {
     view.organizationUseTotp = obj.organizationUseTotp ?? false;
     view.localData = obj.localData ? obj.localData : undefined;
     view.permissions = obj.permissions ? CipherPermissionsApi.fromJSON(obj.permissions) : undefined;
+    view.partial = obj.partial ?? false;
     view.reprompt = obj.reprompt ?? CipherRepromptType.None;
     view.decryptionFailure = obj.decryptionFailure ?? false;
     if (obj.creationDate) {
@@ -327,6 +336,7 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.archivedDate = obj.archivedDate == null ? undefined : new Date(obj.archivedDate);
     cipherView.reprompt = obj.reprompt ?? CipherRepromptType.None;
     cipherView.key = obj.key ? SymmetricCryptoKey.fromString(obj.key) : undefined;
+    cipherView.partial = obj.partial ?? false;
 
     switch (obj.type) {
       case CipherType.Card:
@@ -506,6 +516,8 @@ export class CipherView implements View, InitializerMetadata {
       archivedDate: this.archivedDate?.toISOString(),
       reprompt: this.reprompt ?? CipherRepromptType.None,
       key: this.key?.toSdk(),
+      // Lets the SDK refuse to encrypt a gated view
+      partial: this.partial,
       // Cipher type specific properties are set in the switch statement below
       // CipherView initializes each with default constructors (undefined values)
       // The SDK does not expect those undefined values and will throw exceptions
