@@ -6,13 +6,20 @@ import { AccountCryptographicStateService } from "@bitwarden/common/key-manageme
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
-import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import {
+  asUuid,
+  SdkService,
+  SdkUnlockRequest,
+} from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Ref } from "@bitwarden/common/platform/misc/reference-counting/rc";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
+import { UserKey } from "@bitwarden/common/types/key";
 import {
   BiometricsService,
   BiometricStateService,
   KdfConfigService,
+  KeyService,
+  SdkUnlockData,
 } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
@@ -65,6 +72,8 @@ export class DefaultUnlockService implements UnlockService {
     protected biometricsService: BiometricsService,
     private biometricStateService: BiometricStateService,
     private v2UpgradeTokenStateService: V2UpgradeTokenStateService,
+    private keyService: KeyService,
+    private sdkService: SdkService,
     private autoUnlockService: AutoUnlockService,
   ) {}
 
@@ -200,6 +209,20 @@ export class DefaultUnlockService implements UnlockService {
     initMethod: InitUserCryptoMethod,
     unlockMethod: UnlockMethod,
   ): Promise<void> {
+    const request: SdkUnlockRequest = {
+      userId: asUuid(userId),
+      accountCryptographicState: await this.getAccountCryptographicState(userId),
+      method: initMethod,
+    };
+
+    // A user's live SDK client unlocks directly and returns the user key. Organization keys can
+    // only be built once that key exists, so they follow in the unlock side effects.
+    const userKey = await this.sdkService.unlock(userId, request);
+    if (userKey != null) {
+      await this.runOnUnlockSideEffects(userId, userKey, unlockMethod);
+      return;
+    }
+
     await firstValueFrom(
       this.registerSdkService.registerClient$(userId).pipe(
         map(async (sdk) => {
@@ -209,8 +232,11 @@ export class DefaultUnlockService implements UnlockService {
 
           using ref = sdk.take();
 
-          await this.initializeUserCrypto(userId, ref, initMethod);
-          await this.runOnUnlockSideEffects(userId, ref, unlockMethod);
+          await this.initializeUserCrypto(userId, ref, request);
+          const registeredUserKey = SymmetricCryptoKey.fromString(
+            await ref.value.crypto().get_user_encryption_key(),
+          );
+          await this.runOnUnlockSideEffects(userId, registeredUserKey, unlockMethod);
         }),
       ),
     );
@@ -221,14 +247,12 @@ export class DefaultUnlockService implements UnlockService {
   private async initializeUserCrypto(
     userId: UserId,
     client: Ref<PasswordManagerClient>,
-    initMethod: InitUserCryptoMethod,
+    request: SdkUnlockRequest,
   ): Promise<void> {
     await client.value.crypto().initialize_user_crypto({
-      userId: asUuid(userId),
+      ...request,
       kdfParams: await this.getKdfParams(userId),
       email: await this.getEmail(userId),
-      accountCryptographicState: await this.getAccountCryptographicState(userId),
-      method: initMethod,
       upgradeToken: await this.getV2UpgradeToken(userId),
     });
   }
@@ -281,20 +305,36 @@ export class DefaultUnlockService implements UnlockService {
   @measured(PERF_TRACK_GROUP, PERF_TRACK)
   private async runOnUnlockSideEffects(
     userId: UserId,
-    client: Ref<PasswordManagerClient>,
+    userKey: SymmetricCryptoKey,
     method: UnlockMethod,
   ): Promise<void> {
-    const userKey = SymmetricCryptoKey.fromString(
-      await client.value.crypto().get_user_encryption_key(),
-    );
     if (await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$(userId))) {
       await this.biometricsService.setBiometricProtectedUnlockKeyForUser(userId, userKey);
     }
     await this.autoUnlockService.setAutoUnlockKey(userId, userKey);
+    await this.pushOrgKeys(userId, userKey as UserKey);
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
 
     await this.runOnUnlockActions(userId, userKey, method);
     await this.runUnlockActionInOtherProcess(userId, userKey, method);
+  }
+
+  /**
+   * Gives the user's SDK client the organization keys. The push happens even when the keys
+   * cannot be built, so the client always receives a set of organization keys after an unlock.
+   * Building them must not fail the unlock.
+   */
+  private async pushOrgKeys(userId: UserId, userKey: UserKey): Promise<void> {
+    let unlockData: SdkUnlockData | null = null;
+    try {
+      unlockData = await this.keyService.buildSdkUnlockData(userId, userKey);
+      if (unlockData == null) {
+        this.logService.warning(`Could not build the SDK unlock payload for user (${userId}).`);
+      }
+    } catch (e) {
+      this.logService.error(`Failed to build the SDK unlock payload for user (${userId}).`, e);
+    }
+    await this.sdkService.setOrgKeys(userId, unlockData?.orgKeys ?? {});
   }
 
   /**
