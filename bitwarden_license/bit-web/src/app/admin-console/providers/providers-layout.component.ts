@@ -1,9 +1,7 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { combineLatest, map, Observable, Subject, switchMap } from "rxjs";
+import { combineLatest, filter, map, Observable, Subject, switchMap } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -39,16 +37,16 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   protected readonly logo = ProviderPortalLogo;
 
   private destroy$ = new Subject<void>();
-  protected provider$: Observable<Provider>;
+  protected provider$?: Observable<Provider>;
 
-  protected logo$: Observable<BitSvg>;
+  protected logo$?: Observable<BitSvg>;
 
-  protected canAccessBilling$: Observable<boolean>;
+  protected canAccessBilling$?: Observable<boolean>;
 
-  protected clientsTranslationKey$: Observable<string>;
+  protected clientsTranslationKey$?: Observable<string>;
 
-  protected subscriber$: Observable<NonIndividualSubscriber>;
-  protected getTaxIdWarning$: () => Observable<TaxIdWarningType>;
+  protected subscriber$?: Observable<NonIndividualSubscriber>;
+  protected getTaxIdWarning$?: () => Observable<TaxIdWarningType | null>;
 
   constructor(
     private route: ActivatedRoute,
@@ -69,6 +67,7 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
       this.accountService.activeAccount$.pipe(getUserId),
     ]).pipe(
       switchMap(([providerId, userId]) => this.providerService.get$(providerId, userId)),
+      filter((provider): provider is Provider => provider != null),
       takeUntil(this.destroy$),
     );
 
@@ -104,8 +103,9 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
       })),
     );
 
+    const provider$ = this.provider$;
     this.getTaxIdWarning$ = () =>
-      this.provider$.pipe(
+      provider$.pipe(
         switchMap((provider) => this.providerWarningsService.getTaxIdWarning$(provider)),
       );
   }

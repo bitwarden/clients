@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -50,11 +48,10 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 export class AccountComponent implements OnDestroy, OnInit {
   selfHosted = false;
   loading = true;
-  provider: ProviderResponse;
-  taxFormPromise: Promise<any>;
+  provider?: ProviderResponse;
 
   private destroy$ = new Subject<void>();
-  private providerId: string;
+  private providerId?: string;
   protected formGroup = this.formBuilder.group({
     providerName: ["" as ProviderResponse["name"]],
     providerBillingEmail: ["" as ProviderResponse["billingEmail"], Validators.email],
@@ -77,18 +74,18 @@ export class AccountComponent implements OnDestroy, OnInit {
 
   async ngOnInit() {
     this.selfHosted = this.platformUtilsService.isSelfHost();
-    this.route.parent.parent.params
+    this.route.parent?.parent?.params
       .pipe(
         switchMap(async (params) => {
           this.providerId = params.providerId;
           try {
-            this.provider = await this.providerApiService.getProvider(this.providerId);
+            this.provider = await this.providerApiService.getProvider(params.providerId);
             this.formGroup.patchValue({
               providerName: this.provider.name,
               providerBillingEmail: this.provider.billingEmail,
             });
           } catch (e) {
-            this.logService.error(`Handled exception: ${e}`);
+            this.logService.error(`Handled exception: ${String(e)}`);
           } finally {
             this.loading = false;
           }
@@ -102,10 +99,14 @@ export class AccountComponent implements OnDestroy, OnInit {
     this.destroy$.complete();
   }
   submit = async () => {
+    if (!this.providerId) {
+      return;
+    }
+
     const request = new ProviderUpdateRequest({
-      name: this.formGroup.value.providerName,
-      businessName: this.formGroup.value.providerName,
-      billingEmail: this.formGroup.value.providerBillingEmail,
+      name: this.formGroup.value.providerName ?? "",
+      businessName: this.formGroup.value.providerName ?? "",
+      billingEmail: this.formGroup.value.providerBillingEmail ?? "",
     });
 
     await this.providerApiService.putProvider(this.providerId, request);
@@ -113,17 +114,24 @@ export class AccountComponent implements OnDestroy, OnInit {
     this.provider = await this.providerApiService.getProvider(this.providerId);
     this.toastService.showToast({
       variant: "success",
-      title: null,
+      title: undefined,
       message: this.i18nService.t("providerUpdated"),
     });
   };
 
   async deleteProvider() {
+    if (!this.providerId) {
+      return;
+    }
+
     const providerClients = await this.apiService.getProviderClients(this.providerId);
     if (providerClients.data != null && providerClients.data.length > 0) {
       await this.dialogService.openSimpleDialog({
-        title: { key: "deleteProviderName", placeholders: [this.provider.name] },
-        content: { key: "deleteProviderWarningDescription", placeholders: [this.provider.name] },
+        title: { key: "deleteProviderName", placeholders: [this.provider?.name ?? ""] },
+        content: {
+          key: "deleteProviderWarningDescription",
+          placeholders: [this.provider?.name ?? ""],
+        },
         acceptButtonText: { key: "ok" },
         cancelButtonText: { key: "close" },
         type: "danger",
@@ -145,7 +153,7 @@ export class AccountComponent implements OnDestroy, OnInit {
         message: this.i18nService.t("providerDeletedDesc"),
       });
     } catch (e) {
-      this.logService.error(e);
+      this.logService.error(String(e));
     }
     await this.router.navigate(["/"]);
   }
