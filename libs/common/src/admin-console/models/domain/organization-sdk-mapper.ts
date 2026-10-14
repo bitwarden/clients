@@ -184,7 +184,6 @@ export class OrganizationRecordMapper implements SdkRecordMapper<
         createNewCollections: membership.permissions.createNewCollections ?? false,
         editAnyCollection: membership.permissions.editAnyCollection ?? false,
         deleteAnyCollection: membership.permissions.deleteAnyCollection ?? false,
-        manageCiphers: false,
         manageGroups: membership.permissions.manageGroups ?? false,
         manageSso: membership.permissions.manageSso ?? false,
         managePolicies: membership.permissions.managePolicies ?? false,
