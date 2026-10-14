@@ -145,9 +145,9 @@ To expose one from a library component, add a template reference variable and a 
 `viewChild(…, { read: ElementRef })`. For elements in a dialog the component opens, expose a method
 that reads through the `DialogRef`'s `componentInstance`, like the toolbar's `filterRow(key)`.
 
-This differs from `data-spotlight-target`, which moves a spotlight's ring onto the marked element:
-either the anchor itself or, if the anchor isn't marked, the first marked element inside its host
-(as `bit-nav-item` does). Mark the anchor itself to spotlight a group of elements.
+This differs from `data-spotlight-target`, which moves a spotlight's ring onto the first marked
+element inside the anchor (as `bit-nav-item` does). Add `spotlightTargetBoundary` to the anchor, or
+set the `PopoverOptions` field, to ring the anchor itself, e.g. to spotlight a group of nav items.
 
 ### Block-level anchor requirement
 

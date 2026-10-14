@@ -124,7 +124,7 @@
     </bit-nav-item>
   } @else if (showsVaultsSection()) {
     <div
-      data-spotlight-target
+      spotlightTargetBoundary
       [bitPopoverAnchorFor]="vaultListCoachmark.popover()"
       [popoverOpen]="coachmark.isStepActive('vaultList')"
       [position]="coachmark.getStepPosition('vaultList')"

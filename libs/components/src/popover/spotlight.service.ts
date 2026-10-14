@@ -41,9 +41,10 @@ export class SpotlightService {
    * Shows spotlight on the target element.
    * If a spotlight is already active, smoothly transitions to the new target.
    * @param target - The element to highlight
+   * @param targetBoundary - Highlight `target` itself instead of a `data-spotlight-target` inside it
    */
-  showSpotlight(target: HTMLElement): void {
-    const resolvedTarget = target.matches("[data-spotlight-target]")
+  showSpotlight(target: HTMLElement, targetBoundary = false): void {
+    const resolvedTarget = targetBoundary
       ? target
       : ((target.querySelector("[data-spotlight-target]") as HTMLElement | null) ?? target);
 
