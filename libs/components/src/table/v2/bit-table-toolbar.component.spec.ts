@@ -35,7 +35,7 @@ import { defineTable } from "./table-def";
 import { TableStateKey } from "./table-state-keys";
 import { BitTableV2Component } from "./table-v2.component";
 
-/** A narrow and a wide chip-row width, either side of the toolbar's 600px threshold. */
+/** A narrow and a wide chip-row width, either side of the toolbar's `sm` (640px) threshold. */
 const NARROW = 400;
 const WIDE = 1000;
 

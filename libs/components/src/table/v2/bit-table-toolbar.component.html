@@ -5,7 +5,7 @@
 -->
 <div class="tw-relative tw-flex tw-flex-col">
   <div [class]="searchRowClasses()">
-    <div class="tw-flex tw-min-w-0 tw-flex-1 @table-toolbar:tw-max-w-[25rem]">
+    <div data-search class="tw-flex tw-min-w-0 tw-flex-1">
       <ng-content select="bit-search"></ng-content>
     </div>
     <!-- Collapsed, the chip row is replaced by this single trigger + applied-count berry. -->
@@ -27,7 +27,8 @@
       </div>
     }
     <div
-      class="tw-flex tw-w-full tw-items-center tw-gap-3 empty:tw-hidden [&>*]:tw-flex-1 @table-toolbar:tw-ms-auto @table-toolbar:tw-w-auto @table-toolbar:[&>*]:tw-flex-initial"
+      data-end-slot
+      class="tw-flex tw-w-full tw-items-center tw-gap-3 empty:tw-hidden [&>*]:tw-flex-1"
     >
       @if (canCustomizeColumns()) {
         <button

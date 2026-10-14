@@ -42,11 +42,9 @@ import {
 } from "../../overflow-list";
 import { TooltipDirective } from "../../tooltip";
 import { focusAfterRender } from "../../utils/focus-after-render";
+import { BREAKPOINTS } from "../../utils/responsive-utils";
 
 import { BitTableV2Component } from "./table-v2.component";
-
-/** Below this toolbar width, the filters collapse behind one trigger. Matches `@table-toolbar`. */
-const WIDE_TOOLBAR_MIN_WIDTH = 600;
 
 /**
  * Toolbar for `bit-table-v2`. Project a `<bit-search>` (its own slot), filter chips,
@@ -56,6 +54,23 @@ const WIDE_TOOLBAR_MIN_WIDTH = 600;
 @Component({
   selector: "bit-table-toolbar",
   templateUrl: "./bit-table-toolbar.component.html",
+  // Plain CSS so the query can share `wide()`'s breakpoint.
+  styles: [
+    `
+      @container (width > ${BREAKPOINTS.sm}px) {
+        [data-search] {
+          max-width: 25rem;
+        }
+        [data-end-slot] {
+          margin-inline-start: auto;
+          width: auto;
+        }
+        [data-end-slot] > ::ng-deep * {
+          flex: initial;
+        }
+      }
+    `,
+  ],
   imports: [
     I18nPipe,
     IconButtonModule,
@@ -69,7 +84,7 @@ const WIDE_TOOLBAR_MIN_WIDTH = 600;
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: "tw-block tw-@container",
+    class: "tw-block",
     "[class]": "hostClasses()",
   },
 })
@@ -135,13 +150,10 @@ export class BitTableToolbarComponent {
   private readonly filterRowEl = viewChild<ElementRef<HTMLElement>>("filterRow");
   private readonly injector = inject(Injector);
 
-  /**
-   * The chip row measures its content box, so its padding is added back.
-   * Unmeasured (0) counts as wide.
-   */
+  /** Unmeasured (0) counts as wide. */
   private readonly wide = computed(() => {
     const rowWidth = this.overflowList()?.width() ?? 0;
-    return rowWidth === 0 || rowWidth + 2 * this.insetPx() >= WIDE_TOOLBAR_MIN_WIDTH;
+    return rowWidth === 0 || rowWidth > BREAKPOINTS.sm;
   });
 
   /**
@@ -197,8 +209,6 @@ export class BitTableToolbarComponent {
   private readonly isList = computed(() => this.table?.presentation() === "list");
 
   protected readonly insetX = computed(() => (this.isList() ? "tw-px-3" : "tw-px-5"));
-  /** Must match `insetX`. */
-  private readonly insetPx = computed(() => (this.isList() ? 12 : 20));
 
   /**
    * The chip row. Collapsed, it stays laid out but invisible so `bitOverflowList` can
@@ -226,7 +236,9 @@ export class BitTableToolbarComponent {
     ...(this.isList() ? ["tw-pt-0", "tw-pb-2"] : ["tw-py-3"]),
   ]);
 
+  // The query's container: padded like the chip row, so both measure the same content width.
   protected readonly searchRowClasses = computed(() => [
+    "tw-@container",
     "tw-flex",
     "tw-flex-wrap",
     "tw-items-center",
