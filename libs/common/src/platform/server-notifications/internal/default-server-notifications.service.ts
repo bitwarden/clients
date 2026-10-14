@@ -25,7 +25,6 @@ import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { BillingAccountProfileStateService } from "../../../billing/abstractions/account/billing-account-profile-state.service";
 import { NotificationType, PushNotificationLogOutReasonType } from "../../../enums";
-import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import {
   LogOutNotification,
   NotificationResponse,
@@ -37,7 +36,6 @@ import {
 import { UserId } from "../../../types/guid";
 import { SyncService } from "../../../vault/abstractions/sync/sync.service.abstraction";
 import { AppIdService } from "../../abstractions/app-id.service";
-import { ConfigService } from "../../abstractions/config/config.service";
 import { EnvironmentService } from "../../abstractions/environment.service";
 import { LogService } from "../../abstractions/log.service";
 import { MessagingService } from "../../abstractions/messaging.service";
@@ -72,7 +70,6 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     private readonly authService: AuthService,
     private readonly webPushConnectionService: WebPushConnectionService,
     private readonly authRequestAnsweringService: AuthRequestAnsweringService,
-    private readonly configService: ConfigService,
     private autoConfirmService: AutomaticUserConfirmationService,
     private readonly billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
@@ -252,17 +249,11 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         this.logService.info("[Notifications Service] Received logout notification");
 
         const logOutNotification = notification.payload as LogOutNotification;
-        const noLogoutOnKeyUpgradeRotation = await firstValueFrom(
-          this.configService.getFeatureFlag$(FeatureFlag.NoLogoutOnKeyUpgradeRotation),
-        );
         if (logOutNotification.reason === PushNotificationLogOutReasonType.KdfChange) {
           this.logService.info(
             "[Notifications Service] Skipping logout due to no logout KDF change",
           );
-        } else if (
-          noLogoutOnKeyUpgradeRotation &&
-          logOutNotification.reason === PushNotificationLogOutReasonType.KeyRotation
-        ) {
+        } else if (logOutNotification.reason === PushNotificationLogOutReasonType.KeyRotation) {
           this.logService.info(
             "[Notifications Service] Skipping logout due to no logout key rotation. Performing full sync.",
           );

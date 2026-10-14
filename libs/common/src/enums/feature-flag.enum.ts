@@ -26,6 +26,7 @@ export enum FeatureFlag {
   PM34210_DesktopAddDevices = "pm-34210-desktop-add-devices",
   // TODO: PM-34091 - Remove this flag and its DefaultFeatureFlagValue entry below.
   PM4516_DevicesLastActivityDate = "pm-4516-devices-add-last-activity-date",
+  PM44303_EmergencyAccessSdkApi = "pm-44303-emergency-access-sdk-api",
 
   /* Autofill */
   UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
@@ -55,7 +56,6 @@ export enum FeatureFlag {
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
-  SdkKeyRotation = "pm-30144-sdk-key-rotation",
   // Note: Shared unlock is divided into two parts. Leader and follower. The leader is gated behind part 1, and
   // does not have user facing changes. It is an emergency only roll-back flag. Part 2 is where users actually
   // get to use the feature.
@@ -65,7 +65,6 @@ export enum FeatureFlag {
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
   BiometricsSDKIPC = "biometrics-sdk-ipc",
-  NoLogoutOnKeyUpgradeRotation = "pm-31050-no-logout-key-upgrade-rotation",
   ForceUpgradeV2Encryption = "force-upgrade-v2-encryption",
   EnableAccountEncryptionV2UserPasswordRegistration = "pm-27278-v2-password-registration",
 
@@ -191,6 +190,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM34210_DesktopAddDevices]: FALSE,
   // TODO: PM-34091 - Remove this default value entry.
   [FeatureFlag.PM4516_DevicesLastActivityDate]: FALSE,
+  [FeatureFlag.PM44303_EmergencyAccessSdkApi]: FALSE,
 
   /* Billing */
   [FeatureFlag.PM29108_EnablePersonalDiscounts]: FALSE,
@@ -204,10 +204,8 @@ export const DefaultFeatureFlagValue = {
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
-  [FeatureFlag.SdkKeyRotation]: FALSE,
   [FeatureFlag.SharedUnlockPart1]: FALSE,
   [FeatureFlag.SharedUnlockPart2]: FALSE,
-  [FeatureFlag.NoLogoutOnKeyUpgradeRotation]: FALSE,
   [FeatureFlag.ForceUpgradeV2Encryption]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,

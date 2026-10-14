@@ -11,7 +11,9 @@ async-trait = { workspace = true }
 base64 = { workspace = true }
 mockall = { workspace = true }
 rkyv = "=0.8.17"
-rsa = "0.9"
+# rsa must stay pinned to 0.9.6 until ssh-key is updated to 0.7, otherwise tests break
+# see https://github.com/bitwarden/clients/pull/23847 for more details
+rsa = "=0.9.6"
 secure_memory = { path = "../secure_memory" }
 sha2 = "=0.10.9"
 signature = "=2.2.0"
