@@ -19,6 +19,8 @@ import { CipherView } from "../models/view/cipher.view";
 import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
 import { CipherViewLike } from "../utils/cipher-view-like-utils";
 
+import { DecryptAllCiphersResult } from "./cipher-sdk.service";
+
 export type EncryptionContext = {
   cipher: Cipher;
   /** The Id of the user that encrypted the cipher. It should always represent a UserId, even for Organization-owned ciphers */
@@ -45,6 +47,14 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    */
   abstract cipherView$(userId: UserId, cipherId: CipherId): Observable<CipherView | undefined>;
   abstract cipherListViews$(userId: UserId): Observable<CipherListView[] | CipherView[]>;
+  /**
+   * Like {@link cipherListViews$}, but includes PAM-gated ("partial") rows. Opt-in: only the
+   * vault list should consume it, so gated ciphers never reach autofill, export, key rotation,
+   * and similar flows.
+   */
+  abstract cipherListViewsWithPartials$(
+    userId: UserId,
+  ): Observable<CipherListView[] | CipherView[]>;
   abstract ciphers$(userId: UserId): Observable<Record<CipherId, CipherData>>;
   abstract localData$(userId: UserId): Observable<Record<CipherId, LocalData>>;
   /**
@@ -106,6 +116,11 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    * Ciphers that are not assigned to any collections are only included for users with admin access.
    */
   abstract getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]>;
+  /**
+   * Gets all Login ciphers belonging to the specified organization, including those in default
+   * user collections. Ciphers that fail to decrypt are returned separately in `failures`.
+   */
+  abstract getCiphersOrganizationLogins(organizationId: string): Promise<DecryptAllCiphersResult>;
   abstract getLastUsedForUrl(
     url: string,
     userId: UserId,
@@ -279,7 +294,6 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   ): Promise<void>;
   abstract restoreWithServer(id: string, userId: UserId, asAdmin?: boolean): Promise<void>;
   abstract restoreManyWithServer(ids: string[], userId: UserId, orgId?: string): Promise<void>;
-  abstract getKeyForCipherKeyDecryption(cipher: Cipher, userId: UserId): Promise<any>;
   abstract setAddEditCipherInfo(value: AddEditCipherInfo, userId: UserId): Promise<void>;
   /**
    * Returns user ciphers re-encrypted with the new user key.

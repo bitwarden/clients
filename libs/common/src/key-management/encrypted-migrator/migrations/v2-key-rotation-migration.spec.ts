@@ -4,7 +4,7 @@ import { of } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
@@ -49,11 +49,9 @@ describe("V2KeyRotationMigration", () => {
     return cipher;
   };
 
-  const makeAttachment = (hasEncryptedKey: boolean): AttachmentView => {
+  const makeAttachment = (hasKey: boolean): AttachmentView => {
     const a = new AttachmentView();
-    a.encryptedKey = hasEncryptedKey
-      ? new EncString("2.abc|def|ghi")
-      : (undefined as unknown as EncString);
+    a.key = hasKey ? mock<SymmetricCryptoKey>() : undefined;
     return a;
   };
 

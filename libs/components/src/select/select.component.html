@@ -19,7 +19,7 @@
         [ngTemplateOutlet]="leadingVisual"
         [ngTemplateOutletContext]="{ item: item }"
       ></ng-container>
-      <span class="tw-truncate">{{ item.label }}</span>
+      <span class="tw-truncate" data-testid="bit-select-value">{{ item.label }}</span>
     </div>
   </ng-template>
   <ng-template ng-option-tmp let-item="item">

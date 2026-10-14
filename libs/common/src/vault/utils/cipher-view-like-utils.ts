@@ -11,6 +11,7 @@ import {
 import { UriMatchStrategy, UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { Utils } from "../../platform/misc/utils";
+import { CipherId } from "../../types/guid";
 import { BankAccountType, BankAccountTypeI18nKeys, CipherType } from "../enums";
 import { Cipher } from "../models/domain/cipher";
 import { BankAccountView } from "../models/view/bank-account.view";
@@ -114,6 +115,16 @@ export class CipherViewLikeUtils {
     }
 
     return cipher.canAssignToCollections;
+  };
+
+  /**
+   * `CipherListView.id` is the SDK's `CipherId` and `CipherView.id` is a plain string, so this
+   * returns `libs/common`'s {@link CipherId} for either.
+   */
+  static getId = (cipher: CipherViewLike | Cipher): CipherId | undefined => {
+    const id = cipher.id as unknown as string | undefined;
+
+    return id ? (id as CipherId) : undefined;
   };
 
   /**
@@ -403,6 +414,14 @@ export class CipherViewLikeUtils {
    */
   static decryptionFailure = (cipher: CipherViewLike): boolean => {
     return "decryptionFailure" in cipher ? cipher.decryptionFailure : false;
+  };
+
+  /**
+   * @returns `true` when the server gated the cipher: only name and login URIs are populated.
+   * Gated ciphers are kept out of every cipher stream except `cipherListViewsWithPartials$`.
+   */
+  static isPartial = (cipher: CipherViewLike): boolean => {
+    return "partial" in cipher ? !!cipher.partial : false;
   };
 
   /**

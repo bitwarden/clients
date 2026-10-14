@@ -35,6 +35,13 @@ export { truncateFilename } from "./components/truncated-filename/truncate-filen
 export { TruncateFilenamePipe } from "./components/truncated-filename/truncate-filename.pipe";
 export { PasswordHistoryViewComponent } from "./components/password-history-view/password-history-view.component";
 export { DecryptionFailureDialogComponent } from "./components/decryption-failure-dialog/decryption-failure-dialog.component";
+export {
+  NewExperienceDialogComponent,
+  NewExperienceDialogParams,
+  NewExperienceDialogResult,
+  NEW_EXPERIENCE_LEARN_MORE_URL,
+} from "./components/new-experience-dialog/new-experience-dialog.component";
+export { NewExperienceDialogService } from "./services/new-experience-dialog.service";
 export { VaultItemCopyActionsComponent } from "./components/item-copy-actions/item-copy-actions.component";
 export { openPasswordHistoryDialog } from "./components/password-history/password-history.component";
 export { VaultViewPasswordHistoryService } from "./services/view-password-history.service";
@@ -123,6 +130,8 @@ export {
   BulkEditCollectionAccessResult,
 } from "./tokens/bulk-edit-collection-access-dialog.token";
 
+export { CIPHER_VIEW_BANNER } from "./tokens/cipher-view-banner.token";
+
 export {
   COLLECTION_DIALOG,
   CollectionDialogOpenParams,
@@ -132,6 +141,10 @@ export {
 } from "./tokens/collection-dialog.token";
 
 export { SHARE_ITEM_ENTRY_POINT } from "./tokens/share-item-entry-point.token";
+export {
+  VAULT_NAV_ORGANIZATION_OPTIONS,
+  VaultNavOrganizationOptions,
+} from "./tokens/vault-nav-organization-options.token";
 
 export {
   VaultBatchBarService,
@@ -140,6 +153,7 @@ export {
 } from "./services/vault-batch-bar.service";
 export { VaultBatchActionComponent } from "./components/vault-batch-bar/vault-batch-action.component";
 
+export * from "./components/coachmark";
 export { Vfo1TerminologyService } from "./services/vfo1-terminology.service";
 export { Vfo1I18nPipe } from "./pipes/vfo1-i18n.pipe";
 export { Vfo1IconPipe } from "./pipes/vfo1-icon.pipe";
@@ -160,3 +174,6 @@ export {
 } from "./utils/vault-filter-predicates";
 export { VaultBreadcrumbsComponent } from "./components/vault-breadcrumbs/vault-breadcrumbs.component";
 export * from "./directives/remount-on.directive";
+export { VAULT_RENDERED_MARK } from "./utils/vault-performance";
+export { VaultTourCalloutComponent } from "./components/vault-tour-callout/vault-tour-callout.component";
+export { Vfo1TourCalloutService } from "./services/vfo1-tour-callout.service";

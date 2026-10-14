@@ -5,6 +5,7 @@ import {
   InvoicePreviewFlowContext,
   getCartItemTranslationKey,
   getCreditTranslationKey,
+  getProratedSeatTranslationKey,
   getProrationChargeTranslationKey,
   PlanTier,
   PurchasableReference,
@@ -54,9 +55,13 @@ describe("cart preview translation keys", () => {
     getCreditTranslationKey(flowContext),
   );
 
+  const proratedSeatKeys = Object.values(InvoicePreviewFlowContext).map((flowContext) =>
+    getProratedSeatTranslationKey(flowContext),
+  );
+
   // Unmapped combinations intentionally return "" and emit no row, so they carry no copy.
   const resolvedKeys = [
-    ...new Set([...lineItemKeys, ...creditKeys, ...prorationChargeKeys]),
+    ...new Set([...lineItemKeys, ...creditKeys, ...prorationChargeKeys, ...proratedSeatKeys]),
   ].filter((key): key is string => !!key);
 
   const localeMessages = messages as Record<string, { message: string } | undefined>;
@@ -78,12 +83,13 @@ describe("cart preview translation keys", () => {
         "additionalStorageGbLower",
         "additionalServiceAccountsLower",
         "premiumSubscriptionCredit",
-        "appliedSubscriptionCredits",
+        "appliedProrationCredits",
         "passwordManagerProratedCharge",
         "storageProratedCharge",
         "secretsManagerProratedCharge",
         "serviceAccountsProratedCharge",
         "memberLower",
+        "planProratedMembershipInMonths",
       ].sort(),
     );
   });

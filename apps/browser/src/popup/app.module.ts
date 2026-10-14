@@ -12,6 +12,12 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import {
+  DefaultVaultHealthReportService,
+  VaultHealthReportService,
+} from "@bitwarden/common/dirt/vault-health/services";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
+import {
   DialogModule,
   AvatarModule,
   ButtonModule,
@@ -21,6 +27,7 @@ import {
   LinkModule,
 } from "@bitwarden/components";
 import { KEEPER_SSO_TAB_MONITOR } from "@bitwarden/importer-ui";
+import { safeProvider } from "@bitwarden/ui-common";
 
 import { AccountComponent } from "../auth/popup/account-switching/account.component";
 import { CurrentAccountComponent } from "../auth/popup/account-switching/current-account.component";
@@ -91,6 +98,11 @@ import "../platform/popup/locales";
     DatePipe,
     { provide: KEEPER_SSO_TAB_MONITOR, useClass: BrowserKeeperSsoTabMonitor },
     { provide: OVERLAY_DEFAULT_CONFIG, useValue: { usePopover: false } },
+    safeProvider({
+      provide: VaultHealthReportService,
+      useClass: DefaultVaultHealthReportService,
+      deps: [CipherRiskService, LogService],
+    }),
   ],
   bootstrap: [AppComponent],
 })

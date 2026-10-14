@@ -73,6 +73,9 @@ cancelled, the CLI falls back to the master password prompt.
 Passing a password, `--passwordenv`, or `--passwordfile` skips the biometric attempt. Biometric
 unlock is also skipped when `BW_NOINTERACTION=true`.
 
+The feature is gated behind the `biometrics-sdk-ipc` feature flag, which also gates the desktop
+side of the same IPC. While the flag is off the CLI never starts a desktop proxy.
+
 If the desktop app is installed in a non-standard location, set
 `BITWARDEN_DESKTOP_PROXY_PATH` to the path of its `desktop_proxy` executable.
 

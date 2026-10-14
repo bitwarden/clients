@@ -12,6 +12,7 @@ import {
   LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
+import { Measurement } from "@bitwarden/logging";
 import { MessageSender } from "@bitwarden/messaging";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
@@ -109,7 +110,7 @@ describe("Cipher Service", () => {
   const encryptService = mock<EncryptService>();
   const configService = mock<ConfigService>();
   accountService = mockAccountServiceWith(mockUserId);
-  const logService = mock<LogService>();
+  const logService = mock<LogService>({ startMeasurement: () => mock<Measurement>() });
   const stateProvider = new FakeStateProvider(accountService);
   const cipherEncryptionService = mock<CipherEncryptionService>();
   const messageSender = mock<MessageSender>();
@@ -122,8 +123,6 @@ describe("Cipher Service", () => {
   let encryptionContext: EncryptionContext;
   // BehaviorSubjects for SDK feature flags - allows tests to change the value after service instantiation
   let sdkCrudFeatureFlag$: BehaviorSubject<boolean>;
-  let sdkShareFeatureFlag$: BehaviorSubject<boolean>;
-  let sdkAdminOpsFeatureFlag$: BehaviorSubject<boolean>;
   let sdkAttachmentOpsFeatureFlag$: BehaviorSubject<boolean>;
 
   beforeEach(() => {
@@ -146,17 +145,9 @@ describe("Cipher Service", () => {
 
     // Create BehaviorSubjects for SDK feature flags - tests can update these to change behavior
     sdkCrudFeatureFlag$ = new BehaviorSubject<boolean>(false);
-    sdkShareFeatureFlag$ = new BehaviorSubject<boolean>(false);
-    sdkAdminOpsFeatureFlag$ = new BehaviorSubject<boolean>(false);
     sdkAttachmentOpsFeatureFlag$ = new BehaviorSubject<boolean>(false);
     configService.getFeatureFlag$.mockImplementation(
       <Flag extends FeatureFlag>(flag: Flag): Observable<FeatureFlagValueType<Flag>> => {
-        if (flag === FeatureFlag.PM28190CipherSharingOpsToSdk) {
-          return sdkShareFeatureFlag$.asObservable() as Observable<FeatureFlagValueType<Flag>>;
-        }
-        if (flag === FeatureFlag.PM28191CipherAdminOpsToSdk) {
-          return sdkAdminOpsFeatureFlag$.asObservable() as Observable<FeatureFlagValueType<Flag>>;
-        }
         if (flag === FeatureFlag.PM28192_CipherAttachmentOpsToSdk) {
           return sdkAttachmentOpsFeatureFlag$.asObservable() as Observable<
             FeatureFlagValueType<Flag>
@@ -689,6 +680,36 @@ describe("Cipher Service", () => {
       expect(result[1]).toMatchObject({ id: "Cipher 2", key: "Re-encrypted Cipher Key" });
     });
 
+    it("excludes partial (PAM-gated) ciphers from rotation", async () => {
+      // Drop the beforeEach mock so the real cipherViews$ filter chain runs.
+      (cipherService.cipherViews$ as jest.Mock).mockRestore();
+
+      const normal = new CipherView(encryptionContext.cipher);
+      normal.id = "normal" as CipherId;
+      normal.organizationId = null;
+      normal.partial = false;
+
+      const partial = new CipherView(encryptionContext.cipher);
+      partial.id = "partial" as CipherId;
+      partial.organizationId = null;
+      partial.partial = true;
+
+      jest
+        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .mockResolvedValue([normal, partial]);
+
+      const result = await cipherService.getRotatedData(originalUserKey, newUserKey, mockUserId);
+
+      expect(cipherEncryptionService.encryptCipherForRotation).toHaveBeenCalledTimes(1);
+      expect(cipherEncryptionService.encryptCipherForRotation).toHaveBeenCalledWith(
+        normal,
+        mockUserId,
+        newUserKey,
+      );
+      expect(result).toHaveLength(1);
+      expect(result[0]).toMatchObject({ id: "normal" });
+    });
+
     it("throws if the original user key is null", async () => {
       await expect(cipherService.getRotatedData(null!, newUserKey, mockUserId)).rejects.toThrow(
         "Original user key is required to rotate ciphers",
@@ -732,7 +753,9 @@ describe("Cipher Service", () => {
       (cipherService.cipherViews$ as jest.Mock)?.mockRestore();
 
       const decryptedView = new CipherView(encryptionContext.cipher);
-      jest.spyOn(cipherService, "getAllDecrypted").mockResolvedValue([decryptedView]);
+      jest
+        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .mockResolvedValue([decryptedView]);
 
       const sendSpy = jest.spyOn(messageSender, "send");
 
@@ -806,6 +829,85 @@ describe("Cipher Service", () => {
     });
   });
 
+  describe("partial (PAM-gated) cipher filtering", () => {
+    let normal: CipherView;
+    let partial: CipherView;
+
+    beforeEach(() => {
+      normal = new CipherView(encryptionContext.cipher);
+      normal.id = "normal" as CipherId;
+      normal.partial = false;
+
+      partial = new CipherView(encryptionContext.cipher);
+      partial.id = "partial" as CipherId;
+      partial.partial = true;
+
+      // The PM22134SdkCipherListView flag is off in this suite, so both streams derive from this.
+      (cipherService as any).cipherViewsWithPartials$ = jest
+        .fn()
+        .mockReturnValue(of([normal, partial]));
+    });
+
+    it("cipherViews$ excludes partial ciphers", async () => {
+      const result = await firstValueFrom(cipherService.cipherViews$(mockUserId));
+
+      expect(result).toEqual([normal]);
+    });
+
+    it("cipherViews$ passes a null (decryption-in-progress) emission through unchanged", async () => {
+      (cipherService as any).cipherViewsWithPartials$ = jest.fn().mockReturnValue(of(null));
+
+      const result = await firstValueFrom(cipherService.cipherViews$(mockUserId));
+
+      expect(result).toBeNull();
+    });
+
+    it("cipherListViews$ excludes partial ciphers", async () => {
+      const result = await firstValueFrom(cipherService.cipherListViews$(mockUserId));
+
+      expect(result).toEqual([normal]);
+    });
+
+    it("cipherListViewsWithPartials$ retains partial ciphers", async () => {
+      const result = await firstValueFrom(cipherService.cipherListViewsWithPartials$(mockUserId));
+
+      expect(result).toEqual([normal, partial]);
+    });
+
+    it("getAllDecrypted excludes partial ciphers (all imperative consumers: export, reports, autofill, CLI...)", async () => {
+      jest
+        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .mockResolvedValue([normal, partial]);
+
+      const result = await cipherService.getAllDecrypted(mockUserId);
+
+      expect(result).toEqual([normal]);
+    });
+
+    it("getAllDecryptedCiphersOfType excludes partial ciphers (autofill card/identity suggestions)", async () => {
+      const normalCard = new CipherView(encryptionContext.cipher);
+      normalCard.id = "card-normal" as CipherId;
+      normalCard.type = CipherType.Card;
+      normalCard.partial = false;
+
+      const partialCard = new CipherView(encryptionContext.cipher);
+      partialCard.id = "card-partial" as CipherId;
+      partialCard.type = CipherType.Card;
+      partialCard.partial = true;
+
+      jest
+        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .mockResolvedValue([normalCard, partialCard]);
+
+      const result = await (cipherService as any).getAllDecryptedCiphersOfType(
+        [CipherType.Card],
+        mockUserId,
+      );
+
+      expect(result).toEqual([normalCard]);
+    });
+  });
+
   describe("getDecryptedAttachmentBuffer", () => {
     const mockEncryptedContent = new Uint8Array([1, 2, 3]);
     const mockDecryptedContent = new Uint8Array([4, 5, 6]);
@@ -838,42 +940,7 @@ describe("Cipher Service", () => {
   });
 
   describe("shareWithServer()", () => {
-    it("should use cipherEncryptionService to move the cipher", async () => {
-      apiService.putShareCipher.mockResolvedValue(new CipherResponse(cipherData));
-
-      const expectedCipher = new Cipher(cipherData);
-      expectedCipher.organizationId = orgId;
-      const cipherView = new CipherView(expectedCipher);
-      const collectionIds = ["collection1", "collection2"] as CollectionId[];
-
-      cipherView.organizationId = undefined; // Ensure organizationId is undefined for this test
-
-      cipherEncryptionService.moveToOrganization.mockResolvedValue({
-        cipher: expectedCipher,
-        encryptedFor: userId,
-      });
-
-      await cipherService.shareWithServer(cipherView, orgId, collectionIds, userId);
-
-      // Expect SDK usage
-      expect(cipherEncryptionService.moveToOrganization).toHaveBeenCalledWith(
-        cipherView,
-        orgId,
-        userId,
-      );
-      // Expect collectionIds to be assigned
-      expect(apiService.putShareCipher).toHaveBeenCalledWith(
-        cipherView.id,
-        expect.objectContaining({
-          cipher: expect.objectContaining({ organizationId: orgId }),
-          collectionIds: collectionIds,
-        }),
-      );
-    });
-
-    it("should delegate to cipherSdkService when SDK share feature flag is enabled", async () => {
-      sdkShareFeatureFlag$.next(true);
-
+    it("should delegate to cipherSdkService", async () => {
       const expectedCipher = new Cipher(cipherData);
       expectedCipher.organizationId = orgId;
       const cipherView = new CipherView(expectedCipher);
@@ -903,9 +970,7 @@ describe("Cipher Service", () => {
       expect(result).toEqual(expectedCipher);
     });
 
-    it("should pass originalCipherView to cipherSdkService when SDK share feature flag is enabled", async () => {
-      sdkShareFeatureFlag$.next(true);
-
+    it("should pass originalCipherView to cipherSdkService", async () => {
       const expectedCipher = new Cipher(cipherData);
       const cipherView = new CipherView(expectedCipher);
       cipherView.organizationId = null;
@@ -939,9 +1004,7 @@ describe("Cipher Service", () => {
       );
     });
 
-    it("should throw when cipher already has organization and SDK share flag is enabled", async () => {
-      sdkShareFeatureFlag$.next(true);
-
+    it("should throw when cipher already has organization", async () => {
       const expectedCipher = new Cipher(cipherData);
       expectedCipher.organizationId = orgId;
       const cipherView = new CipherView(expectedCipher);
@@ -955,9 +1018,7 @@ describe("Cipher Service", () => {
   });
 
   describe("shareManyWithServer()", () => {
-    it("should delegate to cipherSdkService when SDK share feature flag is enabled", async () => {
-      sdkShareFeatureFlag$.next(true);
-
+    it("should delegate to cipherSdkService", async () => {
       const cipherView1 = new CipherView(new Cipher(cipherData));
       cipherView1.organizationId = null;
       const cipherView2 = new CipherView(new Cipher(cipherData));
@@ -985,9 +1046,7 @@ describe("Cipher Service", () => {
       expect(clearCacheSpy).toHaveBeenCalledWith(userId);
     });
 
-    it("should throw when any cipher already has organization and SDK share flag is enabled", async () => {
-      sdkShareFeatureFlag$.next(true);
-
+    it("should throw when any cipher already has organization", async () => {
       const cipherView1 = new CipherView(new Cipher(cipherData));
       cipherView1.organizationId = null;
       const cipherView2 = new CipherView(new Cipher(cipherData));
@@ -1053,6 +1112,63 @@ describe("Cipher Service", () => {
 
       expect(successes).toEqual(expectedSuccessCipherViews);
       expect(failures).toEqual(expectedFailedCipherViews);
+    });
+
+    it("excludes ciphers with no key for their org before calling into the SDK", async () => {
+      const missingOrgId = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as OrganizationId;
+      const orphanedCipher = new Cipher({
+        ...cipherData,
+        id: "33333333-3333-3333-3333-333333333333",
+        organizationId: missingOrgId,
+      });
+
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([
+        [{ id: mockCiphers[0].id, name: "Success 1" } as unknown as CipherView],
+        [],
+      ]);
+
+      await (cipherService as any).decryptCiphers([...mockCiphers, orphanedCipher], userId);
+
+      // The orphaned cipher is dropped before the SDK is ever asked to decrypt it, so it never
+      // has a chance to be logged/counted as a decryption failure.
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(mockCiphers, userId);
+    });
+  });
+
+  describe("decryptCiphers with PAM gated rows", () => {
+    const gated_id = "33333333-3333-3333-3333-333333333333";
+    const normal_id = "44444444-4444-4444-4444-444444444444";
+
+    it("passes gated ciphers through the SDK like any other cipher", async () => {
+      keyService.cipherDecryptionKeys$.mockReturnValue(
+        of({
+          userKey: makeSymmetricCryptoKey(64) as UserKey,
+          orgKeys: { [orgId]: makeSymmetricCryptoKey(32) as OrgKey },
+        } as CipherDecryptionKeys),
+      );
+
+      const gatedCipher = new Cipher({ ...cipherData, id: gated_id, organizationId: orgId });
+      gatedCipher.partialData = '{"Name":"enc-name"}';
+      const normalCipher = new Cipher({ ...cipherData, id: normal_id, organizationId: orgId });
+
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([
+        [
+          { id: gated_id, name: "Gated item", partial: true } as CipherView,
+          { id: normal_id, name: "Normal item" } as CipherView,
+        ],
+        [],
+      ]);
+
+      const [successes] = await (cipherService as any).decryptCiphers(
+        [gatedCipher, normalCipher],
+        userId,
+      );
+
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
+        [gatedCipher, normalCipher],
+        userId,
+      );
+      expect(successes.map((c: CipherView) => c.name)).toEqual(["Gated item", "Normal item"]);
     });
   });
 
@@ -1493,6 +1609,29 @@ describe("Cipher Service", () => {
       expect(apiSpy).toHaveBeenCalledWith(testOrgId, undefined);
     });
 
+    it("should decrypt API ciphers via the SDK, keeping failures, when feature flag is disabled", async () => {
+      sdkCrudFeatureFlag$.next(false);
+
+      const decrypted = new CipherView();
+      decrypted.name = "b";
+      const failed = new CipherView();
+      failed.name = "a";
+      failed.decryptionFailure = true;
+
+      jest
+        .spyOn(apiService, "getCiphersOrganization")
+        .mockResolvedValue({ data: [new CipherResponse(cipherData)] } as any);
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[decrypted], [failed]]);
+
+      const result = await cipherService.getAllFromApiForOrganization(testOrgId);
+
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
+        [expect.any(Cipher)],
+        mockUserId,
+      );
+      expect(result).toEqual([failed, decrypted]);
+    });
+
     it("should use SDK to list organization ciphers when feature flag is enabled", async () => {
       sdkCrudFeatureFlag$.next(true);
 
@@ -1549,25 +1688,7 @@ describe("Cipher Service", () => {
   describe("getManyFromApiForOrganization()", () => {
     const testOrgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
 
-    it("should call apiService.send when feature flag is disabled", async () => {
-      sdkAdminOpsFeatureFlag$.next(false);
-
-      const apiSpy = jest.spyOn(apiService, "send").mockResolvedValue({ data: [] });
-
-      await cipherService.getManyFromApiForOrganization(testOrgId);
-
-      expect(apiSpy).toHaveBeenCalledWith(
-        "GET",
-        `/ciphers/organization-details/assigned?organizationId=${testOrgId}`,
-        null,
-        true,
-        true,
-      );
-    });
-
-    it("should use SDK to list assigned organization ciphers when feature flag is enabled", async () => {
-      sdkAdminOpsFeatureFlag$.next(true);
-
+    it("should use SDK to list assigned organization ciphers", async () => {
       const mockCipher1 = new Cipher(cipherData);
       const mockCipher2 = new Cipher(cipherData);
 
@@ -1600,9 +1721,7 @@ describe("Cipher Service", () => {
       expect(result[1]).toBeInstanceOf(CipherView);
     });
 
-    it("should return empty array when SDK path throws", async () => {
-      sdkAdminOpsFeatureFlag$.next(true);
-
+    it("should return empty array when SDK throws", async () => {
       jest
         .spyOn(cipherSdkService, "getManyFromApiForOrganization")
         .mockRejectedValue(new Error("SDK error"));
@@ -1610,6 +1729,41 @@ describe("Cipher Service", () => {
       const result = await cipherService.getManyFromApiForOrganization(testOrgId);
 
       expect(result).toEqual([]);
+    });
+  });
+
+  describe("getCiphersOrganizationLogins()", () => {
+    const testOrgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
+
+    it("should return sorted successes and failures from the SDK", async () => {
+      const cipherViewB = new CipherView();
+      cipherViewB.name = "B Login";
+      const cipherViewA = new CipherView();
+      cipherViewA.name = "A Login";
+      const failedCipherView = new CipherView();
+      failedCipherView.decryptionFailure = true;
+
+      const sdkServiceSpy = jest
+        .spyOn(cipherSdkService, "getOrganizationLoginCiphers")
+        .mockResolvedValue({ successes: [cipherViewB, cipherViewA], failures: [failedCipherView] });
+      const apiSpy = jest.spyOn(apiService, "send");
+
+      const result = await cipherService.getCiphersOrganizationLogins(testOrgId);
+
+      expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId);
+      expect(apiSpy).not.toHaveBeenCalled();
+      expect(result.successes.map((c) => c.name)).toEqual(["A Login", "B Login"]);
+      expect(result.failures).toEqual([failedCipherView]);
+    });
+
+    it("should propagate SDK errors", async () => {
+      jest
+        .spyOn(cipherSdkService, "getOrganizationLoginCiphers")
+        .mockRejectedValue(new Error("SDK error"));
+
+      await expect(cipherService.getCiphersOrganizationLogins(testOrgId)).rejects.toThrow(
+        "SDK error",
+      );
     });
   });
 
@@ -1621,31 +1775,7 @@ describe("Cipher Service", () => {
     ];
     const testCollectionIds = ["7ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b24" as CollectionId];
 
-    it("should call apiService.send when feature flag is disabled", async () => {
-      sdkAdminOpsFeatureFlag$.next(false);
-
-      const apiSpy = jest.spyOn(apiService, "send").mockResolvedValue(undefined);
-
-      await cipherService.bulkUpdateCollectionsWithServer(
-        testOrgId,
-        mockUserId,
-        testCipherIds,
-        testCollectionIds,
-        false,
-      );
-
-      expect(apiSpy).toHaveBeenCalledWith(
-        "POST",
-        "/ciphers/bulk-collections",
-        expect.anything(),
-        true,
-        false,
-      );
-    });
-
-    it("should use SDK to bulk update collections when feature flag is enabled", async () => {
-      sdkAdminOpsFeatureFlag$.next(true);
-
+    it("should use SDK to bulk update collections", async () => {
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "bulkUpdateCollectionsWithServer")
         .mockResolvedValue(undefined);
@@ -1679,30 +1809,16 @@ describe("Cipher Service", () => {
     ];
     const testFolderId = "7ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b24";
 
-    it("should call apiService.putMoveCiphers when feature flag is disabled", async () => {
-      sdkAdminOpsFeatureFlag$.next(false);
-
-      const apiSpy = jest.spyOn(apiService, "putMoveCiphers").mockResolvedValue(undefined);
-
-      await cipherService.moveManyWithServer(testCipherIds, testFolderId, mockUserId);
-
-      expect(apiSpy).toHaveBeenCalled();
-    });
-
-    it("should use SDK to move ciphers when feature flag is enabled", async () => {
-      sdkAdminOpsFeatureFlag$.next(true);
-
+    it("should use SDK to move ciphers", async () => {
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "moveManyWithServer")
         .mockResolvedValue(undefined);
       const clearCacheSpy = jest.spyOn(cipherService as any, "clearCache");
-      const apiSpy = jest.spyOn(apiService, "putMoveCiphers");
 
       await cipherService.moveManyWithServer(testCipherIds, testFolderId, mockUserId);
 
       expect(sdkServiceSpy).toHaveBeenCalledWith(testCipherIds, testFolderId, mockUserId);
       expect(clearCacheSpy).toHaveBeenCalledWith(mockUserId);
-      expect(apiSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -1935,23 +2051,7 @@ describe("Cipher Service", () => {
       cipher.collectionIds = collectionIds;
     });
 
-    it("should call apiService when feature flag is disabled", async () => {
-      sdkAdminOpsFeatureFlag$.next(false);
-      apiService.putCipherCollectionsAdmin.mockResolvedValue(cipherData as any);
-
-      const result = await cipherService.saveCollectionsWithServerAdmin(cipher);
-
-      expect(apiService.putCipherCollectionsAdmin).toHaveBeenCalledWith(
-        cipher.id,
-        expect.objectContaining({ collectionIds }),
-      );
-      expect(cipherSdkService.saveCollectionsWithServerAdmin).not.toHaveBeenCalled();
-      expect(result).toBeInstanceOf(Cipher);
-    });
-
-    it("should delegate to cipherSdkService when feature flag is enabled", async () => {
-      sdkAdminOpsFeatureFlag$.next(true);
-
+    it("should delegate to cipherSdkService", async () => {
       const sdkCipherView = new CipherView(cipher);
       const encryptedCipher = new Cipher(cipherData);
 
@@ -1973,7 +2073,6 @@ describe("Cipher Service", () => {
       );
       expect(clearCacheSpy).toHaveBeenCalledWith(mockUserId);
       expect(cipherEncryptionService.encrypt).toHaveBeenCalledWith(sdkCipherView, mockUserId);
-      expect(apiService.putCipherCollectionsAdmin).not.toHaveBeenCalled();
       expect(result).toBe(encryptedCipher);
     });
   });
@@ -1987,26 +2086,7 @@ describe("Cipher Service", () => {
       cipher.collectionIds = collectionIds;
     });
 
-    it("should call apiService when feature flag is disabled", async () => {
-      sdkAdminOpsFeatureFlag$.next(false);
-      apiService.putCipherCollections.mockResolvedValue({
-        unavailable: false,
-        cipher: cipherData,
-      } as any);
-
-      const result = await cipherService.saveCollectionsWithServer(cipher, mockUserId);
-
-      expect(apiService.putCipherCollections).toHaveBeenCalledWith(
-        cipher.id,
-        expect.objectContaining({ collectionIds }),
-      );
-      expect(cipherSdkService.saveCollectionsWithServer).not.toHaveBeenCalled();
-      expect(result).toBeInstanceOf(Cipher);
-    });
-
-    it("should delegate to cipherSdkService when feature flag is enabled", async () => {
-      sdkAdminOpsFeatureFlag$.next(true);
-
+    it("should delegate to cipherSdkService", async () => {
       const sdkCipherView = new CipherView(cipher);
       const encryptedCipher = new Cipher(cipherData);
 
@@ -2026,8 +2106,18 @@ describe("Cipher Service", () => {
       );
       expect(clearCacheSpy).toHaveBeenCalledWith(mockUserId);
       expect(cipherEncryptionService.encrypt).toHaveBeenCalledWith(sdkCipherView, mockUserId);
-      expect(apiService.putCipherCollections).not.toHaveBeenCalled();
       expect(result).toBe(encryptedCipher);
+    });
+
+    it("should delete the cipher locally and return undefined when it is no longer available", async () => {
+      jest.spyOn(cipherSdkService, "saveCollectionsWithServer").mockResolvedValue(undefined);
+      const deleteSpy = jest.spyOn(cipherService, "delete").mockResolvedValue(undefined);
+
+      const result = await cipherService.saveCollectionsWithServer(cipher, mockUserId);
+
+      expect(deleteSpy).toHaveBeenCalledWith(cipher.id, mockUserId);
+      expect(cipherEncryptionService.encrypt).not.toHaveBeenCalled();
+      expect(result).toBeUndefined();
     });
   });
 });

@@ -258,9 +258,7 @@ export class OrgPasskeyReportComponent {
         (await this.adminConsoleCipherFormConfigService.getCipher(cipher.id as CipherId, org)) ??
         (await this.cipherService.get(cipher.id, this.userId()));
 
-      updatedCipherView = await updatedCipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, this.userId()),
-      );
+      updatedCipherView = await this.cipherService.decrypt(updatedCipher, this.userId());
     }
 
     const updatedRows = this.passkeyReportService.applyDialogResult(

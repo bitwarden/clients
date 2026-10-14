@@ -84,6 +84,7 @@ import { EventCollectionService } from "@bitwarden/common/dirt/event-logs/servic
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
@@ -96,8 +97,6 @@ import { DefaultMasterPasswordUnlockService } from "@bitwarden/common/key-manage
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
-import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
-import { DefaultSecurityStateService } from "@bitwarden/common/key-management/security-state/services/security-state.service";
 import { SendPasswordService } from "@bitwarden/common/key-management/sends/abstractions/send-password.service";
 import { DefaultSendPasswordService } from "@bitwarden/common/key-management/sends/services/default-send-password.service";
 import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
@@ -208,11 +207,13 @@ import {
 } from "@bitwarden/legacy-crypto";
 // eslint-disable-next-line no-restricted-imports
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
+import { FlightRecorderLogRecorder } from "@bitwarden/logging";
 import {
   DefaultManagedSettingsService,
   DevManagedSettingsService,
   ManagedSettingsService,
 } from "@bitwarden/managed-settings";
+import { FlightRecorderClient } from "@bitwarden/sdk-internal";
 import {
   ActiveUserStateProvider,
   DerivedStateProvider,
@@ -384,7 +385,6 @@ export class ServiceContainer {
   restrictedItemTypesService: RestrictedItemTypesService;
   cliRestrictedItemTypesService: CliRestrictedItemTypesService;
   encryptedMigrator: EncryptedMigrator;
-  securityStateService: SecurityStateService;
   masterPasswordUnlockService: MasterPasswordUnlockService;
   cipherArchiveService: CipherArchiveService;
   lockService: LockService;
@@ -418,6 +418,7 @@ export class ServiceContainer {
     this.logService = new ConsoleLogService(
       this.platformUtilsService.isDev(),
       (level) => process.env.BITWARDENCLI_DEBUG !== "true" && level <= LogLevelType.Info,
+      new FlightRecorderLogRecorder(SdkLoadService.Ready.then(() => new FlightRecorderClient())),
     );
     this.cryptoFunctionService = new NodeCryptoFunctionService();
     this.encryptService = new EncryptServiceImplementation(
@@ -500,10 +501,6 @@ export class ServiceContainer {
 
     this.v2UpgradeTokenStateService = new DefaultV2UpgradeTokenStateService(this.stateProvider);
 
-    this.securityStateService = new DefaultSecurityStateService(
-      this.accountCryptographicStateService,
-    );
-
     this.environmentService = new DefaultEnvironmentService(
       this.stateProvider,
       this.accountService,
@@ -539,7 +536,6 @@ export class ServiceContainer {
     this.masterPasswordService = new MasterPasswordService(
       this.stateProvider,
       this.keyGenerationService,
-      this.logService,
       this.cryptoFunctionService,
       this.accountService,
     );
@@ -550,6 +546,7 @@ export class ServiceContainer {
       () => this.keyService,
       this.logService,
       this.ipcService,
+      () => this.configService,
     );
 
     this.keyService = new KeyService(
@@ -572,7 +569,6 @@ export class ServiceContainer {
     );
 
     this.legacyCompatKeyService = new LegacyCompatKeyService(
-      this.masterPasswordService,
       this.keyGenerationService,
       this.cryptoFunctionService,
       this.encryptService,
@@ -584,7 +580,6 @@ export class ServiceContainer {
 
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
       this.masterPasswordService,
-      this.legacyCompatKeyService,
       this.logService,
     );
 
@@ -727,6 +722,8 @@ export class ServiceContainer {
       this.configService,
       this.v2UpgradeTokenStateService,
       managedSettingsService,
+      this.appIdService,
+      this.logService,
       customUserAgent,
     );
 
@@ -790,6 +787,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.configService,
       managedSettingsService,
+      this.appIdService,
       customUserAgent,
     );
 
@@ -798,6 +796,7 @@ export class ServiceContainer {
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
       this.sdkService,
       this.logService,
+      this.configService,
     );
 
     this.collectionService = new DefaultCollectionService(
@@ -806,6 +805,7 @@ export class ServiceContainer {
       this.i18nService,
       this.stateProvider,
       this.collectionEncryptionService,
+      this.logService,
     );
 
     this.unlockService = new DefaultUnlockService(
@@ -936,7 +936,6 @@ export class ServiceContainer {
       this.logService,
       this.keyConnectorService,
       this.environmentService,
-      this.stateService,
       this.twoFactorService,
       this.i18nService,
       this.encryptService,
@@ -974,6 +973,7 @@ export class ServiceContainer {
       this.policyService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.configService,
     );
 
     this.cipherEncryptionService = new DefaultCipherEncryptionService(
@@ -1022,6 +1022,7 @@ export class ServiceContainer {
       this.i18nService,
       this.cipherService,
       this.stateProvider,
+      this.logService,
     );
 
     this.folderApiService = new FolderApiService(this.folderService, this.apiService);
@@ -1041,7 +1042,7 @@ export class ServiceContainer {
       this.masterPasswordUnlockService,
     );
 
-    const logoutService = new DefaultLogoutService(this.messagingService);
+    const logoutService = new DefaultLogoutService(this.messagingService, this.logService);
     const processReloadService = new CliProcessReloadService();
     const systemService = new CliSystemService();
     this.lockService = new DefaultLockService(
@@ -1252,18 +1253,12 @@ export class ServiceContainer {
 
     await this.sdkLoadService.loadAndInit();
 
-    // Desktop IPC is optional. Commands that do not use Desktop integration must
-    // continue to work when Desktop is unavailable or incompatible.
-    try {
-      const desktopVersion = await this.ipcService.verifyDesktopConnection();
-      this.logService.info(`[IPC] Connected to Bitwarden Desktop ${desktopVersion}`);
-    } catch (error) {
-      this.logService.info("[IPC] Could not connect to Bitwarden Desktop", error);
-    }
-
     await this.storageService.init();
 
     await this.migrationRunner.run();
+
+    // Reading the flag needs migrated storage, so this cannot run any earlier.
+    await this.connectToDesktop();
     this.containerService.attachToGlobal(global);
     await this.i18nService.init();
     this.twoFactorService.init();
@@ -1286,6 +1281,26 @@ export class ServiceContainer {
     }
 
     this.inited = true;
+  }
+
+  /**
+   * Opens SDK IPC to the desktop app, which spawns its native-messaging proxy. Skipped
+   * entirely when the flag is off, so an unflagged CLI never starts a proxy process.
+   *
+   * Desktop IPC is optional: commands that do not use desktop integration must continue
+   * to work when the desktop app is unavailable or incompatible.
+   */
+  private async connectToDesktop(): Promise<void> {
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.BiometricsSDKIPC))) {
+      return;
+    }
+
+    try {
+      const desktopVersion = await this.ipcService.verifyDesktopConnection();
+      this.logService.info(`[IPC] Connected to Bitwarden Desktop ${desktopVersion}`);
+    } catch (error) {
+      this.logService.info("[IPC] Could not connect to Bitwarden Desktop", error);
+    }
   }
 
   dispose(): void {

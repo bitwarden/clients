@@ -107,9 +107,15 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
       : BiometricsStatus.UnlockNeeded;
   }
 
-  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {}
+  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
+    await biometrics.enrollPersistent(
+      this.biometricsSystem,
+      userId,
+      Buffer.from(key.toEncoded().buffer),
+    );
+  }
 
   async hasPersistentKey(userId: UserId): Promise<boolean> {
-    return false;
+    return await biometrics.hasPersistent(this.biometricsSystem, userId);
   }
 }

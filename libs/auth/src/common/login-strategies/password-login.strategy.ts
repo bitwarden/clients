@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { BehaviorSubject, firstValueFrom, map, Observable } from "rxjs";
 import { Jsonify } from "type-fest";
 
@@ -31,39 +29,47 @@ import { CacheData } from "../services/login-strategies/login-strategy.state";
 import { LoginStrategy, LoginStrategyData } from "./login.strategy";
 
 export class PasswordLoginStrategyData implements LoginStrategyData {
-  tokenRequest: PasswordTokenRequest;
+  readonly tokenRequest: PasswordTokenRequest;
 
   /** User's entered email obtained pre-login. Always present in MP login. */
-  userEnteredEmail: string;
+  readonly userEnteredEmail: string;
   /** The user's master key */
-  masterKey: MasterKey;
+  readonly masterKey: MasterKey;
   /** The user's master password */
-  masterPassword: string;
+  readonly masterPassword: string;
   /**
    * Tracks if the user needs to update their password due to
    * a password that does not meet an organization's master password policy.
    */
-  forcePasswordResetReason: ForceSetPasswordReason = ForceSetPasswordReason.None;
+  readonly forcePasswordResetReason: ForceSetPasswordReason;
+
+  constructor(fields: PasswordLoginStrategyData) {
+    this.tokenRequest = fields.tokenRequest;
+    this.userEnteredEmail = fields.userEnteredEmail;
+    this.masterKey = fields.masterKey;
+    this.masterPassword = fields.masterPassword;
+    this.forcePasswordResetReason = fields.forcePasswordResetReason;
+  }
 
   static fromJSON(obj: Jsonify<PasswordLoginStrategyData>): PasswordLoginStrategyData {
-    const data = Object.assign(new PasswordLoginStrategyData(), obj, {
+    return new PasswordLoginStrategyData({
+      ...obj,
       tokenRequest: PasswordTokenRequest.fromJSON(obj.tokenRequest),
-      masterKey: SymmetricCryptoKey.fromJSON(obj.masterKey),
+      masterKey: SymmetricCryptoKey.fromJSON(obj.masterKey) as MasterKey,
     });
-    return data;
   }
 }
 
-export class PasswordLoginStrategy extends LoginStrategy {
+export class PasswordLoginStrategy extends LoginStrategy<PasswordLoginStrategyData> {
   /** The email address of the user attempting to log in. */
-  email$: Observable<string>;
+  email$: Observable<string | undefined>;
   /** The master key hash used for authentication */
-  serverMasterKeyHash$: Observable<string>;
+  serverMasterKeyHash$: Observable<string | undefined>;
 
-  protected cache: BehaviorSubject<PasswordLoginStrategyData>;
+  protected cache: BehaviorSubject<PasswordLoginStrategyData | undefined>;
 
   constructor(
-    data: PasswordLoginStrategyData,
+    data: PasswordLoginStrategyData | undefined,
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private policyService: PolicyService,
     private passwordPreloginService: PasswordPreloginService,
@@ -74,39 +80,44 @@ export class PasswordLoginStrategy extends LoginStrategy {
     super(...sharedDeps);
 
     this.cache = new BehaviorSubject(data);
-    this.email$ = this.cache.pipe(map((state) => state.tokenRequest.email));
+    this.email$ = this.cache.pipe(map((state) => state?.tokenRequest.email));
     this.serverMasterKeyHash$ = this.cache.pipe(
-      map((state) => state.tokenRequest.masterPasswordHash),
+      map((state) => state?.tokenRequest.masterPasswordHash),
     );
   }
 
   override async logIn(credentials: PasswordLoginCredentials): Promise<AuthResult> {
     const { email, masterPassword, twoFactor, preFetchedPreloginData } = credentials;
 
-    const data = new PasswordLoginStrategyData();
-    data.masterKey = await this.makePasswordPreloginMasterKey(
+    const masterKey = await this.makePasswordPreloginMasterKey(
       masterPassword,
       email,
       preFetchedPreloginData,
     );
     this.passwordPreloginService.clearCache();
-    data.masterPassword = masterPassword;
-    data.userEnteredEmail = email;
 
     // Hash the password early (before authentication) so we don't persist it in memory in plaintext
     const serverMasterKeyHash = await this.legacyCompatKeyService.hashMasterKey(
       masterPassword,
-      data.masterKey,
+      masterKey,
     );
 
-    data.tokenRequest = new PasswordTokenRequest(
+    const tokenRequest = new PasswordTokenRequest(
       email,
       serverMasterKeyHash,
       await this.buildTwoFactor(twoFactor, email),
       await this.buildDeviceRequest(),
     );
 
-    this.cache.next(data);
+    this.cache.next(
+      new PasswordLoginStrategyData({
+        tokenRequest,
+        userEnteredEmail: email,
+        masterKey,
+        masterPassword,
+        forcePasswordResetReason: ForceSetPasswordReason.None,
+      }),
+    );
 
     const [authResult, identityResponse] = await this.startLogIn();
 
@@ -121,10 +132,11 @@ export class PasswordLoginStrategy extends LoginStrategy {
     return result;
   }
 
-  protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {}
-
   protected override async unlock(response: IdentityTokenResponse, userId: UserId): Promise<void> {
-    await this.unlockService.unlockWithMasterPassword(userId, this.cache.value.masterPassword);
+    await this.unlockService.unlockWithMasterPassword(
+      userId,
+      this.getLoginStrategyDataOrThrow().masterPassword,
+    );
   }
 
   protected override encryptionKeyMigrationRequired(response: IdentityTokenResponse): boolean {
@@ -210,9 +222,12 @@ export class PasswordLoginStrategy extends LoginStrategy {
 
     // The identity result can contain master password policies for the user's organizations.
     // Get the master password policy options from both the org invite and the identity response.
-    const masterPasswordPolicyOptions = this.policyService.combineMasterPasswordPolicyOptions(
+    const policyOptions = [
       credentials.masterPasswordPoliciesFromOrgInvite,
       this.getMasterPasswordPolicyOptionsFromResponse(identityResponse),
+    ].filter((options) => options != null);
+    const masterPasswordPolicyOptions = this.policyService.combineMasterPasswordPolicyOptions(
+      ...policyOptions,
     );
 
     // We deliberately do not check enforceOnLogin as existing users who are logging
@@ -234,10 +249,12 @@ export class PasswordLoginStrategy extends LoginStrategy {
 
     if (identityResponse instanceof IdentityTwoFactorResponse) {
       // Save the flag to this strategy for use in 2fa as the master password is about to pass out of scope
-      this.cache.next({
-        ...this.cache.value,
-        forcePasswordResetReason: ForceSetPasswordReason.WeakMasterPassword,
-      });
+      this.cache.next(
+        new PasswordLoginStrategyData({
+          ...this.getLoginStrategyDataOrThrow(),
+          forcePasswordResetReason: ForceSetPasswordReason.WeakMasterPassword,
+        }),
+      );
       return;
     }
 
@@ -255,16 +272,16 @@ export class PasswordLoginStrategy extends LoginStrategy {
 
   private getMasterPasswordPolicyOptionsFromResponse(
     response: IdentityTokenResponse | IdentityTwoFactorResponse,
-  ): MasterPasswordPolicyOptions | null {
-    if (response == null) {
-      return null;
+  ): MasterPasswordPolicyOptions | undefined {
+    if (response.masterPasswordPolicy == null) {
+      return undefined;
     }
     return MasterPasswordPolicyOptions.fromResponse(response.masterPasswordPolicy);
   }
 
   private evaluateMasterPassword(
     { masterPassword, email }: PasswordLoginCredentials,
-    options: MasterPasswordPolicyOptions,
+    options?: MasterPasswordPolicyOptions,
   ): boolean {
     const passwordStrength = this.passwordStrengthService.getPasswordStrength(
       masterPassword,
@@ -281,12 +298,12 @@ export class PasswordLoginStrategy extends LoginStrategy {
   }
 
   async logInNewDeviceVerification(deviceVerificationOtp: string): Promise<AuthResult> {
-    const data = this.cache.value;
+    const data = this.getLoginStrategyDataOrThrow();
     data.tokenRequest.newDeviceOtp = deviceVerificationOtp;
     this.cache.next(data);
 
     const [authResult] = await this.startLogIn();
-    authResult.masterPassword = this.cache.value["masterPassword"] ?? null;
+    authResult.masterPassword = this.cache.value?.masterPassword ?? null;
     return authResult;
   }
 
@@ -311,7 +328,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
     }
 
     // If we have a cached weak password reason from login/logInTwoFactor apply it
-    const cachedReason = this.cache.value.forcePasswordResetReason;
+    const cachedReason = this.getLoginStrategyDataOrThrow().forcePasswordResetReason;
     if (cachedReason !== ForceSetPasswordReason.None) {
       await this.masterPasswordService.setForceSetPasswordReason(cachedReason, userId);
       return true;

@@ -1,6 +1,8 @@
 import { forkJoin, map, Observable } from "rxjs";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
+import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { LogService } from "@bitwarden/logging";
 
@@ -182,11 +184,14 @@ export class DefaultReportGenerationService extends ReportGenerationService {
       report.memberCount = allMemberIds.size;
       report.atRiskMemberCount = atRiskMemberIds.size;
 
-      // Pre-compute icon metadata from first cipher for display efficiency
-      if (cipherGroup.length > 0) {
-        const firstCipher = cipherGroup[0];
-        report.iconCipherId = firstCipher.id;
-        report.iconUri = CipherViewLikeUtils.uri(firstCipher) ?? applicationName;
+      // Use first cipher for application to capture icon data (uri)
+      if (cipherGroup.length > 0 && CipherViewLikeUtils.uri(cipherGroup[0])) {
+        const uriView = new LoginUriView();
+        uriView.uri = CipherViewLikeUtils.uri(cipherGroup[0])!;
+
+        report.iconCipher = new CipherView();
+        report.iconCipher.login = new LoginView();
+        report.iconCipher.login.uris.push(uriView);
       }
 
       reports.push(report);

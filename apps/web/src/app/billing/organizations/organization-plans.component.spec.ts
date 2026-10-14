@@ -1,10 +1,19 @@
 // These are disabled until we can migrate to signals and remove the use of @Input properties that are used within the mocked child components
 /* eslint-disable @angular-eslint/prefer-output-emitter-ref */
 /* eslint-disable @angular-eslint/prefer-signals */
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  signal,
+} from "@angular/core";
 import { ComponentFixture, fakeAsync, flushMicrotasks, TestBed, tick } from "@angular/core/testing";
 import { FormBuilder, Validators } from "@angular/forms";
+import { By } from "@angular/platform-browser";
 import { Router } from "@angular/router";
+import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -19,17 +28,20 @@ import { InitiationPath, PlanType, ProductTierType } from "@bitwarden/common/bil
 import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-type.enum";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { ToastService } from "@bitwarden/components";
+import { SectionComponent, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
-import { DiscountTypes } from "@bitwarden/pricing";
+import { Cart, DiscountTypes } from "@bitwarden/pricing";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 import {
   AccountBillingClient,
   PreviewInvoiceClient,
@@ -40,8 +52,9 @@ import { DEFAULT_TRIAL_LENGTH_DAYS } from "@bitwarden/web-vault/app/billing/cons
 import { OrganizationInformationComponent } from "../../admin-console/organizations/create/organization-information.component";
 import { PremiumOrgUpgradeService } from "../individual/upgrade/premium-org-upgrade-payment/services/premium-org-upgrade.service";
 import { EnterBillingAddressComponent, EnterPaymentMethodComponent } from "../payment/components";
+import { InvoicePreviewService } from "../services/invoice-preview.service";
 import { SubscriptionDiscountService } from "../services/subscription-discount.service";
-import { SecretsManagerSubscribeComponent } from "../shared";
+import { SecretsManagerSubscribeComponent, BillingSharedModule } from "../shared";
 import { OrganizationSelfHostingLicenseUploaderComponent } from "../shared/self-hosting-license-uploader/organization-self-hosting-license-uploader.component";
 
 import { OrganizationPlansComponent } from "./organization-plans.component";
@@ -81,6 +94,7 @@ class MockSmSubscribeComponent {
 })
 class MockEnterPaymentMethodComponent {
   @Input() group: any;
+  @Input() showBankAccount = true;
 
   static getFormGroup() {
     const fb = new FormBuilder();
@@ -377,6 +391,12 @@ const createMockPlans = (): PlanResponse[] => {
   ];
 };
 
+/** Types `value` into a rendered input so the bound form control picks it up. */
+function setInputValue(input: HTMLInputElement, value: string) {
+  input.value = value;
+  input.dispatchEvent(new Event("input"));
+}
+
 describe("OrganizationPlansComponent", () => {
   let component: OrganizationPlansComponent;
   let fixture: ComponentFixture<OrganizationPlansComponent>;
@@ -401,9 +421,14 @@ describe("OrganizationPlansComponent", () => {
   let mockSubscriberBillingClient: jest.Mocked<SubscriberBillingClient>;
   let mockPreviewInvoiceClient: jest.Mocked<PreviewInvoiceClient>;
   let mockConfigService: jest.Mocked<ConfigService>;
+  const vfo1Enabled = signal(true);
   let mockBillingAccountProfileService: jest.Mocked<BillingAccountProfileStateService>;
   let mockPremiumOrgUpgradeService: jest.Mocked<PremiumOrgUpgradeService>;
   let mockSubscriptionDiscountService: jest.Mocked<SubscriptionDiscountService>;
+  let mockInvoicePreviewService: jest.Mocked<InvoicePreviewService>;
+  let mockLogService: jest.Mocked<LogService>;
+
+  let previewDrivenCartFlag: boolean;
 
   // Mock data
   let mockPasswordManagerPlans: PlanResponse[];
@@ -533,10 +558,26 @@ describe("OrganizationPlansComponent", () => {
       }),
     } as any;
 
+    previewDrivenCartFlag = false;
+
     mockConfigService = {
       getFeatureFlag: jest.fn().mockResolvedValue(true),
-      getFeatureFlag$: jest.fn().mockReturnValue(of(true)),
+      getFeatureFlag$: jest
+        .fn()
+        .mockImplementation((flag: FeatureFlag) =>
+          of(flag === FeatureFlag.PM36631_PreviewDrivenCart ? previewDrivenCartFlag : true),
+        ),
     } as any;
+
+    mockLogService = mock<LogService>();
+
+    mockInvoicePreviewService = {
+      previewOrganizationCheckoutCart: jest.fn(),
+      previewPremiumOrgUpgradeCart: jest.fn(),
+    } as any;
+
+    // Vfo1TerminologyService is mocked directly; flag-off tests call vfo1Enabled.set(false).
+    vfo1Enabled.set(true);
 
     mockPremiumOrgUpgradeService = {
       upgradeToOrganization: jest.fn().mockResolvedValue("new-premium-org-id"),
@@ -593,6 +634,33 @@ describe("OrganizationPlansComponent", () => {
       setHasPremium: jest.fn().mockResolvedValue(undefined),
     } as any;
 
+    await configureTestBed();
+
+    fixture = TestBed.createComponent(OrganizationPlansComponent);
+    component = fixture.componentInstance;
+  });
+
+  /**
+   * Configures the TestBed for `OrganizationPlansComponent`.
+   *
+   * Child components are swapped for mocks by default. Pass `{ useRealOrgInfo: true }` to keep the
+   * real standalone `OrganizationInformationComponent` mounted so its rendered form can be driven
+   * through the DOM.
+   */
+  async function configureTestBed({ useRealOrgInfo = false } = {}) {
+    const realChildren = [
+      SecretsManagerSubscribeComponent,
+      EnterPaymentMethodComponent,
+      EnterBillingAddressComponent,
+      OrganizationSelfHostingLicenseUploaderComponent,
+    ];
+    const mockChildren = [
+      MockSmSubscribeComponent,
+      MockEnterPaymentMethodComponent,
+      MockEnterBillingAddressComponent,
+      MockOrganizationSelfHostingLicenseUploaderComponent,
+    ];
+
     await TestBed.configureTestingModule({
       providers: [
         { provide: ApiService, useValue: mockApiService },
@@ -616,48 +684,47 @@ describe("OrganizationPlansComponent", () => {
         { provide: ConfigService, useValue: mockConfigService },
         { provide: BillingAccountProfileStateService, useValue: mockBillingAccountProfileService },
         { provide: PremiumOrgUpgradeService, useValue: mockPremiumOrgUpgradeService },
+        { provide: LogService, useValue: mockLogService },
+        { provide: InvoicePreviewService, useValue: mockInvoicePreviewService },
+        {
+          provide: Vfo1TerminologyService,
+          useValue: { iconClass: (icon: string) => icon, enabled: vfo1Enabled },
+        },
       ],
     })
       // Override the component to replace child components with mocks and provide mock services
+      .overrideModule(BillingSharedModule, {
+        remove: { exports: [SecretsManagerSubscribeComponent] },
+      })
       .overrideComponent(OrganizationPlansComponent, {
         remove: {
-          imports: [
-            OrganizationInformationComponent,
-            SecretsManagerSubscribeComponent,
-            EnterPaymentMethodComponent,
-            EnterBillingAddressComponent,
-            OrganizationSelfHostingLicenseUploaderComponent,
-          ],
+          imports: useRealOrgInfo
+            ? realChildren
+            : [OrganizationInformationComponent, ...realChildren],
           providers: [
             AccountBillingClient,
             PreviewInvoiceClient,
             SubscriberBillingClient,
             PremiumOrgUpgradeService,
             SubscriptionDiscountService,
+            InvoicePreviewService,
           ],
         },
         add: {
-          imports: [
-            MockOrgInfoComponent,
-            MockSmSubscribeComponent,
-            MockEnterPaymentMethodComponent,
-            MockEnterBillingAddressComponent,
-            MockOrganizationSelfHostingLicenseUploaderComponent,
-          ],
+          imports: useRealOrgInfo ? mockChildren : [MockOrgInfoComponent, ...mockChildren],
           providers: [
             { provide: AccountBillingClient, useValue: mockAccountBillingClient },
             { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
             { provide: SubscriberBillingClient, useValue: mockSubscriberBillingClient },
             { provide: PremiumOrgUpgradeService, useValue: mockPremiumOrgUpgradeService },
             { provide: SubscriptionDiscountService, useValue: mockSubscriptionDiscountService },
+            { provide: LogService, useValue: mockLogService },
+            { provide: InvoicePreviewService, useValue: mockInvoicePreviewService },
           ],
         },
       })
       .compileComponents();
-
-    fixture = TestBed.createComponent(OrganizationPlansComponent);
-    component = fixture.componentInstance;
-  });
+  }
 
   describe("component creation", () => {
     it("should create", () => {
@@ -1348,6 +1415,72 @@ describe("OrganizationPlansComponent", () => {
 
       expect(mockOrganizationApiService.create).toHaveBeenCalled();
       expect(mockPremiumOrgUpgradeService.upgradeToOrganization).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("plan section heading and sponsored spacing", () => {
+    // Second detectChanges renders the plan form once loading has settled.
+    async function render(acceptingSponsorship: boolean) {
+      fixture.componentRef.setInput("acceptingSponsorship", acceptingSponsorship);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      const sections = fixture.debugElement.queryAll(By.directive(SectionComponent));
+      return {
+        heading: el.querySelector("bit-section h2")?.textContent?.trim(),
+        form: el.querySelector("form") as HTMLFormElement,
+        orgInfoSection: sections[0].componentInstance as SectionComponent,
+        orgInfoSectionEl: sections[0].nativeElement as HTMLElement,
+        planSectionEl: sections[1].nativeElement as HTMLElement,
+        planWrapperEl: el.querySelector("bit-radio-group bit-radio-button")
+          ?.parentElement as HTMLElement,
+        priceSpanCount: el.querySelectorAll("bit-radio-group span.tw-pl-4").length,
+        everySectionMarginDisabled: sections.every((s) =>
+          (s.componentInstance as SectionComponent).disableMargin(),
+        ),
+      };
+    }
+
+    it("uses the sponsored heading and 24px section spacing when accepting sponsorship with VFO1 on", async () => {
+      const r = await render(true);
+
+      expect(r.heading).toBe("sponsoredPlanDetails");
+      expect(r.form.classList.contains("tw-pt-2")).toBe(true);
+      expect(r.form.classList.contains("tw-pt-6")).toBe(false);
+      expect(r.everySectionMarginDisabled).toBe(true);
+      expect(r.orgInfoSectionEl.classList.contains("tw-mb-6")).toBe(true);
+      expect(r.orgInfoSectionEl.classList.contains("tw-block")).toBe(true);
+      expect(r.planSectionEl.classList.contains("tw-mb-6")).toBe(true);
+      // Nothing but the section margin may sit between the plan card and the next heading.
+      expect(r.planWrapperEl.classList.contains("tw-mb-3")).toBe(false);
+      expect(r.priceSpanCount).toBe(0);
+    });
+
+    it("uses the choose-plan heading and default spacing when not accepting sponsorship", async () => {
+      const r = await render(false);
+
+      expect(r.heading).toBe("choosePlan");
+      expect(r.form.classList.contains("tw-pt-6")).toBe(true);
+      expect(r.form.classList.contains("tw-pt-2")).toBe(false);
+      expect(r.orgInfoSection.disableMargin()).toBe(false);
+      expect(r.planSectionEl.classList.contains("tw-mb-6")).toBe(false);
+      expect(r.planWrapperEl.classList.contains("tw-mb-3")).toBe(true);
+      expect(r.priceSpanCount).toBeGreaterThan(0);
+    });
+
+    it("keeps the legacy heading and default spacing when accepting sponsorship with VFO1 off", async () => {
+      vfo1Enabled.set(false);
+
+      const r = await render(true);
+
+      expect(r.heading).toBe("chooseYourPlan");
+      expect(r.form.classList.contains("tw-pt-6")).toBe(true);
+      expect(r.orgInfoSection.disableMargin()).toBe(false);
+      expect(r.planSectionEl.classList.contains("tw-mb-6")).toBe(false);
+      expect(r.planWrapperEl.classList.contains("tw-mb-3")).toBe(true);
+      expect(r.priceSpanCount).toBeGreaterThan(0);
     });
   });
 
@@ -2187,6 +2320,20 @@ describe("OrganizationPlansComponent", () => {
       expect(paymentDesc.length).toBeGreaterThan(0);
     });
 
+    it("uses the family-vault payment copy when accepting sponsorship with VFO1 on", () => {
+      fixture.componentRef.setInput("acceptingSponsorship", true);
+
+      expect(component.paymentDesc).toBe("paymentSponsoredFamilyVault");
+      expect(mockI18nService.t).not.toHaveBeenCalledWith("paymentSponsored");
+    });
+
+    it("keeps the legacy sponsored payment copy when VFO1 is off", () => {
+      vfo1Enabled.set(false);
+      fixture.componentRef.setInput("acceptingSponsorship", true);
+
+      expect(component.paymentDesc).toBe("paymentSponsored");
+    });
+
     it("should use paymentChargedWithTrialSpecificLength with plan's trialPeriodDays when on a trial plan and no custom trialLength", () => {
       component["formGroup"].controls.productTier.setValue(ProductTierType.Enterprise);
       component.changedProduct();
@@ -2882,6 +3029,653 @@ describe("OrganizationPlansComponent", () => {
           mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
         ).toHaveBeenCalledTimes(1);
       }));
+    });
+  });
+
+  describe("preview-driven cart (PM-40231)", () => {
+    const scenarioACart = {
+      passwordManager: {
+        seats: { translationKey: "passwordManagerPlanPrice", cost: 6, quantity: 4 },
+        additionalStorage: { translationKey: "additionalStorageGb", cost: 1, quantity: 2 },
+      },
+      secretsManager: {
+        seats: { translationKey: "secretsManagerPlanPrice", cost: 2, quantity: 4 },
+        additionalServiceAccounts: {
+          translationKey: "additionalServiceAccounts",
+          cost: 1,
+          quantity: 3,
+        },
+      },
+      cadence: "monthly",
+      discounts: [{ type: DiscountTypes.PercentOff, value: 20, amount: 7.4, label: "SAVE20" }],
+      estimatedTax: 2.0,
+      total: 31.6,
+    } as unknown as Cart;
+
+    const scenarioECart = {
+      passwordManager: {
+        seats: {
+          translationKey: "passwordManagerPlanPrice",
+          cost: 6,
+          quantity: 5,
+          discounts: [{ type: DiscountTypes.AmountOff, value: 2, label: "SEATS10" }],
+        },
+      },
+      cadence: "monthly",
+      discounts: [{ type: DiscountTypes.AmountOff, value: 5, label: "WELCOME" }],
+      estimatedTax: 1.84,
+      total: 24.84,
+    } as unknown as Cart;
+
+    const scenarioFCart = {
+      passwordManager: {
+        seats: { translationKey: "familiesMembership", cost: 0, quantity: 1 },
+      },
+      cadence: "annually",
+      estimatedTax: 0,
+      total: 0,
+    } as unknown as Cart;
+
+    const premiumUpgradeCart = {
+      passwordManager: {
+        seats: {
+          translationKey: "teamsMembership",
+          translationParams: ["Teams", "8 months"],
+          cost: 31.99,
+          quantity: 1,
+          hideBreakdown: true,
+        },
+      },
+      cadence: "annually",
+      estimatedTax: 2.03,
+      credit: { translationKey: "premiumSubscriptionCredit", value: 6.66 },
+      total: 27.36,
+    } as unknown as Cart;
+
+    const eligibleDiscount: SubscriptionDiscount = {
+      stripeCouponId: "coupon-families",
+      percentOff: 20,
+      duration: "once",
+      startDate: "2026-01-01T00:00:00Z",
+      endDate: "2026-12-31T00:00:00Z",
+      tierEligibility: {
+        [DiscountTierType.Premium]: false,
+        [DiscountTierType.Families]: true,
+      },
+    };
+
+    const enterValidAddress = () =>
+      component["billingFormGroup"].controls.billingAddress.patchValue({
+        country: "US",
+        postalCode: "12345",
+      });
+
+    const selectTeams = () => {
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+      component.changedProduct();
+      component["formGroup"].controls.plan.setValue(PlanType.TeamsAnnually);
+      component["formGroup"].controls.additionalSeats.setValue(4);
+    };
+
+    beforeEach(() => {
+      previewDrivenCartFlag = true;
+      fixture = TestBed.createComponent(OrganizationPlansComponent);
+      component = fixture.componentInstance;
+    });
+
+    describe("premium upgrade branch", () => {
+      it("previews through the invoice preview service, not the legacy proration endpoint", fakeAsync(() => {
+        mockInvoicePreviewService.previewPremiumOrgUpgradeCart.mockResolvedValue(
+          premiumUpgradeCart,
+        );
+        hasPremiumPersonallySubject.next(true);
+
+        fixture.detectChanges();
+        flushMicrotasks();
+
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+        component.changedProduct();
+        enterValidAddress();
+        tick(1500);
+
+        expect(mockInvoicePreviewService.previewPremiumOrgUpgradeCart).toHaveBeenCalledWith(
+          {
+            targetProductTierType: ProductTierType.Teams,
+            billingAddress: { country: "US", postalCode: "12345" },
+          },
+          "Teams",
+        );
+        expect(mockPreviewInvoiceClient.previewProrationForPremiumUpgrade).not.toHaveBeenCalled();
+        expect(
+          mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
+        ).not.toHaveBeenCalled();
+      }));
+
+      it("renders the server cart verbatim, including the credit row and collapsed seat line", fakeAsync(() => {
+        mockInvoicePreviewService.previewPremiumOrgUpgradeCart.mockResolvedValue(
+          premiumUpgradeCart,
+        );
+        hasPremiumPersonallySubject.next(true);
+
+        fixture.detectChanges();
+        flushMicrotasks();
+
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+        component.changedProduct();
+        enterValidAddress();
+        tick(1500);
+
+        expect(component["cart"]()).toBe(premiumUpgradeCart);
+        expect(component["cart"]().credit).toEqual({
+          translationKey: "premiumSubscriptionCredit",
+          value: 6.66,
+        });
+      }));
+    });
+
+    describe("checkout branch", () => {
+      beforeEach(async () => {
+        fixture.detectChanges();
+        await fixture.whenStable();
+      });
+
+      it("renders Scenario A verbatim — coupon discount and $31.60 total", fakeAsync(() => {
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(scenarioACart);
+
+        selectTeams();
+        enterValidAddress();
+        tick(1500);
+
+        expect(component["cart"]()).toBe(scenarioACart);
+        expect(component["cart"]().total).toBe(31.6);
+        expect(component["cart"]().discounts).toEqual([
+          { type: DiscountTypes.PercentOff, value: 20, amount: 7.4, label: "SAVE20" },
+        ]);
+        expect(
+          mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
+        ).not.toHaveBeenCalled();
+      }));
+
+      it("passes Scenario E's item-scoped and cart-wide discounts through untouched", fakeAsync(() => {
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(scenarioECart);
+
+        selectTeams();
+        enterValidAddress();
+        tick(1500);
+
+        const cart = component["cart"]();
+        expect(cart).toBe(scenarioECart);
+        expect(cart.passwordManager.seats.discounts).toEqual([
+          { type: DiscountTypes.AmountOff, value: 2, label: "SEATS10" },
+        ]);
+        expect(cart.discounts).toEqual([
+          { type: DiscountTypes.AmountOff, value: 5, label: "WELCOME" },
+        ]);
+        expect(cart.total).toBe(24.84);
+      }));
+
+      it("sends the real storage and sponsorship values in a single call (PM-27585 workaround retired)", fakeAsync(() => {
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(scenarioFCart);
+        fixture.componentRef.setInput("acceptingSponsorship", true);
+
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
+        component.changedProduct();
+        component["formGroup"].controls.additionalStorage.setValue(2);
+        enterValidAddress();
+        tick(1500);
+
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).toHaveBeenCalledTimes(1);
+        const [{ purchase }] =
+          mockInvoicePreviewService.previewOrganizationCheckoutCart.mock.calls[0]!;
+        expect(purchase.passwordManager.sponsored).toBe(true);
+        expect(purchase.passwordManager.additionalStorage).toBe(2);
+      }));
+
+      it("re-prices the sponsored seat line at the Families price and adds the sponsorship discount", fakeAsync(() => {
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(scenarioFCart);
+        fixture.componentRef.setInput("acceptingSponsorship", true);
+
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
+        component.changedProduct();
+        enterValidAddress();
+        tick(1500);
+
+        const cart = component["cart"]();
+        expect(cart.passwordManager.seats).toEqual({
+          translationKey: "familiesMembership",
+          cost: 40,
+          quantity: 1,
+        });
+        expect(cart.discounts).toEqual([{ type: DiscountTypes.AmountOff, value: 40, amount: 40 }]);
+        expect(cart.estimatedTax).toBe(0);
+        expect(cart.total).toBe(0);
+        expect(scenarioFCart.passwordManager.seats.cost).toBe(0);
+      }));
+
+      it("leaves the sponsored storage line and the server totals untouched", fakeAsync(() => {
+        const sponsoredWithStorage = {
+          ...scenarioFCart,
+          passwordManager: {
+            ...scenarioFCart.passwordManager,
+            additionalStorage: { translationKey: "additionalStorageGb", cost: 4, quantity: 2 },
+          },
+          estimatedTax: 0.5,
+          total: 8.5,
+        } as unknown as Cart;
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(
+          sponsoredWithStorage,
+        );
+        fixture.componentRef.setInput("acceptingSponsorship", true);
+
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
+        component.changedProduct();
+        component["formGroup"].controls.additionalStorage.setValue(2);
+        enterValidAddress();
+        tick(1500);
+
+        const cart = component["cart"]();
+        expect(cart.passwordManager.additionalStorage).toEqual({
+          translationKey: "additionalStorageGb",
+          cost: 4,
+          quantity: 2,
+        });
+        expect(cart.passwordManager.seats.cost).toBe(40);
+        expect(cart.discounts).toEqual([{ type: DiscountTypes.AmountOff, value: 40, amount: 40 }]);
+        expect(cart.estimatedTax).toBe(0.5);
+        expect(cart.total).toBe(8.5);
+      }));
+    });
+
+    describe("request shape", () => {
+      beforeEach(async () => {
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(scenarioACart);
+        fixture.detectChanges();
+        await fixture.whenStable();
+      });
+
+      const lastPurchase = () =>
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mock.calls.at(-1)![0].purchase;
+
+      it("includes Secrets Manager with standalone false when enabled", fakeAsync(() => {
+        selectTeams();
+        component["secretsManagerSubscription"].patchValue({
+          enabled: true,
+          userSeats: 4,
+          additionalServiceAccounts: 3,
+        });
+        enterValidAddress();
+        tick(1500);
+
+        expect(lastPurchase().secretsManager).toEqual({
+          seats: 4,
+          additionalServiceAccounts: 3,
+          standalone: false,
+        });
+      }));
+
+      it("omits Secrets Manager when it is not enabled", fakeAsync(() => {
+        selectTeams();
+        enterValidAddress();
+        tick(1500);
+
+        expect(lastPurchase().secretsManager).toBeUndefined();
+      }));
+
+      it("omits Secrets Manager left enabled from a previous plan when switching to Families", fakeAsync(() => {
+        selectTeams();
+        component["secretsManagerSubscription"].patchValue({
+          enabled: true,
+          userSeats: 4,
+          additionalServiceAccounts: 3,
+        });
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
+        component.changedProduct();
+        enterValidAddress();
+        tick(1500);
+
+        expect(lastPurchase().tier).toBe("families");
+        expect(lastPurchase().secretsManager).toBeUndefined();
+      }));
+
+      it("sends a single seat for plans without an additional-seats option", fakeAsync(() => {
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
+        component.changedProduct();
+        enterValidAddress();
+        tick(1500);
+
+        expect(lastPurchase().passwordManager.seats).toBe(1);
+      }));
+
+      it("forwards eligibility coupon ids", fakeAsync(() => {
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
+        component.changedProduct();
+        enterValidAddress();
+        tick(1000);
+
+        mockDiscountSubject.next([eligibleDiscount]);
+        tick(1500);
+
+        expect(lastPurchase().coupons).toEqual([eligibleDiscount.stripeCouponId]);
+      }));
+    });
+
+    describe("guards", () => {
+      it("never previews for a provider-created organization", fakeAsync(() => {
+        fixture.componentRef.setInput("providerId", "provider-123");
+        mockProviderApiService.getProvider.mockResolvedValue({ id: "provider-123" } as any);
+
+        fixture.detectChanges();
+        flushMicrotasks();
+
+        selectTeams();
+        enterValidAddress();
+        tick(1500);
+
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).not.toHaveBeenCalled();
+        expect(mockInvoicePreviewService.previewPremiumOrgUpgradeCart).not.toHaveBeenCalled();
+        expect(component["previewCart"]()).toBeNull();
+        expect(
+          mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
+        ).toHaveBeenCalledTimes(1);
+      }));
+
+      it("never previews a Teams Starter plan", fakeAsync(async () => {
+        mockApiService.getPlans.mockResolvedValue({
+          data: [
+            ...mockPasswordManagerPlans,
+            {
+              type: PlanType.TeamsStarter,
+              productTier: ProductTierType.TeamsStarter,
+              name: "Teams Starter",
+              isAnnual: false,
+              canBeUsedByBusiness: true,
+              upgradeSortOrder: 2,
+              displaySortOrder: 2,
+              PasswordManager: {
+                basePrice: 20,
+                seatPrice: 0,
+                hasAdditionalSeatsOption: false,
+                hasAdditionalStorageOption: false,
+                hasPremiumAccessOption: false,
+                baseStorageGb: 1,
+                additionalStoragePricePerGb: 0,
+              },
+              SecretsManager: null,
+            } as PlanResponse,
+          ],
+        } as any);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        component["formGroup"].controls.productTier.setValue(ProductTierType.TeamsStarter);
+        component.changedProduct();
+        component["formGroup"].controls.plan.setValue(PlanType.TeamsStarter);
+        enterValidAddress();
+        tick(1500);
+
+        expect(component["selectedPlan"]()?.productTier).toBe(ProductTierType.TeamsStarter);
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).not.toHaveBeenCalled();
+        expect(mockInvoicePreviewService.previewPremiumOrgUpgradeCart).not.toHaveBeenCalled();
+        expect(component["previewCart"]()).toBeNull();
+        expect(component["previewFailed"]()).toBe(false);
+        expect(mockLogService.error).not.toHaveBeenCalled();
+      }));
+
+      it("stays on the legacy path for an existing organization", fakeAsync(async () => {
+        fixture.componentRef.setInput("organizationId", "org-123");
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        selectTeams();
+        enterValidAddress();
+        tick(1500);
+
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).not.toHaveBeenCalled();
+        expect(mockInvoicePreviewService.previewPremiumOrgUpgradeCart).not.toHaveBeenCalled();
+        expect(component["previewCart"]()).toBeNull();
+        expect(
+          mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
+        ).toHaveBeenCalledTimes(1);
+      }));
+
+      it("does not preview with an invalid billing address", fakeAsync(async () => {
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        selectTeams();
+        component["billingFormGroup"].controls.billingAddress.patchValue({
+          country: "",
+          postalCode: "",
+        });
+        tick(1500);
+
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).not.toHaveBeenCalled();
+        expect(component["previewFailed"]()).toBe(false);
+      }));
+
+      it("keeps the last good server cart while the billing address is being edited", fakeAsync(async () => {
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(scenarioACart);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        selectTeams();
+        enterValidAddress();
+        tick(1500);
+        expect(component["cart"]()).toBe(scenarioACart);
+
+        component["billingFormGroup"].controls.billingAddress.patchValue({ postalCode: "" });
+        tick(1500);
+
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).toHaveBeenCalledTimes(1);
+        expect(component["cart"]()).toBe(scenarioACart);
+        expect(component["previewFailed"]()).toBe(false);
+      }));
+
+      it("does not preview for a Free organization", fakeAsync(async () => {
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Free);
+        component["formGroup"].controls.plan.setValue(PlanType.Free);
+        component.changedProduct();
+        enterValidAddress();
+        tick(1500);
+
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).not.toHaveBeenCalled();
+        expect(component["previewFailed"]()).toBe(false);
+      }));
+    });
+
+    describe("preview failure", () => {
+      beforeEach(async () => {
+        fixture.detectChanges();
+        await fixture.whenStable();
+      });
+
+      it("raises the failure flag, toasts, and never substitutes a local cart", fakeAsync(() => {
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockRejectedValue(
+          new Error("route not found"),
+        );
+
+        selectTeams();
+        enterValidAddress();
+        tick(1500);
+
+        expect(component["previewFailed"]()).toBe(true);
+        expect(component["previewCart"]()).toBeNull();
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          message: "invoicePreviewErrorMessage",
+        });
+        expect(mockLogService.error).toHaveBeenCalled();
+
+        fixture.detectChanges();
+        const host: HTMLElement = fixture.nativeElement;
+        expect(host.querySelector('[data-testid="invoice-preview-error"]')).not.toBeNull();
+        expect(host.querySelector("billing-cart-summary")?.classList).toContain("tw-hidden");
+      }));
+
+      it("keeps the failure state while the billing address is being edited", fakeAsync(() => {
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockRejectedValue(
+          new Error("route not found"),
+        );
+
+        selectTeams();
+        enterValidAddress();
+        tick(1500);
+        expect(component["previewFailed"]()).toBe(true);
+
+        component["billingFormGroup"].controls.billingAddress.patchValue({ postalCode: "" });
+        tick(1500);
+
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).toHaveBeenCalledTimes(1);
+        expect(component["previewFailed"]()).toBe(true);
+        expect(component["previewCart"]()).toBeNull();
+      }));
+
+      it("clears the failure state once a later preview succeeds", fakeAsync(() => {
+        mockInvoicePreviewService.previewOrganizationCheckoutCart
+          .mockRejectedValueOnce(new Error("route not found"))
+          .mockResolvedValue(scenarioACart);
+
+        selectTeams();
+        enterValidAddress();
+        tick(1500);
+        expect(component["previewFailed"]()).toBe(true);
+
+        component["formGroup"].controls.additionalSeats.setValue(5);
+        tick(1500);
+
+        expect(component["previewFailed"]()).toBe(false);
+        expect(component["previewCart"]()).toBe(scenarioACart);
+
+        fixture.detectChanges();
+        const host: HTMLElement = fixture.nativeElement;
+        expect(host.querySelector('[data-testid="invoice-preview-error"]')).toBeNull();
+        expect(host.querySelector("billing-cart-summary")?.classList).not.toContain("tw-hidden");
+      }));
+
+      it("ignores a stale preview that resolves after a newer one", fakeAsync(() => {
+        let resolveFirst!: (cart: Cart) => void;
+        mockInvoicePreviewService.previewOrganizationCheckoutCart
+          .mockImplementationOnce(() => new Promise<Cart>((resolve) => (resolveFirst = resolve)))
+          .mockResolvedValue(scenarioACart);
+
+        selectTeams();
+        enterValidAddress();
+        tick(1500);
+
+        component["formGroup"].controls.additionalSeats.setValue(5);
+        tick(1500);
+        expect(component["previewCart"]()).toBe(scenarioACart);
+
+        resolveFirst(scenarioECart);
+        tick();
+
+        expect(component["previewCart"]()).toBe(scenarioACart);
+      }));
+    });
+
+    it("drops the server cart and resumes the legacy path when the flag flips off at runtime", fakeAsync(async () => {
+      const flagSubject = new BehaviorSubject<boolean>(true);
+      mockConfigService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
+        flag === FeatureFlag.PM36631_PreviewDrivenCart ? flagSubject.asObservable() : of(true),
+      );
+      mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(scenarioACart);
+
+      const runtimeFixture = TestBed.createComponent(OrganizationPlansComponent);
+      const runtimeComponent = runtimeFixture.componentInstance;
+      runtimeFixture.detectChanges();
+      await runtimeFixture.whenStable();
+
+      runtimeComponent["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+      runtimeComponent.changedProduct();
+      runtimeComponent["formGroup"].controls.plan.setValue(PlanType.TeamsAnnually);
+      runtimeComponent["billingFormGroup"].controls.billingAddress.patchValue({
+        country: "US",
+        postalCode: "12345",
+      });
+      tick(1500);
+      expect(runtimeComponent["previewCart"]()).toBe(scenarioACart);
+
+      flagSubject.next(false);
+      tick(1500);
+
+      expect(runtimeComponent["previewCart"]()).toBeNull();
+      expect(runtimeComponent["previewFailed"]()).toBe(false);
+      expect(runtimeComponent["cart"]()).not.toBe(scenarioACart);
+      expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).toHaveBeenCalledTimes(1);
+      expect(
+        mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
+      ).toHaveBeenCalledTimes(1);
+    }));
+
+    it("never touches the preview service when the flag is off", fakeAsync(async () => {
+      previewDrivenCartFlag = false;
+      const legacyFixture = TestBed.createComponent(OrganizationPlansComponent);
+      const legacyComponent = legacyFixture.componentInstance;
+      legacyFixture.detectChanges();
+      await legacyFixture.whenStable();
+
+      legacyComponent["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+      legacyComponent.changedProduct();
+      legacyComponent["formGroup"].controls.plan.setValue(PlanType.TeamsAnnually);
+      legacyComponent["billingFormGroup"].controls.billingAddress.patchValue({
+        country: "US",
+        postalCode: "12345",
+      });
+      tick(1500);
+
+      expect(
+        mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
+      ).toHaveBeenCalledTimes(1);
+      expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).not.toHaveBeenCalled();
+      expect(mockInvoicePreviewService.previewPremiumOrgUpgradeCart).not.toHaveBeenCalled();
+      expect(legacyComponent["previewCart"]()).toBeNull();
+      expect(legacyComponent["previewFailed"]()).toBe(false);
+    }));
+  });
+
+  describe("organization information step", () => {
+    // Mounts the real standalone OrganizationInformationComponent instead of MockOrgInfoComponent,
+    // so the step's own template dependencies and its form wiring into the parent are exercised.
+    beforeEach(async () => {
+      TestBed.resetTestingModule();
+      await configureTestBed({ useRealOrgInfo: true });
+
+      fixture = TestBed.createComponent(OrganizationPlansComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    });
+
+    it("renders the information step", () => {
+      const orgInfo = fixture.nativeElement.querySelector("app-org-info");
+
+      expect(orgInfo).not.toBeNull();
+      expect(orgInfo.querySelectorAll("bit-form-field").length).toBe(2);
+      expect(orgInfo.querySelector('input[formcontrolname="name"]')).not.toBeNull();
+      expect(orgInfo.querySelector('input[formcontrolname="billingEmail"]')).not.toBeNull();
+    });
+
+    it("submits the values entered into the information step", async () => {
+      mockOrganizationApiService.create.mockResolvedValue({ id: "new-org-id" } as any);
+
+      const orgInfo = fixture.nativeElement.querySelector("app-org-info");
+      setInputValue(orgInfo.querySelector('input[formcontrolname="name"]'), "Typed Org Name");
+      setInputValue(
+        orgInfo.querySelector('input[formcontrolname="billingEmail"]'),
+        "typed@example.com",
+      );
+      fixture.detectChanges();
+
+      await component.submit();
+
+      expect(mockOrganizationApiService.create).toHaveBeenCalledWith(
+        expect.objectContaining({ name: "Typed Org Name", billingEmail: "typed@example.com" }),
+      );
     });
   });
 });

@@ -20,6 +20,7 @@ import {
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
+import { LogoutService } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
@@ -166,6 +167,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
     private sharedUnlockSettingsService: SharedUnlockSettingsService,
+    private logoutService: LogoutService,
   ) {
     this.multiClientPasswordManagement$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM32413_MultiClientPasswordManagement,
@@ -566,8 +568,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     });
 
     const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-    if (confirmed) {
-      this.messagingService.send("logout", { userId: userId });
+    if (confirmed && userId != null) {
+      await this.logoutService.logout(userId, "userInitiated");
     }
   }
 
