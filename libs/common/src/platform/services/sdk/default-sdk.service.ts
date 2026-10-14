@@ -58,6 +58,7 @@ import {
 import { compareValues } from "../../misc/compare-values";
 import { Rc } from "../../misc/reference-counting/rc";
 import { StateProvider } from "../../state";
+import { toSdkFeatureFlags } from "../config/default-config.service";
 
 import { initializeClientManagedState } from "./client-managed-state";
 
@@ -335,14 +336,7 @@ export class DefaultSdkService implements SdkService {
 
   private async loadFeatureFlags(client: PasswordManagerClient) {
     const serverConfig = await firstValueFrom(this.configServiceProvider().serverConfig$);
-
-    const featureFlagMap = new Map(
-      Object.entries(serverConfig?.featureStates ?? {})
-        .filter(([, value]) => typeof value === "boolean") // The SDK only supports boolean feature flags at this time
-        .map(([key, value]) => [key, value] as [string, boolean]),
-    );
-
-    await client.platform().load_flags(featureFlagMap);
+    await client.platform().load_flags(toSdkFeatureFlags(serverConfig));
   }
 
   private async toSettings(env: Environment): Promise<ClientSettings> {
