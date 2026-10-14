@@ -13,7 +13,7 @@ import {
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
-import { auditTime, combineLatest, fromEvent, map, switchMap } from "rxjs";
+import { auditTime, combineLatest, firstValueFrom, fromEvent, map, switchMap } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -23,6 +23,7 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
@@ -52,11 +53,13 @@ import {
   StatusLockupComponent,
   SvgComponent,
   TableSelectionModel,
+  ToastService,
   TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { vaultScopeCommands, VaultScopeType } from "../../models/vault-scope";
+import { PinnedSharedFoldersService } from "../../services/pinned-shared-folders.service";
 import { BULK_DELETE_DIALOG, BulkDeleteDialogRef } from "../../tokens/bulk-delete-dialog.token";
 import {
   BULK_EDIT_COLLECTION_ACCESS_DIALOG,
@@ -132,6 +135,12 @@ export type SharedFoldersTableFilters = {
    * label so a URL-synced filter survives a change of locale.
    */
   permissions?: SharedFolderPermission[];
+
+  /**
+   * On/off: only the folders the user pinned to the side nav. `undefined` and `false` both mean
+   * unfiltered.
+   */
+  pinned?: boolean;
 };
 
 /**
@@ -149,9 +158,13 @@ export type SharedFoldersTableFilters = {
  * ## What a client provides
  *
  * Every write goes through a dialog the client supplies as a token, so a client that provides none
- * lists its folders read-only and offers no action it can't carry out — see {@link COLLECTION_DIALOG},
+ * offers no write action it can't carry out — see {@link COLLECTION_DIALOG},
  * {@link BULK_DELETE_DIALOG}, and {@link BULK_EDIT_COLLECTION_ACCESS_DIALOG}. `COLLECTION_DIALOG`
- * gates the single-folder actions as a set: without it the Options column is dropped altogether.
+ * gates the single-folder Edit, Access, and Delete items as a set, so a client without it (desktop)
+ * gets none of them even if it provides `BULK_DELETE_DIALOG`, which only the bulk actions bar
+ * uses. The Options menu itself is always there: Pin to sidebar and Unpin from sidebar are stored
+ * on the device, need no dialog, and are offered on every row whatever the member may edit or
+ * delete.
  *
  * Each folder's name links to its organization's vault, drilled into that folder.
  *
@@ -197,6 +210,9 @@ export class SharedFoldersComponent {
   private readonly cipherService = inject(CipherService);
   private readonly collectionService = inject(CollectionService);
   private readonly organizationService = inject(OrganizationService);
+  private readonly pinnedSharedFolders = inject(PinnedSharedFoldersService);
+  private readonly i18nService = inject(I18nService);
+  private readonly toastService = inject(ToastService);
 
   /** Measured to fit the page to the window — see {@link autoPageSize}. */
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -234,6 +250,30 @@ export class SharedFoldersComponent {
       ),
       map(([collections, ciphers, organizations]) => ({ collections, ciphers, organizations })),
     ),
+  );
+
+  /**
+   * The ids the user pinned, as a set. Read inside the table filter and the Name cell, so both
+   * follow a pin or unpin made anywhere, the row menu included.
+   */
+  private readonly pinnedIds = toSignal(
+    this.userId$.pipe(
+      switchMap((userId) => this.pinnedSharedFolders.pinnedIds$(userId)),
+      map((ids) => new Set<string>(ids)),
+    ),
+    { initialValue: new Set<string>() },
+  );
+
+  /**
+   * Whether the Pinned chip has nothing to offer.
+   */
+  protected readonly noPinned = computed(() => {
+    const pinned = this.pinnedIds();
+    return !this.sharedFolders().some((row) => pinned.has(row.id));
+  });
+
+  protected readonly pinnedDisabledTooltip = computed(() =>
+    this.noPinned() ? this.i18nService.t("noPinnedFoldersTooltip") : "",
   );
 
   protected readonly loading = computed(() => this.loaded() === undefined);
@@ -274,11 +314,12 @@ export class SharedFoldersComponent {
   );
 
   /**
-   * Whether the Options column is offered at all. Gated on the client having a collection dialog
-   * rather than on what each row allows, so filtering can't make the column come and go and resize
-   * every other column with it.
+   * Whether the client can manage folders at all: it gates the Add button and, as a set, the row
+   * menu's Edit, Access, and Delete items. Pin to sidebar needs no dialog, so the Options column
+   * itself is always there — always present rather than per-row, so filtering can't make the column
+   * come and go and resize every other column with it.
    */
-  protected readonly showOptions = this.collectionDialog != null;
+  protected readonly hasCollectionDialog = this.collectionDialog != null;
 
   /**
    * Whether the toolbar offers its Add button, on the organization's own collection creation
@@ -287,7 +328,7 @@ export class SharedFoldersComponent {
    * either way the dialog would have no organization to save to.
    */
   protected readonly canAdd = computed(
-    () => this.showOptions && (this.organization()?.canCreateNewCollections ?? false),
+    () => this.hasCollectionDialog && (this.organization()?.canCreateNewCollections ?? false),
   );
 
   /**
@@ -327,12 +368,6 @@ export class SharedFoldersComponent {
   protected readonly selection = computed<SelectionConfig<SharedFolderRow> | undefined>(() =>
     this.showBulkEditAccess() || this.showBulkDelete() ? this.multiSelect : undefined,
   );
-
-  /**
-   * The Items column's track. The flexible track normally belongs to Options; with no Options
-   * column Items takes it, so the columns still span the table.
-   */
-  protected readonly itemsWidth = this.showOptions ? "minmax(100px, 160px)" : "minmax(100px, 1fr)";
 
   /**
    * The permissions the chip offers: those the rows carry, in {@link SHARED_FOLDER_PERMISSIONS}
@@ -380,8 +415,15 @@ export class SharedFoldersComponent {
   protected readonly sortByPermission: SortFn = (a: SharedFolderRow, b: SharedFolderRow) =>
     sharedFolderPermissionOrder(a.permissions) - sharedFolderPermissionOrder(b.permissions);
 
+  /** Whether the user pinned the folder, for the Name cell's pin icon and the row menu's item. */
+  protected isPinned(row: SharedFolderRow): boolean {
+    return this.pinnedIds().has(row.id);
+  }
+
   protected readonly filter = (row: SharedFolderRow, values: SharedFoldersTableFilters): boolean =>
-    this.matchesSearch(row, values.search) && this.matchesPermissions(row, values.permissions);
+    this.matchesSearch(row, values.search) &&
+    this.matchesPermissions(row, values.permissions) &&
+    this.matchesPinned(row, values.pinned);
 
   /**
    * The window's height, in px, so the fitted page follows a resize. Audited because `resize` fires
@@ -461,6 +503,27 @@ export class SharedFoldersComponent {
     }
 
     await this.collectionDialog?.open({ organizationId });
+  }
+
+  /**
+   * Pins the folder to the side nav, or takes it off if it is already there, then confirms with a
+   * toast. The toast waits for the state update, so it never reports a change that didn't land.
+   */
+  protected async togglePin(row: SharedFolderRow): Promise<void> {
+    const userId = await firstValueFrom(this.userId$);
+    if (this.isPinned(row)) {
+      await this.pinnedSharedFolders.unpin(userId, row.id);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("folderUnpinnedFromSidebar", row.name),
+      });
+    } else {
+      await this.pinnedSharedFolders.pin(userId, row.id);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("folderPinnedToSidebar", row.name),
+      });
+    }
   }
 
   protected async editSharedFolder(row: SharedFolderRow): Promise<void> {
@@ -583,6 +646,11 @@ export class SharedFoldersComponent {
     permissions: SharedFolderPermission[] | undefined,
   ): boolean {
     return !permissions?.length || permissions.includes(row.permissions);
+  }
+
+  /** Reads the pinned set, so the table re-filters when a pin changes. `undefined` is unfiltered. */
+  private matchesPinned(row: SharedFolderRow, pinned: boolean | undefined): boolean {
+    return !pinned || this.pinnedIds().has(row.id);
   }
 
   protected hasActiveChipFilters(

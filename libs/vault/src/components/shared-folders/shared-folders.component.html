@@ -28,6 +28,14 @@
       {{ "add" | i18n }}
     </button>
 
+    <bit-filter-toggle
+      key="pinned"
+      [label]="'pinned' | i18n"
+      icon="bwi-pin"
+      [disabled]="noPinned() && !sharedFoldersTable.filterValues().pinned"
+      [disabledTooltip]="pinnedDisabledTooltip()"
+    ></bit-filter-toggle>
+
     @if (showPermissions()) {
       <bit-filter-menu key="permissions" [placeholderText]="'permissions' | i18n" multiple>
         @for (permission of permissionOptions(); track permission) {
@@ -93,21 +101,31 @@
       <!-- Decorative: the folder name beside it already names the row. -->
       <bit-icon-tile slot="start" icon="bwi-shared-folder" size="sm" aria-hidden="true" />
       <!-- An anchor rather than a click handler, so middle- and right-click behave as expected. -->
-      <a
-        bitLink
-        truncate
-        [bitTooltip]="row.name"
-        [attr.id]="'shared-folders_link_name-' + row.id"
-        [routerLink]="
-          vaultScopeCommands({
-            type: VaultScopeType.Organization,
-            organizationId: row.organizationId,
-            collectionId: row.id,
-          })
-        "
-      >
-        {{ row.name }}
-      </a>
+      <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-1.5">
+        <a
+          bitLink
+          truncate
+          [bitTooltip]="row.name"
+          [attr.id]="'shared-folders_link_name-' + row.id"
+          [routerLink]="
+            vaultScopeCommands({
+              type: VaultScopeType.Organization,
+              organizationId: row.organizationId,
+              collectionId: row.id,
+            })
+          "
+        >
+          {{ row.name }}
+        </a>
+        @if (isPinned(row)) {
+          <bit-icon
+            name="bwi-pin"
+            class="tw-shrink-0 tw-text-muted"
+            [attr.id]="'shared-folders_icon_pinned-' + row.id"
+            [ariaLabel]="'pinned' | i18n"
+          />
+        }
+      </span>
       @if (row.nestedSharedFolders > 0) {
         <span slot="secondary">
           {{
@@ -131,81 +149,91 @@
   </bit-column>
 
   <!-- Items -->
-  <bit-column sortable [width]="itemsWidth">
+  <bit-column sortable width="minmax(100px, 160px)">
     <bit-header-cell>{{ "items" | i18n }}</bit-header-cell>
 
     <bit-cell *bitCellDef="table.columns.items; let row">{{ row.items }}</bit-cell>
   </bit-column>
 
   <!-- Options -->
-  <!-- Removed rather than left empty, so a client without a collection dialog gets no Options
-       header over blank cells. Unlike the slotted content above, a column is found by injection,
-       so an `@if` is fine here. -->
-  @if (showOptions) {
-    <!-- The flexible track, so leftover width lands here and the right-aligned overflow trigger
-         stays pinned to the table's right edge. -->
-    <bit-column width="minmax(80px, 1fr)">
-      <bit-header-cell>
-        <span class="tw-w-full tw-text-end">{{ "options" | i18n }}</span>
-      </bit-header-cell>
+  <!-- Always present: Pin to sidebar needs no dialog, so even a client with no collection dialog
+       has an action to offer on every row. -->
+  <!-- The flexible track, so leftover width lands here and the right-aligned overflow trigger
+       stays pinned to the table's right edge. -->
+  <bit-column width="minmax(80px, 1fr)">
+    <bit-header-cell>
+      <span class="tw-w-full tw-text-end">{{ "options" | i18n }}</span>
+    </bit-header-cell>
 
-      <bit-cell *bitCellLoading>
-        <div class="tw-flex tw-justify-end">
-          <bit-skeleton-text class="tw-w-6" />
-        </div>
-      </bit-cell>
+    <bit-cell *bitCellLoading>
+      <div class="tw-flex tw-justify-end">
+        <bit-skeleton-text class="tw-w-6" />
+      </div>
+    </bit-cell>
 
-      <bit-cell *bitCellDef="table.columns.options; let row">
-        <!-- In the `end` slot so the cell's flex-grow middle element pushes the trigger hard right,
-             anchoring it to the same position on every row. -->
-        @if (row.canEdit || row.canDelete) {
-          <div slot="end">
-            <button
-              type="button"
-              bitIconButton="bwi-ellipsis-v"
-              size="small"
-              [label]="'optionsForItem' | i18n: row.name"
-              [bitMenuTriggerFor]="rowMenu"
-            ></button>
-            <bit-menu #rowMenu>
-              @if (row.canEdit) {
-                <button
-                  type="button"
-                  bitMenuItem
-                  [attr.id]="'shared-folders_menu-item_edit-' + row.id"
-                  (click)="editSharedFolder(row)"
-                >
-                  <bit-icon slot="start" fixedWidth name="bwi-pencil-square" />
-                  {{ "edit" | i18n }}
-                </button>
-                <button
-                  type="button"
-                  bitMenuItem
-                  [attr.id]="'shared-folders_menu-item_access-' + row.id"
-                  (click)="editSharedFolderAccess(row)"
-                >
-                  <bit-icon slot="start" fixedWidth name="bwi-users" />
-                  {{ "access" | i18n }}
-                </button>
-              }
-              @if (row.canDelete) {
-                <button
-                  type="button"
-                  bitMenuItem
-                  variant="danger"
-                  [attr.id]="'shared-folders_menu-item_delete-' + row.id"
-                  (click)="deleteSharedFolder(row)"
-                >
-                  <bit-icon slot="start" fixedWidth name="bwi-trash" />
-                  {{ "delete" | i18n }}
-                </button>
-              }
-            </bit-menu>
-          </div>
-        }
-      </bit-cell>
-    </bit-column>
-  }
+    <bit-cell *bitCellDef="table.columns.options; let row">
+      <!-- In the `end` slot so the cell's flex-grow middle element pushes the trigger hard right,
+           anchoring it to the same position on every row. -->
+      <div slot="end">
+        <button
+          type="button"
+          bitIconButton="bwi-ellipsis-v"
+          size="small"
+          [label]="'optionsForItem' | i18n: row.name"
+          [bitMenuTriggerFor]="rowMenu"
+        ></button>
+        <bit-menu #rowMenu>
+          <!-- First, and independent of what the member may edit or delete: anyone who can see a
+               folder can pin it. -->
+          <button
+            type="button"
+            bitMenuItem
+            [attr.id]="'shared-folders_menu-item_pin-' + row.id"
+            (click)="togglePin(row)"
+          >
+            <bit-icon slot="start" fixedWidth [name]="isPinned(row) ? 'bwi-unpin' : 'bwi-pin'" />
+            {{ (isPinned(row) ? "unpinFromSidebar" : "pinToSidebar") | i18n }}
+          </button>
+          <!-- Editing and deleting are collection management, which only a client with a collection
+               dialog offers. -->
+          @if (hasCollectionDialog) {
+            @if (row.canEdit) {
+              <button
+                type="button"
+                bitMenuItem
+                [attr.id]="'shared-folders_menu-item_edit-' + row.id"
+                (click)="editSharedFolder(row)"
+              >
+                <bit-icon slot="start" fixedWidth name="bwi-pencil-square" />
+                {{ "edit" | i18n }}
+              </button>
+              <button
+                type="button"
+                bitMenuItem
+                [attr.id]="'shared-folders_menu-item_access-' + row.id"
+                (click)="editSharedFolderAccess(row)"
+              >
+                <bit-icon slot="start" fixedWidth name="bwi-users" />
+                {{ "access" | i18n }}
+              </button>
+            }
+            @if (row.canDelete) {
+              <button
+                type="button"
+                bitMenuItem
+                variant="danger"
+                [attr.id]="'shared-folders_menu-item_delete-' + row.id"
+                (click)="deleteSharedFolder(row)"
+              >
+                <bit-icon slot="start" fixedWidth name="bwi-trash" />
+                {{ "delete" | i18n }}
+              </button>
+            }
+          }
+        </bit-menu>
+      </div>
+    </bit-cell>
+  </bit-column>
 
   <!--
     Sized to the window rather than to a fixed count — see `autoPageSize`.
