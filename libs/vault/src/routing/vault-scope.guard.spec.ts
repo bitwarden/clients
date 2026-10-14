@@ -14,6 +14,8 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { Collection } from "@bitwarden/common/admin-console/models/collections";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 // eslint-disable-next-line no-restricted-imports
 import { EncString } from "@bitwarden/legacy-crypto";
 
@@ -75,6 +77,7 @@ describe("vaultScopeGuard", () => {
 
   const accountService = mock<AccountService>();
   const collectionService = mock<CollectionService>();
+  const folderService = mock<FolderService>();
 
   /**
    * A shared folder of the organization the account is a member of, as the user holds it. The name
@@ -123,6 +126,7 @@ describe("vaultScopeGuard", () => {
 
     accountService.activeAccount$ = of({ id: userId } as Account);
     collectionService.encryptedCollections$.mockReturnValue(of([]));
+    folderService.folders$.mockReturnValue(of([]));
 
     TestBed.configureTestingModule({
       providers: [
@@ -130,6 +134,7 @@ describe("vaultScopeGuard", () => {
         { provide: VaultNavService, useValue: vaultNavService },
         { provide: AccountService, useValue: accountService },
         { provide: CollectionService, useValue: collectionService },
+        { provide: FolderService, useValue: folderService },
       ],
     });
   });
@@ -248,6 +253,59 @@ describe("vaultScopeGuard", () => {
       await expect(runGuard(MY_VAULT_ROUTE, MY_ITEMS_ROUTE)).resolves.toBe(allItemsUrlTree);
       await expect(runGuard(TRASH_ROUTE, MY_ITEMS_ROUTE)).resolves.toBe(allItemsUrlTree);
       await expect(runGuard(ARCHIVE_ROUTE, MY_ITEMS_ROUTE)).resolves.toBe(allItemsUrlTree);
+    });
+  });
+
+  describe("a folder's page", () => {
+    const folderId = "6f7a8b9c-1d2e-4f3a-8b4c-5d6e7f8a9b1c";
+    const myFoldersUrlTree = mock<UrlTree>();
+
+    const folder = (id: string): Folder => Object.assign(new Folder(), { id });
+
+    const runFolderGuard = (segment: string) =>
+      TestBed.runInInjectionContext(() =>
+        vaultScopeGuard(
+          {
+            paramMap: convertToParamMap({ folderId: segment }),
+            data: {},
+          } as ActivatedRouteSnapshot,
+          state,
+        ),
+      );
+
+    beforeEach(() => {
+      router.createUrlTree.mockImplementation((commands) =>
+        (commands as unknown[])[0] === "/folders" ? myFoldersUrlTree : allItemsUrlTree,
+      );
+    });
+
+    it("allows a folder the user holds", async () => {
+      folderService.folders$.mockReturnValue(of([folder(folderId)]));
+
+      await expect(runFolderGuard(folderId)).resolves.toBe(true);
+    });
+
+    // A folder's page lives outside the vault, so the list of folders is the nearest destination.
+    it("redirects to My folders for a folder the user does not hold", async () => {
+      await expect(runFolderGuard(folderId)).resolves.toBe(myFoldersUrlTree);
+      expect(router.createUrlTree).toHaveBeenCalledWith(["/folders"]);
+    });
+
+    it("redirects to My folders for a segment that is no folder id, without reading folders", async () => {
+      folderService.folders$.mockClear();
+
+      await expect(runFolderGuard("not-a-guid")).resolves.toBe(myFoldersUrlTree);
+      expect(folderService.folders$).not.toHaveBeenCalled();
+    });
+
+    it("reads the folders for the account it resolved, without decrypting them", async () => {
+      folderService.folders$.mockClear();
+      folderService.folderViews$.mockClear();
+
+      await runFolderGuard(folderId);
+
+      expect(folderService.folders$).toHaveBeenCalledWith(userId);
+      expect(folderService.folderViews$).not.toHaveBeenCalled();
     });
   });
 
