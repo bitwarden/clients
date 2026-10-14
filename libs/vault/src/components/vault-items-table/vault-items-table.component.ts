@@ -829,7 +829,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   private readonly toolbar = viewChild(BitTableToolbarComponent);
   private readonly filtersCoachmark = viewChild<CoachmarkComponent>("filtersCoachmark");
 
-  /** Spotlights the small-screen filter button while the walkthrough's filter step is active. */
+  /** Spotlights the filter chips, or the filter button when collapsed, during the walkthrough's filters step. */
   private readonly showFiltersCoachmark = effect((onCleanup) => {
     const popover = this.filtersCoachmark()?.popover();
     const toolbar = this.toolbar();
@@ -837,7 +837,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
       return;
     }
 
-    const ref = this.popoverService.open(popover, toolbar.filterButton, {
+    const anchor = computed(() => toolbar.filterChips() ?? toolbar.filterButton());
+    const ref = this.popoverService.open(popover, anchor, {
       spotlight: true,
       closeOnBackdropClick: false,
       position: this.coachmark.getStepPosition("filters"),
