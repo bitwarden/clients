@@ -4,6 +4,7 @@ import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
@@ -25,6 +26,8 @@ const COLLECTION = "collection-1" as CollectionId;
 describe("GatedCollectionBannerComponent", () => {
   let fixture: ComponentFixture<GatedCollectionBannerComponent>;
   let enabled$: BehaviorSubject<boolean>;
+  /** Held apart from {@link enabled$}: the wording follows VFO1, the notice itself follows PAM. */
+  let vfo1$: BehaviorSubject<boolean>;
   let governedCollections: MockProxy<GovernedCollectionsService>;
   let organizations$: BehaviorSubject<{ id: string; usePam: boolean }[]>;
 
@@ -44,6 +47,7 @@ describe("GatedCollectionBannerComponent", () => {
 
   beforeEach(() => {
     enabled$ = new BehaviorSubject<boolean>(true);
+    vfo1$ = new BehaviorSubject<boolean>(false);
     governedCollections = mock<GovernedCollectionsService>();
     governedCollections.rules$.mockReturnValue(of([accessRule(true, [COLLECTION])]));
     organizations$ = new BehaviorSubject<{ id: string; usePam: boolean }[]>([
@@ -54,7 +58,13 @@ describe("GatedCollectionBannerComponent", () => {
     TestBed.configureTestingModule({
       imports: [GatedCollectionBannerComponent],
       providers: [
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => enabled$ } },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag$: (flag: FeatureFlag) =>
+              flag === FeatureFlag.VFO1Foundation ? vfo1$ : enabled$,
+          },
+        },
         { provide: GovernedCollectionsService, useValue: governedCollections },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
@@ -68,6 +78,17 @@ describe("GatedCollectionBannerComponent", () => {
 
     expect(banner()).not.toBeNull();
     expect(banner()?.textContent).toContain("pamCollectionRequiresRequest");
+  });
+
+  // The notice and the Filters sidebar lock name the same restriction, so both have to follow the
+  // terminology flag together; wording the banner "collection" under VFO1 would contradict the
+  // "Shared folder" the breadcrumb above it already says.
+  it("names the restriction in VFO1 terms while the terminology flag is on", () => {
+    vfo1$.next(true);
+    create(PAM_ORG, COLLECTION);
+
+    expect(banner()?.textContent).toContain("pamSharedFolderRequiresRequest");
+    expect(banner()?.textContent).not.toContain("pamCollectionRequiresRequest");
   });
 
   it("names the notice's landmark with a label distinct from the sentence it displays", () => {
