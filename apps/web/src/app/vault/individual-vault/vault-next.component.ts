@@ -405,7 +405,6 @@ export class VaultNextComponent implements OnInit {
       : undefined;
   });
 
-  /** The shared folder in view, for the collection options menu next to the header title. */
   protected readonly currentCollection = computed(() => {
     const id = this.scopedCollectionId();
     return id == null ? undefined : this.scopedCollections().find((c) => c.id === id);
@@ -699,11 +698,7 @@ export class VaultNextComponent implements OnInit {
     }
   }
 
-  /**
-   * Navigates away whenever the folder is now gone — not just on an explicit delete, since saving
-   * Access can itself drop the member's own assignment. No-ops if the viewer has since moved to a
-   * different folder (e.g. Back/Forward while the dialog was open), since the result is stale.
-   */
+  /** Navigates away if the shared folder is no longer available. */
   protected async onCollectionActionResult({
     deleted,
     organizationId,
@@ -718,7 +713,6 @@ export class VaultNextComponent implements OnInit {
     }
   }
 
-  /** Where the deleted folder's own page can no longer show anything. */
   private async navigateToSharedFolders(organizationId: OrganizationId): Promise<void> {
     await this.router.navigate(sharedFoldersCommands(organizationId), { replaceUrl: true });
   }
