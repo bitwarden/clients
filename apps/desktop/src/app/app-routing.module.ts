@@ -45,6 +45,7 @@ import {
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
+import { canActivateImportType } from "@bitwarden/importer-ui";
 import {
   LockComponent,
   ConfirmKeyConnectorDomainComponent,
@@ -65,6 +66,7 @@ import { AccountSwitcherV2Component } from "../auth/components/account-switcher/
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
 import { reactiveUnlockVaultGuard } from "../autofill/guards/reactive-vault-guard";
 import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create.component";
+import { Fido2CredentialNotFoundComponent } from "../autofill/modal/credentials/fido2-credential-not-found.component";
 import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
 import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
 import { MyFoldersComponent } from "../vault/app/my-folders/my-folders.component";
@@ -72,6 +74,7 @@ import { SharedFoldersComponent } from "../vault/app/shared-folders/shared-folde
 import { VaultComponent } from "../vault/app/vault-v3/vault.component";
 
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
+import { ImportShellDesktopComponent } from "./tools/import/import-shell-desktop.component";
 import { unsavedSendEditsGuard } from "./tools/send/guards/unsaved-send-edits.guard";
 import { SendComponent } from "./tools/send/send.component";
 
@@ -145,6 +148,10 @@ export const routes: Routes = [
   {
     path: "fido2-excluded",
     component: Fido2ExcludedCiphersComponent,
+  },
+  {
+    path: "fido2-credential-not-found",
+    component: Fido2CredentialNotFoundComponent,
   },
   {
     path: "",
@@ -550,12 +557,29 @@ export const routes: Routes = [
               .getFeatureFlag$(FeatureFlag.ImportUpgrade)
               .pipe(map((flagValue) => flagValue === true)),
         ],
-        // Lazy load vendor icon set
-        loadComponent: () =>
-          import("./tools/import/import-source-select-desktop.component").then(
-            (mod) => mod.ImportSourceSelectDesktopComponent,
-          ),
+        component: ImportShellDesktopComponent,
         data: { pageTitle: { key: "importNoun" } } satisfies RouteDataProperties,
+        children: [
+          {
+            path: "",
+            pathMatch: "full",
+            // Lazy load vendor icon set
+            loadComponent: () =>
+              import("./tools/import/import-source-select-desktop.component").then(
+                (mod) => mod.ImportSourceSelectDesktopComponent,
+              ),
+            data: { pageTitle: { key: "importNoun" } } satisfies RouteDataProperties,
+          },
+          {
+            path: ":importType",
+            canActivate: [canActivateImportType("/import")],
+            loadComponent: () =>
+              import("./tools/import/import-controls-desktop.component").then(
+                (mod) => mod.ImportControlsDesktopComponent,
+              ),
+            data: { pageTitle: { key: "importNoun" } } satisfies RouteDataProperties,
+          },
+        ],
       },
     ],
   },

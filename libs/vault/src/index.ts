@@ -130,6 +130,8 @@ export {
   BulkEditCollectionAccessResult,
 } from "./tokens/bulk-edit-collection-access-dialog.token";
 
+export { CIPHER_VIEW_BANNER } from "./tokens/cipher-view-banner.token";
+
 export {
   COLLECTION_DIALOG,
   CollectionDialogOpenParams,
@@ -139,6 +141,10 @@ export {
 } from "./tokens/collection-dialog.token";
 
 export { SHARE_ITEM_ENTRY_POINT } from "./tokens/share-item-entry-point.token";
+export {
+  VAULT_NAV_ORGANIZATION_OPTIONS,
+  VaultNavOrganizationOptions,
+} from "./tokens/vault-nav-organization-options.token";
 
 export {
   VaultBatchBarService,
@@ -169,3 +175,5 @@ export {
 export { VaultBreadcrumbsComponent } from "./components/vault-breadcrumbs/vault-breadcrumbs.component";
 export * from "./directives/remount-on.directive";
 export { VAULT_RENDERED_MARK } from "./utils/vault-performance";
+export { VaultTourCalloutComponent } from "./components/vault-tour-callout/vault-tour-callout.component";
+export { Vfo1TourCalloutService } from "./services/vfo1-tour-callout.service";

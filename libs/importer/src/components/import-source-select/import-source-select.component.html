@@ -1,22 +1,3 @@
-<p bitTypography="h5" noMargin class="tw-mb-2 !tw-text-fg-heading">
-  {{ "importSourceBreadcrumb" | i18n }}
-</p>
-
-<bit-progress-bar
-  [hideStartHint]="true"
-  [value]="progressValue()"
-  [accessibleName]="stepText()"
-  [ariaValueText]="stepText()"
-></bit-progress-bar>
-<p
-  bitTypography="helper"
-  noMargin
-  aria-hidden="true"
-  class="tw-mt-1 tw-mb-4 tw-text-fg-body-subtle"
->
-  {{ stepText() }}
-</p>
-
 <bit-card-segmented>
   <bit-card-content>
     <h2 bitTypography="h2" noMargin>{{ "importSourceSelectTitle" | i18n }}</h2>
