@@ -1,12 +1,11 @@
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/legacy-crypto";
 import { PasswordHistory } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
 import { PasswordHistoryData } from "../data/password-history.data";
-import { PasswordHistoryView } from "../view/password-history.view";
 
 export class Password extends Domain {
   password!: EncString;
@@ -20,16 +19,6 @@ export class Password extends Domain {
 
     this.password = new EncString(obj.password);
     this.lastUsedDate = new Date(obj.lastUsedDate);
-  }
-
-  decrypt(encKey: SymmetricCryptoKey): Promise<PasswordHistoryView> {
-    return this.decryptObj<Password, PasswordHistoryView>(
-      this,
-      new PasswordHistoryView(this),
-      ["password"],
-      encKey,
-      "DomainType: PasswordHistory",
-    );
   }
 
   toPasswordHistoryData(): PasswordHistoryData {

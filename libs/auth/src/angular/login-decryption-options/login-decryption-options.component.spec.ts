@@ -664,4 +664,36 @@ describe("LoginDecryptionOptionsComponent", () => {
       expect(deviceTrustService.trustDevice).not.toHaveBeenCalled();
     });
   });
+
+  describe("logout paths", () => {
+    it("logs out with missingEmailError when ngOnInit finds no email on the active account", async () => {
+      accountService.activeAccount$ = new BehaviorSubject({
+        id: mockUserId,
+        email: "",
+        name: "Test User",
+        emailVerified: false,
+        creationDate: new Date(),
+      });
+
+      await component.ngOnInit();
+
+      expect(logoutService.logout).toHaveBeenCalledWith(mockUserId, "missingEmailError");
+    });
+
+    it("logs out with userInitiated when the user confirms the logout dialog", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      await component.logOut();
+
+      expect(logoutService.logout).toHaveBeenCalledWith(mockUserId, "userInitiated");
+    });
+
+    it("does not log out when the user cancels the logout dialog", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+
+      await component.logOut();
+
+      expect(logoutService.logout).not.toHaveBeenCalled();
+    });
+  });
 });
