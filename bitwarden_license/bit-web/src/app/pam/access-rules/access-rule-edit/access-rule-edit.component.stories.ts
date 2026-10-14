@@ -20,14 +20,13 @@ import { AccessRuleSdkService, AccessRuleView } from "../..";
 import { AccessRuleEditComponent } from "./access-rule-edit.component";
 import { CidrValidationService } from "./ip-allowlist/cidr-validation.service";
 
-// The org's collections, as returned by the admin-console service; they populate the multi-select.
 const ORG_COLLECTIONS = [
   { id: "col-1", name: "Engineering" },
   { id: "col-2", name: "Finance" },
   { id: "col-3", name: "Marketing" },
 ];
 
-/** A fully-configured rule for the edit flow, exercising conditions, extensions, and duration caps. */
+/** Exercises conditions, extensions and duration caps. */
 const SAMPLE_RULE = {
   id: "rule-1",
   organizationId: "org-1",
@@ -52,10 +51,8 @@ const pamApi: Partial<AccessRuleSdkService> = {
 };
 
 /**
- * Mirrors `pam-routing.module.ts` (minus its guards) so the page reads `organizationId` /
- * `accessRuleId` from real route params. A stubbed `ActivatedRoute` can't resolve the page's
- * `['..']` breadcrumb, which then falls back to the current URL and renders as the active page
- * instead of a link back to the list.
+ * Mirrors `pam-routing.module.ts` without its guards, since a stubbed `ActivatedRoute` can't
+ * resolve the `['..']` breadcrumb and renders it as the active page.
  */
 const routes: Routes = [
   {
@@ -103,7 +100,6 @@ export default {
 
 type Story = StoryObj<AccessRuleEditComponent>;
 
-/** Create mode: an empty form with default durations. */
 export const Create: Story = {
   decorators: [atUrl("/organizations/org-1/access-rules/new")],
 };

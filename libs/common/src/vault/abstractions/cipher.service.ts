@@ -47,6 +47,14 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    */
   abstract cipherView$(userId: UserId, cipherId: CipherId): Observable<CipherView | undefined>;
   abstract cipherListViews$(userId: UserId): Observable<CipherListView[] | CipherView[]>;
+  /**
+   * Like {@link cipherListViews$}, but includes PAM-gated ("partial") rows. Opt-in: only the
+   * vault list should consume it, so gated ciphers never reach autofill, export, key rotation,
+   * and similar flows.
+   */
+  abstract cipherListViewsWithPartials$(
+    userId: UserId,
+  ): Observable<CipherListView[] | CipherView[]>;
   abstract ciphers$(userId: UserId): Observable<Record<CipherId, CipherData>>;
   abstract localData$(userId: UserId): Observable<Record<CipherId, LocalData>>;
   /**

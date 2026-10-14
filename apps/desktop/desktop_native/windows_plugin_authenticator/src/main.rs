@@ -24,9 +24,12 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilte
 #[cfg(target_os = "windows")]
 use win_webauthn::plugin::Clsid;
 #[cfg(target_os = "windows")]
-use windows::Win32::{
-    System::Threading::GetCurrentThreadId,
-    UI::WindowsAndMessaging::{DispatchMessageA, GetMessageA},
+use windows::{
+    Storage::ApplicationData,
+    Win32::{
+        System::Threading::GetCurrentThreadId,
+        UI::WindowsAndMessaging::{DispatchMessageA, GetMessageA},
+    },
 };
 
 #[cfg(not(target_os = "windows"))]
@@ -68,25 +71,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // overriding the default directive for matching targets.
         .from_env_lossy();
 
-    let app_data_path = std::env::var("BITWARDEN_APPDATA_DIR")
-        .or_else(|_| std::env::var("PORTABLE_EXECUTABLE_DIR"))
-        .map_or_else(
-            |_| {
-                [
-                    &std::env::var("APPDATA").expect("%APPDATA% to be defined"),
-                    "Bitwarden",
-                ]
-                .iter()
-                .collect()
-            },
-            PathBuf::from,
-        );
-
-    let log_path = app_data_path.join("passkey_plugin.log");
-    let log_file = std::fs::File::options()
-        .append(true)
-        .create(true)
-        .open(&log_path)?;
+    let log_file = open_log_file()?;
 
     // With the `tracing-log` feature enabled for the `tracing_subscriber`,
     // the registry below will initialize a log compatibility layer, which allows
@@ -148,4 +133,52 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     Ok(())
+}
+
+/// Opens the log file next to the desktop app's `app.log`, which Electron
+/// writes to the root of its `userData` directory.
+///
+/// When running from an Appx package, the desktop app uses the unsandboxed
+/// `%APPDATA%\<product name>` if it already exists (e.g. from a previous
+/// non-Appx install). Otherwise, Appx redirects its writes to the package's
+/// `LocalCache\Roaming\<product name>` folder, so we fall back to that.
+#[cfg(target_os = "windows")]
+fn open_log_file() -> Result<std::fs::File, Box<dyn std::error::Error>> {
+    let open = |user_data_path: PathBuf| {
+        std::fs::File::options()
+            .append(true)
+            .create(true)
+            .open(user_data_path.join("passkey_plugin.log"))
+    };
+
+    // These match the `userData` overrides in apps/desktop/src/main.ts.
+    if let Ok(app_data_path) = std::env::var("BITWARDEN_APPDATA_DIR") {
+        return Ok(open(PathBuf::from(app_data_path))?);
+    }
+    if let Ok(portable_path) = std::env::var("PORTABLE_EXECUTABLE_DIR") {
+        return Ok(open(
+            PathBuf::from(portable_path).join("bitwarden-appdata"),
+        )?);
+    }
+
+    // The plugin name matches the Electron `productName` that names the `userData` folder.
+    let product_name =
+        read_plugin_config_file()?.map_or_else(|| "Bitwarden".to_string(), |config| config.name);
+
+    let unsandboxed_path =
+        PathBuf::from(std::env::var("APPDATA").expect("%APPDATA% to be defined"))
+            .join(&product_name);
+    let unsandboxed_err = match open(unsandboxed_path) {
+        Ok(log_file) => return Ok(log_file),
+        Err(err) => err,
+    };
+
+    let sandboxed_path = ApplicationData::Current()
+        .and_then(|app_data| app_data.LocalCacheFolder())
+        .and_then(|folder| folder.Path())
+        .map(|path| PathBuf::from(path.to_os_string()).join("Roaming").join(&product_name))
+        .map_err(|err| {
+            format!("Could not open log file in %APPDATA% ({unsandboxed_err}) and could not read Appx package data folder: {err}")
+        })?;
+    Ok(open(sandboxed_path)?)
 }
