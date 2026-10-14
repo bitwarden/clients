@@ -34,8 +34,6 @@ export interface PopoverOptions {
   position?: PositionIdentifier;
   /** Dim everything except the anchor. Defaults to false. */
   spotlight?: boolean;
-  /** Spotlight the anchor itself instead of a `data-spotlight-target` element inside it. Defaults to false. */
-  spotlightTargetBoundary?: boolean;
   /** Whether clicking the backdrop closes the popover. Defaults to true. */
   closeOnBackdropClick?: boolean;
   /** Where the content renders in the component tree. Defaults to the popover's own location. */
@@ -111,11 +109,7 @@ export class PopoverService {
     anchor: PopoverAnchorRef,
     options: PopoverOptions,
   ): PopoverRef {
-    const {
-      spotlight = false,
-      spotlightTargetBoundary = false,
-      closeOnBackdropClick = true,
-    } = options;
+    const { spotlight = false, closeOnBackdropClick = true } = options;
     const viewContainerRef = options.viewContainerRef ?? popover.viewContainerRef;
 
     let overlayRef: OverlayRef | null = null;
@@ -137,7 +131,7 @@ export class PopoverService {
       // Create the spotlight border overlay first so the popover overlay sits above it in DOM order
       if (spotlight) {
         this.spotlightService.register(ref);
-        this.spotlightService.showSpotlight(element, spotlightTargetBoundary);
+        this.spotlightService.showSpotlight(element);
       }
       attachedTo = element;
       overlayRef = this.overlay.create(this.overlayConfig(element, options));

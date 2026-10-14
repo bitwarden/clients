@@ -4,7 +4,6 @@ import {
   OnDestroy,
   ViewContainerRef,
   afterNextRender,
-  booleanAttribute,
   effect,
   inject,
   input,
@@ -43,7 +42,6 @@ export abstract class PopoverElementProvider {
  * <div [bitPopoverAnchorFor]="myPopover"
  *      [(popoverOpen)]="isOpen"
  *      [spotlight]="true"
- *      spotlightTargetBoundary
  * >
  *   Anchor element
  * </div>
@@ -73,9 +71,6 @@ export class PopoverAnchorForDirective implements OnDestroy {
 
   /** Enable spotlight effect that dims everything except the anchor element */
   readonly spotlight = input<boolean>(false);
-
-  /** Spotlight the anchor itself instead of a `data-spotlight-target` element inside it */
-  readonly spotlightTargetBoundary = input(false, { transform: booleanAttribute });
 
   private readonly popoverElementProvider = inject<PopoverElementProvider>(PopoverElementProvider, {
     host: true,
@@ -122,7 +117,6 @@ export class PopoverAnchorForDirective implements OnDestroy {
     const ref = this.popoverService.open(this.popover(), this.hostElementRef.nativeElement, {
       position: this.position(),
       spotlight: this.spotlight(),
-      spotlightTargetBoundary: this.spotlightTargetBoundary(),
       closeOnBackdropClick: this.closeOnBackdropClick(),
       viewContainerRef: this.viewContainerRef,
     });

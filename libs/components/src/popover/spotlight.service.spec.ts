@@ -51,22 +51,4 @@ describe("SpotlightService", () => {
     expect(document.querySelectorAll(".bit-spotlight-backdrop")).toHaveLength(1);
     next.remove();
   });
-
-  describe("target resolution", () => {
-    let child: HTMLElement;
-
-    beforeEach(() => {
-      child = target.appendChild(document.createElement("a"));
-      child.setAttribute("data-spotlight-target", "");
-      target.scrollIntoView = jest.fn();
-      child.scrollIntoView = jest.fn();
-    });
-
-    it("spotlights the anchor itself when it is a target boundary", () => {
-      service.showSpotlight(target, true);
-
-      expect(target.scrollIntoView).toHaveBeenCalled();
-      expect(child.scrollIntoView).not.toHaveBeenCalled();
-    });
-  });
 });
