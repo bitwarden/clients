@@ -3,6 +3,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  ElementRef,
+  Signal,
   signal,
   WritableSignal,
 } from "@angular/core";
@@ -43,6 +45,7 @@ import {
   FilterControl,
   FilterMenuComponent,
   FilterOptionRow,
+  BitTableToolbarComponent,
   FilterSectionComponent,
   PopoverRef,
   PopoverService,
@@ -2384,6 +2387,20 @@ describe("VaultItemsTableComponent", () => {
         expect.anything(),
         expect.objectContaining({ spotlight: true, position: "left-start" }),
       );
+    });
+
+    it("anchors to the inline chips when the filter button is not rendered", () => {
+      fixture.detectChanges();
+      const toolbar = fixture.debugElement.query(By.directive(BitTableToolbarComponent))
+        .componentInstance as BitTableToolbarComponent;
+      const chips = new ElementRef(document.createElement("div"));
+      Object.assign(toolbar, { filterButton: signal(undefined), filterChips: signal(chips) });
+
+      activeStepId.set("filters");
+      fixture.detectChanges();
+
+      const anchor = popoverService.open.mock.calls[0][1] as Signal<ElementRef>;
+      expect(anchor()).toBe(chips);
     });
 
     it("closes the popover when the step ends", () => {
