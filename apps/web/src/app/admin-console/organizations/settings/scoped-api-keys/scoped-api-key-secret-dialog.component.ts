@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 
-import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 
 import { SharedModule } from "../../../../shared";
 
@@ -18,6 +18,7 @@ export type ScopedApiKeySecretDialogData = {
 })
 export class ScopedApiKeySecretDialogComponent {
   protected readonly data = inject<ScopedApiKeySecretDialogData>(DIALOG_DATA);
+  protected readonly dialogRef = inject(DialogRef);
   protected readonly grantType = "client_credentials";
 
   static open(dialogService: DialogService, config: DialogConfig<ScopedApiKeySecretDialogData>) {
