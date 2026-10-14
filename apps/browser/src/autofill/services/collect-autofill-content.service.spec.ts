@@ -155,6 +155,38 @@ describe("CollectAutofillContentService", () => {
       );
     });
 
+    it("still returns the element matching each opid after a field before them is removed", async () => {
+      document.body.innerHTML = `
+        <form>
+          <input type="text" id="removed" />
+          <input type="email" id="email" />
+          <input type="password" id="password" />
+        </form>
+      `;
+      const removedInput = document.getElementById("removed") as ElementWithOpId<FormFieldElement>;
+      const emailInput = document.getElementById("email") as ElementWithOpId<FormFieldElement>;
+      const passwordInput = document.getElementById(
+        "password",
+      ) as ElementWithOpId<FormFieldElement>;
+      jest
+        .spyOn(collectAutofillContentService["domElementVisibilityService"], "isElementViewable")
+        .mockResolvedValue(true);
+      await collectAutofillContentService.getPageDetails();
+      removedInput.remove();
+      collectAutofillContentService["domRecentlyMutated"] = true;
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      expect(pageDetails.fields.map((field) => [field.opid, field.htmlID])).toEqual([
+        ["__0", "email"],
+        ["__1", "password"],
+      ]);
+      expect(collectAutofillContentService.getAutofillFieldElementByOpid("__0")).toBe(emailInput);
+      expect(collectAutofillContentService.getAutofillFieldElementByOpid("__1")).toBe(
+        passwordInput,
+      );
+    });
+
     it("returns an object with empty forms and fields if no fields were found on a previous iteration", async () => {
       collectAutofillContentService["domRecentlyMutated"] = false;
       collectAutofillContentService["noFieldsFound"] = true;
