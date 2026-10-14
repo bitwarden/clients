@@ -1,7 +1,7 @@
 <!-- eslint-disable tailwindcss/no-custom-classname -->
 @if (filters() && filters()!.length) {
   <!-- Collections coachmark (only active for the collections filter section) -->
-  <app-coachmark #collectionsCoachmark stepId="shareWithCollections" />
+  <vault-coachmark #collectionsCoachmark stepId="shareWithCollections" />
 
   <!--
     Note: passing null to [bitPopoverAnchorFor] violates its input.required<PopoverComponent>() type,

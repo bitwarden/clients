@@ -100,19 +100,14 @@ import { SyncResponse } from "../platform/sync";
 import { UserId } from "../types/guid";
 import { AttachmentRequest } from "../vault/models/request/attachment.request";
 import { CipherBulkDeleteRequest } from "../vault/models/request/cipher-bulk-delete.request";
-import { CipherBulkMoveRequest } from "../vault/models/request/cipher-bulk-move.request";
 import { CipherBulkRestoreRequest } from "../vault/models/request/cipher-bulk-restore.request";
-import { CipherBulkShareRequest } from "../vault/models/request/cipher-bulk-share.request";
-import { CipherCollectionsRequest } from "../vault/models/request/cipher-collections.request";
 import { CipherCreateRequest } from "../vault/models/request/cipher-create.request";
 import { CipherPartialRequest } from "../vault/models/request/cipher-partial.request";
-import { CipherShareRequest } from "../vault/models/request/cipher-share.request";
 import { CipherRequest } from "../vault/models/request/cipher.request";
 import { AttachmentUploadDataResponse } from "../vault/models/response/attachment-upload-data.response";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
 import { CipherResponse } from "../vault/models/response/cipher.response";
 import { DeleteAttachmentResponse } from "../vault/models/response/delete-attachment.response";
-import { OptionalCipherResponse } from "../vault/models/response/optional-cipher.response";
 
 import { InsecureUrlNotAllowedError } from "./api-errors";
 
@@ -437,38 +432,6 @@ export class ApiService implements ApiServiceAbstraction {
     return this.send("DELETE", "/ciphers/admin", request, true, false);
   }
 
-  putMoveCiphers(request: CipherBulkMoveRequest): Promise<any> {
-    return this.send("PUT", "/ciphers/move", request, true, false);
-  }
-
-  async putShareCipher(id: string, request: CipherShareRequest): Promise<CipherResponse> {
-    const r = await this.send("PUT", "/ciphers/" + id + "/share", request, true, true);
-    return new CipherResponse(r);
-  }
-
-  async putShareCiphers(request: CipherBulkShareRequest): Promise<ListResponse<CipherResponse>> {
-    const r = await this.send("PUT", "/ciphers/share", request, true, true);
-    return new ListResponse<CipherResponse>(r, CipherResponse);
-  }
-
-  async putCipherCollections(
-    id: string,
-    request: CipherCollectionsRequest,
-  ): Promise<OptionalCipherResponse> {
-    const response = await this.send(
-      "PUT",
-      "/ciphers/" + id + "/collections_v2",
-      request,
-      true,
-      true,
-    );
-    return new OptionalCipherResponse(response);
-  }
-
-  putCipherCollectionsAdmin(id: string, request: CipherCollectionsRequest): Promise<any> {
-    return this.send("PUT", "/ciphers/" + id + "/collections-admin", request, true, true);
-  }
-
   postPurgeCiphers(
     request: SecretVerificationRequest,
     organizationId: string = null,
@@ -670,6 +633,19 @@ export class ApiService implements ApiServiceAbstraction {
     const r = await this.send(
       "GET",
       "/organizations/" + organizationId + "/collections/details",
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, CollectionAccessDetailsResponse);
+  }
+
+  async getManyCollectionsWithOrganizationDetails(
+    organizationId: string,
+  ): Promise<ListResponse<CollectionAccessDetailsResponse>> {
+    const r = await this.send(
+      "GET",
+      "/organizations/" + organizationId + "/collections/access",
       null,
       true,
       true,

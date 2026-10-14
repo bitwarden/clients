@@ -24,6 +24,8 @@ bytes = { workspace = true }
 dirs = { workspace = true }
 futures = { workspace = true }
 interprocess = { workspace = true, features = ["tokio"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["io-util", "sync", "macros"] }
 tokio-util = { workspace = true, features = ["codec"] }
@@ -49,15 +51,15 @@ security-framework-sys = { workspace = true, optional = true }
 [target.'cfg(windows)'.dependencies]
 scopeguard = { workspace = true }
 secmem-proc = { workspace = true }
-serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true }
 serde_with = { workspace = true, features = ["base64"] }
 sha2 = "=0.10.9"
 widestring = { workspace = true, optional = true }
 win_webauthn = { path = "../win_webauthn" }
 windows = { workspace = true, features = [
     "ApplicationModel_PackageExtensions",
+    "Foundation",
     "Storage_Search",
+    "System",
     "Win32_Foundation",
     "Win32_Security_Credentials",
 ], optional = true }

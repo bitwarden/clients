@@ -15,7 +15,7 @@
     list. Has to stay outside the virtual scroll viewport: `bit-table-v2` renders the toolbar above
     it, so the height it gives up goes to that viewport rather than to the scrolled content.
   -->
-  <bit-table-toolbar bitCollapseOnScroll>
+  <bit-table-toolbar bitCollapseOnScroll [(filterDialogOpen)]="filterDialogOpen">
     <bit-search
       class="tw-flex-1"
       autocomplete="off"
@@ -177,17 +177,6 @@
           >
             {{ "fill" | i18n }}
           </button>
-        }
-        @if (row.actions.showAutofillBadge) {
-          <button
-            type="button"
-            bit-chip-action
-            variant="primary"
-            (click)="doAutofill(row.cipher)"
-            [title]="autofillShortcutTooltip() ?? ('autofillTitle' | i18n: row.cipher.name)"
-            [attr.aria-label]="'autofillTitle' | i18n: row.cipher.name"
-            [label]="'fill' | i18n"
-          ></button>
         }
         @if (row.actions.showLaunch && CipherViewLikeUtils.canLaunch(row.cipher)) {
           <button

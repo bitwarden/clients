@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Klepněte na položky pro automatické vyplnění v zobrazení trezoru"
   },
-  "clickToAutofill": {
-    "message": "Klepnout na položky v návrhu automatického vyplňování pro vyplnění"
-  },
   "clearClipboard": {
     "message": "Vymazat schránku",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1539,6 +1536,40 @@
   "importVerb": {
     "message": "Importovat",
     "description": "The verb form of the word Import"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Vybrat zdroj"
+  },
+  "importSourceSelectTitle": {
+    "message": "Vyberte Váš zdroj"
+  },
+  "importSourceSelectDescription": {
+    "message": "Vyberte správce hesel nebo prohlížeč ze kterého importujete."
+  },
+  "importSourceBrowsers": {
+    "message": "Prohlížeče"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Správci hesel"
+  },
+  "importSourceShowAll": {
+    "message": "Zobrazit vše"
+  },
+  "importSourceShowLess": {
+    "message": "Zobrazit méně"
+  },
+  "importSourceStepCount": {
+    "message": "Krok $CURRENT$ z $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "importItems": {
     "message": "Importovat položky"
@@ -5142,7 +5173,11 @@
     "message": "Zvolte sbírku"
   },
   "selectImportSharedFolder": {
-    "message": "Select a shared folder"
+    "message": "Vybrat sdílenou složku"
+  },
+  "importTargetMyFolder": {
+    "message": "Moje složka",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Pokud chcete obsah importovaného souboru přesunout do sbírky, vyberte tuto volbu."
@@ -5151,7 +5186,7 @@
     "message": "Pokud chcete obsah importovaného souboru přesunout do složky, vyberte tuto volbu."
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "Pokud chcete obsah importovaného souboru přesunout do sdílené složky, vyberte tuto volbu"
   },
   "importUnassignedItemsError": {
     "message": "Soubor obsahuje nepřiřazené položky."
@@ -5644,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Vložte YubiKey spojený s Vaším účtem LastPass do USB portu Vašeho počítače a stiskněte jeho tlačítko."
   },
+  "secretKey": {
+    "message": "Tajný klíč"
+  },
+  "secretKeyAndPassword": {
+    "message": "Tajný klíč a heslo"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Váš účet je zabezpečen tajným klíčem a heslem. Pro pokračování budete muset zadat obojí."
+  },
   "keeperEmail": {
     "message": "E-mail Keeper"
   },
@@ -6049,7 +6093,7 @@
     "message": "Navrhované položky"
   },
   "autofillSuggestionsTip": {
-    "message": "Uložit přihlašovací údaje pro tuto stránku do automatického vyplňování"
+    "message": "Uložte přihlašovací údaje pro tento web, aby se vyplňovaly automaticky"
   },
   "yourVaultIsEmpty": {
     "message": "Váš trezor je prázdný"
@@ -7207,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Změnit zranitelné heslo"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Tyto přihlašovací údaje jsou zranitelné a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
-  },
   "vulnerablePassword": {
     "message": "Zranitelné heslo."
   },
   "changeNow": {
     "message": "Změnit nyní"
-  },
-  "missingWebsite": {
-    "message": "Chybějící webová stránka"
   },
   "settingsVaultOptions": {
     "message": "Volby trezoru"
@@ -7249,11 +7284,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Nemáte žádné složky."
+  "youHaveNoFoldersV2": {
+    "message": "Nemáte žádné složky"
   },
-  "emptyFoldersDescription": {
-    "message": "Používejte složky k organizaci předmětů v trezoru. Jsou jen pro Vás - nikdo jiný je nebude vidět ani používat."
+  "emptyFoldersDescriptionV2": {
+    "message": "Používejte složky k organizaci položek v trezoru. Jsou jen pro Vás. Nikdo jiný je nebude vidět ani používat."
   },
   "introCarouselLabel": {
     "message": "Vítejte v Bitwardenu"

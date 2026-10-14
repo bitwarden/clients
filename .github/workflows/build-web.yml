@@ -1,6 +1,6 @@
 # This workflow will run in the context of the source of the PR.
 # On a PR from a fork, the workflow will not have access to secrets, and so any parts of the build that require secrets will not run.
-# If additional artifacts are needed, the failed "build-web-target.yml" workflow held up by the check-run should be re-run.
+# If additional artifacts are needed for a fork PR, review it and add the "ci:signed-build" label to run "build-web-target.yml".
 
 name: Build Web
 
@@ -546,9 +546,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
-          allow-unsafe-pr-checkout: true
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -598,7 +596,8 @@ jobs:
 
   bitwarden-lite-build:
     name: Trigger Bitwarden lite build
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    # Never for fork PRs: under pull_request_target the fork-built web image would end up in a signed Bitwarden lite image.
+    if: ${{ !github.event.pull_request || github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-24.04
     needs: build-containers
     permissions:

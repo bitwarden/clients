@@ -46,8 +46,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -110,7 +108,8 @@ import { DefaultVaultCollectionService } from "./services/default-vault-collecti
 import { VaultCipherActionsService } from "./services/vault-cipher-actions.service";
 import { VaultCollectionActionsService } from "./services/vault-collection-actions.service";
 import { AddAccessStatusType, VaultCollectionService } from "./services/vault-collection.service";
-import { VaultFilterModule } from "./vault-filter/vault-filter.module";
+import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
+import { VaultFilterService as OrganizationVaultFilterService } from "./vault-filter/vault-filter.service";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 
 const SearchTextDebounceInterval = 200;
@@ -122,7 +121,7 @@ const SearchTextDebounceInterval = 200;
   imports: [
     VaultHeaderComponent,
     CollectionAccessRestrictedComponent,
-    VaultFilterModule,
+    VaultFilterComponent,
     VaultItemsModule,
     SharedModule,
     BannerModule,
@@ -140,6 +139,11 @@ const SearchTextDebounceInterval = 200;
     { provide: VaultCollectionService, useClass: DefaultVaultCollectionService },
     VaultCipherActionsService,
     VaultBatchBarService,
+    safeProvider({
+      provide: VaultFilterService,
+      useClass: OrganizationVaultFilterService,
+      useAngularDecorators: true,
+    }),
     safeProvider({
       provide: ASSIGN_COLLECTIONS_DIALOG,
       useClass: AssignCollectionsWebDialogAdapter,
@@ -180,18 +184,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected readonly collectionService = inject(VaultCollectionService);
   private readonly cipherActions = inject(VaultCipherActionsService);
   private readonly vaultBatchBarService = inject(VaultBatchBarService);
-  private readonly configService = inject(ConfigService);
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
-
-  protected readonly btnTextAddCreateFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
-    { initialValue: false },
-  );
-
-  protected readonly vaultBatchBarFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
-    { initialValue: false },
-  );
 
   protected readonly Unassigned = Unassigned;
 
@@ -644,9 +637,6 @@ export class VaultComponent implements OnInit, OnDestroy {
             event.readonly,
             event.initialPermission,
           );
-          break;
-        case "bulkEditCollectionAccess":
-          await this.collectionActions.bulkEditCollectionAccess(event.items, organization);
           break;
         case "assignToCollections":
           await this.cipherActions.bulkAssignToCollections(event.items);

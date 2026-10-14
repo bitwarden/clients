@@ -106,6 +106,48 @@ first.
 
 <Canvas of={stories.MultipleSpotlights} />
 
+### Opening from code
+
+`PopoverService.open(popover, anchor, options)` opens a popover without an anchor directive in the
+template. `anchor` is an `ElementRef`, or a signal of one such as a `viewChild`. It returns a
+`PopoverRef`; call `close()` on it, or subscribe to `closed`, which fires on any close.
+
+```ts
+private readonly popoverService = inject(PopoverService);
+private readonly target = viewChild.required("target", { read: ElementRef });
+private readonly popover = viewChild.required(PopoverComponent);
+
+open() {
+  const ref = this.popoverService.open(this.popover(), this.target, { spotlight: true });
+}
+```
+
+The popover waits for the anchor to render and finish animating in (such as a dialog sliding up)
+before opening. If the anchor goes away, the popover hides and reopens once it returns.
+
+<Canvas of={stories.OpenFromCode} />
+
+### Anchoring to an element inside another component
+
+Library components expose elements a consumer might point at as public `viewChild` signals, such as
+`bit-table-toolbar`'s `filterButton`. Pass one to `PopoverService.open`:
+
+```ts
+private readonly toolbar = viewChild.required(BitTableToolbarComponent);
+private readonly coachmark = viewChild.required<PopoverComponent>("coachmark");
+
+open() {
+  this.popoverService.open(this.coachmark(), this.toolbar().filterButton, { spotlight: true });
+}
+```
+
+To expose one from a library component, add a template reference variable and a public
+`viewChild(…, { read: ElementRef })`. For elements in a dialog the component opens, expose a method
+that reads through the `DialogRef`'s `componentInstance`, like the toolbar's `filterRow(key)`.
+
+This differs from `data-spotlight-target`, which only moves a spotlight's ring onto an element
+inside the anchor's own host (as `bit-nav-item` does).
+
 ### Block-level anchor requirement
 
 The spotlight overlay tracks the trigger element's size and position. The underlying
