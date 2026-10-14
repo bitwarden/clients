@@ -659,6 +659,98 @@ describe("keyService", () => {
     });
   });
 
+  describe("encryptedOrgKeys$", () => {
+    const org1Id = "org1" as OrganizationId;
+    const org2Id = "org2" as OrganizationId;
+    const provider1Id = "provider1" as ProviderId;
+
+    let mockUserPrivateKey: Uint8Array;
+    let mockUserPublicKey: Uint8Array;
+    let mockProviderKeys: Record<ProviderId, ProviderKey>;
+    let org1EncryptedKey: EncString;
+    let org2ProviderEncryptedKey: EncString;
+
+    beforeEach(() => {
+      mockUserPrivateKey = makeStaticByteArray(64, 1);
+      mockUserPublicKey = makeStaticByteArray(64, 2);
+      mockProviderKeys = {
+        [provider1Id]: makeSymmetricCryptoKey<ProviderKey>(64, 0),
+      };
+      org1EncryptedKey = makeEncString("org1Key");
+      org2ProviderEncryptedKey = makeEncString("org2Key");
+
+      stateProvider.singleUser.getFake(mockUserId, USER_ENCRYPTED_ORGANIZATION_KEYS).nextState({
+        [org1Id]: { type: "organization", key: org1EncryptedKey.encryptedString! },
+        [org2Id]: {
+          type: "provider",
+          key: org2ProviderEncryptedKey.encryptedString!,
+          providerId: provider1Id,
+        },
+      });
+
+      cryptoFunctionService.rsaExtractPublicKey.mockResolvedValue(mockUserPublicKey);
+      encryptService.unwrapSymmetricKey.mockResolvedValue(makeSymmetricCryptoKey(64, 3));
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(makeEncString("reencryptedOrg2Key"));
+    });
+
+    it("returns an empty record when userPrivateKey is null", async () => {
+      jest.spyOn(keyService, "userPrivateKey$").mockReturnValue(of(null));
+
+      const result = await firstValueFrom(keyService.encryptedOrgKeys$(mockUserId));
+
+      expect(result).toEqual({});
+    });
+
+    it("passes through user-encrypted org keys and re-encrypts provider-encrypted org keys with the user's public key", async () => {
+      jest.spyOn(keyService, "userPrivateKey$").mockReturnValue(of(mockUserPrivateKey as any));
+      jest.spyOn(keyService as any, "providerKeysHelper$").mockReturnValue(of(mockProviderKeys));
+
+      const result = await firstValueFrom(keyService.encryptedOrgKeys$(mockUserId));
+
+      expect(result).toEqual({
+        [org1Id]: org1EncryptedKey,
+        [org2Id]: makeEncString("reencryptedOrg2Key"),
+      });
+      expect(cryptoFunctionService.rsaExtractPublicKey).toHaveBeenCalledWith(mockUserPrivateKey);
+      expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(
+        org2ProviderEncryptedKey,
+        mockProviderKeys[provider1Id],
+      );
+      expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(
+        makeSymmetricCryptoKey(64, 3),
+        mockUserPublicKey,
+      );
+    });
+
+    it("skips provider-encrypted org keys when there are no provider keys", async () => {
+      jest.spyOn(keyService, "userPrivateKey$").mockReturnValue(of(mockUserPrivateKey as any));
+      jest.spyOn(keyService as any, "providerKeysHelper$").mockReturnValue(of(null));
+
+      const result = await firstValueFrom(keyService.encryptedOrgKeys$(mockUserId));
+
+      expect(result).toEqual({ [org1Id]: org1EncryptedKey });
+      expect(encryptService.encapsulateKeyUnsigned).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("toUserEncryptedOrgKeys", () => {
+    it("returns an empty record when userPrivateKey is null", async () => {
+      const result = await (keyService as any).toUserEncryptedOrgKeys(
+        {
+          ["org1" as OrganizationId]: {
+            type: "organization",
+            key: makeEncString("org1Key").encryptedString!,
+          },
+        },
+        null,
+        null,
+      );
+
+      expect(result).toEqual({});
+      expect(cryptoFunctionService.rsaExtractPublicKey).not.toHaveBeenCalled();
+    });
+  });
+
   describe("providerKeys$", () => {
     let mockUserPrivateKey: Uint8Array;
     let mockProviderKeys: Record<ProviderId, ProviderKey>;
