@@ -31,6 +31,9 @@ export class VaultPopupScrollPositionService {
   /** The element currently being tracked, so a deferred jump knows whether it is still wanted. */
   private attached: HTMLElement | null = null;
 
+  /** Whether the collapsing regions were collapsed when the user left the vault. */
+  private collapsed = false;
+
   constructor() {
     this.router.events
       .pipe(
@@ -48,16 +51,10 @@ export class VaultPopupScrollPositionService {
     const target = this.scrollPosition;
 
     if (restoring) {
-      // Gated on the scroller affording the collapse: handing back more height than it has left to
-      // scroll would clamp the offset and reopen the regions against the user (CL-1318).
-      //
-      // Measured once, while the regions are still expanded. The collapse gives its height to the
-      // scroller, so measuring again afterwards tests a range the collapse itself shrank — the
-      // same reason `scrollDirection` gates the flip to `"down"` and never re-tests it.
-      const affordsCollapse = this.scrollCollapse.affordsCollapse(scrollElement);
+      const collapse = this.restoresCollapse();
 
       // Before the jump paints, so the collapsing regions arrive collapsed rather than animating.
-      this.scrollLayout.restoredScrolled.set(target! > 0 && affordsCollapse);
+      this.scrollLayout.restoredScrolled.set(collapse);
 
       // Use `setTimeout` to scroll after rendering is complete
       setTimeout(() => {
@@ -70,7 +67,7 @@ export class VaultPopupScrollPositionService {
         scrollElement.scrollTo({ top: target!, behavior: "instant" });
         // From where the jump landed: the vault attaches twice and the first never scrolls.
         this.restoredTo = scrollElement.scrollTop;
-        this.scrollLayout.restoredScrolled.set(scrollElement.scrollTop > 0 && affordsCollapse);
+        this.scrollLayout.restoredScrolled.set(scrollElement.scrollTop > 0 && collapse);
       });
     }
 
@@ -97,6 +94,8 @@ export class VaultPopupScrollPositionService {
     this.scrollSubscription = null;
     this.attached = null;
     this.restoredTo = null;
+    // Read before clearing: `direction` reports `"down"` while a restore holds.
+    this.collapsed = this.scrollCollapse.direction() === "down";
     this.scrollLayout.restoredScrolled.set(false);
 
     if (reset) {
@@ -109,10 +108,21 @@ export class VaultPopupScrollPositionService {
     return this.scrollPosition !== null;
   }
 
+  /**
+   * Whether the vault returns collapsed: only if the user left it so, which was afforded then and
+   * can't clamp the offset (CL-1318).
+   */
+  restoresCollapse() {
+    return (this.scrollPosition ?? 0) > 0 && this.collapsed;
+  }
+
   /** Conditionally resets the scroll listeners based on the ending path of the navigation */
   private resetListenerForNavigation(event: NavigationEnd): void {
-    // The vault page is the target of the scroll listener, return early
     if (this.isVaultUrl(event.url)) {
+      // Only on arrival, so the regions paint collapsed while the list loads; `start()` confirms.
+      if (this.attached == null) {
+        this.scrollLayout.restoredScrolled.set(this.restoresCollapse());
+      }
       return;
     }
 
