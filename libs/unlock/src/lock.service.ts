@@ -8,6 +8,7 @@ import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -63,6 +64,7 @@ export class DefaultLockService implements LockService {
     private readonly processReloadService: ProcessReloadServiceAbstraction,
     private readonly logService: LogService,
     private readonly keyService: KeyService,
+    private readonly sdkService: SdkService,
   ) {}
 
   registerOnLockAction(action: (userId: UserId, source: LockSource) => Promise<void>): void {
@@ -135,6 +137,9 @@ export class DefaultLockService implements LockService {
     }
 
     this.logService.mark(`Lock start (${source})`);
+    // Lock the SDK client before the user key is cleared, since clearing it is what makes the
+    // user observably locked. Otherwise the client could still do crypto while reported locked.
+    await this.sdkService.lock(userId);
     await this.wipeDecryptedState(userId);
     await this.waitForLockedStatus(userId);
     await this.systemService.clearPendingClipboard();
