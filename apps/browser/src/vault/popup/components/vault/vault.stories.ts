@@ -529,7 +529,7 @@ const buildProviders = (args: StoryArgs) => {
     { provide: VaultPopupLoadingService, useValue: { loading$: of(false) } },
     {
       provide: VaultPopupScrollPositionService,
-      useValue: { start: () => {}, stop: () => {} },
+      useValue: { start: () => {}, stop: () => {}, restoresCollapse: () => false },
     },
     {
       provide: NudgesService,
