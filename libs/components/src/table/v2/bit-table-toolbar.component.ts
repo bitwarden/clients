@@ -54,23 +54,6 @@ import { BitTableV2Component } from "./table-v2.component";
 @Component({
   selector: "bit-table-toolbar",
   templateUrl: "./bit-table-toolbar.component.html",
-  // Plain CSS so the query can share `wide()`'s breakpoint.
-  styles: [
-    `
-      @container (width > ${BREAKPOINTS.sm}px) {
-        [data-search] {
-          max-width: 25rem;
-        }
-        [data-end-slot] {
-          margin-inline-start: auto;
-          width: auto;
-        }
-        [data-end-slot] > ::ng-deep * {
-          flex: initial;
-        }
-      }
-    `,
-  ],
   imports: [
     I18nPipe,
     IconButtonModule,
@@ -236,9 +219,7 @@ export class BitTableToolbarComponent {
     ...(this.isList() ? ["tw-pt-0", "tw-pb-2"] : ["tw-py-3"]),
   ]);
 
-  // The query's container: padded like the chip row, so both measure the same content width.
   protected readonly searchRowClasses = computed(() => [
-    "tw-@container",
     "tw-flex",
     "tw-flex-wrap",
     "tw-items-center",
@@ -250,6 +231,21 @@ export class BitTableToolbarComponent {
     ...(this.hasFilterRow() && !this.isList()
       ? ["tw-border-0", "tw-border-b", "tw-border-solid", "tw-border-border-base"]
       : []),
+  ]);
+
+  protected readonly searchClasses = computed(() => [
+    "tw-flex",
+    "tw-min-w-0",
+    "tw-flex-1",
+    ...(this.wide() ? ["tw-max-w-[25rem]"] : []),
+  ]);
+
+  protected readonly endSlotClasses = computed(() => [
+    "tw-flex",
+    "tw-items-center",
+    "tw-gap-3",
+    "empty:tw-hidden",
+    ...(this.wide() ? ["tw-ms-auto"] : ["tw-w-full", "[&>*]:tw-flex-1"]),
   ]);
 
   constructor() {
