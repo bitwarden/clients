@@ -10,8 +10,19 @@
         <h2 class="tw-mb-4">
           {{ "inviteLinkCalloutHeading" | i18n }}
         </h2>
-        <p class="tw-mb-0 tw-text-fg-body-subtle">
+        <p class="tw-mb-4 tw-text-fg-body-subtle">
           {{ "inviteLinkCalloutBody" | i18n }}
+        </p>
+        <!-- TODO(guided-tour removal): delete this paragraph (and the
+        inviteLinkCalloutTourPreviewNotice i18n key) along with the rest of the guided tour. See
+        the header comment in invite-members-dialog/by-link-tab-tour.component.ts for the full
+        removal checklist. -->
+        <p
+          class="tw-mb-0 tw-flex tw-items-center tw-justify-center tw-gap-2 tw-text-fg-body-subtle"
+          bitTypography="body2"
+        >
+          <i class="bwi bwi-info-circle" aria-hidden="true"></i>
+          {{ "inviteLinkCalloutTourPreviewNotice" | i18n }}
         </p>
       </div>
     </div>

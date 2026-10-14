@@ -9,11 +9,12 @@
       <ng-content select="bit-search"></ng-content>
     </div>
     <!-- Below md the chip row collapses into this single trigger + applied-count berry. -->
-    @if (collapsed() && hasFilters()) {
+    @if (showFilterTrigger()) {
       <div class="tw-relative tw-flex-none">
         <button
           type="button"
           bitIconButton="bwi-sliders"
+          #filterButton
           [label]="'filters' | i18n"
           (click)="openFilterDialog()"
         ></button>
@@ -26,6 +27,18 @@
       </div>
     }
     <div [class]="endSlotClasses()">
+      @if (canCustomizeColumns()) {
+        <button
+          type="button"
+          data-testid="customize-columns"
+          bitButton
+          buttonType="secondary"
+          startIcon="bwi-grid"
+          (click)="openCustomizeColumns()"
+        >
+          {{ "customize" | i18n }}
+        </button>
+      }
       <ng-content select="[slot=end]"></ng-content>
     </div>
   </div>

@@ -492,6 +492,7 @@ const buildProviders = (args: StoryArgs) => {
         saveFilters: () => {},
         cachedFilters: signal({}),
         clearVaultScopedFilters: () => {},
+        filterDialogOpen: signal(false),
         vaultScopedFiltersCleared$: NEVER,
         suspended$: () => of(false),
         selectedFilters$: of({
@@ -557,8 +558,13 @@ const buildProviders = (args: StoryArgs) => {
     // would announce into a detached node.
     { provide: LiveAnnouncer, useValue: { announce: () => Promise.resolve(), clear: () => {} } },
     {
+      // `false` keeps the new experience dialog shut, so stories render the vault itself rather
+      // than an onboarding bottom sheet over it.
       provide: IntroCarouselService,
-      useValue: { setIntroCarouselDismissed: () => Promise.resolve() },
+      useValue: {
+        introCarouselState$: of(false),
+        setIntroCarouselDismissed: () => Promise.resolve(),
+      },
     },
     {
       provide: VaultPopupAutofillService,
@@ -763,6 +769,7 @@ const buildProviders = (args: StoryArgs) => {
           itemCount: "__$1__ items",
           // Table presentation (flag on)
           resetSearch: "Reset search",
+          clearSearchTooltip: "Clear by clicking here or pressing Esc.",
           name: "Name",
           autofillSuggestions: "Autofill suggestions",
           itemSuggestions: "Suggested items",

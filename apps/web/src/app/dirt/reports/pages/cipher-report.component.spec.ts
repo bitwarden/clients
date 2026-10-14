@@ -33,11 +33,9 @@ describe("CipherReportComponent", () => {
       password: "test-password",
       totp: "123",
     },
-    decrypt: jest.fn().mockResolvedValue({ id: "cipher1", name: "Updated" }),
   } as unknown as Cipher;
   const mockCipherService = mock<CipherService>();
   mockCipherService.get.mockResolvedValue(mockCipher as unknown as Cipher);
-  mockCipherService.getKeyForCipherKeyDecryption.mockResolvedValue({});
   mockCipherService.deleteWithServer.mockResolvedValue(undefined);
   mockCipherService.softDeleteWithServer.mockResolvedValue(undefined);
 
@@ -127,12 +125,10 @@ describe("CipherReportComponent", () => {
     mockCipherService.get.mockResolvedValue(updatedCipher);
     mockCipherService.decrypt.mockResolvedValue(updatedCipherView);
 
-    jest.spyOn(updatedCipher, "decrypt");
     jest.spyOn(component, "determinedUpdatedCipherReportStatus").mockResolvedValue(null);
 
     await component.refresh(VaultItemDialogResult.Saved, updatedCipherView);
 
     expect(mockCipherService.decrypt).toHaveBeenCalledWith(updatedCipher, "user1");
-    expect(updatedCipher.decrypt).not.toHaveBeenCalled();
   });
 });

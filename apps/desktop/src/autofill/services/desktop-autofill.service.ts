@@ -36,7 +36,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { autofill } from "@bitwarden/desktop-napi";
+import { autofill, passkey_authenticator } from "@bitwarden/desktop-napi";
 type PasskeyAssertionRequest = autofill.PasskeyAssertionRequest;
 type PasskeyAssertionResponse = autofill.PasskeyAssertionResponse;
 type PasskeyRegistrationResponse = autofill.PasskeyRegistrationResponse;
@@ -44,23 +44,37 @@ type PasskeyRegistrationRequest = autofill.PasskeyRegistrationRequest;
 type PasskeyAssertionWithoutUserInterfaceRequest =
   autofill.PasskeyAssertionWithoutUserInterfaceRequest;
 type NativeStatus = autofill.NativeStatus;
+export type PasskeyProviderState = passkey_authenticator.PasskeyProviderState;
 
+import { AutofillIpcErrorKind } from "../models/autofill-ipc-channels";
+import {
+  AutofillOpenSettingsCommand,
+  AutofillRequestEnableCommand,
+} from "../models/autofill-settings.command";
 import { AutofillStatusCommand } from "../models/autofill-status.command";
 import {
   AutofillFido2Credential,
   AutofillPasswordCredential,
   AutofillSyncCommand,
 } from "../models/autofill-sync.command";
-import { IpcListenerBindFn } from "../models/ipc-handler.type";
+import { CompletionCallback, IpcListenerBindFn } from "../models/ipc-handler.type";
 
-import type { NativeWindowObject } from "./desktop-fido2-user-interface.service";
+import {
+  CredentialNotFound,
+  ExcludedCredentialMatched,
+  type NativeWindowObject,
+} from "./desktop-fido2-user-interface.service";
+
+type NativeCredentialSyncFeatureFlag =
+  typeof FeatureFlag.MacOsNativeCredentialSync | typeof FeatureFlag.WindowsNativeCredentialSync;
 
 @Injectable()
 export class DesktopAutofillService implements OnDestroy {
   private destroy$ = new Subject<void>();
-  private featureFlag?:
-    typeof FeatureFlag.MacOsNativeCredentialSync | typeof FeatureFlag.WindowsNativeCredentialSync;
+  private featureFlag?: NativeCredentialSyncFeatureFlag;
   private isEnabled: boolean = false;
+  /** Whether syncing and IPC listeners have been started. */
+  private started = false;
   private readonly inFlightRequests: Record<string, AbortController> = {};
 
   constructor(
@@ -84,25 +98,103 @@ export class DesktopAutofillService implements OnDestroy {
     if (!this.featureFlag) {
       return;
     }
-    this.isEnabled = (await this.configService.getFeatureFlag(this.featureFlag)) === true;
-    if (!this.isEnabled) {
-      return;
-    }
 
-    // Signal the main process to register the native OS credential provider and start the autofill
-    // IPC server. Gated here because the main process cannot evaluate the feature flag itself.
-    const ipcServerStarted = await ipc.autofill.desktopAutofill.setEnabled(true);
-    if (!ipcServerStarted) {
-      this.logService.error(
-        "[DesktopAutofillService]",
-        "Main process failed to start native autofill; aborting init",
-      );
-      this.isEnabled = false;
-      return;
-    }
-
+    // Enable as soon as the flag turns on, so a flag value that arrives after startup takes
+    // effect without restarting the app.
     this.configService
       .getFeatureFlag$(this.featureFlag)
+      .pipe(
+        distinctUntilChanged(),
+        filter((enabled) => enabled === true),
+        mergeMap(() => this.ensureEnabled()),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+  }
+
+  /**
+   * Signals the main process to register the native OS credential provider and start the autofill
+   * IPC server, then starts syncing and listening for requests. Safe to call repeatedly: each call
+   * re-submits the registration, but syncing and listeners are only started once.
+   *
+   * @returns whether native autofill is running.
+   */
+  private async ensureEnabled(): Promise<boolean> {
+    if (!this.featureFlag) {
+      return false;
+    }
+    this.isEnabled = (await this.configService.getFeatureFlag(this.featureFlag)) === true;
+    if (!this.isEnabled) {
+      return false;
+    }
+
+    // Gated here because the main process cannot evaluate the feature flag itself.
+    const running = await ipc.autofill.desktopAutofill.setEnabled(true);
+    if (!running) {
+      this.logService.error(
+        "[DesktopAutofillService]",
+        "Main process failed to enable native autofill",
+      );
+      return false;
+    }
+
+    if (!this.started) {
+      this.started = true;
+      this.startSync(this.featureFlag);
+      this.listenIpc();
+    }
+    return true;
+  }
+
+  /**
+   * Re-submits the passkey provider registration with the OS, enabling native autofill if needed.
+   *
+   * @returns the app's status as a passkey provider with the OS.
+   */
+  async refreshPasskeyProviderState(): Promise<PasskeyProviderState> {
+    if (!(await this.ensureEnabled())) {
+      return { registered: false, enabled: false };
+    }
+    return this.getPasskeyProviderState();
+  }
+
+  /** Gets the app's status as a passkey provider with the OS, without re-submitting registration. */
+  getPasskeyProviderState(): Promise<PasskeyProviderState> {
+    return ipc.autofill.desktopAutofill.getPasskeyProviderState();
+  }
+
+  /**
+   * Asks the user to turn on the app as a credential provider.
+   *
+   * @returns whether the app is enabled, or `undefined` if the OS cannot prompt.
+   */
+  async requestEnableCredentialProvider(): Promise<boolean | undefined> {
+    const result = await ipc.autofill.desktopAutofill.runCommand<AutofillRequestEnableCommand>({
+      namespace: "autofill",
+      command: "requestEnable",
+      params: {},
+    });
+    if (result.type === "error") {
+      throw new Error(result.error);
+    }
+    return result.value.supported ? result.value.enabled : undefined;
+  }
+
+  /** Opens the OS settings for credential providers. */
+  async openCredentialProviderSettings(): Promise<void> {
+    const result = await ipc.autofill.desktopAutofill.runCommand<AutofillOpenSettingsCommand>({
+      namespace: "autofill",
+      command: "openSettings",
+      params: {},
+    });
+    if (result.type === "error") {
+      throw new Error(result.error);
+    }
+  }
+
+  private startSync(featureFlag: NativeCredentialSyncFeatureFlag) {
+    this.configService
+      .getFeatureFlag$(featureFlag)
       .pipe(
         distinctUntilChanged(),
         tap((enabled) => (this.isEnabled = enabled === true)),
@@ -138,8 +230,6 @@ export class DesktopAutofillService implements OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
-
-    this.listenIpc();
   }
 
   async adHocSync(): Promise<any> {
@@ -387,10 +477,7 @@ export class DesktopAutofillService implements OnDestroy {
       request: Request,
       /** Callback to return the response back to Autofill main process. May be
        * empty for requests that do not expect a response. */
-      completeCallback?: {
-        (error: null, response: Response): void;
-        (error: Error, response: null): void;
-      },
+      completeCallback?: CompletionCallback<Response>,
     ) => {
       this.logService.debug("[DesktopAutofillService]", `${handlerName}: Received message`, {
         clientId,
@@ -431,7 +518,11 @@ export class DesktopAutofillService implements OnDestroy {
           error,
         );
         if (completeCallback) {
-          if (error instanceof Error) {
+          if (error instanceof ExcludedCredentialMatched) {
+            completeCallback(error, null, AutofillIpcErrorKind.ExcludedCredentialMatched);
+          } else if (error instanceof CredentialNotFound) {
+            completeCallback(error, null, AutofillIpcErrorKind.CredentialNotFound);
+          } else if (error instanceof Error) {
             completeCallback(error, null);
           } else if (typeof error === "string") {
             completeCallback(new Error(error), null);

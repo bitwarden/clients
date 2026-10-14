@@ -5,6 +5,8 @@ import {
   output,
   TemplateRef,
   viewChild,
+  ViewContainerRef,
+  inject,
 } from "@angular/core";
 
 import { PopoverBaseComponent } from "./popover-base.component";
@@ -22,6 +24,9 @@ import { PopoverBaseComponent } from "./popover-base.component";
 export class PopoverPanelComponent {
   /** Reference to the popover content template */
   readonly templateRef = viewChild.required(TemplateRef);
+
+  /** Where `PopoverService` renders the content by default. */
+  readonly viewContainerRef = inject(ViewContainerRef);
 
   /** Emitted when the popover closes */
   readonly closed = output();

@@ -5,7 +5,6 @@ import { SecureNote as SdkSecureNote } from "@bitwarden/sdk-internal";
 import Domain from "../../../platform/models/domain/domain-base";
 import { normalizeSecureNoteTypeForSdk, SecureNoteType } from "../../enums";
 import { SecureNoteData } from "../data/secure-note.data";
-import { SecureNoteView } from "../view/secure-note.view";
 
 export class SecureNote extends Domain {
   type: SecureNoteType = SecureNoteType.Generic;
@@ -17,10 +16,6 @@ export class SecureNote extends Domain {
     }
 
     this.type = obj.type;
-  }
-
-  async decrypt(): Promise<SecureNoteView> {
-    return new SecureNoteView(this);
   }
 
   toSecureNoteData(): SecureNoteData {

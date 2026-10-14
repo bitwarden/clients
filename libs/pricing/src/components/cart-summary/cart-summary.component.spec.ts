@@ -1392,6 +1392,42 @@ describe("CartSummaryComponent", () => {
       );
       expect(noBalance.nativeElement.textContent).toContain("Total");
     });
+
+    it("shows total and total balance in header total when amount due is zero", () => {
+      fixture.componentRef.setInput("cart", {
+        ...mockCart,
+        total: 12,
+        appliedBalance: 0,
+        amountDue: 0,
+      });
+      fixture.detectChanges();
+
+      const headerTotal = fixture.debugElement.query(
+        By.css('[data-testid="purchase-summary-heading-total"]'),
+      );
+      expect(headerTotal.nativeElement.textContent).toContain("$12");
+      expect(headerTotal.nativeElement.textContent).not.toContain("$0");
+    });
+
+    it("shows the negative gross total in the header, matching the breakdown, when a credit exceeds the charge", () => {
+      // Credit exceeds the new plan's charge, so the invoice total is negative and nothing is due.
+      // The header must show the gross total (matching the breakdown Total), not the $0 amount due.
+      fixture.componentRef.setInput("cart", {
+        ...mockCart,
+        total: -17.38,
+        appliedBalance: 0,
+        amountDue: 0,
+      });
+      fixture.detectChanges();
+
+      const headerTotal = fixture.debugElement.query(
+        By.css('[data-testid="purchase-summary-heading-total"]'),
+      );
+      const bottomTotal = fixture.debugElement.query(By.css('[data-testid="final-total"]'));
+      expect(headerTotal.nativeElement.textContent).toContain("-$17.38");
+      expect(headerTotal.nativeElement.textContent).not.toContain("$0.00");
+      expect(bottomTotal.nativeElement.textContent).toContain("-$17.38");
+    });
   });
 });
 

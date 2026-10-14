@@ -1,0 +1,21 @@
+@if (show()) {
+  <bit-callout
+    class="[&_aside]:!tw-m-0"
+    type="info"
+    icon="bwi-rocket"
+    [title]="'tourTheNewVault' | i18n"
+    (dismiss)="dismiss()"
+  >
+    {{ "tourTheNewVaultDescription" | i18n }}
+    <button
+      slot="end"
+      type="button"
+      bitButton
+      buttonType="primary"
+      endIcon="bwi-arrow-right"
+      (click)="startTour()"
+    >
+      {{ "takeTheTour" | i18n }}
+    </button>
+  </bit-callout>
+}

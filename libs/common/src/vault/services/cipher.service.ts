@@ -16,6 +16,7 @@ import {
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncArrayBuffer, EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { Measurement, PerfTrackGroup } from "@bitwarden/logging";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -73,6 +74,9 @@ import {
   LOCAL_DATA_KEY,
 } from "./key-state/ciphers.state";
 
+const PERF_TRACK_GROUP = PerfTrackGroup.Unlock;
+const PERF_TRACK = "Vault Items";
+
 export class CipherService implements CipherServiceAbstraction {
   private sortedCiphersCache: SortedCiphersCache = new SortedCiphersCache(
     this.sortCiphersByLastUsed,
@@ -125,19 +129,55 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   /**
-   * Observable that emits an array of decrypted ciphers for given userId.
+   * Shared decrypt source for {@link cipherViews$} and {@link cipherListViewsWithPartials$},
+   * retaining PAM-gated ("partial") rows so each can filter as it needs. The sole decrypt
+   * subscription, so decryption and the overlay refresh run once.
+   *
+   * A `null` value indicates that decryption is in progress.
+   */
+  private cipherViewsWithPartials$ = perUserCache$(
+    (userId: UserId): Observable<CipherView[] | null> => {
+      return combineLatest([
+        this.encryptedCiphersState(userId).state$,
+        this.localData$(userId),
+        this.keyService.cipherDecryptionKeys$(userId),
+      ]).pipe(
+        filter(([ciphers, _, keys]) => ciphers != null && keys != null), // Skip if ciphers haven't been loaded yor synced yet
+        switchMap(() => this.getAllDecryptedIncludingPartials(userId)),
+        tap(() => {
+          this.messageSender.send("updateOverlayCiphers");
+        }),
+      );
+    },
+    this.clearCipherViewsForUser$,
+  );
+
+  /**
+   * Observable that emits an array of decrypted ciphers for the active user, excluding PAM-gated
+   * ("partial") rows.
    * This observable will not emit until the encrypted ciphers have either been loaded from state or after sync.
    *
-   * This uses the SDK for decryption, when the `PM22134SdkCipherListView` feature flag is disabled the full `cipherViews$` observable will be emitted.
+   * A `null` value indicates that the latest encrypted ciphers have not been decrypted yet and that
+   * decryption is in progress. The latest decrypted ciphers will be emitted once decryption is complete.
+   */
+  cipherViews$ = perUserCache$((userId: UserId): Observable<CipherView[] | null> => {
+    return this.cipherViewsWithPartials$(userId).pipe(map((views) => this.excludePartials(views)));
+  }, this.clearCipherViewsForUser$);
+
+  /**
+   * Like {@link cipherListViews$}, but retains PAM-gated ("partial") rows. Opt-in: only the vault
+   * list should consume it.
+   *
+   * This uses the SDK for decryption, when the `PM22134SdkCipherListView` feature flag is disabled the full `cipherViewsWithPartials$` observable will be emitted.
    * Usage of the {@link CipherViewLike} type is recommended to ensure both `CipherView` and `CipherListView` are supported.
    */
-  cipherListViews$ = perUserCache$((userId: UserId) => {
-    let decryptStartTime: number;
+  cipherListViewsWithPartials$ = perUserCache$((userId: UserId) => {
+    let decryptMeasurement: Measurement;
 
     return this.configService.getFeatureFlag$(FeatureFlag.PM22134SdkCipherListView).pipe(
       switchMap((useSdk) => {
         if (!useSdk) {
-          return this.cipherViews$(userId);
+          return this.cipherViewsWithPartials$(userId);
         }
 
         return combineLatest([
@@ -152,7 +192,11 @@ export class CipherService implements CipherServiceAbstraction {
             ),
           ),
           tap(() => {
-            decryptStartTime = performance.now();
+            decryptMeasurement = this.logService.startMeasurement(
+              PERF_TRACK_GROUP,
+              PERF_TRACK,
+              "listViewDecrypt",
+            );
           }),
           switchMap(async (ciphers) => {
             return await this.decryptCiphersWithSdk(ciphers, userId, false);
@@ -160,13 +204,7 @@ export class CipherService implements CipherServiceAbstraction {
           tap(([decrypted, failures]) => {
             void Promise.all([this.setFailedDecryptedCiphers(failures, userId)]);
 
-            this.logService.measure(
-              decryptStartTime,
-              "Vault",
-              "CipherService",
-              "listView decrypt complete",
-              [["Items", decrypted.length]],
-            );
+            decryptMeasurement.finish([["Items", decrypted.length]]);
           }),
           map(([decrypted]) => decrypted),
         );
@@ -175,25 +213,30 @@ export class CipherService implements CipherServiceAbstraction {
   }, this.clearCipherViewsForUser$);
 
   /**
-   * Observable that emits an array of decrypted ciphers for the active user.
+   * Observable that emits an array of decrypted ciphers for given userId, excluding PAM-gated
+   * ("partial") rows.
    * This observable will not emit until the encrypted ciphers have either been loaded from state or after sync.
    *
-   * A `null` value indicates that the latest encrypted ciphers have not been decrypted yet and that
-   * decryption is in progress. The latest decrypted ciphers will be emitted once decryption is complete.
+   * This uses the SDK for decryption, when the `PM22134SdkCipherListView` feature flag is disabled the full `cipherViews$` observable will be emitted.
+   * Usage of the {@link CipherViewLike} type is recommended to ensure both `CipherView` and `CipherListView` are supported.
    */
-  cipherViews$ = perUserCache$((userId: UserId): Observable<CipherView[] | null> => {
-    return combineLatest([
-      this.encryptedCiphersState(userId).state$,
-      this.localData$(userId),
-      this.keyService.cipherDecryptionKeys$(userId),
-    ]).pipe(
-      filter(([ciphers, _, keys]) => ciphers != null && keys != null), // Skip if ciphers haven't been loaded yor synced yet
-      switchMap(() => this.getAllDecrypted(userId)),
-      tap(() => {
-        this.messageSender.send("updateOverlayCiphers");
-      }),
+  cipherListViews$ = perUserCache$((userId: UserId) => {
+    return this.cipherListViewsWithPartials$(userId).pipe(
+      map((views) => this.excludePartials(views)),
     );
   }, this.clearCipherViewsForUser$);
+
+  /**
+   * Drops PAM-gated ("partial") rows, passing a `null` (decryption-in-progress) emission through.
+   * Overloaded so the caller's array type is retained rather than widened to an array of the union.
+   */
+  private excludePartials(views: CipherView[] | null): CipherView[] | null;
+  private excludePartials(
+    views: CipherView[] | CipherListView[] | null,
+  ): CipherView[] | CipherListView[] | null;
+  private excludePartials(views: CipherViewLike[] | null): CipherViewLike[] | null {
+    return views == null ? views : views.filter((view) => !CipherViewLikeUtils.isPartial(view));
+  }
 
   cipherView$(userId: UserId, cipherId: CipherId): Observable<CipherView | undefined> {
     return this.cipherViews$(userId).pipe(
@@ -250,11 +293,17 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   private async setDecryptedCiphers(value: CipherView[], userId: UserId) {
+    const measurement = this.logService.startMeasurement(
+      PERF_TRACK_GROUP,
+      PERF_TRACK,
+      "setDecryptedCiphers",
+    );
     const cipherViews: { [id: string]: CipherView } = {};
     value?.forEach((c) => {
       cipherViews[c.id] = c;
     });
     await this.stateProvider.setUserState(DECRYPTED_CIPHERS, cipherViews, userId);
+    measurement.finish([["Items", value?.length ?? 0]]);
   }
 
   async clearCache(userId?: UserId): Promise<void> {
@@ -327,11 +376,20 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   /**
-   * Decrypts all ciphers for the active user and caches them in memory. If the ciphers have already been decrypted and
-   * cached, the cached ciphers are returned.
+   * Decrypts all ciphers for the active user, excluding PAM-gated ("partial") rows, and caches them
+   * in memory. If the ciphers have already been decrypted and cached, the cached ciphers are returned.
    * @deprecated Use `cipherViews$` observable instead
    */
   async getAllDecrypted(userId: UserId): Promise<CipherView[]> {
+    const ciphers = await this.getAllDecryptedIncludingPartials(userId);
+    return ciphers.filter((cipher) => !CipherViewLikeUtils.isPartial(cipher));
+  }
+
+  /**
+   * Variant of {@link getAllDecrypted} that retains PAM-gated ("partial") rows; private source
+   * for {@link cipherViewsWithPartials$}.
+   */
+  private async getAllDecryptedIncludingPartials(userId: UserId): Promise<CipherView[]> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       return this.getAllDecryptedUsingSdk(userId);
@@ -377,7 +435,16 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     try {
+      const sdkMeasurement = this.logService.startMeasurement(
+        PERF_TRACK_GROUP,
+        PERF_TRACK,
+        "getAllDecrypted",
+      );
       const result = await this.cipherSdkService.getAllDecrypted(userId);
+      sdkMeasurement.finish([
+        ["Items", result.successes.length],
+        ["Failures", result.failures.length],
+      ]);
 
       const sortedSuccesses = hydrateCiphersWithLocalData(result.successes, localData).sort(
         this.getLocaleSortingFunction(),
@@ -414,13 +481,15 @@ export class CipherService implements CipherServiceAbstraction {
       return [[], []];
     }
 
-    const decryptStartTime = performance.now();
+    const decryptMeasurement = this.logService.startMeasurement(
+      PERF_TRACK_GROUP,
+      PERF_TRACK,
+      "decryptCiphers",
+    );
 
     const result = await this.decryptCiphersWithSdk(ciphers, userId, true);
 
-    this.logService.measure(decryptStartTime, "Vault", "CipherService", "decrypt complete", [
-      ["Items", ciphers.length],
-    ]);
+    decryptMeasurement.finish([["Items", ciphers.length]]);
 
     return result;
   }
@@ -567,7 +636,7 @@ export class CipherService implements CipherServiceAbstraction {
       organizationId,
       includeMemberItems,
     );
-    return await this.decryptOrganizationCiphersResponse(response, organizationId);
+    return await this.decryptOrganizationCiphersResponse(response);
   }
 
   private async getAllFromApiForOrganizationUsingSdk(
@@ -634,7 +703,6 @@ export class CipherService implements CipherServiceAbstraction {
 
   private async decryptOrganizationCiphersResponse(
     response: ListResponse<CipherResponse>,
-    organizationId: string,
   ): Promise<CipherView[]> {
     if (response?.data == null || response.data.length < 1) {
       return [];
@@ -644,14 +712,12 @@ export class CipherService implements CipherServiceAbstraction {
     if (!userId) {
       throw new Error("User ID is required");
     }
-    const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
-    const key = orgKeys?.[organizationId as OrganizationId] ?? null;
     const ciphers = response.data.map((cr) => new Cipher(new CipherData(cr)));
-    const decCiphers: CipherView[] = await Promise.all(
-      ciphers.map(async (cipher) => {
-        return await cipher.decrypt(key);
-      }),
+    const [successful, failed] = await this.cipherEncryptionService.decryptManyLegacy(
+      ciphers,
+      userId,
     );
+    const decCiphers = [...successful, ...failed];
 
     decCiphers.sort(this.getLocaleSortingFunction());
     return decCiphers;
@@ -998,7 +1064,14 @@ export class CipherService implements CipherServiceAbstraction {
     const useSdk = await firstValueFrom(this.sdkCipherAttachmentOpsEnabled$);
 
     // The organization's symmetric key or the user's user key
-    const vaultKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
+    const vaultKey: UserKey | OrgKey =
+      cipher.organizationId == null
+        ? await firstValueFrom(this.keyService.userKey$(userId))
+        : await firstValueFrom(
+            this.keyService
+              .orgKeys$(userId)
+              .pipe(map((orgKeys) => orgKeys[cipher.organizationId as OrganizationId] as OrgKey)),
+          );
 
     const cipherKeyOrVaultKey =
       cipher.key != null
@@ -1534,18 +1607,6 @@ export class CipherService implements CipherServiceAbstraction {
       restores.push({ id: cipher.id, revisionDate: cipher.revisionDate });
     }
     await this.restore(restores, userId);
-  }
-
-  async getKeyForCipherKeyDecryption(cipher: Cipher, userId: UserId): Promise<UserKey | OrgKey> {
-    if (cipher.organizationId == null) {
-      return await firstValueFrom(this.keyService.userKey$(userId));
-    } else {
-      return await firstValueFrom(
-        this.keyService
-          .orgKeys$(userId)
-          .pipe(map((orgKeys) => orgKeys[cipher.organizationId as OrganizationId] as OrgKey)),
-      );
-    }
   }
 
   async setAddEditCipherInfo(value: AddEditCipherInfo, userId: UserId) {
