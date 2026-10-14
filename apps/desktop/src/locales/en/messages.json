@@ -5802,6 +5802,18 @@
   "noPasskeysFoundForThisApplication": {
     "message": "No passkeys found for this application."
   },
+  "passkeyNotAllowedForBitwardenVault": {
+    "message": "Passkeys for $DOMAIN$ can't be saved or used in Bitwarden.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "passkeyNotAllowedForBitwardenVaultDesc": {
+    "message": "Storing the passkey for your Bitwarden account in your vault could lock you out of your account."
+  },
   "closeThisWindow": {
     "message": "Close this window"
   },

@@ -62,8 +62,10 @@ import { CompletionCallback, IpcListenerBindFn } from "../models/ipc-handler.typ
 
 import {
   CredentialNotFound,
+  DesktopFido2UserInterfaceService,
   ExcludedCredentialMatched,
   type NativeWindowObject,
+  type RpIdNotAllowedOperation,
 } from "./desktop-fido2-user-interface.service";
 
 type NativeCredentialSyncFeatureFlag =
@@ -120,6 +122,7 @@ export class DesktopAutofillService implements OnDestroy {
     private authService: AuthService,
     private environmentService: EnvironmentService,
     platformUtilsService: PlatformUtilsService,
+    private fido2UserInterfaceService: DesktopFido2UserInterfaceService,
   ) {
     const deviceType = platformUtilsService.getDevice();
     if (deviceType === DeviceType.MacOsDesktop) {
@@ -385,7 +388,7 @@ export class DesktopAutofillService implements OnDestroy {
     request: PasskeyRegistrationRequest,
     abortController: AbortController,
   ): Promise<PasskeyRegistrationResponse> {
-    await this.assertRpIdAllowed(request.rpId);
+    await this.assertRpIdAllowed(request, "registration", abortController);
 
     const response = await this.fido2AuthenticatorService.makeCredential(
       this.convertRegistrationRequest(request),
@@ -399,7 +402,7 @@ export class DesktopAutofillService implements OnDestroy {
     request: PasskeyAssertionRequest,
     abortController: AbortController,
   ): Promise<PasskeyAssertionResponse> {
-    await this.assertRpIdAllowed(request.rpId);
+    await this.assertRpIdAllowed(request, "assertion", abortController);
 
     const assumeUserPresence = false;
 
@@ -416,7 +419,7 @@ export class DesktopAutofillService implements OnDestroy {
     request: PasskeyAssertionWithoutUserInterfaceRequest,
     abortController: AbortController,
   ): Promise<PasskeyAssertionResponse> {
-    await this.assertRpIdAllowed(request.rpId);
+    await this.assertRpIdAllowed(request, "assertion", abortController);
 
     const assumeUserPresence = true;
 
@@ -435,10 +438,30 @@ export class DesktopAutofillService implements OnDestroy {
     return vaultRpId(environment.getWebVaultUrl());
   }
 
-  private async assertRpIdAllowed(rpId: string) {
-    if (isVaultRpId(rpId, await this.activeVaultRpId())) {
-      throw new DOMException(`Passkeys for RP ID ${rpId} are not allowed`, "NotAllowedError");
+  /**
+   * Refuses requests for a blocked RP ID, telling the user why before
+   * rejecting.
+   *
+   * @throws {DOMException} `NotAllowedError` if the RP ID is blocked.
+   */
+  private async assertRpIdAllowed(
+    request:
+      | PasskeyRegistrationRequest
+      | PasskeyAssertionRequest
+      | PasskeyAssertionWithoutUserInterfaceRequest,
+    operation: RpIdNotAllowedOperation,
+    abortController: AbortController,
+  ) {
+    if (!isVaultRpId(request.rpId, await this.activeVaultRpId())) {
+      return;
     }
+
+    const session = await this.fido2UserInterfaceService.newSession(
+      false,
+      await this.nativeWindowObject(request),
+      abortController,
+    );
+    await session.informRpIdNotAllowed(operation);
   }
 
   /**

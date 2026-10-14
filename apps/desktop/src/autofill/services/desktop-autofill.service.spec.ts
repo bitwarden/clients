@@ -23,6 +23,8 @@ import { AutofillIpcErrorKind } from "../models/autofill-ipc-channels";
 import { DesktopAutofillService } from "./desktop-autofill.service";
 import {
   CredentialNotFound,
+  DesktopFido2UserInterfaceService,
+  DesktopFido2UserInterfaceSession,
   ExcludedCredentialMatched,
   NativeWindowObject,
 } from "./desktop-fido2-user-interface.service";
@@ -40,6 +42,7 @@ describe("DesktopAutofillService", () => {
   let environmentService: MockProxy<EnvironmentService>;
   /** The active account's web vault URL. */
   let webVaultUrl: string;
+  let fido2UserInterfaceService: MockProxy<DesktopFido2UserInterfaceService>;
 
   let activeAccountStatus$: BehaviorSubject<AuthenticationStatus>;
   let service: DesktopAutofillService;
@@ -55,6 +58,7 @@ describe("DesktopAutofillService", () => {
     environmentService = mock<EnvironmentService>();
     webVaultUrl = "https://vault.bitwarden.com";
     environmentService.environment$ = of({ getWebVaultUrl: () => webVaultUrl } as Environment);
+    fido2UserInterfaceService = mock<DesktopFido2UserInterfaceService>();
 
     activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
     authService.activeAccountStatus$ = activeAccountStatus$;
@@ -70,6 +74,7 @@ describe("DesktopAutofillService", () => {
       authService,
       environmentService,
       platformUtilsService,
+      fido2UserInterfaceService,
     );
   });
 
@@ -125,6 +130,7 @@ describe("DesktopAutofillService", () => {
         authService,
         environmentService,
         platformUtilsService,
+        fido2UserInterfaceService,
       );
 
       await expect(service.refreshPasskeyProviderState()).resolves.toEqual(unregistered);
@@ -190,21 +196,47 @@ describe("DesktopAutofillService", () => {
 
   describe("blocked RP IDs", () => {
     it.each(["vault.bitwarden.com", "Vault.Bitwarden.COM"])(
-      "rejects registration, assertion, and UI-less assertion for the active vault's RP ID (%s)",
+      "tells the user why, then rejects registration, assertion, and UI-less assertion for the active vault's RP ID (%s)",
       async (rpId) => {
-        const request = { rpId } as any;
+        (global as any).ipc = {
+          autofill: { desktopAutofill: { getAppWindowHandle: jest.fn().mockResolvedValue(null) } },
+        };
+        const session = mock<DesktopFido2UserInterfaceSession>();
+        session.informRpIdNotAllowed.mockRejectedValue(
+          new DOMException("not allowed", "NotAllowedError"),
+        );
+        fido2UserInterfaceService.newSession.mockResolvedValue(session);
+        const request = {
+          rpId,
+          clientWindow: { position: { x: 0, y: 0 } },
+          context: "ctx",
+        } as any;
         const abortController = new AbortController();
 
-        await expect(service.doPasskeyRegistration(request, abortController)).rejects.toMatchObject(
-          { name: "NotAllowedError" },
-        );
-        await expect(service.doPasskeyAssertion(request, abortController)).rejects.toMatchObject({
-          name: "NotAllowedError",
-        });
-        await expect(
-          service.doPasskeyAssertionWithoutUserInterface(request, abortController),
-        ).rejects.toMatchObject({ name: "NotAllowedError" });
+        try {
+          await expect(
+            service.doPasskeyRegistration(request, abortController),
+          ).rejects.toMatchObject({ name: "NotAllowedError" });
+          await expect(service.doPasskeyAssertion(request, abortController)).rejects.toMatchObject({
+            name: "NotAllowedError",
+          });
+          await expect(
+            service.doPasskeyAssertionWithoutUserInterface(request, abortController),
+          ).rejects.toMatchObject({ name: "NotAllowedError" });
+        } finally {
+          delete (global as any).ipc;
+        }
 
+        expect(fido2UserInterfaceService.newSession).toHaveBeenCalledWith(
+          false,
+          expect.objectContaining({ rpId }),
+          abortController,
+        );
+        expect(session.informRpIdNotAllowed.mock.calls).toEqual([
+          ["registration"],
+          ["assertion"],
+          ["assertion"],
+        ]);
         expect(fido2AuthenticatorService.makeCredential).not.toHaveBeenCalled();
         expect(fido2AuthenticatorService.getAssertion).not.toHaveBeenCalled();
       },

@@ -482,6 +482,7 @@ const safeProviders: SafeProvider[] = [
       AuthService,
       EnvironmentService,
       PlatformUtilsService,
+      DesktopFido2UserInterfaceService,
     ],
   }),
   safeProvider({
