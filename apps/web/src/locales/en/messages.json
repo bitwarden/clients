@@ -18018,7 +18018,16 @@
     "message": "Read"
   },
   "scopedApiKeyScopeWrite": {
-    "message": "Write (create, edit and delete)"
+    "message": "Write"
+  },
+  "scopedApiKeyScopeWriteDesc": {
+    "message": "Create, edit and delete."
+  },
+  "scopedApiKeyScopeManage": {
+    "message": "Manage"
+  },
+  "scopedApiKeyScopeManageSubscriptionDesc": {
+    "message": "Change seats and storage."
   },
   "scopedApiKeyScopeLabel": {
     "message": "$RESOURCE$: $ACCESS$",
