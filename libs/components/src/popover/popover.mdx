@@ -130,7 +130,7 @@ before opening. If the anchor goes away, the popover hides and reopens once it r
 ### Anchoring to an element inside another component
 
 Library components expose elements a consumer might point at as public `viewChild` signals, such as
-`bit-table-toolbar`'s `filterButton`. Pass one to `PopoverService.open`:
+`bit-table-toolbar`'s `filterButton` and `filterChips`. Pass one to `PopoverService.open`:
 
 ```ts
 private readonly toolbar = viewChild.required(BitTableToolbarComponent);
