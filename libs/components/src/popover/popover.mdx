@@ -145,8 +145,8 @@ To expose one from a library component, add a template reference variable and a 
 `viewChild(…, { read: ElementRef })`. For elements in a dialog the component opens, expose a method
 that reads through the `DialogRef`'s `componentInstance`, like the toolbar's `filterRow(key)`.
 
-This differs from `data-spotlight-target`, which only moves a spotlight's ring onto an element
-inside the anchor's own host (as `bit-nav-item` does).
+This differs from `data-spotlight-target`, which moves the ring onto an element inside an anchor
+marked `data-spotlight-host` (as `bit-nav-item` is).
 
 ### Block-level anchor requirement
 
