@@ -201,7 +201,7 @@ describe("isPersonalOnly", () => {
 
 describe("resolveVaultScope", () => {
   it("resolves All items to the personal vault for a personal-only account", () => {
-    expect(resolveVaultScope(undefined, null, personalNav)).toEqual(myVaultScope);
+    expect(resolveVaultScope(ALL_ITEMS_SCOPE, personalNav)).toEqual(myVaultScope);
   });
 
   it("leaves All items alone for an account with more than one vault", () => {
@@ -210,27 +210,27 @@ describe("resolveVaultScope", () => {
       buildNavItem(organizationId, VaultNavItemType.Organization),
     ]);
 
-    expect(resolveVaultScope(undefined, null, nav)).toEqual(ALL_ITEMS_SCOPE);
+    expect(resolveVaultScope(ALL_ITEMS_SCOPE, nav)).toEqual(ALL_ITEMS_SCOPE);
   });
 
   it("leaves All items alone until the account's vaults load", () => {
-    expect(resolveVaultScope(undefined, null, undefined)).toEqual(ALL_ITEMS_SCOPE);
+    expect(resolveVaultScope(ALL_ITEMS_SCOPE, undefined)).toEqual(ALL_ITEMS_SCOPE);
   });
 
-  it("passes every other segment through untouched", () => {
-    expect(resolveVaultScope(TRASH_ROUTE, null, personalNav)).toEqual(trashScope);
-    expect(resolveVaultScope(ARCHIVE_ROUTE, null, personalNav)).toEqual(archiveScope);
-    expect(resolveVaultScope(organizationId, null, personalNav)).toEqual(organizationScope);
-    expect(resolveVaultScope("acme-corp", null, personalNav)).toBeNull();
+  it("passes every other scope through untouched", () => {
+    expect(resolveVaultScope(trashScope, personalNav)).toEqual(trashScope);
+    expect(resolveVaultScope(archiveScope, personalNav)).toEqual(archiveScope);
+    expect(resolveVaultScope(organizationScope, personalNav)).toEqual(organizationScope);
+    expect(resolveVaultScope(null, personalNav)).toBeNull();
   });
 
-  it("keeps the shared folder a drilled-in segment names", () => {
-    expect(resolveVaultScope(organizationId, collectionId, personalNav)).toEqual(sharedFolderScope);
+  it("keeps the shared folder a drilled-in scope names", () => {
+    expect(resolveVaultScope(sharedFolderScope, personalNav)).toEqual(sharedFolderScope);
   });
 
   describe("the my-items segment", () => {
     it("resolves to the organization's My items collection", () => {
-      expect(resolveVaultScope(organizationId, MY_ITEMS_ROUTE, dataOwnershipNav)).toEqual({
+      expect(resolveVaultScope(myItemsScope, dataOwnershipNav)).toEqual({
         type: VaultScopeType.Organization,
         organizationId,
         collectionId: myItemsCollectionId,
@@ -239,7 +239,7 @@ describe("resolveVaultScope", () => {
 
     // Widening to the whole organization vault meanwhile would show items the URL did not ask for.
     it("stays unresolved until the account's vaults load", () => {
-      expect(resolveVaultScope(organizationId, MY_ITEMS_ROUTE, undefined)).toEqual(myItemsScope);
+      expect(resolveVaultScope(myItemsScope, undefined)).toEqual(myItemsScope);
     });
 
     it("names no destination for an organization without a My items collection", () => {
@@ -248,11 +248,16 @@ describe("resolveVaultScope", () => {
         buildNavItem(organizationId, VaultNavItemType.Organization),
       ]);
 
-      expect(resolveVaultScope(organizationId, MY_ITEMS_ROUTE, nav)).toBeNull();
+      expect(resolveVaultScope(myItemsScope, nav)).toBeNull();
     });
 
     it("names no destination for an organization the account has no vault for", () => {
-      expect(resolveVaultScope(otherOrganizationId, MY_ITEMS_ROUTE, dataOwnershipNav)).toBeNull();
+      expect(
+        resolveVaultScope(
+          { ...myItemsScope, organizationId: otherOrganizationId },
+          dataOwnershipNav,
+        ),
+      ).toBeNull();
     });
   });
 });

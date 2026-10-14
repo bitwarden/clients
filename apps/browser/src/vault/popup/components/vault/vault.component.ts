@@ -70,6 +70,7 @@ import {
   DecryptionFailureDialogComponent,
   DefaultVaultItemsTransferService,
   NewExperienceDialogService,
+  parseVaultScope,
   resolveVaultScope,
   type VaultScope,
   VaultItemsTransferService,
@@ -318,7 +319,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         switchMap((userId) => this.vaultNavService.viewModel$(userId)),
         startWith(undefined),
       ),
-    ]).pipe(map(([params, nav]) => resolveVaultScope(params.get("vaultId"), null, nav))),
+    ]).pipe(map(([params, nav]) => resolveVaultScope(parseVaultScope(params.get("vaultId")), nav))),
     { initialValue: ALL_ITEMS_SCOPE as VaultScope | null },
   );
 
