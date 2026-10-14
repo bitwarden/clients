@@ -17549,6 +17549,10 @@
     "message": "Items in this collection require a request.",
     "description": "Names the restriction on a collection governed by an access rule. Shared verbatim by the lock indicator in the vault's Filters sidebar and the banner shown when the collection is opened; the two must always say the same thing."
   },
+  "pamSharedFolderRequiresRequest": {
+    "message": "Items in this Shared folder require a request.",
+    "description": "VFO1 wording for pamCollectionRequiresRequest, which the vfo1I18n pipe swaps in while the VFO1Foundation flag is on. Says the same thing in the terminology VFO1 uses for a collection, so the two must stay in step."
+  },
   "pamGatedCollectionBannerName": {
     "message": "Privileged access",
     "description": "Screen-reader name for the notice shown above the item list while a collection governed by an access rule is the active filter. A short landmark label, not the notice's own sentence, which is announced separately as the notice's content."
