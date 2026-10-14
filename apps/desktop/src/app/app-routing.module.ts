@@ -53,7 +53,6 @@ import {
 } from "@bitwarden/key-management-ui";
 import {
   FOLDER_ID_PARAM,
-  folderScopeGuard,
   FOLDERS_ROUTE,
   MY_ITEMS_ROUTE,
   MY_ITEMS_ROUTE_DATA,
@@ -552,7 +551,7 @@ export const routes: Routes = [
         component: VaultComponent,
         canActivate: [
           canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault"),
-          folderScopeGuard,
+          vaultScopeGuard,
           vaultFilterRestoreGuard,
         ],
         data: { vaultFilterScope: true } satisfies RouteDataProperties & VaultScopeRouteData,

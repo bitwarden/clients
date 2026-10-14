@@ -60,8 +60,8 @@ import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-managemen
 import {
   FOLDER_ID_PARAM,
   FOLDERS_ROUTE,
-  folderScopeGuard,
   vaultFilterRestoreGuard,
+  vaultScopeGuard,
   type VaultScopeRouteData,
 } from "@bitwarden/vault";
 import { premiumInterestRedirectGuard } from "@bitwarden/web-vault/app/vault/guards/premium-interest-redirect/premium-interest-redirect.guard";
@@ -733,7 +733,7 @@ const routes: Routes = [
           ),
         canActivate: [
           canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault"),
-          folderScopeGuard,
+          vaultScopeGuard,
           vaultFilterRestoreGuard,
         ],
         data: { titleId: "vaults", vaultFilterScope: true } satisfies RouteDataProperties &
