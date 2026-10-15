@@ -22,7 +22,6 @@
         [class]="
           ovfItem.shouldShrink() ? 'tw-flex-initial tw-min-w-0 tw-overflow-hidden' : 'tw-shrink-0'
         "
-        (click)="chipSelect.emit(chip)"
         (dismissed)="chipDismiss.emit(chip)"
       ></bit-chip>
     } @else {
@@ -67,7 +66,6 @@
           [label]="chip.label"
           [accessibleName]="chip.accessibleName"
           [bitTooltip]="chip.accessibleName ?? chip.label"
-          (click)="selectOverflowChip(chip)"
           (dismissed)="dismissOverflowChip(chip)"
         ></bit-chip>
       } @else {

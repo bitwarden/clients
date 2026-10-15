@@ -34,8 +34,8 @@ import { BaseChipDirective } from "../shared/base-chip.directive";
 export type ChipGroupItem = {
   /**
    * Stable identifier for the thing the chip stands for — a collection id, a folder id, a filter
-   * key. Carried through {@link ChipGroupComponent.chipSelect} so the consumer can act on the
-   * activated chip without matching on its display text.
+   * key. Carried through `chipSelect` and `chipDismiss` so the consumer can act on the chip
+   * without matching on its display text.
    */
   id: string;
   /** Text shown inside the chip. */
@@ -63,8 +63,8 @@ export type ChipGroupItem = {
  * {@link chipSelect}. The group holds no selection state of its own; it reports the
  * activation and leaves the consequence (filtering, navigating) to the consumer.
  *
- * With `dismissible`, chips render as input chips with a dismiss button, which emits
- * through {@link chipDismiss}. Removing the chip is likewise left to the consumer.
+ * With `dismissible`, chips render as input chips whose only control is a dismiss button,
+ * emitting through {@link chipDismiss} instead. Removing the chip is likewise left to the consumer.
  *
  * Sizing is fully measurement-driven; the group does not take a `maxItems`
  * input. Resize the container and more or fewer chips become visible.

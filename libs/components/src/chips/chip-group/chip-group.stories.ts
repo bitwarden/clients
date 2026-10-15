@@ -111,7 +111,6 @@ export const Dismissible: Story = {
         <bit-chip-group
           dismissible
           [chips]="chips"
-          (chipSelect)="chipSelect($event)"
           (chipDismiss)="chipDismiss($event)"
         ></bit-chip-group>
       </div>

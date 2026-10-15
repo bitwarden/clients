@@ -348,6 +348,16 @@ describe("ChipGroupComponent", () => {
       expect(selected).toEqual([]);
     });
 
+    it("ignores clicks on a chip's body", () => {
+      fixture.componentRef.setInput("chips", chips);
+      fixture.detectChanges();
+
+      (fixture.debugElement.query(By.css("bit-chip")).nativeElement as HTMLElement).click();
+
+      expect(selected).toEqual([]);
+      expect(dismissed).toEqual([]);
+    });
+
     /** Dismisses a popover chip and removes it from the input, as a consumer would. */
     const dismissFromPopover = (index: number) => {
       const button = popoverDismissButtons()[index];
