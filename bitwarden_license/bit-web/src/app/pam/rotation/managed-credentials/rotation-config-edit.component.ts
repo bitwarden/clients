@@ -188,7 +188,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
 
   protected readonly hasActiveTargetSystems = computed(() => this.activeTargetSystems().length > 0);
 
-  private readonly allCiphers = toSignal(this.orgCiphersService.ciphers$, {
+  private readonly editableCiphers = toSignal(this.orgCiphersService.editableCiphers$, {
     initialValue: [],
   });
 
@@ -196,7 +196,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
   private readonly configuredCipherIds = signal<Set<CipherId>>(new Set());
 
   protected readonly availableCiphers = computed(() =>
-    this.allCiphers().filter((c) => !this.configuredCipherIds().has(asUuid<CipherId>(c.id))),
+    this.editableCiphers().filter((c) => !this.configuredCipherIds().has(asUuid<CipherId>(c.id))),
   );
 
   protected readonly createForm = this.formBuilder.nonNullable.group({
