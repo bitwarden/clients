@@ -1345,6 +1345,26 @@ describe("AccessRuleEditComponent — form states", () => {
       expect(controls().name.dirty).toBe(true);
     });
 
+    it("disables Cancel while a save is in flight", async () => {
+      await render({ params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } });
+      fillRequiredFields();
+      let finishSave!: () => void;
+      pamApi.updateAccessRule.mockReturnValue(new Promise<void>((r) => (finishSave = r)));
+      const cancelButton = () =>
+        fixture.nativeElement.querySelector("#access-rule-edit_button_cancel") as HTMLElement;
+      expect(cancelButton().getAttribute("aria-disabled")).toBeNull();
+
+      fixture.nativeElement.querySelector("form").dispatchEvent(new Event("submit"));
+      fixture.detectChanges();
+
+      expect(cancelButton().getAttribute("aria-disabled")).toBe("true");
+
+      finishSave();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(cancelButton().getAttribute("aria-disabled")).toBeNull();
+    });
+
     it("asks again when the route is left by any other means", async () => {
       await renderLeavingThroughGuard();
       controls().name.setValue("Half-finished rule");
