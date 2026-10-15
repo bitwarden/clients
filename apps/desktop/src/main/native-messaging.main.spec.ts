@@ -1,3 +1,7 @@
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs";
+import { tmpdir } from "os";
+import * as path from "path";
+
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -19,6 +23,9 @@ jest.mock("@bitwarden/desktop-napi", () => ({
   },
   windows_registry: {},
 }));
+
+// Dev mode would scan browser profiles for extension ids.
+jest.mock("../utils", () => ({ ...jest.requireActual("../utils"), isDev: () => false }));
 
 describe("NativeMessagingMain", () => {
   const clientId = 7;
@@ -112,5 +119,54 @@ describe("NativeMessagingMain", () => {
     emit(null, { kind: ipc.IpcMessageType.Disconnected, clientId } as ipc.IpcMessage);
 
     expect(sut.clientTypeFor(clientId)).toBeUndefined();
+  });
+
+  describe("generateManifests on linux", () => {
+    const manifestName = "com.8bit.bitwarden.json";
+    const platform = process.platform;
+
+    let home: string;
+
+    beforeEach(() => {
+      home = mkdtempSync(path.join(tmpdir(), "nmh-"));
+      Object.defineProperty(process, "platform", { value: "linux" });
+      jest.spyOn(sut as any, "homedir").mockReturnValue(home);
+
+      // Stand-in for the desktop_proxy binary the manifests point to.
+      const binary = path.join(home, "desktop_proxy");
+      writeFileSync(binary, "");
+      jest.spyOn(sut as any, "binaryPath").mockReturnValue(binary);
+    });
+
+    afterEach(() => {
+      Object.defineProperty(process, "platform", { value: platform });
+      rmSync(home, { recursive: true, force: true });
+    });
+
+    it("writes the firefox manifest when only the XDG profile dir exists", async () => {
+      mkdirSync(path.join(home, ".config", "mozilla"), { recursive: true });
+
+      await sut.generateManifests();
+
+      const nmhs = path.join(home, ".mozilla", "native-messaging-hosts");
+      expect(existsSync(path.join(nmhs, manifestName))).toBe(true);
+    });
+
+    it("writes the flatpak firefox manifest when only the app dir exists", async () => {
+      const app = path.join(home, ".var", "app", "org.mozilla.firefox");
+      mkdirSync(app, { recursive: true });
+
+      await sut.generateManifests();
+
+      const nmhs = path.join(app, ".mozilla", "native-messaging-hosts");
+      expect(existsSync(path.join(nmhs, manifestName))).toBe(true);
+    });
+
+    it("skips firefox when no profile dir exists", async () => {
+      await sut.generateManifests();
+
+      expect(existsSync(path.join(home, ".mozilla"))).toBe(false);
+      expect(existsSync(path.join(home, ".var"))).toBe(false);
+    });
   });
 });

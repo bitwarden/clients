@@ -244,6 +244,10 @@ export class NativeMessagingMain {
         // so that a canonical path to put in the manifest can be used.
 
         // Unsandboxed browser
+        await this.createFirefoxDir(
+          `${this.homedir()}/.config/mozilla/`,
+          `${this.homedir()}/.mozilla`,
+        );
         for (const [key, browserDirectory] of Object.entries(this.getLinuxNMHS())) {
           if (existsSync(browserDirectory)) {
             let nhmsPath = path.join(browserDirectory, "NativeMessagingHosts");
@@ -278,6 +282,10 @@ export class NativeMessagingMain {
           }
         }
 
+        await this.createFirefoxDir(
+          `${this.homedir()}/.var/app/org.mozilla.firefox`,
+          this.getFlatpakNMHS().Firefox,
+        );
         for (const [key, value] of Object.entries(this.getFlatpakNMHS())) {
           if (existsSync(value)) {
             const sandboxedProxyBinaryPath = path.join(value, ".bitwarden_desktop_proxy");
@@ -491,6 +499,17 @@ export class NativeMessagingMain {
       Brave: `${this.homedir()}/.config/BraveSoftware/Brave-Browser/`,
       Helium: `${this.homedir()}/.config/net.imput.helium/`,
     };
+  }
+
+  // Firefox may be installed without the dir it reads native messaging hosts from
+  // (e.g. XDG profiles in ~/.config/mozilla, no ~/.mozilla). Create it so Firefox is detected.
+  // E.g. firefoxDir: ~/.config/mozilla/, hostsDir: ~/.mozilla
+  private async createFirefoxDir(firefoxDir: string, hostsDir: string) {
+    if (!existsSync(firefoxDir)) {
+      return;
+    }
+
+    await fs.mkdir(hostsDir, { recursive: true });
   }
 
   private getFlatpakNMHS() {
