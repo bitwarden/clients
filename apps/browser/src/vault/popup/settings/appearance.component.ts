@@ -12,9 +12,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BadgeSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/badge-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -64,15 +62,8 @@ export class AppearanceComponent implements OnInit {
   private copyButtonsService = inject(VaultCopyButtonsService);
   private popupSizeService = inject(PopupSizeService);
   private i18nService = inject(I18nService);
-  private configService = inject(ConfigService);
   private accountService = inject(AccountService);
   private billingAccountProfileService = inject(BillingAccountProfileStateService);
-
-  /** Signal for the feature flag that controls simplified item action behavior */
-  protected readonly simplifiedItemActionEnabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM31039ItemActionInExtension),
-    { initialValue: false },
-  );
 
   protected readonly isPremiumUser = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -89,7 +80,6 @@ export class AppearanceComponent implements OnInit {
     enableCompactMode: false,
     showQuickCopyActions: false,
     width: "default" as PopupWidthOption,
-    clickItemsToAutofillVaultView: false,
     showAtRiskNotifications: true,
   });
 
@@ -136,9 +126,6 @@ export class AppearanceComponent implements OnInit {
       this.copyButtonsService.showQuickCopyActions$,
     );
     const width = await firstValueFrom(this.popupSizeService.width$);
-    const clickItemsToAutofillVaultView = await firstValueFrom(
-      this.vaultSettingsService.clickItemsToAutofillVaultView$,
-    );
     const showAtRiskNotifications = await firstValueFrom(
       this.vaultSettingsService.showAtRiskPasswordNotifications$,
     );
@@ -152,7 +139,6 @@ export class AppearanceComponent implements OnInit {
       enableCompactMode,
       showQuickCopyActions,
       width,
-      clickItemsToAutofillVaultView,
       showAtRiskNotifications,
     });
 
@@ -200,21 +186,11 @@ export class AppearanceComponent implements OnInit {
         void this.updateWidth(width);
       });
 
-    this.appearanceForm.controls.clickItemsToAutofillVaultView.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((clickItemsToAutofillVaultView) => {
-        void this.updateClickItemsToAutofillVaultView(clickItemsToAutofillVaultView);
-      });
-
     this.appearanceForm.controls.showAtRiskNotifications.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((showAtRiskNotifications) => {
         void this.updateShowAtRiskNotifications(showAtRiskNotifications);
       });
-  }
-
-  async updateClickItemsToAutofillVaultView(clickItemsToAutofillVaultView: boolean) {
-    await this.vaultSettingsService.setClickItemsToAutofillVaultView(clickItemsToAutofillVaultView);
   }
 
   async updateShowAtRiskNotifications(showAtRiskNotifications: boolean) {

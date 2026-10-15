@@ -134,7 +134,7 @@ export const getCreditTranslationKey = (
       return "premiumSubscriptionCredit";
     case InvoicePreviewFlowContext.OrganizationPlanChange:
     case InvoicePreviewFlowContext.OrganizationSubscriptionPage:
-      return "appliedSubscriptionCredits";
+      return "appliedProrationCredits";
     default:
       return undefined;
   }

@@ -118,58 +118,57 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden Password Manager</value>
+    <value>Bitwarden ಪಾಸ್ವರ್ಡ್ ಮ್ಯಾನೇಜರ್</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>ಮನೆಯಲ್ಲಿ, ಕೆಲಸದಲ್ಲಿ, ಅಥವಾ ಪ್ರಯಾಣದಲ್ಲಿ, Bitwarden ನಿಮ್ಮ ಎಲ್ಲಾ ಪಾಸ್ವರ್ಡ್ಗಳು, ಪಾಸ್ಕೀಗಳು ಮತ್ತು ಸೂಕ್ಷ್ಮ ಮಾಹಿತಿಯನ್ನು ಸುಲಭವಾಗಿ ಸುರಕ್ಷಿತಗೊಳಿಸುತ್ತದೆ.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>PCMag, WIRED, The Verge, CNET, G2, ಮತ್ತು ಇನ್ನಷ್ಟು ಸಂಸ್ಥೆಗಳಿಂದ ಅತ್ಯುತ್ತಮ ಪಾಸ್ವರ್ಡ್ ಮ್ಯಾನೇಜರ್ ಎಂದು ಗುರುತಿಸಲ್ಪಟ್ಟಿದೆ!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+ನಿಮ್ಮ ಡಿಜಿಟಲ್ ಜೀವನವನ್ನು ಸುರಕ್ಷಿತಗೊಳಿಸಿ
+ಪ್ರತಿ ಖಾತೆಗೆ ಅನನ್ಯ, ಬಲವಾದ ಪಾಸ್ವರ್ಡ್ಗಳನ್ನು ರಚಿಸುವ ಮತ್ತು ಉಳಿಸುವ ಮೂಲಕ ನಿಮ್ಮ ಡಿಜಿಟಲ್ ಜೀವನವನ್ನು ಸುರಕ್ಷಿತಗೊಳಿಸಿ ಮತ್ತು ಡೇಟಾ ಉಲ್ಲಂಘನೆಗಳಿಂದ ರಕ್ಷಿಸಿ. ನೀವು ಮಾತ್ರ ಪ್ರವೇಶಿಸಬಹುದಾದ ಎಂಡ್-ಟು-ಎಂಡ್ ಎನ್ಕ್ರಿಪ್ಟ್ ಮಾಡಿದ ಪಾಸ್ವರ್ಡ್ ವಾಲ್ಟ್ನಲ್ಲಿ ಎಲ್ಲವನ್ನೂ ನಿರ್ವಹಿಸಿ.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+ಯಾವುದೇ ಸಾಧನದಲ್ಲಿ, ಎಲ್ಲಿಯಾದರೂ, ಯಾವಾಗ ಬೇಕಾದರೂ ನಿಮ್ಮ ಡೇಟಾವನ್ನು ಪ್ರವೇಶಿಸಿ
+ನಿರ್ಬಂಧಗಳಿಲ್ಲದೆ ಅನಿಯಮಿತ ಸಾಧನಗಳಲ್ಲಿ ಅನಿಯಮಿತ ಪಾಸ್ವರ್ಡ್ಗಳನ್ನು ಸುಲಭವಾಗಿ ನಿರ್ವಹಿಸಿ, ಸಂಗ್ರಹಿಸಿ, ಸುರಕ್ಷಿತಗೊಳಿಸಿ ಮತ್ತು ಹಂಚಿಕೊಳ್ಳಿ.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+ಆನ್ಲೈನ್ನಲ್ಲಿ ಸುರಕ್ಷಿತವಾಗಿರಲು ಎಲ್ಲರೂ ಸಾಧನಗಳನ್ನು ಹೊಂದಿರಬೇಕು
+ಜಾಹೀರಾತುಗಳಿಲ್ಲದೆ ಅಥವಾ ಡೇಟಾವನ್ನು ಮಾರಾಟ ಮಾಡದೆ Bitwarden ಅನ್ನು ಉಚಿತವಾಗಿ ಬಳಸಿ. ಆನ್ಲೈನ್ನಲ್ಲಿ ಸುರಕ್ಷಿತವಾಗಿರುವ ಸಾಮರ್ಥ್ಯ ಎಲ್ಲರಿಗೂ ಇರಬೇಕು ಎಂದು Bitwarden ನಂಬುತ್ತದೆ. ಪ್ರೀಮಿಯಂ ಯೋಜನೆಗಳು ಸುಧಾರಿತ ವೈಶಿಷ್ಟ್ಯಗಳಿಗೆ ಪ್ರವೇಶವನ್ನು ನೀಡುತ್ತವೆ.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+ನಿಮ್ಮ ತಂಡಗಳನ್ನು Bitwarden ನೊಂದಿಗೆ ಸಶಕ್ತಗೊಳಿಸಿ
+ತಂಡಗಳು ಮತ್ತು ಎಂಟರ್ಪ್ರೈಸ್ಗಾಗಿ ಯೋಜನೆಗಳು ವೃತ್ತಿಪರ ವ್ಯಾಪಾರ ವೈಶಿಷ್ಟ್ಯಗಳೊಂದಿಗೆ ಬರುತ್ತವೆ. ಕೆಲವು ಉದಾಹರಣೆಗಳೆಂದರೆ SSO ಏಕೀಕರಣ, ಸ್ವಯಂ-ಹೋಸ್ಟಿಂಗ್, ಡೈರೆಕ್ಟರಿ ಏಕೀಕರಣ ಮತ್ತು SCIM ಪ್ರೊವಿಷನಿಂಗ್, ಜಾಗತಿಕ ನೀತಿಗಳು, API ಪ್ರವೇಶ, ಈವೆಂಟ್ ಲಾಗ್ಗಳು, ಮತ್ತು ಇನ್ನಷ್ಟು.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+ನಿಮ್ಮ ಕಾರ್ಯಪಡೆಯನ್ನು ಸುರಕ್ಷಿತಗೊಳಿಸಲು ಮತ್ತು ಸಹೋದ್ಯೋಗಿಗಳೊಂದಿಗೆ ಸೂಕ್ಷ್ಮ ಮಾಹಿತಿಯನ್ನು ಹಂಚಿಕೊಳ್ಳಲು Bitwarden ಬಳಸಿ.
 
 
-More reasons to choose Bitwarden:
+Bitwarden ಅನ್ನು ಆಯ್ಕೆಮಾಡಲು ಇನ್ನಷ್ಟು ಕಾರಣಗಳು:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
+ವಿಶ್ವದರ್ಜೆಯ ಎನ್ಕ್ರಿಪ್ಶನ್
+ಪಾಸ್ವರ್ಡ್ಗಳನ್ನು ಸುಧಾರಿತ ಎಂಡ್-ಟು-ಎಂಡ್ ಎನ್ಕ್ರಿಪ್ಶನ್ (AES-256 ಬಿಟ್, ಸಾಲ್ಟೆಡ್ ಹ್ಯಾಶಿಂಗ್, ಮತ್ತು PBKDF2 SHA-256) ನೊಂದಿಗೆ ರಕ್ಷಿಸಲಾಗಿದೆ ಆದ್ದರಿಂದ ನಿಮ್ಮ ಡೇಟಾ ಸುರಕ್ಷಿತ ಮತ್ತು ಖಾಸಗಿಯಾಗಿರುತ್ತದೆ.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+3ನೇ-ಪಕ್ಷದ ಆಡಿಟ್ಗಳು
+Bitwarden ನಿಯಮಿತವಾಗಿ ಪ್ರಮುಖ ಭದ್ರತಾ ಸಂಸ್ಥೆಗಳೊಂದಿಗೆ ಸಮಗ್ರ ತೃತೀಯ-ಪಕ್ಷದ ಭದ್ರತಾ ಆಡಿಟ್ಗಳನ್ನು ನಡೆಸುತ್ತದೆ. ಈ ವಾರ್ಷಿಕ ಆಡಿಟ್ಗಳು Bitwarden IPಗಳು, ಸರ್ವರ್ಗಳು, ಮತ್ತು ವೆಬ್ ಅಪ್ಲಿಕೇಶನ್ಗಳಾದ್ಯಂತ ಸೋರ್ಸ್ ಕೋಡ್ ಮೌಲ್ಯಮಾಪನಗಳು ಮತ್ತು ಪೆನಿಟ್ರೇಶನ್ ಪರೀಕ್ಷೆಯನ್ನು ಒಳಗೊಂಡಿರುತ್ತವೆ.
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+ಸುಧಾರಿತ 2FA
+ತೃತೀಯ-ಪಕ್ಷದ ಪ್ರಮಾಣೀಕರಣಕಾರ, ಇಮೇಲ್ ಮಾಡಿದ ಕೋಡ್ಗಳು, ಅಥವಾ FIDO2 WebAuthn ರುಜುವಾತುಗಳಾದ ಹಾರ್ಡ್ವೇರ್ ಭದ್ರತಾ ಕೀ ಅಥವಾ ಪಾಸ್ಕೀಯೊಂದಿಗೆ ನಿಮ್ಮ ಲಾಗಿನ್ ಅನ್ನು ಸುರಕ್ಷಿತಗೊಳಿಸಿ.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+ಎಂಡ್-ಟು-ಎಂಡ್ ಎನ್ಕ್ರಿಪ್ಟ್ ಮಾಡಿದ ಭದ್ರತೆಯನ್ನು ಕಾಪಾಡಿಕೊಳ್ಳುವಾಗ ಮತ್ತು ಒಡ್ಡುವಿಕೆಯನ್ನು ಮಿತಿಗೊಳಿಸುವಾಗ ನೇರವಾಗಿ ಇತರರಿಗೆ ಡೇಟಾವನ್ನು ರವಾನಿಸಿ.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+ಒಳನಿರ್ಮಿತ ಜನರೇಟರ್
+ನೀವು ಭೇಟಿ ನೀಡುವ ಪ್ರತಿ ಸೈಟ್ಗೆ ಉದ್ದವಾದ, ಸಂಕೀರ್ಣ, ಮತ್ತು ವಿಭಿನ್ನ ಪಾಸ್ವರ್ಡ್ಗಳನ್ನು ಮತ್ತು ಅನನ್ಯ ಬಳಕೆದಾರಹೆಸರುಗಳನ್ನು ರಚಿಸಿ. ಹೆಚ್ಚುವರಿ ಗೌಪ್ಯತೆಗಾಗಿ ಇಮೇಲ್ ಉಪನಾಮ ಪೂರೈಕೆದಾರರೊಂದಿಗೆ ಸಂಯೋಜಿಸಿ.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+ಜಾಗತಿಕ ಅನುವಾದಗಳು
+Bitwarden ಅನುವಾದಗಳು 60 ಕ್ಕೂ ಹೆಚ್ಚು ಭಾಷೆಗಳಿಗೆ ಅಸ್ತಿತ್ವದಲ್ಲಿವೆ, ಜಾಗತಿಕ ಸಮುದಾಯದಿಂದ Crowdin ಮೂಲಕ ಅನುವಾದಿಸಲಾಗಿದೆ.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+ಅಡ್ಡ-ವೇದಿಕೆ ಅಪ್ಲಿಕೇಶನ್ಗಳು
+ಯಾವುದೇ ಬ್ರೌಸರ್, ಮೊಬೈಲ್ ಸಾಧನ, ಅಥವಾ ಡೆಸ್ಕ್ಟಾಪ್ OS, ಮತ್ತು ಇನ್ನಷ್ಟು ಇಂದ ನಿಮ್ಮ Bitwarden ವಾಲ್ಟ್ನೊಳಗೆ ಸೂಕ್ಷ್ಮ ಡೇಟಾವನ್ನು ಸುರಕ್ಷಿತಗೊಳಿಸಿ ಮತ್ತು ಹಂಚಿಕೊಳ್ಳಿ.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
-</value>
+Bitwarden ಕೇವಲ ಪಾಸ್ವರ್ಡ್ಗಳನ್ನು ಮಾತ್ರವಲ್ಲದೆ ಹೆಚ್ಚಿನದನ್ನು ಸುರಕ್ಷಿತಗೊಳಿಸುತ್ತದೆ
+Bitwarden ನಿಂದ ಎಂಡ್-ಟು-ಎಂಡ್ ಎನ್ಕ್ರಿಪ್ಟ್ ಮಾಡಿದ ರುಜುವಾತು ನಿರ್ವಹಣಾ ಪರಿಹಾರಗಳು ಸಂಸ್ಥೆಗಳಿಗೆ ಡೆವಲಪರ್ ರಹಸ್ಯಗಳು ಮತ್ತು ಪಾಸ್ಕೀ ಅನುಭವಗಳನ್ನು ಒಳಗೊಂಡಂತೆ ಎಲ್ಲವನ್ನೂ ಸುರಕ್ಷಿತಗೊಳಿಸಲು ಸಶಕ್ತಗೊಳಿಸುತ್ತವೆ. Bitwarden Secrets Manager ಮತ್ತು Bitwarden Passwordless.dev ಬಗ್ಗೆ ಇನ್ನಷ್ಟು ತಿಳಿಯಲು Bitwarden.com ಗೆ ಭೇಟಿ ನೀಡಿ!</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>ಮನೆಯಲ್ಲಿ, ಕೆಲಸದಲ್ಲಿ, ಅಥವಾ ಪ್ರಯಾಣದಲ್ಲಿ, Bitwarden ನಿಮ್ಮ ಎಲ್ಲಾ ಪಾಸ್ವರ್ಡ್ಗಳು, ಪಾಸ್ಕೀಗಳು ಮತ್ತು ಸೂಕ್ಷ್ಮ ಮಾಹಿತಿಯನ್ನು ಸುಲಭವಾಗಿ ಸುರಕ್ಷಿತಗೊಳಿಸುತ್ತದೆ.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>ಅನೇಕ ಸಾಧನಗಳಿಂದ ನಿಮ್ಮ ವಾಲ್ಟ್ ಅನ್ನು ಸಿಂಕ್ ಮಾಡಿ ಮತ್ತು ಪ್ರವೇಶಿಸಿ</value>

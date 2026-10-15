@@ -4,6 +4,7 @@ import { BehaviorSubject, bufferCount, firstValueFrom, Subject, ObservedValueOf 
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
+import { Measurement } from "@bitwarden/logging";
 
 import { mockAccountInfoWith } from "../../../../spec";
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -15,7 +16,6 @@ import { NotificationType } from "../../../enums";
 import { NotificationResponse } from "../../../models/response/notification.response";
 import { UserId } from "../../../types/guid";
 import { AppIdService } from "../../abstractions/app-id.service";
-import { ConfigService } from "../../abstractions/config/config.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { LogService } from "../../abstractions/log.service";
 import { MessagingService } from "../../abstractions/messaging.service";
@@ -35,7 +35,6 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
   let authService: MockProxy<AuthService>;
   let webPushNotificationConnectionService: MockProxy<WebPushConnectionService>;
   let authRequestAnsweringService: MockProxy<AuthRequestAnsweringService>;
-  let configService: MockProxy<ConfigService>;
   let autoConfirmService: MockProxy<AutomaticUserConfirmationService>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
 
@@ -135,7 +134,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
 
     defaultServerNotificationsService = new DefaultServerNotificationsService(
-      mock<LogService>(),
+      mock<LogService>({ startMeasurement: () => mock<Measurement>() }),
       syncService,
       appIdService,
       environmentConfigurationService,
@@ -146,7 +145,6 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
       authService,
       webPushNotificationConnectionService,
       authRequestAnsweringService,
-      configService,
       autoConfirmService,
       billingAccountProfileStateService,
     );

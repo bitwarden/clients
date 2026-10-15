@@ -1,7 +1,28 @@
-import { computed, inject, provideEnvironmentInitializer, signal } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  importProvidersFrom,
+  inject,
+  OnDestroy,
+  provideEnvironmentInitializer,
+  signal,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, Router, RouterModule, RouterOutlet } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
-import { BehaviorSubject, NEVER, of } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  defer,
+  distinctUntilChanged,
+  filter,
+  map,
+  NEVER,
+  of,
+  startWith,
+  timer,
+} from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
@@ -22,7 +43,6 @@ import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
-import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -35,6 +55,7 @@ import {
   CompactModeService,
   DialogService,
   I18nMockService,
+  ScrollLayoutService,
   ToastService,
 } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
@@ -44,6 +65,7 @@ import {
   orgIconTile,
   PasswordRepromptService,
   personalIconTile,
+  VAULT_BASE_ROUTE,
   VaultCopyButtonsService,
   VaultNavItemType,
   VaultNavService,
@@ -64,6 +86,7 @@ import {
   VaultSection,
 } from "../../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
+import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 
@@ -233,10 +256,6 @@ type StoryArgs = {
   currentUriIsBlocked?: boolean;
   /** When true, render as if in the sidebar so the autofill section shows the refresh control. */
   inSidebar?: boolean;
-  /** PM31039ItemActionInExtension flag. Defaults to on (the simplified item-action design). */
-  simplifiedItemActionEnabled?: boolean;
-  /** Legacy (flag-off) setting: whether clicking an autofill suggestion fills it. Defaults to on. */
-  clickItemsToAutofillVaultView?: boolean;
   /** Filters to restore into the chips on story load — ids, matching what `restoreFilters$` emits. */
   appliedFilters?: {
     cipherType?: CipherType | null;
@@ -366,6 +385,7 @@ const buildProviders = (args: StoryArgs) => {
         restoreFilters$: () => of(args.appliedFilters ?? {}),
         saveFilters: () => {},
         clearVaultScopedFilters: () => {},
+        filterDialogOpen: signal(false),
         vaultScopedFiltersCleared$: NEVER,
         suspended$: () => of(false),
         selectedFilters$: of({
@@ -374,7 +394,6 @@ const buildProviders = (args: StoryArgs) => {
           collection: [] as string[],
           folder: [] as string[],
         }),
-        selectedOrganizations: signal<string[]>([]),
         cipherTypes$: of(CIPHER_TYPE_OPTIONS),
         organizations$: of(ORGANIZATION_OPTIONS),
         organizationNames$: of(ORGANIZATION_NAMES),
@@ -452,19 +471,12 @@ const buildProviders = (args: StoryArgs) => {
       provide: ConfigService,
       useValue: {
         getFeatureFlag$: (flag: FeatureFlag) => {
-          if (flag === FeatureFlag.PM31039ItemActionInExtension) {
-            return of(args.simplifiedItemActionEnabled ?? true);
-          }
           if (flag === FeatureFlag.VFO1Foundation) {
             return of(args.vfo1Enabled ?? false);
           }
           return of(false);
         },
       },
-    },
-    {
-      provide: VaultSettingsService,
-      useValue: { clickItemsToAutofillVaultView$: of(args.clickItemsToAutofillVaultView ?? true) },
     },
     {
       provide: I18nService,
@@ -477,6 +489,7 @@ const buildProviders = (args: StoryArgs) => {
           loading: "Loading",
           appLogoLabel: "Bitwarden",
           resetSearch: "Reset search",
+          clearSearchTooltip: "Clear by clicking here or pressing Esc.",
           name: "Name",
           autofillSuggestions: "Autofill suggestions",
           autofillSuggestionsTip: "Save a login item for this site to autofill",
@@ -606,7 +619,7 @@ const buildProviders = (args: StoryArgs) => {
       useValue: { restricted$: of([]) },
     },
     { provide: CipherService, useValue: {} },
-    { provide: PasswordRepromptService, useValue: {} },
+    { provide: PasswordRepromptService, useValue: { passwordRepromptCheck: async () => true } },
     { provide: ToastService, useValue: {} },
     { provide: DialogService, useValue: {} },
     { provide: OrganizationService, useValue: { hasOrganizations: () => of(false) } },
@@ -621,7 +634,7 @@ const buildProviders = (args: StoryArgs) => {
     { provide: CipherArchiveService, useValue: { userCanArchive$: () => of(false) } },
     {
       provide: PlatformUtilsService,
-      useValue: { getAutofillKeyboardShortcut: async () => "Ctrl+Shift+L" },
+      useValue: {},
     },
     { provide: EventCollectionService, useValue: {} },
     { provide: TotpService, useValue: {} },
@@ -630,6 +643,7 @@ const buildProviders = (args: StoryArgs) => {
       useValue: { hasPremiumFromAnySource$: () => of(true) },
     },
     { provide: Router, useValue: { navigate: () => Promise.resolve(true) } },
+    { provide: VaultPopupScrollPositionService, useValue: { restoresCollapse: () => false } },
     {
       provide: ActivatedRoute,
       useValue: { snapshot: { queryParams: {}, paramMap: new Map() }, queryParams: of({}) },
@@ -828,27 +842,6 @@ export const SidebarRefresh: Story = {
   }),
 };
 
-// Legacy (PM31039ItemActionInExtension off) affordance: autofill suggestions show a primary "Fill"
-// chip (with a keyboard-shortcut tooltip) instead of fill-on-click. `clickItemsToAutofillVaultView`
-// is off so the chip is shown rather than the click itself autofilling.
-export const LegacyAutofillButton: Story = {
-  decorators: [
-    applicationConfig({
-      providers: buildProviders({
-        autoFillCiphers: AUTOFILL_CIPHERS,
-        favoriteCiphers: FAVORITE_CIPHERS,
-        filteredCiphers: [...AUTOFILL_CIPHERS, ...FAVORITE_CIPHERS, ...ALL_ITEM_CIPHERS],
-        loading: false,
-        simplifiedItemActionEnabled: false,
-        clickItemsToAutofillVaultView: false,
-      }),
-    }),
-  ],
-  render: () => ({
-    template: `<div class="tw-flex tw-flex-col" style="height: 500px"><app-vault-popup-list-table></app-vault-popup-list-table></div>`,
-  }),
-};
-
 // Filters pre-applied to `filterForm`: Type and Vault render active with their selection in the
 // chip label, while multi-select My folders shows a count berry. Narrow the viewport to see the
 // chip row collapse into the sliders trigger.
@@ -917,4 +910,98 @@ export const BlockedUri: Story = {
   render: () => ({
     template: `<div class="tw-flex tw-flex-col" style="height: 500px"><app-vault-popup-list-table></app-vault-popup-list-table></div>`,
   }),
+};
+
+/** Attaches the real scroll restore the way `VaultComponent` does: once loaded, onto the live region. */
+@Component({
+  selector: "story-restore-vault-page",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [PopupPageComponent, PopupHeaderComponent, VaultPopupListTableComponent],
+  template: /* HTML */ `
+    <div class="tw-border tw-border-solid tw-border-secondary-300" style="height: 600px">
+      <popup-page [collapseAboveScrollArea]="true">
+        <popup-header slot="header" pageTitle="Vault"></popup-header>
+        <div class="tw-flex tw-flex-col tw-justify-center tw-h-full">
+          <app-vault-popup-list-table></app-vault-popup-list-table>
+        </div>
+      </popup-page>
+    </div>
+  `,
+})
+class StoryRestoreVaultPageComponent implements OnDestroy {
+  private readonly scrollPosition = inject(VaultPopupScrollPositionService);
+
+  constructor() {
+    combineLatest([
+      inject(ScrollLayoutService).scrollableRef$,
+      inject(VaultPopupLoadingService).loading$,
+    ])
+      .pipe(
+        filter(([ref, loading]) => !!ref?.nativeElement && !loading),
+        map(([ref]) => ref!.nativeElement),
+        distinctUntilChanged(),
+        takeUntilDestroyed(),
+      )
+      .subscribe((element) => this.scrollPosition.start(element));
+  }
+
+  ngOnDestroy() {
+    this.scrollPosition.stop();
+  }
+}
+
+@Component({
+  selector: "story-item-page",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterModule],
+  template: `<a routerLink="/tabs/vault">Back to vault</a>`,
+})
+class StoryItemPageComponent {}
+
+/** Stubs the real scroll restore and router would collide with. */
+const RESTORE_STUBBED = [Router, VaultPopupScrollPositionService];
+
+/**
+ * Scroll down, open an item, then go back: the collapsing regions should arrive collapsed and stay
+ * that way. Each arrival loads for 150ms, as the popup does.
+ */
+export const RestoreScrollPosition: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
+  decorators: [
+    applicationConfig({
+      providers: [
+        ...buildProviders({
+          autoFillCiphers: AUTOFILL_CIPHERS,
+          favoriteCiphers: FAVORITE_CIPHERS,
+          filteredCiphers: [...AUTOFILL_CIPHERS, ...FAVORITE_CIPHERS, ...ALL_ITEM_CIPHERS],
+          loading: false,
+          vfo1Enabled: true,
+        }).filter((provider) => !RESTORE_STUBBED.includes((provider as { provide?: any }).provide)),
+        {
+          provide: VaultPopupLoadingService,
+          useValue: {
+            loading$: defer(() =>
+              timer(150).pipe(
+                map(() => false),
+                startWith(true),
+              ),
+            ),
+          },
+        },
+        { provide: VAULT_BASE_ROUTE, useValue: "/tabs/vault" },
+        importProvidersFrom(
+          RouterModule.forRoot(
+            [
+              { path: "tabs/vault", component: StoryRestoreVaultPageComponent },
+              { path: "view-cipher", component: StoryItemPageComponent },
+              { path: "**", redirectTo: "tabs/vault" },
+            ],
+            { useHash: true },
+          ),
+        ),
+      ],
+    }),
+    moduleMetadata({ imports: [RouterOutlet] }),
+  ],
+  render: () => ({ template: `<router-outlet></router-outlet>` }),
 };

@@ -15,6 +15,7 @@
   "afterSign": "scripts/after-sign.js",
   "afterPack": "scripts/after-pack.js",
   "beforePack": "scripts/before-pack.js",
+  "appxManifestCreated": "scripts/appx-manifest-created.js",
   "files": [
     "!node_modules/@bitwarden/desktop-napi/scripts",
     "!node_modules/@bitwarden/desktop-napi/src",
@@ -22,7 +23,7 @@
     "!node_modules/@bitwarden/desktop-napi/build.rs",
     "!node_modules/@bitwarden/desktop-napi/package.json"
   ],
-  "electronVersion": "43.2.0",
+  "electronVersion": "43.5.0",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
@@ -69,7 +70,7 @@
       ],
       "CFBundleDevelopmentRegion": "en"
     },
-    "provisioningProfile": "bitwarden_desktop_developer_id.provisionprofile",
+    "provisioningProfile": "bitwarden_stable_desktop_developer_id.provisionprofile",
     "singleArchFiles": "node_modules/@bitwarden/desktop-napi/desktop_napi.darwin-*.node",
     "x64ArchFiles": "{**/desktop_napi.darwin-*.node,**/bufferutil/**/darwin-*/*.node}",
     "extraFiles": [
@@ -114,12 +115,16 @@
     ],
     "extraResources": [
       {
-        "from": "resources/windows_plugin_authenticator_config.json",
+        "from": "resources/windows_plugin_authenticator_config.stable.json",
         "to": "plugin_authenticator_config.json"
       },
       {
-        "from": "resources/windows_plugin_authenticator_logo.svg",
-        "to": "plugin_authenticator_logo.svg"
+        "from": "resources/windows_plugin_authenticator_logo_light.stable.svg",
+        "to": "plugin_authenticator_logo_light.svg"
+      },
+      {
+        "from": "resources/windows_plugin_authenticator_logo_dark.stable.svg",
+        "to": "plugin_authenticator_logo_dark.svg"
       }
     ]
   },
@@ -177,7 +182,7 @@
       "LSMinimumSystemVersion": "12",
       "ElectronTeamID": "LTZ2PFU5D6"
     },
-    "provisioningProfile": "bitwarden_desktop_appstore.provisionprofile"
+    "provisioningProfile": "bitwarden_stable_desktop_appstore.provisionprofile"
   },
   "nsisWeb": {
     "oneClick": false,
@@ -197,6 +202,8 @@
     "applicationId": "bitwardendesktop",
     "identityName": "8bitSolutionsLLC.bitwardendesktop",
     "publisher": "CN=14D52771-DE3C-4886-B8BF-825BA7690418",
+    "minVersion": "10.0.14393.0",
+    "customExtensionsPath": "../custom-appx-extensions.stable.xml",
     "publisherDisplayName": "Bitwarden Inc",
     "languages": [
       "en-US",

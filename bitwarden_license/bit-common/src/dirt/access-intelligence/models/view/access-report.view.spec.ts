@@ -700,7 +700,14 @@ describe("AccessReportView", () => {
   describe("toEncryptionPayload", () => {
     it("should map reports to ApplicationHealthData with all fields", () => {
       const view = new AccessReportView();
-      view.reports = [createReport("github.com", { u1: true, u2: false }, { c1: true, c2: false })];
+      view.reports = [
+        createReport(
+          "github.com",
+          { u1: true, u2: false },
+          { c1: true, c2: false },
+          "https://example.com/icon.png",
+        ),
+      ];
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
         { id: "u2", name: "Bob", email: "bob@example.com" },
@@ -713,6 +720,7 @@ describe("AccessReportView", () => {
       expect(report.applicationName).toBe("github.com");
       expect(report.memberRefs).toEqual({ u1: true, u2: false });
       expect(report.cipherRefs).toEqual({ c1: true, c2: false });
+      expect(report.iconUri).toBe("https://example.com/icon.png");
     });
 
     it("should map memberRegistry entries to MemberRegistryEntryData", () => {
