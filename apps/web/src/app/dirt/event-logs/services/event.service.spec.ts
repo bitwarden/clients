@@ -503,6 +503,17 @@ describe("EventService PAM events", () => {
     expect(info.message).toContain(`<code>${(subjectId as string).substring(0, 8)}</code>`);
   });
 
+  // A rotation has no request or lease, so the message names only the item.
+  it.each([
+    [EventType.Pam_Rotation_Succeeded, "pamEventRotatedCredential"],
+    [EventType.Pam_Rotation_Failed, "pamEventFailedCredentialRotation"],
+  ])("renders %s naming only the item", async (type, key) => {
+    const info = await sut.getEventInfo(pamEvent(type as EventType));
+
+    expect(info.message).toContain(`<code>${cipherId.substring(0, 8)}</code>`);
+    expect(info.humanReadableMessage).toBe(`${key}${cipherId.substring(0, 8)}`);
+  });
+
   // A rule spans collections and has no id column on the event, so the message names no subject.
   it.each([
     [EventType.Pam_AccessRule_Created, "pamEventCreatedAccessRule"],
