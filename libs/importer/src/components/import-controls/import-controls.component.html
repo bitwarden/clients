@@ -60,6 +60,7 @@
               type="button"
               bitButton
               buttonType="subtleGhost"
+              [disabled]="keeperImporting()"
               (click)="toggleToManual()"
               id="importer-controls_button_import-manually-instead"
             >
@@ -76,6 +77,7 @@
             bitButton
             bitFormButton
             buttonType="secondary"
+            [disabled]="keeperImporting()"
             (click)="onBack()"
             id="importer-controls_button_back"
           >

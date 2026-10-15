@@ -62,7 +62,13 @@
 
   @switch (importType()) {
     @case ("keeper") {
-      <importer-controls-keeper-credentials [form]="form()" />
+      <!-- Hidden, not removed: re-binding its inputs would clear a login error set on the email. -->
+      <div [hidden]="keeperStage().kind !== 'idle'">
+        <importer-controls-keeper-credentials [form]="form()" />
+      </div>
+      @if (keeperStage().kind !== "idle") {
+        <importer-controls-keeper-login [stage]="keeperStage()" />
+      }
     }
     @case ("lastpasscsv") {
       <importer-controls-lastpass-credentials [form]="form()" />

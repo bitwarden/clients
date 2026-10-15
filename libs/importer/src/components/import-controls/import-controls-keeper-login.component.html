@@ -1,0 +1,203 @@
+<ng-container [formGroup]="form">
+  <ng-template #waiting let-title="title" let-body="body">
+    <div
+      class="tw-flex tw-flex-col tw-items-center tw-gap-2 tw-py-4 tw-text-center"
+      role="status"
+      tabindex="-1"
+    >
+      <bit-spinner size="lg" class="tw-mb-1" />
+      @if (title) {
+        <h3 bitTypography="h6" noMargin>{{ title | i18n }}</h3>
+      }
+      @if (body) {
+        <p bitTypography="body1" noMargin>{{ body | i18n }}</p>
+      }
+    </div>
+  </ng-template>
+
+  <ng-template #codeField let-canResend="canResend">
+    <bit-form-field class="tw-max-w-sm">
+      <bit-label>{{ "verificationCode" | i18n }}</bit-label>
+      <input
+        bitInput
+        type="text"
+        formControlName="keeperCode"
+        appInputVerbatim
+        id="importer-controls_input_keeper-code"
+      />
+    </bit-form-field>
+    @if (canResend) {
+      <button
+        type="button"
+        bitLink
+        linkType="primary"
+        class="tw-text-xs"
+        (click)="resend()"
+        id="importer-controls_button_keeper-resend-code"
+      >
+        {{ "resendCode" | i18n }}
+      </button>
+    }
+  </ng-template>
+
+  @let current = stage();
+  @switch (current.kind) {
+    @case ("loading") {
+      <ng-container
+        *ngTemplateOutlet="waiting; context: { title: null, body: 'importingYourAccount' }"
+      />
+    }
+    @case ("importing") {
+      <ng-container
+        *ngTemplateOutlet="waiting; context: { title: null, body: 'importingYourAccount' }"
+      />
+    }
+    @case ("selectApproval") {
+      <p bitTypography="body1">{{ "selectApprovalMethodDesc" | i18n }}</p>
+      <bit-radio-group formControlName="keeperApprovalMethod" [block]="true">
+        <bit-label>{{ "keeperLoginApprovalMethod" | i18n }}</bit-label>
+        @for (method of current.methods; track method) {
+          <bit-radio-button
+            class="tw-block"
+            [value]="method"
+            [id]="'importer-controls_radio_keeper-approval-' + method"
+          >
+            <bit-label>{{ approvalLabel(method) | i18n }}</bit-label>
+          </bit-radio-button>
+        }
+      </bit-radio-group>
+    }
+    @case ("approvalCode") {
+      @if (current.variant === "email") {
+        <p bitTypography="body1">{{ "approvalEmailDesc" | i18n }}</p>
+        <ng-container *ngTemplateOutlet="codeField; context: { canResend: true }" />
+      } @else if (current.variant === "admin") {
+        <ng-container
+          *ngTemplateOutlet="
+            waiting;
+            context: { title: 'adminApprovalRequested', body: 'keeperLoginAdminRequestedDesc' }
+          "
+        />
+      } @else {
+        <ng-container
+          *ngTemplateOutlet="
+            waiting;
+            context: { title: 'keeperPushSent', body: 'keeperLoginPushSentDesc' }
+          "
+        />
+      }
+    }
+    @case ("selectTwoFactor") {
+      <bit-radio-group formControlName="keeperTwoFactorMethod" [block]="true">
+        <bit-label>{{ "selectTwoFactorMethod" | i18n }}</bit-label>
+        @for (method of current.methods; track method) {
+          <bit-radio-button
+            class="tw-block"
+            [value]="method"
+            [id]="'importer-controls_radio_keeper-two-factor-' + method"
+          >
+            <bit-label>{{ twoFactorLabel(method) | i18n }}</bit-label>
+          </bit-radio-button>
+        }
+      </bit-radio-group>
+    }
+    @case ("twoFactorCode") {
+      @if (current.needsInput) {
+        <p bitTypography="body1">
+          {{ twoFactorCodePrompt(current.method, current.hidden) | i18n }}
+        </p>
+        <ng-container *ngTemplateOutlet="codeField; context: { canResend: current.canResend }" />
+      } @else {
+        <p bitTypography="body1">{{ "mfaPushDesc" | i18n }}</p>
+      }
+    }
+    @case ("selectDuo") {
+      <p bitTypography="body1" class="tw-mb-2">{{ current.phoneNumber }}</p>
+      <bit-radio-group formControlName="keeperDuoMethod" [block]="true">
+        <bit-label>{{ "duoVerification" | i18n }}</bit-label>
+        @for (method of current.methods; track method) {
+          <bit-radio-button
+            class="tw-block"
+            [value]="method"
+            [id]="'importer-controls_radio_keeper-duo-' + method"
+          >
+            <bit-label>{{ duoLabel(method) | i18n }}</bit-label>
+          </bit-radio-button>
+        }
+      </bit-radio-group>
+    }
+    @case ("duoPush") {
+      <ng-container
+        *ngTemplateOutlet="waiting; context: { title: 'duoVerification', body: 'duoPushWaiting' }"
+      />
+    }
+    @case ("selectDna") {
+      <bit-radio-group formControlName="keeperDnaMethod" [block]="true">
+        <bit-label>{{ "keeperDnaVerification" | i18n }}</bit-label>
+        @for (method of current.methods; track method) {
+          <bit-radio-button
+            class="tw-block"
+            [value]="method"
+            [id]="'importer-controls_radio_keeper-dna-' + method"
+          >
+            <bit-label>{{ dnaLabel(method) | i18n }}</bit-label>
+          </bit-radio-button>
+        }
+      </bit-radio-group>
+    }
+    @case ("dnaPush") {
+      <ng-container
+        *ngTemplateOutlet="
+          waiting;
+          context: { title: 'keeperDnaVerification', body: 'keeperDnaPushWaiting' }
+        "
+      />
+    }
+    @case ("ssoToken") {
+      <p bitTypography="body2">{{ "keeperSsoDesc" | i18n }}</p>
+      <bit-form-field class="tw-max-w-sm">
+        <bit-label>
+          {{ "ssoToken" | i18n }}
+          <button
+            type="button"
+            class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
+            [bitPopoverTriggerFor]="ssoPopover"
+            position="above-center"
+            [appA11yTitle]="'ssoAuthRequired' | i18n"
+            bitLink
+            startIcon="bwi-question-circle"
+          ></button>
+        </bit-label>
+        <input
+          bitInput
+          type="text"
+          formControlName="keeperSsoToken"
+          appInputVerbatim
+          id="importer-controls_input_keeper-sso-token"
+        />
+      </bit-form-field>
+      <bit-popover [title]="'ssoAuthRequired' | i18n" #ssoPopover>
+        <p>{{ "keeperSsoDesc" | i18n }}</p>
+      </bit-popover>
+    }
+    @case ("password") {
+      <p bitTypography="body2">{{ "keeperMasterPasswordPrompt" | i18n }}</p>
+      <bit-form-field class="tw-max-w-sm">
+        <bit-label>{{ "masterPassword" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="password"
+          formControlName="keeperPassword"
+          appInputVerbatim
+          id="importer-controls_input_keeper-password"
+        />
+        <button type="button" bitSuffix bitIconButton bitPasswordInputToggle></button>
+      </bit-form-field>
+    }
+    @case ("error") {
+      <bit-callout type="danger" id="importer-controls_callout_keeper-error">
+        {{ current.message | i18n }}
+      </bit-callout>
+    }
+  }
+</ng-container>

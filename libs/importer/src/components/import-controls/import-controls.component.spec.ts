@@ -36,9 +36,9 @@ import {
   ImportSkippedItemsDialogComponent,
   ImportSuccessDialogComponent,
 } from "../dialog";
-import { KeeperDirectImportService } from "../keeper/keeper-direct-import.service";
 import { LastPassDirectImportService } from "../lastpass/lastpass-direct-import.service";
 
+import { KeeperDirectImportUpgradeService } from "./direct/keeper/keeper-direct-import-upgrade.service";
 import { ImportControlsComponent } from "./import-controls.component";
 
 describe("ImportControlsComponent", () => {
@@ -53,7 +53,7 @@ describe("ImportControlsComponent", () => {
   let policyService: MockProxy<PolicyService>;
   let accountService: MockProxy<AccountService>;
   let syncService: MockProxy<SyncService>;
-  let keeperDirectImportService: MockProxy<KeeperDirectImportService>;
+  let keeperDirectImportService: MockProxy<KeeperDirectImportUpgradeService>;
   let lastPassDirectImportService: MockProxy<LastPassDirectImportService>;
 
   const component = () => fixture.componentInstance as any;
@@ -84,7 +84,7 @@ describe("ImportControlsComponent", () => {
     { provide: PolicyService, useValue: policyService },
     { provide: AccountService, useValue: accountService },
     { provide: SyncService, useValue: syncService },
-    { provide: KeeperDirectImportService, useValue: keeperDirectImportService },
+    { provide: KeeperDirectImportUpgradeService, useValue: keeperDirectImportService },
     { provide: LastPassDirectImportService, useValue: lastPassDirectImportService },
     {
       provide: AbstractThemingService,
@@ -131,7 +131,7 @@ describe("ImportControlsComponent", () => {
     accountService.activeAccount$ = of({ id: "test-user-id" } as unknown as Account);
     syncService = mock<SyncService>();
     syncService.fullSync.mockResolvedValue(true);
-    keeperDirectImportService = mock<KeeperDirectImportService>();
+    keeperDirectImportService = mock<KeeperDirectImportUpgradeService>();
     lastPassDirectImportService = mock<LastPassDirectImportService>();
 
     const options: Record<string, ImportOption> = {
@@ -3220,7 +3220,7 @@ describe("ImportControlsComponent", () => {
       expect(keeperDirectImportService.handleImport).toHaveBeenCalledWith(
         "user@example.com",
         expect.anything(),
-        undefined,
+        expect.anything(),
       );
       expect(importService.importImportResult).toHaveBeenCalledWith(
         result,
@@ -3320,6 +3320,7 @@ describe("ImportControlsComponent", () => {
       component().continue.subscribe(continueSpy);
 
       await component().submit();
+      await component().keeperLogin();
       expect(continueSpy).not.toHaveBeenCalled();
 
       const result = new ImportResult();
@@ -3327,6 +3328,7 @@ describe("ImportControlsComponent", () => {
       importService.importImportResult.mockResolvedValue(result);
 
       await component().submit();
+      await component().keeperLogin();
 
       expect(keeperDirectImportService.handleImport).toHaveBeenCalledTimes(2);
       expect(continueSpy).toHaveBeenCalledTimes(1);

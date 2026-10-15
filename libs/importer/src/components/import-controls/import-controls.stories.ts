@@ -20,9 +20,9 @@ import {
   ImportUpgradeMetadataServiceAbstraction,
   ImportUpgradeServiceAbstraction,
 } from "../../services";
-import { KeeperDirectImportService } from "../keeper/keeper-direct-import.service";
 import { LastPassDirectImportService } from "../lastpass/lastpass-direct-import.service";
 
+import { KeeperDirectImportUpgradeService } from "./direct/keeper/keeper-direct-import-upgrade.service";
 import { ImportControlsComponent } from "./import-controls.component";
 
 function buildOption(overrides: Partial<ImportOption> & { id: string }): ImportOption {
@@ -259,10 +259,10 @@ function decoratorsFor(
           useValue: { theme$: of(ThemeTypes.Light) } as Partial<AbstractThemingService>,
         },
         {
-          provide: KeeperDirectImportService,
+          provide: KeeperDirectImportUpgradeService,
           useValue: {
             handleImport: () => Promise.reject(new Error("Not wired up in Storybook.")),
-          } as Partial<KeeperDirectImportService>,
+          } as Partial<KeeperDirectImportUpgradeService>,
         },
         {
           provide: LastPassDirectImportService,
@@ -329,8 +329,10 @@ function decoratorsFor(
               pasteAsPlainText: "Paste as plain text",
               plainText: "Plain text",
               profile: "Profile",
-              keeperEmail: "Email",
-              dataCenterLocation: "Data center location",
+              email: "Email",
+              keeperLoginServerLabel: "Server",
+              keeperLoginEmailRequired: "Email is required.",
+              keeperLoginEmailInvalid: "Enter a valid email address.",
               lastPassEmail: "Email",
               includeSharedFolders: "Include shared folders",
               importManuallyInstead: "Import manually instead",
