@@ -1,6 +1,6 @@
 <bit-dialog dialogSize="small">
   <ng-container bitDialogTitle>
-    <span>{{ "pamRotationJobDrawerTitle" | i18n }}</span>
+    <span>{{ "pamRotationDetailsDrawerTitle" | i18n }}</span>
     <span bitBadge [variant]="job.statusVariant" class="tw-ms-2" data-testid="drawer-result">{{
       job.statusLabelKey | i18n
     }}</span>
@@ -13,7 +13,7 @@
           <dt class="tw-text-sm tw-font-bold tw-text-muted">
             {{ "pamRotationAttemptStarted" | i18n }}
           </dt>
-          <dd class="tw-m-0" data-testid="drawer-started">{{ job.startedAt | date: "long" }}</dd>
+          <dd class="tw-m-0" data-testid="drawer-started">{{ formatTimestamp(job.startedAt) }}</dd>
         </div>
       }
 
@@ -33,27 +33,45 @@
         </div>
       }
 
-      <div>
-        <dt class="tw-text-sm tw-font-bold tw-text-muted">
-          {{ "pamRotationHistoryColumnSource" | i18n }}
-        </dt>
-        <dd class="tw-m-0" data-testid="drawer-source">{{ job.sourceLabelKey | i18n }}</dd>
-      </div>
-
-      @if (job.duration || job.running) {
-        <div>
+      @if (endingSessions; as sessions) {
+        <div data-testid="drawer-ending-sessions">
           <dt class="tw-text-sm tw-font-bold tw-text-muted">
-            {{ "pamRotationHistoryDurationLabel" | i18n }}
+            {{ "pamTargetSystemEndingSessions" | i18n }}
           </dt>
-          <dd class="tw-m-0" data-testid="drawer-duration">
-            @if (job.duration) {
-              <pam-rotation-duration [parts]="job.duration" />
-            } @else {
-              <span class="tw-text-muted">{{ "pamRotationAttemptInProgress" | i18n }}</span>
+          <dd class="tw-m-0">
+            <span
+              bitBadge
+              [variant]="sessions.supported ? 'success' : 'secondary'"
+              [startIcon]="sessions.supported ? 'bwi-check-circle' : null"
+              >{{
+                (sessions.supported
+                  ? "pamTargetSystemSessionTerminationSupported"
+                  : "pamTargetSystemSessionTerminationNo"
+                ) | i18n
+              }}</span
+            >
+            @if (sessions.supported && sessions.kind === "entra") {
+              <p class="tw-m-0 tw-mt-1 tw-text-xs tw-text-muted">
+                {{ "pamTargetSystemEndingSessionsEntraHint" | i18n }}
+              </p>
             }
           </dd>
         </div>
       }
+
+      <div>
+        <dt class="tw-text-sm tw-font-bold tw-text-muted">
+          {{ "pamRotationHistoryColumnResult" | i18n }}
+        </dt>
+        <dd class="tw-m-0" data-testid="drawer-result-text">{{ job.statusLabelKey | i18n }}</dd>
+      </div>
+
+      <div>
+        <dt class="tw-text-sm tw-font-bold tw-text-muted">
+          {{ "pamRotationHistoryColumnTrigger" | i18n }}
+        </dt>
+        <dd class="tw-m-0" data-testid="drawer-source">{{ job.sourceLabelKey | i18n }}</dd>
+      </div>
     </dl>
 
     @if (job.sessionTerminationLabelKey) {
@@ -66,57 +84,24 @@
       </p>
     }
 
-    @if (
-      job.failed &&
-      (job.causeLabelKey || job.reportedReason || job.syncStateLabelKey || job.attemptsUniform)
-    ) {
-      <section
-        class="tw-mt-4 tw-border-0 tw-border-t tw-border-solid tw-border-border-base tw-pt-4"
-        data-testid="drawer-cause"
+    @if (job.failed && job.syncStateLabelKey) {
+      <p
+        class="tw-mb-0 tw-mt-4 tw-text-sm"
+        [class]="job.syncStateIndeterminate ? 'tw-text-warning' : 'tw-text-muted'"
+        data-testid="drawer-sync-state"
       >
-        <h3 class="tw-m-0 tw-mb-2 tw-text-sm tw-font-bold tw-text-muted">
-          {{ "pamRotationHistoryFailureHeading" | i18n }}
-        </h3>
-        @if (job.causeLabelKey) {
-          <p class="tw-m-0 tw-text-main">{{ job.causeLabelKey | i18n }}</p>
-        } @else if (job.reportedReason) {
-          <p class="tw-m-0 tw-break-words tw-font-mono tw-text-sm tw-text-main">
-            {{ job.reportedReason }}
-          </p>
-        }
-        @if (job.syncStateLabelKey) {
-          <p
-            class="tw-m-0 tw-mt-2 tw-text-sm"
-            [class]="job.syncStateIndeterminate ? 'tw-text-warning' : 'tw-text-muted'"
-          >
-            {{ job.syncStateLabelKey | i18n }}
-          </p>
-        }
-        @if (job.attemptsUniform) {
-          <p class="tw-m-0 tw-mt-2 tw-text-sm tw-text-muted">
-            {{ "pamRotationHistoryAttemptsAllAlike" | i18n }}
-          </p>
-        }
-        @if (job.causeLabelKey && job.reportedReason) {
-          <p
-            class="tw-m-0 tw-mt-2 tw-break-words tw-font-mono tw-text-xs tw-text-muted"
-            data-testid="drawer-reported-reason"
-          >
-            {{ "pamRotationFailureReportedDetail" | i18n: job.reportedReason }}
-          </p>
-        }
-      </section>
+        {{ job.syncStateLabelKey | i18n }}
+      </p>
     }
 
     @if (job.attempts.length > 0) {
-      <section
-        class="tw-mt-4 tw-border-0 tw-border-t tw-border-solid tw-border-border-base tw-pt-4"
-        data-testid="drawer-attempts"
-      >
-        <h3 class="tw-m-0 tw-mb-1 tw-text-sm tw-font-bold tw-text-muted">
+      <section class="tw-mt-4" data-testid="drawer-attempts">
+        <h3 class="tw-m-0 tw-mb-2 tw-text-sm tw-font-bold tw-text-muted">
           {{ "pamRotationHistoryColumnAttempts" | i18n }}
         </h3>
-        <div class="tw-overflow-x-auto">
+        <div
+          class="tw-overflow-x-auto tw-rounded-lg tw-border tw-border-solid tw-border-border-base"
+        >
           <table class="tw-w-full tw-table-auto tw-border-collapse tw-text-start tw-text-sm">
             <caption class="tw-sr-only">
               {{
@@ -124,19 +109,16 @@
               }}
             </caption>
             <thead
-              class="tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-text-xs tw-font-medium tw-text-muted"
+              class="tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-bg-bg-secondary tw-text-xs tw-font-medium tw-text-muted"
             >
               <tr>
-                <th scope="col" class="tw-py-1.5 tw-pe-3 tw-text-start">
+                <th scope="col" class="tw-px-3 tw-py-2 tw-text-start">
                   {{ "pamRotationHistoryColumnAttempt" | i18n }}
                 </th>
-                <th scope="col" class="tw-py-1.5 tw-pe-3 tw-text-start">
-                  {{ "pamRotationAttemptStarted" | i18n }}
+                <th scope="col" class="tw-px-3 tw-py-2 tw-text-start">
+                  {{ "pamTargetSystemAssignConnectorLabel" | i18n }}
                 </th>
-                <th scope="col" class="tw-py-1.5 tw-pe-3 tw-text-start">
-                  {{ "pamRotationHistoryDurationLabel" | i18n }}
-                </th>
-                <th scope="col" class="tw-py-1.5 tw-text-start">
+                <th scope="col" class="tw-px-3 tw-py-2 tw-text-start">
                   {{ "pamRotationHistoryColumnResult" | i18n }}
                 </th>
               </tr>
@@ -144,31 +126,33 @@
             <tbody>
               @for (attempt of job.attempts; track attempt.id) {
                 <tr
-                  class="tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-align-baseline last:tw-border-0"
+                  class="tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-align-top last:tw-border-0"
                   data-testid="drawer-attempt-row"
                 >
-                  <th
-                    scope="row"
-                    class="tw-whitespace-nowrap tw-py-1.5 tw-pe-3 tw-text-start tw-font-normal tw-text-muted"
-                  >
-                    {{ attempt.ordinal }}
+                  <th scope="row" class="tw-px-3 tw-py-2 tw-text-start tw-font-normal">
+                    <span class="tw-block tw-text-main">{{ attempt.ordinal }}</span>
+                    <span class="tw-block tw-text-xs tw-text-muted">{{
+                      formatTime(attempt.startedAt)
+                    }}</span>
                   </th>
-                  <td class="tw-whitespace-nowrap tw-py-1.5 tw-pe-3 tw-text-muted">
-                    {{ attempt.startedAt | date: "mediumTime" }}
+                  <td class="tw-px-3 tw-py-2 tw-text-main" data-testid="drawer-attempt-connector">
+                    {{ attempt.connectorName }}
                   </td>
-                  <td class="tw-whitespace-nowrap tw-py-1.5 tw-pe-3 tw-text-muted">
-                    @if (attempt.duration) {
-                      <pam-rotation-duration [parts]="attempt.duration" />
-                    } @else if (attempt.running) {
-                      {{ "pamRotationAttemptInProgress" | i18n }}
+                  <td class="tw-px-3 tw-py-2">
+                    <span class="tw-block tw-font-bold tw-text-main">{{
+                      attempt.resultLabelKey | i18n
+                    }}</span>
+                    @if (attempt.causeLabelKey) {
+                      <span class="tw-block tw-text-xs tw-text-muted">{{
+                        attempt.causeLabelKey | i18n
+                      }}</span>
                     }
-                  </td>
-                  <td class="tw-py-1.5 tw-text-main">
-                    {{ attempt.statusLabelKey | i18n }}
-                    @if (attempt.divergentFailureReason; as reason) {
-                      <span class="tw-block tw-break-words tw-font-mono tw-text-xs tw-text-muted">
-                        {{ reason }}
-                      </span>
+                    @if (attempt.failureReason; as reason) {
+                      <span
+                        class="tw-block tw-break-words tw-font-mono tw-text-xs tw-text-muted"
+                        data-testid="drawer-attempt-reason"
+                        >{{ reason }}</span
+                      >
                     }
                   </td>
                 </tr>
