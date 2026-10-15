@@ -1,0 +1,38 @@
+{
+  "name": "Bitwarden Design Prototyping",
+  "dockerComposeFile": ["../common/docker-compose.yml", "docker-compose.override.yml"],
+  "service": "bitwarden_clients",
+  "workspaceFolder": "/workspace",
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "12gb"
+  },
+  "features": {
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["anthropic.claude-code"],
+      "settings": {
+        "claudeCode.preferredLocation": "sidebar",
+        "workbench.activityBar.location": "hidden",
+        "workbench.startupEditor": "none",
+        "workbench.tips.enabled": false,
+        "workbench.statusBar.visible": false,
+        "workbench.editor.showTabs": "single",
+        "editor.minimap.enabled": false,
+        "breadcrumbs.enabled": false,
+        "git.autoRepositoryDetection": false,
+        "extensions.ignoreRecommendations": true
+      }
+    }
+  },
+  "onCreateCommand": "bash .devcontainer/design/on-create-command.sh",
+  "postStartCommand": "bash .devcontainer/design/start-storybook.sh",
+  "waitFor": "postStartCommand",
+  "forwardPorts": [6006],
+  "portsAttributes": {
+    "default": { "onAutoForward": "ignore" },
+    "6006": { "label": "Storybook", "onAutoForward": "openPreview" }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "design-prototyping",
+  "version": "0.1.0",
+  "description": "Prototype UI with real Component Library pieces in Storybook, built for designers.",
+  "author": { "name": "Bitwarden" }
+}

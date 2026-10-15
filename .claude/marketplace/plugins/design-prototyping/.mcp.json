@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "storybook-browser": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["chrome-devtools-mcp@1.2.0", "--headless", "--isolated"]
+    }
+  }
+}

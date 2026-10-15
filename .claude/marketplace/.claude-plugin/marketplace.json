@@ -1,0 +1,12 @@
+{
+  "name": "bitwarden-clients",
+  "owner": { "name": "Bitwarden" },
+  "description": "Claude Code plugins specific to the bitwarden/clients repo.",
+  "plugins": [
+    {
+      "name": "design-prototyping",
+      "source": "./plugins/design-prototyping",
+      "description": "Prototype UI with real Component Library pieces in Storybook, built for designers."
+    }
+  ]
+}

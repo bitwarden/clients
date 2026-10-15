@@ -1,0 +1,5 @@
+services:
+  bitwarden_clients:
+    # The repo requires Node 24 / npm 11 (package.json engines); the common image is Node 22 / npm 10,
+    # whose npm ci rejects the lock file
+    image: mcr.microsoft.com/devcontainers/typescript-node:24
