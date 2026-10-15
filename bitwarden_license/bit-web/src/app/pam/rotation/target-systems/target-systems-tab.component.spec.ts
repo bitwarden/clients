@@ -2114,32 +2114,12 @@ describe("TargetSystemsTabComponent toolbar", () => {
     expect(toolbar(on).querySelectorAll("bit-filter-menu")).toHaveLength(3);
   });
 
-  it("puts the create action in the toolbar's end slot", async () => {
+  it("leaves the create action to the rotation shell's Add menu, not the toolbar", async () => {
     const on = await render();
 
-    expect(endSlot(on).children).toHaveLength(1);
-    const button = endSlot(on).querySelector<HTMLButtonElement>(
-      "#rotation-shell_button_new-target-system",
-    );
-    expect(button).not.toBeNull();
-    expect(text(button!)).toBe("pamTargetSystemNew");
-    expect(button!.getAttribute("type")).toBe("button");
-  });
-
-  it("navigates to the create page from the end slot button", async () => {
-    const on = await render();
-    const router = TestBed.inject(Router);
-    const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
-
-    endSlot(on)
-      .querySelector<HTMLButtonElement>("#rotation-shell_button_new-target-system")!
-      .click();
-    await on.whenStable();
-
-    expect(navigateSpy).toHaveBeenCalledWith(
-      ["..", "target-systems", "new"],
-      expect.objectContaining({ relativeTo: expect.anything() }),
-    );
+    expect(el(on).querySelector("bit-table-toolbar")).not.toBeNull();
+    expect(el(on).querySelector("#rotation-shell_button_new-target-system")).toBeNull();
+    expect(endSlot(on).children).toHaveLength(0);
   });
 
   it("keeps the create action out of the toolbar when a search holds the table over an empty list", async () => {
