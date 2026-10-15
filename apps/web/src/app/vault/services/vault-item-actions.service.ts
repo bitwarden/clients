@@ -147,7 +147,6 @@ export class WebVaultItemActionsService {
       return;
     }
 
-    // Checked on the decrypted view: a blob-encrypted cipher seals its login in `data`.
     const userId = await firstValueFrom(this.userId$);
     const decrypted = await this.cipherService.decrypt(stored, userId);
 
