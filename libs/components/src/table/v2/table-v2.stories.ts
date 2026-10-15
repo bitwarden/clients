@@ -1220,6 +1220,8 @@ export default {
               filters: "Filters",
               done: "Done",
               clearAll: "Clear all",
+              showMore: "Show more",
+              showMoreCount: (count) => `Show ${count} more`,
               filtersSelected: (count) => `${count} selected`,
               previousPage: "Previous page",
               nextPage: "Next page",

@@ -7,7 +7,7 @@ import { Observable, Subject } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/state";
 
-import { ChipComponent } from "../../chips";
+import { ChipComponent, ChipGroupComponent } from "../../chips";
 import { DialogRef, DialogService } from "../../dialog";
 import {
   FilterDialogComponent,
@@ -166,6 +166,8 @@ describe("BitTableToolbarComponent", () => {
             new I18nMockService({
               filters: "Filters",
               clearAll: "Clear all",
+              showMore: "Show more",
+              showMoreCount: (count?: string) => `Show ${count} more`,
               search: "Search",
               resetSearch: "Reset search",
               clearSearchTooltip: "Clear by clicking here or pressing Esc.",
@@ -352,6 +354,8 @@ describe("BitTableToolbarComponent", () => {
       <bit-filter-menu #type key="type" placeholderText="Type" icon="bwi-list" multiple>
         <bit-filter-option [value]="'login'">Login</bit-filter-option>
         <bit-filter-option [value]="'card'">Card</bit-filter-option>
+        <!-- Shares a label with "card". -->
+        <bit-filter-option [value]="'card-2'">Card</bit-filter-option>
       </bit-filter-menu>
       <bit-filter-menu #vault key="vault" placeholderText="Vault">
         <bit-filter-option [value]="'mine'">My vault</bit-filter-option>
@@ -398,6 +402,8 @@ describe("BitTableToolbarComponent active filter chips", () => {
             new I18nMockService({
               filters: "Filters",
               clearAll: "Clear all",
+              showMore: "Show more",
+              showMoreCount: (count?: string) => `Show ${count} more`,
               search: "Search",
               resetSearch: "Reset search",
               removeItem: (name?: string) => `Remove ${name}`,
@@ -470,6 +476,35 @@ describe("BitTableToolbarComponent active filter chips", () => {
     expect(host.type().active()).toBe(true);
   });
 
+  it("keeps each remaining chip's id when an earlier option is dismissed", () => {
+    const chipIds = () =>
+      (
+        fixture.debugElement.query(By.directive(ChipGroupComponent))
+          .componentInstance as ChipGroupComponent
+      )
+        .chips()
+        .map((chip) => chip.id);
+    host.type().setValue(["login", "card"]);
+    fixture.detectChanges();
+    const cardId = chipIds()[1];
+
+    dismiss(0);
+    fixture.detectChanges();
+
+    expect(chipIds()).toEqual([cardId]);
+  });
+
+  it("clears the dismissed option when two selections share a label", () => {
+    host.type().setValue(["card", "card-2"]);
+    fixture.detectChanges();
+
+    dismiss(1);
+    fixture.detectChanges();
+
+    expect(host.type().isSelected("card")).toBe(true);
+    expect(host.type().isSelected("card-2")).toBe(false);
+  });
+
   it("keeps one qualified chip for a single-select, cleared as a whole", () => {
     host.vault().setValue("mine");
     fixture.detectChanges();
@@ -482,6 +517,29 @@ describe("BitTableToolbarComponent active filter chips", () => {
 
     expect(chipLabels()).toEqual([]);
     expect(host.vault().active()).toBe(false);
+  });
+
+  it("moves focus to the previous chip when the focused last chip is dismissed", () => {
+    host.type().setValue(["login", "card"]);
+    fixture.detectChanges();
+
+    dismissButtons()[1].focus();
+    dismiss(1);
+    fixture.detectChanges();
+
+    expect(document.activeElement).toBe(dismissButtons()[0]);
+  });
+
+  it("moves focus to the filter button when the only chip is dismissed", () => {
+    host.vault().setValue("mine");
+    fixture.detectChanges();
+
+    dismissButtons()[0].focus();
+    dismiss(0);
+    fixture.detectChanges();
+
+    const filterButton = fixture.nativeElement.querySelector("button[bitIconButton]");
+    expect(document.activeElement).toBe(filterButton);
   });
 });
 
@@ -538,6 +596,8 @@ describe("BitTableToolbarComponent customize control", () => {
             new I18nMockService({
               filters: "Filters",
               clearAll: "Clear all",
+              showMore: "Show more",
+              showMoreCount: (count?: string) => `Show ${count} more`,
               search: "Search",
               resetSearch: "Reset search",
               customize: "Customize",
@@ -639,6 +699,8 @@ describe("BitTableToolbarComponent filter dialog", () => {
             new I18nMockService({
               filters: "Filters",
               clearAll: "Clear all",
+              showMore: "Show more",
+              showMoreCount: (count?: string) => `Show ${count} more`,
               search: "Search",
               resetSearch: "Reset search",
               removeItem: (name?: string) => `Remove ${name}`,
