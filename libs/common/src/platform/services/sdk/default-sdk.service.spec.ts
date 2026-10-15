@@ -87,12 +87,12 @@ describe("DefaultSdkService", () => {
       environmentService,
       platformUtilsService,
       accountService,
-      kdfConfigService,
-      keyService,
-      accountCryptographicStateService,
-      apiService,
+      () => kdfConfigService,
+      () => keyService,
+      () => accountCryptographicStateService,
+      () => apiService,
       fakeStateProvider,
-      configService,
+      () => configService,
       upgradeTokenStateService,
       mockManagedSettingsService(),
       appIdService,
@@ -164,6 +164,15 @@ describe("DefaultSdkService", () => {
 
           const [, settings] = sdkClientFactory.createSdkClient.mock.calls[0];
           expect(settings?.deviceIdentifier).toBe(appId);
+        });
+
+        it("provides the user's access token from the API service to the SDK client", async () => {
+          apiService.getActiveBearerToken.calledWith(userId).mockResolvedValue("access-token");
+          await firstValueFrom(service.userClient$(userId));
+
+          const [tokenProvider] = sdkClientFactory.createSdkClient.mock.calls[0];
+          await expect(tokenProvider.get_access_token()).resolves.toBe("access-token");
+          expect(apiService.getActiveBearerToken).toHaveBeenCalledWith(userId);
         });
 
         it("does not create an SDK client when called the second time with same userId", async () => {
