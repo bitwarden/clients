@@ -1,5 +1,4 @@
-import { APP_INITIALIZER } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { APP_INITIALIZER, NgZone } from "@angular/core";
 
 import {
   AccessEventService,
@@ -16,7 +15,6 @@ import {
   MyLeasesService,
 } from "@bitwarden/bit-common/pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -27,29 +25,25 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { SafeInjectionToken, SafeProvider, safeProvider } from "@bitwarden/ui-common";
 import { CIPHER_VIEW_BANNER, ITEM_DETAILS_STATE_BADGE } from "@bitwarden/vault";
 
-import { BrowserCipherLeaseStateService } from "../browser-cipher-lease-state.service";
-import { PAM_REFRESH_LEASES } from "../lease-messages";
+import { requestLeaseRefresh } from "../lease-messages";
 
 import { BrowserAccessEventService } from "./browser-access-event.service";
 import { BrowserAccessRefreshService } from "./browser-access-refresh.service";
+import { PopupCipherLeaseStateService } from "./popup-cipher-lease-state.service";
 
 /** PAM providers for the commercial popup. */
 export function providePam(): SafeProvider[] {
   return [
     safeProvider({
       provide: CipherLeaseStateService,
-      useClass: BrowserCipherLeaseStateService,
-      deps: [StateProvider, AccountService],
+      useClass: PopupCipherLeaseStateService,
+      deps: [StateProvider, AccountService, NgZone],
     }),
     safeProvider({
       // The popup receives no pushes, so it asks the background to re-read on open.
       provide: APP_INITIALIZER as SafeInjectionToken<() => Promise<void>>,
-      useFactory: (accountService: AccountService, messageSender: MessageSender) => async () => {
-        const userId = await firstValueFrom(accountService.activeAccount$.pipe(getOptionalUserId));
-        if (userId != null) {
-          messageSender.send(PAM_REFRESH_LEASES, { userId });
-        }
-      },
+      useFactory: (accountService: AccountService, messageSender: MessageSender) => () =>
+        requestLeaseRefresh(accountService, messageSender),
       deps: [AccountService, MessageSender],
       multi: true,
     }),

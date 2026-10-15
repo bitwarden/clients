@@ -240,25 +240,15 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   /** @inheritdoc */
-  leasedCipherViews$(userId: UserId): Observable<CipherView[]> {
-    return this.cipherLeaseStateService
-      .leasedCiphers$(userId)
-      .pipe(switchMap((ciphers) => this.decryptLeased(ciphers, userId)));
-  }
-
-  private async decryptLeased(ciphers: Cipher[], userId: UserId): Promise<CipherView[]> {
-    const views: CipherView[] = [];
-    for (const cipher of ciphers) {
-      try {
-        const view = await this.decrypt(cipher, userId);
-        view.leaseGated = true;
-        views.push(view);
-      } catch {
-        this.logService.error("Failed to decrypt a leased cipher");
-      }
-    }
-    return views;
-  }
+  leasedCipherViews$ = perUserCache$((userId: UserId) =>
+    this.cipherLeaseStateService.leasedCiphers$(userId).pipe(
+      switchMap(async (ciphers) => {
+        const [views] = await this.decryptCiphersWithSdk(ciphers, userId, true);
+        views.forEach((view) => (view.leaseGated = true));
+        return views;
+      }),
+    ),
+  );
 
   /** Appends the leased copies whose id is not already present, i.e. still gated. */
   private withLeased(ciphers: CipherView[], leased: CipherView[]): CipherView[] {
@@ -619,6 +609,9 @@ export class CipherService implements CipherServiceAbstraction {
       this.getAllDecryptedForUrl(url, userId, includeOtherTypes),
       firstValueFrom(this.leasedCipherViews$(userId)),
     ]);
+    if (leased.length === 0) {
+      return ciphers;
+    }
     return this.withLeased(ciphers, await this.filterCiphersForUrl(leased, url, includeOtherTypes));
   }
 
@@ -2066,13 +2059,24 @@ export class CipherService implements CipherServiceAbstraction {
       this.sortedCiphersCache.addCiphers(cacheKey, ciphers);
     }
 
+    let cipher: CipherView;
     if (lastLaunched) {
-      return this.sortedCiphersCache.getLastLaunched(cacheKey);
+      cipher = this.sortedCiphersCache.getLastLaunched(cacheKey);
     } else if (lastUsed) {
-      return this.sortedCiphersCache.getLastUsed(cacheKey);
+      cipher = this.sortedCiphersCache.getLastUsed(cacheKey);
     } else {
-      return this.sortedCiphersCache.getNext(cacheKey);
+      cipher = this.sortedCiphersCache.getNext(cacheKey);
     }
+
+    // Each read keeps the cache warm, so it can outlive a lease; rebuild once the copy is gone.
+    if (cipher?.leaseGated) {
+      const leased = await firstValueFrom(this.leasedCipherViews$(userId));
+      if (!leased.some((c) => c.id === cipher.id)) {
+        this.sortedCiphersCache.clear();
+        return this.getCipherForUrl(url, userId, lastUsed, lastLaunched, autofillOnPageLoad, true);
+      }
+    }
+    return cipher;
   }
 
   private async clearEncryptedCiphersState(userId: UserId) {

@@ -595,6 +595,30 @@ describe("OverlayNotificationsBackground", () => {
         expect(notificationAddLoginSpy).toHaveBeenCalled();
       });
 
+      it("triggers no notification for a form that matches a leased copy", async () => {
+        const matchesLeasedCopy = jest
+          .spyOn(notificationBackground, "matchesLeasedCopy")
+          .mockResolvedValueOnce(true);
+        chrome.tabs.get = jest.fn().mockImplementationOnce((tabId, callback) => {
+          callback(mock<chrome.tabs.Tab>({ status: "complete", url: sender.url }));
+        });
+
+        triggerWebRequestOnCompletedEvent(
+          mock<chrome.webRequest.OnCompletedDetails>({
+            url: sender.url,
+            tabId: sender.tab.id,
+            requestId,
+          }),
+        );
+        await flushPromises();
+
+        expect(matchesLeasedCopy).toHaveBeenCalledWith(
+          expect.objectContaining({ username: "username", password: "password" }),
+        );
+        expect(notificationChangedPasswordSpy).not.toHaveBeenCalled();
+        expect(notificationAddLoginSpy).not.toHaveBeenCalled();
+      });
+
       it("with `useUndeterminedCipherScenarioTriggeringLogic` on, initializes the notification immediately when the tab's navigation is complete", async () => {
         notificationBackground.useUndeterminedCipherScenarioTriggeringLogic$ = of(true);
         sendMockExtensionMessage(

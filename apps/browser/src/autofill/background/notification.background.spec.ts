@@ -126,7 +126,7 @@ describe("NotificationBackground", () => {
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
     accountService.activeAccount$ = activeAccountSubject;
-    cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValue([]);
+    cipherService.leasedCipherViews$.mockReturnValue(of([]));
     notificationBackground = new NotificationBackground(
       accountService,
       authService,
@@ -245,6 +245,31 @@ describe("NotificationBackground", () => {
       const cipherView = notificationBackground["convertAddLoginQueueMessageToCipherView"](message);
 
       expect(cipherView.name).toEqual("fallback-domain.com");
+    });
+  });
+
+  describe("matchesLeasedCopy", () => {
+    const uri = "https://example.com";
+
+    beforeEach(() => {
+      cipherService.leasedCipherViews$.mockReturnValue(
+        of([mock<CipherView>({ login: { username: "Admin", password: "leased" } })]),
+      );
+      cipherService.filterCiphersForUrl.mockImplementation(async (ciphers, url) =>
+        url === uri ? ciphers : [],
+      );
+    });
+
+    it.each([
+      [true, "the leased username, in any case", { username: "ADMIN", password: "other" }],
+      [true, "a password-only form", { username: "", password: "leased" }],
+      [true, "a change-password form with no username", { password: "old", newPassword: "leased" }],
+      [false, "another username and password", { username: "other", password: "other" }],
+      [false, "another site", { username: "Admin", password: "leased", uri: "https://other.com" }],
+    ])("is %s for %s", async (expected, _, form) => {
+      const data = { uri, username: "", password: "", ...form };
+
+      expect(await notificationBackground.matchesLeasedCopy(data)).toBe(expected);
     });
   });
 
@@ -856,54 +881,6 @@ describe("NotificationBackground", () => {
           sender.tab,
         );
       });
-      it("does not offer to save a login whose username matches a leased copy", async () => {
-        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
-        getEnableAddedLoginPromptSpy.mockReturnValueOnce(true);
-        cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValueOnce([
-          mock<CipherView>({ leaseGated: true, login: { username: "test", password: "leased" } }),
-        ]);
-
-        await notificationBackground.triggerAddLoginNotification(
-          mockModifyLoginCipherFormData,
-          tab,
-        );
-
-        expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
-      });
-
-      it("does not offer to save a password-only login whose password matches a leased copy", async () => {
-        const data: ModifyLoginCipherFormData = {
-          ...mockModifyLoginCipherFormData,
-          username: "",
-          password: "leased",
-        };
-        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
-        getEnableAddedLoginPromptSpy.mockReturnValueOnce(true);
-        cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValueOnce([
-          mock<CipherView>({ leaseGated: true, login: { username: "admin", password: "leased" } }),
-        ]);
-
-        await notificationBackground.triggerAddLoginNotification(data, tab);
-
-        expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
-        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
-      });
-
-      it("still offers to save a login when no leased copy matches", async () => {
-        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
-        getEnableAddedLoginPromptSpy.mockReturnValueOnce(true);
-        cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValueOnce([
-          mock<CipherView>({ leaseGated: true, login: { username: "admin", password: "leased" } }),
-        ]);
-        getAllDecryptedForUrlSpy.mockResolvedValueOnce([]);
-
-        await notificationBackground.triggerAddLoginNotification(
-          mockModifyLoginCipherFormData,
-          tab,
-        );
-
-        expect(pushAddLoginToQueueSpy).toHaveBeenCalled();
-      });
     });
 
     describe("bgTriggerChangedPasswordNotification message handler", () => {
@@ -1171,63 +1148,6 @@ describe("NotificationBackground", () => {
           sender.tab,
         );
       });
-
-      describe("when a leased copy matches the form", () => {
-        const leasedCopy = mock<CipherView>({
-          leaseGated: true,
-          login: { username: "Admin", password: "leased" },
-        });
-        const storedCiphers = [
-          mock<CipherView>({ id: "cipher-id-1", login: { username: "admin", password: "old" } }),
-        ];
-
-        beforeEach(() => {
-          activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
-          cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValueOnce([leasedCopy]);
-          getAllDecryptedForUrlSpy.mockResolvedValueOnce(storedCiphers);
-        });
-
-        it.each([
-          ["a password-only form with the leased password", "", "leased", ""],
-          ["a change-password form whose current password is leased", "", "leased", "new"],
-          ["a change-password form whose new password is leased", "", "old", "leased"],
-          ["a form with the leased username", "ADMIN", "old", "new"],
-        ])("triggers no update for %s", async (_, username, password, newPassword) => {
-          const data: ModifyLoginCipherFormData = {
-            uri: "https://example.com",
-            username,
-            password,
-            newPassword,
-          };
-
-          await notificationBackground.triggerChangedPasswordNotification(data, tab);
-
-          expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
-        });
-      });
-
-      it("triggers an update as before when no leased copy matches", async () => {
-        const data: ModifyLoginCipherFormData = {
-          ...mockModifyLoginCipherFormData,
-          uri: "https://example.com",
-        };
-        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
-        cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValueOnce([
-          mock<CipherView>({ leaseGated: true, login: { username: "admin", password: "leased" } }),
-        ]);
-        getAllDecryptedForUrlSpy.mockResolvedValueOnce([
-          mock<CipherView>({ id: "cipher-id", login: { username: "test", password: "password" } }),
-        ]);
-
-        await notificationBackground.triggerChangedPasswordNotification(data, tab);
-
-        expect(pushChangePasswordToQueueSpy).toHaveBeenCalledWith(
-          ["cipher-id"],
-          "example.com",
-          data.newPassword,
-          sender.tab,
-        );
-      });
     });
 
     describe("triggerCipherNotification message handler", () => {
@@ -1434,110 +1354,6 @@ describe("NotificationBackground", () => {
         await notificationBackground.triggerCipherNotification(formEntryData, tab);
 
         expectSkippedCheckingNotification();
-      });
-
-      it("triggers no notification when a leased copy has the entered username", async () => {
-        const formEntryData: ModifyLoginCipherFormData = {
-          newPassword: "",
-          password: "Bab3lPhs5h",
-          uri: mockFormURI,
-          username: "ADent",
-        };
-        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
-        cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValueOnce([
-          mock<CipherView>({
-            id: "leased",
-            leaseGated: true,
-            login: { username: "adent", password: "I<3VogonPoetry" },
-          }),
-        ]);
-
-        const result = await notificationBackground.triggerCipherNotification(formEntryData, tab);
-
-        expect(result).toBe(false);
-        expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
-        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
-      });
-
-      it("never offers a leased copy for update", async () => {
-        const formEntryData: ModifyLoginCipherFormData = {
-          newPassword: "",
-          password: "I<3VogonPoetry",
-          uri: mockFormURI,
-          username: "ADent",
-        };
-        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
-        cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValueOnce([
-          mock<CipherView>({
-            id: "leased",
-            leaseGated: true,
-            login: { username: "FPrefect", password: "I<3VogonPoetry" },
-          }),
-        ]);
-
-        await notificationBackground.triggerCipherNotification(formEntryData, tab);
-
-        expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
-        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
-      });
-
-      it.each([
-        ["a password-only form with the leased password", "I<3VogonPoetry", ""],
-        ["a change-password form whose current password is leased", "I<3VogonPoetry", "Hunter2"],
-        ["a change-password form whose new password is leased", "Bab3l", "I<3VogonPoetry"],
-        ["a new-password-only form with the leased password", "", "I<3VogonPoetry"],
-      ])("triggers no notification for %s", async (_, password, newPassword) => {
-        const formEntryData: ModifyLoginCipherFormData = {
-          uri: mockFormURI,
-          username: "",
-          password,
-          newPassword,
-        };
-        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
-        cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValueOnce([
-          mock<CipherView>({
-            leaseGated: true,
-            login: { username: "FPrefect", password: "I<3VogonPoetry" },
-          }),
-        ]);
-        getAllDecryptedForUrlSpy.mockResolvedValueOnce([
-          mock<CipherView>({ id: "cipher-id-1", login: { username: "ADent", password: "Bab3l" } }),
-        ]);
-
-        const result = await notificationBackground.triggerCipherNotification(formEntryData, tab);
-
-        expect(result).toBe(false);
-        expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
-        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
-      });
-
-      it("triggers an update as before when no leased copy matches", async () => {
-        const formEntryData: ModifyLoginCipherFormData = {
-          newPassword: "",
-          password: "Bab3lPhs5h",
-          uri: mockFormURI,
-          username: "ADent",
-        };
-        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
-        cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValueOnce([
-          mock<CipherView>({
-            leaseGated: true,
-            login: { username: "FPrefect", password: "I<3VogonPoetry" },
-          }),
-        ]);
-        getAllDecryptedForUrlSpy.mockResolvedValueOnce([
-          mock<CipherView>({ id: "cipher-id-1", login: { username: "adent", password: "Old" } }),
-        ]);
-
-        await notificationBackground.triggerCipherNotification(formEntryData, tab);
-
-        expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
-        expect(pushChangePasswordToQueueSpy).toHaveBeenCalledWith(
-          ["cipher-id-1"],
-          mockFormattedURI,
-          formEntryData.password,
-          sender.tab,
-        );
       });
 
       describe("when `username` and `password` and `newPassword` fields are filled, ", () => {
@@ -3226,28 +3042,27 @@ describe("NotificationBackground", () => {
           );
         });
 
-        it.each([
-          ["username", "test", "new"],
-          ["password", "other", "old"],
-        ])("drops a locked save whose %s matches a leased copy", async (_, username, password) => {
+        it("drops a locked save that matches a leased copy", async () => {
           const tab = createChromeTabMock({ id: 1, url: "https://example.com" });
           const sender = mock<chrome.runtime.MessageSender>({ tab });
+          const data = { username: "test", password: "leased", uri: "https://example.com" };
           notificationBackground["notificationQueue"] = [
             mock<AddLoginQueueMessage>({
               type: NotificationType.AddLogin,
               tab,
               domain: "example.com",
-              data: { username, password, uri: "https://example.com" },
+              data,
               wasVaultLocked: true,
             }),
           ];
-          cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValueOnce([
-            mock<CipherView>({ leaseGated: true, login: { username: "test", password: "old" } }),
-          ]);
+          const matchesLeasedCopy = jest
+            .spyOn(notificationBackground, "matchesLeasedCopy")
+            .mockResolvedValueOnce(true);
 
           sendMockExtensionMessage({ command: "bgSaveCipher", edit: false }, sender);
           await flushPromises();
 
+          expect(matchesLeasedCopy).toHaveBeenCalledWith(data);
           expect(getAllDecryptedForUrlSpy).not.toHaveBeenCalled();
           expect(updatePasswordSpy).not.toHaveBeenCalled();
           expect(editItemSpy).not.toHaveBeenCalled();

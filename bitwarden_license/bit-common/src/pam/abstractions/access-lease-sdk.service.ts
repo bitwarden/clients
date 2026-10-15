@@ -1,3 +1,5 @@
+import { UserId } from "@bitwarden/common/types/guid";
+
 import type {
   AccessLeaseExtensionRequest,
   AccessLeaseId,
@@ -10,7 +12,8 @@ import type {
  * The caller's own leases. Errors surface as the SDK's flat `LeasingError`, not `ErrorResponse`.
  */
 export abstract class AccessLeaseSdkService {
-  abstract listMyLeases(): Promise<AccessLeaseView[]>;
+  /** Defaults to the active user. */
+  abstract listMyLeases(userId?: UserId): Promise<AccessLeaseView[]>;
   abstract extendLease(
     id: AccessLeaseId,
     request: AccessLeaseExtensionRequest,

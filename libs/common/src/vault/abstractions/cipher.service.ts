@@ -125,8 +125,8 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   ): Promise<CipherView[]>;
   /**
    * {@link getAllDecryptedForUrl} plus the leased copies that match the URL. Only for lists a user
-   * picks from (inline menu, context menu) and for "Save login?" matching. Never for a fill
-   * without a user action or for a save prompt that would write the cipher.
+   * picks from (inline menu, context menu). Never for a fill without a user action or for a save
+   * prompt that would write the cipher.
    */
   abstract getAllDecryptedForUrlIncludingLeased(
     url: string,

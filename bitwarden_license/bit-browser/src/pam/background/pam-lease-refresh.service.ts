@@ -1,6 +1,8 @@
 import {
+  combineLatest,
   concatMap,
-  debounceTime,
+  defaultIfEmpty,
+  defer,
   distinctUntilChanged,
   filter,
   firstValueFrom,
@@ -8,12 +10,15 @@ import {
   merge,
   Observable,
   of,
-  pairwise,
-  Subject,
+  retry,
+  skip,
   Subscription,
   switchMap,
 } from "rxjs";
 
+// Deep imports: the `pam` barrel pulls Angular components into the worker bundle.
+import { AccessLeaseSdkService } from "@bitwarden/bit-common/pam/abstractions/access-lease-sdk.service";
+import { isLeaseLive } from "@bitwarden/bit-common/pam/helpers/lease-liveness";
 import { BrowserTaskSchedulerService } from "@bitwarden/browser/platform/services/abstractions/browser-task-scheduler.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -24,32 +29,26 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { SyncCipherNotification } from "@bitwarden/common/models/response/notification.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SdkService, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { StateProvider } from "@bitwarden/common/platform/state";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import type { AccessLeaseView } from "@bitwarden/sdk-internal";
 
-import { liveUntilEachLapse$ } from "../browser-cipher-lease-state.service";
 import { PAM_REFRESH_LEASES } from "../lease-messages";
 import {
-  isLeaseLive,
   LEASED_CIPHERS,
   LeasedCipherEntry,
   liveLeasedCiphers,
+  liveLeases$,
 } from "../leased-cipher.state";
 
 /** One more try after a failed lease list, so a revocation push is not lost to it. */
 const LIST_RETRY_MS = 30_000;
-
-export type RefreshOptions = {
-  /** A held cipher to fetch again although its lease is unchanged. */
-  refetch?: string;
-};
-type Trigger = RefreshOptions & { retried?: boolean };
 
 /**
  * Keeps an encrypted full copy of each cipher the user holds a live lease on, for the
@@ -57,16 +56,16 @@ type Trigger = RefreshOptions & { retried?: boolean };
  */
 export class PamLeaseRefreshService {
   private expiryTimer?: Subscription;
-  private expiryQueue = Promise.resolve();
 
   constructor(
     private stateProvider: StateProvider,
     private authService: AuthService,
     private configService: ConfigService,
     private organizationService: OrganizationService,
-    private sdkService: SdkService,
+    private accessLeaseSdkService: AccessLeaseSdkService,
     private apiService: ApiService,
     private serverNotificationsService: ServerNotificationsService,
+    private syncService: SyncService,
     private messageListener: MessageListener,
     private taskSchedulerService: BrowserTaskSchedulerService,
     private logService: LogService,
@@ -85,52 +84,45 @@ export class PamLeaseRefreshService {
         map(unlockedUserIds),
         distinctUntilChanged((a, b) => a.join() === b.join()),
         switchMap((userIds) =>
-          merge(...userIds.flatMap((userId) => [this.refreshes$(userId), this.lapses$(userId)])),
+          merge(
+            this.expiryAlarm$(userIds),
+            ...userIds.flatMap((userId) => [this.refreshes$(userId), this.cacheRebuilds$(userId)]),
+          ),
         ),
       )
       .subscribe();
   }
 
-  /**
-   * Re-reads the user's leases and stores a full copy of each newly leased cipher.
-   * Resolves false when the lease list failed, so the caller can retry.
-   */
-  async refresh(userId: UserId, options: RefreshOptions = {}): Promise<boolean> {
+  /** Re-reads the user's leases and stores a full copy of each newly leased cipher. */
+  async refresh(userId: UserId, refetch?: string): Promise<void> {
     try {
       const stored = (await firstValueFrom(this.leaseState(userId).state$))?.leases ?? {};
-      if (options.refetch != null && !(options.refetch in stored)) {
-        return true;
+      if (refetch != null && !(refetch in stored)) {
+        return;
       }
-      const { leases, listed } = (await this.allowed(userId))
-        ? await this.reconcile(userId, stored, options.refetch)
-        : { leases: null, listed: true };
+      const leases = (await this.allowed(userId))
+        ? await this.reconcile(userId, stored, refetch)
+        : null;
       if (leases == null && Object.keys(stored).length === 0) {
-        return listed;
+        return;
       }
 
       // A lock clears this state; writing after it would outlive the lock.
       const status = await firstValueFrom(this.authService.authStatusFor$(userId));
       if (status !== AuthenticationStatus.Unlocked) {
-        return listed;
+        return;
       }
 
       await this.leaseState(userId).update(() =>
         leases == null ? null : { refreshedAt: Date.now(), leases },
       );
-      if (!sameEntries(stored, leases ?? {})) {
-        await this.leasedCiphersChanged();
-      }
-      await this.scheduleExpiry();
-      return listed;
     } catch (error) {
       this.logService.error(`[PAM] Failed to refresh leased ciphers: ${error}`);
-      return true;
     }
   }
 
   /** Refreshes at once too, since a worker start or an unlock may have missed a push. */
   private refreshes$(userId: UserId): Observable<void> {
-    const retry$ = new Subject<Trigger>();
     const notifications$ = this.serverNotificationsService.notifications$.pipe(
       filter(([, id]) => id === userId),
       map(([notification]) => notification),
@@ -139,42 +131,65 @@ export class PamLeaseRefreshService {
       merge(
         of(null),
         notifications$.pipe(filter((n) => n.type === NotificationType.RefreshAccessRequest)),
-        this.messageListener.allMessages$.pipe(
-          filter(
-            (msg) => msg.command === "syncCompleted" && !!msg.successfully && msg.userId === userId,
-          ),
+        // Full syncs only; `syncCompleted` also follows each single-cipher push.
+        this.syncService.lastSync$(userId).pipe(
+          map((date) => date?.getTime()),
+          distinctUntilChanged(),
+          skip(1),
         ),
         this.messageListener
           .messages$(PAM_REFRESH_LEASES)
           .pipe(filter((msg) => msg.userId === userId)),
-      ).pipe(map((): Trigger => ({}))),
+      ).pipe(map((): string | undefined => undefined)),
       // Core sync keeps the gated partial row (PAM-318), so an edit never reaches the held copy.
       notifications$.pipe(
         filter((n) => n.type === NotificationType.SyncCipherUpdate),
-        map((n): Trigger => ({ refetch: (n.payload as SyncCipherNotification).id })),
+        map((n) => (n.payload as SyncCipherNotification).id),
       ),
-      retry$.pipe(debounceTime(LIST_RETRY_MS)),
-    ).pipe(
-      concatMap(async (trigger) => {
-        if (!(await this.refresh(userId, trigger)) && !trigger.retried) {
-          retry$.next({ ...trigger, retried: true });
-        }
-      }),
+    ).pipe(concatMap((refetch) => this.refresh(userId, refetch)));
+  }
+
+  /** The one rebuild path: a refresh, a prune, or a lapse that changes the live copies. */
+  private cacheRebuilds$(userId: UserId): Observable<void> {
+    return liveLeases$(this.stateProvider, userId).pipe(
+      // A woken worker builds its caches fresh.
+      skip(1),
+      concatMap(() =>
+        this.leasedCiphersChanged().catch((error) =>
+          this.logService.error(`[PAM] Failed to rebuild leased cipher caches: ${error}`),
+        ),
+      ),
     );
   }
 
-  /** Rebuilds the caches the moment a lease lapses; the expiry alarm may run late. */
-  private lapses$(userId: UserId): Observable<void> {
-    return this.leaseState(userId).state$.pipe(
-      switchMap((state) => liveUntilEachLapse$(state)),
-      map((live) => Object.keys(live)),
-      pairwise(),
-      filter(([before, after]) => before.some((id) => !after.includes(id))),
-      concatMap(() =>
-        this.leasedCiphersChanged().catch((error) =>
-          this.logService.error(`[PAM] Failed to drop lapsed leases: ${error}`),
-        ),
-      ),
+  /** Backstop alarm at the earliest lease end, which wakes the worker to prune session storage. */
+  private expiryAlarm$(userIds: UserId[]): Observable<void> {
+    return combineLatest(userIds.map((userId) => this.leaseState(userId).state$)).pipe(
+      defaultIfEmpty([]),
+      map((states) => {
+        const now = Date.now();
+        const ends = states
+          .flatMap((state) => Object.values(liveLeasedCiphers(state?.leases, now)))
+          .map((entry) => Date.parse(entry.notAfter));
+        return ends.length === 0 ? null : Math.min(...ends);
+      }),
+      distinctUntilChanged(),
+      concatMap(async (end) => {
+        try {
+          this.expiryTimer?.unsubscribe();
+          // Also clears an alarm left by an earlier worker, which `setTimeout` would keep instead.
+          await this.taskSchedulerService.clearScheduledAlarm(ScheduledTaskNames.pamLeaseExpiry);
+          this.expiryTimer =
+            end == null
+              ? undefined
+              : this.taskSchedulerService.setTimeout(
+                  ScheduledTaskNames.pamLeaseExpiry,
+                  end - Date.now(),
+                );
+        } catch (error) {
+          this.logService.error(`[PAM] Failed to schedule lease expiry: ${error}`);
+        }
+      }),
     );
   }
 
@@ -190,49 +205,39 @@ export class PamLeaseRefreshService {
     userId: UserId,
     stored: Record<string, LeasedCipherEntry>,
     refetch?: string,
-  ): Promise<{ leases: Record<string, LeasedCipherEntry>; listed: boolean }> {
+  ): Promise<Record<string, LeasedCipherEntry>> {
     let leases: AccessLeaseView[];
     try {
-      leases = await this.listMine(userId);
-    } catch (error) {
+      leases = await firstValueFrom(
+        defer(() => this.accessLeaseSdkService.listMyLeases(userId)).pipe(
+          retry({ count: 1, delay: LIST_RETRY_MS }),
+        ),
+      );
+    } catch {
       // Kept copies still lapse on their own `notAfter`.
-      this.logService.error(`[PAM] Failed to list leases: ${error}`);
-      return {
-        leases: liveLeasedCiphers({ refreshedAt: 0, leases: stored }, Date.now()),
-        listed: false,
-      };
+      return liveLeasedCiphers(stored, Date.now());
     }
 
     const now = Date.now();
-    const next: Record<string, LeasedCipherEntry> = {};
-    for (const lease of leases) {
-      if (lease.status !== "active" || !isLeaseLive(lease.notAfter, now)) {
-        continue;
-      }
-      const cipherId = uuidAsString(lease.cipherId);
-      const leaseId = uuidAsString(lease.id);
-      const held = stored[cipherId];
-      if (cipherId !== refetch && held?.leaseId === leaseId && held.notAfter === lease.notAfter) {
-        next[cipherId] = held;
-        continue;
-      }
-      const cipher = await this.fetchFullCopy(cipherId);
-      if (cipher != null) {
-        next[cipherId] = { leaseId, notAfter: lease.notAfter, cipher };
-      }
-    }
-    return { leases: next, listed: true };
-  }
-
-  private listMine(userId: UserId): Promise<AccessLeaseView[]> {
-    return firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
-          using ref = sdk.take();
-          return await ref.value.commercial().pam().leases().list_mine();
+    const entries = await Promise.all(
+      leases
+        .filter((lease) => lease.status === "active" && isLeaseLive(lease, now))
+        .map(async (lease): Promise<[string, LeasedCipherEntry] | null> => {
+          const cipherId = uuidAsString(lease.cipherId);
+          const leaseId = uuidAsString(lease.id);
+          const held = stored[cipherId];
+          if (
+            cipherId !== refetch &&
+            held?.leaseId === leaseId &&
+            held.notAfter === lease.notAfter
+          ) {
+            return [cipherId, held];
+          }
+          const cipher = await this.fetchFullCopy(cipherId);
+          return cipher && [cipherId, { leaseId, notAfter: lease.notAfter, cipher }];
         }),
-      ),
     );
+    return Object.fromEntries(entries.filter((entry) => entry != null));
   }
 
   /** A still-partial response means the lease lapsed after the list read. */
@@ -246,55 +251,23 @@ export class PamLeaseRefreshService {
     }
   }
 
-  /** Storage cleanup only: `lapses$` rebuilds the caches, and a woken worker builds them fresh. */
+  /** Drops lapsed copies from session storage; `start`'s streams then rebuild and reschedule. */
   private async pruneLapsed(): Promise<void> {
     try {
       const now = Date.now();
-      for (const userId of await this.userIds()) {
-        const state = await firstValueFrom(this.leaseState(userId).state$);
-        if (state != null && !sameEntries(state.leases, liveLeasedCiphers(state, now))) {
-          await this.leaseState(userId).update(
-            (current) => current && { ...current, leases: liveLeasedCiphers(current, now) },
-          );
-        }
+      const userIds = Object.keys(await firstValueFrom(this.authService.authStatuses$)) as UserId[];
+      for (const userId of userIds) {
+        await this.leaseState(userId).update(
+          (state) => state && { ...state, leases: liveLeasedCiphers(state.leases, now) },
+          {
+            shouldUpdate: (state) =>
+              Object.values(state?.leases ?? {}).some((entry) => !isLeaseLive(entry, now)),
+          },
+        );
       }
-      await this.scheduleExpiry();
     } catch (error) {
       this.logService.error(`[PAM] Failed to prune lapsed leases: ${error}`);
     }
-  }
-
-  /** Serialised, so a slower reschedule cannot replace a newer one. */
-  private scheduleExpiry(): Promise<void> {
-    this.expiryQueue = this.expiryQueue
-      .then(() => this.rescheduleExpiry())
-      .catch((error) => this.logService.error(`[PAM] Failed to schedule lease expiry: ${error}`));
-    return this.expiryQueue;
-  }
-
-  private async rescheduleExpiry(): Promise<void> {
-    const now = Date.now();
-    const states = await Promise.all(
-      (await this.userIds()).map((userId) => firstValueFrom(this.leaseState(userId).state$)),
-    );
-    const ends = states
-      .flatMap((state) => Object.values(liveLeasedCiphers(state, now)))
-      .map((entry) => Date.parse(entry.notAfter));
-
-    this.expiryTimer?.unsubscribe();
-    // Also clears an alarm left by an earlier worker, which `setTimeout` would keep instead.
-    await this.taskSchedulerService.clearScheduledAlarm(ScheduledTaskNames.pamLeaseExpiry);
-    this.expiryTimer =
-      ends.length === 0
-        ? undefined
-        : this.taskSchedulerService.setTimeout(
-            ScheduledTaskNames.pamLeaseExpiry,
-            Math.min(...ends) - now,
-          );
-  }
-
-  private async userIds(): Promise<UserId[]> {
-    return Object.keys(await firstValueFrom(this.authService.authStatuses$)) as UserId[];
   }
 
   private leaseState(userId: UserId) {
@@ -306,21 +279,4 @@ function unlockedUserIds(statuses: Record<UserId, AuthenticationStatus>): UserId
   return (Object.keys(statuses ?? {}) as UserId[])
     .filter((userId) => statuses[userId] === AuthenticationStatus.Unlocked)
     .sort();
-}
-
-function sameEntries(
-  a: Record<string, LeasedCipherEntry>,
-  b: Record<string, LeasedCipherEntry>,
-): boolean {
-  const ids = Object.keys(a);
-  return (
-    ids.length === Object.keys(b).length &&
-    ids.every(
-      (id) =>
-        b[id] != null &&
-        a[id].leaseId === b[id].leaseId &&
-        a[id].notAfter === b[id].notAfter &&
-        a[id].cipher.revisionDate === b[id].cipher.revisionDate,
-    )
-  );
 }

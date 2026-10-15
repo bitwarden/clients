@@ -1,4 +1,3 @@
-import { NgZone } from "@angular/core";
 import { ComponentFixture, fakeAsync, flush, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -529,25 +528,6 @@ describe("ViewComponent", () => {
       flush();
       expect(component.cipher).toBe(partial);
       expect(collect).toHaveBeenCalledTimes(1);
-    }));
-
-    it("applies a lease that arrives outside NgZone inside it", fakeAsync(() => {
-      const leased$ = new BehaviorSubject<CipherView[]>([]);
-      mockCipherService.leasedCipherViews$.mockReturnValue(leased$);
-      openPartial();
-
-      let inZone: boolean | undefined;
-      jest
-        .mocked(TestBed.inject(CipherAuthorizationService).canDeleteCipher$)
-        .mockImplementationOnce(() => {
-          inZone = NgZone.isInAngularZone();
-          return of(false);
-        });
-      TestBed.inject(NgZone).runOutsideAngular(() => leased$.next([leased]));
-      flush();
-
-      expect(component.cipher).toBe(leased);
-      expect(inZone).toBe(true);
     }));
 
     it("shows the share button only on an ungated item", fakeAsync(() => {

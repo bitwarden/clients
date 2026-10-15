@@ -7,7 +7,7 @@ import {
 } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { LEASED_CIPHERS } from "../leased-cipher.state";
+import { seedLeases } from "../leased-cipher.state.spec-util";
 
 import { BrowserAccessEventService } from "./browser-access-event.service";
 
@@ -22,7 +22,7 @@ describe("BrowserAccessEventService", () => {
   let ticks: number;
 
   const refresh = (refreshedAt: number, forUserId = userId) =>
-    stateProvider.setUserState(LEASED_CIPHERS, { refreshedAt, leases: {} }, forUserId);
+    seedLeases(stateProvider, forUserId, [], refreshedAt);
   const listen = () => {
     subscription = service.accessChanged$().subscribe(() => ticks++);
   };

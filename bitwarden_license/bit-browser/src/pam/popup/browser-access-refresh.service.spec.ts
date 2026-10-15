@@ -55,7 +55,7 @@ describe("BrowserAccessRefreshService", () => {
   });
 
   it("sends nothing without an active account", async () => {
-    await accountService.switchAccount(null);
+    accountService.activeAccountSubject.next(null);
 
     service.notifyAccessChanged("cipher-id");
     await awaitAsync();
