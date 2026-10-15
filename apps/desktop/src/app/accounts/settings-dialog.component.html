@@ -269,6 +269,52 @@
           </bit-label>
         </bit-form-control>
 
+        @if (showPasskeyProviderSetting()) {
+          <!-- The negative margin offsets the padding so the icon and text line up with the checkboxes and labels above. An outline, unlike a border, takes no space. -->
+          <div
+            role="group"
+            aria-labelledby="passkey-provider-label"
+            class="tw-mb-4 -tw-mx-3 tw-flex tw-items-start tw-gap-2 tw-rounded-xl tw-outline tw-outline-1 tw-outline-border-base tw-bg-bg-primary tw-p-3"
+          >
+            <span
+              class="tw-flex tw-h-5 tw-w-6 tw-flex-none tw-items-center tw-justify-center -tw-ms-px tw-mt-px tw-text-fg-body-subtle"
+            >
+              <bit-icon name="bwi-passkey" />
+            </span>
+            <span class="tw-flex tw-flex-col tw-items-start tw-gap-1 tw-pt-px">
+              <span class="tw-flex tw-items-center tw-gap-2">
+                <span
+                  id="passkey-provider-label"
+                  bitTypography="body2"
+                  class="tw-leading-5 tw-font-medium tw-text-fg-heading"
+                >
+                  {{ "passkeyProvider" | i18n }}
+                </span>
+                @if (passkeyProviderState()?.enabled) {
+                  <span bitBadge variant="success" size="small">{{ "turnedOn" | i18n }}</span>
+                } @else {
+                  <span bitBadge variant="subtle" size="small">{{ "turnedOff" | i18n }}</span>
+                }
+              </span>
+              <span id="passkey-provider-desc" class="tw-text-xs tw-text-fg-body-subtle">
+                {{ "passkeyProviderDesc" | i18n }}
+              </span>
+              <span id="passkey-provider-link-hint" class="tw-sr-only">
+                {{ "mayOpenSystemSettings" | i18n }}
+              </span>
+              <button
+                type="button"
+                bitLink
+                class="tw-text-sm"
+                aria-describedby="passkey-provider-desc passkey-provider-link-hint"
+                (click)="managePasskeyProvider()"
+              >
+                {{ "manageInSystemSettings" | i18n }}
+              </button>
+            </span>
+          </div>
+        }
+
         <bit-form-field>
           <bit-label>{{ "theme" | i18n }}</bit-label>
           <bit-select formControlName="theme" [items]="themeOptions" />
@@ -280,28 +326,6 @@
           <bit-select formControlName="locale" [items]="localeOptions" />
           <bit-hint>{{ "languageDesc" | i18n }}</bit-hint>
         </bit-form-field>
-
-        @if (showPasskeyProviderSetting()) {
-          <bit-item>
-            <button
-              type="button"
-              bit-item-content
-              [truncate]="false"
-              (click)="managePasskeyProvider()"
-            >
-              {{ "passkeyProvider" | i18n }}
-              <span slot="secondary">{{ "passkeyProviderDesc" | i18n }}</span>
-              <span slot="end" class="tw-flex tw-items-center tw-gap-2">
-                @if (passkeyProviderState()?.enabled) {
-                  <span bitBadge variant="success">{{ "turnedOn" | i18n }}</span>
-                } @else {
-                  <span bitBadge variant="subtle">{{ "turnedOff" | i18n }}</span>
-                }
-                <bit-icon name="bwi-external-link" />
-              </span>
-            </button>
-          </bit-item>
-        }
       </bit-tab>
     </bit-tab-group>
   </ng-container>
