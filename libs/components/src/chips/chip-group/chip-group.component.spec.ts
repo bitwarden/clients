@@ -348,12 +348,71 @@ describe("ChipGroupComponent", () => {
       expect(selected).toEqual([]);
     });
 
-    it("closes the popover and emits when a chip inside it is dismissed", fakeAsync(() => {
+    /** Dismisses a popover chip and removes it from the input, as a consumer would. */
+    const dismissFromPopover = (index: number) => {
+      const button = popoverDismissButtons()[index];
+      button.focus();
+      button.click();
+      fixture.componentRef.setInput(
+        "chips",
+        fixture.componentInstance.chips().filter((chip) => !dismissed.includes(chip)),
+      );
+      settle();
+    };
+
+    it("keeps the popover open and focuses the next chip when one of several is dismissed", fakeAsync(() => {
       fixture.componentRef.setInput("chips", chips);
       settle();
-
       triggerChip().click();
       fixture.detectChanges();
+
+      dismissFromPopover(0);
+
+      expect(dismissed).toEqual([chips[1]]);
+      expect(popoverIsOpen()).toBe(true);
+      expect(popoverDismissButtons()).toHaveLength(1);
+      expect(document.activeElement).toBe(popoverDismissButtons()[0]);
+      flush();
+    }));
+
+    it("focuses the previous chip when the last one in the popover is dismissed", fakeAsync(() => {
+      fixture.componentRef.setInput("chips", chips);
+      settle();
+      triggerChip().click();
+      fixture.detectChanges();
+
+      dismissFromPopover(1);
+
+      expect(dismissed).toEqual([chips[2]]);
+      expect(popoverIsOpen()).toBe(true);
+      expect(document.activeElement).toBe(popoverDismissButtons()[0]);
+      flush();
+    }));
+
+    it("closes the popover and focuses the row once a dismissal lets every chip fit", fakeAsync(() => {
+      // Three chips need the trigger and overflow two; two chips fit without it.
+      containerWidth = TWO_CHIP_WIDTH;
+      fixture.componentRef.setInput("chips", chips);
+      settle();
+      triggerChip().click();
+      fixture.detectChanges();
+      expect(popoverDismissButtons()).toHaveLength(2);
+
+      dismissFromPopover(0);
+      tick();
+      fixture.detectChanges();
+
+      expect(popoverIsOpen()).toBe(false);
+      expect(document.activeElement).toBe(rowDismissButtons()[1]);
+      flush();
+    }));
+
+    it("closes the popover when its only chip is dismissed", fakeAsync(() => {
+      fixture.componentRef.setInput("chips", chips.slice(0, 2));
+      settle();
+      triggerChip().click();
+      fixture.detectChanges();
+
       popoverDismissButtons()[0].click();
       fixture.detectChanges();
 

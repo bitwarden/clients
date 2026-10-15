@@ -58,9 +58,10 @@
 
 <bit-popover-panel #overflowPopover [accessibleName]="'showMore' | i18n">
   <div class="tw-flex tw-flex-col tw-items-start tw-gap-4">
-    @for (chip of overflowChips(); track $index) {
+    @for (chip of popoverChips(); track chip.id) {
       @if (dismissible()) {
         <bit-chip
+          #overflowChip
           [size]="size()"
           [startIcon]="chip.startIcon"
           [label]="chip.label"

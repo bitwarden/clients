@@ -62,7 +62,8 @@ in a list the consumer is about to change.
 Set `dismissible` to render input chips with a dismiss button instead of action chips, for a row of
 removable selections such as active filters. Dismissing a chip, in the row or in the overflow
 popover, emits it through `chipDismiss`. As with selection, removing it is left to the consumer.
-`variant` is ignored, and the `+N` chip stays an action chip.
+Dismissing from the popover keeps it open until nothing is left in it. `variant` is ignored, and the
+`+N` chip stays an action chip.
 
 Give an item an `accessibleName` when its visible label leans on context, such as an icon, to
 identify it. It names the dismiss button and fills the tooltip. Without it, the label is used.

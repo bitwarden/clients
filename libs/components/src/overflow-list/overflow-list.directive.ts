@@ -161,6 +161,12 @@ export class OverflowListDirective {
   /** Indices of items the consumer should surface via the overflow affordance. */
   readonly overflow = computed(() => this.packed().overflow);
 
+  /**
+   * False while a measurement is pending and packing has fallen back to all-displayed, so
+   * consumers can tell a transient empty `overflow` from one where everything fits.
+   */
+  readonly measured = computed(() => this.itemWidths().length === this.items().length);
+
   /** True after the first measurement — consumers gate initial paint on this. */
   readonly ready = signal(false);
 

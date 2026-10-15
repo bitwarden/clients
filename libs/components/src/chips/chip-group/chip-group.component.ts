@@ -2,6 +2,7 @@ import { DOCUMENT } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   Injector,
   afterNextRender,
   booleanAttribute,
@@ -9,8 +10,11 @@ import {
   effect,
   inject,
   input,
+  linkedSignal,
   output,
+  untracked,
   viewChild,
+  viewChildren,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -116,6 +120,9 @@ export class ChipGroupComponent {
   private readonly list = viewChild.required(OverflowListDirective);
   private readonly popoverTrigger = viewChild.required(PopoverTriggerForDirective);
   private readonly overflowTrigger = viewChild.required(OverflowTriggerDirective);
+  private readonly overflowChipEls = viewChildren("overflowChip", {
+    read: ElementRef<HTMLElement>,
+  });
 
   protected readonly overflow = computed(() => this.list().overflow());
 
@@ -127,7 +134,33 @@ export class ChipGroupComponent {
       .filter((chip) => chip != null);
   });
 
+  /** Held through the measurement reset after a removal, which briefly empties `overflowChips`. */
+  protected readonly popoverChips = linkedSignal({
+    source: () => ({ next: this.overflowChips(), measured: this.list().measured() }),
+    computation: ({ next, measured }, prev?: { value: ChipGroupItem[] }) => {
+      if (measured || prev == null) {
+        return next;
+      }
+      const ids = new Set(this.chips().map((chip) => chip.id));
+      return prev.value.filter((chip) => ids.has(chip.id));
+    },
+  });
+
   constructor() {
+    // Dismissing a chip can free enough room that nothing overflows anymore, leaving an open
+    // popover with nothing to list. Close it and hand focus back to the row.
+    effect(() => {
+      if (
+        !this.popoverTrigger().popoverOpen() ||
+        !this.list().measured() ||
+        this.overflow().length > 0
+      ) {
+        return;
+      }
+      untracked(() => this.popoverTrigger().closePopover());
+      afterNextRender(() => this.focusFallback()?.focus(), { injector: this.injector });
+    });
+
     // Labels/variants change in place under `track $index`, so the item instances stay
     // the same and the list won't remeasure on its own.
     effect(() => {
@@ -188,8 +221,24 @@ export class ChipGroupComponent {
     this.chipSelect.emit(chip);
   }
 
+  /**
+   * Dismissing keeps the popover open so several chips can be cleared in a row; only the last
+   * one closes it. Focus moves to the chip that took the dismissed one's place.
+   */
   protected dismissOverflowChip(chip: ChipGroupItem) {
-    this.popoverTrigger().closePopover();
+    const listed = this.popoverChips();
+    const index = listed.indexOf(chip);
+    if (listed.length <= 1) {
+      this.popoverTrigger().closePopover();
+    } else {
+      afterNextRender(
+        () => {
+          const els = this.overflowChipEls();
+          els[Math.min(index, els.length - 1)]?.nativeElement.querySelector("button")?.focus();
+        },
+        { injector: this.injector },
+      );
+    }
     this.chipDismiss.emit(chip);
   }
 }
