@@ -9,8 +9,10 @@ create/edit page, and the IP-allowlist editor. Gated behind `FeatureFlag.Pam`
 - `abstractions/` / `helpers/` — framework-agnostic contract layer: domain
   types and error helpers (`abstractions/access-rule.ts`), the abstract
   `AccessRuleSdkService` contract (`abstractions/access-rule-sdk.service.ts`),
-  and pure helpers (`helpers/`). Re-exported via `index.ts`. No Angular APIs
-  here; keep it that way so this stays unit-testable without a TestBed. Was
+  and pure helpers (`helpers/`). Re-exported via `index.ts`. No Angular
+  runtime APIs here; keep it that way so this stays unit-testable without a
+  TestBed. Type-only imports of component-library option shapes (e.g.
+  `SimpleDialogOptions`) are fine, since they are erased at compile time. Was
   its own package (`@bitwarden/bit-pam`) — folded in here since `bit-web` was
   its only consumer.
 - `access-rules/` — list (`access-rules.component` + `.service`) and the

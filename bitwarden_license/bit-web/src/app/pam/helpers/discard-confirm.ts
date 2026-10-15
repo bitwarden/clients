@@ -1,4 +1,4 @@
-import { SimpleDialogOptions } from "@bitwarden/components";
+import type { SimpleDialogOptions } from "@bitwarden/components";
 
 export function discardEditsConfirmOptions(): SimpleDialogOptions {
   return {
