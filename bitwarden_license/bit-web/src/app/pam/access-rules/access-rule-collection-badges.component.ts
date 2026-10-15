@@ -21,9 +21,15 @@ import { resolveCollectionNames } from "..";
     @if (names().length === 0) {
       <span class="tw-text-muted">{{ "pamAccessRuleCollectionsNone" | i18n }}</span>
     } @else {
-      <span bitBadge variant="primary" startIcon="bwi-collection-shared" [title]="tooltip()">{{
-        label()
-      }}</span>
+      <span
+        bitBadge
+        variant="primary"
+        startIcon="bwi-collection-shared"
+        tabindex="0"
+        [bitTooltip]="tooltip()"
+        [addTooltipToDescribedby]="true"
+        >{{ label() }}</span
+      >
     }
   `,
 })
