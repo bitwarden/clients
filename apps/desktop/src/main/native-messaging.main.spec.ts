@@ -162,6 +162,16 @@ describe("NativeMessagingMain", () => {
       expect(existsSync(path.join(nmhs, manifestName))).toBe(true);
     });
 
+    // Chromium-based browsers don't always ship a NativeMessagingHosts dir.
+    it("writes the chromium manifest when the NativeMessagingHosts dir is missing", async () => {
+      mkdirSync(path.join(home, ".config", "chromium"), { recursive: true });
+
+      await sut.generateManifests();
+
+      const nmhs = path.join(home, ".config", "chromium", "NativeMessagingHosts");
+      expect(existsSync(path.join(nmhs, manifestName))).toBe(true);
+    });
+
     it("skips firefox when no profile dir exists", async () => {
       await sut.generateManifests();
 

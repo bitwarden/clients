@@ -256,10 +256,8 @@ export class NativeMessagingMain {
             }
             const browserBinaryPath = path.join(nhmsPath, ".bitwarden_desktop_proxy");
 
-            if (key === "Firefox") {
-              // Only generate the NMHS dir if the browser directory exists
-              await fs.mkdir(nhmsPath, { recursive: true });
-            }
+            // Only generate the NMHS dir if the browser directory exists
+            await fs.mkdir(nhmsPath, { recursive: true });
 
             await this.linkOrCopy(binaryPath, browserBinaryPath);
             this.logService.info(
