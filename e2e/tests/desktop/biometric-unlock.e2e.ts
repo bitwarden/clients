@@ -7,13 +7,6 @@ import {
 import { expect, test } from "../../src/desktop/fixtures";
 import { LoginPage } from "../../src/login";
 
-/**
- * Needs a development build, the only kind that honors the fake biometrics.
- * `npm run test:e2e:desktop` builds one.
- *
- * Development builds also skip the lock-time renderer reload, so one page spans the test.
- */
-
 const VAULT_URL = /#\/vault/;
 const LOCK_URL = /#\/lock/;
 
