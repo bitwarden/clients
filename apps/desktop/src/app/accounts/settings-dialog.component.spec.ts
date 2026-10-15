@@ -1002,6 +1002,29 @@ describe("SettingsDialogComponent", () => {
         expect((component as any).form.controls.biometric.value).toBe(true);
       });
 
+      // The key stored before enrollment still unlocks, so a failed enrollment is not fatal.
+      it("keeps biometric unlock enabled when enrollment fails on mac", async () => {
+        const enrollmentError = new Error("Touch ID unavailable");
+        keyService.userKey$.mockReturnValue(of(mockUserKey));
+        desktopBiometricsService.getBiometricsStatus.mockResolvedValue(BiometricsStatus.Available);
+        desktopBiometricsService.getBiometricsStatusForUser.mockResolvedValue(
+          BiometricsStatus.Available,
+        );
+        desktopBiometricsService.enrollPersistent.mockRejectedValue(enrollmentError);
+        component["isWindows"] = false;
+        component["isLinux"] = false;
+        component["isMac"] = true;
+
+        await (component as any).updateBiometricHandler(true);
+
+        expect(validationService.showError).toHaveBeenCalledWith(enrollmentError);
+        expect(biometricStateService.setBiometricUnlockEnabled).not.toHaveBeenCalledWith(
+          false,
+          mockUserId,
+        );
+        expect((component as any).form.controls.biometric.value).toBe(true);
+      });
+
       it("handles linux case", async () => {
         desktopBiometricsService.getBiometricsStatus.mockResolvedValue(BiometricsStatus.Available);
         desktopBiometricsService.getBiometricsStatusForUser.mockResolvedValue(

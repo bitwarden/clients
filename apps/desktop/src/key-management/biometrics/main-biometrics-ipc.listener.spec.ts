@@ -71,7 +71,7 @@ describe("MainBiometricsIPCListener", () => {
     });
   });
 
-  // Each non-enrollment action and the service method it delegates to.
+  // Non-enrollment failures are logged and swallowed, so existing callers keep their behavior.
   it.each<[BiometricAction, keyof DesktopBiometricsService]>([
     [BiometricAction.Authenticate, "authenticateWithBiometrics"],
     [BiometricAction.GetStatus, "getBiometricsStatus"],
@@ -83,13 +83,12 @@ describe("MainBiometricsIPCListener", () => {
     [BiometricAction.SetShouldAutoprompt, "setShouldAutopromptNow"],
     [BiometricAction.GetShouldAutoprompt, "getShouldAutopromptNow"],
     [BiometricAction.HasPersistentKey, "hasPersistentKey"],
-  ])("rejects when %s fails", async (action, method) => {
-    const serviceError = new Error("Service failed");
-    (biometricsService[method] as jest.Mock).mockRejectedValue(serviceError);
+  ])("resolves undefined when %s fails", async (action, method) => {
+    (biometricsService[method] as jest.Mock).mockRejectedValue(new Error("Service failed"));
     const handler = captureBiometricHandler(biometricsService);
 
     await expect(
       handler(null, { action, userId: TEST_USER_ID, key: TEST_KEY_B64 }),
-    ).rejects.toThrow(serviceError);
+    ).resolves.toBeUndefined();
   });
 });

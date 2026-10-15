@@ -525,8 +525,14 @@ export class SettingsDialogComponent implements OnInit {
       }
     } else if (this.isMac) {
       // Touch ID always persists the key. Enrolling records the enrolled key id, so the
-      // re-enrollment migration detects a key rotation.
-      await this.biometricsService.enrollPersistent(activeUserId, userKey);
+      // re-enrollment migration detects a key rotation. A failure is not fatal: the key stored
+      // above still allows biometric unlock.
+      try {
+        await this.biometricsService.enrollPersistent(activeUserId, userKey);
+      } catch (error) {
+        this.logService.error("Error enrolling persistent biometric unlock: ", error);
+        this.validationService.showError(error);
+      }
     }
 
     await this.autoUnlockService.refreshAutoUnlockKey(activeUserId);
