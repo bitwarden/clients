@@ -16,12 +16,6 @@ const discardDialog: SimpleDialogOptions = Object.freeze({
   hideIcon: true,
 });
 
-/** A routed component that asks in its own way, e.g. by closing a drawer whose close check asks. */
-export interface HasUnsavedChanges {
-  /** Resolves true when leaving is safe: nothing is pending, or the user agreed to leave anyway. */
-  confirmLeave(): boolean | Promise<boolean>;
-}
-
 /** A routed component whose unsaved input the guard asks about with a discard dialog. */
 export interface HasUnsavedChangesDialog {
   /**
@@ -30,10 +24,6 @@ export interface HasUnsavedChangesDialog {
    */
   unsavedChanges(): boolean | Partial<SimpleDialogOptions>;
 }
-
-/** Defers to the component's own `confirmLeave()`. */
-export const unsavedChangesGuard: CanDeactivateFn<HasUnsavedChanges> = (component) =>
-  leaveUnlessLocked(component, (target) => target.confirmLeave());
 
 /** Shows a discard dialog when the component reports unsaved changes. */
 export const unsavedChangesDialogGuard: CanDeactivateFn<HasUnsavedChangesDialog> = (component) => {
@@ -51,7 +41,7 @@ export const unsavedChangesDialogGuard: CanDeactivateFn<HasUnsavedChangesDialog>
 };
 
 /**
- * Lock and logout always win. Both guards let those through without asking, as they do when
+ * Lock and logout always win. The guard lets those through without asking, as it does when
  * Angular passes no component during teardown.
  */
 async function leaveUnlessLocked<T>(
