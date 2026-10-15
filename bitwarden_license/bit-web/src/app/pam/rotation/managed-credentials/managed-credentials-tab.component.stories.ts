@@ -12,6 +12,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import type { CipherId } from "@bitwarden/sdk-internal";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
+import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
 import { OrgCiphersService } from "../org-ciphers.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 import {
@@ -22,6 +23,7 @@ import {
   rotationConfig,
   rotationConfigActions,
   rotationConfigDescription,
+  rotationConfigSealedFields,
 } from "../testing/rotation-builders";
 import { atUrl } from "../testing/story-helpers";
 
@@ -37,6 +39,11 @@ const CIPHER_PROD = asUuid<CipherId>(id("4"));
 const CIPHER_STAGING = asUuid<CipherId>(id("5"));
 const CIPHER_CI = asUuid<CipherId>(id("6"));
 const CIPHER_MAINFRAME = asUuid<CipherId>(id("7"));
+const CIPHER_FIREWALL = asUuid<CipherId>(id("8"));
+const CIPHER_LEDGER = asUuid<CipherId>(id("9"));
+
+const DAY = 86_400_000;
+const fromNow = (offsetMs: number) => new Date(Date.now() + offsetMs).toISOString();
 
 function cipher(cipherId: CipherId, name: string, collectionIds: string[]): CipherView {
   const c = new CipherView();
@@ -51,6 +58,8 @@ const CIPHERS: CipherView[] = [
   cipher(CIPHER_STAGING, "Staging admin login", ["col-2"]),
   cipher(CIPHER_CI, "CI pipeline token", ["col-1", "col-2"]),
   cipher(CIPHER_MAINFRAME, "Mainframe operator", ["col-2"]),
+  cipher(CIPHER_FIREWALL, "Edge firewall", ["col-1"]),
+  cipher(CIPHER_LEDGER, "Legacy ledger", []),
 ];
 
 const COLLECTIONS: CollectionAdminView[] = [
@@ -66,6 +75,11 @@ const ROWS: RotationConfigRow[] = [
       targetSystemId: sysId("1"),
       targetSystemName: "Prod Entra",
       enabled: true,
+      scheduleCron: "0 0 0 * * ?",
+      rotateOnAccessEnd: true,
+      sealed: rotationConfigSealedFields({ accountIdentity: "sf-integration-svc" }),
+      lastRotationAt: fromNow(-5 * DAY),
+      nextRotationAt: fromNow(14 * DAY + 3_600_000),
     }),
     undefined,
     "Prod DB service account",
@@ -78,6 +92,8 @@ const ROWS: RotationConfigRow[] = [
       targetSystemId: sysId("2"),
       targetSystemName: "Staging AD",
       enabled: false,
+      sealed: rotationConfigSealedFields({ accountIdentity: "root-rotator@meridian-prod" }),
+      lastRotationAt: fromNow(-95 * DAY),
     }),
     undefined,
     "Staging admin login",
@@ -97,6 +113,8 @@ const ROWS: RotationConfigRow[] = [
       targetSystemName: "Prod Entra",
       enabled: true,
       hasActiveJob: true,
+      sealed: rotationConfigSealedFields({ accountIdentity: "ci-deployer" }),
+      lastRotationAt: fromNow(-3 * DAY),
     }),
     undefined,
     "CI pipeline token",
@@ -113,9 +131,41 @@ const ROWS: RotationConfigRow[] = [
       targetSystemMethod: "manual",
       enabled: true,
       awaitingManualRotation: true,
+      sealed: rotationConfigSealedFields({ accountIdentity: "oracle_dba" }),
+      nextRotationAt: fromNow(-3 * DAY - 3_600_000),
     }),
     undefined,
     "Mainframe operator",
+    rotationConfigDescription({
+      actions: rotationConfigActions({ canRotateNow: false, canRecordManual: true }),
+    }),
+  ),
+  buildRotationConfigRow(
+    rotationConfig({
+      id: configId("5"),
+      cipherId: CIPHER_FIREWALL,
+      targetSystemId: sysId("3"),
+      targetSystemName: "Network Firewall",
+      sealed: rotationConfigSealedFields({ accountIdentity: "root-rotator@meridian-prod" }),
+      lastRotationAt: fromNow(-8 * 60_000),
+    }),
+    undefined,
+    "Edge firewall",
+    rotationConfigDescription(),
+    [],
+  ),
+  buildRotationConfigRow(
+    rotationConfig({
+      id: configId("6"),
+      cipherId: CIPHER_LEDGER,
+      targetSystemId: sysId("2"),
+      targetSystemName: "Staging AD",
+      targetSystemMethod: "manual",
+      enabled: true,
+      sealed: rotationConfigSealedFields({ accountIdentity: "ledger_admin" }),
+    }),
+    undefined,
+    "Legacy ledger",
     rotationConfigDescription({
       actions: rotationConfigActions({ canRotateNow: false, canRecordManual: true }),
     }),
@@ -142,6 +192,7 @@ function rotationServices(rows: RotationConfigRow[]) {
           delete: () => Promise.resolve(),
         },
       },
+      { provide: AccessConnectorsService, useValue: { load: () => Promise.resolve() } },
       {
         provide: OrgCiphersService,
         useValue: { ciphers$: of(rows.length > 0 ? CIPHERS : []), load: () => Promise.resolve() },
@@ -149,7 +200,7 @@ function rotationServices(rows: RotationConfigRow[]) {
       {
         provide: TargetSystemsService,
         useValue: {
-          systems$: of([{ id: sysId("1") }, { id: sysId("2") }]),
+          systems$: of([{ id: sysId("1") }, { id: sysId("2") }, { id: sysId("3") }]),
           loading$: of(false),
           loadError$: of(null),
           load: () => Promise.resolve(),
@@ -170,6 +221,7 @@ const routes: Routes = [
       { path: "managed-credentials", component: ManagedCredentialsTabComponent },
       { path: "managed-credentials/new", children: [] },
       { path: "managed-credentials/:configId", children: [] },
+      { path: "managed-credentials/:configId/history", children: [] },
       { path: "target-systems/new", children: [] },
     ],
   },
