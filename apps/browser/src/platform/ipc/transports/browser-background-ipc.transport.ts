@@ -3,8 +3,8 @@ import { IncomingMessage, OutgoingMessage, Source } from "@bitwarden/sdk-interna
 
 import { BrowserApi } from "../../browser/browser-api";
 
-import { FOREGROUND_IPC_PORT_NAME } from "./browser-foreground-ipc.transport";
 import { DESTINATION_UNREACHABLE_ERROR } from "./errors";
+import { IPC_FOREGROUND_PORT_NAME } from "./ipc-foreground-port-name";
 
 const BACKGROUND_SOURCE = { BrowserBackground: { id: "Own" } } satisfies Source;
 
@@ -42,9 +42,9 @@ export class BrowserBackgroundIpcTransport {
       return this.port;
     }
 
-    const port = chrome.runtime.connect({ name: FOREGROUND_IPC_PORT_NAME });
+    const port = chrome.runtime.connect({ name: IPC_FOREGROUND_PORT_NAME });
 
-    BrowserApi.addListener(port.onMessage, (message: unknown) => {
+    const onMessage = (message: unknown) => {
       if (
         !isIpcMessage(message) ||
         typeof message.message?.destination !== "object" ||
@@ -56,16 +56,21 @@ export class BrowserBackgroundIpcTransport {
       this.receive(
         new IncomingMessage(new Uint8Array(payload), destination, BACKGROUND_SOURCE, topic),
       );
-    });
+    };
 
-    BrowserApi.addListener(port.onDisconnect, () => {
+    const onDisconnect = () => {
+      BrowserApi.removeListener(port.onMessage, onMessage);
+      BrowserApi.removeListener(port.onDisconnect, onDisconnect);
       if (this.port === port) {
         this.port = undefined;
       }
 
       // Suppress error message
       void chrome.runtime.lastError;
-    });
+    };
+
+    BrowserApi.addListener(port.onMessage, onMessage);
+    BrowserApi.addListener(port.onDisconnect, onDisconnect);
 
     this.port = port;
     return port;

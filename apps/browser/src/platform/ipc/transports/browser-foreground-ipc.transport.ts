@@ -10,8 +10,10 @@ import { IncomingMessage, OutgoingMessage, Source } from "@bitwarden/sdk-interna
 import { BrowserApi } from "../../browser/browser-api";
 
 import { DESTINATION_UNREACHABLE_ERROR } from "./errors";
+import { IPC_FOREGROUND_PORT_NAME } from "./ipc-foreground-port-name";
 
-export const FOREGROUND_IPC_PORT_NAME = "bitwarden-ipc";
+// Matches the SDK's incoming channel capacity, so draining the held messages cannot overflow it.
+const MAX_PENDING_MESSAGES = 20;
 
 type ReceivedMessage = { message: SerializedOutgoingMessage; source: Source };
 
@@ -33,11 +35,12 @@ export class BrowserForegroundIpcTransport {
 
   /**
    * Starts accepting ports. Must run synchronously during service worker startup so a port that
-   * wakes the worker is not missed. Messages are held until {@link start} is called.
+   * wakes the worker is not missed. Up to {@link MAX_PENDING_MESSAGES} messages are held until
+   * {@link start} is called, dropping the oldest.
    */
   init() {
     BrowserApi.addListener(chrome.runtime.onConnect, (port) => {
-      if (port.name !== FOREGROUND_IPC_PORT_NAME) {
+      if (port.name !== IPC_FOREGROUND_PORT_NAME) {
         return;
       }
       if (!BrowserApi.senderIsInternal(port.sender, this.logService)) {
@@ -106,6 +109,9 @@ export class BrowserForegroundIpcTransport {
 
   private deliver({ message, source }: ReceivedMessage) {
     if (!this.started) {
+      if (this.pending.length >= MAX_PENDING_MESSAGES) {
+        this.pending.shift();
+      }
       this.pending.push({ message, source });
       return;
     }
