@@ -310,6 +310,19 @@ export abstract class CipherSdkService {
   ): Promise<[Cipher[], CipherListView[]]>;
 
   /**
+   * Fetches all Login ciphers for an organization, including those in default user collections,
+   * and decrypts them using the SDK.
+   *
+   * @param organizationId The organization ID to fetch ciphers for
+   * @param userId The user ID to use for SDK client
+   * @returns A promise that resolves to the decrypted ciphers and the ciphers that failed to decrypt
+   */
+  abstract getOrganizationLoginCiphers(
+    organizationId: string,
+    userId: UserId,
+  ): Promise<DecryptAllCiphersResult>;
+
+  /**
    * Bulk update collections for many ciphers using the SDK.
    * When `removeCollections` is true the collections are removed from each cipher,
    * otherwise they are added without introducing duplicates.

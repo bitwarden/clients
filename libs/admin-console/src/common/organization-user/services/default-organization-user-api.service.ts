@@ -1,5 +1,6 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { OrganizationUserApiService } from "../abstractions";
 import {
@@ -190,12 +191,13 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
   async postOrganizationUsersPublicKey(
     organizationId: string,
     ids: string[],
+    userId: UserId,
   ): Promise<ListResponse<OrganizationUserBulkPublicKeyResponse>> {
     const r = await this.apiService.send(
       "POST",
       "/organizations/" + organizationId + "/users/public-keys",
       new OrganizationUserBulkRequest(ids),
-      true,
+      userId,
       true,
     );
     return new ListResponse(r, OrganizationUserBulkPublicKeyResponse);
@@ -392,12 +394,13 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
 
   async getPendingAutoConfirmUsers(
     organizationId: string,
+    userId: UserId,
   ): Promise<ListResponse<OrganizationUserPendingAutoConfirmResponse>> {
     const r = await this.apiService.send(
       "GET",
       "/organizations/" + organizationId + "/users/pending-auto-confirm",
       null,
-      true,
+      userId,
       true,
     );
     return new ListResponse(r, OrganizationUserPendingAutoConfirmResponse);
@@ -406,12 +409,13 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
   async postBulkOrganizationUserAutoConfirm(
     organizationId: string,
     request: OrganizationUserBulkConfirmRequest,
+    userId: UserId,
   ): Promise<ListResponse<OrganizationUserBulkResponse>> {
     const r = await this.apiService.send(
       "POST",
       "/organizations/" + organizationId + "/users/bulk-auto-confirm",
       request,
-      true,
+      userId,
       true,
     );
     return new ListResponse(r, OrganizationUserBulkResponse);

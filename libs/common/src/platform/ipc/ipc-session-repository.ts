@@ -72,8 +72,8 @@ function endpointToString(endpoint: Endpoint): string {
     return `BrowserBackground(${hostIdToString(endpoint.BrowserBackground.id)})`;
   }
 
-  if (endpoint === "DesktopRenderer") {
-    return "DesktopRenderer";
+  if ("Cli" in endpoint) {
+    return `Cli(${hostIdToString(endpoint.Cli.id)})`;
   }
 
   return JSON.stringify(endpoint);

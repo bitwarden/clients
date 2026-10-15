@@ -11,11 +11,8 @@ export type {
 } from "@bitwarden/sdk-internal";
 
 /**
- * The subset of {@link AccessCondition} this client version knows how to render.
- * The SDK passes unrecognised condition kinds through unchanged (a server-side rule
- * can carry a condition newer than this client), so UI code that matches on `kind`
- * should narrow to this type first via {@link isKnownAccessCondition} and skip
- * anything else rather than rendering nothing or crashing.
+ * The conditions this client can render. The SDK passes newer kinds through unchanged, so narrow
+ * with {@link isKnownAccessCondition} and skip the rest.
  */
 export type KnownAccessCondition = Extract<
   AccessCondition,
@@ -27,24 +24,18 @@ const KNOWN_ACCESS_CONDITION_KINDS: ReadonlyArray<KnownAccessCondition["kind"]> 
   "ip_allowlist",
 ];
 
-/**
- * Type guard for a condition kind this client understands. See
- * {@link KnownAccessCondition}.
- */
 export function isKnownAccessCondition(
   condition: AccessCondition,
 ): condition is KnownAccessCondition {
   return (KNOWN_ACCESS_CONDITION_KINDS as readonly string[]).includes(condition.kind);
 }
 
-/** Type guard for the `human_approval` condition variant. */
 export function isHumanApproval(
   condition: AccessCondition,
 ): condition is Extract<AccessCondition, { kind: "human_approval" }> {
   return condition.kind === "human_approval";
 }
 
-/** Type guard for the `ip_allowlist` condition variant. */
 export function isIpAllowlist(
   condition: AccessCondition,
 ): condition is Extract<AccessCondition, { kind: "ip_allowlist" }> {

@@ -23,9 +23,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 export class PamOrgNavSlotComponent {
   private readonly configService = inject(ConfigService);
 
-  /**
-   * The organization the user is currently viewing.
-   */
   readonly organization = input.required<Organization>();
 
   private readonly pamEnabled = toSignal(this.configService.getFeatureFlag$(FeatureFlag.Pam), {

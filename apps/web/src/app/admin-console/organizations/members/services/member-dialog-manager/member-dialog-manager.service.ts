@@ -25,7 +25,6 @@ import { BulkProgressDialogComponent } from "../../components/bulk/bulk-progress
 import { BulkReinviteFailureDialogComponent } from "../../components/bulk/bulk-reinvite-failure-dialog.component";
 import { BulkRemoveDialogComponent } from "../../components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "../../components/bulk/bulk-restore-revoke.component";
-import { BulkStatusComponent, BulkStatusResult } from "../../components/bulk/bulk-status.component";
 import { EditMemberDialogComponent } from "../../components/edit-member-dialog";
 import { InviteMembersDialogComponent } from "../../components/invite-members-dialog";
 import {
@@ -44,6 +43,10 @@ export class MemberDialogManagerService {
   private deleteManagedMemberWarningService = inject(DeleteManagedMemberWarningService);
   private vfo1TerminologyService = inject(Vfo1TerminologyService);
 
+  // TODO(guided-tour removal): drop the `showCoachMarks` parameter (and the `showCoachMarks,`
+  // line in the `data` object below) along with the rest of the guided tour. See the header
+  // comment in invite-members-dialog/by-link-tab-tour.component.ts for the full removal
+  // checklist.
   async openInviteDialog(
     organization: Organization,
     billingMetadata: OrganizationBillingMetadataResponse,
@@ -221,24 +224,6 @@ export class MemberDialogManagerService {
     const dialogRef = BulkEnablePrivilegedControlsDialogComponent.open(this.dialogService, {
       orgId: organization.id,
       users: eligibleUsers,
-    });
-
-    await lastValueFrom(dialogRef.closed);
-  }
-
-  async openBulkStatusDialog(
-    users: OrganizationUserView[],
-    filteredUsers: OrganizationUserView[],
-    request: Promise<BulkStatusResult[]>,
-    successMessage: string,
-  ): Promise<void> {
-    const dialogRef = BulkStatusComponent.open(this.dialogService, {
-      data: {
-        users: users,
-        filteredUsers: filteredUsers,
-        request: request,
-        successfulMessage: successMessage,
-      },
     });
 
     await lastValueFrom(dialogRef.closed);

@@ -1,3 +1,6 @@
+// Polyfill for Symbol.dispose required by the service's use of `using`
+import "core-js/proposals/explicit-resource-management";
+
 import { TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 import { firstValueFrom, of, throwError } from "rxjs";
@@ -613,6 +616,49 @@ describe("MemberActionsService", () => {
         result,
       );
       expect(result.failed.length).toBeGreaterThan(0);
+    });
+
+    it("should count a resent invite as sent once it succeeds, so the toast reports every invite that went out", async () => {
+      const [firstId, secondId, thirdId] = memberIds(3);
+      const users = asUsers([firstId, secondId, thirdId]);
+      membersClient.bulk_reinvite
+        .mockResolvedValueOnce([
+          memberOutcome(firstId),
+          memberOutcome(secondId, "Rate limit exceeded"),
+          memberOutcome(thirdId, "Rate limit exceeded"),
+        ])
+        .mockResolvedValueOnce(allSent([secondId, thirdId]));
+
+      const resendUsers = users.filter((u) => u.id === secondId || u.id === thirdId);
+      memberDialogManager.openBulkReinviteFailureDialog.mockReturnValueOnce(of(resendUsers));
+
+      const result = await firstValueFrom(service.bulkReinvite(mockOrganization, users));
+
+      expect(result.successful.map((u) => u.id)).toEqual([firstId, secondId, thirdId]);
+      expect(result.failed).toHaveLength(0);
+      expect(membersClient.bulk_reinvite).toHaveBeenNthCalledWith(2, organizationId, [
+        secondId,
+        thirdId,
+      ]);
+    });
+
+    it("should not count a resent invite as sent if it fails again, so the toast does not overstate how many invites went out", async () => {
+      const [firstId, secondId] = memberIds(2);
+      const users = asUsers([firstId, secondId]);
+      membersClient.bulk_reinvite
+        .mockResolvedValueOnce([
+          memberOutcome(firstId),
+          memberOutcome(secondId, "Rate limit exceeded"),
+        ])
+        .mockResolvedValueOnce([memberOutcome(secondId, "Invalid email")]);
+
+      const resendUsers = users.filter((u) => u.id === secondId);
+      memberDialogManager.openBulkReinviteFailureDialog.mockReturnValueOnce(of(resendUsers));
+
+      const result = await firstValueFrom(service.bulkReinvite(mockOrganization, users));
+
+      expect(result.successful.map((u) => u.id)).toEqual([firstId]);
+      expect(result.failed).toEqual([{ id: secondId, error: "Invalid email" }]);
     });
   });
 

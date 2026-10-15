@@ -7,7 +7,6 @@ import { of } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { MASTER_KEY } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
@@ -58,7 +57,6 @@ describe("DefaultUnlockService", () => {
   let mockSdkRef: any;
   let mockSdk: any;
   let mockCrypto: any;
-  let setLegacyMasterKeyFromUnlockDataSpy: jest.SpyInstance;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -122,10 +120,6 @@ describe("DefaultUnlockService", () => {
       v2UpgradeTokenStateService,
       autoUnlockService,
     );
-
-    setLegacyMasterKeyFromUnlockDataSpy = jest
-      .spyOn(service as any, "setLegacyMasterKeyFromUnlockData")
-      .mockResolvedValue(undefined);
   });
 
   describe("unlockWithPin", () => {
@@ -436,31 +430,6 @@ describe("DefaultUnlockService", () => {
           method: { decryptedKey: { decrypted_user_key: mockAutoUnlockKey.toSdk() } },
         }),
       );
-    });
-  });
-
-  describe("setLegacyMasterKeyFromUnlockData", () => {
-    it("derives legacy master key and stores key", async () => {
-      setLegacyMasterKeyFromUnlockDataSpy.mockRestore();
-      const derivedMasterKey = new Uint8Array(32);
-      const updateMasterKey = jest.fn().mockResolvedValue(undefined);
-
-      jest.spyOn(PureCrypto, "derive_kdf_material").mockReturnValue(derivedMasterKey);
-      stateProvider.getUser.mockReturnValueOnce({ update: updateMasterKey } as any);
-
-      await (service as any).setLegacyMasterKeyFromUnlockData(
-        mockMasterPassword,
-        mockMasterPasswordUnlockData,
-        mockUserId,
-      );
-
-      expect(PureCrypto.derive_kdf_material).toHaveBeenCalledWith(
-        new TextEncoder().encode(mockMasterPassword),
-        new TextEncoder().encode(mockMasterPasswordUnlockData.salt),
-        mockMasterPasswordUnlockData.kdf,
-      );
-      expect(stateProvider.getUser).toHaveBeenCalledWith(mockUserId, MASTER_KEY);
-      expect(updateMasterKey).toHaveBeenCalledTimes(1);
     });
   });
 });

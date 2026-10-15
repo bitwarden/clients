@@ -37,6 +37,11 @@ const statusIndicators = [
 
 const bitwardenObjects = [
   {
+    id: "bwi-access-connector",
+    usage:
+      "Indicates an access connector — a daemon running inside a customer's network that performs credential rotation against target systems in the Privileged Controls rotation flows.",
+  },
+  {
     id: "bwi-admin-console",
     usage: "Admin console icon",
   },
@@ -87,6 +92,11 @@ const bitwardenObjects = [
     usage: "Indicates an identity item type.",
   },
   {
+    id: "bwi-managed-credential",
+    usage:
+      "Indicates a managed credential — a vault item configured for scheduled or on-demand rotation in Privileged Controls.",
+  },
+  {
     id: "bwi-passport",
     usage: "Indicates a passport item type.",
   },
@@ -102,6 +112,11 @@ const bitwardenObjects = [
   {
     id: "bwi-sticky-note",
     usage: "Indicates a secure note item type.",
+  },
+  {
+    id: "bwi-target-system",
+    usage:
+      "Indicates a target system — the external system (Entra, SQL Server, custom script, etc.) where a managed credential's password lives and is rotated.",
   },
   {
     id: "bwi-users",
@@ -198,6 +213,11 @@ const actions = [
       "Remove, subtract, or delete action. This outlined version should primarily be placed in a component with a transparent background, such as a link or tertiary button. If using in a filled or outline button or FAB, prefer the standard subtract button.",
   },
   {
+    id: "bwi-pause-circle",
+    usage:
+      "Pause action. Used for pausing scheduled or recurring work such as credential rotations, subscriptions, or background jobs.",
+  },
+  {
     id: "bwi-pencil-square",
     usage: "Edit action.",
   },
@@ -218,6 +238,11 @@ const actions = [
   {
     id: "bwi-refresh",
     usage: "Refresh action. Reloads selected screen or element.",
+  },
+  {
+    id: "bwi-resume",
+    usage:
+      "Resume action. Restarts paused scheduled or recurring work. Pairs with the pause-circle icon.",
   },
   {
     id: "bwi-search",
@@ -360,6 +385,10 @@ const miscObjects = [
     usage: "Indicates a test or debug action.",
   },
   {
+    id: "bwi-calendar",
+    usage: "Used for date-based actions or views, like scheduling or picking a date.",
+  },
+  {
     id: "bwi-camera",
     usage: "Used for actions related to camera use, like scanning a QR code.",
   },
@@ -426,6 +455,10 @@ const miscObjects = [
   {
     id: "bwi-puzzle",
     usage: "Indicates the browser extension client.",
+  },
+  {
+    id: "bwi-rocket",
+    usage: "Indicates a tour, launch, or new feature.",
   },
   {
     id: "bwi-shield",

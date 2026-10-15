@@ -1,3 +1,4 @@
+import { ScrollingModule } from "@angular/cdk/scrolling";
 import { Component, computed, inject, signal, Signal, WritableSignal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
@@ -42,15 +43,24 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { getById } from "@bitwarden/common/platform/misc";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  BerryComponent,
+  DialogService,
+  IconModule,
+  ScrollLayoutDirective,
+  ToastService,
+} from "@bitwarden/components";
 import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
+import { Vfo1I18nPipe, Vfo1IconPipe } from "@bitwarden/vault";
 import {
   BillingConstraintService,
   SeatLimitAction,
 } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
+import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
+import { HeaderModule } from "../../../layouts/header/header.module";
 import {
   MaxCheckedCount,
   MembersTableDataSource,
@@ -58,9 +68,11 @@ import {
   showConfirmBanner,
 } from "../../common/people-table-data-source";
 import { OrganizationUserView } from "../core/views/organization-user.view";
+import { SharedOrganizationModule } from "../shared";
 
 import { AccountRecoveryDialogResultType } from "./components/account-recovery";
 import { MemberDialogResult, MemberDialogTab } from "./components/member-dialog";
+import { AvatarIdPipe } from "./pipes";
 import {
   MemberDialogManagerService,
   MemberExportService,
@@ -87,7 +99,18 @@ interface BulkMemberFlags {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "members.component.html",
-  standalone: false,
+  imports: [
+    AvatarIdPipe,
+    BerryComponent,
+    HeaderModule,
+    IconModule,
+    OrganizationFreeTrialWarningComponent,
+    ScrollingModule,
+    ScrollLayoutDirective,
+    SharedOrganizationModule,
+    Vfo1I18nPipe,
+    Vfo1IconPipe,
+  ],
 })
 export class MembersComponent {
   protected i18nService = inject(I18nService);
@@ -473,16 +496,6 @@ export class MembersComponent {
             ? this.i18nService.t("reinviteSuccessToast")
             : this.i18nService.t("bulkReinviteSentToast", sentCount.toString()),
       });
-    }
-
-    // Self-hosted keeps the per-user status dialog for the resend portion.
-    if (!this.dataSource().isIncreasedBulkLimitEnabled() && invitedUsers.length > 0) {
-      await this.memberDialogManager.openBulkStatusDialog(
-        invitedUsers,
-        invitedUsers,
-        Promise.resolve(reinvited),
-        this.i18nService.t("bulkReinviteMessage"),
-      );
     }
 
     this.dataSource().uncheckAllUsers();

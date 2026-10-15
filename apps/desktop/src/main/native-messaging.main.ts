@@ -8,6 +8,11 @@ import { ipcMain } from "electron";
 import { Subject } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import {
+  DesktopIpcPeerClientType,
+  IpcClientTypeMessage,
+  isIpcClientTypeMessage,
+} from "@bitwarden/common/platform/ipc";
 import { ipc, windows_registry } from "@bitwarden/desktop-napi";
 
 import { isDev } from "../utils";
@@ -16,7 +21,8 @@ import { WindowMain } from "./window.main";
 
 export class NativeMessagingMain {
   private ipcServer: ipc.NativeIpcServer | null;
-  private connected: number[] = [];
+  /** Connected clients by id, with the type each announced; `Unknown` until it announces. */
+  private clients = new Map<number, DesktopIpcPeerClientType>();
 
   private _messages$ = new Subject<ipc.IpcMessage>();
   readonly messages$ = this._messages$.asObservable();
@@ -85,15 +91,19 @@ export class NativeMessagingMain {
     this.ipcServer = await ipc.NativeIpcServer.listen("bw", (error, msg) => {
       switch (msg.kind) {
         case ipc.IpcMessageType.Connected: {
-          this.connected.push(msg.clientId);
-          this.logService.info("Native messaging client " + msg.clientId + " has connected");
+          const announcement = parseAnnouncement(msg.message);
+          const clientType = announcement?.clientType ?? DesktopIpcPeerClientType.Unknown;
+          this.clients.set(msg.clientId, clientType);
+
+          // Only the known detail of an untrusted frame is logged.
+          this.logService.info(
+            `Native messaging client ${msg.clientId} has connected as ${clientType}`,
+            { extensionId: announcement?.extensionId },
+          );
           break;
         }
         case ipc.IpcMessageType.Disconnected: {
-          const index = this.connected.indexOf(msg.clientId);
-          if (index > -1) {
-            this.connected.splice(index, 1);
-          }
+          this.clients.delete(msg.clientId);
 
           this.logService.info("Native messaging client " + msg.clientId + " has disconnected");
           break;
@@ -130,6 +140,17 @@ export class NativeMessagingMain {
     this.ipcServer?.stop();
   }
 
+  /**
+   * The client type a connected client announced, `Unknown` for one that announced none, or
+   * `undefined` for a client that is not connected.
+   *
+   * `desktop_proxy` always announces, so `Unknown` also covers a proxy that predates the
+   * announcement.
+   */
+  clientTypeFor(clientId: number): DesktopIpcPeerClientType | undefined {
+    return this.clients.get(clientId);
+  }
+
   send(message: object) {
     this.logService.debug("Native messaging reply:", message);
     this.ipcServer?.send(JSON.stringify(message));
@@ -164,6 +185,13 @@ export class NativeMessagingMain {
     const binaryPath = this.binaryPath();
     if (!existsSync(binaryPath)) {
       throw new Error(`Unable to find proxy binary: ${binaryPath}`);
+    }
+
+    // When debugging against a dedicated chrome profile, only that profile gets a
+    // manifest, so the real browser installs are left untouched.
+    if (this.debugChromeProfileDir() != null) {
+      await this.generateDebugChromeManifest(binaryPath);
+      return;
     }
 
     switch (process.platform) {
@@ -216,6 +244,10 @@ export class NativeMessagingMain {
         // so that a canonical path to put in the manifest can be used.
 
         // Unsandboxed browser
+        await this.createFirefoxDir(
+          `${this.homedir()}/.config/mozilla/`,
+          `${this.homedir()}/.mozilla`,
+        );
         for (const [key, browserDirectory] of Object.entries(this.getLinuxNMHS())) {
           if (existsSync(browserDirectory)) {
             let nhmsPath = path.join(browserDirectory, "NativeMessagingHosts");
@@ -224,10 +256,8 @@ export class NativeMessagingMain {
             }
             const browserBinaryPath = path.join(nhmsPath, ".bitwarden_desktop_proxy");
 
-            if (key === "Firefox") {
-              // Only generate the NMHS dir if the browser directory exists
-              await fs.mkdir(nhmsPath, { recursive: true });
-            }
+            // Only generate the NMHS dir if the browser directory exists
+            await fs.mkdir(nhmsPath, { recursive: true });
 
             await this.linkOrCopy(binaryPath, browserBinaryPath);
             this.logService.info(
@@ -250,6 +280,10 @@ export class NativeMessagingMain {
           }
         }
 
+        await this.createFirefoxDir(
+          `${this.homedir()}/.var/app/org.mozilla.firefox`,
+          this.getFlatpakNMHS().Firefox,
+        );
         for (const [key, value] of Object.entries(this.getFlatpakNMHS())) {
           if (existsSync(value)) {
             const sandboxedProxyBinaryPath = path.join(value, ".bitwarden_desktop_proxy");
@@ -281,6 +315,43 @@ export class NativeMessagingMain {
       default:
         break;
     }
+  }
+
+  // Chrome only reads per-profile NativeMessagingHosts directories on macOS and Linux;
+  // on Windows it discovers hosts through the registry, which is shared with the
+  // installed client, so the debug profile is not supported there.
+  private debugChromeProfileDir(): string | null {
+    const profileDir = process.env.BITWARDEN_CHROME_PROFILE_DIR;
+
+    if (!profileDir) {
+      return null;
+    }
+
+    if (process.platform === "win32") {
+      this.logService.warning(
+        "[Native messaging] BITWARDEN_CHROME_PROFILE_DIR is not supported on Windows, ignoring it",
+      );
+      return null;
+    }
+
+    return profileDir;
+  }
+
+  // Allow pointing chrome at a custom local profile for debugging
+  private async generateDebugChromeManifest(binaryPath: string) {
+    const profileDir = this.debugChromeProfileDir();
+
+    if (!profileDir) {
+      return;
+    }
+
+    const nmhsPath = path.join(profileDir, "NativeMessagingHosts");
+    await fs.mkdir(nmhsPath, { recursive: true });
+
+    await this.writeManifest(
+      path.join(nmhsPath, "com.8bit.bitwarden.json"),
+      await this.generateChromeJson(binaryPath),
+    );
   }
 
   async generateDdgManifests() {
@@ -412,6 +483,9 @@ export class NativeMessagingMain {
       Vivaldi: `${this.homedir()}/Library/Application\ Support/Vivaldi/`,
       Zen: `${this.homedir()}/Library/Application\ Support/Zen/`,
       Helium: `${this.homedir()}/Library/Application\ Support/net.imput.helium/`,
+      Brave: `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser/`,
+      "Brave Beta": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser-Beta/`,
+      "Brave Nightly": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser-Nightly/`,
     };
     /* eslint-enable no-useless-escape */
   }
@@ -426,6 +500,17 @@ export class NativeMessagingMain {
       Brave: `${this.homedir()}/.config/BraveSoftware/Brave-Browser/`,
       Helium: `${this.homedir()}/.config/net.imput.helium/`,
     };
+  }
+
+  // Firefox may be installed without the dir it reads native messaging hosts from
+  // (e.g. XDG profiles in ~/.config/mozilla, no ~/.mozilla). Create it so Firefox is detected.
+  // E.g. firefoxDir: ~/.config/mozilla/, hostsDir: ~/.mozilla
+  private async createFirefoxDir(firefoxDir: string, hostsDir: string) {
+    if (!existsSync(firefoxDir)) {
+      return;
+    }
+
+    await fs.mkdir(hostsDir, { recursive: true });
   }
 
   private getFlatpakNMHS() {
@@ -487,6 +572,11 @@ export class NativeMessagingMain {
         ];
         break;
       }
+    }
+
+    const debugProfileDir = this.debugChromeProfileDir();
+    if (debugProfileDir != null) {
+      chromePaths.push(debugProfileDir);
     }
 
     for (const chromePath of chromePaths) {
@@ -596,5 +686,19 @@ export class NativeMessagingMain {
       await fs.copyFile(source, destination);
       this.logService.info(`[Native messaging] Copied ${source} to ${destination}`);
     }
+  }
+}
+
+/** The client announcement carried by a `Connected` event, or `undefined` if it has none. */
+function parseAnnouncement(message: string | null | undefined): IpcClientTypeMessage | undefined {
+  if (message == null) {
+    return undefined;
+  }
+
+  try {
+    const json: unknown = JSON.parse(message);
+    return isIpcClientTypeMessage(json) ? json : undefined;
+  } catch {
+    return undefined;
   }
 }
