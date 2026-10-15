@@ -476,6 +476,21 @@ describe("AccessRulesComponent — failed mutations", () => {
     expect(showToast).toHaveBeenCalledWith({ variant: "error", message: "unexpectedError" });
   });
 
+  it("drops the rules a partly failed bulk delete removed, keeping the failures selected", async () => {
+    const fixture = await setupBulk([rule("rule-1", "VPN"), rule("rule-2", "SSH")]);
+    deleteAccessRule.mockImplementation((_orgId, id) =>
+      String(id) === "rule-1"
+        ? Promise.resolve(undefined)
+        : Promise.reject(accessRuleError("Api", "status code 500")),
+    );
+
+    await fixture.componentInstance["bulkRemove"]();
+
+    expect(fixture.componentInstance["rules"]().map((r) => r.id)).toEqual(["rule-2"]);
+    expect(fixture.componentInstance["selection"].selected).toEqual(["rule-2"]);
+    expect(showToast).toHaveBeenCalledWith({ variant: "error", message: "unexpectedError" });
+  });
+
   it("toasts the rule-is-gone copy when a toggle finds the rule deleted", async () => {
     const target = rule("rule-1", "VPN", true);
     const fixture = await setupMutations([target]);
