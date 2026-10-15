@@ -46,7 +46,7 @@ export class BrowserCipherLeaseStateService implements CipherLeaseStateService {
 }
 
 /** Re-emits as each lease lapses, since natural expiry sends no push and an alarm may be late. */
-function liveUntilEachLapse$(
+export function liveUntilEachLapse$(
   state: LeasedCipherState | null,
 ): Observable<Record<string, LeasedCipherEntry>> {
   return defer(() => {

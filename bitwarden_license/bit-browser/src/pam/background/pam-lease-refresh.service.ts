@@ -1,5 +1,6 @@
 import {
   concatMap,
+  debounceTime,
   distinctUntilChanged,
   filter,
   firstValueFrom,
@@ -7,6 +8,8 @@ import {
   merge,
   Observable,
   of,
+  pairwise,
+  Subject,
   Subscription,
   switchMap,
 } from "rxjs";
@@ -18,6 +21,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { NotificationType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { SyncCipherNotification } from "@bitwarden/common/models/response/notification.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -29,6 +33,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import type { AccessLeaseView } from "@bitwarden/sdk-internal";
 
+import { liveUntilEachLapse$ } from "../browser-cipher-lease-state.service";
 import { PAM_REFRESH_LEASES } from "../lease-messages";
 import {
   isLeaseLive,
@@ -36,6 +41,15 @@ import {
   LeasedCipherEntry,
   liveLeasedCiphers,
 } from "../leased-cipher.state";
+
+/** One more try after a failed lease list, so a revocation push is not lost to it. */
+const LIST_RETRY_MS = 30_000;
+
+export type RefreshOptions = {
+  /** A held cipher to fetch again although its lease is unchanged. */
+  refetch?: string;
+};
+type Trigger = RefreshOptions & { retried?: boolean };
 
 /**
  * Keeps an encrypted full copy of each cipher the user holds a live lease on, for the
@@ -70,57 +84,98 @@ export class PamLeaseRefreshService {
       .pipe(
         map(unlockedUserIds),
         distinctUntilChanged((a, b) => a.join() === b.join()),
-        switchMap((userIds) => merge(...userIds.map((userId) => this.refreshes$(userId)))),
+        switchMap((userIds) =>
+          merge(...userIds.flatMap((userId) => [this.refreshes$(userId), this.lapses$(userId)])),
+        ),
       )
       .subscribe();
   }
 
-  /** Re-reads the user's leases and stores a full copy of each newly leased cipher. */
-  async refresh(userId: UserId): Promise<void> {
+  /**
+   * Re-reads the user's leases and stores a full copy of each newly leased cipher.
+   * Resolves false when the lease list failed, so the caller can retry.
+   */
+  async refresh(userId: UserId, options: RefreshOptions = {}): Promise<boolean> {
     try {
       const stored = (await firstValueFrom(this.leaseState(userId).state$))?.leases ?? {};
-      const leases = (await this.allowed(userId)) ? await this.reconcile(userId, stored) : null;
+      if (options.refetch != null && !(options.refetch in stored)) {
+        return true;
+      }
+      const { leases, listed } = (await this.allowed(userId))
+        ? await this.reconcile(userId, stored, options.refetch)
+        : { leases: null, listed: true };
       if (leases == null && Object.keys(stored).length === 0) {
-        return;
+        return listed;
       }
 
       // A lock clears this state; writing after it would outlive the lock.
       const status = await firstValueFrom(this.authService.authStatusFor$(userId));
       if (status !== AuthenticationStatus.Unlocked) {
-        return;
+        return listed;
       }
 
       await this.leaseState(userId).update(() =>
         leases == null ? null : { refreshedAt: Date.now(), leases },
       );
-      if (!sameKeys(stored, leases ?? {})) {
+      if (!sameEntries(stored, leases ?? {})) {
         await this.leasedCiphersChanged();
       }
       await this.scheduleExpiry();
+      return listed;
     } catch (error) {
       this.logService.error(`[PAM] Failed to refresh leased ciphers: ${error}`);
+      return true;
     }
   }
 
   /** Refreshes at once too, since a worker start or an unlock may have missed a push. */
   private refreshes$(userId: UserId): Observable<void> {
+    const retry$ = new Subject<Trigger>();
+    const notifications$ = this.serverNotificationsService.notifications$.pipe(
+      filter(([, id]) => id === userId),
+      map(([notification]) => notification),
+    );
     return merge(
-      of(null),
-      this.serverNotificationsService.notifications$.pipe(
-        filter(
-          ([notification, id]) =>
-            notification.type === NotificationType.RefreshAccessRequest && id === userId,
+      merge(
+        of(null),
+        notifications$.pipe(filter((n) => n.type === NotificationType.RefreshAccessRequest)),
+        this.messageListener.allMessages$.pipe(
+          filter(
+            (msg) => msg.command === "syncCompleted" && !!msg.successfully && msg.userId === userId,
+          ),
+        ),
+        this.messageListener
+          .messages$(PAM_REFRESH_LEASES)
+          .pipe(filter((msg) => msg.userId === userId)),
+      ).pipe(map((): Trigger => ({}))),
+      // Core sync keeps the gated partial row (PAM-318), so an edit never reaches the held copy.
+      notifications$.pipe(
+        filter((n) => n.type === NotificationType.SyncCipherUpdate),
+        map((n): Trigger => ({ refetch: (n.payload as SyncCipherNotification).id })),
+      ),
+      retry$.pipe(debounceTime(LIST_RETRY_MS)),
+    ).pipe(
+      concatMap(async (trigger) => {
+        if (!(await this.refresh(userId, trigger)) && !trigger.retried) {
+          retry$.next({ ...trigger, retried: true });
+        }
+      }),
+    );
+  }
+
+  /** Rebuilds the caches the moment a lease lapses; the expiry alarm may run late. */
+  private lapses$(userId: UserId): Observable<void> {
+    return this.leaseState(userId).state$.pipe(
+      switchMap((state) => liveUntilEachLapse$(state)),
+      map((live) => Object.keys(live)),
+      pairwise(),
+      filter(([before, after]) => before.some((id) => !after.includes(id))),
+      concatMap(() =>
+        this.leasedCiphersChanged().catch((error) =>
+          this.logService.error(`[PAM] Failed to drop lapsed leases: ${error}`),
         ),
       ),
-      this.messageListener.allMessages$.pipe(
-        filter(
-          (msg) => msg.command === "syncCompleted" && !!msg.successfully && msg.userId === userId,
-        ),
-      ),
-      this.messageListener
-        .messages$(PAM_REFRESH_LEASES)
-        .pipe(filter((msg) => msg.userId === userId)),
-    ).pipe(concatMap(() => this.refresh(userId)));
+    );
   }
 
   private async allowed(userId: UserId): Promise<boolean> {
@@ -134,14 +189,18 @@ export class PamLeaseRefreshService {
   private async reconcile(
     userId: UserId,
     stored: Record<string, LeasedCipherEntry>,
-  ): Promise<Record<string, LeasedCipherEntry>> {
+    refetch?: string,
+  ): Promise<{ leases: Record<string, LeasedCipherEntry>; listed: boolean }> {
     let leases: AccessLeaseView[];
     try {
       leases = await this.listMine(userId);
     } catch (error) {
       // Kept copies still lapse on their own `notAfter`.
       this.logService.error(`[PAM] Failed to list leases: ${error}`);
-      return liveLeasedCiphers({ refreshedAt: 0, leases: stored }, Date.now());
+      return {
+        leases: liveLeasedCiphers({ refreshedAt: 0, leases: stored }, Date.now()),
+        listed: false,
+      };
     }
 
     const now = Date.now();
@@ -153,7 +212,7 @@ export class PamLeaseRefreshService {
       const cipherId = uuidAsString(lease.cipherId);
       const leaseId = uuidAsString(lease.id);
       const held = stored[cipherId];
-      if (held?.leaseId === leaseId && held.notAfter === lease.notAfter) {
+      if (cipherId !== refetch && held?.leaseId === leaseId && held.notAfter === lease.notAfter) {
         next[cipherId] = held;
         continue;
       }
@@ -162,7 +221,7 @@ export class PamLeaseRefreshService {
         next[cipherId] = { leaseId, notAfter: lease.notAfter, cipher };
       }
     }
-    return next;
+    return { leases: next, listed: true };
   }
 
   private listMine(userId: UserId): Promise<AccessLeaseView[]> {
@@ -187,21 +246,17 @@ export class PamLeaseRefreshService {
     }
   }
 
+  /** Storage cleanup only: `lapses$` rebuilds the caches, and a woken worker builds them fresh. */
   private async pruneLapsed(): Promise<void> {
     try {
       const now = Date.now();
-      let pruned = false;
       for (const userId of await this.userIds()) {
         const state = await firstValueFrom(this.leaseState(userId).state$);
-        if (state != null && !sameKeys(state.leases, liveLeasedCiphers(state, now))) {
+        if (state != null && !sameEntries(state.leases, liveLeasedCiphers(state, now))) {
           await this.leaseState(userId).update(
             (current) => current && { ...current, leases: liveLeasedCiphers(current, now) },
           );
-          pruned = true;
         }
-      }
-      if (pruned) {
-        await this.leasedCiphersChanged();
       }
       await this.scheduleExpiry();
     } catch (error) {
@@ -253,7 +308,19 @@ function unlockedUserIds(statuses: Record<UserId, AuthenticationStatus>): UserId
     .sort();
 }
 
-function sameKeys(a: Record<string, unknown>, b: Record<string, unknown>): boolean {
-  const aKeys = Object.keys(a);
-  return aKeys.length === Object.keys(b).length && aKeys.every((key) => key in b);
+function sameEntries(
+  a: Record<string, LeasedCipherEntry>,
+  b: Record<string, LeasedCipherEntry>,
+): boolean {
+  const ids = Object.keys(a);
+  return (
+    ids.length === Object.keys(b).length &&
+    ids.every(
+      (id) =>
+        b[id] != null &&
+        a[id].leaseId === b[id].leaseId &&
+        a[id].notAfter === b[id].notAfter &&
+        a[id].cipher.revisionDate === b[id].cipher.revisionDate,
+    )
+  );
 }

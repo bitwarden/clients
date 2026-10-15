@@ -687,10 +687,16 @@ export default class NotificationBackground {
       return false;
     }
 
-    const ciphers = await this.cipherService.getAllDecryptedForUrlIncludingLeased(
-      login.url,
-      activeUserId,
-    );
+    if (
+      await this.matchesLeasedCopy(login.url, activeUserId, username, [
+        data.password,
+        data.newPassword,
+      ])
+    ) {
+      return false;
+    }
+
+    const ciphers = await this.cipherService.getAllDecryptedForUrl(login.url, activeUserId);
     const usernameMatches = ciphers.filter(
       (c) => c.login.username != null && c.login.username.toLowerCase() === normalizedUsername,
     );
@@ -700,6 +706,27 @@ export default class NotificationBackground {
     }
 
     return false;
+  }
+
+  /**
+   * A form whose username or any password matches a leased copy gets no prompt: a save would
+   * copy the privileged secret out of PAM or write over the gated item.
+   */
+  private async matchesLeasedCopy(
+    uri: string,
+    userId: UserId,
+    username: string | null | undefined,
+    passwords: (string | null | undefined)[],
+  ): Promise<boolean> {
+    const normalizedUsername = username?.toLowerCase();
+    const enteredPasswords = passwords.filter((p) => !!p);
+    const ciphers = await this.cipherService.getAllDecryptedForUrlIncludingLeased(uri, userId);
+    return ciphers.some(
+      (c) =>
+        c.leaseGated === true &&
+        ((!!normalizedUsername && c.login?.username?.toLowerCase() === normalizedUsername) ||
+          (!!c.login?.password && enteredPasswords.includes(c.login.password))),
+    );
   }
 
   private async pushAddLoginToQueue(
@@ -826,20 +853,19 @@ export default class NotificationBackground {
       return true;
     }
 
-    const allCiphersForURL = await this.cipherService.getAllDecryptedForUrlIncludingLeased(
-      data.uri,
-      activeUserId,
-    );
-    // A leased copy is never offered for update, and saving it anew would bypass PAM.
     if (
-      usernameFieldHasValue &&
-      allCiphersForURL.some(
-        (c) => c.leaseGated === true && c.login.username?.toLowerCase() === normalizedUsername,
-      )
+      await this.matchesLeasedCopy(data.uri, activeUserId, usernameFieldValue, [
+        currentPasswordFieldValue,
+        newPasswordFieldValue,
+      ])
     ) {
       return false;
     }
-    const ciphersForURL = allCiphersForURL.filter((c) => c.leaseGated !== true);
+
+    const ciphersForURL: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
+      data.uri,
+      activeUserId,
+    );
 
     // Reducer structured to avoid subsequent array iterations
     const ciphersByInputMatchCategory = ciphersForURL.reduce<CiphersByInputMatchCategory>(
@@ -993,6 +1019,15 @@ export default class NotificationBackground {
     if (authStatus === AuthenticationStatus.Locked && newPasswordFieldValue !== null) {
       await this.pushChangePasswordToQueue(null, loginDomain, newPasswordFieldValue, tab, true);
       return true;
+    }
+
+    if (
+      await this.matchesLeasedCopy(data.uri, activeUserId, username, [
+        currentPasswordFieldValue,
+        newPasswordFieldValue,
+      ])
+    ) {
+      return false;
     }
 
     let ciphers: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
@@ -1481,7 +1516,18 @@ export default class NotificationBackground {
 
       // If the vault was locked, check if a cipher needs updating instead of creating a new one
       if (queueMessage.wasVaultLocked) {
-        const allCiphers = await this.cipherService.getAllDecryptedForUrlIncludingLeased(
+        if (
+          await this.matchesLeasedCopy(
+            queueMessage.data.uri,
+            activeUserId,
+            queueMessage.data.username,
+            [queueMessage.data.password],
+          )
+        ) {
+          continue;
+        }
+
+        const allCiphers = await this.cipherService.getAllDecryptedForUrl(
           queueMessage.data.uri,
           activeUserId,
         );
@@ -1493,8 +1539,7 @@ export default class NotificationBackground {
 
         if (existingCipher != null) {
           const password = queueMessage.data.password;
-          // A leased copy is neither updated nor saved anew.
-          if (password == null || existingCipher.leaseGated === true) {
+          if (password == null) {
             continue;
           }
           await this.updatePassword(existingCipher, password, resolvedEdit, tab, activeUserId);

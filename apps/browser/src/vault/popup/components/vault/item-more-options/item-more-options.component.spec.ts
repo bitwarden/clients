@@ -430,6 +430,34 @@ describe("ItemMoreOptionsComponent", () => {
       expect(openMenu()).toEqual(["autofillVerb"]);
     });
 
+    it("offers Share via link on an ungated item", () => {
+      jest.spyOn(TestBed.inject(ShareLinkService), "cipherCanBeShared$").mockReturnValue(of(true));
+
+      expect(openMenu()).toContain("shareViaLink");
+    });
+
+    it("offers no Share via link on a leased copy", () => {
+      jest.spyOn(TestBed.inject(ShareLinkService), "cipherCanBeShared$").mockReturnValue(of(true));
+      component.cipher = { ...baseCipher, leaseGated: true };
+
+      expect(openMenu()).toEqual(["autofillVerb"]);
+    });
+
+    it("renders no menu for a leased copy with neither Autofill nor View", () => {
+      component.cipher = { ...baseCipher, type: CipherType.SecureNote, leaseGated: true };
+      fixture.componentRef.setInput("showAutofill", true);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("button[bitIconButton]")).toBeNull();
+    });
+
+    it("keeps the menu for a leased copy that offers View", () => {
+      component.cipher = { ...baseCipher, type: CipherType.SecureNote, leaseGated: true };
+      fixture.componentRef.setInput("showViewOption", true);
+
+      expect(openMenu()).toEqual(["view"]);
+    });
+
     it("offers no autofill-and-save on a leased copy", async () => {
       component.cipher = { ...baseCipher, leaseGated: true };
       autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });

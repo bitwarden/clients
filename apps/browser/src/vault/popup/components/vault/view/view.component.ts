@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { Component, inject, NgZone } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -58,6 +58,7 @@ import {
 import { sendExtensionMessage } from "../../../../../autofill/utils/index";
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
+import { runInsideAngular } from "../../../../../platform/browser/run-inside-angular.operator";
 import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
 import { PopupFooterComponent } from "../../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup-header.component";
@@ -116,6 +117,7 @@ type LoadAction =
 })
 export class ViewComponent {
   private readonly configService = inject(ConfigService);
+  private readonly ngZone = inject(NgZone);
 
   private activeUserId: UserId;
 
@@ -203,8 +205,12 @@ export class ViewComponent {
         }),
         filterOutNullish(),
         // Unlocks or re-locks in place as a lease on a gated item starts or ends.
+        // Lease changes arrive as storage events outside NgZone.
         switchMap((stored) =>
-          this.withLeasedCopy$(stored).pipe(map((cipher, i) => ({ cipher, leaseSwap: i > 0 }))),
+          this.withLeasedCopy$(stored).pipe(
+            runInsideAngular(this.ngZone),
+            map((cipher, i) => ({ cipher, leaseSwap: i > 0 })),
+          ),
         ),
         switchMap(async ({ cipher, leaseSwap }) => {
           this.cipher = cipher;
@@ -267,7 +273,7 @@ export class ViewComponent {
   }
 
   /** PAM-gated: a partial without a lease, or a leased copy. */
-  private get gated(): boolean {
+  protected get gated(): boolean {
     return this.cipher.partial || !!this.cipher.leaseGated;
   }
 

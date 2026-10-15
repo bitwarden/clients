@@ -69,6 +69,8 @@ describe("PamLeaseRefreshService", () => {
       { refreshedAt: 0, leases: Object.fromEntries(entries.map((e) => [e.cipher.id, e])) },
       userId,
     );
+  const syncCipherUpdate = (id: string) =>
+    ({ type: NotificationType.SyncCipherUpdate, payload: { id } }) as NotificationResponse;
   const stored = () => firstValueFrom(stateProvider.getUser(userId, LEASED_CIPHERS).state$);
   const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -125,6 +127,7 @@ describe("PamLeaseRefreshService", () => {
   });
 
   afterEach(() => {
+    jest.useRealTimers();
     jest.restoreAllMocks();
   });
 
@@ -179,7 +182,7 @@ describe("PamLeaseRefreshService", () => {
       await seed(held("kept"), held("lapsed", at(-1)));
       leases.list_mine.mockRejectedValue(new Error("offline"));
 
-      await service.refresh(userId);
+      await expect(service.refresh(userId)).resolves.toBe(false);
 
       expect(Object.keys((await stored()).leases)).toEqual(["kept"]);
       expect(logService.error).toHaveBeenCalled();
@@ -229,6 +232,88 @@ describe("PamLeaseRefreshService", () => {
 
       expect(leases.list_mine).toHaveBeenCalledTimes(3);
     });
+
+    it("refreshes after a successful sync for the user", async () => {
+      const subscription = service.start();
+      await flush();
+
+      messages$.next({ command: "syncCompleted", successfully: true, userId });
+      await flush();
+      messages$.next({ command: "syncCompleted", successfully: false, userId });
+      messages$.next({ command: "syncCompleted", successfully: true, userId: "someone-else" });
+      await flush();
+      subscription.unsubscribe();
+
+      expect(leases.list_mine).toHaveBeenCalledTimes(2);
+    });
+
+    it("re-fetches a held copy when its cipher is edited", async () => {
+      await seed(held("kept"), held("other"));
+      leases.list_mine.mockResolvedValue([lease("kept"), lease("other")]);
+      const subscription = service.start();
+      await flush();
+      expect(apiService.getFullCipherDetails).not.toHaveBeenCalled();
+      apiService.getFullCipherDetails.mockResolvedValue({
+        id: "kept",
+        revisionDate: at(0),
+      } as CipherResponse);
+
+      notifications$.next([syncCipherUpdate("kept"), userId]);
+      await flush();
+      subscription.unsubscribe();
+
+      expect(apiService.getFullCipherDetails).toHaveBeenCalledTimes(1);
+      expect(apiService.getFullCipherDetails).toHaveBeenCalledWith("kept");
+      expect((await stored()).leases.kept.cipher.revisionDate).toBe(at(0));
+      expect(leasedCiphersChanged).toHaveBeenCalledTimes(1);
+    });
+
+    it("ignores an edit push for a cipher it holds no copy of", async () => {
+      await seed(held("kept"));
+      leases.list_mine.mockResolvedValue([lease("kept")]);
+      const subscription = service.start();
+      await flush();
+
+      notifications$.next([syncCipherUpdate("unleased"), userId]);
+      await flush();
+      subscription.unsubscribe();
+
+      expect(leases.list_mine).toHaveBeenCalledTimes(1);
+      expect(apiService.getFullCipherDetails).not.toHaveBeenCalled();
+      expect(leasedCiphersChanged).not.toHaveBeenCalled();
+    });
+
+    it("rebuilds the caches the moment a lease lapses", async () => {
+      jest.useFakeTimers({ now });
+      await seed(held("first", at(60_000)), held("second"));
+      leases.list_mine.mockResolvedValue([
+        lease("first", { notAfter: at(60_000) }),
+        lease("second"),
+      ]);
+      const subscription = service.start();
+      await jest.advanceTimersByTimeAsync(0);
+      expect(leasedCiphersChanged).not.toHaveBeenCalled();
+
+      await jest.advanceTimersByTimeAsync(60_000);
+      subscription.unsubscribe();
+
+      expect(leasedCiphersChanged).toHaveBeenCalledTimes(1);
+    });
+
+    it("retries once after listing leases fails", async () => {
+      jest.useFakeTimers({ now });
+      leases.list_mine.mockRejectedValue(new Error("offline"));
+      const subscription = service.start();
+      await jest.advanceTimersByTimeAsync(0);
+      expect(leases.list_mine).toHaveBeenCalledTimes(1);
+
+      await jest.advanceTimersByTimeAsync(30_000);
+      expect(leases.list_mine).toHaveBeenCalledTimes(2);
+
+      await jest.advanceTimersByTimeAsync(5 * 60_000);
+      subscription.unsubscribe();
+      expect(leases.list_mine).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe("expiry task", () => {
@@ -241,7 +326,7 @@ describe("PamLeaseRefreshService", () => {
       await flush();
 
       expect(Object.keys((await stored()).leases)).toEqual(["live"]);
-      expect(leasedCiphersChanged).toHaveBeenCalled();
+      expect(leasedCiphersChanged).not.toHaveBeenCalled();
       expect(taskSchedulerService.setTimeout).toHaveBeenCalledWith(
         ScheduledTaskNames.pamLeaseExpiry,
         60 * 60 * 1000,

@@ -1,4 +1,8 @@
-@if (!partial) {
+<!-- A leased copy keeps only Autofill and View; with neither, offer no menu. -->
+@if (
+  !partial &&
+  (!gated || showViewOption() || (canAutofill && showAutofill() && (autofillAllowed$ | async)))
+) {
   <bit-item-action>
     <button
       type="button"
@@ -40,11 +44,10 @@
               </a>
             }
           }
-        }
-        <a bitMenuItem *appShareLinkMenuItem="cipher; let share = share" (click)="share()">
-          {{ "shareViaLink" | i18n }}
-        </a>
-        @if (!gated) {
+          <!-- A Send outlives the lease. -->
+          <a bitMenuItem *appShareLinkMenuItem="cipher; let share = share" (click)="share()">
+            {{ "shareViaLink" | i18n }}
+          </a>
           @if (canArchive$ | async) {
             <button type="button" bitMenuItem (click)="archive()">
               {{ "archiveVerb" | i18n }}
