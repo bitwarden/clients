@@ -81,12 +81,12 @@
 </ng-template>
 
 <!--
-  One render item — a group header or a data row — shared by the virtualized and
-  non-virtualized bodies so grouped rendering is identical in both. `forceHeight`
-  pins headers to the fixed heights the virtual-scroll strategy assumes; the
-  non-virtualized body passes it false so headers size to content.
+  One render item: a group header, a group description, or a run of data rows. Headers and
+  descriptions are plain in-flow DOM; a run of rows gets its own virtual-scroll viewport when
+  virtualized. Every viewport scrolls the table's one body (`cdkVirtualScrollingElement`), so
+  stacked runs read as a single list.
 -->
-<ng-template #renderItemTpl let-item="item" let-forceHeight="forceHeight">
+<ng-template #renderItemTpl let-item="item">
   @if (item.kind === "group") {
     <!--
       A group header is a table row whose single header cell spans every column
@@ -101,7 +101,6 @@
           [attr.aria-colspan]="columnCount()"
           [attr.aria-expanded]="!item.group.collapsed()"
           [class]="groupHeaderButtonClass(item.level)"
-          [style.height.px]="forceHeight ? headerHeight(item.level) : null"
           (click)="item.group.toggle()"
         >
           <ng-container *ngTemplateOutlet="item.group.headerTemplate()"></ng-container>
@@ -120,7 +119,6 @@
           role="columnheader"
           [attr.aria-colspan]="columnCount()"
           [class]="groupHeaderClass(item.level)"
-          [style.height.px]="forceHeight ? headerHeight(item.level) : null"
         >
           <ng-container *ngTemplateOutlet="item.group.headerTemplate()"></ng-container>
           @if (item.level === 0 && item.count > 0) {
@@ -130,28 +128,29 @@
       }
     </div>
   } @else if (item.kind === "groupDescription") {
-    <!--
-      Virtualized, the cell takes the fixed height the scroll strategy allocated and clamps
-      the text to the two lines that height covers; otherwise it grows to content. The
-      tooltip reaches whatever the clamp cut off — the text itself stays in the
-      accessibility tree either way.
-    -->
     <div role="row" [class]="listInset()">
       <div
         role="cell"
         [attr.aria-colspan]="columnCount()"
         class="tw-px-1 tw-pb-2 tw-text-sm tw-text-fg-body-subtle"
-        [class.tw-line-clamp-2]="forceHeight"
-        [style.height.px]="forceHeight ? groupDescriptionHeight : null"
-        [bitTooltip]="item.group.description()"
       >
         {{ item.group.description() }}
       </div>
     </div>
+  } @else if (isVirtualized()) {
+    <cdk-virtual-scroll-viewport [itemSize]="virtualRowHeight() ?? 0">
+      <ng-container *cdkVirtualFor="let row of item.rows; trackBy: trackRow">
+        <ng-container
+          *ngTemplateOutlet="dataRowTpl; context: { $implicit: row, cells: bodyCells }"
+        ></ng-container>
+      </ng-container>
+    </cdk-virtual-scroll-viewport>
   } @else {
-    <ng-container
-      *ngTemplateOutlet="dataRowTpl; context: { $implicit: item.row, cells: bodyCells }"
-    ></ng-container>
+    @for (row of item.rows; track trackRow($index, row)) {
+      <ng-container
+        *ngTemplateOutlet="dataRowTpl; context: { $implicit: row, cells: bodyCells }"
+      ></ng-container>
+    }
   }
 </ng-template>
 
@@ -227,56 +226,29 @@
             </bit-status-lockup>
           </ng-content>
         </div>
-      } @else if (isVirtualized()) {
-        <!--
-          Virtualized body: rows and group headers live in one viewport, positioned
-          by `TableVirtualScrollStrategy` from `itemHeights()` (so mixed row/header
-          heights compose). CDK positions content absolutely (no in-flow height), so
-          the viewport needs a bounded height: an explicit `viewportHeight` (capped
-          at `height` rows), or `flex-1` to fill the host in `fill` mode.
-        -->
-        <cdk-virtual-scroll-viewport
-          #scrollBody
-          class="tw-overscroll-x-none"
-          (scroll)="onBodyScroll($event)"
-          [style.height]="isFill() ? null : viewportHeight()"
-          [class.tw-flex-1]="isFill()"
-          [class.tw-min-h-0]="isFill()"
-          [(bitSyncScrollLeft)]="horizontalScroll"
-        >
-          <ng-container
-            *cdkVirtualFor="
-              let item of renderItems();
-              trackBy: trackRenderItem;
-              templateCacheSize: 0
-            "
-          >
-            <ng-container
-              *ngTemplateOutlet="renderItemTpl; context: { item: item, forceHeight: true }"
-            ></ng-container>
-          </ng-container>
-        </cdk-virtual-scroll-viewport>
       } @else {
         <!--
-          Non-virtualized body: fills the host in `fill` mode. A row-count cap
-          needs a known row height, so it's virtualization-only; non-virtualized
-          tables grow to content and size via a CSS class if they need a bound.
-          `renderItems()` interleaves group headers and rows (or is just the flat
-          rows when ungrouped); headers size to content here.
+          The body: the table's one scroll container, in both axes. Fills the host in `fill`
+          mode; a numeric `height` caps it at that many rows. CDK's scrolling element applies
+          `contain: strict`, which would collapse a body that sizes to its content, so only a
+          `fill` body keeps it.
         -->
         <div
           #scrollBody
-          class="tw-overflow-auto tw-overscroll-x-none"
+          cdkVirtualScrollingElement
+          class="tw-relative tw-overflow-auto tw-overscroll-x-none"
           (scroll)="onBodyScroll($event)"
           [class.tw-flex-1]="isFill()"
           [class.tw-min-h-0]="isFill()"
+          [style.contain]="isFill() ? null : 'none'"
+          [style.max-height.px]="maxBodyHeight()"
           [(bitSyncScrollLeft)]="horizontalScroll"
         >
           <!-- Sizes to the scrolled content, so row borders and fills span the full row width. -->
-          <div class="tw-w-fit tw-min-w-full">
+          <div #scrollContent class="tw-w-fit tw-min-w-full">
             @for (item of renderItems(); track trackRenderItem($index, item)) {
               <ng-container
-                *ngTemplateOutlet="renderItemTpl; context: { item: item, forceHeight: false }"
+                *ngTemplateOutlet="renderItemTpl; context: { item: item }"
               ></ng-container>
             }
           </div>

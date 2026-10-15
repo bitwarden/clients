@@ -1,4 +1,4 @@
-import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
+import { CdkVirtualScrollableElement, CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
 import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
@@ -112,7 +112,7 @@ describe("BitTableV2Component scroll layout host", () => {
 
     expect(registered).not.toBeNull();
     // The body the rows scroll in, not the table's own host element.
-    expect(registered!.nativeElement.classList).toContain("cdk-virtual-scroll-viewport");
+    expect(registered!.nativeElement.classList).toContain("cdk-virtual-scrollable");
   });
 
   it("hands the region back when the table is destroyed", async () => {
@@ -127,15 +127,19 @@ describe("BitTableV2Component scroll layout host", () => {
 });
 
 describe("BitTableV2Component virtual viewport resize", () => {
-  it("re-measures the viewport when its element resizes", async () => {
+  it("re-measures the viewports when the body resizes", async () => {
     const fixture = await render();
     const viewport = fixture.debugElement
       .query(By.directive(CdkVirtualScrollViewport))
       .injector.get(CdkVirtualScrollViewport);
     const checkViewportSize = jest.spyOn(viewport, "checkViewportSize");
 
+    const body = fixture.debugElement.query(
+      By.directive(CdkVirtualScrollableElement),
+    ).nativeElement;
+
     const [observer] = FakeResizeObserver.instances;
-    expect(observer.observed).toEqual([viewport.elementRef.nativeElement]);
+    expect(observer.observed).toContain(body);
 
     observer.callback([], observer as unknown as ResizeObserver);
 
