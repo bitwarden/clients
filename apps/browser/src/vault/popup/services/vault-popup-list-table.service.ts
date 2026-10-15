@@ -126,8 +126,8 @@ export class VaultPopupListTableService {
    */
   private viewCipherTimeout?: number;
 
-  /** The search text currently applied to the vault (e.g. restored from stored state). */
-  readonly searchText$ = this.vaultPopupItemsService.searchText$;
+  /** The search text applied to the vault in view (e.g. restored from stored state). */
+  readonly searchText = this.vaultPopupItemsService.searchText;
 
   /** Whether a search term is currently narrowing the vault list. */
   readonly hasSearchText$ = this.vaultPopupItemsService.hasSearchText$;

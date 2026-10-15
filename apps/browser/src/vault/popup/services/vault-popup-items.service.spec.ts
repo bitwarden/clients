@@ -56,7 +56,7 @@ describe("VaultPopupItemsService", () => {
   let activeUserLastSync$: BehaviorSubject<Date | null>;
   let viewCacheService: {
     signal: jest.Mock;
-    mockSignal: WritableSignal<string | null>;
+    mockSignal: WritableSignal<Record<string, string>>;
   };
 
   let ciphersSubject: BehaviorSubject<Record<CipherId, CipherData>>;
@@ -71,7 +71,11 @@ describe("VaultPopupItemsService", () => {
   const vaultAutofillServiceMock = mock<VaultPopupAutofillService>();
   const syncServiceMock = mock<SyncService>();
   const vaultPopupListFiltersServiceMock = mock<VaultPopupListFiltersService>();
-  const vaultPopupListTableFiltersServiceMock = mock<VaultPopupListTableFiltersService>();
+  /** The vault in view, which keys the search text. */
+  const activeScopeKey = signal("allItems");
+  const vaultPopupListTableFiltersServiceMock = mock<VaultPopupListTableFiltersService>({
+    scopeKey: activeScopeKey,
+  });
   const configServiceMock = mock<ConfigService>();
   let filters$: BehaviorSubject<PopupListFilter>;
 
@@ -150,6 +154,7 @@ describe("VaultPopupItemsService", () => {
     vaultPopupListFiltersServiceMock.filters$ = filters$;
     vaultPopupListFiltersServiceMock.filterFunction$ = of((ciphers) => ciphers);
     vaultPopupListTableFiltersServiceMock.hasFilterApplied$ = of(false);
+    activeScopeKey.set("allItems");
 
     mockCollections = [
       { id: "col1", name: "Collection 1" } as CollectionView,
@@ -162,7 +167,7 @@ describe("VaultPopupItemsService", () => {
     activeUserLastSync$ = new BehaviorSubject<Date | null>(new Date());
     syncServiceMock.activeUserLastSync$.mockReturnValue(activeUserLastSync$);
 
-    const testSearchSignal = createMockSignal<string | null>("");
+    const testSearchSignal = createMockSignal<Record<string, string>>({});
     viewCacheService = {
       mockSignal: testSearchSignal,
       signal: jest.fn((options) => testSearchSignal),
@@ -572,17 +577,38 @@ describe("VaultPopupItemsService", () => {
   it("should update searchText$ when applyFilter is called", (done) => {
     service.searchText$.subscribe((val) => {
       expect(val).toEqual("test search");
-      expect(viewCacheService.mockSignal()).toEqual("test search");
+      expect(viewCacheService.mockSignal()).toEqual({ allItems: "test search" });
       done();
     });
 
     service.applyFilter("test search");
   });
 
+  describe("per-vault search text", () => {
+    it("starts a vault with no search text of its own empty", async () => {
+      service.applyFilter("github");
+
+      activeScopeKey.set("myVault");
+
+      expect(await firstValueFrom(service.searchText$)).toBe("");
+    });
+
+    it("restores a vault's own search text when switching back", async () => {
+      service.applyFilter("github");
+      activeScopeKey.set("myVault");
+      service.applyFilter("bank");
+
+      activeScopeKey.set("allItems");
+
+      expect(await firstValueFrom(service.searchText$)).toBe("github");
+      expect(viewCacheService.mockSignal()).toEqual({ allItems: "github", myVault: "bank" });
+    });
+  });
+
   describe("clearSearchText on account switch", () => {
     it("should clear search text when the active account changes", () => {
       service.applyFilter("some search text");
-      expect(viewCacheService.mockSignal()).toBe("some search text");
+      expect(viewCacheService.mockSignal()).toEqual({ allItems: "some search text" });
 
       const accountService = testBed.inject(AccountService) as FakeAccountService;
       const newUserId = Utils.newGuid() as UserId;
@@ -594,12 +620,12 @@ describe("VaultPopupItemsService", () => {
         creationDate: new Date(),
       });
 
-      expect(viewCacheService.mockSignal()).toBe("");
+      expect(viewCacheService.mockSignal()).toEqual({});
     });
 
     it("should not clear search text when the same account re-emits", () => {
       service.applyFilter("some search text");
-      expect(viewCacheService.mockSignal()).toBe("some search text");
+      expect(viewCacheService.mockSignal()).toEqual({ allItems: "some search text" });
 
       const accountService = testBed.inject(AccountService) as FakeAccountService;
       // Re-emit the same userId — distinctUntilChanged should swallow it
@@ -611,7 +637,7 @@ describe("VaultPopupItemsService", () => {
         creationDate: new Date(),
       });
 
-      expect(viewCacheService.mockSignal()).toBe("some search text");
+      expect(viewCacheService.mockSignal()).toEqual({ allItems: "some search text" });
     });
   });
 });

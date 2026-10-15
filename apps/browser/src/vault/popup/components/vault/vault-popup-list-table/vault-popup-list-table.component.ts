@@ -8,6 +8,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   Injector,
   viewChild,
@@ -557,13 +558,12 @@ export class VaultPopupListTableComponent {
     CipherViewLikeUtils.getType(row.cipher) === CipherType.Identity;
 
   constructor() {
-    // Keep the input in sync with the search text already applied to the vault (e.g. restored state).
-    this.listTableService.searchText$
-      .pipe(
-        takeUntilDestroyed(),
-        filter((text) => !!text),
-      )
-      .subscribe((text) => (this.searchText = text));
+    // Keep the input in sync with the vault in view's applied search text (e.g. restored state).
+    // Read as a signal: the shared observable replays the previous vault's text to a page rebuilt by
+    // a vault switch, before it catches up.
+    effect(() => {
+      this.searchText = this.listTableService.searchText();
+    });
 
     // Debounced apply lives in the service; the component just feeds it and owns the subscription.
     this.listTableService

@@ -96,7 +96,7 @@ describe("VaultPopupListTableComponent", () => {
   const favoriteCiphers$ = new BehaviorSubject<PopupCipherViewLike[]>([]);
   const filteredCiphers$ = new BehaviorSubject<PopupCipherViewLike[]>([]);
   const loading$ = new BehaviorSubject<boolean>(false);
-  const searchText$ = new BehaviorSubject<string>("");
+  const searchText = signal("");
   const hasSearchText$ = new BehaviorSubject<boolean>(false);
   const showDeactivatedOrg$ = new BehaviorSubject<boolean>(false);
   const emptyVault$ = new BehaviorSubject<boolean>(false);
@@ -126,7 +126,7 @@ describe("VaultPopupListTableComponent", () => {
     favoriteCiphers$: favoriteCiphers$.asObservable(),
     filteredCiphers$: filteredCiphers$.asObservable(),
     loading$: loading$.asObservable(),
-    searchText$: searchText$.asObservable(),
+    searchText,
     hasSearchText$: hasSearchText$.asObservable(),
     showDeactivatedOrg$: showDeactivatedOrg$.asObservable(),
     emptyVault$: emptyVault$.asObservable(),
@@ -219,7 +219,7 @@ describe("VaultPopupListTableComponent", () => {
     filteredCiphers$.next([]);
     activeCiphers$.next([]);
     loading$.next(false);
-    searchText$.next("");
+    searchText.set("");
     hasSearchText$.next(false);
     showDeactivatedOrg$.next(false);
     hasFilterApplied$.next(false);
@@ -1131,10 +1131,21 @@ describe("VaultPopupListTableComponent", () => {
 
   describe("search", () => {
     it("syncs searchText from the search text already applied to the vault", () => {
-      searchText$.next("synced text");
+      searchText.set("synced text");
       fixture.detectChanges();
 
       expect(component["searchText"]).toBe("synced text");
+    });
+
+    /** A vault switch rebuilds the page, which must not keep the previous vault's text. */
+    it("clears the input when the vault in view has no search text", () => {
+      searchText.set("synced text");
+      fixture.detectChanges();
+
+      searchText.set("");
+      fixture.detectChanges();
+
+      expect(component["searchText"]).toBe("");
     });
 
     it("applies the search filter (debounced) when the search text changes", fakeAsync(() => {

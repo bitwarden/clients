@@ -426,6 +426,7 @@ const buildProviders = (args: StoryArgs) => {
         autoFillCiphers$: of(populated ? AUTOFILL_CIPHERS : []),
         cipherCount$: of(allItems.length),
         searchText$: of(""),
+        searchText: signal(""),
         loading$: of(false),
         // Drives the autofill section's type grouping and its empty-state tip.
         hasFilterApplied$: of(false),
