@@ -7,7 +7,7 @@ import { firstValueFrom, map } from "rxjs";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -18,9 +18,9 @@ import {
   DialogService,
   FormFieldModule,
   HeaderComponent,
-  LinkModule,
   SectionComponent,
   SectionHeaderComponent,
+  SelectModule,
   SkeletonComponent,
   SkeletonTextComponent,
   TabsModule,
@@ -38,14 +38,21 @@ import {
 } from "../create-flow";
 import { DetailBreadcrumbComponent } from "../detail-breadcrumb.component";
 import { tabFromSegment } from "../detail-tab";
+import {
+  ManagedCredentialDraft,
+  ManagedCredentialDraftService,
+} from "../managed-credential-draft.service";
 import { OrgCiphersService } from "../org-ciphers.service";
 import {
+  AccessConnector,
+  AccessConnectorStatus,
   RotationConfigCreateRequest,
   RotationConfigDetailView,
   RotationConfigId,
   TargetSystemId,
   TargetSystemMethod,
   TargetSystemStatus,
+  TargetSystemView,
 } from "../rotation";
 import { classifyRotationError } from "../rotation-error";
 import { ROTATION_TABS, rotationLink } from "../rotation-links";
@@ -84,7 +91,6 @@ export type RotationConfigEditTab = (typeof ROTATION_CONFIG_EDIT_TABS)[number];
     CardComponent,
     CheckboxModule,
     HeaderComponent,
-    LinkModule,
     RotationHistoryComponent,
     RotationHistorySkeletonComponent,
     RotationLoadErrorComponent,
@@ -92,6 +98,7 @@ export type RotationConfigEditTab = (typeof ROTATION_CONFIG_EDIT_TABS)[number];
     RotationScheduleInputComponent,
     SectionComponent,
     SectionHeaderComponent,
+    SelectModule,
     SkeletonComponent,
     SkeletonTextComponent,
     TabsModule,
@@ -109,6 +116,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
+  private readonly draftService = inject(ManagedCredentialDraftService);
 
   private readonly organizationId = this.route.snapshot.params.organizationId as OrganizationId;
   private readonly configId: RotationConfigId | undefined =
@@ -183,6 +191,8 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     () => this.config() != null && this.config()?.sealed == null,
   );
 
+  protected readonly headerIcon = this.editing ? "bwi-key" : "bwi-plus";
+
   protected readonly titleText = computed(() =>
     this.i18nService.t(
       this.editing ? "pamRotationConfigEditTitle" : "pamRotationConfigCreateTitle",
@@ -199,6 +209,37 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
   );
 
   protected readonly hasActiveTargetSystems = computed(() => this.activeTargetSystems().length > 0);
+
+  /** `null` when the connector read failed, so no target is described from a guess. */
+  private readonly connectors = signal<AccessConnector[] | null>(null);
+
+  protected readonly targetOptions = computed(() =>
+    this.activeTargetSystems().map((system) => ({
+      id: String(system.id),
+      name: system.name,
+      description: this.targetDescription(system),
+    })),
+  );
+
+  private targetDescription(system: TargetSystemView): string | undefined {
+    if (system.method === TargetSystemMethod.Manual) {
+      return this.i18nService.t("pamRotationConfigTargetManual");
+    }
+    if (this.connectors() != null && !this.hasConnectedConnector(system)) {
+      return this.i18nService.t("pamRotationConfigTargetNoConnector");
+    }
+    return undefined;
+  }
+
+  private hasConnectedConnector(system: TargetSystemView): boolean {
+    const systemId = uuidAsString(system.id).toLowerCase();
+    return (this.connectors() ?? []).some(
+      (connector) =>
+        connector.status === AccessConnectorStatus.Enabled &&
+        connector.isConnected &&
+        connector.assignedTargetSystemIds.some((id) => uuidAsString(id).toLowerCase() === systemId),
+    );
+  }
 
   private readonly editableCiphers = toSignal(this.orgCiphersService.editableCiphers$, {
     initialValue: [],
@@ -218,6 +259,42 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     terminateSessions: [false],
     scheduleCron: [null as string | null],
     rotateOnAccessEnd: [false],
+  });
+
+  private readonly selectedTargetId = toSignal(
+    this.createForm.controls.targetSystemId.valueChanges,
+    { initialValue: "" },
+  );
+
+  private readonly selectedTarget = computed(
+    () => this.activeTargetSystems().find((s) => String(s.id) === this.selectedTargetId()) ?? null,
+  );
+
+  protected readonly selectedTargetIsManual = computed(
+    () => this.selectedTarget()?.method === TargetSystemMethod.Manual,
+  );
+
+  protected readonly selectedTargetNotConnected = computed(() => {
+    const target = this.selectedTarget();
+    return (
+      target != null &&
+      target.method === TargetSystemMethod.Automatic &&
+      this.connectors() != null &&
+      !this.hasConnectedConnector(target)
+    );
+  });
+
+  protected readonly terminateSessionsReasonKey = computed(() => {
+    if (this.selectedTargetIsManual()) {
+      return "pamRotationConfigAutomaticOnly";
+    }
+    if (
+      this.terminateAllowedFor(this.selectedTarget() ?? undefined) ||
+      this.terminateSessionsUnknown()
+    ) {
+      return null;
+    }
+    return "pamRotationConfigEndSessionsAvailableOnce";
   });
 
   protected readonly settingsForm = this.formBuilder.nonNullable.group({
@@ -243,7 +320,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
   protected readonly accountFormLocked = computed(() => this.config()?.hasActiveJob ?? false);
 
   constructor() {
-    this.coupleTerminateSessions();
+    this.coupleTargetControls();
     void this.initialize();
   }
 
@@ -268,20 +345,55 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
       this.loadError.set(e);
     } finally {
       this.loading.set(false);
-      this.markSaved();
+      this.markLoadedState();
     }
   }
 
   private async initializeCreateMode(): Promise<void> {
-    const [configs] = await Promise.all([
+    const [configs, connectors] = await Promise.all([
       this.rotationSdk.listConfigs(this.organizationId),
+      this.loadConnectors(),
       this.targetSystemsService.load(this.organizationId),
       this.orgCiphersService.load(this.organizationId),
     ]);
     await this.throwIfTargetSystemsFailed();
     this.configuredCipherIds.set(new Set(configs.map((c) => c.cipherId)));
+    this.connectors.set(connectors);
+    this.restoreDraft();
     this.applyPreselectedTargetSystem();
   }
+
+  private async loadConnectors(): Promise<AccessConnector[] | null> {
+    try {
+      return (await this.rotationSdk.listConnectors(this.organizationId)) ?? [];
+    } catch {
+      return null;
+    }
+  }
+
+  /** What the form held before the admin left to add a target system, read once. */
+  private restoreDraft(): void {
+    const draft = this.takenDraft() ?? this.draftService.take(this.organizationId);
+    if (draft == null) {
+      return;
+    }
+    this.takenDraft.set(draft);
+    this.emptyFormValue.set(JSON.stringify(this.createForm.getRawValue()));
+    this.createForm.patchValue({
+      cipherId: draft.cipherId,
+      targetSystemId: draft.targetSystemId,
+      accountIdentity: draft.accountIdentity,
+      scheduleCron: draft.scheduleCron,
+      rotateOnAccessEnd: draft.rotateOnAccessEnd,
+      terminateSessions: draft.terminateSessions,
+    });
+    this.applyTargetCoupling();
+  }
+
+  private readonly takenDraft = signal<ManagedCredentialDraft | null>(null);
+
+  /** The form as it stood before a draft filled it, which a restored draft is measured against. */
+  private readonly emptyFormValue = signal<string | null>(null);
 
   /**
    * `TargetSystemsService.load` resolves even on failure, so this checks `loadError$` to tell a
@@ -304,6 +416,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
       return;
     }
     this.createForm.patchValue({ targetSystemId: preselected });
+    this.applyTargetCoupling();
   }
 
   private async initializeEditMode(): Promise<void> {
@@ -329,27 +442,50 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
   }
 
   /** True for an automatic target with no verified sealed fields — the checkbox is disabled for "unknown", not "unsupported". */
-  protected readonly terminateSessionsUnknown = signal(false);
+  protected readonly terminateSessionsUnknown = computed(() => {
+    const target = this.selectedTarget();
+    return (
+      target != null && target.method === TargetSystemMethod.Automatic && target.sealed == null
+    );
+  });
 
-  /** The server rejects `terminateSessions` unless the target is automatic and confirms it. */
-  private coupleTerminateSessions(): void {
-    const targetControl = this.createForm.controls.targetSystemId;
+  /**
+   * The server rejects `terminateSessions` unless the target is automatic and confirms it, and a
+   * manual target has no access-end rotation to raise.
+   */
+  private coupleTargetControls(): void {
+    this.createForm.controls.targetSystemId.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.applyTargetCoupling());
+  }
+
+  private applyTargetCoupling(): void {
     const terminateControl = this.createForm.controls.terminateSessions;
+    const accessEndControl = this.createForm.controls.rotateOnAccessEnd;
+    const targetId = this.createForm.controls.targetSystemId.value;
+    const target = this.activeTargetSystems().find((s) => String(s.id) === targetId);
 
-    targetControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((targetId) => {
-      const target = this.activeTargetSystems().find((s) => String(s.id) === targetId);
-      const automatic = target != null && target.method === TargetSystemMethod.Automatic;
-      const unknown = automatic && target.sealed == null;
-      this.terminateSessionsUnknown.set(unknown);
+    if (this.terminateAllowedFor(target)) {
+      terminateControl.enable({ emitEvent: false });
+    } else {
+      terminateControl.setValue(false, { emitEvent: false });
+      terminateControl.disable({ emitEvent: false });
+    }
 
-      const allowed = automatic && target.sealed?.supportsSessionTermination === true;
-      if (!allowed) {
-        terminateControl.setValue(false, { emitEvent: false });
-        terminateControl.disable({ emitEvent: false });
-      } else {
-        terminateControl.enable({ emitEvent: false });
-      }
-    });
+    if (target?.method === TargetSystemMethod.Manual) {
+      accessEndControl.setValue(false, { emitEvent: false });
+      accessEndControl.disable({ emitEvent: false });
+    } else {
+      accessEndControl.enable({ emitEvent: false });
+    }
+  }
+
+  private terminateAllowedFor(target: TargetSystemView | undefined): boolean {
+    return (
+      target != null &&
+      target.method === TargetSystemMethod.Automatic &&
+      target.sealed?.supportsSessionTermination === true
+    );
   }
 
   protected readonly submitCreate = async (): Promise<void> => {
@@ -370,7 +506,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
       await this.rotationSdk.createConfig(this.organizationId, request);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamRotationConfigCreated"),
+        message: this.i18nService.t("pamRotationConfigAdded"),
       });
       await this.navigateBack();
     } catch (e) {
@@ -452,6 +588,8 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
 
   /** The target-system create page returns here with the new target selected. */
   protected readonly createTargetSystem = (): Promise<boolean> => {
+    const value = this.createForm.getRawValue();
+    this.draftService.save({ organizationId: this.organizationId, ...value });
     this.markSaved();
     return this.router.navigate(["target-systems", "new"], {
       relativeTo: this.route.parent,
@@ -465,6 +603,16 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
 
   /** The live form's value as the admin was last shown it, serialized. */
   private readonly savedValue = signal("");
+
+  /** A restored draft stays unsaved, so leaving still asks before it is lost. */
+  private markLoadedState(): void {
+    const empty = this.emptyFormValue();
+    if (empty == null) {
+      this.markSaved();
+      return;
+    }
+    this.savedValue.set(empty);
+  }
 
   private markSaved(): void {
     this.savedValue.set(JSON.stringify(this.liveForm().getRawValue()));
