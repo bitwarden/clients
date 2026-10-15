@@ -17940,12 +17940,6 @@
   "pamAccessRuleDeleted": {
     "message": "Access rule deleted."
   },
-  "pamAccessRuleDiscardContent": {
-    "message": "The details you entered won't be saved."
-  },
-  "pamAccessRuleDiscardConfirm": {
-    "message": "Discard"
-  },
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Delete access rule?"
   },
