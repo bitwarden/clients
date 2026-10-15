@@ -179,6 +179,7 @@ export abstract class ApiService {
   abstract getCiphersOrganization(
     organizationId: string,
     includeMemberItems?: boolean,
+    signal?: AbortSignal,
   ): Promise<ListResponse<CipherResponse>>;
   abstract postCipher(request: CipherRequest): Promise<CipherResponse>;
   abstract postCipherCreate(request: CipherCreateRequest): Promise<CipherResponse>;

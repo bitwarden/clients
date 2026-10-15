@@ -143,6 +143,30 @@ describe("ApiService", () => {
       expect(response).toEqual({ hello: "world" });
     });
 
+    it("attaches the abort signal to the request", async () => {
+      environmentService.getEnvironment$.mockReturnValue(
+        of({
+          getApiUrl: () => "https://authed.example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+      tokenService.getAccessToken.mockResolvedValue("access_token");
+      tokenService.tokenNeedsRefresh.mockResolvedValue(false);
+
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+      nativeFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({}),
+        headers: new Headers({ "content-type": "application/json" }),
+      } satisfies Partial<Response> as Response);
+      sut.nativeFetch = nativeFetch;
+
+      const controller = new AbortController();
+      await sut.send("GET", "/something", null, true, true, null, null, controller.signal);
+
+      expect(nativeFetch.mock.calls[0][0].signal).toBe(controller.signal);
+    });
+
     it("authenticates with non-active user when user is passed in", async () => {
       environmentService.environment$ = of({
         getApiUrl: () => "https://example.com",

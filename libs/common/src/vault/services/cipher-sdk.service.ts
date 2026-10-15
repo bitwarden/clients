@@ -480,6 +480,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
     organizationId: string,
     userId: UserId,
     includeMemberItems: boolean,
+    signal?: AbortSignal,
   ): Promise<[Cipher[], CipherListView[]]> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
@@ -490,7 +491,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
             .vault()
             .ciphers()
             .admin()
-            .list_org_ciphers(asUuid(organizationId), includeMemberItems);
+            .list_org_ciphers_abortable(asUuid(organizationId), includeMemberItems, signal);
 
           const ciphers = result.ciphers
             .map((c) => Cipher.fromSdkCipher(c))
@@ -499,7 +500,10 @@ export class DefaultCipherSdkService implements CipherSdkService {
           return [ciphers, result.listViews] as [Cipher[], CipherListView[]];
         }),
         catchError((error: unknown) => {
-          this.logService.error(`Failed to list organization ciphers: ${error}`);
+          // A cancelled load is expected when the caller navigates away, not a failure
+          if (!signal?.aborted) {
+            this.logService.error(`Failed to list organization ciphers: ${error}`);
+          }
           throw error;
         }),
       ),
@@ -509,6 +513,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
   async getManyFromApiForOrganization(
     organizationId: string,
     userId: UserId,
+    signal?: AbortSignal,
   ): Promise<[Cipher[], CipherListView[]]> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
@@ -519,7 +524,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
             .vault()
             .ciphers()
             .admin()
-            .list_assigned_org_ciphers(asUuid(organizationId));
+            .list_assigned_org_ciphers_abortable(asUuid(organizationId), signal);
 
           const ciphers = result.ciphers
             .map((c) => Cipher.fromSdkCipher(c))
@@ -528,7 +533,10 @@ export class DefaultCipherSdkService implements CipherSdkService {
           return [ciphers, result.listViews] as [Cipher[], CipherListView[]];
         }),
         catchError((error: unknown) => {
-          this.logService.error(`Failed to list assigned organization ciphers: ${error}`);
+          // A cancelled load is expected when the caller navigates away, not a failure
+          if (!signal?.aborted) {
+            this.logService.error(`Failed to list assigned organization ciphers: ${error}`);
+          }
           throw error;
         }),
       ),

@@ -48,8 +48,10 @@ describe("DefaultCipherSdkService", () => {
       soft_delete_many: jest.fn().mockResolvedValue(undefined),
       restore: jest.fn().mockResolvedValue(undefined),
       restore_many: jest.fn().mockResolvedValue(undefined),
-      list_org_ciphers: jest.fn().mockResolvedValue({ ciphers: [], listViews: [] }),
-      list_assigned_org_ciphers: jest.fn().mockResolvedValue({ ciphers: [], listViews: [] }),
+      list_org_ciphers_abortable: jest.fn().mockResolvedValue({ ciphers: [], listViews: [] }),
+      list_assigned_org_ciphers_abortable: jest
+        .fn()
+        .mockResolvedValue({ ciphers: [], listViews: [] }),
       list_org_login_ciphers: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
       update_collection: jest.fn(),
       delete_attachment: jest.fn().mockResolvedValue(undefined),
@@ -1154,7 +1156,7 @@ describe("DefaultCipherSdkService", () => {
 
     it("should list organization ciphers using SDK admin API", async () => {
       const mockListView: any = { id: cipherId, name: "Org Cipher" };
-      mockAdminSdk.list_org_ciphers.mockResolvedValue({
+      mockAdminSdk.list_org_ciphers_abortable.mockResolvedValue({
         ciphers: [mockSdkCipher],
         listViews: [mockListView],
       });
@@ -1164,7 +1166,7 @@ describe("DefaultCipherSdkService", () => {
       expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
       expect(mockVaultSdk.ciphers).toHaveBeenCalled();
       expect(mockCiphersSdk.admin).toHaveBeenCalled();
-      expect(mockAdminSdk.list_org_ciphers).toHaveBeenCalledWith(orgId, false);
+      expect(mockAdminSdk.list_org_ciphers_abortable).toHaveBeenCalledWith(orgId, false, undefined);
       const [ciphers, listViews] = result;
       expect(ciphers).toHaveLength(1);
       expect(ciphers[0]).toBeInstanceOf(Cipher);
@@ -1172,18 +1174,18 @@ describe("DefaultCipherSdkService", () => {
     });
 
     it("should pass includeMemberItems parameter to SDK", async () => {
-      mockAdminSdk.list_org_ciphers.mockResolvedValue({
+      mockAdminSdk.list_org_ciphers_abortable.mockResolvedValue({
         ciphers: [],
         listViews: [],
       });
 
       await cipherSdkService.getAllFromApiForOrganization(orgId, userId, true);
 
-      expect(mockAdminSdk.list_org_ciphers).toHaveBeenCalledWith(orgId, true);
+      expect(mockAdminSdk.list_org_ciphers_abortable).toHaveBeenCalledWith(orgId, true, undefined);
     });
 
     it("should throw error and log when SDK throws an error", async () => {
-      mockAdminSdk.list_org_ciphers.mockRejectedValue(new Error("SDK error"));
+      mockAdminSdk.list_org_ciphers_abortable.mockRejectedValue(new Error("SDK error"));
 
       await expect(
         cipherSdkService.getAllFromApiForOrganization(orgId, userId, false),
@@ -1191,6 +1193,26 @@ describe("DefaultCipherSdkService", () => {
       expect(logService.error).toHaveBeenCalledWith(
         expect.stringContaining("Failed to list organization ciphers"),
       );
+    });
+
+    it("should pass the abort signal to the SDK and not log when the load is aborted", async () => {
+      const controller = new AbortController();
+      mockAdminSdk.list_org_ciphers_abortable.mockImplementation(async () => {
+        controller.abort();
+        throw new Error("Cancelled");
+      });
+      logService.error.mockClear();
+
+      await expect(
+        cipherSdkService.getAllFromApiForOrganization(orgId, userId, false, controller.signal),
+      ).rejects.toThrow();
+
+      expect(mockAdminSdk.list_org_ciphers_abortable).toHaveBeenCalledWith(
+        orgId,
+        false,
+        controller.signal,
+      );
+      expect(logService.error).not.toHaveBeenCalled();
     });
   });
 
@@ -1310,7 +1332,7 @@ describe("DefaultCipherSdkService", () => {
 
     it("should list assigned organization ciphers using SDK admin API", async () => {
       const mockListView: any = { id: cipherId, name: "Org Cipher" };
-      mockAdminSdk.list_assigned_org_ciphers.mockResolvedValue({
+      mockAdminSdk.list_assigned_org_ciphers_abortable.mockResolvedValue({
         ciphers: [mockSdkCipher],
         listViews: [mockListView],
       });
@@ -1320,7 +1342,10 @@ describe("DefaultCipherSdkService", () => {
       expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
       expect(mockVaultSdk.ciphers).toHaveBeenCalled();
       expect(mockCiphersSdk.admin).toHaveBeenCalled();
-      expect(mockAdminSdk.list_assigned_org_ciphers).toHaveBeenCalledWith(orgId);
+      expect(mockAdminSdk.list_assigned_org_ciphers_abortable).toHaveBeenCalledWith(
+        orgId,
+        undefined,
+      );
       const [ciphers, listViews] = result;
       expect(ciphers).toHaveLength(1);
       expect(ciphers[0]).toBeInstanceOf(Cipher);
@@ -1328,7 +1353,7 @@ describe("DefaultCipherSdkService", () => {
     });
 
     it("should return empty arrays when SDK returns no ciphers", async () => {
-      mockAdminSdk.list_assigned_org_ciphers.mockResolvedValue({
+      mockAdminSdk.list_assigned_org_ciphers_abortable.mockResolvedValue({
         ciphers: [],
         listViews: [],
       });
@@ -1343,12 +1368,31 @@ describe("DefaultCipherSdkService", () => {
     });
 
     it("should throw error and log when SDK throws an error", async () => {
-      mockAdminSdk.list_assigned_org_ciphers.mockRejectedValue(new Error("SDK error"));
+      mockAdminSdk.list_assigned_org_ciphers_abortable.mockRejectedValue(new Error("SDK error"));
 
       await expect(cipherSdkService.getManyFromApiForOrganization(orgId, userId)).rejects.toThrow();
       expect(logService.error).toHaveBeenCalledWith(
         expect.stringContaining("Failed to list assigned organization ciphers"),
       );
+    });
+
+    it("should pass the abort signal to the SDK and not log when the load is aborted", async () => {
+      const controller = new AbortController();
+      mockAdminSdk.list_assigned_org_ciphers_abortable.mockImplementation(async () => {
+        controller.abort();
+        throw new Error("Cancelled");
+      });
+      logService.error.mockClear();
+
+      await expect(
+        cipherSdkService.getManyFromApiForOrganization(orgId, userId, controller.signal),
+      ).rejects.toThrow();
+
+      expect(mockAdminSdk.list_assigned_org_ciphers_abortable).toHaveBeenCalledWith(
+        orgId,
+        controller.signal,
+      );
+      expect(logService.error).not.toHaveBeenCalled();
     });
   });
 

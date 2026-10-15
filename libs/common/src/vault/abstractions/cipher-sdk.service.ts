@@ -288,12 +288,14 @@ export abstract class CipherSdkService {
    * @param organizationId The organization ID to fetch ciphers for
    * @param userId The user ID to use for SDK client
    * @param includeMemberItems Whether to include member items
+   * @param signal Aborts the request and skips decryption; the promise then rejects
    * @returns A promise that resolves to the encrypted ciphers and decrypted list views
    */
   abstract getAllFromApiForOrganization(
     organizationId: string,
     userId: UserId,
     includeMemberItems: boolean,
+    signal?: AbortSignal,
   ): Promise<[Cipher[], CipherListView[]]>;
 
   /**
@@ -302,11 +304,13 @@ export abstract class CipherSdkService {
    *
    * @param organizationId The organization ID to fetch ciphers for
    * @param userId The user ID to use for SDK client
+   * @param signal Aborts the request and skips decryption; the promise then rejects
    * @returns A promise that resolves to the encrypted ciphers and decrypted list views
    */
   abstract getManyFromApiForOrganization(
     organizationId: string,
     userId: UserId,
+    signal?: AbortSignal,
   ): Promise<[Cipher[], CipherListView[]]>;
 
   /**

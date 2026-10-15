@@ -377,12 +377,13 @@ export class ApiService implements ApiServiceAbstraction {
   async getCiphersOrganization(
     organizationId: string,
     includeMemberItems?: boolean,
+    signal?: AbortSignal,
   ): Promise<ListResponse<CipherResponse>> {
     let url = "/ciphers/organization-details?organizationId=" + organizationId;
     if (includeMemberItems) {
       url += `&includeMemberItems=${includeMemberItems}`;
     }
-    const r = await this.send("GET", url, null, true, true);
+    const r = await this.send("GET", url, null, true, true, null, null, signal);
     return new ListResponse(r, CipherResponse);
   }
 
@@ -1586,6 +1587,7 @@ export class ApiService implements ApiServiceAbstraction {
     hasResponse: boolean,
     apiUrl?: string | null,
     alterHeaders?: (headers: Headers) => void,
+    signal?: AbortSignal,
   ): Promise<any> {
     // We assume that if there is a UserId making the request, it is also an authenticated
     // request and we will attempt to add an access token to the request.
@@ -1607,6 +1609,7 @@ export class ApiService implements ApiServiceAbstraction {
       hasResponse,
       body,
       alterHeaders,
+      signal,
     );
 
     let response = await this.fetch(this.httpOperations.createRequest(requestUrl, request));
@@ -1629,6 +1632,7 @@ export class ApiService implements ApiServiceAbstraction {
         hasResponse,
         body,
         alterHeaders,
+        signal,
       );
       response = await this.fetch(this.httpOperations.createRequest(requestUrl, request));
     }
@@ -1696,6 +1700,7 @@ export class ApiService implements ApiServiceAbstraction {
     hasResponse: boolean,
     body: string,
     alterHeaders?: (headers: Headers) => void,
+    signal?: AbortSignal,
   ): Promise<RequestInit> {
     const [requestHeaders, requestBody] = await this.buildHeadersAndBody(
       userForAccessToken,
@@ -1708,6 +1713,7 @@ export class ApiService implements ApiServiceAbstraction {
       cache: "no-store",
       credentials: await this.getCredentials(environment),
       method: method,
+      signal: signal,
     };
     requestInit.headers = requestHeaders;
     requestInit.body = requestBody;

@@ -1591,7 +1591,7 @@ describe("Cipher Service", () => {
 
       await cipherService.getAllFromApiForOrganization(testOrgId, true);
 
-      expect(apiSpy).toHaveBeenCalledWith(testOrgId, true);
+      expect(apiSpy).toHaveBeenCalledWith(testOrgId, true, undefined);
     });
 
     it("should call apiService.getCiphersOrganization without includeMemberItems when not provided", async () => {
@@ -1606,7 +1606,26 @@ describe("Cipher Service", () => {
 
       await cipherService.getAllFromApiForOrganization(testOrgId);
 
-      expect(apiSpy).toHaveBeenCalledWith(testOrgId, undefined);
+      expect(apiSpy).toHaveBeenCalledWith(testOrgId, undefined, undefined);
+    });
+
+    it("should pass the abort signal to the API and skip decryption once aborted", async () => {
+      sdkCrudFeatureFlag$.next(false);
+
+      const controller = new AbortController();
+      const apiSpy = jest
+        .spyOn(apiService, "getCiphersOrganization")
+        .mockImplementation(async () => {
+          controller.abort();
+          return { data: [new CipherResponse(cipherData)] } as any;
+        });
+
+      await expect(
+        cipherService.getAllFromApiForOrganization(testOrgId, undefined, controller.signal),
+      ).rejects.toThrow();
+
+      expect(apiSpy).toHaveBeenCalledWith(testOrgId, undefined, controller.signal);
+      expect(cipherEncryptionService.decryptManyLegacy).not.toHaveBeenCalled();
     });
 
     it("should decrypt API ciphers via the SDK, keeping failures, when feature flag is disabled", async () => {
@@ -1656,7 +1675,7 @@ describe("Cipher Service", () => {
 
       const result = await cipherService.getAllFromApiForOrganization(testOrgId, true);
 
-      expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId, true);
+      expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId, true, undefined);
       expect(apiSpy).not.toHaveBeenCalled();
       expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
         [mockCipher1, mockCipher2],
@@ -1680,8 +1699,24 @@ describe("Cipher Service", () => {
 
       await cipherService.getAllFromApiForOrganization(testOrgId);
 
-      expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId, false);
+      expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId, false, undefined);
       expect(apiSpy).not.toHaveBeenCalled();
+    });
+
+    it("should skip decryption and reject instead of returning an empty array when aborted (SDK)", async () => {
+      sdkCrudFeatureFlag$.next(true);
+
+      const controller = new AbortController();
+      jest.spyOn(cipherSdkService, "getAllFromApiForOrganization").mockImplementation(async () => {
+        controller.abort();
+        return [[new Cipher(cipherData)], []];
+      });
+
+      await expect(
+        cipherService.getAllFromApiForOrganization(testOrgId, undefined, controller.signal),
+      ).rejects.toThrow();
+
+      expect(cipherEncryptionService.decryptManyLegacy).not.toHaveBeenCalled();
     });
   });
 
@@ -1710,7 +1745,7 @@ describe("Cipher Service", () => {
 
       const result = await cipherService.getManyFromApiForOrganization(testOrgId);
 
-      expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId);
+      expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId, undefined);
       expect(apiSpy).not.toHaveBeenCalled();
       expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
         [mockCipher1, mockCipher2],
@@ -1719,6 +1754,20 @@ describe("Cipher Service", () => {
       expect(result).toHaveLength(2);
       expect(result[0]).toBeInstanceOf(CipherView);
       expect(result[1]).toBeInstanceOf(CipherView);
+    });
+
+    it("should skip decryption and reject instead of returning an empty array when aborted", async () => {
+      const controller = new AbortController();
+      jest.spyOn(cipherSdkService, "getManyFromApiForOrganization").mockImplementation(async () => {
+        controller.abort();
+        return [[new Cipher(cipherData)], []];
+      });
+
+      await expect(
+        cipherService.getManyFromApiForOrganization(testOrgId, controller.signal),
+      ).rejects.toThrow();
+
+      expect(cipherEncryptionService.decryptManyLegacy).not.toHaveBeenCalled();
     });
 
     it("should return empty array when SDK throws", async () => {

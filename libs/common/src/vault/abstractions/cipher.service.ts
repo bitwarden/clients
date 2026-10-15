@@ -107,15 +107,23 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     /** When true, will override the match strategy for the cipher if it is Never. */
     overrideNeverMatchStrategy?: true,
   ): Promise<C[]>;
+  /**
+   * @param signal Aborts the request and skips decryption once the caller no longer needs the result.
+   */
   abstract getAllFromApiForOrganization(
     organizationId: string,
     includeMemberItems?: boolean,
+    signal?: AbortSignal,
   ): Promise<CipherView[]>;
   /**
    * Gets ciphers belonging to the specified organization that the user has explicit collection level access to.
    * Ciphers that are not assigned to any collections are only included for users with admin access.
+   * @param signal Aborts the request and skips decryption once the caller no longer needs the result.
    */
-  abstract getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]>;
+  abstract getManyFromApiForOrganization(
+    organizationId: string,
+    signal?: AbortSignal,
+  ): Promise<CipherView[]>;
   /**
    * Gets all Login ciphers belonging to the specified organization, including those in default
    * user collections. Ciphers that fail to decrypt are returned separately in `failures`.

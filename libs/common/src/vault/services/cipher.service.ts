@@ -626,22 +626,31 @@ export class CipherService implements CipherServiceAbstraction {
   async getAllFromApiForOrganization(
     organizationId: string,
     includeMemberItems?: boolean,
+    signal?: AbortSignal,
   ): Promise<CipherView[]> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
-      return this.getAllFromApiForOrganizationUsingSdk(organizationId, includeMemberItems ?? false);
+      return this.getAllFromApiForOrganizationUsingSdk(
+        organizationId,
+        includeMemberItems ?? false,
+        signal,
+      );
     }
 
     const response = await this.apiService.getCiphersOrganization(
       organizationId,
       includeMemberItems,
+      signal,
     );
+    // Large organizations can return tens of thousands of ciphers; don't decrypt them for a caller that has moved on.
+    signal?.throwIfAborted();
     return await this.decryptOrganizationCiphersResponse(response);
   }
 
   private async getAllFromApiForOrganizationUsingSdk(
     organizationId: string,
     includeMemberItems: boolean,
+    signal?: AbortSignal,
   ): Promise<CipherView[]> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     if (!userId) {
@@ -653,21 +662,30 @@ export class CipherService implements CipherServiceAbstraction {
         organizationId,
         userId,
         includeMemberItems,
+        signal,
       );
 
+      // The SDK aborts its own request; this also skips the client-side decryption below
+      signal?.throwIfAborted();
       const [cipherViews] = await this.cipherEncryptionService.decryptManyLegacy(ciphers, userId);
 
       // Sort by locale (matching existing behavior)
       cipherViews.sort(this.getLocaleSortingFunction());
 
       return cipherViews;
-    } catch {
+    } catch (e) {
+      if (signal?.aborted) {
+        throw e;
+      }
       // Return empty array on error to maintain existing behavior
       return [];
     }
   }
 
-  async getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]> {
+  async getManyFromApiForOrganization(
+    organizationId: string,
+    signal?: AbortSignal,
+  ): Promise<CipherView[]> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     if (!userId) {
       throw new Error("User ID is required");
@@ -677,14 +695,20 @@ export class CipherService implements CipherServiceAbstraction {
       const [ciphers] = await this.cipherSdkService.getManyFromApiForOrganization(
         organizationId,
         userId,
+        signal,
       );
 
+      // The SDK aborts its own request; this also skips the client-side decryption below
+      signal?.throwIfAborted();
       const [cipherViews] = await this.cipherEncryptionService.decryptManyLegacy(ciphers, userId);
 
       cipherViews.sort(this.getLocaleSortingFunction());
 
       return cipherViews;
-    } catch {
+    } catch (e) {
+      if (signal?.aborted) {
+        throw e;
+      }
       return [];
     }
   }

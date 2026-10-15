@@ -265,36 +265,48 @@ export class VaultComponent implements OnInit, OnDestroy {
       startWith(undefined),
       switchMap(() =>
         combineLatest([this.organization$, this.restrictedItemTypesService.restricted$]).pipe(
-          switchMap(async ([organization, restricted]) => {
-            // Reset the add-access filter whenever ciphers reload (e.g. on org switch or refresh)
-            this.collectionService.setAddAccessStatus(AddAccessStatusType.All);
-            let ciphers;
+          // Abort in-flight loads when superseded or when the component is destroyed. Large
+          // organizations return tens of thousands of ciphers, and letting stale loads finish
+          // stacks up downloads and decryption work that freezes the page on quick navigation.
+          switchMap(([organization, restricted]) =>
+            fromAbortable(async (signal) => {
+              // Reset the add-access filter whenever ciphers reload (e.g. on org switch or refresh)
+              this.collectionService.setAddAccessStatus(AddAccessStatusType.All);
+              let ciphers;
 
-            // Restricted providers (who are not members) do not have access org cipher endpoint below
-            // Return early to avoid 404 response
-            if (!organization.isMember && organization.isProviderUser) {
-              return [];
-            }
+              // Restricted providers (who are not members) do not have access org cipher endpoint below
+              // Return early to avoid 404 response
+              if (!organization.isMember && organization.isProviderUser) {
+                return [];
+              }
 
-            // If the user can edit all ciphers for the organization then fetch them ALL.
-            if (organization.canEditAllCiphers) {
-              ciphers = await this.cipherService.getAllFromApiForOrganization(organization.id);
-              ciphers.forEach((c) => {
-                c.edit = true;
-                c.viewPassword = true;
-              });
-            } else {
-              // Otherwise, only fetch ciphers they have access to (includes unassigned for admins).
-              ciphers = await this.cipherService.getManyFromApiForOrganization(organization.id);
-            }
+              // If the user can edit all ciphers for the organization then fetch them ALL.
+              if (organization.canEditAllCiphers) {
+                ciphers = await this.cipherService.getAllFromApiForOrganization(
+                  organization.id,
+                  undefined,
+                  signal,
+                );
+                ciphers.forEach((c) => {
+                  c.edit = true;
+                  c.viewPassword = true;
+                });
+              } else {
+                // Otherwise, only fetch ciphers they have access to (includes unassigned for admins).
+                ciphers = await this.cipherService.getManyFromApiForOrganization(
+                  organization.id,
+                  signal,
+                );
+              }
 
-            // Filter out restricted ciphers before indexing
-            ciphers = ciphers.filter(
-              (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted),
-            );
+              // Filter out restricted ciphers before indexing
+              ciphers = ciphers.filter(
+                (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted),
+              );
 
-            return ciphers;
-          }),
+              return ciphers;
+            }),
+          ),
         ),
       ),
       shareReplay({ refCount: true, bufferSize: 1 }),
@@ -731,6 +743,28 @@ export class VaultComponent implements OnInit, OnDestroy {
     });
   }
 }
+
+/**
+ * Runs `work` when subscribed and aborts its signal on unsubscribe, so cancelling the
+ * subscription (e.g. via `switchMap` or component teardown) also cancels the underlying work.
+ * Errors raised after the abort are dropped since nobody is listening for the result anymore.
+ */
+const fromAbortable = <T>(work: (signal: AbortSignal) => Promise<T>): Observable<T> =>
+  new Observable<T>((subscriber) => {
+    const controller = new AbortController();
+    work(controller.signal).then(
+      (value) => {
+        subscriber.next(value);
+        subscriber.complete();
+      },
+      (error: unknown) => {
+        if (!controller.signal.aborted) {
+          subscriber.error(error);
+        }
+      },
+    );
+    return () => controller.abort();
+  });
 
 /**
  * Allows backwards compatibility with

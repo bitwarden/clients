@@ -194,7 +194,11 @@ describe("VaultComponent", () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(ORG_A_ID);
+      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(
+        ORG_A_ID,
+        undefined,
+        expect.any(AbortSignal),
+      );
     });
 
     it("re-fetches ciphers for the new organization when the route switches orgs", async () => {
@@ -205,7 +209,11 @@ describe("VaultComponent", () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(ORG_B_ID);
+      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(
+        ORG_B_ID,
+        undefined,
+        expect.any(AbortSignal),
+      );
     });
 
     it("does not re-fetch when the same organization is emitted again", async () => {
@@ -221,6 +229,46 @@ describe("VaultComponent", () => {
       await fixture.whenStable();
 
       expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledTimes(callsBefore);
+    });
+  });
+
+  describe("cancelling stale cipher loads", () => {
+    const capturedSignals: AbortSignal[] = [];
+
+    beforeEach(() => {
+      capturedSignals.length = 0;
+      // Never resolves, simulating a slow load for a large organization
+      cipherService.getAllFromApiForOrganization.mockImplementation(
+        (_orgId, _includeMemberItems, signal) => {
+          capturedSignals.push(signal!);
+          return new Promise<never>(() => {});
+        },
+      );
+    });
+
+    it("aborts the in-flight load when the component is destroyed", async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(capturedSignals).toHaveLength(1);
+      expect(capturedSignals[0].aborted).toBe(false);
+
+      fixture.destroy();
+
+      expect(capturedSignals[0].aborted).toBe(true);
+    });
+
+    it("aborts the previous load when switching organizations", async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      filterSubject$.next({ organizationId: ORG_B_ID });
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(capturedSignals).toHaveLength(2);
+      expect(capturedSignals[0].aborted).toBe(true);
+      expect(capturedSignals[1].aborted).toBe(false);
     });
   });
 
