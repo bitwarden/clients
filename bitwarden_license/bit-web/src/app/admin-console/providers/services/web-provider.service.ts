@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { combineLatest, firstValueFrom, map } from "rxjs";
 
@@ -50,6 +48,7 @@ export class WebProviderService {
     assertNonNullish(providerKey, "Provider key not found");
 
     const encryptedOrgKey = await this.encryptService.wrapSymmetricKey(orgKey, providerKey);
+    assertNonNullish(encryptedOrgKey.encryptedString, "Encrypted organization key");
     await this.providerApiService.addOrganizationToProvider(providerId, {
       key: encryptedOrgKey.encryptedString,
       organizationId,
@@ -87,6 +86,10 @@ export class WebProviderService {
       organizationKey,
       providerKey,
     );
+
+    assertNonNullish(encryptedProviderKey.encryptedString, "Encrypted provider key");
+    assertNonNullish(encryptedPrivateKey.encryptedString, "Encrypted private key");
+    assertNonNullish(encryptedCollectionName.encryptedString, "Encrypted collection name");
 
     const request = new CreateProviderOrganizationRequest(
       name,

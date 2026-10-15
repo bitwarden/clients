@@ -6,6 +6,9 @@ license = { workspace = true }
 version = { workspace = true }
 publish = { workspace = true }
 
+[package.metadata.cargo-udeps.ignore]
+normal = ["napi-derive-backend"]
+
 [lib]
 crate-type = ["cdylib"]
 
@@ -23,6 +26,7 @@ chromium_importer = { path = "../chromium_importer" }
 desktop_core = { path = "../core" }
 napi = { workspace = true, features = ["async", "anyhow"] }
 napi-derive = { workspace = true }
+napi-derive-backend = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 ssh_agent = { path = "../ssh_agent" }

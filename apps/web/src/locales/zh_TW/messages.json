@@ -15600,20 +15600,11 @@
   "atRiskPassword": {
     "message": "有風險的密碼"
   },
-  "changeAtRiskPassword": {
-    "message": "變更有風險的密碼"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "此登入資訊存在風險，且缺少網站。請新增網站並變更密碼以提升安全性。"
-  },
   "vulnerablePassword": {
     "message": "有安全疑慮的密碼。"
   },
   "changeNow": {
     "message": "立即變更"
-  },
-  "missingWebsite": {
-    "message": "缺少網站"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "移除以 PIN 解鎖"
@@ -17041,6 +17032,15 @@
         "example": "4"
       }
     }
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Keeper 電子郵件"

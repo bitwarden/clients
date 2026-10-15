@@ -172,7 +172,7 @@ describe("VaultItemDialogComponent", () => {
       component.setTestFormConfig({ cipherType: CipherType.Login });
       component["updateTitle"]();
 
-      expect(component["title"]).toBe("viewItemHeaderLogin");
+      expect(component["title"]).toBe("viewItemHeaderLoginSentenceCase");
     });
 
     it("sets title for form mode (edit) and Card type", () => {
@@ -180,7 +180,7 @@ describe("VaultItemDialogComponent", () => {
       component.setTestFormConfig({ mode: "edit", cipherType: CipherType.Card });
       component["updateTitle"]();
 
-      expect(component["title"]).toBe("editItemHeaderCard");
+      expect(component["title"]).toBe("editItemHeaderCardSentenceCase");
     });
 
     it("sets title for form mode (add) and Identity type", () => {
@@ -188,7 +188,7 @@ describe("VaultItemDialogComponent", () => {
       component.setTestFormConfig({ mode: "add", cipherType: CipherType.Identity });
       component["updateTitle"]();
 
-      expect(component["title"]).toBe("newItemHeaderIdentity");
+      expect(component["title"]).toBe("addItemHeaderIdentity");
     });
 
     it("sets title for form mode (clone) and Card type", () => {
@@ -196,7 +196,7 @@ describe("VaultItemDialogComponent", () => {
       component.setTestFormConfig({ mode: "clone", cipherType: CipherType.Card });
       component["updateTitle"]();
 
-      expect(component["title"]).toBe("newItemHeaderCard");
+      expect(component["title"]).toBe("addItemHeaderCard");
     });
   });
 
@@ -220,6 +220,39 @@ describe("VaultItemDialogComponent", () => {
       component.setTestFormConfig({ mode: "edit" });
 
       expect(component["disableEdit"]).toBe(false);
+    });
+  });
+
+  describe("partial-data (gated) ciphers", () => {
+    beforeEach(() => {
+      component.setTestParams({ mode: "view" });
+      component["canEdit"] = true;
+      component["canDelete"] = true;
+    });
+
+    it("isPartialData is false for a normal cipher", () => {
+      component.setTestCipher({ id: "c1", type: CipherType.Login } as any);
+
+      expect(component["isPartialData"]).toBe(false);
+    });
+
+    it("isPartialData is true when the cipher is partial", () => {
+      component.setTestCipher({ id: "c1", type: CipherType.Login, partial: true } as any);
+
+      expect(component["isPartialData"]).toBe(true);
+    });
+
+    it("hides Edit for a partial-data cipher even when the user could otherwise edit", () => {
+      component.setTestCipher({ id: "c1", type: CipherType.Login, partial: true } as any);
+
+      // Saving a partial cipher would clobber the server-suppressed fields.
+      expect(component["showEdit"]).toBe(false);
+    });
+
+    it("shows Edit for the same cipher once it is no longer partial", () => {
+      component.setTestCipher({ id: "c1", type: CipherType.Login } as any);
+
+      expect(component["showEdit"]).toBe(true);
     });
   });
 

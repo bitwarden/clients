@@ -15600,20 +15600,11 @@
   "atRiskPassword": {
     "message": "ஆபத்தில் உள்ள கடவுச்சொல்"
   },
-  "changeAtRiskPassword": {
-    "message": "அபாயகரமான கடவுச்சொல்லை மாற்றவும்"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "இந்த உள்நுழைவு ஆபத்தில் உள்ளது மற்றும் வலைத்தளம் விடுபட்டுள்ளது. வலுவான பாதுகாப்பிற்கு ஒரு வலைத்தளத்தைச் சேர்த்து கடவுச்சொல்லை மாற்றவும்."
-  },
   "vulnerablePassword": {
     "message": "பாதிக்கப்படக்கூடிய கடவுச்சொல்."
   },
   "changeNow": {
     "message": "இப்போதே மாற்றவும்"
-  },
-  "missingWebsite": {
-    "message": "விடுபட்ட வலைத்தளம்"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "பின் குறியீட்டைக் கொண்டு திறக்கும் வசதியை அகற்று"
@@ -17041,6 +17032,15 @@
         "example": "4"
       }
     }
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Keeper மின்னஞ்சல்"

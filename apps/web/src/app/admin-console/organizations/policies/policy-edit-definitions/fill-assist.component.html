@@ -1,16 +1,3 @@
-<p bitTypography="body1">
-  {{ "fillAssistPolicyDesc" | i18n }}
-  <a
-    bitLink
-    href="https://bitwarden.com/help/policies/#activate-fill-assist"
-    target="_blank"
-    rel="noreferrer"
-    endIcon="bwi-external-link"
-  >
-    {{ "learnMore" | i18n }}
-  </a>
-</p>
-
 <bit-form-control>
   <bit-switch [formControl]="enabled" id="fill-assist-policy_input_enabled"></bit-switch>
   <bit-label>{{ "enablePolicy" | i18n }}</bit-label>
@@ -18,17 +5,57 @@
 
 @if (isCloud$ | async) {
   <div [formGroup]="data">
-    <bit-form-field class="tw-flex-auto">
-      <bit-label>{{ "fillAssistRulesUrl" | i18n }}</bit-label>
-      <span bitPrefix>https://</span>
-      <input
-        bitInput
-        type="text"
-        formControlName="rulesUrl"
-        id="fill-assist-policy_input_rules-url"
-        (blur)="onRulesUrlBlur()"
-      />
-      <bit-hint>{{ "fillAssistRulesUrlHint" | i18n }}</bit-hint>
-    </bit-form-field>
+    <bit-form-control-group formControlName="ruleSource" [block]="true">
+      <bit-label>{{ "fillAssistRuleSource" | i18n }}</bit-label>
+
+      <bit-form-control disableMargin>
+        <input
+          type="radio"
+          bitRadio
+          [value]="RuleSource.Default"
+          id="fill-assist-policy_input_rule-source-default"
+        />
+        <bit-label>{{ "fillAssistRuleSourceDefault" | i18n }}</bit-label>
+        <bit-hint>{{ "fillAssistRuleSourceDefaultDesc" | i18n }}</bit-hint>
+      </bit-form-control>
+
+      <bit-form-control disableMargin>
+        <input
+          type="radio"
+          bitRadio
+          [value]="RuleSource.Custom"
+          id="fill-assist-policy_input_rule-source-custom"
+        />
+        <bit-label>{{ "fillAssistRuleSourceCustom" | i18n }}</bit-label>
+        <bit-hint>{{ "fillAssistRuleSourceCustomDesc" | i18n }}</bit-hint>
+      </bit-form-control>
+    </bit-form-control-group>
+
+    @if (data.value.ruleSource === RuleSource.Custom) {
+      <bit-form-field class="tw-flex-auto">
+        <bit-label>{{ "fillAssistRulesUrlV2" | i18n }}</bit-label>
+        <span bitPrefix>https://</span>
+        <input
+          bitInput
+          type="text"
+          formControlName="rulesUrl"
+          id="fill-assist-policy_input_rules-url"
+          required
+          (blur)="onRulesUrlBlur()"
+        />
+        <bit-hint>
+          <a
+            bitLink
+            class="[&>div]:!tw-gap-1"
+            href="https://bitwarden.com/help/policies/#activate-fill-assist"
+            target="_blank"
+            rel="noreferrer"
+            endIcon="bwi-external-link"
+          >
+            {{ "learnMoreAboutCustomRules" | i18n }}
+          </a>
+        </bit-hint>
+      </bit-form-field>
+    }
   </div>
 }

@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "Įkiškite su LastPass paskyra susietą YubiKey į kompiuterio USB jungtį, tada palieskite jo mygtuką."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper el. paštas"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Jūsų naudojamas naršyklės plėtinys yra pasenęs. Atnaujinkite jį arba išjunkite naršyklės integracijos fingerprint patvirtinimą darbalaukio programos nustatymuose."
   },
-  "changeAtRiskPassword": {
-    "message": "Pakeisti rizikingą slaptažodį"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Šis prisijungimas yra rizikingas ir neturi svetainės. Pridėkite svetainę ir pakeiskite slaptažodį, kad padidintumėte saugumą."
-  },
   "vulnerablePassword": {
     "message": "Pažeidžiamas slaptažodis."
   },
   "changeNow": {
     "message": "Pakeisti dabar"
-  },
-  "missingWebsite": {
-    "message": "Trūksta svetainės"
   },
   "missingPermissions": {
     "message": "Jums trūksta reikiamų leidimų atlikti šį veiksmą."

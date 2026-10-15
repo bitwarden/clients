@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Сактоо көрүнүшүндө автотолтуруу үчүн элементтерди басыңыз"
   },
-  "clickToAutofill": {
-    "message": "Толтуруу үчүн автотолтуруу сунушундагы элементтерди басыңыз"
-  },
   "clearClipboard": {
     "message": "Clipboardти тазалоо",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "LastPass аккаунтуңуз менен байланышкан YubiKeyди компьютериңиздин USB портуна салыңыз, анан анын баскычына тийиңиз."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper электрондук почтасы"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Тобокелдиктеги сырсөздү өзгөртүү"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Бул кирүү тобокелдикте жана веб сайты жок. Күчтүүрөөк коопсуздук үчүн веб сайт кошуп, сырсөздү өзгөртүңүз."
-  },
   "vulnerablePassword": {
     "message": "Алсыз сырсөз."
   },
   "changeNow": {
     "message": "Азыр өзгөртүү"
-  },
-  "missingWebsite": {
-    "message": "Веб сайт жок"
   },
   "settingsVaultOptions": {
     "message": "Сактоо параметрлери"

@@ -95,7 +95,8 @@
       <!-- An anchor rather than a click handler, so middle- and right-click behave as expected. -->
       <a
         bitLink
-        class="tw-truncate"
+        truncate
+        [bitTooltip]="row.name"
         [attr.id]="'shared-folders_link_name-' + row.id"
         [routerLink]="
           vaultScopeCommands({
@@ -107,6 +108,15 @@
       >
         {{ row.name }}
       </a>
+      @if (row.nestedSharedFolders > 0) {
+        <span slot="secondary">
+          {{
+            row.nestedSharedFolders === 1
+              ? ("nestedSharedFolderSingular" | i18n)
+              : ("nestedSharedFolderCount" | i18n: row.nestedSharedFolders)
+          }}
+        </span>
+      }
     </bit-cell>
   </bit-column>
 

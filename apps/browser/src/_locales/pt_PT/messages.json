@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Clique nos itens para preencher automaticamente na vista do cofre"
   },
-  "clickToAutofill": {
-    "message": "Clique nos itens da sugestão de preenchimento automático para preencher"
-  },
   "clearClipboard": {
     "message": "Limpar área de transferência",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Insira a YubiKey associada à sua conta LastPass na porta USB do seu computador e, em seguida, toque no respetivo botão."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "E-mail do Keeper"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Alterar palavra-passe em risco"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Esta credencial está em risco e não tem um site. Adicione um site e altere a palavra-passe para uma segurança mais forte."
-  },
   "vulnerablePassword": {
     "message": "Palavra-passe vulnerável."
   },
   "changeNow": {
     "message": "Alterar agora"
-  },
-  "missingWebsite": {
-    "message": "Site em falta"
   },
   "settingsVaultOptions": {
     "message": "Opções do cofre"

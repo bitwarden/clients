@@ -37,17 +37,17 @@ async function buildMacOs() {
     if (configurationArgument == "mas-dev") {
       configuration = "Debug";
       codeSignIdentity = "Apple Development";
-      provisioningProfileSpecifier = "Bitwarden Desktop Autofill Development 2024";
+      provisioningProfileSpecifier = "PM Stable Desktop-ExtAutofill Testing";
       buildDirectory = paths.extensionBuildDebug;
     } else if (configurationArgument == "mas") {
       configuration = "ReleaseAppStore";
       codeSignIdentity = "3rd Party Mac Developer Application";
-      provisioningProfileSpecifier = "Bitwarden Desktop Autofill App Store 2024";
+      provisioningProfileSpecifier = "PM Stable Desktop-ExtAutofill AppStore";
       buildDirectory = paths.extensionBuildReleaseAppStore;
     } else if (configurationArgument == "mac") {
       configuration = "ReleaseDeveloper";
       codeSignIdentity = "Developer ID Application";
-      provisioningProfileSpecifier = "Bitwarden Desktop Autofill Extension Developer Dis";
+      provisioningProfileSpecifier = "PM Stable Desktop-ExtAutofill Distrib";
       buildDirectory = paths.extensionBuildReleaseDeveloper;
     } else {
       console.log("### Unable to determine configuration, skipping Autofill Extension build");
