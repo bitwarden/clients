@@ -111,6 +111,7 @@ describe("BitTableToolbarComponent", () => {
               showMoreCount: (count?: string) => `Show ${count} more`,
               search: "Search",
               resetSearch: "Reset search",
+              clearSearchTooltip: "Clear by clicking here or pressing Esc.",
               removeItem: (name?: string) => `Remove ${name}`,
             }),
         },
@@ -647,6 +648,19 @@ describe("BitTableToolbarComponent filter dialog", () => {
 
   it("stays closed until something opens it", () => {
     expect(dialogService.open).not.toHaveBeenCalled();
+  });
+
+  it("exposes the chips as an anchor only while they show inline", () => {
+    const toolbar = fixture.debugElement.query(By.directive(BitTableToolbarComponent))
+      .componentInstance as BitTableToolbarComponent;
+    expect(toolbar.filterChips()).toBeUndefined();
+
+    widenViewport();
+    fixture.detectChanges();
+
+    const chips = toolbar.filterChips()?.nativeElement;
+    expect(chips?.querySelector("bit-filter-toggle")).not.toBeNull();
+    expect(chips?.querySelector("#bit-table-toolbar_button_clear-all")).not.toBeNull();
   });
 
   it("raises the model when the trigger is clicked", () => {

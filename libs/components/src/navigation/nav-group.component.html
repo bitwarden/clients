@@ -86,13 +86,17 @@
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
       } @else {
         <!-- Magic number needed for visual consistency -->
-        <div class="tw-ps-[19px] tw-pt-1" bitHoverRevealBoundary>
+        <div
+          class="tw-pt-1"
+          bitHoverRevealBoundary
+          [class]="treeDepth() === 0 ? 'tw-ps-[19px]' : ''"
+        >
           <div
-            class="tw-flex tw-flex-col tw-gap-0.5 tw-ps-3"
+            class="tw-flex tw-flex-col tw-gap-0.5"
             [class.tw-items-center]="!sideNavOpen()"
             [class]="
               treeDepth() === 0
-                ? 'tw-border-0 tw-border-s tw-border-solid tw-border-border-nav-divider'
+                ? 'tw-ps-3 tw-border-0 tw-border-s tw-border-solid tw-border-border-nav-divider'
                 : ''
             "
           >

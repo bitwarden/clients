@@ -40,11 +40,14 @@ export class SpotlightService {
   /**
    * Shows spotlight on the target element.
    * If a spotlight is already active, smoothly transitions to the new target.
-   * @param target - The element to highlight
+   * @param target - The element to highlight; a `data-spotlight-host` redirects the ring to its
+   *   `[data-spotlight-target]` descendant.
    */
   showSpotlight(target: HTMLElement): void {
-    const resolvedTarget =
-      (target.querySelector("[data-spotlight-target]") as HTMLElement | null) ?? target;
+    const hostTarget = target.hasAttribute("data-spotlight-host")
+      ? target.querySelector<HTMLElement>("[data-spotlight-target]")
+      : null;
+    const resolvedTarget = hostTarget ?? target;
 
     if (this.hideTimeout !== null) {
       clearTimeout(this.hideTimeout);

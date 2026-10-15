@@ -142,7 +142,7 @@ export class UserKeyRotationService {
           timeout: 15000,
         });
 
-        await this.logoutService.logout(user.id);
+        await this.logoutService.logout(user.id, "userKeyRotation");
       }
       return;
     }
@@ -215,7 +215,7 @@ export class UserKeyRotationService {
       timeout: 15000,
     });
 
-    await this.logoutService.logout(user.id);
+    await this.logoutService.logout(user.id, "userKeyRotation");
   }
 
   protected async ensureIsAllowedToRotateUserKey(): Promise<void> {
