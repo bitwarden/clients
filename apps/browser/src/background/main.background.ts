@@ -618,8 +618,13 @@ export default class MainBackground {
   private phishingDetectionService: PhishingDetectionService;
 
   constructor() {
-    const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) =>
+    // Downstream services receive this callback and invoke it directly instead of
+    // going through LogoutService, so the log line that lives in DefaultLogoutService
+    // is mirrored here to cover this path.
+    const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) => {
+      this.logService.info("Logging out user %s for reason: %s", userId, logoutReason);
       await this.logout(logoutReason, userId);
+    };
 
     const runtimeNativeMessagingBackground = () => this.nativeMessagingBackground;
 
@@ -763,6 +768,47 @@ export default class MainBackground {
       this.accountService,
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
     );
+
+    this.appIdService = new AppIdService(this.storageService, this.logService);
+
+    const sdkClientFactory = flagEnabled("sdk")
+      ? new DefaultSdkClientFactory()
+      : new NoopSdkClientFactory();
+    this.sdkLoadService = new BrowserSdkLoadService(this.logService);
+
+    if (devFlagEnabled("managedSettingsDevSource")) {
+      // The dev source replaces host acquisition rather than layering on top of it. Left running,
+      // the reader would find no policy on the developer's machine and clear the pushed profile.
+      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
+      devManagedSettingsService.pushExplicit(
+        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
+      );
+      this.managedSettingsService = devManagedSettingsService;
+    } else {
+      this.managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
+      this.managedConfigReader = new BrowserManagedConfigReader(
+        this.managedSettingsService,
+        this.logService,
+      );
+    }
+
+    this.sdkService = new DefaultSdkService(
+      sdkClientFactory,
+      this.environmentService,
+      this.platformUtilsService,
+      this.accountService,
+      () => this.kdfConfigService,
+      () => this.keyService,
+      () => this.accountCryptographicStateService,
+      () => this.apiService,
+      this.stateProvider,
+      () => this.configService,
+      this.v2UpgradeTokenStateService,
+      this.managedSettingsService,
+      this.appIdService,
+      this.logService,
+    );
+
     this.biometricStateService = new DefaultBiometricStateService(this.stateProvider);
 
     this.userNotificationSettingsService = new UserNotificationSettingsService(this.stateProvider);
@@ -860,8 +906,6 @@ export default class MainBackground {
       this.logService,
     );
 
-    this.appIdService = new AppIdService(this.storageService, this.logService);
-
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(
       this.singleUserStateProvider,
     );
@@ -917,11 +961,7 @@ export default class MainBackground {
     );
 
     this.hibpApiService = new HibpApiService(this.apiService);
-    this.fileUploadService = new FileUploadService(
-      this.logService,
-      this.apiService,
-      this.configService,
-    );
+    this.fileUploadService = new FileUploadService(this.logService, this.apiService);
     this.searchService = new SearchService(this.logService, this.i18nService);
 
     this.badgeSettingsService = new BadgeSettingsService(this.stateProvider);
@@ -949,6 +989,7 @@ export default class MainBackground {
       this.logService,
       this.stateProvider,
       this.authService,
+      this.sdkService,
     );
 
     this.availableRegionsService = new DefaultAvailableRegionsService(
@@ -967,44 +1008,6 @@ export default class MainBackground {
       this.policyService,
       this.authService,
       this.accountService,
-    );
-
-    const sdkClientFactory = flagEnabled("sdk")
-      ? new DefaultSdkClientFactory()
-      : new NoopSdkClientFactory();
-    this.sdkLoadService = new BrowserSdkLoadService(this.logService);
-
-    if (devFlagEnabled("managedSettingsDevSource")) {
-      // The dev source replaces host acquisition rather than layering on top of it. Left running,
-      // the reader would find no policy on the developer's machine and clear the pushed profile.
-      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
-      devManagedSettingsService.pushExplicit(
-        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
-      );
-      this.managedSettingsService = devManagedSettingsService;
-    } else {
-      this.managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
-      this.managedConfigReader = new BrowserManagedConfigReader(
-        this.managedSettingsService,
-        this.logService,
-      );
-    }
-
-    this.sdkService = new DefaultSdkService(
-      sdkClientFactory,
-      this.environmentService,
-      this.platformUtilsService,
-      this.accountService,
-      this.kdfConfigService,
-      this.keyService,
-      this.accountCryptographicStateService,
-      this.apiService,
-      this.stateProvider,
-      this.configService,
-      this.v2UpgradeTokenStateService,
-      this.managedSettingsService,
-      this.appIdService,
-      this.logService,
     );
 
     this.registerSdkService = new DefaultRegisterSdkService(
@@ -1149,6 +1152,7 @@ export default class MainBackground {
       this.policyService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.configService,
     );
 
     this.ssoLoginService = new SsoLoginService(
@@ -1507,7 +1511,6 @@ export default class MainBackground {
       this.authService,
       this.webPushConnectionService,
       this.authRequestAnsweringService,
-      this.configService,
       this.autoConfirmService,
       this.billingAccountProfileStateService,
     );
@@ -1566,7 +1569,7 @@ export default class MainBackground {
       permissionsPolicyBackground,
     );
 
-    const logoutService = new DefaultLogoutService(this.messagingService);
+    const logoutService = new DefaultLogoutService(this.messagingService, this.logService);
     this.lockService = new ExtensionLockService(
       this.accountService,
       this.biometricsService,
@@ -1770,8 +1773,9 @@ export default class MainBackground {
         this.authService,
         this.accountService,
         chrome.webRequest,
-        this.configService,
         this.autofillSettingsService,
+        this.eventCollectionService,
+        this.logService,
       );
     }
 
@@ -1820,6 +1824,7 @@ export default class MainBackground {
       this.sharedUnlockSettingsService,
       this.unlockService,
       this.configService,
+      this.stateProvider,
     );
 
     this.endUserNotificationService = new DefaultEndUserNotificationService(
@@ -1907,6 +1912,8 @@ export default class MainBackground {
     await this.targetingRulesDataService.init();
 
     // If the user is logged out, switch to the next account
+    // TODO: PM-44635 - Use AccountSwitcherService.resolveActiveAccount() from
+    // @bitwarden/common/auth/account-switcher, which never picks a logged-out account.
     const active = await firstValueFrom(this.accountService.activeAccount$);
     if (active != null) {
       const authStatus = await firstValueFrom(
@@ -2054,6 +2061,8 @@ export default class MainBackground {
 
     await this.eventUploadService.uploadEvents(userBeingLoggedOut);
 
+    // TODO: PM-44635 - Use AccountSwitcherService.nextSwitchableAccount$ from
+    // @bitwarden/common/auth/account-switcher, which never picks a logged-out account.
     const newActiveUser =
       userBeingLoggedOut === activeUserId
         ? await firstValueFrom(this.accountService.nextUpAccount$.pipe(map((a) => a?.id)))

@@ -37,6 +37,9 @@
 		<string>/Library/Application Support/Vivaldi/NativeMessagingHosts/</string>
 		<string>/Library/Application Support/Zen/NativeMessagingHosts/</string>
 		<string>/Library/Application Support/net.imput.helium/NativeMessagingHosts/</string>
+		<string>/Library/Application Support/BraveSoftware/Brave-Browser/NativeMessagingHosts/</string>
+		<string>/Library/Application Support/BraveSoftware/Brave-Browser-Beta/NativeMessagingHosts/</string>
+		<string>/Library/Application Support/BraveSoftware/Brave-Browser-Nightly/NativeMessagingHosts/</string>
 	</array>
 </dict>
 </plist>

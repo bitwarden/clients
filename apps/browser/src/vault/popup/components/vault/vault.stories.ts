@@ -511,7 +511,7 @@ const buildProviders = (args: StoryArgs) => {
     { provide: VaultPopupLoadingService, useValue: { loading$: of(false) } },
     {
       provide: VaultPopupScrollPositionService,
-      useValue: { start: () => {}, stop: () => {} },
+      useValue: { start: () => {}, stop: () => {}, restoresCollapse: () => false },
     },
     {
       provide: NudgesService,
@@ -769,6 +769,7 @@ const buildProviders = (args: StoryArgs) => {
           itemCount: "__$1__ items",
           // Table presentation (flag on)
           resetSearch: "Reset search",
+          clearSearchTooltip: "Clear by clicking here or pressing Esc.",
           name: "Name",
           autofillSuggestions: "Autofill suggestions",
           itemSuggestions: "Suggested items",

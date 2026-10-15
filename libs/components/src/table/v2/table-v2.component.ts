@@ -394,30 +394,20 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   }
 
   /**
-   * Count for a chip option: rows matching {@link filter} with `key` pinned to
-   * `value` and no other filter applied. `undefined` with no `[filter]`
-   * (server-side) — the chip then shows an explicit `count` instead. Absolute rather
-   * than faceted, so a count doesn't move as unrelated filters change.
+   * Count for a chip option: rows matching {@link filter} with `key` pinned to `value` and every
+   * other active filter applied. `undefined` with no `[filter]` (server-side) — the chip then
+   * shows an explicit `count` instead.
    */
   optionCount(key: string, value: unknown): number | undefined {
     const filter = this.filter();
     if (!filter) {
       return undefined;
     }
-    const values = { ...this.clearedFilterValues(), [key]: value } as F;
+    const values = { ...this.filterValues(), [key]: value } as F;
     return this.tableDef()
       .data()
       .filter((row) => filter(row, values)).length;
   }
-
-  /** Every chip at its cleared value — the baseline {@link optionCount} counts against. */
-  private readonly clearedFilterValues = computed<Record<string, unknown>>(() => {
-    const values: Record<string, unknown> = {};
-    for (const control of this._filters()) {
-      values[control.key()] = control.clearedValue();
-    }
-    return values;
-  });
 
   /** Chips already seeded from {@link filters}, so each is seeded at most once. */
   private readonly seeded = new WeakSet<FilterControl>();
@@ -822,6 +812,17 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
         this.scrollLayout.scrollableRef.set(previous);
       }
     });
+  });
+
+  /** CDK re-measures only on window resize; this viewport also resizes with its surrounding layout. */
+  private readonly _viewportResizeEffect = effect((onCleanup) => {
+    const body = this.scrollBody();
+    if (!(body instanceof CdkVirtualScrollViewport)) {
+      return;
+    }
+    const observer = new ResizeObserver(() => body.checkViewportSize());
+    observer.observe(body.elementRef.nativeElement);
+    onCleanup(() => observer.disconnect());
   });
 
   protected readonly isList = computed(() => this.presentation() === "list");
