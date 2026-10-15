@@ -95,7 +95,8 @@ jobs:
           - windows-2022
         # Each check maps to `scripts/lint-rust.mjs --only <name>`. `nightly` pulls
         # in the nightly toolchain (fmt, udeps); `cargo_bin` bootstraps cargo-run-bin
-        # and caches the tools it builds (sort, udeps, deny).
+        # and caches the tools it builds (sort, udeps, deny). The RustSec advisory
+        # check runs in the separate `rust-advisories` job.
         check:
           - { name: fmt, nightly: true }
           - { name: clippy }
@@ -184,3 +185,43 @@ jobs:
       - name: Verify all Rust lint checks passed
         if: ${{ needs.rust.result != 'success' }}
         run: exit 1
+
+  # RustSec advisories can start failing on an unchanged tree when a new advisory
+  # is published, so this job is kept out of the `rust-lint` gate. It runs once
+  # rather than per OS because cargo-deny resolves the lockfile for all targets.
+  rust-advisories:
+    name: Rust advisories
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Resolve Rust toolchain
+        id: toolchain
+        run: |
+          RUST_TOOLCHAIN="$(node scripts/rust-toolchain.mjs)"
+          echo "RUST_TOOLCHAIN=${RUST_TOOLCHAIN}" | tee -a "${GITHUB_OUTPUT}"
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: ${{ steps.toolchain.outputs.RUST_TOOLCHAIN }}
+
+      - name: Cache cargo registry
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+
+      - name: Cache cargo-run-bin tools
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: apps/desktop/desktop_native/.bin
+          key: cargo-bin-${{ runner.os }}-advisories-${{ hashFiles('apps/desktop/desktop_native/Cargo.toml', 'apps/desktop/desktop_native/rust-toolchain.toml') }}
+          restore-keys: |
+            cargo-bin-${{ runner.os }}-advisories-
+
+      - name: Install cargo-run-bin
+        run: cargo install cargo-run-bin --locked --version 1.7.4
+
+      - name: Run lint --only advisories
+        run: node scripts/lint-rust.mjs --only advisories

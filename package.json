@@ -23,6 +23,10 @@
     "test": "jest",
     "test:watch": "jest --clearCache && jest --watch",
     "test:watch:all": "jest --watchAll",
+    "test:e2e:web": "npm run test:web --workspace @bitwarden/e2e --",
+    "test:e2e:browser": "npm run build:prod:chrome --workspace @bitwarden/browser && npm run test:browser --workspace @bitwarden/e2e --",
+    "test:e2e:desktop": "npm run build-native --workspace @bitwarden/desktop && npm run build --workspace @bitwarden/desktop && npm run test:desktop --workspace @bitwarden/e2e --",
+    "test:e2e:all": "npm run test:e2e:web && npm run test:e2e:browser && npm run test:e2e:desktop",
     "test:types": "node ./scripts/test-types.js",
     "test:locales": "tsc --project ./scripts/tsconfig.json && node ./scripts/dist/test-locales.js",
     "lint:dep-ownership": "tsc --project ./scripts/tsconfig.json && node ./scripts/dist/dep-ownership.js",
@@ -48,6 +52,7 @@
   },
   "workspaces": [
     "apps/*",
+    "e2e",
     "apps/desktop/desktop_native/napi",
     "libs/**/*"
   ],
