@@ -58,7 +58,9 @@ export class VaultProgram extends BaseProgram {
       "items",
       "folders",
       "collections",
+      "shared-folders",
       "org-collections",
+      "org-shared-folders",
       "org-members",
       "organizations",
     ];
@@ -70,6 +72,7 @@ export class VaultProgram extends BaseProgram {
       .option("--url <url>", "Filter items of type login with a url-match search.")
       .option("--folderid <folderid>", "Filter items by folder id.")
       .option("--collectionid <collectionid>", "Filter items by collection id.")
+      .option("--sharedfolderid <sharedfolderid>", "Filter items by shared folder id.")
       .option(
         "--organizationid <organizationid>",
         "Filter items or collections by organization id.",
@@ -143,7 +146,9 @@ export class VaultProgram extends BaseProgram {
       "attachment",
       "folder",
       "collection",
+      "shared-folder",
       "org-collection",
+      "org-shared-folder",
       "organization",
       "template",
       "fingerprint",
@@ -208,7 +213,7 @@ export class VaultProgram extends BaseProgram {
   }
 
   private createCommand() {
-    const createObjects = ["item", "attachment", "folder", "org-collection"];
+    const createObjects = ["item", "attachment", "folder", "org-collection", "org-shared-folder"];
     return new Command("create")
       .argument("<object>", "Valid objects are: " + createObjects.join(", "))
       .argument(
@@ -255,7 +260,13 @@ export class VaultProgram extends BaseProgram {
   }
 
   private editCommand(): Command {
-    const editObjects = ["item", "item-collections", "folder", "org-collection"];
+    const editObjects = [
+      "item",
+      "item-collections",
+      "folder",
+      "org-collection",
+      "org-shared-folder",
+    ];
     return new Command("edit")
       .argument("<object>", "Valid objects are: " + editObjects.join(", "))
       .argument("<id>", "Object's globally unique `id`.")
