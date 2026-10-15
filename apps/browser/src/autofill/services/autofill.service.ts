@@ -1198,14 +1198,14 @@ export default class AutofillService implements AutofillServiceInterface {
         const maybeTotpField =
           isTotpCandidate && fieldContainsKeyword(field, AutoFillConstants.AmbiguousTotpFieldNames);
 
-        const isUsernameField =
+        const maybeUsernameField =
           !options.skipUsernameOnlyFill &&
           ["email", "tel", "text"].some((t) => t === field.type) &&
           fieldContainsKeyword(field, AutoFillConstants.UsernameFieldNames) &&
           !isNonLoginUsernameField(field, pageDetails);
 
-        const isUnambiguousUsernameField =
-          isUsernameField &&
+        const isUsernameField =
+          maybeUsernameField &&
           fieldContainsKeyword(field, AutoFillConstants.UnambiguousUsernameFieldNames);
 
         // Classify by signal strength: reliable TOTP, then unambiguous username, then a whole-token
@@ -1215,13 +1215,13 @@ export default class AutofillService implements AutofillServiceInterface {
           case isTotpField:
             totps.push(field);
             return;
-          case isUnambiguousUsernameField:
+          case isUsernameField:
             usernames.set(field.opid, field);
             return;
           case isAbbreviatedTotpField:
             totps.push(field);
             return;
-          case isUsernameField:
+          case maybeUsernameField:
             usernames.set(field.opid, field);
             return;
           case maybeTotpField:
