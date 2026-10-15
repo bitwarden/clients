@@ -1177,8 +1177,6 @@ describe("SharedFoldersComponent", () => {
       const rowElement = fixture.debugElement.query(By.css("bit-row")).nativeElement as HTMLElement;
       expect(rowElement.querySelector("[slot=end]")).not.toBeNull();
     });
-
-    // Edit/Delete behavior is `CollectionOptionsMenuComponent`'s own now — see its spec.
   });
 
   describe("the Add button", () => {
