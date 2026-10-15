@@ -145,7 +145,7 @@ describe("DefaultSdkService", () => {
         upgradeTokenStateService.v2UpgradeToken$.calledWith(userId).mockReturnValue(of(null));
       });
 
-      describe("given no client override has been set for the user", () => {
+      describe("given the SDK client factory creates a client", () => {
         let mockClient!: MockProxy<PasswordManagerClient>;
 
         beforeEach(() => {
