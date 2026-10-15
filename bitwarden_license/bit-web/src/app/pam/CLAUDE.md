@@ -9,9 +9,11 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
 - `abstractions/` / `helpers/` / `date/` — framework-agnostic contract layer: domain
   types and error helpers (`abstractions/access-rule.ts`, `abstractions/access-lease.ts`),
   the abstract service contracts, and pure helpers. Re-exported via `index.ts`. No
-  Angular APIs here; keep it that way so this stays unit-testable without a TestBed.
-  Was its own package (`@bitwarden/bit-pam`) — folded in here since `bit-web` was its
-  only consumer.
+  Angular runtime APIs here; keep it that way so this stays unit-testable without a
+  TestBed. Type-only imports of component-library option shapes (e.g.
+  `SimpleDialogOptions`) are fine, since they are erased at compile time. Was its
+  own package (`@bitwarden/bit-pam`) — folded in here since `bit-web` was its only
+  consumer.
 - `access-rules/` — list (`access-rules.component` + `.service`) and the routed
   create/edit page (`access-rule-edit.component`), at `access-rules`,
   `access-rules/new`, `access-rules/:accessRuleId`.
