@@ -1,4 +1,4 @@
-import { computed, inject, Injectable } from "@angular/core";
+import { computed, inject, Injectable, signal } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
@@ -9,7 +9,6 @@ import {
   of,
   shareReplay,
   skip,
-  Subject,
   switchMap,
   take,
 } from "rxjs";
@@ -44,7 +43,16 @@ import {
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { getNestedFolderTree } from "@bitwarden/common/vault/utils/folder-utils";
 import { ChipFilterOption, getAvatarDefaultColor } from "@bitwarden/components";
-import { idString, MY_VAULT, NO_FOLDER, orgIconTile, personalIconTile } from "@bitwarden/vault";
+import {
+  ALL_ITEMS_SCOPE,
+  idString,
+  MY_VAULT,
+  NO_FOLDER,
+  orgIconTile,
+  personalIconTile,
+  scopeKey,
+  type VaultScope,
+} from "@bitwarden/vault";
 
 interface CachedTableFilterState {
   organizationIds?: string[];
@@ -77,14 +85,24 @@ export class VaultPopupListTableFiltersService {
     filter((userId): userId is UserId => userId !== null),
   );
 
-  private readonly _cachedFilters = this.viewCacheService.signal<CachedTableFilterState>({
-    key: "vault-table-filters",
+  /** Each vault scope's chip selection, keyed by {@link scopeKey}. */
+  private readonly filtersByScope = this.viewCacheService.signal<
+    Record<string, CachedTableFilterState>
+  >({
+    key: "vault-table-filters-by-scope",
     initialValue: {},
     deserializer: (v) => v,
     persistNavigation: true,
   });
 
-  readonly cachedFilters = this._cachedFilters.asReadonly();
+  /** The {@link scopeKey} of the vault in view, which every read and write below targets. */
+  private readonly activeScopeKey = signal(scopeKey(ALL_ITEMS_SCOPE));
+
+  /** The {@link scopeKey} of the vault in view, for other per-vault state such as search text. */
+  readonly scopeKey = this.activeScopeKey.asReadonly();
+
+  /** The chip selection for the vault in view. */
+  readonly cachedFilters = computed(() => this.filtersByScope()[this.activeScopeKey()] ?? {});
 
   /**
    * Whether the toolbar's filter dialog is open. Root-scoped because the view cache seeds from its
@@ -111,7 +129,7 @@ export class VaultPopupListTableFiltersService {
 
   /** Whether any chip filter is currently selected. */
   readonly hasFilterApplied = computed(() => {
-    const filters = this._cachedFilters();
+    const filters = this.cachedFilters();
     return !!(
       filters.organizationIds?.length ||
       filters.collectionIds?.length ||
@@ -122,11 +140,6 @@ export class VaultPopupListTableFiltersService {
 
   /** Observable mirror of {@link hasFilterApplied} for use in RxJS pipelines. */
   hasFilterApplied$ = toObservable(this.hasFilterApplied);
-
-  private readonly vaultScopedFiltersCleared = new Subject<void>();
-
-  /** Emits on {@link clearVaultScopedFilters}, so the table can reset its own chip controls. */
-  readonly vaultScopedFiltersCleared$ = this.vaultScopedFiltersCleared.asObservable();
 
   /**
    * Whether every organization in `ids` is suspended, which blanks the rows rather than filtering
@@ -172,9 +185,17 @@ export class VaultPopupListTableFiltersService {
       .subscribe(() => this.clearFilters());
   }
 
-  /** Clears all persisted filter state. Called when the active account changes. */
+  /**
+   * Points the cached selection at the vault in view. Call before the table restores, so it seeds
+   * from this vault's entry rather than the previous one's. A `null` scope keys as All items.
+   */
+  setScope(scope: VaultScope | null): void {
+    this.activeScopeKey.set(scopeKey(scope ?? ALL_ITEMS_SCOPE));
+  }
+
+  /** Clears every vault's persisted filter state. Called when the active account changes. */
   private clearFilters(): void {
-    this._cachedFilters.set({});
+    this.filtersByScope.set({});
     this._cachedVaultScopeId.set(null);
   }
 
@@ -193,7 +214,7 @@ export class VaultPopupListTableFiltersService {
   );
 
   /**
-   * Persists the current chip selection to the view cache.
+   * Persists the current chip selection to the view cache, under the vault in view.
    * Call this whenever the table's `filterValues` signal emits a new value.
    */
   saveFilters(values: {
@@ -202,30 +223,19 @@ export class VaultPopupListTableFiltersService {
     collection?: string[];
     folder?: string[];
   }): void {
-    this._cachedFilters.set({
-      organizationIds: values.organization ?? [],
-      collectionIds: values.collection ?? [],
-      folderIds: values.folder ?? [],
-      cipherType: values.cipherType ?? null,
-    });
+    this.filtersByScope.update((filtersByScope) => ({
+      ...filtersByScope,
+      [this.activeScopeKey()]: {
+        organizationIds: values.organization ?? [],
+        collectionIds: values.collection ?? [],
+        folderIds: values.folder ?? [],
+        cipherType: values.cipherType ?? null,
+      },
+    }));
   }
 
   /**
-   * Drops the vault, shared-folder, and folder selections for a switch. Type is kept: item types
-   * span vaults.
-   */
-  clearVaultScopedFilters(): void {
-    this._cachedFilters.set({
-      organizationIds: [],
-      collectionIds: [],
-      folderIds: [],
-      cipherType: this.cachedFilters().cipherType ?? null,
-    });
-    this.vaultScopedFiltersCleared.next();
-  }
-
-  /**
-   * Resolves the cached filter state back to chip-selectable ids, emitting once.
+   * Resolves the vault in view's cached filter state back to chip-selectable ids, emitting once.
    *
    * Call this after the table's filter chips are registered to seed them from the
    * previously-persisted state. The observable takes the first emission of
@@ -238,7 +248,7 @@ export class VaultPopupListTableFiltersService {
     collection?: string[];
     folder?: string[];
   }> {
-    const state = this._cachedFilters();
+    const state = this.cachedFilters();
     return combineLatest([
       this.organizations$,
       this.collections$,

@@ -6,7 +6,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, of, Subject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
@@ -149,8 +149,6 @@ describe("VaultPopupListTableComponent", () => {
   let listTableSvc: VaultPopupListTableService;
   const folders$ = new BehaviorSubject<ChipFilterOption<FolderView>[]>([]);
 
-  /** Emitted by the switcher's clear, which the table follows to reset its own controls. */
-  const vaultScopedFiltersCleared$ = new Subject<void>();
   /** Whether the vault in view is suspended, which blanks the rows. */
   const suspendedVault$ = new BehaviorSubject<boolean>(false);
   const organizationNames$ = new BehaviorSubject<Map<string, string>>(new Map());
@@ -158,9 +156,7 @@ describe("VaultPopupListTableComponent", () => {
   const vaultPopupListTableFiltersService = {
     restoreFilters$: jest.fn().mockReturnValue(of({})),
     saveFilters: jest.fn(),
-    clearVaultScopedFilters: jest.fn(),
     filterDialogOpen: signal(false),
-    vaultScopedFiltersCleared$: vaultScopedFiltersCleared$.asObservable(),
     selectedFilters$: of({
       cipherType: null,
       organization: [] as string[],
@@ -796,26 +792,6 @@ describe("VaultPopupListTableComponent", () => {
         expect(folder!.value()).toEqual(["folder-1"]);
 
         late.destroy();
-      });
-
-      /** The controls hold their own values, so clearing the cache alone leaves them set. */
-      it("resets its chip controls when a vault switch clears the cache", async () => {
-        collections$.next([{ value: col1, label: "Alpha" } as any]);
-        fixture.detectChanges();
-        // The subscription is set up in `afterNextRender`, which needs the render hooks flushed.
-        await fixture.whenStable();
-
-        const byKey = new Map(
-          component["tableEl"]()!
-            .filterControls()
-            .map((c: any) => [c.key(), jest.spyOn(c, "setValue")]),
-        );
-
-        vaultScopedFiltersCleared$.next();
-        fixture.detectChanges();
-
-        expect(byKey.get("collection")).toHaveBeenCalledWith(undefined);
-        expect(byKey.get("cipherType")).not.toHaveBeenCalled();
       });
 
       it("keeps every organization's shared folders when unscoped", () => {

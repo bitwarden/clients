@@ -105,9 +105,6 @@ function subtreeValues(nodes: readonly FilterOptionNode<string>[]): string[] {
   return nodes.flatMap((n) => [n.value, ...subtreeValues(n.options ?? [])]);
 }
 
-/** The chips a vault switch invalidates. Type is absent: item types span vaults. */
-const VAULT_SCOPED_FILTER_KEYS = ["organization", "collection", "folder"];
-
 @Component({
   selector: "app-vault-popup-list-table",
   templateUrl: "vault-popup-list-table.component.html",
@@ -596,18 +593,6 @@ export class VaultPopupListTableComponent {
         .pipe(skip(1), takeUntilDestroyed(this.destroyRef))
         .subscribe((values: any) => {
           this.listFiltersService.saveFilters(values);
-        });
-
-      // The controls hold their own values. Driven by the switcher, not the scope, which also
-      // publishes on open.
-      this.listFiltersService.vaultScopedFiltersCleared$
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => {
-          for (const control of table.filterControls()) {
-            if (VAULT_SCOPED_FILTER_KEYS.includes(control.key())) {
-              control.setValue(undefined);
-            }
-          }
         });
     });
   }

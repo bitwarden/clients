@@ -18,7 +18,6 @@ import {
   distinctUntilChanged,
   filter,
   map,
-  NEVER,
   of,
   startWith,
   timer,
@@ -437,9 +436,7 @@ const buildProviders = (args: StoryArgs) => {
       useValue: {
         restoreFilters$: () => of(args.appliedFilters ?? {}),
         saveFilters: () => {},
-        clearVaultScopedFilters: () => {},
         filterDialogOpen: signal(false),
-        vaultScopedFiltersCleared$: NEVER,
         suspended$: () => of(false),
         selectedFilters$: of({
           cipherType: null,
