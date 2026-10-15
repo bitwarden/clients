@@ -3,7 +3,6 @@ import { firstValueFrom, switchMap, catchError } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { DECRYPT_ERROR } from "@bitwarden/legacy-crypto";
 import {
-  CipherListView,
   CipherView as SdkCipherView,
   CreateAttachmentRequest,
   CreatedAttachment,
@@ -481,23 +480,25 @@ export class DefaultCipherSdkService implements CipherSdkService {
     userId: UserId,
     includeMemberItems: boolean,
     signal?: AbortSignal,
-  ): Promise<[Cipher[], CipherListView[]]> {
+  ): Promise<Cipher[]> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
           using ref = sdk.take();
 
-          const result = await ref.value
-            .vault()
-            .ciphers()
-            .admin()
-            .list_org_ciphers_abortable(asUuid(organizationId), includeMemberItems, signal);
+          const result = await ref.value.vault().ciphers().admin().list_org_ciphers_abortable(
+            asUuid(organizationId),
+            includeMemberItems,
+            // Callers decrypt the full ciphers themselves; list views would go unused
+            false,
+            signal,
+          );
 
           const ciphers = result.ciphers
             .map((c) => Cipher.fromSdkCipher(c))
             .filter((c): c is Cipher => c !== undefined);
 
-          return [ciphers, result.listViews] as [Cipher[], CipherListView[]];
+          return ciphers;
         }),
         catchError((error: unknown) => {
           // A cancelled load is expected when the caller navigates away, not a failure
@@ -514,7 +515,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
     organizationId: string,
     userId: UserId,
     signal?: AbortSignal,
-  ): Promise<[Cipher[], CipherListView[]]> {
+  ): Promise<Cipher[]> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
@@ -524,13 +525,18 @@ export class DefaultCipherSdkService implements CipherSdkService {
             .vault()
             .ciphers()
             .admin()
-            .list_assigned_org_ciphers_abortable(asUuid(organizationId), signal);
+            .list_assigned_org_ciphers_abortable(
+              asUuid(organizationId),
+              // Callers decrypt the full ciphers themselves; list views would go unused
+              false,
+              signal,
+            );
 
           const ciphers = result.ciphers
             .map((c) => Cipher.fromSdkCipher(c))
             .filter((c): c is Cipher => c !== undefined);
 
-          return [ciphers, result.listViews] as [Cipher[], CipherListView[]];
+          return ciphers;
         }),
         catchError((error: unknown) => {
           // A cancelled load is expected when the caller navigates away, not a failure

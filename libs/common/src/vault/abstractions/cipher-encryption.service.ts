@@ -73,6 +73,7 @@ export abstract class CipherEncryptionService {
    *
    * @param ciphers The encrypted cipher objects
    * @param userId The user ID whose key will be used for decryption
+   * @param signal Stops decrypting between batches once aborted; the promise then rejects
    *
    * @deprecated Use `decryptMany` for bulk decryption instead.
    *
@@ -81,6 +82,7 @@ export abstract class CipherEncryptionService {
   abstract decryptManyLegacy(
     ciphers: Cipher[],
     userId: UserId,
+    signal?: AbortSignal,
   ): Promise<[CipherView[], CipherView[]]>;
   /**
    * Decrypts many ciphers using the SDK for the given userId, and returns a list of

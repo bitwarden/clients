@@ -12,6 +12,12 @@ import { Cipher } from "../models/domain/cipher";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 
+/**
+ * Ciphers decrypted per SDK call by {@link DefaultCipherEncryptionService.decryptManyLegacy}
+ * before yielding to the event loop, keeping each main-thread task short.
+ */
+const DECRYPT_BATCH_SIZE = 500;
+
 export class DefaultCipherEncryptionService implements CipherEncryptionService {
   constructor(
     private sdkService: SdkService,
@@ -153,7 +159,11 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     );
   }
 
-  decryptManyLegacy(ciphers: Cipher[], userId: UserId): Promise<[CipherView[], CipherView[]]> {
+  decryptManyLegacy(
+    ciphers: Cipher[],
+    userId: UserId,
+    signal?: AbortSignal,
+  ): Promise<[CipherView[], CipherView[]]> {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
@@ -162,14 +172,26 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           const successful: CipherView[] = [];
           const failed: CipherView[] = [];
 
-          for (const cipher of ciphers) {
-            try {
-              const sdkCipherView = await ref.value.vault().ciphers().decrypt(cipher.toSdkCipher());
-              const clientCipherView = CipherView.fromSdkCipherView(sdkCipherView)!;
+          // Decrypt in batches and yield to the event loop between them. Decrypting a large
+          // organization in one go blocks the UI thread for seconds and freezes the page.
+          for (let start = 0; start < ciphers.length; start += DECRYPT_BATCH_SIZE) {
+            if (start > 0) {
+              await new Promise((resolve) => setTimeout(resolve, 0));
+            }
+            signal?.throwIfAborted();
 
-              successful.push(clientCipherView);
-            } catch (error) {
-              this.logService.error(`Failed to decrypt cipher ${cipher.id}: ${error}`);
+            const batch = ciphers.slice(start, start + DECRYPT_BATCH_SIZE);
+            const result = await ref.value
+              .vault()
+              .ciphers()
+              .decrypt_list_full_with_failures(batch.map((c) => c.toSdkCipher()));
+
+            for (const sdkCipherView of result.successes) {
+              successful.push(CipherView.fromSdkCipherView(sdkCipherView)!);
+            }
+            for (const sdkCipher of result.failures) {
+              const cipher = Cipher.fromSdkCipher(sdkCipher)!;
+              this.logService.error(`Failed to decrypt cipher ${cipher.id}`);
               const failedView = new CipherView(cipher);
               failedView.name = "[error: cannot decrypt]";
               failedView.decryptionFailure = true;
@@ -180,6 +202,9 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           return [successful, failed] as [CipherView[], CipherView[]];
         }),
         catchError((error: unknown) => {
+          if (signal?.aborted) {
+            return throwError(() => error);
+          }
           this.logService.error(`Failed to decrypt ciphers: ${error}`);
           return EMPTY;
         }),

@@ -1,8 +1,4 @@
-import {
-  CipherListView,
-  CreateAttachmentRequest,
-  CreatedAttachment,
-} from "@bitwarden/sdk-internal";
+import { CreateAttachmentRequest, CreatedAttachment } from "@bitwarden/sdk-internal";
 
 import {
   CipherId,
@@ -283,35 +279,35 @@ export abstract class CipherSdkService {
 
   /**
    * Fetches all ciphers for an organization from the API using the SDK.
-   * Returns encrypted ciphers for on-demand decryption and lightweight list views for display.
+   * Returns the encrypted ciphers for the caller to decrypt.
    *
    * @param organizationId The organization ID to fetch ciphers for
    * @param userId The user ID to use for SDK client
    * @param includeMemberItems Whether to include member items
-   * @param signal Aborts the request and skips decryption; the promise then rejects
-   * @returns A promise that resolves to the encrypted ciphers and decrypted list views
+   * @param signal Aborts the request; the promise then rejects
+   * @returns A promise that resolves to the encrypted ciphers
    */
   abstract getAllFromApiForOrganization(
     organizationId: string,
     userId: UserId,
     includeMemberItems: boolean,
     signal?: AbortSignal,
-  ): Promise<[Cipher[], CipherListView[]]>;
+  ): Promise<Cipher[]>;
 
   /**
    * Fetches the ciphers an organization member is assigned to (via collections) using the SDK.
-   * Returns encrypted ciphers for on-demand decryption and lightweight list views for display.
+   * Returns the encrypted ciphers for the caller to decrypt.
    *
    * @param organizationId The organization ID to fetch ciphers for
    * @param userId The user ID to use for SDK client
-   * @param signal Aborts the request and skips decryption; the promise then rejects
-   * @returns A promise that resolves to the encrypted ciphers and decrypted list views
+   * @param signal Aborts the request; the promise then rejects
+   * @returns A promise that resolves to the encrypted ciphers
    */
   abstract getManyFromApiForOrganization(
     organizationId: string,
     userId: UserId,
     signal?: AbortSignal,
-  ): Promise<[Cipher[], CipherListView[]]>;
+  ): Promise<Cipher[]>;
 
   /**
    * Fetches all Login ciphers for an organization, including those in default user collections,

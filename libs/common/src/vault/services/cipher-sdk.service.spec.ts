@@ -1166,11 +1166,14 @@ describe("DefaultCipherSdkService", () => {
       expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
       expect(mockVaultSdk.ciphers).toHaveBeenCalled();
       expect(mockCiphersSdk.admin).toHaveBeenCalled();
-      expect(mockAdminSdk.list_org_ciphers_abortable).toHaveBeenCalledWith(orgId, false, undefined);
-      const [ciphers, listViews] = result;
-      expect(ciphers).toHaveLength(1);
-      expect(ciphers[0]).toBeInstanceOf(Cipher);
-      expect(listViews).toHaveLength(1);
+      expect(mockAdminSdk.list_org_ciphers_abortable).toHaveBeenCalledWith(
+        orgId,
+        false,
+        false,
+        undefined,
+      );
+      expect(result).toHaveLength(1);
+      expect(result[0]).toBeInstanceOf(Cipher);
     });
 
     it("should pass includeMemberItems parameter to SDK", async () => {
@@ -1181,7 +1184,12 @@ describe("DefaultCipherSdkService", () => {
 
       await cipherSdkService.getAllFromApiForOrganization(orgId, userId, true);
 
-      expect(mockAdminSdk.list_org_ciphers_abortable).toHaveBeenCalledWith(orgId, true, undefined);
+      expect(mockAdminSdk.list_org_ciphers_abortable).toHaveBeenCalledWith(
+        orgId,
+        true,
+        false,
+        undefined,
+      );
     });
 
     it("should throw error and log when SDK throws an error", async () => {
@@ -1209,6 +1217,7 @@ describe("DefaultCipherSdkService", () => {
 
       expect(mockAdminSdk.list_org_ciphers_abortable).toHaveBeenCalledWith(
         orgId,
+        false,
         false,
         controller.signal,
       );
@@ -1344,12 +1353,11 @@ describe("DefaultCipherSdkService", () => {
       expect(mockCiphersSdk.admin).toHaveBeenCalled();
       expect(mockAdminSdk.list_assigned_org_ciphers_abortable).toHaveBeenCalledWith(
         orgId,
+        false,
         undefined,
       );
-      const [ciphers, listViews] = result;
-      expect(ciphers).toHaveLength(1);
-      expect(ciphers[0]).toBeInstanceOf(Cipher);
-      expect(listViews).toHaveLength(1);
+      expect(result).toHaveLength(1);
+      expect(result[0]).toBeInstanceOf(Cipher);
     });
 
     it("should return empty arrays when SDK returns no ciphers", async () => {
@@ -1358,13 +1366,9 @@ describe("DefaultCipherSdkService", () => {
         listViews: [],
       });
 
-      const [ciphers, listViews] = await cipherSdkService.getManyFromApiForOrganization(
-        orgId,
-        userId,
-      );
+      const ciphers = await cipherSdkService.getManyFromApiForOrganization(orgId, userId);
 
       expect(ciphers).toHaveLength(0);
-      expect(listViews).toHaveLength(0);
     });
 
     it("should throw error and log when SDK throws an error", async () => {
@@ -1390,6 +1394,7 @@ describe("DefaultCipherSdkService", () => {
 
       expect(mockAdminSdk.list_assigned_org_ciphers_abortable).toHaveBeenCalledWith(
         orgId,
+        false,
         controller.signal,
       );
       expect(logService.error).not.toHaveBeenCalled();

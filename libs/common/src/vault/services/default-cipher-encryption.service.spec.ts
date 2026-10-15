@@ -101,6 +101,7 @@ describe("DefaultCipherEncryptionService", () => {
         decrypt: jest.fn(),
         decrypt_list: jest.fn(),
         decrypt_list_with_failures: jest.fn(),
+        decrypt_list_full_with_failures: jest.fn(),
         move_to_organization: jest.fn(),
       }),
       attachments: jest.fn().mockReturnValue({
@@ -506,11 +507,13 @@ describe("DefaultCipherEncryptionService", () => {
       mockSdkClient
         .vault()
         .ciphers()
-        .decrypt.mockReturnValueOnce({
-          id: cipherId,
-          name: "test-name-1",
-        } as unknown as SdkCipherView)
-        .mockReturnValueOnce({ id: cipherId2, name: "test-name-2" } as unknown as SdkCipherView);
+        .decrypt_list_full_with_failures.mockResolvedValueOnce({
+          successes: [
+            { id: cipherId, name: "test-name-1" } as unknown as SdkCipherView,
+            { id: cipherId2, name: "test-name-2" } as unknown as SdkCipherView,
+          ],
+          failures: [],
+        });
 
       jest
         .spyOn(CipherView, "fromSdkCipherView")
@@ -522,8 +525,68 @@ describe("DefaultCipherEncryptionService", () => {
 
       expect(successfulDecryptions).toEqual(expectedViews);
       expect(failedDecryptions).toEqual([]);
-      expect(mockSdkClient.vault().ciphers().decrypt).toHaveBeenCalledTimes(2);
+      expect(mockSdkClient.vault().ciphers().decrypt_list_full_with_failures).toHaveBeenCalledTimes(
+        1,
+      );
       expect(CipherView.fromSdkCipherView).toHaveBeenCalledTimes(2);
+    });
+
+    it("should decrypt large lists in batches", async () => {
+      const ciphers = Array.from({ length: 1001 }, () => new Cipher(cipherData));
+      mockSdkClient
+        .vault()
+        .ciphers()
+        .decrypt_list_full_with_failures.mockResolvedValue({ successes: [], failures: [] });
+
+      await cipherEncryptionService.decryptManyLegacy(ciphers, userId);
+
+      const batchSizes = mockSdkClient
+        .vault()
+        .ciphers()
+        .decrypt_list_full_with_failures.mock.calls.map(([batch]: [unknown[]]) => batch.length);
+      expect(batchSizes).toEqual([500, 500, 1]);
+    });
+
+    it("should return placeholder views for ciphers that fail to decrypt", async () => {
+      const ciphers = [new Cipher(cipherData)];
+      mockSdkClient
+        .vault()
+        .ciphers()
+        .decrypt_list_full_with_failures.mockResolvedValueOnce({
+          successes: [],
+          failures: [{ id: cipherId } as unknown as SdkCipher],
+        });
+      jest.spyOn(Cipher, "fromSdkCipher").mockReturnValueOnce(new Cipher(cipherData));
+
+      const [successfulDecryptions, failedDecryptions] =
+        await cipherEncryptionService.decryptManyLegacy(ciphers, userId);
+
+      expect(successfulDecryptions).toEqual([]);
+      expect(failedDecryptions).toHaveLength(1);
+      expect(failedDecryptions[0].decryptionFailure).toBe(true);
+      expect(failedDecryptions[0].name).toBe("[error: cannot decrypt]");
+    });
+
+    it("should stop between batches and reject without logging once aborted", async () => {
+      const ciphers = Array.from({ length: 1001 }, () => new Cipher(cipherData));
+      const controller = new AbortController();
+      mockSdkClient
+        .vault()
+        .ciphers()
+        .decrypt_list_full_with_failures.mockImplementation(async () => {
+          controller.abort();
+          return { successes: [], failures: [] };
+        });
+      logService.error.mockClear();
+
+      await expect(
+        cipherEncryptionService.decryptManyLegacy(ciphers, userId, controller.signal),
+      ).rejects.toThrow();
+
+      expect(mockSdkClient.vault().ciphers().decrypt_list_full_with_failures).toHaveBeenCalledTimes(
+        1,
+      );
+      expect(logService.error).not.toHaveBeenCalled();
     });
   });
 

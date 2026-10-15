@@ -644,7 +644,7 @@ export class CipherService implements CipherServiceAbstraction {
     );
     // Large organizations can return tens of thousands of ciphers; don't decrypt them for a caller that has moved on.
     signal?.throwIfAborted();
-    return await this.decryptOrganizationCiphersResponse(response);
+    return await this.decryptOrganizationCiphersResponse(response, signal);
   }
 
   private async getAllFromApiForOrganizationUsingSdk(
@@ -658,7 +658,7 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     try {
-      const [ciphers] = await this.cipherSdkService.getAllFromApiForOrganization(
+      const ciphers = await this.cipherSdkService.getAllFromApiForOrganization(
         organizationId,
         userId,
         includeMemberItems,
@@ -667,7 +667,11 @@ export class CipherService implements CipherServiceAbstraction {
 
       // The SDK aborts its own request; this also skips the client-side decryption below
       signal?.throwIfAborted();
-      const [cipherViews] = await this.cipherEncryptionService.decryptManyLegacy(ciphers, userId);
+      const [cipherViews] = await this.cipherEncryptionService.decryptManyLegacy(
+        ciphers,
+        userId,
+        signal,
+      );
 
       // Sort by locale (matching existing behavior)
       cipherViews.sort(this.getLocaleSortingFunction());
@@ -692,7 +696,7 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     try {
-      const [ciphers] = await this.cipherSdkService.getManyFromApiForOrganization(
+      const ciphers = await this.cipherSdkService.getManyFromApiForOrganization(
         organizationId,
         userId,
         signal,
@@ -700,7 +704,11 @@ export class CipherService implements CipherServiceAbstraction {
 
       // The SDK aborts its own request; this also skips the client-side decryption below
       signal?.throwIfAborted();
-      const [cipherViews] = await this.cipherEncryptionService.decryptManyLegacy(ciphers, userId);
+      const [cipherViews] = await this.cipherEncryptionService.decryptManyLegacy(
+        ciphers,
+        userId,
+        signal,
+      );
 
       cipherViews.sort(this.getLocaleSortingFunction());
 
@@ -727,6 +735,7 @@ export class CipherService implements CipherServiceAbstraction {
 
   private async decryptOrganizationCiphersResponse(
     response: ListResponse<CipherResponse>,
+    signal?: AbortSignal,
   ): Promise<CipherView[]> {
     if (response?.data == null || response.data.length < 1) {
       return [];
@@ -740,6 +749,7 @@ export class CipherService implements CipherServiceAbstraction {
     const [successful, failed] = await this.cipherEncryptionService.decryptManyLegacy(
       ciphers,
       userId,
+      signal,
     );
     const decCiphers = [...successful, ...failed];
 

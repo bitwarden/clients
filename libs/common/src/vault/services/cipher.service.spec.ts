@@ -1647,6 +1647,7 @@ describe("Cipher Service", () => {
       expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
         [expect.any(Cipher)],
         mockUserId,
+        undefined,
       );
       expect(result).toEqual([failed, decrypted]);
     });
@@ -1664,7 +1665,7 @@ describe("Cipher Service", () => {
 
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "getAllFromApiForOrganization")
-        .mockResolvedValue([[mockCipher1, mockCipher2], []]);
+        .mockResolvedValue([mockCipher1, mockCipher2]);
 
       cipherEncryptionService.decryptManyLegacy.mockResolvedValue([
         [mockCipherView1, mockCipherView2],
@@ -1680,6 +1681,7 @@ describe("Cipher Service", () => {
       expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
         [mockCipher1, mockCipher2],
         mockUserId,
+        undefined,
       );
       expect(result).toHaveLength(2);
       expect(result[0]).toBeInstanceOf(CipherView);
@@ -1691,7 +1693,7 @@ describe("Cipher Service", () => {
 
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "getAllFromApiForOrganization")
-        .mockResolvedValue([[], []]);
+        .mockResolvedValue([]);
 
       cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[], []]);
 
@@ -1709,7 +1711,7 @@ describe("Cipher Service", () => {
       const controller = new AbortController();
       jest.spyOn(cipherSdkService, "getAllFromApiForOrganization").mockImplementation(async () => {
         controller.abort();
-        return [[new Cipher(cipherData)], []];
+        return [new Cipher(cipherData)];
       });
 
       await expect(
@@ -1734,7 +1736,7 @@ describe("Cipher Service", () => {
 
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "getManyFromApiForOrganization")
-        .mockResolvedValue([[mockCipher1, mockCipher2], []]);
+        .mockResolvedValue([mockCipher1, mockCipher2]);
 
       cipherEncryptionService.decryptManyLegacy.mockResolvedValue([
         [mockCipherView1, mockCipherView2],
@@ -1750,6 +1752,7 @@ describe("Cipher Service", () => {
       expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
         [mockCipher1, mockCipher2],
         mockUserId,
+        undefined,
       );
       expect(result).toHaveLength(2);
       expect(result[0]).toBeInstanceOf(CipherView);
@@ -1760,7 +1763,7 @@ describe("Cipher Service", () => {
       const controller = new AbortController();
       jest.spyOn(cipherSdkService, "getManyFromApiForOrganization").mockImplementation(async () => {
         controller.abort();
-        return [[new Cipher(cipherData)], []];
+        return [new Cipher(cipherData)];
       });
 
       await expect(
