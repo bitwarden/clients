@@ -885,6 +885,47 @@ describe("SettingsDialogComponent", () => {
             expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
           });
 
+          // A failed persistent enrollment (e.g. a cancelled Windows Hello prompt) must not skip
+          // storing the session biometric key, nor the validation that reverts the enabled flag.
+          it("still stores the biometric unlock key when persistent enrollment fails", async () => {
+            const enrollmentError = new Error("Windows Hello cancelled");
+            (component as any).userHasMasterPassword.set(false);
+            (component as any).userHasPinSet.set(false);
+            desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
+            desktopBiometricsService.enrollPersistent.mockRejectedValue(enrollmentError);
+
+            await (component as any).updateBiometricHandler(true);
+
+            expect(validationService.showError).toHaveBeenCalledWith(enrollmentError);
+            expect(
+              desktopBiometricsService.setBiometricProtectedUnlockKeyForUser,
+            ).toHaveBeenCalledWith(mockUserId, mockUserKey);
+            expect((component as any).form.controls.requireMasterPasswordOnAppRestart.value).toBe(
+              true,
+            );
+            expect((component as any).form.controls.biometric.value).toBe(true);
+          });
+
+          it("disables biometric unlock when persistent enrollment fails", async () => {
+            (component as any).userHasMasterPassword.set(false);
+            (component as any).userHasPinSet.set(false);
+            desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
+            desktopBiometricsService.enrollPersistent.mockRejectedValue(
+              new Error("Windows Hello cancelled"),
+            );
+            desktopBiometricsService.getBiometricsStatusForUser.mockResolvedValue(
+              BiometricsStatus.UnlockNeeded,
+            );
+
+            await (component as any).updateBiometricHandler(true);
+
+            expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenLastCalledWith(
+              false,
+              mockUserId,
+            );
+            expect((component as any).form.controls.biometric.value).toBe(false);
+          });
+
           test.each([
             [true, true],
             [true, false],
@@ -923,6 +964,65 @@ describe("SettingsDialogComponent", () => {
             },
           );
         });
+      });
+
+      it("disables biometric unlock when storing the key fails", async () => {
+        keyService.userKey$.mockReturnValue(of(mockUserKey));
+        desktopBiometricsService.getBiometricsStatus.mockResolvedValue(BiometricsStatus.Available);
+        desktopBiometricsService.setBiometricProtectedUnlockKeyForUser.mockRejectedValue(
+          new Error("Keychain unavailable"),
+        );
+
+        await (component as any).updateBiometricHandler(true);
+
+        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenLastCalledWith(
+          false,
+          mockUserId,
+        );
+        expect((component as any).form.controls.biometric.value).toBe(false);
+      });
+
+      // Touch ID always persists the key, so the enrolled key id must be recorded.
+      it("enrolls the persistent biometric key on mac", async () => {
+        keyService.userKey$.mockReturnValue(of(mockUserKey));
+        desktopBiometricsService.getBiometricsStatus.mockResolvedValue(BiometricsStatus.Available);
+        desktopBiometricsService.getBiometricsStatusForUser.mockResolvedValue(
+          BiometricsStatus.Available,
+        );
+        component["isWindows"] = false;
+        component["isLinux"] = false;
+        component["isMac"] = true;
+
+        await (component as any).updateBiometricHandler(true);
+
+        expect(desktopBiometricsService.enrollPersistent).toHaveBeenCalledWith(
+          mockUserId,
+          mockUserKey,
+        );
+        expect((component as any).form.controls.biometric.value).toBe(true);
+      });
+
+      // The key stored before enrollment still unlocks, so a failed enrollment is not fatal.
+      it("keeps biometric unlock enabled when enrollment fails on mac", async () => {
+        const enrollmentError = new Error("Touch ID unavailable");
+        keyService.userKey$.mockReturnValue(of(mockUserKey));
+        desktopBiometricsService.getBiometricsStatus.mockResolvedValue(BiometricsStatus.Available);
+        desktopBiometricsService.getBiometricsStatusForUser.mockResolvedValue(
+          BiometricsStatus.Available,
+        );
+        desktopBiometricsService.enrollPersistent.mockRejectedValue(enrollmentError);
+        component["isWindows"] = false;
+        component["isLinux"] = false;
+        component["isMac"] = true;
+
+        await (component as any).updateBiometricHandler(true);
+
+        expect(validationService.showError).toHaveBeenCalledWith(enrollmentError);
+        expect(biometricStateService.setBiometricUnlockEnabled).not.toHaveBeenCalledWith(
+          false,
+          mockUserId,
+        );
+        expect((component as any).form.controls.biometric.value).toBe(true);
       });
 
       it("handles linux case", async () => {
