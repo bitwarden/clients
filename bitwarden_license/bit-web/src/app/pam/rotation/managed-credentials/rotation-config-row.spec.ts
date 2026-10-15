@@ -1,14 +1,23 @@
-import type { RotationConfigView, TargetSystemView } from "../rotation";
+import type { AccessConnector, RotationConfigView, TargetSystemView } from "../rotation";
 import type { RotationConfigDescription } from "../rotation-sdk.service";
 import {
   CIPHER_ID,
+  TARGET_SYSTEM_ID,
+  accessConnector,
   rotationConfigActions,
   rotationConfigDescription,
   rotationConfig,
+  rotationConfigSealedFields,
+  sysId,
   targetSystem,
 } from "../testing/rotation-builders";
 
-import { RotationRowStatus, buildRotationConfigRow } from "./rotation-config-row";
+import {
+  ROTATION_STATUS_BADGES,
+  RotationRowStatus,
+  buildRotationConfigRow,
+  rotationStatusBadge,
+} from "./rotation-config-row";
 
 /** The SDK decides the rules, so these tests cover the mapping and pass-through only. */
 describe("buildRotationConfigRow", () => {
@@ -22,6 +31,7 @@ describe("buildRotationConfigRow", () => {
       target?: TargetSystemView;
       cipherName?: string;
       description?: RotationConfigDescription;
+      connectors?: AccessConnector[] | null;
     } = {},
   ) =>
     buildRotationConfigRow(
@@ -29,6 +39,9 @@ describe("buildRotationConfigRow", () => {
       "target" in options ? options.target : targetSystem(),
       "cipherName" in options ? options.cipherName : "My Cipher",
       options.description ?? rotationConfigDescription(),
+      "connectors" in options
+        ? options.connectors
+        : [accessConnector({ assignedTargetSystemIds: [TARGET_SYSTEM_ID] })],
     );
 
   describe("naming", () => {
@@ -56,7 +69,9 @@ describe("buildRotationConfigRow", () => {
   });
 
   describe("resolved status", () => {
-    it("reads active when enabled, idle, and not awaiting a manual rotation", () => {
+    const manual = { targetSystemMethod: "manual" } as const;
+
+    it("reads active for an enabled, idle automatic credential", () => {
       const built = row({ config: { enabled: true } });
       expect(built.status).toBe(RotationRowStatus.Active);
       expect(built.statusBadge.labelKey).toBe("active");
@@ -69,7 +84,7 @@ describe("buildRotationConfigRow", () => {
       expect(built.status).toBe(RotationRowStatus.Paused);
       expect(built.statusBadge.labelKey).toBe("pamRotationConfigStatusPaused");
       expect(built.statusBadge.variant).toBe("subtle");
-      expect(built.statusBadge.icon).toBe("bwi-minus-circle");
+      expect(built.statusBadge.icon).toBe("bwi-pause-circle");
     });
 
     it("reads rotating while a job is in flight", () => {
@@ -80,55 +95,104 @@ describe("buildRotationConfigRow", () => {
       expect(built.statusBadge.icon).toBe("bwi-refresh");
     });
 
-    it("reads manual rotation while awaiting an operator's confirmation", () => {
-      const built = row({ config: { awaitingManualRotation: true } });
-      expect(built.status).toBe(RotationRowStatus.ManualRotation);
+    it("reads rotation due for a manual credential awaiting confirmation", () => {
+      const built = row({ config: { ...manual, awaitingManualRotation: true } });
+      expect(built.status).toBe(RotationRowStatus.RotationDue);
       expect(built.statusBadge.labelKey).toBe("pamRotationConfigRotationDueBadge");
       expect(built.statusBadge.variant).toBe("warning");
-      expect(built.statusBadge.icon).toBe("bwi-clock");
+      expect(built.statusBadge.icon).toBe("bwi-calendar");
     });
 
-    it("prefers rotating over paused, so an in-flight job stays visible", () => {
+    it("reads manual rotation for a manual credential that is not yet due", () => {
+      const built = row({ config: { ...manual, awaitingManualRotation: false } });
+      expect(built.status).toBe(RotationRowStatus.ManualRotation);
+      expect(built.statusBadge.labelKey).toBe("pamRotationConfigStatusManualRotation");
+      expect(built.statusBadge.variant).toBe("subtle");
+      expect(built.statusBadge.icon).toBe("bwi-user");
+    });
+
+    it("never reads an automatic credential as rotation due", () => {
+      expect(row({ config: { awaitingManualRotation: true } }).status).toBe(
+        RotationRowStatus.Active,
+      );
+    });
+
+    it("prefers rotating over paused, so a paused credential mid-rotation shows one badge", () => {
       expect(
         row({ config: { enabled: false, hasActiveJob: true, awaitingManualRotation: true } })
           .status,
       ).toBe(RotationRowStatus.Rotating);
     });
 
-    it("prefers paused over manual rotation, so no cycle is implied while stopped", () => {
-      expect(row({ config: { enabled: false, awaitingManualRotation: true } }).status).toBe(
-        RotationRowStatus.Paused,
-      );
+    it("prefers paused over rotation due, so no cycle is implied while stopped", () => {
+      expect(
+        row({ config: { ...manual, enabled: false, awaitingManualRotation: true } }).status,
+      ).toBe(RotationRowStatus.Paused);
     });
 
-    it("carries the badge's label key as the status filter's value", () => {
+    it("carries the badge's label key as the status label key", () => {
       const built = row({ config: { hasActiveJob: true } });
       expect(built.statusLabelKey).toBe(built.statusBadge.labelKey);
     });
   });
 
-  /** Sorting on `statusLabelKey` would order rows by the spelling of an i18n identifier. */
-  describe("status sort order", () => {
-    const orderOf = (config: Partial<RotationConfigView>) => row({ config }).statusSortOrder;
+  describe("not connected", () => {
+    const target = TARGET_SYSTEM_ID;
+    const connector = (overrides: Partial<AccessConnector> = {}) =>
+      accessConnector({ assignedTargetSystemIds: [target], ...overrides });
 
-    it("ranks the statuses by resolveRotationStatus's precedence", () => {
-      expect(orderOf({ hasActiveJob: true })).toBe(1);
-      expect(orderOf({ enabled: false })).toBe(2);
-      expect(orderOf({ awaitingManualRotation: true })).toBe(3);
-      expect(orderOf({ enabled: true })).toBe(4);
+    it("reads not connected for an automatic credential whose target has no connected connector", () => {
+      const built = row({ connectors: [connector({ isConnected: false })] });
+      expect(built.status).toBe(RotationRowStatus.NotConnected);
+      expect(built.notConnected).toBe(true);
+      expect(built.statusBadge.labelKey).toBe("pamRotationConfigStatusNotConnected");
+      expect(built.statusBadge.variant).toBe("warning");
+      expect(built.statusBadge.icon).toBe("bwi-warning");
     });
 
-    it("sorts ascending from the most attention-worthy status to the steady state", () => {
-      const rows = [
-        row({ config: { enabled: true } }),
-        row({ config: { awaitingManualRotation: true } }),
-        row({ config: { hasActiveJob: true } }),
-        row({ config: { enabled: false } }),
-      ];
+    it("counts a target with no assigned connectors as not connected", () => {
+      expect(row({ connectors: [] }).status).toBe(RotationRowStatus.NotConnected);
+    });
 
-      const sorted = [...rows].sort((a, b) => a.statusSortOrder - b.statusSortOrder);
+    it("counts only connectors assigned to the credential's own target", () => {
+      const other = connector({ assignedTargetSystemIds: [sysId("other")] });
+      expect(row({ connectors: [other] }).status).toBe(RotationRowStatus.NotConnected);
+    });
 
-      expect(sorted.map((r) => r.status)).toEqual([
+    it("does not count a disabled connector, which cannot claim jobs", () => {
+      const built = row({ connectors: [connector({ status: "disabled" as never })] });
+      expect(built.status).toBe(RotationRowStatus.NotConnected);
+    });
+
+    it("reads active once an enabled, connected connector is assigned", () => {
+      expect(row({ connectors: [connector()] }).status).toBe(RotationRowStatus.Active);
+    });
+
+    it("treats unknown connectivity as connected rather than guessing", () => {
+      expect(row({ connectors: null }).status).toBe(RotationRowStatus.Active);
+    });
+
+    it("never marks a manual credential not connected", () => {
+      const built = row({ config: { targetSystemMethod: "manual" }, connectors: [] });
+      expect(built.status).toBe(RotationRowStatus.ManualRotation);
+    });
+
+    it("lets paused and rotating outrank it", () => {
+      expect(row({ config: { enabled: false }, connectors: [] }).status).toBe(
+        RotationRowStatus.Paused,
+      );
+      expect(row({ config: { hasActiveJob: true }, connectors: [] }).status).toBe(
+        RotationRowStatus.Rotating,
+      );
+    });
+  });
+
+  /** Sorting on `statusLabelKey` would order rows by the spelling of an i18n identifier. */
+  describe("status sort order", () => {
+    it("ranks the statuses by urgency, not by precedence", () => {
+      expect(ROTATION_STATUS_BADGES.map((badge) => badge.status)).toEqual([
+        RotationRowStatus.NotConnected,
+        RotationRowStatus.RotationDue,
         RotationRowStatus.Rotating,
         RotationRowStatus.Paused,
         RotationRowStatus.ManualRotation,
@@ -136,56 +200,80 @@ describe("buildRotationConfigRow", () => {
       ]);
     });
 
-    it("gives each status a distinct rank, so no two collapse together", () => {
-      const orders = [
-        orderOf({ hasActiveJob: true }),
-        orderOf({ enabled: false }),
-        orderOf({ awaitingManualRotation: true }),
-        orderOf({ enabled: true }),
+    it("sorts ascending from the most attention-worthy status to the steady state", () => {
+      const rows = [
+        row({ config: { enabled: true } }),
+        row({ config: { targetSystemMethod: "manual", awaitingManualRotation: true } }),
+        row({ config: { hasActiveJob: true } }),
+        row({ config: { enabled: false } }),
+        row({ config: { targetSystemMethod: "manual" } }),
+        row({ connectors: [] }),
       ];
-      expect(new Set(orders).size).toBe(4);
+
+      const sorted = [...rows].sort((a, b) => a.statusSortOrder - b.statusSortOrder);
+
+      expect(sorted.map((r) => r.status)).toEqual([
+        RotationRowStatus.NotConnected,
+        RotationRowStatus.RotationDue,
+        RotationRowStatus.Rotating,
+        RotationRowStatus.Paused,
+        RotationRowStatus.ManualRotation,
+        RotationRowStatus.Active,
+      ]);
     });
 
-    it("takes the rank from the resolved status, not from the pause a rotating row also carries", () => {
-      const built = row({ config: { enabled: false, hasActiveJob: true } });
-      expect(built.pausedWhileRotating).toBe(true);
-      expect(built.statusSortOrder).toBe(orderOf({ hasActiveJob: true }));
+    it("gives each status a distinct rank, Failed included", () => {
+      expect(rotationStatusBadge(RotationRowStatus.Failed).sortOrder).toBe(1);
+      const orders = Object.values(RotationRowStatus).map(
+        (status) => rotationStatusBadge(status).sortOrder,
+      );
+      expect(new Set(orders).size).toBe(7);
+    });
+
+    it("withholds Failed from the filter's options, since nothing can derive it yet", () => {
+      expect(ROTATION_STATUS_BADGES.map((badge) => badge.status)).not.toContain(
+        RotationRowStatus.Failed,
+      );
     });
   });
 
-  /**
-   * Pausing isn't locked by an in-flight job, so a config can be paused mid-rotation; this flag
-   * keeps the pause visible.
-   */
-  describe("paused while rotating", () => {
-    it("flags a paused config whose claimed job is still running", () => {
-      const built = row({ config: { enabled: false, hasActiveJob: true } });
-      expect(built.status).toBe(RotationRowStatus.Rotating);
-      expect(built.pausedWhileRotating).toBe(true);
+  describe("account", () => {
+    it("carries the sealed account identity", () => {
+      const built = row({
+        config: { sealed: rotationConfigSealedFields({ accountIdentity: "oracle_dba" }) },
+      });
+      expect(built.accountIdentity).toBe("oracle_dba");
     });
 
-    it("leaves the status column's sort and filter value on the resolved status", () => {
-      const built = row({ config: { enabled: false, hasActiveJob: true } });
-      expect(built.statusLabelKey).toBe("pamRotationConfigRotatingBadge");
-      expect(built.statusBadge.labelKey).toBe("pamRotationConfigRotatingBadge");
+    it("is null when the sealed fields failed verification", () => {
+      expect(row({ config: { sealed: undefined } }).accountIdentity).toBeNull();
+    });
+  });
+
+  describe("next rotation", () => {
+    const iso = "2030-01-01T00:00:00Z";
+
+    it("is in progress while a job runs, even with a time scheduled", () => {
+      const built = row({ config: { hasActiveJob: true, nextRotationAt: iso } });
+      expect(built.nextRotation).toEqual({ kind: "in-progress" });
     });
 
-    it("does not flag a paused config with no job in flight, whose badge already says paused", () => {
-      const built = row({ config: { enabled: false, hasActiveJob: false } });
-      expect(built.status).toBe(RotationRowStatus.Paused);
-      expect(built.pausedWhileRotating).toBe(false);
+    it("is none for a paused credential, even with a time scheduled", () => {
+      const built = row({ config: { enabled: false, nextRotationAt: iso } });
+      expect(built.nextRotation).toEqual({ kind: "none" });
     });
 
-    it("does not flag an enabled config that is mid-rotation", () => {
-      expect(row({ config: { enabled: true, hasActiveJob: true } }).pausedWhileRotating).toBe(
-        false,
-      );
+    it("is none when nothing is scheduled", () => {
+      expect(row({ config: { nextRotationAt: undefined } }).nextRotation).toEqual({
+        kind: "none",
+      });
     });
 
-    it("does not flag a steady-state active config", () => {
-      expect(row({ config: { enabled: true, hasActiveJob: false } }).pausedWhileRotating).toBe(
-        false,
-      );
+    it("carries the scheduled time otherwise", () => {
+      expect(row({ config: { nextRotationAt: iso } }).nextRotation).toEqual({
+        kind: "at",
+        ms: Date.parse(iso),
+      });
     });
   });
 
