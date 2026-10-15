@@ -11,6 +11,7 @@
   @for (chip of chips(); track $index) {
     @if (dismissible()) {
       <bit-chip
+        #rowChip
         bitOverflowItem
         #ovfItem="bitOverflowItem"
         [pinned]="$first"
@@ -60,7 +61,7 @@
     @for (chip of popoverChips(); track chip.id) {
       @if (dismissible()) {
         <bit-chip
-          #overflowChip
+          #popoverChip
           [size]="size()"
           [startIcon]="chip.startIcon"
           [label]="chip.label"

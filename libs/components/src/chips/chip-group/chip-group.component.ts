@@ -2,7 +2,6 @@ import { DOCUMENT } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
   Injector,
   afterNextRender,
   booleanAttribute,
@@ -120,9 +119,8 @@ export class ChipGroupComponent {
   private readonly list = viewChild.required(OverflowListDirective);
   private readonly popoverTrigger = viewChild.required(PopoverTriggerForDirective);
   private readonly overflowTrigger = viewChild.required(OverflowTriggerDirective);
-  private readonly overflowChipEls = viewChildren("overflowChip", {
-    read: ElementRef<HTMLElement>,
-  });
+  private readonly rowChipComponents = viewChildren("rowChip", { read: ChipComponent });
+  private readonly popoverChipComponents = viewChildren("popoverChip", { read: ChipComponent });
 
   protected readonly overflow = computed(() => this.list().overflow());
 
@@ -206,7 +204,7 @@ export class ChipGroupComponent {
     for (let i = displayed.length - 1; i >= 0; i--) {
       const el = items[displayed[i]]?.elementRef.nativeElement;
       if (el != null && !hidden.has(el)) {
-        return el instanceof HTMLButtonElement ? el : (el.querySelector("button") ?? undefined);
+        return this.dismissible() ? this.rowChipComponents()[displayed[i]]?.getFocusTarget() : el;
       }
     }
     return undefined;
@@ -233,8 +231,8 @@ export class ChipGroupComponent {
     } else {
       afterNextRender(
         () => {
-          const els = this.overflowChipEls();
-          els[Math.min(index, els.length - 1)]?.nativeElement.querySelector("button")?.focus();
+          const chips = this.popoverChipComponents();
+          chips[Math.min(index, chips.length - 1)]?.getFocusTarget().focus();
         },
         { injector: this.injector },
       );
