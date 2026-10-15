@@ -1961,15 +1961,15 @@ async function filterSurface() {
 }
 
 /**
- * Opens the Shared folders filter, whichever surface the viewport is showing: the chip's popover
- * above `md`, or the collapsed trigger's dialog drilled into Shared folders below it. Lets one
+ * Opens the Shared folders filter, whichever surface the toolbar is showing: the chip's popover
+ * when wide, or the collapsed trigger's dialog drilled into Shared folders when narrow. Lets one
  * story snapshot both surfaces across viewports.
  *
  * The names here track the kitchen sink's `placeholderText`, so renaming that chip breaks these
  * queries — anchored so the sibling "My folders" chip can't match instead.
  */
 async function openSharedFoldersFilter(canvasElement: HTMLElement): Promise<void> {
-  // Above `md` the chip is on screen; below it the row collapses to one icon trigger. The hidden
+  // A wide toolbar shows the chip; a narrow one collapses the row to one icon trigger. The hidden
   // chips inherit `visibility: hidden`, so they are out of the accessibility tree and never match here.
   const trigger = await within(canvasElement).findByRole("button", {
     name: /^(Shared folders|Filters)$/,
@@ -1993,7 +1993,7 @@ async function searchForNothing(): Promise<void> {
 /**
  * The toolbar at full stretch: search, every kind of filter chip, three `slot=end`
  * action buttons, and a paginator. Useful for checking the responsive behaviour —
- * below `md` the chip row collapses into the filter dialog and the action buttons
+ * on a narrow toolbar the chip row collapses into the filter dialog and the action buttons
  * take a full-width row of their own, split evenly.
  */
 export const KitchenSink: Story = {
@@ -2004,8 +2004,8 @@ export const KitchenSink: Story = {
 
 /**
  * The Shared folders filter open, nested three levels deep with an icon tile on every row.
- * Snapshotted at two widths: the chip's popover above `md`, and the responsive dialog's drill-in
- * below it.
+ * Snapshotted at two widths: the chip's popover on a wide toolbar, and the responsive dialog's
+ * drill-in on a narrow one.
  */
 export const KitchenSinkFilterOpen: Story = {
   render: () => ({
@@ -2039,7 +2039,7 @@ export const KitchenSinkFilterEmpty: Story = {
 /**
  * Long option names, with a selection already applied. Nothing here can show a name in full,
  * so each surface truncates and carries a tooltip with the whole thing: the chip triggers, and
- * below `md` the dismissible chips on the collapsed toolbar's own row. A multi-select puts one
+ * on a narrow toolbar the dismissible chips on its collapsed row. A multi-select puts one
  * chip on that row per selected option — named for the option alone, led by the filter's icon —
  * so each can be dropped without clearing the rest. Snapshotted at both widths.
  */
@@ -2053,8 +2053,9 @@ export const FilterLongLabelsApplied: Story = {
 };
 
 /**
- * The same filters opened: the popover's rows above `md`, the dialog's row list below it —
- * where a row shows its label, then as many selected names as fit and a `+N` for the rest.
+ * The same filters opened: the popover's rows on a wide toolbar, the dialog's row list on a
+ * narrow one — where a row shows its label, then as many selected names as fit and a `+N` for
+ * the rest.
  * Hovering a row reads out the full text either way.
  */
 export const FilterLongLabelsOpen: Story = {

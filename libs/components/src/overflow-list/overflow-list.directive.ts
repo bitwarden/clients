@@ -93,8 +93,9 @@ export class OverflowListDirective {
   private readonly triggerWidth = signal(0);
   /** The item instances that produced the current `itemWidths`; drives cache invalidation. */
   private measuredItems: readonly OverflowItemDirective[] = [];
-  /** The width items are packed against, in px: `containerWidth`, else the host's. 0 until measured. */
-  readonly width = computed(() => this.containerWidth() ?? this.observedContainerWidth());
+  private readonly resolvedContainerWidth = computed(
+    () => this.containerWidth() ?? this.observedContainerWidth(),
+  );
 
   /** First item with `[pinned]=true`, or null. */
   private readonly pinIndex = computed(() => {
@@ -110,7 +111,7 @@ export class OverflowListDirective {
   private readonly packed = computed<PackedItems>(() => {
     const count = this.items().length;
     const widths = this.itemWidths();
-    const containerWidth = this.width();
+    const containerWidth = this.resolvedContainerWidth();
 
     // Nothing to pack, container not measured, or a stale cache after the item
     // set changed. Any length mismatch falls back to the full set, so packing

@@ -35,7 +35,7 @@ import { defineTable } from "./table-def";
 import { TableStateKey } from "./table-state-keys";
 import { BitTableV2Component } from "./table-v2.component";
 
-/** A narrow and a wide chip-row width, either side of the toolbar's `sm` (640px) threshold. */
+/** A narrow and a wide toolbar width, either side of the toolbar's `sm` (640px) threshold. */
 const NARROW = 400;
 const WIDE = 1000;
 
@@ -64,8 +64,10 @@ class ResizeObserverStub {
     observers.delete(this);
   }
 
+  // `:empty` elements are `empty:tw-hidden`, so they measure 0.
   report(target: Element) {
-    const entry = { target, contentRect: { width: rowWidth } } as unknown as ResizeObserverEntry;
+    const width = target.matches(":empty") ? 0 : rowWidth;
+    const entry = { target, contentRect: { width } } as unknown as ResizeObserverEntry;
     this.callback([entry], this as unknown as ResizeObserver);
   }
 
@@ -223,6 +225,16 @@ describe("BitTableToolbarComponent", () => {
     const filterRow = searchOnly.nativeElement.querySelector("[bitOverflowList]") as HTMLElement;
     expect(filterRow).not.toBeNull();
     expect(filterRow.childElementCount).toBe(0);
+  });
+
+  it("wraps a search-only toolbar's end-slot controls to their own line when narrow", async () => {
+    const searchOnly = TestBed.createComponent(SearchOnlyHostComponent);
+    searchOnly.autoDetectChanges();
+    await searchOnly.whenStable();
+
+    const endSlot = searchOnly.nativeElement.querySelector(".empty\\:tw-hidden") as HTMLElement;
+    expect(endSlot.classList).toContain("tw-w-full");
+    expect(endSlot.classList).not.toContain("tw-ms-auto");
   });
 
   describe("with bitCollapseOnScroll", () => {
@@ -652,7 +664,7 @@ describe("BitTableToolbarComponent filter dialog", () => {
       .componentInstance as BitTableToolbarComponent;
     expect(toolbar.filterChips()).toBeUndefined();
 
-    widenViewport();
+    setRowWidth(WIDE);
     fixture.detectChanges();
 
     const chips = toolbar.filterChips()?.nativeElement;

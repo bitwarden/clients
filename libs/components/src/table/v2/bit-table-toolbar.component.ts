@@ -39,6 +39,7 @@ import {
   OverflowItemDirective,
   OverflowListDirective,
   OverflowTriggerDirective,
+  observedWidth,
 } from "../../overflow-list";
 import { TooltipDirective } from "../../tooltip";
 import { focusAfterRender } from "../../utils/focus-after-render";
@@ -137,10 +138,13 @@ export class BitTableToolbarComponent {
   private readonly filterChipsEl = viewChild("filterChips", { read: ElementRef<HTMLElement> });
   private readonly injector = inject(Injector);
 
+  /** The host, not the filter row: a search-only toolbar hides that row. */
+  private readonly toolbarWidth = observedWidth(inject(ElementRef<HTMLElement>));
+
   /** Unmeasured (0) counts as wide. */
   private readonly wide = computed(() => {
-    const rowWidth = this.overflowList()?.width() ?? 0;
-    return rowWidth === 0 || rowWidth > BREAKPOINTS.sm;
+    const width = this.toolbarWidth();
+    return width === 0 || width > BREAKPOINTS.sm;
   });
 
   /**
