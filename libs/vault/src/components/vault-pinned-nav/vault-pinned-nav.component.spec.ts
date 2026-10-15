@@ -17,7 +17,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { NavigationModule, SideNavService } from "@bitwarden/components";
+import { NavigationModule, SideNavService, ToastService } from "@bitwarden/components";
 import { GlobalStateProvider } from "@bitwarden/state";
 
 import { PinnedSharedFoldersService } from "../../services/pinned-shared-folders.service";
@@ -82,6 +82,7 @@ describe("VaultPinnedNavComponent", () => {
         { provide: AccountService, useValue: accountService },
         { provide: StateProvider, useValue: new FakeStateProvider(accountService) },
         { provide: I18nService, useValue: i18nService },
+        { provide: ToastService, useValue: mock<ToastService>() },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
         {
           provide: CollectionService,
@@ -159,6 +160,18 @@ describe("VaultPinnedNavComponent", () => {
       await settle();
 
       expect(text()).not.toContain("pinnedEmptyStatePrefix");
+      expect(text()).not.toContain("Finance");
+    });
+
+    it("unpins a folder from its options menu", async () => {
+      await service.pin(userId, "3" as CollectionId);
+      await settle();
+
+      (fixture.nativeElement.querySelector("button[bitIconButton]") as HTMLElement).click();
+      await settle();
+      (document.querySelector("#vault-pinned-nav_menu-item_unpin-3") as HTMLElement).click();
+      await settle();
+
       expect(text()).not.toContain("Finance");
     });
 
