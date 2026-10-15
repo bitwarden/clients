@@ -197,9 +197,14 @@ describe("AccessRulesService", () => {
           : Promise.reject(new Error("nope")),
       );
 
-      await expect(service.setManyEnabled(rules, true)).rejects.toThrow();
+      await expect(service.setManyEnabled(rules, true)).rejects.toThrow("nope");
 
       expect(governedCollections.invalidate).toHaveBeenCalledWith("org-1");
+      const state = await firstValueFrom(service.rules$);
+      expect(state.map((r) => [r.id, r.enabled])).toEqual([
+        ["rule-1", true],
+        ["rule-2", false],
+      ]);
     });
   });
 
@@ -272,11 +277,12 @@ describe("AccessRulesService", () => {
           : Promise.reject(new Error("The access rule service is unavailable.")),
       );
 
-      await expect(service.deleteMany([rule("rule-1"), rule("rule-2")])).rejects.toThrow();
+      await expect(service.deleteMany([rule("rule-1"), rule("rule-2")])).rejects.toThrow(
+        "The access rule service is unavailable.",
+      );
 
       expect(governedCollections.invalidate).toHaveBeenCalledWith("org-1");
-      // Local state is left to the caller's error path; the cache is what must not go stale.
-      expect(await currentRuleIds()).toEqual(["rule-1", "rule-2"]);
+      expect(await currentRuleIds()).toEqual(["rule-2"]);
     });
   });
 });

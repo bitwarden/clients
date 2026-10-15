@@ -85,28 +85,31 @@ export class AccessRulesService {
     this._rules$.next(this._rules$.value.map((r) => (r.id === rule.id ? updated : r)));
   }
 
-  /** Returns how many rules changed; a no-op returns early without invalidating the cache. */
+  /**
+   * Returns how many rules changed; a no-op returns early without invalidating the cache. On a
+   * partial failure the toggles that landed are kept before the first error is rethrown.
+   */
   async setManyEnabled(rules: AccessRuleView[], enabled: boolean): Promise<number> {
     const targets = filterRulesToToggle(rules, enabled);
     if (targets.length === 0) {
       return 0;
     }
     const organizationId = this.requireOrganizationId();
-    let updated;
-    try {
-      updated = await Promise.all(
-        targets.map((rule) =>
-          this.pamApi.updateAccessRule(organizationId, rule.id, accessRuleToRequest(rule, enabled)),
-        ),
-      );
-    } finally {
-      // A partial toggle still changed what `rulesGoverningCollection` reports.
-      this.governedCollections.invalidate(organizationId);
-    }
+    const results = await Promise.allSettled(
+      targets.map((rule) =>
+        this.pamApi.updateAccessRule(organizationId, rule.id, accessRuleToRequest(rule, enabled)),
+      ),
+    );
+    // A partial toggle still changed what `rulesGoverningCollection` reports.
+    this.governedCollections.invalidate(organizationId);
+    const updated = results
+      .filter((r): r is PromiseFulfilledResult<AccessRuleView> => r.status === "fulfilled")
+      .map((r) => r.value);
     const byId = new Map(
       updated.map((r: AccessRuleView): [string, AccessRuleView] => [uuidAsString(r.id), r]),
     );
     this._rules$.next(this._rules$.value.map((r) => byId.get(uuidAsString(r.id)) ?? r));
+    throwFirstRejection(results);
     return updated.length;
   }
 
@@ -119,18 +122,20 @@ export class AccessRulesService {
   }
 
   /**
-   * Invalidates whatever the outcome, since `Promise.all` rejects on the first failure while its
-   * siblings still land server-side.
+   * Invalidates whatever the outcome. On a partial failure the deletes that landed are removed from
+   * state before the first error is rethrown.
    */
   async deleteMany(rules: AccessRuleView[]): Promise<void> {
     const organizationId = this.requireOrganizationId();
-    try {
-      await Promise.all(rules.map((rule) => this.pamApi.deleteAccessRule(organizationId, rule.id)));
-    } finally {
-      this.governedCollections.invalidate(organizationId);
-    }
-    const removed = new Set(rules.map((r) => r.id));
+    const results = await Promise.allSettled(
+      rules.map((rule) => this.pamApi.deleteAccessRule(organizationId, rule.id)),
+    );
+    this.governedCollections.invalidate(organizationId);
+    const removed = new Set(
+      rules.filter((_, i) => results[i].status === "fulfilled").map((r) => r.id),
+    );
     this._rules$.next(this._rules$.value.filter((r) => !removed.has(r.id)));
+    throwFirstRejection(results);
   }
 
   private requireOrganizationId(): OrganizationId {
@@ -138,5 +143,12 @@ export class AccessRulesService {
       throw new Error("AccessRulesService.load must run before mutating rules.");
     }
     return this.organizationId;
+  }
+}
+
+function throwFirstRejection(results: PromiseSettledResult<unknown>[]): void {
+  const failure = results.find((r): r is PromiseRejectedResult => r.status === "rejected");
+  if (failure != null) {
+    throw failure.reason;
   }
 }

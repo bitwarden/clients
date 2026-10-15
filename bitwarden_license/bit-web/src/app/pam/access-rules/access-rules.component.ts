@@ -364,6 +364,9 @@ export class AccessRulesComponent {
         message: this.i18nService.t("pamAccessRulesDeleted"),
       });
     } catch (e) {
+      // The deletes that landed are gone from the table; keep only the failures selected.
+      const remaining = new Set(this.rules().map((r) => r.id));
+      this.selection.deselect(...this.selection.selected.filter((id) => !remaining.has(id)));
       this.showError(e);
     }
   }
