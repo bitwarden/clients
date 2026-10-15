@@ -47,10 +47,11 @@ export class CipherContextMenuHandler {
       return;
     }
 
-    const ciphers = await this.cipherService.getAllDecryptedForUrl(url, activeUserId, [
-      CipherType.Card,
-      CipherType.Identity,
-    ]);
+    const ciphers = await this.cipherService.getAllDecryptedForUrlIncludingLeased(
+      url,
+      activeUserId,
+      [CipherType.Card, CipherType.Identity],
+    );
     ciphers.sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
     const groupedCiphers: Record<AutofillCipherTypeId, CipherView[]> = ciphers.reduce(

@@ -743,7 +743,10 @@ describe("NotificationBackground", () => {
           notificationBackground as any,
           "pushChangePasswordToQueue",
         );
-        getAllDecryptedForUrlSpy = jest.spyOn(cipherService, "getAllDecryptedForUrl");
+        getAllDecryptedForUrlSpy = jest.spyOn(
+          cipherService,
+          "getAllDecryptedForUrlIncludingLeased",
+        );
       });
 
       it("skips attempting to add the login if the user is logged out", async () => {
@@ -854,6 +857,20 @@ describe("NotificationBackground", () => {
           },
           sender.tab,
         );
+      });
+      it("does not offer to save a login whose username matches a leased copy", async () => {
+        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+        getEnableAddedLoginPromptSpy.mockReturnValueOnce(true);
+        getAllDecryptedForUrlSpy.mockResolvedValueOnce([
+          mock<CipherView>({ leaseGated: true, login: { username: "test", password: "leased" } }),
+        ]);
+
+        await notificationBackground.triggerAddLoginNotification(
+          mockModifyLoginCipherFormData,
+          tab,
+        );
+
+        expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
       });
     });
 
@@ -1156,7 +1173,10 @@ describe("NotificationBackground", () => {
           "pushChangePasswordToQueue",
         );
         pushAddLoginToQueueSpy = jest.spyOn(notificationBackground as any, "pushAddLoginToQueue");
-        getAllDecryptedForUrlSpy = jest.spyOn(cipherService, "getAllDecryptedForUrl");
+        getAllDecryptedForUrlSpy = jest.spyOn(
+          cipherService,
+          "getAllDecryptedForUrlIncludingLeased",
+        );
       });
 
       afterEach(() => {
@@ -1328,6 +1348,50 @@ describe("NotificationBackground", () => {
         await notificationBackground.triggerCipherNotification(formEntryData, tab);
 
         expectSkippedCheckingNotification();
+      });
+
+      it("triggers no notification when a leased copy has the entered username", async () => {
+        const formEntryData: ModifyLoginCipherFormData = {
+          newPassword: "",
+          password: "Bab3lPhs5h",
+          uri: mockFormURI,
+          username: "ADent",
+        };
+        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+        getAllDecryptedForUrlSpy.mockResolvedValueOnce([
+          mock<CipherView>({
+            id: "leased",
+            leaseGated: true,
+            login: { username: "adent", password: "I<3VogonPoetry" },
+          }),
+        ]);
+
+        const result = await notificationBackground.triggerCipherNotification(formEntryData, tab);
+
+        expect(result).toBe(false);
+        expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
+        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
+      });
+
+      it("never offers a leased copy for update", async () => {
+        const formEntryData: ModifyLoginCipherFormData = {
+          newPassword: "",
+          password: "I<3VogonPoetry",
+          uri: mockFormURI,
+          username: "ADent",
+        };
+        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+        getAllDecryptedForUrlSpy.mockResolvedValueOnce([
+          mock<CipherView>({
+            id: "leased",
+            leaseGated: true,
+            login: { username: "FPrefect", password: "I<3VogonPoetry" },
+          }),
+        ]);
+
+        await notificationBackground.triggerCipherNotification(formEntryData, tab);
+
+        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
       });
 
       describe("when `username` and `password` and `newPassword` fields are filled, ", () => {
@@ -2753,7 +2817,10 @@ describe("NotificationBackground", () => {
             notificationBackground as any,
             "getDecryptedCipherById",
           );
-          getAllDecryptedForUrlSpy = jest.spyOn(cipherService, "getAllDecryptedForUrl");
+          getAllDecryptedForUrlSpy = jest.spyOn(
+            cipherService,
+            "getAllDecryptedForUrlIncludingLeased",
+          );
           updatePasswordSpy = jest.spyOn(notificationBackground as any, "updatePassword");
           convertAddLoginQueueMessageToCipherViewSpy = jest.spyOn(
             notificationBackground as any,
@@ -3014,6 +3081,30 @@ describe("NotificationBackground", () => {
               },
             },
           );
+        });
+
+        it("drops a locked save whose username matches a leased copy", async () => {
+          const tab = createChromeTabMock({ id: 1, url: "https://example.com" });
+          const sender = mock<chrome.runtime.MessageSender>({ tab });
+          notificationBackground["notificationQueue"] = [
+            mock<AddLoginQueueMessage>({
+              type: NotificationType.AddLogin,
+              tab,
+              domain: "example.com",
+              data: { username: "test", password: "new", uri: "https://example.com" },
+              wasVaultLocked: true,
+            }),
+          ];
+          getAllDecryptedForUrlSpy.mockResolvedValueOnce([
+            mock<CipherView>({ leaseGated: true, login: { username: "test", password: "old" } }),
+          ]);
+
+          sendMockExtensionMessage({ command: "bgSaveCipher", edit: false }, sender);
+          await flushPromises();
+
+          expect(updatePasswordSpy).not.toHaveBeenCalled();
+          expect(editItemSpy).not.toHaveBeenCalled();
+          expect(createWithServerSpy).not.toHaveBeenCalled();
         });
 
         it("updates the cipher password if the queue message was locked and an existing cipher has the same username as the message", async () => {

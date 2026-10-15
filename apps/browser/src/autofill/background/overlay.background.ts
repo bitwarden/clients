@@ -584,7 +584,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const cipherViews = (
-      await this.cipherService.getAllDecryptedForUrl(currentTab.url || "", activeUserId)
+      await this.cipherService.getAllDecryptedForUrlIncludingLeased(
+        currentTab.url || "",
+        activeUserId,
+      )
     ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
     return this.cardAndIdentityCiphers
@@ -608,7 +611,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     this.cardAndIdentityCiphers.clear();
     const cipherViews = (
-      await this.cipherService.getAllDecryptedForUrl(currentTab.url || "", userId, [
+      await this.cipherService.getAllDecryptedForUrlIncludingLeased(currentTab.url || "", userId, [
         CipherType.Card,
         CipherType.Identity,
         CipherType.SshKey,
