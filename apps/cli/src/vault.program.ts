@@ -263,6 +263,7 @@ export class VaultProgram extends BaseProgram {
     const editObjects = [
       "item",
       "item-collections",
+      "item-shared-folders",
       "folder",
       "org-collection",
       "org-shared-folder",
@@ -288,6 +289,10 @@ export class VaultProgram extends BaseProgram {
         );
         writeLn(
           "    bw edit item-collections 78307355-fd25-416b-88b8-b33fd0e88c82 " +
+            "WyI5NzQwNTNkMC0zYjMzLTRiOTgtODg2ZS1mZWNmNWM4ZGJhOTYiXQ==",
+        );
+        writeLn(
+          "    bw edit item-shared-folders 78307355-fd25-416b-88b8-b33fd0e88c82 " +
             "WyI5NzQwNTNkMC0zYjMzLTRiOTgtODg2ZS1mZWNmNWM4ZGJhOTYiXQ==",
         );
         writeLn("", true);
