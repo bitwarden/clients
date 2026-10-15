@@ -231,7 +231,8 @@ export class ItemSendDrawerComponent {
       .subscribe(([policyInfo, organizations]) => {
         const deletionDateControl = this.form.controls.deletionDate;
         if (policyInfo?.deletionHours) {
-          deletionDateControl.setValue(policyInfo.deletionHours);
+          // Only lock the field. Like the Send form's edit mode, keep the existing Send's current
+          // deletion date instead of resetting it to the policy window
           deletionDateControl.disable();
           this.policyDeletionHoursOrgName.set(
             organizations.find((o) => o.id === policyInfo.orgId)?.name,
@@ -317,9 +318,7 @@ export class ItemSendDrawerComponent {
     this.expiryOptions.set(this.dateOptions(expiry));
     this.deletionDateOptions.set(this.dateOptions(send.deletionDate));
     this.form.controls.expiry.setValue(expiry.toString());
-    if (this.form.controls.deletionDate.enabled) {
-      this.form.controls.deletionDate.setValue(send.deletionDate.toString());
-    }
+    this.form.controls.deletionDate.setValue(send.deletionDate.toString());
     this.form.controls.oneTimeShare.setValue(this.isOneTimeShare());
     this.form.controls.expiry.setErrors(null);
     this.editing.set(true);

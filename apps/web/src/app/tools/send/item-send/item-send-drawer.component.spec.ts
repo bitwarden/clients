@@ -398,15 +398,29 @@ describe("ItemSendDrawerComponent", () => {
   });
 
   describe("deletion date policy", () => {
-    it("locks the deletion date to the policy value", async () => {
+    beforeEach(async () => {
       deletionDatePolicyInfo$.next({ deletionHours: SendDeletionDatePreset.ThreeDays, orgId: "o" });
       await createComponent();
       query("item-send-drawer_button_edit").nativeElement.click();
       fixture.detectChanges();
+    });
 
+    it("locks the deletion date but keeps the Send's current date", () => {
       expect(component.form.controls.deletionDate.disabled).toBe(true);
-      expect(component.form.getRawValue().deletionDate).toBe(SendDeletionDatePreset.ThreeDays);
+      expect(component.form.getRawValue().deletionDate).toBe(deletionDate.toString());
       expect(component.form.controls.expiry.enabled).toBe(true);
+    });
+
+    it("does not move the deletion date when saving other changes", async () => {
+      component.form.controls.oneTimeShare.setValue(true);
+
+      query("item-send-drawer_button_save").nativeElement.click();
+      await fixture.whenStable();
+
+      expect(sendApiService.saveView).toHaveBeenCalledWith(
+        expect.objectContaining({ deletionDate, maxAccessCount: 1 }),
+        null,
+      );
     });
   });
 
