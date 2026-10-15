@@ -9,7 +9,69 @@
   />
 
   @if (editing) {
-    <bit-tab-nav-bar slot="tabs" [label]="'pamRotationConfigEditTitle' | i18n">
+    @if (detailStatus(); as status) {
+      <span slot="title-suffix" class="tw-flex tw-h-full tw-items-center tw-ms-2">
+        <span class="tw-sr-only">{{ "status" | i18n }}:</span>
+        <span
+          bitBadge
+          [variant]="status.badge.variant"
+          [startIcon]="status.badge.icon"
+          id="rotation-config-edit_badge_status"
+          >{{ status.badge.labelKey | i18n }}</span
+        >
+      </span>
+
+      @if (isManual()) {
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          startIcon="bwi-check-circle"
+          id="rotation-config-edit_button_mark-rotated"
+          [bitAction]="markRotated"
+          [disabled]="!canRecordManual()"
+        >
+          {{ "pamRotationConfigMarkRotated" | i18n }}
+        </button>
+      } @else {
+        @if (config()?.enabled) {
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            startIcon="bwi-pause-circle"
+            id="rotation-config-edit_button_pause"
+            [bitAction]="pause"
+            [disabled]="!canPause()"
+          >
+            {{ "pamRotationConfigPauseRotation" | i18n }}
+          </button>
+        } @else {
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            id="rotation-config-edit_button_resume"
+            [bitAction]="resume"
+          >
+            {{ "pamRotationConfigResumeRotation" | i18n }}
+          </button>
+        }
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          startIcon="bwi-refresh"
+          id="rotation-config-edit_button_rotate-now"
+          [bitAction]="rotateNow"
+          [disabled]="!canRotateNow()"
+        >
+          {{ "pamRotationConfigRotateNow" | i18n }}
+        </button>
+      }
+    }
+
+    <bit-tab-nav-bar slot="tabs" [label]="'pamRotationTabManagedCredentials' | i18n">
       <bit-tab-link [route]="configurationTabRoute">{{
         "pamRotationConfigTabConfiguration" | i18n
       }}</bit-tab-link>
@@ -36,16 +98,11 @@
   >
     @if (showSkeleton()) {
       @if (editing && activeTab() === "history") {
-        <bit-section>
-          <bit-section-header>
-            <h2 bitTypography="h5">{{ "pamRotationConfigTabHistory" | i18n }}</h2>
-          </bit-section-header>
-          <app-rotation-history-skeleton />
-        </bit-section>
+        <app-rotation-history-skeleton />
       } @else if (editing) {
         <bit-section>
           <bit-section-header>
-            <h2 bitTypography="h5">{{ "pamRotationConfigDetailsHeading" | i18n }}</h2>
+            <h2 bitTypography="h5">{{ "pamRotationConfigCreateHeading" | i18n }}</h2>
           </bit-section-header>
           <bit-card>
             @for (skeletonField of skeletonFields; track skeletonField) {
@@ -59,7 +116,7 @@
 
         <bit-section>
           <bit-section-header>
-            <h2 bitTypography="h5">{{ "pamRotationConfigSettingsHeading" | i18n }}</h2>
+            <h2 bitTypography="h5">{{ "pamRotationConfigTriggersHeading" | i18n }}</h2>
           </bit-section-header>
           <bit-card>
             <div class="tw-mb-4">
@@ -72,13 +129,9 @@
 
         <bit-section>
           <bit-section-header>
-            <h2 bitTypography="h5">{{ "pamRotationConfigAccountHeading" | i18n }}</h2>
+            <h2 bitTypography="h5">{{ "pamRotationConfigAfterRotationHeading" | i18n }}</h2>
           </bit-section-header>
           <bit-card>
-            <div class="tw-mb-4">
-              <bit-skeleton-text class="tw-mb-2 tw-w-32"></bit-skeleton-text>
-              <bit-skeleton class="tw-h-10 tw-w-full"></bit-skeleton>
-            </div>
             <bit-skeleton-text [lines]="2" class="tw-w-72"></bit-skeleton-text>
           </bit-card>
         </bit-section>
@@ -267,22 +320,81 @@
 } @else {
   @if (existingConfig(); as detail) {
     <div [class.tw-max-w-4xl]="activeTab() !== 'history'">
+      @if (callout(); as calloutState) {
+        @switch (calloutState.kind) {
+          @case ("paused") {
+            <bit-callout type="info" id="rotation-config-edit_callout_status">
+              {{ "pamRotationDetailCalloutPaused" | i18n }}
+            </bit-callout>
+          }
+          @case ("retrying") {
+            <bit-callout type="info" id="rotation-config-edit_callout_status">
+              {{ "pamRotationDetailCalloutRetrying" | i18n }}
+            </bit-callout>
+          }
+          @case ("no-connector") {
+            <bit-callout type="warning" id="rotation-config-edit_callout_status">
+              {{ "pamRotationDetailCalloutNoConnector" | i18n }}
+              <button
+                slot="end"
+                type="button"
+                bitButton
+                buttonType="secondary"
+                size="small"
+                endIcon="bwi-angle-right"
+                id="rotation-config-edit_button_assign-connector"
+                [bitAction]="assignConnector"
+              >
+                {{ "pamTargetSystemAssignConnectorTitle" | i18n }}
+              </button>
+            </bit-callout>
+          }
+          @case ("disconnected") {
+            <bit-callout type="warning" id="rotation-config-edit_callout_status">
+              {{ "pamRotationDetailCalloutDisconnected" | i18n }}
+              <button
+                slot="end"
+                type="button"
+                bitButton
+                buttonType="secondary"
+                size="small"
+                endIcon="bwi-angle-right"
+                id="rotation-config-edit_button_view-connectors"
+                (click)="viewConnectors()"
+              >
+                {{ "pamRotationDetailViewConnectors" | i18n }}
+              </button>
+            </bit-callout>
+          }
+          @case ("timed-out") {
+            <bit-callout type="danger" id="rotation-config-edit_callout_status">
+              {{ timedOutParts().before }}<strong>{{ "pamRotationConfigRotateNow" | i18n }}</strong
+              >{{ timedOutParts().after }}
+            </bit-callout>
+          }
+          @case ("due") {
+            <bit-callout type="warning" id="rotation-config-edit_callout_status">
+              {{ "pamRotationDetailCalloutDue" | i18n: dueAgeText() }}
+            </bit-callout>
+          }
+        }
+      }
+
       @switch (activeTab()) {
         @case ("history") {
-          <bit-section>
-            <bit-section-header>
-              <h2 bitTypography="h5">{{ "pamRotationConfigTabHistory" | i18n }}</h2>
-            </bit-section-header>
-            @if (detail.jobs.length > 0) {
-              <app-rotation-history [jobs]="detail.jobs"></app-rotation-history>
-            } @else {
-              <bit-card>
-                <p bitTypography="body2" class="tw-m-0 tw-text-muted">
-                  {{ "pamRotationConfigHistoryEmpty" | i18n }}
-                </p>
-              </bit-card>
-            }
-          </bit-section>
+          @if (detail.jobs.length > 0) {
+            <app-rotation-history
+              [jobs]="detail.jobs"
+              [connectorNames]="connectorNames()"
+              [endingSessions]="endingSessions()"
+            ></app-rotation-history>
+          } @else {
+            <bit-card>
+              <p bitTypography="body2" class="tw-m-0 tw-text-muted">
+                {{ "pamRotationConfigHistoryEmpty" | i18n }}
+              </p>
+            </bit-card>
+          }
         }
         @default {
           @if (configSealUnverified()) {
@@ -295,59 +407,140 @@
             </bit-callout>
           }
 
-          <bit-section>
-            <bit-section-header>
-              <h2 bitTypography="h5">{{ "pamRotationConfigDetailsHeading" | i18n }}</h2>
-            </bit-section-header>
-            <bit-card>
-              <div class="tw-mb-4">
-                <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
-                  {{ "pamRotationConfigCipher" | i18n }}
-                </p>
-                <p bitTypography="body1" class="tw-m-0">{{ cipherName() }}</p>
-              </div>
-              <div class="tw-mb-4">
-                <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
-                  {{ "pamRotationConfigTargetSystem" | i18n }}
-                </p>
-                <p bitTypography="body1" class="tw-m-0">{{ detail.config.targetSystemName }}</p>
-              </div>
-              <div class="tw-mb-4">
-                <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
-                  {{ "pamRotationConfigColumnLastRotation" | i18n }}
-                </p>
-                <p bitTypography="body1" class="tw-m-0">
-                  @if (detail.config.lastRotationAt) {
-                    {{ detail.config.lastRotationAt | date: "medium" }}
-                  } @else {
-                    <span class="tw-text-muted">{{ "pamRotationConfigNeverRotated" | i18n }}</span>
-                  }
-                </p>
-              </div>
-              <div>
-                <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
-                  {{ "pamRotationConfigColumnNextRotation" | i18n }}
-                </p>
-                <p bitTypography="body1" class="tw-m-0">
-                  @if (detail.config.nextRotationAt) {
-                    {{ detail.config.nextRotationAt | date: "medium" }}
-                  } @else {
-                    <span class="tw-text-muted">&mdash;</span>
-                  }
-                </p>
-              </div>
-            </bit-card>
-          </bit-section>
-
           <form [formGroup]="editForm" [bitSubmit]="submitEdit">
             <bit-section>
               <bit-section-header>
-                <h2 bitTypography="h5">{{ "pamRotationConfigSettingsHeading" | i18n }}</h2>
+                <h2 bitTypography="h5">{{ "pamRotationConfigCreateHeading" | i18n }}</h2>
+              </bit-section-header>
+              <bit-card>
+                <div class="tw-mb-4">
+                  <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
+                    {{ "pamRotationConfigVaultItem" | i18n }}
+                  </p>
+                  <p bitTypography="body1" class="tw-m-0" id="rotation-config-edit_text_vault-item">
+                    {{ vaultItemName() }}
+                  </p>
+                </div>
+                <div class="tw-mb-4">
+                  <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
+                    {{ "sharedFolder" | i18n }}
+                  </p>
+                  <p
+                    bitTypography="body1"
+                    class="tw-m-0"
+                    id="rotation-config-edit_text_shared-folder"
+                  >
+                    {{
+                      sharedFolderNames().length > 0
+                        ? sharedFolderNames().join(", ")
+                        : ("pamRotationDetailNone" | i18n)
+                    }}
+                  </p>
+                </div>
+                <div class="tw-mb-4">
+                  <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
+                    {{ "pamRotationConfigTargetSystem" | i18n }}
+                  </p>
+                  <p
+                    bitTypography="body1"
+                    class="tw-m-0"
+                    id="rotation-config-edit_text_target-system"
+                  >
+                    {{ detail.config.targetSystemName }}
+                  </p>
+                </div>
+
+                @if (showConnectors()) {
+                  <div class="tw-mb-4" id="rotation-config-edit_connectors">
+                    <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
+                      {{ "pamRotationDetailConnectorsLabel" | i18n }}
+                    </p>
+                    @if (connectorItems().length > 0) {
+                      <div class="tw-flex tw-flex-col tw-gap-2">
+                        @for (connector of connectorItems(); track connector.id) {
+                          <bit-item data-testid="rotation-config-edit-connector">
+                            <bit-item-content>
+                              <bit-icon-tile slot="start" icon="bwi-terminal" variant="success" />
+                              {{ connector.name }}
+                              <span
+                                slot="end"
+                                bitBadge
+                                [variant]="connector.connected ? 'success' : 'warning'"
+                                [startIcon]="
+                                  connector.connected ? 'bwi-check-circle' : 'bwi-info-circle'
+                                "
+                                >{{
+                                  (connector.connected
+                                    ? "pamAccessConnectorConnected"
+                                    : "pamAccessConnectorDisconnected"
+                                  ) | i18n
+                                }}</span
+                              >
+                            </bit-item-content>
+                          </bit-item>
+                        }
+                      </div>
+                      <p bitTypography="helper" class="tw-mb-0 tw-mt-1 tw-text-muted">
+                        {{ "pamRotationDetailConnectorsHint" | i18n }}
+                      </p>
+                    } @else {
+                      <p bitTypography="body1" class="tw-m-0">
+                        {{ "pamRotationDetailNone" | i18n }}
+                      </p>
+                    }
+                  </div>
+                }
+
+                <div formGroupName="account">
+                  <bit-form-field disableMargin>
+                    <bit-label>{{ "username" | i18n }}</bit-label>
+                    <input
+                      bitInput
+                      type="text"
+                      id="rotation-config-edit_input_account-identity-edit"
+                      formControlName="accountIdentity"
+                      required
+                    />
+                    <bit-hint>{{ usernameHintKey() | i18n }}</bit-hint>
+                  </bit-form-field>
+                </div>
+              </bit-card>
+            </bit-section>
+
+            <bit-section>
+              <bit-section-header>
+                <h2 bitTypography="h5">{{ "pamRotationConfigTriggersHeading" | i18n }}</h2>
               </bit-section-header>
               <bit-card formGroupName="settings">
+                <div class="tw-mb-4">
+                  <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
+                    {{ "pamRotationConfigColumnLastRotated" | i18n }}
+                  </p>
+                  <p
+                    bitTypography="body1"
+                    class="tw-m-0"
+                    id="rotation-config-edit_text_last-rotated"
+                  >
+                    {{ lastRotatedText() }}
+                  </p>
+                </div>
+                <div class="tw-mb-4">
+                  <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
+                    {{ "pamRotationConfigColumnNextRotation" | i18n }}
+                  </p>
+                  <p
+                    bitTypography="body1"
+                    class="tw-m-0"
+                    id="rotation-config-edit_text_next-rotation"
+                  >
+                    {{ nextRotationText() }}
+                  </p>
+                </div>
+
                 <!-- Renders its own labeled bit-form-fields, so it must not be wrapped in one. -->
                 <app-rotation-schedule-input
                   formControlName="scheduleCron"
+                  [labelKey]="scheduleLabelKey()"
                 ></app-rotation-schedule-input>
 
                 <bit-form-control disableMargin>
@@ -358,56 +551,28 @@
                     formControlName="rotateOnAccessEnd"
                   />
                   <bit-label>{{ "pamRotationConfigRotateOnAccessEnd" | i18n }}</bit-label>
-                  <bit-hint>{{ "pamRotationConfigRotateWhenAccessEndsHint" | i18n }}</bit-hint>
+                  <bit-hint>{{ "pamRotationConfigRotateOnAccessEndHintAdd" | i18n }}</bit-hint>
                 </bit-form-control>
               </bit-card>
             </bit-section>
 
             <bit-section>
               <bit-section-header>
-                <h2 bitTypography="h5">{{ "pamRotationConfigAccountHeading" | i18n }}</h2>
+                <h2 bitTypography="h5">{{ "pamRotationConfigAfterRotationHeading" | i18n }}</h2>
               </bit-section-header>
-
-              @if (accountFormLocked()) {
-                <bit-callout type="info" title="{{ 'pamRotationConfigAccountLockedTitle' | i18n }}">
-                  {{ "pamRotationConfigAccountLockedContent" | i18n }}
-                </bit-callout>
-              }
-
               <bit-card formGroupName="account">
-                <fieldset [disabled]="accountFormLocked()">
-                  <bit-form-field>
-                    <bit-label>{{ "pamRotationConfigAccountIdentity" | i18n }}</bit-label>
-                    <input
-                      bitInput
-                      type="text"
-                      id="rotation-config-edit_input_account-identity-edit"
-                      formControlName="accountIdentity"
-                    />
-                    <bit-hint>{{
-                      "pamRotationConfigAccountIdentityHintConnector" | i18n
-                    }}</bit-hint>
-                  </bit-form-field>
-
-                  <bit-form-control disableMargin>
-                    <input
-                      type="checkbox"
-                      bitCheckbox
-                      id="rotation-config-edit_checkbox_terminate-sessions-edit"
-                      formControlName="terminateSessions"
-                    />
-                    <bit-label>{{ "pamRotationConfigTerminateSessions" | i18n }}</bit-label>
-                    <bit-hint>{{ "pamRotationConfigTerminateSessionsHint" | i18n }}</bit-hint>
-                  </bit-form-control>
-                </fieldset>
+                <bit-form-control disableMargin>
+                  <input
+                    type="checkbox"
+                    bitCheckbox
+                    id="rotation-config-edit_checkbox_terminate-sessions-edit"
+                    formControlName="terminateSessions"
+                  />
+                  <bit-label>{{ "pamRotationConfigEndSessions" | i18n }}</bit-label>
+                  <bit-hint>{{ "pamRotationConfigEndSessionsHint" | i18n }}</bit-hint>
+                </bit-form-control>
               </bit-card>
             </bit-section>
-
-            @if (detail.config.hasActiveJob) {
-              <bit-callout type="info">
-                {{ "pamRotationConfigRemoveLockedContentConnector" | i18n }}
-              </bit-callout>
-            }
 
             <div class="tw-flex tw-items-center tw-gap-2">
               <button
@@ -423,14 +588,27 @@
               <button
                 type="button"
                 bitButton
-                buttonType="danger"
+                buttonType="secondary"
+                bitFormButton
+                id="rotation-config-edit_button_cancel"
+                (click)="cancel()"
+              >
+                {{ "cancel" | i18n }}
+              </button>
+              <button
+                type="button"
+                bitButton
+                buttonType="dangerOutline"
                 bitFormButton
                 [bitAction]="removeRotation"
                 [disabled]="detail.config.hasActiveJob"
+                [attr.title]="
+                  detail.config.hasActiveJob ? ('pamRotationConfigDeleteLockedTitle' | i18n) : null
+                "
                 class="tw-ms-auto"
                 id="rotation-config-edit_button_delete"
               >
-                {{ "delete" | i18n }}
+                {{ "pamRotationConfigRemoveFromRotation" | i18n }}
               </button>
             </div>
           </form>
