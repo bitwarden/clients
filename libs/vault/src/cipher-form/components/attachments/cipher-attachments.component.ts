@@ -38,6 +38,7 @@ import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
@@ -116,6 +117,7 @@ export class CipherAttachmentsComponent {
   protected readonly organization = signal<Organization | null>(null);
   protected readonly cipher = signal<CipherView | null>(null);
   protected readonly uploadProgress = signal<number | null>(null);
+  protected readonly canDeleteAttachments = signal(false);
 
   attachmentForm: CipherAttachmentForm = this.formBuilder.group({
     file: new FormControl<File | null>(null, {
@@ -138,6 +140,7 @@ export class CipherAttachmentsComponent {
     private apiService: ApiService,
     private organizationService: OrganizationService,
     private configService: ConfigService,
+    private cipherAuthorizationService: CipherAuthorizationService,
   ) {
     this.attachmentForm.statusChanges.pipe(takeUntilDestroyed()).subscribe((status) => {
       const btn = this.submitBtn();
@@ -162,6 +165,9 @@ export class CipherAttachmentsComponent {
 
       if (this.cipherDomain && this.activeUserId) {
         this.cipher.set(await this.cipherService.decrypt(this.cipherDomain, this.activeUserId));
+        this.canDeleteAttachments.set(
+          await this.getCanDeleteAttachments(cipherId, this.activeUserId),
+        );
       }
 
       // Update the initial state of the submit button
@@ -344,6 +350,22 @@ export class CipherAttachmentsComponent {
     }
 
     return null;
+  }
+
+  /** Attachment deletion follows the cipher's delete permission (e.g. "Restrict item deletion") */
+  private async getCanDeleteAttachments(cipherId: CipherId, userId: UserId): Promise<boolean> {
+    // The admin endpoint omits `permissions`, so prefer the member's own copy when available
+    const cipher = this.admin()
+      ? ((await this.cipherService.get(cipherId, userId)) ?? this.cipherDomain)
+      : this.cipherDomain;
+
+    if (cipher == null) {
+      return false;
+    }
+
+    return await firstValueFrom(
+      this.cipherAuthorizationService.canDeleteCipher$(cipher, this.admin()),
+    );
   }
 
   /**
