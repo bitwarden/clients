@@ -4,6 +4,7 @@ import { catchError, defer, firstValueFrom, map, Observable, of, shareReplay } f
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherLeaseStateService } from "@bitwarden/common/vault/abstractions/cipher-lease-state.service";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 
 import type { AccessLeaseView } from "../abstractions/access-lease";
 import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
@@ -69,6 +70,11 @@ export class MyLeasesService implements CipherLeaseStateService {
         .filter((l) => l.status === "active" && isLeaseLive(l, nowMs))
         .map((l) => uuidAsString(l.cipherId)),
     );
+  }
+
+  /** Web reveals through its gated-cipher reloader and keeps no leased copies. */
+  leasedCiphers$(): Observable<Cipher[]> {
+    return of([]);
   }
 
   /**

@@ -78,6 +78,7 @@ import {
 
 const PERF_TRACK_GROUP = PerfTrackGroup.Unlock;
 const PERF_TRACK = "Vault Items";
+const LEASED_CACHE_PREFIX = "leased-";
 
 export class CipherService implements CipherServiceAbstraction {
   private sortedCiphersCache: SortedCiphersCache = new SortedCiphersCache(
@@ -236,6 +237,33 @@ export class CipherService implements CipherServiceAbstraction {
   ): CipherView[] | CipherListView[] | null;
   private excludePartials(views: CipherViewLike[] | null): CipherViewLike[] | null {
     return views == null ? views : views.filter((view) => !CipherViewLikeUtils.isPartial(view));
+  }
+
+  /** @inheritdoc */
+  leasedCipherViews$(userId: UserId): Observable<CipherView[]> {
+    return this.cipherLeaseStateService
+      .leasedCiphers$(userId)
+      .pipe(switchMap((ciphers) => this.decryptLeased(ciphers, userId)));
+  }
+
+  private async decryptLeased(ciphers: Cipher[], userId: UserId): Promise<CipherView[]> {
+    const views: CipherView[] = [];
+    for (const cipher of ciphers) {
+      try {
+        const view = await this.decrypt(cipher, userId);
+        view.leaseGated = true;
+        views.push(view);
+      } catch {
+        this.logService.error("Failed to decrypt a leased cipher");
+      }
+    }
+    return views;
+  }
+
+  /** Appends the leased copies whose id is not already present, i.e. still gated. */
+  private withLeased(ciphers: CipherView[], leased: CipherView[]): CipherView[] {
+    const ids = new Set(ciphers.map((cipher) => cipher.id));
+    return ciphers.concat(leased.filter((view) => !ids.has(view.id)));
   }
 
   cipherView$(userId: UserId, cipherId: CipherId): Observable<CipherView | undefined> {
@@ -404,6 +432,15 @@ export class CipherService implements CipherServiceAbstraction {
     return ciphers.filter((cipher) => !CipherViewLikeUtils.isPartial(cipher));
   }
 
+  /** @inheritdoc */
+  async getAllDecryptedIncludingLeased(userId: UserId): Promise<CipherView[]> {
+    const [ciphers, leased] = await Promise.all([
+      this.getAllDecrypted(userId),
+      firstValueFrom(this.leasedCipherViews$(userId)),
+    ]);
+    return this.withLeased(ciphers, leased);
+  }
+
   /**
    * Like {@link getAllDecrypted} but keeps partial rows, and fills the decrypted-cipher cache.
    * Everything except {@link cipherViewsWithPartials$} must go through {@link getAllDecrypted}.
@@ -570,6 +607,19 @@ export class CipherService implements CipherServiceAbstraction {
         ),
       ),
     );
+  }
+
+  /** @inheritdoc */
+  async getAllDecryptedForUrlIncludingLeased(
+    url: string,
+    userId: UserId,
+    includeOtherTypes?: CipherType[],
+  ): Promise<CipherView[]> {
+    const [ciphers, leased] = await Promise.all([
+      this.getAllDecryptedForUrl(url, userId, includeOtherTypes),
+      firstValueFrom(this.leasedCipherViews$(userId)),
+    ]);
+    return this.withLeased(ciphers, await this.filterCiphersForUrl(leased, url, includeOtherTypes));
   }
 
   async getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]> {
@@ -774,8 +824,12 @@ export class CipherService implements CipherServiceAbstraction {
     return this.getCipherForUrl(url, userId, false, true, autofillOnPageLoad);
   }
 
-  async getNextCipherForUrl(url: string, userId: UserId): Promise<CipherView> {
-    return this.getCipherForUrl(url, userId, false, false, false);
+  async getNextCipherForUrl(
+    url: string,
+    userId: UserId,
+    includeLeased = false,
+  ): Promise<CipherView> {
+    return this.getCipherForUrl(url, userId, false, false, false, includeLeased);
   }
 
   async getNextCardCipher(userId: UserId): Promise<CipherView> {
@@ -810,6 +864,8 @@ export class CipherService implements CipherServiceAbstraction {
 
   updateLastUsedIndexForUrl(url: string) {
     this.sortedCiphersCache.updateLastUsedIndex(url);
+    // The keyboard shortcut rotates the leased entry; keep one cursor per URL.
+    this.sortedCiphersCache.updateLastUsedIndex(LEASED_CACHE_PREFIX + url);
   }
 
   async updateLastUsedDate(id: string, userId: UserId): Promise<void> {
@@ -1972,10 +2028,15 @@ export class CipherService implements CipherServiceAbstraction {
     lastUsed: boolean,
     lastLaunched: boolean,
     autofillOnPageLoad: boolean,
+    includeLeased = false,
   ): Promise<CipherView> {
-    const cacheKey = autofillOnPageLoad ? "autofillOnPageLoad-" + url : url;
+    // A distinct entry, so a leased copy never lands in a non-leased lookup.
+    const urlKey = includeLeased ? LEASED_CACHE_PREFIX + url : url;
+    const cacheKey = autofillOnPageLoad ? "autofillOnPageLoad-" + urlKey : urlKey;
     if (!this.sortedCiphersCache.isCached(cacheKey)) {
-      let ciphers = await this.getAllDecryptedForUrl(url, userId);
+      let ciphers = includeLeased
+        ? await this.getAllDecryptedForUrlIncludingLeased(url, userId)
+        : await this.getAllDecryptedForUrl(url, userId);
 
       if (!ciphers?.length) {
         return null;
