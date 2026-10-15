@@ -6,7 +6,6 @@ import { EMPTY_NAME_PLACEHOLDER } from "../models/folder-table-row";
 
 import { sharedFolderName } from "./shared-folder-name";
 
-/** A folder the trail links back to. */
 export type MyFolderCrumb = {
   id: string;
 
@@ -14,7 +13,6 @@ export type MyFolderCrumb = {
   name: string;
 };
 
-/** The path to a folder in view: the folders that contain it, and its own name. */
 export type MyFolderTrail = {
   /** The folders containing it, from the top-level folder to its immediate parent. */
   ancestors: MyFolderCrumb[];

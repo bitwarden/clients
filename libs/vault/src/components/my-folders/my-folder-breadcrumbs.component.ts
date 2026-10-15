@@ -24,7 +24,6 @@ import { injectMyFolderTrail } from "./inject-my-folder-trail";
   },
 })
 export class MyFolderBreadcrumbsComponent {
-  /** The id of the folder in view. */
   readonly folderId = input.required<string>();
 
   protected readonly trail = injectMyFolderTrail(this.folderId);

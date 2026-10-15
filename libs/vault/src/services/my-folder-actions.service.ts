@@ -12,7 +12,6 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { AddEditFolderDialogComponent } from "../components/add-edit-folder-dialog/add-edit-folder-dialog.component";
 import { openDeleteFolderDialog } from "../components/delete-folder-dialog/delete-folder-dialog.component";
 
-/** The folder a delete confirmation names. */
 export type MyFolderToDelete = {
   id: string;
 
