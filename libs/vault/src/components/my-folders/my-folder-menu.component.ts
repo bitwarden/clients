@@ -32,7 +32,6 @@ export class MyFolderMenuComponent {
   private readonly folderActions = inject(MyFolderActionsService);
   private readonly router = inject(Router);
 
-  /** The id of the folder in view. */
   readonly folderId = input.required<string>();
 
   private readonly trail = injectMyFolderTrail(this.folderId);
@@ -51,7 +50,6 @@ export class MyFolderMenuComponent {
 
     const deleted = await this.folderActions.delete({ id: this.folderId(), displayName });
 
-    // The folder's page has nothing left to show once the folder is gone.
     if (deleted) {
       await this.router.navigate(foldersListCommands());
     }
