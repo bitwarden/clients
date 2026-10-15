@@ -27,5 +27,4 @@ export * from "./view/application-health.view";
 export * from "./view/access-report-settings.view";
 export * from "./view/access-report-summary.view";
 export * from "./view/access-report-metrics.view";
-export * from "./view/cipher-health.view";
 export * from "./view/member-registry-entry.view";

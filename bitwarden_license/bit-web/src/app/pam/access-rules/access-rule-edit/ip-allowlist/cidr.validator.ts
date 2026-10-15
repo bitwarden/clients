@@ -7,14 +7,8 @@ import {
 } from "@angular/forms";
 
 /**
- * Predicate that reports whether a string is a valid IPv4 or IPv6 CIDR range.
- *
- * CIDR parsing lives in the Rust SDK (`is_valid_cidr`, backed by the `ipnet` crate), which is
- * only available once the WASM module is loaded at app startup. Rather than importing that free
- * function here — which would pull the WASM-backed SDK into every consumer's module graph and
- * make this file impossible to exercise outside a booted app (Storybook, isolated unit tests) —
- * the check is supplied by the caller. The app wires the real implementation via
- * {@link CidrValidationService}; tests and stories pass a lightweight stand-in.
+ * Supplied by the caller rather than imported from the SDK, so this file runs without a booted
+ * WASM module. The app passes {@link CidrValidationService}; tests and stories pass a stand-in.
  */
 export type CidrPredicate = (value: string) => boolean;
 
@@ -57,10 +51,6 @@ export function noDuplicateCidrsValidator(): ValidatorFn {
   };
 }
 
-/**
- * Array-level validator: rejects with `{ atLeastOneCidr: true }` when no row
- * has a non-empty CIDR value. Attach to the CIDR {@link FormArray}.
- */
 export function atLeastOneNonEmptyCidrValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     if (!(control instanceof FormArray)) {

@@ -5,7 +5,7 @@
     "productName": "Bitwarden Beta"
   },
   "productName": "Bitwarden Beta",
-  "appId": "com.bitwarden.desktop.beta",
+  "appId": "com.bitwarden.beta.desktop",
   "buildDependenciesFromSource": true,
   "copyright": "Copyright © 2015-2026 Bitwarden Inc.",
   "directories": {
@@ -36,7 +36,7 @@
     "darkModeSupport": true,
     "gatekeeperAssess": false,
     "hardenedRuntime": true,
-    "entitlements": "resources/entitlements.mac.plist",
+    "entitlements": "resources/entitlements.mac.beta.plist",
     "entitlementsInherit": "resources/entitlements.mac.inherit.plist",
     "extendInfo": {
       "ITSAppUsesNonExemptEncryption": false,
@@ -71,7 +71,7 @@
       ],
       "CFBundleDevelopmentRegion": "en"
     },
-    "provisioningProfile": "bitwarden_desktop_developer_id.provisionprofile",
+    "provisioningProfile": "bitwarden_beta_desktop_developer_id.provisionprofile",
     "icon": "icon.beta.icns",
     "singleArchFiles": "node_modules/@bitwarden/desktop-napi/desktop_napi.darwin-*.node",
     "x64ArchFiles": "{**/desktop_napi.darwin-*.node,**/bufferutil/**/darwin-*/*.node}",
