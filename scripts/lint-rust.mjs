@@ -148,7 +148,7 @@ const runners = {
   // results only change with the manifests, lockfile or deny.toml. `advisories`
   // checks the lockfile against the RustSec database, so it can start failing on
   // an unchanged tree when a new advisory is published; CI runs it outside the
-  // blocking Rust lint gate for that reason.
+  // blocking lint gate for that reason.
   deny() {
     cargoDeny("bans", "licenses", "sources");
   },

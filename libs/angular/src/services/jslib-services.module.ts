@@ -1527,6 +1527,7 @@ const safeProviders: SafeProvider[] = [
       LogService,
       StateProvider,
       AuthServiceAbstraction,
+      SdkService,
     ],
   }),
   safeProvider({
