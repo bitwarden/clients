@@ -714,12 +714,12 @@ export class ServiceContainer {
       this.environmentService,
       this.platformUtilsService,
       this.accountService,
-      this.kdfConfigService,
-      this.keyService,
-      this.accountCryptographicStateService,
-      this.apiService,
+      () => this.kdfConfigService,
+      () => this.keyService,
+      () => this.accountCryptographicStateService,
+      () => this.apiService,
       this.stateProvider,
-      this.configService,
+      () => this.configService,
       this.v2UpgradeTokenStateService,
       managedSettingsService,
       this.appIdService,
@@ -1042,7 +1042,7 @@ export class ServiceContainer {
       this.masterPasswordUnlockService,
     );
 
-    const logoutService = new DefaultLogoutService(this.messagingService);
+    const logoutService = new DefaultLogoutService(this.messagingService, this.logService);
     const processReloadService = new CliProcessReloadService();
     const systemService = new CliSystemService();
     this.lockService = new DefaultLockService(
@@ -1221,6 +1221,7 @@ export class ServiceContainer {
       this.cipherService,
       this.sdkService,
       this.stateProvider,
+      this.i18nService,
     );
   }
 

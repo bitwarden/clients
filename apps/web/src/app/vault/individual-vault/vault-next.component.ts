@@ -515,6 +515,11 @@ export class VaultNextComponent implements OnInit {
     { initialValue: false },
   );
 
+  /** The account's active My vault items, for the Vault chip's My vault count on an org page. */
+  protected readonly myVaultItemCount = computed(
+    () => this.activeCiphers().filter((cipher) => cipher.organizationId == null).length,
+  );
+
   /**
    * Clicking an item's name opens the read-only view, matching the legacy vault — the dialog offers
    * its own Edit toggle from there, while the `edit` row action goes straight to the form.

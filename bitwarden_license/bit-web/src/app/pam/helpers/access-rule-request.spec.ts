@@ -159,8 +159,7 @@ describe("formValueToRequest", () => {
   });
 
   it("carries unknown conditions forward, appended after the rebuilt known ones", () => {
-    // `time_of_day` is deliberately a kind the client doesn't model — the reason
-    // unknownConditions exists — so it isn't in the SDK's AccessCondition union.
+    // A kind the client doesn't model, so it needs a cast past the SDK's `AccessCondition` union.
     const unknown = [
       { kind: "time_of_day", start: "09:00", end: "17:00" },
     ] as unknown as AccessCondition[];

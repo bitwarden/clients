@@ -70,7 +70,7 @@ const UnsetClient = Symbol("UnsetClient");
  */
 class JsTokenProvider implements TokenProvider {
   constructor(
-    private apiService: ApiService,
+    private apiServiceProvider: () => ApiService,
     private userId?: UserId,
   ) {}
 
@@ -79,7 +79,7 @@ class JsTokenProvider implements TokenProvider {
       return undefined;
     }
 
-    return await this.apiService.getActiveBearerToken(this.userId);
+    return await this.apiServiceProvider().getActiveBearerToken(this.userId);
   }
 }
 
@@ -100,7 +100,7 @@ export class DefaultSdkService implements SdkService {
       const settings = await this.toSettings(env);
       const managedSettings = await firstValueFrom(this.managedSettingsService.client$);
       const client = await this.sdkClientFactory.createSdkClient(
-        new JsTokenProvider(this.apiService),
+        new JsTokenProvider(this.apiServiceProvider),
         settings,
         managedSettings,
       );
@@ -120,12 +120,12 @@ export class DefaultSdkService implements SdkService {
     private environmentService: EnvironmentService,
     private platformUtilsService: PlatformUtilsService,
     private accountService: AccountService,
-    private kdfConfigService: KdfConfigService,
-    private keyService: KeyService,
-    private accountCryptographyStateService: AccountCryptographicStateService,
-    private apiService: ApiService,
+    private kdfConfigServiceProvider: () => KdfConfigService,
+    private keyServiceProvider: () => KeyService,
+    private accountCryptographyStateServiceProvider: () => AccountCryptographicStateService,
+    private apiServiceProvider: () => ApiService,
     private stateProvider: StateProvider,
-    private configService: ConfigService,
+    private configServiceProvider: () => ConfigService,
     private v2UpgradeTokenStateService: V2UpgradeTokenStateService,
     private managedSettingsService: ManagedSettingsService,
     private appIdService: AppIdService,
@@ -192,12 +192,15 @@ export class DefaultSdkService implements SdkService {
       map((accounts) => accounts[userId]),
       distinctUntilChanged(),
     );
-    const kdfParams$ = this.kdfConfigService.getKdfConfig$(userId).pipe(distinctUntilChanged());
-    const accountCryptographicState$ = this.accountCryptographyStateService
+    const kdfParams$ = this.kdfConfigServiceProvider()
+      .getKdfConfig$(userId)
+      .pipe(distinctUntilChanged());
+    const accountCryptographicState$ = this.accountCryptographyStateServiceProvider()
       .accountCryptographicState$(userId)
       .pipe(distinctUntilChanged());
-    const userKey$ = this.keyService.userKey$(userId).pipe(distinctUntilChanged());
-    const orgKeys$ = this.keyService.encryptedOrgKeys$(userId).pipe(
+    const keyService = this.keyServiceProvider();
+    const userKey$ = keyService.userKey$(userId).pipe(distinctUntilChanged());
+    const orgKeys$ = keyService.encryptedOrgKeys$(userId).pipe(
       distinctUntilChanged(compareValues), // The upstream observable emits different objects with the same values
     );
     const v2UpgradeToken$ = this.v2UpgradeTokenStateService
@@ -241,7 +244,7 @@ export class DefaultSdkService implements SdkService {
                 "create",
               );
               const client = await this.sdkClientFactory.createSdkClient(
-                new JsTokenProvider(this.apiService, userId),
+                new JsTokenProvider(this.apiServiceProvider, userId),
                 settings,
                 managedSettings,
               );
@@ -353,7 +356,7 @@ export class DefaultSdkService implements SdkService {
   }
 
   private async loadFeatureFlags(client: PasswordManagerClient) {
-    const serverConfig = await firstValueFrom(this.configService.serverConfig$);
+    const serverConfig = await firstValueFrom(this.configServiceProvider().serverConfig$);
 
     const featureFlagMap = new Map(
       Object.entries(serverConfig?.featureStates ?? {})
