@@ -4,8 +4,10 @@ import { BehaviorSubject, firstValueFrom } from "rxjs";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import type { CipherId } from "@bitwarden/sdk-internal";
 
+import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
 import { OrgCiphersService } from "../org-ciphers.service";
 import type {
+  AccessConnector,
   RotationConfigView,
   TargetSystemId,
   TargetSystemStatus,
@@ -18,6 +20,8 @@ import {
   CIPHER_ID,
   ORGANIZATION_ID,
   ROTATION_CONFIG_ID,
+  TARGET_SYSTEM_ID,
+  accessConnector,
   rotationConfigDescription,
   rotationConfig,
   targetSystem,
@@ -53,6 +57,12 @@ describe("RotationConfigsService", () => {
     load: jest.Mock;
     ciphers$: BehaviorSubject<CipherView[]>;
     loading$: BehaviorSubject<boolean>;
+  };
+
+  let accessConnectorsService: {
+    accessConnectors$: BehaviorSubject<AccessConnector[]>;
+    loading$: BehaviorSubject<boolean>;
+    loadError$: BehaviorSubject<unknown | null>;
   };
 
   beforeEach(() => {
@@ -92,9 +102,18 @@ describe("RotationConfigsService", () => {
       loading$: new BehaviorSubject(false),
     };
 
+    accessConnectorsService = {
+      accessConnectors$: new BehaviorSubject<AccessConnector[]>([
+        accessConnector({ assignedTargetSystemIds: [TARGET_SYSTEM_ID] }),
+      ]),
+      loading$: new BehaviorSubject(false),
+      loadError$: new BehaviorSubject<unknown | null>(null),
+    };
+
     TestBed.configureTestingModule({
       providers: [
         RotationConfigsService,
+        { provide: AccessConnectorsService, useValue: accessConnectorsService },
         { provide: RotationSdkService, useValue: rotationSdk },
         { provide: TargetSystemsService, useValue: targetSystemsService },
         { provide: OrgCiphersService, useValue: orgCiphersService },
@@ -182,6 +201,97 @@ describe("RotationConfigsService", () => {
     await service.load(ORG_ID);
     const rows = await firstValueFrom(service.rows$);
     expect(rows[0].cipherName).toBe("My Cipher");
+  });
+
+  describe("not connected", () => {
+    const statusOf = async () => {
+      await service.load(ORG_ID);
+      return (await firstValueFrom(service.rows$))[0].status;
+    };
+
+    it("reads active while a connected connector is assigned to the target", async () => {
+      expect(await statusOf()).toBe("active");
+    });
+
+    it("reads not connected when no connector is assigned to the target", async () => {
+      accessConnectorsService.accessConnectors$.next([]);
+      expect(await statusOf()).toBe("not-connected");
+    });
+
+    it("withholds the verdict while the connector read is in flight", async () => {
+      accessConnectorsService.accessConnectors$.next([]);
+      accessConnectorsService.loading$.next(true);
+      expect(await statusOf()).toBe("active");
+    });
+
+    it("withholds the verdict when the connector read failed", async () => {
+      accessConnectorsService.accessConnectors$.next([]);
+      accessConnectorsService.loadError$.next(new Error("boom"));
+      expect(await statusOf()).toBe("active");
+    });
+  });
+
+  describe("polling while a job runs", () => {
+    beforeEach(() => jest.useFakeTimers());
+    afterEach(() => jest.useRealTimers());
+
+    it("re-reads the list until no row has a running job", async () => {
+      rotationSdk.listConfigs
+        .mockResolvedValueOnce([rotationConfig({ hasActiveJob: true })])
+        .mockResolvedValueOnce([rotationConfig({ hasActiveJob: true })])
+        .mockResolvedValue([rotationConfig({ hasActiveJob: false })]);
+      await service.load(ORG_ID);
+      expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(1);
+
+      await jest.advanceTimersByTimeAsync(5000);
+      expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(2);
+
+      await jest.advanceTimersByTimeAsync(5000);
+      expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(3);
+      expect((await firstValueFrom(service.configs$))[0].hasActiveJob).toBe(false);
+
+      await jest.advanceTimersByTimeAsync(30000);
+      expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(3);
+    });
+
+    it("starts polling when rotate now marks a row as running", async () => {
+      await service.load(ORG_ID);
+      await service.rotateNow((await firstValueFrom(service.configs$))[0]);
+      rotationSdk.listConfigs.mockResolvedValue([rotationConfig({ hasActiveJob: false })]);
+
+      await jest.advanceTimersByTimeAsync(5000);
+
+      expect((await firstValueFrom(service.configs$))[0].hasActiveJob).toBe(false);
+    });
+
+    it("does not poll when nothing is running", async () => {
+      await service.load(ORG_ID);
+      await jest.advanceTimersByTimeAsync(30000);
+      expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(1);
+    });
+
+    it("keeps polling after a failed re-read", async () => {
+      rotationSdk.listConfigs
+        .mockResolvedValueOnce([rotationConfig({ hasActiveJob: true })])
+        .mockRejectedValueOnce(new Error("boom"))
+        .mockResolvedValue([rotationConfig({ hasActiveJob: false })]);
+      await service.load(ORG_ID);
+
+      await jest.advanceTimersByTimeAsync(5000);
+      await jest.advanceTimersByTimeAsync(5000);
+
+      expect((await firstValueFrom(service.configs$))[0].hasActiveJob).toBe(false);
+    });
+
+    it("stops polling when the service is destroyed", async () => {
+      rotationSdk.listConfigs.mockResolvedValue([rotationConfig({ hasActiveJob: true })]);
+      await service.load(ORG_ID);
+
+      service.ngOnDestroy();
+      await jest.advanceTimersByTimeAsync(30000);
+
+      expect(rotationSdk.listConfigs).toHaveBeenCalledTimes(1);
+    });
   });
 
   it("awaitingManualCount$ counts configs awaiting manual rotation", async () => {
