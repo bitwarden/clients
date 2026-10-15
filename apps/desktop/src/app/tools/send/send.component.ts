@@ -28,6 +28,7 @@ import {
   SendFormService,
   SendFormModule,
   SendFormConfig,
+  removeSendAuthI18nKeys,
 } from "@bitwarden/send-ui";
 
 import { DesktopPremiumUpgradePromptService } from "../../../billing/services/desktop-premium-upgrade-prompt.service";
@@ -165,9 +166,10 @@ export class SendComponent {
       return;
     }
 
+    const i18nKeys = removeSendAuthI18nKeys(send.authType);
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "removeAuth" },
-      content: { key: "removeAuthConfirmation" },
+      title: { key: i18nKeys.label },
+      content: { key: i18nKeys.confirmation },
       type: "warning",
     });
 
@@ -180,7 +182,7 @@ export class SendComponent {
       this.toastService.showToast({
         variant: "success",
         title: null,
-        message: this.i18nService.t("removedAuth"),
+        message: this.i18nService.t(i18nKeys.removed),
       });
     } catch (e) {
       this.logService.error(e);

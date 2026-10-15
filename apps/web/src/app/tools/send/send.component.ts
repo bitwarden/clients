@@ -46,6 +46,7 @@ import {
   SendListState,
   SendListFiltersService,
   SendPolicyService,
+  removeSendAuthI18nKeys,
 } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -364,9 +365,10 @@ export class SendComponent implements OnDestroy {
       return;
     }
 
+    const i18nKeys = removeSendAuthI18nKeys(send.authType);
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "removeAuth" },
-      content: { key: "removeAuthConfirmation" },
+      title: { key: i18nKeys.label },
+      content: { key: i18nKeys.confirmation },
       type: "warning",
     });
 
@@ -379,7 +381,7 @@ export class SendComponent implements OnDestroy {
       this.toastService.showToast({
         variant: "success",
         title: null,
-        message: this.i18nService.t("removedAuth"),
+        message: this.i18nService.t(i18nKeys.removed),
       });
     } catch (e) {
       this.validationService.showError(e);

@@ -127,7 +127,7 @@
                 buttonType="dangerGhost"
                 bitIconButton="bwi-minus-circle"
                 size="small"
-                [label]="'removeAuth' | i18n"
+                [label]="removeAuthLabelKey() | i18n"
                 [bitAction]="removeAuth"
                 showToast
                 [disabled]="!sendFormService.sendFormConfig.areSendsAllowed"

@@ -8388,6 +8388,26 @@
   "removeAuthConfirmation": {
     "message": "Are you sure you want to remove the password or email verification requirement from this Send?"
   },
+  "removePassword": {
+    "message": "Remove password"
+  },
+  "removeEmailVerification": {
+    "message": "Remove email verification"
+  },
+  "removedPassword": {
+    "message": "Password removed"
+  },
+  "removedEmailVerification": {
+    "message": "Email verification removed"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Are you sure you want to remove the password requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Are you sure you want to remove the email verification requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "allSends": {
     "message": "All Sends"
   },

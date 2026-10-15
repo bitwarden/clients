@@ -89,8 +89,9 @@ export abstract class SendFormService {
 
   /** A function that removes all authentication from a Send — a password or an
    * email-verification requirement — or returns immediately if the Send is not
-   * protected. Returns a boolean indicating whether the authentication was
-   * removed successfully or not
+   * protected. The confirmation dialog and success toast name the Send's auth
+   * type (password or email verification). Returns a boolean indicating whether
+   * the authentication was removed successfully or not
    */
   abstract removeSendAuth(): Promise<boolean>;
 }

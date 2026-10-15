@@ -86,6 +86,8 @@ export default {
               pendingDeletion: "Pending deletion",
               copySendLink: "Copy Send link",
               removeAuth: "Remove password or email verification",
+              removePassword: "Remove password",
+              removeEmailVerification: "Remove email verification",
               delete: "Delete",
               loading: "Loading",
             });

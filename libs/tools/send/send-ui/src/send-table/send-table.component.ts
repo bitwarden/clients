@@ -18,6 +18,8 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+import { removeSendAuthI18nKeys } from "../send-auth/remove-send-auth-i18n";
+
 /**
  * A table component for displaying Send items with sorting, status indicators, and action menus. Handles the presentation of sends in a tabular format with options
  * for editing, copying links, removing passwords, and deleting.
@@ -44,6 +46,7 @@ import {
 export class SendTableComponent {
   protected readonly sendType = SendType;
   protected readonly authType = AuthType;
+  protected readonly removeSendAuthI18nKeys = removeSendAuthI18nKeys;
 
   /**
    * The data source containing the Send items to display in the table.
@@ -52,7 +55,7 @@ export class SendTableComponent {
 
   /**
    * Whether Send functionality is disabled by policy.
-   * When true, the "Remove password or email verification" option is hidden from the action menu.
+   * When true, the "Remove password" / "Remove email verification" option is hidden from the action menu.
    */
   readonly disableSend = input(false);
 
@@ -69,9 +72,9 @@ export class SendTableComponent {
   readonly copySend = output<SendView>();
 
   /**
-   * Emitted when a user clicks the "Remove password or email verification" action.
+   * Emitted when a user clicks the "Remove password" / "Remove email verification" action.
    * The SendView is passed as the event payload for authentication removal.
-   * This action is only available if the Send has a password and Send is not disabled.
+   * This action is only available if the Send has authentication and Send is not disabled.
    */
   readonly removeAuth = output<SendView>();
 

@@ -98,10 +98,10 @@
               <bit-icon name="bwi-clone" fixedWidth />
               {{ "copySendLink" | i18n }}
             </button>
-            @if (s.password && !disableSend()) {
+            @if (s.authType !== authType.None && !disableSend()) {
               <button type="button" bitMenuItem (click)="onRemoveAuth(s)">
                 <bit-icon name="bwi-close" fixedWidth />
-                {{ "removeAuth" | i18n }}
+                {{ removeSendAuthI18nKeys(s.authType).label | i18n }}
               </button>
             }
             <button type="button" bitMenuItem variant="danger" (click)="onDelete(s)">

@@ -19,10 +19,11 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { SendPolicyService } from "@bitwarden/send-ui";
+import { removeSendAuthI18nKeys, SendPolicyService } from "@bitwarden/send-ui";
 
 @Directive()
 export class SendComponent implements OnInit, OnDestroy {
@@ -167,13 +168,14 @@ export class SendComponent implements OnInit, OnDestroy {
   }
 
   async removeAuth(s: SendView): Promise<boolean> {
-    if (this.actionPromise != null || s.password == null) {
+    if (this.actionPromise != null || s.authType === AuthType.None) {
       return;
     }
 
+    const i18nKeys = removeSendAuthI18nKeys(s.authType);
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "removeAuth" },
-      content: { key: "removeAuthConfirmation" },
+      title: { key: i18nKeys.label },
+      content: { key: i18nKeys.confirmation },
       type: "warning",
     });
 
@@ -193,7 +195,7 @@ export class SendComponent implements OnInit, OnDestroy {
         this.toastService.showToast({
           variant: "success",
           title: null,
-          message: this.i18nService.t("removedAuth"),
+          message: this.i18nService.t(i18nKeys.removed),
         });
         await this.load();
       }
