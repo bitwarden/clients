@@ -1087,7 +1087,7 @@ describe("VaultPopupListTableComponent", () => {
 
     beforeEach(() => {
       open = jest.spyOn(DialogService.prototype, "open");
-      // JSDOM has no layout; the toolbar holds a restored dialog until its chip row reports a width.
+      // JSDOM has no layout; report a narrow width so the toolbar collapses and opens the restored dialog.
       globalThis.ResizeObserver = class {
         constructor(private readonly callback: ResizeObserverCallback) {}
         observe(target: Element) {
