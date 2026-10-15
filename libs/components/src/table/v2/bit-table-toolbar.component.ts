@@ -97,6 +97,9 @@ export class BitTableToolbarComponent {
     return row;
   }
 
+  /** The filter chips and "Clear all", for anchoring a popover. `undefined` while collapsed. */
+  readonly filterChips = computed(() => (this.collapsed() ? undefined : this.filterChipsEl()));
+
   /** The table this toolbar is projected into; the source of the item count. */
   protected readonly table = inject(BitTableV2Component, { optional: true });
 
@@ -134,6 +137,7 @@ export class BitTableToolbarComponent {
 
   private readonly overflowList = viewChild(OverflowListDirective);
   private readonly filterRowEl = viewChild<ElementRef<HTMLElement>>("filterRow");
+  private readonly filterChipsEl = viewChild("filterChips", { read: ElementRef<HTMLElement> });
   private readonly injector = inject(Injector);
 
   /**

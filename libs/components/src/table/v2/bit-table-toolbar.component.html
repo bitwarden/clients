@@ -48,29 +48,31 @@
     small-screen active-filter chips below.
   -->
   <div #filterRow bitOverflowList [gap]="8" [items]="overflowItems()" [class]="filterRowClasses()">
-    <ng-content select="bit-filter-menu, bit-filter-toggle, bit-filter-divider"></ng-content>
     <!--
-      Gated on `hasFilters`, then hidden by class rather than `@if`: entering the DOM on
-      selection would change the overflow list's item set, which drops its cached widths
-      and flashes the row fully expanded before the next measurement lands. `tw-hidden`
-      survives the directive's measurement reveal (it only clears inline `display`), so
-      this measures 0px and the item set holds. The outer `@if` keeps a search-only
-      toolbar's row free of element children, so `empty:tw-hidden` still collapses it.
+      Its own box so a popover can anchor to the chips alone. The `@if` keeps a search-only
+      toolbar's row childless, so `empty:tw-hidden` collapses it.
     -->
     @if (hasFilters()) {
-      <button
-        bitOverflowItem
-        [class.tw-hidden]="!appliedCount()"
-        id="bit-table-toolbar_button_clear-all"
-        bitButton
-        buttonType="subtleGhost"
-        size="small"
-        type="button"
-        startIcon="bwi-clear"
-        (click)="clearAll()"
-      >
-        {{ "clearAll" | i18n }}
-      </button>
+      <div #filterChips class="tw-flex tw-items-center tw-gap-2">
+        <ng-content select="bit-filter-menu, bit-filter-toggle, bit-filter-divider"></ng-content>
+        <!--
+          Hidden by class, not `@if`: a changed item set drops the overflow list's cached widths
+          and flashes the row expanded. `tw-hidden` survives its measurement reveal.
+        -->
+        <button
+          bitOverflowItem
+          [class.tw-hidden]="!appliedCount()"
+          id="bit-table-toolbar_button_clear-all"
+          bitButton
+          buttonType="subtleGhost"
+          size="small"
+          type="button"
+          startIcon="bwi-clear"
+          (click)="clearAll()"
+        >
+          {{ "clearAll" | i18n }}
+        </button>
+      </div>
     }
     @if (table && hasFilters()) {
       <!-- Not an overflow item: its width is reserved, so the row collapses before it is crowded out. -->
