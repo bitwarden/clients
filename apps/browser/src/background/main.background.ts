@@ -1000,12 +1000,12 @@ export default class MainBackground {
       this.environmentService,
       this.platformUtilsService,
       this.accountService,
-      this.kdfConfigService,
-      this.keyService,
-      this.accountCryptographicStateService,
-      this.apiService,
+      () => this.kdfConfigService,
+      () => this.keyService,
+      () => this.accountCryptographicStateService,
+      () => this.apiService,
       this.stateProvider,
-      this.configService,
+      () => this.configService,
       this.v2UpgradeTokenStateService,
       this.managedSettingsService,
       this.appIdService,
@@ -1912,6 +1912,8 @@ export default class MainBackground {
     await this.targetingRulesDataService.init();
 
     // If the user is logged out, switch to the next account
+    // TODO: PM-44635 - Use AccountSwitcherService.resolveActiveAccount() from
+    // @bitwarden/common/auth/account-switcher, which never picks a logged-out account.
     const active = await firstValueFrom(this.accountService.activeAccount$);
     if (active != null) {
       const authStatus = await firstValueFrom(
@@ -2059,6 +2061,8 @@ export default class MainBackground {
 
     await this.eventUploadService.uploadEvents(userBeingLoggedOut);
 
+    // TODO: PM-44635 - Use AccountSwitcherService.nextSwitchableAccount$ from
+    // @bitwarden/common/auth/account-switcher, which never picks a logged-out account.
     const newActiveUser =
       userBeingLoggedOut === activeUserId
         ? await firstValueFrom(this.accountService.nextUpAccount$.pipe(map((a) => a?.id)))
