@@ -584,7 +584,7 @@ describe("DefaultAutofillOrchestrator", () => {
       // being handed a pre-collected page detail.
       expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, undefined);
       // A command selects the next cipher in the url's rotation and fills with command options.
-      expect(cipherService.getNextCipherForUrl).toHaveBeenCalledWith(DEFAULT_URL, "user-1");
+      expect(cipherService.getNextCipherForUrl).toHaveBeenCalledWith(DEFAULT_URL, "user-1", true);
       expect(accountService.setAccountActivity).toHaveBeenCalledWith("user-1", expect.any(Date));
       expect(autofillService.doAutoFill).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -1220,6 +1220,38 @@ describe("DefaultAutofillOrchestrator", () => {
       expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalled();
       expect(autofillService.doAutoFill).not.toHaveBeenCalled();
       expect(accountService.setAccountActivity).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("PAM leased copies", () => {
+    it("includes leased copies for a keyboard command", async () => {
+      const pd = pageDetail(1, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+
+      autofillOrchestrator.autofillActiveTabFromCommand(pd.tab);
+      await flushPromises();
+
+      expect(cipherService.getNextCipherForUrl).toHaveBeenCalledWith(DEFAULT_URL, "user-1", true);
+    });
+
+    it("never includes leased copies for auto-submit", async () => {
+      const pd = pageDetail(1, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+
+      await autofillOrchestrator["autoSubmitLoginOnTab"](pd.tab, 0);
+
+      expect(cipherService.getNextCipherForUrl).toHaveBeenCalledWith(DEFAULT_URL, "user-1", false);
+    });
+
+    it("never reads the leased rotation on page load", async () => {
+      const pd = pageDetail(1, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+
+      emitPageTransition(pd);
+      await flushPromises();
+
+      expect(cipherService.getLastUsedForUrl).toHaveBeenCalledWith(DEFAULT_URL, "user-1", true);
+      expect(cipherService.getNextCipherForUrl).not.toHaveBeenCalled();
     });
   });
 

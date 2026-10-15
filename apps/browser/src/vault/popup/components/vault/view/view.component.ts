@@ -5,7 +5,7 @@ import { Component, inject } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Observable, switchMap, of, map } from "rxjs";
+import { distinctUntilChanged, firstValueFrom, Observable, switchMap, of, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/billing/popup/services/browser-premium-upgrade-prompt.service";
@@ -175,7 +175,8 @@ export class ViewComponent {
             this.accountService.activeAccount$.pipe(getUserId),
           );
 
-          const cipher = await this.getCipherData(params.cipherId, this.activeUserId);
+          const stored = await this.getCipherData(params.cipherId, this.activeUserId);
+          const cipher = await firstValueFrom(this.withLeasedCopy$(stored));
           this.headerText = this.setHeader(cipher.type);
 
           // Handling the load action needs to take place before setting `this.cipher`,
@@ -198,25 +199,29 @@ export class ViewComponent {
             }
           }
 
-          return cipher;
-        }),
-        filterOutNullish(),
-        switchMap(async (cipher) => {
-          this.cipher = cipher;
-
-          this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(cipher);
-
-          this.showFooter$ = of(
-            cipher &&
-              (!cipher.isDeleted ||
-                (cipher.isDeleted && (cipher.permissions.restore || cipher.permissions.delete))),
-          );
-
           await this.eventCollectionService.collect(
             EventType.Cipher_ClientViewed,
             cipher.id,
             false,
             cipher.organizationId,
+          );
+
+          return stored;
+        }),
+        filterOutNullish(),
+        // Unlocks or re-locks in place as a lease on a gated item starts or ends.
+        switchMap((stored) => this.withLeasedCopy$(stored)),
+        switchMap(async (cipher) => {
+          this.cipher = cipher;
+
+          this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(cipher);
+
+          // Edit, delete, archive and restore are not offered on a gated item.
+          this.showFooter$ = of(
+            cipher &&
+              !this.gated &&
+              (!cipher.isDeleted ||
+                (cipher.isDeleted && (cipher.permissions.restore || cipher.permissions.delete))),
           );
         }),
         takeUntilDestroyed(),
@@ -242,12 +247,24 @@ export class ViewComponent {
   }
 
   async getCipherData(id: string, userId: UserId) {
-    return await firstValueFrom(
-      this.cipherService.cipherViews$(userId).pipe(
-        filterOutNullish(),
-        map((ciphers) => ciphers.find((c) => c.id === id)),
-      ),
+    const [cipher] = await this.cipherService.getAllDecryptedForIdsIncludingPartials(userId, [id]);
+    return cipher;
+  }
+
+  /** A gated (partial) item's leased copy while the user holds a lease, otherwise the item. */
+  private withLeasedCopy$(stored: CipherView): Observable<CipherView> {
+    if (!stored.partial) {
+      return of(stored);
+    }
+    return this.cipherService.leasedCipherViews$(this.activeUserId).pipe(
+      map((leased) => leased.find((c) => c.id === stored.id) ?? stored),
+      distinctUntilChanged(),
     );
+  }
+
+  /** PAM-gated: a partial without a lease, or a leased copy. */
+  protected get gated(): boolean {
+    return this.cipher.partial || !!this.cipher.leaseGated;
   }
 
   async editCipher() {
@@ -351,7 +368,11 @@ export class ViewComponent {
       [CipherType.Login, CipherType.Card, CipherType.Identity, CipherType.SshKey] as CipherType[]
     ).includes(CipherViewLikeUtils.getType(this.cipher));
 
-    return validAutofillType && !(this.cipher.isArchived || this.cipher.isDeleted);
+    return (
+      validAutofillType &&
+      !this.cipher.partial &&
+      !(this.cipher.isArchived || this.cipher.isDeleted)
+    );
   }
 
   async doAutofill() {
@@ -383,7 +404,7 @@ export class ViewComponent {
       data: {
         currentUrl: currentTab?.url || "",
         savedUris: this.cipher.login?.uris?.filter((u) => u.uri) ?? [],
-        viewOnly: !this.cipher.edit,
+        viewOnly: !this.cipher.edit || this.gated,
       },
     });
 

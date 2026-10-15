@@ -158,7 +158,7 @@ export class ItemMoreOptionsComponent {
   ) {}
 
   get canEdit() {
-    return this.cipher.edit;
+    return this.cipher.edit && !this.leased;
   }
 
   get canViewPassword() {
@@ -167,6 +167,16 @@ export class ItemMoreOptionsComponent {
 
   get decryptionFailure() {
     return CipherViewLikeUtils.decryptionFailure(this.cipher);
+  }
+
+  /** A PAM-gated item without a lease offers no fill, copy or write, so it gets no menu. */
+  get partial() {
+    return CipherViewLikeUtils.isPartial(this.cipher);
+  }
+
+  /** A leased copy of a PAM-gated item. It is not written to from here. */
+  get leased() {
+    return !CipherViewLikeUtils.isCipherListView(this.cipher) && !!this.cipher.leaseGated;
   }
 
   /**
@@ -226,7 +236,7 @@ export class ItemMoreOptionsComponent {
       data: {
         currentUrl: currentTab?.url || "",
         savedUris: cipher.login?.uris?.filter((u) => u.uri) ?? [],
-        viewOnly: !this.cipher.edit,
+        viewOnly: !this.cipher.edit || this.leased,
       },
     });
 

@@ -72,6 +72,7 @@ import {
   AddChangePasswordNotificationQueueMessage,
   AddLoginQueueMessage,
   AddLoginMessageData,
+  AddLoginNotificationData,
   AtRiskPasswordQueueMessage,
   NotificationQueueMessageItem,
   ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
@@ -697,6 +698,30 @@ export default class NotificationBackground {
     }
 
     return false;
+  }
+
+  /**
+   * A form whose username or any password matches a leased copy gets no prompt: a save would
+   * copy the privileged secret out of PAM or write over the gated item.
+   */
+  async matchesLeasedCopy(
+    form: AddLoginNotificationData & { newPassword?: string },
+  ): Promise<boolean> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getOptionalUserId));
+    if (userId == null) {
+      return false;
+    }
+    const username = form.username?.toLowerCase();
+    const passwords = [form.password, form.newPassword].filter((p) => !!p);
+    const matches = (await firstValueFrom(this.cipherService.leasedCipherViews$(userId))).filter(
+      (c) =>
+        (!!username && c.login?.username?.toLowerCase() === username) ||
+        (!!c.login?.password && passwords.includes(c.login.password)),
+    );
+    return (
+      matches.length > 0 &&
+      (await this.cipherService.filterCiphersForUrl(matches, form.uri)).length > 0
+    );
   }
 
   private async pushAddLoginToQueue(
@@ -1468,6 +1493,10 @@ export default class NotificationBackground {
 
       // If the vault was locked, check if a cipher needs updating instead of creating a new one
       if (queueMessage.wasVaultLocked) {
+        if (await this.matchesLeasedCopy(queueMessage.data)) {
+          continue;
+        }
+
         const allCiphers = await this.cipherService.getAllDecryptedForUrl(
           queueMessage.data.uri,
           activeUserId,

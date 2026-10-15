@@ -23,12 +23,15 @@
           {{ "autofillVerb" | i18n }}
         </button>
       }
-      <app-share-button
-        [cipher]="cipher"
-        class="tw-mt-4"
-        slot="button"
-        [skipPasswordPrompt]="true"
-      ></app-share-button>
+      <!-- A Send outlives the lease. -->
+      @if (!gated) {
+        <app-share-button
+          [cipher]="cipher"
+          class="tw-mt-4"
+          slot="button"
+          [skipPasswordPrompt]="true"
+        ></app-share-button>
+      }
     </app-cipher-view>
   }
 

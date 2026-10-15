@@ -63,6 +63,12 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract cipherListViewsWithPartials$(
     userId: UserId,
   ): Observable<CipherListView[] | CipherView[]>;
+  /**
+   * Decrypted full copies of the PAM-gated ciphers the user holds a live lease on, each marked
+   * `leaseGated`. Never part of {@link cipherViews$} or {@link cipherListViews$}; only surfaces a
+   * user acts on should read it.
+   */
+  abstract leasedCipherViews$(userId: UserId): Observable<CipherView[]>;
   abstract ciphers$(userId: UserId): Observable<Record<CipherId, CipherData>>;
   abstract localData$(userId: UserId): Observable<Record<CipherId, LocalData>>;
   /**
@@ -99,6 +105,11 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract assertWritable(ids: string | string[], userId: UserId, admin?: boolean): Promise<void>;
   abstract getAll(userId: UserId): Promise<Cipher[]>;
   abstract getAllDecrypted(userId: UserId): Promise<CipherView[]>;
+  /**
+   * {@link getAllDecrypted} plus {@link leasedCipherViews$}. Only for a fill the user starts by id
+   * (popup fill, context-menu click).
+   */
+  abstract getAllDecryptedIncludingLeased(userId: UserId): Promise<CipherView[]>;
   abstract getAllDecryptedForGrouping(
     groupingId: string,
     userId: UserId,
@@ -111,6 +122,16 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     defaultMatch?: UriMatchStrategySetting,
     /** When true, will override the match strategy for the cipher if it is Never. */
     overrideNeverMatchStrategy?: true,
+  ): Promise<CipherView[]>;
+  /**
+   * {@link getAllDecryptedForUrl} plus the leased copies that match the URL. Only for lists a user
+   * picks from (inline menu, context menu). Never for a fill without a user action or for a save
+   * prompt that would write the cipher.
+   */
+  abstract getAllDecryptedForUrlIncludingLeased(
+    url: string,
+    userId: UserId,
+    includeOtherTypes?: CipherType[],
   ): Promise<CipherView[]>;
   abstract getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]>;
   /**
@@ -153,7 +174,12 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     userId: UserId,
     autofillOnPageLoad: boolean,
   ): Promise<CipherView>;
-  abstract getNextCipherForUrl(url: string, userId: UserId): Promise<CipherView>;
+  /** `includeLeased` is only for the keyboard shortcut, never for auto-submit. */
+  abstract getNextCipherForUrl(
+    url: string,
+    userId: UserId,
+    includeLeased?: boolean,
+  ): Promise<CipherView>;
   abstract updateLastUsedIndexForUrl(url: string): void;
   abstract updateLastUsedDate(id: string, userId: UserId): Promise<void>;
   abstract updateLastLaunchedDate(id: string, userId: UserId): Promise<void>;

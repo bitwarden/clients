@@ -13,12 +13,12 @@ import { of } from "rxjs";
 import { getByText, userEvent } from "storybook/test";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { AccessRuleSdkService, AccessRuleView } from "@bitwarden/bit-common/pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DialogModule, DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import { AccessRuleSdkService, AccessRuleView } from "../..";
 import { GovernedCollectionsService } from "../../services/governed-collections.service";
 
 import { AccessRuleEditComponent } from "./access-rule-edit.component";

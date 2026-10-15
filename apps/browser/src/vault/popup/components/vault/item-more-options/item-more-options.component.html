@@ -1,14 +1,18 @@
+@let autofillItem = canAutofill && showAutofill() && (autofillAllowed$ | async);
 <bit-item-action>
-  <button
-    type="button"
-    bitIconButton="bwi-ellipsis-v"
-    size="small"
-    [label]="'moreOptionsLabelNoPlaceholder' | i18n"
-    [bitMenuTriggerFor]="moreOptions"
-  ></button>
+  <!-- A leased copy keeps only Autofill and View; with neither, offer no menu. -->
+  @if (!partial && (!leased || autofillItem || showViewOption())) {
+    <button
+      type="button"
+      bitIconButton="bwi-ellipsis-v"
+      size="small"
+      [label]="'moreOptionsLabelNoPlaceholder' | i18n"
+      [bitMenuTriggerFor]="moreOptions"
+    ></button>
+  }
   <bit-menu #moreOptions>
     @if (!decryptionFailure) {
-      @if (canAutofill && showAutofill() && autofillAllowed$ | async) {
+      @if (autofillItem) {
         <button type="button" bitMenuItem (click)="doAutofill()">
           {{ "autofillVerb" | i18n }}
         </button>
@@ -18,9 +22,11 @@
           {{ "view" | i18n }}
         </button>
       }
-      <button type="button" bitMenuItem (click)="toggleFavorite()">
-        {{ favoriteText | i18n }}
-      </button>
+      @if (!leased) {
+        <button type="button" bitMenuItem (click)="toggleFavorite()">
+          {{ favoriteText | i18n }}
+        </button>
+      }
       @if (canEdit) {
         <button type="button" bitMenuItem (click)="edit()">
           {{ "edit" | i18n }}
@@ -38,30 +44,33 @@
           </a>
         }
       }
-      <a bitMenuItem *appShareLinkMenuItem="cipher; let share = share" (click)="share()">
-        {{ "shareViaLink" | i18n }}
-      </a>
-      @if (canArchive$ | async) {
-        <button type="button" bitMenuItem (click)="archive()">
-          {{ "archiveVerb" | i18n }}
-        </button>
-      } @else {
-        <button
-          type="button"
-          bitMenuItem
-          (click)="badge.promptForPremium($event)"
-          [attr.aria-label]="'upgradeToUseArchive' | i18n"
-        >
-          <div class="tw-flex tw-flex-nowrap tw-items-center tw-gap-2">
+      <!-- A leased copy is never written from here, and a Send would outlive the lease. -->
+      @if (!leased) {
+        <a bitMenuItem *appShareLinkMenuItem="cipher; let share = share" (click)="share()">
+          {{ "shareViaLink" | i18n }}
+        </a>
+        @if (canArchive$ | async) {
+          <button type="button" bitMenuItem (click)="archive()">
             {{ "archiveVerb" | i18n }}
-            <div aria-hidden>
-              <app-premium-badge #badge></app-premium-badge>
+          </button>
+        } @else {
+          <button
+            type="button"
+            bitMenuItem
+            (click)="badge.promptForPremium($event)"
+            [attr.aria-label]="'upgradeToUseArchive' | i18n"
+          >
+            <div class="tw-flex tw-flex-nowrap tw-items-center tw-gap-2">
+              {{ "archiveVerb" | i18n }}
+              <div aria-hidden>
+                <app-premium-badge #badge></app-premium-badge>
+              </div>
             </div>
-          </div>
-        </button>
+          </button>
+        }
       }
     }
-    @if (canDelete$ | async) {
+    @if (!leased && (canDelete$ | async)) {
       <button type="button" bitMenuItem variant="danger" (click)="delete()">
         {{ "delete" | i18n }}
       </button>

@@ -1,7 +1,7 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, Subject } from "rxjs";
+import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -34,10 +34,12 @@ describe("PasswordHistoryComponent", () => {
   const cipherView$ = jest
     .fn()
     .mockReturnValue(new BehaviorSubject<Cipher | undefined>(mockCipher));
+  const leasedCipherViews$ = jest.fn().mockReturnValue(of([]));
 
   beforeEach(async () => {
     back.mockClear();
     cipherView$.mockClear();
+    leasedCipherViews$.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [PasswordHistoryComponent],
@@ -49,6 +51,7 @@ describe("PasswordHistoryComponent", () => {
           provide: CipherService,
           useValue: mock<CipherService>({
             cipherView$,
+            leasedCipherViews$,
           }),
         },
         {
@@ -71,6 +74,17 @@ describe("PasswordHistoryComponent", () => {
     tick(100);
 
     expect(cipherView$).toHaveBeenCalledWith(mockUserId, mockCipherView.id);
+  }));
+
+  it("falls back to the leased copy of a gated item", fakeAsync(() => {
+    cipherView$.mockReturnValueOnce(of(undefined));
+    leasedCipherViews$.mockReturnValueOnce(of([mockCipherView]));
+
+    params$.next({ cipherId: mockCipherView.id });
+    tick(100);
+
+    expect(leasedCipherViews$).toHaveBeenCalledWith(mockUserId);
+    expect(fixture.componentInstance["cipher"]).toBe(mockCipherView);
   }));
 
   it("navigates back when a cipherId is not in the params", () => {

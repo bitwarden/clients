@@ -67,8 +67,11 @@ export class PasswordHistoryComponent implements OnInit {
 
     const activeUserId = activeAccount.id as UserId;
 
-    this.cipher = await firstValueFrom(
-      this.cipherService.cipherView$(activeUserId, cipherId as CipherId),
-    );
+    // A gated item's full copy exists only as the leased copy.
+    this.cipher =
+      (await firstValueFrom(this.cipherService.cipherView$(activeUserId, cipherId as CipherId))) ??
+      (await firstValueFrom(this.cipherService.leasedCipherViews$(activeUserId))).find(
+        (c) => c.id === cipherId,
+      );
   }
 }

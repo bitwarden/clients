@@ -12,6 +12,11 @@ import {
   switchMap,
 } from "rxjs";
 
+import {
+  AccessBadgeState,
+  AccessRequestSdkService,
+  cipherAccessBadgeState,
+} from "@bitwarden/bit-common/pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
@@ -27,9 +32,6 @@ import {
   ControlledAccessFilterOption,
   VaultControlledAccessFilter,
 } from "@bitwarden/web-vault/app/vault/individual-vault/vault-controlled-access-filter.token";
-
-import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
-import { AccessBadgeState, cipherAccessBadgeState } from "../access-state-badge/access-badge-state";
 
 type ControlledAccessFilterDefinition = Omit<ControlledAccessFilterOption, "name"> & {
   readonly nameKey: string;

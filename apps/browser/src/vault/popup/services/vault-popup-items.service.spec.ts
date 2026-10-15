@@ -62,6 +62,7 @@ describe("VaultPopupItemsService", () => {
   let ciphersSubject: BehaviorSubject<Record<CipherId, CipherData>>;
   let localDataSubject: BehaviorSubject<Record<CipherId, LocalData>>;
   let failedToDecryptCiphersSubject: BehaviorSubject<CipherView[]>;
+  let leasedCiphersSubject: BehaviorSubject<CipherView[]>;
 
   const cipherServiceMock = mock<CipherService>();
   const vaultSettingsServiceMock = mock<VaultSettingsService>();
@@ -99,11 +100,12 @@ describe("VaultPopupItemsService", () => {
 
     const cipherList$ = new BehaviorSubject<CipherView[]>(cipherList);
 
-    cipherServiceMock.cipherListViews$.mockReturnValue(cipherList$.asObservable());
+    cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(cipherList$.asObservable());
 
     ciphersSubject = new BehaviorSubject<Record<CipherId, CipherData>>({});
     localDataSubject = new BehaviorSubject<Record<CipherId, LocalData>>({});
     failedToDecryptCiphersSubject = new BehaviorSubject<CipherView[]>([]);
+    leasedCiphersSubject = new BehaviorSubject<CipherView[]>([]);
 
     cipherServiceMock.ciphers$.mockImplementation((userId: UserId) =>
       ciphersSubject.asObservable(),
@@ -113,6 +115,9 @@ describe("VaultPopupItemsService", () => {
     );
     cipherServiceMock.failedToDecryptCiphers$.mockImplementation((userId: UserId) =>
       failedToDecryptCiphersSubject.asObservable(),
+    );
+    cipherServiceMock.leasedCipherViews$.mockImplementation((userId: UserId) =>
+      leasedCiphersSubject.asObservable(),
     );
 
     searchService.searchCiphers.mockImplementation(
@@ -383,7 +388,7 @@ describe("VaultPopupItemsService", () => {
 
   describe("emptyVault$", () => {
     it("should return true if there are no ciphers", (done) => {
-      cipherServiceMock.cipherListViews$.mockReturnValue(of([]));
+      cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(of([]));
       service.emptyVault$.pipe(take(1)).subscribe((empty) => {
         expect(empty).toBe(true);
         done();
@@ -391,7 +396,7 @@ describe("VaultPopupItemsService", () => {
     });
 
     it("should return false if there are ciphers", (done) => {
-      cipherServiceMock.cipherListViews$.mockReturnValue(
+      cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(
         of([{ id: "1", type: CipherType.Login, name: "Login 1" }] as CipherView[]),
       );
 
@@ -402,7 +407,7 @@ describe("VaultPopupItemsService", () => {
     });
 
     it("should return true when all ciphers are deleted/archived", (done) => {
-      cipherServiceMock.cipherListViews$.mockReturnValue(
+      cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(
         of([
           { id: "1", type: CipherType.Login, name: "Login 1", isDeleted: true },
           { id: "2", type: CipherType.Login, name: "Login 2", isDeleted: true },
@@ -440,11 +445,94 @@ describe("VaultPopupItemsService", () => {
       deletedCipher.deletedDate = new Date();
       const ciphers = [new CipherView(), new CipherView(), new CipherView(), deletedCipher];
 
-      cipherServiceMock.cipherListViews$.mockReturnValue(of(ciphers));
+      cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(of(ciphers));
       ciphersSubject.next({});
 
       const deletedCiphers = await firstValueFrom(service.deletedCiphers$);
       expect(deletedCiphers.length).toBe(1);
+    });
+  });
+
+  describe("PAM-gated items", () => {
+    let partial: CipherView;
+    let leased: CipherView;
+
+    beforeEach(() => {
+      partial = Object.assign(new CipherView(), {
+        id: "0",
+        type: CipherType.Login,
+        name: "Gated",
+        organizationId: "org1",
+        collectionIds: ["col1"],
+        partial: true,
+      });
+      leased = Object.assign(new CipherView(), {
+        id: "0",
+        type: CipherType.Login,
+        name: "Gated",
+        organizationId: "org1",
+        collectionIds: ["col1"],
+        leaseGated: true,
+      });
+      cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(
+        of([partial, ...Object.values(allCiphers).slice(1)]),
+      );
+    });
+
+    it("lists a partial item", async () => {
+      const ciphers = await firstValueFrom(service.filteredCiphers$);
+
+      expect(ciphers).toContain(partial);
+    });
+
+    it("swaps in the leased copy after search, keeping collections and organization", async () => {
+      leasedCiphersSubject.next([leased]);
+
+      const ciphers = await firstValueFrom(service.filteredCiphers$);
+
+      const [, , , searched] = searchService.searchCiphers.mock.calls[0];
+      expect(searched).toContain(partial);
+      expect(searched).not.toContain(leased);
+      expect(ciphers).toContain(leased);
+      expect(ciphers).not.toContain(partial);
+      expect(ciphers.find((c) => c.id === "0")!.organization).toEqual(mockOrg);
+      expect(ciphers.find((c) => c.id === "0")!.collections).toEqual([mockCollections[0]]);
+    });
+
+    it("swaps back to the partial when the lease ends", async () => {
+      leasedCiphersSubject.next([leased]);
+      const tracker = new ObservableTracker(service.filteredCiphers$, false);
+      await tracker.pauseUntilReceived(1);
+
+      leasedCiphersSubject.next([]);
+      const [unlocked, relocked] = await tracker.pauseUntilReceived(2);
+
+      expect(unlocked).toContain(leased);
+      expect(relocked).toContain(partial);
+      expect(relocked).not.toContain(leased);
+    });
+
+    it("does not suggest a partial item for autofill", async () => {
+      await firstValueFrom(service.autoFillCiphers$);
+
+      const [suggestable] = cipherServiceMock.filterCiphersForUrl.mock.calls[0];
+      expect(suggestable).not.toContain(partial);
+    });
+
+    it("suggests a leased copy for autofill", async () => {
+      leasedCiphersSubject.next([leased]);
+
+      const ciphers = await firstValueFrom(service.autoFillCiphers$);
+
+      expect(ciphers).toContain(leased);
+    });
+
+    it("leaves a deleted partial item out of the trash", async () => {
+      partial.deletedDate = new Date();
+
+      const deletedCiphers = await firstValueFrom(service.deletedCiphers$);
+
+      expect(deletedCiphers).toEqual([]);
     });
   });
 

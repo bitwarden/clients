@@ -179,7 +179,7 @@ describe("ContextMenuClickedHandler", () => {
           extra: () => expect(totpService.getCode$).not.toHaveBeenCalled(),
         },
       ])("breaks silently when cipher is missing for $label", async ({ parentId, extra }) => {
-        cipherService.getAllDecrypted.mockResolvedValue([]);
+        cipherService.getAllDecryptedIncludingLeased.mockResolvedValue([]);
 
         await expect(runWithUrl(createData(`${parentId}_1`, parentId))).resolves.toBeUndefined();
 
@@ -209,7 +209,7 @@ describe("ContextMenuClickedHandler", () => {
       ])("breaks silently when $label property is missing", async ({ parentId, unset, isTotp }) => {
         const cipher = createCipher();
         unset(cipher);
-        cipherService.getAllDecrypted.mockResolvedValue([cipher]);
+        cipherService.getAllDecryptedIncludingLeased.mockResolvedValue([cipher]);
 
         await expect(runWithUrl(createData(`${parentId}_1`, parentId))).resolves.toBeUndefined();
 
@@ -232,7 +232,7 @@ describe("ContextMenuClickedHandler", () => {
 
     it("attempts to autofill the correct cipher", async () => {
       const cipher = createCipher();
-      cipherService.getAllDecrypted.mockResolvedValue([cipher]);
+      cipherService.getAllDecryptedIncludingLeased.mockResolvedValue([cipher]);
 
       await sut.run(createData(`${AUTOFILL_ID}_1`, AUTOFILL_ID), { id: 5 } as any);
 
@@ -242,7 +242,7 @@ describe("ContextMenuClickedHandler", () => {
     });
 
     it("copies username to clipboard", async () => {
-      cipherService.getAllDecrypted.mockResolvedValue([
+      cipherService.getAllDecryptedIncludingLeased.mockResolvedValue([
         createCipher({ username: "TEST_USERNAME" }),
       ]);
 
@@ -259,7 +259,7 @@ describe("ContextMenuClickedHandler", () => {
     });
 
     it("copies password to clipboard", async () => {
-      cipherService.getAllDecrypted.mockResolvedValue([
+      cipherService.getAllDecryptedIncludingLeased.mockResolvedValue([
         createCipher({ password: "TEST_PASSWORD" }),
       ]);
 
@@ -276,7 +276,9 @@ describe("ContextMenuClickedHandler", () => {
     });
 
     it("copies totp code to clipboard", async () => {
-      cipherService.getAllDecrypted.mockResolvedValue([createCipher({ totp: "TEST_TOTP_SEED" })]);
+      cipherService.getAllDecryptedIncludingLeased.mockResolvedValue([
+        createCipher({ totp: "TEST_TOTP_SEED" }),
+      ]);
 
       jest.spyOn(totpService, "getCode$").mockImplementation((seed: string) => {
         if (seed === "TEST_TOTP_SEED") {

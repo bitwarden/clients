@@ -2,9 +2,6 @@ import { DestroyRef, Injectable, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BehaviorSubject, Observable, combineLatest, concatMap, from, map } from "rxjs";
 
-import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-
 import {
   AccessEventService,
   AccessLeaseId,
@@ -14,7 +11,9 @@ import {
   AccessRequestId,
   AccessRequestSdkService,
   AccessRequestView,
-} from "..";
+} from "@bitwarden/bit-common/pam";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import {
   AccessNameResolverService,

@@ -466,7 +466,12 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
       };
     }
 
-    const cipher = await this.selectLogin(target.url, activeUserId, fromCommand);
+    const cipher = await this.selectLogin(
+      target.url,
+      activeUserId,
+      fromCommand,
+      request.kind === "command",
+    );
     if (cipher == null) {
       return undefined;
     }
@@ -488,14 +493,19 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
    * Selects the login cipher for a URL. A command-initiated fill takes the next cipher in the
    * URL's rotation; a page-load fill prefers a cipher launched within the last
    * {@link LOGIN_LAST_LAUNCHED_WINDOW_MS}, else the last one used for the URL.
+   * Only the keyboard shortcut sets `includeLeased`; auto-submit and page load never do.
    */
   private async selectLogin(
     tabUrl: string,
     activeUserId: UserId,
     fromCommand: boolean,
+    includeLeased = false,
   ): Promise<CipherView | undefined> {
     if (fromCommand) {
-      return (await this.cipherService.getNextCipherForUrl(tabUrl, activeUserId)) ?? undefined;
+      return (
+        (await this.cipherService.getNextCipherForUrl(tabUrl, activeUserId, includeLeased)) ??
+        undefined
+      );
     }
     const lastLaunchedCipher = await this.cipherService.getLastLaunchedForUrl(
       tabUrl,

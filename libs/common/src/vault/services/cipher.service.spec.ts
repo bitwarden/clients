@@ -18,7 +18,7 @@ import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
 import { FakeStateProvider } from "../../../spec/fake-state-provider";
-import { makeStaticByteArray, makeSymmetricCryptoKey } from "../../../spec/utils";
+import { awaitAsync, makeStaticByteArray, makeSymmetricCryptoKey } from "../../../spec/utils";
 import { ApiService } from "../../abstractions/api.service";
 import { AutofillSettingsService } from "../../autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
@@ -999,6 +999,155 @@ describe("Cipher Service", () => {
 
       await expect(result).rejects.toHaveProperty("cipherIds", [otherGatedId]);
       expect(cipherLeaseStateService.leasedCipherIds).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("leased (PAM) copies", () => {
+    const url = "https://example.com";
+    const leasedCipher = (id: string) => new Cipher({ ...cipherData, id } as CipherData);
+    const view = (id: string, leaseGated?: boolean) => {
+      const v = new CipherView(encryptionContext.cipher);
+      v.id = id;
+      v.leaseGated = leaseGated;
+      return v;
+    };
+
+    describe("leasedCipherViews$", () => {
+      beforeEach(() => {
+        keyService.cipherDecryptionKeys$.mockReturnValue(of(null));
+        cipherEncryptionService.decryptManyLegacy.mockImplementation(async (ciphers) => [
+          ciphers.filter((c) => c.id !== "broken").map((c) => view(c.id)),
+          [view("broken")],
+        ]);
+      });
+
+      it("decrypts the leased copies in one batch, marks them leaseGated and drops failures", async () => {
+        cipherLeaseStateService.leasedCiphers$.mockReturnValue(
+          of([leasedCipher("a"), leasedCipher("broken"), leasedCipher("b")]),
+        );
+
+        const result = await firstValueFrom(cipherService.leasedCipherViews$(userId));
+        await firstValueFrom(cipherService.leasedCipherViews$(userId));
+
+        expect(result.map((v) => [v.id, v.leaseGated])).toEqual([
+          ["a", true],
+          ["b", true],
+        ]);
+        expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledTimes(1);
+      });
+
+      it("re-emits when the leases change", async () => {
+        const leases$ = new BehaviorSubject<Cipher[]>([leasedCipher("a")]);
+        cipherLeaseStateService.leasedCiphers$.mockReturnValue(leases$);
+        const emissions: string[][] = [];
+        const sub = cipherService
+          .leasedCipherViews$(userId)
+          .subscribe((views) => emissions.push(views.map((v) => v.id)));
+
+        await awaitAsync();
+        leases$.next([]);
+        await awaitAsync();
+        sub.unsubscribe();
+
+        expect(emissions).toEqual([["a"], []]);
+      });
+    });
+
+    describe("getAllDecryptedIncludingLeased", () => {
+      it("appends leased copies, keeping the normal cipher when an id is in both", async () => {
+        const normal = view("shared");
+        const other = view("other");
+        jest.spyOn(cipherService, "getAllDecrypted").mockResolvedValue([normal, other]);
+        jest
+          .spyOn(cipherService, "leasedCipherViews$")
+          .mockReturnValue(of([view("shared", true), view("leased", true)]));
+
+        const result = await cipherService.getAllDecryptedIncludingLeased(userId);
+
+        expect(result.map((v) => [v.id, v.leaseGated])).toEqual([
+          ["shared", undefined],
+          ["other", undefined],
+          ["leased", true],
+        ]);
+        expect(result[0]).toBe(normal);
+      });
+    });
+
+    describe("getAllDecryptedForUrlIncludingLeased", () => {
+      it("appends only the leased copies that match the URL, de-duplicated by id", async () => {
+        const includeOtherTypes = [CipherType.Card];
+        const normal = view("shared");
+        const forUrl = jest
+          .spyOn(cipherService, "getAllDecryptedForUrl")
+          .mockResolvedValue([normal]);
+        const leased = [view("shared", true), view("match", true), view("elsewhere", true)];
+        jest.spyOn(cipherService, "leasedCipherViews$").mockReturnValue(of(leased));
+        const filter = jest
+          .spyOn(cipherService, "filterCiphersForUrl")
+          .mockImplementation(async (ciphers) => ciphers.filter((c) => c.id !== "elsewhere"));
+
+        const result = await cipherService.getAllDecryptedForUrlIncludingLeased(
+          url,
+          userId,
+          includeOtherTypes,
+        );
+
+        expect(forUrl).toHaveBeenCalledWith(url, userId, includeOtherTypes);
+        expect(filter).toHaveBeenCalledWith(leased, url, includeOtherTypes);
+        expect(result.map((v) => v.id)).toEqual(["shared", "match"]);
+        expect(result[0]).toBe(normal);
+      });
+    });
+
+    describe("getNextCipherForUrl", () => {
+      beforeEach(() => {
+        jest.spyOn(cipherService, "localData$").mockReturnValue(of({}));
+      });
+
+      it("keeps leased copies out of the non-leased cache entry", async () => {
+        const normal = view("normal");
+        const leased = view("leased", true);
+        jest.spyOn(cipherService, "leasedCipherViews$").mockReturnValue(of([leased]));
+        jest.spyOn(cipherService, "getAllDecryptedForUrl").mockResolvedValue([normal]);
+        const includingLeased = jest
+          .spyOn(cipherService, "getAllDecryptedForUrlIncludingLeased")
+          .mockResolvedValue([leased]);
+
+        expect(await cipherService.getNextCipherForUrl(url, userId, true)).toBe(leased);
+        expect(await cipherService.getNextCipherForUrl(url, userId)).toBe(normal);
+        expect(await cipherService.getLastUsedForUrl(url, userId)).toBe(normal);
+        expect(await cipherService.getNextCipherForUrl(url, userId, true)).toBe(leased);
+        expect(includingLeased).toHaveBeenCalledTimes(1);
+      });
+
+      it("advances the leased rotation with updateLastUsedIndexForUrl", async () => {
+        const first = view("first");
+        const second = view("second", true);
+        jest.spyOn(cipherService, "leasedCipherViews$").mockReturnValue(of([second]));
+        jest
+          .spyOn(cipherService, "getAllDecryptedForUrlIncludingLeased")
+          .mockResolvedValue([first, second]);
+
+        expect(await cipherService.getNextCipherForUrl(url, userId, true)).toBe(first);
+        cipherService.updateLastUsedIndexForUrl(url);
+        expect(await cipherService.getNextCipherForUrl(url, userId, true)).toBe(second);
+      });
+
+      it("rebuilds the leased entry once a cached copy's lease has ended", async () => {
+        const normal = view("normal");
+        const leased = view("leased", true);
+        const leased$ = jest
+          .spyOn(cipherService, "leasedCipherViews$")
+          .mockReturnValue(of([leased]));
+        jest
+          .spyOn(cipherService, "getAllDecryptedForUrlIncludingLeased")
+          .mockResolvedValueOnce([leased])
+          .mockResolvedValueOnce([normal]);
+
+        expect(await cipherService.getNextCipherForUrl(url, userId, true)).toBe(leased);
+        leased$.mockReturnValue(of([]));
+        expect(await cipherService.getNextCipherForUrl(url, userId, true)).toBe(normal);
+      });
     });
   });
 

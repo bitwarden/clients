@@ -81,7 +81,7 @@ describe("CipherContextMenuHandler", () => {
 
       mainContextMenuHandler.init.mockResolvedValue(true);
 
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([]);
+      cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValue([]);
 
       await sut.update("https://test.com");
 
@@ -116,7 +116,7 @@ describe("CipherContextMenuHandler", () => {
         card: { username: "Test Username" },
       };
 
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+      cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValue([
         null, // invalid cipher
         undefined, // invalid cipher
         { type: CipherType.SecureNote }, // invalid cipher
@@ -127,9 +127,9 @@ describe("CipherContextMenuHandler", () => {
 
       await sut.update("https://test.com");
 
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(1);
+      expect(cipherService.getAllDecryptedForUrlIncludingLeased).toHaveBeenCalledTimes(1);
 
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
+      expect(cipherService.getAllDecryptedForUrlIncludingLeased).toHaveBeenCalledWith(
         "https://test.com",
         mockUserId,
         [CipherType.Card, CipherType.Identity],

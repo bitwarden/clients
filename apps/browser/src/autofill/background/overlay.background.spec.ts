@@ -211,7 +211,7 @@ describe("OverlayBackground", () => {
     domainSettingsService.neverDomains$ = neverDomainsMock$;
     logService = mock<LogService>();
     cipherService = mock<CipherService>({
-      getAllDecryptedForUrl: jest.fn().mockResolvedValue([]),
+      getAllDecryptedForUrlIncludingLeased: jest.fn().mockResolvedValue([]),
     });
     enableNotificationAnimationMock$ = new BehaviorSubject(true);
     enableInlineMenuAnimationMock$ = new BehaviorSubject(true);
@@ -1032,7 +1032,7 @@ describe("OverlayBackground", () => {
       await overlayBackground.updateOverlayCiphers();
 
       expect(getTabFromCurrentWindowIdSpy).not.toHaveBeenCalled();
-      expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
+      expect(cipherService.getAllDecryptedForUrlIncludingLeased).not.toHaveBeenCalled();
     });
 
     it("skips updating the inline menu ciphers if the current tab url has non-http protocol", async () => {
@@ -1041,12 +1041,15 @@ describe("OverlayBackground", () => {
 
       await overlayBackground.updateOverlayCiphers();
 
-      expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
+      expect(cipherService.getAllDecryptedForUrlIncludingLeased).not.toHaveBeenCalled();
     });
 
     it("closes the inline menu on the focused field's tab if current tab is different", async () => {
       getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([loginCipher1, cardCipher]);
+      cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValue([
+        loginCipher1,
+        cardCipher,
+      ]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
       const previousTab = mock<chrome.tabs.Tab>({ id: 15 });
       overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({ tabId: 15 });
@@ -1064,18 +1067,21 @@ describe("OverlayBackground", () => {
 
     it("queries all cipher types, sorts them by last used, and formats them for usage in the overlay", async () => {
       getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([loginCipher1, cardCipher]);
+      cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValue([
+        loginCipher1,
+        cardCipher,
+      ]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
 
       await overlayBackground.updateOverlayCiphers();
       await flushPromises();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId, [
-        CipherType.Card,
-        CipherType.Identity,
-        CipherType.SshKey,
-      ]);
+      expect(cipherService.getAllDecryptedForUrlIncludingLeased).toHaveBeenCalledWith(
+        url,
+        mockUserId,
+        [CipherType.Card, CipherType.Identity, CipherType.SshKey],
+      );
       expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
         new Map([
@@ -1088,14 +1094,20 @@ describe("OverlayBackground", () => {
     it("queries only login ciphers when not updating all cipher types", async () => {
       overlayBackground["cardAndIdentityCiphers"] = new Set([]);
       getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([loginCipher2, loginCipher1]);
+      cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValue([
+        loginCipher2,
+        loginCipher1,
+      ]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
 
       await overlayBackground.updateOverlayCiphers(false);
       await flushPromises();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId);
+      expect(cipherService.getAllDecryptedForUrlIncludingLeased).toHaveBeenCalledWith(
+        url,
+        mockUserId,
+      );
       expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
         new Map([
@@ -1107,18 +1119,21 @@ describe("OverlayBackground", () => {
 
     it("queries all cipher types when the card and identity ciphers set is not built when only updating login ciphers", async () => {
       getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([loginCipher1, cardCipher]);
+      cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValue([
+        loginCipher1,
+        cardCipher,
+      ]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
 
       await overlayBackground.updateOverlayCiphers(false);
       await flushPromises();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId, [
-        CipherType.Card,
-        CipherType.Identity,
-        CipherType.SshKey,
-      ]);
+      expect(cipherService.getAllDecryptedForUrlIncludingLeased).toHaveBeenCalledWith(
+        url,
+        mockUserId,
+        [CipherType.Card, CipherType.Identity, CipherType.SshKey],
+      );
       expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
         new Map([
@@ -1130,7 +1145,7 @@ describe("OverlayBackground", () => {
 
     it("posts an `updateAutofillInlineMenuListCiphers` message to the overlay list port, and send a `updateAutofillInlineMenuListCiphers` message to the tab indicating that the list of ciphers is populated", async () => {
       overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({ tabId: tab.id });
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([loginCipher1]);
+      cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValue([loginCipher1]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
       getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
 
@@ -1195,7 +1210,7 @@ describe("OverlayBackground", () => {
         );
 
         overlayBackground["focusedFieldData"] = focusedFieldData;
-        cipherService.getAllDecryptedForUrl.mockResolvedValue(ciphersForUrl);
+        cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValue(ciphersForUrl);
         cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
         getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
 
@@ -1224,7 +1239,10 @@ describe("OverlayBackground", () => {
         tabId: tab.id,
         inlineMenuFillType: CipherType.Card,
       });
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([loginCipher1, cardCipher]);
+      cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValue([
+        loginCipher1,
+        cardCipher,
+      ]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
       getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
 
@@ -1262,7 +1280,10 @@ describe("OverlayBackground", () => {
           tabId: tab.id,
           accountCreationFieldType: "text",
         });
-        cipherService.getAllDecryptedForUrl.mockResolvedValue([identityCipher, cardCipher]);
+        cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValue([
+          identityCipher,
+          cardCipher,
+        ]);
         cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
         getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
 
@@ -1303,7 +1324,10 @@ describe("OverlayBackground", () => {
           accountCreationFieldType: "text",
           inlineMenuFillType: InlineMenuFillTypes.AccountCreationUsername,
         });
-        cipherService.getAllDecryptedForUrl.mockResolvedValue([loginCipher1, identityCipher]);
+        cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValue([
+          loginCipher1,
+          identityCipher,
+        ]);
         cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
         getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
 
@@ -1372,7 +1396,7 @@ describe("OverlayBackground", () => {
             email: "",
           },
         });
-        cipherService.getAllDecryptedForUrl.mockResolvedValue([
+        cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValue([
           identityCipher,
           identityCipherWithoutUsername,
         ]);
@@ -1415,7 +1439,7 @@ describe("OverlayBackground", () => {
           tabId: tab.id,
           accountCreationFieldType: "password",
         });
-        cipherService.getAllDecryptedForUrl.mockResolvedValue([identityCipher]);
+        cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValue([identityCipher]);
         cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
         getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
 
@@ -1443,7 +1467,10 @@ describe("OverlayBackground", () => {
         inlineMenuFillType: CipherType.Login,
         showPasskeys: true,
       });
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([loginCipher1, passkeyCipher]);
+      cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValue([
+        loginCipher1,
+        passkeyCipher,
+      ]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
       getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
 
@@ -1531,7 +1558,10 @@ describe("OverlayBackground", () => {
         inlineMenuFillType: CipherType.Login,
         showPasskeys: true,
       });
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([loginCipher1, passkeyCipher]);
+      cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValue([
+        loginCipher1,
+        passkeyCipher,
+      ]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
       getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
       neverDomainsMock$.next({ "jest-testing-website.com": null });
@@ -1599,7 +1629,10 @@ describe("OverlayBackground", () => {
         inlineMenuFillType: CipherType.Login,
         showPasskeys: true,
       });
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([loginCipher1, passkeyCipher]);
+      cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValue([
+        loginCipher1,
+        passkeyCipher,
+      ]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
       getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
 
@@ -1665,7 +1698,10 @@ describe("OverlayBackground", () => {
         mock<chrome.runtime.MessageSender>({ tab }),
       );
       getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([loginCipher2, loginCipher1]);
+      cipherService.getAllDecryptedForUrlIncludingLeased.mockResolvedValue([
+        loginCipher2,
+        loginCipher1,
+      ]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
 
       await overlayBackground.updateOverlayCiphers(false);

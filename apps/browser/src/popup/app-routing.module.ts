@@ -110,6 +110,7 @@ import {
   hasAtRiskPasswords,
 } from "../vault/popup/guards/at-risk-passwords.guard";
 import { clearVaultStateGuard } from "../vault/popup/guards/clear-vault-state.guard";
+import { gatedCipherGuard } from "../vault/popup/guards/gated-cipher.guard";
 import { IntroCarouselGuard } from "../vault/popup/guards/intro-carousel.guard";
 import { AdminSettingsComponent } from "../vault/popup/settings/admin-settings.component";
 import { AppearanceComponent } from "../vault/popup/settings/appearance.component";
@@ -268,7 +269,7 @@ const routes: Routes = [
   {
     path: "edit-cipher",
     component: AddEditComponent,
-    canActivate: [authGuard, debounceNavigationGuard()],
+    canActivate: [authGuard, debounceNavigationGuard(), gatedCipherGuard],
     data: {
       // Above "trash"
       elevation: 3,
@@ -413,7 +414,7 @@ const routes: Routes = [
   {
     path: "clone-cipher",
     component: AddEditComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, gatedCipherGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
@@ -723,7 +724,7 @@ const routes: Routes = [
   {
     path: "assign-collections",
     component: AssignCollections,
-    canActivate: [authGuard],
+    canActivate: [authGuard, gatedCipherGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {

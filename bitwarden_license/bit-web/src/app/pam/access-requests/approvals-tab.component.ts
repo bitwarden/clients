@@ -15,6 +15,13 @@ import { EMPTY, distinctUntilChanged, filter, map, switchMap } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoResults } from "@bitwarden/assets/svg";
+import {
+  AccessBadgeState,
+  AccessBadgeTickerService,
+  type AccessDecisionVerdict,
+  AccessStateBadgeComponent,
+  DurationShortPipe,
+} from "@bitwarden/bit-common/pam";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -51,15 +58,10 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import type { AccessDecisionVerdict } from "../abstractions/access-lease";
-import { AccessBadgeState } from "../access-state-badge/access-badge-state";
-import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
-import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { ApprovalRow } from "../approvals/approval-row";
 import { ApproverActionsService, rowBusy } from "../approvals/approver-actions.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import { ManagedLeaseRow } from "../approvals/managed-lease-row";
-import { DurationShortPipe } from "../date/duration-short.pipe";
 
 /** The fields the toolbar filters against, carried by both sections' row models. */
 type FilterableRow = { searchText: string; collectionName: string | null; requester: string };

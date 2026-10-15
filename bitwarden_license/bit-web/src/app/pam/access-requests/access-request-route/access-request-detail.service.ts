@@ -14,11 +14,6 @@ import {
   switchMap,
 } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-
 import {
   AccessDecisionVerdict,
   AccessEventService,
@@ -31,7 +26,12 @@ import {
   LeasingErrorService,
   canApprove,
   isRequestNoLongerPendingError,
-} from "../..";
+} from "@bitwarden/bit-common/pam";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+
 import { ApprovalRow } from "../../approvals/approval-row";
 import { ApproverInboxService } from "../../approvals/approver-inbox.service";
 import {

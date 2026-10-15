@@ -10,6 +10,11 @@ import {
   switchMap,
 } from "rxjs";
 
+import {
+  AccessRefreshService,
+  AccessRequestCancelService,
+  AccessRequestSdkService,
+} from "@bitwarden/bit-common/pam";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
@@ -17,10 +22,6 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { VaultRowAccessActionsService } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-access-actions.service";
-
-import { AccessRefreshService, AccessRequestSdkService } from "..";
-
-import { AccessRequestCancelService } from "./access-request-cancel.service";
 
 /** The one stream every ineligible cipher shares, so template reads stay referentially stable. */
 const NEVER_CANCELABLE$ = of(false);

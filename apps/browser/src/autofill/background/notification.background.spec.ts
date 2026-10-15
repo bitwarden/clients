@@ -126,6 +126,7 @@ describe("NotificationBackground", () => {
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
     accountService.activeAccount$ = activeAccountSubject;
+    cipherService.leasedCipherViews$.mockReturnValue(of([]));
     notificationBackground = new NotificationBackground(
       accountService,
       authService,
@@ -244,6 +245,31 @@ describe("NotificationBackground", () => {
       const cipherView = notificationBackground["convertAddLoginQueueMessageToCipherView"](message);
 
       expect(cipherView.name).toEqual("fallback-domain.com");
+    });
+  });
+
+  describe("matchesLeasedCopy", () => {
+    const uri = "https://example.com";
+
+    beforeEach(() => {
+      cipherService.leasedCipherViews$.mockReturnValue(
+        of([mock<CipherView>({ login: { username: "Admin", password: "leased" } })]),
+      );
+      cipherService.filterCiphersForUrl.mockImplementation(async (ciphers, url) =>
+        url === uri ? ciphers : [],
+      );
+    });
+
+    it.each([
+      [true, "the leased username, in any case", { username: "ADMIN", password: "other" }],
+      [true, "a password-only form", { username: "", password: "leased" }],
+      [true, "a change-password form with no username", { password: "old", newPassword: "leased" }],
+      [false, "another username and password", { username: "other", password: "other" }],
+      [false, "another site", { username: "Admin", password: "leased", uri: "https://other.com" }],
+    ])("is %s for %s", async (expected, _, form) => {
+      const data = { uri, username: "", password: "", ...form };
+
+      expect(await notificationBackground.matchesLeasedCopy(data)).toBe(expected);
     });
   });
 
@@ -3014,6 +3040,33 @@ describe("NotificationBackground", () => {
               },
             },
           );
+        });
+
+        it("drops a locked save that matches a leased copy", async () => {
+          const tab = createChromeTabMock({ id: 1, url: "https://example.com" });
+          const sender = mock<chrome.runtime.MessageSender>({ tab });
+          const data = { username: "test", password: "leased", uri: "https://example.com" };
+          notificationBackground["notificationQueue"] = [
+            mock<AddLoginQueueMessage>({
+              type: NotificationType.AddLogin,
+              tab,
+              domain: "example.com",
+              data,
+              wasVaultLocked: true,
+            }),
+          ];
+          const matchesLeasedCopy = jest
+            .spyOn(notificationBackground, "matchesLeasedCopy")
+            .mockResolvedValueOnce(true);
+
+          sendMockExtensionMessage({ command: "bgSaveCipher", edit: false }, sender);
+          await flushPromises();
+
+          expect(matchesLeasedCopy).toHaveBeenCalledWith(data);
+          expect(getAllDecryptedForUrlSpy).not.toHaveBeenCalled();
+          expect(updatePasswordSpy).not.toHaveBeenCalled();
+          expect(editItemSpy).not.toHaveBeenCalled();
+          expect(createWithServerSpy).not.toHaveBeenCalled();
         });
 
         it("updates the cipher password if the queue message was locked and an existing cipher has the same username as the message", async () => {

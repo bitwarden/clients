@@ -546,8 +546,8 @@ export default class MainBackground {
   // an erased annotation would leave the channel ambient
   readonly #intraprocessMessageSender: IntraprocessMessageSender;
   // Retained because `OverlayBackground` is constructed lazily, outside this constructor's scope.
-  // `private` suffices here: a listener only reads, so reaching it grants no way to publish.
-  private messageListener: MessageListener;
+  // Public, unlike the sender: a listener only reads, so reaching it grants no way to publish.
+  readonly messageListener: MessageListener;
   scriptInjectorService: BrowserScriptInjectorService;
   kdfConfigService: KdfConfigService;
   offscreenDocumentService: OffscreenDocumentService;
@@ -620,7 +620,13 @@ export default class MainBackground {
   private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction;
   private phishingDetectionService: PhishingDetectionService;
 
-  constructor() {
+  /** @param overrides Services the commercial build supplies in place of the OSS defaults. */
+  constructor(overrides?: {
+    cipherLeaseStateService?: (deps: {
+      stateProvider: StateProvider;
+      accountService: AccountServiceAbstraction;
+    }) => CipherLeaseStateService;
+  }) {
     // Downstream services receive this callback and invoke it directly instead of
     // going through LogoutService, so the log line that lives in DefaultLogoutService
     // is mirrored here to cover this path.
@@ -1197,7 +1203,11 @@ export default class MainBackground {
     );
 
     this.cipherSdkService = new DefaultCipherSdkService(this.sdkService, this.logService);
-    this.cipherLeaseStateService = new DefaultCipherLeaseStateService();
+    this.cipherLeaseStateService =
+      overrides?.cipherLeaseStateService?.({
+        stateProvider: this.stateProvider,
+        accountService: this.accountService,
+      }) ?? new DefaultCipherLeaseStateService();
 
     this.cipherFileUploadService = new CipherFileUploadService(
       this.apiService,
