@@ -13332,6 +13332,10 @@
   "secretsManagerPlanPrice": {
     "message": "Secrets Manager plan price"
   },
+  "privilegedControlsPlanPrice": {
+    "message": "Privileged Controls plan price",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "passwordManager": {
     "message": "Password Manager"
   },
@@ -18199,6 +18203,10 @@
   },
   "secretsManagerProratedCharge": {
     "message": "Secrets Manager prorated charge"
+  },
+  "privilegedControlsProratedCharge": {
+    "message": "Privileged Controls prorated charge",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "serviceAccountsProratedCharge": {
     "message": "Service accounts prorated charge"
