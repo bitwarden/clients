@@ -1,12 +1,13 @@
 import { firstValueFrom } from "rxjs";
 
-import { ManagementProfile } from "@bitwarden/sdk-internal";
-
 import { DevManagedSettingsService } from "./dev-managed-settings.service";
+
+const mockUpdateFromJson = jest.fn().mockResolvedValue(undefined);
 
 jest.mock("@bitwarden/sdk-internal", () => ({
   ManagedSettingsClient: jest.fn().mockImplementation(() => ({
-    update_profile: jest.fn(),
+    update_from_json: mockUpdateFromJson,
+    on_profile_changed: jest.fn(),
   })),
 }));
 
@@ -14,63 +15,32 @@ describe("DevManagedSettingsService", () => {
   let service: DevManagedSettingsService;
 
   beforeEach(() => {
+    mockUpdateFromJson.mockClear();
     service = new DevManagedSettingsService(Promise.resolve());
   });
 
-  it("makes a nested source readable under its dotted key, JSON-encoded", () => {
-    service.pushExplicit({ environment: { base: "https://localhost:8080" } });
-
-    expect(service.get("environment.base")).toBe('"https://localhost:8080"');
-  });
-
-  it("reports a pushed key as managed", () => {
-    service.pushExplicit({ environment: { base: "https://localhost:8080" } });
-
-    expect(service.isManaged("environment.base")).toBe(true);
-  });
-
-  it("replaces the previously pushed source", () => {
-    service.pushExplicit({ environment: { base: "https://localhost:8080" } });
-    service.pushExplicit({ generator: { password: { length: 20 } } });
-
-    expect(service.get("environment.base")).toBeUndefined();
-    expect(service.get("generator.password.length")).toBe("20");
-  });
-
-  it("emits the new value to an existing get$ subscriber", async () => {
-    const emissions: (string | undefined)[] = [];
-    const subscription = service.get$("environment.base").subscribe((v) => emissions.push(v));
-
-    service.pushExplicit({ environment: { base: "https://localhost:8080" } });
-    subscription.unsubscribe();
-
-    expect(emissions).toEqual([undefined, '"https://localhost:8080"']);
-  });
-
-  it("mirrors the pushed source into the SDK handle", async () => {
-    service.pushExplicit({ environment: { base: "https://localhost:8080" } });
+  it("passes the nested source to the SDK handle as JSON", async () => {
+    await service.pushExplicit({ environment: { base: "https://localhost:8080" } });
 
     const client = await firstValueFrom(service.client$);
-
-    expect(client.update_profile).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        settings: new Map([["environment.base", '"https://localhost:8080"']]),
-      }),
+    expect(client.update_from_json).toHaveBeenCalledWith(
+      '{"environment":{"base":"https://localhost:8080"}}',
     );
   });
 
-  // The dev source does not shield itself from host acquisition; a client that runs both must skip
-  // its host reader instead.
-  it("lets a host profile replace a pushed source", () => {
-    service.pushExplicit({ environment: { base: "https://localhost:8080" } });
+  it("waits for the SDK before passing the source", async () => {
+    let markSdkReady: () => void = () => {};
+    const pending = new DevManagedSettingsService(
+      new Promise<void>((resolve) => (markSdkReady = resolve)),
+    );
 
-    const hostProfile: ManagementProfile = {
-      version: 1,
-      updatedAt: 1000,
-      settings: new Map([["environment.base", '"https://vault.example.com"']]),
-    };
-    service.updateProfile(hostProfile);
+    const pushed = pending.pushExplicit({ environment: { base: "https://localhost:8080" } });
+    await Promise.resolve();
+    expect(mockUpdateFromJson).not.toHaveBeenCalled();
 
-    expect(service.get("environment.base")).toBe('"https://vault.example.com"');
+    markSdkReady();
+    await pushed;
+
+    expect(mockUpdateFromJson).toHaveBeenCalledTimes(1);
   });
 });

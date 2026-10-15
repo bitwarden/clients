@@ -183,6 +183,7 @@ module.exports.buildConfig = function buildConfig(params) {
         BIT_ENVIRONMENT: JSON.stringify(NODE_ENV),
       }),
       new EnvironmentPlugin({
+        ENV: ENV,
         FLAGS: envConfig.flags,
         DEV_FLAGS: NODE_ENV === "development" ? envConfig.devFlags : {},
       }),

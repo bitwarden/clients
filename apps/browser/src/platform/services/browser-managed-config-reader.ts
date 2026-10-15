@@ -1,11 +1,14 @@
+import { firstValueFrom } from "rxjs";
+
 import { LogService } from "@bitwarden/logging";
-import { createManagementProfile, ManagedSettingsService } from "@bitwarden/managed-settings";
+import { ManagedSettingsService } from "@bitwarden/managed-settings";
 
 import { BrowserApi } from "../browser/browser-api";
 
 /**
- * Acquires this extension's Unified Endpoint Management (UEM/MDM) profile from the browser's
- * managed storage area and pushes it into {@link ManagedSettingsService}.
+ * Acquires this extension's Unified Endpoint Management (UEM/MDM) settings from the browser's
+ * managed storage area and passes them to the SDK's `ManagedSettingsClient`, which normalizes them
+ * into the active profile.
  *
  * The browser populates managed storage asynchronously, and an administrator may deploy a policy
  * long after the extension started, so the initial read is backed by a `storage.onChanged`
@@ -13,7 +16,7 @@ import { BrowserApi } from "../browser/browser-api";
  *
  * Managed settings are administrator configuration rather than vault data and involve no
  * cryptography. They are still kept out of the log, because a value can disclose an organization's
- * self-hosted infrastructure; only key names and counts are written.
+ * self-hosted infrastructure. The SDK logs the key count of every applied profile.
  */
 export class BrowserManagedConfigReader {
   constructor(
@@ -44,20 +47,18 @@ export class BrowserManagedConfigReader {
         return;
       }
 
-      const profile = createManagementProfile(managed);
-
-      if (profile.settings.size === 0) {
-        this.logService.info("Managed configuration: no managed settings are set.");
-        this.managedSettingsService.updateProfile(undefined);
-        return;
+      const client = await firstValueFrom(this.managedSettingsService.client$);
+      try {
+        await client.update_from_json(JSON.stringify(managed));
+        this.logService.info("Managed configuration: applied the managed storage area.");
+      } catch (e) {
+        // The SDK clears the profile when it rejects a value, so a malformed value never leaves
+        // an older profile active.
+        this.logService.error(
+          "Managed configuration: the managed storage area was rejected.",
+          e instanceof Error ? e.message : e,
+        );
       }
-
-      this.managedSettingsService.updateProfile(profile);
-
-      this.logService.info(
-        `Managed configuration: applied ${profile.settings.size} managed setting(s).`,
-        [...profile.settings.keys()].sort(),
-      );
     } catch (e) {
       // A failed read means the managed state is unknown, not absent, so the last known profile
       // stays in place rather than un-forcing a setting an administrator set. Logged at info
