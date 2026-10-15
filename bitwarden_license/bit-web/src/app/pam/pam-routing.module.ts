@@ -5,11 +5,9 @@ import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { organizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-permissions.guard";
 
-import {
-  AccessRuleEditComponent,
-  accessRuleEditDiscardGuard,
-} from "./access-rules/access-rule-edit/access-rule-edit.component";
+import { AccessRuleEditComponent } from "./access-rules/access-rule-edit/access-rule-edit.component";
 import { AccessRulesComponent } from "./access-rules/access-rules.component";
+import { unsavedChangesDialogGuard } from "./unsaved-changes.guard";
 
 const routes: Routes = [
   {
@@ -34,13 +32,13 @@ const routes: Routes = [
           {
             path: "new",
             component: AccessRuleEditComponent,
-            canDeactivate: [accessRuleEditDiscardGuard],
+            canDeactivate: [unsavedChangesDialogGuard],
             data: { titleId: "pamAccessRuleCreateTitle" },
           },
           {
             path: ":accessRuleId",
             component: AccessRuleEditComponent,
-            canDeactivate: [accessRuleEditDiscardGuard],
+            canDeactivate: [unsavedChangesDialogGuard],
             data: { titleId: "pamAccessRuleEditTitle" },
           },
         ],

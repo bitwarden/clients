@@ -11,7 +11,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { ActivatedRoute, CanDeactivateFn, Router, RouterLink } from "@angular/router";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
@@ -73,8 +73,8 @@ import {
   resolveCollectionNames,
   snapToNearestAccessRuleDuration,
 } from "../..";
-import { discardConfirmOptions } from "../../helpers/discard-confirm";
 import { GovernedCollectionsService } from "../../services/governed-collections.service";
+import { HasUnsavedChangesDialog } from "../../unsaved-changes.guard";
 import { ACCESS_RULE_TEMPLATES } from "../access-rule-templates";
 
 import { CidrValidationService } from "./ip-allowlist/cidr-validation.service";
@@ -117,7 +117,7 @@ import {
     ContainerComponent,
   ],
 })
-export class AccessRuleEditComponent {
+export class AccessRuleEditComponent implements HasUnsavedChangesDialog {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly formBuilder = inject(FormBuilder);
@@ -529,26 +529,13 @@ export class AccessRuleEditComponent {
     }
   };
 
-  /**
-   * Called by Cancel and by the route's CanDeactivate guard, which covers the breadcrumb and
-   * browser back and forward.
-   */
-  async confirmDiscard(): Promise<boolean> {
-    if (!this.formGroup.dirty) {
-      return true;
-    }
-
-    return await this.dialogService.openSimpleDialog(
-      discardConfirmOptions({ editing: this.editing, createTitleKey: "pamAccessRuleDiscardTitle" }),
-    );
+  unsavedChanges(): boolean {
+    return this.formGroup.dirty;
   }
 
+  /** Leaves through the route's guard, which asks before discarding. */
   protected readonly cancel = async (): Promise<void> => {
-    if (!(await this.confirmDiscard())) {
-      return;
-    }
-
-    await this.navigateToList();
+    await this.router.navigate([".."], { relativeTo: this.route });
   };
 
   protected readonly remove = async (): Promise<void> => {
@@ -587,6 +574,3 @@ export class AccessRuleEditComponent {
     return this.router.navigate([".."], { relativeTo: this.route });
   }
 }
-
-export const accessRuleEditDiscardGuard: CanDeactivateFn<AccessRuleEditComponent> = (component) =>
-  component.confirmDiscard();

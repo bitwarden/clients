@@ -17722,12 +17722,6 @@
   "pamAccessRequestsTitle": {
     "message": "Access requests"
   },
-  "pamDiscardContent": {
-    "message": "The details you entered won't be saved."
-  },
-  "pamDiscardConfirm": {
-    "message": "Discard"
-  },
   "pamAccessRules": {
     "message": "Access rules"
   },
@@ -17948,15 +17942,6 @@
   },
   "pamAccessRuleDeleted": {
     "message": "Access rule deleted."
-  },
-  "pamAccessRuleDiscardTitle": {
-    "message": "Discard rule"
-  },
-  "pamAccessRuleDiscardContent": {
-    "message": "The details you entered won't be saved."
-  },
-  "pamAccessRuleDiscardConfirm": {
-    "message": "Discard"
   },
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Delete access rule?"
@@ -18409,8 +18394,5 @@
   },
   "resetToDefault": {
     "message": "Reset to default"
-  },
-  "pamTargetSystemDiscardTitle": {
-    "message": "Discard target system"
   }
 }

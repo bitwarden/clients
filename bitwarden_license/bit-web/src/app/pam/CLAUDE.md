@@ -54,6 +54,11 @@ unit tests. Keep new re-exports of SDK shapes type-only for the same reason.
 org.canManageAccessRules)`. Mounting this module (`organizations-routing.module.ts`)
 and calling `providePam()` from `app.module.ts` happen elsewhere.
 
+Routed edit pages take `canDeactivate: [unsavedChangesDialogGuard]` (`unsaved-changes.guard.ts`)
+and implement `HasUnsavedChangesDialog`: `unsavedChanges()` returns `false`, `true` for the
+default discard dialog, or options overriding it. Cancel just navigates and lets the guard ask.
+The guard stands down on lock and logout.
+
 `provide-pam.ts` binds `AccessRuleSdkService` (`./index`) to
 `AccessRulesSdkService`, which serves CRUD via the Rust SDK's
 `commercial().pam().access_rules()` client — never HTTP.
