@@ -58,6 +58,8 @@ function loginCipher(cipherId: string, name: string): CipherView {
   view.id = cipherId;
   view.name = name;
   view.type = CipherType.Login;
+  view.edit = true;
+  view.viewPassword = true;
   return view;
 }
 
