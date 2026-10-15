@@ -7,14 +7,9 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { DialogService } from "@bitwarden/components";
 
-import {
-  HasUnsavedChanges,
-  HasUnsavedChangesDialog,
-  unsavedChangesDialogGuard,
-  unsavedChangesGuard,
-} from "./unsaved-changes.guard";
+import { HasUnsavedChangesDialog, unsavedChangesDialogGuard } from "./unsaved-changes.guard";
 
-describe("unsaved changes guards", () => {
+describe("unsaved changes guard", () => {
   const DISCARD_DIALOG = {
     title: { key: "discardEditsTitle" },
     content: { key: "discardEditsConfirmation" },
@@ -55,38 +50,6 @@ describe("unsaved changes guards", () => {
     );
   }
 
-  describe("unsavedChangesGuard", () => {
-    let component: MockProxy<HasUnsavedChanges>;
-
-    beforeEach(() => {
-      component = mock<HasUnsavedChanges>();
-      component.confirmLeave.mockReturnValue(Promise.resolve(false));
-    });
-
-    it("defers to the component while the account is unlocked", async () => {
-      await expect(run(unsavedChangesGuard, component)).resolves.toBe(false);
-      expect(component.confirmLeave).toHaveBeenCalledTimes(1);
-    });
-
-    it("accepts a component that answers synchronously", async () => {
-      await expect(run(unsavedChangesGuard, { confirmLeave: () => true })).resolves.toBe(true);
-    });
-
-    it.each([
-      ["locked", AuthenticationStatus.Locked],
-      ["logged out", AuthenticationStatus.LoggedOut],
-    ])("lets the navigation through without asking when the account is %s", async (_, status) => {
-      status$.next(status);
-
-      await expect(run(unsavedChangesGuard, component)).resolves.toBe(true);
-      expect(component.confirmLeave).not.toHaveBeenCalled();
-    });
-
-    it("lets the navigation through when Angular passes no component", async () => {
-      await expect(run(unsavedChangesGuard, null)).resolves.toBe(true);
-    });
-  });
-
   describe("unsavedChangesDialogGuard", () => {
     const reporting = (
       changes: ReturnType<HasUnsavedChangesDialog["unsavedChanges"]>,
@@ -117,8 +80,11 @@ describe("unsaved changes guards", () => {
       });
     });
 
-    it("lets the navigation through without asking once the account is locked", async () => {
-      status$.next(AuthenticationStatus.Locked);
+    it.each([
+      ["locked", AuthenticationStatus.Locked],
+      ["logged out", AuthenticationStatus.LoggedOut],
+    ])("lets the navigation through without asking when the account is %s", async (_, status) => {
+      status$.next(status);
 
       await expect(run(unsavedChangesDialogGuard, reporting(true))).resolves.toBe(true);
       expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
