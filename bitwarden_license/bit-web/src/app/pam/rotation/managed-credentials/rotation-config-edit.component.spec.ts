@@ -150,6 +150,7 @@ function setup(options: SetupOptions = {}) {
 
   const orgCiphersService = {
     ciphers$: new BehaviorSubject([] as CipherView[]),
+    editableCiphers$: new BehaviorSubject([] as CipherView[]),
     cipherNameById$: new BehaviorSubject(new Map<string, string>()),
     loading$: new BehaviorSubject(false),
     load: jest.fn().mockResolvedValue(undefined),

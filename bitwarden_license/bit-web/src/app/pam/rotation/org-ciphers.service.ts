@@ -23,12 +23,16 @@ export class OrgCiphersService {
   private readonly cipherService = inject(CipherService);
 
   private readonly _ciphers$ = new BehaviorSubject<CipherView[]>([]);
+  private readonly _editableCiphers$ = new BehaviorSubject<CipherView[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(false);
 
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
 
   /** Empty until {@link load} resolves. */
   readonly ciphers$: Observable<CipherView[]> = this._ciphers$.asObservable();
+
+  /** The ciphers the user can edit with the password visible, which managing rotation requires. */
+  readonly editableCiphers$: Observable<CipherView[]> = this._editableCiphers$.asObservable();
 
   readonly cipherNameById$: Observable<Map<CipherId, string>> = this._ciphers$.pipe(
     map((ciphers) => new Map(ciphers.map((c) => [asUuid<CipherId>(c.id), c.name]))),
@@ -56,6 +60,12 @@ export class OrgCiphersService {
       const filtered = ciphers.filter((c) => c.type === CipherType.Login && !c.isDeleted);
 
       this._ciphers$.next(filtered);
+      // The admin read carries no per-cipher permissions, and those users can edit every cipher.
+      this._editableCiphers$.next(
+        organization?.canEditAllCiphers
+          ? filtered
+          : filtered.filter((c) => c.edit && c.viewPassword),
+      );
     } finally {
       this._loading$.next(false);
     }
