@@ -301,8 +301,7 @@ Add a seam rather than importing PAM from OSS code.
 Routed edit pages take `canDeactivate: [unsavedChangesDialogGuard]` (`unsaved-changes.guard.ts`)
 and implement `HasUnsavedChangesDialog`: `unsavedChanges()` returns `false`, `true` for the
 default discard dialog, or options overriding it. Cancel just navigates and lets the guard ask.
-A page that asks in its own way, e.g. by closing a drawer, implements `HasUnsavedChanges` for
-`unsavedChangesGuard` instead. Both stand down on lock and logout.
+The guard stands down on lock and logout.
 
 **The rotation fleet is a third authority, separate from rule authorship — do not reuse
 `canManageAccessRules` for it.** `canManageRotation` is Admin/Owner, or a Custom member
