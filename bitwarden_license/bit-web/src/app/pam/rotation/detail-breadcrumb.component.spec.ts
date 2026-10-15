@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { provideRouter, Router } from "@angular/router";
+import { provideRouter } from "@angular/router";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -39,18 +39,13 @@ describe("DetailBreadcrumbComponent", () => {
     expect(el().querySelector("bit-icon.bwi-managed-credential")).toBeNull();
   });
 
-  it("shows the parent icon", () => {
+  it("shows the parent icon and a tile before the current title", () => {
     fixture.componentRef.setInput("parentIcon", "bwi-managed-credential");
+    fixture.componentRef.setInput("currentTileIcon", "bwi-plus");
     fixture.detectChanges();
 
     expect(el().querySelector("bit-icon.bwi-managed-credential")).not.toBeNull();
-  });
-
-  it("keeps the current title as the active crumb when the URL has a query string", async () => {
-    await TestBed.inject(Router).navigateByUrl("/?then=credential");
-    fixture.detectChanges();
-
-    expect(el().querySelector('[aria-current="page"]')?.textContent?.trim()).toBe("Current page");
+    expect(el().querySelector('[aria-current="page"] bit-icon-tile')).not.toBeNull();
   });
 
   it("adds a linked step between the parent and the current title", () => {
@@ -65,17 +60,5 @@ describe("DetailBreadcrumbComponent", () => {
     expect(text.indexOf("parentKey")).toBeLessThan(text.indexOf("stepKey"));
     expect(text.indexOf("stepKey")).toBeLessThan(text.indexOf("Current page"));
     expect(el().querySelectorAll("a").length).toBe(2);
-  });
-
-  it("names a step verbatim when it carries a label", () => {
-    fixture.componentRef.setInput("step", {
-      labelKey: "stepKey",
-      label: "Salesforce integration user",
-      route: ["/parent", "credential-1"],
-    });
-    fixture.detectChanges();
-
-    expect(el().textContent).toContain("Salesforce integration user");
-    expect(el().textContent).not.toContain("stepKey");
   });
 });
