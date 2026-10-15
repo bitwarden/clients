@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "သေတ္တာမြင်ကွင်းတွင် အလိုအလျောက်ဖြည့်ရန် အရာများကို ကလစ်လုပ်ပါ"
   },
-  "clickToAutofill": {
-    "message": "ဖြည့်ရန် အလိုအလျောက်ဖြည့်အကြံပြုချက်ရှိ အရာများကို ကလစ်လုပ်ပါ"
-  },
   "clearClipboard": {
     "message": "ကလစ်ဘုတ် ရှင်းရန်",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "သင့် LastPass အကောင့်နှင့်ဆက်စပ်သော YubiKey ကို သင့်ကွန်ပျူတာ၏ USB အပေါက်ထဲ ထည့်ပြီး ၎င်း၏ခလုတ်ကို ထိကိုင်ပါ။"
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper အီးမေးလ်"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "အန္တရာယ်ရှိစကားဝှက် ပြောင်းရန်"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "ဤလော့ဂ်အင်သည် အန္တရာယ်ရှိပြီး ဝဘ်ဆိုက်မရှိပါ။ ပိုမိုခိုင်မာသောလုံခြုံရေးအတွက် ဝဘ်ဆိုက်တစ်ခုထည့်ပြီး စကားဝှက်ကို ပြောင်းပါ။"
-  },
   "vulnerablePassword": {
     "message": "အားနည်းချက်ရှိသောစကားဝှက်။"
   },
   "changeNow": {
     "message": "ယခု ပြောင်းရန်"
-  },
-  "missingWebsite": {
-    "message": "ဝဘ်ဆိုက် ပျောက်ဆုံးနေသည်"
   },
   "settingsVaultOptions": {
     "message": "သေတ္တာရွေးချယ်စရာများ"

@@ -9,6 +9,12 @@ export abstract class AuditService {
   abstract passwordLeaked: (password: string, addPadding?: boolean) => Promise<number>;
 
   /**
+   * Like {@link passwordLeaked}, but rejects instead of reporting not leaked when the lookup fails.
+   * @throws If the lookup returns a non-2xx status or times out.
+   */
+  abstract passwordLeakedStrict: (password: string, addPadding?: boolean) => Promise<number>;
+
+  /**
    * Retrieves accounts that have been breached for a given username.
    * @param username The username to check for breaches.
    * @returns A promise that resolves to an array of BreachAccountResponse objects.

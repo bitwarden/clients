@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Кликните на ставке за ауто-попуњавање у приказу сефа"
   },
-  "clickToAutofill": {
-    "message": "Кликните на ставке у ауто-пуњење предлогу за попуњавање"
-  },
   "clearClipboard": {
     "message": "Обриши привремену меморију",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Унети YubiKey који је асоциран са LastPass налогом у УСБ порт вашег рачунара, и затим додирните његово дугме."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper имејл"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Променити ризичну лозинку"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Ова пријава је ризична и недостаје веб локација. Додајте веб страницу и промените лозинку за јачу сигурност."
-  },
   "vulnerablePassword": {
     "message": "Рањива лозинка."
   },
   "changeNow": {
     "message": "Промени сада"
-  },
-  "missingWebsite": {
-    "message": "Недостаје веб страница"
   },
   "settingsVaultOptions": {
     "message": "Опције сефа"

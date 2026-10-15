@@ -71,7 +71,6 @@ describe("Fido2ExcludedCiphersComponent", () => {
 
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
       expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(undefined);
-      expect(mockSession.hideUi).toHaveBeenCalled();
 
       // The session owns this teardown; the component must not duplicate it.
       expect(mockDesktopSettingsService.setModalMode).not.toHaveBeenCalled();

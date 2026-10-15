@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "დააწკაპუნეთ ელემენტებზე ავტომატური შევსებისთვის საცავის ხედში"
   },
-  "clickToAutofill": {
-    "message": "დააწკაპუნეთ ელემენტებზე ავტომატური შევსების შემოთავაზებაში შესავსებად"
-  },
   "clearClipboard": {
     "message": "ბუფერის გასუფთავება",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "ჩასვით თქვენს LastPass ანგარიშთან დაკავშირებული YubiKey კომპიუტერის USB პორტში, შემდეგ შეეხეთ მის ღილაკს."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper-ის ელფოსტა"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "რისკის ქვეშ მყოფი პაროლის შეცვლა"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "ეს შესვლა რისკის ქვეშაა და ვებსაიტი აკლია. დაამატეთ ვებსაიტი და შეცვალეთ პაროლი უფრო ძლიერი უსაფრთხოებისთვის."
-  },
   "vulnerablePassword": {
     "message": "დაუცველი პაროლი."
   },
   "changeNow": {
     "message": "შეცვალეთ ახლა"
-  },
-  "missingWebsite": {
-    "message": "ვებსაიტი აკლია"
   },
   "settingsVaultOptions": {
     "message": "საცავის პარამეტრები"

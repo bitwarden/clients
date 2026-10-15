@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "Cắm khóa YubiKey được liên kết với tài khoản LastPass của bạn vào cổng USB của máy tính, sau đó nhấn nút trên YubiKey."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Email Keeper"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Phần mở rộng trình duyệt mà bạn đang sử dụng đã lỗi thời. Vui lòng cập nhật nó hoặc tắt tính năng xác thực dấu vân tay tích hợp trình duyệt trong cài đặt ứng dụng máy tính."
   },
-  "changeAtRiskPassword": {
-    "message": "Thay đổi mật khẩu có rủi ro"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Thông tin đăng nhập này có rủi ro và thiếu một trang web. Hãy thêm trang web và đổi mật khẩu để tăng cường bảo mật."
-  },
   "vulnerablePassword": {
     "message": "Mật khẩu dễ bị tấn công."
   },
   "changeNow": {
     "message": "Thay đổi ngay"
-  },
-  "missingWebsite": {
-    "message": "Thiếu trang web"
   },
   "missingPermissions": {
     "message": "Bạn không có quyền truy cập cần thiết để thực hiện thao tác này."

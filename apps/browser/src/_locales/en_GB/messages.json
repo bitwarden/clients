@@ -1291,9 +1291,6 @@
   "clickToAutofillOnVault": {
     "message": "Click items to autofill on Vault view"
   },
-  "clickToAutofill": {
-    "message": "Click items in autofill suggestion to fill"
-  },
   "clearClipboard": {
     "message": "Clear clipboard",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -5682,6 +5679,15 @@
   "lastPassYubikeyDesc": {
     "message": "Insert the YubiKey associated with your LastPass account into your computer's USB port, then touch its button."
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "Keeper email"
   },
@@ -7245,20 +7251,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Change at-risk password"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
-  },
   "vulnerablePassword": {
     "message": "Vulnerable password."
   },
   "changeNow": {
     "message": "Change now"
-  },
-  "missingWebsite": {
-    "message": "Missing website"
   },
   "settingsVaultOptions": {
     "message": "Vault options"

@@ -51,12 +51,6 @@ export class AppearanceComponent implements OnInit {
     { initialValue: false },
   );
 
-  /** Controls whether the quick copy actions setting is shown, matching the vault list feature. */
-  protected readonly showQuickCopyActionsSetting = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
-    { initialValue: false },
-  );
-
   readonly form = this.formBuilder.group({
     enableFavicons: true,
     theme: [ThemeTypes.Light as Theme],

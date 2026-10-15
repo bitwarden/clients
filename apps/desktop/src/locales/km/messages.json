@@ -5110,6 +5110,15 @@
   "lastPassYubikeyDesc": {
     "message": "បញ្ចូល YubiKey ដែលភ្ជាប់ជាមួយគណនី LastPass របស់អ្នកទៅក្នុងច្រក USB របស់កុំព្យូទ័រ បន្ទាប់មកប៉ះប៊ូតុងរបស់វា។"
   },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
   "keeperEmail": {
     "message": "អ៊ីមែល Keeper"
   },
@@ -5621,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "ផ្នែកបន្ថែមកម្មវិធីរុករកដែលអ្នកកំពុងប្រើគឺហួសសម័យ។ សូមអាប់ដេតវា ឬបិទការផ្ទៀងផ្ទាត់ស្នាមម្រាមដៃសមាហរណកម្មកម្មវិធីរុករកនៅក្នុងការកំណត់កម្មវិធីលើកុំព្យូទ័រ។"
   },
-  "changeAtRiskPassword": {
-    "message": "ផ្លាស់ប្តូរពាក្យសម្ងាត់ដែលប្រថុយ"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "ការចូលនេះប្រថុយ ហើយបាត់គេហទំព័រ។ បន្ថែមគេហទំព័រ និងផ្លាស់ប្តូរពាក្យសម្ងាត់សម្រាប់សុវត្ថិភាពកាន់តែខ្លាំង។"
-  },
   "vulnerablePassword": {
     "message": "ពាក្យសម្ងាត់ងាយរងគ្រោះ។"
   },
   "changeNow": {
     "message": "ផ្លាស់ប្តូរឥឡូវនេះ"
-  },
-  "missingWebsite": {
-    "message": "បាត់គេហទំព័រ"
   },
   "missingPermissions": {
     "message": "អ្នកខ្វះការអនុញ្ញាតចាំបាច់ដើម្បីអនុវត្តសកម្មភាពនេះ។"

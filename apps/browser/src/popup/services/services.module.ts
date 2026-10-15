@@ -578,7 +578,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AutofillSettingsServiceAbstraction,
     useClass: AutofillSettingsService,
-    deps: [StateProvider, PolicyService, AccountService, RestrictedItemTypesService],
+    deps: [StateProvider, PolicyService, AccountService, RestrictedItemTypesService, ConfigService],
   }),
   safeProvider({
     provide: UserNotificationSettingsServiceAbstraction,
@@ -822,7 +822,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LogoutService,
     useClass: ExtensionLogoutService,
-    deps: [MessagingServiceAbstraction, AccountSwitcherService],
+    deps: [MessagingServiceAbstraction, LogService, AccountSwitcherService],
   }),
   safeProvider({
     provide: CompactModeService,
