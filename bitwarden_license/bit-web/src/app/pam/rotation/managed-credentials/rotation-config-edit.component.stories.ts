@@ -21,6 +21,7 @@ import { QuartzSchedulePreset } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import {
   ORGANIZATION_ID,
+  accessConnector,
   id,
   jobId,
   rotationConfig,
@@ -47,11 +48,15 @@ const SAMPLE_DETAIL = rotationConfigDetail({
   jobs: [rotationJob(), rotationJob({ id: jobId("j-2") })],
 });
 
-/** An active target and a retired one, so the create picker offers exactly one of them. */
+/** Active targets of each kind and a retired one the create picker leaves out. */
 const TARGET_SYSTEMS = [
   targetSystem({ id: sysId("1"), name: "Prod Entra" }),
+  targetSystem({ id: sysId("2"), name: "Finance Reporting DB", method: "manual" }),
+  targetSystem({ id: sysId("3"), name: "AWS Production" }),
   targetSystem({ id: sysId("4"), name: "Retired Entra sandbox", status: "disabled" }),
 ];
+
+const CONNECTORS = [accessConnector({ assignedTargetSystemIds: [sysId("1")] })];
 
 function loginCipher(cipherId: string, name: string): CipherView {
   const view = new CipherView();
@@ -72,6 +77,7 @@ function rotationSdkFor(systems = TARGET_SYSTEMS): Partial<RotationSdkService> {
   return {
     listTargetSystems: () => Promise.resolve(systems),
     listConfigs: () => Promise.resolve([]),
+    listConnectors: () => Promise.resolve(CONNECTORS),
     getConfig: () => Promise.resolve(SAMPLE_DETAIL),
     createConfig: () => Promise.resolve(SAMPLE_DETAIL),
     updateConfig: () => Promise.resolve(SAMPLE_DETAIL),

@@ -4,6 +4,7 @@ import {
   Component,
   forwardRef,
   inject,
+  input,
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -100,6 +101,8 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
    * synchronous. Starts `true` so a control is not reported invalid before the check runs.
    */
   private readonly cronShapeValid = signal(true);
+
+  readonly labelKey = input("pamRotationScheduleLabel");
 
   protected readonly QuartzSchedulePreset = QuartzSchedulePreset;
 

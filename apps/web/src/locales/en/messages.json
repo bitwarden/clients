@@ -19945,12 +19945,6 @@
   "pamTargetSystemMethodManual": {
     "message": "Manual"
   },
-  "pamTargetSystemMethodAutomaticHint": {
-    "message": "Rotations run on the schedule you set, once you finish the setup steps shown after saving."
-  },
-  "pamTargetSystemMethodManualHint": {
-    "message": "No rotation job is created. You rotate the credential by hand, then mark it as rotated."
-  },
   "pamTargetSystemTypeEntra": {
     "message": "Entra"
   },
@@ -19995,9 +19989,6 @@
   "pamTargetSystemMethodLabel": {
     "message": "Rotation method"
   },
-  "pamTargetSystemTypeHeading": {
-    "message": "Type"
-  },
   "pamTargetSystemTypeLabel": {
     "message": "Type"
   },
@@ -20024,18 +20015,6 @@
   },
   "pamTargetSystemPolicyBelowStrengthFloor": {
     "message": "This policy is too weak. Increase the length or include more character types."
-  },
-  "pamTargetSystemPolicyUppercase": {
-    "message": "Include uppercase letters"
-  },
-  "pamTargetSystemPolicyLowercase": {
-    "message": "Include lowercase letters"
-  },
-  "pamTargetSystemPolicyDigits": {
-    "message": "Include digits"
-  },
-  "pamTargetSystemPolicySymbols": {
-    "message": "Include symbols"
   },
   "pamTargetSystemSupportsSessionTermination": {
     "message": "Supports session termination"
@@ -20592,12 +20571,6 @@
   "pamRotationConfigCipher": {
     "message": "Credential"
   },
-  "pamRotationConfigCipherPlaceholder": {
-    "message": "Select a credential"
-  },
-  "pamRotationConfigCipherHint": {
-    "message": "Select the vault item whose password will be rotated."
-  },
   "pamRotationConfigTargetSystem": {
     "message": "Target system"
   },
@@ -20624,9 +20597,6 @@
   },
   "pamRotationConfigRotateWhenAccessEndsHint": {
     "message": "Automatically rotate this credential when PAM access to it ends."
-  },
-  "pamRotationConfigCreated": {
-    "message": "Managed credential created."
   },
   "pamRotationConfigSaved": {
     "message": "Managed credential saved."
@@ -20980,5 +20950,113 @@
   },
   "viewUserGuide": {
     "message": "View user guide"
+  },
+  "pamRotationConfigVaultItem": {
+    "message": "Vault item"
+  },
+  "pamRotationConfigVaultItemPlaceholder": {
+    "message": "Select a vault item"
+  },
+  "pamRotationConfigVaultItemHint": {
+    "message": "Items that are already in rotation aren't listed."
+  },
+  "pamRotationConfigTargetSystemHint": {
+    "message": "The system that holds this account."
+  },
+  "pamRotationConfigTargetManual": {
+    "message": "Manual"
+  },
+  "pamRotationConfigTargetNoConnector": {
+    "message": "No connected access connector"
+  },
+  "pamRotationConfigCalloutTargetManual": {
+    "message": "This target system uses manual rotation. You'll change this credential's password yourself, then mark it as rotated."
+  },
+  "pamRotationConfigCalloutTargetNotConnected": {
+    "message": "This target system has no connected access connector, so this credential won't rotate yet. You can still save it."
+  },
+  "pamRotationConfigUsernamePlaceholder": {
+    "message": "Enter a username"
+  },
+  "pamRotationConfigUsernameHint": {
+    "message": "The username on the target system, for example name@company.com."
+  },
+  "pamRotationConfigTriggersHeading": {
+    "message": "Rotation triggers"
+  },
+  "pamRotationConfigAfterRotationHeading": {
+    "message": "After rotation"
+  },
+  "pamRotationConfigScheduleLabel": {
+    "message": "Schedule"
+  },
+  "pamRotationConfigRotateOnAccessEndHintAdd": {
+    "message": "Changes the password when someone's access ends, so the old password stops working."
+  },
+  "pamRotationConfigAutomaticOnly": {
+    "message": "Only available for automatic rotation."
+  },
+  "pamRotationConfigEndSessions": {
+    "message": "End active sessions"
+  },
+  "pamRotationConfigEndSessionsHint": {
+    "message": "Signs out anyone still using the old password after each rotation. If this fails, the rotation still counts."
+  },
+  "pamRotationConfigEndSessionsAvailableOnce": {
+    "message": "Available once you select a target system that supports it."
+  },
+  "pamRotationConfigAdded": {
+    "message": "Managed credential added"
+  },
+  "pamTargetSystemAdded": {
+    "message": "Target system added"
+  },
+  "pamTargetSystemNameHint": {
+    "message": "Use a name your team will recognize, for example Entra ID production. It shows wherever you choose a target system."
+  },
+  "pamTargetSystemMethodAutomaticDescription": {
+    "message": "An access connector changes passwords on this target system for you."
+  },
+  "pamTargetSystemMethodManualDescription": {
+    "message": "You change passwords on this target system yourself, then mark them as rotated."
+  },
+  "pamTargetSystemSystemTypeLabel": {
+    "message": "System type"
+  },
+  "pamTargetSystemSystemTypeHint": {
+    "message": "Tells the access connector how to change passwords on this system."
+  },
+  "pamTargetSystemEndingSessions": {
+    "message": "Ending sessions"
+  },
+  "pamTargetSystemEndingSessionsEntraHint": {
+    "message": "Entra can sign out active sessions after rotation."
+  },
+  "pamTargetSystemAccessConnectors": {
+    "message": "Access connectors"
+  },
+  "pamTargetSystemAccessConnectorsHint": {
+    "message": "Choose the access connectors that can rotate passwords on this target system. Choose more than one for a backup."
+  },
+  "pamTargetSystemCalloutNoneConnected": {
+    "message": "None of the chosen access connectors are connected, so this target system can't rotate yet. You can still save it."
+  },
+  "pamTargetSystemCalloutNoConnectors": {
+    "message": "There are no access connectors yet. They run in your network and rotate passwords for this target system. Save now, then add one from the Access connectors tab."
+  },
+  "pamTargetSystemPolicyCharacters": {
+    "message": "Characters to include"
+  },
+  "pamTargetSystemPolicyUppercaseLetters": {
+    "message": "Uppercase letters"
+  },
+  "pamTargetSystemPolicyLowercaseLetters": {
+    "message": "Lowercase letters"
+  },
+  "pamTargetSystemPolicyDigitsOption": {
+    "message": "Digits"
+  },
+  "pamTargetSystemPolicySymbolsOption": {
+    "message": "Symbols"
   }
 }

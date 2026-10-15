@@ -1,8 +1,10 @@
 <bit-header [title]="titleText()" icon="bwi-desktop">
   <pam-detail-breadcrumb
     slot="breadcrumbs"
-    [route]="['..']"
-    parentLabelKey="pamRotationTabTargetSystems"
+    [route]="breadcrumbParentRoute"
+    [parentLabelKey]="breadcrumbParentKey"
+    [parentIcon]="breadcrumbParentIcon"
+    [step]="breadcrumbStep"
     [current]="titleText()"
   />
 </bit-header>
@@ -14,7 +16,7 @@
       <h2 bitTypography="h5">{{ "pamTargetSystemPolicyHeading" | i18n }}</h2>
     </bit-section-header>
     <bit-card>
-      @if (isManual()) {
+      @if (isManual() && editing) {
         <p bitTypography="body2" class="tw-mt-0 tw-text-muted">
           {{ "pamTargetSystemPolicyManualHint" | i18n }}
         </p>
@@ -47,42 +49,47 @@
         <bit-error>{{ "pamTargetSystemPolicyMinExceedsMax" | i18n }}</bit-error>
       }
 
-      <bit-form-control>
-        <input
-          type="checkbox"
-          bitCheckbox
-          formControlName="includeUppercase"
-          id="target-system-edit_checkbox_uppercase"
-        />
-        <bit-label>{{ "pamTargetSystemPolicyUppercase" | i18n }}</bit-label>
-      </bit-form-control>
-      <bit-form-control>
-        <input
-          type="checkbox"
-          bitCheckbox
-          formControlName="includeLowercase"
-          id="target-system-edit_checkbox_lowercase"
-        />
-        <bit-label>{{ "pamTargetSystemPolicyLowercase" | i18n }}</bit-label>
-      </bit-form-control>
-      <bit-form-control>
-        <input
-          type="checkbox"
-          bitCheckbox
-          formControlName="includeDigits"
-          id="target-system-edit_checkbox_digits"
-        />
-        <bit-label>{{ "pamTargetSystemPolicyDigits" | i18n }}</bit-label>
-      </bit-form-control>
-      <bit-form-control>
-        <input
-          type="checkbox"
-          bitCheckbox
-          formControlName="includeSymbols"
-          id="target-system-edit_checkbox_symbols"
-        />
-        <bit-label>{{ "pamTargetSystemPolicySymbols" | i18n }}</bit-label>
-      </bit-form-control>
+      <fieldset class="tw-m-0 tw-border-0 tw-p-0">
+        <legend bitTypography="body2" class="tw-mb-2 tw-p-0 tw-font-semibold">
+          {{ "pamTargetSystemPolicyCharacters" | i18n }}
+        </legend>
+        <bit-form-control>
+          <input
+            type="checkbox"
+            bitCheckbox
+            formControlName="includeUppercase"
+            id="target-system-edit_checkbox_uppercase"
+          />
+          <bit-label>{{ "pamTargetSystemPolicyUppercaseLetters" | i18n }}</bit-label>
+        </bit-form-control>
+        <bit-form-control>
+          <input
+            type="checkbox"
+            bitCheckbox
+            formControlName="includeLowercase"
+            id="target-system-edit_checkbox_lowercase"
+          />
+          <bit-label>{{ "pamTargetSystemPolicyLowercaseLetters" | i18n }}</bit-label>
+        </bit-form-control>
+        <bit-form-control>
+          <input
+            type="checkbox"
+            bitCheckbox
+            formControlName="includeDigits"
+            id="target-system-edit_checkbox_digits"
+          />
+          <bit-label>{{ "pamTargetSystemPolicyDigitsOption" | i18n }}</bit-label>
+        </bit-form-control>
+        <bit-form-control>
+          <input
+            type="checkbox"
+            bitCheckbox
+            formControlName="includeSymbols"
+            id="target-system-edit_checkbox_symbols"
+          />
+          <bit-label>{{ "pamTargetSystemPolicySymbolsOption" | i18n }}</bit-label>
+        </bit-form-control>
+      </fieldset>
       @if (policyForm.errors?.["noCharacterClass"] && policyForm.touched) {
         <div id="target-system-edit_error_character-class">
           <bit-error>{{ "pamTargetSystemPolicyNoCharacterClass" | i18n }}</bit-error>
@@ -95,7 +102,7 @@
       }
 
       <!-- Session termination: intrinsic for native integrations, opt-in for custom scripts. -->
-      @if (isAutomatic()) {
+      @if (isAutomatic() && (editing || !isNativeIntegration())) {
         @if (isNativeIntegration()) {
           <div>
             <p bitTypography="body2" class="tw-mb-1 tw-font-semibold">
@@ -204,6 +211,7 @@
               formControlName="name"
               [placeholder]="'pamTargetSystemNamePlaceholder' | i18n"
             />
+            <bit-hint>{{ "pamTargetSystemNameHint" | i18n }}</bit-hint>
           </bit-form-field>
 
           <bit-radio-group formControlName="method" [block]="true">
@@ -213,40 +221,110 @@
               [value]="TargetSystemMethod.Automatic"
             >
               <bit-label>{{ "pamTargetSystemMethodAutomatic" | i18n }}</bit-label>
-              <bit-hint>{{ "pamTargetSystemMethodAutomaticHint" | i18n }}</bit-hint>
+              <bit-hint>{{ "pamTargetSystemMethodAutomaticDescription" | i18n }}</bit-hint>
             </bit-radio-button>
             <bit-radio-button
               id="target-system-edit_radio_manual"
               [value]="TargetSystemMethod.Manual"
             >
               <bit-label>{{ "pamTargetSystemMethodManual" | i18n }}</bit-label>
-              <bit-hint>{{ "pamTargetSystemMethodManualHint" | i18n }}</bit-hint>
+              <bit-hint>{{ "pamTargetSystemMethodManualDescription" | i18n }}</bit-hint>
             </bit-radio-button>
           </bit-radio-group>
-        </bit-card>
-      </bit-section>
 
-      @if (isAutomatic()) {
-        <bit-section [formGroup]="policyForm">
-          <bit-section-header>
-            <h2 bitTypography="h5">{{ "pamTargetSystemTypeHeading" | i18n }}</h2>
-          </bit-section-header>
-          <bit-card>
+          @if (isAutomatic()) {
             <bit-form-field>
-              <bit-label>{{ "pamTargetSystemTypeLabel" | i18n }}</bit-label>
-              <select
-                bitInput
+              <bit-label>{{ "pamTargetSystemSystemTypeLabel" | i18n }}</bit-label>
+              <bit-select
                 id="target-system-edit_select_kind"
                 [formControl]="createForm.controls.kind"
+                required
               >
                 @for (opt of kindOptions; track opt.value) {
-                  <option [ngValue]="opt.value">{{ opt.label | i18n }}</option>
+                  <bit-option [value]="opt.value" [label]="opt.label | i18n"></bit-option>
                 }
-              </select>
+              </bit-select>
+              <bit-hint>{{ "pamTargetSystemSystemTypeHint" | i18n }}</bit-hint>
             </bit-form-field>
-          </bit-card>
-        </bit-section>
-      }
+
+            @if (isNativeIntegration()) {
+              <div class="tw-mb-4" data-testid="target-system-edit-ending-sessions">
+                <p bitTypography="body2" class="tw-mb-1 tw-font-semibold">
+                  {{ "pamTargetSystemEndingSessions" | i18n }}
+                </p>
+                <span bitBadge variant="success" startIcon="bwi-check-circle">{{
+                  "pamTargetSystemSessionTerminationSupported" | i18n
+                }}</span>
+                <p bitTypography="helper" class="tw-mb-0 tw-mt-1 tw-text-muted">
+                  {{ "pamTargetSystemEndingSessionsEntraHint" | i18n }}
+                </p>
+              </div>
+            }
+
+            <bit-form-field [disableMargin]="chosenConnectors().length > 0">
+              <bit-label>{{ "pamTargetSystemAccessConnectors" | i18n }}</bit-label>
+              <bit-multi-select
+                class="tw-w-full"
+                id="target-system-edit_multi-select_connectors"
+                [baseItems]="createConnectorOptions()"
+                [removeSelectedItems]="false"
+                [formControl]="connectorsControl"
+                [disabled]="orgHasNoConnectors() || connectorsUnavailable()"
+              />
+              <bit-hint>{{ "pamTargetSystemAccessConnectorsHint" | i18n }}</bit-hint>
+            </bit-form-field>
+
+            @if (chosenConnectors().length > 0) {
+              <ul
+                class="tw-m-0 tw-mb-4 tw-list-none tw-divide-x-0 tw-divide-y tw-divide-solid tw-divide-border-base tw-rounded-lg tw-border tw-border-solid tw-border-border-base tw-p-0"
+                data-testid="target-system-edit-chosen-connectors"
+              >
+                @for (connector of chosenConnectors(); track connector.id) {
+                  <li class="tw-flex tw-items-center tw-gap-3 tw-px-3 tw-py-2">
+                    <bit-icon-tile
+                      size="sm"
+                      [icon]="connector.isConnected ? 'bwi-check' : 'bwi-exclamation-triangle'"
+                      [variant]="connector.isConnected ? 'success' : 'warning'"
+                    />
+                    <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ connector.name }}</span>
+                    <span
+                      bitBadge
+                      [variant]="connector.isConnected ? 'success' : 'warning'"
+                      [startIcon]="connector.isConnected ? undefined : 'bwi-exclamation-triangle'"
+                      >{{
+                        (connector.isConnected
+                          ? "pamAccessConnectorConnected"
+                          : "pamAccessConnectorDisconnected"
+                        ) | i18n
+                      }}</span
+                    >
+                    <button
+                      type="button"
+                      bitIconButton="bwi-close"
+                      buttonType="subtleGhost"
+                      size="small"
+                      [label]="'remove' | i18n"
+                      [id]="'target-system-edit_button_remove-connector-' + connector.id"
+                      (click)="removeChosenConnector(connector.id)"
+                    ></button>
+                  </li>
+                }
+              </ul>
+            }
+
+            @if (noneChosenConnected()) {
+              <bit-callout type="warning" id="target-system-edit_callout_none-connected">
+                {{ "pamTargetSystemCalloutNoneConnected" | i18n }}
+              </bit-callout>
+            }
+            @if (orgHasNoConnectors()) {
+              <bit-callout type="warning" id="target-system-edit_callout_no-connectors">
+                {{ "pamTargetSystemCalloutNoConnectors" | i18n }}
+              </bit-callout>
+            }
+          }
+        </bit-card>
+      </bit-section>
 
       @if (showPolicyCard()) {
         <ng-container *ngTemplateOutlet="policyCard"></ng-container>

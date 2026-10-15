@@ -174,3 +174,17 @@ export const PendingSeal: Story = {
 export const Unverifiable: Story = {
   decorators: [at(UNVERIFIABLE_SYSTEM.id)],
 };
+
+/** The add form, with the system type, ending sessions and access connectors inside General information. */
+export const Create: Story = {
+  decorators: [atUrl(`/organizations/${ORGANIZATION_ID}/pam/rotation/target-systems/new`)],
+};
+
+/** Reached from Add target system on the add managed credential form; the breadcrumb has three crumbs. */
+export const CreateFromManagedCredential: Story = {
+  decorators: [
+    atUrl(
+      `/organizations/${ORGANIZATION_ID}/pam/rotation/target-systems/new?then=managed-credential`,
+    ),
+  ],
+};

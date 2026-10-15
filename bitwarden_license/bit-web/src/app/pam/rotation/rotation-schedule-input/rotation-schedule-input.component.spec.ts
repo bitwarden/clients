@@ -86,6 +86,16 @@ describe("RotationScheduleInputComponent", () => {
     await fixture.whenStable();
   });
 
+  it("labels the field 'Rotation schedule' unless the host names another label", () => {
+    const label = () => fixture.nativeElement.querySelector("bit-label").textContent.trim();
+    expect(label()).toBe("pamRotationScheduleLabel");
+
+    fixture.componentRef.setInput("labelKey", "pamRotationConfigScheduleLabel");
+    fixture.detectChanges();
+
+    expect(label()).toBe("pamRotationConfigScheduleLabel");
+  });
+
   function presetCtrl(): {
     value: ScheduleMode;
     setValue: (v: ScheduleMode, opts?: { emitEvent?: boolean }) => void;
