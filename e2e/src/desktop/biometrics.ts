@@ -1,5 +1,7 @@
 import { expect, Page } from "@playwright/test";
 
+import { AutomationDriver } from "../automation-driver";
+
 export const AUTOMATION_BIOMETRICS_ENV = { USE_AUTOMATION_BIOMETRICS: "1" };
 
 export const BiometricRequestType = Object.freeze({
@@ -20,43 +22,48 @@ const STATUS_AVAILABLE = 0;
 // `ACCOUNT_ACTIVE_ACCOUNT_ID` (libs/common/src/auth/services/account.service.ts).
 const ACTIVE_ACCOUNT_ID = { stateName: "account", key: "activeAccountId" };
 
+// Test-side shapes of `BiometricsCapability` and `StateCapability` (libs/automation-driver).
+type BiometricsCapability = {
+  setStatus(status: number): Promise<void>;
+  listPending(): Promise<BiometricRequest[]>;
+  approve(id?: string): Promise<void>;
+  deny(id?: string): Promise<void>;
+};
+type StateCapability = {
+  readGlobal(address: typeof ACTIVE_ACCOUNT_ID): Promise<unknown>;
+};
+
 /**
  * Drives the fake biometrics through the renderer's automation driver
  * (libs/automation-driver/src/capabilities/biometrics.ts). Every biometric prompt the app
  * raises waits in the fake until it is approved or denied here.
  */
 export class Biometrics {
-  constructor(private page: Page) {}
+  private biometrics: AutomationDriver<BiometricsCapability>;
+  private state: AutomationDriver<StateCapability>;
+
+  constructor(private page: Page) {
+    this.biometrics = new AutomationDriver(page, CAPABILITY);
+    this.state = new AutomationDriver(page, STATE_CAPABILITY);
+  }
 
   /** Sets the reported `BiometricsStatus` (libs/key-management), e.g. 0 for Available. */
   async setStatus(status: number) {
-    await this.page.evaluate(
-      ([name, value]) => (window as any).bitwardenAutomationDriver.get(name).setStatus(value),
-      [CAPABILITY, status] as const,
-    );
+    await this.biometrics.call("setStatus", status);
   }
 
   async listPending(): Promise<BiometricRequest[]> {
-    return this.page.evaluate(
-      (name) => (window as any).bitwardenAutomationDriver.get(name).listPending(),
-      CAPABILITY,
-    );
+    return this.biometrics.call("listPending");
   }
 
   /** Approves the request with `id`, or every pending request. */
   async approve(id?: string) {
-    await this.page.evaluate(
-      ([name, requestId]) => (window as any).bitwardenAutomationDriver.get(name).approve(requestId),
-      [CAPABILITY, id] as const,
-    );
+    await this.biometrics.call("approve", id);
   }
 
   /** Denies the request with `id`, or every pending request. */
   async deny(id?: string) {
-    await this.page.evaluate(
-      ([name, requestId]) => (window as any).bitwardenAutomationDriver.get(name).deny(requestId),
-      [CAPABILITY, id] as const,
-    );
+    await this.biometrics.call("deny", id);
   }
 
   /**
@@ -64,10 +71,7 @@ export class Biometrics {
    * enrolling finishes asynchronously; locking before that makes it fail silently.
    */
   async waitUntilEnrolled() {
-    const userId = await this.page.evaluate(
-      ([name, address]) => (window as any).bitwardenAutomationDriver.get(name).readGlobal(address),
-      [STATE_CAPABILITY, ACTIVE_ACCOUNT_ID] as const,
-    );
+    const userId = await this.state.call("readGlobal", ACTIVE_ACCOUNT_ID);
 
     await expect
       .poll(
