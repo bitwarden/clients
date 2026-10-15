@@ -33,6 +33,12 @@ function makeCipher(
   return c;
 }
 
+function withPermissions(c: CipherView, edit: boolean, viewPassword: boolean): CipherView {
+  c.edit = edit;
+  c.viewPassword = viewPassword;
+  return c;
+}
+
 describe("OrgCiphersService", () => {
   let service: OrgCiphersService;
   let cipherService: MockProxy<CipherService>;
@@ -115,6 +121,34 @@ describe("OrgCiphersService", () => {
       const ciphers = await firstValueFrom(service.ciphers$);
       expect(ciphers).toHaveLength(1);
       expect(ciphers[0].id).toBe(id("c-live"));
+    });
+
+    it("keeps only ciphers the member can edit with the password visible in editableCiphers$", async () => {
+      organizationService.organizations$.mockReturnValue(new BehaviorSubject([makeOrg(false)]));
+      cipherService.getManyFromApiForOrganization.mockResolvedValue([
+        withPermissions(makeCipher(id("c-edit"), "Editable"), true, true),
+        withPermissions(makeCipher(id("c-read"), "Read only"), false, true),
+        withPermissions(makeCipher(id("c-hidden"), "Password hidden"), true, false),
+      ]);
+
+      await service.load(ORG_ID);
+
+      const editable = await firstValueFrom(service.editableCiphers$);
+      expect(editable.map((c) => c.id)).toEqual([id("c-edit")]);
+      expect(await firstValueFrom(service.ciphers$)).toHaveLength(3);
+    });
+
+    it("keeps every cipher in editableCiphers$ when canEditAllCiphers is true", async () => {
+      organizationService.organizations$.mockReturnValue(new BehaviorSubject([makeOrg(true)]));
+      // The admin read carries no per-cipher permissions.
+      cipherService.getAllFromApiForOrganization.mockResolvedValue([
+        withPermissions(makeCipher(id("c-a"), "Alpha"), false, false),
+      ]);
+
+      await service.load(ORG_ID);
+
+      const editable = await firstValueFrom(service.editableCiphers$);
+      expect(editable.map((c) => c.id)).toEqual([id("c-a")]);
     });
 
     it("exposes ciphers via cipherNameById$ as a Map of id to name", async () => {
