@@ -1,4 +1,7 @@
-import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import {
+  CollectionTypes,
+  CollectionView,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -13,6 +16,7 @@ import {
   ARCHIVE_ROUTE,
   cipherInScope,
   collectionInScope,
+  collectionMenuTargetForScope,
   defaultUserCollectionId,
   hasMultipleVaults,
   isMyVaultScope,
@@ -642,6 +646,58 @@ describe("sharedFolderNameForScope", () => {
     ["a whole organization vault", organizationScope],
   ])("names none for %s, which drills into no collection", (_name, scope: VaultScope) => {
     expect(sharedFolderNameForScope(scope, [collection])).toBeUndefined();
+  });
+});
+
+describe("collectionMenuTargetForScope", () => {
+  const collection = new CollectionView({ id: collectionId, organizationId, name: "Engineering" });
+  const organization = buildOrganization(organizationId);
+
+  it("resolves the folder and its organization for a scope drilled into a real shared folder", () => {
+    expect(collectionMenuTargetForScope(sharedFolderScope, [collection], [organization])).toEqual({
+      collection,
+      organization,
+    });
+  });
+
+  it("resolves the folder with an undefined organization when the list has no match", () => {
+    expect(collectionMenuTargetForScope(sharedFolderScope, [collection], [])).toEqual({
+      collection,
+      organization: undefined,
+    });
+  });
+
+  it("resolves none for a folder the list can't find", () => {
+    expect(collectionMenuTargetForScope(sharedFolderScope, [], [organization])).toBeUndefined();
+  });
+
+  it("resolves none for the organization's default collection, even if the list has it", () => {
+    const defaultCollection = new CollectionView({
+      id: collectionId,
+      organizationId,
+      name: "My items",
+    });
+    defaultCollection.type = CollectionTypes.DefaultUserCollection;
+
+    expect(
+      collectionMenuTargetForScope(sharedFolderScope, [defaultCollection], [organization]),
+    ).toBeUndefined();
+  });
+
+  it("resolves none for the unresolved My items sentinel, which names no real collection id", () => {
+    expect(
+      collectionMenuTargetForScope(myItemsScope, [collection], [organization]),
+    ).toBeUndefined();
+  });
+
+  it.each([
+    ["All items", ALL_ITEMS_SCOPE],
+    ["the personal vault", myVaultScope],
+    ["a whole organization vault", organizationScope],
+    ["Trash", trashScope],
+    ["the Archive", archiveScope],
+  ])("resolves none for %s, which drills into no collection", (_name, scope: VaultScope) => {
+    expect(collectionMenuTargetForScope(scope, [collection], [organization])).toBeUndefined();
   });
 });
 

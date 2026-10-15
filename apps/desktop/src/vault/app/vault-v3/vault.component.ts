@@ -129,6 +129,8 @@ import {
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
+  CollectionMenuTarget,
+  collectionMenuTargetForScope,
   FilterFunction,
   hasMultipleVaults,
   MY_ITEMS_ROUTE,
@@ -140,7 +142,6 @@ import {
   resolveVaultScope,
   scopeKey,
   scopedCollectionSegment,
-  scopedSharedFolderId,
   SharedFolderCardGridComponent,
   VaultBreadcrumbsComponent,
   VaultRemountOnDirective,
@@ -467,28 +468,15 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
    * the scope names a real, non-default shared folder. A getter, not `computed()`, since
    * `scopedCollections`/`allOrganizations` are plain fields assigned imperatively, not signals.
    */
-  protected get collectionMenu():
-    { collection: CollectionView; organization: Organization | undefined } | undefined {
+  protected get collectionMenu(): CollectionMenuTarget | undefined {
     if (!this.vfo1Foundation()) {
       return undefined;
     }
-    const scope = this.vaultScope();
-    const collectionId = scopedSharedFolderId(scope);
-    if (
-      collectionId == null ||
-      !isGuid(collectionId) ||
-      scope.type !== VaultScopeType.Organization
-    ) {
-      return undefined;
-    }
-    const collection = this.scopedCollections.find((c) => c.id === collectionId);
-    if (collection == null || collection.isDefaultCollection) {
-      return undefined;
-    }
-    return {
-      collection,
-      organization: this.allOrganizations.find((o) => o.id === scope.organizationId),
-    };
+    return collectionMenuTargetForScope(
+      this.vaultScope(),
+      this.scopedCollections,
+      this.allOrganizations,
+    );
   }
 
   protected readonly showAddCipherBtn$ = combineLatest([
