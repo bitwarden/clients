@@ -55,8 +55,10 @@ export class ListCommand {
       case "folders":
         return await this.listFolders(normalizedOptions);
       case "collections":
+      case "shared-folders":
         return await this.listCollections(normalizedOptions);
       case "org-collections":
+      case "org-shared-folders":
         return await this.listOrganizationCollections(normalizedOptions);
       case "org-members":
         return await this.listOrganizationMembers(normalizedOptions);
@@ -322,7 +324,11 @@ class Options {
 
   constructor(passedOptions: Record<string, any>) {
     this.organizationId = passedOptions?.organizationid || passedOptions?.organizationId;
-    this.collectionId = passedOptions?.collectionid || passedOptions?.collectionId;
+    this.collectionId =
+      passedOptions?.collectionid ||
+      passedOptions?.collectionId ||
+      passedOptions?.sharedfolderid ||
+      passedOptions?.sharedFolderId;
     this.folderId = passedOptions?.folderid || passedOptions?.folderId;
     this.search = passedOptions?.search;
     this.url = passedOptions?.url;

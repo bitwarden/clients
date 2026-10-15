@@ -106,8 +106,10 @@ export class GetCommand extends DownloadCommand {
       case "folder":
         return await this.getFolder(id);
       case "collection":
+      case "shared-folder":
         return await this.getCollection(id);
       case "org-collection":
+      case "org-shared-folder":
         return await this.getOrganizationCollection(id, normalizedOptions);
       case "organization":
         return await this.getOrganization(id);
