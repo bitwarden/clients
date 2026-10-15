@@ -74,7 +74,6 @@ describe("AccessRulesComponent — create/edit navigation", () => {
     navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
 
     const fixture = TestBed.createComponent(AccessRulesComponent);
-    // Cycle change detection + microtasks so the org-driven reload resolves.
     for (let i = 0; i < 3; i++) {
       fixture.detectChanges();
       await fixture.whenStable();

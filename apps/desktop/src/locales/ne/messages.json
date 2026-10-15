@@ -160,20 +160,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "$COUNT$ more shared folders shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "1 more shared folder shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "मेरो फोल्डर"
   },
@@ -4640,11 +4626,21 @@
   "selectImportCollection": {
     "message": "संग्रह चयन गर्नुहोस्"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "यदि तपाईं आयात गरिएको फाइल सामग्री संग्रहमा सार्न चाहनुहुन्छ भने यो विकल्प चयन गर्नुहोस्"
   },
   "importTargetHintFolder": {
     "message": "यदि तपाईं आयात गरिएको फाइल सामग्री फोल्डरमा सार्न चाहनुहुन्छ भने यो विकल्प चयन गर्नुहोस्"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "फाइलमा नतोकिएका वस्तुहरू छन्।"
@@ -4654,6 +4650,40 @@
   },
   "selectImportFile": {
     "message": "आयात फाइल चयन गर्नुहोस्"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "फाइल छनौट गर्नुहोस्"
@@ -5079,6 +5109,15 @@
   },
   "lastPassYubikeyDesc": {
     "message": "आफ्नो LastPass खातासँग सम्बन्धित YubiKey आफ्नो कम्प्युटरको USB पोर्टमा घुसाउनुहोस्, त्यसपछि यसको बटन छुनुहोस्।"
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Keeper इमेल"
@@ -5591,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "तपाईंले प्रयोग गरिरहनुभएको ब्राउजर एक्स्टेन्सन पुरानो छ। कृपया यसलाई अद्यावधिक गर्नुहोस् वा डेस्कटप एप सेटिङहरूमा ब्राउजर एकीकरण फिंगरप्रिन्ट प्रमाणीकरण अक्षम गर्नुहोस्।"
   },
-  "changeAtRiskPassword": {
-    "message": "जोखिममा रहेको पासवर्ड परिवर्तन गर्नुहोस्"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "यो लगइन जोखिममा छ र वेबसाइट हराइरहेको छ। बलियो सुरक्षाको लागि वेबसाइट थप्नुहोस् र पासवर्ड परिवर्तन गर्नुहोस्।"
-  },
   "vulnerablePassword": {
     "message": "जोखिमयुक्त पासवर्ड।"
   },
   "changeNow": {
     "message": "अहिले परिवर्तन गर्नुहोस्"
-  },
-  "missingWebsite": {
-    "message": "हराइरहेको वेबसाइट"
   },
   "missingPermissions": {
     "message": "तपाईंसँग यो कार्य गर्न आवश्यक अनुमतिहरू छैनन्।"
@@ -6381,11 +6411,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "You have no folders."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "emptyVaultsDescription": {
     "message": "Add logins, IDs, cards, and other items to get started."

@@ -79,13 +79,13 @@ export class Organization {
   limitCollectionDeletion: boolean;
 
   /**
-   * Refers to the ability for an owner/admin to access all collection items, regardless of assigned collections
-   */
-  limitItemDeletion: boolean;
-  /**
    * Refers to the ability to limit delete permission of collection items.
    * If set to true, members can only delete items when they have a Can Manage permission over the collection.
    * If set to false, members can delete items when they have a Can Manage OR Can Edit permission over the collection.
+   */
+  limitItemDeletion: boolean;
+  /**
+   * Refers to the ability for an owner/admin to access all collection items, regardless of assigned collections
    */
   allowAdminAccessToAllCollectionItems: boolean;
   /**

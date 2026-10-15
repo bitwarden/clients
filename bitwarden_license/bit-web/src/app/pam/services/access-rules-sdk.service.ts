@@ -14,18 +14,6 @@ import type {
 
 import { AccessRuleSdkService } from "..";
 
-/**
- * SDK-backed implementation of {@link AccessRuleSdkService}. Access-rule CRUD
- * goes through the Rust SDK's `commercial().pam().access_rules()` client, not
- * hand-rolled HTTP/DTOs.
- *
- * Follows the canonical per-call SDK-consumption pattern (see
- * `SendSdkApiService` in `libs/common`): resolve the active user, take a client
- * `Ref` from `SdkService.userClient$`, and dispose it (`using`) once the call
- * settles. Errors surface as-is — the SDK's flat `AccessRuleError` shape — for
- * callers to interpret via `accessRuleErrorMessage`/`isAccessRuleNotFound`
- * (`..`); this service does not wrap or translate them.
- */
 export class AccessRulesSdkService extends AccessRuleSdkService {
   constructor(
     private sdkService: SdkService,

@@ -9,6 +9,12 @@ an ADR at which point other teams may use it.
 Playwright end-to-end suites for the web, browser extension and desktop clients, plus a
 `shared` suite spanning web and extension.
 
+Install the browser once:
+
+```
+npx playwright install chromium
+```
+
 ```
 npm run test:e2e:web       # webpack dev server + chromium
 npm run test:e2e:browser   # builds the chrome extension, loads it unpacked
@@ -17,8 +23,8 @@ npm run test:e2e:shared    # web + extension together, e.g. passkey unlock
 npm run test:e2e:all       # all four, sequentially
 ```
 
-Failing tests keep a video. Set `E2E_VIDEO=1` to record every test; videos land in
-`e2e/test-results/<test>/`.
+Failing tests keep a video and a trace (`npx playwright show-trace <trace.zip>`).
+Set `E2E_VIDEO=1` to record every test; both land in `e2e/test-results/<test>/`.
 
 ## Credentials
 

@@ -160,20 +160,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "$COUNT$ more shared folders shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "1 more shared folder shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "Min mappe"
   },
@@ -4640,11 +4626,21 @@
   "selectImportCollection": {
     "message": "Velg en samling"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "Velg denne innstillingen hvis du vil ha de importerte innholdene flyttet til en Bitwarden-mappe."
   },
   "importTargetHintFolder": {
     "message": "Velg dette alternativet hvis du vil at innholdet i den importerte filen skal flyttes til en mappe"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Filen inneholder utildelte elementer."
@@ -4654,6 +4650,40 @@
   },
   "selectImportFile": {
     "message": "Velg importfilen"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Velg fil"
@@ -5079,6 +5109,15 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Sett inn YubiKey-en som er tilknyttet LastPass-kontoen din i datamaskinens USB-port, og trykk deretter på knappen."
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "E-post for Keeper"
@@ -5591,20 +5630,11 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Nettleserutvidelsen du bruker er utdatert. Vennligst oppdater den, eller deaktiver validering av fingeravtrykk for nettleserintegrasjon i skrivebordsappens innstillinger."
   },
-  "changeAtRiskPassword": {
-    "message": "Endre passord som er utsatt"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Denne påloggingen er utsatt og mangler et nettsted. Legg til et nettsted og endre passordet for bedre sikkerhet."
-  },
   "vulnerablePassword": {
     "message": "Sårbart passord."
   },
   "changeNow": {
     "message": "Endre nå"
-  },
-  "missingWebsite": {
-    "message": "Mangler nettsted"
   },
   "missingPermissions": {
     "message": "Du mangler de nødvendige tillatelsene for å utføre denne handlingen."
@@ -6381,11 +6411,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "You have no folders."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "emptyVaultsDescription": {
     "message": "Add logins, IDs, cards, and other items to get started."

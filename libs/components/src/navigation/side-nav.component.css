@@ -1,0 +1,5 @@
+/* Standard props keep macOS overlay scrollbars; any ::-webkit-scrollbar rule forces a classic, always-visible one. */
+bit-side-nav [data-nav-version="vfo1"] :is([data-nav-column], #bit-side-nav--scroll) {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-nav-fg-body) transparent;
+}

@@ -33,9 +33,7 @@ describe("snapToNearestDuration", () => {
   });
 
   it("snaps an off-option value to the nearest option", () => {
-    // 50m is closer to 1h than to 30m.
     expect(snapToNearestDuration(50 * 60, options)).toBe(60 * 60);
-    // 100m is closer to 2h than to 1h.
     expect(snapToNearestDuration(100 * 60, options)).toBe(2 * 60 * 60);
   });
 });
@@ -51,9 +49,7 @@ describe("snapToNearestAccessRuleDuration", () => {
   });
 
   it("snaps an off-preset value to the nearest preset", () => {
-    // 50m is closer to 1h (60m) than to 30m.
     expect(snapToNearestAccessRuleDuration(50 * 60)).toBe(60 * 60);
-    // 20m is closer to 15m than to 30m.
     expect(snapToNearestAccessRuleDuration(20 * 60)).toBe(15 * 60);
   });
 });

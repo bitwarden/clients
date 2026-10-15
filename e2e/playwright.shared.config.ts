@@ -1,6 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
-import { baseConfig, WEB_VAULT_URL, webVaultServer } from "./playwright.base";
+import { baseConfig, webVaultServer } from "./playwright.base";
+import { WEB_VAULT_URL } from "./src/server";
 
 /**
  * Flows spanning clients: the web vault next to the browser extension, in one
