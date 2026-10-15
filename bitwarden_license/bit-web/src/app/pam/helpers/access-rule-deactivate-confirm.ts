@@ -1,4 +1,4 @@
-import { SimpleDialogOptions } from "@bitwarden/components";
+import type { SimpleDialogOptions } from "@bitwarden/components";
 
 /**
  * `count` is how many rules will change, so bulk callers exclude already-inactive ones. Plurals

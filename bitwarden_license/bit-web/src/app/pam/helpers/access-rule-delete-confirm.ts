@@ -1,4 +1,4 @@
-import { SimpleDialogOptions } from "@bitwarden/components";
+import type { SimpleDialogOptions } from "@bitwarden/components";
 
 /** Shared by the list and the edit page, so both ask the same question. */
 export function accessRuleDeleteConfirmOptions(ruleName: string): SimpleDialogOptions {
