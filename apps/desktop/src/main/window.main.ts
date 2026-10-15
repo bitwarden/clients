@@ -107,6 +107,8 @@ export class WindowMain {
   isQuitting = false;
   isClosing = false;
   private isReloading = false;
+  // Settles once the first window exists. A reopen during startup must not create a second one.
+  private startup: Promise<void> = Promise.resolve();
 
   private windowStateChangeTimer: NodeJS.Timeout;
   private windowStates: { [key: string]: WindowState } = {};
@@ -238,9 +240,10 @@ export class WindowMain {
             app.quit();
             return;
           } else {
-            app.on("second-instance", (event, argv, workingDirectory) => {
+            app.on("second-instance", async (event, argv, workingDirectory) => {
               // Someone tried to run a second instance (e.g. launching from the desktop
               // icon or terminal while already running). Always bring us to the foreground.
+              await this.startup;
               if (this.focusWindowCallback != null) {
                 void this.focusWindowCallback();
               } else {
@@ -273,7 +276,7 @@ export class WindowMain {
         // initialization and is ready to create browser windows.
         // Some APIs can only be used after this event occurs.
         // `whenReady()` also covers callers that run after the `ready` event has already fired.
-        void app.whenReady().then(async () => {
+        this.startup = app.whenReady().then(async () => {
           this.session = session.fromPartition("persist:bitwarden", { cache: false });
           this.setupAppProtocol();
 
@@ -326,6 +329,7 @@ export class WindowMain {
         app.on("activate", async () => {
           // On OS X it's common to re-create a window in the app when the
           // dock icon is clicked and there are no other windows open.
+          await this.startup;
           if (this.focusWindowCallback != null) {
             await this.focusWindowCallback();
           } else if (this.win == null) {

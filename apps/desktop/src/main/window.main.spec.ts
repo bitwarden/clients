@@ -174,6 +174,53 @@ describe("WindowMain", () => {
       expect(createWindow).toHaveBeenCalledWith("full-app", true);
     });
 
+    describe("while the startup window is still being created", () => {
+      let finishStartupWindow: () => void;
+      let initDone: Promise<void>;
+
+      const appHandler = (event: string) =>
+        jest.mocked(app.on).mock.calls.find(([name]) => name === event)[1] as (
+          ...args: unknown[]
+        ) => Promise<void>;
+
+      beforeEach(async () => {
+        createWindow.mockReturnValueOnce(
+          new Promise<void>((resolve) => (finishStartupWindow = resolve)),
+        );
+        initDone = sut.init(true);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(createWindow).toHaveBeenCalledTimes(1);
+      });
+
+      it("does not create a second window on activate", async () => {
+        const activateDone = appHandler("activate")();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(createWindow).toHaveBeenCalledTimes(1);
+
+        const win = mock<BrowserWindow>();
+        sut.win = win;
+        finishStartupWindow();
+        await initDone;
+        await activateDone;
+
+        expect(createWindow).toHaveBeenCalledTimes(1);
+        expect(win.show).toHaveBeenCalled();
+      });
+
+      it("focuses the startup window on second-instance", async () => {
+        const secondInstanceDone = appHandler("second-instance")({}, [], "");
+
+        const win = mock<BrowserWindow>();
+        win.isDestroyed.mockReturnValue(false);
+        sut.win = win;
+        finishStartupWindow();
+        await initDone;
+        await secondInstanceDone;
+
+        expect(win.focus).toHaveBeenCalled();
+      });
+    });
+
     it("leaves no crash listeners behind after a reload", async () => {
       const reloadProcess = await setUpReload();
       const webContents = Object.assign(new EventEmitter(), {
