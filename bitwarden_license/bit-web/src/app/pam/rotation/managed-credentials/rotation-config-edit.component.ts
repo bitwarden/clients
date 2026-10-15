@@ -1,16 +1,28 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  LOCALE_ID,
+  computed,
+  inject,
+  signal,
+} from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, map } from "rxjs";
 
+import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
+  BadgeModule,
   ButtonModule,
   CalloutModule,
   CardComponent,
@@ -18,6 +30,8 @@ import {
   DialogService,
   FormFieldModule,
   HeaderComponent,
+  IconTileComponent,
+  ItemModule,
   SectionComponent,
   SectionHeaderComponent,
   SelectModule,
@@ -45,24 +59,41 @@ import {
 import { OrgCiphersService } from "../org-ciphers.service";
 import {
   AccessConnector,
+  AccessConnectorId,
   AccessConnectorStatus,
   RotationConfigCreateRequest,
   RotationConfigDetailView,
   RotationConfigId,
+  RotationConfigView,
   TargetSystemId,
+  TargetSystemKind,
   TargetSystemMethod,
   TargetSystemStatus,
   TargetSystemView,
 } from "../rotation";
+import {
+  ConnectorState,
+  assignedConnectors,
+  connectorStateFor,
+  isConnected,
+  resolveDetailStatus,
+} from "../rotation-detail-status";
 import { classifyRotationError } from "../rotation-error";
 import { ROTATION_TABS, rotationLink } from "../rotation-links";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
 import { RotationScheduleInputComponent } from "../rotation-schedule-input/rotation-schedule-input.component";
-import { RotationSdkService } from "../rotation-sdk.service";
+import { RotationConfigDescription, RotationSdkService } from "../rotation-sdk.service";
+import {
+  formatRotationAge,
+  formatRotationDate,
+  formatRotationTimestamp,
+} from "../rotation-timestamp";
 import { showSkeletonWhile } from "../skeleton-delay";
+import { AssignConnectorDialogComponent } from "../target-systems/assign-connector-dialog.component";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
+import { RotationRowStatus } from "./rotation-config-row";
 import { RotationHistorySkeletonComponent } from "./rotation-history-skeleton.component";
 import { RotationHistoryComponent } from "./rotation-history.component";
 
@@ -84,6 +115,7 @@ export type RotationConfigEditTab = (typeof ROTATION_CONFIG_EDIT_TABS)[number];
     CommonModule,
     ReactiveFormsModule,
     AsyncActionsModule,
+    BadgeModule,
     DetailBreadcrumbComponent,
     FormFieldModule,
     ButtonModule,
@@ -91,6 +123,8 @@ export type RotationConfigEditTab = (typeof ROTATION_CONFIG_EDIT_TABS)[number];
     CardComponent,
     CheckboxModule,
     HeaderComponent,
+    IconTileComponent,
+    ItemModule,
     RotationHistoryComponent,
     RotationHistorySkeletonComponent,
     RotationLoadErrorComponent,
@@ -117,6 +151,9 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly draftService = inject(ManagedCredentialDraftService);
+  private readonly accountService = inject(AccountService);
+  private readonly collectionAdminService = inject(CollectionAdminService);
+  private readonly locale = inject(LOCALE_ID);
 
   private readonly organizationId = this.route.snapshot.params.organizationId as OrganizationId;
   private readonly configId: RotationConfigId | undefined =
@@ -172,7 +209,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
 
   protected readonly existingConfig = signal<RotationConfigDetailView | null>(null);
 
-  private readonly config = computed(() => this.existingConfig()?.config ?? null);
+  protected readonly config = computed(() => this.existingConfig()?.config ?? null);
 
   private readonly cipherNameById = toSignal(this.orgCiphersService.cipherNameById$, {
     initialValue: new Map<CipherId, string>(),
@@ -191,12 +228,30 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     () => this.config() != null && this.config()?.sealed == null,
   );
 
-  protected readonly headerIcon = this.editing ? "bwi-key" : "bwi-plus";
+  protected readonly headerIcon = this.editing ? undefined : "bwi-plus";
+
+  private readonly allCiphers = toSignal(this.orgCiphersService.ciphers$, {
+    initialValue: [],
+  });
+
+  private readonly cipher = computed(() => {
+    const cipherId = this.config()?.cipherId;
+    return cipherId == null
+      ? null
+      : (this.allCiphers().find((c) => asUuid<CipherId>(c.id) === cipherId) ?? null);
+  });
+
+  /** Empty until the vault item resolves, so the page never titles itself with an id. */
+  /** The org's name for the item when known, else the loaded item's; empty while unresolved. */
+  protected readonly vaultItemName = computed(() => {
+    const config = this.config();
+    return config == null
+      ? ""
+      : (this.cipherNameById().get(config.cipherId) ?? this.cipher()?.name ?? "");
+  });
 
   protected readonly titleText = computed(() =>
-    this.i18nService.t(
-      this.editing ? "pamRotationConfigEditTitle" : "pamRotationConfigCreateTitle",
-    ),
+    this.editing ? this.vaultItemName() : this.i18nService.t("pamRotationConfigCreateTitle"),
   );
 
   private readonly allTargetSystems = toSignal(this.targetSystemsService.systems$, {
@@ -317,7 +372,140 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     account: this.accountForm,
   });
 
-  protected readonly accountFormLocked = computed(() => this.config()?.hasActiveJob ?? false);
+  private readonly description = signal<RotationConfigDescription | null>(null);
+
+  private readonly collections = signal<CollectionAdminView[]>([]);
+
+  protected readonly sharedFolderNames = computed(() => {
+    const collectionIds = this.cipher()?.collectionIds ?? [];
+    const nameById = new Map(this.collections().map((c) => [uuidAsString(c.id), c.name]));
+    return collectionIds.flatMap((id) => {
+      const name = nameById.get(id);
+      return name == null ? [] : [name];
+    });
+  });
+
+  protected readonly isManual = computed(
+    () => this.config()?.targetSystemMethod === TargetSystemMethod.Manual,
+  );
+
+  private readonly configTargetSystem = computed(() => {
+    const targetSystemId = this.config()?.targetSystemId;
+    return this.allTargetSystems().find((s) => s.id === targetSystemId) ?? null;
+  });
+
+  private readonly connectorState = computed<ConnectorState>(() => {
+    const config = this.config();
+    return config == null ? "unknown" : connectorStateFor(this.connectors(), config.targetSystemId);
+  });
+
+  protected readonly connectorItems = computed(() => {
+    const config = this.config();
+    if (config == null || this.connectors() == null) {
+      return [];
+    }
+    return assignedConnectors(this.connectors() ?? [], config.targetSystemId).map((connector) => ({
+      id: String(connector.id),
+      name: connector.name,
+      connected: isConnected(connector),
+    }));
+  });
+
+  protected readonly showConnectors = computed(() => !this.isManual() && this.connectors() != null);
+
+  protected readonly connectorNames = computed(
+    () => new Map((this.connectors() ?? []).map((c) => [String(c.id), c.name])),
+  );
+
+  protected readonly jobs = computed(() => this.existingConfig()?.jobs ?? []);
+
+  protected readonly detailStatus = computed(() => {
+    const config = this.config();
+    return config == null ? null : resolveDetailStatus(config, this.jobs(), this.connectorState());
+  });
+
+  protected readonly callout = computed(() => this.detailStatus()?.callout ?? null);
+
+  protected readonly canRotateNow = computed(() => {
+    const config = this.config();
+    return (
+      config != null &&
+      (this.description()?.actions.canRotateNow ?? false) &&
+      config.enabled &&
+      !config.hasActiveJob &&
+      this.detailStatus()?.status !== RotationRowStatus.NotConnected
+    );
+  });
+
+  protected readonly canPause = computed(() => this.description()?.actions.canPause ?? false);
+
+  protected readonly canRecordManual = computed(
+    () => this.description()?.actions.canRecordManual ?? false,
+  );
+
+  protected readonly endingSessions = computed(() => {
+    const sealed = this.configTargetSystem()?.sealed;
+    return this.isManual() || sealed == null
+      ? null
+      : { kind: sealed.kind, supported: sealed.supportsSessionTermination === true };
+  });
+
+  protected readonly usernameHintKey = computed(() => {
+    if (this.isManual()) {
+      return "pamRotationDetailUsernameHintManual";
+    }
+    switch (this.configTargetSystem()?.sealed?.kind) {
+      case TargetSystemKind.Entra:
+        return "pamRotationDetailUsernameHintEntra";
+      case TargetSystemKind.CustomScript:
+        return "pamRotationDetailUsernameHintCustomScript";
+      default:
+        return "pamRotationDetailUsernameHintDefault";
+    }
+  });
+
+  protected readonly scheduleLabelKey = computed(() =>
+    this.isManual() ? "pamRotationDetailDueSchedule" : "pamRotationConfigScheduleLabel",
+  );
+
+  protected readonly lastRotatedText = computed(() => {
+    const at = this.config()?.lastRotationAt;
+    return at == null ? this.i18nService.t("pamRotationConfigNeverRotated") : this.timestamp(at);
+  });
+
+  protected readonly nextRotationText = computed(() => {
+    const config = this.config();
+    if (config == null) {
+      return "";
+    }
+    if (config.hasActiveJob) {
+      return this.i18nService.t("pamRotationAttemptInProgress");
+    }
+    const at = config.nextRotationAt;
+    if (!config.enabled || at == null) {
+      return this.i18nService.t("pamRotationDetailNone");
+    }
+    return config.awaitingManualRotation
+      ? this.i18nService.t("pamRotationDetailNextDue", formatRotationDate(at, this.locale))
+      : this.timestamp(at);
+  });
+
+  protected readonly dueAgeText = computed(() => {
+    const at = this.config()?.nextRotationAt;
+    return at == null ? "" : formatRotationAge(at, Date.now(), this.locale);
+  });
+
+  protected readonly timedOutParts = computed(() => {
+    const marker = "\u0000";
+    const [before, after] = this.i18nService
+      .t("pamRotationDetailCalloutTimedOut", marker)
+      .split(marker);
+    return { before, after: after ?? "" };
+  });
+
+  private timestamp(iso: string): string {
+    return formatRotationTimestamp(iso, this.locale);
+  }
 
   constructor() {
     this.coupleTargetControls();
@@ -420,25 +608,81 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
   }
 
   private async initializeEditMode(): Promise<void> {
-    const [detail] = await Promise.all([
+    const [detail, connectors] = await Promise.all([
       this.rotationSdk.getConfig(this.organizationId, this.configId!),
+      this.loadConnectors(),
       this.targetSystemsService.load(this.organizationId),
       this.orgCiphersService.load(this.organizationId),
+      this.loadCollections(),
     ]);
-    this.existingConfig.set(detail);
+    this.connectors.set(connectors);
+    await this.applyDetail(detail);
     this.settingsForm.patchValue({
       scheduleCron: detail.config.scheduleCron,
       rotateOnAccessEnd: detail.config.rotateOnAccessEnd,
     });
     const sealed = detail.config.sealed;
     if (sealed == null) {
-      // Nothing trustworthy to prefill; configSealUnverified banners why instead.
       return;
     }
     this.accountForm.patchValue({
       accountIdentity: sealed.accountIdentity,
       terminateSessions: sealed.terminateSessions,
     });
+  }
+
+  private async loadCollections(): Promise<void> {
+    try {
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      this.collections.set(
+        await firstValueFrom(
+          this.collectionAdminService.collectionAdminViews$(this.organizationId, userId),
+        ),
+      );
+    } catch {
+      this.collections.set([]);
+    }
+  }
+
+  private async applyDetail(detail: RotationConfigDetailView): Promise<void> {
+    const statuses = new Map(this.allTargetSystems().map((s) => [s.id, s.status]));
+    const descriptions = await this.rotationSdk.describeConfigs([detail.config], statuses);
+    this.description.set(descriptions.get(detail.config.id) ?? null);
+    this.existingConfig.set(detail);
+    this.applyEditLocks(detail.config);
+  }
+
+  /** Re-reads the config after an action, leaving what the operator has typed alone. */
+  private async reloadConfig(): Promise<void> {
+    await this.applyDetail(await this.rotationSdk.getConfig(this.organizationId, this.configId!));
+  }
+
+  private applyEditLocks(config: RotationConfigView): void {
+    const { accountIdentity, terminateSessions } = this.accountForm.controls;
+    const { rotateOnAccessEnd } = this.settingsForm.controls;
+    const manual = config.targetSystemMethod === TargetSystemMethod.Manual;
+
+    if (config.hasActiveJob) {
+      accountIdentity.disable({ emitEvent: false });
+    } else {
+      accountIdentity.enable({ emitEvent: false });
+    }
+
+    const canTerminate =
+      !manual &&
+      !config.hasActiveJob &&
+      this.configTargetSystem()?.sealed?.supportsSessionTermination === true;
+    if (canTerminate) {
+      terminateSessions.enable({ emitEvent: false });
+    } else {
+      terminateSessions.disable({ emitEvent: false });
+    }
+
+    if (manual) {
+      rotateOnAccessEnd.disable({ emitEvent: false });
+    } else {
+      rotateOnAccessEnd.enable({ emitEvent: false });
+    }
   }
 
   /** True for an automatic target with no verified sealed fields — the checkbox is disabled for "unknown", not "unsupported". */
@@ -539,21 +783,117 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
       rotateOnAccessEnd: settings.rotateOnAccessEnd,
     };
     try {
-      const updated = await this.rotationSdk.updateConfig(
-        this.organizationId,
-        this.configId!,
-        request,
-      );
-      this.existingConfig.set(updated);
-      this.markSaved();
+      await this.rotationSdk.updateConfig(this.organizationId, this.configId!, request);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamRotationConfigSaved"),
       });
+      await this.navigateBack();
     } catch (e) {
       this.showError(e);
     }
   };
+
+  /** Seam for the Pause rotation confirmation, which resolves true until its dialog is designed. */
+  protected readonly openPauseDialog = (): Promise<boolean> => Promise.resolve(true);
+
+  /** Seam for the Rotate now confirmation shown when End active sessions is on. */
+  protected readonly openRotateNowDialog = (): Promise<boolean> => Promise.resolve(true);
+
+  private async runAction(action: () => Promise<void>, successKey: string): Promise<void> {
+    try {
+      await action();
+      this.toastService.showToast({ variant: "success", message: this.i18nService.t(successKey) });
+      await this.reloadConfig();
+    } catch (e) {
+      this.showError(e);
+    }
+  }
+
+  protected readonly pause = async (): Promise<void> => {
+    if (!(await this.openPauseDialog())) {
+      return;
+    }
+    const wasRotating = this.config()?.hasActiveJob ?? false;
+    await this.runAction(
+      () => this.rotationSdk.pauseConfig(this.organizationId, this.configId!),
+      wasRotating ? "pamRotationConfigPauseWhileRotatingSuccess" : "pamRotationConfigPauseSuccess",
+    );
+  };
+
+  protected readonly resume = (): Promise<void> =>
+    this.runAction(
+      () => this.rotationSdk.resumeConfig(this.organizationId, this.configId!),
+      "pamRotationConfigResumeSuccess",
+    );
+
+  protected readonly rotateNow = async (): Promise<void> => {
+    const needsConfirm = this.accountForm.controls.terminateSessions.value;
+    if (needsConfirm && !(await this.openRotateNowDialog())) {
+      return;
+    }
+    await this.runAction(
+      () => this.rotationSdk.rotateNow(this.organizationId, this.configId!),
+      "pamRotationConfigRotateNowStarted",
+    );
+  };
+
+  protected readonly markRotated = async (): Promise<void> => {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "pamRotationConfigMarkRotatedTitle" },
+      content: { key: "pamRotationConfigMarkRotatedContent" },
+      acceptButtonText: { key: "pamRotationConfigMarkRotated" },
+      cancelButtonText: { key: "cancel" },
+      type: "info",
+    });
+    if (!confirmed) {
+      return;
+    }
+    await this.runAction(
+      () => this.rotationSdk.recordManualRotation(this.organizationId, this.configId!),
+      "pamRotationConfigMarkedRotated",
+    );
+  };
+
+  protected readonly assignConnector = async (): Promise<void> => {
+    const config = this.config();
+    const targetSystem = this.configTargetSystem();
+    const connectors = this.connectors();
+    if (config == null || targetSystem == null || connectors == null) {
+      return;
+    }
+    const enabled = connectors.filter((c) => c.status === AccessConnectorStatus.Enabled);
+    const dialog = AssignConnectorDialogComponent.open(this.dialogService, {
+      data: {
+        targetSystem,
+        options: enabled.filter((c) => !c.assignedTargetSystemIds.includes(config.targetSystemId)),
+        noneEligible: enabled.length === 0,
+      },
+    });
+    const connectorId = await firstValueFrom(dialog.closed);
+    if (connectorId == null) {
+      return;
+    }
+    try {
+      await this.rotationSdk.assignTarget(
+        this.organizationId,
+        asUuid<AccessConnectorId>(connectorId),
+        config.targetSystemId,
+      );
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamTargetSystemAssignConnectorSuccess"),
+      });
+      this.connectors.set(await this.loadConnectors());
+    } catch (e) {
+      this.showError(e);
+    }
+  };
+
+  protected readonly viewConnectors = (): Promise<boolean> =>
+    this.router.navigate(rotationLink(this.organizationId, ROTATION_TABS.accessConnectors), {
+      queryParams: { targetSystemId: this.config()?.targetSystemId },
+    });
 
   /**
    * Removes rotation management; the cipher stays in the vault. Blocked while a job is in flight,
