@@ -1,6 +1,6 @@
 import { Component, inject } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
-import { combineLatest, map, Observable, of, startWith, switchMap } from "rxjs";
+import { combineLatest, map, Observable, startWith, switchMap } from "rxjs";
 
 import { NudgesService } from "@bitwarden/angular/vault";
 import {
@@ -25,9 +25,8 @@ import {
   vaultScopeCommands,
 } from "@bitwarden/vault";
 
+import { HealthAccessService } from "../dirt/health/popup/services/health-access.service";
 import { VaultPopupListTableFiltersService } from "../vault/popup/services/vault-popup-list-table-filters.service";
-
-import { HEALTH_TAB_NAV_BUTTON } from "./health-tab-nav-button";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -37,9 +36,14 @@ import { HEALTH_TAB_NAV_BUTTON } from "./health-tab-nav-button";
   standalone: false,
 })
 export class TabsV2Component {
+  constructor(
+    private nudgesService: NudgesService,
+    private accountService: AccountService,
+    private autofillSettingsService: AutofillSettingsServiceAbstraction,
+  ) {}
+
   private sendPolicyService = inject(SendPolicyService);
-  private healthNavButton$: Observable<BottomNavigationButton | undefined> =
-    inject(HEALTH_TAB_NAV_BUTTON, { optional: true }) ?? of(undefined);
+  private healthAccessService = inject(HealthAccessService);
   private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
   private readonly vaultBasePath = inject(VAULT_BASE_ROUTE);
 
@@ -52,6 +56,10 @@ export class TabsV2Component {
     this.hasActiveBadges$,
     this.autofillSettingsService.showClipboardSettingUpdateNotification$,
   ]).pipe(map(([hasBadges, showClipboard]) => hasBadges || showClipboard));
+
+  private healthNavButton$ = this.userId$.pipe(
+    switchMap((userId) => this.healthAccessService.healthNavButton$(userId)),
+  );
 
   private sendEnabled$ = this.sendPolicyService.disableSend$.pipe(
     map((disableSend) => !disableSend),
@@ -101,10 +109,4 @@ export class TabsV2Component {
       return buttons;
     }),
   );
-
-  constructor(
-    private nudgesService: NudgesService,
-    private accountService: AccountService,
-    private autofillSettingsService: AutofillSettingsServiceAbstraction,
-  ) {}
 }

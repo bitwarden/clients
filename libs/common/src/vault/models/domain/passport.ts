@@ -1,13 +1,12 @@
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/legacy-crypto";
 import { Passport as SdkPassport } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
 import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { PassportData } from "../data/passport.data";
-import { PassportView } from "../view/passport.view";
 
 export class Passport extends Domain {
   surname?: EncString;
@@ -43,30 +42,6 @@ export class Passport extends Domain {
     this.issuingAuthority = conditionalEncString(obj.issuingAuthority);
     this.issueDate = conditionalEncString(obj.issueDate);
     this.expirationDate = conditionalEncString(obj.expirationDate);
-  }
-
-  decrypt(encKey: SymmetricCryptoKey, context = "No Cipher Context"): Promise<PassportView> {
-    return this.decryptObj<Passport, PassportView>(
-      this,
-      new PassportView(),
-      [
-        "surname",
-        "givenName",
-        "dateOfBirth",
-        "sex",
-        "birthPlace",
-        "nationality",
-        "issuingCountry",
-        "passportNumber",
-        "passportType",
-        "nationalIdentificationNumber",
-        "issuingAuthority",
-        "issueDate",
-        "expirationDate",
-      ],
-      encKey,
-      "DomainType: Passport; " + context,
-    );
   }
 
   toPassportData(): PassportData {
