@@ -50,4 +50,3 @@ export {
 } from "./helpers/lease-window.utils";
 export { accessRuleErrorMessageKey, classifyAccessRuleError } from "./helpers/access-rule-error";
 export type { AccessRuleErrorField, AccessRuleErrorOutcome } from "./helpers/access-rule-error";
-export { selectedFilterStrings } from "./helpers/selected-filter-strings";
