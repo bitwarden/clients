@@ -108,6 +108,14 @@ describe("IpAllowlistEditorComponent", () => {
       expect(cidrArray.at(0).value).toBe("");
     });
 
+    it("marks the array dirty so the host's discard guard sees the removal", () => {
+      create(hostArray("10.0.0.0/8", "192.168.0.0/16"));
+
+      component["removeRow"](0);
+
+      expect(cidrArray.dirty).toBe(true);
+    });
+
     it("clears the removed row's error rather than showing it against the row that replaces it", () => {
       create(hostArray("not-a-cidr", "10.0.0.0/8"));
       cidrArray.at(0).markAsTouched();
