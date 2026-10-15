@@ -399,6 +399,52 @@ describe("ItemMoreOptionsComponent", () => {
     });
   });
 
+  describe("PAM-gated items", () => {
+    /** Opens the menu and returns its entries' labels (i18n keys here). */
+    function openMenu(): string[] {
+      fixture.componentRef.setInput("showAutofill", true);
+      fixture.detectChanges();
+      fixture.nativeElement.querySelector("button[bitIconButton]").click();
+      fixture.detectChanges();
+      return Array.from(document.querySelectorAll("[bitMenuItem]")).map(
+        (item) => item.textContent?.trim() ?? "",
+      );
+    }
+
+    it("offers the write actions on an ungated item", () => {
+      expect(openMenu()).toEqual(
+        expect.arrayContaining(["autofillVerb", "favorite", "edit", "archiveVerb", "delete"]),
+      );
+    });
+
+    it("renders no menu for a partial item", () => {
+      component.cipher = { ...baseCipher, partial: true };
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("button[bitIconButton]")).toBeNull();
+    });
+
+    it("offers only Autofill on a leased copy", () => {
+      component.cipher = { ...baseCipher, leaseGated: true };
+
+      expect(openMenu()).toEqual(["autofillVerb"]);
+    });
+
+    it("offers no autofill-and-save on a leased copy", async () => {
+      component.cipher = { ...baseCipher, leaseGated: true };
+      autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
+      passwordRepromptService.passwordRepromptCheck.mockResolvedValue(true);
+      jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+      const openSpy = mockConfirmDialogResult(AutofillConfirmationDialogResult.Canceled);
+
+      await component.doAutofill();
+
+      expect(openSpy).toHaveBeenCalledWith(dialogService, {
+        data: expect.objectContaining({ viewOnly: true }),
+      });
+    });
+  });
+
   describe("canAssignCollections$", () => {
     it("emits true when user has organizations and editable collections", (done) => {
       jest.spyOn(component["organizationService"], "hasOrganizations").mockReturnValue(of(true));

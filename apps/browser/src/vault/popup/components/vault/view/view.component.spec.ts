@@ -113,7 +113,8 @@ describe("ViewComponent", () => {
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
 
   const mockCipherService = {
-    cipherViews$: jest.fn().mockImplementation((userId) => of([mockCipher])),
+    getAllDecryptedForIdsIncludingPartials: jest.fn().mockResolvedValue([mockCipher]),
+    leasedCipherViews$: jest.fn(),
     deleteWithServer: jest.fn().mockResolvedValue(undefined),
     softDeleteWithServer: jest.fn().mockResolvedValue(undefined),
   };
@@ -121,7 +122,8 @@ describe("ViewComponent", () => {
   const cipherArchiveService = mock<CipherArchiveService>();
 
   beforeEach(async () => {
-    mockCipherService.cipherViews$.mockClear();
+    mockCipherService.getAllDecryptedForIdsIncludingPartials.mockClear();
+    mockCipherService.leasedCipherViews$.mockReturnValue(of([]));
     mockCipherService.deleteWithServer.mockClear();
     mockCipherService.softDeleteWithServer.mockClear();
     mockNavigate.mockClear();
@@ -282,7 +284,10 @@ describe("ViewComponent", () => {
 
       flush(); // Resolve all promises
 
-      expect(mockCipherService.cipherViews$).toHaveBeenCalledWith(mockUserId);
+      expect(mockCipherService.getAllDecryptedForIdsIncludingPartials).toHaveBeenCalledWith(
+        mockUserId,
+        ["122-333-444"],
+      );
       expect(component.cipher).toEqual(mockCipher);
     }));
 
@@ -370,14 +375,12 @@ describe("ViewComponent", () => {
 
     it("does not set the cipher until reprompt is complete", fakeAsync(() => {
       let promptPromise: (val?: unknown) => void;
-      mockCipherService.cipherViews$.mockImplementationOnce((userId) =>
-        of([
-          {
-            ...mockCipher,
-            reprompt: CipherRepromptType.Password,
-          },
-        ]),
-      );
+      mockCipherService.getAllDecryptedForIdsIncludingPartials.mockResolvedValueOnce([
+        {
+          ...mockCipher,
+          reprompt: CipherRepromptType.Password,
+        },
+      ]);
       doAutofill.mockImplementationOnce(() => {
         return new Promise((resolve) => {
           // store the promise resolver to manually trigger the promise resolve
@@ -400,14 +403,12 @@ describe("ViewComponent", () => {
 
     it("does not set the cipher at all if doAutofill fails and reprompt is active", fakeAsync(() => {
       let promptPromise: (val?: unknown) => void;
-      mockCipherService.cipherViews$.mockImplementationOnce((userId) =>
-        of([
-          {
-            ...mockCipher,
-            reprompt: CipherRepromptType.Password,
-          },
-        ]),
-      );
+      mockCipherService.getAllDecryptedForIdsIncludingPartials.mockResolvedValueOnce([
+        {
+          ...mockCipher,
+          reprompt: CipherRepromptType.Password,
+        },
+      ]);
       doAutofill.mockImplementationOnce(() => {
         return new Promise((resolve) => {
           // store the promise resolver to manually trigger the promise resolve
@@ -432,14 +433,12 @@ describe("ViewComponent", () => {
       "does not set cipher when copy fails for %s",
       fakeAsync((action: string) => {
         let promptPromise: (val?: unknown) => void;
-        mockCipherService.cipherViews$.mockImplementationOnce((userId) =>
-          of([
-            {
-              ...mockCipher,
-              reprompt: CipherRepromptType.Password,
-            },
-          ]),
-        );
+        mockCipherService.getAllDecryptedForIdsIncludingPartials.mockResolvedValueOnce([
+          {
+            ...mockCipher,
+            reprompt: CipherRepromptType.Password,
+          },
+        ]);
         copy.mockImplementationOnce(() => {
           return new Promise((resolve) => {
             // store the promise resolver to manually trigger the promise resolve
@@ -477,6 +476,77 @@ describe("ViewComponent", () => {
       expect(focusSpy).toHaveBeenCalledWith(99);
       expect(closeSpy).toHaveBeenCalledTimes(1);
     }));
+  });
+
+  describe("PAM-gated items", () => {
+    const partial = { ...mockCipher, partial: true } as CipherView;
+    const leased = { ...mockCipher, leaseGated: true } as CipherView;
+
+    const showsFooter = () => {
+      let shown: boolean;
+      (component as any).showFooter$.subscribe((value: boolean) => (shown = value));
+      return shown!;
+    };
+
+    /** Opens the view on a stored partial item. */
+    const openPartial = () => {
+      mockCipherService.getAllDecryptedForIdsIncludingPartials.mockResolvedValueOnce([partial]);
+      params$.next({ cipherId: mockCipher.id });
+      flush();
+    };
+
+    it("shows a partial item without Autofill or the footer", fakeAsync(() => {
+      openPartial();
+
+      expect(component.cipher).toBe(partial);
+      expect(component.showAutofillButton()).toBe(false);
+      expect(showsFooter()).toBe(false);
+    }));
+
+    it("shows the leased copy with Autofill but without the footer", fakeAsync(() => {
+      mockCipherService.leasedCipherViews$.mockReturnValue(of([leased]));
+
+      openPartial();
+
+      expect(component.cipher).toBe(leased);
+      expect(component.showAutofillButton()).toBe(true);
+      expect(showsFooter()).toBe(false);
+    }));
+
+    it("swaps in the leased copy and back without a second view event", fakeAsync(() => {
+      const leased$ = new BehaviorSubject<CipherView[]>([]);
+      mockCipherService.leasedCipherViews$.mockReturnValue(leased$);
+
+      openPartial();
+      expect(component.cipher).toBe(partial);
+
+      leased$.next([leased]);
+      flush();
+      expect(component.cipher).toBe(leased);
+
+      leased$.next([]);
+      flush();
+      expect(component.cipher).toBe(partial);
+      expect(collect).toHaveBeenCalledTimes(1);
+    }));
+
+    it("offers no autofill-and-save on a leased copy", async () => {
+      component.cipher = {
+        ...leased,
+        login: { uris: [{ uri: "https://example.com" } as LoginUriView] },
+        edit: true,
+      } as CipherView;
+      jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+      const openSpy = jest
+        .spyOn(AutofillConfirmationDialogComponent, "open")
+        .mockReturnValue({ closed: of(AutofillConfirmationDialogResult.Canceled) } as any);
+
+      await component.doAutofill();
+
+      expect(openSpy).toHaveBeenCalledWith(TestBed.inject(DialogService), {
+        data: expect.objectContaining({ viewOnly: true }),
+      });
+    });
   });
 
   describe("archive button", () => {
@@ -699,14 +769,12 @@ describe("ViewComponent", () => {
   describe("archived badge", () => {
     it("shows archived badge if the cipher is archived", fakeAsync(() => {
       component.cipher = { ...mockCipher, isArchived: true } as CipherView;
-      mockCipherService.cipherViews$.mockImplementationOnce(() =>
-        of([
-          {
-            ...mockCipher,
-            isArchived: true,
-          },
-        ]),
-      );
+      mockCipherService.getAllDecryptedForIdsIncludingPartials.mockResolvedValueOnce([
+        {
+          ...mockCipher,
+          isArchived: true,
+        },
+      ]);
 
       params$.next({ action: "view", cipherId: mockCipher.id });
 
@@ -720,14 +788,12 @@ describe("ViewComponent", () => {
 
     it("does not show archived badge if the cipher is not archived", () => {
       component.cipher = { ...mockCipher, isArchived: false } as CipherView;
-      mockCipherService.cipherViews$.mockImplementationOnce(() =>
-        of([
-          {
-            ...mockCipher,
-            archivedDate: new Date(),
-          },
-        ]),
-      );
+      mockCipherService.getAllDecryptedForIdsIncludingPartials.mockResolvedValueOnce([
+        {
+          ...mockCipher,
+          archivedDate: new Date(),
+        },
+      ]);
 
       fixture.detectChanges();
 

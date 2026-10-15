@@ -31,6 +31,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CipherViewLike,
@@ -120,7 +121,7 @@ export class VaultPopupItemsService {
           switchMap(() =>
             combineLatest([
               this.cipherService
-                .cipherListViews$(userId)
+                .cipherListViewsWithPartials$(userId)
                 .pipe(filter((ciphers) => ciphers != null)),
               this.cipherService.failedToDecryptCiphers$(userId).pipe(startWith([])),
               this.restrictedItemTypesService.restricted$,
@@ -195,12 +196,14 @@ export class VaultPopupItemsService {
         UserId,
       ] => [vfo1Enabled ? ciphers : filterFunction(ciphers), searchText, userId],
     ),
-    switchMap(
-      ([ciphers, searchText, userId]) =>
-        this.searchService.searchCiphers(userId, null, searchText, ciphers) as Promise<
-          PopupCipherViewLike[]
-        >,
+    // Leased copies are swapped in after search, so search only sees a gated item's name and URIs.
+    switchMap(([ciphers, searchText, userId]) =>
+      combineLatest([
+        this.searchService.searchCiphers(userId, null, searchText, ciphers),
+        this.cipherService.leasedCipherViews$(userId),
+      ]),
     ),
+    map(([ciphers, leased]) => withLeasedCopies(ciphers, leased)),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
@@ -228,7 +231,9 @@ export class VaultPopupItemsService {
       if (!tab || !tab.url) {
         return of([]);
       }
-      return this.cipherService.filterCiphersForUrl(ciphers, tab.url, otherTypes);
+      // A gated item the user holds no lease on cannot be filled.
+      const fillable = ciphers.filter((c) => !CipherViewLikeUtils.isPartial(c));
+      return this.cipherService.filterCiphersForUrl(fillable, tab.url, otherTypes);
     }),
     map((ciphers) => ciphers.sort(this.sortCiphersForAutofill.bind(this))),
     shareReplay({ refCount: false, bufferSize: 1 }),
@@ -339,7 +344,7 @@ export class VaultPopupItemsService {
           const orgMap = Object.fromEntries(organizations.map((org) => [org.id, org]));
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
           return ciphers
-            .filter((c) => CipherViewLikeUtils.isDeleted(c))
+            .filter((c) => CipherViewLikeUtils.isDeleted(c) && !CipherViewLikeUtils.isPartial(c))
             .map(
               (cipher) =>
                 ({
@@ -416,6 +421,21 @@ export class VaultPopupItemsService {
     return this.cipherService.sortCiphersByLastUsedThenName(a, b);
   }
 }
+
+/**
+ * Replaces each gated (partial) row the user holds a lease on with its leased copy, keeping the
+ * row's collections and organization.
+ */
+const withLeasedCopies = (
+  ciphers: PopupCipherViewLike[],
+  leased: CipherView[],
+): PopupCipherViewLike[] =>
+  ciphers.map((cipher) => {
+    const copy = CipherViewLikeUtils.isPartial(cipher) && leased.find((c) => c.id === cipher.id);
+    return copy
+      ? Object.assign(copy, { collections: cipher.collections, organization: cipher.organization })
+      : cipher;
+  });
 
 /**
  * Operator that waits until the active account has synced at least once before allowing the source to continue emission.

@@ -169,6 +169,19 @@ export class ItemMoreOptionsComponent {
     return CipherViewLikeUtils.decryptionFailure(this.cipher);
   }
 
+  /** A PAM-gated item without a lease offers no fill, copy or write, so it gets no menu. */
+  get partial() {
+    return CipherViewLikeUtils.isPartial(this.cipher);
+  }
+
+  /** PAM-gated: a partial, or a leased copy. Neither is written to from here. */
+  get gated() {
+    return (
+      this.partial ||
+      (!CipherViewLikeUtils.isCipherListView(this.cipher) && !!this.cipher.leaseGated)
+    );
+  }
+
   /**
    * Determines if the cipher can be autofilled.
    */
@@ -226,7 +239,7 @@ export class ItemMoreOptionsComponent {
       data: {
         currentUrl: currentTab?.url || "",
         savedUris: cipher.login?.uris?.filter((u) => u.uri) ?? [],
-        viewOnly: !this.cipher.edit,
+        viewOnly: !this.cipher.edit || this.gated,
       },
     });
 

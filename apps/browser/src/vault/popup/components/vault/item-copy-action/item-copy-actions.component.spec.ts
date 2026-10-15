@@ -65,6 +65,13 @@ describe("ItemCopyActionsComponent", () => {
     expect(sharedComponent.showQuickCopyActions()).toBe(true);
   });
 
+  it("renders no copy actions for a partial item", () => {
+    fixture.componentRef.setInput("cipher", { name: "My cipher", partial: true } as CipherViewLike);
+    fixture.detectChanges();
+
+    expect(fixture.debugElement.query(By.directive(VaultItemCopyActionsComponent))).toBeNull();
+  });
+
   it("passes quick copy mode through when disabled by the popup service", () => {
     showQuickCopyActionsSubject.next(false);
 
