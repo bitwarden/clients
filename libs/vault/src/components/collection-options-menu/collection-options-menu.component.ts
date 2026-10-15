@@ -21,7 +21,6 @@ import {
 /** What `editCollection()`/`delete()` did, and which folder it targeted — not necessarily the
  * folder currently showing, if the viewer navigated away before the dialog closed. */
 export type CollectionActionResult = {
-  /** True for an explicit Delete, or for Access dropping the member's own assignment. */
   deleted: boolean;
   organizationId: OrganizationId;
   collectionId: CollectionId;

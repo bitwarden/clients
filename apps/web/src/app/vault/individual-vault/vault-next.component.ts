@@ -25,7 +25,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -157,7 +157,11 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     VaultBatchBarService,
     { provide: ASSIGN_COLLECTIONS_DIALOG, useClass: AssignCollectionsWebDialogAdapter },
     { provide: BULK_DELETE_DIALOG, useClass: BulkDeleteDialogWebAdapter },
-    { provide: COLLECTION_DIALOG, useClass: CollectionWebDialogAdapter },
+    safeProvider({
+      provide: COLLECTION_DIALOG,
+      useClass: CollectionWebDialogAdapter,
+      useAngularDecorators: true,
+    }),
   ],
 })
 export class VaultNextComponent implements OnInit {
@@ -709,12 +713,8 @@ export class VaultNextComponent implements OnInit {
       this.scopedCollectionId() === collectionId &&
       (deleted || this.currentCollection() == null)
     ) {
-      await this.navigateToSharedFolders(organizationId);
+      await this.router.navigate(sharedFoldersCommands(organizationId), { replaceUrl: true });
     }
-  }
-
-  private async navigateToSharedFolders(organizationId: OrganizationId): Promise<void> {
-    await this.router.navigate(sharedFoldersCommands(organizationId), { replaceUrl: true });
   }
 
   protected async openImport(): Promise<void> {
