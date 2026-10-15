@@ -12,8 +12,7 @@
           class="tw-font-medium"
           [id]="'rotation-history_button_details-' + job.id"
           data-testid="rotation-history-job-result"
-          (click)="openJob(job, trigger)"
-          #trigger
+          (click)="openJob(job, $any($event.currentTarget))"
         >
           {{ formatTimestamp(job.displayStartedAt) }}
         </button>
