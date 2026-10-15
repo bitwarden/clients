@@ -220,7 +220,6 @@ const mockMemberDialogManagerService = {
   openBulkRestoreRevokeDialog: () => Promise.resolve(undefined),
   openBulkEnableSecretsManagerDialog: () => Promise.resolve(undefined),
   openBulkActivatePrivilegedControlsDialog: () => Promise.resolve(undefined),
-  openBulkStatusDialog: () => Promise.resolve(undefined),
   openEventsDialog: () => {},
   openRemoveUserConfirmationDialog: () => Promise.resolve(false),
   openRevokeUserConfirmationDialog: () => Promise.resolve(false),

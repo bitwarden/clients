@@ -27,7 +27,7 @@ permissions:
 
 jobs:
   lint:
-    name: Lint
+    name: Lint TypeScript
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
@@ -176,18 +176,22 @@ jobs:
           RUST_NIGHTLY_TOOLCHAIN: ${{ steps.rust-nightly.outputs.name }}
         run: node scripts/lint-rust.mjs --only ${{ matrix.check.name }}
 
-  rust-lint:
-    name: Rust lint
+  # Fan-in for every blocking lint job. Branch protection requires the `Lint`
+  # check, so every job listed in `needs` blocks merging.
+  lint-gate:
+    name: Lint
     runs-on: ubuntu-24.04
-    needs: rust
+    needs:
+      - lint
+      - rust
     if: always()
     steps:
-      - name: Verify all Rust lint checks passed
-        if: ${{ needs.rust.result != 'success' }}
+      - name: Verify all lint checks passed
+        if: ${{ needs.lint.result != 'success' || needs.rust.result != 'success' }}
         run: exit 1
 
   # RustSec advisories can start failing on an unchanged tree when a new advisory
-  # is published, so this job is kept out of the `rust-lint` gate. It runs once
+  # is published, so this job is kept out of the `lint-gate` fan-in. It runs once
   # rather than per OS because cargo-deny resolves the lockfile for all targets.
   rust-advisories:
     name: Rust advisories
