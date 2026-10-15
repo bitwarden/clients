@@ -15,6 +15,7 @@ import {
 } from "../components/new-experience-dialog/new-experience-dialog.component";
 
 import { NewExperienceDialogService } from "./new-experience-dialog.service";
+import { Vfo1TourCalloutService } from "./vfo1-tour-callout.service";
 
 describe("NewExperienceDialogService", () => {
   const userId = "user-1" as UserId;
@@ -28,12 +29,14 @@ describe("NewExperienceDialogService", () => {
   let nudgesService: MockProxy<NudgesService>;
   let serverSettings$: BehaviorSubject<ServerSettings>;
   let dialogService: MockProxy<DialogService>;
+  let tourCalloutService: MockProxy<Vfo1TourCalloutService>;
   let openSpy: jest.SpyInstance;
 
   beforeEach(() => {
     configService = mock<ConfigService>();
     nudgesService = mock<NudgesService>();
     dialogService = mock<DialogService>();
+    tourCalloutService = mock<Vfo1TourCalloutService>();
     serverSettings$ = new BehaviorSubject(new ServerSettings());
 
     configService.getFeatureFlag$.mockImplementation((flag) =>
@@ -51,6 +54,7 @@ describe("NewExperienceDialogService", () => {
         { provide: ConfigService, useValue: configService },
         { provide: DialogService, useValue: dialogService },
         { provide: NudgesService, useValue: nudgesService },
+        { provide: Vfo1TourCalloutService, useValue: tourCalloutService },
       ],
     });
 
@@ -81,6 +85,30 @@ describe("NewExperienceDialogService", () => {
     await service.conditionallyOpen(userId, params);
 
     expect(nudgesService.dismissNudge).not.toHaveBeenCalled();
+  });
+
+  describe("when the user chooses to explore", () => {
+    beforeEach(() => {
+      openSpy.mockResolvedValue(NewExperienceDialogResult.Explore);
+    });
+
+    it("starts the walkthrough, then dismisses the nudge", async () => {
+      await service.conditionallyOpen(userId, params);
+
+      expect(tourCalloutService.startTour).toHaveBeenCalled();
+      expect(nudgesService.dismissNudge).toHaveBeenCalledWith(NudgeType.Vfo1NewExperience, userId);
+      expect(tourCalloutService.startTour.mock.invocationCallOrder[0]).toBeLessThan(
+        nudgesService.dismissNudge.mock.invocationCallOrder[0],
+      );
+    });
+
+    it("dismisses the nudge when the walkthrough fails to start", async () => {
+      tourCalloutService.startTour.mockRejectedValue(new Error("boom"));
+
+      await expect(service.conditionallyOpen(userId, params)).rejects.toThrow("boom");
+
+      expect(nudgesService.dismissNudge).toHaveBeenCalledWith(NudgeType.Vfo1NewExperience, userId);
+    });
   });
 
   describe("when the dialog should not open", () => {

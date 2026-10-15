@@ -142,11 +142,11 @@ describe("NewExperienceDialogComponent", () => {
         params.userId,
       );
 
-    it("dismisses the nudge and closes with the explore result", fakeAsync(() => {
+    it("closes with the explore result and leaves the nudge for the opener to dismiss", fakeAsync(() => {
       exploreButton().click();
       flushMicrotasks();
 
-      expectNudgeDismissed();
+      expect(nudgesService.dismissNudge).not.toHaveBeenCalled();
       expect(dialogRef.close).toHaveBeenCalledWith(NewExperienceDialogResult.Explore);
     }));
 
