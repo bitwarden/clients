@@ -14,7 +14,7 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { EventResponse, EventView } from "@bitwarden/common/dirt/event-logs";
+import { EventResponse, EventSystemUser, EventView } from "@bitwarden/common/dirt/event-logs";
 import { EventLogApiService } from "@bitwarden/common/dirt/event-logs/services/event-log-api.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -344,11 +344,16 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
   }
 
   // Send access rows show the accessor (a confirmed member, the claimed domain, or "External"),
-  // never the Send creator; all other rows resolve the acting member from the org user map.
+  // never the Send creator. PAM's own actions show Privileged Controls, not the requester in
+  // UserId. All other rows resolve the acting member from the org user map.
   private resolveMember(r: EventResponse, userId: string) {
     const sendAccessMember = resolveSendAccessMember(r, this.orgUsersUserIdMap, this.i18nService);
     if (sendAccessMember != null) {
       return sendAccessMember;
+    }
+
+    if (r.systemUser === EventSystemUser.Pam) {
+      return { name: this.i18nService.t("privilegedControls"), email: "" };
     }
 
     if (userId != null && this.orgUsersUserIdMap.has(userId)) {
