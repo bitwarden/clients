@@ -13,6 +13,7 @@ import {
   viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
+import { Router } from "@angular/router";
 import { map, of, switchMap } from "rxjs";
 
 import { IconComponent as VaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
@@ -63,8 +64,15 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { orgIconTile, personalIconTile } from "../../models/vault-icon-tile";
-import { VaultScope, VaultScopeType } from "../../models/vault-scope";
+import {
+  ALL_ITEMS_SCOPE,
+  VaultScope,
+  VaultScopeType,
+  vaultScopeCommands,
+} from "../../models/vault-scope";
+import { VAULT_BASE_ROUTE } from "../../routing/vault-base-route";
 import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
+import { sharedFolderName } from "../../utils/shared-folder-name";
 import {
   idString,
   matchesFavorite,
@@ -78,6 +86,11 @@ import {
 } from "../../utils/vault-filter-predicates";
 import { EmptyVaultComponent } from "../empty-vault/empty-vault.component";
 import { VaultItem } from "../vault-item";
+import {
+  BULK_BAR_CLEARANCE,
+  VAULT_TABLE_MIN_HEIGHT,
+  VAULT_TABLE_ROW_HEIGHT,
+} from "../vault-table-sizing";
 
 import { VaultItemsTableActionsColumnComponent } from "./vault-items-table-actions-column.component";
 import {
@@ -96,32 +109,6 @@ export const VAULT_FILTER_NAMESPACE = "vault";
  * selection itself, since capping a downstream view lets a bulk delete silently skip checked rows.
  */
 export const MAX_SELECTION_COUNT = 500;
-
-/**
- * Bottom margin (px) held while the bulk-actions bar shows — its height (53). The bar is
- * `position: fixed`, so without this the last row sits underneath it and is unreachable.
- */
-const BULK_BAR_CLEARANCE = 53;
-
-/** Fixed height (px) of a row. The table virtualizes, so rows can't size to their content. */
-const ROW_HEIGHT = 56;
-
-/** Rows the table stays tall enough to show. */
-const MIN_ROWS = 5;
-
-/**
- * Height (px) of the chrome above the rows: the toolbar's search row (a 40px field plus `py-5`)
- * and its 60px filter row, then the 48px header row. Approximate by design — it only backs a
- * minimum, so chrome that grows later costs a fraction of a row rather than breaking the layout.
- */
-const TABLE_CHROME_HEIGHT = 188;
-
-/**
- * Floor (px) for the table's height. Content above it on the page — the shared folder card grid
- * most of all — takes its natural height, so without a floor the table is what gives way, down to
- * a row or two on a short viewport. Below this the page scrolls instead.
- */
-const MIN_TABLE_HEIGHT = MIN_ROWS * ROW_HEIGHT + TABLE_CHROME_HEIGHT;
 
 export { VAULT_FILTER_KEYS, type VaultItemsTableFilters } from "./vault-items-table-filter-keys";
 
@@ -252,6 +239,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   private readonly i18nService = inject(I18nService);
   private readonly accountService = inject(AccountService);
   private readonly avatarService = inject(AvatarService);
+  private readonly router = inject(Router);
+  private readonly vaultBaseRoute = inject(VAULT_BASE_ROUTE);
 
   /**
    * The active user's avatar color, so the "My vault" tile matches their avatar and the side nav.
@@ -279,8 +268,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   protected readonly filterNamespace = VAULT_FILTER_NAMESPACE;
   protected readonly filterKeys = VAULT_FILTER_KEYS;
-  protected readonly rowHeight = ROW_HEIGHT;
-  protected readonly minTableHeight = MIN_TABLE_HEIGHT;
+  protected readonly rowHeight = VAULT_TABLE_ROW_HEIGHT;
+  protected readonly minTableHeight = VAULT_TABLE_MIN_HEIGHT;
 
   /** Bottom margin held while the bulk-actions bar is up. */
   protected readonly bulkBarClearance = computed(() =>
@@ -358,6 +347,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   /** The shared folder the current vault scope has drilled into — relayed to the empty state untouched. */
   readonly sharedFolderName = input<string>();
+
+  /** The account's active My vault items, which an org page's rows leave out. */
+  readonly myVaultItemCount = input(0);
 
   /** Emits the selected rows whenever the selection changes. */
   readonly selectedChange = output<readonly C[]>();
@@ -529,7 +521,15 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   private readonly folderNames = computed(() => this.nameMap(this.folders()));
 
-  private readonly collectionNames = computed(() => this.nameMap(this.collections()));
+  /** Each collection's own name, without its parent path — see {@link sharedFolderName}. */
+  private readonly collectionNames = computed(() =>
+    this.nameMap(
+      this.collections().map((collection) => ({
+        id: collection.id,
+        name: sharedFolderName(collection),
+      })),
+    ),
+  );
 
   private readonly organizationNames = computed(() => this.nameMap(this.organizations()));
 
@@ -572,10 +572,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     this.ciphers().some((cipher) => !idString(cipher.organizationId)),
   );
 
-  /**
-   * Whether the Vault chip offers "My vault".
-   */
-  protected readonly showMyVaultOption = computed(() => {
+  /** Whether the rows can include My vault items. */
+  private readonly myVaultInRows = computed(() => {
     const canHaveEmptyPersonalVault =
       !this.ciphers().filter((cipher) => !cipher.organizationId).length &&
       !this.scopedOrganizationId() &&
@@ -584,12 +582,35 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   });
 
   /**
+   * Under data ownership the nav drops My vault, so on an org page the Vault chip is the only way
+   * back to its items.
+   */
+  private readonly myVaultOutsideScope = computed(
+    () =>
+      this.scope()?.type === VaultScopeType.Organization &&
+      this.orgRequiresDataOwnership() &&
+      this.myVaultItemCount() > 0,
+  );
+
+  /**
+   * Whether the Vault chip offers "My vault".
+   */
+  protected readonly showMyVaultOption = computed(
+    () => this.myVaultInRows() || this.myVaultOutsideScope(),
+  );
+
+  /** Overrides the chip's row count, which can't see My vault items outside the rows. */
+  protected readonly myVaultOptionCount = computed(() =>
+    this.myVaultOutsideScope() ? this.myVaultItemCount() : undefined,
+  );
+
+  /**
    * Whether the user's items can span more than one vault:
    * - multiple organizations are present, or
-   * - exactly one organization is present alongside a personal vault option.
+   * - exactly one organization is present alongside a personal vault.
    */
-  private spansMultipleVaults(organizations: Organization[]): boolean {
-    return organizations.length > 1 || (this.showMyVaultOption() && organizations.length === 1);
+  private spansMultipleVaults(organizations: Organization[], includesMyVault: boolean): boolean {
+    return organizations.length > 1 || (includesMyVault && organizations.length === 1);
   }
 
   /**
@@ -597,16 +618,17 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * only appears when the user can filter between the vaults it actually offers.
    */
   protected readonly showVaults = computed(() =>
-    this.spansMultipleVaults(this.sortedOrganizations()),
+    this.spansMultipleVaults(this.sortedOrganizations(), this.showMyVaultOption()),
   );
 
   /**
    * Whether the Vault column should be shown. Driven by the unfiltered `organizations` input
    * rather than {@link sortedOrganizations}: a disabled organization still owns rows in the table,
    * so the column has to label them even though the chip doesn't offer the organization.
+   * Ignores {@link myVaultOutsideScope}, whose items never appear as rows here.
    */
   protected readonly showVaultColumn = computed(() =>
-    this.spansMultipleVaults(this.organizations()),
+    this.spansMultipleVaults(this.organizations(), this.myVaultInRows()),
   );
 
   /**
@@ -814,13 +836,46 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     }
 
     const teardown = batchBar.registerSelection({
-      selected: computed(() => model.selected().map((cipher): VaultItem<C> => ({ cipher }))),
+      selected: computed(() => {
+        const visibleIds = new Set(model.selectable().map((c) => String(c.id)));
+        return model
+          .selected()
+          .filter((cipher) => visibleIds.has(String(cipher.id)))
+          .map((cipher): VaultItem<C> => ({ cipher }));
+      }),
       clear: () => model.clear(),
     });
 
     // The service is provided above this table, so without this its selection would outlive the
     // component that owns it.
     onCleanup(teardown);
+  });
+
+  /**
+   * Sends a "My vault" pick to All items when this page can't show it. Cleared from the chip before
+   * the table mirrors it to the URL, so the page never records it in its filter memory.
+   */
+  private readonly redirectMyVaultPick = effect(() => {
+    const control = this.tableComponent()
+      ?.filterControls()
+      .find((filterControl) => filterControl.key() === VAULT_FILTER_KEYS.vault);
+    const value = control?.value();
+    if (
+      control == null ||
+      !this.myVaultOutsideScope() ||
+      !Array.isArray(value) ||
+      !value.includes(MY_VAULT)
+    ) {
+      return;
+    }
+
+    untracked(() => {
+      const rest = value.filter((vault) => vault !== MY_VAULT);
+      control.setValue(rest.length > 0 ? rest : undefined);
+      void this.router.navigate(vaultScopeCommands(ALL_ITEMS_SCOPE, this.vaultBaseRoute), {
+        queryParams: { [`${VAULT_FILTER_NAMESPACE}.${VAULT_FILTER_KEYS.vault}`]: MY_VAULT },
+      });
+    });
   });
 
   /** Carries the selection onto each new set of rows — see {@link reconcileSelection}. */
@@ -961,7 +1016,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   ): FilterOptionNode<CollectionId>[] {
     const toNode = (node: TreeNode<CollectionView>): FilterOptionNode<CollectionId> => ({
       value: node.node.id,
-      label: node.node.name,
+      label: sharedFolderName(node.node),
       options: node.children.map(toNode),
     });
     return getNestedCollectionTree([...sharedFolders])

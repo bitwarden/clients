@@ -214,6 +214,13 @@ export class EventService {
         msg = this.i18nService.t("autofilledItemId", this.formatCipherId(ev, options));
         humanReadableMsg = this.i18nService.t("autofilledItemId", this.getShortId(ev.cipherId));
         break;
+      case EventType.Cipher_ClientHttpAuthReleased:
+        msg = this.i18nService.t("httpAuthReleasedItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "httpAuthReleasedItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
       case EventType.Cipher_UpdatedCollections:
         msg = this.i18nService.t("editedCollectionsForItem", this.formatCipherId(ev, options));
         humanReadableMsg = this.i18nService.t(

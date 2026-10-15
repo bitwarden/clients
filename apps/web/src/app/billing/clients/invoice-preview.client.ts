@@ -11,13 +11,10 @@ import type { PlanTier } from "@bitwarden/pricing";
 import type { BillingAddress } from "../payment/types";
 import type { OrganizationSubscriptionPurchase } from "../types";
 
-/**
- * Request shapes are owned by the per-screen tickets that consume each route. They are kept
- * minimal and narrowly typed here rather than `any`, and will be filled out as those land.
- */
-// TODO(PM-40222): finalize the premium purchase request shape.
 export type PremiumPurchasePreviewRequest = {
   additionalStorage: number;
+  coupons?: string[];
+  billingAddress: Pick<BillingAddress, "country" | "postalCode">;
 };
 
 export type PremiumOrgUpgradePreviewRequest = {
@@ -48,14 +45,20 @@ export type OrganizationPlanChangePreviewRequest = {
 export class InvoicePreviewClient {
   private apiService = inject(ApiService);
 
-  /** Consumed by PM-40222. */
   previewPremiumPurchase = async (
     request: PremiumPurchasePreviewRequest,
   ): Promise<InvoicePreviewResponse> => {
+    const params = new URLSearchParams({
+      additionalStorage: request.additionalStorage.toString(),
+      country: request.billingAddress.country,
+      postalCode: request.billingAddress.postalCode,
+    });
+    request.coupons?.forEach((coupon) => params.append("coupons", coupon));
+
     const json = await this.apiService.send(
-      "POST",
-      "/account/billing/subscriptions/premium/invoice/preview",
-      request,
+      "GET",
+      `/account/billing/subscription/purchase/preview?${params.toString()}`,
+      null,
       true,
       true,
     );

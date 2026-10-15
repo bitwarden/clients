@@ -114,7 +114,7 @@ export class AccessRuleEditComponent {
   protected readonly extensionDurationOptions = EXTENSION_DURATION_OPTIONS;
   protected readonly noDurationCap = NO_DURATION_CAP;
 
-  /** The rule being edited, loaded in edit mode; null while loading or in create mode. */
+  /** Null while loading or in create mode. */
   protected readonly existing = signal<AccessRuleView | null>(null);
   protected readonly loading = signal(true);
   protected readonly titleText = computed(() =>
@@ -129,8 +129,7 @@ export class AccessRuleEditComponent {
       snapToNearestAccessRuleDuration(undefined),
       [Validators.required],
     ],
-    // Hard ceiling on any single lease's duration. NO_DURATION_CAP (the first
-    // option) means "no cap"; otherwise the lease window is clamped to this at start.
+    // NO_DURATION_CAP means no cap; otherwise a lease window is clamped to this when it starts.
     maxLeaseDurationSeconds: [NO_DURATION_CAP as number],
     singleActiveLease: [false],
     enabled: [true],
@@ -139,11 +138,8 @@ export class AccessRuleEditComponent {
     maxExtensionDurationSeconds: [DEFAULT_MAX_EXTENSION_DURATION_SECONDS],
     humanApprovalEnabled: [false],
     ipAllowlistEnabled: [false],
-    // A CIDR-per-row FormArray rendered by the IP allowlist editor. The array-level
-    // validators live here (not in the editor) so validity flows through this form;
-    // per-row CIDR validation rides on each pushed control. Disabled while the
-    // condition is off (see coupleIpAllowlistEnabled) so an empty/blank array doesn't
-    // block submit. `getRawValue()` still yields the flat `string[]`.
+    // Array-level validators live here rather than in the editor, so validity flows through this
+    // form. Disabled while the condition is off (see coupleIpAllowlistEnabled).
     ipAllowlistCidrs: this.formBuilder.nonNullable.array<string>(
       [],
       [noDuplicateCidrsValidator(), atLeastOneNonEmptyCidrValidator()],
@@ -151,12 +147,8 @@ export class AccessRuleEditComponent {
   });
 
   /**
-   * Condition kinds this client doesn't model (e.g. the server's `time_of_day`),
-   * stashed off the loaded rule so `submit()` can carry them forward unchanged.
-   * The checkbox-driven form only rebuilds the known kinds (`human_approval` /
-   * `ip_allowlist`); without this, editing any other property of a rule that
-   * carries an unrecognised condition would silently drop it on save. Empty for
-   * the create flow, where there is no existing rule to preserve conditions from.
+   * Condition kinds this client doesn't model, carried through `submit()` unchanged so saving the
+   * rule doesn't drop them.
    */
   private readonly unknownConditions = signal<AccessCondition[]>([]);
 
@@ -191,9 +183,7 @@ export class AccessRuleEditComponent {
         this.applyTemplate();
       }
     } finally {
-      // Reveal the form once the rule (edit mode) is applied; collections then
-      // stream into the multi-select behind its own `collectionsLoading` state,
-      // so the form isn't blocked on them.
+      // Collections load after the form shows, behind their own `collectionsLoading` state.
       this.loading.set(false);
     }
     await this.loadCollections(this.existing());
@@ -216,7 +206,7 @@ export class AccessRuleEditComponent {
   private applyRule(rule: AccessRuleView): void {
     this.unknownConditions.set(rule.conditions?.filter((c) => !isKnownAccessCondition(c)) ?? []);
     this.formGroup.patchValue(accessRuleToFormValue(rule));
-    // Seed the CIDR rows separately: a FormArray can't be resized via patchValue.
+    // Seeded separately, since patchValue can't resize a FormArray.
     this.setIpAllowlistCidrs(rule.conditions?.find(isIpAllowlist)?.cidrs ?? []);
   }
 
@@ -254,9 +244,8 @@ export class AccessRuleEditComponent {
         .filter((c: SelectItemView | undefined): c is SelectItemView => c != null);
       this.formGroup.controls.collections.setValue(selected);
     } catch {
-      // The collections list drives a required control, so a load failure leaves
-      // the form unable to be saved; surface it rather than failing silently (this
-      // runs outside initialize()'s await, so an unhandled rejection would be invisible).
+      // A failure leaves the form unsaveable, so surface it; nothing awaits `initialize()`, so a
+      // rejection would go unseen.
       this.toastService.showToast({
         variant: "error",
         message: this.i18nService.t("pamAccessRuleCollectionsLoadError"),
@@ -266,12 +255,7 @@ export class AccessRuleEditComponent {
     }
   }
 
-  /**
-   * Keep the default duration at or below the max: when the user moves one picker
-   * past the other, drag the other along so the pair stays consistent. A max of
-   * {@link NO_DURATION_CAP} ("no maximum") never constrains the default. Mutations
-   * use `emitEvent: false` so the paired control updates without re-triggering this.
-   */
+  /** Keeps the default duration at or below the max by dragging the other picker along. */
   private coupleDurationBounds(): void {
     const defaultControl = this.formGroup.controls.defaultLeaseDurationSeconds;
     const maxControl = this.formGroup.controls.maxLeaseDurationSeconds;
@@ -290,10 +274,8 @@ export class AccessRuleEditComponent {
   }
 
   /**
-   * Keep the CIDR array enabled only while the ip_allowlist condition is on. A disabled
-   * control is excluded from the form's validity, so a lingering blank or empty array can't
-   * block submit once the condition is switched back off — the same effect the previous
-   * ControlValueAccessor got for free by mounting/unmounting its validator with the editor.
+   * A disabled control is left out of the form's validity, so leftover CIDR rows can't block submit
+   * once the condition is off.
    */
   private coupleIpAllowlistEnabled(): void {
     const enabledControl = this.formGroup.controls.ipAllowlistEnabled;
@@ -311,7 +293,6 @@ export class AccessRuleEditComponent {
     enabledControl.valueChanges.pipe(takeUntilDestroyed()).subscribe(apply);
   }
 
-  /** Replace the CIDR rows with one control per loaded value; a FormArray can't be patched to a new length. */
   private setIpAllowlistCidrs(cidrs: string[]): void {
     const array = this.formGroup.controls.ipAllowlistCidrs;
     const message = this.i18nService.t("accessRuleIpAllowlistInvalidCidr");

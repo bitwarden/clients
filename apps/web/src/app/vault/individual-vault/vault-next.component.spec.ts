@@ -61,6 +61,8 @@ import {
   VaultRemountOnDirective,
   VaultsNavViewModel,
   Vfo1I18nPipe,
+  CoachmarkComponent,
+  CoachmarkService,
 } from "@bitwarden/vault";
 
 import {
@@ -69,7 +71,6 @@ import {
   openCollectionDialog,
 } from "../../admin-console/organizations/shared/components/collection-dialog";
 import { ImportDialogComponent } from "../../tools/import/import-dialog.component";
-import { CoachmarkComponent, CoachmarkService } from "../components/coachmark";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 
@@ -787,6 +788,10 @@ describe("VaultNextComponent", () => {
       it("shows a header tile rather than breadcrumbs", () => {
         expect(component().showBreadcrumbs()).toBe(false);
         expect(component().headerTile()).toBeDefined();
+      });
+
+      it("still counts the account's active My vault items for the Vault chip", () => {
+        expect(component().myVaultItemCount()).toBe(1);
       });
     });
 

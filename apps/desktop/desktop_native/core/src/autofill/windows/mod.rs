@@ -1,4 +1,5 @@
 mod context;
+mod settings;
 mod status;
 mod sync;
 mod user_verification;
@@ -8,6 +9,10 @@ use std::{fs::File, io::Read, path::PathBuf, sync::OnceLock};
 use anyhow::{anyhow, Context, Result};
 pub use context::{create_context_string, parse_context_string};
 use serde::{Deserialize, Serialize};
+use settings::{
+    handle_open_settings_request, handle_request_enable_request, OpenSettingsResponse,
+    RequestEnableResponse,
+};
 use status::{handle_status_request, StatusResponse};
 use sync::{handle_sync_request, SyncParameters, SyncResponse};
 use user_verification::{
@@ -42,6 +47,8 @@ async fn dispatch_command(value: String) -> Result<CommandResponse> {
         RunCommand::UserVerification(params) => {
             handle_user_verification_request(params).map(CommandResponse::from)
         }
+        RunCommand::RequestEnable(_) => handle_request_enable_request().map(CommandResponse::from),
+        RunCommand::OpenSettings(_) => handle_open_settings_request().map(CommandResponse::from),
     })
     .await
     .context("Autofill command task failed")?
@@ -62,6 +69,8 @@ enum RunCommand {
     Status(()),
     Sync(SyncParameters),
     UserVerification(UserVerificationParameters),
+    RequestEnable(()),
+    OpenSettings(()),
 }
 
 #[derive(Serialize)]
@@ -88,6 +97,8 @@ enum CommandResponse {
     Status(StatusResponse),
     Sync(SyncResponse),
     UserVerification(UserVerificationResponse),
+    RequestEnable(RequestEnableResponse),
+    OpenSettings(OpenSettingsResponse),
 }
 
 impl From<StatusResponse> for CommandResponse {

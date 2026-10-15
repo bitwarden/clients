@@ -4,8 +4,8 @@ import { Component, DestroyRef, OnInit, computed, inject, signal } from "@angula
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { BehaviorSubject, firstValueFrom } from "rxjs";
-import { concatMap, map, switchMap, timeout } from "rxjs/operators";
+import { BehaviorSubject, EMPTY, firstValueFrom, from, fromEvent } from "rxjs";
+import { catchError, concatMap, map, switchMap, timeout } from "rxjs/operators";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { AutotypeShortcutComponent } from "@bitwarden/angular/desktop-native/components/autotype-shortcut.component";
@@ -38,6 +38,7 @@ import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-stat
 import { UserId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import {
+  BadgeComponent,
   ButtonModule,
   CalloutModule,
   CheckboxModule,
@@ -46,7 +47,6 @@ import {
   FormFieldModule,
   IconButtonModule,
   IconModule,
-  ItemModule,
   LinkModule,
   Option,
   SectionComponent,
@@ -68,6 +68,10 @@ import {
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
+import {
+  DesktopAutofillService,
+  PasskeyProviderState,
+} from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopPremiumUpgradePromptService } from "../../billing/services/desktop-premium-upgrade-prompt.service";
@@ -86,6 +90,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     },
   ],
   imports: [
+    BadgeComponent,
     ButtonModule,
     CalloutModule,
     CheckboxModule,
@@ -95,7 +100,6 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     ReactiveFormsModule,
     IconButtonModule,
     IconModule,
-    ItemModule,
     I18nPipe,
     LinkModule,
     RouterModule,
@@ -132,6 +136,7 @@ export class SettingsDialogComponent implements OnInit {
   private readonly biometricStateService = inject(BiometricStateService);
   private readonly biometricsService = inject(DesktopBiometricsService);
   private readonly desktopAutofillSettingsService = inject(DesktopAutofillSettingsService);
+  private readonly desktopAutofillService = inject(DesktopAutofillService);
   private readonly pinService = inject(PinServiceAbstraction);
   private readonly logService = inject(LogService);
   private readonly nativeMessagingManifestService = inject(NativeMessagingManifestService);
@@ -157,6 +162,10 @@ export class SettingsDialogComponent implements OnInit {
   protected readonly supportsBiometric = signal(false);
   protected readonly showEnableAutotype = signal(false);
   protected readonly showEnableAutotypeGa = signal(false);
+  protected readonly passkeyProviderState = signal<PasskeyProviderState | undefined>(undefined);
+  protected readonly showPasskeyProviderSetting = computed(
+    () => this.passkeyProviderState()?.registered === true,
+  );
   private readonly activeAccount = toSignal(this.accountService.activeAccount$, {
     requireSync: true,
   });
@@ -267,6 +276,8 @@ export class SettingsDialogComponent implements OnInit {
   }
 
   async ngOnInit() {
+    void this.loadPasskeyProviderSetting();
+
     // Autotype is for Windows initially
     if (this.isWindows) {
       autotypeFeatureFlagState$(this.configService)
@@ -451,6 +462,9 @@ export class SettingsDialogComponent implements OnInit {
     } catch (error) {
       this.logService.error("Error updating unlock with biometrics: ", error);
       this.form.controls.biometric.setValue(false, { emitEvent: false });
+      // Keep the stored state in line with the form, e.g. when storing the key failed.
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.biometricStateService.setBiometricUnlockEnabled(false, userId);
       this.validationService.showError(error);
     } finally {
       this.messagingService.send("redrawMenu");
@@ -489,6 +503,10 @@ export class SettingsDialogComponent implements OnInit {
     }
 
     await this.biometricStateService.setBiometricUnlockEnabled(true, activeUserId);
+    // Stored first, so biometric unlock works even if the persistent enrollment below fails.
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
+    await this.biometricsService.setBiometricProtectedUnlockKeyForUser(activeUserId, userKey);
+
     if (this.isWindows || this.isLinux) {
       // Recommended settings for Windows Hello and Linux system authentication
       this.form.controls.autoPromptBiometrics.setValue(false);
@@ -497,13 +515,24 @@ export class SettingsDialogComponent implements OnInit {
       // If the user doesn't have a MP or PIN then they have to use biometrics on app restart.
       if (!this.userHasMasterPassword() && !this.userHasPinSet()) {
         // Allow biometric unlock on app restart so the user doesn't get into a bad state.
+        // A failed enrollment (e.g. cancelled Windows Hello prompt) is not fatal: the key stored
+        // above still allows biometric unlock.
         await this.enrollPersistentBiometricIfNeeded(activeUserId);
       } else {
         this.form.controls.requireMasterPasswordOnAppRestart.setValue(true);
       }
+    } else if (this.isMac) {
+      // Touch ID always persists the key. Enrolling records the enrolled key id, so the
+      // re-enrollment migration detects a key rotation. A failure is not fatal: the key stored
+      // above still allows biometric unlock.
+      try {
+        await this.biometricsService.enrollPersistent(activeUserId, userKey);
+      } catch (error) {
+        this.logService.error("Error enrolling persistent biometric unlock: ", error);
+        this.validationService.showError(error);
+      }
     }
-    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
-    await this.biometricsService.setBiometricProtectedUnlockKeyForUser(activeUserId, userKey);
+
     await this.autoUnlockService.refreshAutoUnlockKey(activeUserId);
 
     // Validate the key is stored in case biometrics fail.
@@ -541,12 +570,17 @@ export class SettingsDialogComponent implements OnInit {
    * Persists the user key so biometrics alone can unlock the vault after an app restart.
    */
   private async enrollPersistentBiometricIfNeeded(userId: UserId): Promise<void> {
-    if (!(await this.biometricsService.hasPersistentKey(userId))) {
-      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-      await this.biometricsService.enrollPersistent(userId, userKey);
-      this.form.controls.requireMasterPasswordOnAppRestart.setValue(false, {
-        emitEvent: false,
-      });
+    try {
+      if (!(await this.biometricsService.hasPersistentKey(userId))) {
+        const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+        await this.biometricsService.enrollPersistent(userId, userKey);
+        this.form.controls.requireMasterPasswordOnAppRestart.setValue(false, {
+          emitEvent: false,
+        });
+      }
+    } catch (error) {
+      this.logService.error("Error enrolling persistent biometric unlock: ", error);
+      this.validationService.showError(error);
     }
   }
 
@@ -556,6 +590,58 @@ export class SettingsDialogComponent implements OnInit {
       await this.biometricStateService.setPromptAutomatically(true, activeUserId);
     } else {
       await this.biometricStateService.setPromptAutomatically(false, activeUserId);
+    }
+  }
+
+  /**
+   * Shows the passkey provider setting if the app is registered with the OS, and keeps its status
+   * up to date when the window regains focus, e.g. after the user changes it in system settings.
+   */
+  private async loadPasskeyProviderSetting() {
+    try {
+      this.passkeyProviderState.set(
+        await this.desktopAutofillService.refreshPasskeyProviderState(),
+      );
+    } catch (e) {
+      this.logService.error("Failed to load passkey provider setting", e);
+      return;
+    }
+    if (!this.showPasskeyProviderSetting()) {
+      return;
+    }
+
+    fromEvent(window, "focus")
+      .pipe(
+        // Catch inside `switchMap` so one failed refresh doesn't stop later ones.
+        switchMap(() =>
+          from(this.desktopAutofillService.getPasskeyProviderState()).pipe(
+            catchError((e: unknown) => {
+              this.logService.error("Failed to refresh passkey provider state", e);
+              return EMPTY;
+            }),
+          ),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((state) => this.passkeyProviderState.set(state));
+  }
+
+  /**
+   * Asks the user to turn on Bitwarden if it is off and the OS can prompt, otherwise opens the
+   * system settings.
+   */
+  protected async managePasskeyProvider() {
+    try {
+      if (!this.passkeyProviderState()?.enabled) {
+        const enabled = await this.desktopAutofillService.requestEnableCredentialProvider();
+        if (enabled !== undefined) {
+          this.passkeyProviderState.set({ registered: true, enabled });
+          return;
+        }
+      }
+      await this.desktopAutofillService.openCredentialProviderSettings();
+    } catch (e) {
+      this.logService.error("Failed to manage passkey provider", e);
     }
   }
 

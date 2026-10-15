@@ -91,6 +91,8 @@ import {
   defaultUserCollectionId,
   DefaultVaultItemsTransferService,
   VaultItemsTransferService,
+  CoachmarkComponent,
+  CoachmarkService,
 } from "@bitwarden/vault";
 
 import {
@@ -100,7 +102,6 @@ import {
 import { HeaderModule } from "../../layouts/header/header.module";
 import { ImportDialogComponent } from "../../tools/import/import-dialog.component";
 import { AssignCollectionsWebDialogAdapter } from "../components/assign-collections/assign-collections-web-dialog.adapter";
-import { CoachmarkComponent, CoachmarkService } from "../components/coachmark";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 import { ItemDeepLink, ItemDeepLinkAction, itemDeepLinkFrom } from "../utils/item-deep-link";
@@ -189,10 +190,6 @@ export class VaultNextComponent implements OnInit {
 
   protected readonly importCoachmarkOpen = computed(
     () => this.coachmarkService.activeStepId() === "importData",
-  );
-
-  protected readonly addItemCoachmarkOpen = computed(
-    () => this.coachmarkService.activeStepId() === "addItem",
   );
 
   /**
@@ -537,6 +534,11 @@ export class VaultNextComponent implements OnInit {
       ),
     ),
     { initialValue: false },
+  );
+
+  /** The account's active My vault items, for the Vault chip's My vault count on an org page. */
+  protected readonly myVaultItemCount = computed(
+    () => this.activeCiphers().filter((cipher) => cipher.organizationId == null).length,
   );
 
   /**
