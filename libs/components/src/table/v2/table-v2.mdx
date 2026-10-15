@@ -351,10 +351,10 @@ filter = (row: Member, f: Filters) =>
 
 Each chip or toggle registers itself with the table when projected in. **Option counts are
 automatic**: with a client-side `[filter]`, each `bit-filter-option` shows how many rows match that
-option on its own, ignoring the other active filters. No `[count]` needed. For **server-side**
-filtering, omit `[filter]`, read `filterValues()` off a `#t="bitTableV2"` template reference to
-build your query, feed the pre-filtered rows to `data`, and set an explicit `[count]` on each option
-(the table can't compute it without the full dataset). See the
+option alongside the other active filters. No `[count]` needed. For **server-side** filtering, omit
+`[filter]`, read `filterValues()` off a `#t="bitTableV2"` template reference to build your query,
+feed the pre-filtered rows to `data`, and set an explicit `[count]` on each option (the table can't
+compute it without the full dataset). See the
 [Filter Menu](?path=/docs/component-library-filter-menu--docs) docs for composing the chips
 (sections, nested options, in-menu search, radio + checkbox groups).
 

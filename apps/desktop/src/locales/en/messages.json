@@ -123,6 +123,10 @@
   "resetSearch": {
     "message": "Reset search"
   },
+  "clearSearchTooltip": {
+    "message": "Clear by clicking here or pressing Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "addItem": {
     "message": "Add item"
   },
@@ -1388,6 +1392,27 @@
   "selectFile": {
     "message": "Select a file"
   },
+  "selectFileUnsupportedType": {
+    "message": "That file type isn't accepted for this source. Choose a different file"
+  },
+  "pasteContentRequired": {
+    "message": "Paste the exported content"
+  },
+  "fileTypeNotSupported": {
+    "message": "This file type isn't supported. Select a $TYPES$ file",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "The pasted content doesn't match the selected format"
+  },
+  "errorReadingFile": {
+    "message": "The selected file could not be read"
+  },
   "maxFileSize": {
     "message": "Maximum file size is 500 MB."
   },
@@ -2114,6 +2139,13 @@
   },
   "turnedOff": {
     "message": "Off"
+  },
+  "manageInSystemSettings": {
+    "message": "Manage in system settings"
+  },
+  "mayOpenSystemSettings": {
+    "message": "May open the system settings app.",
+    "description": "Screen reader hint for the 'Manage in system settings' link, which shows an inline prompt when possible and otherwise opens the operating system's settings app."
   },
   "theme": {
     "message": "Theme"
@@ -4660,6 +4692,9 @@
   "importSourceBreadcrumb": {
     "message": "Select source"
   },
+  "importData": {
+    "message": "Import data"
+  },
   "importSourceSelectTitle": {
     "message": "Select your source"
   },
@@ -4798,6 +4833,113 @@
   },
   "importHelpCenterLinkText": {
     "message": "Help Center"
+  },
+  "uploadFile": {
+    "message": "Upload file"
+  },
+  "pasteAsPlainText": {
+    "message": "Paste as plain text"
+  },
+  "plainText": {
+    "message": "Plain text"
+  },
+  "profile": {
+    "message": "Profile"
+  },
+  "importManuallyInstead": {
+    "message": "Import manually instead"
+  },
+  "directlyImportInstead": {
+    "message": "Directly import instead"
+  },
+  "fastest": {
+    "message": "Fastest"
+  },
+  "importDataTitle": {
+    "message": "Import your data"
+  },
+  "importDataDirectTitle": {
+    "message": "Import your data in minutes"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Import your items directly from",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "to get all your data.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Import from $VENDOR$ or copy and paste the export content.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Select the profile you wish to import passwords from."
+  },
+  "importDataLoginTitle": {
+    "message": "Log in to $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Your credentials are encrypted in transit and never stored."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Secure by design"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "We'll ask for your login info"
+  },
+  "importDataLoginInfoBody": {
+    "message": "In the next step, log in to your $VENDOR$ account.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Everything transfers"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+  },
+  "importAcceptedFormats": {
+    "message": "Accepted: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ file type",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "The process is exactly the same as importing from Google Chrome.",
@@ -4999,11 +5141,44 @@
   "keePassMasterPassword": {
     "message": "KeePass master password"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$ password",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Password is required."
+  },
+  "filePasswordRequired": {
+    "message": "File password is required"
+  },
+  "filePasswordInvalid": {
+    "message": "Enter a valid file password."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "The file uploaded is password protected. Enter the password to continue."
+  },
+  "selectProfile": {
+    "message": "Select profile"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "importAccountMismatchError": {
+    "message": "This file can only be imported into the account it was exported from."
+  },
   "addKeyFile": {
     "message": "Add key file"
   },
   "keyFileUpload": {
     "message": "Key file upload"
+  },
+  "keyFileUploadV2": {
+    "message": "Key file"
   },
   "kdbxFileUpload": {
     "message": "KDBX file upload"
@@ -5445,6 +5620,9 @@
     "message": "to create a strong unique password",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "biometricUnlockOnRestartTurnedOff": {
+    "message": "Biometric unlock on app restart was turned off. Turn it on again in settings."
+  },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
   },
@@ -5620,6 +5798,21 @@
   },
   "applicationDoesNotSupportDuplicates": {
     "message": "This application does not support duplicates."
+  },
+  "noPasskeysFoundForThisApplication": {
+    "message": "No passkeys found for this application."
+  },
+  "passkeyNotAllowedForBitwardenVault": {
+    "message": "Passkeys for $DOMAIN$ can't be saved or used in Bitwarden.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "passkeyNotAllowedForBitwardenVaultDesc": {
+    "message": "Storing the passkey for your Bitwarden account in your vault could lock you out of your account."
   },
   "closeThisWindow": {
     "message": "Close this window"
@@ -6282,6 +6475,9 @@
   "chromiumImporterPickerPrompt": {
     "message": "Grant Access"
   },
+  "noBrowserProfilesFound": {
+    "message": "No browser profiles were found"
+  },
   "upgrade": {
     "message": "Upgrade"
   },
@@ -6807,9 +7003,9 @@
       }
     }
   },
-  "confirmPasskeyRegistrationMacOS": {
-    "message": "create a new $RPID$ passkey for $USERNAME$",
-    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+  "confirmPasskeyRegistrationMfaMacOS": {
+    "message": "create a new $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
         "content": "$1",
@@ -6821,9 +7017,9 @@
       }
     }
   },
-  "confirmPasskeyOverwriteMacOS": {
-    "message": "overwrite a $RPID$ passkey for $USERNAME$",
-    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+  "confirmPasskeyOverwriteMfaMacOS": {
+    "message": "overwrite a $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
         "content": "$1",
@@ -6835,9 +7031,9 @@
       }
     }
   },
-  "confirmPasskeyAssertionMacOS": {
-    "message": "sign in as $USERNAME$ with your $RPID$ passkey",
-    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+  "confirmPasskeyAssertionMfaMacOS": {
+    "message": "sign in as $USERNAME$ with your $RPID$ passkey. $RPID$ is requesting this check for MFA",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
         "content": "$1",
@@ -6849,8 +7045,8 @@
       }
     }
   },
-  "confirmPasskeyRegistrationWindows": {
-    "message": "Verify it's you to create a new $RPID$ passkey for $USERNAME$.",
+  "confirmPasskeyRegistrationMfaWindows": {
+    "message": "Verify it's you to create a new $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA.",
     "description": "Prompt in Windows Hello to register a new passkey.",
     "placeholders": {
       "rpId": {
@@ -6863,8 +7059,8 @@
       }
     }
   },
-  "confirmPasskeyOverwriteWindows": {
-    "message": "Verify it's you to overwrite a $RPID$ passkey for $USERNAME$.",
+  "confirmPasskeyOverwriteMfaWindows": {
+    "message": "Verify it's you to overwrite a $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA.",
     "description": "Prompt in Windows Hello to overwrite an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -6877,8 +7073,8 @@
       }
     }
   },
-  "confirmPasskeyAssertionWindows": {
-    "message": "Verify it's you to sign in as $USERNAME$ with your $RPID$ passkey.",
+  "confirmPasskeyAssertionMfaWindows": {
+    "message": "Verify it's you to sign in as $USERNAME$ with your $RPID$ passkey. $RPID$ is requesting this check for MFA.",
     "description": "Prompt in Windows Hello to use an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -7035,6 +7231,15 @@
   },
   "coachmarkMonitorSecurityDescription": {
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
+  },
+  "tourTheNewVault": {
+    "message": "Tour the new vault"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "With updated navigation and design, it's easier than ever to find what you need."
+  },
+  "takeTheTour": {
+    "message": "Take the tour"
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ of $TOTAL$",

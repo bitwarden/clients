@@ -1,6 +1,6 @@
 # This workflow will run in the context of the source of the PR.
 # On a PR from a fork, the workflow will not have access to secrets, and so any parts of the build that require secrets will not run.
-# If additional artifacts are needed, the failed "build-desktop-target.yml" workflow held up by the check-run should be re-run.
+# If additional artifacts are needed for a fork PR, review it and add the "ci:signed-build" label to run "build-desktop-target.yml".
 
 name: Build Desktop
 
@@ -99,7 +99,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          persist-credentials: true
+          persist-credentials: false
           allow-unsafe-pr-checkout: true
 
       - name: Get Package Version
@@ -613,30 +613,6 @@ jobs:
           choco --version
           rustup show
 
-      - name: Log in to Azure
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: bitwarden/gh-actions/azure-login@main
-        with:
-          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-          client_id: ${{ secrets.AZURE_CLIENT_ID }}
-
-      - name: Retrieve secrets
-        id: retrieve-secrets
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: "bitwarden-ci"
-          secrets: "code-signing-vault-url,
-            code-signing-client-id,
-            code-signing-tenant-id,
-            code-signing-client-secret,
-            code-signing-cert-name"
-
-      - name: Log out from Azure
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: bitwarden/gh-actions/azure-logout@main
-
       - name: Install Node dependencies
         run: npm ci
         working-directory: ./
@@ -698,6 +674,31 @@ jobs:
 
       - name: Build
         run: npm run build:${{ matrix.variant }}
+
+      # Retrieve signing secrets only after dependencies are installed and the build has finished.
+      - name: Log in to Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Retrieve secrets
+        id: retrieve-secrets
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "code-signing-vault-url,
+            code-signing-client-id,
+            code-signing-tenant-id,
+            code-signing-client-secret,
+            code-signing-cert-name"
+
+      - name: Log out from Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
@@ -994,30 +995,6 @@ jobs:
           choco --version
           rustup show
 
-      - name: Log in to Azure
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: bitwarden/gh-actions/azure-login@main
-        with:
-          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-          client_id: ${{ secrets.AZURE_CLIENT_ID }}
-
-      - name: Retrieve secrets
-        id: retrieve-secrets
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: "bitwarden-ci"
-          secrets: "code-signing-vault-url,
-            code-signing-client-id,
-            code-signing-tenant-id,
-            code-signing-client-secret,
-            code-signing-cert-name"
-
-      - name: Log out from Azure
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: bitwarden/gh-actions/azure-logout@main
-
       - name: Install Node dependencies
         run: npm ci
         working-directory: ./
@@ -1085,6 +1062,31 @@ jobs:
       # pack:win:beta stamps BETA_PACKAGE_VERSION into the built package.json, which
       # electron-builder reads for artifact names and the channel file. The `-beta.N`
       # tag selects beta.yml over latest.yml.
+      # Retrieve signing secrets only after dependencies are installed and the build has finished.
+      - name: Log in to Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Retrieve secrets
+        id: retrieve-secrets
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "code-signing-vault-url,
+            code-signing-client-id,
+            code-signing-tenant-id,
+            code-signing-client-secret,
+            code-signing-cert-name"
+
+      - name: Log out from Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
         env:
@@ -1600,87 +1602,6 @@ jobs:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-${{ matrix.license_type }}-safari-extension
 
-      - name: Log in to Azure
-        uses: bitwarden/gh-actions/azure-login@main
-        with:
-          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-          client_id: ${{ secrets.AZURE_CLIENT_ID }}
-
-      - name: Get Azure Key Vault secrets
-        id: get-kv-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: gh-clients
-          secrets: "APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-AUTH-ID,APP-STORE-CONNECT-TEAM-ISSUER"
-
-      - name: Download Provisioning Profiles secrets
-        env:
-          ACCOUNT_NAME: bitwardenci
-          CONTAINER_NAME: profiles
-        run: |
-          mkdir -p "$HOME/secrets"
-
-          az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
-            --name bitwarden_stable_desktop_developer_id.provisionprofile \
-            --file "$HOME/secrets/bitwarden_stable_desktop_developer_id.provisionprofile" \
-            --output none
-
-          az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
-            --name bitwarden_stable_desktop_autofill_developer_id.provisionprofile \
-            --file "$HOME/secrets/bitwarden_stable_desktop_autofill_developer_id.provisionprofile" \
-            --output none
-
-      - name: Get certificates
-        run: |
-          mkdir -p "$HOME/certificates"
-
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-app-cert |
-            jq -r .value | base64 -d > "$HOME/certificates/appstore-app-cert.p12"
-
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-installer-cert |
-            jq -r .value | base64 -d > "$HOME/certificates/appstore-installer-cert.p12"
-
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-app-cert |
-            jq -r .value | base64 -d > "$HOME/certificates/devid-app-cert.p12"
-
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-installer-cert |
-            jq -r .value | base64 -d > "$HOME/certificates/devid-installer-cert.p12"
-
-      - name: Log out from Azure
-        uses: bitwarden/gh-actions/azure-logout@main
-
-      - name: Set up keychain
-        run: |
-          KEYCHAIN_PASSWORD=$(openssl rand -hex 32)
-          echo "::add-mask::$KEYCHAIN_PASSWORD"
-          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-          security set-keychain-settings -lut 1200 build.keychain
-
-          security import "$HOME/certificates/devid-app-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security import "$HOME/certificates/devid-installer-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
-
-      - name: Set up provisioning profiles
-        run: |
-          cp "$HOME/secrets/bitwarden_stable_desktop_developer_id.provisionprofile" \
-            "$GITHUB_WORKSPACE/apps/desktop/bitwarden_stable_desktop_developer_id.provisionprofile"
-
-          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          APP_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_stable_desktop_developer_id.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
-          AUTOFILL_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_stable_desktop_autofill_developer_id.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
-
-          cp "$HOME/secrets/bitwarden_stable_desktop_developer_id.provisionprofile" \
-            "$HOME/Library/MobileDevice/Provisioning Profiles/$APP_UUID.provisionprofile"
-          cp "$HOME/secrets/bitwarden_stable_desktop_autofill_developer_id.provisionprofile" \
-            "$HOME/Library/MobileDevice/Provisioning Profiles/$AUTOFILL_UUID.provisionprofile"
-
       - name: Increment version
         shell: pwsh
         env:
@@ -1771,6 +1692,88 @@ jobs:
         run: |
           mkdir PlugIns
           cp -r "$GITHUB_WORKSPACE/browser-build-artifacts/Safari/dmg/build/Release/safari.appex" PlugIns/safari.appex
+
+      # Retrieve signing secrets only after dependencies are installed and the build has finished.
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-clients
+          secrets: "APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-AUTH-ID,APP-STORE-CONNECT-TEAM-ISSUER"
+
+      - name: Download Provisioning Profiles secrets
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: profiles
+        run: |
+          mkdir -p "$HOME/secrets"
+
+          az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
+            --name bitwarden_stable_desktop_developer_id.provisionprofile \
+            --file "$HOME/secrets/bitwarden_stable_desktop_developer_id.provisionprofile" \
+            --output none
+
+          az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
+            --name bitwarden_stable_desktop_autofill_developer_id.provisionprofile \
+            --file "$HOME/secrets/bitwarden_stable_desktop_autofill_developer_id.provisionprofile" \
+            --output none
+
+      - name: Get certificates
+        run: |
+          mkdir -p "$HOME/certificates"
+
+          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-app-cert |
+            jq -r .value | base64 -d > "$HOME/certificates/appstore-app-cert.p12"
+
+          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-installer-cert |
+            jq -r .value | base64 -d > "$HOME/certificates/appstore-installer-cert.p12"
+
+          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-app-cert |
+            jq -r .value | base64 -d > "$HOME/certificates/devid-app-cert.p12"
+
+          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-installer-cert |
+            jq -r .value | base64 -d > "$HOME/certificates/devid-installer-cert.p12"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Set up keychain
+        run: |
+          KEYCHAIN_PASSWORD=$(openssl rand -hex 32)
+          echo "::add-mask::$KEYCHAIN_PASSWORD"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security set-keychain-settings -lut 1200 build.keychain
+
+          security import "$HOME/certificates/devid-app-cert.p12" -k build.keychain -P "" \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+
+          security import "$HOME/certificates/devid-installer-cert.p12" -k build.keychain -P "" \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+
+      - name: Set up provisioning profiles
+        run: |
+          cp "$HOME/secrets/bitwarden_stable_desktop_developer_id.provisionprofile" \
+            "$GITHUB_WORKSPACE/apps/desktop/bitwarden_stable_desktop_developer_id.provisionprofile"
+
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          APP_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_stable_desktop_developer_id.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
+          AUTOFILL_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_stable_desktop_autofill_developer_id.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
+
+          cp "$HOME/secrets/bitwarden_stable_desktop_developer_id.provisionprofile" \
+            "$HOME/Library/MobileDevice/Provisioning Profiles/$APP_UUID.provisionprofile"
+          cp "$HOME/secrets/bitwarden_stable_desktop_autofill_developer_id.provisionprofile" \
+            "$HOME/Library/MobileDevice/Provisioning Profiles/$AUTOFILL_UUID.provisionprofile"
 
       - name: Set up private auth key
         id: setup-auth-key
@@ -1885,6 +1888,71 @@ jobs:
           echo "GitHub event: $GITHUB_EVENT"
           xcodebuild -showsdks
 
+      - name: Install Node dependencies
+        run: npm ci
+        working-directory: ./
+
+      - name: Download SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override SDK
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' }}
+        working-directory: ./
+        run: |
+          ls -l ../
+          npm link ../sdk-internal
+
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../commercial-sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override Commercial SDK
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' }}
+        working-directory: ./
+        run: |
+          npm link ../commercial-sdk-internal
+
+      - name: Cache Native Module
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: cache
+        with:
+          path: |
+            apps/desktop/desktop_native/napi/*.node
+            apps/desktop/desktop_native/dist/*
+          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*', 'package-lock.json') }}
+
+      - name: Build Native Module
+        if: steps.cache.outputs.cache-hit != 'true'
+        working-directory: apps/desktop/desktop_native
+        env:
+          MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
+        run: node build.js cross-platform "$MODE"
+
+      - name: Build
+        env:
+          CHANNEL: beta
+        run: npm run build:${{ matrix.variant }}
+
+      # Retrieve signing secrets only after dependencies are installed and the build has finished.
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -1959,70 +2027,6 @@ jobs:
             "$HOME/Library/MobileDevice/Provisioning Profiles/$APP_UUID.provisionprofile"
           cp "$HOME/secrets/bitwarden_beta_desktop_autofill_developer_id.provisionprofile" \
             "$HOME/Library/MobileDevice/Provisioning Profiles/$AUTOFILL_UUID.provisionprofile"
-
-      - name: Install Node dependencies
-        run: npm ci
-        working-directory: ./
-
-      - name: Download SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' }}
-        uses: bitwarden/gh-actions/download-artifacts@main
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: build-wasm-internal.yml
-          workflow_conclusion: success
-          branch: ${{ inputs.sdk_branch }}
-          artifacts: sdk-internal
-          repo: bitwarden/sdk-internal
-          path: ../sdk-internal
-          if_no_artifact_found: fail
-
-      - name: Override SDK
-        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' }}
-        working-directory: ./
-        run: |
-          ls -l ../
-          npm link ../sdk-internal
-
-      - name: Download Commercial SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' }}
-        uses: bitwarden/gh-actions/download-artifacts@main
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: build-wasm-internal.yml
-          workflow_conclusion: success
-          branch: ${{ inputs.sdk_branch }}
-          artifacts: commercial-sdk-internal
-          repo: bitwarden/sdk-internal
-          path: ../commercial-sdk-internal
-          if_no_artifact_found: fail
-
-      - name: Override Commercial SDK
-        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' }}
-        working-directory: ./
-        run: |
-          npm link ../commercial-sdk-internal
-
-      - name: Cache Native Module
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        id: cache
-        with:
-          path: |
-            apps/desktop/desktop_native/napi/*.node
-            apps/desktop/desktop_native/dist/*
-          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*', 'package-lock.json') }}
-
-      - name: Build Native Module
-        if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: apps/desktop/desktop_native
-        env:
-          MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
-        run: node build.js cross-platform "$MODE"
-
-      - name: Build
-        env:
-          CHANNEL: beta
-        run: npm run build:${{ matrix.variant }}
 
       - name: Set up private auth key
         id: setup-auth-key
@@ -2156,94 +2160,6 @@ jobs:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-${{ matrix.license_type }}-safari-extension
 
-      - name: Log in to Azure
-        uses: bitwarden/gh-actions/azure-login@main
-        with:
-          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-          client_id: ${{ secrets.AZURE_CLIENT_ID }}
-
-      - name: Get Azure Key Vault secrets
-        id: get-kv-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: gh-clients
-          secrets: "APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-AUTH-ID,APP-STORE-CONNECT-TEAM-ISSUER"
-
-      - name: Retrieve Slack secret
-        id: retrieve-slack-secret
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: bitwarden-ci
-          secrets: "slack-webhook-alerts-deploy-qa"
-
-      - name: Download Provisioning Profiles secrets
-        env:
-          ACCOUNT_NAME: bitwardenci
-          CONTAINER_NAME: profiles
-        run: |
-          mkdir -p "$HOME/secrets"
-
-          az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
-            --name bitwarden_stable_desktop_appstore.provisionprofile \
-            --file "$HOME/secrets/bitwarden_stable_desktop_appstore.provisionprofile" \
-            --output none
-
-          az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
-            --name bitwarden_stable_desktop_autofill_appstore.provisionprofile \
-            --file "$HOME/secrets/bitwarden_stable_desktop_autofill_appstore.provisionprofile" \
-            --output none
-
-      - name: Get certificates
-        run: |
-          mkdir -p "$HOME/certificates"
-
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-app-cert |
-            jq -r .value | base64 -d > "$HOME/certificates/appstore-app-cert.p12"
-
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-installer-cert |
-            jq -r .value | base64 -d > "$HOME/certificates/appstore-installer-cert.p12"
-
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-app-cert |
-            jq -r .value | base64 -d > "$HOME/certificates/devid-app-cert.p12"
-
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-installer-cert |
-            jq -r .value | base64 -d > "$HOME/certificates/devid-installer-cert.p12"
-
-      - name: Log out from Azure
-        uses: bitwarden/gh-actions/azure-logout@main
-
-      - name: Set up keychain
-        run: |
-          KEYCHAIN_PASSWORD=$(openssl rand -hex 32)
-          echo "::add-mask::$KEYCHAIN_PASSWORD"
-          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-          security set-keychain-settings -lut 1200 build.keychain
-
-          security import "$HOME/certificates/appstore-app-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security import "$HOME/certificates/appstore-installer-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
-
-      - name: Set up provisioning profiles
-        run: |
-          cp "$HOME/secrets/bitwarden_stable_desktop_appstore.provisionprofile" \
-            "$GITHUB_WORKSPACE/apps/desktop/bitwarden_stable_desktop_appstore.provisionprofile"
-
-          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          APP_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_stable_desktop_appstore.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
-          AUTOFILL_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_stable_desktop_autofill_appstore.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
-
-          cp "$HOME/secrets/bitwarden_stable_desktop_appstore.provisionprofile" \
-            "$HOME/Library/MobileDevice/Provisioning Profiles/$APP_UUID.provisionprofile"
-          cp "$HOME/secrets/bitwarden_stable_desktop_autofill_appstore.provisionprofile" \
-            "$HOME/Library/MobileDevice/Provisioning Profiles/$AUTOFILL_UUID.provisionprofile"
-
       - name: Increment version
         shell: pwsh
         env:
@@ -2335,6 +2251,95 @@ jobs:
         run: |
           mkdir PlugIns
           cp -r "$GITHUB_WORKSPACE/browser-build-artifacts/Safari/mas/build/Release/safari.appex" "PlugIns/safari.appex"
+
+      # Retrieve signing secrets only after dependencies are installed and the build has finished.
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-clients
+          secrets: "APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-AUTH-ID,APP-STORE-CONNECT-TEAM-ISSUER"
+
+      - name: Retrieve Slack secret
+        id: retrieve-slack-secret
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: bitwarden-ci
+          secrets: "slack-webhook-alerts-deploy-qa"
+
+      - name: Download Provisioning Profiles secrets
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: profiles
+        run: |
+          mkdir -p "$HOME/secrets"
+
+          az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
+            --name bitwarden_stable_desktop_appstore.provisionprofile \
+            --file "$HOME/secrets/bitwarden_stable_desktop_appstore.provisionprofile" \
+            --output none
+
+          az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
+            --name bitwarden_stable_desktop_autofill_appstore.provisionprofile \
+            --file "$HOME/secrets/bitwarden_stable_desktop_autofill_appstore.provisionprofile" \
+            --output none
+
+      - name: Get certificates
+        run: |
+          mkdir -p "$HOME/certificates"
+
+          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-app-cert |
+            jq -r .value | base64 -d > "$HOME/certificates/appstore-app-cert.p12"
+
+          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-installer-cert |
+            jq -r .value | base64 -d > "$HOME/certificates/appstore-installer-cert.p12"
+
+          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-app-cert |
+            jq -r .value | base64 -d > "$HOME/certificates/devid-app-cert.p12"
+
+          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-installer-cert |
+            jq -r .value | base64 -d > "$HOME/certificates/devid-installer-cert.p12"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Set up keychain
+        run: |
+          KEYCHAIN_PASSWORD=$(openssl rand -hex 32)
+          echo "::add-mask::$KEYCHAIN_PASSWORD"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security set-keychain-settings -lut 1200 build.keychain
+
+          security import "$HOME/certificates/appstore-app-cert.p12" -k build.keychain -P "" \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+
+          security import "$HOME/certificates/appstore-installer-cert.p12" -k build.keychain -P "" \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+
+      - name: Set up provisioning profiles
+        run: |
+          cp "$HOME/secrets/bitwarden_stable_desktop_appstore.provisionprofile" \
+            "$GITHUB_WORKSPACE/apps/desktop/bitwarden_stable_desktop_appstore.provisionprofile"
+
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          APP_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_stable_desktop_appstore.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
+          AUTOFILL_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_stable_desktop_autofill_appstore.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
+
+          cp "$HOME/secrets/bitwarden_stable_desktop_appstore.provisionprofile" \
+            "$HOME/Library/MobileDevice/Provisioning Profiles/$APP_UUID.provisionprofile"
+          cp "$HOME/secrets/bitwarden_stable_desktop_autofill_appstore.provisionprofile" \
+            "$HOME/Library/MobileDevice/Provisioning Profiles/$AUTOFILL_UUID.provisionprofile"
 
       - name: Set up private auth key
         id: setup-auth-key
@@ -2466,9 +2471,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
-          allow-unsafe-pr-checkout: true
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -2512,9 +2515,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
-          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
-          allow-unsafe-pr-checkout: true
 
       - name: Download deb artifact
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -2557,9 +2558,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
-          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
-          allow-unsafe-pr-checkout: true
 
       - name: Download appimage artifact
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -2600,9 +2599,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
-          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
-          allow-unsafe-pr-checkout: true
 
       - name: Download appimage artifact
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -2657,9 +2654,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
-          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
-          allow-unsafe-pr-checkout: true
 
       - name: Download flatpak artifact
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -2711,9 +2706,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
-          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
-          allow-unsafe-pr-checkout: true
 
       - name: Download snap artifact
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -2757,9 +2750,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
-          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
-          allow-unsafe-pr-checkout: true
 
       - name: Download dmg artifact
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -2803,9 +2794,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
-          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
-          allow-unsafe-pr-checkout: true
 
       - name: Download portable artifact
         uses: bitwarden/gh-actions/download-artifacts@main

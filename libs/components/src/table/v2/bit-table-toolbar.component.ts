@@ -1,3 +1,4 @@
+import { DOCUMENT } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -21,18 +22,13 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BerryComponent } from "../../berry/berry.component";
 import { ButtonModule } from "../../button";
-import { ChipComponent } from "../../chips";
+import { ChipGroupComponent, ChipGroupItem } from "../../chips";
 import { DialogRef, DialogService } from "../../dialog";
 import {
   FilterDialogComponent,
   FilterDialogParams,
 } from "../../filter-menu/filter-dialog.component";
-import {
-  FILTER_PRESENTER,
-  FilterPresenter,
-  FilterSelection,
-  selectionCount,
-} from "../../filter-menu/filter-tokens";
+import { FILTER_PRESENTER, selectionCount } from "../../filter-menu/filter-tokens";
 import { IconButtonModule } from "../../icon-button";
 import { CollapseOnScrollDirective } from "../../layout/collapse-on-scroll.directive";
 import {
@@ -40,7 +36,6 @@ import {
   OverflowListDirective,
   OverflowTriggerDirective,
 } from "../../overflow-list";
-import { TooltipDirective } from "../../tooltip";
 import { focusAfterRender } from "../../utils/focus-after-render";
 import { isAtOrLargerThanBreakpointSignal } from "../../utils/responsive-utils";
 
@@ -58,12 +53,11 @@ import { BitTableV2Component } from "./table-v2.component";
     I18nPipe,
     IconButtonModule,
     BerryComponent,
-    ChipComponent,
+    ChipGroupComponent,
     ButtonModule,
     OverflowListDirective,
     OverflowItemDirective,
     OverflowTriggerDirective,
-    TooltipDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -97,6 +91,9 @@ export class BitTableToolbarComponent {
     return row;
   }
 
+  /** The filter chips and "Clear all", for anchoring a popover. `undefined` while collapsed. */
+  readonly filterChips = computed(() => (this.collapsed() ? undefined : this.filterChipsEl()));
+
   /** The table this toolbar is projected into; the source of the item count. */
   protected readonly table = inject(BitTableV2Component, { optional: true });
 
@@ -117,6 +114,34 @@ export class BitTableToolbarComponent {
   /** The filters with a selection — shown as dismissible chips on the small-screen filter row. */
   protected readonly activeFilters = computed(() => this.filters().filter((f) => f.active()));
 
+  /** One chip per active filter, or per selected option of a multi-select, each with its clear call. */
+  private readonly activeChips = computed(() =>
+    this.activeFilters().flatMap((filter): { chip: ChipGroupItem; clear: () => void }[] => {
+      if (filter.multiple() && filter.selections().length) {
+        // Keyed on label so ids survive removals; repeated labels get a suffix.
+        const seen = new Map<string, number>();
+        return filter.selections().map((selection) => {
+          const n = seen.get(selection.label) ?? 0;
+          seen.set(selection.label, n + 1);
+          return {
+            chip: {
+              id: `${filter.key()}:${selection.label}${n ? `#${n}` : ""}`,
+              label: selection.label,
+              accessibleName: `${filter.label()}: ${selection.label}`,
+              startIcon: filter.icon(),
+            },
+            clear: () => filter.deselect(selection.value),
+          };
+        });
+      }
+      const summary = filter.summary();
+      const label = summary ? `${filter.label()}: ${summary}` : filter.label();
+      return [{ chip: { id: filter.key(), label }, clear: () => filter.clear() }];
+    }),
+  );
+
+  protected readonly activeChipItems = computed(() => this.activeChips().map((c) => c.chip));
+
   /** The projected chips, as overflow items — the toolbar feeds these to the list. */
   private readonly projectedItems = contentChildren(OverflowItemDirective, { descendants: true });
 
@@ -134,7 +159,10 @@ export class BitTableToolbarComponent {
 
   private readonly overflowList = viewChild(OverflowListDirective);
   private readonly filterRowEl = viewChild<ElementRef<HTMLElement>>("filterRow");
+  private readonly filterChipsEl = viewChild("filterChips", { read: ElementRef<HTMLElement> });
   private readonly injector = inject(Injector);
+  private readonly document = inject(DOCUMENT);
+  private readonly activeChipRow = viewChild<ElementRef<HTMLElement>>("activeChipRow");
 
   /**
    * Whether the filter row is collapsed to the single trigger + dialog. Always below
@@ -208,10 +236,6 @@ export class BitTableToolbarComponent {
   ]);
 
   protected readonly activeFilterRowClasses = computed(() => [
-    "tw-flex",
-    "tw-flex-wrap",
-    "tw-items-center",
-    "tw-gap-2",
     this.insetX(),
     ...(this.isList() ? ["tw-pt-0", "tw-pb-2"] : ["tw-py-3"]),
   ]);
@@ -283,18 +307,25 @@ export class BitTableToolbarComponent {
     });
   }
 
-  /** An active filter's chip label: `label`, or `label: summary` when it has a summary. */
-  protected appliedLabel(filter: FilterPresenter): string {
-    const summary = filter.summary();
-    return summary ? `${filter.label()}: ${summary}` : filter.label();
-  }
-
-  /**
-   * A per-option chip's `filter: option` label, used as both its tooltip and its accessible
-   * name. Built here rather than in the template so no whitespace lands around the colon.
-   */
-  protected accessibleLabel(filter: FilterPresenter, selection: FilterSelection): string {
-    return `${filter.label()}: ${selection.label}`;
+  protected clearChip(chip: ChipGroupItem): void {
+    const focused = this.document.activeElement;
+    const inRow =
+      focused instanceof HTMLElement && this.activeChipRow()?.nativeElement.contains(focused);
+    this.activeChips()
+      .find((c) => c.chip.id === chip.id)
+      ?.clear();
+    // Removing the last chip drops its element (or the row); popover dismissals restore their own focus.
+    if (inRow) {
+      focusAfterRender(this.injector, () => {
+        if (focused?.isConnected) {
+          return null;
+        }
+        const buttons = this.activeChipRow()?.nativeElement.querySelectorAll<HTMLElement>(
+          "bit-chip:not([hidden]) [bit-chip-dismiss-button]",
+        );
+        return buttons?.[buttons.length - 1] ?? this.filterButton()?.nativeElement;
+      });
+    }
   }
 
   /** Rows matching the active filters — shown as the "N items" count on the filter row. */

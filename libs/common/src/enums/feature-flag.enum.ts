@@ -26,6 +26,7 @@ export enum FeatureFlag {
   PM34210_DesktopAddDevices = "pm-34210-desktop-add-devices",
   // TODO: PM-34091 - Remove this flag and its DefaultFeatureFlagValue entry below.
   PM4516_DevicesLastActivityDate = "pm-4516-devices-add-last-activity-date",
+  PM44303_EmergencyAccessSdkApi = "pm-44303-emergency-access-sdk-api",
 
   /* Autofill */
   UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
@@ -90,7 +91,6 @@ export enum FeatureFlag {
 
   /* Vault */
   PM32009NewItemTypes = "pm-32009-new-item-types",
-  PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
   PM28192_CipherAttachmentOpsToSdk = "pm-28192-cipher-attachment-ops-to-sdk",
   PM29438_DialogWithExtensionPromptAccountAge = "pm-29438-dialog-with-extension-prompt-account-age",
@@ -171,7 +171,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Vault */
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
-  [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
   [FeatureFlag.PM28192_CipherAttachmentOpsToSdk]: FALSE,
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
@@ -189,6 +188,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM34210_DesktopAddDevices]: FALSE,
   // TODO: PM-34091 - Remove this default value entry.
   [FeatureFlag.PM4516_DevicesLastActivityDate]: FALSE,
+  [FeatureFlag.PM44303_EmergencyAccessSdkApi]: FALSE,
 
   /* Billing */
   [FeatureFlag.PM29108_EnablePersonalDiscounts]: FALSE,

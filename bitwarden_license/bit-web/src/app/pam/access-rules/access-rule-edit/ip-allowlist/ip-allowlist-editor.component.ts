@@ -15,18 +15,11 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { CidrValidationService } from "./cidr-validation.service";
 import { CidrPredicate, cidrValidator } from "./cidr.validator";
 
-/** A single CIDR row control, carrying the per-row {@link cidrValidator}. */
 export type CidrRowControl = FormControl<string>;
 
-/** The host-owned CIDR array this editor renders. Its array-level validators (duplicate /
- *  at-least-one) live on the host so validity flows through the parent form. */
+/** Owned by the host, whose array-level validators keep validity in the parent form. */
 export type IpAllowlistCidrsArray = FormArray<CidrRowControl>;
 
-/**
- * Builds a CIDR row control with the per-row {@link cidrValidator} attached. `isValid` supplies
- * the CIDR check (see {@link CidrPredicate}) so callers can route it through
- * {@link CidrValidationService} rather than importing the WASM-backed check directly.
- */
 export function cidrRowControl(
   value: string,
   invalidCidrMessage: string,
@@ -65,14 +58,12 @@ export class IpAllowlistEditorComponent implements OnInit {
   /** The host-owned CIDR array this editor renders and mutates. */
   readonly cidrArray = input.required<IpAllowlistCidrsArray>();
 
-  /** Whether the form fields should be read-only. */
   readonly readonly = input<boolean>(false);
 
   private readonly i18n = inject(I18nService);
   private readonly cidrValidation = inject(CidrValidationService);
 
   ngOnInit(): void {
-    // Start with a single blank row to type into when the host seeds no value.
     if (this.cidrArray().length === 0) {
       this.appendRow();
     }
