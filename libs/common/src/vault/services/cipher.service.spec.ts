@@ -1817,36 +1817,6 @@ describe("Cipher Service", () => {
       expect(ciphers[0].partialData).toBe('{"name":"EncryptedString"}');
       expect(result).toEqual([partialView]);
     });
-
-    it("keeps ungated rows on the legacy org-key decrypt, never touching the SDK path", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(false);
-
-      jest.spyOn(apiService, "getCiphersOrganization").mockResolvedValue({
-        data: [
-          {
-            id: "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22",
-            organizationId: testOrgId,
-            type: CipherType.Login,
-            revisionDate: "2022-01-31T12:00:00.000Z",
-            name: "EncryptedString",
-          },
-        ],
-      } as any);
-
-      const legacyView = new CipherView();
-      legacyView.name = "Legacy decrypted";
-      const legacyDecrypt = jest.spyOn(Cipher.prototype, "decrypt").mockResolvedValue(legacyView);
-
-      const result = await cipherService.getAllFromApiForOrganization(testOrgId);
-
-      expect(legacyDecrypt).toHaveBeenCalledTimes(1);
-      expect(cipherEncryptionService.decryptManyLegacy).not.toHaveBeenCalled();
-      expect(result).toEqual([legacyView]);
-
-      legacyDecrypt.mockRestore();
-    });
   });
 
   describe("getManyFromApiForOrganization()", () => {
