@@ -1147,6 +1147,23 @@ export class EventService {
       case EventType.Pam_AccessRule_Deleted:
         msg = humanReadableMsg = this.i18nService.t("pamEventDeletedAccessRule");
         break;
+      case EventType.Pam_Rotation_Succeeded:
+        msg = this.i18nService.t("pamEventRotatedCredential", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "pamEventRotatedCredential",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Pam_Rotation_Failed:
+        msg = this.i18nService.t(
+          "pamEventFailedCredentialRotation",
+          this.formatCipherId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "pamEventFailedCredentialRotation",
+          this.getShortId(ev.cipherId),
+        );
+        break;
 
       default:
         break;
