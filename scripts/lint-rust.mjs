@@ -8,7 +8,7 @@
 //   node scripts/lint-rust.mjs --fix          Auto-fix where supported; still run check-only tools.
 //   node scripts/lint-rust.mjs --only <name>  Run a single check. Composes with --fix.
 //
-// Available checks: fmt clippy sort udeps deny
+// Available checks: fmt clippy sort udeps deny advisories
 
 import { spawnSync } from "node:child_process";
 import { dirname, resolve } from "node:path";
@@ -20,7 +20,7 @@ import { nightlyToolchain } from "./rust-toolchain.mjs";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CWD = resolve(__dirname, "../apps/desktop/desktop_native");
 
-const CHECKS = ["fmt", "clippy", "sort", "udeps", "deny"];
+const CHECKS = ["fmt", "clippy", "sort", "udeps", "deny", "advisories"];
 
 // Toolchain used by the checks that require nightly (fmt, udeps). rustfmt.toml
 // enables unstable options (wrap_comments, group_imports, imports_granularity),
@@ -100,8 +100,9 @@ function run(cmd, args, extraEnv = {}) {
   }
 }
 
-// Tools run via cargo-run-bin (sort, udeps, deny) need the `cargo bin` runner and
-// must not fall through to cargo-binstall. Source installs only; see VULN-613.
+// Tools run via cargo-run-bin (sort, udeps, deny, advisories) need the `cargo bin`
+// runner and must not fall through to cargo-binstall. Source installs only; see
+// VULN-613.
 function requireCargoBin() {
   const probe = spawnSync("cargo", ["bin", "--version"], { stdio: "ignore" });
   if (probe.error || probe.status !== 0) {
@@ -115,6 +116,11 @@ function requireCargoBin() {
   if (!checkNoBinstall()) {
     process.exit(1);
   }
+}
+
+function cargoDeny(...checks) {
+  requireCargoBin();
+  run("cargo", ["bin", "cargo-deny", "--log-level", "error", "--all-features", "check", ...checks]);
 }
 
 const runners = {
@@ -138,9 +144,16 @@ const runners = {
     requireCargoBin();
     run("cargo", [NIGHTLY, "bin", "cargo-udeps", "--workspace", "--all-features", "--all-targets"]);
   },
+  // cargo-deny is split in two. `deny` covers bans, licenses and sources, whose
+  // results only change with the manifests, lockfile or deny.toml. `advisories`
+  // checks the lockfile against the RustSec database, so it can start failing on
+  // an unchanged tree when a new advisory is published; CI runs it outside the
+  // blocking Rust lint gate for that reason.
   deny() {
-    requireCargoBin();
-    run("cargo", ["bin", "cargo-deny", "--log-level", "error", "--all-features", "check", "all"]);
+    cargoDeny("bans", "licenses", "sources");
+  },
+  advisories() {
+    cargoDeny("advisories");
   },
 };
 
