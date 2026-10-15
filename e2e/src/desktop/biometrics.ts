@@ -1,8 +1,10 @@
 import { expect, Page } from "@playwright/test";
 
-import { AutomationDriver } from "../automation-driver";
+import { automationDriver, RemoteCapability } from "../automation-driver";
 
-export const AUTOMATION_BIOMETRICS_ENV = { USE_AUTOMATION_BIOMETRICS: "1" };
+import { test as desktopTest } from "./fixtures";
+
+const AUTOMATION_BIOMETRICS_ENV = { USE_AUTOMATION_BIOMETRICS: "1" };
 
 export const BiometricRequestType = Object.freeze({
   Authenticate: "authenticate",
@@ -39,31 +41,31 @@ type StateCapability = {
  * raises waits in the fake until it is approved or denied here.
  */
 export class Biometrics {
-  private biometrics: AutomationDriver<BiometricsCapability>;
-  private state: AutomationDriver<StateCapability>;
+  private biometrics: RemoteCapability<BiometricsCapability>;
+  private state: RemoteCapability<StateCapability>;
 
   constructor(private page: Page) {
-    this.biometrics = new AutomationDriver(page, CAPABILITY);
-    this.state = new AutomationDriver(page, STATE_CAPABILITY);
+    this.biometrics = automationDriver(page, CAPABILITY);
+    this.state = automationDriver(page, STATE_CAPABILITY);
   }
 
   /** Sets the reported `BiometricsStatus` (libs/key-management), e.g. 0 for Available. */
   async setStatus(status: number) {
-    await this.biometrics.call("setStatus", status);
+    await this.biometrics.setStatus(status);
   }
 
   async listPending(): Promise<BiometricRequest[]> {
-    return this.biometrics.call("listPending");
+    return this.biometrics.listPending();
   }
 
   /** Approves the request with `id`, or every pending request. */
   async approve(id?: string) {
-    await this.biometrics.call("approve", id);
+    await this.biometrics.approve(id);
   }
 
   /** Denies the request with `id`, or every pending request. */
   async deny(id?: string) {
-    await this.biometrics.call("deny", id);
+    await this.biometrics.deny(id);
   }
 
   /**
@@ -71,7 +73,7 @@ export class Biometrics {
    * enrolling finishes asynchronously; locking before that makes it fail silently.
    */
   async waitUntilEnrolled() {
-    const userId = await this.state.call("readGlobal", ACTIVE_ACCOUNT_ID);
+    const userId = await this.state.readGlobal(ACTIVE_ACCOUNT_ID);
 
     await expect
       .poll(
@@ -102,3 +104,13 @@ export class Biometrics {
     await this.approve(request!.id);
   }
 }
+
+/** Desktop `test` with the fake biometrics enabled and a {@link Biometrics} driving them. */
+export const test = desktopTest.extend<{ biometrics: Biometrics }>({
+  extraEnv: async ({ extraEnv }, use) => {
+    await use({ ...extraEnv, ...AUTOMATION_BIOMETRICS_ENV });
+  },
+  biometrics: async ({ window }, use) => {
+    await use(new Biometrics(window));
+  },
+});

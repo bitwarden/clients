@@ -1,20 +1,16 @@
 import { clickMenuItem, MenuItem } from "../../src/desktop/app-menu";
-import {
-  AUTOMATION_BIOMETRICS_ENV,
-  Biometrics,
-  BiometricRequestType,
-} from "../../src/desktop/biometrics";
-import { expect, test } from "../../src/desktop/fixtures";
+import { BiometricRequestType, test } from "../../src/desktop/biometrics";
+import { expect } from "../../src/desktop/fixtures";
 import { LoginPage } from "../../src/login";
 
 const VAULT_URL = /#\/vault/;
 const LOCK_URL = /#\/lock/;
 
-test.use({ extraEnv: AUTOMATION_BIOMETRICS_ENV });
-
-test("enrolls in biometric unlock, locks and unlocks with biometrics", async ({ app, window }) => {
-  const biometrics = new Biometrics(window);
-
+test("enrolls in biometric unlock, locks and unlocks with biometrics", async ({
+  app,
+  window,
+  biometrics,
+}) => {
   const login = new LoginPage(window);
   await login.logIn();
   await login.waitForVault(VAULT_URL);

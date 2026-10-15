@@ -1,30 +1,35 @@
 import { Page } from "@playwright/test";
 
-/** Methods a capability exposes, e.g. `{ approve(id?: string): Promise<void> }`. */
-type CapabilityMethods<T> = { [K in keyof T]: (...args: any[]) => unknown };
+/** `T`'s methods, each forwarded to the renderer and resolving to its serialized result. */
+export type RemoteCapability<T> = {
+  [K in keyof T]: T[K] extends (...args: infer A) => infer R
+    ? (...args: A) => Promise<Awaited<R>>
+    : never;
+};
 
 /**
- * Calls one capability of the renderer's automation driver (libs/automation-driver), typed by
+ * Proxies one capability of the renderer's automation driver (libs/automation-driver), typed by
  * `T`, the capability's shape as seen from the test.
  *
  * ```ts
- * const lock = new AutomationDriver<{ lock(): Promise<void> }>(page, "lock");
- * await lock.call("lock");
+ * const lock = automationDriver<{ lock(): Promise<void> }>(page, "lock");
+ * await lock.lock();
  * ```
  */
-export class AutomationDriver<T extends CapabilityMethods<T>> {
-  constructor(
-    private page: Page,
-    private capability: string,
-  ) {}
+export function automationDriver<T>(page: Page, capability: string): RemoteCapability<T> {
+  return new Proxy({} as RemoteCapability<T>, {
+    get: (_, method) => {
+      // Not a thenable: `await` probes `then`, which must not reach the renderer.
+      if (typeof method !== "string" || method === "then") {
+        return undefined;
+      }
 
-  async call<K extends keyof T & string>(
-    method: K,
-    ...args: Parameters<T[K]>
-  ): Promise<Awaited<ReturnType<T[K]>>> {
-    return this.page.evaluate(
-      ([name, fn, fnArgs]) => (window as any).bitwardenAutomationDriver.get(name)[fn](...fnArgs),
-      [this.capability, method, args] as const,
-    );
-  }
+      return (...args: unknown[]) =>
+        page.evaluate(
+          ([name, fn, fnArgs]) =>
+            (window as any).bitwardenAutomationDriver.get(name)[fn](...fnArgs),
+          [capability, method, args] as const,
+        );
+    },
+  });
 }
