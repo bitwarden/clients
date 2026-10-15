@@ -110,14 +110,21 @@
       <div
         class="tw-relative tw-rounded-xl tw-bg-bg-nav hover:tw-bg-bg-nav-hover"
         [class]="fvwStyles()"
+        [class.tw-max-w-10]="!open"
+        [class.tw-mx-auto]="!open"
         [style]="showActiveStyles() ? '--color-nav-bg-brand: var(--color-nav-bg-brand-soft);' : ''"
         data-testid="nav-item-container"
         data-spotlight-target
       >
         <div class="tw-relative tw-flex tw-items-center tw-h-full">
-          <!-- Non-tile leading content (e.g. a collapse toggle); a tile renders inside the interactive element instead. -->
+          <!-- Non-tile leading content (e.g. a collapse toggle); a tile renders inside the interactive element instead.
+               Depth 2+ always reserves this slot so leaf rows align with sibling groups' toggles. -->
           @if (open) {
-            <div class="tw-ps-2 empty:tw-hidden">
+            <div
+              class="tw-shrink-0"
+              [class]="treeDepth() > 1 ? 'tw-w-8 tw-flex' : 'tw-ps-2 empty:tw-hidden'"
+              [style.margin-inline-start]="nestedIndent()"
+            >
               <ng-container *ngTemplateOutlet="startSlot"></ng-container>
             </div>
           }
@@ -192,25 +199,18 @@
     >
       <!-- Leading icon tile: inside the interactive element and, when collapsed, the sole rail glyph -->
       <ng-container *ngTemplateOutlet="iconTileSlot"></ng-container>
-      @if ((icon() || treeDepth() > 1) && !hasStartIconTile()) {
-        <div class="tw-size-6 tw-flex tw-items-center tw-justify-center">
-          @if (icon()) {
-            <bit-icon
-              class="!tw-m-0 tw-text-lg tw-shrink-0"
-              [name]="icon()"
-              [attr.aria-hidden]="open"
-              [attr.aria-label]="text()"
-            ></bit-icon>
-          }
+      @if (icon() && !hasStartIconTile()) {
+        <div class="tw-size-6 tw-shrink-0 tw-flex tw-items-center tw-justify-center">
+          <bit-icon
+            class="!tw-m-0 tw-text-lg tw-shrink-0"
+            [name]="icon()"
+            [attr.aria-hidden]="open"
+            [attr.aria-label]="text()"
+          ></bit-icon>
         </div>
       }
       @if (open) {
-        <span
-          [class.tw-ps-1]="treeDepth() <= 1"
-          [class.-tw-ms-px]="!icon() && treeDepth() > 1"
-          class="tw-truncate"
-          >{{ text() }}</span
-        >
+        <span class="tw-truncate tw-ps-1">{{ text() }}</span>
       }
     </div>
   </ng-template>
