@@ -9,10 +9,7 @@
       </bit-breadcrumb>
     }
 
-    <!--
-      `[route]="[]"` plus `preserve` resolves to the current URL, query params and all, which is
-      what keeps this crumb active once the table writes its filter state there.
-    -->
+    <!-- `preserve` keeps the crumb active once the table writes its filters to the URL. -->
     <bit-breadcrumb icon="bwi-folder" [route]="[]" queryParamsHandling="preserve">
       {{ path.current }}
     </bit-breadcrumb>
