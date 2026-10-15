@@ -159,6 +159,13 @@ export class EventService {
           this.getShortId(ev.cipherId),
         );
         break;
+      case EventType.Cipher_AttachmentDownloaded:
+        msg = this.i18nService.t("downloadedAttachmentForItem", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "downloadedAttachmentForItem",
+          this.getShortId(ev.cipherId),
+        );
+        break;
       case EventType.Cipher_Shared:
         msg = this.i18nService.t("movedItemIdToOrg", this.formatCipherId(ev, options));
         humanReadableMsg = this.i18nService.t("movedItemIdToOrg", this.getShortId(ev.cipherId));
