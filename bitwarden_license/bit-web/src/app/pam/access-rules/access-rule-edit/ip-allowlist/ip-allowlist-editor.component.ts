@@ -80,6 +80,8 @@ export class IpAllowlistEditorComponent implements OnInit, DoCheck {
   protected removeRow(index: number): void {
     const array = this.cidrArray();
     array.removeAt(index);
+    // `removeAt` leaves the form pristine, which would let the page's discard guard skip its prompt.
+    array.markAsDirty();
     // Keep at least one row so the user always has an input to type into.
     if (array.length === 0) {
       this.appendRow();
