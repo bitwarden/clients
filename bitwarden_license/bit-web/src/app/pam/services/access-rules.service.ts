@@ -2,19 +2,18 @@ import { Injectable, inject } from "@angular/core";
 import { BehaviorSubject, Observable, firstValueFrom } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
-import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
-
 import {
   AccessRuleSdkService,
   AccessRuleView,
   accessRuleToCopyRequest,
   accessRuleToRequest,
   filterRulesToToggle,
-} from "..";
+} from "@bitwarden/bit-common/pam";
+import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import { GovernedCollectionsService } from "./governed-collections.service";
 

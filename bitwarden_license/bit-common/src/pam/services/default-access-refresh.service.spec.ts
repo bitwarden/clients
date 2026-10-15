@@ -1,6 +1,6 @@
 import { NEVER, Subject, Subscription } from "rxjs";
 
-import { AccessEventService } from "..";
+import { AccessEventService } from "../abstractions/access-event.service";
 
 import { DefaultAccessRefreshService } from "./default-access-refresh.service";
 

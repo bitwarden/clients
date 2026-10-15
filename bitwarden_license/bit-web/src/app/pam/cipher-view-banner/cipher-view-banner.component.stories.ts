@@ -2,6 +2,14 @@ import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { EMPTY, of } from "rxjs";
 
+import {
+  AccessLeaseSdkService,
+  AccessRefreshService,
+  AccessRequestCancelService,
+  AccessRequestSdkService,
+  CipherViewBannerComponent,
+  LeasingErrorService,
+} from "@bitwarden/bit-common/pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -10,11 +18,6 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
-import { AccessRefreshService } from "../abstractions/access-refresh.service";
-import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
-import { LeasingErrorService } from "../abstractions/leasing-error.service";
-import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import {
   HOUR,
   MINUTE,
@@ -24,8 +27,6 @@ import {
   provideStoryChangeDetection,
   provideStoryLogService,
 } from "../testing/story-fixtures";
-
-import { CipherViewBannerComponent } from "./cipher-view-banner.component";
 
 const ORGANIZATION_ID = "org-1";
 

@@ -20,9 +20,11 @@ import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { GatedCipherReloader } from "@bitwarden/vault";
 
-import { AccessRefreshService, AccessRequestSdkService, liveActiveLease, rereadOnLapse } from "..";
 import type { CipherAccessStateView } from "../abstractions/access-lease";
+import { AccessRefreshService } from "../abstractions/access-refresh.service";
+import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
+import { liveActiveLease, rereadOnLapse } from "../helpers/lease-liveness";
 
 /**
  * Never caches the revealed cipher locally, so a lapsed lease leaves no decryptable secrets.

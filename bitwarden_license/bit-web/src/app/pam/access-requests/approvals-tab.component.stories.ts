@@ -3,12 +3,12 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { of } from "rxjs";
 import { userEvent, within } from "storybook/test";
 
+import type { AccessLeaseId, AccessRequestView } from "@bitwarden/bit-common/pam";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { featureFlagModes } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import type { AccessLeaseId, AccessRequestView } from "../abstractions/access-lease";
 import { ApprovalRow, toApprovalRow } from "../approvals/approval-row";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import { ManagedLeaseRow, toManagedLeaseRow } from "../approvals/managed-lease-row";

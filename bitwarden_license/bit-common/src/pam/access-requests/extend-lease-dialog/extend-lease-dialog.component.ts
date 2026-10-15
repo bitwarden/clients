@@ -12,7 +12,8 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { AccessLeaseExtensionRequest, EXTENSION_DURATION_OPTIONS } from "../..";
+import { AccessLeaseExtensionRequest } from "../../abstractions/access-lease";
+import { EXTENSION_DURATION_OPTIONS } from "../../helpers/lease-window.utils";
 
 /** Collects a lease extension. The reason is required because the server rejects an empty one. */
 @Component({

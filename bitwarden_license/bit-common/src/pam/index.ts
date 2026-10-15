@@ -75,11 +75,6 @@ export type { AccessRequestForApproval, UserForApproval } from "./helpers/can-ap
 export { elapsedLabel } from "./date/elapsed";
 export type { ElapsedLabel } from "./date/elapsed";
 export { ApprovalSdkService } from "./abstractions/approval-sdk.service";
-export { AuditApiService } from "./access-audit/audit-api.service";
-export { RotationSdkService } from "./rotation/rotation-sdk.service";
-export type { RotationConfigDescription } from "./rotation/rotation-sdk.service";
-export { AccessAuditEventKind } from "./access-audit/responses/access-audit-event.response";
-export type { AccessAuditEventResponse } from "./access-audit/responses/access-audit-event.response";
 export { durationLabel, exactWindow, reasonText, relativeStart } from "./helpers/approval-window";
 export type { LabelValue } from "./helpers/approval-window";
 export {
@@ -121,3 +116,36 @@ export {
   isRequestNoLongerPendingError,
 } from "./helpers/decide-access-error";
 export { selectedFilterStrings } from "./helpers/selected-filter-strings";
+export {
+  accessConnectorDeactivateConfirmOptions,
+  accessConnectorDeleteConfirmOptions,
+} from "./helpers/access-connector-confirm";
+export { isGovernedCipher } from "./helpers/governed-cipher";
+
+export { AccessLeasesSdkService } from "./services/access-leases-sdk.service";
+export { AccessRequestCancelService } from "./services/access-request-cancel.service";
+export { AccessRequestsSdkService } from "./services/access-requests-sdk.service";
+export { AccessRulesSdkService } from "./services/access-rules-sdk.service";
+export { ApprovalsSdkService } from "./services/approvals-sdk.service";
+export { DefaultAccessEventService } from "./services/default-access-event.service";
+export { DefaultAccessRefreshService } from "./services/default-access-refresh.service";
+export { DefaultLeasingErrorService } from "./services/default-leasing-error.service";
+export { MyLeasesService } from "./services/my-leases.service";
+export { PamGatedCipherReloader } from "./services/pam-gated-cipher-reloader.service";
+export { callerOrganizations$, unlicensedForPam } from "./services/pam-membership";
+
+export { DurationLongPipe } from "./date/duration-long.pipe";
+export { DurationShortPipe } from "./date/duration-short.pipe";
+export { RelativeTimePipe } from "./date/relative-time.pipe";
+export { RemainingTimePipe } from "./date/remaining-time.pipe";
+
+export type { AccessBadgeState } from "./access-state-badge/access-badge-state";
+export {
+  ENDING_SOON_THRESHOLD_MS,
+  cipherAccessBadgeState,
+} from "./access-state-badge/access-badge-state";
+export { AccessBadgeTickerService } from "./access-state-badge/access-badge-ticker.service";
+export { AccessStateBadgeComponent } from "./access-state-badge/access-state-badge.component";
+export { ItemDetailsStateBadgeComponent } from "./item-details-state-badge/item-details-state-badge.component";
+export { CipherViewBannerComponent } from "./cipher-view-banner/cipher-view-banner.component";
+export { ExtendLeaseDialogComponent } from "./access-requests/extend-lease-dialog/extend-lease-dialog.component";

@@ -13,12 +13,6 @@ import {
   switchMap,
 } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { PamNavBadgeService } from "@bitwarden/web-vault/app/pam/pam-nav-badge.service";
-
 import {
   AccessEventService,
   AccessRefreshService,
@@ -26,7 +20,13 @@ import {
   AccessRequestView,
   ApprovalSdkService,
   isActionableRequest,
-} from "..";
+} from "@bitwarden/bit-common/pam";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { PamNavBadgeService } from "@bitwarden/web-vault/app/pam/pam-nav-badge.service";
+
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 import { isActionableInboxRequest } from "../approvals/inbox-request-filter";
 

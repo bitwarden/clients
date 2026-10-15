@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from "@angular/core";
 
-import { formatRemaining } from "..";
+import { formatRemaining } from "./format-remaining";
 
 /** Pure, so pass a ticking `nowMs` for the countdown to move. */
 @Pipe({

@@ -5,6 +5,15 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { EMPTY, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import {
+  AccessLeaseSdkService,
+  AccessRefreshService,
+  AccessRequestCancelService,
+  AccessRequestSdkService,
+  CipherViewBannerComponent,
+  ItemDetailsStateBadgeComponent,
+  LeasingErrorService,
+} from "@bitwarden/bit-common/pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -33,12 +42,6 @@ import {
 } from "@bitwarden/vault";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
-import { AccessRefreshService } from "../abstractions/access-refresh.service";
-import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
-import { LeasingErrorService } from "../abstractions/leasing-error.service";
-import { ItemDetailsStateBadgeComponent } from "../item-details-state-badge/item-details-state-badge.component";
-import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import {
   HOUR,
   accessRequest,
@@ -46,8 +49,6 @@ import {
   provideStoryChangeDetection,
   provideStoryLogService,
 } from "../testing/story-fixtures";
-
-import { CipherViewBannerComponent } from "./cipher-view-banner.component";
 
 /**
  * The composed cipher view, showing card order and the name-row badge. Every vault item renders

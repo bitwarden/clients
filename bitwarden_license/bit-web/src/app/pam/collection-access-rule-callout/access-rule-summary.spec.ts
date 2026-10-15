@@ -1,4 +1,4 @@
-import type { AccessRuleView } from "../abstractions/access-rule";
+import type { AccessRuleView } from "@bitwarden/bit-common/pam";
 
 import { accessRuleSummaryKeys, rulesGoverningCollection } from "./access-rule-summary";
 

@@ -1,6 +1,6 @@
 import { LOCALE_ID, Pipe, PipeTransform, inject } from "@angular/core";
 
-import { formatRelativeTime } from "..";
+import { formatRelativeTime } from "./relative-time";
 
 /** A localized relative phrase, e.g. "5 min. ago" or "in 2 hr.". */
 @Pipe({

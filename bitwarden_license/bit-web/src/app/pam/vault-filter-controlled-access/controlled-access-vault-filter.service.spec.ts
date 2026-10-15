@@ -2,15 +2,13 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
+import { AccessRequestSdkService, type CipherAccessStateView } from "@bitwarden/bit-common/pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MY_REQUESTS_FILTER_ID, PRIVILEGED_FILTER_ID } from "@bitwarden/vault";
-
-import type { CipherAccessStateView } from "../abstractions/access-lease";
-import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 
 import { ControlledAccessVaultFilterService } from "./controlled-access-vault-filter.service";
 

@@ -1,4 +1,4 @@
-import { DurationUnit, pickDurationUnit } from "..";
+import { DurationUnit, pickDurationUnit } from "../helpers/lease-window.utils";
 
 const formatters = new Map<string, Intl.NumberFormat>();
 

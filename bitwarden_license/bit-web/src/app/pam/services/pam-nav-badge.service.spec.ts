@@ -1,16 +1,19 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Subject, Subscription } from "rxjs";
 
+import {
+  AccessEventService,
+  AccessRequestSdkService,
+  type AccessRequestStatus,
+  type AccessRequestView,
+  ApprovalSdkService,
+  DefaultAccessRefreshService,
+} from "@bitwarden/bit-common/pam";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
-import { AccessEventService } from "../abstractions/access-event.service";
-import type { AccessRequestStatus, AccessRequestView } from "../abstractions/access-lease";
-import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
-import { ApprovalSdkService } from "../abstractions/approval-sdk.service";
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 
-import { DefaultAccessRefreshService } from "./default-access-refresh.service";
 import { DefaultPamNavBadgeService } from "./pam-nav-badge.service";
 
 const FUTURE = new Date(Date.now() + 60 * 60 * 1000).toISOString();

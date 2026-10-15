@@ -1,4 +1,4 @@
-import type { AccessApprover, AccessRequestDecisionView } from "../abstractions/access-lease";
+import type { AccessApprover, AccessRequestDecisionView } from "@bitwarden/bit-common/pam";
 
 /** Fixed so a test asserting on a decision's timestamp doesn't depend on when it runs. */
 const DECIDED_AT = "2026-06-10T10:30:00.000Z";

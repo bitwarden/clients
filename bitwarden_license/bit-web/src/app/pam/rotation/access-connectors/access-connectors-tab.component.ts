@@ -15,6 +15,10 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { filter, firstValueFrom, map } from "rxjs";
 
 import { NoResults } from "@bitwarden/assets/svg";
+import {
+  accessConnectorDeactivateConfirmOptions,
+  accessConnectorDeleteConfirmOptions,
+} from "@bitwarden/bit-common/pam";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -54,10 +58,6 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import {
-  accessConnectorDeactivateConfirmOptions,
-  accessConnectorDeleteConfirmOptions,
-} from "../../helpers/access-connector-confirm";
 import { assignableTargetSystems } from "../assignable";
 import { filterOptions } from "../filter-options";
 import { AccessConnectorId, TargetSystemId, TargetSystemView } from "../rotation";
