@@ -118,15 +118,21 @@ export class BitTableToolbarComponent {
   private readonly activeChips = computed(() =>
     this.activeFilters().flatMap((filter): { chip: ChipGroupItem; clear: () => void }[] => {
       if (filter.multiple() && filter.selections().length) {
-        return filter.selections().map((selection, i) => ({
-          chip: {
-            id: `${filter.key()}:${i}`,
-            label: selection.label,
-            accessibleName: `${filter.label()}: ${selection.label}`,
-            startIcon: filter.icon(),
-          },
-          clear: () => filter.deselect(selection.value),
-        }));
+        // Keyed on label so ids survive removals; repeated labels get a suffix.
+        const seen = new Map<string, number>();
+        return filter.selections().map((selection) => {
+          const n = seen.get(selection.label) ?? 0;
+          seen.set(selection.label, n + 1);
+          return {
+            chip: {
+              id: `${filter.key()}:${selection.label}${n ? `#${n}` : ""}`,
+              label: selection.label,
+              accessibleName: `${filter.label()}: ${selection.label}`,
+              startIcon: filter.icon(),
+            },
+            clear: () => filter.deselect(selection.value),
+          };
+        });
       }
       const summary = filter.summary();
       const label = summary ? `${filter.label()}: ${summary}` : filter.label();

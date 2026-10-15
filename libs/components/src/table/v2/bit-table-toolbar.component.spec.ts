@@ -7,7 +7,7 @@ import { Observable, Subject } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/state";
 
-import { ChipComponent } from "../../chips";
+import { ChipComponent, ChipGroupComponent } from "../../chips";
 import { DialogRef, DialogService } from "../../dialog";
 import {
   FilterDialogComponent,
@@ -285,6 +285,8 @@ describe("BitTableToolbarComponent", () => {
       <bit-filter-menu #type key="type" placeholderText="Type" icon="bwi-list" multiple>
         <bit-filter-option [value]="'login'">Login</bit-filter-option>
         <bit-filter-option [value]="'card'">Card</bit-filter-option>
+        <!-- Shares a label with "card". -->
+        <bit-filter-option [value]="'card-2'">Card</bit-filter-option>
       </bit-filter-menu>
       <bit-filter-menu #vault key="vault" placeholderText="Vault">
         <bit-filter-option [value]="'mine'">My vault</bit-filter-option>
@@ -403,6 +405,35 @@ describe("BitTableToolbarComponent active filter chips", () => {
     expect(chipLabels()).toEqual(["Card"]);
     expect(host.type().isSelected("login")).toBe(false);
     expect(host.type().active()).toBe(true);
+  });
+
+  it("keeps each remaining chip's id when an earlier option is dismissed", () => {
+    const chipIds = () =>
+      (
+        fixture.debugElement.query(By.directive(ChipGroupComponent))
+          .componentInstance as ChipGroupComponent
+      )
+        .chips()
+        .map((chip) => chip.id);
+    host.type().setValue(["login", "card"]);
+    fixture.detectChanges();
+    const cardId = chipIds()[1];
+
+    dismiss(0);
+    fixture.detectChanges();
+
+    expect(chipIds()).toEqual([cardId]);
+  });
+
+  it("clears the dismissed option when two selections share a label", () => {
+    host.type().setValue(["card", "card-2"]);
+    fixture.detectChanges();
+
+    dismiss(1);
+    fixture.detectChanges();
+
+    expect(host.type().isSelected("card")).toBe(true);
+    expect(host.type().isSelected("card-2")).toBe(false);
   });
 
   it("keeps one qualified chip for a single-select, cleared as a whole", () => {
