@@ -86,12 +86,12 @@ import {
 } from "../../models/vault-scope";
 import { VAULT_BASE_ROUTE } from "../../routing/vault-base-route";
 import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
-import { sharedFolderName } from "../../utils/shared-folder-name";
 import {
   ControlledAccessFilterOption,
   VAULT_CONTROLLED_ACCESS_FILTER,
   VaultControlledAccessFilter,
 } from "../../tokens/vault-controlled-access-filter.token";
+import { sharedFolderName } from "../../utils/shared-folder-name";
 import {
   idString,
   matchesFavorite,
