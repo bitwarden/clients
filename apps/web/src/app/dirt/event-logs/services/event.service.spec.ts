@@ -453,3 +453,31 @@ describe("EventService shortcode escaping", () => {
     expect(info.message).not.toContain("<code><script></code>");
   });
 });
+
+describe("EventService scoped API key events", () => {
+  let sut: EventService;
+
+  const i18n = mock<I18nService>();
+  i18n.t.mockImplementation((id: string) => id);
+
+  beforeEach(() => {
+    const policyService = mock<PolicyService>();
+    policyService.policies$.mockReturnValue(of([]));
+    const accountService = mock<AccountService>();
+    (accountService as any).activeAccount$ = of({ id: "user-id" });
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(false);
+
+    sut = new EventService(i18n, policyService, accountService, configService);
+  });
+
+  it.each([
+    [EventType.Organization_ScopedApiKeyCreated, "scopedApiKeyEventCreated"],
+    [EventType.Organization_ScopedApiKeyRevoked, "scopedApiKeyEventRevoked"],
+  ])("describes event type %s", async (type, expectedKey) => {
+    const info = await sut.getEventInfo({ type, organizationId: "org" } as EventResponse);
+
+    expect(info.message).toBe(expectedKey);
+    expect(info.humanReadableMessage).toBe(expectedKey);
+  });
+});
