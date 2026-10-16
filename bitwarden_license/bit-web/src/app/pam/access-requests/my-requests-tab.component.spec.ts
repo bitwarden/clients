@@ -1017,7 +1017,7 @@ describe("MyRequestsTabComponent", () => {
         expect(query('[data-testid="my-access-active-empty"]')).not.toBeNull();
       });
 
-      it("counts each chip option absolutely, not against the other controls", () => {
+      it("counts each chip option against the other active controls", () => {
         twoCollections();
         createWithFlag(true);
 
@@ -1029,7 +1029,8 @@ describe("MyRequestsTabComponent", () => {
         component["searchControl"].setValue("staging");
         fixture.detectChanges();
 
-        expect(table.optionCount("collection", "col-1")).toBe(1);
+        expect(table.optionCount("collection", "col-1")).toBe(0);
+        expect(table.optionCount("collection", "col-2")).toBe(1);
       });
 
       it("counts a chip option over every section it narrows, not over Pending alone", () => {
