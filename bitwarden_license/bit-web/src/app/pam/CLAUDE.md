@@ -12,9 +12,7 @@ create/edit page, and the IP-allowlist editor. Gated behind `FeatureFlag.Pam`
   and pure helpers (`helpers/`). Re-exported via `index.ts`. No Angular
   runtime APIs here; keep it that way so this stays unit-testable without a
   TestBed. Type-only imports of component-library option shapes (e.g.
-  `SimpleDialogOptions`) are fine, since they are erased at compile time. Was
-  its own package (`@bitwarden/bit-pam`) — folded in here since `bit-web` was
-  its only consumer.
+  `SimpleDialogOptions`) are fine, since they are erased at compile time.
 - `access-rules/` — list (`access-rules.component` + `.service`) and the
   routed create/edit page (`access-rule-edit.component`), at `access-rules`,
   `access-rules/new`, `access-rules/:accessRuleId`.
