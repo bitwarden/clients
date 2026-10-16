@@ -28,6 +28,12 @@ finish-args:
   - --filesystem=xdg-download
   - --device=all
 
+  # SSH agent setup writes the SSH_AUTH_SOCK export line to the shell profiles
+  - --filesystem=home/.profile
+  - --filesystem=home/.bashrc
+  - --filesystem=home/.zshrc
+  - --filesystem=home/.config/fish/config.fish
+
   # Browser integration
   # The config directory is needed to write manifests for non-flatpak
   # Sockets are mounted in each app's directory
