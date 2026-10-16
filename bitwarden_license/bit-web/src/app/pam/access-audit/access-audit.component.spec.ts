@@ -33,6 +33,7 @@ import {
   AccessNameResolverService,
   emptyResolvedNames,
 } from "../access-requests/access-name-resolver.service";
+import { stubToolbarWidth } from "../testing/toolbar-width";
 
 import { UNEMITTED_AUDIT_KINDS } from "./access-audit-row";
 import { AccessAuditComponent } from "./access-audit.component";
@@ -2320,12 +2321,14 @@ describe("AccessAuditComponent", () => {
     const DURATION = 5;
 
     const realMatchMedia = window.matchMedia;
+    let toolbarWidth: ReturnType<typeof stubToolbarWidth>;
 
     /**
-     * jsdom has no `matchMedia`, so `bit-table-toolbar` would stay in its below-`md` mode, where
-     * the chip row is laid out but invisible and presence assertions pass either way.
+     * Sets the viewport, and the toolbar's own width with it, which `bit-table-toolbar` collapses by.
+     * Collapsed, the chip row is laid out but invisible, so presence assertions pass either way.
      */
     const viewportAtLeastMd = (matches: boolean) => {
+      toolbarWidth.setWidth(matches ? 1440 : 500);
       Object.defineProperty(window, "matchMedia", {
         configurable: true,
         writable: true,
@@ -2344,6 +2347,7 @@ describe("AccessAuditComponent", () => {
 
     beforeEach(() => {
       configService.getFeatureFlag$.mockReturnValue(of(true));
+      toolbarWidth = stubToolbarWidth(1440);
       viewportAtLeastMd(true);
       fixture = TestBed.createComponent(AccessAuditComponent);
     });
@@ -2354,6 +2358,7 @@ describe("AccessAuditComponent", () => {
         writable: true,
         value: realMatchMedia,
       });
+      toolbarWidth.restore();
     });
 
     const render = async (events: AccessAuditEventResponse[]) => {
@@ -2474,6 +2479,9 @@ describe("AccessAuditComponent", () => {
       it("collapses the same chips into the filter dialog trigger below md", async () => {
         viewportAtLeastMd(false);
         await render([event()]);
+        // The toolbar starts observing its width in an after-render hook.
+        TestBed.tick();
+        fixture.detectChanges();
 
         expect(toolbar().querySelector(".bwi-sliders")).not.toBeNull();
         expect(filterRow().querySelectorAll("bit-filter-menu")).toHaveLength(5);
