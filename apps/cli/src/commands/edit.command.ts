@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import * as inquirer from "inquirer";
+import type * as inquirer from "inquirer";
 import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { UpdateCollectionRequest } from "@bitwarden/admin-console/common";
@@ -30,6 +30,7 @@ import { OrganizationCollectionRequest } from "../admin-console/models/request/o
 import { OrganizationCollectionResponse } from "../admin-console/models/response/organization-collection.response";
 import { SelectionReadOnly } from "../admin-console/models/selection-read-only";
 import { Response } from "../models/response";
+import { loadInquirer } from "../platform/load-inquirer";
 import { CliUtils } from "../utils";
 import { CipherResponse } from "../vault/models/cipher.response";
 import { FolderResponse } from "../vault/models/folder.response";
@@ -353,7 +354,9 @@ export class EditCommand {
       return true;
     }
 
-    const answer: inquirer.Answers = await inquirer.createPromptModule({
+    const answer: inquirer.Answers = await (
+      await loadInquirer()
+    ).createPromptModule({
       output: process.stderr,
     })({
       type: "list",

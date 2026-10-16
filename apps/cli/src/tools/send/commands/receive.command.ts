@@ -3,7 +3,6 @@
 import * as path from "path";
 
 import { OptionValues } from "commander";
-import * as inquirer from "inquirer";
 import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -43,6 +42,7 @@ import { NodeUtils } from "@bitwarden/node/node-utils";
 
 import { DownloadCommand } from "../../../commands/download.command";
 import { Response } from "../../../models/response";
+import { loadInquirer } from "../../../platform/load-inquirer";
 import { SendAccessResponse } from "../models/send-access.response";
 
 /** The server that owns a Send, resolved from its url. */
@@ -182,7 +182,7 @@ export class SendReceiveCommand extends DownloadCommand {
   private async promptForDomainOverride(sendOrigin: string): Promise<boolean> {
     const env = await firstValueFrom(this.environmentService.environment$);
 
-    const answer = await inquirer.createPromptModule({ output: process.stderr })({
+    const answer = await (await loadInquirer()).createPromptModule({ output: process.stderr })({
       type: "confirm",
       name: "proceed",
       message:
@@ -402,7 +402,7 @@ export class SendReceiveCommand extends DownloadCommand {
   }
 
   private async promptForOtp(sendId: string, email: string): Promise<SendOtp> {
-    const otpAnswer = await inquirer.createPromptModule({ output: process.stderr })({
+    const otpAnswer = await (await loadInquirer()).createPromptModule({ output: process.stderr })({
       type: "input",
       name: "otp",
       message: "Enter the verification code sent to your email:",
@@ -411,17 +411,19 @@ export class SendReceiveCommand extends DownloadCommand {
   }
 
   private async promptForEmail(): Promise<string> {
-    const emailAnswer = await inquirer.createPromptModule({ output: process.stderr })({
-      type: "input",
-      name: "email",
-      message: "Enter your email address:",
-      validate: (input: string) => {
-        if (!input || !input.includes("@")) {
-          return "Please enter a valid email address";
-        }
-        return true;
+    const emailAnswer = await (await loadInquirer()).createPromptModule({ output: process.stderr })(
+      {
+        type: "input",
+        name: "email",
+        message: "Enter your email address:",
+        validate: (input: string) => {
+          if (!input || !input.includes("@")) {
+            return "Please enter a valid email address";
+          }
+          return true;
+        },
       },
-    });
+    );
     return emailAnswer.email;
   }
 
@@ -494,7 +496,7 @@ export class SendReceiveCommand extends DownloadCommand {
     }
 
     if ((password == null || password === "") && this.canInteract) {
-      const answer = await inquirer.createPromptModule({ output: process.stderr })({
+      const answer = await (await loadInquirer()).createPromptModule({ output: process.stderr })({
         type: "password",
         name: "password",
         message: "Send password:",

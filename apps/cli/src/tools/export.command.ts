@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { OptionValues } from "commander";
-import * as inquirer from "inquirer";
+import type * as inquirer from "inquirer";
 import { firstValueFrom, switchMap } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -19,6 +19,7 @@ import {
 } from "@bitwarden/vault-export-core";
 
 import { Response } from "../models/response";
+import { loadInquirer } from "../platform/load-inquirer";
 import { CliUtils } from "../utils";
 
 export class ExportCommand {
@@ -119,7 +120,9 @@ export class ExportCommand {
     if (typeof password === "string") {
       return password;
     } else if (password) {
-      const answer: inquirer.Answers = await inquirer.createPromptModule({
+      const answer: inquirer.Answers = await (
+        await loadInquirer()
+      ).createPromptModule({
         output: process.stderr,
       })({
         type: "password",

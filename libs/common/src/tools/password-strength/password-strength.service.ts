@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import zxcvbn from "zxcvbn";
+import type zxcvbn from "zxcvbn";
 
 import { PasswordStrengthServiceAbstraction } from "./password-strength.service.abstraction";
 
@@ -12,6 +12,18 @@ import { PasswordStrengthServiceAbstraction } from "./password-strength.service.
  * Set above the password generator's maximum length (128) for headroom.
  */
 export const MAX_PASSWORD_STRENGTH_LENGTH = 256;
+
+/**
+ * Loads zxcvbn on first use. Loading it builds its ranked dictionaries, which every process that
+ * constructs this service paid for on startup, even if it never scored a password (e.g. each CLI
+ * command).
+ */
+let loadedZxcvbn: typeof zxcvbn;
+function loadZxcvbn(): typeof zxcvbn {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  loadedZxcvbn ??= require("zxcvbn");
+  return loadedZxcvbn;
+}
 
 export class PasswordStrengthService implements PasswordStrengthServiceAbstraction {
   /**
@@ -42,7 +54,7 @@ export class PasswordStrengthService implements PasswordStrengthServiceAbstracti
       password.length > MAX_PASSWORD_STRENGTH_LENGTH
         ? password.substring(0, MAX_PASSWORD_STRENGTH_LENGTH)
         : password;
-    const result = zxcvbn(scoredPassword, finalUserInputs);
+    const result = loadZxcvbn()(scoredPassword, finalUserInputs);
     return result;
   }
 

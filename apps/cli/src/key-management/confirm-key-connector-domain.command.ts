@@ -1,4 +1,4 @@
-import * as inquirer from "inquirer";
+import type * as inquirer from "inquirer";
 
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -6,6 +6,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 
 import { Response } from "../models/response";
 import { MessageResponse } from "../models/response/message.response";
+import { loadInquirer } from "../platform/load-inquirer";
 
 export class ConfirmKeyConnectorDomainCommand {
   constructor(
@@ -29,7 +30,9 @@ export class ConfirmKeyConnectorDomainCommand {
       );
     }
 
-    const answer: inquirer.Answers = await inquirer.createPromptModule({ output: process.stderr })({
+    const answer: inquirer.Answers = await (
+      await loadInquirer()
+    ).createPromptModule({ output: process.stderr })({
       type: "list",
       name: "confirm",
       message: this.i18nService.t("confirmKeyConnectorDomain", this.keyConnectorUrl),

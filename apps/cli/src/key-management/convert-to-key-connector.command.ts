@@ -1,4 +1,4 @@
-import * as inquirer from "inquirer";
+import type * as inquirer from "inquirer";
 import { firstValueFrom } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -11,6 +11,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 
 import { Response } from "../models/response";
 import { MessageResponse } from "../models/response/message.response";
+import { loadInquirer } from "../platform/load-inquirer";
 import { I18nService } from "../platform/services/i18n.service";
 
 export class ConvertToKeyConnectorCommand {
@@ -38,7 +39,9 @@ export class ConvertToKeyConnectorCommand {
 
     const organization = await this.keyConnectorService.getManagingOrganization(this.userId);
 
-    const answer: inquirer.Answers = await inquirer.createPromptModule({ output: process.stderr })({
+    const answer: inquirer.Answers = await (
+      await loadInquirer()
+    ).createPromptModule({ output: process.stderr })({
       type: "list",
       name: "convert",
       message: this.i18nService.t(
