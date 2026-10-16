@@ -675,8 +675,8 @@ jobs:
       - name: Build
         run: npm run build:${{ matrix.variant }}
 
-      # Retrieve signing secrets only after dependencies are installed and the build has finished.
-      - name: Log in to Azure
+      # Retrieve signing secrets and mint a signing access token only after dependencies are installed and the build has finished.
+      - name: Log in to Azure for signing
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -691,10 +691,19 @@ jobs:
         with:
           keyvault: "bitwarden-ci"
           secrets: "code-signing-vault-url,
-            code-signing-client-id,
-            code-signing-tenant-id,
-            code-signing-client-secret,
             code-signing-cert-name"
+
+      - name: Get signing access token
+        id: signing-token
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        run: |
+          $token = az account get-access-token --resource https://vault.azure.net --query accessToken --output tsv
+          if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrEmpty($token)) {
+            Write-Error "Failed to get a Key Vault access token for signing"
+            exit 1
+          }
+          Write-Output "::add-mask::$token"
+          "token=$token" >> $env:GITHUB_OUTPUT
 
       - name: Log out from Azure
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -710,9 +719,7 @@ jobs:
         env:
           ELECTRON_BUILDER_SIGN: 1
           SIGNING_VAULT_URL: ${{ steps.retrieve-secrets.outputs.code-signing-vault-url }}
-          SIGNING_CLIENT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-client-id }}
-          SIGNING_TENANT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-tenant-id }}
-          SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
+          SIGNING_ACCESS_TOKEN: ${{ steps.signing-token.outputs.token }}
           SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
         run: |
           npm run pack:win
@@ -751,15 +758,38 @@ jobs:
       # Packs and signs the Appx with the CI signing certificate and publisher.
       # Reuses the compiled Rust and webpack builds from above, so we only need
       # to swap out the manifest, recompress and sign.
+      # Pack & Sign above can outlast an access token, so mint a fresh one.
+      - name: Log in to Azure for appx signing
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get appx signing access token
+        id: appx-signing-token
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        run: |
+          $token = az account get-access-token --resource https://vault.azure.net --query accessToken --output tsv
+          if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrEmpty($token)) {
+            Write-Error "Failed to get a Key Vault access token for signing"
+            exit 1
+          }
+          Write-Output "::add-mask::$token"
+          "token=$token" >> $env:GITHUB_OUTPUT
+
+      - name: Log out from Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Pack & sign appx for direct download
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         env:
           ELECTRON_BUILDER_SIGN: 1
           ELECTRON_BUILDER_SIGN_APPX: 1
           SIGNING_VAULT_URL: ${{ steps.retrieve-secrets.outputs.code-signing-vault-url }}
-          SIGNING_CLIENT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-client-id }}
-          SIGNING_TENANT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-tenant-id }}
-          SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
+          SIGNING_ACCESS_TOKEN: ${{ steps.appx-signing-token.outputs.token }}
           SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
           _APPX_PUBLISHER: ${{ steps.cert-subject.outputs.publisher }}
         run: node ./scripts/pack-signed-appx.mts --config electron-builder.json --publisher $env:_APPX_PUBLISHER
@@ -1064,8 +1094,8 @@ jobs:
       # pack:win:beta stamps BETA_PACKAGE_VERSION into the built package.json, which
       # electron-builder reads for artifact names and the channel file. The `-beta.N`
       # tag selects beta.yml over latest.yml.
-      # Retrieve signing secrets only after dependencies are installed and the build has finished.
-      - name: Log in to Azure
+      # Retrieve signing secrets and mint a signing access token only after dependencies are installed and the build has finished.
+      - name: Log in to Azure for signing
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -1080,10 +1110,19 @@ jobs:
         with:
           keyvault: "bitwarden-ci"
           secrets: "code-signing-vault-url,
-            code-signing-client-id,
-            code-signing-tenant-id,
-            code-signing-client-secret,
             code-signing-cert-name"
+
+      - name: Get signing access token
+        id: signing-token
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        run: |
+          $token = az account get-access-token --resource https://vault.azure.net --query accessToken --output tsv
+          if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrEmpty($token)) {
+            Write-Error "Failed to get a Key Vault access token for signing"
+            exit 1
+          }
+          Write-Output "::add-mask::$token"
+          "token=$token" >> $env:GITHUB_OUTPUT
 
       - name: Log out from Azure
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -1101,9 +1140,7 @@ jobs:
           BETA_PACKAGE_VERSION: ${{ env._PACKAGE_VERSION }}
           ELECTRON_BUILDER_SIGN: 1
           SIGNING_VAULT_URL: ${{ steps.retrieve-secrets.outputs.code-signing-vault-url }}
-          SIGNING_CLIENT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-client-id }}
-          SIGNING_TENANT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-tenant-id }}
-          SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
+          SIGNING_ACCESS_TOKEN: ${{ steps.signing-token.outputs.token }}
           SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
         run: npm run pack:win:beta
 
@@ -1141,15 +1178,38 @@ jobs:
       # Packs and signs the Appx with the CI signing certificate and publisher.
       # Reuses the compiled Rust and webpack builds from above, so we only need
       # to swap out the manifest, recompress and sign.
+      # Pack & Sign above can outlast an access token, so mint a fresh one.
+      - name: Log in to Azure for appx signing
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get appx signing access token
+        id: appx-signing-token
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        run: |
+          $token = az account get-access-token --resource https://vault.azure.net --query accessToken --output tsv
+          if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrEmpty($token)) {
+            Write-Error "Failed to get a Key Vault access token for signing"
+            exit 1
+          }
+          Write-Output "::add-mask::$token"
+          "token=$token" >> $env:GITHUB_OUTPUT
+
+      - name: Log out from Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Pack & sign appx for direct download
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         env:
           ELECTRON_BUILDER_SIGN: 1
           ELECTRON_BUILDER_SIGN_APPX: 1
           SIGNING_VAULT_URL: ${{ steps.retrieve-secrets.outputs.code-signing-vault-url }}
-          SIGNING_CLIENT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-client-id }}
-          SIGNING_TENANT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-tenant-id }}
-          SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
+          SIGNING_ACCESS_TOKEN: ${{ steps.appx-signing-token.outputs.token }}
           SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
           _APPX_PUBLISHER: ${{ steps.cert-subject.outputs.publisher }}
         run: node ./scripts/pack-signed-appx.mts --config electron-builder.beta.json --publisher $env:_APPX_PUBLISHER
