@@ -10,6 +10,14 @@ exports.default = run;
 
 const IS_GITHUB_ACTIONS = process.env.GITHUB_ACTIONS == "true";
 
+/// The native messaging proxy's entitlements, per app ID. The browser launches the proxy rather
+/// than the app, so it inherits nothing and has to name the App Group itself -- and the group is
+/// named after the app, so each channel needs its own.
+const PROXY_ENTITLEMENTS = {
+  "com.bitwarden.desktop": "entitlements.desktop_proxy.plist",
+  "com.bitwarden.beta.desktop": "entitlements.desktop_proxy.beta.plist",
+};
+
 /**
  *
  * @param {builder.AfterPackContext} context
@@ -109,35 +117,35 @@ async function doBuild(context) {
 
     const packageId = context.packager.appInfo.id;
 
-    if (is_mas) {
-      const entitlementsName = "entitlements.desktop_proxy.plist";
-      const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
-      child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${proxyPath}"`,
-      );
-
-      const inheritEntitlementsName = "entitlements.desktop_proxy.inherit.plist";
-      const inheritEntitlementsPath = path.join(
-        __dirname,
-        "..",
-        "resources",
-        inheritEntitlementsName,
-      );
-      child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${inheritEntitlementsPath}" "${inheritProxyPath}"`,
-      );
-    } else {
-      // For non-Appstore builds, we don't need the inherit binary as they are not sandboxed,
-      // but we sign and include it anyway for consistency. It should be removed once DDG supports the proxy directly.
-      const entitlementsName = "entitlements.mac.inherit.plist";
-      const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
-      child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${proxyPath}"`,
-      );
-      child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${inheritProxyPath}"`,
-      );
+    // Sandbox the proxy and scope it to the App Group on Developer ID builds as well as App Store
+    // ones, so both reach the same shared container the app listens on. Without the group the
+    // proxy resolves its socket to its own cache directory, which the app cannot see.
+    const entitlementsName = PROXY_ENTITLEMENTS[packageId];
+    if (entitlementsName === undefined) {
+      throw new Error(`No desktop_proxy entitlements for app ID '${packageId}'`);
     }
+    const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
+    child_process.execSync(
+      `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${proxyPath}"`,
+    );
+
+    // The App Store build spawns the inherit helper as a child of the sandboxed app, so it takes
+    // the app's sandbox -- and its App Group membership -- through the inherit entitlement. For
+    // non-Appstore builds, we don't need the inherit binary as they are not sandboxed, but we sign
+    // and include it anyway for consistency. It should be removed once DDG supports the proxy
+    // directly.
+    const inheritEntitlementsName = is_mas
+      ? "entitlements.desktop_proxy.inherit.plist"
+      : "entitlements.mac.inherit.plist";
+    const inheritEntitlementsPath = path.join(
+      __dirname,
+      "..",
+      "resources",
+      inheritEntitlementsName,
+    );
+    child_process.execSync(
+      `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${inheritEntitlementsPath}" "${inheritProxyPath}"`,
+    );
   }
 }
 
@@ -231,17 +239,24 @@ async function addElectronFuses(context) {
 }
 
 function copyMacOsAutofillExtension(context) {
-  // Currently because the provisioning profiles in the portal do not have the
-  // correct entitlements, we leave out the autofill extension except for local
-  // dev builds.
+  // The autofill extension ships in beta builds first; stable distribution builds leave it out
+  // until it is released there. Local App Store development builds always include it.
   const isMasDevBuild =
     context.electronPlatformName === "mas" && context.targets.at(0)?.name === "mas-dev";
-  if (!isMasDevBuild) {
-    console.log("### Autofill extension: needs Apple Developer Portal changes. Skipping.");
+  const isBetaBuild = context.packager.appInfo.id === "com.bitwarden.beta.desktop";
+  if (!isMasDevBuild && !isBetaBuild) {
+    console.log("### Autofill extension: not shipped in this build. Skipping.");
     return;
   }
 
   const extensionPath = path.join(__dirname, "../macos/dist/autofill-extension.appex");
+  // Every beta build ships the extension, so a missing one is a broken build rather than a
+  // configuration that leaves it out.
+  if (isBetaBuild && !fse.existsSync(extensionPath)) {
+    throw new Error(
+      `Autofill extension not found at ${extensionPath}; beta builds must include it. Build it first with "npm run build:macos-extension:beta:mac".`,
+    );
+  }
   copyMacOsPlugin(context, "Autofill extension", extensionPath);
 }
 

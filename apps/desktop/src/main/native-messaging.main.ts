@@ -483,6 +483,9 @@ export class NativeMessagingMain {
       Vivaldi: `${this.homedir()}/Library/Application\ Support/Vivaldi/`,
       Zen: `${this.homedir()}/Library/Application\ Support/Zen/`,
       Helium: `${this.homedir()}/Library/Application\ Support/net.imput.helium/`,
+      Brave: `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser/`,
+      "Brave Beta": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser-Beta/`,
+      "Brave Nightly": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser-Nightly/`,
     };
     /* eslint-enable no-useless-escape */
   }
