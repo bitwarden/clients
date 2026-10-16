@@ -91,6 +91,20 @@ const makeRow = (
   overrides: Partial<PopupCipherViewLike> = {},
 ) => ({ cipher: makeCipher(overrides), _section: section, actions: {} }) as any;
 
+/**
+ * JSDOM has no layout, so the toolbar measures 0 and treats itself as wide. Reports a popup-width
+ * toolbar instead, which collapses its filters behind the trigger that opens the filter dialog.
+ */
+const NarrowResizeObserver = class {
+  constructor(private readonly callback: ResizeObserverCallback) {}
+  observe(target: Element) {
+    const entry = { target, contentRect: { width: 360 } } as unknown as ResizeObserverEntry;
+    this.callback([entry], this as unknown as ResizeObserver);
+  }
+  unobserve() {}
+  disconnect() {}
+} as unknown as typeof ResizeObserver;
+
 describe("VaultPopupListTableComponent", () => {
   let fixture: ComponentFixture<VaultPopupListTableComponent>;
   let component: VaultPopupListTableComponent;
@@ -1101,15 +1115,7 @@ describe("VaultPopupListTableComponent", () => {
     beforeEach(() => {
       open = jest.spyOn(DialogService.prototype, "open");
       // JSDOM has no layout; report a narrow width so the toolbar collapses and opens the restored dialog.
-      globalThis.ResizeObserver = class {
-        constructor(private readonly callback: ResizeObserverCallback) {}
-        observe(target: Element) {
-          const entry = { target, contentRect: { width: 360 } } as unknown as ResizeObserverEntry;
-          this.callback([entry], this as unknown as ResizeObserver);
-        }
-        unobserve() {}
-        disconnect() {}
-      } as unknown as typeof ResizeObserver;
+      globalThis.ResizeObserver = NarrowResizeObserver;
     });
     afterEach(() => {
       open.mockRestore();
@@ -1141,8 +1147,14 @@ describe("VaultPopupListTableComponent", () => {
     let openPopover: jest.SpyInstance;
     let popoverRef: PopoverRef;
     let toolbar: BitTableToolbarComponent;
+    const originalResizeObserver = globalThis.ResizeObserver;
 
     beforeEach(() => {
+      // The toolbar only keeps the dialog open while collapsed, as it always is in the popup. It
+      // measures itself on creation, so the fixture is rebuilt once the narrow width is in place.
+      globalThis.ResizeObserver = NarrowResizeObserver;
+      fixture.destroy();
+      fixture = TestBed.createComponent(VaultPopupListTableComponent);
       popoverRef = new PopoverRef(() => {});
       jest.spyOn(popoverRef, "close");
       openPopover = jest.spyOn(TestBed.inject(PopoverService), "open").mockReturnValue(popoverRef);
@@ -1158,7 +1170,10 @@ describe("VaultPopupListTableComponent", () => {
       ).componentInstance;
     });
 
-    afterEach(() => jest.restoreAllMocks());
+    afterEach(() => {
+      jest.restoreAllMocks();
+      globalThis.ResizeObserver = originalResizeObserver;
+    });
 
     it("anchors the filters step to the toolbar's filter button", () => {
       activeStep.set("mixAndMatchFilters");
