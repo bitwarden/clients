@@ -8,6 +8,8 @@ import { linkedFieldOption } from "../../linked-field-option.decorator";
 
 import { ItemView } from "./item.view";
 
+// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/identity.rs).
+// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class IdentityView extends ItemView implements SdkIdentityView {
   @linkedFieldOption(LinkedId.Title, { sortPosition: 0 })
   title: string | undefined;

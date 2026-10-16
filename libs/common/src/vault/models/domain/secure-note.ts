@@ -6,6 +6,8 @@ import Domain from "../../../platform/models/domain/domain-base";
 import { normalizeSecureNoteTypeForSdk, SecureNoteType } from "../../enums";
 import { SecureNoteData } from "../data/secure-note.data";
 
+// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/secure_note.rs).
+// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class SecureNote extends Domain {
   type: SecureNoteType = SecureNoteType.Generic;
 

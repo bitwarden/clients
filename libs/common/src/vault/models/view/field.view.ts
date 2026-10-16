@@ -6,6 +6,8 @@ import { View } from "../../../models/view/view";
 import { FieldType, LinkedIdType } from "../../enums";
 import { Field } from "../domain/field";
 
+// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/field.rs).
+// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class FieldView implements View {
   name?: string;
   value?: string;

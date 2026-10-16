@@ -8,6 +8,8 @@ import Domain from "../../../platform/models/domain/domain-base";
 import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { DriversLicenseData } from "../data/drivers-license.data";
 
+// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/drivers_license.rs).
+// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class DriversLicense extends Domain {
   firstName?: EncString;
   middleName?: EncString;

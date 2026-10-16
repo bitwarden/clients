@@ -14,6 +14,8 @@ import {
 import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { FieldData } from "../data/field.data";
 
+// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/field.rs).
+// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class Field extends Domain {
   name?: EncString;
   value?: EncString;

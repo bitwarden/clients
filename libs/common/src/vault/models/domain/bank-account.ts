@@ -8,6 +8,8 @@ import Domain from "../../../platform/models/domain/domain-base";
 import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { BankAccountData } from "../data/bank-account.data";
 
+// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/bank_account.rs).
+// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class BankAccount extends Domain {
   bankName?: EncString;
   nameOnAccount?: EncString;

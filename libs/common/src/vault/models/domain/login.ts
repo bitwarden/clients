@@ -11,6 +11,8 @@ import { LoginData } from "../data/login.data";
 import { Fido2Credential } from "./fido2-credential";
 import { LoginUri } from "./login-uri";
 
+// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/login.rs).
+// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class Login extends Domain {
   uris?: LoginUri[];
   username?: EncString;
