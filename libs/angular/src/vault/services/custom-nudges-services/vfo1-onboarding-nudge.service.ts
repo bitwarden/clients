@@ -49,10 +49,9 @@ export class Vfo1OnboardingNudgeService extends DefaultSingleNudgeService {
 
     return combineLatest([profileDate$, this.getNudgeStatus$(nudgeType, userId)]).pipe(
       map(([profileCreationDate, status]) => {
-        const accountCreatedAfterGa =
-          profileCreationDate.getTime() >= VFO1_GA_RELEASE_DATE.getTime();
+        const accountTooNew = profileCreationDate.getTime() >= VFO1_GA_RELEASE_DATE.getTime();
         const windowClosed = Date.now() > onboardingWindowEnd();
-        const autoDismiss = accountCreatedAfterGa || windowClosed;
+        const autoDismiss = accountTooNew || windowClosed;
 
         return {
           hasBadgeDismissed: status.hasBadgeDismissed || autoDismiss,

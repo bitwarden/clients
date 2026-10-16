@@ -129,73 +129,106 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   /**
-   * Observable that emits an array of decrypted ciphers for given userId.
-   * This observable will not emit until the encrypted ciphers have either been loaded from state or after sync.
+   * Shared decrypt source for {@link cipherViews$} and {@link cipherListViewsWithPartials$},
+   * retaining PAM-gated ("partial") rows so each can filter as it needs. The sole decrypt
+   * subscription, so decryption and the overlay refresh run once.
    *
-   * This uses the SDK for decryption, when the `PM22134SdkCipherListView` feature flag is disabled the full `cipherViews$` observable will be emitted.
-   * Usage of the {@link CipherViewLike} type is recommended to ensure both `CipherView` and `CipherListView` are supported.
+   * A `null` value indicates that decryption is in progress.
    */
-  cipherListViews$ = perUserCache$((userId: UserId) => {
-    let decryptMeasurement: Measurement;
-
-    return this.configService.getFeatureFlag$(FeatureFlag.PM22134SdkCipherListView).pipe(
-      switchMap((useSdk) => {
-        if (!useSdk) {
-          return this.cipherViews$(userId);
-        }
-
-        return combineLatest([
-          this.encryptedCiphersState(userId).state$,
-          this.localData$(userId),
-          this.keyService.cipherDecryptionKeys$(userId, true),
-        ]).pipe(
-          filter(([cipherDataState, _, keys]) => cipherDataState != null && keys != null),
-          map(([cipherDataState, localData]) =>
-            Object.values(cipherDataState).map(
-              (cipherData) => new Cipher(cipherData, localData?.[cipherData.id as CipherId]),
-            ),
-          ),
-          tap(() => {
-            decryptMeasurement = this.logService.startMeasurement(
-              PERF_TRACK_GROUP,
-              PERF_TRACK,
-              "listViewDecrypt",
-            );
-          }),
-          switchMap(async (ciphers) => {
-            return await this.decryptCiphersWithSdk(ciphers, userId, false);
-          }),
-          tap(([decrypted, failures]) => {
-            void Promise.all([this.setFailedDecryptedCiphers(failures, userId)]);
-
-            decryptMeasurement.finish([["Items", decrypted.length]]);
-          }),
-          map(([decrypted]) => decrypted),
-        );
-      }),
-    );
-  }, this.clearCipherViewsForUser$);
+  private cipherViewsWithPartials$ = perUserCache$(
+    (userId: UserId): Observable<CipherView[] | null> => {
+      return combineLatest([
+        this.encryptedCiphersState(userId).state$,
+        this.localData$(userId),
+        this.keyService.cipherDecryptionKeys$(userId),
+      ]).pipe(
+        filter(([ciphers, _, keys]) => ciphers != null && keys != null), // Skip if ciphers haven't been loaded yor synced yet
+        switchMap(() => this.getAllDecryptedIncludingPartials(userId)),
+        tap(() => {
+          this.messageSender.send("updateOverlayCiphers");
+        }),
+      );
+    },
+    this.clearCipherViewsForUser$,
+  );
 
   /**
-   * Observable that emits an array of decrypted ciphers for the active user.
+   * Observable that emits an array of decrypted ciphers for the active user, excluding PAM-gated
+   * ("partial") rows.
    * This observable will not emit until the encrypted ciphers have either been loaded from state or after sync.
    *
    * A `null` value indicates that the latest encrypted ciphers have not been decrypted yet and that
    * decryption is in progress. The latest decrypted ciphers will be emitted once decryption is complete.
    */
   cipherViews$ = perUserCache$((userId: UserId): Observable<CipherView[] | null> => {
+    return this.cipherViewsWithPartials$(userId).pipe(map((views) => this.excludePartials(views)));
+  }, this.clearCipherViewsForUser$);
+
+  /**
+   * Like {@link cipherListViews$}, but retains PAM-gated ("partial") rows. Opt-in: only the vault
+   * list should consume it.
+   *
+   * This uses the SDK for decryption.
+   * Usage of the {@link CipherViewLike} type is recommended to ensure both `CipherView` and `CipherListView` are supported.
+   */
+  cipherListViewsWithPartials$ = perUserCache$((userId: UserId) => {
+    let decryptMeasurement: Measurement;
+
     return combineLatest([
       this.encryptedCiphersState(userId).state$,
       this.localData$(userId),
-      this.keyService.cipherDecryptionKeys$(userId),
+      this.keyService.cipherDecryptionKeys$(userId, true),
     ]).pipe(
-      filter(([ciphers, _, keys]) => ciphers != null && keys != null), // Skip if ciphers haven't been loaded yor synced yet
-      switchMap(() => this.getAllDecrypted(userId)),
+      filter(([cipherDataState, _, keys]) => cipherDataState != null && keys != null),
+      map(([cipherDataState, localData]) =>
+        Object.values(cipherDataState).map(
+          (cipherData) => new Cipher(cipherData, localData?.[cipherData.id as CipherId]),
+        ),
+      ),
       tap(() => {
-        this.messageSender.send("updateOverlayCiphers");
+        decryptMeasurement = this.logService.startMeasurement(
+          PERF_TRACK_GROUP,
+          PERF_TRACK,
+          "listViewDecrypt",
+        );
       }),
+      switchMap(async (ciphers) => {
+        return await this.decryptCiphersWithSdk(ciphers, userId, false);
+      }),
+      tap(([decrypted, failures]) => {
+        void Promise.all([this.setFailedDecryptedCiphers(failures, userId)]);
+
+        decryptMeasurement.finish([["Items", decrypted.length]]);
+      }),
+      map(([decrypted]) => decrypted),
     );
   }, this.clearCipherViewsForUser$);
+
+  /**
+   * Observable that emits an array of decrypted ciphers for given userId, excluding PAM-gated
+   * ("partial") rows.
+   * This observable will not emit until the encrypted ciphers have either been loaded from state or after sync.
+   *
+   * This uses the SDK for decryption.
+   * Usage of the {@link CipherViewLike} type is recommended to ensure both `CipherView` and `CipherListView` are supported.
+   */
+  cipherListViews$ = perUserCache$((userId: UserId) => {
+    return this.cipherListViewsWithPartials$(userId).pipe(
+      map((views) => this.excludePartials(views)),
+    );
+  }, this.clearCipherViewsForUser$);
+
+  /**
+   * Drops PAM-gated ("partial") rows, passing a `null` (decryption-in-progress) emission through.
+   * Overloaded so the caller's array type is retained rather than widened to an array of the union.
+   */
+  private excludePartials(views: CipherView[] | null): CipherView[] | null;
+  private excludePartials(
+    views: CipherView[] | CipherListView[] | null,
+  ): CipherView[] | CipherListView[] | null;
+  private excludePartials(views: CipherViewLike[] | null): CipherViewLike[] | null {
+    return views == null ? views : views.filter((view) => !CipherViewLikeUtils.isPartial(view));
+  }
 
   cipherView$(userId: UserId, cipherId: CipherId): Observable<CipherView | undefined> {
     return this.cipherViews$(userId).pipe(
@@ -335,11 +368,20 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   /**
-   * Decrypts all ciphers for the active user and caches them in memory. If the ciphers have already been decrypted and
-   * cached, the cached ciphers are returned.
+   * Decrypts all ciphers for the active user, excluding PAM-gated ("partial") rows, and caches them
+   * in memory. If the ciphers have already been decrypted and cached, the cached ciphers are returned.
    * @deprecated Use `cipherViews$` observable instead
    */
   async getAllDecrypted(userId: UserId): Promise<CipherView[]> {
+    const ciphers = await this.getAllDecryptedIncludingPartials(userId);
+    return ciphers.filter((cipher) => !CipherViewLikeUtils.isPartial(cipher));
+  }
+
+  /**
+   * Variant of {@link getAllDecrypted} that retains PAM-gated ("partial") rows; private source
+   * for {@link cipherViewsWithPartials$}.
+   */
+  private async getAllDecryptedIncludingPartials(userId: UserId): Promise<CipherView[]> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       return this.getAllDecryptedUsingSdk(userId);

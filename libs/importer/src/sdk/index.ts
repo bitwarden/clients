@@ -5,3 +5,4 @@ export { SdkImportContext, SdkVaultImporter } from "./sdk-vault-importer";
 export { SdkImporterRegistry } from "./sdk-importer-registry";
 export { buildSdkImporterRegistry } from "./sdk-importers";
 export { resolveSdkImportTargets } from "./sdk-import-target";
+export * from "./onepassword-import";

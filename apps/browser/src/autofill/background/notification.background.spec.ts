@@ -2939,14 +2939,16 @@ describe("NotificationBackground", () => {
         expect(tabSendMessageDataSpy).not.toHaveBeenCalled();
       });
 
-      it("saves the tabs domain as a never value and closes the notification bar", async () => {
-        const tab = createChromeTabMock({ id: 2, url: "https://example.com" });
+      it("saves the submitting frame's hostname as a never value and closes the notification bar", async () => {
+        const tab = createChromeTabMock({ id: 2, url: "https://www.example.com" });
         const sender = mock<chrome.runtime.MessageSender>({ tab });
         const message: NotificationBackgroundExtensionMessage = { command: "bgNeverSave" };
         const firstNotification = mock<AddLoginQueueMessage>({
           type: NotificationType.AddLogin,
           tab,
           domain: "example.com",
+          // Submitted from a same-site sub-frame whose hostname differs from the tab's.
+          data: { uri: "https://login.example.com/sign-in" },
         });
         const secondNotification = mock<AddLoginQueueMessage>({
           type: NotificationType.AddLogin,
@@ -2961,7 +2963,8 @@ describe("NotificationBackground", () => {
         await flushPromises();
 
         expect(tabSendMessageDataSpy).toHaveBeenCalledWith(tab, "closeNotificationBar");
-        expect(cipherService.saveNeverDomain).toHaveBeenCalledWith("example.com");
+        expect(cipherService.saveNeverDomain).toHaveBeenCalledWith("login.example.com");
+        expect(cipherService.saveNeverDomain).not.toHaveBeenCalledWith("www.example.com");
         expect(notificationBackground["notificationQueue"]).toEqual([secondNotification]);
       });
     });
