@@ -842,7 +842,6 @@ describe("Cipher Service", () => {
       partial.id = "partial" as CipherId;
       partial.partial = true;
 
-      // The PM22134SdkCipherListView flag is off in this suite, so both streams derive from this.
       (cipherService as any).cipherViewsWithPartials$ = jest
         .fn()
         .mockReturnValue(of([normal, partial]));
@@ -862,16 +861,31 @@ describe("Cipher Service", () => {
       expect(result).toBeNull();
     });
 
-    it("cipherListViews$ excludes partial ciphers", async () => {
-      const result = await firstValueFrom(cipherService.cipherListViews$(mockUserId));
+    describe("list views", () => {
+      const normalListView = { id: "normal", partial: false } as unknown as CipherListView;
+      const partialListView = { id: "partial", partial: true } as unknown as CipherListView;
 
-      expect(result).toEqual([normal]);
-    });
+      beforeEach(() => {
+        stateProvider.singleUser
+          .getFake(mockUserId, ENCRYPTED_CIPHERS)
+          .nextState({ [cipherData.id]: cipherData } as Record<CipherId, CipherData>);
+        keyService.cipherDecryptionKeys$.mockReturnValue(of({} as CipherDecryptionKeys));
+        jest
+          .spyOn(cipherService as any, "decryptCiphersWithSdk")
+          .mockResolvedValue([[normalListView, partialListView], []]);
+      });
 
-    it("cipherListViewsWithPartials$ retains partial ciphers", async () => {
-      const result = await firstValueFrom(cipherService.cipherListViewsWithPartials$(mockUserId));
+      it("cipherListViews$ excludes partial ciphers", async () => {
+        const result = await firstValueFrom(cipherService.cipherListViews$(mockUserId));
 
-      expect(result).toEqual([normal, partial]);
+        expect(result).toEqual([normalListView]);
+      });
+
+      it("cipherListViewsWithPartials$ retains partial ciphers", async () => {
+        const result = await firstValueFrom(cipherService.cipherListViewsWithPartials$(mockUserId));
+
+        expect(result).toEqual([normalListView, partialListView]);
+      });
     });
 
     it("getAllDecrypted excludes partial ciphers (all imperative consumers: export, reports, autofill, CLI...)", async () => {

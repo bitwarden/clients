@@ -1083,23 +1083,43 @@ describe("VaultPopupListTableComponent", () => {
   describe("filter dialog state", () => {
     // `DialogModule` provides its own instance, so spy on the class rather than the TestBed mock.
     let open: jest.SpyInstance;
-    beforeEach(() => (open = jest.spyOn(DialogService.prototype, "open")));
-    afterEach(() => open.mockRestore());
+    const originalResizeObserver = globalThis.ResizeObserver;
 
-    it("doesn't reopen a closed dialog when the vault page is recreated", () => {
+    beforeEach(() => {
+      open = jest.spyOn(DialogService.prototype, "open");
+      // JSDOM has no layout; report a narrow width so the toolbar collapses and opens the restored dialog.
+      globalThis.ResizeObserver = class {
+        constructor(private readonly callback: ResizeObserverCallback) {}
+        observe(target: Element) {
+          const entry = { target, contentRect: { width: 360 } } as unknown as ResizeObserverEntry;
+          this.callback([entry], this as unknown as ResizeObserver);
+        }
+        unobserve() {}
+        disconnect() {}
+      } as unknown as typeof ResizeObserver;
+    });
+    afterEach(() => {
+      open.mockRestore();
+      globalThis.ResizeObserver = originalResizeObserver;
+    });
+
+    it("doesn't reopen a closed dialog when the vault page is recreated", async () => {
       // The popup opened with the dialog left open, and the snapshot keeps saying so.
       viewCacheSnapshot["vault-filter-dialog-open"] = true;
       vaultPopupListTableFiltersService.filterDialogOpen.set(true);
 
       const first = TestBed.createComponent(VaultPopupListTableComponent);
-      first.detectChanges();
+      first.autoDetectChanges();
+      await first.whenStable();
       expect(open).toHaveBeenCalledTimes(1);
 
       open.mock.results[0].value.close();
       first.destroy();
 
       // Navigating back rebuilds the page: `NoRouteReuseStrategy` never reuses it.
-      TestBed.createComponent(VaultPopupListTableComponent).detectChanges();
+      const second = TestBed.createComponent(VaultPopupListTableComponent);
+      second.autoDetectChanges();
+      await second.whenStable();
       expect(open).toHaveBeenCalledTimes(1);
     });
   });

@@ -6,6 +6,10 @@
 	<string>LTZ2PFU5D6.com.bitwarden.desktop</string>
 	<key>com.apple.developer.team-identifier</key>
 	<string>LTZ2PFU5D6</string>
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>LTZ2PFU5D6.com.bitwarden.desktop</string>
+	</array>
 	<key>com.apple.security.cs.allow-jit</key>
 	<true/>
 </dict>

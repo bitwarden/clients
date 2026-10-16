@@ -10,6 +10,7 @@ import {
 import { PasswordManagerClient } from "@bitwarden/sdk-internal";
 
 import { UserId } from "../../types/guid";
+import { UserKey } from "../../types/key";
 import { SdkService, UserNotLoggedInError } from "../abstractions/sdk/sdk.service";
 import { Rc } from "../misc/reference-counting/rc";
 
@@ -34,8 +35,24 @@ export class MockSdkService implements SdkService {
     );
   }
 
-  setClient(): void {
-    throw new Error("Not supported in mock service");
+  unlock(): Promise<UserKey | null> {
+    throw new Error("Not supported in mock service. Use simulate.userLogin instead.");
+  }
+
+  lock(): Promise<void> {
+    throw new Error("Not supported in mock service. Use simulate.userLogout instead.");
+  }
+
+  logout(): void {
+    throw new Error("Not supported in mock service. Use simulate.userLogout instead.");
+  }
+
+  setFlags(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  setOrgKeys(): Promise<void> {
+    return Promise.resolve();
   }
 
   /**
