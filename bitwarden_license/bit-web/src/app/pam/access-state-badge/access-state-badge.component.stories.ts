@@ -30,7 +30,7 @@ export default {
               pamAccessBadgePending: "Pending approval",
               pamAccessBadgeUnavailable: "Unavailable",
               pamAccessBadgeReady: "Ready to use",
-              pamAccessBadgeEnded: "Access ended",
+              pamAccessBadgeEnded: "Session ended",
               pamAccessBadgeTimeLeft: (duration) => `${duration} left`,
               pamAccessBadgeEndingSoon: (duration) => `Ending soon • ${duration} left`,
             }),
@@ -88,7 +88,7 @@ export const Unavailable: Story = {
   args: { state: { kind: "unavailable" } },
 };
 
-/** An `active` state past its `expiresAt` renders "Access ended", not a negative countdown. */
+/** An `active` state past its `expiresAt` renders "Session ended", not a negative countdown. */
 export const LapsedLease: Story = {
   render: () => ({ props: { state: expiringIn(-1 * MINUTE) } }),
 };
