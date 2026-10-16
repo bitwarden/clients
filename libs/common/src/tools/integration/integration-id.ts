@@ -7,6 +7,7 @@ export const IntegrationIds = [
   "firefoxrelay",
   "forwardemail",
   "simplelogin",
+  "skudo",
 ] as const;
 
 /** Identifies a vendor integrated into bitwarden */
