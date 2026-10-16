@@ -169,47 +169,38 @@ export class CipherService implements CipherServiceAbstraction {
 
   /**
    * Decrypted list views including PAM-gated ("partial") rows, for the web vault list and its
-   * filters; everything else uses {@link cipherListViews$}. Emits full views when
-   * `PM22134SdkCipherListView` is off, so consume it as {@link CipherViewLike}.
+   * filters; everything else uses {@link cipherListViews$}.
    */
   cipherListViewsWithPartials$ = perUserCache$((userId: UserId) => {
     let decryptMeasurement: Measurement;
 
-    return this.configService.getFeatureFlag$(FeatureFlag.PM22134SdkCipherListView).pipe(
-      switchMap((useSdk) => {
-        if (!useSdk) {
-          return this.cipherViewsWithPartials$(userId);
-        }
-
-        return combineLatest([
-          this.encryptedCiphersState(userId).state$,
-          this.localData$(userId),
-          this.keyService.cipherDecryptionKeys$(userId, true),
-        ]).pipe(
-          filter(([cipherDataState, _, keys]) => cipherDataState != null && keys != null),
-          map(([cipherDataState, localData]) =>
-            Object.values(cipherDataState).map(
-              (cipherData) => new Cipher(cipherData, localData?.[cipherData.id as CipherId]),
-            ),
-          ),
-          tap(() => {
-            decryptMeasurement = this.logService.startMeasurement(
-              PERF_TRACK_GROUP,
-              PERF_TRACK,
-              "listViewDecrypt",
-            );
-          }),
-          switchMap(async (ciphers) => {
-            return await this.decryptCiphersWithSdk(ciphers, userId, false);
-          }),
-          tap(([decrypted, failures]) => {
-            void Promise.all([this.setFailedDecryptedCiphers(failures, userId)]);
-
-            decryptMeasurement.finish([["Items", decrypted.length]]);
-          }),
-          map(([decrypted]) => decrypted),
+    return combineLatest([
+      this.encryptedCiphersState(userId).state$,
+      this.localData$(userId),
+      this.keyService.cipherDecryptionKeys$(userId, true),
+    ]).pipe(
+      filter(([cipherDataState, _, keys]) => cipherDataState != null && keys != null),
+      map(([cipherDataState, localData]) =>
+        Object.values(cipherDataState).map(
+          (cipherData) => new Cipher(cipherData, localData?.[cipherData.id as CipherId]),
+        ),
+      ),
+      tap(() => {
+        decryptMeasurement = this.logService.startMeasurement(
+          PERF_TRACK_GROUP,
+          PERF_TRACK,
+          "listViewDecrypt",
         );
       }),
+      switchMap(async (ciphers) => {
+        return await this.decryptCiphersWithSdk(ciphers, userId, false);
+      }),
+      tap(([decrypted, failures]) => {
+        void Promise.all([this.setFailedDecryptedCiphers(failures, userId)]);
+
+        decryptMeasurement.finish([["Items", decrypted.length]]);
+      }),
+      map(([decrypted]) => decrypted),
     );
   }, this.clearCipherViewsForUser$);
 
@@ -217,7 +208,7 @@ export class CipherService implements CipherServiceAbstraction {
    * Observable that emits an array of decrypted ciphers for given userId.
    * This observable will not emit until the encrypted ciphers have either been loaded from state or after sync.
    *
-   * This uses the SDK for decryption, when the `PM22134SdkCipherListView` feature flag is disabled the full `cipherViews$` observable will be emitted.
+   * This uses the SDK for decryption.
    * Usage of the {@link CipherViewLike} type is recommended to ensure both `CipherView` and `CipherListView` are supported.
    *
    * Excludes PAM-gated ("partial") rows. Derived from {@link cipherListViewsWithPartials$}, so
