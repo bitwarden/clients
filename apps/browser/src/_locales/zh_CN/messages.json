@@ -3,7 +3,7 @@
     "message": "Bitwarden"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Bitwarden Logo"
   },
   "extName": {
     "message": "Bitwarden Password Manager",
@@ -585,7 +585,7 @@
     "message": "您的密码库是空的"
   },
   "noItemsMatchSelectedFilters": {
-    "message": "没有匹配所选筛选规则的项目"
+    "message": "没有匹配所选筛选的项目"
   },
   "noItemsMatchSearchTerm": {
     "message": "没有匹配「$SEARCH_TERM$」的项目",
@@ -663,6 +663,10 @@
   },
   "resetSearch": {
     "message": "重置搜索"
+  },
+  "clearSearchTooltip": {
+    "message": "点击此处或按 Esc 键清除。",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
   },
   "archiveNoun": {
     "message": "归档",
@@ -1485,6 +1489,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "使用网站上标记有 `data-bwautofill` 属性的任何 span 元素。"
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "自动填充浏览器登录提示",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "当密码库中的登录项目与网站匹配时，响应基本 HTTP 身份验证提示。"
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "网站可能在您不知情的情况下触发此类提示，这可能会暴露您的凭据。",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "显示上下文菜单选项"
   },
@@ -1539,6 +1554,9 @@
   },
   "importSourceBreadcrumb": {
     "message": "选择源"
+  },
+  "importData": {
+    "message": "导入数据"
   },
   "importSourceSelectTitle": {
     "message": "选择您的源"
@@ -1641,9 +1659,6 @@
   },
   "addSharedFolder": {
     "message": "添加共享文件夹"
-  },
-  "newSharedFolder": {
-    "message": "新增共享文件夹"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden 商业版允许您使用组织与他人共享您的密码库项目。访问 bitwarden.com 网站了解更多信息。"
@@ -1759,6 +1774,27 @@
   },
   "selectFile": {
     "message": "选择一个文件"
+  },
+  "selectFileUnsupportedType": {
+    "message": "此来源不接受该文件类型。请选择其他文件"
+  },
+  "pasteContentRequired": {
+    "message": "粘贴导出的内容"
+  },
+  "fileTypeNotSupported": {
+    "message": "不支持此文件类型。请选择 $TYPES$ 类型的文件",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "粘贴的内容与所选格式不匹配"
+  },
+  "errorReadingFile": {
+    "message": "所选文件无法读取"
   },
   "itemsTransferred": {
     "message": "项目已转移"
@@ -2548,42 +2584,6 @@
     "message": "添加护照",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "新增登录",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "新增支付卡",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "新增身份",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "新增笔记",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "新增安全笔记",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "新增 SSH 密钥",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "新增银行账户",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "新增驾驶证",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "新增护照",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "新增文本 Send",
     "description": "Header for new text send"
@@ -2591,22 +2591,6 @@
   "newItemHeaderFileSendV2": {
     "message": "新增文件 Send",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "编辑登录",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "编辑支付卡",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "编辑身份",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "编辑笔记",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "编辑安全笔记",
@@ -4298,6 +4282,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "此 URL 不被允许。它必须使用 https，并且不能指向本地或私有网络地址。",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "请输入有效的 URL",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "检测到不安全的 URL",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "此 URL 可能不安全或指向私有网络。使用此 URL 可能导致私人数据暴露。请仅在您信任此服务器的情况下继续。",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "信任 URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "此 URL 已被标记为受信任。您可以随时进行编辑。",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "发生未知的 $SERVICENAME$ 错误。",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -4770,7 +4778,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "在任何平台上与任何人安全地分享文件和数据。您的信息将在限制曝光的同时保持端到端加密。",
+    "message": "在任何平台上与任何人安全地分享文件和数据。您的信息将在限制暴露的同时保持端到端加密。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -5175,10 +5183,6 @@
   "selectImportSharedFolder": {
     "message": "选择共享文件夹"
   },
-  "importTargetMyFolder": {
-    "message": "我的文件夹",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "如果希望将导入的文件内容移动到集合中，请选择此选项"
   },
@@ -5304,6 +5308,116 @@
   },
   "importHelpCenterLinkText": {
     "message": "帮助中心"
+  },
+  "uploadFile": {
+    "message": "上传文件"
+  },
+  "pasteAsPlainText": {
+    "message": "以纯文本形式粘贴"
+  },
+  "plainText": {
+    "message": "纯文本"
+  },
+  "profile": {
+    "message": "配置文件"
+  },
+  "importManuallyInstead": {
+    "message": "改为手动导入"
+  },
+  "directlyImportInstead": {
+    "message": "改为直接导入"
+  },
+  "fastest": {
+    "message": "最快"
+  },
+  "importDataTitle": {
+    "message": "导入您的数据"
+  },
+  "importDataDirectTitle": {
+    "message": "几分钟即可导入您的数据"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "直接导入您的项目自",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "以获取您的所有数据。",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "从 $VENDOR$ 导入，或复制并粘贴导出的内容。",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "选择您希望从中导入密码的配置文件。"
+  },
+  "noBrowserProfilesFound": {
+    "message": "未找到浏览器配置文件"
+  },
+  "importDataLoginTitle": {
+    "message": "登录到 $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "您的凭据在传输过程中经过加密，且绝不会被存储。"
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "设计即安全"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "端到端加密传输。Bitwarden 绝不会获取您的 $VENDOR$ 登录详细信息。",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "我们将询问您的登录信息"
+  },
+  "importDataLoginInfoBody": {
+    "message": "在下一步中，请登录您的 $VENDOR$ 账户。",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "所有内容均可转移"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "登录、支付卡、身份、安全笔记，以及 TOTP，且会保留原有的文件夹结构。"
+  },
+  "importAcceptedFormats": {
+    "message": "可接受的格式：$FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ 文件类型",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "此过程与从 Google Chrome 导入完全相同。",
@@ -5505,11 +5619,44 @@
   "keePassMasterPassword": {
     "message": "KeePass 主密码"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$ 密码",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "必须填写密码。"
+  },
+  "filePasswordRequired": {
+    "message": "必须填写文件密码"
+  },
+  "filePasswordInvalid": {
+    "message": "请输入有效的文件密码。"
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "上传的文件受密码保护。请输入密码以继续。"
+  },
+  "selectProfile": {
+    "message": "选择配置文件"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "请输入有效的密码"
+  },
+  "importAccountMismatchError": {
+    "message": "此文件只能导入到导出它的账户中。"
+  },
   "addKeyFile": {
     "message": "添加密钥文件"
   },
   "keyFileUpload": {
     "message": "密钥文件上传"
+  },
+  "keyFileUploadV2": {
+    "message": "密钥文件"
   },
   "kdbxFileUpload": {
     "message": "KDBX 文件上传"
@@ -5680,13 +5827,13 @@
     "message": "将与您的 LastPass 账户关联的 YubiKey 插入计算机的 USB 端口，然后触摸其按钮。"
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "安全密钥"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "安全密钥和密码"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "您的账户受安全密钥和密码保护。您需要同时输入两者才能继续。"
   },
   "keeperEmail": {
     "message": "Keeper 电子邮箱"
@@ -6042,7 +6189,7 @@
     "message": "我们将停用您浏览器的内置密码管理器，以便您可以享受安全的登录体验。"
   },
   "defaultPasswordManagerSuccessToast": {
-    "message": "将 Bitwarden 设置为浏览器的默认密码管理器"
+    "message": "已将 Bitwarden 设置为浏览器的默认密码管理器"
   },
   "allow": {
     "message": "允许",
@@ -7743,17 +7890,17 @@
   "sharedUnlock": {
     "message": "共享解锁"
   },
-  "sharedUnlockWithDesktop": {
-    "message": "与桌面端共享解锁"
+  "syncUnlockWithDesktop": {
+    "message": "与桌面 App 同步解锁状态"
   },
-  "sharedUnlockWithDesktopDescription": {
-    "message": "启用后，解锁状态将与 Bitwarden 桌面 App 共享。"
+  "syncUnlockWithDesktopDescription": {
+    "message": "Bitwarden 浏览器扩展与桌面 App 会一起锁定或解锁。"
   },
-  "sharedUnlockWithWeb": {
-    "message": "与网页密码库共享解锁"
+  "syncUnlockWithWeb": {
+    "message": "与网页 App 同步解锁状态"
   },
-  "sharedUnlockWithWebDescription": {
-    "message": "启用后，解锁状态将与 Bitwarden 网页密码库共享。"
+  "syncUnlockWithWebDescription": {
+    "message": "Bitwarden 浏览器扩展与网页 App 会一起锁定或解锁。"
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "共享解锁不可用，因为您选择了不记住此设备。要启用此设置，请尝试重新登录。"
@@ -8251,5 +8398,33 @@
   },
   "unknownCipher": {
     "message": "未知的项目，您可能需要请求权限才能访问此项目。"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden 拥有一个新的外观",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "体验更佳，安全如初。我们根据您们的反馈重新设计了 Bitwarden 密码库，让查找更便捷，操作更符合您的预期。",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "重新设计后的 Bitwarden 密码库预览。",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "探索新的密码库",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "自定义"
+  },
+  "customizeYourView": {
+    "message": "自定义您的视图"
+  },
+  "showColumns": {
+    "message": "显示列"
+  },
+  "resetToDefault": {
+    "message": "恢复默认设置"
   }
 }

@@ -664,6 +664,10 @@
   "resetSearch": {
     "message": "Zoekopdracht resetten"
   },
+  "clearSearchTooltip": {
+    "message": "Klik hier om te wissen of druk op Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "archiveNoun": {
     "message": "Archief",
     "description": "Noun"
@@ -1485,6 +1489,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Gebruik alle span-elementen die een website met het `data-bwautofill` attribuut markeert."
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "Inlogverzoeken webbrowser automatisch invullen",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Reageer op basis HTTP-authenticatieverzoeken als een inlogitem in je kluis overeenkomt met de website."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Websites kunnen deze verzoeken doen zonder dat je het door hebt, wat je inloggegevens kan blootleggen.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "Contextmenu-opties weergeven"
   },
@@ -1539,6 +1554,9 @@
   },
   "importSourceBreadcrumb": {
     "message": "Bron selecteren"
+  },
+  "importData": {
+    "message": "Gegevens importeren"
   },
   "importSourceSelectTitle": {
     "message": "Selecteer je bron"
@@ -1641,9 +1659,6 @@
   },
   "addSharedFolder": {
     "message": "Gedeelde map toevoegen"
-  },
-  "newSharedFolder": {
-    "message": "Nieuwe gedeelde map"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Met Bitwarden voor Business kun je je kluis-items met anderen delen door gebruik te maken van een organisatie. Lees meer op de website bitwarden.com."
@@ -1759,6 +1774,27 @@
   },
   "selectFile": {
     "message": "Selecteer een bestand"
+  },
+  "selectFileUnsupportedType": {
+    "message": "Dat bestandstype is niet geaccepteerd voor deze bron. Kies een ander bestand"
+  },
+  "pasteContentRequired": {
+    "message": "Plak de geëxporteerde inhoud"
+  },
+  "fileTypeNotSupported": {
+    "message": "Dit bestandstype wordt niet ondersteund. Selecteer een $TYPES$-bestand",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "De geplakte inhoud komt niet overeen met het geselecteerde formaat"
+  },
+  "errorReadingFile": {
+    "message": "Het geselecteerde bestand kon niet worden gelezen"
   },
   "itemsTransferred": {
     "message": "Items overgedragen"
@@ -2548,42 +2584,6 @@
     "message": "Paspoort toevoegen",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Nieuwe login",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Nieuwe kaart",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nieuwe identiteit",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nieuwe notitie",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nieuwe veilige notitie",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nieuwe SSH-sleutel",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nieuwe bankrekening",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nieuw rijbewijs",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Nieuw paspoort",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Nieuwe tekst",
     "description": "Header for new text send"
@@ -2591,22 +2591,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Nieuw bestand",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Login bewerken",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Kaart bewerken",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Identiteit bewerken",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Notitie bewerken",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Veilige notitie bewerken",
@@ -4298,6 +4282,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "Deze URL is niet toegestaan. Het moet https gebruiken en kan niet naar een lokaal- of privénetwerkadres wijzen.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Vul een geldige URL in",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Onveilige URL gedetecteerd",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "Deze URL kan onveilig zijn of naar een privénetwerk verwijzen. Het gebruik ervan kan leiden tot het blootstellen van privégegevens. Ga alleen verder als je deze server vertrouwt.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "URL vertrouwen",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "Deze URL is als vertrouwd gemarkeerd. Je kunt op elk gewenst moment bewerken.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "Onbekende $SERVICENAME$ fout opgetreden.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -5175,10 +5183,6 @@
   "selectImportSharedFolder": {
     "message": "Gedeelde map selecteren"
   },
-  "importTargetMyFolder": {
-    "message": "Mijn map",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een collectie wilt verplaatsen"
   },
@@ -5304,6 +5308,116 @@
   },
   "importHelpCenterLinkText": {
     "message": "Helpcentrum"
+  },
+  "uploadFile": {
+    "message": "Bestand uploaden"
+  },
+  "pasteAsPlainText": {
+    "message": "Plakken als platte tekst"
+  },
+  "plainText": {
+    "message": "Platte tekst"
+  },
+  "profile": {
+    "message": "Profiel"
+  },
+  "importManuallyInstead": {
+    "message": "Handmatig importeren"
+  },
+  "directlyImportInstead": {
+    "message": "Rechtstreeks importeren"
+  },
+  "fastest": {
+    "message": "Snelste"
+  },
+  "importDataTitle": {
+    "message": "Je gegevens importeren"
+  },
+  "importDataDirectTitle": {
+    "message": "Importeer je gegevens in minuten"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Importeer je items rechtstreeks van",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "om al je gegevens te krijgen.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Importeer van $VENDOR$ of kopieer en plak de inhoud van de export.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Selecteer het profiel waarvan je wachtwoorden wilt importeren."
+  },
+  "noBrowserProfilesFound": {
+    "message": "Geen browserprofielen gevonden"
+  },
+  "importDataLoginTitle": {
+    "message": "Log in bij $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Je inloggegevens zijn versleuteld tijdens het verzenden en worden nooit opgeslagen."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Veilig ontworpen"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "End-to-end versleutelde overdracht. Bitwarden ziet je $VENDOR$-aanmeldgegevens niet.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "We vragen om je logininformatie"
+  },
+  "importDataLoginInfoBody": {
+    "message": "Lon in de volgende in op je $VENDOR$-account.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Alles wordt overgezet"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Logins, kaarten, identiteiten, beveiligde notities en TOTPs, met behoud van mapstructuur."
+  },
+  "importAcceptedFormats": {
+    "message": "Geaccepteerd: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$-bestandstype",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "Het proces is precies hetzelfde als importeren uit Google Chrome.",
@@ -5505,11 +5619,44 @@
   "keePassMasterPassword": {
     "message": "KeePass-hoofdwachtwoord"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$-wachtwoord",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Wachtwoord is vereist."
+  },
+  "filePasswordRequired": {
+    "message": "Bestandswachtwoord vereist."
+  },
+  "filePasswordInvalid": {
+    "message": "Voer een geldig bestandswachtwoord in."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "Het geüploade bestand is met een wachtwoord beveiligd. Voer het wachtwoord in om door te gaan."
+  },
+  "selectProfile": {
+    "message": "Profiel kiezen"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Vul een geldig wachtwoord in"
+  },
+  "importAccountMismatchError": {
+    "message": "Dit bestand kan alleen worden geïmporteerd op het account waarvan het is geëxporteerd."
+  },
   "addKeyFile": {
     "message": "Sleutelbestand toevoegen"
   },
   "keyFileUpload": {
     "message": "Sleutelbestand uploaden"
+  },
+  "keyFileUploadV2": {
+    "message": "Sleutelbestand"
   },
   "kdbxFileUpload": {
     "message": "KDBX-bestand uploaden"
@@ -5635,7 +5782,7 @@
     "message": "Gedeelde mappen insluiten"
   },
   "lastPassEmail": {
-    "message": "LastPass Email"
+    "message": "LastPass-e-mail"
   },
   "importingYourAccount": {
     "message": "Account importeren..."
@@ -7743,17 +7890,17 @@
   "sharedUnlock": {
     "message": "Gezamenlijk ontgrendelen"
   },
-  "sharedUnlockWithDesktop": {
-    "message": "Ontgrendelen delen met Desktop"
+  "syncUnlockWithDesktop": {
+    "message": "Synchroniseer ontgrendelen met de desktop-app"
   },
-  "sharedUnlockWithDesktopDescription": {
-    "message": "Wanneer ingeschakeld, wordt de ontgrendelstatus gedeeld met de Bitwarden Desktop-app."
+  "syncUnlockWithDesktopDescription": {
+    "message": "De Bitwarden-browserextensie en de desktop-app vergrendelen en ontgrendelen samen."
   },
-  "sharedUnlockWithWeb": {
-    "message": "Ontgrendelen delen met webkluis"
+  "syncUnlockWithWeb": {
+    "message": "Synchroniseer ontgrendelen met de web-app"
   },
-  "sharedUnlockWithWebDescription": {
-    "message": "Wanneer ingeschakeld, wordt de ontgrendelstatus gedeeld met Bitwarden webkluizen."
+  "syncUnlockWithWebDescription": {
+    "message": "De Bitwarden-browserextensie en de web-app vergrendelen en ontgrendelen samen."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "Gedeelde ontgrendelen is niet beschikbaar omdat je ervoor hebt gekozen dit apparaat niet te onthouden. Probeer opnieuw aan te melden om deze instelling in te schakelen."
@@ -8251,5 +8398,33 @@
   },
   "unknownCipher": {
     "message": "Onbekend item, je moet misschien inloggen met een andere account om dit item te kunnen opvragen."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden heeft een nieuw uiterlijk",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Betere ervaring, dezelfde vertrouwde veiligheid. De Bitwarden-kluis is opnieuw ontworpen op basis van jullie feedback, het is dus makkelijker om te vinden en te werken zoals je zou verwachten.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Een voorbeeld van de herontworpen Bitwarden-kluis.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "De nieuwe kluis verkennen",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Personaliseren"
+  },
+  "customizeYourView": {
+    "message": "Je weergave aanpassen"
+  },
+  "showColumns": {
+    "message": "Kolommen weergeven"
+  },
+  "resetToDefault": {
+    "message": "Standaardinstellingen herstellen"
   }
 }

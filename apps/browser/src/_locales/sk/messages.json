@@ -664,6 +664,10 @@
   "resetSearch": {
     "message": "Resetovať vyhľadávanie"
   },
+  "clearSearchTooltip": {
+    "message": "Na vymazanie kliknite sem alebo stlačte kláves Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "archiveNoun": {
     "message": "Archív",
     "description": "Noun"
@@ -1485,6 +1489,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Použiť všetky prvky typu span, ktoré webová stránka označuje atribútom `data-bwautofill`."
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "Automatické vyplňovanie prihlasovacích údajov v prehliadači",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Reaguje na výzvy na základné HTTP overenie, keď sa položka prihlásenia vo vašom trezore zhoduje s webovou stránkou."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Webstránky môžu tieto výzvy spúšťať bez vášho vedomia, čo môže viesť k prezradeniu vašich prihlasovacích údajov.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "Zobraziť možnosti kontextovej ponuky"
   },
@@ -1539,6 +1554,9 @@
   },
   "importSourceBreadcrumb": {
     "message": "Vybrať zdroj"
+  },
+  "importData": {
+    "message": "Import údajov"
   },
   "importSourceSelectTitle": {
     "message": "Vyberte zdroj"
@@ -1641,9 +1659,6 @@
   },
   "addSharedFolder": {
     "message": "Pridať zdieľaný priečinok"
-  },
-  "newSharedFolder": {
-    "message": "Nový zdieľaný priečinok"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden pre podniky vám umožňuje zdieľať položky trezoru s ostatnými pomocou organizácie. Viac informácií nájdete na webovej stránke bitwarden.com."
@@ -1759,6 +1774,27 @@
   },
   "selectFile": {
     "message": "Vyberte súbor"
+  },
+  "selectFileUnsupportedType": {
+    "message": "Tento typ súboru nie je pre tento zdroj povolený. Vyberte iný súbor"
+  },
+  "pasteContentRequired": {
+    "message": "Vložte exportovaný obsah"
+  },
+  "fileTypeNotSupported": {
+    "message": "Tento typ súboru nie je podporovaný. Vyberte súbor typu $TYPES$",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "Vložený obsah nezodpovedá zvolenému formátu"
+  },
+  "errorReadingFile": {
+    "message": "Vybraný súbor sa nepodarilo prečítať"
   },
   "itemsTransferred": {
     "message": "Položky boli prenesené"
@@ -2548,42 +2584,6 @@
     "message": "Pridať pas",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Nové prihlásenie",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Nová karta",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nová identita",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nová poznámka",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nová zabezpečená poznámka",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nový kľúč SSH",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nový bankový účet",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nový vodičský preukaz",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Nový pas",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Nový text",
     "description": "Header for new text send"
@@ -2591,22 +2591,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Nový súbor",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Upraviť prihlásenie",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Upraviť kartu",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Upraviť identitu",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Upraviť poznámku",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Upraviť zabezpečenú poznámku",
@@ -4298,6 +4282,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "Táto URL adresa nie je povolená. Musí používať protokol https a nesmie smerovať na adresu v lokálnej alebo súkromnej sieti.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Zadajte platnú URL adresu",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Zistená nebezpečná URL adresa",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "Táto URL adresa môže byť nezabezpečená alebo smerovať do súkromnej siete. Jej použitie môže viesť k úniku súkromných údajov. Pokračujte len vtedy, ak tomuto serveru dôverujete.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Dôveryhodná URL adresa",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "Táto URL adresa bola označená ako dôveryhodná. Môžete ju kedykoľvek upraviť.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "Vyskytla sa neznáma chyba $SERVICENAME$.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -5175,10 +5183,6 @@
   "selectImportSharedFolder": {
     "message": "Vyberte zdieľaný priečinok"
   },
-  "importTargetMyFolder": {
-    "message": "Môj priečinok",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do zbierky"
   },
@@ -5304,6 +5308,116 @@
   },
   "importHelpCenterLinkText": {
     "message": "Centre pomoci"
+  },
+  "uploadFile": {
+    "message": "Nahrať súbor"
+  },
+  "pasteAsPlainText": {
+    "message": "Vložiť ako obyčajný text"
+  },
+  "plainText": {
+    "message": "Obyčajný text"
+  },
+  "profile": {
+    "message": "Profil"
+  },
+  "importManuallyInstead": {
+    "message": "Namiesto toho importovať ručne"
+  },
+  "directlyImportInstead": {
+    "message": "Namiesto toho importovať priamo"
+  },
+  "fastest": {
+    "message": "Najrýchlejšie"
+  },
+  "importDataTitle": {
+    "message": "Importovať svoje údaje"
+  },
+  "importDataDirectTitle": {
+    "message": "Importujte svoje údaje za pár minút"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Importujte svoje položky priamo z",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "a získajte všetky svoje údaje.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Importujte z $VENDOR$ alebo skopírujte a vložte obsah exportu.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Vyberte profil, z ktorého chcete importovať heslá."
+  },
+  "noBrowserProfilesFound": {
+    "message": "Nenašli sa žiadne profily prehliadača"
+  },
+  "importDataLoginTitle": {
+    "message": "Prihláste sa do $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Vaše prihlasovacie údaje sú počas prenosu šifrované a nikdy sa neukladajú."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Bezpečnosť už v návrhu"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "Odovzdávanie údajov je šifrované end-to-end. Bitwarden nikdy nevidí vaše prihlasovacie údaje z $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "Požiadame vás o prihlasovacie údaje"
+  },
+  "importDataLoginInfoBody": {
+    "message": "V ďalšom kroku sa prihláste do svojho účtu $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Prenesie sa všetko"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Prihlasovacie údaje, karty, identity, zabezpečené poznámky a TOTP kódy so zachovanou štruktúrou priečinkov."
+  },
+  "importAcceptedFormats": {
+    "message": "Podporované: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "Typ súboru $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "Postup je úplne rovnaký ako pri importe z prehliadača Google Chrome.",
@@ -5505,11 +5619,44 @@
   "keePassMasterPassword": {
     "message": "Hlavné heslo pre KeePass"
   },
+  "keePassMasterPasswordV2": {
+    "message": "Heslo $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Vyžaduje sa heslo."
+  },
+  "filePasswordRequired": {
+    "message": "Vyžaduje sa heslo súboru"
+  },
+  "filePasswordInvalid": {
+    "message": "Zadajte platné heslo k súboru."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "Nahraný súbor je chránený heslom. Zadajte heslo na pokračovanie."
+  },
+  "selectProfile": {
+    "message": "Vyberte profil"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Zadajte platné heslo"
+  },
+  "importAccountMismatchError": {
+    "message": "Tento súbor je možné importovať iba do účtu, z ktorého bol exportovaný."
+  },
   "addKeyFile": {
     "message": "Pridať súbor s kľúčom"
   },
   "keyFileUpload": {
     "message": "Nahrať súbor s kľúčom"
+  },
+  "keyFileUploadV2": {
+    "message": "Súbor s kľúčom"
   },
   "kdbxFileUpload": {
     "message": "Nahrať súbor KDBX"
@@ -5680,13 +5827,13 @@
     "message": "Vložte kľúč YubiKey priradený k vášmu účtu LastPass do USB portu počítača a potom sa dotknite jeho tlačidla."
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "Tajný kľúč"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "Tajný kľúč a heslo"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "Váš účet je zabezpečený tajným kľúčom a heslom. Ak chcete pokračovať, budete musieť zadať obe."
   },
   "keeperEmail": {
     "message": "E-mail pre Keeper"
@@ -7743,17 +7890,17 @@
   "sharedUnlock": {
     "message": "Zdieľané odomknutie"
   },
-  "sharedUnlockWithDesktop": {
-    "message": "Zdieľať odomknutie s počítačom"
+  "syncUnlockWithDesktop": {
+    "message": "Synchronizovať odomknutie s desktopovou aplikáciou"
   },
-  "sharedUnlockWithDesktopDescription": {
-    "message": "Ak je táto funkcia zapnutá, stav odomknutia sa bude zdieľať s aplikáciou Bitwarden Desktop."
+  "syncUnlockWithDesktopDescription": {
+    "message": "Rozšírenie Bitwarden pre prehliadač a desktopová aplikácia sa zamykajú a odomykajú spoločne."
   },
-  "sharedUnlockWithWeb": {
-    "message": "Zdieľať odomknutie s webovým trezorom"
+  "syncUnlockWithWeb": {
+    "message": "Synchronizovať odomknutie s webovou aplikáciou"
   },
-  "sharedUnlockWithWebDescription": {
-    "message": "Ak je táto funkcia zapnutá, stav odomknutia sa bude zdieľať s webovým trezorom."
+  "syncUnlockWithWebDescription": {
+    "message": "Rozšírenie Bitwarden pre prehliadač a webová aplikácia sa zamykajú a odomykajú spoločne."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "Funkcia zdieľaného odomknutia nie je k dispozícii, pretože ste sa rozhodli nezapamätať si toto zariadenie. Ak chcete túto funkciu aktivovať, skúste sa prihlásiť znova."
@@ -8251,5 +8398,33 @@
   },
   "unknownCipher": {
     "message": "Neznáma položka, možno budete musieť požiadať o povolenie na prístup k tejto položke."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden má nový vzhľad",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Lepší používateľský zážitok, rovnaká spoľahlivá bezpečnosť. Trezor Bitwarden bol na základe vašich pripomienok prepracovaný, takže v ňom ľahšie nájdete, čo hľadáte, a všetko funguje tak, ako by ste očakávali.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Ukážka prepracovaného trezoru Bitwarden.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Preskúmať nový trezor",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Prispôsobiť"
+  },
+  "customizeYourView": {
+    "message": "Prispôsobte si zobrazenie"
+  },
+  "showColumns": {
+    "message": "Zobraziť stĺpce"
+  },
+  "resetToDefault": {
+    "message": "Obnoviť na predvolené"
   }
 }
