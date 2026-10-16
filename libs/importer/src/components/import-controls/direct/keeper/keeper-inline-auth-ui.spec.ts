@@ -70,6 +70,34 @@ describe("KeeperInlineAuthUi", () => {
       expect(ui.stage()).toEqual({ kind: "idle" });
     });
 
+    it("leave() clears the card at once while a request is still in flight", () => {
+      const ui = create();
+      const session = ui.begin();
+      expect(ui.stage()).toEqual({ kind: "loading" });
+
+      ui.leave();
+
+      expect(session.userLeft).toBe(true);
+      expect(ui.stage()).toEqual({ kind: "idle" });
+      expect(ui.waiting()).toBe(false);
+      expect(ui.loginActive()).toBe(false);
+    });
+
+    it("a left login can't show a prompt or blank the login that follows it", async () => {
+      const ui = create();
+      const left = ui.begin();
+      ui.leave();
+      const next = ui.begin();
+      void next.provideApprovalCode(DeviceApprovalChannel.Email);
+
+      await left.provideApprovalCode(DeviceApprovalChannel.KeeperPush);
+      ui.end(left);
+
+      expect(ui.stage()).toEqual(
+        expect.objectContaining({ kind: "approvalCode", variant: "email" }),
+      );
+    });
+
     it("end() returns the card to idle", () => {
       const ui = create();
       const session = ui.begin();

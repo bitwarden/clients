@@ -89,8 +89,12 @@ export class KeeperInlineAuthUi {
     }
   }
 
+  /** Cancels the login and clears the card at once; a request still in flight can't hold it busy. */
   leave(): void {
-    this.current?.leave();
+    const session = this.current;
+    this.current = undefined;
+    this._stage.set({ kind: "idle" });
+    session?.leave();
   }
 
   /** The login card registers how to answer its current prompt from its own form. */
