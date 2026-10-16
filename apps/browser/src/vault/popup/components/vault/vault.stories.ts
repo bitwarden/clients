@@ -325,6 +325,23 @@ type StoryArgs = {
   showAtRiskSecuredBanner?: boolean;
 };
 
+/** Avoids constructing the real service, which needs OrganizationService/CollectionService/etc. */
+const mockCoachmarkService: Partial<CoachmarkService> = {
+  activeStepId: signal(null),
+  currentStepNumber: signal(0),
+  totalSteps: signal(0),
+  isRunning: signal(false),
+  isStepActive: () => false,
+  getStepPosition: () => undefined,
+  getStepTitle: () => "",
+  getStepDescription: () => "",
+  getStepLearnMoreUrl: () => undefined,
+  previousStep: () => Promise.resolve(),
+  nextStep: () => Promise.resolve(),
+  completeTour: () => Promise.resolve(),
+  startTour: () => Promise.resolve(),
+};
+
 /**
  * The org-user-notification policy backing `vault-organization-user-notifications`.
  *
@@ -693,6 +710,7 @@ const buildProviders = (args: StoryArgs) => {
       useValue: { debug: () => {}, info: () => {}, warning: () => {}, error: () => {} },
     },
     { provide: TotpService, useValue: {} },
+    { provide: CoachmarkService, useValue: mockCoachmarkService },
     { provide: PasswordRepromptService, useValue: {} },
     { provide: ToastService, useValue: { showToast: () => {} } },
     { provide: DialogService, useValue: { open: () => ({ closed: of(undefined) }) } },
@@ -853,6 +871,10 @@ const buildProviders = (args: StoryArgs) => {
           popOutNewWindow: "Pop out to a new window",
           account: "Account",
           back: "Back",
+          // The tour's coachmarks render their popover templates even when no step is active.
+          learnMore: "Learn more",
+          coachmarkStepsIndicator: "__$1__ of __$2__",
+          next: "Next",
           bitwardenAccount: "Bitwarden account",
           switchAccounts: "Switch accounts",
           // Banners whose host is always present even when their service reports nothing to show.
