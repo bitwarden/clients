@@ -158,7 +158,8 @@ async function closeAddEditVaultItemPopout(delayClose = 0) {
  *
  * @param senderTab - The tab that sent the request.
  * @param options - Options passed as query params to the popout. `senderUrl` is the URL of the
- * frame that made the request, which differs from the tab's URL for a sub-frame request.
+ * frame that made the request, which differs from the tab's URL for a sub-frame request. It is
+ * omitted from the query params when empty, so the popout treats the URL as absent.
  */
 async function openFido2Popout(
   senderTab: chrome.tabs.Tab,
@@ -169,12 +170,15 @@ async function openFido2Popout(
   },
 ): Promise<chrome.windows.Window["id"]> {
   const { sessionId, fallbackSupported, senderUrl } = options;
-  const promptWindowPath =
+  let promptWindowPath =
     "popup/index.html#/fido2" +
     `?sessionId=${sessionId}` +
     `&fallbackSupported=${fallbackSupported}` +
-    `&senderTabId=${senderTab.id}` +
-    `&senderUrl=${encodeURIComponent(senderUrl ?? "")}`;
+    `&senderTabId=${senderTab.id}`;
+
+  if (senderUrl) {
+    promptWindowPath += `&senderUrl=${encodeURIComponent(senderUrl)}`;
+  }
 
   const popoutWindow = await BrowserPopupUtils.openPopout(promptWindowPath, {
     singleActionKey: `${VaultPopoutType.fido2Popout}_${sessionId}`,
