@@ -3,22 +3,33 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { mock } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  BitTableV2Component,
+  DialogService,
+  FilterControl,
+  ToastService,
+} from "@bitwarden/components";
 
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 
 import { HistoryTabComponent } from "./history-tab.component";
-import { historyDisplayStatus, MyAccessRequestRow } from "./my-access-row";
+import { MyAccessRequestRow } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
+
+const NOW = new Date("2026-08-17T12:00:00.000Z");
+
+/** An ISO time `minutes` before {@link NOW}. */
+function ago(minutes: number): string {
+  return new Date(NOW.getTime() - minutes * 60_000).toISOString();
+}
 
 // Loosely typed, not `Partial<MyAccessRequestRow>`, since `id` is an opaque branded type.
 function historyRow(overrides: Record<string, unknown> = {}): MyAccessRequestRow {
@@ -30,45 +41,87 @@ function historyRow(overrides: Record<string, unknown> = {}): MyAccessRequestRow
     collectionName: "Production",
     status: "denied",
     badgeState: null,
-    statusBadge: { labelKey: "pamStatusDenied", variant: "danger" },
-    submittedAt: "2026-08-17T11:00:00.000Z",
-    resolvedAt: "2026-08-17T11:30:00.000Z",
-    leaseNotBefore: "2026-08-17T12:00:00.000Z",
-    leaseNotAfter: "2026-08-17T13:00:00.000Z",
+    statusBadge: null,
+    submittedAt: ago(120),
+    resolvedAt: ago(30),
+    leaseNotBefore: ago(60),
+    leaseNotAfter: ago(10),
     resolverLabelKey: null,
-    resolverName: "Ada",
+    resolverName: null,
+    requester: "marcus.chen",
+    requesterEmail: "marcus@example.com",
+    finalDeny: { name: "derek.finnegan", at: ago(30) },
     approverComment: null,
     producedLeaseId: null,
     producedLeaseStatus: null,
+    producedLeaseNotAfter: null,
     extendedBySeconds: null,
     extendedUntil: null,
     ...overrides,
   } as unknown as MyAccessRequestRow;
 }
 
+/** One row per end state, as the design frame lists them. */
+const FRAME_ROWS = [
+  historyRow({ id: "stripe", cipherName: "Stripe dashboard", resolvedAt: ago(0) }),
+  historyRow({
+    id: "okta",
+    cipherName: "Okta admin",
+    collectionName: "Identity",
+    status: "approved",
+    producedLeaseId: "lease-okta",
+    producedLeaseStatus: "revoked",
+    finalDeny: { name: "derek.finnegan", at: ago(60) },
+  }),
+  historyRow({
+    id: "figma",
+    cipherName: "Figma org",
+    collectionName: "Design",
+    status: "canceled",
+    resolvedAt: ago(180),
+    finalDeny: null,
+  }),
+  historyRow({
+    id: "pagerduty",
+    cipherName: "PagerDuty",
+    collectionName: "Identity",
+    status: "expired",
+    resolvedAt: null,
+    leaseNotAfter: ago(24 * 60),
+    finalDeny: null,
+  }),
+  historyRow({
+    id: "datadog",
+    cipherName: "Datadog org owner",
+    requester: "sam.okafor",
+    status: "approved",
+    producedLeaseId: "lease-datadog",
+    producedLeaseStatus: "expired",
+    producedLeaseNotAfter: ago(2 * 24 * 60),
+    finalDeny: null,
+  }),
+  historyRow({
+    id: "servicenow",
+    cipherName: "Service Now",
+    requester: "sam.okafor",
+    status: "approved",
+    producedLeaseId: "lease-servicenow",
+    producedLeaseStatus: "canceled",
+    finalDeny: { name: "sam.okafor", at: ago(7 * 24 * 60) },
+  }),
+];
+
 describe("HistoryTabComponent", () => {
   let fixture: ComponentFixture<HistoryTabComponent>;
   let component: HistoryTabComponent;
   let myRows$: BehaviorSubject<MyAccessRequestRow[]>;
   let managedRows$: BehaviorSubject<MyAccessRequestRow[]>;
-  let managedIds$: BehaviorSubject<Set<string>>;
   let managedLoading$: BehaviorSubject<boolean>;
+  let managedLoadError$: BehaviorSubject<unknown | null>;
   let myLoading$: BehaviorSubject<boolean>;
   let myLoadError$: BehaviorSubject<unknown | null>;
   let lastSync$: BehaviorSubject<Date | null>;
-  let inbox: {
-    historyRows$: BehaviorSubject<MyAccessRequestRow[]>;
-    managedIds$: BehaviorSubject<Set<string>>;
-    cipherById$: BehaviorSubject<Map<string, CipherView>>;
-    loading$: BehaviorSubject<boolean>;
-    loadError$: BehaviorSubject<unknown | null>;
-    revokeLease: jest.Mock;
-    cancelApproval: jest.Mock;
-  };
   let canApprove$: BehaviorSubject<boolean>;
-  let dialogService: MockProxy<DialogService>;
-  let toastService: MockProxy<ToastService>;
-  let configService: MockProxy<ConfigService>;
 
   function create(): void {
     fixture = TestBed.createComponent(HistoryTabComponent);
@@ -80,73 +133,80 @@ describe("HistoryTabComponent", () => {
     return fixture.nativeElement.querySelector(selector) as HTMLElement | null;
   }
 
-  /** The ids of the rendered rows, in rendered order. */
-  function renderedRowIds(): string[] {
-    return [...fixture.nativeElement.querySelectorAll("tr[data-testid]")].map((row: HTMLElement) =>
-      (row.getAttribute("data-testid") ?? "").replace("my-access-history-", ""),
-    );
+  function queryAll(selector: string): HTMLElement[] {
+    return Array.from(fixture.nativeElement.querySelectorAll(selector));
   }
 
-  function renderedHeaders(): (string | undefined)[] {
-    return [...fixture.nativeElement.querySelectorAll("th")].map((th: HTMLElement) =>
-      th.textContent?.trim(),
-    );
+  function text(element: Element | null): string {
+    return (element?.textContent ?? "").replace(/\s+/g, " ").trim();
   }
 
-  /**
-   * Drives the scope chip through its own `setValue`, as an option click would. `"all"` clears the
-   * chip, since All is its reset row rather than an option.
-   */
-  function selectScope(scope: "mine" | "managed" | "all"): void {
-    component["scopeChip"]()?.setValue(scope === "all" ? null : scope);
+  function cell(column: string, id: string): HTMLElement | null {
+    return query(`[data-testid="my-access-history-${column}-${id}"]`);
+  }
+
+  function headers(): HTMLElement[] {
+    return queryAll('[data-testid="history-table"] [role="columnheader"]');
+  }
+
+  /** The row ids in display order, read off the Item cells. */
+  function rowIds(): string[] {
+    return queryAll('[data-testid="history-table"] [data-testid^="my-access-history-"]')
+      .map((element) => element.getAttribute("data-testid") ?? "")
+      .filter((testId) =>
+        /^my-access-history-(?!status-|requester-|resolver-|resolved-|no-results|empty)/.test(
+          testId,
+        ),
+      )
+      .map((testId) => testId.replace("my-access-history-", ""));
+  }
+
+  function table(): BitTableV2Component {
+    return fixture.debugElement.query(By.directive(BitTableV2Component))
+      .componentInstance as BitTableV2Component;
+  }
+
+  function filterControl(key: string): FilterControl {
+    const control = table()
+      .filterControls()
+      .find((c) => c.key() === key);
+    if (control == null) {
+      throw new Error(`the ${key} control did not register`);
+    }
+    return control;
+  }
+
+  function setFilter(key: string, value: unknown): void {
+    filterControl(key).setValue(value);
     fixture.detectChanges();
   }
 
-  function showManaged(): void {
-    selectScope("managed");
+  function clickSortHeader(heading: string): void {
+    const header = headers().find((candidate) => text(candidate) === heading)!;
+    header.querySelector("button")!.click();
+    fixture.detectChanges();
   }
 
-  /**
-   * Calls the search's own change handler, since `ngModel` registers over a microtask these
-   * fake-timered tests never flush, so a raw `input` event reaches nothing.
-   */
-  function searchFor(term: string): void {
-    const search = fixture.debugElement.query(By.css("bit-search")).componentInstance as {
-      onChange: (term: string) => void;
-    };
-    search.onChange(term);
+  function tick(ms: number): void {
+    jest.advanceTimersByTime(ms);
     fixture.detectChanges();
   }
 
   function passSkeletonDelay(): void {
-    jest.advanceTimersByTime(1000);
-    fixture.detectChanges();
+    tick(1000);
   }
 
   beforeEach(async () => {
     jest.useFakeTimers();
+    jest.setSystemTime(NOW);
     myRows$ = new BehaviorSubject<MyAccessRequestRow[]>([]);
     managedRows$ = new BehaviorSubject<MyAccessRequestRow[]>([]);
-    managedIds$ = new BehaviorSubject<Set<string>>(new Set());
     managedLoading$ = new BehaviorSubject(false);
+    managedLoadError$ = new BehaviorSubject<unknown | null>(null);
     myLoading$ = new BehaviorSubject(false);
     myLoadError$ = new BehaviorSubject<unknown | null>(null);
-    lastSync$ = new BehaviorSubject<Date | null>(new Date("2026-08-20T09:00:00.000Z"));
-    inbox = {
-      historyRows$: managedRows$,
-      managedIds$,
-      cipherById$: new BehaviorSubject(new Map<string, CipherView>()),
-      loading$: managedLoading$,
-      loadError$: new BehaviorSubject<unknown | null>(null),
-      revokeLease: jest.fn().mockResolvedValue(undefined),
-      cancelApproval: jest.fn().mockResolvedValue(undefined),
-    };
+    lastSync$ = new BehaviorSubject<Date | null>(new Date("2026-08-17T09:00:00.000Z"));
     canApprove$ = new BehaviorSubject(false);
-    dialogService = mock<DialogService>();
-    toastService = mock<ToastService>();
-    dialogService.openSimpleDialog.mockResolvedValue(true);
-    configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     await TestBed.configureTestingModule({
       imports: [HistoryTabComponent, NoopAnimationsModule],
@@ -161,19 +221,32 @@ describe("HistoryTabComponent", () => {
             loadError$: myLoadError$,
           },
         },
-        { provide: ApproverInboxService, useValue: inbox },
+        {
+          provide: ApproverInboxService,
+          useValue: {
+            historyRows$: managedRows$,
+            cipherById$: new BehaviorSubject(new Map<string, CipherView>()),
+            loading$: managedLoading$,
+            loadError$: managedLoadError$,
+          },
+        },
         { provide: ApprovalPrivilegeService, useValue: { canApprove$ } },
         { provide: SyncService, useValue: { activeUserLastSync$: () => lastSync$ } },
-        { provide: DialogService, useValue: dialogService },
-        { provide: ToastService, useValue: toastService },
-        { provide: ConfigService, useValue: configService },
+        { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: ToastService, useValue: mock<ToastService>() },
         { provide: LogService, useValue: mock<LogService>() },
         {
+          // Echoes the key plus params, since I18nMockService throws on any key not given.
           provide: I18nService,
-          useValue: { t: (key: string, ...args: unknown[]) => [key, ...args].join(" ") },
+          useValue: {
+            t: (key: string, ...args: unknown[]) =>
+              [key, ...args.filter((a) => a != null)].join(" "),
+          },
         },
       ],
     })
+      // Stubs the vault favicon component, which pulls in environment/settings services this test
+      // has no interest in.
       .overrideComponent(HistoryTabComponent, { add: { schemas: [NO_ERRORS_SCHEMA] } })
       .compileComponents();
   });
@@ -183,238 +256,308 @@ describe("HistoryTabComponent", () => {
     jest.useRealTimers();
   });
 
-  describe("scope filter", () => {
-    it("lands on All", () => {
+  describe("table", () => {
+    beforeEach(() => {
+      myRows$.next(FRAME_ROWS);
+      create();
+    });
+
+    it("shows Item, Status, Requester, Resolved by and Resolved, with no Action column", () => {
+      expect(headers().map(text)).toEqual([
+        "pamColumnItem",
+        "pamColumnStatus",
+        "pamInboxRequester",
+        "pamColumnResolvedBy",
+        "pamColumnResolved",
+      ]);
+    });
+
+    it("sorts on Item, Status and Resolved only", () => {
+      expect(
+        headers()
+          .filter((header) => header.querySelector("button") != null)
+          .map(text),
+      ).toEqual(["pamColumnItem", "pamColumnStatus", "pamColumnResolved"]);
+    });
+
+    it("lists the newest resolution first", () => {
+      expect(rowIds()).toEqual(["stripe", "okta", "figma", "pagerduty", "datadog", "servicenow"]);
+    });
+
+    it("reverses the Resolved sort by timestamp, not by its relative text", () => {
+      clickSortHeader("pamColumnResolved");
+
+      expect(rowIds()).toEqual(["servicenow", "datadog", "pagerduty", "figma", "okta", "stripe"]);
+    });
+
+    it("sorts Status by the label it shows", () => {
+      clickSortHeader("pamColumnStatus");
+
+      expect(rowIds().map((id) => text(cell("status", id)))).toEqual([
+        "pamStatusCanceled",
+        "pamStatusDenied",
+        "pamStatusExpired",
+        "pamStatusRevoked",
+        "pamStatusSessionEnded",
+        "pamStatusSessionEnded",
+      ]);
+    });
+
+    it("shows each end state as plain text with who resolved it", () => {
+      expect(
+        rowIds().map((id) => [id, text(cell("status", id)), text(cell("resolver", id))]),
+      ).toEqual([
+        ["stripe", "pamStatusDenied", "derek.finnegan"],
+        ["okta", "pamStatusRevoked", "derek.finnegan"],
+        ["figma", "pamStatusCanceled", "marcus.chen"],
+        ["pagerduty", "pamStatusExpired", "system"],
+        ["datadog", "pamStatusSessionEnded", "system"],
+        ["servicenow", "pamStatusSessionEnded", "sam.okafor"],
+      ]);
+      expect(
+        cell("status", "stripe")?.querySelector("[bitBadge], app-pam-access-state-badge"),
+      ).toBeNull();
+    });
+
+    it("shows the requester's username only, without their email", () => {
+      expect(text(cell("requester", "stripe"))).toBe("marcus.chen");
+    });
+
+    it("shows when each request ended relative to now", () => {
+      expect(rowIds().map((id) => text(cell("resolved", id)).split(",")[0])).toEqual([
+        "pamInboxElapsedJustNow 0",
+        "pamInboxElapsedHours 1",
+        "pamInboxElapsedHours 3",
+        "pamInboxElapsedDays 1",
+        "pamInboxElapsedDays 2",
+        "pamInboxElapsedWeeks 1",
+      ]);
+    });
+
+    it("gives the exact time to a pointer and to assistive tech", () => {
+      const time = cell("resolved", "figma")!.querySelector("time")!;
+
+      expect(time.getAttribute("datetime")).toBe(ago(180));
+      expect(time.querySelector(".tw-sr-only")?.textContent).toContain("2026");
+    });
+
+    it("marks the shared folder with the shared-folder icon", () => {
+      const item = query('[data-testid="my-access-history-okta"]')!;
+
+      expect(item.querySelector('bit-icon[name="bwi-collection-shared"]')).not.toBeNull();
+      expect(text(item)).toContain("pamInboxInCollection Identity");
+    });
+
+    it("links each item to its request", () => {
+      const link = query('[data-testid="my-access-history-okta"] a')!;
+
+      expect(link.getAttribute("href")).toBe("/pam/requests/okta");
+      expect(link.id).toBe("pam-history-tab_link_item-okta");
+    });
+
+    it("is read-only: no row carries an action", () => {
+      expect(queryAll('[data-testid="history-table"] bit-cell button')).toEqual([]);
+    });
+  });
+
+  describe("rows", () => {
+    it("merges both reads, listing a request they both return once", () => {
       canApprove$.next(true);
-      myRows$.next([historyRow({ id: "mine-1" })]);
-      managedRows$.next([historyRow({ id: "managed-1" })]);
-
-      create();
-
-      expect(component["scope"]()).toBe("all");
-      expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
-    });
-
-    it("derives Mine and Managed straight from the chip's own value", () => {
-      canApprove$.next(true);
-      myRows$.next([historyRow({ id: "mine-1" })]);
-      managedRows$.next([historyRow({ id: "managed-1" })]);
-      create();
-
-      selectScope("mine");
-      expect(component["scope"]()).toBe("mine");
-
-      selectScope("managed");
-      expect(component["scope"]()).toBe("managed");
-    });
-
-    it("falls back to All when the chip holds a value outside the known scopes", () => {
-      canApprove$.next(true);
-      myRows$.next([historyRow({ id: "mine-1" })]);
-      managedRows$.next([historyRow({ id: "managed-1" })]);
-      create();
-
-      component["scopeChip"]()?.setValue("something-else");
-      fixture.detectChanges();
-
-      expect(component["scope"]()).toBe("all");
-    });
-
-    it("is hidden from a viewer who can neither approve nor has managed rows", () => {
-      myRows$.next([historyRow()]);
-
-      create();
-
-      expect(query('[data-testid="history-scope-filter"]')).toBeNull();
-    });
-
-    it("appears once the caller has managed history", () => {
-      managedRows$.next([historyRow({ id: "managed-1" })]);
-
-      create();
-
-      expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
-    });
-
-    it("offers the filter to an approver with no managed history yet", () => {
-      canApprove$.next(true);
-      myRows$.next([historyRow({ id: "mine-1" })]);
-
-      create();
-
-      expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
-    });
-
-    it("is withheld from an approver with no history at all", () => {
-      canApprove$.next(true);
-
-      create();
-
-      expect(query('[data-testid="history-scope-filter"]')).toBeNull();
-      expect(component["scope"]()).toBe("all");
-    });
-
-    it("shows both sources merged under All, newest first", () => {
-      canApprove$.next(true);
-      myRows$.next([historyRow({ id: "mine-1", resolvedAt: "2026-08-17T10:00:00.000Z" })]);
+      myRows$.next([historyRow({ id: "shared" }), historyRow({ id: "mine", resolvedAt: ago(40) })]);
       managedRows$.next([
-        historyRow({ id: "managed-1", resolvedAt: "2026-08-17T12:00:00.000Z" }),
-        historyRow({ id: "managed-2", resolvedAt: "2026-08-17T09:00:00.000Z" }),
+        historyRow({ id: "shared" }),
+        historyRow({ id: "managed", resolvedAt: ago(50) }),
       ]);
 
       create();
 
-      expect(component["historyRows"]().map((r) => r.id)).toEqual([
-        "managed-1",
-        "mine-1",
-        "managed-2",
-      ]);
+      expect(rowIds()).toEqual(["shared", "mine", "managed"]);
     });
 
-    // A request the caller raised against a collection they also manage comes back from both reads.
-    it("lists a request that is both raised and managed by the caller only once under All", () => {
+    it("leaves out requests still pending, waiting to start, or running", () => {
       canApprove$.next(true);
-      myRows$.next([historyRow({ id: "both-1" })]);
-      managedRows$.next([historyRow({ id: "both-1" })]);
-
-      create();
-
-      expect(component["historyRows"]().map((r) => r.id)).toEqual(["both-1"]);
-    });
-
-    // Only the caller's own read folds an approved extension onto its grant.
-    it("keeps the richer copy of a request both reads return", () => {
-      canApprove$.next(true);
-      myRows$.next([
+      managedRows$.next([
+        historyRow({ id: "denied" }),
+        historyRow({ id: "pending", status: "pending", resolvedAt: null }),
+        historyRow({ id: "waiting", status: "approved", leaseNotAfter: ago(-60) }),
         historyRow({
-          id: "both-1",
-          extendedBySeconds: 3600,
-          extendedUntil: "2026-08-17T14:00:00.000Z",
+          id: "running",
+          status: "approved",
+          producedLeaseId: "lease-1",
+          producedLeaseStatus: "active",
+          producedLeaseNotAfter: ago(-60),
         }),
       ]);
-      managedRows$.next([historyRow({ id: "both-1" })]);
 
       create();
 
-      expect(component["historyRows"]().map((r) => r.extendedUntil)).toEqual([
-        "2026-08-17T14:00:00.000Z",
-      ]);
-      expect(query('[data-testid="my-access-history-extended-both-1"]')).not.toBeNull();
+      expect(rowIds()).toEqual(["denied"]);
     });
 
-    // Asserted on rendered rows; the table re-orders whatever it's handed.
-    it("sorts a row with no decision by when it was raised", () => {
+    it("brings in a lease that runs out while the tab is open", () => {
       canApprove$.next(true);
-      myRows$.next([
-        historyRow({ id: "mine-1", resolvedAt: null, submittedAt: "2026-08-17T13:00:00.000Z" }),
-      ]);
-      managedRows$.next([historyRow({ id: "managed-1", resolvedAt: "2026-08-17T12:00:00.000Z" })]);
-
-      create();
-
-      expect(renderedRowIds()).toEqual(["mine-1", "managed-1"]);
-    });
-
-    it("renders the merged list newest first", () => {
-      canApprove$.next(true);
-      myRows$.next([historyRow({ id: "mine-1", resolvedAt: "2026-08-17T10:00:00.000Z" })]);
       managedRows$.next([
-        historyRow({ id: "managed-1", resolvedAt: "2026-08-17T12:00:00.000Z" }),
-        historyRow({ id: "managed-2", resolvedAt: "2026-08-17T09:00:00.000Z" }),
+        historyRow({ id: "denied" }),
+        historyRow({
+          id: "running",
+          status: "approved",
+          producedLeaseId: "lease-1",
+          producedLeaseStatus: "active",
+          producedLeaseNotAfter: ago(-1),
+          finalDeny: null,
+        }),
       ]);
-
       create();
 
-      expect(renderedRowIds()).toEqual(["managed-1", "mine-1", "managed-2"]);
+      expect(rowIds()).toEqual(["denied"]);
+
+      tick(2 * 60_000);
+
+      expect(rowIds()).toEqual(["running", "denied"]);
+      expect(text(cell("status", "running"))).toBe("pamStatusSessionEnded");
+      expect(text(cell("resolver", "running"))).toBe("system");
     });
 
-    it("narrows to the caller's own rows, then restores the union", () => {
-      canApprove$.next(true);
-      myRows$.next([historyRow({ id: "mine-1" })]);
-      managedRows$.next([historyRow({ id: "managed-1", resolvedAt: "2026-08-17T12:00:00.000Z" })]);
+    it("puts a newly ended request at the top", () => {
+      myRows$.next([historyRow({ id: "older", resolvedAt: ago(60) })]);
       create();
 
-      selectScope("mine");
-      expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1"]);
-
-      selectScope("all");
-      expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1", "mine-1"]);
-    });
-
-    it("narrows to the managed rows, then restores the union", () => {
-      canApprove$.next(true);
-      myRows$.next([historyRow({ id: "mine-1" })]);
-      managedRows$.next([historyRow({ id: "managed-1", resolvedAt: "2026-08-17T12:00:00.000Z" })]);
-      create();
-
-      showManaged();
-      expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1"]);
-
-      selectScope("all");
-      expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1", "mine-1"]);
-    });
-
-    it("keeps the viewer on the filter they picked when managed history arrives", () => {
-      canApprove$.next(true);
-      myRows$.next([historyRow({ id: "mine-1" })]);
-      create();
-
-      selectScope("mine");
-      managedRows$.next([historyRow({ id: "managed-1" })]);
+      myRows$.next([
+        historyRow({ id: "older", resolvedAt: ago(60) }),
+        historyRow({ id: "new", resolvedAt: ago(0) }),
+      ]);
       fixture.detectChanges();
 
-      expect(component["scope"]()).toBe("mine");
-      expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1"]);
+      expect(rowIds()).toEqual(["new", "older"]);
+    });
+  });
+
+  describe("toolbar", () => {
+    function optionLabels(key: string): string[] {
+      const menu = query(`bit-filter-menu[key="${key}"]`)!;
+      return Array.from(menu.querySelectorAll("bit-filter-option")).map(text);
+    }
+
+    function searchFor(term: string): void {
+      setFilter("search", term);
+    }
+
+    beforeEach(() => {
+      myRows$.next(FRAME_ROWS);
+      create();
     });
 
-    it("does not move the reader off All when managed history arrives in the background", () => {
-      canApprove$.next(true);
-      myRows$.next([historyRow({ id: "mine-1" })]);
-      create();
-
-      managedRows$.next([historyRow({ id: "managed-1", resolvedAt: "2026-08-17T12:00:00.000Z" })]);
-      fixture.detectChanges();
-
-      expect(component["scope"]()).toBe("all");
-      expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1", "mine-1"]);
+    it("offers search and multi-select Status, Shared folders and Requester filters", () => {
+      expect(query("bit-table-toolbar bit-search")?.id).toBe("pam-history-tab_input_search");
+      expect(
+        queryAll("bit-table-toolbar bit-filter-menu").map((menu) => [
+          menu.getAttribute("key"),
+          menu.hasAttribute("multiple"),
+        ]),
+      ).toEqual([
+        ["status", true],
+        ["collection", true],
+        ["requester", true],
+      ]);
     });
 
-    // A non-approver whose managed rows go away loses the chip, so their pinned scope stops
-    // applying.
-    it("falls back to All if the filter goes away while a filter is applied", () => {
-      managedRows$.next([historyRow({ id: "managed-1" })]);
-      myRows$.next([historyRow({ id: "mine-1" })]);
-      create();
-      showManaged();
-
-      managedRows$.next([]);
-      fixture.detectChanges();
-
-      expect(component["scope"]()).toBe("all");
-      expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1"]);
+    it("lists every end state under Status, without icons", () => {
+      expect(optionLabels("status")).toEqual([
+        "pamStatusDenied",
+        "pamStatusRevoked",
+        "pamStatusCanceled",
+        "pamStatusExpired",
+        "pamStatusSessionEnded",
+      ]);
+      expect(component["statusOptions"].some((option) => "iconTile" in option)).toBe(false);
     });
 
-    // The fallback must stop applying the pick and also forget it.
-    it("does not restore the filter it fell back from when the filter returns", () => {
-      managedRows$.next([historyRow({ id: "managed-1" })]);
-      myRows$.next([historyRow({ id: "mine-1" })]);
+    it("lists each shared folder and requester once", () => {
+      expect(optionLabels("collection")).toEqual(["Design", "Identity", "Production"]);
+      expect(optionLabels("requester")).toEqual(["marcus.chen", "sam.okafor"]);
+    });
+
+    it("counts each option's rows", () => {
+      expect(table().optionCount("status", ["sessionEnded"])).toBe(2);
+      expect(table().optionCount("status", ["denied"])).toBe(1);
+      expect(table().optionCount("collection", ["Identity"])).toBe(2);
+      expect(table().optionCount("requester", ["sam.okafor"])).toBe(2);
+    });
+
+    it("matches any selected option within a filter", () => {
+      setFilter("status", ["denied", "revoked"]);
+
+      expect(rowIds()).toEqual(["stripe", "okta"]);
+    });
+
+    it("matches every filter across them", () => {
+      setFilter("status", ["sessionEnded", "expired"]);
+      setFilter("requester", ["sam.okafor"]);
+
+      expect(rowIds()).toEqual(["datadog", "servicenow"]);
+
+      setFilter("collection", ["Identity"]);
+
+      expect(rowIds()).toEqual([]);
+    });
+
+    it("counts the items left on screen", () => {
+      const count = () => text(query("bit-table-toolbar [bitOverflowTrigger]"));
+
+      expect(count()).toBe("itemCount 6");
+
+      setFilter("collection", ["Identity"]);
+
+      expect(count()).toBe("itemCount 2");
+    });
+
+    it("searches the item, folder, requester, resolver and status", () => {
+      searchFor("figma");
+      expect(rowIds()).toEqual(["figma"]);
+
+      searchFor("design");
+      expect(rowIds()).toEqual(["figma"]);
+
+      searchFor("derek");
+      expect(rowIds()).toEqual(["stripe", "okta"]);
+
+      searchFor("system");
+      expect(rowIds()).toEqual(["pagerduty", "datadog"]);
+
+      searchFor("revoked");
+      expect(rowIds()).toEqual(["okta"]);
+    });
+
+    it("ignores case and surrounding whitespace", () => {
+      searchFor("  OKTA  ");
+
+      expect(rowIds()).toEqual(["okta"]);
+    });
+
+    it("says nothing matched rather than that the history is empty", () => {
+      searchFor("no-such-thing");
+
+      expect(rowIds()).toEqual([]);
+      expect(query('[data-testid="my-access-history-empty"]')).toBeNull();
+      expect(text(query('[data-testid="my-access-history-no-results"]'))).toContain(
+        "noMatchingItems",
+      );
+    });
+  });
+
+  describe("empty state", () => {
+    it("replaces the table and its toolbar when nothing has ended yet", () => {
+      myRows$.next([historyRow({ id: "pending", status: "pending", resolvedAt: null })]);
+
       create();
-      showManaged();
 
-      managedRows$.next([]);
-      fixture.detectChanges();
-      expect(component["scope"]()).toBe("all");
-
-      managedRows$.next([historyRow({ id: "managed-2", resolvedAt: "2026-08-17T12:00:00.000Z" })]);
-      fixture.detectChanges();
-
-      expect(component["scope"]()).toBe("all");
-      expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-2", "mine-1"]);
+      expect(query('[data-testid="my-access-history-empty"]')).not.toBeNull();
+      expect(query("bit-table-toolbar")).toBeNull();
     });
   });
 
   describe("loading", () => {
-    it("shows the skeleton once the load has run for a second, then the managed history", () => {
+    it("shows the skeleton once the load has run for a second, then the history", () => {
       canApprove$.next(true);
       managedLoading$.next(true);
       myRows$.next([historyRow({ id: "mine-1" })]);
@@ -426,9 +569,8 @@ describe("HistoryTabComponent", () => {
       passSkeletonDelay();
 
       const skeleton = query('[data-testid="history-loading"]');
-      expect(skeleton).not.toBeNull();
       expect(skeleton?.getAttribute("aria-hidden")).toBe("true");
-      expect(skeleton?.querySelectorAll("bit-skeleton").length).toBeGreaterThan(0);
+      expect(skeleton?.querySelectorAll("bit-skeleton-text").length).toBeGreaterThan(0);
 
       managedRows$.next([historyRow({ id: "managed-1" })]);
       managedLoading$.next(false);
@@ -444,70 +586,71 @@ describe("HistoryTabComponent", () => {
       myRows$.next([historyRow({ id: "mine-1" })]);
 
       create();
-
-      jest.advanceTimersByTime(500);
-      fixture.detectChanges();
-
-      expect(query("bit-skeleton")).toBeNull();
+      tick(500);
 
       managedLoading$.next(false);
       passSkeletonDelay();
 
       expect(query("bit-skeleton")).toBeNull();
       expect(query('[data-testid="my-access-history-mine-1"]')).not.toBeNull();
-      expect(query('[data-testid="history-loading-status"]')?.textContent?.trim()).toBe("");
+      expect(text(query('[data-testid="history-loading-status"]'))).toBe("");
     });
 
-    it("swaps the skeleton for the history the moment it lands, mid minimum-display-time", () => {
+    // A live region must exist before its text changes, or assistive tech announces nothing.
+    it("keeps one live region mounted, announces both halves of the load, then clears", () => {
       canApprove$.next(true);
       managedLoading$.next(true);
 
       create();
-      passSkeletonDelay();
-
-      expect(query('[data-testid="history-loading"]')).not.toBeNull();
-
-      jest.advanceTimersByTime(200);
-      managedRows$.next([historyRow({ id: "managed-1" })]);
-      managedLoading$.next(false);
-      fixture.detectChanges();
-
-      expect(query('[data-testid="history-loading"]')).toBeNull();
-      expect(query('[data-testid="my-access-history-managed-1"]')).not.toBeNull();
-      expect(query('[data-testid="history-loading-status"]')?.textContent).toContain(
-        "pamHistoryLoaded",
-      );
-
-      jest.advanceTimersByTime(800);
-      fixture.detectChanges();
-
-      expect(query('[data-testid="history-loading"]')).toBeNull();
-      expect(query('[data-testid="my-access-history-managed-1"]')).not.toBeNull();
-    });
-
-    // A latched announcement keeps reporting a long-finished load to assistive tech that re-reads
-    // the region later.
-    it("clears the loaded announcement once it has been made", () => {
-      canApprove$.next(true);
-      managedLoading$.next(true);
-
-      create();
-      passSkeletonDelay();
 
       const status = query('[data-testid="history-loading-status"]');
-      expect(status?.textContent).toContain("loading");
+      expect(status?.getAttribute("role")).toBe("status");
+      expect(status?.getAttribute("aria-live")).toBe("polite");
+      expect(text(status)).toBe("");
+
+      passSkeletonDelay();
+
+      expect(text(status)).toBe("loading");
 
       managedRows$.next([historyRow({ id: "managed-1" })]);
       managedLoading$.next(false);
       fixture.detectChanges();
 
-      expect(status?.textContent).toContain("pamHistoryLoaded");
+      expect(query('[data-testid="history-loading-status"]')).toBe(status);
+      expect(text(status)).toBe("pamHistoryLoaded");
 
-      jest.advanceTimersByTime(2000);
+      tick(2000);
+
+      expect(text(status)).toBe("");
+    });
+
+    // The latch resolves on loading flags alone; a failed read ends the skeleton same as success.
+    it("does not announce a failed load as loaded", () => {
+      canApprove$.next(true);
+      managedLoading$.next(true);
+
+      create();
+      passSkeletonDelay();
+
+      managedLoadError$.next(new Error("boom"));
+      managedLoading$.next(false);
       fixture.detectChanges();
 
-      expect(status?.textContent?.trim()).toBe("");
-      expect(query('[data-testid="my-access-history-managed-1"]')).not.toBeNull();
+      expect(query('[data-testid="history-loading"]')).toBeNull();
+      expect(text(query('[data-testid="history-loading-status"]'))).toBe("");
+    });
+
+    it("does not announce a failed own-history load as loaded", () => {
+      myLoading$.next(true);
+
+      create();
+      passSkeletonDelay();
+
+      myLoadError$.next(new Error("boom"));
+      myLoading$.next(false);
+      fixture.detectChanges();
+
+      expect(text(query('[data-testid="history-loading-status"]'))).toBe("");
     });
 
     // The latch never resolves for a non-approver on an unsynced session.
@@ -526,66 +669,6 @@ describe("HistoryTabComponent", () => {
       expect(canApprove$.observed).toBe(false);
     });
 
-    // A live region must exist before its text changes, or assistive tech announces nothing.
-    it("keeps one live region mounted and announces both halves of the load", () => {
-      canApprove$.next(true);
-      managedLoading$.next(true);
-
-      create();
-
-      const status = query('[data-testid="history-loading-status"]');
-      expect(status?.getAttribute("role")).toBe("status");
-      expect(status?.getAttribute("aria-live")).toBe("polite");
-      expect(status?.textContent?.trim()).toBe("");
-
-      passSkeletonDelay();
-
-      expect(query('[data-testid="history-loading-status"]')).toBe(status);
-      expect(status?.textContent).toContain("loading");
-
-      managedRows$.next([historyRow({ id: "managed-1" })]);
-      managedLoading$.next(false);
-      fixture.detectChanges();
-
-      expect(query('[data-testid="history-loading-status"]')).toBe(status);
-      expect(status?.textContent).toContain("pamHistoryLoaded");
-    });
-
-    // The latch resolves on loading flags alone; a failed read ends the skeleton same as success.
-    it("does not announce a failed managed-history load as loaded", () => {
-      canApprove$.next(true);
-      managedLoading$.next(true);
-
-      create();
-      passSkeletonDelay();
-
-      expect(query('[data-testid="history-loading-status"]')?.textContent).toContain("loading");
-
-      inbox.loadError$.next(new Error("boom"));
-      managedLoading$.next(false);
-      fixture.detectChanges();
-
-      expect(query('[data-testid="history-loading"]')).toBeNull();
-      expect(query('[data-testid="history-loading-status"]')?.textContent?.trim()).toBe("");
-    });
-
-    // Either read failing leaves the merged list short of its full history.
-    it("does not announce a failed own-history load as loaded", () => {
-      myLoading$.next(true);
-
-      create();
-      passSkeletonDelay();
-
-      expect(query('[data-testid="history-loading-status"]')?.textContent).toContain("loading");
-
-      myLoadError$.next(new Error("boom"));
-      myLoading$.next(false);
-      fixture.detectChanges();
-
-      expect(query('[data-testid="history-loading"]')).toBeNull();
-      expect(query('[data-testid="history-loading-status"]')?.textContent?.trim()).toBe("");
-    });
-
     // The shell never loads the inbox for a member who can't approve.
     it("does not wait on the inbox for a member who cannot approve", () => {
       managedLoading$.next(true);
@@ -593,7 +676,6 @@ describe("HistoryTabComponent", () => {
 
       create();
 
-      expect(query('[data-testid="history-loading"]')).toBeNull();
       expect(query('[data-testid="my-access-history-mine-1"]')).not.toBeNull();
     });
 
@@ -607,15 +689,14 @@ describe("HistoryTabComponent", () => {
       passSkeletonDelay();
 
       expect(query('[data-testid="history-loading"]')).not.toBeNull();
-      expect(query('[data-testid="my-access-history-mine-1"]')).toBeNull();
 
       canApprove$.next(true);
-      lastSync$.next(new Date("2026-08-20T09:05:00.000Z"));
-      managedRows$.next([historyRow({ id: "managed-1", resolvedAt: "2026-08-17T12:00:00.000Z" })]);
+      lastSync$.next(new Date("2026-08-17T09:05:00.000Z"));
+      managedRows$.next([historyRow({ id: "managed-1", resolvedAt: ago(5) })]);
       managedLoading$.next(false);
       fixture.detectChanges();
 
-      expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1", "mine-1"]);
+      expect(rowIds()).toEqual(["managed-1", "mine-1"]);
     });
 
     it("waits on the caller's own history too, so its empty state cannot flash", () => {
@@ -624,7 +705,6 @@ describe("HistoryTabComponent", () => {
       create();
       passSkeletonDelay();
 
-      expect(query('[data-testid="history-loading"]')).not.toBeNull();
       expect(query('[data-testid="my-access-history-empty"]')).toBeNull();
 
       myRows$.next([historyRow({ id: "mine-1" })]);
@@ -643,918 +723,6 @@ describe("HistoryTabComponent", () => {
 
       expect(query('[data-testid="history-loading"]')).toBeNull();
       expect(query('[data-testid="my-access-history-mine-1"]')).not.toBeNull();
-    });
-  });
-
-  describe("actions", () => {
-    const activeGrant = historyRow({
-      id: "managed-1",
-      status: "approved",
-      statusBadge: { labelKey: "pamStatusActivated", variant: "success" },
-      producedLeaseId: "lease-1",
-      producedLeaseStatus: "active",
-    });
-    const unstartedApproval = historyRow({
-      id: "managed-2",
-      status: "approved",
-      badgeState: null,
-      statusBadge: { labelKey: "pamStatusApproved", variant: "success" },
-      producedLeaseId: null,
-    });
-
-    beforeEach(() => {
-      managedIds$.next(new Set(["managed-1", "managed-2"]));
-    });
-
-    it("offers no actions on a row the caller only raised", () => {
-      managedIds$.next(new Set());
-      myRows$.next([activeGrant, unstartedApproval]);
-      create();
-
-      expect(component["canRevoke"](activeGrant)).toBe(false);
-      expect(component["canCancelApproval"](unstartedApproval)).toBe(false);
-      expect(query('[data-testid="history-revoke-managed-1"]')).toBeNull();
-      expect(query('[data-testid="history-cancel-approval-managed-2"]')).toBeNull();
-    });
-
-    // The merged list carries rows from both sources, so the Actions column has to answer per row.
-    it("offers actions under All only on the rows the caller manages", () => {
-      canApprove$.next(true);
-      myRows$.next([historyRow({ id: "mine-1" })]);
-      managedRows$.next([activeGrant]);
-      create();
-
-      expect(component["scope"]()).toBe("all");
-      expect([...component["historyRows"]().map((r) => r.id)].sort()).toEqual([
-        "managed-1",
-        "mine-1",
-      ]);
-      expect(query('[data-testid="history-revoke-managed-1"]')).not.toBeNull();
-      expect(query('[data-testid="history-revoke-mine-1"]')).toBeNull();
-      expect(component["canRevoke"](historyRow({ id: "mine-1" }))).toBe(false);
-    });
-
-    it("hides the Actions column when nothing in the current list can be acted on", () => {
-      canApprove$.next(true);
-      managedIds$.next(new Set());
-      myRows$.next([historyRow({ id: "mine-1" })]);
-      create();
-
-      expect(renderedHeaders()).not.toContain("pamColumnActions");
-    });
-
-    // The column answers whether anything here is actionable, not whether the caller manages
-    // anything here.
-    it("hides the Actions column when every managed row is already terminal", () => {
-      canApprove$.next(true);
-      managedRows$.next([
-        historyRow({ id: "managed-1", status: "denied" }),
-        historyRow({
-          id: "managed-2",
-          status: "approved",
-          statusBadge: { labelKey: "pamStatusRevoked", variant: "subtle" },
-          producedLeaseId: "lease-1",
-          producedLeaseStatus: "revoked",
-        }),
-      ]);
-      create();
-      showManaged();
-
-      expect(renderedRowIds().sort()).toEqual(["managed-1", "managed-2"]);
-      expect(renderedHeaders()).not.toContain("pamColumnActions");
-    });
-
-    it("hides the Actions column under Mine for a terminal row the caller both raised and manages", () => {
-      canApprove$.next(true);
-      myRows$.next([historyRow({ id: "managed-1", status: "denied" })]);
-      create();
-      selectScope("mine");
-
-      expect(renderedRowIds()).toEqual(["managed-1"]);
-      expect(renderedHeaders()).not.toContain("pamColumnActions");
-    });
-
-    it("shows the Actions column once a listed row can be acted on", () => {
-      canApprove$.next(true);
-      myRows$.next([historyRow({ id: "mine-1" })]);
-      managedRows$.next([activeGrant]);
-      create();
-
-      expect(renderedHeaders()).toContain("pamColumnActions");
-    });
-
-    it("shows the Actions column for a managed approval the requester has not started", () => {
-      canApprove$.next(true);
-      managedRows$.next([unstartedApproval]);
-      create();
-      showManaged();
-
-      expect(renderedHeaders()).toContain("pamColumnActions");
-    });
-
-    it("keeps a managed row's actions when the caller filters down to All's subsets", () => {
-      canApprove$.next(true);
-      managedRows$.next([activeGrant]);
-      create();
-
-      expect(component["canRevoke"](activeGrant)).toBe(true);
-      showManaged();
-      expect(component["canRevoke"](activeGrant)).toBe(true);
-    });
-
-    it("offers Revoke for a live lease the caller granted", () => {
-      managedRows$.next([activeGrant]);
-      create();
-      showManaged();
-
-      expect(component["canRevoke"](activeGrant)).toBe(true);
-      expect(query('[data-testid="history-revoke-managed-1"]')).not.toBeNull();
-    });
-
-    it("offers Revoke for a live lease whose request status did not survive the round trip", () => {
-      const mislabelled = historyRow({
-        id: "managed-1",
-        status: "denied",
-        statusBadge: { labelKey: "pamStatusDenied", variant: "danger" },
-        producedLeaseId: "lease-1",
-        producedLeaseStatus: "active",
-      });
-      managedRows$.next([mislabelled]);
-      create();
-      showManaged();
-
-      expect(component["canRevoke"](mislabelled)).toBe(true);
-      expect(query('[data-testid="history-revoke-managed-1"]')).not.toBeNull();
-    });
-
-    it("offers no Revoke once the lease has already ended", () => {
-      const revoked = historyRow({
-        id: "managed-1",
-        status: "approved",
-        statusBadge: { labelKey: "pamStatusRevoked", variant: "subtle" },
-        producedLeaseId: "lease-1",
-        producedLeaseStatus: "revoked",
-      });
-      managedRows$.next([revoked]);
-      create();
-      showManaged();
-
-      expect(component["canRevoke"](revoked)).toBe(false);
-    });
-
-    it("offers Withdraw approval for an approval the requester has not started", () => {
-      managedRows$.next([unstartedApproval]);
-      create();
-      showManaged();
-
-      const withdraw = query('[data-testid="history-cancel-approval-managed-2"]');
-
-      expect(component["canCancelApproval"](unstartedApproval)).toBe(true);
-      expect(withdraw).not.toBeNull();
-      expect(withdraw?.textContent).toContain("pamInboxWithdrawApproval");
-    });
-
-    it("offers no action for a row the caller does not manage", () => {
-      managedIds$.next(new Set());
-      managedRows$.next([activeGrant]);
-      create();
-      showManaged();
-
-      expect(component["canRevoke"](activeGrant)).toBe(false);
-    });
-
-    it("confirms before revoking, since this cuts off access already in use", async () => {
-      managedRows$.next([activeGrant]);
-      create();
-      showManaged();
-
-      await component["revoke"](activeGrant);
-
-      expect(dialogService.openSimpleDialog).toHaveBeenCalled();
-      expect(inbox.revokeLease).toHaveBeenCalledWith("managed-1", "lease-1");
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        variant: "success",
-        message: "pamInboxRevokedToast",
-      });
-    });
-
-    it("does not revoke when the confirm is dismissed", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(false);
-      managedRows$.next([activeGrant]);
-      create();
-      showManaged();
-
-      await component["revoke"](activeGrant);
-
-      expect(inbox.revokeLease).not.toHaveBeenCalled();
-    });
-
-    it("toasts an error when the revoke fails", async () => {
-      inbox.revokeLease.mockRejectedValue(new Error("boom"));
-      managedRows$.next([activeGrant]);
-      create();
-      showManaged();
-
-      await component["revoke"](activeGrant);
-
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        variant: "error",
-        message: "pamInboxRevokeFailed",
-      });
-    });
-
-    it("confirms before withdrawing an approval", async () => {
-      managedRows$.next([unstartedApproval]);
-      create();
-      showManaged();
-
-      await component["cancelApproval"](unstartedApproval);
-
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({
-          content: { key: "pamInboxWithdrawApprovalConfirm", placeholders: ["Prod database"] },
-          type: "warning",
-        }),
-      );
-      expect(inbox.cancelApproval).toHaveBeenCalledWith("managed-2");
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        variant: "success",
-        message: "pamInboxApprovalWithdrawnToast",
-      });
-    });
-
-    it("does not withdraw the approval when the confirm is dismissed", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(false);
-      managedRows$.next([unstartedApproval]);
-      create();
-      showManaged();
-
-      await component["cancelApproval"](unstartedApproval);
-
-      expect(inbox.cancelApproval).not.toHaveBeenCalled();
-      expect(toastService.showToast).not.toHaveBeenCalled();
-    });
-
-    it("names the item by id in the confirm when the cipher is not in the approver's vault", async () => {
-      const unnamed = historyRow({ ...unstartedApproval, cipherName: null });
-      managedRows$.next([unnamed]);
-      create();
-      showManaged();
-
-      await component["cancelApproval"](unnamed);
-
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({
-          content: { key: "pamInboxWithdrawApprovalConfirm", placeholders: ["cipher-1"] },
-        }),
-      );
-    });
-
-    it("toasts an error when withdrawing an approval fails", async () => {
-      inbox.cancelApproval.mockRejectedValue(new Error("boom"));
-      managedRows$.next([unstartedApproval]);
-      create();
-      showManaged();
-
-      await component["cancelApproval"](unstartedApproval);
-
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        variant: "error",
-        message: "pamInboxWithdrawApprovalFailed",
-      });
-    });
-  });
-
-  describe("with the VFO1 flag on", () => {
-    const liveGrant = historyRow({
-      id: "managed-live",
-      status: "approved",
-      statusBadge: { labelKey: "pamStatusActivated", variant: "success" },
-      producedLeaseId: "lease-live",
-      producedLeaseStatus: "active",
-      resolvedAt: "2026-08-17T12:00:00.000Z",
-    });
-    const unstartedApproval = historyRow({
-      id: "managed-unstarted",
-      status: "approved",
-      statusBadge: { labelKey: "pamStatusApproved", variant: "success" },
-      producedLeaseId: null,
-      resolvedAt: "2026-08-17T10:00:00.000Z",
-    });
-    const deniedManaged = historyRow({
-      id: "managed-denied",
-      resolvedAt: "2026-08-17T08:00:00.000Z",
-    });
-
-    function endedLease(id: string, producedLeaseStatus: "canceled" | "revoked") {
-      const request = {
-        status: "approved",
-        producedLeaseId: `lease-${id}`,
-        producedLeaseStatus,
-      } as unknown as Parameters<typeof historyDisplayStatus>[0];
-      return historyRow({ id, ...request, ...historyDisplayStatus(request) });
-    }
-
-    function createWithFlag(enabled: boolean): void {
-      fixture?.destroy();
-      configService.getFeatureFlag$.mockReturnValue(of(enabled));
-      create();
-    }
-
-    function text(element: Element): string {
-      return (element.textContent ?? "").replace(/\s+/g, " ").trim();
-    }
-
-    function table(): HTMLElement {
-      return query("bit-table-v2, bit-table")!;
-    }
-
-    function headings(): string[] {
-      return [...table().querySelectorAll('th, [role="columnheader"]')].map(text);
-    }
-
-    function sortableHeadings(): string[] {
-      return [...table().querySelectorAll('th, [role="columnheader"]')]
-        .filter((header) => header.querySelector("button") != null)
-        .map(text);
-    }
-
-    function rowIds(): string[] {
-      return [...table().querySelectorAll("tr[bitRow], bit-row")].map((row) =>
-        (row.matches("[data-testid]") ? row : row.querySelector("[data-testid]"))!
-          .getAttribute("data-testid")!
-          .replace("my-access-history-", ""),
-      );
-    }
-
-    function actions(): { testId: string | null; label: string; id: string }[] {
-      return [...table().querySelectorAll<HTMLButtonElement>("button[data-testid]")].map(
-        (button) => ({
-          testId: button.getAttribute("data-testid"),
-          label: text(button),
-          id: button.id,
-        }),
-      );
-    }
-
-    function clickSortHeader(heading: string): void {
-      const header = [...table().querySelectorAll('[role="columnheader"]')].find(
-        (candidate) => text(candidate) === heading,
-      )!;
-      header.querySelector("button")!.click();
-      fixture.detectChanges();
-    }
-
-    function populateApprover(): void {
-      canApprove$.next(true);
-      managedIds$.next(new Set(["managed-live", "managed-unstarted", "managed-denied"]));
-      myRows$.next([
-        historyRow({ id: "mine-1", resolvedAt: "2026-08-17T11:00:00.000Z" }),
-        historyRow({
-          id: "mine-undecided",
-          resolvedAt: null,
-          submittedAt: "2026-08-17T13:00:00.000Z",
-        }),
-      ]);
-      managedRows$.next([deniedManaged, liveGrant, unstartedApproval]);
-    }
-
-    it("renders bit-table-v2 instead of bit-table", () => {
-      populateApprover();
-
-      createWithFlag(true);
-
-      expect(query("bit-table-v2")).not.toBeNull();
-      expect(query("bit-table")).toBeNull();
-    });
-
-    it("renders only the v1 table with the flag off", () => {
-      populateApprover();
-
-      createWithFlag(false);
-
-      expect(query("bit-table")).not.toBeNull();
-      expect(query("bit-table-v2")).toBeNull();
-    });
-
-    it("sizes the v2 skeleton's columns to match the loaded table's", () => {
-      canApprove$.next(true);
-      managedLoading$.next(true);
-      myRows$.next([historyRow({ id: "mine-1" })]);
-
-      createWithFlag(true);
-      passSkeletonDelay();
-
-      const skeleton = query('[data-testid="history-loading"] bit-table-v2')!;
-      const skeletonRows = [...skeleton.querySelectorAll<HTMLElement>("bit-header-row, bit-row")];
-      expect(skeleton.querySelectorAll("bit-row")).toHaveLength(5);
-      expect(headings()).toEqual([
-        "pamColumnItem",
-        "pamColumnStatus",
-        "pamColumnResolver",
-        "pamColumnComment",
-        "pamColumnResolved",
-      ]);
-      const skeletonTracks = skeletonRows.map((row) => row.style.gridTemplateColumns);
-
-      managedRows$.next([historyRow({ id: "managed-1" })]);
-      managedLoading$.next(false);
-      fixture.detectChanges();
-
-      const loadedTracks = query("bit-table-v2 bit-header-row")!.style.gridTemplateColumns;
-      expect(loadedTracks).not.toBe("");
-      expect(skeletonTracks).toEqual(skeletonRows.map(() => loadedTracks));
-    });
-
-    it("renders the same column headings, in the same order, as v1", () => {
-      populateApprover();
-      createWithFlag(false);
-      const v1 = headings();
-
-      createWithFlag(true);
-
-      expect(v1).toEqual([
-        "pamColumnItem",
-        "pamColumnStatus",
-        "pamColumnResolver",
-        "pamColumnComment",
-        "pamColumnResolved",
-        "pamColumnActions",
-      ]);
-      expect(headings()).toEqual(v1);
-    });
-
-    it("drops the Actions column when nothing listed can be acted on, as v1 does", () => {
-      myRows$.next([historyRow({ id: "mine-1" })]);
-      createWithFlag(false);
-      const v1 = headings();
-
-      createWithFlag(true);
-
-      expect(v1).not.toContain("pamColumnActions");
-      expect(headings()).toEqual(v1);
-    });
-
-    it("renders the same rows, newest resolved-or-submitted first, as v1", () => {
-      populateApprover();
-      createWithFlag(false);
-      const v1 = rowIds();
-
-      createWithFlag(true);
-
-      expect(v1).toEqual([
-        "mine-undecided",
-        "managed-live",
-        "mine-1",
-        "managed-unstarted",
-        "managed-denied",
-      ]);
-      expect(rowIds()).toEqual(v1);
-    });
-
-    it("sorts on Item, Status and Resolved only, as v1 does", () => {
-      populateApprover();
-
-      createWithFlag(true);
-
-      expect(sortableHeadings()).toEqual(["pamColumnItem", "pamColumnStatus", "pamColumnResolved"]);
-    });
-
-    it("reverses the Resolved sort on a header click, keeping undecided rows at their submitted place", () => {
-      populateApprover();
-      createWithFlag(true);
-
-      clickSortHeader("pamColumnResolved");
-
-      expect(rowIds()).toEqual([
-        "managed-denied",
-        "managed-unstarted",
-        "mine-1",
-        "managed-live",
-        "mine-undecided",
-      ]);
-    });
-
-    it("offers the same row actions, gated the same way, as v1", () => {
-      populateApprover();
-      createWithFlag(false);
-      const v1 = actions().map(({ testId, label }) => ({ testId, label }));
-
-      createWithFlag(true);
-
-      expect(v1).toEqual([
-        { testId: "history-revoke-managed-live", label: "pamInboxRevoke" },
-        { testId: "history-cancel-approval-managed-unstarted", label: "pamInboxWithdrawApproval" },
-      ]);
-      expect(actions().map(({ testId, label }) => ({ testId, label }))).toEqual(v1);
-    });
-
-    it("gives every row action a descriptive id", () => {
-      populateApprover();
-
-      createWithFlag(true);
-
-      expect(actions().map(({ id }) => id)).toEqual([
-        "pam-history-tab_button_revoke-managed-live",
-        "pam-history-tab_button_withdraw-approval-managed-unstarted",
-      ]);
-    });
-
-    it("routes Revoke and Withdraw approval through the same component actions as v1", async () => {
-      populateApprover();
-      createWithFlag(true);
-
-      query('[data-testid="history-revoke-managed-live"]')!.click();
-      query('[data-testid="history-cancel-approval-managed-unstarted"]')!.click();
-      await jest.advanceTimersByTimeAsync(0);
-
-      expect(inbox.revokeLease).toHaveBeenCalledWith("managed-live", "lease-live");
-      expect(inbox.cancelApproval).toHaveBeenCalledWith("managed-unstarted");
-    });
-
-    it("labels a requester-canceled lease and an operator-revoked one differently", () => {
-      myRows$.next([
-        endedLease("ended-canceled", "canceled"),
-        endedLease("ended-revoked", "revoked"),
-      ]);
-
-      createWithFlag(true);
-
-      expect(text(query('[data-testid="my-access-history-status-ended-canceled"]')!)).toBe(
-        "pamStatusCanceled",
-      );
-      expect(text(query('[data-testid="my-access-history-status-ended-revoked"]')!)).toBe(
-        "pamStatusRevoked",
-      );
-    });
-
-    it("shows the same cell content as v1", () => {
-      canApprove$.next(true);
-      myRows$.next([
-        historyRow({
-          id: "mine-1",
-          approverComment: "Use the replica.",
-          extendedBySeconds: 3600,
-          extendedUntil: "2026-08-17T14:00:00.000Z",
-        }),
-        historyRow({ id: "mine-2", resolverName: null, resolverLabelKey: "pamResolverAccessRule" }),
-      ]);
-
-      createWithFlag(true);
-
-      const rendered = text(table());
-      expect(rendered).toContain("Prod database");
-      expect(rendered).toContain("pamInboxInCollection Production");
-      expect(rendered).toContain("Ada");
-      expect(rendered).toContain("pamResolverAccessRule");
-      expect(rendered).toContain("Use the replica.");
-      expect(query('[data-testid="my-access-history-extended-mine-1"]')).not.toBeNull();
-      expect(query('[data-testid="my-access-history-status-mine-1"]')!.textContent).toContain(
-        "pamStatusDenied",
-      );
-    });
-
-    it("links each item to its request with a real anchor", () => {
-      myRows$.next([historyRow({ id: "mine-1" })]);
-
-      createWithFlag(true);
-
-      expect(query('[data-testid="my-access-history-mine-1"] a')?.getAttribute("href")).toBe(
-        "/pam/requests/mine-1",
-      );
-    });
-
-    it("narrows the v2 table through the scope chip", () => {
-      populateApprover();
-      createWithFlag(true);
-
-      selectScope("mine");
-      expect(rowIds()).toEqual(["mine-undecided", "mine-1"]);
-
-      showManaged();
-      expect(rowIds()).toEqual(["managed-live", "managed-unstarted", "managed-denied"]);
-    });
-
-    it("moves the scope chip into the table's toolbar", () => {
-      populateApprover();
-
-      createWithFlag(true);
-
-      expect(query('bit-table-toolbar [data-testid="history-scope-filter"]')).not.toBeNull();
-      expect(query('bit-table-v2 [data-testid="history-scope-filter"]')).not.toBeNull();
-    });
-
-    it("leaves the scope chip above the table with the flag off", () => {
-      populateApprover();
-
-      createWithFlag(false);
-
-      expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
-      expect(query("bit-table-toolbar")).toBeNull();
-      expect(query('bit-table [data-testid="history-scope-filter"]')).toBeNull();
-    });
-
-    it("keeps the chip's label and options unchanged in the toolbar", () => {
-      populateApprover();
-      createWithFlag(false);
-      const v1 = text(query('[data-testid="history-scope-filter"]')!);
-
-      createWithFlag(true);
-
-      expect(v1).toContain("pamHistoryScopeLabel");
-      expect(v1).toContain("pamHistoryScopeMine");
-      expect(v1).toContain("pamHistoryScopeManaged");
-      expect(text(query('[data-testid="history-scope-filter"]')!)).toBe(v1);
-    });
-
-    it("replaces the table and its toolbar with the empty state for an approver with no history", () => {
-      canApprove$.next(true);
-
-      createWithFlag(true);
-
-      const empty = text(query('[data-testid="my-access-history-empty"]')!);
-      expect(empty).toContain("pamHistoryEmptyTitle");
-      expect(empty).toContain("pamHistoryEmptyDescription");
-      expect(query("bit-table-v2")).toBeNull();
-      expect(query('[data-testid="history-scope-filter"]')).toBeNull();
-    });
-
-    it("replaces the table and its search with the empty state for a member with no history", () => {
-      createWithFlag(true);
-
-      expect(query('[data-testid="my-access-history-empty"]')).not.toBeNull();
-      expect(query("bit-table-v2")).toBeNull();
-      expect(query("bit-search")).toBeNull();
-    });
-
-    it("holds the scope when the chosen scope matches nothing", () => {
-      canApprove$.next(true);
-      managedIds$.next(new Set(["managed-denied"]));
-      managedRows$.next([deniedManaged]);
-      createWithFlag(true);
-
-      selectScope("mine");
-
-      expect(component["scope"]()).toBe("mine");
-      expect(rowIds()).toEqual([]);
-      expect(text(query('[data-testid="my-access-history-scope-empty"]')!)).toContain(
-        "pamMyRequestsHistoryEmpty",
-      );
-      expect(query('bit-table-toolbar [data-testid="history-scope-filter"]')).not.toBeNull();
-    });
-
-    it("shows the hidden skeleton as a v2 table while the history loads", () => {
-      canApprove$.next(true);
-      managedLoading$.next(true);
-      createWithFlag(true);
-      passSkeletonDelay();
-
-      const skeleton = query('[data-testid="history-loading"]')!;
-      expect(skeleton.getAttribute("aria-hidden")).toBe("true");
-      expect(skeleton.querySelector("bit-table-v2")).not.toBeNull();
-      expect(skeleton.querySelector("bit-table")).toBeNull();
-      expect(skeleton.querySelectorAll("bit-row")).toHaveLength(5);
-      expect([...skeleton.querySelectorAll('[role="columnheader"]')].map(text)).toEqual([
-        "pamColumnItem",
-        "pamColumnStatus",
-        "pamColumnResolver",
-        "pamColumnComment",
-        "pamColumnResolved",
-      ]);
-
-      managedLoading$.next(false);
-      fixture.detectChanges();
-
-      expect(query('[data-testid="history-loading"]')).toBeNull();
-    });
-
-    // Reserves the space the scope chip will occupy, so the table does not jump when the rows land.
-    it("reserves the scope-chip row while loading on both paths", () => {
-      canApprove$.next(true);
-      managedLoading$.next(true);
-
-      createWithFlag(false);
-      passSkeletonDelay();
-
-      expect(
-        query('[data-testid="history-loading"]')!.querySelector('bit-skeleton[edgeShape="circle"]'),
-      ).not.toBeNull();
-
-      createWithFlag(true);
-      passSkeletonDelay();
-
-      expect(
-        query('[data-testid="history-loading"]')!.querySelector('bit-skeleton[edgeShape="circle"]'),
-      ).not.toBeNull();
-    });
-
-    describe("toolbar search", () => {
-      const namedRows = [
-        historyRow({
-          id: "mine-db",
-          cipherName: "Prod database",
-          collectionName: "Production",
-          resolverName: "Ada",
-          approverComment: "Use the replica.",
-          resolvedAt: "2026-08-17T12:00:00.000Z",
-        }),
-        historyRow({
-          id: "mine-cache",
-          cipherName: "Staging cache",
-          collectionName: "Staging",
-          resolverName: "Grace",
-          approverComment: null,
-          resolvedAt: "2026-08-17T11:00:00.000Z",
-        }),
-      ];
-
-      // With a filter row beneath, the toolbar's top row draws its own bottom border, so left
-      // empty it shows a bare bordered band.
-      it("fills the toolbar's top row with a search rather than leaving it empty", () => {
-        populateApprover();
-
-        createWithFlag(true);
-
-        const searchEl = query("bit-table-toolbar bit-search")!;
-        expect(searchEl).not.toBeNull();
-        expect(searchEl.closest("[bitOverflowList]")).toBeNull();
-      });
-
-      it("adds no search to the v1 path", () => {
-        populateApprover();
-
-        createWithFlag(false);
-
-        expect(query("bit-search")).toBeNull();
-      });
-
-      it("narrows the table to the rows whose item name matches", () => {
-        myRows$.next(namedRows);
-        createWithFlag(true);
-
-        searchFor("staging cache");
-
-        expect(rowIds()).toEqual(["mine-cache"]);
-      });
-
-      it("matches the resolver and the approver's comment as well as the item", () => {
-        myRows$.next(namedRows);
-        createWithFlag(true);
-
-        searchFor("grace");
-        expect(rowIds()).toEqual(["mine-cache"]);
-
-        searchFor("replica");
-        expect(rowIds()).toEqual(["mine-db"]);
-
-        searchFor("production");
-        expect(rowIds()).toEqual(["mine-db"]);
-      });
-
-      it("ignores case and surrounding whitespace", () => {
-        myRows$.next(namedRows);
-        createWithFlag(true);
-
-        searchFor("  PROD DATA  ");
-
-        expect(rowIds()).toEqual(["mine-db"]);
-      });
-
-      it("restores the full list when the term is cleared", () => {
-        myRows$.next(namedRows);
-        createWithFlag(true);
-
-        searchFor("grace");
-        expect(rowIds()).toEqual(["mine-cache"]);
-
-        searchFor("");
-        expect(rowIds()).toEqual(["mine-db", "mine-cache"]);
-      });
-
-      it("searches inside the chosen scope, not across it", () => {
-        populateApprover();
-        myRows$.next([namedRows[0]]);
-        managedRows$.next([namedRows[1]]);
-        createWithFlag(true);
-
-        selectScope("mine");
-        searchFor("staging");
-
-        expect(rowIds()).toEqual([]);
-      });
-
-      // The empty state says nothing was resolved, which is not what an unmatched search means.
-      it("says nothing matched rather than that the history is empty", () => {
-        myRows$.next(namedRows);
-        createWithFlag(true);
-
-        searchFor("no-such-thing");
-
-        expect(rowIds()).toEqual([]);
-        expect(query('[data-testid="my-access-history-scope-empty"]')).toBeNull();
-        expect(text(query('[data-testid="my-access-history-no-results"]')!)).toContain(
-          "noMatchingItems",
-        );
-      });
-    });
-
-    describe("toolbar count", () => {
-      /** The toolbar's row count, which only renders alongside a filter chip. */
-      function countText(): string {
-        return text(query("bit-table-toolbar [bitOverflowTrigger]")!);
-      }
-
-      it("counts the listed requests as results, not as items", () => {
-        populateApprover();
-
-        createWithFlag(true);
-
-        expect(countText()).toBe("filterResults 5");
-      });
-
-      it("counts what the search left on screen", () => {
-        canApprove$.next(true);
-        myRows$.next([
-          historyRow({ id: "mine-db", cipherName: "Prod database" }),
-          historyRow({
-            id: "mine-cache",
-            cipherName: "Staging cache",
-            resolvedAt: "2026-08-17T11:00:00.000Z",
-          }),
-        ]);
-        createWithFlag(true);
-
-        expect(countText()).toBe("filterResults 2");
-
-        searchFor("staging");
-
-        expect(countText()).toBe("oneFilterResult");
-      });
-
-      it("counts the chosen scope's rows", () => {
-        populateApprover();
-        createWithFlag(true);
-
-        selectScope("mine");
-
-        expect(countText()).toBe("filterResults 2");
-      });
-    });
-
-    describe("scope chip counts", () => {
-      function optionCount(scope: "mine" | "managed" | null): number | undefined {
-        return component["tableRef"]()!.optionCount("historyScope", scope);
-      }
-
-      it("counts each scope's own rows, whichever scope is listed", () => {
-        populateApprover();
-        createWithFlag(true);
-
-        expect([optionCount(null), optionCount("mine"), optionCount("managed")]).toEqual([5, 2, 3]);
-
-        selectScope("managed");
-
-        expect([optionCount(null), optionCount("mine"), optionCount("managed")]).toEqual([5, 2, 3]);
-      });
-    });
-  });
-
-  describe("empty state", () => {
-    it("takes the chip away with the rows and shows the empty history copy", () => {
-      canApprove$.next(true);
-
-      create();
-
-      expect(query('[data-testid="history-scope-filter"]')).toBeNull();
-      const empty = query('[data-testid="my-access-history-empty"]')!;
-      expect(empty.textContent).toContain("pamHistoryEmptyTitle");
-      expect(empty.textContent).toContain("pamHistoryEmptyDescription");
-    });
-
-    it("keeps the chip and names the empty slice when another scope still holds rows", () => {
-      canApprove$.next(true);
-      myRows$.next([historyRow({ id: "mine-1" })]);
-      create();
-
-      showManaged();
-
-      expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
-      expect(query('[data-testid="my-access-history-empty"]')).toBeNull();
-      expect(query('[data-testid="my-access-history-scope-empty"]')!.textContent).toContain(
-        "pamInboxHistoryEmpty",
-      );
-    });
-
-    it("names an empty Mine against a history of managed rows", () => {
-      managedRows$.next([historyRow({ id: "managed-1" })]);
-      create();
-
-      selectScope("mine");
-
-      expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
-      expect(query('[data-testid="my-access-history-scope-empty"]')!.textContent).toContain(
-        "pamMyRequestsHistoryEmpty",
-      );
     });
   });
 });

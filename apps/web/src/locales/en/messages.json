@@ -18159,9 +18159,6 @@
   "pamMyRequestsPendingEmpty": {
     "message": "No pending requests"
   },
-  "pamMyRequestsHistoryEmpty": {
-    "message": "No request history"
-  },
   "pamMyRequestsEmptyTitle": {
     "message": "You have no requests"
   },
@@ -18183,11 +18180,8 @@
   "pamColumnStatus": {
     "message": "Status"
   },
-  "pamColumnResolver": {
-    "message": "Resolver"
-  },
-  "pamColumnComment": {
-    "message": "Comment"
+  "pamColumnResolvedBy": {
+    "message": "Resolved by"
   },
   "pamColumnResolved": {
     "message": "Resolved"
@@ -18390,6 +18384,9 @@
   },
   "pamStatusRevoked": {
     "message": "Revoked"
+  },
+  "pamStatusSessionEnded": {
+    "message": "Session ended"
   },
   "pamStatusUnknown": {
     "message": "Unknown"
@@ -19083,6 +19080,15 @@
       }
     }
   },
+  "pamInboxElapsedWeeks": {
+    "message": "$WEEKS$w ago",
+    "placeholders": {
+      "weeks": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "pamInboxElapsedJustNow": {
     "message": "Just now"
   },
@@ -19100,9 +19106,6 @@
   },
   "pamInboxEmptyTitle": {
     "message": "Inbox zero"
-  },
-  "pamInboxHistoryEmpty": {
-    "message": "No history to display"
   },
   "pamInboxLoadFailed": {
     "message": "Could not load inbox"
@@ -19136,18 +19139,6 @@
   },
   "pamHistoryLoaded": {
     "message": "Request history loaded"
-  },
-  "pamHistoryScopeAll": {
-    "message": "All"
-  },
-  "pamHistoryScopeMine": {
-    "message": "Raised by me"
-  },
-  "pamHistoryScopeManaged": {
-    "message": "For my collections"
-  },
-  "pamHistoryScopeLabel": {
-    "message": "History scope"
   },
   "pamHistoryEmptyTitle": {
     "message": "Nothing to show yet"
