@@ -107,9 +107,6 @@ export class Collection extends Domain {
 
   /**
    * Maps Collection to SDK format for use with the SDK crypto operations.
-   *
-   * WARNING: The SDK's `Collection` is `#[serde(deny_unknown_fields)]`, so adding a field it does
-   * not declare, such as `hasEnabledAccessRule`, throws at runtime.
    */
   toSdkCollection(): SdkCollection {
     return {
