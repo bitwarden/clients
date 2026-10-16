@@ -3,7 +3,9 @@ import { firstValueFrom, switchMap, catchError } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { DECRYPT_ERROR } from "@bitwarden/legacy-crypto";
 import {
+  CipherEditRequest,
   CipherListView,
+  CiphersClient,
   CipherView as SdkCipherView,
   CreateAttachmentRequest,
   CreatedAttachment,
@@ -23,6 +25,14 @@ import {
 import { CipherSdkService, DecryptAllCiphersResult } from "../abstractions/cipher-sdk.service";
 import { Cipher } from "../models/domain/cipher";
 import { CipherView } from "../models/view/cipher.view";
+
+/**
+ * `CiphersClient` plus the PAM `edit_gated` entry point, until the published `sdk-internal`
+ * declares it. Same stopgap as the `partial` bridge in `models/view/cipher.view.ts`.
+ */
+type CiphersClientWithGatedEdit = CiphersClient & {
+  edit_gated(request: CipherEditRequest, originalCipherView: SdkCipherView): Promise<SdkCipherView>;
+};
 
 export class DefaultCipherSdkService implements CipherSdkService {
   constructor(
@@ -65,6 +75,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
+    leaseGated?: boolean,
   ): Promise<CipherView | undefined> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
@@ -82,6 +93,17 @@ export class DefaultCipherSdkService implements CipherSdkService {
                 sdkUpdateRequest,
                 originalCipherView?.toSdkCipherView() || new CipherView().toSdkCipherView(),
               );
+          } else if (leaseGated && cipher.edit) {
+            // A PAM-gated cipher is only ever held partial locally, so `edit` (which rebuilds
+            // password history from that copy) refuses it; hand the SDK the full original
+            // revealed under the lease.
+            if (originalCipherView == null) {
+              throw new Error("Editing a lease-gated cipher requires the original cipher view");
+            }
+            result = await (sdkCiphersClient as CiphersClientWithGatedEdit).edit_gated(
+              sdkUpdateRequest,
+              originalCipherView.toSdkCipherView(),
+            );
           } else if (cipher.edit) {
             result = await sdkCiphersClient.edit(sdkUpdateRequest);
           } else {

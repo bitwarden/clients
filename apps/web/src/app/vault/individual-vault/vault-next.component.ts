@@ -6,6 +6,7 @@ import {
   inject,
   OnInit,
   signal,
+  Type,
   untracked,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
@@ -98,6 +99,7 @@ import {
 import { HeaderModule } from "../../layouts/header/header.module";
 import { ImportDialogComponent } from "../../tools/import/import-dialog.component";
 import { AssignCollectionsWebDialogAdapter } from "../components/assign-collections/assign-collections-web-dialog.adapter";
+import { VAULT_ROW_LEASE_BADGE } from "../components/vault-items/vault-row-lease-badge.token";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 import { ItemDeepLink, ItemDeepLinkAction, itemDeepLinkFrom } from "../utils/item-deep-link";
@@ -181,6 +183,15 @@ export class VaultNextComponent implements OnInit {
     () => this.coachmarkService.activeStepId() === "importData",
   );
 
+  /** Host-provided "Controlled access" badge seam. Unprovided, the column stays absent. */
+  private readonly leaseBadge: Type<unknown> | null = inject(VAULT_ROW_LEASE_BADGE, {
+    optional: true,
+  });
+
+  private readonly pamEnabled = toSignal(this.configService.getFeatureFlag$(FeatureFlag.Pam), {
+    initialValue: false,
+  });
+
   /**
    * Onboarding prompts are the page's to start. {@link WebVaultPromptService} sequences them so
    * only one shows at a time.
@@ -256,8 +267,9 @@ export class VaultNextComponent implements OnInit {
   private readonly allCiphers$ = this.userId$.pipe(
     switchMap((userId) =>
       combineLatest([
-        // Emits null until the first decrypt completes.
-        this.cipherService.cipherListViews$(userId).pipe(filterOutNullish()),
+        // Emits null until the first decrypt completes. Reads the with-partials stream so
+        // PAM-gated rows stay listed — a member has to see the item to request access to it.
+        this.cipherService.cipherListViewsWithPartials$(userId).pipe(filterOutNullish()),
         this.restrictedItemTypesService.restricted$,
       ]),
     ),
@@ -376,6 +388,16 @@ export class VaultNextComponent implements OnInit {
     const scope = this.vaultScope();
     return this.organizations().filter((organization) => organizationInScope(organization, scope));
   });
+
+  /**
+   * The badge for the table's Controlled access column, or `null` to omit it. Mirrors the gate in
+   * `vault-items.component`'s `showControlledAccess`.
+   */
+  protected readonly controlledAccessBadge = computed<Type<unknown> | null>(() =>
+    this.pamEnabled() && this.leaseBadge != null && this.scopedOrganizations().some((o) => o.usePam)
+      ? this.leaseBadge
+      : null,
+  );
 
   /** Scopes the table's search index to the organization, for an organization vault. */
   protected readonly scopedOrganizationId = computed(() => {

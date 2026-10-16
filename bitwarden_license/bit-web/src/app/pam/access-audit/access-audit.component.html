@@ -1,0 +1,590 @@
+<!--
+  Declared once for both the flag-on toolbar and the flag-off band, so their ids and handlers can't
+  drift apart.
+-->
+<ng-template #pageActions>
+  <div class="tw-flex tw-shrink-0 tw-gap-3" id="access-audit_container_actions">
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      id="access-audit_button_refresh"
+      [bitAction]="load"
+    >
+      {{ "update" | i18n }}
+    </button>
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      id="access-audit_button_export"
+      endIcon="bwi-import"
+      [bitAction]="exportCsv"
+      [disabled]="rows().length === 0"
+    >
+      {{ "exportVerb" | i18n }}
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #editRangeAction>
+  @if (customRangeApplied()) {
+    <button
+      type="button"
+      bitButton
+      buttonType="subtleGhost"
+      size="small"
+      startIcon="bwi-pencil"
+      id="access-audit_button_edit-range"
+      [bitAction]="editCustomRange"
+    >
+      {{ "edit" | i18n }}
+    </button>
+  }
+</ng-template>
+
+<ng-template #noMatchesState>
+  <bit-status-lockup>
+    <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>
+    <span slot="title">{{ "pamAuditNoMatchesTitle" | i18n }}</span>
+    <span slot="description">{{ "pamAuditNoMatchesMessage" | i18n }}</span>
+    <button
+      slot="button"
+      type="button"
+      bitButton
+      buttonType="secondary"
+      id="access-audit_button_no-matches-clear-all"
+      (click)="clearAll()"
+    >
+      {{ "clearAll" | i18n }}
+    </button>
+  </bit-status-lockup>
+</ng-template>
+
+<ng-template #loadMoreAction>
+  @if (canLoadMore()) {
+    <div class="tw-mt-4 tw-flex tw-justify-center">
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        id="access-audit_button_load-more"
+        [bitAction]="loadMore"
+      >
+        {{ "loadMore" | i18n }}
+      </button>
+    </div>
+  }
+</ng-template>
+
+<app-header [title]="'pamAuditLog' | i18n"></app-header>
+
+@switch (status()) {
+  @case ("loading") {
+    <p class="tw-text-muted">{{ "loading" | i18n }}</p>
+  }
+  @case ("error") {
+    <bit-callout type="danger" [title]="'errorOccurred' | i18n">
+      {{ "pamAuditLoadError" | i18n }}
+      <button
+        type="button"
+        bitLink
+        linkType="danger"
+        class="tw-ms-2 tw-font-bold"
+        id="access-audit_button_retry"
+        (click)="load()"
+      >
+        {{ "tryAgain" | i18n }}
+      </button>
+    </bit-callout>
+  }
+  @case ("empty") {
+    <bit-status-lockup>
+      <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>
+      <span slot="title">{{ "pamAuditEmptyTitle" | i18n }}</span>
+      <span slot="description">{{ "pamAuditEmptyMessage" | i18n }}</span>
+      <button
+        slot="button"
+        type="button"
+        bitButton
+        buttonType="primary"
+        id="access-audit_button_refresh"
+        [bitAction]="load"
+      >
+        {{ "update" | i18n }}
+      </button>
+      @if (canManageAccessRules()) {
+        <a
+          slot="button"
+          bitButton
+          buttonType="secondary"
+          routerLink="../access-rules"
+          id="access-audit_link_access-rules"
+        >
+          {{ "pamAccessRules" | i18n }}
+        </a>
+      }
+    </bit-status-lockup>
+  }
+  @case ("ready") {
+    @if (vfo1Enabled()) {
+      <bit-table-v2 [tableDef]="table" [displayedColumns]="displayedColumns()">
+        <!--
+          The chips are declared inline rather than through `ngTemplateOutlet`, since content
+          projection matches nodes as written here and would silently drop an outlet's chips.
+        -->
+        <bit-table-toolbar>
+          <ng-container slot="end">
+            <ng-container *ngTemplateOutlet="editRangeAction" />
+            <ng-container *ngTemplateOutlet="pageActions" />
+          </ng-container>
+          <!--
+            Each option list is nested in an `@if`, deferring the options until the chip's summary
+            effect has run. That effect would otherwise read an option before its required `value`
+            is bound, throwing NG0950.
+          -->
+          <bit-filter-menu
+            #kindFilter
+            multiple
+            [key]="filterKeys.kind"
+            [placeholderText]="'pamAuditColumnEvent' | i18n"
+          >
+            @if (kindOptions(); as options) {
+              @for (option of options; track option.value) {
+                <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+              }
+            }
+          </bit-filter-menu>
+          <bit-filter-menu
+            #actorFilter
+            multiple
+            [key]="filterKeys.actor"
+            [placeholderText]="'pamAuditColumnActor' | i18n"
+          >
+            @if (actorOptions(); as options) {
+              @for (option of options; track option.value) {
+                <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+              }
+            }
+          </bit-filter-menu>
+          <bit-filter-menu
+            #requesterFilter
+            multiple
+            [key]="filterKeys.requester"
+            [placeholderText]="'pamAuditColumnRequester' | i18n"
+          >
+            @if (requesterOptions(); as options) {
+              @for (option of options; track option.value) {
+                <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+              }
+            }
+          </bit-filter-menu>
+          <bit-filter-menu
+            #itemFilter
+            multiple
+            [key]="filterKeys.item"
+            [placeholderText]="'pamAuditColumnItem' | i18n"
+          >
+            @if (itemOptions(); as options) {
+              @for (option of options; track option.value) {
+                <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+              }
+            }
+          </bit-filter-menu>
+          <bit-filter-menu
+            #timePeriodFilter
+            [key]="filterKeys.timePeriod"
+            [placeholderText]="'timePeriod' | i18n"
+            [unsetLabel]="'allTime' | i18n"
+          >
+            @for (preset of timePresets; track preset.value) {
+              <bit-filter-option [value]="preset.value">{{ preset.label }}</bit-filter-option>
+            }
+            <bit-filter-option value="custom">{{ customPeriodLabel }}</bit-filter-option>
+          </bit-filter-menu>
+        </bit-table-toolbar>
+        <ng-container slot="empty" *ngTemplateOutlet="noMatchesState" />
+        <bit-column width="minmax(224px, 1fr)">
+          <bit-header-cell>{{ "timestamp" | i18n }}</bit-header-cell>
+          <bit-cell
+            *bitCellDef="table.columns.occurredAt; let row"
+            class="tw-cursor-pointer"
+            (click)="openDetails(row)"
+            >{{ row.occurredAt | date: "medium" }}</bit-cell
+          >
+        </bit-column>
+        <bit-column width="minmax(240px, 1fr)">
+          <bit-header-cell>{{ "pamAuditColumnEvent" | i18n }}</bit-header-cell>
+          <bit-cell
+            *bitCellDef="table.columns.kindLabelKey; let row"
+            class="tw-cursor-pointer"
+            [truncate]="false"
+            (click)="openDetails(row)"
+          >
+            <!--
+              A `bit-cell` host is `display: contents` and can't take focus, so the row's keyboard
+              activator is this span. Pointer activation stays on the cells, so the span must not
+              repeat it.
+            -->
+            <span
+              role="button"
+              tabindex="0"
+              class="focus-visible:tw-outline-none"
+              id="access-audit_button_details-{{ rowIndex().get(row) }}"
+              [attr.aria-label]="
+                (row.kindLabelKey | i18n) +
+                ' ' +
+                (row.occurredAt | date: 'medium') +
+                (row.inDoubt ? ' ' + ('pamAuditIncomplete' | i18n) : '')
+              "
+              (keydown.enter)="openDetails(row)"
+              (keydown.space)="openDetails(row); $event.preventDefault()"
+            >
+              {{ row.kindLabelKey | i18n }}
+              @if (row.inDoubt) {
+                <span bitBadge variant="warning"
+                  ><span [bitTooltip]="'pamAuditIncompleteTooltip' | i18n">{{
+                    "pamAuditIncomplete" | i18n
+                  }}</span></span
+                >
+              }
+            </span>
+          </bit-cell>
+        </bit-column>
+        <bit-column width="minmax(128px, 1fr)">
+          <bit-header-cell>{{ "pamAuditColumnActor" | i18n }}</bit-header-cell>
+          <bit-cell
+            *bitCellDef="table.columns.actor; let row"
+            class="tw-cursor-pointer"
+            [truncate]="false"
+            (click)="openDetails(row)"
+          >
+            @if (row.automated) {
+              <span class="tw-text-muted">{{ "pamAuditSystem" | i18n }}</span>
+            } @else if (linkedMember(row.actorId, row.actor); as member) {
+              <a
+                bitLink
+                href="#"
+                id="access-audit_link_actor-{{ rowIndex().get(row) }}"
+                [title]="member.email"
+                (click)="openMemberEvents($event, member)"
+                >{{ row.actor }}</a
+              >
+            } @else if (row.actor) {
+              {{ row.actor }}
+            } @else {
+              <span class="tw-text-muted">—</span>
+            }
+          </bit-cell>
+        </bit-column>
+        <bit-column width="minmax(128px, 1fr)">
+          <bit-header-cell>{{ "pamAuditColumnRequester" | i18n }}</bit-header-cell>
+          <bit-cell
+            *bitCellDef="table.columns.requester; let row"
+            class="tw-cursor-pointer"
+            [truncate]="false"
+            (click)="openDetails(row)"
+          >
+            @if (linkedMember(row.requesterId, row.requester); as member) {
+              <a
+                bitLink
+                href="#"
+                id="access-audit_link_requester-{{ rowIndex().get(row) }}"
+                [title]="member.email"
+                (click)="openMemberEvents($event, member)"
+                >{{ row.requester }}</a
+              >
+            } @else if (row.requester) {
+              {{ row.requester }}
+            } @else {
+              <span class="tw-text-muted">—</span>
+            }
+          </bit-cell>
+        </bit-column>
+        <bit-column width="minmax(192px, 256px)">
+          <bit-header-cell>{{ "pamAuditColumnItem" | i18n }}</bit-header-cell>
+          <bit-cell
+            *bitCellDef="table.columns.item; let row"
+            class="tw-cursor-pointer"
+            [truncate]="false"
+            (click)="openDetails(row)"
+          >
+            @if (row.cipherName && row.cipherId) {
+              <a
+                bitLink
+                href="#"
+                id="access-audit_link_item-{{ rowIndex().get(row) }}"
+                [bitTooltip]="row.collectionName"
+                (click)="openCipherEvents($event, row)"
+                >{{ row.cipherName }}</a
+              >
+            } @else if (row.cipherName) {
+              <span [bitTooltip]="row.collectionName">{{ row.cipherName }}</span>
+            } @else if (row.ruleName) {
+              {{ row.ruleName }}
+            } @else if (row.accessConnectorName) {
+              <span [bitTooltip]="row.targetSystemName">{{ row.accessConnectorName }}</span>
+            } @else if (row.targetSystemName) {
+              {{ row.targetSystemName }}
+            } @else {
+              <span class="tw-text-muted">—</span>
+            }
+          </bit-cell>
+        </bit-column>
+        <bit-column width="minmax(224px, 1fr)">
+          <bit-header-cell>{{ "pamAuditColumnDuration" | i18n }}</bit-header-cell>
+          <bit-cell
+            *bitCellDef="table.columns.duration; let row"
+            class="tw-cursor-pointer"
+            [truncate]="false"
+            (click)="openDetails(row)"
+          >
+            @if (row.duration; as duration) {
+              <span [bitTooltip]="row.exactWindow">{{ duration.key | i18n: duration.value }}</span>
+            } @else if (row.extendedUntil) {
+              <span>{{
+                "pamAuditDurationExtendedTo" | i18n: (row.extendedUntil | date: "short")
+              }}</span>
+            } @else {
+              <span class="tw-text-muted">—</span>
+            }
+          </bit-cell>
+        </bit-column>
+      </bit-table-v2>
+      @if (rows().length > 0) {
+        <ng-container *ngTemplateOutlet="loadMoreAction" />
+      }
+    } @else {
+      <!-- Remove this branch along with the VFO1 flag. -->
+      <!-- Only the chip block wraps, so the page actions stay at the end of the first line. -->
+      <div
+        class="tw-mb-4 tw-flex tw-items-center tw-justify-between tw-gap-3"
+        id="access-audit_container_toolbar"
+      >
+        <div
+          class="tw-flex tw-flex-wrap tw-items-center tw-gap-3"
+          id="access-audit_container_filters"
+        >
+          <!--
+            Each option list is nested in an `@if`, deferring the options until the chip's summary
+            effect has run. That effect would otherwise read an option before its required `value`
+            is bound, throwing NG0950.
+          -->
+          <bit-filter-menu
+            #kindFilter
+            multiple
+            [key]="filterKeys.kind"
+            [placeholderText]="'pamAuditColumnEvent' | i18n"
+          >
+            @if (kindOptions(); as options) {
+              @for (option of options; track option.value) {
+                <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+              }
+            }
+          </bit-filter-menu>
+          <bit-filter-menu
+            #actorFilter
+            multiple
+            [key]="filterKeys.actor"
+            [placeholderText]="'pamAuditColumnActor' | i18n"
+          >
+            @if (actorOptions(); as options) {
+              @for (option of options; track option.value) {
+                <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+              }
+            }
+          </bit-filter-menu>
+          <bit-filter-menu
+            #requesterFilter
+            multiple
+            [key]="filterKeys.requester"
+            [placeholderText]="'pamAuditColumnRequester' | i18n"
+          >
+            @if (requesterOptions(); as options) {
+              @for (option of options; track option.value) {
+                <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+              }
+            }
+          </bit-filter-menu>
+          <bit-filter-menu
+            #itemFilter
+            multiple
+            [key]="filterKeys.item"
+            [placeholderText]="'pamAuditColumnItem' | i18n"
+          >
+            @if (itemOptions(); as options) {
+              @for (option of options; track option.value) {
+                <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+              }
+            }
+          </bit-filter-menu>
+          <bit-filter-menu
+            #timePeriodFilter
+            [key]="filterKeys.timePeriod"
+            [placeholderText]="'timePeriod' | i18n"
+            [unsetLabel]="'allTime' | i18n"
+          >
+            @for (preset of timePresets; track preset.value) {
+              <bit-filter-option [value]="preset.value">{{ preset.label }}</bit-filter-option>
+            }
+            <bit-filter-option value="custom">{{ customPeriodLabel }}</bit-filter-option>
+          </bit-filter-menu>
+          <ng-container *ngTemplateOutlet="editRangeAction" />
+          @if (filtersActive()) {
+            <button
+              type="button"
+              bitButton
+              buttonType="subtleGhost"
+              size="small"
+              startIcon="bwi-clear"
+              id="access-audit_button_clear-all"
+              (click)="clearAll()"
+            >
+              {{ "clearAll" | i18n }}
+            </button>
+          }
+        </div>
+        <ng-container *ngTemplateOutlet="pageActions" />
+      </div>
+
+      @if (rows().length === 0) {
+        <ng-container *ngTemplateOutlet="noMatchesState" />
+      } @else {
+        <div class="tw-overflow-x-auto">
+          <bit-table>
+            <ng-container header>
+              <tr>
+                <th bitCell class="tw-whitespace-nowrap">{{ "timestamp" | i18n }}</th>
+                <th bitCell class="tw-whitespace-nowrap">{{ "pamAuditColumnEvent" | i18n }}</th>
+                <!--
+                  Hidden while the drawer shows these for the selected row. `tw-hidden` rather than
+                  opacity or width, so no unreadable focusable anchor stays behind.
+                -->
+                <th bitCell [class.tw-hidden]="detailsOpen()">
+                  {{ "pamAuditColumnActor" | i18n }}
+                </th>
+                <th bitCell [class.tw-hidden]="detailsOpen()">
+                  {{ "pamAuditColumnRequester" | i18n }}
+                </th>
+                <th bitCell class="tw-min-w-48 tw-max-w-64 tw-break-words">
+                  {{ "pamAuditColumnItem" | i18n }}
+                </th>
+                <th bitCell [class.tw-hidden]="detailsOpen()">
+                  {{ "pamAuditColumnDuration" | i18n }}
+                </th>
+              </tr>
+            </ng-container>
+            <ng-template body>
+              @for (row of rows(); track $index) {
+                <tr bitRow class="tw-cursor-pointer" (click)="openDetails(row)">
+                  <td bitCell class="tw-whitespace-nowrap">
+                    {{ row.occurredAt | date: "medium" }}
+                  </td>
+                  <!--
+                    The row's one keyboard stop; pointer activation stays on the row, so the cell
+                    must not repeat it. `role="button"` makes its children presentational, so the
+                    label carries the in-doubt badge.
+                  -->
+                  <td
+                    bitCell
+                    role="button"
+                    tabindex="0"
+                    class="tw-whitespace-nowrap focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-inset focus-visible:tw-ring-border-focus"
+                    id="access-audit_button_details-{{ $index }}"
+                    [attr.aria-label]="
+                      (row.kindLabelKey | i18n) +
+                      ' ' +
+                      (row.occurredAt | date: 'medium') +
+                      (row.inDoubt ? ' ' + ('pamAuditIncomplete' | i18n) : '')
+                    "
+                    (keydown.enter)="openDetails(row)"
+                    (keydown.space)="openDetails(row); $event.preventDefault()"
+                  >
+                    {{ row.kindLabelKey | i18n }}
+                    @if (row.inDoubt) {
+                      <span bitBadge variant="warning"
+                        ><span [bitTooltip]="'pamAuditIncompleteTooltip' | i18n">{{
+                          "pamAuditIncomplete" | i18n
+                        }}</span></span
+                      >
+                    }
+                  </td>
+                  <td bitCell [class.tw-hidden]="detailsOpen()">
+                    @if (row.automated) {
+                      <span class="tw-text-muted">{{ "pamAuditSystem" | i18n }}</span>
+                    } @else if (linkedMember(row.actorId, row.actor); as member) {
+                      <a
+                        bitLink
+                        href="#"
+                        id="access-audit_link_actor-{{ $index }}"
+                        [title]="member.email"
+                        (click)="openMemberEvents($event, member)"
+                        >{{ row.actor }}</a
+                      >
+                    } @else if (row.actor) {
+                      {{ row.actor }}
+                    } @else {
+                      <span class="tw-text-muted">—</span>
+                    }
+                  </td>
+                  <td bitCell [class.tw-hidden]="detailsOpen()">
+                    @if (linkedMember(row.requesterId, row.requester); as member) {
+                      <a
+                        bitLink
+                        href="#"
+                        id="access-audit_link_requester-{{ $index }}"
+                        [title]="member.email"
+                        (click)="openMemberEvents($event, member)"
+                        >{{ row.requester }}</a
+                      >
+                    } @else if (row.requester) {
+                      {{ row.requester }}
+                    } @else {
+                      <span class="tw-text-muted">—</span>
+                    }
+                  </td>
+                  <td bitCell class="tw-min-w-48 tw-max-w-64 tw-break-words">
+                    @if (row.cipherName && row.cipherId) {
+                      <a
+                        bitLink
+                        href="#"
+                        id="access-audit_link_item-{{ $index }}"
+                        [bitTooltip]="row.collectionName"
+                        (click)="openCipherEvents($event, row)"
+                        >{{ row.cipherName }}</a
+                      >
+                    } @else if (row.cipherName) {
+                      <span [bitTooltip]="row.collectionName">{{ row.cipherName }}</span>
+                    } @else if (row.ruleName) {
+                      {{ row.ruleName }}
+                    } @else if (row.accessConnectorName) {
+                      <span [bitTooltip]="row.targetSystemName">{{ row.accessConnectorName }}</span>
+                    } @else if (row.targetSystemName) {
+                      {{ row.targetSystemName }}
+                    } @else {
+                      <span class="tw-text-muted">—</span>
+                    }
+                  </td>
+                  <td bitCell [class.tw-hidden]="detailsOpen()">
+                    @if (row.duration; as duration) {
+                      <span class="tw-whitespace-nowrap" [bitTooltip]="row.exactWindow">{{
+                        duration.key | i18n: duration.value
+                      }}</span>
+                    } @else if (row.extendedUntil) {
+                      <span class="tw-whitespace-nowrap">{{
+                        "pamAuditDurationExtendedTo" | i18n: (row.extendedUntil | date: "short")
+                      }}</span>
+                    } @else {
+                      <span class="tw-text-muted">—</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </ng-template>
+          </bit-table>
+        </div>
+        <ng-container *ngTemplateOutlet="loadMoreAction" />
+      }
+    }
+  }
+}

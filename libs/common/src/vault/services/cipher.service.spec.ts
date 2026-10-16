@@ -33,8 +33,9 @@ import { ContainerService } from "../../platform/services/container.service";
 import { CipherId, UserId, OrganizationId, CollectionId } from "../../types/guid";
 import { OrgKey, UserKey } from "../../types/key";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
+import { CipherLeaseStateService } from "../abstractions/cipher-lease-state.service";
 import { CipherSdkService } from "../abstractions/cipher-sdk.service";
-import { EncryptionContext } from "../abstractions/cipher.service";
+import { EncryptionContext, GatedCipherWriteError } from "../abstractions/cipher.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
 import { FieldType } from "../enums";
 import { CipherRepromptType } from "../enums/cipher-reprompt-type";
@@ -115,6 +116,7 @@ describe("Cipher Service", () => {
   const cipherEncryptionService = mock<CipherEncryptionService>();
   const messageSender = mock<MessageSender>();
   const cipherSdkService = mock<CipherSdkService>();
+  const cipherLeaseStateService = mock<CipherLeaseStateService>();
 
   const userId = "TestUserId" as UserId;
   const orgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
@@ -173,6 +175,7 @@ describe("Cipher Service", () => {
       cipherEncryptionService,
       messageSender,
       cipherSdkService,
+      cipherLeaseStateService,
     );
 
     encryptionContext = { cipher: new Cipher(cipherData), encryptedFor: userId };
@@ -546,7 +549,13 @@ describe("Cipher Service", () => {
 
       const result = await cipherService.updateWithServer(cipherView, userId);
 
-      expect(cipherSdkServiceSpy).toHaveBeenCalledWith(cipherView, userId, undefined, undefined);
+      expect(cipherSdkServiceSpy).toHaveBeenCalledWith(
+        cipherView,
+        userId,
+        undefined,
+        undefined,
+        undefined,
+      );
       expect(apiSpy).not.toHaveBeenCalled();
       expect(clearCacheSpy).toHaveBeenCalledWith(userId);
       expect(result).toBeInstanceOf(CipherView);
@@ -579,6 +588,7 @@ describe("Cipher Service", () => {
         userId,
         originalCipherView,
         true,
+        undefined,
       );
       expect(apiSpy).not.toHaveBeenCalled();
       expect(clearCacheSpy).toHaveBeenCalledWith(userId);
@@ -681,7 +691,7 @@ describe("Cipher Service", () => {
     });
 
     it("excludes partial (PAM-gated) ciphers from rotation", async () => {
-      // Drop the beforeEach mock so the real cipherViews$ filter chain runs.
+      // The real cipherViews$ chain is what drops partials, so undo the beforeEach's mock.
       (cipherService.cipherViews$ as jest.Mock).mockRestore();
 
       const normal = new CipherView(encryptionContext.cipher);
@@ -700,6 +710,7 @@ describe("Cipher Service", () => {
 
       const result = await cipherService.getRotatedData(originalUserKey, newUserKey, mockUserId);
 
+      // Rotating a partial would overwrite its suppressed fields with blanks.
       expect(cipherEncryptionService.encryptCipherForRotation).toHaveBeenCalledTimes(1);
       expect(cipherEncryptionService.encryptCipherForRotation).toHaveBeenCalledWith(
         normal,
@@ -919,6 +930,89 @@ describe("Cipher Service", () => {
       );
 
       expect(result).toEqual([normalCard]);
+    });
+  });
+
+  describe("writes to a PAM-gated cipher", () => {
+    const gatedId = "gated" as CipherId;
+    const otherGatedId = "other-gated" as CipherId;
+    const plainId = cipherData.id as CipherId;
+    const gated = (id: CipherId) => ({ ...cipherData, id, partialData: "{}" }) as CipherData;
+
+    beforeEach(() => {
+      stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).nextState({
+        [plainId]: cipherData,
+        [gatedId]: gated(gatedId),
+        [otherGatedId]: gated(otherGatedId),
+      });
+      cipherLeaseStateService.leasedCipherIds.mockResolvedValue(new Set());
+    });
+
+    it("refuses a gated cipher without a lease, before any request", async () => {
+      await expect(cipherService.deleteWithServer(gatedId, userId)).rejects.toThrow(
+        GatedCipherWriteError,
+      );
+
+      expect(apiService.deleteCipher).not.toHaveBeenCalled();
+      expect(cipherSdkService.deleteWithServer).not.toHaveBeenCalled();
+    });
+
+    it("refuses on the SDK path too", async () => {
+      sdkCrudFeatureFlag$.next(true);
+
+      await expect(cipherService.softDeleteWithServer(gatedId, userId)).rejects.toThrow(
+        GatedCipherWriteError,
+      );
+
+      expect(cipherSdkService.softDeleteWithServer).not.toHaveBeenCalled();
+    });
+
+    it("allows a gated cipher under an active lease", async () => {
+      cipherLeaseStateService.leasedCipherIds.mockResolvedValue(new Set([gatedId]));
+
+      await cipherService.deleteWithServer(gatedId, userId);
+
+      expect(cipherLeaseStateService.leasedCipherIds).toHaveBeenCalled();
+      expect(apiService.deleteCipher).toHaveBeenCalledWith(gatedId);
+    });
+
+    it("skips the lease lookup for a cipher that is not gated", async () => {
+      await cipherService.deleteWithServer(plainId, userId);
+
+      expect(cipherLeaseStateService.leasedCipherIds).not.toHaveBeenCalled();
+      expect(apiService.deleteCipher).toHaveBeenCalledWith(plainId);
+    });
+
+    it("fails a bulk call as a whole, naming the gated ids", async () => {
+      const result = cipherService.deleteManyWithServer([plainId, gatedId], userId);
+
+      await expect(result).rejects.toThrow(GatedCipherWriteError);
+      await expect(result).rejects.toHaveProperty("cipherIds", [gatedId]);
+      expect(apiService.deleteManyCiphers).not.toHaveBeenCalled();
+    });
+
+    it("lets Admin Console writes through, as the server does", async () => {
+      await cipherService.deleteWithServer(gatedId, userId, true);
+
+      expect(cipherLeaseStateService.leasedCipherIds).not.toHaveBeenCalled();
+      expect(apiService.deleteCipherAdmin).toHaveBeenCalledWith(gatedId);
+    });
+
+    it("treats a bulk restore with an organization as an Admin Console write", async () => {
+      apiService.putRestoreManyCiphersAdmin.mockResolvedValue({ data: [] } as any);
+
+      await cipherService.restoreManyWithServer([gatedId], userId, "org-id");
+
+      expect(apiService.putRestoreManyCiphersAdmin).toHaveBeenCalled();
+    });
+
+    it("looks up the leases of a bulk call in one read", async () => {
+      cipherLeaseStateService.leasedCipherIds.mockResolvedValue(new Set([gatedId]));
+
+      const result = cipherService.deleteManyWithServer([plainId, gatedId, otherGatedId], userId);
+
+      await expect(result).rejects.toHaveProperty("cipherIds", [otherGatedId]);
+      expect(cipherLeaseStateService.leasedCipherIds).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -1696,6 +1790,46 @@ describe("Cipher Service", () => {
 
       expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId, false);
       expect(apiSpy).not.toHaveBeenCalled();
+    });
+
+    // The gated-row routing lives in `decryptOrganizationCiphersResponse`, which only the
+    // non-SDK branch runs.
+    it("routes PAM-gated (partial) rows through the SDK decryption, so they keep their name", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+      keyService.cipherDecryptionKeys$.mockReturnValue(
+        of({
+          userKey: makeSymmetricCryptoKey(64) as UserKey,
+          orgKeys: { [orgId]: makeSymmetricCryptoKey(32) as OrgKey },
+        } as CipherDecryptionKeys),
+      );
+
+      // A gated row as the server sends it, with `partialData` in place of the suppressed secrets.
+      jest.spyOn(apiService, "getCiphersOrganization").mockResolvedValue({
+        data: [
+          {
+            id: "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22",
+            organizationId: testOrgId,
+            type: CipherType.Login,
+            revisionDate: "2022-01-31T12:00:00.000Z",
+            partialData: '{"name":"EncryptedString"}',
+          },
+        ],
+      } as any);
+
+      const partialView = new CipherView();
+      partialView.name = "AWS Root Account";
+      partialView.partial = true;
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[partialView], []]);
+
+      const result = await cipherService.getAllFromApiForOrganization(testOrgId);
+
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledTimes(1);
+      const [ciphers] = cipherEncryptionService.decryptManyLegacy.mock.calls[0];
+      expect(ciphers).toHaveLength(1);
+      expect(ciphers[0].partialData).toBe('{"name":"EncryptedString"}');
+      expect(result).toEqual([partialView]);
     });
   });
 

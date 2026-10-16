@@ -10,6 +10,7 @@ import {
   contentChildren,
   effect,
   inject,
+  input,
   model,
   signal,
   untracked,
@@ -97,6 +98,12 @@ export class BitTableToolbarComponent {
 
   /** The table this toolbar is projected into; the source of the item count. */
   protected readonly table = inject(BitTableV2Component, { optional: true });
+
+  /**
+   * Overrides the "N items" count label for a table whose rows are not items, e.g.
+   * `(count) => i18n.t("filterResults", count)`. Unset, the count reads `itemCount`.
+   */
+  readonly countLabel = input<((count: number) => string) | undefined>(undefined);
 
   /** The projected filters, matched by their shared `FILTER_PRESENTER` contract. */
   private readonly filters = contentChildren(FILTER_PRESENTER, { descendants: true });

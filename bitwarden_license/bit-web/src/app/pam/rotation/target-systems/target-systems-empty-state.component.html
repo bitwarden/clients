@@ -1,0 +1,56 @@
+<div class="tw-flex tw-flex-col tw-gap-6">
+  <bit-card>
+    <bit-status-lockup>
+      <bit-svg slot="graphic" [content]="noItemsIcon"></bit-svg>
+      <span slot="title">{{ "pamNoTargetSystemsYetTitle" | i18n }}</span>
+      <span slot="description">{{ "pamNoTargetSystemsYetDescription" | i18n }}</span>
+      <button
+        slot="button"
+        type="button"
+        bitButton
+        buttonType="primary"
+        startIcon="bwi-plus"
+        (click)="create.emit()"
+        id="target-systems-empty-state_button_create"
+      >
+        {{ "pamTargetSystemNew" | i18n }}
+      </button>
+    </bit-status-lockup>
+  </bit-card>
+
+  <div class="tw-flex tw-flex-col tw-gap-4">
+    <h2 bitTypography="h6">
+      {{ "pamTargetSystemsStartFromTemplate" | i18n }}
+    </h2>
+
+    <bit-item-group>
+      @for (template of templates; track template.key) {
+        <bit-item>
+          <bit-item-content>
+            <bit-icon-tile
+              slot="start"
+              [icon]="template.icon"
+              variant="primary"
+              size="base"
+            ></bit-icon-tile>
+            {{ template.titleKey | i18n }}
+            <span slot="secondary">{{ template.summaryKey | i18n }}</span>
+          </bit-item-content>
+
+          <button
+            slot="end"
+            type="button"
+            bitButton
+            buttonType="secondary"
+            size="small"
+            endIcon="bwi-arrow-right"
+            (click)="useTemplate.emit(template.key)"
+            [id]="'target-systems-empty-state_button_template-' + template.key"
+          >
+            {{ "pamTargetSystemUseTemplate" | i18n }}
+          </button>
+        </bit-item>
+      }
+    </bit-item-group>
+  </div>
+</div>

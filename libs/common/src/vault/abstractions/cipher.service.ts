@@ -33,6 +33,14 @@ export type EncryptionContext = {
   encryptedByKeyId?: string;
 };
 
+/** A write targeted a PAM-gated cipher the user holds no lease on. */
+export class GatedCipherWriteError extends Error {
+  constructor(readonly cipherIds: string[]) {
+    super("Cannot write to a PAM-gated cipher without an active lease.");
+    this.name = "GatedCipherWriteError";
+  }
+}
+
 export abstract class CipherService implements UserKeyRotationDataProvider<CipherWithIdRequest> {
   abstract cipherViews$(userId: UserId): Observable<CipherView[]>;
   /**
@@ -48,9 +56,9 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract cipherView$(userId: UserId, cipherId: CipherId): Observable<CipherView | undefined>;
   abstract cipherListViews$(userId: UserId): Observable<CipherListView[] | CipherView[]>;
   /**
-   * Like {@link cipherListViews$}, but includes PAM-gated ("partial") rows. Opt-in: only the
-   * vault list should consume it, so gated ciphers never reach autofill, export, key rotation,
-   * and similar flows.
+   * Like {@link cipherListViews$}, but includes PAM-gated ("partial") rows, whose sensitive
+   * fields the server suppressed. Only surfaces that render gated rows, such as the vault list,
+   * should use it.
    */
   abstract cipherListViewsWithPartials$(
     userId: UserId,
@@ -83,6 +91,12 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    */
   abstract encryptMany(models: CipherView[], userId: UserId): Promise<EncryptionContext[]>;
   abstract get(id: string, userId: UserId): Promise<Cipher>;
+  /**
+   * Throws {@link GatedCipherWriteError} when any stored copy is partial (PAM-gated) and the user
+   * holds no active lease on it. Every write to an existing cipher calls it first. Admin Console
+   * writes pass `admin` and are exempt, as on the server.
+   */
+  abstract assertWritable(ids: string | string[], userId: UserId, admin?: boolean): Promise<void>;
   abstract getAll(userId: UserId): Promise<Cipher[]>;
   abstract getAllDecrypted(userId: UserId): Promise<CipherView[]>;
   abstract getAllDecryptedForGrouping(
@@ -99,6 +113,14 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     overrideNeverMatchStrategy?: true,
   ): Promise<CipherView[]>;
   abstract getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]>;
+  /**
+   * Like {@link getAllDecryptedForIds}, but keeps PAM-gated ("partial") rows, which carry only the
+   * name and, for logins, the URIs. Only for surfaces that must name a gated cipher.
+   */
+  abstract getAllDecryptedForIdsIncludingPartials(
+    userId: UserId,
+    ids: string[],
+  ): Promise<CipherView[]>;
   abstract filterCiphersForUrl<C extends CipherViewLike = CipherView>(
     ciphers: C[],
     url: string,
@@ -163,6 +185,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
+    leaseGated?: boolean,
   ): Promise<CipherView>;
 
   /**

@@ -735,7 +735,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       );
 
     const _ciphers = this.cipherService
-      .cipherListViews$(activeUserId)
+      .cipherListViewsWithPartials$(activeUserId)
       .pipe(filter((c) => c !== null));
 
     /**
