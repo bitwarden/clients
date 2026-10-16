@@ -46,6 +46,13 @@ export class NodeEnvSecureStorageService implements AbstractStorageService {
     if (obj !== null && typeof obj !== "string") {
       throw new Error("Only string storage is allowed.");
     }
+
+    // Each save encrypts with a fresh IV, so saving an unchanged value still rewrites storage (the
+    // whole data file on the CLI). Every command re-saves the auto-unlock key it just unlocked with.
+    if ((await this.get<string>(key)) === obj) {
+      return;
+    }
+
     const protectedObj = await this.encrypt(obj);
     await this.storageService.save(this.makeProtectedStorageKey(key), protectedObj);
   }
