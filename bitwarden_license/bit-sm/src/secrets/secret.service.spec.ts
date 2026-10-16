@@ -99,6 +99,64 @@ describe("SecretService", () => {
 
       await sut.update("organizationId", secretView, secretAccessPoliciesView);
     });
+
+    it("returns the updated secret", async () => {
+      apiService.send.mockResolvedValue(mockedSecretResponse);
+
+      const result = await sut.update("organizationId", secretView, secretAccessPoliciesView);
+
+      expect(result).toEqual(expectedSecretView);
+    });
+
+    it("leaves access policies unchanged when none are given", async () => {
+      apiService.send.mockResolvedValue(mockedSecretResponse);
+
+      await sut.update("organizationId", secretView, null, true);
+
+      expect(accessPolicyService.getSecretAccessPoliciesRequest).not.toHaveBeenCalled();
+      expect(apiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "/secrets/" + secretView.id,
+        expect.objectContaining({ accessPoliciesRequests: null, valueChanged: true }),
+        true,
+        true,
+      );
+    });
+  });
+
+  describe("create without access policies", () => {
+    it("returns the created secret and sends no access policies", async () => {
+      apiService.send.mockResolvedValue(mockedSecretResponse);
+
+      const result = await sut.create("organizationId", secretView, null);
+
+      expect(result).toEqual(expectedSecretView);
+      expect(accessPolicyService.getSecretAccessPoliciesRequest).not.toHaveBeenCalled();
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/organizations/organizationId/secrets",
+        expect.objectContaining({ accessPoliciesRequests: null }),
+        true,
+        true,
+      );
+    });
+  });
+
+  describe("restoreVersion", () => {
+    it("restores the version and returns the secret", async () => {
+      apiService.send.mockResolvedValue(mockedSecretResponse);
+
+      const result = await sut.restoreVersion("secret-id", "version-id");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "/secrets/secret-id/versions/restore",
+        { versionId: "version-id" },
+        true,
+        true,
+      );
+      expect(result).toEqual(expectedSecretView);
+    });
   });
 });
 

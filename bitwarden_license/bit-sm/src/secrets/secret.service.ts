@@ -86,11 +86,15 @@ export class SecretService {
     return await this.createSecretsListView(organizationId, results);
   }
 
+  /**
+   * Creates a secret. Pass `null` for `secretAccessPoliciesView` to create it without
+   * direct access policies.
+   */
   async create(
     organizationId: string,
     secretView: SecretView,
-    secretAccessPoliciesView: SecretAccessPoliciesView,
-  ) {
+    secretAccessPoliciesView: SecretAccessPoliciesView | null,
+  ): Promise<SecretView> {
     const request = await this.getSecretRequest(
       organizationId,
       secretView,
@@ -103,15 +107,21 @@ export class SecretService {
       true,
       true,
     );
-    this._secret.next(await this.createSecretView(new SecretResponse(r)));
+    const secret = await this.createSecretView(new SecretResponse(r));
+    this._secret.next(secret);
+    return secret;
   }
 
+  /**
+   * Updates a secret. Pass `null` for `secretAccessPoliciesView` to leave its existing
+   * access policies unchanged.
+   */
   async update(
     organizationId: string,
     secretView: SecretView,
-    secretAccessPoliciesView: SecretAccessPoliciesView,
+    secretAccessPoliciesView: SecretAccessPoliciesView | null,
     valueChanged: boolean = false,
-  ) {
+  ): Promise<SecretView> {
     const request = await this.getSecretRequest(
       organizationId,
       secretView,
@@ -119,10 +129,12 @@ export class SecretService {
       valueChanged,
     );
     const r = await this.apiService.send("PUT", "/secrets/" + secretView.id, request, true, true);
-    this._secret.next(await this.createSecretView(new SecretResponse(r)));
+    const secret = await this.createSecretView(new SecretResponse(r));
+    this._secret.next(secret);
+    return secret;
   }
 
-  async restoreVersion(secretId: string, versionId: string): Promise<void> {
+  async restoreVersion(secretId: string, versionId: string): Promise<SecretView> {
     const r = await this.apiService.send(
       "PUT",
       `/secrets/${secretId}/versions/restore`,
@@ -130,7 +142,9 @@ export class SecretService {
       true,
       true,
     );
-    this._secret.next(await this.createSecretView(new SecretResponse(r)));
+    const secret = await this.createSecretView(new SecretResponse(r));
+    this._secret.next(secret);
+    return secret;
   }
 
   async delete(secrets: SecretListView[]): Promise<BulkOperationStatus[]> {
@@ -186,7 +200,7 @@ export class SecretService {
   private async getSecretRequest(
     organizationId: string,
     secretView: SecretView,
-    secretAccessPoliciesView: SecretAccessPoliciesView,
+    secretAccessPoliciesView: SecretAccessPoliciesView | null,
     valueChanged: boolean = false,
   ): Promise<SecretRequest> {
     const orgKey = await this.getOrganizationKey(organizationId);
@@ -205,7 +219,9 @@ export class SecretService {
     secretView.projects?.forEach((e) => request.projectIds.push(e.id));
 
     request.accessPoliciesRequests =
-      this.accessPolicyService.getSecretAccessPoliciesRequest(secretAccessPoliciesView);
+      secretAccessPoliciesView == null
+        ? null
+        : this.accessPolicyService.getSecretAccessPoliciesRequest(secretAccessPoliciesView);
 
     return request;
   }
