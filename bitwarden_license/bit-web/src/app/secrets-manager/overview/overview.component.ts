@@ -16,6 +16,13 @@ import {
   firstValueFrom,
 } from "rxjs";
 
+import { OrganizationCounts } from "@bitwarden/bit-sm/models/view/counts.view";
+import { ProjectListView } from "@bitwarden/bit-sm/models/view/project-list.view";
+import { SecretListView } from "@bitwarden/bit-sm/models/view/secret-list.view";
+import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
+import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
+import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
+import { CountService } from "@bitwarden/bit-sm/shared/counts/count.service";
 import {
   getOrganizationById,
   OrganizationService,
@@ -29,9 +36,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CenterPositionStrategy, DialogService } from "@bitwarden/components";
 
-import { OrganizationCounts } from "../models/view/counts.view";
-import { ProjectListView } from "../models/view/project-list.view";
-import { SecretListView } from "../models/view/secret-list.view";
 import {
   ProjectDeleteDialogComponent,
   ProjectDeleteOperation,
@@ -40,7 +44,6 @@ import {
   ProjectDialogComponent,
   ProjectOperation,
 } from "../projects/dialog/project-dialog.component";
-import { ProjectService } from "../projects/project.service";
 import {
   SecretDeleteDialogComponent,
   SecretDeleteOperation,
@@ -55,13 +58,10 @@ import {
   SecretViewDialogComponent,
   SecretViewDialogParams,
 } from "../secrets/dialog/secret-view-dialog.component";
-import { SecretService } from "../secrets/secret.service";
 import {
   ServiceAccountDialogComponent,
   ServiceAccountOperation,
 } from "../service-accounts/dialog/service-account-dialog.component";
-import { ServiceAccountService } from "../service-accounts/service-account.service";
-import { CountService } from "../shared/counts/count.service";
 import { SecretsListComponent } from "../shared/secrets-list.component";
 
 import { SMOnboardingTasks, SMOnboardingTasksService } from "./sm-onboarding-tasks.service";

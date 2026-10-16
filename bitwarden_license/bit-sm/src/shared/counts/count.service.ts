@@ -1,14 +1,9 @@
-import { Injectable } from "@angular/core";
-
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 
 import { OrganizationCountsResponse } from "./models/responses/organization-counts.response";
 import { ProjectCountsResponse } from "./models/responses/project-counts.response";
 import { ServiceAccountCountsResponse } from "./models/responses/service-account-counts.response";
 
-@Injectable({
-  providedIn: "root",
-})
 export class CountService {
   constructor(private apiService: ApiService) {}
 

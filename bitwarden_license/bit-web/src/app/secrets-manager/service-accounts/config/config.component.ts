@@ -4,6 +4,9 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Subject, combineLatest, from, switchMap, takeUntil } from "rxjs";
 
+import { ProjectListView } from "@bitwarden/bit-sm/models/view/project-list.view";
+import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
+import { AccessPolicyService } from "@bitwarden/bit-sm/shared/access-policies/access-policy.service";
 import {
   Environment,
   EnvironmentService,
@@ -11,10 +14,6 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
-
-import { ProjectListView } from "../../models/view/project-list.view";
-import { ProjectService } from "../../projects/project.service";
-import { AccessPolicyService } from "../../shared/access-policies/access-policy.service";
 
 class ServiceAccountConfig {
   organizationId: string;

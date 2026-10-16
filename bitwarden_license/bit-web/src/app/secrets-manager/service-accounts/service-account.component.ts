@@ -14,6 +14,12 @@ import {
   takeUntil,
 } from "rxjs";
 
+import { ServiceAccountCounts } from "@bitwarden/bit-sm/models/view/counts.view";
+import { ServiceAccountView } from "@bitwarden/bit-sm/models/view/service-account.view";
+import { AccessService } from "@bitwarden/bit-sm/service-accounts/access/access.service";
+import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
+import { AccessPolicyService } from "@bitwarden/bit-sm/shared/access-policies/access-policy.service";
+import { CountService } from "@bitwarden/bit-sm/shared/counts/count.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -23,14 +29,7 @@ import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 
-import { ServiceAccountCounts } from "../models/view/counts.view";
-import { ServiceAccountView } from "../models/view/service-account.view";
-import { AccessPolicyService } from "../shared/access-policies/access-policy.service";
-import { CountService } from "../shared/counts/count.service";
-
-import { AccessService } from "./access/access.service";
 import { AccessTokenCreateDialogComponent } from "./access/dialogs/access-token-create-dialog.component";
-import { ServiceAccountService } from "./service-account.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

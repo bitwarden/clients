@@ -1,4 +1,3 @@
-import { Injectable } from "@angular/core";
 import { filter, firstValueFrom, map, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -26,9 +25,6 @@ export interface SecretVersionHistory {
   versions: SecretVersionView[];
 }
 
-@Injectable({
-  providedIn: "root",
-})
 export class SecretVersionService {
   constructor(
     private keyService: KeyService,

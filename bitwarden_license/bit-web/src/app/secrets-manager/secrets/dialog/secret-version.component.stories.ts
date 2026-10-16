@@ -4,15 +4,17 @@ import { provideRouter } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { action } from "storybook/actions";
 
+import { SecretVersionView } from "@bitwarden/bit-sm/models/view/secret-version.view";
+import {
+  SecretVersionHistory,
+  SecretVersionService,
+} from "@bitwarden/bit-sm/secrets/secret-version.service";
+import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
-
-import { SecretVersionView } from "../../models/view/secret-version.view";
-import { SecretVersionHistory, SecretVersionService } from "../secret-version.service";
-import { SecretService } from "../secret.service";
 
 import {
   SecretVersionDialogComponent,

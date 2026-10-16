@@ -30,6 +30,7 @@
       "@bitwarden/automation-driver": ["./libs/automation-driver/src/index.ts"],
       "@bitwarden/billing": ["./libs/billing/src"],
       "@bitwarden/bit-common/*": ["./bitwarden_license/bit-common/src/*"],
+      "@bitwarden/bit-sm/*": ["./bitwarden_license/bit-sm/src/*"],
       "@bitwarden/browser/*": ["./apps/browser/src/*"],
       "@bitwarden/cli/*": ["./apps/cli/src/*"],
       "@bitwarden/client-type": ["./libs/client-type/src/index.ts"],
