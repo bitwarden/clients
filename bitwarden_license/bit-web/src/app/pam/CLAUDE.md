@@ -11,9 +11,7 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   the abstract service contracts, and pure helpers. Re-exported via `index.ts`. No
   Angular runtime APIs here; keep it that way so this stays unit-testable without a
   TestBed. Type-only imports of component-library option shapes (e.g.
-  `SimpleDialogOptions`) are fine, since they are erased at compile time. Was its
-  own package (`@bitwarden/bit-pam`) — folded in here since `bit-web` was its only
-  consumer.
+  `SimpleDialogOptions`) are fine, since they are erased at compile time.
 - `access-rules/` — list (`access-rules.component` + `.service`) and the routed
   create/edit page (`access-rule-edit.component`), at `access-rules`,
   `access-rules/new`, `access-rules/:accessRuleId`.
@@ -42,10 +40,10 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   actions go through the shell's `ApproverInboxService`, which also decides whether the
   viewer may take them, and their confirms and toasts through `ApproverActionsService`,
   the one the Approvals and History tabs use. It is provided on each component, since a
-  route provider never reaches a dialog. `originTab` picks the tab off the previous navigation's URL,
-  matched on the whole `/pam/<tab>` shape (`tabFrom` returns undefined for anything
-  else), so an approver opening a row keeps the Approvals inbox behind the dialog rather
-  than watching it swap to their own requests. With no tab to read, from outside the
+  route provider never reaches a dialog. `originTab` picks the tab off the previous
+  navigation's URL, matched on the whole `/pam/<tab>` shape (`tabFrom` returns undefined
+  for anything else), so an approver opening a row keeps the Approvals inbox behind the
+  dialog rather than watching it swap to their own requests. With no tab to read, from outside the
   tabs or on a cold load, the fallback follows the viewer: Approvals for an approver,
   My requests for the requester. No tab renders until `viewer$` resolves, so neither
   lands behind the dialog first; a load that settles without a request (not found or
@@ -141,8 +139,7 @@ Every PAM call goes through the Rust SDK (`client.commercial().pam()`), never HT
 `ApprovalSdkService` are the abstract contracts; `services/*-sdk.service.ts` compose the
 SDK client. `ApprovalSdkService` (`services/approvals-sdk.service.ts`) covers the
 approver-facing surface — the pending inbox, the decided history, and recording a
-decision — via `commercial().pam().approvals()`; this used to be a raw-HTTP exception
-while the SDK lacked that surface, but the SDK now exposes it and the exception is gone.
+decision — via `commercial().pam().approvals()`.
 
 **If a PAM capability turns out to be missing from the SDK, that is SDK work — not a
 raw-HTTP route.** Approver-side revoke and cancel-approval go through the SDK
