@@ -16,6 +16,7 @@ import type { AccessLeaseId, AccessRequestView } from "../abstractions/access-le
 import { ApprovalRow, toApprovalRow } from "../approvals/approval-row";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import { ManagedLeaseRow, toManagedLeaseRow } from "../approvals/managed-lease-row";
+import { stubToolbarWidth } from "../testing/toolbar-width";
 
 import { emptyResolvedNames } from "./access-name-resolver.service";
 import { ApprovalsTabComponent } from "./approvals-tab.component";
@@ -711,6 +712,7 @@ describe("ApprovalsTabComponent", () => {
   describe("with the VFO1 flag on", () => {
     let viewportWidth: number;
     let mediaListeners: Array<() => void>;
+    let toolbarWidth: ReturnType<typeof stubToolbarWidth>;
 
     function matchesWidth(query: string): boolean {
       return viewportWidth >= Number(/min-width:\s*(\d+)px/.exec(query)?.[1] ?? 0);
@@ -728,13 +730,20 @@ describe("ApprovalsTabComponent", () => {
             mediaListeners.push(() => listener({ matches: matchesWidth(query), media: query })),
           ),
           removeEventListener: jest.fn(),
+          // The CDK's high-contrast detector still uses the deprecated listener API.
+          addListener: jest.fn(),
+          removeListener: jest.fn(),
         }),
       });
     }
 
+    /** Resizes the viewport and the toolbar with it; the toolbar collapses by its own width. */
     function resizeTo(width: number): void {
       viewportWidth = width;
       mediaListeners.forEach((notify) => notify());
+      // Runs the after-render hooks first, so the toolbar is observing its width.
+      TestBed.tick();
+      toolbarWidth.setWidth(width);
       fixture.detectChanges();
     }
 
@@ -778,10 +787,12 @@ describe("ApprovalsTabComponent", () => {
       viewportWidth = 1440;
       mediaListeners = [];
       stubMatchMedia();
+      toolbarWidth = stubToolbarWidth(viewportWidth);
     });
 
     afterEach(() => {
       delete (window as { matchMedia?: unknown }).matchMedia;
+      toolbarWidth.restore();
     });
 
     it("renders bit-table-v2 for both sections instead of bit-table", () => {
@@ -1290,17 +1301,19 @@ describe("ApprovalsTabComponent", () => {
         expect(chips(toolbar)).toHaveLength(2);
       });
 
-      it("counts a chip's options against the pending rows the other chips have not seen", () => {
+      it("counts a chip's options against the pending rows the other chips leave", () => {
         twoOfEach();
         createWithFlag(true);
-
-        component["collectionFilterMenu"]()?.setValue("Production");
-        fixture.detectChanges();
 
         const table = fixture.debugElement.query(By.css("bit-table-v2")).componentInstance as {
           optionCount(key: string, value: unknown): number | undefined;
         };
         expect(table.optionCount("requester", "Alan")).toBe(1);
+
+        component["collectionFilterMenu"]()?.setValue("Production");
+        fixture.detectChanges();
+
+        expect(table.optionCount("requester", "Alan")).toBe(0);
         expect(pendingOrder()).toEqual(["prod-grace"]);
       });
 
