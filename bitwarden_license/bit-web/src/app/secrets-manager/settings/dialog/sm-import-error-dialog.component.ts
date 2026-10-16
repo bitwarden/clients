@@ -1,10 +1,9 @@
 import { Component, Inject } from "@angular/core";
 
+import { SecretsManagerImportError } from "@bitwarden/bit-common/secrets-manager/settings/models/error/sm-import-error";
+import { SecretsManagerImportErrorLine } from "@bitwarden/bit-common/secrets-manager/settings/models/error/sm-import-error-line";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogRef, DIALOG_DATA } from "@bitwarden/components";
-
-import { SecretsManagerImportError } from "../models/error/sm-import-error";
-import { SecretsManagerImportErrorLine } from "../models/error/sm-import-error-line";
 
 export interface SecretsManagerImportErrorDialogOperation {
   error: SecretsManagerImportError;

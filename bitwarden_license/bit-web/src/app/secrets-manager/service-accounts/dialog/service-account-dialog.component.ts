@@ -4,11 +4,10 @@ import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 
+import { ServiceAccountView } from "@bitwarden/bit-common/secrets-manager/models/view/service-account.view";
+import { ServiceAccountService } from "@bitwarden/bit-common/secrets-manager/service-accounts/service-account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogRef, DIALOG_DATA, BitValidators, ToastService } from "@bitwarden/components";
-
-import { ServiceAccountView } from "../../models/view/service-account.view";
-import { ServiceAccountService } from "../service-account.service";
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums

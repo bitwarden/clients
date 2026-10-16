@@ -2,16 +2,18 @@ import { Signal, WritableSignal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { SecretVersionView } from "@bitwarden/bit-common/secrets-manager/models/view/secret-version.view";
+import { SecretView } from "@bitwarden/bit-common/secrets-manager/models/view/secret.view";
+import {
+  SecretVersionHistory,
+  SecretVersionService,
+} from "@bitwarden/bit-common/secrets-manager/secrets/secret-version.service";
+import { SecretService } from "@bitwarden/bit-common/secrets-manager/secrets/secret.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
-
-import { SecretVersionView } from "../../models/view/secret-version.view";
-import { SecretView } from "../../models/view/secret.view";
-import { SecretVersionHistory, SecretVersionService } from "../secret-version.service";
-import { SecretService } from "../secret.service";
 
 import {
   SecretVersionDialogComponent,

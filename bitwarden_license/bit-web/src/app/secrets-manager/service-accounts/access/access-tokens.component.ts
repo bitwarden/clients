@@ -12,16 +12,15 @@ import {
   takeUntil,
 } from "rxjs";
 
+import { ServiceAccountView } from "@bitwarden/bit-common/secrets-manager/models/view/service-account.view";
+import { AccessService } from "@bitwarden/bit-common/secrets-manager/service-accounts/access/access.service";
+import { AccessTokenView } from "@bitwarden/bit-common/secrets-manager/service-accounts/models/view/access-token.view";
+import { ServiceAccountService } from "@bitwarden/bit-common/secrets-manager/service-accounts/service-account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { openUserVerificationPrompt } from "@bitwarden/web-vault/app/auth/shared/components/user-verification";
 
-import { ServiceAccountView } from "../../models/view/service-account.view";
-import { AccessTokenView } from "../models/view/access-token.view";
-import { ServiceAccountService } from "../service-account.service";
-
-import { AccessService } from "./access.service";
 import { AccessTokenCreateDialogComponent } from "./dialogs/access-token-create-dialog.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush

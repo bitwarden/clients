@@ -5,18 +5,17 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { Subject, combineLatest, filter, startWith, switchMap, takeUntil } from "rxjs";
 
+import { ServiceAccountCounts } from "@bitwarden/bit-common/secrets-manager/models/view/counts.view";
+import { ServiceAccountView } from "@bitwarden/bit-common/secrets-manager/models/view/service-account.view";
+import { AccessService } from "@bitwarden/bit-common/secrets-manager/service-accounts/access/access.service";
+import { ServiceAccountService } from "@bitwarden/bit-common/secrets-manager/service-accounts/service-account.service";
+import { AccessPolicyService } from "@bitwarden/bit-common/secrets-manager/shared/access-policies/access-policy.service";
+import { CountService } from "@bitwarden/bit-common/secrets-manager/shared/counts/count.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 
-import { ServiceAccountCounts } from "../models/view/counts.view";
-import { ServiceAccountView } from "../models/view/service-account.view";
-import { AccessPolicyService } from "../shared/access-policies/access-policy.service";
-import { CountService } from "../shared/counts/count.service";
-
-import { AccessService } from "./access/access.service";
 import { AccessTokenCreateDialogComponent } from "./access/dialogs/access-token-create-dialog.component";
-import { ServiceAccountService } from "./service-account.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
