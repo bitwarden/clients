@@ -2418,7 +2418,7 @@ describe("ImportControlsComponent", () => {
       expect(byId("importer-controls_radio_paste")).toBeFalsy();
     });
 
-    it("returns to the upload screen, not step 1, when Back is pressed on the password card", async () => {
+    it("shows a fresh step 2, not step 1 or the upload page as left, when Back is pressed on the password card", async () => {
       await setup("bitwarden", ClientType.Web);
       const backSpy = jest.fn();
       component().back.subscribe(backSpy);
@@ -2432,6 +2432,7 @@ describe("ImportControlsComponent", () => {
       expect(component().needsFilePassword()).toBe(false);
       expect(component().formGroup.controls.file.value).toBeNull();
       expect(component().formGroup.controls.filePassword.value).toBe("");
+      expect(component().formGroup.controls.method.value).toBe("file");
       expect(byId("importer-controls_input_file")).toBeTruthy();
       expect(byId("importer-controls_input_file-password")).toBeFalsy();
 
@@ -2639,13 +2640,47 @@ describe("ImportControlsComponent", () => {
   });
 
   describe("outputs", () => {
-    it("emits back regardless of mode or sub-step", async () => {
+    it("emits back from step 2's first page", async () => {
       await setup("keeper", ClientType.Desktop);
       const backSpy = jest.fn();
       component().back.subscribe(backSpy);
 
       component().onBack();
 
+      expect(backSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("shows a fresh step 2 instead of leaving when Back is pressed on the credentials page", async () => {
+      await setup("keeper", ClientType.Desktop);
+      const backSpy = jest.fn();
+      component().back.subscribe(backSpy);
+      component().continueFromIntro();
+      component().formGroup.controls.keeperEmail.setValue("user@example.com");
+
+      component().onBack();
+
+      expect(backSpy).not.toHaveBeenCalled();
+      expect(component().directStep()).toBe("intro");
+      expect(component().formGroup.controls.keeperEmail.value).toBe("");
+
+      component().onBack();
+      expect(backSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("shows a fresh step 2 when Back is pressed after Import manually instead", async () => {
+      await setup("keeper", ClientType.Desktop);
+      const backSpy = jest.fn();
+      component().back.subscribe(backSpy);
+      component().toggleToManual();
+      expect(component().primaryMode()).toBe("manual");
+
+      component().onBack();
+
+      expect(backSpy).not.toHaveBeenCalled();
+      expect(component().primaryMode()).toBe("direct");
+      expect(component().directStep()).toBe("intro");
+
+      component().onBack();
       expect(backSpy).toHaveBeenCalledTimes(1);
     });
 

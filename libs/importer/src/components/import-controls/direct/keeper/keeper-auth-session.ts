@@ -27,10 +27,6 @@ export class KeeperAuthSession implements Ui {
   private pendingResolver: PendingResolver | undefined;
   private _userLeft = false;
 
-  /** How many methods Keeper offered at each picker; one means it was chosen automatically. */
-  approvalMethodCount = 1;
-  twoFactorMethodCount = 1;
-
   constructor(
     private readonly show: (session: KeeperAuthSession, stage: KeeperInlineStage) => void,
     private readonly ssoTabMonitor: KeeperSsoTabMonitor,
@@ -66,10 +62,6 @@ export class KeeperAuthSession implements Ui {
     this.resolvePending(Resend);
   }
 
-  tryAnother(): void {
-    this.resolvePending(TryAnother);
-  }
-
   dismissError(): void {
     this.resolvePending(undefined);
   }
@@ -96,7 +88,6 @@ export class KeeperAuthSession implements Ui {
     if (this._userLeft || methods.length === 0) {
       return Cancel;
     }
-    this.approvalMethodCount = methods.length;
     if (methods.length === 1) {
       return methods[0];
     }
@@ -137,7 +128,6 @@ export class KeeperAuthSession implements Ui {
     if (this._userLeft || methods.length === 0) {
       return Cancel;
     }
-    this.twoFactorMethodCount = methods.length;
     if (methods.length === 1) {
       return methods[0];
     }

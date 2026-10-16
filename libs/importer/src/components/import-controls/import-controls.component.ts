@@ -647,6 +647,16 @@ export class ImportControlsComponent {
     () => this.isFilePasswordProtected() && this.filePasswordRequested(),
   );
 
+  /** False on any page reached from step 2's first one, where Back starts step 2 over instead of
+   *  leaving it. */
+  private readonly atStepStart = computed(
+    () =>
+      this.primaryModeOverride() === undefined &&
+      this.directStep() === "intro" &&
+      !this.keeperUi.loginActive() &&
+      !this.needsFilePassword(),
+  );
+
   /** An always-prompt vendor's selection per method, so file, paste, file restores it even though
    *  paste can't offer every format (kdbx). */
   private readonly formatChoiceByMethod = new Map<"file" | "paste", ImportType | null>();
@@ -796,25 +806,7 @@ export class ImportControlsComponent {
         return;
       }
 
-      this.primaryModeOverride.set(undefined);
-      this.directStep.set("intro");
-      this.showKeyFile.set(false);
-      this.keeperUi.leave();
-      this.formGroup.reset({
-        keeperEmail: "",
-        keeperRegion: KeeperRegion.Us,
-        lastPassEmail: "",
-        includeSharedFolders: false,
-        profile: "",
-        method: "file",
-        file: null,
-        fileContents: "",
-        kdbxPassword: "",
-        keyFile: null,
-        filePassword: "",
-        formatChoice: null,
-      });
-      this.formatChoiceByMethod.clear();
+      this.startOver();
     });
 
     // Declared last so it seeds after the importType() reset effect.
@@ -839,44 +831,49 @@ export class ImportControlsComponent {
     });
   }
   protected onBack(): void {
-    if (this.keeperUi.canStepBack()) {
-      void this.keeperUi.stepBack();
-      return;
-    }
-    this.afterLeavingKeeperLogin(() => {
-      if (this.needsFilePassword()) {
-        // Back from the password card returns to upload; clearing the file also drops the card.
-        this.formGroup.controls.file.reset(null);
-        return;
-      }
-      this.back.emit();
-    });
-  }
-
-  protected toggleToManual(): void {
-    this.afterLeavingKeeperLogin(() => {
-      this.primaryModeOverride.set("manual");
-      this.directStep.set("intro");
-      // touched survives disable/enable; clear it to avoid a stale error.
-      this.formGroup.controls.file.markAsUntouched();
-      this.formGroup.controls.fileContents.markAsUntouched();
-    });
-  }
-
-  /** Runs `action` at once outside a Keeper login. Inside one, cancels the login first. */
-  private afterLeavingKeeperLogin(action: () => void): void {
     if (this.keeperImporting()) {
       return;
     }
-    if (!this.keeperUi.loginActive()) {
-      action();
+    if (this.atStepStart()) {
+      this.back.emit();
       return;
     }
-    void this.keeperUi.leaveWithConfirm().then((left) => {
-      if (left) {
-        action();
-      }
+    this.startOver();
+  }
+
+  protected toggleToManual(): void {
+    if (this.keeperImporting()) {
+      return;
+    }
+    this.keeperUi.leave();
+    this.primaryModeOverride.set("manual");
+    this.directStep.set("intro");
+    // touched survives disable/enable; clear it to avoid a stale error.
+    this.formGroup.controls.file.markAsUntouched();
+    this.formGroup.controls.fileContents.markAsUntouched();
+  }
+
+  /** Step 2 as first shown: the default mode's first page, with nothing filled in or chosen. */
+  private startOver(): void {
+    this.keeperUi.leave();
+    this.primaryModeOverride.set(undefined);
+    this.directStep.set("intro");
+    this.showKeyFile.set(false);
+    this.formGroup.reset({
+      keeperEmail: "",
+      keeperRegion: KeeperRegion.Us,
+      lastPassEmail: "",
+      includeSharedFolders: false,
+      profile: "",
+      method: "file",
+      file: null,
+      fileContents: "",
+      kdbxPassword: "",
+      keyFile: null,
+      filePassword: "",
+      formatChoice: null,
     });
+    this.formatChoiceByMethod.clear();
   }
 
   protected toggleToAlternate(): void {

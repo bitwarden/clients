@@ -4,7 +4,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { ToastService } from "@bitwarden/components";
 
 import {
   Cancel,
@@ -12,7 +12,6 @@ import {
   DnaMethod,
   DuoMethod,
   Resend,
-  TryAnother,
   TwoFactorMethod,
 } from "../../../../importers/keeper/access";
 import {
@@ -24,7 +23,6 @@ import { KeeperInlineAuthUi } from "./keeper-inline-auth-ui";
 
 describe("KeeperInlineAuthUi", () => {
   let ssoTabMonitor: MockProxy<KeeperSsoTabMonitor>;
-  let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
 
   const create = (clientType: ClientType = ClientType.Desktop): KeeperInlineAuthUi => {
@@ -34,7 +32,6 @@ describe("KeeperInlineAuthUi", () => {
     TestBed.configureTestingModule({
       providers: [
         KeeperInlineAuthUi,
-        { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
         { provide: I18nService, useValue: mock<I18nService>({ t: (key: string) => key }) },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
@@ -45,7 +42,6 @@ describe("KeeperInlineAuthUi", () => {
   };
 
   beforeEach(() => {
-    dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
     ssoTabMonitor = mock<KeeperSsoTabMonitor>();
     ssoTabMonitor.launchAndWaitForToken.mockReturnValue(new Promise<string>(() => undefined));
@@ -116,7 +112,7 @@ describe("KeeperInlineAuthUi", () => {
       expect(ui.stage()).toEqual({ kind: "importing" });
     });
 
-    it("delegates submit, resend, tryAnother and dismissError to the current session", async () => {
+    it("delegates submit, resend and dismissError to the current session", async () => {
       const ui = create();
       const session = ui.begin();
 
@@ -127,10 +123,6 @@ describe("KeeperInlineAuthUi", () => {
       const resend = session.provideApprovalCode(DeviceApprovalChannel.Email);
       ui.resend();
       await expect(resend).resolves.toBe(Resend);
-
-      const another = session.provideApprovalCode(DeviceApprovalChannel.Email);
-      ui.tryAnother();
-      await expect(another).resolves.toBe(TryAnother);
 
       const error = session.showError("x");
       ui.dismissError();
@@ -206,87 +198,6 @@ describe("KeeperInlineAuthUi", () => {
 
       expect(ssoTabMonitor.launchAndWaitForToken).not.toHaveBeenCalled();
       expect(second.userLeft).toBe(false);
-    });
-  });
-
-  describe("canStepBack", () => {
-    const stepBackAt = async (
-      show: (session: ReturnType<KeeperInlineAuthUi["begin"]>) => unknown,
-      setup?: (session: ReturnType<KeeperInlineAuthUi["begin"]>) => unknown,
-    ) => {
-      const ui = create();
-      const session = ui.begin();
-      await setup?.(session);
-      void show(session);
-      return ui.canStepBack();
-    };
-
-    it("is false when idle or in a picker, the password, or SSO", async () => {
-      const ui = create();
-      expect(ui.canStepBack()).toBe(false);
-
-      expect(await stepBackAt((s) => s.selectApprovalMethod([1, 2]))).toBe(false);
-      expect(await stepBackAt((s) => s.promptForPassword())).toBe(false);
-      expect(await stepBackAt((s) => s.ssoLogin("https://keepersecurity.com/sso"))).toBe(false);
-      expect(
-        await stepBackAt((s) =>
-          s.selectTwoFactorMethod([TwoFactorMethod.Totp, TwoFactorMethod.Sms]),
-        ),
-      ).toBe(false);
-    });
-
-    it("is true on a method's own approval screen when Keeper offered several methods", async () => {
-      const several = (s: ReturnType<KeeperInlineAuthUi["begin"]>): void =>
-        void s.selectApprovalMethod([
-          DeviceApprovalChannel.Email,
-          DeviceApprovalChannel.KeeperPush,
-          DeviceApprovalChannel.TwoFactor,
-        ]);
-
-      expect(
-        await stepBackAt((s) => s.provideApprovalCode(DeviceApprovalChannel.Email), several),
-      ).toBe(true);
-      expect(
-        await stepBackAt(
-          (s) => s.provideApprovalCode(DeviceApprovalChannel.AdminApproval),
-          several,
-        ),
-      ).toBe(true);
-      expect(
-        await stepBackAt(
-          (s) => s.provideTwoFactorCode(TwoFactorMethod.Totp, { hidden: true }),
-          several,
-        ),
-      ).toBe(true);
-    });
-
-    it("is false when Keeper offered one approval method, which was picked for the user", async () => {
-      const single = async (s: ReturnType<KeeperInlineAuthUi["begin"]>) => {
-        await s.selectApprovalMethod([DeviceApprovalChannel.Email]);
-      };
-
-      expect(
-        await stepBackAt((s) => s.provideApprovalCode(DeviceApprovalChannel.Email), single),
-      ).toBe(false);
-    });
-
-    it("follows the 2FA picker for code and push stages", async () => {
-      const several = async (s: ReturnType<KeeperInlineAuthUi["begin"]>) => {
-        void s.selectTwoFactorMethod([TwoFactorMethod.Totp, TwoFactorMethod.Sms]);
-      };
-      const single = async (s: ReturnType<KeeperInlineAuthUi["begin"]>) => {
-        await s.selectTwoFactorMethod([TwoFactorMethod.Totp]);
-      };
-
-      expect(await stepBackAt((s) => s.provideTwoFactorCode(TwoFactorMethod.Totp), several)).toBe(
-        true,
-      );
-      expect(await stepBackAt((s) => s.waitForDnaPush(), several)).toBe(true);
-      expect(await stepBackAt((s) => s.waitForDuoPush(DuoMethod.Push), several)).toBe(true);
-      expect(await stepBackAt((s) => s.provideTwoFactorCode(TwoFactorMethod.Totp), single)).toBe(
-        false,
-      );
-      expect(await stepBackAt((s) => s.waitForDnaPush(), single)).toBe(false);
     });
   });
 
@@ -409,8 +320,8 @@ describe("KeeperInlineAuthUi", () => {
 
       const dna = session.waitForDnaPush();
       expect(ui.stage()).toEqual({ kind: "dnaPush" });
-      session.tryAnother();
-      await expect(dna).resolves.toBe(TryAnother);
+      session.leave();
+      await expect(dna).resolves.toBe(Cancel);
     });
   });
 
@@ -565,42 +476,14 @@ describe("KeeperInlineAuthUi", () => {
   });
 
   describe("leaving", () => {
-    it("steps back without asking, except when an admin approval request is pending", async () => {
+    it("cancels a pending admin approval request without asking", async () => {
       const ui = create();
-      const session = ui.begin();
-      session.approvalMethodCount = 2;
-      const prompt = session.provideApprovalCode(DeviceApprovalChannel.KeeperPush);
+      const prompt = ui.begin().provideApprovalCode(DeviceApprovalChannel.AdminApproval);
 
-      await expect(ui.stepBack()).resolves.toBe(true);
-      await expect(prompt).resolves.toBe(TryAnother);
-      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
-
-      dialogService.openSimpleDialog.mockResolvedValueOnce(false);
-      const adminPrompt = session.provideApprovalCode(DeviceApprovalChannel.AdminApproval);
-      await ui.stepBack();
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
       ui.leave();
-      await expect(adminPrompt).resolves.toBe(Cancel);
-    });
 
-    it("does not step back when there is no picker to return to", async () => {
-      const ui = create();
-      ui.begin();
-
-      await expect(ui.stepBack()).resolves.toBe(false);
-    });
-
-    it("cancels the login unless the user chooses to stay on an admin approval wait", async () => {
-      const ui = create();
-      const session = ui.begin();
-      const prompt = session.provideApprovalCode(DeviceApprovalChannel.AdminApproval);
-      dialogService.openSimpleDialog.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
-
-      await expect(ui.leaveWithConfirm()).resolves.toBe(false);
-      expect(session.userLeft).toBe(false);
-
-      await expect(ui.leaveWithConfirm()).resolves.toBe(true);
       await expect(prompt).resolves.toBe(Cancel);
+      expect(ui.stage()).toEqual({ kind: "idle" });
     });
   });
 });

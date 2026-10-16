@@ -29,7 +29,6 @@ import { KeeperInlineAuthUi } from "./keeper-inline-auth-ui";
 interface Actions {
   submit(value: unknown): void;
   resend(): void;
-  tryAnother(): void;
   cancel(): void;
   dismiss(): void;
 }
@@ -93,7 +92,6 @@ function legacyHarness(scenario: Scenario): Harness {
     actions: {
       submit: (value) => service.submit(value),
       resend: () => service.resend(),
-      tryAnother: () => service.tryAnother(),
       cancel: () => service.cancel(),
       dismiss: () => service.dismissError(),
     },
@@ -105,7 +103,6 @@ function inlineHarness(scenario: Scenario): Harness {
   TestBed.configureTestingModule({
     providers: [
       KeeperInlineAuthUi,
-      { provide: DialogService, useValue: mock<DialogService>() },
       { provide: ToastService, useValue: mock<ToastService>() },
       { provide: I18nService, useValue: mock<I18nService>() },
       {
@@ -123,7 +120,6 @@ function inlineHarness(scenario: Scenario): Harness {
     actions: {
       submit: (value) => session.submit(value),
       resend: () => session.resend(),
-      tryAnother: () => session.tryAnother(),
       cancel: () => session.leave(),
       dismiss: () => session.dismissError(),
     },
@@ -161,7 +157,7 @@ const scenarios: Scenario[] = [
 
   // Approval code, wait and admin screens
   ...[Email, Push, Admin].flatMap((method) =>
-    (["submit", "resend", "tryAnother", "cancel"] as const).map((action): Scenario => ({
+    (["submit", "resend", "cancel"] as const).map((action): Scenario => ({
       name: `approval code for channel ${method}, ${action}`,
       call: (u) => u.provideApprovalCode(method, { previousCodeRejected: action === "submit" }),
       act: (a) => {
@@ -193,7 +189,7 @@ const scenarios: Scenario[] = [
     { method: TwoFactorMethod.KeeperPush, options: {} },
     { method: TwoFactorMethod.KeeperDna, options: { previousCodeRejected: true } },
   ].flatMap(({ method, options }) =>
-    (["submit", "resend", "tryAnother", "cancel"] as const).map((action): Scenario => ({
+    (["submit", "resend", "cancel"] as const).map((action): Scenario => ({
       name: `2FA code for method ${method} ${JSON.stringify(options)}, ${action}`,
       call: (u) => u.provideTwoFactorCode(method, options),
       act: (a) => {
@@ -217,7 +213,7 @@ const scenarios: Scenario[] = [
     call: (u) => u.selectDuoMethod([DuoMethod.Push, DuoMethod.Sms], "+1 555"),
     act: (a) => (action === "submit" ? a.submit(DuoMethod.Sms) : a.cancel()),
   })),
-  ...(["submit", "tryAnother", "cancel"] as const).map((action): Scenario => ({
+  ...(["submit", "cancel"] as const).map((action): Scenario => ({
     name: `Duo push wait, ${action}`,
     call: (u) => u.waitForDuoPush(DuoMethod.Push),
     act: (a) => (action === "submit" ? a.submit("") : a[action]()),
@@ -232,7 +228,7 @@ const scenarios: Scenario[] = [
     call: (u) => u.selectDnaMethod([DnaMethod.Push, DnaMethod.Code]),
     act: (a) => (action === "submit" ? a.submit(DnaMethod.Code) : a.cancel()),
   })),
-  ...(["submit", "tryAnother", "cancel"] as const).map((action): Scenario => ({
+  ...(["submit", "cancel"] as const).map((action): Scenario => ({
     name: `DNA push wait, ${action}`,
     call: (u) => u.waitForDnaPush(),
     act: (a) => (action === "submit" ? a.submit("") : a[action]()),

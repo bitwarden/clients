@@ -20,8 +20,8 @@ import {
   DeviceApprovalChannel,
   KeeperAuthError,
   KeeperAuthErrorCode,
+  KeeperRegion,
   Resend,
-  TryAnother,
   TwoFactorMethod,
   Ui,
 } from "../../importers/keeper/access";
@@ -503,24 +503,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       expect(answer).toBe(Cancel);
     });
 
-    it("admin approval wait asks before Back cancels the request", async () => {
-      let answer: unknown;
-      dialogService.openSimpleDialog.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
-      await startLogin(async (ui) => {
-        answer = await ui.provideApprovalCode(DeviceApprovalChannel.AdminApproval);
-      });
-      expect(text()).toContain("keeperLoginAdminRequestedDesc");
-
-      component().onBack();
-      await settle();
-      expect(answer).toBeUndefined();
-
-      component().onBack();
-      await settle();
-      expect(answer).toBe(Cancel);
-    });
-
-    it("Back from the hidden Two-factor method code returns to the approval picker", async () => {
+    it("Back from the hidden Two-factor method code shows a fresh step 2, not the approval picker", async () => {
       const picked: unknown[] = [];
       const methods = [DeviceApprovalChannel.Email, DeviceApprovalChannel.TwoFactor];
       await startLogin(async (ui) => {
@@ -528,7 +511,6 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
         picked.push(
           await ui.provideTwoFactorCode(TwoFactorMethod.Totp, { hidden: true, canResend: true }),
         );
-        picked.push(await ui.selectApprovalMethod(methods));
       });
       expect(text()).toContain("selectApprovalMethodDesc");
 
@@ -540,8 +522,9 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       component().onBack();
       await settle();
 
-      expect(picked).toEqual([DeviceApprovalChannel.TwoFactor, TryAnother]);
-      expect(text()).toContain("selectApprovalMethodDesc");
+      expect(picked).toEqual([DeviceApprovalChannel.TwoFactor, Cancel]);
+      expect(text()).not.toContain("selectApprovalMethodDesc");
+      expect(component().directStep()).toBe("intro");
     });
 
     it("an unsupported second factor shows Keeper's error, then the failure on the email field", async () => {
@@ -799,7 +782,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       }
     };
 
-    it("Back cancels a pending Keeper Push login without asking, and leaves quietly", async () => {
+    it("Back cancels a pending Keeper Push login without asking, and shows a fresh step 2", async () => {
       const outcome: { value?: unknown } = {};
       await startLogin((ui) => cancelledByClient(ui, outcome));
       const back = jest.fn();
@@ -811,7 +794,8 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
 
       expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
       expect(outcome.value).toBe(Cancel);
-      expect(back).toHaveBeenCalledTimes(1);
+      expect(back).not.toHaveBeenCalled();
+      expect(component().directStep()).toBe("intro");
       expect(controls().keeperEmail.errors).toBeNull();
       expect(dialogService.open).not.toHaveBeenCalledWith(
         ImportErrorDialogComponent,
@@ -820,7 +804,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       expect(importService.importImportResult).not.toHaveBeenCalled();
     });
 
-    it("Back during admin approval asks first: Close keeps waiting, Cancel request leaves", async () => {
+    it("Back during admin approval cancels the request without asking", async () => {
       const outcome: { value?: unknown } = {};
       await startLogin(async (ui) => {
         outcome.value = await ui.provideApprovalCode(DeviceApprovalChannel.AdminApproval);
@@ -831,29 +815,12 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       const back = jest.fn();
       component().back.subscribe(back);
 
-      dialogService.openSimpleDialog.mockResolvedValue(false);
-      component().onBack();
-      await settle();
-
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title: { key: "approvalRequestWillBeCanceled" },
-          content: { key: "pendingApprovalCancelConfirmation" },
-          acceptButtonText: { key: "cancelRequest" },
-          cancelButtonText: { key: "close" },
-          type: "danger",
-        }),
-      );
-      expect(back).not.toHaveBeenCalled();
-      expect(outcome.value).toBeUndefined();
-      expect(text()).toContain("adminApprovalRequested");
-
-      dialogService.openSimpleDialog.mockResolvedValue(true);
       component().onBack();
       await settle();
       await component().keeperLogin();
 
-      expect(back).toHaveBeenCalledTimes(1);
+      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+      expect(back).not.toHaveBeenCalled();
       expect(outcome.value).toBe(Cancel);
       expect(controls().keeperEmail.errors).toBeNull();
     });
@@ -929,174 +896,111 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
     });
   });
 
-  describe("Back to the method picker", () => {
-    const approvalChannels = [
-      DeviceApprovalChannel.Email,
-      DeviceApprovalChannel.KeeperPush,
-      DeviceApprovalChannel.AdminApproval,
+  // Figma acceptance criteria: Back never lands on a page inside step 2. From any page reached
+  // after step 2's first one it shows a fresh step 2, and only from the first page does it leave.
+  describe("Back button clicked from the master password page", () => {
+    it("starts step 2 over, even after the empty field was blurred", async () => {
+      await startLogin(async (ui) => {
+        await ui.promptForPassword();
+      });
+      const back = jest.fn();
+      component().back.subscribe(back);
+      const password = byId("importer-controls_input_keeper-password").nativeElement;
+      password.focus();
+      password.dispatchEvent(new Event("blur"));
+      fixture.detectChanges();
+
+      byId("importer-controls_button_back").nativeElement.click();
+      await settle();
+
+      expect(component().directStep()).toBe("intro");
+      expect(byId("importer-controls_input_keeper-password")).toBeNull();
+      expect(back).not.toHaveBeenCalled();
+    });
+
+    it.each(["importer-controls_button_back", "importer-controls_button_import-manually-instead"])(
+      "%s doesn't take focus from the field on mousedown, so the footer can't jump",
+      async (id) => {
+        await startLogin(async (ui) => {
+          await ui.promptForPassword();
+        });
+
+        const mousedown = new MouseEvent("mousedown", { bubbles: true, cancelable: true });
+        byId(id).nativeElement.dispatchEvent(mousedown);
+
+        expect(mousedown.defaultPrevented).toBe(true);
+      },
+    );
+  });
+
+  describe("Back starts step 2 over", () => {
+    const stageScripts: Array<[string, (ui: Ui) => Promise<unknown>]> = [
+      ["a method picker", (ui) => ui.selectApprovalMethod([1, 2])],
+      ["the email code", (ui) => ui.provideApprovalCode(DeviceApprovalChannel.Email)],
+      ["a Keeper Push wait", (ui) => ui.provideApprovalCode(DeviceApprovalChannel.KeeperPush)],
+      [
+        "an admin approval wait",
+        (ui) => ui.provideApprovalCode(DeviceApprovalChannel.AdminApproval),
+      ],
+      ["an authenticator code", (ui) => ui.provideTwoFactorCode(TwoFactorMethod.Totp)],
+      ["the master password", (ui) => ui.promptForPassword()],
     ];
 
-    /** Mirrors the client's loop: re-offers the picker whenever the user asks to try another. */
-    const pickerLoop = (log: unknown[]) => async (ui: Ui) => {
-      for (;;) {
-        const method = await ui.selectApprovalMethod(approvalChannels);
-        log.push(["picked", method]);
-        if (method === Cancel) {
-          throw new KeeperAuthError(KeeperAuthErrorCode.Cancelled, "cancelled");
-        }
-        const answer = await ui.provideApprovalCode(method);
-        log.push(["answered", answer]);
-        if (answer === Cancel) {
-          throw new KeeperAuthError(KeeperAuthErrorCode.Cancelled, "cancelled");
-        }
-        if (answer !== TryAnother) {
-          return;
-        }
-      }
-    };
-
-    const chooseMethod = async (method: DeviceApprovalChannel) => {
-      loginControls().keeperApprovalMethod.setValue(method);
-      await component().submit();
-      await settle();
-    };
-
-    it("Back on a method's own screen returns to the picker instead of leaving", async () => {
-      const log: unknown[] = [];
-      await startLogin(pickerLoop(log));
-      const back = jest.fn();
-      component().back.subscribe(back);
-
-      await chooseMethod(DeviceApprovalChannel.KeeperPush);
-      expect(text()).toContain("keeperPushSent");
-
-      component().onBack();
-      await settle();
-
-      expect(back).not.toHaveBeenCalled();
-      expect(log).toContainEqual(["answered", TryAnother]);
-      expect(byId("importer-controls_radio_keeper-approval-1")).toBeTruthy();
-      expect(text()).toContain("keeperLoginApprovalMethod");
-    });
-
-    it("lets the user then pick another method", async () => {
-      const log: unknown[] = [];
-      await startLogin(pickerLoop(log));
-      await chooseMethod(DeviceApprovalChannel.KeeperPush);
-
-      component().onBack();
-      await settle();
-      await chooseMethod(DeviceApprovalChannel.Email);
-
-      expect(log).toContainEqual(["picked", DeviceApprovalChannel.Email]);
-      expect(byId("importer-controls_input_keeper-code")).toBeTruthy();
-    });
-
-    it("Back on the picker itself leaves to the previous screen and cancels the login", async () => {
-      const log: unknown[] = [];
-      await startLogin(pickerLoop(log));
-      const back = jest.fn();
-      component().back.subscribe(back);
-
-      component().onBack();
-      await settle();
-      await component().keeperLogin();
-
-      expect(back).toHaveBeenCalledTimes(1);
-      expect(log).toContainEqual(["picked", Cancel]);
-      expect(controls().keeperEmail.errors).toBeNull();
-    });
-
-    it("Back on the admin screen asks first, and only steps back once confirmed", async () => {
-      const log: unknown[] = [];
-      await startLogin(pickerLoop(log));
-      await chooseMethod(DeviceApprovalChannel.AdminApproval);
-      const back = jest.fn();
-      component().back.subscribe(back);
-
-      dialogService.openSimpleDialog.mockResolvedValue(false);
-      component().onBack();
-      await settle();
-      expect(dialogService.openSimpleDialog).toHaveBeenCalled();
-      expect(log).not.toContainEqual(["answered", TryAnother]);
-      expect(text()).toContain("adminApprovalRequested");
-
-      dialogService.openSimpleDialog.mockResolvedValue(true);
-      component().onBack();
-      await settle();
-
-      expect(log).toContainEqual(["answered", TryAnother]);
-      expect(back).not.toHaveBeenCalled();
-      expect(text()).toContain("keeperLoginApprovalMethod");
-    });
-
-    it("Back leaves when Keeper picked the only approval method for the user", async () => {
-      const outcome: { value?: unknown } = {};
-      await startLogin(async (ui) => {
-        const method = await ui.selectApprovalMethod([DeviceApprovalChannel.Email]);
-        outcome.value = await ui.provideApprovalCode(method as DeviceApprovalChannel);
-        if (outcome.value === Cancel) {
-          throw new KeeperAuthError(KeeperAuthErrorCode.Cancelled, "cancelled");
-        }
-      });
-      const back = jest.fn();
-      component().back.subscribe(back);
-
-      component().onBack();
-      await settle();
-      await component().keeperLogin();
-
-      expect(back).toHaveBeenCalledTimes(1);
-      expect(outcome.value).toBe(Cancel);
-    });
-
-    it("Back leaves from a code screen when the account has only one second factor", async () => {
-      const outcome: { value?: unknown } = {};
-      await startLogin(async (ui) => {
-        const method = await ui.selectTwoFactorMethod([TwoFactorMethod.Totp]);
-        outcome.value = await ui.provideTwoFactorCode(method as TwoFactorMethod);
-        if (outcome.value === Cancel) {
-          throw new KeeperAuthError(KeeperAuthErrorCode.Cancelled, "cancelled");
-        }
-      });
-      const back = jest.fn();
-      component().back.subscribe(back);
-
-      component().onBack();
-      await settle();
-      await component().keeperLogin();
-
-      expect(back).toHaveBeenCalledTimes(1);
-      expect(outcome.value).toBe(Cancel);
-    });
-
-    it("steps back from a code screen to the 2FA picker when the account has several", async () => {
-      const log: unknown[] = [];
-      await startLogin(async (ui) => {
-        for (;;) {
-          const method = await ui.selectTwoFactorMethod([
-            TwoFactorMethod.Totp,
-            TwoFactorMethod.Sms,
-          ]);
-          const answer = await ui.provideTwoFactorCode(method as TwoFactorMethod);
-          log.push(answer);
-          if (answer !== TryAnother) {
-            return;
+    it.each(stageScripts)(
+      "from %s: cancels the login and shows an empty first page, without leaving step 2",
+      async (_name, script) => {
+        const outcome: { value?: unknown } = {};
+        await startLogin(async (ui) => {
+          outcome.value = await script(ui);
+          if (outcome.value === Cancel) {
+            throw new KeeperAuthError(KeeperAuthErrorCode.Cancelled, "cancelled");
           }
-        }
+        });
+        const back = jest.fn();
+        component().back.subscribe(back);
+
+        component().onBack();
+        await settle();
+        await component().keeperLogin();
+
+        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+        expect(outcome.value).toBe(Cancel);
+        expect(back).not.toHaveBeenCalled();
+        expect(component().directStep()).toBe("intro");
+        expect(controls().keeperEmail.value).toBe("");
+        expect(controls().keeperEmail.errors).toBeNull();
+        expect(importService.importImportResult).not.toHaveBeenCalled();
+      },
+    );
+
+    it("from the fresh first page, leaves for step 1", async () => {
+      await startLogin(async (ui) => {
+        await ui.provideApprovalCode(DeviceApprovalChannel.Email);
       });
       const back = jest.fn();
       component().back.subscribe(back);
 
-      loginControls().keeperTwoFactorMethod.setValue(TwoFactorMethod.Sms);
-      await component().submit();
-      await settle();
       component().onBack();
       await settle();
-
-      expect(log).toEqual([TryAnother]);
       expect(back).not.toHaveBeenCalled();
-      expect(text()).toContain("selectTwoFactorMethod");
+
+      component().onBack();
+      expect(back).toHaveBeenCalledTimes(1);
+    });
+
+    it("from the credentials page: shows the first page, with nothing typed", async () => {
+      await mount(ClientType.Desktop);
+      controls().keeperEmail.setValue("user@example.com");
+      controls().keeperRegion.setValue(KeeperRegion.Eu);
+      const back = jest.fn();
+      component().back.subscribe(back);
+
+      component().onBack();
+
+      expect(back).not.toHaveBeenCalled();
+      expect(component().directStep()).toBe("intro");
+      expect(controls().keeperEmail.value).toBe("");
+      expect(controls().keeperRegion.value).toBe(KeeperRegion.Us);
     });
   });
 
