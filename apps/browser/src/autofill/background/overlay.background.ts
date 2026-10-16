@@ -1883,12 +1883,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const subFrameOffsetsForTab = this.subFrameOffsetsForTab[focusedTabId];
     let subFrameOffsets: SubFrameOffsetData | null = null;
     if (subFrameOffsetsForTab) {
-      subFrameOffsets = subFrameOffsetsForTab.get(focusedFrameId) ?? null;
-      if (subFrameOffsets === null) {
+      const focusedFrameOffsets = subFrameOffsetsForTab.get(focusedFrameId);
+      // `null` marks offsets invalidated by a reposition and awaiting rebuild. A missing entry
+      // (e.g. the top frame) has no offsets to wait for.
+      if (focusedFrameOffsets === null) {
         this.rebuildSubFrameOffsets$.next(sender);
         this.startUpdateInlineMenuPosition$.next(sender);
         return;
       }
+      subFrameOffsets = focusedFrameOffsets ?? null;
     }
 
     if (overlayElement === AutofillOverlayElement.Button) {
