@@ -18148,14 +18148,8 @@
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Delete access rule?"
   },
-  "pamAccessRuleDeleteConfirmContent": {
-    "message": "Delete \"$NAME$\"? Any collections using this rule will have leasing disabled.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "VPN + business hours"
-      }
-    }
+  "pamAccessRuleDeleteConfirmDescription": {
+    "message": "This will permanently remove this rule. Users in the collections it governs will regain normal access."
   },
   "pamAccessRuleDeactivateConfirmTitle": {
     "message": "Deactivate access rule"
