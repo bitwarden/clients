@@ -376,7 +376,10 @@ describe("VaultComponent", () => {
         { provide: RestrictedItemTypesService, useValue: { restricted$: new BehaviorSubject([]) } },
         {
           provide: VaultPopupListTableFiltersService,
-          useValue: { cachedFilters: jest.fn().mockReturnValue({}) },
+          useValue: {
+            cachedFilters: jest.fn().mockReturnValue({}),
+            setCachedVaultScopeId: jest.fn(),
+          },
         },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: AvatarService, useValue: mock<AvatarService>() },
