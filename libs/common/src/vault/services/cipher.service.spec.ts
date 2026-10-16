@@ -45,6 +45,7 @@ import { Cipher } from "../models/domain/cipher";
 import { CipherCreateRequest } from "../models/request/cipher-create.request";
 import { CipherPartialRequest } from "../models/request/cipher-partial.request";
 import { CipherRequest } from "../models/request/cipher.request";
+import { CipherResponse } from "../models/response/cipher.response";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 
@@ -681,6 +682,36 @@ describe("Cipher Service", () => {
       expect(result[1]).toMatchObject({ id: "Cipher 2", key: "Re-encrypted Cipher Key" });
     });
 
+    it("excludes partial (PAM-gated) ciphers from rotation", async () => {
+      // Drop the beforeEach mock so the real cipherViews$ filter chain runs.
+      (cipherService.cipherViews$ as jest.Mock).mockRestore();
+
+      const normal = new CipherView(encryptionContext.cipher);
+      normal.id = "normal" as CipherId;
+      normal.organizationId = null;
+      normal.partial = false;
+
+      const partial = new CipherView(encryptionContext.cipher);
+      partial.id = "partial" as CipherId;
+      partial.organizationId = null;
+      partial.partial = true;
+
+      jest
+        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .mockResolvedValue([normal, partial]);
+
+      const result = await cipherService.getRotatedData(originalUserKey, newUserKey, mockUserId);
+
+      expect(cipherEncryptionService.encryptCipherForRotation).toHaveBeenCalledTimes(1);
+      expect(cipherEncryptionService.encryptCipherForRotation).toHaveBeenCalledWith(
+        normal,
+        mockUserId,
+        newUserKey,
+      );
+      expect(result).toHaveLength(1);
+      expect(result[0]).toMatchObject({ id: "normal" });
+    });
+
     it("throws if the original user key is null", async () => {
       await expect(cipherService.getRotatedData(null!, newUserKey, mockUserId)).rejects.toThrow(
         "Original user key is required to rotate ciphers",
@@ -724,7 +755,9 @@ describe("Cipher Service", () => {
       (cipherService.cipherViews$ as jest.Mock)?.mockRestore();
 
       const decryptedView = new CipherView(encryptionContext.cipher);
-      jest.spyOn(cipherService, "getAllDecrypted").mockResolvedValue([decryptedView]);
+      jest
+        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .mockResolvedValue([decryptedView]);
 
       const sendSpy = jest.spyOn(messageSender, "send");
 
@@ -795,6 +828,99 @@ describe("Cipher Service", () => {
 
       expect(emitted).not.toHaveBeenCalled();
       subscription.unsubscribe();
+    });
+  });
+
+  describe("partial (PAM-gated) cipher filtering", () => {
+    let normal: CipherView;
+    let partial: CipherView;
+
+    beforeEach(() => {
+      normal = new CipherView(encryptionContext.cipher);
+      normal.id = "normal" as CipherId;
+      normal.partial = false;
+
+      partial = new CipherView(encryptionContext.cipher);
+      partial.id = "partial" as CipherId;
+      partial.partial = true;
+
+      (cipherService as any).cipherViewsWithPartials$ = jest
+        .fn()
+        .mockReturnValue(of([normal, partial]));
+    });
+
+    it("cipherViews$ excludes partial ciphers", async () => {
+      const result = await firstValueFrom(cipherService.cipherViews$(mockUserId));
+
+      expect(result).toEqual([normal]);
+    });
+
+    it("cipherViews$ passes a null (decryption-in-progress) emission through unchanged", async () => {
+      (cipherService as any).cipherViewsWithPartials$ = jest.fn().mockReturnValue(of(null));
+
+      const result = await firstValueFrom(cipherService.cipherViews$(mockUserId));
+
+      expect(result).toBeNull();
+    });
+
+    describe("list views", () => {
+      const normalListView = { id: "normal", partial: false } as unknown as CipherListView;
+      const partialListView = { id: "partial", partial: true } as unknown as CipherListView;
+
+      beforeEach(() => {
+        stateProvider.singleUser
+          .getFake(mockUserId, ENCRYPTED_CIPHERS)
+          .nextState({ [cipherData.id]: cipherData } as Record<CipherId, CipherData>);
+        keyService.cipherDecryptionKeys$.mockReturnValue(of({} as CipherDecryptionKeys));
+        jest
+          .spyOn(cipherService as any, "decryptCiphersWithSdk")
+          .mockResolvedValue([[normalListView, partialListView], []]);
+      });
+
+      it("cipherListViews$ excludes partial ciphers", async () => {
+        const result = await firstValueFrom(cipherService.cipherListViews$(mockUserId));
+
+        expect(result).toEqual([normalListView]);
+      });
+
+      it("cipherListViewsWithPartials$ retains partial ciphers", async () => {
+        const result = await firstValueFrom(cipherService.cipherListViewsWithPartials$(mockUserId));
+
+        expect(result).toEqual([normalListView, partialListView]);
+      });
+    });
+
+    it("getAllDecrypted excludes partial ciphers (all imperative consumers: export, reports, autofill, CLI...)", async () => {
+      jest
+        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .mockResolvedValue([normal, partial]);
+
+      const result = await cipherService.getAllDecrypted(mockUserId);
+
+      expect(result).toEqual([normal]);
+    });
+
+    it("getAllDecryptedCiphersOfType excludes partial ciphers (autofill card/identity suggestions)", async () => {
+      const normalCard = new CipherView(encryptionContext.cipher);
+      normalCard.id = "card-normal" as CipherId;
+      normalCard.type = CipherType.Card;
+      normalCard.partial = false;
+
+      const partialCard = new CipherView(encryptionContext.cipher);
+      partialCard.id = "card-partial" as CipherId;
+      partialCard.type = CipherType.Card;
+      partialCard.partial = true;
+
+      jest
+        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .mockResolvedValue([normalCard, partialCard]);
+
+      const result = await (cipherService as any).getAllDecryptedCiphersOfType(
+        [CipherType.Card],
+        mockUserId,
+      );
+
+      expect(result).toEqual([normalCard]);
     });
   });
 
@@ -1022,6 +1148,43 @@ describe("Cipher Service", () => {
       // The orphaned cipher is dropped before the SDK is ever asked to decrypt it, so it never
       // has a chance to be logged/counted as a decryption failure.
       expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(mockCiphers, userId);
+    });
+  });
+
+  describe("decryptCiphers with PAM gated rows", () => {
+    const gated_id = "33333333-3333-3333-3333-333333333333";
+    const normal_id = "44444444-4444-4444-4444-444444444444";
+
+    it("passes gated ciphers through the SDK like any other cipher", async () => {
+      keyService.cipherDecryptionKeys$.mockReturnValue(
+        of({
+          userKey: makeSymmetricCryptoKey(64) as UserKey,
+          orgKeys: { [orgId]: makeSymmetricCryptoKey(32) as OrgKey },
+        } as CipherDecryptionKeys),
+      );
+
+      const gatedCipher = new Cipher({ ...cipherData, id: gated_id, organizationId: orgId });
+      gatedCipher.partialData = '{"Name":"enc-name"}';
+      const normalCipher = new Cipher({ ...cipherData, id: normal_id, organizationId: orgId });
+
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([
+        [
+          { id: gated_id, name: "Gated item", partial: true } as CipherView,
+          { id: normal_id, name: "Normal item" } as CipherView,
+        ],
+        [],
+      ]);
+
+      const [successes] = await (cipherService as any).decryptCiphers(
+        [gatedCipher, normalCipher],
+        userId,
+      );
+
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
+        [gatedCipher, normalCipher],
+        userId,
+      );
+      expect(successes.map((c: CipherView) => c.name)).toEqual(["Gated item", "Normal item"]);
     });
   });
 
@@ -1460,6 +1623,29 @@ describe("Cipher Service", () => {
       await cipherService.getAllFromApiForOrganization(testOrgId);
 
       expect(apiSpy).toHaveBeenCalledWith(testOrgId, undefined);
+    });
+
+    it("should decrypt API ciphers via the SDK, keeping failures, when feature flag is disabled", async () => {
+      sdkCrudFeatureFlag$.next(false);
+
+      const decrypted = new CipherView();
+      decrypted.name = "b";
+      const failed = new CipherView();
+      failed.name = "a";
+      failed.decryptionFailure = true;
+
+      jest
+        .spyOn(apiService, "getCiphersOrganization")
+        .mockResolvedValue({ data: [new CipherResponse(cipherData)] } as any);
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[decrypted], [failed]]);
+
+      const result = await cipherService.getAllFromApiForOrganization(testOrgId);
+
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
+        [expect.any(Cipher)],
+        mockUserId,
+      );
+      expect(result).toEqual([failed, decrypted]);
     });
 
     it("should use SDK to list organization ciphers when feature flag is enabled", async () => {

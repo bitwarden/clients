@@ -67,6 +67,7 @@ import { LogService } from "@bitwarden/logging";
 import { StateProvider } from "@bitwarden/state";
 import { featureFlagModes } from "@bitwarden/storybook";
 import {
+  CoachmarkService,
   PasswordRepromptService,
   VaultCopyButtonsService,
   VaultNavItemType,
@@ -511,7 +512,7 @@ const buildProviders = (args: StoryArgs) => {
     { provide: VaultPopupLoadingService, useValue: { loading$: of(false) } },
     {
       provide: VaultPopupScrollPositionService,
-      useValue: { start: () => {}, stop: () => {} },
+      useValue: { start: () => {}, stop: () => {}, restoresCollapse: () => false },
     },
     {
       provide: NudgesService,
@@ -549,6 +550,18 @@ const buildProviders = (args: StoryArgs) => {
       },
     },
     { provide: SearchService, useValue: { isCipherSearching$: of(false) } },
+    {
+      provide: CoachmarkService,
+      useValue: {
+        isStepActive: () => false,
+        getStepPosition: () => undefined,
+        getStepTitle: () => "",
+        getStepDescription: () => "",
+        getStepLearnMoreUrl: () => undefined,
+        currentStepNumber: signal(0),
+        totalSteps: signal(0),
+      } as Partial<CoachmarkService>,
+    },
     // `VaultComponent` hardcodes `useClass: DefaultVaultItemsTransferService` in its own
     // `providers`, which outrank `applicationConfig`, so the real implementation is always
     // constructed and these two dependencies of it have to be satisfied here.
@@ -558,8 +571,13 @@ const buildProviders = (args: StoryArgs) => {
     // would announce into a detached node.
     { provide: LiveAnnouncer, useValue: { announce: () => Promise.resolve(), clear: () => {} } },
     {
+      // `false` keeps the new experience dialog shut, so stories render the vault itself rather
+      // than an onboarding bottom sheet over it.
       provide: IntroCarouselService,
-      useValue: { setIntroCarouselDismissed: () => Promise.resolve() },
+      useValue: {
+        introCarouselState$: of(false),
+        setIntroCarouselDismissed: () => Promise.resolve(),
+      },
     },
     {
       provide: VaultPopupAutofillService,
@@ -764,6 +782,7 @@ const buildProviders = (args: StoryArgs) => {
           itemCount: "__$1__ items",
           // Table presentation (flag on)
           resetSearch: "Reset search",
+          clearSearchTooltip: "Clear by clicking here or pressing Esc.",
           name: "Name",
           autofillSuggestions: "Autofill suggestions",
           itemSuggestions: "Suggested items",
