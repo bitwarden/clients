@@ -20,10 +20,10 @@ export const ACCESS_BADGE_LOOK = Object.freeze({
   privileged: { icon: "bwi-key", variant: "primary" },
   pending: { icon: "bwi-clock", variant: "warning" },
   unavailable: { icon: "bwi-lock", variant: "subtle" },
-  ready: { icon: "bwi-check", variant: "success" },
+  ready: { icon: "bwi-check-circle", variant: "success" },
   expired: { icon: "bwi-lock", variant: "subtle" },
   active: { icon: "bwi-unlock", variant: "accent-primary" },
-  endingSoon: { icon: "bwi-exclamation-triangle", variant: "danger" },
+  endingSoon: { icon: "bwi-warning", variant: "danger" },
 } as const);
 
 /**

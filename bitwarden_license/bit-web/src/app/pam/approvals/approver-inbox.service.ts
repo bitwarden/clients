@@ -42,8 +42,19 @@ import {
 } from "../access-requests/my-access-row";
 
 import { ApprovalRow, sortApprovalRows, toApprovalRow } from "./approval-row";
+import {
+  ApproverRow,
+  fromApprovalRow,
+  fromManagedLease,
+  fromUnstartedApproval,
+} from "./approver-row";
 import { isActionableInboxRequest } from "./inbox-request-filter";
-import { ManagedLeaseRow, isLiveManagedLease, toManagedLeaseRow } from "./managed-lease-row";
+import {
+  ManagedLeaseRow,
+  isLiveManagedLease,
+  isUnstartedApproval,
+  toManagedLeaseRow,
+} from "./managed-lease-row";
 
 /**
  * Data service for the approver surfaces, provided on the shell route so the tabs share one
@@ -134,6 +145,34 @@ export class ApproverInboxService {
         .filter((row) => row.endsAtMs > now.getTime())
         .sort((a, b) => a.endsAtMs - b.endsAtMs);
     }),
+  );
+
+  /**
+   * The Approvals tab's rows: requests awaiting a decision, approvals not yet started, then the
+   * leases running now. An approval leaves once its window ends unstarted, and a lease once it
+   * ends; the tab clamps both against a live clock as well.
+   */
+  readonly approverRows$: Observable<ApproverRow[]> = combineLatest([
+    this.inboxRows$,
+    this._history$,
+    this._names$,
+    this.activeLeaseRows$,
+    this._renderedAt$,
+  ]).pipe(
+    map(([pending, history, names, leases, now]) => [
+      ...pending.map((row) => fromApprovalRow(row, now)),
+      ...history
+        .filter(
+          (request) =>
+            isUnstartedApproval(request) &&
+            // An approved extension mints no lease of its own; it moves its parent's end instead.
+            request.extensionOfLeaseId == null &&
+            Date.parse(request.leaseNotAfter) > now.getTime(),
+        )
+        .map((request) => fromUnstartedApproval(request, names, now, this.locale))
+        .sort((a, b) => a.windowStartMs - b.windowStartMs),
+      ...leases.map((lease) => fromManagedLease(lease, now, this.locale)),
+    ]),
   );
 
   /** The request ids on managed collections, the only History rows the caller may act on. */

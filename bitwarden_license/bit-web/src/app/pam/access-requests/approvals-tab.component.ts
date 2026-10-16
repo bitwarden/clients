@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -6,21 +5,17 @@ import {
   effect,
   inject,
   signal,
-  viewChild,
 } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import { EMPTY, distinctUntilChanged, filter, map, switchMap } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoResults } from "@bitwarden/assets/svg";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
 import {
-  AccordionComponent,
-  AccordionGroupComponent,
-  BadgeComponent,
   BitCellComponent,
   BitCellDefDirective,
   BitCellLoadingDirective,
@@ -28,67 +23,98 @@ import {
   BitHeaderCellComponent,
   BitTableToolbarComponent,
   BitTableV2Component,
-  ButtonModule,
   ColumnName,
-  FILTER_CONTROL,
-  FilterControl,
   FilterMenuComponent,
   FilterOptionComponent,
-  StatusLockupComponent,
-  SvgComponent,
+  FilterOptionIconTile,
+  IconButtonModule,
+  IconModule,
   SearchModule,
   SkeletonComponent,
   SkeletonTextComponent,
-  SortState,
-  TooltipDirective,
+  SortFn,
+  StatusLockupComponent,
+  SvgComponent,
   TypographyModule,
   defineTable,
   isAtOrLargerThanBreakpointSignal,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import type { AccessDecisionVerdict } from "../abstractions/access-lease";
+import type { AccessDecisionVerdict, AccessLeaseId } from "../abstractions/access-lease";
 import { AccessBadgeState } from "../access-state-badge/access-badge-state";
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
-import { ApprovalRow } from "../approvals/approval-row";
 import { ApproverActionsService, rowBusy } from "../approvals/approver-actions.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
-import { ManagedLeaseRow } from "../approvals/managed-lease-row";
-import { DurationShortPipe } from "../date/duration-short.pipe";
+import {
+  ApproverRow,
+  ApproverRowStatus,
+  approverBadgeState,
+  approverRowStatus,
+  compareApproverStatus,
+} from "../approvals/approver-row";
+import { selectedFilterStrings } from "../helpers/selected-filter-strings";
 
-/** The fields the toolbar filters against, carried by both sections' row models. */
-type FilterableRow = { searchText: string; collectionName: string | null; requester: string };
+type ApprovalsColumn = ColumnName<ApproverRow, "status" | "window" | "actions">;
 
-type ApprovalsFilter = { term: string; collection: string | null; requester: string | null };
+/** The table's `filterValues()`, keyed by each toolbar control's `key`. Untyped, as a chip's is. */
+type ApprovalsFilterValues = {
+  search?: unknown;
+  status?: unknown;
+  collection?: unknown;
+  requester?: unknown;
+};
+
+/** An empty list means that filter is unset. */
+type ApprovalsFilter = {
+  term: string;
+  statuses: string[];
+  collections: string[];
+  requesters: string[];
+};
+
+type FilterOption = { label: string; value: string; iconTile?: FilterOptionIconTile };
+
+/** The Status chip's options, each with its status badge's icon. */
+const STATUS_OPTIONS: ReadonlyArray<{
+  value: ApproverRowStatus;
+  labelKey: string;
+  iconTile: FilterOptionIconTile;
+}> = [
+  {
+    value: ApproverRowStatus.Pending,
+    labelKey: "pamAccessBadgePending",
+    iconTile: { icon: "bwi-clock", variant: "warning" },
+  },
+  {
+    value: ApproverRowStatus.Ready,
+    labelKey: "pamAccessBadgeReady",
+    iconTile: { icon: "bwi-check-circle", variant: "success" },
+  },
+  {
+    value: ApproverRowStatus.InUse,
+    labelKey: "pamApprovalsStatusInUse",
+    iconTile: { icon: "bwi-unlock", variant: "teal" },
+  },
+  {
+    value: ApproverRowStatus.EndingSoon,
+    labelKey: "pamApprovalsStatusEndingSoon",
+    iconTile: { icon: "bwi-warning", variant: "danger" },
+  },
+];
 
 /**
- * The toolbar's raw values by filter key, where `search` is the key the table gives a projected
- * `bit-search`. Untyped, since a chip's value is `unknown`.
- */
-type ApprovalsFilterValues = { search?: unknown; collection?: unknown; requester?: unknown };
-
-type FilterOption = { label: string; value: string };
-
-type ApprovalColumn = ColumnName<ApprovalRow, "window" | "actions">;
-type LeaseColumn = ColumnName<ManagedLeaseRow, "window" | "actions">;
-
-/**
- * Requests awaiting the caller's decision, oldest first, plus the access running on the
- * collections they manage.
+ * Every request the approver can still act on, in one table: awaiting a decision, approved but not
+ * started, and running. A row leaves once its access ends, or straight away when denied.
  */
 @Component({
   selector: "pam-approvals-tab",
   templateUrl: "./approvals-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
-    ReactiveFormsModule,
     RouterModule,
     AccessStateBadgeComponent,
-    AccordionComponent,
-    AccordionGroupComponent,
-    BadgeComponent,
     BitCellComponent,
     BitCellDefDirective,
     BitCellLoadingDirective,
@@ -96,17 +122,16 @@ type LeaseColumn = ColumnName<ManagedLeaseRow, "window" | "actions">;
     BitHeaderCellComponent,
     BitTableToolbarComponent,
     BitTableV2Component,
-    ButtonModule,
-    DurationShortPipe,
     FilterMenuComponent,
     FilterOptionComponent,
+    IconButtonModule,
     IconComponent,
-    StatusLockupComponent,
-    SvgComponent,
+    IconModule,
     SearchModule,
     SkeletonComponent,
     SkeletonTextComponent,
-    TooltipDirective,
+    StatusLockupComponent,
+    SvgComponent,
     TypographyModule,
     I18nPipe,
   ],
@@ -118,10 +143,10 @@ export class ApprovalsTabComponent {
   private readonly inbox = inject(ApproverInboxService);
   private readonly approverActions = inject(ApproverActionsService);
   private readonly ticker = inject(AccessBadgeTickerService);
+  private readonly i18nService = inject(I18nService);
 
-  private readonly deciding = signal<Set<string>>(new Set());
-
-  private readonly revoking = signal<Set<string>>(new Set());
+  /** The ids of rows whose action is in flight. */
+  private readonly acting = signal<Set<string>>(new Set());
 
   protected readonly loading = toSignal(this.inbox.loading$, { initialValue: true });
 
@@ -142,90 +167,52 @@ export class ApprovalsTabComponent {
 
   private readonly loadError = toSignal(this.inbox.loadError$, { initialValue: null });
 
-  protected readonly searchControl = new FormControl<string>("", { nonNullable: true });
-
-  private readonly searchTerm = toSignal(this.searchControl.valueChanges, { initialValue: "" });
-
-  /**
-   * `bit-filter-menu` isn't a `ControlValueAccessor`, so the chips own their selection and are
-   * read through the {@link FilterControl} contract rather than a `FormControl`.
-   */
-  private readonly collectionFilterMenu = viewChild("collectionFilter", { read: FILTER_CONTROL });
-  private readonly requesterFilterMenu = viewChild("requesterFilter", { read: FILTER_CONTROL });
-  private readonly collectionFilter = computed(() =>
-    this.selectedValue(this.collectionFilterMenu()),
-  );
-  private readonly requesterFilter = computed(() => this.selectedValue(this.requesterFilterMenu()));
-
-  private selectedValue(chip: FilterControl | undefined): string | undefined {
-    const value = chip?.value();
-    return typeof value === "string" ? value : undefined;
-  }
-
-  private readonly allRows = toSignal(this.inbox.inboxRows$, { initialValue: [] as ApprovalRow[] });
-
-  private readonly allLeases = toSignal(this.inbox.activeLeaseRows$, {
-    initialValue: [] as ManagedLeaseRow[],
+  private readonly allRows = toSignal(this.inbox.approverRows$, {
+    initialValue: [] as ApproverRow[],
   });
 
-  /** Shares the badges' clock so a lapsed lease drops off the list; idle while there are none. */
+  /**
+   * Shares the badges' clock, so a lapsed row drops off and a lease turns "Ending soon" under the
+   * Status filter. Idle while every row is pending, since none of those has a clock to watch.
+   */
   private readonly nowMs = toSignal(
-    toObservable(computed(() => this.allLeases().length > 0)).pipe(
-      switchMap((anyLeases) => (anyLeases ? this.ticker.ticks$ : EMPTY)),
+    toObservable(computed(() => this.allRows().some((row) => row.kind !== "pending"))).pipe(
+      switchMap((timed) => (timed ? this.ticker.ticks$ : EMPTY)),
     ),
     { initialValue: Date.now() },
+  );
+
+  /**
+   * Approvals and leases still inside their window by a live clock, since either can lapse with no
+   * push. Compared by identity so the tick only reaches the table when rows change.
+   */
+  protected readonly rows = computed<ApproverRow[]>(
+    () => this.allRows().filter((row) => row.kind === "pending" || row.windowEndMs > this.nowMs()),
+    { equal: sameRows },
   );
 
   private readonly cipherById = toSignal(this.inbox.cipherById$, {
     initialValue: new Map<string, CipherView>(),
   });
 
-  /**
-   * Leases still inside their window by a live clock, since one can lapse with no push. Compared
-   * by identity so the tick only reaches the lease table when rows change.
-   */
-  private readonly liveLeases = computed(
-    () => this.allLeases().filter((row) => row.endsAtMs > this.nowMs()),
-    { equal: sameRows },
-  );
+  protected readonly statusOptions: FilterOption[] = STATUS_OPTIONS.map((option) => ({
+    value: option.value,
+    label: this.i18nService.t(option.labelKey),
+    iconTile: option.iconTile,
+  }));
 
-  /** Both sections' rows before filtering, which the chips build their options from. */
-  private readonly filterableRows = computed<FilterableRow[]>(() => [
-    ...this.allRows(),
-    ...this.liveLeases(),
-  ]);
-
-  /** Every distinct collection present on the tab, for the Collection filter. */
+  /** Every distinct shared folder present on the tab. */
   protected readonly collectionOptions = computed<FilterOption[]>(() =>
-    distinctOptions(this.filterableRows().map((row) => row.collectionName)),
+    distinctOptions(this.rows().map((row) => row.collectionName)),
   );
 
-  /** Every distinct requester present on the tab, for the Requester filter. */
+  /** Every distinct requester present on the tab. */
   protected readonly requesterOptions = computed<FilterOption[]>(() =>
-    distinctOptions(this.filterableRows().map((row) => row.requester)),
+    distinctOptions(this.rows().map((row) => row.requester)),
   );
 
-  protected readonly rows = computed(() => this.applyFilters(this.allRows()));
-
-  protected readonly leaseRows = computed(() => this.applyFilters(this.liveLeases()));
-
-  /**
-   * True when a section is empty only because the filters excluded its rows, where the usual empty
-   * copy would deny that a still-revocable lease exists.
-   */
-  protected readonly pendingHiddenByFilters = computed(
-    () => this.rows().length === 0 && this.allRows().length > 0,
-  );
-
-  protected readonly activeAccessHiddenByFilters = computed(
-    () => this.leaseRows().length === 0 && this.liveLeases().length > 0,
-  );
-
-  /**
-   * Whether either section has rows before filtering, which separates an empty inbox from a filter
-   * that matched nothing; the latter keeps the filter controls on screen.
-   */
-  protected readonly hasRows = computed(() => this.filterableRows().length > 0);
+  /** Separates an empty inbox from a filter that matched nothing, which keeps the toolbar up. */
+  protected readonly hasRows = computed(() => this.rows().length > 0);
 
   /**
    * Also drives the `role="status"` announcement, so a load finishing inside the delay never
@@ -243,8 +230,15 @@ export class ApprovalsTabComponent {
       : (this.loading() || this.showSkeleton()) && !this.hasRows(),
   );
 
+  /** The row actions show on row hover or keyboard focus, as the vault items table's do. */
+  protected readonly revealClasses =
+    "tw-flex tw-flex-nowrap tw-items-center tw-gap-2 tw-opacity-0 tw-transition-opacity" +
+    " tw-pointer-events-none group-hover/row:tw-opacity-100 group-hover/row:tw-pointer-events-auto" +
+    " group-has-[:focus-visible]/row:tw-opacity-100" +
+    " group-has-[:focus-visible]/row:tw-pointer-events-auto";
+
   /** Five rows fill the table's space without implying a real row count. */
-  protected readonly skeletonRows = [0, 1, 2, 3, 4];
+  protected readonly skeletonRows = 5;
 
   /**
    * Whether the current load showed its skeleton, so its removal can be announced. Reset per load
@@ -261,59 +255,29 @@ export class ApprovalsTabComponent {
   );
 
   /**
-   * Fed the unfiltered inbox, since the projected toolbar registers with this table and it filters
-   * through {@link rowMatchesFilter}. Pre-filtered rows would filter twice and skew each chip's
-   * counts.
+   * Fed the unfiltered rows, since the projected toolbar filters through {@link rowMatchesFilter}
+   * and counts each chip's options against them.
    */
-  protected readonly table = defineTable<ApprovalRow, "window" | "actions">(this.allRows);
-
-  /**
-   * Seeded here rather than by the column's `defaultSort`, which bit-table-v2 reads once from the
-   * displayed columns, so opening below lg would leave the table unsorted.
-   */
-  protected readonly pendingSort = signal<SortState<ApprovalColumn>>({
-    column: "submittedAtMs",
-    direction: "asc",
-  });
-  protected readonly leasesTable = defineTable<ManagedLeaseRow, "window" | "actions">(
-    this.leaseRows,
-  );
+  protected readonly table = defineTable<ApproverRow, "status" | "window" | "actions">(this.rows);
 
   private readonly atLeastLg = isAtOrLargerThanBreakpointSignal("lg");
-  private readonly atLeastXl = isAtOrLargerThanBreakpointSignal("xl");
 
   /**
-   * A column is a grid track, so a breakpoint class on its cells would leave an empty track behind;
-   * narrow viewports drop columns from this list instead.
+   * A v2 column is a grid track, so a breakpoint class on its cells would leave an empty track
+   * behind; narrow viewports drop columns by omission instead. The detail dialog, reached from
+   * the item, carries whatever is dropped.
    */
-  protected readonly displayedColumns = computed<ApprovalColumn[]>(() => [
+  protected readonly displayedColumns = computed<ApprovalsColumn[]>(() => [
     "cipherName",
+    "status",
     "requester",
-    ...(this.atLeastXl() ? (["window", "reason"] as const) : []),
-    ...(this.atLeastLg() ? (["submittedAtMs"] as const) : []),
+    ...(this.atLeastLg() ? (["window"] as const) : []),
     "actions",
   ]);
 
-  protected readonly leaseDisplayedColumns = computed<LeaseColumn[]>(() => [
-    "cipherName",
-    "requester",
-    ...(this.atLeastXl() ? (["window"] as const) : []),
-    "endsAtMs",
-    "actions",
-  ]);
-
-  /**
-   * Memoised per lease so each badge's input keeps its identity, and keyed off the unfiltered rows
-   * so a search doesn't churn the remaining badges.
-   */
-  private readonly leaseBadgeStates = computed(
-    () =>
-      new Map<string, AccessBadgeState>(
-        this.allLeases().map((row) => [
-          String(row.leaseId),
-          { kind: "active", expiresAt: new Date(row.endsAt) },
-        ]),
-      ),
+  /** Memoised per row so each badge's input keeps its identity across ticks. */
+  private readonly badgeStates = computed(
+    () => new Map(this.rows().map((row) => [row.id, approverBadgeState(row)])),
   );
 
   constructor() {
@@ -326,85 +290,86 @@ export class ApprovalsTabComponent {
     });
   }
 
-  private readonly filterInputs = computed<ApprovalsFilter>(() => ({
-    term: this.searchTerm().trim().toLowerCase(),
-    collection: this.collectionFilter() ?? null,
-    requester: this.requesterFilter() ?? null,
-  }));
-
-  /**
-   * The Pending table's row test. Its toolbar's values arrive as `values` rather than through
-   * {@link filterInputs}, since that keyed shape lets the table count each chip's options.
-   */
+  /** Reads the clock, so a lease crossing into "Ending soon" re-files under the Status filter. */
   protected readonly rowMatchesFilter = (
-    row: ApprovalRow,
+    row: ApproverRow,
     values: ApprovalsFilterValues,
-  ): boolean => matchesFilter(row, toApprovalsFilter(values));
+  ): boolean => matchesFilter(row, toApprovalsFilter(values), this.nowMs());
 
-  /**
-   * Both row models carry the three filtered fields, so one predicate keeps the sections from
-   * drifting apart.
-   */
-  private applyFilters<T extends FilterableRow>(rows: readonly T[]): T[] {
-    const filter = this.filterInputs();
-    return rows.filter((row) => matchesFilter(row, filter));
-  }
+  protected readonly sortByStatus: SortFn = (a: ApproverRow, b: ApproverRow) =>
+    compareApproverStatus(a, b);
+
+  protected readonly sortByWindow: SortFn = (a: ApproverRow, b: ApproverRow) =>
+    a.windowStartMs - b.windowStartMs;
 
   protected cipherFor(cipherId: string): CipherView | undefined {
     return this.cipherById().get(cipherId);
   }
 
-  protected leaseBadgeState(id: ManagedLeaseRow["leaseId"]): AccessBadgeState | null {
-    return this.leaseBadgeStates().get(String(id)) ?? null;
+  protected badgeState(row: ApproverRow): AccessBadgeState | null {
+    return this.badgeStates().get(row.id) ?? null;
   }
 
-  protected isDeciding(row: ApprovalRow): boolean {
-    return this.deciding().has(String(row.id));
+  protected isActing(row: ApproverRow): boolean {
+    return this.acting().has(row.id);
   }
 
-  protected isRevoking(row: ManagedLeaseRow): boolean {
-    return this.revoking().has(String(row.leaseId));
-  }
-
-  protected async decide(row: ApprovalRow, verdict: AccessDecisionVerdict): Promise<void> {
-    if (!row.canDecide || this.isDeciding(row)) {
+  protected async decide(row: ApproverRow, verdict: AccessDecisionVerdict): Promise<void> {
+    if (row.kind !== "pending" || !row.approval.canDecide || this.isActing(row)) {
       return;
     }
     await this.approverActions.decide(
-      { verdict, row, cipher: this.cipherFor(row.cipherId) },
-      (decided, comment) => this.inbox.decide(row.id, decided, comment),
-      rowBusy(this.deciding, String(row.id)),
+      { verdict, row: row.approval, cipher: this.cipherFor(row.cipherId) },
+      (decided, comment) => this.inbox.decide(row.requestId, decided, comment),
+      rowBusy(this.acting, row.id),
     );
   }
 
-  protected async revoke(row: ManagedLeaseRow): Promise<void> {
-    if (this.isRevoking(row)) {
+  /**
+   * An approval not yet started is withdrawn, which needs no lease; a running one has its lease
+   * ended.
+   */
+  protected async revoke(row: ApproverRow): Promise<void> {
+    if (row.kind === "pending" || this.isActing(row)) {
       return;
     }
+    if (row.kind === "ready") {
+      await this.approverActions.withdrawApproval(
+        row.cipherName,
+        () => this.inbox.cancelApproval(row.requestId),
+        rowBusy(this.acting, row.id),
+      );
+      return;
+    }
+    const leaseId: AccessLeaseId = row.lease.leaseId;
     await this.approverActions.revoke(
-      () => this.inbox.revokeLease(row.requestId, row.leaseId),
-      rowBusy(this.revoking, String(row.leaseId)),
+      () => this.inbox.revokeLease(row.requestId, leaseId),
+      rowBusy(this.acting, row.id),
     );
   }
 }
 
-function matchesFilter(row: FilterableRow, filter: ApprovalsFilter): boolean {
+/** OR within a filter, AND across them. */
+function matchesFilter(row: ApproverRow, filter: ApprovalsFilter, nowMs: number): boolean {
   return (
     (filter.term === "" || row.searchText.includes(filter.term)) &&
-    (filter.collection == null || row.collectionName === filter.collection) &&
-    (filter.requester == null || row.requester === filter.requester)
+    (filter.statuses.length === 0 || filter.statuses.includes(approverRowStatus(row, nowMs))) &&
+    (filter.collections.length === 0 ||
+      (row.collectionName != null && filter.collections.includes(row.collectionName))) &&
+    (filter.requesters.length === 0 || filter.requesters.includes(row.requester))
   );
 }
 
 function toApprovalsFilter(values: ApprovalsFilterValues): ApprovalsFilter {
   return {
     term: typeof values.search === "string" ? values.search.trim().toLowerCase() : "",
-    collection: typeof values.collection === "string" ? values.collection : null,
-    requester: typeof values.requester === "string" ? values.requester : null,
+    statuses: selectedFilterStrings(values.status),
+    collections: selectedFilterStrings(values.collection),
+    requesters: selectedFilterStrings(values.requester),
   };
 }
 
-function sameRows(a: readonly ManagedLeaseRow[], b: readonly ManagedLeaseRow[]): boolean {
+function sameRows(a: readonly ApproverRow[], b: readonly ApproverRow[]): boolean {
   return a.length === b.length && a.every((row, index) => row === b[index]);
 }
 
