@@ -18437,7 +18437,11 @@
     }
   },
   "pamAccessBadgeEnded": {
-    "message": "Access ended"
+    "message": "Session ended"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "Active",
+    "description": "Controlled access filter option in the vault table: items with an active access session."
   },
   "pamAuditKindAccessEndedByRequester": {
     "message": "Access ended by requester"

@@ -2,8 +2,9 @@ import type { CipherAccessStateView } from "../abstractions/access-lease";
 
 /**
  * "Ending soon" derives from the live countdown, so `active` carries only `expiresAt`.
- * {@link cipherAccessBadgeState} never produces `unavailable` or `expired`, since the
- * caller-scoped access-state response has no data for either.
+ * {@link cipherAccessBadgeState} never produces `expired`; the badge falls back to it when an
+ * active lease lapses locally. `unavailable` comes from the SDK, off the server's
+ * `heldByAnotherUser` flag; the holder is never named.
  */
 export type AccessBadgeState =
   | { readonly kind: "privileged" | "pending" | "unavailable" | "ready" | "expired" }
@@ -16,8 +17,8 @@ export type AccessBadgeState =
 export const ENDING_SOON_THRESHOLD_MS = 5 * 60 * 1000;
 
 /**
- * Adapts the SDK's `badgeState` onto {@link AccessBadgeState}. The SDK ranks the states, so every
- * client badges a gated item identically.
+ * Adapts the SDK's `badgeState` onto {@link AccessBadgeState}. The SDK ranks the states (active →
+ * ready → pending → unavailable → privileged), so every client badges a gated item identically.
  */
 export function cipherAccessBadgeState(
   state: CipherAccessStateView | null | undefined,

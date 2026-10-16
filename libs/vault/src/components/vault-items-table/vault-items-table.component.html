@@ -106,6 +106,7 @@
       <bit-filter-menu
         [key]="filterKeys.controlledAccess"
         [placeholderText]="'controlledAccess' | i18n"
+        multiple
       >
         @for (option of controlledAccessOptions(); track option.id) {
           <bit-filter-option
@@ -278,7 +279,7 @@
 
   <!-- Controlled access -->
   @if (controlledAccessBadge(); as badge) {
-    <bit-column width="minmax(140px, 200px)">
+    <bit-column sortable [sortFn]="sortByControlledAccess" width="minmax(140px, 200px)">
       <bit-header-cell>{{ "controlledAccess" | i18n }}</bit-header-cell>
       <bit-cell
         *bitCellDef="table.columns.controlledAccess; let row"
