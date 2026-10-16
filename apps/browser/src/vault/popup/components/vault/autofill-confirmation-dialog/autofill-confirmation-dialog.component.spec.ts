@@ -511,4 +511,40 @@ describe("AutofillConfirmationDialogComponent", () => {
       expect(text).toContain("cancel");
     });
   });
+
+  describe("synced URI scrolling", () => {
+    function getRows(widths: number[]): HTMLElement[] {
+      const rows = Array.from(
+        fixture.nativeElement.querySelectorAll(
+          '[data-testid="saved-uri"], [data-testid="current-uri"]',
+        ),
+      ) as HTMLElement[];
+      rows.forEach((row, i) => {
+        Object.defineProperty(row, "scrollWidth", { value: widths[i] ?? 100 });
+        Object.defineProperty(row, "clientWidth", { value: 100 });
+      });
+      return rows;
+    }
+
+    it("applies a row's scroll offset to every other URI row", () => {
+      const rows = getRows([300, 300, 300, 300]);
+      rows[0].scrollLeft = 80;
+      component.syncUriScroll(rows[0]);
+
+      expect(rows.map((r) => r.scrollLeft)).toEqual([80, 80, 80, 80]);
+    });
+
+    it("ignores scroll events from rows clamped at their end by a sync", () => {
+      const rows = getRows([300, 150, 300, 300]);
+      rows[0].scrollLeft = 120;
+      component.syncUriScroll(rows[0]);
+
+      // Simulate the browser clamping the shorter row to its max offset
+      rows[1].scrollLeft = 50;
+      component.syncUriScroll(rows[1]);
+
+      expect(rows[0].scrollLeft).toBe(120);
+      expect(rows[2].scrollLeft).toBe(120);
+    });
+  });
 });
