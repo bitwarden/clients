@@ -953,31 +953,35 @@ describe("CipherViewLikeUtils", () => {
     });
   });
 
-  describe("isPartial", () => {
-    it("returns true when a CipherView is a partial (PAM-gated) row", () => {
+  describe("isRestricted", () => {
+    it("returns true when a CipherView is restricted", () => {
       const cipherView = createCipherView();
       cipherView.partial = true;
 
-      expect(CipherViewLikeUtils.isPartial(cipherView)).toBe(true);
+      expect(CipherViewLikeUtils.isRestricted(cipherView)).toBe(true);
     });
 
-    it("returns false when a CipherView is not partial", () => {
+    it("returns false when a CipherView is not restricted", () => {
       const cipherView = createCipherView();
       cipherView.partial = false;
 
-      expect(CipherViewLikeUtils.isPartial(cipherView)).toBe(false);
+      expect(CipherViewLikeUtils.isRestricted(cipherView)).toBe(false);
     });
 
     it("reads the partial flag off a CipherListView when present", () => {
       const cipherListView = { type: "secureNote", partial: true } as unknown as CipherListView;
 
-      expect(CipherViewLikeUtils.isPartial(cipherListView)).toBe(true);
+      expect(CipherViewLikeUtils.isRestricted(cipherListView)).toBe(true);
     });
 
     it("returns false when the cipher is a CipherListView without a partial flag", () => {
       const cipherListView = { type: "secureNote" } as CipherListView;
 
-      expect(CipherViewLikeUtils.isPartial(cipherListView)).toBe(false);
+      expect(CipherViewLikeUtils.isRestricted(cipherListView)).toBe(false);
+    });
+
+    it("is aliased by the deprecated isPartial", () => {
+      expect(CipherViewLikeUtils.isPartial).toBe(CipherViewLikeUtils.isRestricted);
     });
   });
 

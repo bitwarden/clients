@@ -49,6 +49,8 @@ import { CipherRequest } from "../models/request/cipher.request";
 import { CipherResponse } from "../models/response/cipher.response";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
+import { LoginUriView } from "../models/view/login-uri.view";
+import { LoginView } from "../models/view/login.view";
 
 import { CipherService } from "./cipher.service";
 import { DECRYPTED_CIPHERS, ENCRYPTED_CIPHERS } from "./key-state/ciphers.state";
@@ -678,7 +680,7 @@ describe("Cipher Service", () => {
       partial.partial = true;
 
       jest
-        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .spyOn(cipherService as any, "getAllDecryptedIncludingRestricted")
         .mockResolvedValue([normal, partial]);
 
       const result = await cipherService.getRotatedData(originalUserKey, newUserKey, mockUserId);
@@ -738,7 +740,7 @@ describe("Cipher Service", () => {
 
       const decryptedView = new CipherView(encryptionContext.cipher);
       jest
-        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .spyOn(cipherService as any, "getAllDecryptedIncludingRestricted")
         .mockResolvedValue([decryptedView]);
 
       const sendSpy = jest.spyOn(messageSender, "send");
@@ -813,7 +815,7 @@ describe("Cipher Service", () => {
     });
   });
 
-  describe("partial (PAM-gated) cipher filtering", () => {
+  describe("restricted cipher filtering", () => {
     let normal: CipherView;
     let partial: CipherView;
 
@@ -826,19 +828,19 @@ describe("Cipher Service", () => {
       partial.id = "partial" as CipherId;
       partial.partial = true;
 
-      (cipherService as any).cipherViewsWithPartials$ = jest
+      (cipherService as any).cipherViewsIncludingRestricted$ = jest
         .fn()
         .mockReturnValue(of([normal, partial]));
     });
 
-    it("cipherViews$ excludes partial ciphers", async () => {
+    it("cipherViews$ excludes restricted ciphers", async () => {
       const result = await firstValueFrom(cipherService.cipherViews$(mockUserId));
 
       expect(result).toEqual([normal]);
     });
 
     it("cipherViews$ passes a null (decryption-in-progress) emission through unchanged", async () => {
-      (cipherService as any).cipherViewsWithPartials$ = jest.fn().mockReturnValue(of(null));
+      (cipherService as any).cipherViewsIncludingRestricted$ = jest.fn().mockReturnValue(of(null));
 
       const result = await firstValueFrom(cipherService.cipherViews$(mockUserId));
 
@@ -859,22 +861,24 @@ describe("Cipher Service", () => {
           .mockResolvedValue([[normalListView, partialListView], []]);
       });
 
-      it("cipherListViews$ excludes partial ciphers", async () => {
+      it("cipherListViews$ excludes restricted ciphers", async () => {
         const result = await firstValueFrom(cipherService.cipherListViews$(mockUserId));
 
         expect(result).toEqual([normalListView]);
       });
 
-      it("cipherListViewsWithPartials$ retains partial ciphers", async () => {
-        const result = await firstValueFrom(cipherService.cipherListViewsWithPartials$(mockUserId));
+      it("cipherListViewsIncludingRestricted$ retains restricted ciphers", async () => {
+        const result = await firstValueFrom(
+          cipherService.cipherListViewsIncludingRestricted$(mockUserId),
+        );
 
         expect(result).toEqual([normalListView, partialListView]);
       });
     });
 
-    it("getAllDecrypted excludes partial ciphers (all imperative consumers: export, reports, autofill, CLI...)", async () => {
+    it("getAllDecrypted excludes restricted ciphers (all imperative consumers: export, reports, autofill, CLI...)", async () => {
       jest
-        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .spyOn(cipherService as any, "getAllDecryptedIncludingRestricted")
         .mockResolvedValue([normal, partial]);
 
       const result = await cipherService.getAllDecrypted(mockUserId);
@@ -882,7 +886,7 @@ describe("Cipher Service", () => {
       expect(result).toEqual([normal]);
     });
 
-    it("getAllDecryptedCiphersOfType excludes partial ciphers (autofill card/identity suggestions)", async () => {
+    it("getAllDecryptedCiphersOfType excludes restricted ciphers (autofill card/identity suggestions)", async () => {
       const normalCard = new CipherView(encryptionContext.cipher);
       normalCard.id = "card-normal" as CipherId;
       normalCard.type = CipherType.Card;
@@ -894,7 +898,7 @@ describe("Cipher Service", () => {
       partialCard.partial = true;
 
       jest
-        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .spyOn(cipherService as any, "getAllDecryptedIncludingRestricted")
         .mockResolvedValue([normalCard, partialCard]);
 
       const result = await (cipherService as any).getAllDecryptedCiphersOfType(
@@ -903,6 +907,50 @@ describe("Cipher Service", () => {
       );
 
       expect(result).toEqual([normalCard]);
+    });
+
+    describe("filterCiphersForUrl", () => {
+      const url = "https://example.com/login";
+
+      const login = (restricted: boolean) => {
+        const view = new CipherView();
+        view.id = "login" as CipherId;
+        view.type = CipherType.Login;
+        view.login = new LoginView();
+        const uri = new LoginUriView();
+        uri.uri = "https://example.com";
+        view.login.uris = [uri];
+        view.partial = restricted;
+        return view;
+      };
+
+      beforeEach(() => {
+        domainSettingsService.getUrlEquivalentDomains.mockReturnValue(of(new Set<string>()));
+      });
+
+      it("excludes a restricted login with a matching URI", async () => {
+        const result = await cipherService.filterCiphersForUrl(
+          [login(true)],
+          url,
+          undefined,
+          UriMatchStrategy.Domain,
+        );
+
+        expect(result).toEqual([]);
+      });
+
+      it("matches the same login when it is not restricted", async () => {
+        const view = login(false);
+
+        const result = await cipherService.filterCiphersForUrl(
+          [view],
+          url,
+          undefined,
+          UriMatchStrategy.Domain,
+        );
+
+        expect(result).toEqual([view]);
+      });
     });
   });
 
@@ -1954,6 +2002,82 @@ describe("Cipher Service", () => {
       }
 
       expect(sdkServiceSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("upsert", () => {
+    const restrictedId = "restricted" as CipherId;
+    const otherId = "other" as CipherId;
+    const stored = (id: CipherId, restricted: boolean, name = "stored") =>
+      Object.assign(new CipherData(), {
+        ...cipherData,
+        id,
+        name,
+        partialData: restricted ? "{}" : undefined,
+      });
+    const state = () =>
+      firstValueFrom(stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).state$);
+
+    beforeEach(() => {
+      stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).nextState({});
+    });
+
+    it("keeps a stored restricted copy when the incoming copy is full", async () => {
+      const kept = stored(restrictedId, true);
+      stateProvider.singleUser
+        .getFake(userId, ENCRYPTED_CIPHERS)
+        .nextState({ [restrictedId]: kept });
+
+      await cipherService.upsert(stored(restrictedId, false, "incoming"), userId);
+
+      expect((await state())[restrictedId]).toEqual(kept);
+      expect(logService.debug).toHaveBeenCalledWith(
+        "Kept 1 stored restricted cipher(s); did not save a full copy.",
+      );
+    });
+
+    it("replaces a stored restricted copy with an incoming restricted copy", async () => {
+      stateProvider.singleUser
+        .getFake(userId, ENCRYPTED_CIPHERS)
+        .nextState({ [restrictedId]: stored(restrictedId, true) });
+      const incoming = stored(restrictedId, true, "incoming");
+
+      await cipherService.upsert(incoming, userId);
+
+      expect((await state())[restrictedId]).toEqual(incoming);
+    });
+
+    it("replaces a stored full copy with an incoming restricted copy", async () => {
+      stateProvider.singleUser
+        .getFake(userId, ENCRYPTED_CIPHERS)
+        .nextState({ [restrictedId]: stored(restrictedId, false) });
+      const incoming = stored(restrictedId, true, "incoming");
+
+      await cipherService.upsert(incoming, userId);
+
+      expect((await state())[restrictedId]).toEqual(incoming);
+    });
+
+    it("adds a cipher with no stored copy", async () => {
+      const incoming = stored(otherId, false, "incoming");
+
+      await cipherService.upsert(incoming, userId);
+
+      expect((await state())[otherId]).toEqual(incoming);
+    });
+
+    it("keeps one item and writes another in the same call", async () => {
+      const kept = stored(restrictedId, true);
+      stateProvider.singleUser
+        .getFake(userId, ENCRYPTED_CIPHERS)
+        .nextState({ [restrictedId]: kept });
+      const written = stored(otherId, false, "incoming");
+
+      await cipherService.upsert([stored(restrictedId, false, "incoming"), written], userId);
+
+      const result = await state();
+      expect(result[restrictedId]).toEqual(kept);
+      expect(result[otherId]).toEqual(written);
     });
   });
 

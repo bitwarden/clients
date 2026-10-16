@@ -269,7 +269,7 @@ export class VaultNextComponent implements OnInit {
       combineLatest([
         // Emits null until the first decrypt completes. Reads the with-partials stream so
         // PAM-gated rows stay listed — a member has to see the item to request access to it.
-        this.cipherService.cipherListViewsWithPartials$(userId).pipe(filterOutNullish()),
+        this.cipherService.cipherListViewsIncludingRestricted$(userId).pipe(filterOutNullish()),
         this.restrictedItemTypesService.restricted$,
       ]),
     ),

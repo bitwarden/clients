@@ -238,7 +238,7 @@ export class ControlledAccessVaultFilterService implements VaultControlledAccess
       switchMap((pamOrganizationIds) => {
         const candidates = ciphers.filter(
           (cipher) =>
-            CipherViewLikeUtils.isPartial(cipher) &&
+            CipherViewLikeUtils.isRestricted(cipher) &&
             cipher.id != null &&
             cipher.organizationId != null &&
             pamOrganizationIds.has(String(cipher.organizationId)),

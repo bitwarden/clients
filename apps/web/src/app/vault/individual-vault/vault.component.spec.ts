@@ -143,7 +143,7 @@ describe("VaultComponent", () => {
     const cipherServiceMock = mock<CipherService>();
     cipherServiceMock.get.mockResolvedValue(mockCipher);
     // The vault list reads the partials-inclusive stream; other consumers read `cipherListViews$`.
-    cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(of([]));
+    cipherServiceMock.cipherListViewsIncludingRestricted$.mockReturnValue(of([]));
     cipherServiceMock.cipherListViews$.mockReturnValue(of([]));
     cipherServiceMock.failedToDecryptCiphers$.mockReturnValue(of([]));
 
