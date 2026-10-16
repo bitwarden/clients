@@ -1,6 +1,6 @@
 # This workflow will run in the context of the source of the PR.
 # On a PR from a fork, the workflow will not have access to secrets, and so any parts of the build that require secrets will not run.
-# If additional artifacts are needed, the failed "build-cli-target.yml" workflow held up by the check-run should be re-run.
+# If signed artifacts are needed for a fork PR, review it and add the "ci:signed-build" label to run "build-cli-target.yml".
 
 name: Build CLI
 
@@ -420,30 +420,6 @@ jobs:
           ResourceHacker -open version-info.rc -save version-info.res -action compile
           ResourceHacker -open %WIN_PKG_BUILT% -save %WIN_PKG_BUILT% -action addoverwrite -resource version-info.res
 
-      - name: Log in to Azure
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: bitwarden/gh-actions/azure-login@main
-        with:
-          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-          client_id: ${{ secrets.AZURE_CLIENT_ID }}
-
-      - name: Retrieve secrets
-        id: retrieve-secrets
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: "bitwarden-ci"
-          secrets: "code-signing-vault-url,
-            code-signing-client-id,
-            code-signing-tenant-id,
-            code-signing-client-secret,
-            code-signing-cert-name"
-
-      - name: Log out from Azure
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: bitwarden/gh-actions/azure-logout@main
-
       - name: Install
         run: npm ci
         working-directory: ./
@@ -494,6 +470,31 @@ jobs:
 
       - name: Build & Package Windows
         run: npm run dist:${{ matrix.license_type.build_prefix }}:win --quiet
+
+      # Retrieve signing secrets only after dependencies are installed and the build has finished.
+      - name: Log in to Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Retrieve secrets
+        id: retrieve-secrets
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "code-signing-vault-url,
+            code-signing-client-id,
+            code-signing-tenant-id,
+            code-signing-client-secret,
+            code-signing-cert-name"
+
+      - name: Log out from Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Sign executable
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}

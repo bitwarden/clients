@@ -97,8 +97,6 @@ import { DefaultMasterPasswordUnlockService } from "@bitwarden/common/key-manage
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
-import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
-import { DefaultSecurityStateService } from "@bitwarden/common/key-management/security-state/services/security-state.service";
 import { SendPasswordService } from "@bitwarden/common/key-management/sends/abstractions/send-password.service";
 import { DefaultSendPasswordService } from "@bitwarden/common/key-management/sends/services/default-send-password.service";
 import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
@@ -209,11 +207,13 @@ import {
 } from "@bitwarden/legacy-crypto";
 // eslint-disable-next-line no-restricted-imports
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
+import { FlightRecorderLogRecorder } from "@bitwarden/logging";
 import {
   DefaultManagedSettingsService,
   DevManagedSettingsService,
   ManagedSettingsService,
 } from "@bitwarden/managed-settings";
+import { FlightRecorderClient } from "@bitwarden/sdk-internal";
 import {
   ActiveUserStateProvider,
   DerivedStateProvider,
@@ -385,7 +385,6 @@ export class ServiceContainer {
   restrictedItemTypesService: RestrictedItemTypesService;
   cliRestrictedItemTypesService: CliRestrictedItemTypesService;
   encryptedMigrator: EncryptedMigrator;
-  securityStateService: SecurityStateService;
   masterPasswordUnlockService: MasterPasswordUnlockService;
   cipherArchiveService: CipherArchiveService;
   lockService: LockService;
@@ -419,6 +418,7 @@ export class ServiceContainer {
     this.logService = new ConsoleLogService(
       this.platformUtilsService.isDev(),
       (level) => process.env.BITWARDENCLI_DEBUG !== "true" && level <= LogLevelType.Info,
+      new FlightRecorderLogRecorder(SdkLoadService.Ready.then(() => new FlightRecorderClient())),
     );
     this.cryptoFunctionService = new NodeCryptoFunctionService();
     this.encryptService = new EncryptServiceImplementation(
@@ -501,14 +501,54 @@ export class ServiceContainer {
 
     this.v2UpgradeTokenStateService = new DefaultV2UpgradeTokenStateService(this.stateProvider);
 
-    this.securityStateService = new DefaultSecurityStateService(
-      this.accountCryptographicStateService,
-    );
-
     this.environmentService = new DefaultEnvironmentService(
       this.stateProvider,
       this.accountService,
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
+    );
+
+    this.appIdService = new AppIdService(this.storageService, this.logService);
+
+    const customUserAgent =
+      "Bitwarden_CLI/" +
+      this.platformUtilsService.getApplicationVersionSync() +
+      " (" +
+      this.platformUtilsService.getDeviceString().toUpperCase() +
+      ")";
+
+    const sdkClientFactory = flagEnabled("sdk")
+      ? new DefaultSdkClientFactory()
+      : new NoopSdkClientFactory();
+    this.sdkLoadService = new CliSdkLoadService();
+
+    let managedSettingsService: ManagedSettingsService;
+    if (devFlagEnabled("managedSettingsDevSource")) {
+      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
+      devManagedSettingsService.pushExplicit(
+        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
+      );
+      managedSettingsService = devManagedSettingsService;
+    } else {
+      // The CLI has no host acquisition code, so nothing pushes a profile here.
+      managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
+    }
+
+    this.sdkService = new DefaultSdkService(
+      sdkClientFactory,
+      this.environmentService,
+      this.platformUtilsService,
+      this.accountService,
+      () => this.kdfConfigService,
+      () => this.keyService,
+      () => this.accountCryptographicStateService,
+      () => this.apiService,
+      this.stateProvider,
+      () => this.configService,
+      this.v2UpgradeTokenStateService,
+      managedSettingsService,
+      this.appIdService,
+      this.logService,
+      customUserAgent,
     );
 
     this.keyGenerationService = new DefaultKeyGenerationService(this.cryptoFunctionService);
@@ -587,15 +627,6 @@ export class ServiceContainer {
       this.logService,
     );
 
-    this.appIdService = new AppIdService(this.storageService, this.logService);
-
-    const customUserAgent =
-      "Bitwarden_CLI/" +
-      this.platformUtilsService.getApplicationVersionSync() +
-      " (" +
-      this.platformUtilsService.getDeviceString().toUpperCase() +
-      ")";
-
     this.biometricStateService = new DefaultBiometricStateService(this.stateProvider);
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(
       this.singleUserStateProvider,
@@ -670,6 +701,7 @@ export class ServiceContainer {
       this.logService,
       this.stateProvider,
       this.authService,
+      this.sdkService,
     );
 
     this.availableRegionsService = new DefaultAvailableRegionsService(
@@ -688,46 +720,9 @@ export class ServiceContainer {
       this.authService,
     );
 
-    this.fileUploadService = new FileUploadService(
-      this.logService,
-      this.apiService,
-      this.configService,
-    );
+    this.fileUploadService = new FileUploadService(this.logService, this.apiService);
 
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
-
-    const sdkClientFactory = flagEnabled("sdk")
-      ? new DefaultSdkClientFactory()
-      : new NoopSdkClientFactory();
-    this.sdkLoadService = new CliSdkLoadService();
-
-    let managedSettingsService: ManagedSettingsService;
-    if (devFlagEnabled("managedSettingsDevSource")) {
-      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
-      devManagedSettingsService.pushExplicit(
-        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
-      );
-      managedSettingsService = devManagedSettingsService;
-    } else {
-      // The CLI has no host acquisition code, so nothing pushes a profile here.
-      managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
-    }
-
-    this.sdkService = new DefaultSdkService(
-      sdkClientFactory,
-      this.environmentService,
-      this.platformUtilsService,
-      this.accountService,
-      this.kdfConfigService,
-      this.keyService,
-      this.accountCryptographicStateService,
-      this.apiService,
-      this.stateProvider,
-      this.configService,
-      this.v2UpgradeTokenStateService,
-      managedSettingsService,
-      customUserAgent,
-    );
 
     this.sendDecryptionService = new SendDecryptionService(
       this.sdkService,
@@ -789,6 +784,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.configService,
       managedSettingsService,
+      this.appIdService,
       customUserAgent,
     );
 
@@ -797,6 +793,7 @@ export class ServiceContainer {
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
       this.sdkService,
       this.logService,
+      this.configService,
     );
 
     this.collectionService = new DefaultCollectionService(
@@ -805,6 +802,7 @@ export class ServiceContainer {
       this.i18nService,
       this.stateProvider,
       this.collectionEncryptionService,
+      this.logService,
     );
 
     this.unlockService = new DefaultUnlockService(
@@ -972,6 +970,7 @@ export class ServiceContainer {
       this.policyService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.configService,
     );
 
     this.cipherEncryptionService = new DefaultCipherEncryptionService(
@@ -1020,6 +1019,7 @@ export class ServiceContainer {
       this.i18nService,
       this.cipherService,
       this.stateProvider,
+      this.logService,
     );
 
     this.folderApiService = new FolderApiService(this.folderService, this.apiService);
@@ -1039,7 +1039,7 @@ export class ServiceContainer {
       this.masterPasswordUnlockService,
     );
 
-    const logoutService = new DefaultLogoutService(this.messagingService);
+    const logoutService = new DefaultLogoutService(this.messagingService, this.logService);
     const processReloadService = new CliProcessReloadService();
     const systemService = new CliSystemService();
     this.lockService = new DefaultLockService(
@@ -1218,6 +1218,7 @@ export class ServiceContainer {
       this.cipherService,
       this.sdkService,
       this.stateProvider,
+      this.i18nService,
     );
   }
 

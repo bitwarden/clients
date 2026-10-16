@@ -44,6 +44,7 @@ import {
   BasePolicyEditComponent,
   policyDrawerTitleKeys,
   policyDrawerDescriptionKeys,
+  policyTitleKeys,
 } from "./base-policy-edit.component";
 
 export type PolicyEditDialogData = {
@@ -68,6 +69,7 @@ export type PolicyEditDialogResult = "saved";
 @Directive()
 export abstract class PolicyEditDialogComponent implements AfterViewInit {
   protected readonly destroyRef = inject(DestroyRef);
+  protected readonly terminology = inject(Vfo1TerminologyService);
   /** Disarmed on lock/logout so neither closePredicate nor beforeunload prompts during teardown. */
   protected readonly guardArmed = signal(true);
   protected readonly loading = signal(true);
@@ -90,6 +92,19 @@ export abstract class PolicyEditDialogComponent implements AfterViewInit {
 
   get policy(): BasePolicyEditDefinition {
     return this.data.policy;
+  }
+
+  /**
+   * Shows the success toast after a policy is saved, using the VFO1 policy name when the
+   * terminology flag is enabled so it matches the name shown in the policies list.
+   */
+  protected showEditedPolicyToast(): void {
+    const [legacy, next] = policyTitleKeys(this.policy);
+    const policyName = this.i18nService.t(this.terminology.enabled() ? next : legacy);
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("editedPolicyId", policyName),
+    });
   }
 
   protected isFormDirty(): boolean {
@@ -177,7 +192,6 @@ export abstract class PolicyEditDialogComponent implements AfterViewInit {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PolicyEditDrawerComponent extends PolicyEditDialogComponent implements AfterViewInit {
-  private readonly terminology = inject(Vfo1TerminologyService);
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
 
   protected readonly policyType = PolicyType;
@@ -327,10 +341,7 @@ export class PolicyEditDrawerComponent extends PolicyEditDialogComponent impleme
     try {
       await this.submitPolicy(policyComponent);
 
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
-      });
+      this.showEditedPolicyToast();
       await this.dialogRef.close("saved");
     } catch (error: any) {
       this.toastService.showToast({

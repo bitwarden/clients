@@ -11,6 +11,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
+import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import {
   CipherFormConfig,
@@ -67,6 +69,13 @@ describe("WebVaultItemActionsService", () => {
     return Object.assign(cipher, overrides);
   };
 
+  /** A login holding a passkey, which clone does not carry over. */
+  const buildPasskeyCipher = () => {
+    const login = new LoginView();
+    login.fido2Credentials = [new Fido2CredentialView()];
+    return buildCipher({ login });
+  };
+
   beforeEach(() => {
     cipherService = mock<CipherService>();
     cipherFormConfigService = mock<DefaultCipherFormConfigService>();
@@ -76,6 +85,15 @@ describe("WebVaultItemActionsService", () => {
     toastService = mock<ToastService>();
 
     cipherService.get.mockResolvedValue(buildStoredCipher());
+    // The reprompt reads the stored cipher off the config, as the real service sets it.
+    cipherFormConfigService.buildConfig.mockImplementation(
+      async (mode, id) =>
+        ({
+          mode,
+          originalCipher: id == null ? undefined : await cipherService.get(id, userId),
+        }) as CipherFormConfig,
+    );
+    cipherService.decrypt.mockResolvedValue(buildCipher());
     passwordRepromptService.showPasswordPrompt.mockResolvedValue(true);
     router.navigate.mockResolvedValue(true);
 
@@ -147,6 +165,48 @@ describe("WebVaultItemActionsService", () => {
           queryParams: { cipherId: null, itemId: null, action: null },
         }),
       );
+    });
+
+    it("does not open the clone form when the prompt is refused", async () => {
+      await service.clone(buildCipher());
+
+      expect(itemDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ["view", "view"],
+      ["edit", "edit"],
+      ["clone", "clone"],
+    ] as const)(
+      "names the item on the URL before the prompt shows, on %s",
+      async (method, action) => {
+        const order: string[] = [];
+        router.navigate.mockImplementation(async (_commands, extras) => {
+          order.push(`navigate:${extras?.queryParams?.action}`);
+          return true;
+        });
+        passwordRepromptService.showPasswordPrompt.mockImplementation(async () => {
+          order.push("prompt");
+          return false;
+        });
+
+        await service[method](buildCipher());
+
+        expect(order).toEqual([`navigate:${action}`, "prompt", "navigate:null"]);
+      },
+    );
+
+    it("reports the dialog open while the prompt shows, so the page ignores the params", async () => {
+      let openDuringPrompt: boolean | undefined;
+      passwordRepromptService.showPasswordPrompt.mockImplementation(async () => {
+        openDuringPrompt = service.itemDialogOpen();
+        return false;
+      });
+
+      await service.view(buildCipher());
+
+      expect(openDuringPrompt).toBe(true);
+      expect(service.itemDialogOpen()).toBe(false);
     });
 
     it("does not open the assign dialog when the prompt is refused", async () => {
@@ -257,9 +317,7 @@ describe("WebVaultItemActionsService", () => {
 
     it("does not clone when the passkey warning is declined", async () => {
       dialogService.openSimpleDialog.mockResolvedValue(false);
-      cipherService.get.mockResolvedValue(
-        buildStoredCipher({ login: { fido2Credentials: [{}] } } as unknown as Partial<Cipher>),
-      );
+      cipherService.decrypt.mockResolvedValue(buildPasskeyCipher());
 
       await service.clone(buildCipher());
 
@@ -268,9 +326,7 @@ describe("WebVaultItemActionsService", () => {
 
     it("clears the item query params when the passkey warning is declined", async () => {
       dialogService.openSimpleDialog.mockResolvedValue(false);
-      cipherService.get.mockResolvedValue(
-        buildStoredCipher({ login: { fido2Credentials: [{}] } } as unknown as Partial<Cipher>),
-      );
+      cipherService.decrypt.mockResolvedValue(buildPasskeyCipher());
 
       await service.cloneById(cipherId);
 
@@ -279,6 +335,20 @@ describe("WebVaultItemActionsService", () => {
         expect.objectContaining({
           queryParams: { cipherId: null, itemId: null, action: null },
         }),
+      );
+    });
+
+    it("warns about passkeys held in the decrypted content of a blob-encrypted cipher", async () => {
+      // A blob-encrypted cipher seals its login in `data`, so the stored `login` is null.
+      cipherService.get.mockResolvedValue(
+        buildStoredCipher({ login: null } as unknown as Partial<Cipher>),
+      );
+      cipherService.decrypt.mockResolvedValue(buildPasskeyCipher());
+
+      await service.cloneById(cipherId);
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ title: { key: "passkeyNotCopied" } }),
       );
     });
   });

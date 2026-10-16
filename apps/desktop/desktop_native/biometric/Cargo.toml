@@ -9,6 +9,8 @@ publish = { workspace = true }
 anyhow = { workspace = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
+base64 = { workspace = true }
+desktop_core = { path = "../core" }
 secure_memory = { path = "../secure_memory" }
 tokio = { workspace = true, features = ["sync"] }
 tracing = { workspace = true }

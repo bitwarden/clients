@@ -234,7 +234,6 @@ import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/vau
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   DefaultEndUserNotificationService,
   EndUserNotificationService,
@@ -298,12 +297,14 @@ import {
   LegacyCompatKeyService as LegacyCompatKeyServiceAbstraction,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
+import { FlightRecorderLogRecorder } from "@bitwarden/logging";
 import {
   DefaultManagedSettingsService,
   DevManagedSettingsService,
   ManagedSettingsService,
 } from "@bitwarden/managed-settings";
 import { BackgroundSyncService } from "@bitwarden/platform/background-sync";
+import { FlightRecorderClient } from "@bitwarden/sdk-internal";
 import {
   ActiveUserStateProvider,
   DerivedStateProvider,
@@ -337,13 +338,14 @@ import {
 import { ExtensionAuthRequestAnsweringService } from "../auth/services/auth-request-answering/extension-auth-request-answering.service";
 import { AuthStatusBadgeUpdaterService } from "../auth/services/auth-status-badge-updater.service";
 import { ExtensionLockService } from "../auth/services/extension-lock.service";
+import { AutofillOrchestrator } from "../autofill/background/abstractions/autofill-orchestrator";
 import { OverlayNotificationsBackground as OverlayNotificationsBackgroundInterface } from "../autofill/background/abstractions/overlay-notifications.background";
 import {
   OverlayBackground as OverlayBackgroundInterface,
   PasswordGenerateRequestSource,
 } from "../autofill/background/abstractions/overlay.background";
 import { AutoSubmitLoginBackground } from "../autofill/background/auto-submit-login.background";
-import { AutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
+import { DefaultAutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
 import ContextMenusBackground from "../autofill/background/context-menus.background";
 import NotificationBackground from "../autofill/background/notification.background";
 import { OverlayNotificationsBackground } from "../autofill/background/overlay-notifications.background";
@@ -371,6 +373,7 @@ import { ClipboardNotificationBadgeUpdaterService } from "../autofill/services/c
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { TargetingRulesDataService } from "../autofill/services/targeting-rules-data.service";
 import { WebmapperDraftService } from "../autofill/services/webmapper-draft.service";
+import { shouldAutoCopyTotp } from "../autofill/types/fill-result";
 import { trackGeneratedCredential } from "../autofill/utils/credential-history-utils";
 import { SafariApp } from "../browser/safariApp";
 import { PhishingDataService } from "../dirt/phishing-detection/services/phishing-data.service";
@@ -587,7 +590,6 @@ export default class MainBackground {
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
-  loginToAutoFill: CipherView = null;
   organizationUserService: OrganizationUserService;
   organizationUserApiService: OrganizationUserApiService;
   autoConfirmService: AutomaticUserConfirmationService;
@@ -616,8 +618,13 @@ export default class MainBackground {
   private phishingDetectionService: PhishingDetectionService;
 
   constructor() {
-    const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) =>
+    // Downstream services receive this callback and invoke it directly instead of
+    // going through LogoutService, so the log line that lives in DefaultLogoutService
+    // is mirrored here to cover this path.
+    const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) => {
+      this.logService.info("Logging out user %s for reason: %s", userId, logoutReason);
       await this.logout(logoutReason, userId);
+    };
 
     const runtimeNativeMessagingBackground = () => this.nativeMessagingBackground;
 
@@ -631,7 +638,11 @@ export default class MainBackground {
     };
 
     const isDev = process.env.ENV === "development";
-    this.logService = new ConsoleLogService(isDev);
+    this.logService = new ConsoleLogService(
+      isDev,
+      null,
+      new FlightRecorderLogRecorder(SdkLoadService.Ready.then(() => new FlightRecorderClient())),
+    );
     this.cryptoFunctionService = new WebCryptoFunctionService(self);
     this.keyGenerationService = new DefaultKeyGenerationService(this.cryptoFunctionService);
     this.storageService = new BrowserLocalStorageService(this.logService);
@@ -757,6 +768,47 @@ export default class MainBackground {
       this.accountService,
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
     );
+
+    this.appIdService = new AppIdService(this.storageService, this.logService);
+
+    const sdkClientFactory = flagEnabled("sdk")
+      ? new DefaultSdkClientFactory()
+      : new NoopSdkClientFactory();
+    this.sdkLoadService = new BrowserSdkLoadService(this.logService);
+
+    if (devFlagEnabled("managedSettingsDevSource")) {
+      // The dev source replaces host acquisition rather than layering on top of it. Left running,
+      // the reader would find no policy on the developer's machine and clear the pushed profile.
+      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
+      devManagedSettingsService.pushExplicit(
+        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
+      );
+      this.managedSettingsService = devManagedSettingsService;
+    } else {
+      this.managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
+      this.managedConfigReader = new BrowserManagedConfigReader(
+        this.managedSettingsService,
+        this.logService,
+      );
+    }
+
+    this.sdkService = new DefaultSdkService(
+      sdkClientFactory,
+      this.environmentService,
+      this.platformUtilsService,
+      this.accountService,
+      () => this.kdfConfigService,
+      () => this.keyService,
+      () => this.accountCryptographicStateService,
+      () => this.apiService,
+      this.stateProvider,
+      () => this.configService,
+      this.v2UpgradeTokenStateService,
+      this.managedSettingsService,
+      this.appIdService,
+      this.logService,
+    );
+
     this.biometricStateService = new DefaultBiometricStateService(this.stateProvider);
 
     this.userNotificationSettingsService = new UserNotificationSettingsService(this.stateProvider);
@@ -815,6 +867,7 @@ export default class MainBackground {
       this.messagingService,
       () => this.vaultTimeoutSettingsService,
       () => this.ipcService,
+      this.platformUtilsService,
     );
     // Temporary dependency cycle workaround, until browser biometrics is replaced by shared unlock
     this.biometricsService = browserBiometricsService;
@@ -852,8 +905,6 @@ export default class MainBackground {
       this.masterPasswordService,
       this.logService,
     );
-
-    this.appIdService = new AppIdService(this.storageService, this.logService);
 
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(
       this.singleUserStateProvider,
@@ -910,11 +961,7 @@ export default class MainBackground {
     );
 
     this.hibpApiService = new HibpApiService(this.apiService);
-    this.fileUploadService = new FileUploadService(
-      this.logService,
-      this.apiService,
-      this.configService,
-    );
+    this.fileUploadService = new FileUploadService(this.logService, this.apiService);
     this.searchService = new SearchService(this.logService, this.i18nService);
 
     this.badgeSettingsService = new BadgeSettingsService(this.stateProvider);
@@ -942,6 +989,7 @@ export default class MainBackground {
       this.logService,
       this.stateProvider,
       this.authService,
+      this.sdkService,
     );
 
     this.availableRegionsService = new DefaultAvailableRegionsService(
@@ -962,42 +1010,6 @@ export default class MainBackground {
       this.accountService,
     );
 
-    const sdkClientFactory = flagEnabled("sdk")
-      ? new DefaultSdkClientFactory()
-      : new NoopSdkClientFactory();
-    this.sdkLoadService = new BrowserSdkLoadService(this.logService);
-
-    if (devFlagEnabled("managedSettingsDevSource")) {
-      // The dev source replaces host acquisition rather than layering on top of it. Left running,
-      // the reader would find no policy on the developer's machine and clear the pushed profile.
-      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
-      devManagedSettingsService.pushExplicit(
-        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
-      );
-      this.managedSettingsService = devManagedSettingsService;
-    } else {
-      this.managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
-      this.managedConfigReader = new BrowserManagedConfigReader(
-        this.managedSettingsService,
-        this.logService,
-      );
-    }
-
-    this.sdkService = new DefaultSdkService(
-      sdkClientFactory,
-      this.environmentService,
-      this.platformUtilsService,
-      this.accountService,
-      this.kdfConfigService,
-      this.keyService,
-      this.accountCryptographicStateService,
-      this.apiService,
-      this.stateProvider,
-      this.configService,
-      this.v2UpgradeTokenStateService,
-      this.managedSettingsService,
-    );
-
     this.registerSdkService = new DefaultRegisterSdkService(
       sdkClientFactory,
       this.environmentService,
@@ -1007,11 +1019,13 @@ export default class MainBackground {
       this.stateProvider,
       this.configService,
       this.managedSettingsService,
+      this.appIdService,
     );
 
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
       this.sdkService,
       this.logService,
+      this.configService,
     );
 
     this.collectionService = new DefaultCollectionService(
@@ -1020,6 +1034,7 @@ export default class MainBackground {
       this.i18nService,
       this.stateProvider,
       this.collectionEncryptionService,
+      this.logService,
     );
 
     this.pinService = new PinService(this.sdkService);
@@ -1137,6 +1152,7 @@ export default class MainBackground {
       this.policyService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.configService,
     );
 
     this.ssoLoginService = new SsoLoginService(
@@ -1207,6 +1223,7 @@ export default class MainBackground {
       this.i18nService,
       this.cipherService,
       this.stateProvider,
+      this.logService,
     );
     this.folderApiService = new FolderApiService(this.folderService, this.apiService);
 
@@ -1354,9 +1371,10 @@ export default class MainBackground {
       this.animationControlService,
       this.autofillLifecycleService,
     );
-    this.autofillOrchestrator = new AutofillOrchestrator(
+    this.autofillOrchestrator = new DefaultAutofillOrchestrator(
       this.autofillLifecycleService,
       this.autofillService,
+      this.cipherService,
       this.autofillSettingsService,
       this.accountService,
       this.platformUtilsService,
@@ -1493,7 +1511,6 @@ export default class MainBackground {
       this.authService,
       this.webPushConnectionService,
       this.authRequestAnsweringService,
-      this.configService,
       this.autoConfirmService,
       this.billingAccountProfileStateService,
     );
@@ -1552,7 +1569,7 @@ export default class MainBackground {
       permissionsPolicyBackground,
     );
 
-    const logoutService = new DefaultLogoutService(this.messagingService);
+    const logoutService = new DefaultLogoutService(this.messagingService, this.logService);
     this.lockService = new ExtensionLockService(
       this.accountService,
       this.biometricsService,
@@ -1664,7 +1681,7 @@ export default class MainBackground {
 
     this.autoSubmitLoginBackground = new AutoSubmitLoginBackground(
       this.logService,
-      this.autofillService,
+      this.autofillLifecycleService,
       this.scriptInjectorService,
       this.authService,
       this.platformUtilsService,
@@ -1683,19 +1700,18 @@ export default class MainBackground {
         await firstValueFrom(this.generatePasswordToClipboard(), { defaultValue: undefined });
       },
       async (tab, cipher) => {
-        this.loginToAutoFill = cipher;
         if (tab == null) {
           return;
         }
 
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        BrowserApi.tabSendMessage(tab, {
-          command: "collectPageDetails",
-          tab: tab,
-          sender: "contextMenu",
-        });
+        // The user chose this cipher from the context menu, so a fill that placed nothing is
+        // mitigated by copying its code. See `autofill.design.md`, "Outcomes".
+        const result = await this.autofillOrchestrator.autofillTabWithCipher(tab, cipher);
+        if (shouldAutoCopyTotp(result)) {
+          this.platformUtilsService.copyToClipboard(result.totp);
+        }
       },
+      (tabId, frameId) => this.autofillOrchestrator.collectAutofillTriage(tabId, frameId),
       this.authService,
       this.cipherService,
       this.totpService,
@@ -1757,7 +1773,9 @@ export default class MainBackground {
         this.authService,
         this.accountService,
         chrome.webRequest,
-        this.configService,
+        this.autofillSettingsService,
+        this.eventCollectionService,
+        this.logService,
       );
     }
 
@@ -1806,6 +1824,7 @@ export default class MainBackground {
       this.sharedUnlockSettingsService,
       this.unlockService,
       this.configService,
+      this.stateProvider,
     );
 
     this.endUserNotificationService = new DefaultEndUserNotificationService(
@@ -1887,12 +1906,14 @@ export default class MainBackground {
       await BrowserApi.setSidePanelOptions({ enabled: false });
     }
     this.idleBackground.init();
-    await this.webRequestBackground?.startListening();
+    this.webRequestBackground?.startListening();
     this.syncServiceListener?.listener$().subscribe();
     await this.autoSubmitLoginBackground.init();
     await this.targetingRulesDataService.init();
 
     // If the user is logged out, switch to the next account
+    // TODO: PM-44635 - Use AccountSwitcherService.resolveActiveAccount() from
+    // @bitwarden/common/auth/account-switcher, which never picks a logged-out account.
     const active = await firstValueFrom(this.accountService.activeAccount$);
     if (active != null) {
       const authStatus = await firstValueFrom(
@@ -2040,6 +2061,8 @@ export default class MainBackground {
 
     await this.eventUploadService.uploadEvents(userBeingLoggedOut);
 
+    // TODO: PM-44635 - Use AccountSwitcherService.nextSwitchableAccount$ from
+    // @bitwarden/common/auth/account-switcher, which never picks a logged-out account.
     const newActiveUser =
       userBeingLoggedOut === activeUserId
         ? await firstValueFrom(this.accountService.nextUpAccount$.pipe(map((a) => a?.id)))
@@ -2112,29 +2135,6 @@ export default class MainBackground {
       this.vaultTimeoutSettingsService.getVaultTimeoutByUserId$(userId),
     );
     return currentVaultTimeout == VaultTimeoutStringType.Never ? false : true;
-  }
-
-  async collectPageDetailsForContentScript(tab: any, sender: string, frameId: number = null) {
-    if (tab == null || !tab.id) {
-      return;
-    }
-
-    const options: any = {};
-    if (frameId != null) {
-      options.frameId = frameId;
-    }
-
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    BrowserApi.tabSendMessage(
-      tab,
-      {
-        command: "collectPageDetails",
-        tab: tab,
-        sender: sender,
-      },
-      options,
-    );
   }
 
   /**
@@ -2340,6 +2340,7 @@ export default class MainBackground {
       this.accountService,
       this.generatorHistoryService,
       this.credentialGeneratorService,
+      this.autofillOrchestrator,
       this.configService,
       this.#intraprocessMessageSender,
       this.messageListener,

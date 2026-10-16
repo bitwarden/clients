@@ -31,14 +31,13 @@ describe("PamOrgNavSlotComponent", () => {
         {
           provide: I18nService,
           useValue: new I18nMockService({
-            pam: "Privileged access",
+            privilegedControls: "Privileged Controls",
             pamAccessRules: "Access rules",
           }),
         },
       ],
     })
-      // Stub the nav child components so the test exercises this component's own flag-gating
-      // logic, not their rendering.
+      // Stub the nav components so the test covers this component's gating, not their rendering.
       .overrideComponent(PamOrgNavSlotComponent, {
         remove: { imports: [NavigationModule] },
         add: { schemas: [NO_ERRORS_SCHEMA] },
@@ -71,5 +70,13 @@ describe("PamOrgNavSlotComponent", () => {
     fixture.componentRef.setInput("organization", org(false));
     fixture.detectChanges();
     expect(navGroup()).toBeNull();
+  });
+
+  it("generates no box of its own, so rendering nothing takes up no space", () => {
+    pamEnabled$.next(false);
+    fixture.detectChanges();
+
+    expect(navGroup()).toBeNull();
+    expect(fixture.debugElement.nativeElement.classList).toContain("tw-contents");
   });
 });

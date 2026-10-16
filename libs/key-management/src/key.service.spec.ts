@@ -37,6 +37,7 @@ import {
   SymmetricCryptoKey,
   UnsignedPublicKey,
 } from "@bitwarden/legacy-crypto";
+import { Measurement } from "@bitwarden/logging";
 import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
 import { BiometricsService } from "./biometrics/biometric.service";
@@ -48,7 +49,7 @@ describe("keyService", () => {
   const cryptoFunctionService = mock<CryptoFunctionService>();
   const encryptService = mock<EncryptService>();
   const platformUtilService = mock<PlatformUtilsService>();
-  const logService = mock<LogService>();
+  const logService = mock<LogService>({ startMeasurement: () => mock<Measurement>() });
   const stateService = mock<StateService>();
   const accountCryptographicStateService = mock<AccountCryptographicStateService>();
   const biometricsService = mock<BiometricsService>();
@@ -111,6 +112,31 @@ describe("keyService", () => {
     it.each([true, false])("returns %s if the user key is set", async (hasKey) => {
       setUserKeyState(mockUserId, hasKey ? mockUserKey : null);
       expect(await keyService.hasUserKey(mockUserId)).toBe(hasKey);
+    });
+  });
+
+  describe("userKey$", () => {
+    it("does not re-emit when the same user key is written again", async () => {
+      // Every emission makes cipher consumers decrypt the whole vault, e.g. after each sync.
+      setUserKeyState(mockUserId, makeSymmetricCryptoKey<UserKey>(64, 0));
+
+      const emitted: (UserKey | null)[] = [];
+      const subscription = keyService.userKey$(mockUserId).subscribe((key) => emitted.push(key));
+      setUserKeyState(mockUserId, makeSymmetricCryptoKey<UserKey>(64, 0));
+
+      subscription.unsubscribe();
+      expect(emitted).toHaveLength(1);
+    });
+
+    it("re-emits when the user key changes", async () => {
+      setUserKeyState(mockUserId, makeSymmetricCryptoKey<UserKey>(64, 0));
+
+      const emitted: (UserKey | null)[] = [];
+      const subscription = keyService.userKey$(mockUserId).subscribe((key) => emitted.push(key));
+      setUserKeyState(mockUserId, makeSymmetricCryptoKey<UserKey>(64, 1));
+
+      subscription.unsubscribe();
+      expect(emitted).toHaveLength(2);
     });
   });
 
@@ -532,6 +558,60 @@ describe("keyService", () => {
       expect(emittedValues[5]!.orgKeys![org1Id].keyB64).not.toEqual(
         emittedValues[4]!.orgKeys![org1Id].keyB64,
       );
+    });
+
+    it("does not re-emit when a sync rewrites identical org and provider keys", async () => {
+      // Every emission makes cipher consumers decrypt the whole vault.
+      const orgKeys = {
+        [org1Id]: { type: "organization" as const, key: makeEncString("org1Key").encryptedString! },
+      };
+      updateKeys({
+        userKey: makeSymmetricCryptoKey<UserKey>(64),
+        encryptedPrivateKey: makeEncString("privateKey"),
+        providerKeys: {},
+        orgKeys,
+      });
+
+      const emitted: unknown[] = [];
+      const subscription = keyService
+        .cipherDecryptionKeys$(mockUserId)
+        .subscribe((keys) => emitted.push(keys));
+      await new Promise(process.nextTick);
+
+      updateKeys({ providerKeys: {} });
+      await new Promise(process.nextTick);
+      updateKeys({ orgKeys: { ...orgKeys } });
+      await new Promise(process.nextTick);
+
+      subscription.unsubscribe();
+      expect(emitted).toHaveLength(1);
+    });
+
+    it("re-emits when an org key changes", async () => {
+      updateKeys({
+        userKey: makeSymmetricCryptoKey<UserKey>(64),
+        encryptedPrivateKey: makeEncString("privateKey"),
+        providerKeys: {},
+        orgKeys: {
+          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
+        },
+      });
+
+      const emitted: unknown[] = [];
+      const subscription = keyService
+        .cipherDecryptionKeys$(mockUserId)
+        .subscribe((keys) => emitted.push(keys));
+      await new Promise(process.nextTick);
+
+      updateKeys({
+        orgKeys: {
+          [org1Id]: { type: "organization", key: makeEncString("org1KeyB").encryptedString! },
+        },
+      });
+      await new Promise(process.nextTick);
+
+      subscription.unsubscribe();
+      expect(emitted).toHaveLength(2);
     });
   });
 

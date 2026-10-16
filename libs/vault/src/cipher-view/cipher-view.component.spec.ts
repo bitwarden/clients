@@ -1,5 +1,7 @@
-import { NO_ERRORS_SCHEMA } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { ChangeDetectionStrategy, Component, input, NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
@@ -8,8 +10,6 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -23,7 +23,19 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 
+import { CIPHER_VIEW_BANNER } from "../tokens/cipher-view-banner.token";
+
 import { CipherViewComponent } from "./cipher-view.component";
+
+/** Stand-in for a host-provided banner; captures the inputs the slot passes through. */
+@Component({
+  selector: "test-cipher-view-banner",
+  template: "<div data-testid='test-banner'></div>",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class TestBannerComponent {
+  readonly cipher = input<CipherView>();
+}
 
 describe("CipherViewComponent", () => {
   let component: CipherViewComponent;
@@ -45,11 +57,8 @@ describe("CipherViewComponent", () => {
   let mockBillingAccountProfileStateService: BillingAccountProfileStateService;
   let mockVaultSettingsService: VaultSettingsService;
   let showAtRiskPasswordNotifications$: BehaviorSubject<boolean>;
-  let mockConfigService: ConfigService;
-  let removeAtRiskCallout$: BehaviorSubject<boolean>;
 
   // Mock data
-  let mockCipherView: CipherView;
   let hasPremiumFromAnySource$: BehaviorSubject<boolean>;
   let activeAccount$: BehaviorSubject<Account>;
 
@@ -89,15 +98,6 @@ describe("CipherViewComponent", () => {
     mockVaultSettingsService = mock<VaultSettingsService>();
     mockVaultSettingsService.showAtRiskPasswordNotifications$ = showAtRiskPasswordNotifications$;
 
-    removeAtRiskCallout$ = new BehaviorSubject(false);
-    mockConfigService = mock<ConfigService>();
-    mockConfigService.getFeatureFlag$ = jest.fn().mockReturnValue(removeAtRiskCallout$);
-
-    // Setup mock cipher view
-    mockCipherView = new CipherView();
-    mockCipherView.id = "cipher-id";
-    mockCipherView.name = "Test Cipher";
-
     await TestBed.configureTestingModule({
       imports: [CipherViewComponent],
       providers: [
@@ -118,7 +118,6 @@ describe("CipherViewComponent", () => {
           useValue: mockBillingAccountProfileStateService,
         },
         { provide: VaultSettingsService, useValue: mockVaultSettingsService },
-        { provide: ConfigService, useValue: mockConfigService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -135,6 +134,84 @@ describe("CipherViewComponent", () => {
 
     fixture = TestBed.createComponent(CipherViewComponent);
     component = fixture.componentInstance;
+  });
+
+  describe("banner slot (CIPHER_VIEW_BANNER)", () => {
+    const BANNER_TEMPLATE = /* HTML */ `
+      @if (bannerComponent) {
+      <ng-container
+        *ngComponentOutlet="
+            bannerComponent;
+            inputs: {
+              cipher: cipher(),
+            }
+          "
+      />
+      }
+    `;
+
+    async function setupBanner(provideBanner: boolean): Promise<void> {
+      TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [CipherViewComponent],
+        providers: [
+          { provide: AccountService, useValue: mockAccountService },
+          { provide: OrganizationService, useValue: mockOrganizationService },
+          { provide: CollectionService, useValue: mockCollectionService },
+          { provide: FolderService, useValue: mockFolderService },
+          { provide: TaskService, useValue: mockTaskService },
+          { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+          { provide: ChangeLoginPasswordService, useValue: mockChangeLoginPasswordService },
+          { provide: CipherService, useValue: mockCipherService },
+          { provide: ViewPasswordHistoryService, useValue: mockViewPasswordHistoryService },
+          { provide: I18nService, useValue: mockI18nService },
+          { provide: LogService, useValue: mockLogService },
+          { provide: CipherRiskService, useValue: mockCipherRiskService },
+          {
+            provide: BillingAccountProfileStateService,
+            useValue: mockBillingAccountProfileStateService,
+          },
+          { provide: VaultSettingsService, useValue: mockVaultSettingsService },
+          ...(provideBanner
+            ? [{ provide: CIPHER_VIEW_BANNER, useValue: TestBannerComponent }]
+            : []),
+        ],
+        schemas: [NO_ERRORS_SCHEMA],
+      })
+        .overrideComponent(CipherViewComponent, {
+          set: { template: BANNER_TEMPLATE, imports: [CommonModule, TestBannerComponent] },
+        })
+        .compileComponents();
+
+      fixture = TestBed.createComponent(CipherViewComponent);
+      component = fixture.componentInstance;
+    }
+
+    it("injects null and renders no banner when the host provides none", async () => {
+      await setupBanner(false);
+      const cipher = new CipherView();
+      cipher.id = "cipher-id";
+      fixture.componentRef.setInput("cipher", cipher);
+      fixture.detectChanges();
+
+      expect(component["bannerComponent"]).toBeNull();
+      expect(fixture.debugElement.query(By.directive(TestBannerComponent))).toBeNull();
+    });
+
+    it("renders the host banner with the cipher provided directly", async () => {
+      await setupBanner(true);
+      const cipher = new CipherView();
+      cipher.id = "cipher-id";
+      cipher.partial = true;
+      fixture.componentRef.setInput("cipher", cipher);
+      fixture.detectChanges();
+
+      expect(component["bannerComponent"]).toBe(TestBannerComponent);
+      const banner = fixture.debugElement.query(By.directive(TestBannerComponent));
+      expect(banner).not.toBeNull();
+      const instance = banner.componentInstance as TestBannerComponent;
+      expect(instance.cipher()).toBe(cipher);
+    });
   });
 
   describe("passwordIsAtRisk signal", () => {
@@ -348,38 +425,5 @@ describe("CipherViewComponent", () => {
 
       expect(component.showChangePasswordLink()).toBe(false);
     }));
-  });
-
-  describe("removeAtRiskCallout signal", () => {
-    beforeEach(() => {
-      fixture = TestBed.createComponent(CipherViewComponent);
-      component = fixture.componentInstance;
-    });
-
-    it("returns false when feature flag is disabled", fakeAsync(() => {
-      removeAtRiskCallout$.next(false);
-
-      fixture.componentRef.setInput("cipher", mockCipherView);
-      fixture.detectChanges();
-      tick();
-
-      expect(component.removeAtRiskCallout()).toBe(false);
-    }));
-
-    it("returns true when feature flag is enabled", fakeAsync(() => {
-      removeAtRiskCallout$.next(true);
-
-      fixture.componentRef.setInput("cipher", mockCipherView);
-      fixture.detectChanges();
-      tick();
-
-      expect(component.removeAtRiskCallout()).toBe(true);
-    }));
-
-    it("calls getFeatureFlag$ with PM32016RemoveAtRiskCallout", () => {
-      expect(mockConfigService.getFeatureFlag$).toHaveBeenCalledWith(
-        FeatureFlag.PM32016RemoveAtRiskCallout,
-      );
-    });
   });
 });

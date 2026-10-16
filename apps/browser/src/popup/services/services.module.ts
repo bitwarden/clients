@@ -184,6 +184,7 @@ import {
   LegacyCompatKeyService,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
+import { FlightRecorderLogRecorderService } from "@bitwarden/logging-angular";
 import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { InlineDerivedStateProvider } from "@bitwarden/state-internal";
 import { SHARE_ITEM_PRESENTER, SHARE_PASSWORD_REPROMPT } from "@bitwarden/tools-share";
@@ -299,11 +300,11 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: LogService,
-    useFactory: () => {
+    useFactory: (recorder: FlightRecorderLogRecorderService) => {
       const isDev = process.env.ENV === "development";
-      return new ConsoleLogService(isDev);
+      return new ConsoleLogService(isDev, null, recorder);
     },
-    deps: [],
+    deps: [FlightRecorderLogRecorderService],
   }),
   safeProvider({
     provide: EnvironmentService,
@@ -577,7 +578,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AutofillSettingsServiceAbstraction,
     useClass: AutofillSettingsService,
-    deps: [StateProvider, PolicyService, AccountService, RestrictedItemTypesService],
+    deps: [StateProvider, PolicyService, AccountService, RestrictedItemTypesService, ConfigService],
   }),
   safeProvider({
     provide: UserNotificationSettingsServiceAbstraction,
@@ -680,6 +681,7 @@ const safeProviders: SafeProvider[] = [
       EnvironmentService,
       I18nServiceAbstraction,
       PlatformUtilsService,
+      LogService,
     ],
   }),
   safeProvider({
@@ -820,7 +822,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LogoutService,
     useClass: ExtensionLogoutService,
-    deps: [MessagingServiceAbstraction, AccountSwitcherService],
+    deps: [MessagingServiceAbstraction, LogService, AccountSwitcherService],
   }),
   safeProvider({
     provide: CompactModeService,
