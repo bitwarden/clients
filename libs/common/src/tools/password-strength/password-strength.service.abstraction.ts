@@ -1,4 +1,4 @@
-import { ZXCVBNResult } from "zxcvbn";
+import type { ZXCVBNResult } from "zxcvbn";
 
 export abstract class PasswordStrengthServiceAbstraction {
   abstract getPasswordStrength(

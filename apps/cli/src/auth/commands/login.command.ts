@@ -3,8 +3,8 @@
 import * as http from "http";
 
 import { OptionValues } from "commander";
-import * as inquirer from "inquirer";
-import Separator from "inquirer/lib/objects/separator";
+import type * as inquirer from "inquirer";
+import type Separator from "inquirer/lib/objects/separator";
 import { filter, firstValueFrom } from "rxjs";
 
 import {
@@ -48,6 +48,7 @@ import { PureCrypto } from "@bitwarden/sdk-internal";
 import { ConfirmKeyConnectorDomainCommand } from "../../key-management/confirm-key-connector-domain.command";
 import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
+import { loadInquirer } from "../../platform/load-inquirer";
 import { firstValueFromOrNull } from "../../utils";
 
 export class LoginCommand {
@@ -121,7 +122,9 @@ export class LoginCommand {
       }
     } else {
       if ((email == null || email === "") && this.canInteract) {
-        const answer: inquirer.Answers = await inquirer.createPromptModule({
+        const answer: inquirer.Answers = await (
+          await loadInquirer()
+        ).createPromptModule({
           output: process.stderr,
         })({
           type: "input",
@@ -144,7 +147,9 @@ export class LoginCommand {
         } else if (options.passwordenv && process.env[options.passwordenv]) {
           password = process.env[options.passwordenv];
         } else if (this.canInteract) {
-          const answer: inquirer.Answers = await inquirer.createPromptModule({
+          const answer: inquirer.Answers = await (
+            await loadInquirer()
+          ).createPromptModule({
             output: process.stderr,
           })({
             type: "password",
@@ -281,9 +286,11 @@ export class LoginCommand {
             selectedProvider = twoFactorProviders[0];
           } else if (this.canInteract) {
             const twoFactorOptions: (string | Separator)[] = twoFactorProviders.map((p) => p.name);
-            twoFactorOptions.push(new inquirer.Separator());
+            twoFactorOptions.push(new (await loadInquirer()).Separator());
             twoFactorOptions.push("Cancel");
-            const answer: inquirer.Answers = await inquirer.createPromptModule({
+            const answer: inquirer.Answers = await (
+              await loadInquirer()
+            ).createPromptModule({
               output: process.stderr,
             })({
               type: "list",
@@ -315,7 +322,9 @@ export class LoginCommand {
 
         if (twoFactorToken == null) {
           if (this.canInteract) {
-            const answer: inquirer.Answers = await inquirer.createPromptModule({
+            const answer: inquirer.Answers = await (
+              await loadInquirer()
+            ).createPromptModule({
               output: process.stderr,
             })({
               type: "input",
@@ -339,7 +348,9 @@ export class LoginCommand {
       if (response.requiresDeviceVerification) {
         let newDeviceToken: string = null;
         if (this.canInteract) {
-          const answer: inquirer.Answers = await inquirer.createPromptModule({
+          const answer: inquirer.Answers = await (
+            await loadInquirer()
+          ).createPromptModule({
             output: process.stderr,
           })({
             type: "input",
@@ -483,7 +494,9 @@ export class LoginCommand {
     const storedClientId: string = process.env.BW_CLIENTID;
     if (storedClientId == null) {
       if (this.canInteract) {
-        const answer: inquirer.Answers = await inquirer.createPromptModule({
+        const answer: inquirer.Answers = await (
+          await loadInquirer()
+        ).createPromptModule({
           output: process.stderr,
         })({
           type: "input",
@@ -508,7 +521,9 @@ export class LoginCommand {
     const storedClientSecret: string = this.clientSecret || process.env.BW_CLIENTSECRET;
     if (storedClientSecret == null) {
       if (this.canInteract) {
-        const answer: inquirer.Answers = await inquirer.createPromptModule({
+        const answer: inquirer.Answers = await (
+          await loadInquirer()
+        ).createPromptModule({
           output: process.stderr,
         })({
           type: "input",

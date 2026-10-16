@@ -3,7 +3,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import * as inquirer from "inquirer";
+import type * as inquirer from "inquirer";
 import * as JSZip from "jszip";
 import { firstValueFrom, Observable, of, timeout } from "rxjs";
 
@@ -16,6 +16,7 @@ import { NodeUtils } from "@bitwarden/node/node-utils";
 
 import { Response } from "./models/response";
 import { MessageResponse } from "./models/response/message.response";
+import { loadInquirer } from "./platform/load-inquirer";
 
 export class CliUtils {
   static writeLn(s: string, finalLine = false, error = false) {
@@ -248,7 +249,9 @@ export class CliUtils {
 
     if (Utils.isNullOrEmpty(password)) {
       if (process.env.BW_NOINTERACTION !== "true") {
-        const answer: inquirer.Answers = await inquirer.createPromptModule({
+        const answer: inquirer.Answers = await (
+          await loadInquirer()
+        ).createPromptModule({
           output: process.stderr,
         })({
           type: "password",
