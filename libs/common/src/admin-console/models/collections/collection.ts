@@ -101,15 +101,11 @@ export class Collection extends Domain {
     collection.manage = sdkCollection.manage;
     collection.defaultUserCollectionEmail = sdkCollection.defaultUserCollectionEmail;
     collection.type = sdkCollection.type;
-    // SdkCollection does not carry hasEnabledAccessRule; see toSdkCollection.
     return collection;
   }
 
   /**
    * Maps Collection to SDK format for use with the SDK crypto operations.
-   *
-   * WARNING: The SDK's `Collection` is `#[serde(deny_unknown_fields)]`, so adding a field it does
-   * not declare, such as `hasEnabledAccessRule`, throws at runtime.
    */
   toSdkCollection(): SdkCollection {
     return {
