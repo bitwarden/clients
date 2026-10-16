@@ -16,6 +16,16 @@ export type AccessBadgeState =
  */
 export const ENDING_SOON_THRESHOLD_MS = 5 * 60 * 1000;
 
+export const ACCESS_BADGE_LOOK = Object.freeze({
+  privileged: { icon: "bwi-key", variant: "primary" },
+  pending: { icon: "bwi-clock", variant: "warning" },
+  unavailable: { icon: "bwi-lock", variant: "subtle" },
+  ready: { icon: "bwi-check", variant: "success" },
+  expired: { icon: "bwi-lock", variant: "subtle" },
+  active: { icon: "bwi-unlock", variant: "accent-primary" },
+  endingSoon: { icon: "bwi-exclamation-triangle", variant: "danger" },
+} as const);
+
 /**
  * Adapts the SDK's `badgeState` onto {@link AccessBadgeState}. The SDK ranks the states (active →
  * ready → pending → unavailable → privileged), so every client badges a gated item identically.
