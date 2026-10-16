@@ -1080,6 +1080,10 @@
   "resetSearch": {
     "message": "Сбросить поиск"
   },
+  "clearSearchTooltip": {
+    "message": "Чтобы очистить, нажмите здесь или клавишу Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "allItems": {
     "message": "Все элементы"
   },
@@ -1179,6 +1183,9 @@
   "collections": {
     "message": "Коллекции"
   },
+  "controlledAccess": {
+    "message": "Контролируемый доступ"
+  },
   "firstName": {
     "message": "Имя"
   },
@@ -1252,6 +1259,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "Общие вложенные папки: $COUNT$",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 вложенная общая папка",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "Моя папка"
   },
@@ -1269,9 +1290,6 @@
   },
   "addSharedFolder": {
     "message": "Добавить общую папку"
-  },
-  "newSharedFolder": {
-    "message": "Новая общая папка"
   },
   "searchSharedFolder": {
     "message": "Поиск в общей папке"
@@ -1464,42 +1482,6 @@
     "message": "Добавить паспорт",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Новый логин",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Новая карта",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Новая личная информация",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Новая заметка",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Новая защищенная заметка",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Новый ключ SSH",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Новый банковский счет",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Новое водительское удостоверение",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Новый паспорт",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Новый текст",
     "description": "Header for new text send"
@@ -1507,22 +1489,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Новый файл",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Изменить логин",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Редактировать карту",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Редактировать личную информацию",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Редактировать заметку",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Изменить защищенную заметку",
@@ -1991,6 +1957,27 @@
   },
   "selectFile": {
     "message": "Выберите файл."
+  },
+  "selectFileUnsupportedType": {
+    "message": "Этот тип файла не поддерживается для данного источника. Выберите другой файл."
+  },
+  "pasteContentRequired": {
+    "message": "Вставьте экспортированный контент."
+  },
+  "fileTypeNotSupported": {
+    "message": "Этот тип файла не поддерживается. Выберите файл типа $TYPES$.",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "Вставленный текст не соответствует выбранному формату."
+  },
+  "errorReadingFile": {
+    "message": "Не удалось прочитать выбранный файл."
   },
   "maxFileSize": {
     "message": "Максимальный размер файла 500 МБ."
@@ -2627,10 +2614,10 @@
     }
   },
   "youHaveNoFoldersV2": {
-    "message": "You have no folders"
+    "message": "У вас нет папок"
   },
   "emptyFoldersDescriptionV2": {
-    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
+    "message": "Используйте папки для организации хранилищ. Они только для вас. Никто больше не увидит и не будет их использовать."
   },
   "emptyVaultsDescription": {
     "message": "Чтобы начать, добавьте логины, ID, карты и другие элементы."
@@ -2966,11 +2953,44 @@
   "keePassMasterPassword": {
     "message": "Мастер-пароль KeePass"
   },
+  "keePassMasterPasswordV2": {
+    "message": "Пароль $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Необходимо ввести пароль."
+  },
+  "filePasswordRequired": {
+    "message": "Требуется пароль для файла"
+  },
+  "filePasswordInvalid": {
+    "message": "Введите правильный пароль файла."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "Загруженный файл защищен паролем. Для продолжения введите пароль."
+  },
+  "selectProfile": {
+    "message": "Выберите профиль"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Введите правильный пароль"
+  },
+  "importAccountMismatchError": {
+    "message": "Этот файл может быть импортирован только в аккаунт, из которого он был экспортирован."
+  },
   "addKeyFile": {
     "message": "Добавить файл ключа"
   },
   "keyFileUpload": {
     "message": "Загрузка файла ключа"
+  },
+  "keyFileUploadV2": {
+    "message": "Файл ключа"
   },
   "kdbxFileUpload": {
     "message": "Загрузка файла KDBX"
@@ -3461,10 +3481,6 @@
   "selectImportSharedFolder": {
     "message": "Выберите общую папку"
   },
-  "importTargetMyFolder": {
-    "message": "Моя папка",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в коллекцию"
   },
@@ -3624,6 +3640,122 @@
   },
   "importHelpCenterLinkText": {
     "message": "Центр поддержки"
+  },
+  "uploadFile": {
+    "message": "Загрузить файл"
+  },
+  "pasteAsPlainText": {
+    "message": "Вставить как обычный текст"
+  },
+  "plainText": {
+    "message": "Обычный текст"
+  },
+  "profile": {
+    "message": "Профиль"
+  },
+  "lastPassEmail": {
+    "message": "LastPass Email"
+  },
+  "includeSharedFolders": {
+    "message": "Включить общие папки"
+  },
+  "importManuallyInstead": {
+    "message": "Вместо этого импортировать вручную"
+  },
+  "directlyImportInstead": {
+    "message": "Вместо этого импортировать напрямую"
+  },
+  "fastest": {
+    "message": "Самый быстрый"
+  },
+  "importDataTitle": {
+    "message": "Импортируйте ваши данные"
+  },
+  "importDataDirectTitle": {
+    "message": "Импортируйте ваши данные за считанные минуты"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Импортируйте свои элементы напрямую из",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "чтобы получить все ваши данные.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Импортируйте из $VENDOR$ или скопируйте и вставьте содержимое экспорта.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Выберите профиль, из которого вы хотите импортировать пароли."
+  },
+  "noBrowserProfilesFound": {
+    "message": "Профили браузеров не найдены"
+  },
+  "importDataLoginTitle": {
+    "message": "Войти в $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Ваши учетные данные шифруются при передаче и никогда не сохраняются."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Безопасность заложена в самом дизайне"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "Передача данных со сквозным шифрованием. Bitwarden никогда не получает доступ к вашим учетным данным для $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "Мы запросим ваши регистрационные данные"
+  },
+  "importDataLoginInfoBody": {
+    "message": "На следующем шаге войдите в свой аккаунт $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Все передачи"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Логины, карты, личная информация, защищенные заметки и TOTP с сохраненной структурой папок."
+  },
+  "importAcceptedFormats": {
+    "message": "Принято: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "Тип файла $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "Этот процесс полностью аналогичен импорту из Google Chrome.",
@@ -3881,9 +4013,6 @@
   },
   "customize": {
     "message": "Настроить"
-  },
-  "newCustomDomain": {
-    "message": "Новый пользовательский домен"
   },
   "addCustomDomain": {
     "message": "Добавить пользовательский домен"
@@ -5400,9 +5529,6 @@
   "groups": {
     "message": "Группы"
   },
-  "newGroup": {
-    "message": "Новая группа"
-  },
   "addGroup": {
     "message": "Добавить группу"
   },
@@ -5457,9 +5583,6 @@
   },
   "readOnly": {
     "message": "Только чтение"
-  },
-  "newCollection": {
-    "message": "Новая коллекция"
   },
   "addCollection": {
     "message": "Добавить коллекцию"
@@ -6155,6 +6278,15 @@
       }
     }
   },
+  "httpAuthReleasedItemId": {
+    "message": "Ответил на запрос HTTP-аутентификации с элементом $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "a1234b5c-6789-0d12-3efg-h4ij56klm789"
+      }
+    }
+  },
   "createdCollectionId": {
     "message": "Создана коллекция $ID$.",
     "placeholders": {
@@ -6774,11 +6906,26 @@
   "resendInvitation": {
     "message": "Пригласить повторно"
   },
+  "sendInvite": {
+    "message": "Отправить приглашение"
+  },
+  "sendInvites": {
+    "message": "Отправить приглашения"
+  },
   "resendEmail": {
     "message": "Отправить email повторно"
   },
   "hasBeenReinvited": {
     "message": "$USER$ приглашен повторно",
+    "placeholders": {
+      "user": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "hasBeenInvited": {
+    "message": "$USER$ приглашен",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -7573,20 +7720,14 @@
   "setYourAllowedDomainsCoachMarkBody": {
     "message": "Добавьте разрешенные почтовые домены (например, acme.com), чтобы ссылкой для приглашения могли воспользоваться только пользователи с соответствующими адресами email. Вы можете изменить эти настройки в любое время."
   },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "Вы находитесь в режиме предварительного просмотра тура, поэтому эти домены приведены лишь в качестве примеров."
+  },
   "adjustTheLink": {
     "message": "Настроить ссылку"
   },
   "adjustTheLinkCoachMarkBody": {
     "message": "Ваши потребности меняются, и ссылка может меняться вместе с ними. <strong>Сгенерируйте заново</strong> ссылку, чтобы аннулировать старую и создать новую."
-  },
-  "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "Ваши потребности меняются, и ссылка может измениться с вами."
-  },
-  "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>Обновите</strong> ссылку, чтобы аннулировать старую и создать новую."
-  },
-  "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>Требуется подтверждение администратора</strong>, чтобы одобрить новых пользователей до того, как они смогут присоединиться к организации."
   },
   "shareTheLinkAnywhere": {
     "message": "Поделитесь ссылкой где угодно"
@@ -7616,7 +7757,7 @@
     "message": "Пригласите участников в вашу организацию с помощью ссылки. Если ни одна из ролей не указана, они будут добавлены в качестве пользователей по умолчанию."
   },
   "inviteLinkSelfHostEmailVerificationWarning": {
-    "message": "Using an invite link could be a security risk in your self-hosted environment because users don’t have to verify their emails."
+    "message": "Использование ссылки для приглашения может представлять угрозу безопасности в вашей самостоятельно развернутой среде, поскольку пользователям не требуется подтверждать свои адреса email."
   },
   "byContinuingYouAgreeToThe": {
     "message": "Продолжая, вы соглашаетесь с"
@@ -8471,6 +8612,10 @@
     "message": "Не удалось найти файл, связанный с этой Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendDownloadBlocked": {
+    "message": "Этот файл не удалось загрузить, поскольку ссылка для загрузки не прошла проверку безопасности.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. Displayed when a Send's file download url fails to use https or targets a local/private network address."
+  },
   "noSendsInList": {
     "message": "В списке нет Send’ов.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -8968,17 +9113,43 @@
     "message": "Активировать помощника по заполнению",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
+  "fillAssistPolicyV2": {
+    "message": "Включить помощник по заполнению",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
   "fillAssistPolicyDesc": {
     "message": "Включите помощника по заполнению по умолчанию для всех участников. Эта функция использует специфичные инструкции для повышения точности на сайтах, на которых зачастую возникают сложности с автозаполнением."
+  },
+  "fillAssistRuleSource": {
+    "message": "Набор правил автозаполнения"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "По умолчанию"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "Использовать набор правил автозаполнения, проверенный Bitwarden."
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "Пользовательский"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "Введите свой собственный набор правил."
   },
   "fillAssistRulesUrl": {
     "message": "Пользовательские правила автозаполнения"
   },
-  "fillAssistRulesUrlHint": {
-    "message": "По умолчанию помощник по заполнению использует набор правил, отобранных Bitwarden. Введите здесь URL, чтобы заменить его своим собственным."
+  "fillAssistRulesUrlV2": {
+    "message": "Пользовательский набор правил"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "Узнать больше о пользовательских правилах"
   },
   "invalidFillAssistRulesUrl": {
     "message": "Введите корректный URL",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "Введите корректный URL для пользовательского набора.",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
@@ -10953,6 +11124,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "Этот URL не допускается. Он должен использовать протокол https и не может указывать на адрес в локальной или частной сети.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Введите корректный URL",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Обнаружен небезопасный URL",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "Этот URL может быть небезопасным или вести в частную сеть. Его использование может привести к раскрытию конфиденциальных данных. Продолжайте только в том случае, если вы доверяете этому серверу.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Доверять URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "Этот URL помечен как доверенный. Вы можете изменить его в любое время.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "Произошла неизвестная ошибка $SERVICENAME$.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -11876,9 +12071,6 @@
   "domainVerification": {
     "message": "Верификация домена"
   },
-  "newDomain": {
-    "message": "Новый домен"
-  },
   "addDomain": {
     "message": "Добавить домен"
   },
@@ -12247,9 +12439,6 @@
   },
   "groupSlashUser": {
     "message": "Группа/Пользователь"
-  },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "При продолжении все активные сессии будут завершены. Вам потребуется авторизоваться повторно и выполнить двухэтапную аутентификацию, если она включена. Мы рекомендуем экспортировать хранилище перед изменением настроек шифрования, чтобы предотвратить потерю данных."
   },
   "secretsManager": {
     "message": "Менеджер секретов"
@@ -13867,10 +14056,6 @@
     "message": "Аккаунты компьютеров",
     "description": "The title for the section that deals with machine accounts."
   },
-  "newMachineAccount": {
-    "message": "Новый аккаунт компьютера",
-    "description": "Title for creating a new machine account."
-  },
   "addMachineAccount": {
     "message": "Добавить аккаунт компьютера",
     "description": "Title for creating a new machine account."
@@ -14340,6 +14525,9 @@
   "organizationOptionsMenu": {
     "message": "Переключить меню организации"
   },
+  "vaultOptions": {
+    "message": "Настройки хранилища"
+  },
   "vaultItemSelect": {
     "message": "Выбрать элемент хранилища"
   },
@@ -14500,6 +14688,40 @@
   },
   "billingPreviewInvoiceError": {
     "message": "При подготовке счета произошла ошибка. Пожалуйста, повторите попытку позже."
+  },
+  "billingPreviewInvalidAddressError": {
+    "message": "Пожалуйста, проверьте свои платежные данные и попробуйте еще раз."
+  },
+  "planChangeTrialIncluded": {
+    "message": "Данное обновление включает пробный период продолжительностью $DAYS$ дней. Указанная выше общая сумма будет списана с вас по окончании пробного периода.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "У вас остался 1 день пробного периода. Сумма, указанная выше, будет списана с вашего счета $DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "У вас осталось $DAYS$ дн. пробного периода. Сумма, указанная выше, будет списана с вашего счета $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
   },
   "unverified": {
     "message": "Неверифицирован"
@@ -16811,8 +17033,8 @@
   "premiumSubscriptionCredit": {
     "message": "Кредит на Премиум"
   },
-  "appliedSubscriptionCredits": {
-    "message": "Примененные кредиты на подписку"
+  "appliedProrationCredits": {
+    "message": "Кредит, рассчитанный по методу пропорционального распределения"
   },
   "enterpriseMembership": {
     "message": "Членство в организации"
@@ -16976,6 +17198,15 @@
   },
   "coachmarkMonitorSecurityDescription": {
     "message": "Обеспечьте надежную защиту элементов в своем хранилище, проверяя отчеты на наличие уязвимостей."
+  },
+  "tourTheNewVault": {
+    "message": "Экскурсия по новому хранилищу"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "Благодаря обновленной навигации и дизайну найти то, что вам нужно, стало проще, чем когда-либо."
+  },
+  "takeTheTour": {
+    "message": "Пройти экскурсию"
   },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Отслеживать безопасность"
@@ -17837,6 +18068,9 @@
   "inviteLinkCalloutBody": {
     "message": "Любой, у кого есть корпоративный адрес email, может воспользоваться ссылкой с приглашением, чтобы присоединиться к вашей организации. Добавьте эту ссылку в материалы для адаптации новых сотрудников, чтобы они могли присоединиться, когда будут готовы."
   },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "В туре используются данные примеров. Ничего в вашей организации не изменится."
+  },
   "inviteLinkCalloutImageAlt": {
     "message": "Invite members dialog preview showing the new by-link tab"
   },
@@ -17977,5 +18211,30 @@
   },
   "serviceAccountsProratedCharge": {
     "message": "Пропорциональная оплата за сервисные аккаунты"
+  },
+  "newExperienceDialogTitle": {
+    "message": "У Bitwarden новый облик",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Улучшенный интерфейс, та же надежная защита. Хранилище Bitwarden было переработано с учетом ваших отзывов, поэтому теперь в нем стало проще находить нужные элементы и все работает так, как вы ожидаете.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Познакомиться с обновленным хранилищем Bitwarden.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Исследуйте новое хранилище",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "Настроить вид"
+  },
+  "showColumns": {
+    "message": "Показать столбцы"
+  },
+  "resetToDefault": {
+    "message": "Сбросить по умолчанию"
   }
 }

@@ -1080,6 +1080,10 @@
   "resetSearch": {
     "message": "Resetovat hledání"
   },
+  "clearSearchTooltip": {
+    "message": "Vymažete klepnutím sem nebo stisknutím klávesy ESC",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "allItems": {
     "message": "Všechny položky"
   },
@@ -1179,6 +1183,9 @@
   "collections": {
     "message": "Sbírky"
   },
+  "controlledAccess": {
+    "message": "Kontrolovaný přístup"
+  },
   "firstName": {
     "message": "Křestní jméno"
   },
@@ -1252,6 +1259,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ vnořených sdílených složek",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 vnořená sdílená složka",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "Moje složka"
   },
@@ -1269,9 +1290,6 @@
   },
   "addSharedFolder": {
     "message": "Přidat sdílenou složku"
-  },
-  "newSharedFolder": {
-    "message": "Nová sdílená složka"
   },
   "searchSharedFolder": {
     "message": "Prohledat sdílenou složku"
@@ -1364,7 +1382,7 @@
     }
   },
   "coachmarkShareWithSharedFoldersDescription": {
-    "message": "Posunutím položky do sdílené složky ji můžete bezpečně sdílet s ostatními členy trezoru."
+    "message": "Přesunutím položky do sdílené složky ji můžete bezpečně sdílet s ostatními členy trezoru."
   },
   "deleteManyOrganizationUsersWarningDescSharedFolders": {
     "message": "Tímto trvale smažete všechny položky vlastněné následujícími členy. Položky sdílené složky nejsou ovlivněny.",
@@ -1464,42 +1482,6 @@
     "message": "Přidat pas",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Nové přihlášení",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Nová karta",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nová identita",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nová poznámka",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nová bezpečná poznámka",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nový SSH klíč",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nový bankovní účet",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nová licence",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Nový pas",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Nový text",
     "description": "Header for new text send"
@@ -1507,22 +1489,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Nový soubor",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Upravit přihlášení",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Upravit kartu",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Upravit identitu",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Upravit poznámku",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Upravit bezpečnou poznámku",
@@ -1991,6 +1957,27 @@
   },
   "selectFile": {
     "message": "Vybrat soubor."
+  },
+  "selectFileUnsupportedType": {
+    "message": "Tento typ souboru není pro tento zdroj přijat. Vyberte jiný soubor."
+  },
+  "pasteContentRequired": {
+    "message": "Vložit exportovaný obsah."
+  },
+  "fileTypeNotSupported": {
+    "message": "Tento typ souboru není podporován. Vyberte soubor $TYPES$.",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "Vložený obsah neodpovídá vybranému formátu."
+  },
+  "errorReadingFile": {
+    "message": "Vybraný soubor nelze přečíst."
   },
   "maxFileSize": {
     "message": "Maximální velikost souboru je 500 MB."
@@ -2966,11 +2953,44 @@
   "keePassMasterPassword": {
     "message": "Hlavní heslo KeePass"
   },
+  "keePassMasterPasswordV2": {
+    "message": "Heslo $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Je vyžadováno heslo."
+  },
+  "filePasswordRequired": {
+    "message": "Je vyžadováno heslo souboru"
+  },
+  "filePasswordInvalid": {
+    "message": "Zadejte platné heslo k souboru."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "Nahraný soubor je chráněn heslem. Chcete-li pokračovat, zadejte heslo."
+  },
+  "selectProfile": {
+    "message": "Vybrat profil"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Zadejte platné heslo"
+  },
+  "importAccountMismatchError": {
+    "message": "Tento soubor lze importovat jen do účtu, ze kterého byl exportován."
+  },
   "addKeyFile": {
     "message": "Přidat soubor s klíčem"
   },
   "keyFileUpload": {
     "message": "Nahrát soubor s klíčem"
+  },
+  "keyFileUploadV2": {
+    "message": "Soubor s klíčem"
   },
   "kdbxFileUpload": {
     "message": "Nahrát soubor KDBX"
@@ -3461,10 +3481,6 @@
   "selectImportSharedFolder": {
     "message": "Vybrat sdílenou složku"
   },
-  "importTargetMyFolder": {
-    "message": "Moje složka",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Pokud chcete obsah importovaného souboru přesunout do sbírky, vyberte tuto volbu"
   },
@@ -3624,6 +3640,122 @@
   },
   "importHelpCenterLinkText": {
     "message": "Centru nápovědy"
+  },
+  "uploadFile": {
+    "message": "Nahrát soubor"
+  },
+  "pasteAsPlainText": {
+    "message": "Vložit jako prostý text"
+  },
+  "plainText": {
+    "message": "Prostý text"
+  },
+  "profile": {
+    "message": "Profil"
+  },
+  "lastPassEmail": {
+    "message": "E-mail LastPass"
+  },
+  "includeSharedFolders": {
+    "message": "Zahrnout sdílené složky"
+  },
+  "importManuallyInstead": {
+    "message": "Importovat místo toho ručně"
+  },
+  "directlyImportInstead": {
+    "message": "Místo toho přímo importovat"
+  },
+  "fastest": {
+    "message": "Nejrychlejší"
+  },
+  "importDataTitle": {
+    "message": "Importovat Vaše data"
+  },
+  "importDataDirectTitle": {
+    "message": "Importujte Vaše data v minutě"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Importujte Vaše položky přímo z",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "pro získání všech Vašich dat.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Importujte z $VENDOR$ nebo zkopírujte a vložte obsah exportu.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Vyberte profil, ze kterého chcete importovat hesla."
+  },
+  "noBrowserProfilesFound": {
+    "message": "Nebyly nalezeny žádné profily prohlížeče"
+  },
+  "importDataLoginTitle": {
+    "message": "Přihlásit se do $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Vaše přihlašovací údaje jsou šifrovány a nikdy se neukládají."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Navrženo s ohledem na bezpečnost"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "End-to-end šifrované předání. Bitwarden nikdy nevidí Vaše přihlašovací údaje z $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "Zeptáme se na Vaše přihlašovací údaje"
+  },
+  "importDataLoginInfoBody": {
+    "message": "V dalším kroku se přihlaste ke svému účtu $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Všechno se přenese"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Přihlašovací údaje, karty, identity, bezpečné poznámky a TOTP s jejich strukturou složek."
+  },
+  "importAcceptedFormats": {
+    "message": "Přijato: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "Typ souboru $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "Tento proces je naprosto stejný jako import z Google Chrome.",
@@ -3881,9 +4013,6 @@
   },
   "customize": {
     "message": "Přizpůsobit"
-  },
-  "newCustomDomain": {
-    "message": "Nová vlastní doména"
   },
   "addCustomDomain": {
     "message": "Přidat vlastní doménu"
@@ -5400,9 +5529,6 @@
   "groups": {
     "message": "Skupiny"
   },
-  "newGroup": {
-    "message": "Nová skupina"
-  },
   "addGroup": {
     "message": "Přidat skupinu"
   },
@@ -5457,9 +5583,6 @@
   },
   "readOnly": {
     "message": "Jen ke čtení"
-  },
-  "newCollection": {
-    "message": "Nová sbírka"
   },
   "addCollection": {
     "message": "Přidat sbírku"
@@ -6155,6 +6278,15 @@
       }
     }
   },
+  "httpAuthReleasedItemId": {
+    "message": "Odpověď na požadavek na HTTP ověření s položkou $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "a1234b5c-6789-0d12-3efg-h4ij56klm789"
+      }
+    }
+  },
   "createdCollectionId": {
     "message": "Byla vytvořena sbírka $ID$.",
     "placeholders": {
@@ -6774,11 +6906,26 @@
   "resendInvitation": {
     "message": "Znovu poslat pozvánku"
   },
+  "sendInvite": {
+    "message": "Odeslat pozvánku"
+  },
+  "sendInvites": {
+    "message": "Odeslat pozvánky"
+  },
   "resendEmail": {
     "message": "Znovu poslat e-mail"
   },
   "hasBeenReinvited": {
     "message": "Uživatel $USER$ byl znovu pozván",
+    "placeholders": {
+      "user": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "hasBeenInvited": {
+    "message": "$USER$ byl pozván",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -7573,20 +7720,14 @@
   "setYourAllowedDomainsCoachMarkBody": {
     "message": "Přidejte povolené e-mailové domény (např. acme.com), aby jen uživatelé s odpovídajícími e-maily mohli použít tento pozvánkový odkaz. Můžete jej kdykoliv aktualizovat."
   },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "Nacházíte se v náhledu prohlídky, takže tyto domény slouží jen jako příklady."
+  },
   "adjustTheLink": {
     "message": "Upravit odkaz"
   },
   "adjustTheLinkCoachMarkBody": {
     "message": "Vaše potřeby se změnily a odkaz se s Vámi může změnit. <strong>Obnovte</strong> odkaz pro zneplatnění starého odkazu a vytvoření nového."
-  },
-  "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "Vaše potřeby se změnily a odkaz se s Vámi může změnit."
-  },
-  "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>Znovu vygenerujte</strong> odkaz pro zneplatnění starého odkazu a vytvoření nového."
-  },
-  "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>Vyžadujte potvrzení správce</strong> pro schválení nových členů, než se mohou připojit k organizaci."
   },
   "shareTheLinkAnywhere": {
     "message": "Sdílet odkaz kdekoli"
@@ -8471,6 +8612,10 @@
     "message": "Soubor spojený s tímto Send nebyl nalezen.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendDownloadBlocked": {
+    "message": "Tento soubor nemohl být stažen, protože odkaz ke stažení selhal při bezpečnostní kontrole.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. Displayed when a Send's file download url fails to use https or targets a local/private network address."
+  },
   "noSendsInList": {
     "message": "Žádné Sends k zobrazení.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -8968,17 +9113,43 @@
     "message": "Aktivovat asistenta vyplňování",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
+  "fillAssistPolicyV2": {
+    "message": "Povolit asistenta vyplňování",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
   "fillAssistPolicyDesc": {
     "message": "Ve výchozím nastavení zapne asistenta vyplňování pro všechny členy. Tato funkce využívá prověřené pokyny specifické pro daný web, aby zvýšila přesnost automatického vyplňování na webových stránkách, u nichž je automatické vyplňování obtížné."
+  },
+  "fillAssistRuleSource": {
+    "message": "Nastavit pravidlo automatického vyplňování"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "Výchozí"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "Použije Bitwardenem kontrolované pravidlo automatického vyplňování."
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "Vlastní"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "Zadejte vlastní pravidlo."
   },
   "fillAssistRulesUrl": {
     "message": "Vlastní sada pravidel automatického vyplňování"
   },
-  "fillAssistRulesUrlHint": {
-    "message": "Ve výchozím nastavení asistent vyplňování používá předem vybranou sadu pravidel Bitwardenu. Zadejte sem adresu URL, chcete-li ji nahradit vlastní sadou pravidel."
+  "fillAssistRulesUrlV2": {
+    "message": "Vlastní pravidlo bylo nastaveno"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "Více informací o vlastních pravidlech"
   },
   "invalidFillAssistRulesUrl": {
     "message": "Zadejte platnou URL adresu",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "Zadejte platnou URL pro vlastní sadu pravidel.",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
@@ -10953,6 +11124,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "Tato adresa URL není povolena. Musí používat https a nesmí odkazovat na místní nebo soukromou síťovou adresu.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Zadejte platnou URL adresu",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Zjištěna nebezpečná URL",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "Tato adresa URL může být nezabezpečená nebo směřovat do soukromé sítě. Její použití může vést k úniku soukromých údajů. Pokračujte jen v případě, že tomuto serveru důvěřujete.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Důvěřovat URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "Tato adresa URL byla označena jako důvěryhodná. Kdykoli ji později můžete upravit.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "Došlo k neznámé chybě $SERVICENAME$.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -11876,9 +12071,6 @@
   "domainVerification": {
     "message": "Ověření domény"
   },
-  "newDomain": {
-    "message": "Nová doména"
-  },
   "addDomain": {
     "message": "Přidat doménu"
   },
@@ -12247,9 +12439,6 @@
   },
   "groupSlashUser": {
     "message": "Skupina/Uživatel"
-  },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "Pokračováním se odhlásíte ze všech aktivních relací. Budete se muset znovu přihlásit a dokončit nastavení dvoufázového přihlášení, pokud nějaké máte. Před změnou nastavení šifrování doporučujeme exportovat trezor, aby nedošlo ke ztrátě dat."
   },
   "secretsManager": {
     "message": "Správce tajných klíčů"
@@ -13867,10 +14056,6 @@
     "message": "Strojové účty",
     "description": "The title for the section that deals with machine accounts."
   },
-  "newMachineAccount": {
-    "message": "Nový strojový účet",
-    "description": "Title for creating a new machine account."
-  },
   "addMachineAccount": {
     "message": "Přidat strojový účet",
     "description": "Title for creating a new machine account."
@@ -14340,6 +14525,9 @@
   "organizationOptionsMenu": {
     "message": "Přepnout menu organizace"
   },
+  "vaultOptions": {
+    "message": "Volby trezoru"
+  },
   "vaultItemSelect": {
     "message": "Vybrat položku trezoru"
   },
@@ -14500,6 +14688,40 @@
   },
   "billingPreviewInvoiceError": {
     "message": "Při náhledu faktury došlo k chybě. Opakujte akci později."
+  },
+  "billingPreviewInvalidAddressError": {
+    "message": "Zkontrolujte své fakturační údaje a zkuste to znovu."
+  },
+  "planChangeTrialIncluded": {
+    "message": "Tato aktualizace obsahuje zkušební $DAYS$denní verzi. Výše je celková částka, která bude účtována na konci zkušební verze.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "Zbývá Vám 1 den ve zkušební verzi. Dne $DATE$ Vám bude účtována celková částka uvedená výše.",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "Zbývá Vám $DAYS$ dnů ve zkušební verzi. Dne $DATE$ Vám bude účtována celková částka uvedená výše.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
   },
   "unverified": {
     "message": "Neověřeno"
@@ -16811,8 +17033,8 @@
   "premiumSubscriptionCredit": {
     "message": "Kredit předplatného Premium"
   },
-  "appliedSubscriptionCredits": {
-    "message": "Byly použity kredity předplatného"
+  "appliedProrationCredits": {
+    "message": "Byl použit poměrný kredit"
   },
   "enterpriseMembership": {
     "message": "Členství Enterprise"
@@ -16976,6 +17198,15 @@
   },
   "coachmarkMonitorSecurityDescription": {
     "message": "Zachovejte bezpečnost Vašich položek v trezoru silnou kontrolou slabých míst."
+  },
+  "tourTheNewVault": {
+    "message": "Projít nový trezor"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "Díky aktualizované navigaci a designu je snazší najít to, co potřebujete."
+  },
+  "takeTheTour": {
+    "message": "Absolvovat prohlídku"
   },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Sledovat bezpečnostní aktivity"
@@ -17837,6 +18068,9 @@
   "inviteLinkCalloutBody": {
     "message": "Každý, kdo má firemní e-mail, může použít pozvánku pro připojení k Vaší organizaci. Přetáhněte ji do zdrojů pro onboarding, aby se nové nábory mohly připojit, až budou připraveny."
   },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "V rámci této prohlídky se používají vzorová data. Ve Vaší organizaci se nic nezmění."
+  },
   "inviteLinkCalloutImageAlt": {
     "message": "Náhled dialogu pozvání členů zobrazující novou záložku podle odkazu"
   },
@@ -17977,5 +18211,30 @@
   },
   "serviceAccountsProratedCharge": {
     "message": "Poměrný poplatek za servisní účty"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden má nový vzhled",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Lepší uživatelský zážitek, stejná osvědčená bezpečnost. Trezor Bitwarden byl přepracován na základě Vašich připomínek, takže vše najdete snáze a funguje přesně tak, jak byste očekávali.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Náhled přepracovaného trezoru Bitwarden.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Prozkoumat nový trezor",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "Přizpůsobit zobrazení"
+  },
+  "showColumns": {
+    "message": "Zobrazit sloupce"
+  },
+  "resetToDefault": {
+    "message": "Obnovit výchozí"
   }
 }

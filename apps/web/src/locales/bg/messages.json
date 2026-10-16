@@ -1080,6 +1080,10 @@
   "resetSearch": {
     "message": "Нулиране на търсенето"
   },
+  "clearSearchTooltip": {
+    "message": "Изчистете чрез щракване тук или натискане на клавиша Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "allItems": {
     "message": "Всички елементи"
   },
@@ -1179,6 +1183,9 @@
   "collections": {
     "message": "Колекции"
   },
+  "controlledAccess": {
+    "message": "Контролиран достъп"
+  },
   "firstName": {
     "message": "Собствено име"
   },
@@ -1252,6 +1259,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ вложени споделени папки",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 вложена споделена папка",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "Моята папка"
   },
@@ -1269,9 +1290,6 @@
   },
   "addSharedFolder": {
     "message": "Добавяне на споделена папка"
-  },
-  "newSharedFolder": {
-    "message": "Нова споделена папка"
   },
   "searchSharedFolder": {
     "message": "Търсене в споделената папка"
@@ -1464,42 +1482,6 @@
     "message": "Добавяне на паспорт",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Нов елемент за вписване",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Нова карта",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Нова самоличност",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Нова бележка",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Нова защитена бележка",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Нов SSH ключ",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Нова банкова сметка",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Нов лиценз",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Нов паспорт",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Нов текст",
     "description": "Header for new text send"
@@ -1507,22 +1489,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Нов файл",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Редактиране на елемента за вписване",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Редактиране на картата",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Редактиране на самоличността",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Редактиране на бележката",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Редактиране на защитената бележка",
@@ -1991,6 +1957,27 @@
   },
   "selectFile": {
     "message": "Избор на файл."
+  },
+  "selectFileUnsupportedType": {
+    "message": "Този файлов тип не се приема за този източник. Изберете друг файл."
+  },
+  "pasteContentRequired": {
+    "message": "Поставете изнесеното съдържание."
+  },
+  "fileTypeNotSupported": {
+    "message": "Този файлов тип не се поддържа. Изберете файл от тип $TYPES$.",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "Поставеното съдържание не съответства на избрания формат."
+  },
+  "errorReadingFile": {
+    "message": "Избраният файл не може да бъде прочетен."
   },
   "maxFileSize": {
     "message": "Големината на файла е най-много 500 MB."
@@ -2966,11 +2953,44 @@
   "keePassMasterPassword": {
     "message": "Главна парола на KeePass"
   },
+  "keePassMasterPasswordV2": {
+    "message": "Парола от $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Паролата е задължителна."
+  },
+  "filePasswordRequired": {
+    "message": "Паролата за файла е задължителна"
+  },
+  "filePasswordInvalid": {
+    "message": "Въведете правилна парола за файла."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "Каченият файл е защитен с парола. Въведете паролата, за да продължите."
+  },
+  "selectProfile": {
+    "message": "Изберете профил"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Въведете правилна парола"
+  },
+  "importAccountMismatchError": {
+    "message": "Този файл може да бъде внесен само в акаунта, от който е бил изнесен."
+  },
   "addKeyFile": {
     "message": "Add key file"
   },
   "keyFileUpload": {
     "message": "Key file upload"
+  },
+  "keyFileUploadV2": {
+    "message": "Key file"
   },
   "kdbxFileUpload": {
     "message": "Качване на файл KDBX"
@@ -3461,10 +3481,6 @@
   "selectImportSharedFolder": {
     "message": "Изберете споделена папка"
   },
-  "importTargetMyFolder": {
-    "message": "Моята папка",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в колекция"
   },
@@ -3624,6 +3640,122 @@
   },
   "importHelpCenterLinkText": {
     "message": "Помощен център"
+  },
+  "uploadFile": {
+    "message": "Качване на файл"
+  },
+  "pasteAsPlainText": {
+    "message": "Поставяне като неформатиран текст"
+  },
+  "plainText": {
+    "message": "Обикновен текст"
+  },
+  "profile": {
+    "message": "Профил"
+  },
+  "lastPassEmail": {
+    "message": "Е-поща от LastPass"
+  },
+  "includeSharedFolders": {
+    "message": "Да се включат и споделените папки"
+  },
+  "importManuallyInstead": {
+    "message": "Вместо това внесете ръчно"
+  },
+  "directlyImportInstead": {
+    "message": "Вместо това внесете директно"
+  },
+  "fastest": {
+    "message": "Най-бързо"
+  },
+  "importDataTitle": {
+    "message": "Внесете данните си"
+  },
+  "importDataDirectTitle": {
+    "message": "Внесете данните си за минути"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Внесете записите си директно от",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "за да получите всичките си данни.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Внесете от $VENDOR$ или копирайте изнесеното съдържание.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Изберете профила, от който искате да внесете пароли."
+  },
+  "noBrowserProfilesFound": {
+    "message": "Няма намерени профили в браузъра"
+  },
+  "importDataLoginTitle": {
+    "message": "Впишете се в $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Вашите данни за вписване се шифроват при прехвърлянето и не се запазват."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Защита по презумпция"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "Шифроване от край до край. Битуорден няма достъп до Вашите данни за вписване в $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "Ще Ви помолим за данните Ви за вписване"
+  },
+  "importDataLoginInfoBody": {
+    "message": "На следващата стъпка трябва да се впишете в акаунта си в $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Всичко се прехвърля"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Данни за вписване, карти, самоличности, защитени бележки и еднократни временни пароли, като структурата на папките ще бъде запазена."
+  },
+  "importAcceptedFormats": {
+    "message": "Приемани формати: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "Файлов тип от $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "Процесът е съвсем същият като при внасяне от Google Chrome.",
@@ -3881,9 +4013,6 @@
   },
   "customize": {
     "message": "Настройки"
-  },
-  "newCustomDomain": {
-    "message": "Нов домейн"
   },
   "addCustomDomain": {
     "message": "Добавяне на персонализиран домейн"
@@ -5400,9 +5529,6 @@
   "groups": {
     "message": "Групи"
   },
-  "newGroup": {
-    "message": "Нова група"
-  },
   "addGroup": {
     "message": "Добавяне на група"
   },
@@ -5457,9 +5583,6 @@
   },
   "readOnly": {
     "message": "Само за четене"
-  },
-  "newCollection": {
-    "message": "Нова колекция"
   },
   "addCollection": {
     "message": "Добавяне на колекция"
@@ -6155,6 +6278,15 @@
       }
     }
   },
+  "httpAuthReleasedItemId": {
+    "message": "Отговорена е заявка по HTTP за удостоверяване с елемент $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "a1234b5c-6789-0d12-3efg-h4ij56klm789"
+      }
+    }
+  },
   "createdCollectionId": {
     "message": "Колекция № $ID$ е създадена.",
     "placeholders": {
@@ -6774,11 +6906,26 @@
   "resendInvitation": {
     "message": "Изпращане на поканата наново"
   },
+  "sendInvite": {
+    "message": "Изпращане на покана"
+  },
+  "sendInvites": {
+    "message": "Изпращане на покани"
+  },
   "resendEmail": {
     "message": "Повторно изпращане на писмото"
   },
   "hasBeenReinvited": {
     "message": "$USER$ потребители са поканени.",
+    "placeholders": {
+      "user": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "hasBeenInvited": {
+    "message": "Изпратена е покана до $USER$",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -7573,20 +7720,14 @@
   "setYourAllowedDomainsCoachMarkBody": {
     "message": "Добавете разрешените домейни за е-пощи (например acme.com), така че само потребителите с е-пощи от тях да могат да използват тази връзка за покана. Можете да промените този списък по всяко време."
   },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "Намирате се в предварителния преглед на обиколката, така че тези домейни са само примерни."
+  },
   "adjustTheLink": {
     "message": "Промяна на връзката"
   },
   "adjustTheLinkCoachMarkBody": {
     "message": "Вашите нужди се променят, и връзката може да се промени с тях. <strong>Създайте наново</strong> връзката, за да изключите старата и да получите нова."
-  },
-  "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "Вашите нужди се променят, и връзката може да се промени с тях."
-  },
-  "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>Създайте наново</strong> връзката, за да изключите старата и да получите нова."
-  },
-  "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>Изискване на потвърждение от администратор</strong> за одобряване на новите членове, преди те да могат да се присъединят към организацията."
   },
   "shareTheLinkAnywhere": {
     "message": "Споделете връзката където желаете"
@@ -8471,6 +8612,10 @@
     "message": "Файлът за това изпращане липсва.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendDownloadBlocked": {
+    "message": "Този файл не може да бъде свален, тъй като връзката за сваляне не преминава някои проверки за сигурност.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. Displayed when a Send's file download url fails to use https or targets a local/private network address."
+  },
   "noSendsInList": {
     "message": "Няма изпращания за показване.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -8968,17 +9113,43 @@
     "message": "Включване на асистираното попълване",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
+  "fillAssistPolicyV2": {
+    "message": "Включване на асистираното попълване",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
   "fillAssistPolicyDesc": {
     "message": "Включване на асистирането попълване за всички членове. Тази функционалност използва предварително подготвени, конкретни инструкции за определени уеб сайтове, за да подобри точността на автоматичното попълване за уеб сайтове, за които е известно, че това е по-трудно."
+  },
+  "fillAssistRuleSource": {
+    "message": "Набор от правила за авт. попълване"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "По подразбиране"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "Използване на набора правила за авт. попълване одобрен от Битоурден."
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "Персонализирано"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "Въведете свой собствен набор от правила."
   },
   "fillAssistRulesUrl": {
     "message": "Персонализирани правила за автоматичното попълване"
   },
-  "fillAssistRulesUrlHint": {
-    "message": "По подразбиране, асистираното попълване използва подготвения набор от правила на Битуорден. Въведете адрес тук, ако искате да ги замените със свои собствени."
+  "fillAssistRulesUrlV2": {
+    "message": "Персонализиран набор от правила"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "Научете повече относно персонализираните правила"
   },
   "invalidFillAssistRulesUrl": {
     "message": "Въведете правилен адрес",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "Въведете правилен адрес за персонализиран набор от правила.",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
@@ -10953,6 +11124,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "Този адрес не е разрешен. Адресът трябва да ползва https и да сочи към локална или частна мрежа.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Въведете правилен адрес",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Разпознат е опасен адрес",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "Този адрес може да не е безопасен или да сочи към частна мрежа. Използването му може да е риск за данните Ви. Продължете само ако имате доверие на този сървър.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Доверен адрес",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "Този адрес е бил отбелязан като доверен. Може да промените това по всяко време.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "Възникна неочаквана грешка свързана с $SERVICENAME$.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -11876,9 +12071,6 @@
   "domainVerification": {
     "message": "Потвърждаване на домейн"
   },
-  "newDomain": {
-    "message": "Нов домейн"
-  },
   "addDomain": {
     "message": "Добавяне на домейн"
   },
@@ -12247,9 +12439,6 @@
   },
   "groupSlashUser": {
     "message": "Група/потребител"
-  },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "Ако продължите, ще излезете от всички активни сесии. Ще трябва да се впишете отново и да извършите двустепенно удостоверяване, ако такова е настроено. Препоръчително е да изнесете трезора си преди да променяте настройките за шифроване, за да избегнете загуба на данни."
   },
   "secretsManager": {
     "message": "Управление на тайни"
@@ -13867,10 +14056,6 @@
     "message": "Машинни акаунти",
     "description": "The title for the section that deals with machine accounts."
   },
-  "newMachineAccount": {
-    "message": "Нов машинен акаунт",
-    "description": "Title for creating a new machine account."
-  },
   "addMachineAccount": {
     "message": "Добавяне на машинен акаунт",
     "description": "Title for creating a new machine account."
@@ -14340,6 +14525,9 @@
   "organizationOptionsMenu": {
     "message": "Превключване на менюто на организацията"
   },
+  "vaultOptions": {
+    "message": "Настройки на трезора"
+  },
   "vaultItemSelect": {
     "message": "Изберете елемент от трезора"
   },
@@ -14500,6 +14688,40 @@
   },
   "billingPreviewInvoiceError": {
     "message": "Възникна грешка при преглеждането на фактурата. Опитайте отново по-късно."
+  },
+  "billingPreviewInvalidAddressError": {
+    "message": "Моля, проверете подробностите за таксуването и опитайте отново."
+  },
+  "planChangeTrialIncluded": {
+    "message": "Това надграждане включва $DAYS$-дневен пробен период. Сумата по-горе е това, което ще бъде таксувано в края на пробния период.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "Остава 1 ден от пробния период. Предстои таксуване със сумата по-горе, на $DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "Остават $DAYS$ дни от пробния период. Предстои таксуване със сумата по-горе, на $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
   },
   "unverified": {
     "message": "Непотвърден"
@@ -16811,8 +17033,8 @@
   "premiumSubscriptionCredit": {
     "message": "Premium subscription credit"
   },
-  "appliedSubscriptionCredits": {
-    "message": "Приложени кредити за абонамент"
+  "appliedProrationCredits": {
+    "message": "Приложен пропорционален кредит"
   },
   "enterpriseMembership": {
     "message": "Членство в план за големи организации"
@@ -16977,6 +17199,15 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Грижете се за сигурността на записите в трезора си, като преглеждате доклади за уязвимостите."
   },
+  "tourTheNewVault": {
+    "message": "Обиколка на новия трезор"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "С обновена навигация и дизайн, сега е по-лесно от всякога да намерите това, което търсите."
+  },
+  "takeTheTour": {
+    "message": "Започнете обиколката"
+  },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Следене на дейността по сигурността"
   },
@@ -17034,13 +17265,13 @@
     }
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "Таен ключ"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "Таен ключ и парола"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "Акаунтът Ви е защитен с таен ключ и парола. Трябва да въведете и двете, за да продължите."
   },
   "keeperEmail": {
     "message": "Е-поща за Keeper"
@@ -17837,6 +18068,9 @@
   "inviteLinkCalloutBody": {
     "message": "Всеки с фирмена е-поща може да използва връзката за покана, за да се присъедини към организацията. Добавете я в уводната документация, така че новите хора в компанията да могат да се присъединят когато са готови."
   },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "Обиколката използва примерни данни. Нищо в организацията Ви няма да бъде променено."
+  },
   "inviteLinkCalloutImageAlt": {
     "message": "Предварителен преглед на прозореца за канене на членове, който показва новия раздел по връзки"
   },
@@ -17977,5 +18211,30 @@
   },
   "serviceAccountsProratedCharge": {
     "message": "Пропорционално таксуване за сервизни акаунти"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Биуорден има нов облик",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Повече удобство със същата защита, на която можете да разчитате. Трезорът на Битуорден е с нов дизайн отразяващ Вашите коментари, така че нещата са по-лесни за намиране и работят така, както очаквате.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Преглед на новия облик на трезора в Битуорден.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Разгледайте новия трезор",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "Персонализирайте изгледа си"
+  },
+  "showColumns": {
+    "message": "Показване на колони"
+  },
+  "resetToDefault": {
+    "message": "Връщане на настройките по подразбиране"
   }
 }

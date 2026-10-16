@@ -21,7 +21,7 @@
     "message": "所有关键 App"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Bitwarden Logo"
   },
   "criticalApplications": {
     "message": "关键应用程序"
@@ -54,7 +54,7 @@
     "message": "Access Intelligence"
   },
   "noApplicationsMatchTheseFilters": {
-    "message": "没有匹配这些筛选规则的应用程序"
+    "message": "没有匹配这些筛选的应用程序"
   },
   "passwordRisk": {
     "message": "密码风险"
@@ -1080,6 +1080,10 @@
   "resetSearch": {
     "message": "重置搜索"
   },
+  "clearSearchTooltip": {
+    "message": "点击此处或按 Esc 键清除。",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "allItems": {
     "message": "所有项目"
   },
@@ -1179,6 +1183,9 @@
   "collections": {
     "message": "集合"
   },
+  "controlledAccess": {
+    "message": "受控访问"
+  },
   "firstName": {
     "message": "名字"
   },
@@ -1252,6 +1259,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ 个嵌套的共享文件夹",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 个嵌套的共享文件夹",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "我的文件夹"
   },
@@ -1269,9 +1290,6 @@
   },
   "addSharedFolder": {
     "message": "添加共享文件夹"
-  },
-  "newSharedFolder": {
-    "message": "新增共享文件夹"
   },
   "searchSharedFolder": {
     "message": "搜索共享文件夹"
@@ -1464,42 +1482,6 @@
     "message": "添加护照",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "新增登录",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "新增支付卡",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "新增身份",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "新增笔记",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "新增安全笔记",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "新增 SSH 密钥",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "新增银行账户",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "新增驾驶证",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "新增护照",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "新增文本 Send",
     "description": "Header for new text send"
@@ -1507,22 +1489,6 @@
   "newItemHeaderFileSendV2": {
     "message": "新增文件 Send",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "编辑登录",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "编辑支付卡",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "编辑身份",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "编辑笔记",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "编辑安全笔记",
@@ -1991,6 +1957,27 @@
   },
   "selectFile": {
     "message": "选择一个文件。"
+  },
+  "selectFileUnsupportedType": {
+    "message": "此来源不接受该文件类型。请选择其他文件。"
+  },
+  "pasteContentRequired": {
+    "message": "粘贴导出的内容。"
+  },
+  "fileTypeNotSupported": {
+    "message": "不支持此文件类型。请选择 $TYPES$ 类型的文件。",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "粘贴的内容与所选格式不匹配。"
+  },
+  "errorReadingFile": {
+    "message": "所选文件无法读取。"
   },
   "maxFileSize": {
     "message": "文件最大为 500 MB。"
@@ -2594,7 +2581,7 @@
     "message": "您的密码库是空的"
   },
   "noItemsMatchSelectedFilters": {
-    "message": "没有匹配所选筛选规则的项目"
+    "message": "没有匹配所选筛选的项目"
   },
   "noItemsMatchSearchTerm": {
     "message": "没有匹配「$SEARCH_TERM$」的项目",
@@ -2966,11 +2953,44 @@
   "keePassMasterPassword": {
     "message": "KeePass 主密码"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$ 密码",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "必须填写密码。"
+  },
+  "filePasswordRequired": {
+    "message": "必须填写文件密码"
+  },
+  "filePasswordInvalid": {
+    "message": "请输入有效的文件密码。"
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "上传的文件受密码保护。请输入密码以继续。"
+  },
+  "selectProfile": {
+    "message": "选择配置文件"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "请输入有效的密码"
+  },
+  "importAccountMismatchError": {
+    "message": "此文件只能导入到导出它的账户中。"
+  },
   "addKeyFile": {
     "message": "添加密钥文件"
   },
   "keyFileUpload": {
     "message": "密钥文件上传"
+  },
+  "keyFileUploadV2": {
+    "message": "密钥文件"
   },
   "kdbxFileUpload": {
     "message": "KDBX 文件上传"
@@ -3461,10 +3481,6 @@
   "selectImportSharedFolder": {
     "message": "选择共享文件夹"
   },
-  "importTargetMyFolder": {
-    "message": "我的文件夹",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "如果希望将导入的文件内容移动到集合中，请选择此选项"
   },
@@ -3624,6 +3640,122 @@
   },
   "importHelpCenterLinkText": {
     "message": "帮助中心"
+  },
+  "uploadFile": {
+    "message": "上传文件"
+  },
+  "pasteAsPlainText": {
+    "message": "以纯文本形式粘贴"
+  },
+  "plainText": {
+    "message": "纯文本"
+  },
+  "profile": {
+    "message": "配置文件"
+  },
+  "lastPassEmail": {
+    "message": "LastPass Email"
+  },
+  "includeSharedFolders": {
+    "message": "包含共享文件夹"
+  },
+  "importManuallyInstead": {
+    "message": "改为手动导入"
+  },
+  "directlyImportInstead": {
+    "message": "改为直接导入"
+  },
+  "fastest": {
+    "message": "最快"
+  },
+  "importDataTitle": {
+    "message": "导入您的数据"
+  },
+  "importDataDirectTitle": {
+    "message": "几分钟即可导入您的数据"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "直接导入您的项目自",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "以获取您的所有数据。",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "从 $VENDOR$ 导入，或复制并粘贴导出的内容。",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "选择您希望从中导入密码的配置文件。"
+  },
+  "noBrowserProfilesFound": {
+    "message": "未找到浏览器配置文件"
+  },
+  "importDataLoginTitle": {
+    "message": "登录到 $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "您的凭据在传输过程中经过加密，且绝不会被存储。"
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "设计即安全"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "端到端加密传输。Bitwarden 绝不会获取您的 $VENDOR$ 登录详细信息。",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "我们将询问您的登录信息"
+  },
+  "importDataLoginInfoBody": {
+    "message": "在下一步中，请登录您的 $VENDOR$ 账户。",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "所有内容均可转移"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "登录、支付卡、身份、安全笔记，以及 TOTP，且会保留原有的文件夹结构。"
+  },
+  "importAcceptedFormats": {
+    "message": "可接受的格式：$FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ 文件类型",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "此过程与从 Google Chrome 导入完全相同。",
@@ -3881,9 +4013,6 @@
   },
   "customize": {
     "message": "自定义"
-  },
-  "newCustomDomain": {
-    "message": "新增自定义域名"
   },
   "addCustomDomain": {
     "message": "添加自定义域名"
@@ -4511,7 +4640,7 @@
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
   },
   "appliedBalance": {
-    "message": "已抵扣余额",
+    "message": "抵扣的余额",
     "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
   },
   "amountDue": {
@@ -4924,7 +5053,7 @@
     "message": "折扣"
   },
   "discountApplied": {
-    "message": "折扣已生效"
+    "message": "折扣已抵扣"
   },
   "discountForOneYear": {
     "message": "为期 1 年"
@@ -5400,9 +5529,6 @@
   "groups": {
     "message": "群组"
   },
-  "newGroup": {
-    "message": "新增群组"
-  },
   "addGroup": {
     "message": "添加群组"
   },
@@ -5457,9 +5583,6 @@
   },
   "readOnly": {
     "message": "只读"
-  },
-  "newCollection": {
-    "message": "新增集合"
   },
   "addCollection": {
     "message": "添加集合"
@@ -6155,6 +6278,15 @@
       }
     }
   },
+  "httpAuthReleasedItemId": {
+    "message": "Answered an HTTP authentication request with item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "a1234b5c-6789-0d12-3efg-h4ij56klm789"
+      }
+    }
+  },
   "createdCollectionId": {
     "message": "创建了集合 $ID$。",
     "placeholders": {
@@ -6774,11 +6906,26 @@
   "resendInvitation": {
     "message": "重新发送邀请"
   },
+  "sendInvite": {
+    "message": "发送邀请"
+  },
+  "sendInvites": {
+    "message": "发送邀请"
+  },
   "resendEmail": {
     "message": "重新发送电子邮件"
   },
   "hasBeenReinvited": {
     "message": "已重新邀请 $USER$",
+    "placeholders": {
+      "user": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "hasBeenInvited": {
+    "message": "$USER$ 已邀请",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -7573,20 +7720,14 @@
   "setYourAllowedDomainsCoachMarkBody": {
     "message": "添加允许的电子邮箱域名（例如 acme.com），这样只有电子邮箱地址匹配的用户才能使用此邀请链接。您可以随时更新此设置。"
   },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "您当前处于导览预览模式，因此这些域名仅为示例。"
+  },
   "adjustTheLink": {
     "message": "调整链接"
   },
   "adjustTheLinkCoachMarkBody": {
     "message": "您的需求发生变化，链接也可随之更改。<strong>重新生成</strong>链接以让旧链接失效，并创建新链接。"
-  },
-  "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "您的需求发生变化，链接也可随之更改。"
-  },
-  "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>重新生成</strong>链接以让旧链接失效，并创建新链接。"
-  },
-  "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>需要管理员确认</strong>才能批准新成员加入组织。"
   },
   "shareTheLinkAnywhere": {
     "message": "随时随地共享链接"
@@ -8471,6 +8612,10 @@
     "message": "没有找到与此 Send 关联的文件。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendDownloadBlocked": {
+    "message": "由于下载链接未通过安全检查，因此无法下载此文件。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. Displayed when a Send's file download url fails to use https or targets a local/private network address."
+  },
   "noSendsInList": {
     "message": "没有可列出的 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -8659,7 +8804,7 @@
     "message": "成员将被提示选择将项目转移到组织，或者选择退出。如果选择退出，其访问权限将被撤销，但可以随时恢复。"
   },
   "centralizeDataOwnershipDescV2": {
-    "message": "所有成员项目都将由组织拥有和管理。所有者和管理员不受此策略的约束。进一步了解 "
+    "message": "所有成员项目都将由组织拥有和管理。所有者和管理员不受此策略的约束。进一步了解"
   },
   "centralizeDataOwnershipDescV3": {
     "message": "所有成员项目都将由组织拥有和管理。所有者和管理员不受此策略的约束。",
@@ -8968,17 +9113,43 @@
     "message": "激活填充辅助",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
+  "fillAssistPolicyV2": {
+    "message": "启用填充辅助",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
   "fillAssistPolicyDesc": {
     "message": "默认为所有成员启用填充辅助。此功能使用经过审核的、站点特定的指令，以提高已知难以自动填充的网站上的自动填充的准确性。"
+  },
+  "fillAssistRuleSource": {
+    "message": "自动填充规则集"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "默认"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "使用 Bitwarden 审查的自动填充规则集。"
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "自定义"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "输入您自己的自定义规则集。"
   },
   "fillAssistRulesUrl": {
     "message": "自定义自动填充规则集"
   },
-  "fillAssistRulesUrlHint": {
-    "message": "默认情况下，填充辅助使用 Bitwarden 精选的规则集。在此处输入 URL 以使用您自己的规则集覆盖默认规则集。"
+  "fillAssistRulesUrlV2": {
+    "message": "自定义规则集"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "进一步了解自定义规则"
   },
   "invalidFillAssistRulesUrl": {
     "message": "请输入有效的 URL",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "请输入自定义规则集的有效 URL。",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
@@ -10172,7 +10343,7 @@
     "message": "接受现有组织的邀请或创建一个新的家庭版组织。"
   },
   "acceptSponsoredFamiliesPlanHelp": {
-    "message": "$ORGANIZATION$ 已为您赞助了一个免费的 Bitwarden 家庭版方案！您可以将此免费方案应用于现有的家庭密码库，也可以创建一个新的家庭密码库。",
+    "message": "$ORGANIZATION$ 已为您赞助了一个免费的 Bitwarden 家庭版方案！您可以将您获赠的方案应用于现有的家庭密码库，也可以创建一个新的家庭密码库。",
     "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
     "placeholders": {
       "organization": {
@@ -10182,7 +10353,7 @@
     }
   },
   "acceptSponsoredFamiliesPlanHelpNoOrg": {
-    "message": "您已经被赞助了一个免费的 Bitwarden 家庭版方案！您可以将此免费方案应用于现有的家庭密码库，也可以创建一个新的家庭密码库。",
+    "message": "您已经被赞助了一个免费的 Bitwarden 家庭版方案！您可以将您获赠的方案应用于现有的家庭密码库，也可以创建一个新的家庭密码库。",
     "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
@@ -10952,6 +11123,30 @@
         "example": "SimpleLogin"
       }
     }
+  },
+  "forwarderUnsafeUrl": {
+    "message": "此 URL 不被允许。它必须使用 https，并且不能指向本地或私有网络地址。",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "请输入有效的 URL",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "检测到不安全的 URL",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "此 URL 可能不安全或指向私有网络。使用此 URL 可能导致私人数据暴露。请仅在您信任此服务器的情况下继续。",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "信任 URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "此 URL 已被标记为受信任。您可以随时进行编辑。",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
   },
   "forwarderUnknownError": {
     "message": "发生未知的 $SERVICENAME$ 错误。",
@@ -11876,9 +12071,6 @@
   "domainVerification": {
     "message": "域名验证"
   },
-  "newDomain": {
-    "message": "新增域名"
-  },
   "addDomain": {
     "message": "添加域名"
   },
@@ -12247,9 +12439,6 @@
   },
   "groupSlashUser": {
     "message": "群组/用户"
-  },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "继续操作将会注销您所有的活动会话。您需要重新登录并完成两步登录（如果有）。我们建议您在更改加密设置前导出密码库，以防止数据丢失。"
   },
   "secretsManager": {
     "message": "Secrets Manager"
@@ -13867,10 +14056,6 @@
     "message": "机器账户",
     "description": "The title for the section that deals with machine accounts."
   },
-  "newMachineAccount": {
-    "message": "新增机器账户",
-    "description": "Title for creating a new machine account."
-  },
   "addMachineAccount": {
     "message": "添加机器账户",
     "description": "Title for creating a new machine account."
@@ -14340,6 +14525,9 @@
   "organizationOptionsMenu": {
     "message": "切换组织菜单"
   },
+  "vaultOptions": {
+    "message": "密码库选项"
+  },
   "vaultItemSelect": {
     "message": "选择密码库项目"
   },
@@ -14500,6 +14688,40 @@
   },
   "billingPreviewInvoiceError": {
     "message": "预览账单时发生错误。请稍后再试。"
+  },
+  "billingPreviewInvalidAddressError": {
+    "message": "请检查您的计费详细信息，然后重试。"
+  },
+  "planChangeTrialIncluded": {
+    "message": "此次升级包含 $DAYS$ 天的试用期。上述总金额即为试用期结束后将向您收取的费用。",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "您的试用期还剩 1 天。将于 $DATE$ 向您收取上述总金额的费用。",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "您的试用期还剩 $DAYS$ 天。将于 $DATE$ 向您收取上述总金额的费用。",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
   },
   "unverified": {
     "message": "未验证"
@@ -14838,7 +15060,7 @@
     }
   },
   "enterprisePlanUpgradeMessage": {
-    "message": "为大型组织提供高级功能"
+    "message": "适用于大型组织的高级功能"
   },
   "teamsPlanUpgradeMessage": {
     "message": "为成长中的团队提供弹性保护"
@@ -14946,7 +15168,7 @@
     "message": "Bitwarden Password Manager"
   },
   "secretsManagerComplimentaryPasswordManager": {
-    "message": "您的一年免费 Password Manager 订阅将升级到所选方案。在免费期结束前，我们不会向您收取费用。"
+    "message": "您获赠的一年 Password Manager 订阅将升级为所选方案。在赠送期结束前，不会向您收取任何费用。"
   },
   "fileSavedToDevice": {
     "message": "文件已保存到设备。可以在设备下载中进行管理。"
@@ -15730,7 +15952,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "在任何平台上与任何人安全地分享文件和数据。您的信息将在限制曝光的同时保持端到端加密。",
+    "message": "在任何平台上与任何人安全地分享文件和数据。您的信息将在限制暴露的同时保持端到端加密。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "generatorNudgeTitle": {
@@ -16134,7 +16356,7 @@
     }
   },
   "planDescEnterpriseV2": {
-    "message": "为任何组织提供高级功能"
+    "message": "适用于任何组织的高级功能"
   },
   "planNameCustom": {
     "message": "自定义方案"
@@ -16230,7 +16452,7 @@
     "message": "自托管选项"
   },
   "complimentaryFamiliesPlan": {
-    "message": "为所有用户提供免费家庭版方案"
+    "message": "为所有用户赠送家庭版方案"
   },
   "strengthenCybersecurity": {
     "message": "加强网络安全"
@@ -16811,8 +17033,8 @@
   "premiumSubscriptionCredit": {
     "message": "高级版订阅余额"
   },
-  "appliedSubscriptionCredits": {
-    "message": "订阅余额抵扣"
+  "appliedProrationCredits": {
+    "message": "按比例抵扣的余额"
   },
   "enterpriseMembership": {
     "message": "企业版成员资格"
@@ -16977,6 +17199,15 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "通过检查漏洞报告，来保持您的密码库项目的安全。"
   },
+  "tourTheNewVault": {
+    "message": "导览新版密码库"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "凭借更新后的导航和设计，查找所需内容变得前所未有的简单。"
+  },
+  "takeTheTour": {
+    "message": "开始导览"
+  },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "检测安全活动"
   },
@@ -17034,13 +17265,13 @@
     }
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "安全密钥"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "安全密钥和密码"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "您的账户受安全密钥和密码保护。您需要同时输入两者才能继续。"
   },
   "keeperEmail": {
     "message": "Keeper 电子邮箱"
@@ -17723,7 +17954,7 @@
     "message": "IP 限制"
   },
   "pamAccessRulesNoResults": {
-    "message": "没有匹配您的筛选规则的访问规则。"
+    "message": "没有匹配您的筛选的访问规则。"
   },
   "pamAccessRuleBulkEnable": {
     "message": "启用"
@@ -17836,6 +18067,9 @@
   },
   "inviteLinkCalloutBody": {
     "message": "拥有公司电子邮箱的任何人都可以使用邀请链接加入您的组织。将其拖放到入职资源中，以便新雇员准备好后可以加入。"
+  },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "此导览使用的是示例数据，不会修改您的组织中的任何内容。"
   },
   "inviteLinkCalloutImageAlt": {
     "message": "邀请成员对话框预览显示新增的「通过链接」选项卡"
@@ -17977,5 +18211,30 @@
   },
   "serviceAccountsProratedCharge": {
     "message": "按比例的服务账户费用"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden 拥有一个新的外观",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "体验更佳，安全如初。我们根据您们的反馈重新设计了 Bitwarden 密码库，让查找更便捷，操作更符合您的预期。",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "重新设计后的 Bitwarden 密码库预览。",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "探索新的密码库",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "自定义您的视图"
+  },
+  "showColumns": {
+    "message": "显示列"
+  },
+  "resetToDefault": {
+    "message": "恢复默认设置"
   }
 }

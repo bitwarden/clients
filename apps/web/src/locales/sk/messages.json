@@ -1080,6 +1080,10 @@
   "resetSearch": {
     "message": "Resetovať vyhľadávanie"
   },
+  "clearSearchTooltip": {
+    "message": "Clear by clicking here or pressing Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "allItems": {
     "message": "Všetky položky"
   },
@@ -1179,6 +1183,9 @@
   "collections": {
     "message": "Zbierky"
   },
+  "controlledAccess": {
+    "message": "Controlled access"
+  },
   "firstName": {
     "message": "Krstné meno"
   },
@@ -1225,7 +1232,7 @@
     "message": "Zdieľané priečinky"
   },
   "sharedFoldersInParent": {
-    "message": "Shared folders in $NAME$",
+    "message": "Zdieľané priečinky v $NAME$",
     "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
     "placeholders": {
       "name": {
@@ -1235,7 +1242,7 @@
     }
   },
   "sharedFolderCount": {
-    "message": "$COUNT$ shared folders",
+    "message": "$COUNT$ zdieľaných priečinkov",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1244,13 +1251,27 @@
     }
   },
   "sharedFolderSingular": {
-    "message": "$COUNT$ shared folder",
+    "message": "$COUNT$ zdieľaný priečinok",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "1"
       }
     }
+  },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ nested shared folders",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 nested shared folder",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
   },
   "myFolder": {
     "message": "Môj priečinok"
@@ -1269,9 +1290,6 @@
   },
   "addSharedFolder": {
     "message": "Pridať zdieľaný priečinok"
-  },
-  "newSharedFolder": {
-    "message": "Nový zdieľaný priečinok"
   },
   "searchSharedFolder": {
     "message": "Hľadať v zdieľanom priečinku"
@@ -1464,42 +1482,6 @@
     "message": "Add passport",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Nové prihlásenie",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Nová karta",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nová identita",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nová poznámka",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "New secure note",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nový kľúč SSH",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nový bankový účet",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nový vodičský preukaz",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Nový pas",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Nový text",
     "description": "Header for new text send"
@@ -1507,22 +1489,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Nový súbor",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Upraviť prihlásenie",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Upraviť kartu",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Upraviť identitu",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Upraviť poznámku",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Edit secure note",
@@ -1905,7 +1871,7 @@
     "message": "Žiadne zodpovedajúce položky"
   },
   "noFiltersMatch": {
-    "message": "No filters match \"$SEARCH$\"",
+    "message": "Žiadny filter nezodpovedá výrazu „$SEARCH$“",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -1938,7 +1904,7 @@
     "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
   },
   "clearSearch": {
-    "message": "Clear search"
+    "message": "Vymazať vyhľadávanie"
   },
   "deselectAll": {
     "message": "Zrušiť celý výber"
@@ -1991,6 +1957,27 @@
   },
   "selectFile": {
     "message": "Vybrať súbor."
+  },
+  "selectFileUnsupportedType": {
+    "message": "That file type isn't accepted for this source. Choose a different file."
+  },
+  "pasteContentRequired": {
+    "message": "Paste the exported content."
+  },
+  "fileTypeNotSupported": {
+    "message": "This file type isn't supported. Select a $TYPES$ file.",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "The pasted content doesn't match the selected format."
+  },
+  "errorReadingFile": {
+    "message": "The selected file could not be read."
   },
   "maxFileSize": {
     "message": "Maximálna veľkosť súboru je 500 MB."
@@ -2685,7 +2672,7 @@
     "message": "Add plan"
   },
   "addPlanDesc": {
-    "message": "You can create a new shared vault with 1 other person for free. If you'd like to store, manage, and share items with more people, you will need to add a new plan first. Just know that some options may require a billing change."
+    "message": "Zadarmo môžete vytvoriť novy trezor zdieľaný s 1 ďalšou osobou. Ak chcete ukladať, spravovať a zdieľať položky s viacerými ľuďmi, musíte najskôr pridať predplatné. Niektoré možnosti predplatného môžu vyžadovať zmenu účtovania."
   },
   "noOrganizationsList": {
     "message": "Nie ste členom žiadnej organizácie. Organizácie umožňujú bezpečne zdieľať položky s ostatnými používateľmi."
@@ -2966,11 +2953,44 @@
   "keePassMasterPassword": {
     "message": "Hlavné heslo pre KeePass"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$ password",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Password is required."
+  },
+  "filePasswordRequired": {
+    "message": "File password is required"
+  },
+  "filePasswordInvalid": {
+    "message": "Enter a valid file password."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "The file uploaded is password protected. Enter the password to continue."
+  },
+  "selectProfile": {
+    "message": "Select profile"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "importAccountMismatchError": {
+    "message": "This file can only be imported into the account it was exported from."
+  },
   "addKeyFile": {
     "message": "Pridať súbor s kľúčom"
   },
   "keyFileUpload": {
     "message": "Nahrať súbor s kľúčom"
+  },
+  "keyFileUploadV2": {
+    "message": "Key file"
   },
   "kdbxFileUpload": {
     "message": "Nahrať súbor KDBX"
@@ -3461,10 +3481,6 @@
   "selectImportSharedFolder": {
     "message": "Select a shared folder"
   },
-  "importTargetMyFolder": {
-    "message": "My Folder",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do zbierky"
   },
@@ -3624,6 +3640,122 @@
   },
   "importHelpCenterLinkText": {
     "message": "Help Center"
+  },
+  "uploadFile": {
+    "message": "Upload file"
+  },
+  "pasteAsPlainText": {
+    "message": "Paste as plain text"
+  },
+  "plainText": {
+    "message": "Plain text"
+  },
+  "profile": {
+    "message": "Profile"
+  },
+  "lastPassEmail": {
+    "message": "LastPass Email"
+  },
+  "includeSharedFolders": {
+    "message": "Include shared folders"
+  },
+  "importManuallyInstead": {
+    "message": "Import manually instead"
+  },
+  "directlyImportInstead": {
+    "message": "Directly import instead"
+  },
+  "fastest": {
+    "message": "Fastest"
+  },
+  "importDataTitle": {
+    "message": "Import your data"
+  },
+  "importDataDirectTitle": {
+    "message": "Import your data in minutes"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Import your items directly from",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "to get all your data.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Import from $VENDOR$ or copy and paste the export content.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Select the profile you wish to import passwords from."
+  },
+  "noBrowserProfilesFound": {
+    "message": "No browser profiles were found"
+  },
+  "importDataLoginTitle": {
+    "message": "Log in to $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Your credentials are encrypted in transit and never stored."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Secure by design"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "We'll ask for your login info"
+  },
+  "importDataLoginInfoBody": {
+    "message": "In the next step, log in to your $VENDOR$ account.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Everything transfers"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+  },
+  "importAcceptedFormats": {
+    "message": "Accepted: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ file type",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "The process is exactly the same as importing from Google Chrome.",
@@ -3881,9 +4013,6 @@
   },
   "customize": {
     "message": "Prispôsobiť"
-  },
-  "newCustomDomain": {
-    "message": "Vlastná doména"
   },
   "addCustomDomain": {
     "message": "Add custom domain"
@@ -5400,9 +5529,6 @@
   "groups": {
     "message": "Skupiny"
   },
-  "newGroup": {
-    "message": "Nová skupina"
-  },
   "addGroup": {
     "message": "Pridať skupinu"
   },
@@ -5457,9 +5583,6 @@
   },
   "readOnly": {
     "message": "Iba na čítanie"
-  },
-  "newCollection": {
-    "message": "Nová zbierka"
   },
   "addCollection": {
     "message": "Pridať zbierku"
@@ -6155,6 +6278,15 @@
       }
     }
   },
+  "httpAuthReleasedItemId": {
+    "message": "Answered an HTTP authentication request with item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "a1234b5c-6789-0d12-3efg-h4ij56klm789"
+      }
+    }
+  },
   "createdCollectionId": {
     "message": "Zbierka $ID$ vytvorená.",
     "placeholders": {
@@ -6774,11 +6906,26 @@
   "resendInvitation": {
     "message": "Znovu poslať pozvánku"
   },
+  "sendInvite": {
+    "message": "Send invite"
+  },
+  "sendInvites": {
+    "message": "Send invites"
+  },
   "resendEmail": {
     "message": "Znovu poslať e-mail"
   },
   "hasBeenReinvited": {
     "message": "$USER$ bol znovu pozvaný",
+    "placeholders": {
+      "user": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "hasBeenInvited": {
+    "message": "$USER$ invited",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -7004,7 +7151,7 @@
     "message": "Prijatie pozvánky zlyhalo. Požiadajte administrátora organizácie, aby vám poslal novú pozvánku."
   },
   "cannotAcceptInvitation": {
-    "message": "Cannot accept invitation"
+    "message": "Nedá sa prijať pozvánku"
   },
   "openOrgInviteAcceptAlreadyMember": {
     "message": "Už ste členom tejto organizácie."
@@ -7034,10 +7181,10 @@
     "message": "Organizácia ktorej ste už členom povoľuje členstvo len v jednej organizácii."
   },
   "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
-    "message": "The organization you are already a member of only allows its members to access one shared vault."
+    "message": "Organizácia ktorej ste členom povoľuje členom prístup len k jednému zdieľanému trezoru."
   },
   "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
-    "message": "The organization you are trying to join only allows its members to access one shared vault."
+    "message": "Organizácia ku ktorej sa snažíte pridať povoľuje členom prístup len k jednému zdieľanému trezoru."
   },
   "openOrgInviteAcceptSingleOrgTargetOrg": {
     "message": "Organizácia ku ktorej sa snažíte pripojiť povoľuje členstvo len v jednej organizácii."
@@ -7573,20 +7720,14 @@
   "setYourAllowedDomainsCoachMarkBody": {
     "message": "Add allowed email domains (e.g. acme.com) so only users with matching emails can use this invite link. You can update this anytime."
   },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "You're in tour preview, so these domains are only examples."
+  },
   "adjustTheLink": {
     "message": "Adjust the link"
   },
   "adjustTheLinkCoachMarkBody": {
     "message": "Your needs change, and the link can change with you. <strong>Regenerate</strong> the link to invalidate the old link and create a new one."
-  },
-  "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "Your needs change, and the link can change with you."
-  },
-  "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>Regenerate</strong> the link to invalidate the old link and create a new one."
-  },
-  "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>Require admin confirmation</strong> to approve new members before they can join the organization."
   },
   "shareTheLinkAnywhere": {
     "message": "Share the link anywhere"
@@ -7637,7 +7778,7 @@
     }
   },
   "ssoStagedOrgUserDirectInviteEmailSent": {
-    "message": "Check your email to finish joining $ORGANIZATION_NAME$.",
+    "message": "Pre dokončenie pridania sa k $ORGANIZATION_NAME$, pozrite váš e-mail.",
     "placeholders": {
       "organization_name": {
         "content": "$1",
@@ -7646,10 +7787,10 @@
     }
   },
   "ssoNoSeatsAvailableMessage": {
-    "message": "This organization is not able to accept new members at the moment. Contact your admin for assistance."
+    "message": "Táto organizácia momentálne nemôže prijímať nových členov. Pre pomoc kontaktujte správcu."
   },
   "inviteSentToEmail": {
-    "message": "Invite sent to email"
+    "message": "Pozvánka odoslaná prostredníctvom e-mailu"
   },
   "acceptPolicies": {
     "message": "Označením tohto políčka súhlasíte s nasledovným:"
@@ -8471,6 +8612,10 @@
     "message": "Súbor asociovaný s funkciou Send sa nenašiel.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendDownloadBlocked": {
+    "message": "This file couldn't be downloaded because the download link failed a security check.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. Displayed when a Send's file download url fails to use https or targets a local/private network address."
+  },
   "noSendsInList": {
     "message": "Neexistujú žiadne Sendy na zobrazenie.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -8965,20 +9110,46 @@
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "fillAssistPolicy": {
-    "message": "Activate fill assist",
+    "message": "Aktivovať pomoc pri vypĺňaní",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyV2": {
+    "message": "Enable fill assist",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
   "fillAssistPolicyDesc": {
-    "message": "Turn on fill assist by default for all members. This feature uses reviewed, site-specific instructions to improve autofill accuracy on websites known to be difficult to autofill."
+    "message": "Zapnite funkciu pomoci pri vypĺňaní ako predvolené nastavenie pre všetkých členov. Táto funkcia využíva overené pokyny špecifické pre danú stránku, aby zvýšila presnosť automatického vypĺňania na webových stránkach, o ktorých je známe, že je na nich automatické vypĺňanie náročné."
+  },
+  "fillAssistRuleSource": {
+    "message": "Autofill rule set"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "Default"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "Use the Bitwarden-reviewed autofill rule set."
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "Custom"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "Enter your own custom rule set."
   },
   "fillAssistRulesUrl": {
-    "message": "Custom autofill rule set"
+    "message": "Vlastný set pravidiel pre automatické vypĺňanie"
   },
-  "fillAssistRulesUrlHint": {
-    "message": "By default, fill assist uses Bitwarden's curated rule set. Enter a URL here to override it with your own."
+  "fillAssistRulesUrlV2": {
+    "message": "Custom rule set"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "Learn more about custom rules"
   },
   "invalidFillAssistRulesUrl": {
-    "message": "Enter a valid URL",
+    "message": "Zadajte platnú URL adresu",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "Enter a valid URL for a custom rule set.",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
@@ -10953,6 +11124,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "This URL isn't allowed. It must use https and can't point to a local or private network address.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Enter a valid URL",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Unsafe URL detected",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "This URL may be insecure or point to a private network. Using it may result in exposure of private data. Only continue if you trust this server.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Trust URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "This URL has been marked as trusted. You can edit at any time.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "Unknown $SERVICENAME$ error occurred.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -11876,9 +12071,6 @@
   "domainVerification": {
     "message": "Overenie domény"
   },
-  "newDomain": {
-    "message": "Nová doména"
-  },
   "addDomain": {
     "message": "Add domain"
   },
@@ -12247,9 +12439,6 @@
   },
   "groupSlashUser": {
     "message": "Skupina/Používateľ"
-  },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "Proceeding will log you out of all active sessions. You will need to log back in and complete two-step login, if any. We recommend exporting your vault before changing your encryption settings to prevent data loss."
   },
   "secretsManager": {
     "message": "Secrets Manager"
@@ -13867,10 +14056,6 @@
     "message": "Machine accounts",
     "description": "The title for the section that deals with machine accounts."
   },
-  "newMachineAccount": {
-    "message": "New machine account",
-    "description": "Title for creating a new machine account."
-  },
   "addMachineAccount": {
     "message": "Add machine account",
     "description": "Title for creating a new machine account."
@@ -14340,6 +14525,9 @@
   "organizationOptionsMenu": {
     "message": "Prepnúť menu organizácie"
   },
+  "vaultOptions": {
+    "message": "Vault options"
+  },
   "vaultItemSelect": {
     "message": "Vyberte položku z trezora"
   },
@@ -14500,6 +14688,40 @@
   },
   "billingPreviewInvoiceError": {
     "message": "Pri vytváraní náhľadu faktúry nastala chyba. Prosím skúste to neskor."
+  },
+  "billingPreviewInvalidAddressError": {
+    "message": "Please check your billing details and try again."
+  },
+  "planChangeTrialIncluded": {
+    "message": "This upgrade includes a $DAYS$-day trial. The total above is what you will be charged at the end of the trial.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "You have 1 day left in your trial. You will be charged the total above on $DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "You have $DAYS$ days left in your trial. You will be charged the total above on $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
   },
   "unverified": {
     "message": "Neoverený"
@@ -16000,7 +16222,7 @@
     "message": "Ak chcete obnoviť predplatné, kontaktujte zákaznícku podporu Bitwarden."
   },
   "showAll": {
-    "message": "Show all"
+    "message": "Zobraziť všetky"
   },
   "showMore": {
     "message": "Zobraziť viac"
@@ -16059,7 +16281,7 @@
     "message": "Skontrolujte formát vstupu na preklepy."
   },
   "taxIdFormatExample": {
-    "message": "Example tax ID format: $EXAMPLE$",
+    "message": "Príklad formátu pre daňové identifikačné číslo: $EXAMPLE$",
     "placeholders": {
       "example": {
         "content": "$1",
@@ -16068,7 +16290,7 @@
     }
   },
   "recognizedTaxIdFormat": {
-    "message": "Recognized format: $TYPE$",
+    "message": "Rozpoznaný formát: $TYPE$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -16811,8 +17033,8 @@
   "premiumSubscriptionCredit": {
     "message": "Kredit prémiového predplatného"
   },
-  "appliedSubscriptionCredits": {
-    "message": "Applied subscription credits"
+  "appliedProrationCredits": {
+    "message": "Applied proration credit"
   },
   "enterpriseMembership": {
     "message": "Členstvo Spoločnosť"
@@ -16976,6 +17198,15 @@
   },
   "coachmarkMonitorSecurityDescription": {
     "message": "Kontrolou reportov o zraniteľnostiach udržujte vysokú bezpečnosť položiek vo vašom trezore."
+  },
+  "tourTheNewVault": {
+    "message": "Tour the new vault"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "With updated navigation and design, it's easier than ever to find what you need."
+  },
+  "takeTheTour": {
+    "message": "Take the tour"
   },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Monitor security activity"
@@ -17837,6 +18068,9 @@
   "inviteLinkCalloutBody": {
     "message": "Anyone with a company email can use the invite link to join your organization. Drop it in onboarding resources so new hires can join when they're ready."
   },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "The tour uses sample data. Nothing in your organization will change."
+  },
   "inviteLinkCalloutImageAlt": {
     "message": "Invite members dialog preview showing the new by-link tab"
   },
@@ -17977,5 +18211,30 @@
   },
   "serviceAccountsProratedCharge": {
     "message": "Service accounts prorated charge"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden has a new look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explore the new vault",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "Customize your view"
+  },
+  "showColumns": {
+    "message": "Show columns"
+  },
+  "resetToDefault": {
+    "message": "Reset to default"
   }
 }
