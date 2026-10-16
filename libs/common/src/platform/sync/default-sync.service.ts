@@ -481,10 +481,6 @@ export class DefaultSyncService extends CoreSyncService {
    * Best-effort cleanup: failures are logged and swallowed so they never block or fail the sync.
    */
   private async retryPendingSendDeletions(userId: UserId) {
-    if (!(await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi))) {
-      return;
-    }
-
     try {
       await withPasswordManagerSdk(userId, this.sdkService, (sdk) =>
         sdk.sends().retry_pending_deletions(),
