@@ -5,7 +5,7 @@ import {
   reconstructIpcMessage,
   SerializedOutgoingMessage,
 } from "@bitwarden/common/platform/ipc";
-import { IncomingMessage, OutgoingMessage, Source } from "@bitwarden/sdk-internal";
+import { Endpoint, IncomingMessage, OutgoingMessage, Source } from "@bitwarden/sdk-internal";
 
 import { BrowserApi } from "../../browser/browser-api";
 
@@ -78,6 +78,13 @@ export class BrowserForegroundIpcTransport {
     const pending = this.pending;
     this.pending = [];
     pending.forEach((message) => this.deliver(message));
+  }
+
+  /**
+   * The endpoints of the extension pages that currently hold an open port, in connection order.
+   */
+  connectedEndpoints(): Endpoint[] {
+    return [...this.ports.keys()].map((id) => ({ BrowserForeground: { id } }));
   }
 
   async send(message: OutgoingMessage): Promise<void> {

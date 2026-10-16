@@ -106,6 +106,21 @@ describe("NativeMessagingMain", () => {
     expect(relayed).toHaveBeenCalled();
   });
 
+  it("lists connected clients", () => {
+    connect({ clientType: DesktopIpcPeerClientType.Chrome });
+    emit(null, { kind: ipc.IpcMessageType.Connected, clientId: 8 } as ipc.IpcMessage);
+
+    expect(sut.connectedClientIds()).toEqual([clientId, 8]);
+  });
+
+  it("stops listing a client once it disconnects", () => {
+    connect({ clientType: DesktopIpcPeerClientType.Chrome });
+
+    emit(null, { kind: ipc.IpcMessageType.Disconnected, clientId } as ipc.IpcMessage);
+
+    expect(sut.connectedClientIds()).toEqual([]);
+  });
+
   it("forgets the client type once the client disconnects, so a reused id is not stale", () => {
     connect({ clientType: DesktopIpcPeerClientType.Cli });
 

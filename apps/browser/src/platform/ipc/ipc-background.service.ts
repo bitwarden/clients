@@ -3,6 +3,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import {
+  BroadcastGroup,
+  BroadcastResolution,
   IpcCommunicationBackend,
   IncomingMessage,
   OutgoingMessage,
@@ -67,6 +69,13 @@ export class IpcBackgroundService extends IpcService {
           }
 
           throw new Error("Destination not supported.");
+        },
+        resolve: async (group: BroadcastGroup): Promise<BroadcastResolution> => {
+          if (group === "AllBrowserForeground") {
+            return { Endpoints: this.foregroundTransport.connectedEndpoints() };
+          }
+
+          return "Unsupported";
         },
       });
 

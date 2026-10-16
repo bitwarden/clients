@@ -145,6 +145,30 @@ describe("BrowserForegroundIpcTransport", () => {
     ).rejects.toThrow(DESTINATION_UNREACHABLE_ERROR);
   });
 
+  it("reports the endpoints of connected ports", () => {
+    connect(createPort().port);
+    connect(createPort().port);
+
+    expect(transport.connectedEndpoints()).toEqual([
+      { BrowserForeground: { id: 1 } },
+      { BrowserForeground: { id: 2 } },
+    ]);
+  });
+
+  it("stops reporting the endpoint of a disconnected port", () => {
+    const first = createPort();
+    connect(first.port);
+    connect(createPort().port);
+
+    first.disconnect();
+
+    expect(transport.connectedEndpoints()).toEqual([{ BrowserForeground: { id: 2 } }]);
+  });
+
+  it("reports no endpoints before any port connects", () => {
+    expect(transport.connectedEndpoints()).toEqual([]);
+  });
+
   it("removes the port on disconnect", async () => {
     const { port, disconnect } = createPort();
     connect(port);

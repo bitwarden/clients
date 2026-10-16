@@ -1,6 +1,12 @@
 import { Observable, shareReplay } from "rxjs";
 
-import { IpcClient, IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-internal";
+import {
+  BroadcastGroup,
+  IpcClient,
+  IpcEndpointSendResult,
+  IncomingMessage,
+  OutgoingMessage,
+} from "@bitwarden/sdk-internal";
 
 /**
  * Entry point for inter-process communication (IPC).
@@ -166,5 +172,25 @@ export abstract class IpcService {
    */
   async send(message: OutgoingMessage) {
     await this.client.send(message);
+  }
+
+  /**
+   * Sends a payload to every current member of a {@link BroadcastGroup}, one at a time, each over
+   * its own session.
+   *
+   * @param group The group to send to. This platform's communication backend decides which
+   *   endpoints are members.
+   * @param payload The payload sent to each member.
+   * @param topic The topic of each message.
+   * @returns One result per member. A failed send to one member, e.g. because it disconnected,
+   *   is reported in its result and does not stop delivery to the others.
+   * @throws If the service is not initialized, or if this platform cannot resolve the group.
+   */
+  async broadcast(
+    group: BroadcastGroup,
+    payload: Uint8Array,
+    topic?: string,
+  ): Promise<IpcEndpointSendResult[]> {
+    return await this.client.broadcast(group, payload, topic);
   }
 }
