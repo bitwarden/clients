@@ -132,6 +132,20 @@ describe("LowdbStorageService read cache", () => {
     await expect(service.get("key")).resolves.toEqual({ value: 1 });
   });
 
+  it("does not let a caller mutate nested stored values through a get", async () => {
+    await service.save("key", { list: [{ value: 1 }], nested: { value: 1 } });
+
+    const first = await service.get<any>("key");
+    first.list[0].value = 99;
+    first.list.push({ value: 2 });
+    first.nested.value = 99;
+
+    await expect(service.get("key")).resolves.toEqual({
+      list: [{ value: 1 }],
+      nested: { value: 1 },
+    });
+  });
+
   it("does not let a caller mutate the stored value after a save", async () => {
     const saved = { value: 1 };
     await service.save("key", saved);
