@@ -6,12 +6,14 @@ import { BehaviorSubject, firstValueFrom } from "rxjs";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { Measurement } from "@bitwarden/logging";
 
 import { makeEncString } from "../../../../spec";
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";
 import { FakeSingleUserState } from "../../../../spec/fake-state";
 import { FakeStateProvider } from "../../../../spec/fake-state-provider";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
+import { LogService } from "../../../platform/abstractions/log.service";
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
@@ -55,6 +57,7 @@ describe("Folder Service", () => {
       i18nService,
       cipherService,
       stateProvider,
+      mock<LogService>({ startMeasurement: () => mock<Measurement>() }),
     );
 
     folderState = stateProvider.singleUser.getFake(mockUserId, FOLDER_ENCRYPTED_FOLDERS);

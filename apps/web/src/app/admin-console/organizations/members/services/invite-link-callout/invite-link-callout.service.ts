@@ -4,6 +4,7 @@ import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -14,6 +15,7 @@ import {
 } from "@bitwarden/common/platform/state";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
+import { OrganizationInviteLinkService } from "@bitwarden/organization-invite-link";
 
 import {
   InviteLinkCalloutDialogComponent,
@@ -39,6 +41,7 @@ export class InviteLinkCalloutService {
   private memberDialogManager = inject(MemberDialogManagerService);
   private organizationMembersService = inject(OrganizationMembersService);
   private organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
+  private organizationInviteLinkService = inject(OrganizationInviteLinkService);
   private dialogService = inject(DialogService);
   private router = inject(Router);
 
@@ -96,6 +99,15 @@ export class InviteLinkCalloutService {
       return;
     }
 
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const existingLink = await firstValueFrom(
+      this.organizationInviteLinkService.inviteLink$(userId, organization.id),
+    );
+    if (existingLink != null) {
+      await this.dismiss(organization.id);
+      return;
+    }
+
     const dialogRef = InviteLinkCalloutDialogComponent.open(this.dialogService);
     const closedWith = await firstValueFrom(dialogRef.closed);
 
@@ -105,6 +117,13 @@ export class InviteLinkCalloutService {
       return;
     }
 
+    // TODO(guided-tour removal): the splash dialog ("Show me how") and the invite dialog it
+    // opens are permanent — keep opening the invite dialog on the By Link tab here. Only the
+    // guided-tour-specific pieces below need to go: drop `originUrl` and the final
+    // `navigateByUrl` call, and change the final `openInviteDialog(...)` argument from `true`
+    // (showCoachMarks) back to omitted/false. See the header comment in
+    // by-link-tab-tour.component.ts for the full removal checklist.
+    const originUrl = this.router.url;
     await this.router.navigate(["organizations", organization.id, "members"]);
 
     const billingMetadata = await firstValueFrom(
@@ -113,5 +132,9 @@ export class InviteLinkCalloutService {
     const allUsers = await this.organizationMembersService.loadUsers(organization);
 
     await this.memberDialogManager.openInviteDialog(organization, billingMetadata, allUsers, true);
+
+    // The tour never creates/mutates a real invite link, so once it's done there's nothing to
+    // keep the admin on the Members page for — send them back to wherever they started.
+    await this.router.navigateByUrl(originUrl);
   }
 }

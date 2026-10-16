@@ -7,8 +7,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { CollectionView, Unassigned } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -109,14 +107,12 @@ describe("VaultBatchBarService", () => {
   let mockBulkDeleteDialogOpen: jest.Mock;
   let mockBulkEditCollectionAccessDialogOpen: jest.Mock;
   let activeFilterSubject: BehaviorSubject<RoutedVaultFilterModel>;
-  let featureFlagSubject: BehaviorSubject<boolean>;
 
   beforeEach(() => {
     filterSubject = new BehaviorSubject<RoutedVaultFilterModel>({});
     organizationsSubject = new BehaviorSubject<Organization[]>([]);
     userCanArchiveSubject = new BehaviorSubject<boolean>(false);
     activeFilterSubject = new BehaviorSubject<RoutedVaultFilterModel>({});
-    featureFlagSubject = new BehaviorSubject<boolean>(false);
 
     mockCipherService = mock<CipherService>();
     mockCipherArchiveService = mock<CipherArchiveService>();
@@ -154,16 +150,6 @@ describe("VaultBatchBarService", () => {
           provide: RoutedVaultFilterBridgeService,
           useValue: { activeFilter$: activeFilterSubject },
         },
-        {
-          provide: ConfigService,
-          useValue: {
-            getFeatureFlag$: jest
-              .fn()
-              .mockImplementation((flag: FeatureFlag) =>
-                flag === FeatureFlag.PM37785_VaultBatchBar ? featureFlagSubject : of(false),
-              ),
-          },
-        },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: ASSIGN_COLLECTIONS_DIALOG, useValue: { open: mockAssignCollectionsDialogOpen } },
@@ -193,16 +179,6 @@ describe("VaultBatchBarService", () => {
           { provide: DialogService, useValue: mockDialogService },
           { provide: ToastService, useValue: mockToastService },
           { provide: AccountService, useValue: mockAccountService },
-          {
-            provide: ConfigService,
-            useValue: {
-              getFeatureFlag$: jest
-                .fn()
-                .mockImplementation((flag: FeatureFlag) =>
-                  flag === FeatureFlag.PM37785_VaultBatchBar ? featureFlagSubject : of(false),
-                ),
-            },
-          },
           { provide: I18nService, useValue: { t: (key: string) => key } },
           { provide: LogService, useValue: mock<LogService>() },
           {
@@ -430,6 +406,18 @@ describe("VaultBatchBarService", () => {
       expect(service.selectedCiphers()[0]).toBe(cipherItem.cipher);
     });
 
+    it("selectedCiphers excludes partial (PAM-gated) ciphers so no bulk action can modify them", () => {
+      const normalItem = makeCipherItem();
+      const partialItem = makeCipherItem({
+        id: "partial" as unknown as CipherId,
+        partial: true,
+      });
+
+      service.selection.select(normalItem, partialItem);
+
+      expect(service.selectedCiphers()).toEqual([normalItem.cipher]);
+    });
+
     it("selectedCollections returns only items with a collection", () => {
       const cipherItem = makeCipherItem();
       const collectionItem = makeCollectionItem();
@@ -448,24 +436,15 @@ describe("VaultBatchBarService", () => {
 
     it("returns true when at least one item is selected", () => {
       service.selection.select(makeCipherItem());
-      featureFlagSubject.next(true);
 
       expect(service.barVisible()).toBe(true);
     });
 
     it("returns false after selection is cleared", () => {
       service.selection.select(makeCipherItem());
-      featureFlagSubject.next(true);
 
       expect(service.barVisible()).toBe(true);
       service.selection.clear();
-
-      expect(service.barVisible()).toBe(false);
-    });
-
-    it("respects the feature flag", () => {
-      featureFlagSubject.next(false);
-      service.selection.select(makeCipherItem());
 
       expect(service.barVisible()).toBe(false);
     });
@@ -1116,6 +1095,20 @@ describe("VaultBatchBarService", () => {
       expect(mockBulkDeleteDialogOpen).toHaveBeenCalled();
       expect(mockToastService.showToast).not.toHaveBeenCalledWith(
         expect.objectContaining({ message: "missingPermissions" }),
+      );
+    });
+
+    it("excludes partial (PAM-gated) ciphers from the delete", async () => {
+      service.selection.select(
+        makeCipherItem({ id: "normal" as unknown as CipherId }),
+        makeCipherItem({ id: "partial" as unknown as CipherId, partial: true }),
+      );
+      mockBulkDeleteDialogOpen.mockResolvedValue(BulkDeleteDialogResult.Canceled);
+
+      await service.bulkDelete();
+
+      expect(mockBulkDeleteDialogOpen).toHaveBeenCalledWith(
+        expect.objectContaining({ cipherIds: ["normal"] }),
       );
     });
 

@@ -21,7 +21,6 @@ import { OrganizationInviteService } from "@bitwarden/common/auth/organization-i
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   AnonLayoutWrapperDataService,
@@ -77,7 +76,6 @@ export class ChangePasswordComponent implements OnInit {
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private organizationInviteService: OrganizationInviteService,
-    private messagingService: MessagingService,
     private toastService: ToastService,
     private dialogService: DialogService,
     private logService: LogService,
@@ -132,15 +130,14 @@ export class ChangePasswordComponent implements OnInit {
       type: "warning",
     });
 
-    if (confirmed) {
+    if (confirmed && this.userId != null) {
       await this.organizationInviteService.clearOrganizationInvite();
 
       if (this.changePasswordService.clearDeeplinkState) {
         await this.changePasswordService.clearDeeplinkState();
       }
 
-      // TODO: PM-23515 eventually use the logout service instead of messaging service once it is available without circular dependencies
-      this.messagingService.send("logout");
+      await this.logoutService.logout(this.userId, "userInitiated");
     }
   }
 
@@ -185,7 +182,7 @@ export class ChangePasswordComponent implements OnInit {
         this.passwordChanged.emit();
 
         // TODO: investigate refactoring logout and follow-up routing in https://bitwarden.atlassian.net/browse/PM-32660
-        await this.logoutService.logout(this.userId);
+        await this.logoutService.logout(this.userId, "passwordChanged");
 
         const shouldNavigateToRoot = this.changePasswordService.shouldNavigateToRoot();
         if (shouldNavigateToRoot) {

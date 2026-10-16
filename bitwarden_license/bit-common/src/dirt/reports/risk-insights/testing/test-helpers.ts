@@ -14,6 +14,7 @@
  * - Leverage existing utilities from @bitwarden/common/spec when appropriate
  */
 
+import { CipherHealthView } from "@bitwarden/common/dirt/models/view";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -22,7 +23,6 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
 import {
   AccessReportMetrics,
-  CipherHealthView,
   MemberRegistryEntryView,
   AccessReportSettingsView,
   ApplicationHealthView,
@@ -370,6 +370,7 @@ export function createReport(
   applicationName: string,
   memberRefs: Record<string, boolean> = {},
   cipherRefs: Record<string, boolean> = {},
+  iconUri?: string,
 ): ApplicationHealthView {
   const report = new ApplicationHealthView();
   report.applicationName = applicationName;
@@ -379,6 +380,17 @@ export function createReport(
   report.atRiskPasswordCount = Object.values(cipherRefs).filter((v) => v).length;
   report.memberCount = Object.keys(memberRefs).length;
   report.atRiskMemberCount = Object.values(memberRefs).filter((v) => v).length;
+
+  if (iconUri) {
+    const iconCipher = new CipherView();
+    iconCipher.id = getUniqueString("icon-cipher");
+    iconCipher.login = new LoginView();
+    const uriView = new LoginUriView();
+    uriView.uri = iconUri;
+    iconCipher.login.uris = [uriView];
+    report.iconCipher = iconCipher;
+  }
+
   return report;
 }
 

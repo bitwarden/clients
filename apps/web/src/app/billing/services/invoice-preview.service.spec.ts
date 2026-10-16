@@ -1,6 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, mockReset } from "jest-mock-extended";
 
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { InvoicePreview } from "@bitwarden/pricing";
 
@@ -8,6 +9,7 @@ import {
   InvoicePreviewClient,
   OrganizationPlanChangePreviewRequest,
   OrganizationPurchasePreviewRequest,
+  PremiumOrgUpgradePreviewRequest,
 } from "../clients/invoice-preview.client";
 
 import { InvoicePreviewService } from "./invoice-preview.service";
@@ -17,6 +19,11 @@ describe("InvoicePreviewService", () => {
   const mockLogService = mock<LogService>();
 
   let sut: InvoicePreviewService;
+
+  const premiumOrgUpgradeRequest: PremiumOrgUpgradePreviewRequest = {
+    targetProductTierType: ProductTierType.Enterprise,
+    billingAddress: { country: "US", postalCode: "12345" },
+  };
 
   // The real adapter is used throughout, so each method's baked flow context is observable
   // through the translation keys it produces.
@@ -30,9 +37,20 @@ describe("InvoicePreviewService", () => {
   });
 
   const organizationPurchase: OrganizationPurchasePreviewRequest = {
-    planTier: "families",
-    cadence: "monthly",
-    passwordManager: { seats: 5, additionalStorage: 0, sponsored: false },
+    purchase: {
+      tier: "families",
+      cadence: "monthly",
+      passwordManager: { seats: 5, additionalStorage: 0, sponsored: false },
+    },
+    billingAddress: {
+      country: "US",
+      postalCode: "12345",
+      line1: null,
+      line2: null,
+      city: null,
+      state: null,
+      taxId: null,
+    },
   };
 
   beforeEach(() => {
@@ -53,18 +71,30 @@ describe("InvoicePreviewService", () => {
     it("should bake the personal-checkout flow context", async () => {
       mockClient.previewPremiumPurchase.mockResolvedValue(preview("premium") as never);
 
-      const cart = await sut.previewPremiumPurchaseCart({ additionalStorage: 0 });
+      const cart = await sut.previewPremiumPurchaseCart({
+        additionalStorage: 0,
+        billingAddress: { country: "US", postalCode: "12345" },
+      });
 
       expect(cart.passwordManager.seats.translationKey).toBe("premiumMembership");
       expect(mockLogService.error).not.toHaveBeenCalled();
     });
 
-    it("should return an adapted cart carrying the authoritative total", async () => {
-      mockClient.previewPremiumPurchase.mockResolvedValue(preview("premium") as never);
+    it("should return an adapted cart with the gross total, amount due, and applied balance", async () => {
+      mockClient.previewPremiumPurchase.mockResolvedValue({
+        ...preview("premium"),
+        total: 259.6,
+        amountDue: 200,
+      } as never);
 
-      const cart = await sut.previewPremiumPurchaseCart({ additionalStorage: 0 });
+      const cart = await sut.previewPremiumPurchaseCart({
+        additionalStorage: 0,
+        billingAddress: { country: "US", postalCode: "12345" },
+      });
 
       expect(cart.total).toBe(259.6);
+      expect(cart.amountDue).toBe(200);
+      expect(cart.appliedBalance).toBe(59.6);
       expect(cart.estimatedTax).toBe(9.6);
     });
   });
@@ -96,10 +126,7 @@ describe("InvoicePreviewService", () => {
     it("should bake the premium-org-upgrade flow context", async () => {
       mockClient.previewPremiumOrgUpgrade.mockResolvedValue(preview("enterprise") as never);
 
-      const cart = await sut.previewPremiumOrgUpgradeCart({
-        planTier: "enterprise",
-        cadence: "annually",
-      });
+      const cart = await sut.previewPremiumOrgUpgradeCart(premiumOrgUpgradeRequest, "Enterprise");
 
       expect(cart.passwordManager.seats.translationKey).toBe("enterpriseMembership");
     });
@@ -108,17 +135,43 @@ describe("InvoicePreviewService", () => {
       mockClient.previewPremiumOrgUpgrade.mockResolvedValue({
         ...preview("enterprise"),
         passwordManager: {
-          seats: { reference: "pm-seat", quantity: 5, cost: 50 },
-          prorations: [{ credit: 20, charge: 0, tax: 0, total: 0, months: 6 }],
+          prorations: [{ credit: 20, charge: 30, tax: 0, total: 10, months: 6 }],
         },
       } as never);
 
-      const cart = await sut.previewPremiumOrgUpgradeCart({
-        planTier: "enterprise",
-        cadence: "annually",
-      });
+      const cart = await sut.previewPremiumOrgUpgradeCart(premiumOrgUpgradeRequest, "Enterprise");
 
       expect(cart.credit).toEqual({ translationKey: "premiumSubscriptionCredit", value: 20 });
+    });
+
+    it("should label the prorated seat row with the plan name and month count", async () => {
+      const response = {
+        ...preview("enterprise"),
+        passwordManager: {
+          prorations: [{ credit: 6.67, charge: 26.67, tax: 2, total: 20, months: 8 }],
+        },
+      };
+      mockClient.previewPremiumOrgUpgrade.mockResolvedValue(response as never);
+
+      const cart = await sut.previewPremiumOrgUpgradeCart(premiumOrgUpgradeRequest, "Enterprise");
+
+      // The server sends no seats line for this upgrade; the seat row is the prorated charge.
+      expect(cart.passwordManager.seats).toEqual({
+        translationKey: "planProratedMembershipInMonths",
+        translationParams: ["Enterprise", "8 months"],
+        quantity: 1,
+        cost: 26.67,
+        hideBreakdown: true,
+      });
+    });
+
+    it("should keep the plain membership label when the preview carries no prorations", async () => {
+      mockClient.previewPremiumOrgUpgrade.mockResolvedValue(preview("enterprise") as never);
+
+      const cart = await sut.previewPremiumOrgUpgradeCart(premiumOrgUpgradeRequest, "Enterprise");
+
+      expect(cart.passwordManager.seats.translationKey).toBe("enterpriseMembership");
+      expect(cart.passwordManager.seats.translationParams).toBeUndefined();
     });
   });
 
@@ -133,11 +186,12 @@ describe("InvoicePreviewService", () => {
       } as never);
 
       const cart = await sut.previewPlanChangeCart("org-id-123", {
-        planTier: "teams",
+        tier: "teams",
         cadence: "annually",
+        billingAddress: { country: "US", postalCode: "12345", taxId: null },
       });
 
-      expect(cart.credit).toEqual({ translationKey: "appliedSubscriptionCredits", value: 12.5 });
+      expect(cart.credit).toEqual({ translationKey: "appliedProrationCredits", value: 12.5 });
       expect(cart.passwordManager.seats.translationKey).toBe("passwordManagerPlanPrice");
       expect(mockLogService.error).not.toHaveBeenCalled();
     });
@@ -145,8 +199,9 @@ describe("InvoicePreviewService", () => {
     it("should pass the organization id through to the client", async () => {
       mockClient.previewOrganizationPlanChange.mockResolvedValue(preview("teams") as never);
       const request: OrganizationPlanChangePreviewRequest = {
-        planTier: "teams",
+        tier: "teams",
         cadence: "annually",
+        billingAddress: { country: "US", postalCode: "12345", taxId: null },
       };
 
       await sut.previewPlanChangeCart("org-id-123", request);
@@ -159,9 +214,12 @@ describe("InvoicePreviewService", () => {
     it("should let client errors propagate", async () => {
       mockClient.previewPremiumPurchase.mockRejectedValue(new Error("404 Not Found"));
 
-      await expect(sut.previewPremiumPurchaseCart({ additionalStorage: 0 })).rejects.toThrow(
-        "404 Not Found",
-      );
+      await expect(
+        sut.previewPremiumPurchaseCart({
+          additionalStorage: 0,
+          billingAddress: { country: "US", postalCode: "12345" },
+        }),
+      ).rejects.toThrow("404 Not Found");
     });
   });
 });

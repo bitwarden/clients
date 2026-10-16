@@ -5,14 +5,11 @@ import { ScrollingModule } from "@angular/cdk/scrolling";
 import { AsyncPipe, NgClass } from "@angular/common";
 import { Component, input, output, effect, inject, computed } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, Observable, of, switchMap } from "rxjs";
-import { map } from "rxjs/operators";
+import { Observable, of, switchMap } from "rxjs";
 
 import { BitSvg } from "@bitwarden/assets/svg";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -134,10 +131,7 @@ export class VaultListComponent<C extends CipherViewLike> {
   protected cipherAuthorizationService = inject(CipherAuthorizationService);
   protected restrictedItemTypesService = inject(RestrictedItemTypesService);
   private premiumUpgradePromptService = inject(PremiumUpgradePromptService);
-  private configService = inject(ConfigService);
-  private batchBarService = inject<VaultBatchBarService<C>>(VaultBatchBarService, {
-    optional: true,
-  });
+  private batchBarService = inject<VaultBatchBarService<C>>(VaultBatchBarService);
   private vaultCopyButtonsService = inject(VaultCopyButtonsService);
 
   /**
@@ -145,10 +139,7 @@ export class VaultListComponent<C extends CipherViewLike> {
    * Mirrors {@link VaultCipherRowComponent}'s own check, so the column reserves what the rows draw.
    */
   private readonly showQuickCopyActions = toSignal(
-    combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
-      this.vaultCopyButtonsService.showQuickCopyActions$,
-    ]).pipe(map(([flagEnabled, settingEnabled]) => flagEnabled && settingEnabled)),
+    this.vaultCopyButtonsService.showQuickCopyActions$,
     { initialValue: false },
   );
 
@@ -158,28 +149,13 @@ export class VaultListComponent<C extends CipherViewLike> {
 
   protected readonly ownerColumnWidthClass = OWNER_COLUMN_WIDTH_CLASS;
 
-  protected readonly showBatchBar = toSignal(
-    combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
-      this.configService.getFeatureFlag$(FeatureFlag.PM37785_DesktopVaultBatchBar),
-    ]).pipe(map(([batchBarFlag, desktopBatchBarFlag]) => batchBarFlag && desktopBatchBarFlag)),
-    { initialValue: false },
-  );
-
-  protected readonly barVisible = computed(
-    () => this.showBatchBar() && (this.batchBarService?.selectedCount() ?? 0) > 0,
-  );
-
-  protected readonly btnTextAddCreateFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
-    { initialValue: false },
-  );
+  protected readonly barVisible = computed(() => this.batchBarService.selectedCount() > 0);
 
   protected dataSource = new TableDataSource<VaultItem<C>>();
   private restrictedTypes: RestrictedCipherType[] = [];
 
   get selection(): SelectionModel<VaultItem<C>> {
-    return this.batchBarService?.selection;
+    return this.batchBarService.selection;
   }
 
   get isAllSelected(): boolean {

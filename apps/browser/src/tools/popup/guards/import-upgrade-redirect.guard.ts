@@ -11,8 +11,8 @@ import { ImportUpgradeNavigationService } from "../settings/import/import-upgrad
 /**
  * Blocks the extension's own legacy import route once the new import experience is enabled — that
  * flow always opens the new picker in its own extension tab instead (the picker doesn't fit inside
- * the popup). This is a safety net for a stale link or direct navigation; the two known entry
- * points into this route already check the flag themselves before navigating here.
+ * the popup). This is a safety net for a stale link or direct navigation; every known entry
+ * point into this route already checks the flag itself before navigating here.
  *
  * Redirects to `/tabs/vault` rather than just returning `false`: a plain cancellation never fires
  * `NavigationEnd`, so `PopupRouterCacheService` (which only advances its cache on `NavigationEnd`)

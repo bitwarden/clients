@@ -28,8 +28,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -137,7 +135,6 @@ export class CipherAttachmentsComponent {
     private accountService: AccountService,
     private apiService: ApiService,
     private organizationService: OrganizationService,
-    private configService: ConfigService,
   ) {
     this.attachmentForm.statusChanges.pipe(takeUntilDestroyed()).subscribe((status) => {
       const btn = this.submitBtn();
@@ -241,24 +238,16 @@ export class CipherAttachmentsComponent {
       return;
     }
 
-    const progressEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM34410AttachmentUploadProgress,
-    );
-
     try {
-      if (progressEnabled) {
-        this.uploadProgress.set(0);
-      }
+      this.uploadProgress.set(0);
       this.cipherDomain = await this.cipherService.saveAttachmentWithServer(
         this.cipherDomain,
         file,
         this.activeUserId,
         this.admin(),
-        progressEnabled
-          ? {
-              onProgress: (p) => this.uploadProgress.set(p),
-            }
-          : undefined,
+        {
+          onProgress: (p) => this.uploadProgress.set(p),
+        },
       );
 
       // re-decrypt the cipher to update the attachments
@@ -289,9 +278,7 @@ export class CipherAttachmentsComponent {
       });
       this.onUploadFailed.emit();
     } finally {
-      if (progressEnabled) {
-        this.uploadProgress.set(null);
-      }
+      this.uploadProgress.set(null);
     }
   };
 

@@ -118,10 +118,10 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden Password Manager</value>
+    <value>Bitwarden මුරපද කළමනාකරු</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>නිවසේ, කාර්යාලයේ හෝ ගමනේදී වුවද, Bitwarden ඔබේ සියලු මුරපද, පාස්කීස් සහ සංවේදී තොරතුරු පහසුවෙන් සුරක්ෂිත කරයි.</value>
   </data>
   <data name="Description" xml:space="preserve">
     <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
@@ -169,24 +169,24 @@ End-to-end encrypted credential management solutions from Bitwarden empower orga
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>නිවසේ, කාර්යාලයේ හෝ ගමනේදී වුවද, Bitwarden ඔබේ සියලු මුරපද, පාස්කීස් සහ සංවේදී තොරතුරු පහසුවෙන් සුරක්ෂිත කරයි.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
-    <value>Sync and access your vault from multiple devices</value>
+    <value>උපාංග කිහිපයකින් ඔබේ භාණ්ඩාගාරය සමමුහුර්ත කර ප්‍රවේශ වන්න</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
-    <value>Manage all your logins and passwords from a secure vault</value>
+    <value>සුරක්ෂිත භාණ්ඩාගාරයකින් ඔබේ සියලු පිවිසුම් සහ මුරපද කළමනාකරණය කරන්න</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
-    <value>Quickly auto-fill your login credentials into any website that you visit</value>
+    <value>ඔබ පිවිසෙන ඕනෑම වෙබ් අඩවියකට ඔබේ පිවිසුම් අක්තපත්‍ර ඉක්මනින් ස්වයංක්‍රීයව පුරවන්න</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
-    <value>Your vault is also conveniently accessible from the right-click menu</value>
+    <value>ඔබේ භාණ්ඩාගාරය දකුණු-ක්ලික් මෙනුවෙන් පහසුවෙන් ප්‍රවේශ විය හැක</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
-    <value>Automatically generate strong, random, and secure passwords</value>
+    <value>ශක්තිමත්, අහඹු සහ සුරක්ෂිත මුරපද ස්වයංක්‍රීයව ජනනය කරන්න</value>
   </data>
   <data name="ScreenshotEdit" xml:space="preserve">
-    <value>Your information is managed securely using AES-256 bit encryption</value>
+    <value>ඔබේ තොරතුරු AES-256 bit සංකේතනය භාවිතයෙන් සුරක්ෂිතව කළමනාකරණය කරනු ලැබේ</value>
   </data>
 </root>
