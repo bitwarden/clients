@@ -53,7 +53,7 @@ export class AccessStateBadgeComponent {
     if (state.kind === "active") {
       const remainingMs = state.expiresAt.getTime() - this.now();
       if (remainingMs <= 0) {
-        // The lease lapsed locally before a refetch.
+        // The lease lapsed locally before a refetch — show "Session ended".
         return this.staticRecipe("expired");
       }
       const remaining = formatRemaining(remainingMs);
