@@ -233,6 +233,7 @@ export class CollectionView implements View, ITreeNodeObject {
     view.manage = collection.manage;
     view.type = collection.type;
     view.defaultUserCollectionEmail = collection.defaultUserCollectionEmail;
+    view.hasEnabledAccessRule = collection.hasEnabledAccessRule;
     view.assigned = true;
     view.decryptionFailure = true;
 

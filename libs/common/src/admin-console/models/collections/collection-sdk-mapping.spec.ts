@@ -322,6 +322,14 @@ describe("CollectionView SDK mapping", () => {
       const mockOrg: any = { id: orgId };
       expect(result.canEditName(mockOrg)).toBe(false);
     });
+
+    it("keeps hasEnabledAccessRule so a governed collection still reads as governed", () => {
+      const source = makeCollection({ hasEnabledAccessRule: true });
+
+      const result = CollectionView.fromFailedDecryption(source);
+
+      expect(result.hasEnabledAccessRule).toBe(true);
+    });
   });
 
   describe("CollectionView.toSdkCollectionView", () => {
