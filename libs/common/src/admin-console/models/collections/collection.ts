@@ -101,7 +101,6 @@ export class Collection extends Domain {
     collection.manage = sdkCollection.manage;
     collection.defaultUserCollectionEmail = sdkCollection.defaultUserCollectionEmail;
     collection.type = sdkCollection.type;
-    // SdkCollection does not carry hasEnabledAccessRule; see toSdkCollection.
     return collection;
   }
 

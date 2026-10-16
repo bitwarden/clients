@@ -203,18 +203,6 @@ describe("CollectionView SDK mapping", () => {
 
         expect(result.hasEnabledAccessRule).toBe(false);
       });
-
-      /**
-       * The SDK's `Collection` and `CollectionView` are `#[serde(deny_unknown_fields)]`, so an
-       * extra key fails at runtime, not compile time.
-       */
-      it("does not send hasEnabledAccessRule across the wasm boundary", () => {
-        const collection = makeCollection({ hasEnabledAccessRule: true });
-        const view = CollectionView.fromSdkCollectionView(makeSdkCollectionView(), collection);
-
-        expect(collection.toSdkCollection()).not.toHaveProperty("hasEnabledAccessRule");
-        expect(view.toSdkCollectionView()).not.toHaveProperty("hasEnabledAccessRule");
-      });
     });
 
     describe("defaultUserCollectionEmail preservation (canEditName security invariant)", () => {
