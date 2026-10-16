@@ -4,6 +4,15 @@ import {
   OrganizationAuthRequestService,
   OrganizationAuthRequestApiService,
 } from "@bitwarden/bit-common/admin-console/auth-requests";
+import { ProjectService } from "@bitwarden/bit-sm/projects/project.service";
+import { SecretVersionService } from "@bitwarden/bit-sm/secrets/secret-version.service";
+import { SecretService } from "@bitwarden/bit-sm/secrets/secret.service";
+import { AccessService } from "@bitwarden/bit-sm/service-accounts/access/access.service";
+import { ServiceAccountEventLogApiService } from "@bitwarden/bit-sm/service-accounts/event-logs/service-account-event-log-api.service";
+import { ServiceAccountService } from "@bitwarden/bit-sm/service-accounts/service-account.service";
+import { SecretsManagerPortingApiService } from "@bitwarden/bit-sm/settings/services/sm-porting-api.service";
+import { AccessPolicyService } from "@bitwarden/bit-sm/shared/access-policies/access-policy.service";
+import { CountService } from "@bitwarden/bit-sm/shared/counts/count.service";
 import { ServiceContainer as OssServiceContainer } from "@bitwarden/cli/service-container/service-container";
 
 /**
@@ -13,6 +22,15 @@ import { ServiceContainer as OssServiceContainer } from "@bitwarden/cli/service-
 export class ServiceContainer extends OssServiceContainer {
   organizationAuthRequestApiService: OrganizationAuthRequestApiService;
   organizationAuthRequestService: OrganizationAuthRequestService;
+  accessPolicyService: AccessPolicyService;
+  projectService: ProjectService;
+  secretService: SecretService;
+  secretVersionService: SecretVersionService;
+  serviceAccountService: ServiceAccountService;
+  accessService: AccessService;
+  serviceAccountEventLogApiService: ServiceAccountEventLogApiService;
+  countService: CountService;
+  secretsManagerPortingApiService: SecretsManagerPortingApiService;
 
   constructor() {
     super();
@@ -23,6 +41,56 @@ export class ServiceContainer extends OssServiceContainer {
       this.legacyCompatKeyService,
       this.encryptService,
       this.organizationUserApiService,
+      this.accountService,
+    );
+
+    this.accessPolicyService = new AccessPolicyService(
+      this.keyService,
+      this.apiService,
+      this.encryptService,
+      this.accountService,
+      this.logService,
+    );
+    this.projectService = new ProjectService(
+      this.keyService,
+      this.apiService,
+      this.encryptService,
+      this.accountService,
+    );
+    this.secretService = new SecretService(
+      this.keyService,
+      this.apiService,
+      this.encryptService,
+      this.accessPolicyService,
+      this.accountService,
+    );
+    this.secretVersionService = new SecretVersionService(
+      this.keyService,
+      this.apiService,
+      this.encryptService,
+      this.accountService,
+    );
+    this.serviceAccountService = new ServiceAccountService(
+      this.keyService,
+      this.apiService,
+      this.encryptService,
+      this.accountService,
+      this.logService,
+    );
+    this.accessService = new AccessService(
+      this.keyService,
+      this.apiService,
+      this.keyGenerationService,
+      this.encryptService,
+      this.accountService,
+      this.logService,
+    );
+    this.serviceAccountEventLogApiService = new ServiceAccountEventLogApiService(this.apiService);
+    this.countService = new CountService(this.apiService);
+    this.secretsManagerPortingApiService = new SecretsManagerPortingApiService(
+      this.apiService,
+      this.encryptService,
+      this.keyService,
       this.accountService,
     );
   }
