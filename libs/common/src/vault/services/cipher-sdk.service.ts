@@ -3,7 +3,6 @@ import { firstValueFrom, switchMap, catchError } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { DECRYPT_ERROR } from "@bitwarden/legacy-crypto";
 import {
-  CipherListView,
   CipherView as SdkCipherView,
   CreateAttachmentRequest,
   CreatedAttachment,
@@ -480,23 +479,19 @@ export class DefaultCipherSdkService implements CipherSdkService {
     organizationId: string,
     userId: UserId,
     includeMemberItems: boolean,
-  ): Promise<[Cipher[], CipherListView[]]> {
+  ): Promise<DecryptAllCiphersResult> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
           using ref = sdk.take();
 
-          const result = await ref.value
+          const decryptResult = await ref.value
             .vault()
             .ciphers()
             .admin()
-            .list_org_ciphers(asUuid(organizationId), includeMemberItems);
+            .list_org_cipher_views(asUuid(organizationId), includeMemberItems);
 
-          const ciphers = result.ciphers
-            .map((c) => Cipher.fromSdkCipher(c))
-            .filter((c): c is Cipher => c !== undefined);
-
-          return [ciphers, result.listViews] as [Cipher[], CipherListView[]];
+          return this.toDecryptAllCiphersResult(decryptResult);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to list organization ciphers: ${error}`);
@@ -509,23 +504,19 @@ export class DefaultCipherSdkService implements CipherSdkService {
   async getManyFromApiForOrganization(
     organizationId: string,
     userId: UserId,
-  ): Promise<[Cipher[], CipherListView[]]> {
+  ): Promise<DecryptAllCiphersResult> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
           using ref = sdk.take();
 
-          const result = await ref.value
+          const decryptResult = await ref.value
             .vault()
             .ciphers()
             .admin()
-            .list_assigned_org_ciphers(asUuid(organizationId));
+            .list_assigned_org_cipher_views(asUuid(organizationId));
 
-          const ciphers = result.ciphers
-            .map((c) => Cipher.fromSdkCipher(c))
-            .filter((c): c is Cipher => c !== undefined);
-
-          return [ciphers, result.listViews] as [Cipher[], CipherListView[]];
+          return this.toDecryptAllCiphersResult(decryptResult);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to list assigned organization ciphers: ${error}`);

@@ -48,8 +48,8 @@ describe("DefaultCipherSdkService", () => {
       soft_delete_many: jest.fn().mockResolvedValue(undefined),
       restore: jest.fn().mockResolvedValue(undefined),
       restore_many: jest.fn().mockResolvedValue(undefined),
-      list_org_ciphers: jest.fn().mockResolvedValue({ ciphers: [], listViews: [] }),
-      list_assigned_org_ciphers: jest.fn().mockResolvedValue({ ciphers: [], listViews: [] }),
+      list_org_cipher_views: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
+      list_assigned_org_cipher_views: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
       list_org_login_ciphers: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
       update_collection: jest.fn(),
       delete_attachment: jest.fn().mockResolvedValue(undefined),
@@ -1152,11 +1152,12 @@ describe("DefaultCipherSdkService", () => {
       permissions: null,
     };
 
-    it("should list organization ciphers using SDK admin API", async () => {
-      const mockListView: any = { id: cipherId, name: "Org Cipher" };
-      mockAdminSdk.list_org_ciphers.mockResolvedValue({
-        ciphers: [mockSdkCipher],
-        listViews: [mockListView],
+    it("should list and decrypt organization ciphers using SDK admin API", async () => {
+      const mockSdkCipherView = new CipherView().toSdkCipherView();
+      mockSdkCipherView.name = "Org Cipher";
+      mockAdminSdk.list_org_cipher_views.mockResolvedValue({
+        successes: [mockSdkCipherView],
+        failures: [],
       });
 
       const result = await cipherSdkService.getAllFromApiForOrganization(orgId, userId, false);
@@ -1164,26 +1165,35 @@ describe("DefaultCipherSdkService", () => {
       expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
       expect(mockVaultSdk.ciphers).toHaveBeenCalled();
       expect(mockCiphersSdk.admin).toHaveBeenCalled();
-      expect(mockAdminSdk.list_org_ciphers).toHaveBeenCalledWith(orgId, false);
-      const [ciphers, listViews] = result;
-      expect(ciphers).toHaveLength(1);
-      expect(ciphers[0]).toBeInstanceOf(Cipher);
-      expect(listViews).toHaveLength(1);
+      expect(mockAdminSdk.list_org_cipher_views).toHaveBeenCalledWith(orgId, false);
+      expect(result.successes).toHaveLength(1);
+      expect(result.successes[0]).toBeInstanceOf(CipherView);
+      expect(result.successes[0].name).toBe("Org Cipher");
+      expect(result.failures).toHaveLength(0);
     });
 
     it("should pass includeMemberItems parameter to SDK", async () => {
-      mockAdminSdk.list_org_ciphers.mockResolvedValue({
-        ciphers: [],
-        listViews: [],
-      });
-
       await cipherSdkService.getAllFromApiForOrganization(orgId, userId, true);
 
-      expect(mockAdminSdk.list_org_ciphers).toHaveBeenCalledWith(orgId, true);
+      expect(mockAdminSdk.list_org_cipher_views).toHaveBeenCalledWith(orgId, true);
+    });
+
+    it("should return failures with decryptionFailure flag set", async () => {
+      mockAdminSdk.list_org_cipher_views.mockResolvedValue({
+        successes: [],
+        failures: [mockSdkCipher],
+      });
+
+      const result = await cipherSdkService.getAllFromApiForOrganization(orgId, userId, false);
+
+      expect(result.successes).toHaveLength(0);
+      expect(result.failures).toHaveLength(1);
+      expect(result.failures[0].id).toBe(cipherId);
+      expect(result.failures[0].decryptionFailure).toBe(true);
     });
 
     it("should throw error and log when SDK throws an error", async () => {
-      mockAdminSdk.list_org_ciphers.mockRejectedValue(new Error("SDK error"));
+      mockAdminSdk.list_org_cipher_views.mockRejectedValue(new Error("SDK error"));
 
       await expect(
         cipherSdkService.getAllFromApiForOrganization(orgId, userId, false),
@@ -1308,11 +1318,12 @@ describe("DefaultCipherSdkService", () => {
       permissions: null,
     };
 
-    it("should list assigned organization ciphers using SDK admin API", async () => {
-      const mockListView: any = { id: cipherId, name: "Org Cipher" };
-      mockAdminSdk.list_assigned_org_ciphers.mockResolvedValue({
-        ciphers: [mockSdkCipher],
-        listViews: [mockListView],
+    it("should list and decrypt assigned organization ciphers using SDK admin API", async () => {
+      const mockSdkCipherView = new CipherView().toSdkCipherView();
+      mockSdkCipherView.name = "Org Cipher";
+      mockAdminSdk.list_assigned_org_cipher_views.mockResolvedValue({
+        successes: [mockSdkCipherView],
+        failures: [],
       });
 
       const result = await cipherSdkService.getManyFromApiForOrganization(orgId, userId);
@@ -1320,30 +1331,34 @@ describe("DefaultCipherSdkService", () => {
       expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
       expect(mockVaultSdk.ciphers).toHaveBeenCalled();
       expect(mockCiphersSdk.admin).toHaveBeenCalled();
-      expect(mockAdminSdk.list_assigned_org_ciphers).toHaveBeenCalledWith(orgId);
-      const [ciphers, listViews] = result;
-      expect(ciphers).toHaveLength(1);
-      expect(ciphers[0]).toBeInstanceOf(Cipher);
-      expect(listViews).toHaveLength(1);
+      expect(mockAdminSdk.list_assigned_org_cipher_views).toHaveBeenCalledWith(orgId);
+      expect(result.successes).toHaveLength(1);
+      expect(result.successes[0]).toBeInstanceOf(CipherView);
+      expect(result.failures).toHaveLength(0);
     });
 
     it("should return empty arrays when SDK returns no ciphers", async () => {
-      mockAdminSdk.list_assigned_org_ciphers.mockResolvedValue({
-        ciphers: [],
-        listViews: [],
+      const result = await cipherSdkService.getManyFromApiForOrganization(orgId, userId);
+
+      expect(result.successes).toHaveLength(0);
+      expect(result.failures).toHaveLength(0);
+    });
+
+    it("should return failures with decryptionFailure flag set", async () => {
+      mockAdminSdk.list_assigned_org_cipher_views.mockResolvedValue({
+        successes: [],
+        failures: [mockSdkCipher],
       });
 
-      const [ciphers, listViews] = await cipherSdkService.getManyFromApiForOrganization(
-        orgId,
-        userId,
-      );
+      const result = await cipherSdkService.getManyFromApiForOrganization(orgId, userId);
 
-      expect(ciphers).toHaveLength(0);
-      expect(listViews).toHaveLength(0);
+      expect(result.failures).toHaveLength(1);
+      expect(result.failures[0].id).toBe(cipherId);
+      expect(result.failures[0].decryptionFailure).toBe(true);
     });
 
     it("should throw error and log when SDK throws an error", async () => {
-      mockAdminSdk.list_assigned_org_ciphers.mockRejectedValue(new Error("SDK error"));
+      mockAdminSdk.list_assigned_org_cipher_views.mockRejectedValue(new Error("SDK error"));
 
       await expect(cipherSdkService.getManyFromApiForOrganization(orgId, userId)).rejects.toThrow();
       expect(logService.error).toHaveBeenCalledWith(

@@ -641,13 +641,12 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     try {
-      const [ciphers] = await this.cipherSdkService.getAllFromApiForOrganization(
+      const { successes, failures } = await this.cipherSdkService.getAllFromApiForOrganization(
         organizationId,
         userId,
         includeMemberItems,
       );
-
-      const [cipherViews] = await this.cipherEncryptionService.decryptManyLegacy(ciphers, userId);
+      const cipherViews = [...successes, ...failures];
 
       // Sort by locale (matching existing behavior)
       cipherViews.sort(this.getLocaleSortingFunction());
@@ -666,12 +665,11 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     try {
-      const [ciphers] = await this.cipherSdkService.getManyFromApiForOrganization(
+      const { successes, failures } = await this.cipherSdkService.getManyFromApiForOrganization(
         organizationId,
         userId,
       );
-
-      const [cipherViews] = await this.cipherEncryptionService.decryptManyLegacy(ciphers, userId);
+      const cipherViews = [...successes, ...failures];
 
       cipherViews.sort(this.getLocaleSortingFunction());
 
