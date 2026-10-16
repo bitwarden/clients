@@ -1,6 +1,16 @@
-import { DestroyRef, Injectable, inject } from "@angular/core";
+import { DestroyRef, Injectable, NgZone, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { BehaviorSubject, Observable, combineLatest, concatMap, from, map } from "rxjs";
+import {
+  BehaviorSubject,
+  EMPTY,
+  Observable,
+  combineLatest,
+  concatMap,
+  distinctUntilChanged,
+  from,
+  map,
+  switchMap,
+} from "rxjs";
 
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -15,6 +25,7 @@ import {
   AccessRequestSdkService,
   AccessRequestView,
 } from "..";
+import { isLeaseLive } from "../helpers/lease-liveness";
 
 import {
   AccessNameResolverService,
@@ -47,6 +58,7 @@ export class MyAccessService {
   private readonly accessEvents = inject(AccessEventService);
   private readonly accessRefresh = inject(AccessRefreshService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly ngZone = inject(NgZone);
 
   private readonly _requests$ = new BehaviorSubject<AccessRequestView[]>([]);
   private readonly _leases$ = new BehaviorSubject<AccessLeaseView[]>([]);
@@ -70,8 +82,9 @@ export class MyAccessService {
   ]).pipe(
     map(([leases, requests, names]) => {
       const extByLease = extensionsByLeaseId(requests);
+      const nowMs = Date.now();
       return leases
-        .filter((l) => l.status === "active")
+        .filter((l) => l.status === "active" && isLeaseLive(l, nowMs))
         .map((l) => toLeaseRow(l, names, extByLease.get(uuidAsString(l.id))));
     }),
   );
@@ -151,6 +164,26 @@ export class MyAccessService {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
+
+    this._leases$
+      .pipe(
+        map(nextLapseMs),
+        distinctUntilChanged(),
+        switchMap((endMs) => (endMs == null ? EMPTY : this.lapseAt(endMs))),
+        concatMap(() => from(this.load())),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+  }
+
+  private lapseAt(endMs: number): Observable<void> {
+    return new Observable<void>((subscriber) => {
+      let id: ReturnType<typeof setTimeout>;
+      this.ngZone.runOutsideAngular(() => {
+        id = setTimeout(() => subscriber.next(), Math.max(0, endMs - Date.now()));
+      });
+      return () => clearTimeout(id);
+    });
   }
 
   async load(): Promise<void> {
@@ -255,4 +288,13 @@ function refsFor(
       collectionId: uuidAsString(l.collectionId),
     })),
   ];
+}
+
+function nextLapseMs(leases: AccessLeaseView[]): number | null {
+  const nowMs = Date.now();
+  const ends = leases
+    .filter((l) => l.status === "active")
+    .map((l) => Date.parse(l.notAfter))
+    .filter((ms) => Number.isFinite(ms) && ms > nowMs);
+  return ends.length === 0 ? null : Math.min(...ends);
 }
