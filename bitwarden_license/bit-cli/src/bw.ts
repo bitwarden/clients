@@ -2,6 +2,7 @@ import "core-js/proposals/explicit-resource-management";
 
 import { program } from "commander";
 
+import { exitAfterCommand } from "@bitwarden/cli/exit-after-command";
 import { registerOssPrograms } from "@bitwarden/cli/register-oss-programs";
 import { ServeProgram } from "@bitwarden/cli/serve.program";
 
@@ -19,7 +20,9 @@ async function main() {
   const serveConfigurator = new BitServeConfigurator(serviceContainer);
   new ServeProgram(serviceContainer, serveConfigurator).register();
 
-  program.parse(process.argv);
+  await program.parseAsync(process.argv);
+
+  exitAfterCommand(program.args[0]);
 }
 
 // Node does not support top-level await statements until ES2022, esnext, etc which we don't use yet
