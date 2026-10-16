@@ -6,6 +6,14 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { ServiceContainer } from "../service-container";
 
+import { AccessTokenCreateCommand } from "./access-tokens/access-token-create.command";
+import { AccessTokenListCommand } from "./access-tokens/access-token-list.command";
+import { AccessTokenRevokeCommand } from "./access-tokens/access-token-revoke.command";
+import { MachineAccountCreateCommand } from "./machine-accounts/machine-account-create.command";
+import { MachineAccountDeleteCommand } from "./machine-accounts/machine-account-delete.command";
+import { MachineAccountEditCommand } from "./machine-accounts/machine-account-edit.command";
+import { MachineAccountGetCommand } from "./machine-accounts/machine-account-get.command";
+import { MachineAccountListCommand } from "./machine-accounts/machine-account-list.command";
 import { ProjectCreateCommand } from "./projects/project-create.command";
 import { ProjectDeleteCommand } from "./projects/project-delete.command";
 import { ProjectEditCommand } from "./projects/project-edit.command";
@@ -38,6 +46,10 @@ type TrashOptions = OrgOptions & {
   all?: boolean;
 };
 
+type MachineAccountOptions = OrgOptions & {
+  machineaccountid: string;
+};
+
 export class SmProgram extends BaseProgram {
   constructor(protected serviceContainer: ServiceContainer) {
     super(serviceContainer);
@@ -56,6 +68,8 @@ export class SmProgram extends BaseProgram {
       .hook("preAction", () => this.exitIfFeatureFlagDisabled(FeatureFlag.SmCli))
       .addCommand(this.projectCommand())
       .addCommand(this.secretCommand())
+      .addCommand(this.machineAccountCommand())
+      .addCommand(this.accessTokenCommand())
       .addCommand(this.trashCommand())
       .addCommand(this.templateCommand())
       .on("--help", () => {
@@ -63,6 +77,7 @@ export class SmProgram extends BaseProgram {
         writeLn("");
         writeLn("    bw sm project list --organizationid <organizationid>");
         writeLn("    bw sm secret list --organizationid <organizationid> --projectid <projectid>");
+        writeLn("    bw sm machine-account list --organizationid <organizationid>");
         writeLn("    bw sm template sm-secret");
         writeLn("", true);
       });
@@ -362,6 +377,240 @@ export class SmProgram extends BaseProgram {
               options.organizationid,
               secretId,
               versionId,
+            );
+            this.processResponse(response);
+          }),
+      );
+  }
+
+  private machineAccountCommand(): Command {
+    return new Command("machine-account")
+      .description("Manage Secrets Manager machine accounts.")
+      .addCommand(
+        new Command("list")
+          .description("List the machine accounts you can access in an organization.")
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .on("--help", () => {
+            writeLn("\n  Examples:");
+            writeLn("");
+            writeLn("    bw sm machine-account list --organizationid <organizationid>");
+            writeLn("", true);
+          })
+          .action(async (options: OrgOptions) => {
+            await this.exitIfLocked();
+            const response = await MachineAccountListCommand.create(this.serviceContainer).run(
+              options.organizationid,
+            );
+            this.processResponse(response);
+          }),
+      )
+      .addCommand(
+        new Command("get")
+          .description("Get a machine account.")
+          .argument("<machineAccountId>", "The id of the machine account")
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .on("--help", () => {
+            writeLn("\n  Examples:");
+            writeLn("");
+            writeLn(
+              "    bw sm machine-account get <machineAccountId> --organizationid <organizationid>",
+            );
+            writeLn("", true);
+          })
+          .action(async (machineAccountId: string, options: OrgOptions) => {
+            await this.exitIfLocked();
+            const response = await MachineAccountGetCommand.create(this.serviceContainer).run(
+              options.organizationid,
+              machineAccountId,
+            );
+            this.processResponse(response);
+          }),
+      )
+      .addCommand(
+        new Command("create")
+          .description("Create a machine account.")
+          .argument("[encodedJson]", ENCODED_JSON_DESCRIPTION)
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .on("--help", () => {
+            writeLn("\n  Examples:");
+            writeLn("");
+            writeLn(
+              "    bw sm template sm-machine-account | jq '.name=\"CI\"' | bw encode | bw sm machine-account create --organizationid <organizationid>",
+            );
+            writeLn("", true);
+          })
+          .action(async (encodedJson: string | undefined, options: OrgOptions) => {
+            await this.exitIfLocked();
+            const response = await MachineAccountCreateCommand.create(this.serviceContainer).run(
+              options.organizationid,
+              encodedJson,
+            );
+            this.processResponse(response);
+          }),
+      )
+      .addCommand(
+        new Command("edit")
+          .description("Rename a machine account.")
+          .argument("<machineAccountId>", "The id of the machine account")
+          .argument("[encodedJson]", ENCODED_JSON_DESCRIPTION)
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .on("--help", () => {
+            writeLn("\n  Examples:");
+            writeLn("");
+            writeLn(
+              '    echo \'{"name":"CI"}\' | bw encode | bw sm machine-account edit <machineAccountId> --organizationid <organizationid>',
+            );
+            writeLn("", true);
+          })
+          .action(
+            async (
+              machineAccountId: string,
+              encodedJson: string | undefined,
+              options: OrgOptions,
+            ) => {
+              await this.exitIfLocked();
+              const response = await MachineAccountEditCommand.create(this.serviceContainer).run(
+                options.organizationid,
+                machineAccountId,
+                encodedJson,
+              );
+              this.processResponse(response);
+            },
+          ),
+      )
+      .addCommand(
+        new Command("delete")
+          .description("Permanently delete one or more machine accounts.")
+          .argument("<machineAccountIds...>", "The ids of the machine accounts")
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .on("--help", () => {
+            writeLn("\n  Notes:");
+            writeLn("");
+            writeLn("    The machine accounts' access tokens stop working immediately.");
+            writeLn("");
+            writeLn("  Examples:");
+            writeLn("");
+            writeLn(
+              "    bw sm machine-account delete <machineAccountId> --organizationid <organizationid>",
+            );
+            writeLn("", true);
+          })
+          .action(async (machineAccountIds: string[], options: OrgOptions) => {
+            await this.exitIfLocked();
+            const response = await MachineAccountDeleteCommand.create(this.serviceContainer).run(
+              options.organizationid,
+              machineAccountIds,
+            );
+            this.processResponse(response);
+          }),
+      );
+  }
+
+  private accessTokenCommand(): Command {
+    const machineAccountOption = "--machineaccountid <machineaccountid>";
+    const machineAccountDescription = "The machine account id (required)";
+
+    return new Command("access-token")
+      .description("Manage machine account access tokens.")
+      .addCommand(
+        new Command("list")
+          .description("List a machine account's access tokens.")
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .requiredOption(machineAccountOption, machineAccountDescription)
+          .on("--help", () => {
+            writeLn("\n  Examples:");
+            writeLn("");
+            writeLn(
+              "    bw sm access-token list --organizationid <organizationid> --machineaccountid <machineaccountid>",
+            );
+            writeLn("", true);
+          })
+          .action(async (options: MachineAccountOptions) => {
+            await this.exitIfLocked();
+            const response = await AccessTokenListCommand.create(this.serviceContainer).run(
+              options.organizationid,
+              options.machineaccountid,
+            );
+            this.processResponse(response);
+          }),
+      )
+      .addCommand(
+        new Command("create")
+          .description("Create an access token for a machine account.")
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .requiredOption(machineAccountOption, machineAccountDescription)
+          .requiredOption("--name <name>", "The name of the access token (required)")
+          .option(
+            "--expires <date|never>",
+            'When the access token expires, as an ISO 8601 date, or "never" for a token that does not expire. Defaults to never.',
+          )
+          .on("--help", () => {
+            writeLn("\n  Notes:");
+            writeLn("");
+            writeLn("    The access token is only shown once and cannot be retrieved later.");
+            writeLn("    Store it somewhere safe before closing your terminal.");
+            writeLn("");
+            writeLn("    Use --raw to print only the access token.");
+            writeLn("");
+            writeLn("    --expires accepts an ISO 8601 date, or never (also none) for a token");
+            writeLn("    that does not expire. Omitting --expires is the same as never.");
+            writeLn("");
+            writeLn("    With `bw serve`, `expires` is required in the JSON body of");
+            writeLn(
+              "    POST /sm/<organizationid>/machine-accounts/<machineaccountid>/access-tokens.",
+            );
+            writeLn("");
+            writeLn("  Examples:");
+            writeLn("");
+            writeLn(
+              '    bw sm access-token create --organizationid <organizationid> --machineaccountid <machineaccountid> --name "CI"',
+            );
+            writeLn(
+              '    bw sm access-token create --organizationid <organizationid> --machineaccountid <machineaccountid> --name "CI" --expires never',
+            );
+            writeLn(
+              '    bw sm access-token create --organizationid <organizationid> --machineaccountid <machineaccountid> --name "CI" --expires 2026-12-31 --raw',
+            );
+            writeLn("", true);
+          })
+          .action(async (options: MachineAccountOptions & { name: string; expires?: string }) => {
+            await this.exitIfLocked();
+            const response = await AccessTokenCreateCommand.create(this.serviceContainer).run(
+              options.organizationid,
+              options.machineaccountid,
+              {
+                name: options.name,
+                expires: options.expires,
+                raw: process.env.BW_RAW === "true",
+              },
+            );
+            this.processResponse(response);
+          }),
+      )
+      .addCommand(
+        new Command("revoke")
+          .description("Revoke one or more of a machine account's access tokens.")
+          .argument("<accessTokenIds...>", "The ids of the access tokens")
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .requiredOption(machineAccountOption, machineAccountDescription)
+          .on("--help", () => {
+            writeLn("\n  Notes:");
+            writeLn("");
+            writeLn("    Revoked access tokens stop working immediately.");
+            writeLn("");
+            writeLn("  Examples:");
+            writeLn("");
+            writeLn(
+              "    bw sm access-token revoke <accessTokenId> --organizationid <organizationid> --machineaccountid <machineaccountid>",
+            );
+            writeLn("", true);
+          })
+          .action(async (accessTokenIds: string[], options: MachineAccountOptions) => {
+            await this.exitIfLocked();
+            const response = await AccessTokenRevokeCommand.create(this.serviceContainer).run(
+              options.organizationid,
+              options.machineaccountid,
+              accessTokenIds,
             );
             this.processResponse(response);
           }),
