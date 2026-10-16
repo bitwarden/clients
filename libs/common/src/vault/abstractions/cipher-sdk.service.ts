@@ -1,8 +1,4 @@
-import {
-  CipherListView,
-  CreateAttachmentRequest,
-  CreatedAttachment,
-} from "@bitwarden/sdk-internal";
+import { CreateAttachmentRequest, CreatedAttachment } from "@bitwarden/sdk-internal";
 
 import {
   CipherId,
@@ -282,32 +278,32 @@ export abstract class CipherSdkService {
   abstract getAllDecrypted(userId: UserId): Promise<DecryptAllCiphersResult>;
 
   /**
-   * Fetches all ciphers for an organization from the API using the SDK.
-   * Returns encrypted ciphers for on-demand decryption and lightweight list views for display.
+   * Fetches all ciphers for an organization from the API and decrypts them to full cipher views
+   * using the SDK.
    *
    * @param organizationId The organization ID to fetch ciphers for
    * @param userId The user ID to use for SDK client
    * @param includeMemberItems Whether to include member items
-   * @returns A promise that resolves to the encrypted ciphers and decrypted list views
+   * @returns A promise that resolves to the decrypted ciphers and the ciphers that failed to decrypt
    */
   abstract getAllFromApiForOrganization(
     organizationId: string,
     userId: UserId,
     includeMemberItems: boolean,
-  ): Promise<[Cipher[], CipherListView[]]>;
+  ): Promise<DecryptAllCiphersResult>;
 
   /**
-   * Fetches the ciphers an organization member is assigned to (via collections) using the SDK.
-   * Returns encrypted ciphers for on-demand decryption and lightweight list views for display.
+   * Fetches the ciphers an organization member is assigned to (via collections) and decrypts them
+   * to full cipher views using the SDK.
    *
    * @param organizationId The organization ID to fetch ciphers for
    * @param userId The user ID to use for SDK client
-   * @returns A promise that resolves to the encrypted ciphers and decrypted list views
+   * @returns A promise that resolves to the decrypted ciphers and the ciphers that failed to decrypt
    */
   abstract getManyFromApiForOrganization(
     organizationId: string,
     userId: UserId,
-  ): Promise<[Cipher[], CipherListView[]]>;
+  ): Promise<DecryptAllCiphersResult>;
 
   /**
    * Fetches all Login ciphers for an organization, including those in default user collections,

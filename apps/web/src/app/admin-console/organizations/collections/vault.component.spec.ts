@@ -10,7 +10,10 @@ import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstract
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+// POC-PERF: TEMPORARY SPEED TEST IMPORT. Remove before release.
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+// POC-PERF: END
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -140,6 +143,9 @@ describe("VaultComponent", () => {
         { provide: SearchService, useValue: mock<SearchService>() },
         { provide: GroupApiService, useValue: groupService },
         { provide: LogService, useValue: mock<LogService>() },
+        // POC-PERF: TEMPORARY SPEED TEST PROVIDER. Remove before release.
+        { provide: SdkService, useValue: mock<SdkService>() },
+        // POC-PERF: END
         {
           provide: BillingApiServiceAbstraction,
           useValue: mock<BillingApiServiceAbstraction>(),
