@@ -100,15 +100,23 @@
         @if (cipherFor(row.cipherId); as cipher) {
           <app-vault-icon slot="start" [cipher]="cipher" />
         }
-        <!-- Opens the detail dialog, which carries the full request. -->
-        <a [routerLink]="['/pam/requests', row.id]" [id]="'pam-history-tab_link_item-' + row.id">{{
-          row.cipherName
-        }}</a>
+        <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-1.5">
+          <!-- Opens the detail dialog, which carries the full request. -->
+          <a
+            class="tw-truncate"
+            [routerLink]="['/pam/requests', row.id]"
+            [id]="'pam-history-tab_link_item-' + row.id"
+            >{{ row.cipherName }}</a
+          >
+          <!-- Every gated item is organization-owned; marked as the vault items table marks one. -->
+          <bit-icon
+            name="bwi-business"
+            class="tw-shrink-0 tw-text-muted"
+            [ariaLabel]="'organization' | i18n"
+          />
+        </span>
         @if (row.collectionName) {
-          <span slot="secondary" class="tw-flex tw-items-center tw-gap-1">
-            <bit-icon name="bwi-collection-shared" class="tw-shrink-0" />
-            {{ "pamInboxInCollection" | i18n: row.collectionName }}
-          </span>
+          <span slot="secondary">{{ "pamInboxInCollection" | i18n: row.collectionName }}</span>
         }
       </bit-cell>
     </bit-column>
