@@ -14,12 +14,16 @@ import { SmAccessPermissions, SmAccessTargets } from "./access/sm-access-policie
 import { AccessTokenCreateCommand } from "./access-tokens/access-token-create.command";
 import { AccessTokenListCommand } from "./access-tokens/access-token-list.command";
 import { AccessTokenRevokeCommand } from "./access-tokens/access-token-revoke.command";
+import { CountsCommand } from "./counts/counts.command";
+import { EventsCommand } from "./events/events.command";
 import { GranteesListCommand, SmGranteeKinds } from "./grantees/grantees-list.command";
 import { MachineAccountCreateCommand } from "./machine-accounts/machine-account-create.command";
 import { MachineAccountDeleteCommand } from "./machine-accounts/machine-account-delete.command";
 import { MachineAccountEditCommand } from "./machine-accounts/machine-account-edit.command";
 import { MachineAccountGetCommand } from "./machine-accounts/machine-account-get.command";
 import { MachineAccountListCommand } from "./machine-accounts/machine-account-list.command";
+import { SmExportCommand } from "./porting/sm-export.command";
+import { SmImportCommand } from "./porting/sm-import.command";
 import { ProjectCreateCommand } from "./projects/project-create.command";
 import { ProjectDeleteCommand } from "./projects/project-delete.command";
 import { ProjectEditCommand } from "./projects/project-edit.command";
@@ -79,6 +83,10 @@ export class SmProgram extends BaseProgram {
       .addCommand(this.trashCommand())
       .addCommand(this.accessCommand())
       .addCommand(this.granteesCommand())
+      .addCommand(this.countsCommand())
+      .addCommand(this.eventsCommand())
+      .addCommand(this.exportCommand())
+      .addCommand(this.importCommand())
       .addCommand(this.templateCommand())
       .on("--help", () => {
         writeLn("\n  Examples:");
@@ -882,6 +890,138 @@ export class SmProgram extends BaseProgram {
             this.processResponse(response);
           }),
       );
+  }
+
+  private countsCommand(): Command {
+    return new Command("counts")
+      .description(
+        "Show Secrets Manager object counts for an organization, project, or machine account.",
+      )
+      .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+      .option("--projectid <projectid>", "Show counts for this project")
+      .option("--machineaccountid <machineaccountid>", "Show counts for this machine account")
+      .on("--help", () => {
+        writeLn("\n  Examples:");
+        writeLn("");
+        writeLn("    bw sm counts --organizationid <organizationid>");
+        writeLn("    bw sm counts --organizationid <organizationid> --projectid <projectid>");
+        writeLn(
+          "    bw sm counts --organizationid <organizationid> --machineaccountid <machineaccountid>",
+        );
+        writeLn("", true);
+      })
+      .action(async (options: OrgOptions & { projectid?: string; machineaccountid?: string }) => {
+        await this.exitIfLocked();
+        const response = await CountsCommand.create(this.serviceContainer).run(
+          options.organizationid,
+          { projectId: options.projectid, machineAccountId: options.machineaccountid },
+        );
+        this.processResponse(response);
+      });
+  }
+
+  private eventsCommand(): Command {
+    return new Command("events")
+      .description("List the event logs for a machine account.")
+      .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+      .requiredOption("--machineaccountid <machineaccountid>", "The machine account id (required)")
+      .requiredOption("--start <start>", "Start of the date range, e.g. 2026-01-01 (required)")
+      .requiredOption("--end <end>", "End of the date range, e.g. 2026-01-31T23:59:59Z (required)")
+      .on("--help", () => {
+        writeLn("\n  Examples:");
+        writeLn("");
+        writeLn(
+          "    bw sm events --organizationid <organizationid> --machineaccountid <machineaccountid> --start 2026-01-01 --end 2026-02-01",
+        );
+        writeLn("", true);
+      })
+      .action(
+        async (options: OrgOptions & { machineaccountid: string; start: string; end: string }) => {
+          await this.exitIfLocked();
+          const response = await EventsCommand.create(this.serviceContainer).run(
+            options.organizationid,
+            {
+              machineAccountId: options.machineaccountid,
+              start: options.start,
+              end: options.end,
+            },
+          );
+          this.processResponse(response);
+        },
+      );
+  }
+
+  private exportCommand(): Command {
+    return new Command("export")
+      .description("Export an organization's Secrets Manager projects and secrets.")
+      .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+      .option("--output <output>", "Output directory or filename. Writes to stdout when omitted.")
+      .option("--passwordenv <passwordenv>", "Environment variable storing your master password")
+      .option(
+        "--passwordfile <passwordfile>",
+        "Path to a file containing your master password as its first line",
+      )
+      .on("--help", () => {
+        writeLn("\n  Notes:");
+        writeLn("");
+        writeLn("    Only organization owners and admins can export. The export contains");
+        writeLn("    decrypted secret values; store it securely.");
+        writeLn("");
+        writeLn("    Exporting requires your master password. You are prompted for it unless");
+        writeLn("    --passwordfile or --passwordenv is given. With --nointeraction, one of");
+        writeLn("    these options is required.");
+        writeLn("");
+        writeLn("    With `bw serve`, send the master password as `password` in the JSON body");
+        writeLn("    of POST /sm/<organizationid>/export.");
+        writeLn("");
+        writeLn("  Examples:");
+        writeLn("");
+        writeLn("    bw sm export --organizationid <organizationid>");
+        writeLn("    bw sm export --organizationid <organizationid> --output ./sm-export.json");
+        writeLn("    bw sm export --organizationid <organizationid> --passwordfile ~/.bw-password");
+        writeLn("", true);
+      })
+      .action(
+        async (
+          options: OrgOptions & { output?: string; passwordenv?: string; passwordfile?: string },
+        ) => {
+          await this.exitIfLocked();
+          const response = await SmExportCommand.create(this.serviceContainer).run(
+            options.organizationid,
+            {
+              output: options.output,
+              passwordEnv: options.passwordenv,
+              passwordFile: options.passwordfile,
+            },
+          );
+          this.processResponse(response);
+        },
+      );
+  }
+
+  private importCommand(): Command {
+    return new Command("import")
+      .description("Import Secrets Manager projects and secrets into an organization.")
+      .argument("<file>", "A file from `bw sm export` or the web vault's Secrets Manager export")
+      .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+      .on("--help", () => {
+        writeLn("\n  Notes:");
+        writeLn("");
+        writeLn("    Only organization owners and admins can import.");
+        writeLn("");
+        writeLn("  Examples:");
+        writeLn("");
+        writeLn("    bw sm import ./sm-export.json --organizationid <organizationid>");
+        writeLn("", true);
+      })
+      .action(async (file: string, options: OrgOptions) => {
+        await this.exitIfLocked();
+        const response = await SmImportCommand.create(this.serviceContainer).run(
+          options.organizationid,
+          { file },
+        );
+        this.processResponse(response);
+      });
   }
 
   private templateCommand(): Command {
