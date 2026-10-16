@@ -341,11 +341,14 @@ describe("HistoryTabComponent", () => {
       expect(time.querySelector(".tw-sr-only")?.textContent).toContain("2026");
     });
 
-    it("marks the shared folder with the shared-folder icon", () => {
+    it("marks the item as organization-owned beside its name, then names its folder", () => {
       const item = query('[data-testid="my-access-history-okta"]')!;
+      const icon = item.querySelector('bit-icon[name="bwi-business"]');
 
-      expect(item.querySelector('bit-icon[name="bwi-collection-shared"]')).not.toBeNull();
+      expect(icon).not.toBeNull();
+      expect(icon?.previousElementSibling?.textContent?.trim()).toBe("Okta admin");
       expect(text(item)).toContain("pamInboxInCollection Identity");
+      expect(item.querySelector('bit-icon[name="bwi-collection-shared"]')).toBeNull();
     });
 
     it("links each item to its request", () => {
